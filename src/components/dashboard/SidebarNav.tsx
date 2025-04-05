@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { 
   LayoutDashboard, 
   MessageSquare, 
@@ -83,12 +84,12 @@ const SidebarNav = ({ userType, userName = "User" }: SidebarNavProps) => {
       {/* Sidebar */}
       <div 
         className={cn(
-          "fixed top-0 left-0 h-full bg-white border-r border-gray-200 z-40 transition-all duration-300 flex flex-col",
+          "fixed top-0 left-0 h-full bg-sidebar border-r border-sidebar-border z-40 transition-all duration-300 flex flex-col",
           collapsed ? "w-20" : "w-64",
           mobileOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
         )}
       >
-        <div className="p-4 border-b border-gray-200 flex items-center justify-between">
+        <div className="p-4 border-b border-sidebar-border flex items-center justify-between">
           <div className={cn("flex items-center gap-2", collapsed && "justify-center")}>
             <img 
               src="/lovable-uploads/ffd1ed0a-7a25-477e-bc91-1da9aca3497f.png" 
@@ -117,7 +118,7 @@ const SidebarNav = ({ userType, userName = "User" }: SidebarNavProps) => {
             {!collapsed && (
               <div className="text-center">
                 <p className="font-medium">{userName}</p>
-                <p className="text-xs text-gray-500 capitalize">{userType}</p>
+                <p className="text-xs text-muted-foreground capitalize">{userType}</p>
               </div>
             )}
           </div>
@@ -132,7 +133,7 @@ const SidebarNav = ({ userType, userName = "User" }: SidebarNavProps) => {
                     "flex items-center gap-3 px-3 py-2 rounded-md transition-colors",
                     location.pathname === route.path
                       ? "bg-sakha-blue text-white"
-                      : "hover:bg-gray-100",
+                      : "hover:bg-accent",
                     collapsed && "justify-center"
                   )}
                   onClick={() => setMobileOpen(false)}
@@ -143,7 +144,7 @@ const SidebarNav = ({ userType, userName = "User" }: SidebarNavProps) => {
               ))}
             </nav>
             
-            <div className="px-2 pt-4 border-t border-gray-200">
+            <div className="px-2 pt-4 border-t border-sidebar-border">
               <nav className="space-y-1">
                 {commonRoutes.map((route) => (
                   <Link
@@ -153,7 +154,7 @@ const SidebarNav = ({ userType, userName = "User" }: SidebarNavProps) => {
                       "flex items-center gap-3 px-3 py-2 rounded-md transition-colors",
                       location.pathname === route.path
                         ? "bg-sakha-blue text-white"
-                        : "hover:bg-gray-100",
+                        : "hover:bg-accent",
                       collapsed && "justify-center"
                     )}
                     onClick={() => setMobileOpen(false)}
@@ -167,20 +168,32 @@ const SidebarNav = ({ userType, userName = "User" }: SidebarNavProps) => {
           </div>
         </div>
         
-        <div className="p-4 border-t border-gray-200">
-          <Button 
-            variant="ghost" 
-            className={cn(
-              "flex items-center gap-2 w-full hover:bg-red-50 hover:text-red-600",
-              collapsed && "justify-center"
-            )}
-            asChild
-          >
-            <Link to="/login">
-              <LogOut size={20} />
-              {!collapsed && <span>Logout</span>}
-            </Link>
-          </Button>
+        <div className="p-4 border-t border-sidebar-border">
+          <div className="flex items-center justify-between mb-2">
+            <ThemeToggle />
+            <Button 
+              variant="ghost" 
+              size="icon"
+              className="text-muted-foreground hover:text-destructive"
+              asChild
+            >
+              <Link to="/login">
+                <LogOut size={18} />
+              </Link>
+            </Button>
+          </div>
+          {!collapsed && (
+            <Button 
+              variant="ghost" 
+              className="w-full text-muted-foreground hover:text-destructive flex items-center gap-2"
+              asChild
+            >
+              <Link to="/login">
+                <LogOut size={18} />
+                <span>Logout</span>
+              </Link>
+            </Button>
+          )}
         </div>
       </div>
     </>
