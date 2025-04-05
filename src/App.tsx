@@ -11,7 +11,11 @@ import Pricing from "./pages/Pricing";
 import SignUp from "./pages/SignUp";
 import Login from "./pages/Login";
 import StudentDashboard from "./pages/dashboard/StudentDashboard";
+import EmployeeDashboard from "./pages/dashboard/EmployeeDashboard";
+import DoctorDashboard from "./pages/dashboard/DoctorDashboard";
+import FounderDashboard from "./pages/dashboard/FounderDashboard";
 import NotFound from "./pages/NotFound";
+import "./styles/animations.css";
 
 const queryClient = new QueryClient();
 
@@ -28,7 +32,23 @@ const App = () => (
           <Route path="/pricing" element={<Pricing />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/login" element={<Login />} />
+          
+          {/* Student Dashboard Routes */}
           <Route path="/dashboard/student" element={<StudentDashboard />} />
+          <Route path="/dashboard/student/:tab" element={<StudentDashboard />} />
+          
+          {/* Employee Dashboard Routes */}
+          <Route path="/dashboard/employee" element={<EmployeeDashboard />} />
+          <Route path="/dashboard/employee/:tab" element={<EmployeeDashboard />} />
+          
+          {/* Doctor Dashboard Routes */}
+          <Route path="/dashboard/doctor" element={<DoctorDashboard />} />
+          <Route path="/dashboard/doctor/:tab" element={<DoctorDashboard />} />
+          
+          {/* Founder Dashboard Routes */}
+          <Route path="/dashboard/founder" element={<FounderDashboard />} />
+          <Route path="/dashboard/founder/:tab" element={<FounderDashboard />} />
+          
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
