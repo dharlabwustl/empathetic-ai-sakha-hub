@@ -8,7 +8,7 @@ export type PersonalityType =
   | "Analytical Problem Solver" 
   | "Collaborative Leader";
 
-export type MoodType = "Happy" | "Okay" | "Tired" | "Overwhelmed";
+export type MoodType = "Happy" | "Okay" | "Tired" | "Overwhelmed" | "Focused";
 
 export interface Goal {
   id: string;
