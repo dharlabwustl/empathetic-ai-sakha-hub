@@ -14,7 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 import { 
   Book, Briefcase, Stethoscope, Rocket, Send, Smile, Heart, Brain, 
   Mic, Check, ArrowRight, User, Lightbulb, Target, Building, Clock,
-  BookOpen, Code, MapPin, Award
+  BookOpen, Code, MapPin, Award, MessageSquare, X
 } from "lucide-react";
 import { PersonalityType, MoodType } from "@/types/user";
 

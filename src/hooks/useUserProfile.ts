@@ -1,6 +1,5 @@
-
 import { useState, useEffect } from "react";
-import { UserProfileType, UserRole } from "@/types/user";
+import { UserProfileType, UserRole, MoodType } from "@/types/user";
 
 // Sample mock data
 const mockStudentProfile = {
