@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Calendar, Check, Circle, Clock, Plus } from "lucide-react";
+import { Calendar, Check, Circle, Clock, Plus, BookOpen, Brain } from "lucide-react";
 import {
   Card,
   CardHeader,
@@ -43,7 +43,7 @@ export default function StudyPlannerCard() {
     {
       id: "task-1",
       title: "Physics - Electromagnetism",
-      description: "Chapter 7 - Complete",
+      description: "Chapter 7 - Complete practice problems and review key concepts",
       subject: "Physics",
       timeSlot: "9:00 AM - 10:30 AM",
       isComplete: true
@@ -51,7 +51,7 @@ export default function StudyPlannerCard() {
     {
       id: "task-2",
       title: "Mathematics - Integration",
-      description: "Practice problems - Complete",
+      description: "Practice indefinite and definite integrals with substitution method",
       subject: "Mathematics",
       timeSlot: "11:00 AM - 12:30 PM",
       isComplete: true
@@ -59,7 +59,7 @@ export default function StudyPlannerCard() {
     {
       id: "task-3",
       title: "Chemistry - Organic Chemistry",
-      description: "Alkanes and Alkynes - In progress",
+      description: "Study alkanes and alkynes reactions and nomenclature",
       subject: "Chemistry",
       timeSlot: "2:00 PM - 3:30 PM",
       isComplete: false
@@ -67,7 +67,7 @@ export default function StudyPlannerCard() {
     {
       id: "task-4",
       title: "Biology - Human Physiology",
-      description: "Nervous System - Not started",
+      description: "Read about the nervous system structure and function",
       subject: "Biology",
       timeSlot: "4:00 PM - 5:30 PM",
       isComplete: false
@@ -135,21 +135,26 @@ export default function StudyPlannerCard() {
     }
   };
 
+  // Calculate completion statistics
+  const completedTasks = tasks.filter(task => task.isComplete).length;
+  const totalTasks = tasks.length;
+  const completionPercentage = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+
   return (
-    <Card>
-      <CardHeader>
+    <Card className="border-t-4 border-t-sky-500 shadow-md hover:shadow-lg transition-shadow">
+      <CardHeader className="pb-2">
         <CardTitle className="flex items-center justify-between">
           <span className="flex items-center gap-2">
-            <Calendar size={20} />
+            <Calendar size={20} className="text-sky-500" />
             <span>Today's Study Plan (May 12, 2025)</span>
           </span>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
-              <Button size="sm">
+              <Button size="sm" className="bg-gradient-to-r from-sky-500 to-violet-500">
                 <Plus size={16} className="mr-1" /> Add Task
               </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="sm:max-w-md">
               <DialogHeader>
                 <DialogTitle>Add Study Task</DialogTitle>
                 <DialogDescription>
@@ -178,7 +183,7 @@ export default function StudyPlannerCard() {
                     value={newTask.subject}
                     onValueChange={(value) => setNewTask({...newTask, subject: value})}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="w-full">
                       <SelectValue placeholder="Select subject" />
                     </SelectTrigger>
                     <SelectContent>
@@ -221,28 +226,46 @@ export default function StudyPlannerCard() {
                 <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
                   Cancel
                 </Button>
-                <Button onClick={handleAddTask}>Add Task</Button>
+                <Button onClick={handleAddTask} className="bg-gradient-to-r from-sky-500 to-violet-500">
+                  Add Task
+                </Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
         </CardTitle>
       </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
+      <CardContent className="space-y-4">
+        <div className="bg-sky-50 dark:bg-sky-950/30 p-4 rounded-lg flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-sky-100 flex items-center justify-center">
+              <Brain className="text-sky-500" size={20} />
+            </div>
+            <div>
+              <h3 className="font-medium">Today's Progress</h3>
+              <p className="text-sm text-muted-foreground">Keep going! You're doing great.</p>
+            </div>
+          </div>
+          <div className="text-right">
+            <span className="text-2xl font-bold">{completionPercentage}%</span>
+            <p className="text-xs text-muted-foreground">{completedTasks} of {totalTasks} tasks</p>
+          </div>
+        </div>
+        
+        <div className="space-y-3">
           {tasks.map((task) => (
             <div
               key={task.id}
-              className={`flex items-center gap-4 p-3 rounded-lg border ${
+              className={`flex items-center gap-4 p-4 rounded-lg border transition-all duration-300 hover:shadow-md ${
                 task.isComplete
-                  ? "bg-green-50 border-green-200"
-                  : "bg-gray-50 border-gray-200"
+                  ? "bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800"
+                  : "bg-white border-gray-200 dark:bg-gray-800/20 dark:border-gray-700"
               }`}
             >
               <button
-                className={`w-10 h-10 rounded-full flex items-center justify-center text-white ${
+                className={`w-10 h-10 rounded-full flex items-center justify-center text-white transition-colors ${
                   task.isComplete
-                    ? "bg-green-100 text-green-600"
-                    : "bg-gray-100 text-gray-600"
+                    ? "bg-gradient-to-br from-green-400 to-emerald-500"
+                    : "bg-gradient-to-br from-sky-400 to-violet-500 opacity-70"
                 }`}
                 onClick={() => toggleTaskCompletion(task.id)}
               >
@@ -254,18 +277,30 @@ export default function StudyPlannerCard() {
                     {task.title}
                   </h3>
                   <div className="flex items-center text-sm text-gray-500">
-                    <Clock size={14} className="mr-1" />
+                    <Clock size={14} className="mr-1 text-sky-500" />
                     <span>{task.timeSlot}</span>
                   </div>
                 </div>
                 <p className={`text-sm ${task.isComplete ? "text-gray-400" : "text-gray-600"}`}>
                   {task.description}
                 </p>
+                <div className="mt-2 flex items-center">
+                  <BookOpen size={14} className="mr-1 text-sky-500" />
+                  <span className="text-xs text-sky-500 font-medium">{task.subject}</span>
+                </div>
               </div>
             </div>
           ))}
         </div>
       </CardContent>
+      <CardFooter className="flex justify-between border-t pt-4">
+        <Button variant="outline" size="sm" className="text-sm">
+          View Weekly Plan
+        </Button>
+        <Button size="sm" className="text-sm bg-gradient-to-r from-sky-500 to-violet-500">
+          Generate Tomorrow's Plan
+        </Button>
+      </CardFooter>
     </Card>
   );
 }

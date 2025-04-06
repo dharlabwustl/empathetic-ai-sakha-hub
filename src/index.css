@@ -21,11 +21,11 @@
   }
   
   .gradient-text {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-sakha-blue to-sakha-purple;
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-sky-500 to-violet-500;
   }
   
   .avatar-pulse {
-    @apply absolute w-full h-full rounded-full animate-pulse bg-sakha-light-blue/50;
+    @apply absolute w-full h-full rounded-full animate-pulse bg-sky-300/50;
   }
   
   .chat-container {
@@ -37,7 +37,7 @@
   }
   
   .user-message {
-    @apply chat-message bg-sakha-blue text-white ml-auto;
+    @apply chat-message bg-sky-500 text-white ml-auto;
   }
   
   .bot-message {
@@ -45,6 +45,48 @@
   }
   
   .floating-avatar {
-    @apply fixed bottom-6 right-6 w-16 h-16 flex items-center justify-center rounded-full bg-gradient-to-r from-sakha-light-blue to-sakha-blue shadow-lg cursor-pointer z-50 animate-float;
+    @apply fixed bottom-6 right-6 w-16 h-16 flex items-center justify-center rounded-full bg-gradient-to-r from-sky-400 to-violet-500 shadow-lg cursor-pointer z-50 animate-float;
   }
+
+  /* New UI components */
+  .input-field {
+    @apply bg-white/90 dark:bg-slate-800/90 border border-gray-200 dark:border-gray-700 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-all;
+  }
+  
+  .card-hover {
+    @apply transition-all hover:shadow-lg hover:-translate-y-1 duration-300;
+  }
+  
+  .btn-primary {
+    @apply bg-gradient-to-r from-sky-500 to-violet-500 text-white font-medium px-6 py-2 rounded-lg hover:shadow-lg hover:opacity-90 transition-all;
+  }
+
+  /* Avatar with eye movement */
+  .avatar-eyes {
+    @apply relative overflow-hidden;
+  }
+  
+  .eye {
+    @apply absolute w-2 h-2 bg-white rounded-full;
+    transition: all 0.3s ease;
+  }
+}
+
+/* Animation keyframes */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease forwards;
+}
+
+.animate-slide-in {
+  animation: slideIn 0.5s ease forwards;
 }

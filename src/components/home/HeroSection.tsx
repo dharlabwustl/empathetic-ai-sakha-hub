@@ -34,7 +34,7 @@ const HeroSection = () => {
   };
 
   return (
-    <section className="pt-24 pb-10 min-h-screen bg-gradient-to-br from-sakha-light-blue/10 via-white to-sakha-lavender/10">
+    <section className="pt-24 pb-10 min-h-screen bg-gradient-to-br from-sky-100/20 via-white to-violet-100/20">
       <div className="container mx-auto px-6">
         <div className="text-center max-w-3xl mx-auto mb-8 animate-fade-in">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold mb-6 gradient-text">
@@ -46,17 +46,21 @@ const HeroSection = () => {
         </div>
 
         {/* Full-screen Chat Interface */}
-        <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-xl overflow-hidden">
-          <div className="p-4 bg-gradient-to-r from-sakha-blue to-sakha-purple text-white">
+        <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-xl overflow-hidden hover:shadow-2xl transition-shadow">
+          <div className="p-4 bg-gradient-to-r from-sky-500 to-violet-500 text-white">
             <div className="flex items-center gap-3">
               <div className="relative">
                 <div className="avatar-pulse"></div>
                 <div className="avatar-pulse" style={{ animationDelay: "0.5s" }}></div>
-                <img 
-                  src="/lovable-uploads/ffd1ed0a-7a25-477e-bc91-1da9aca3497f.png" 
-                  alt="Sakha AI Avatar" 
-                  className="w-10 h-10 rounded-full z-10 relative"
-                />
+                <div className="avatar-eyes w-10 h-10 bg-gradient-to-br from-sky-400 to-violet-500 rounded-full relative overflow-hidden animate-glow">
+                  <img 
+                    src="/lovable-uploads/ffd1ed0a-7a25-477e-bc91-1da9aca3497f.png" 
+                    alt="Sakha AI Avatar" 
+                    className="w-10 h-10 rounded-full z-10 relative"
+                  />
+                  <div className="eye absolute w-2 h-2 bg-white rounded-full" style={{ left: '8px', top: '12px'}}></div>
+                  <div className="eye absolute w-2 h-2 bg-white rounded-full" style={{ left: '17px', top: '12px'}}></div>
+                </div>
               </div>
               <div>
                 <h3 className="font-medium">Sakha AI</h3>
@@ -67,14 +71,20 @@ const HeroSection = () => {
 
           <div className="chat-container p-6 bg-gray-50">
             {chatMessages.map((msg, index) => (
-              <div key={index} className={msg.type === "user" ? "user-message" : "bot-message"}>
+              <div 
+                key={index} 
+                className={msg.type === "user" ? "user-message" : "bot-message"}
+                style={{ animationDelay: `${index * 0.3}s` }}
+              >
                 <div className="flex items-center gap-2 mb-1">
                   {msg.type === "bot" ? (
-                    <img 
-                      src="/lovable-uploads/ffd1ed0a-7a25-477e-bc91-1da9aca3497f.png" 
-                      alt="Sakha AI" 
-                      className="w-6 h-6 rounded-full"
-                    />
+                    <div className="avatar-eyes w-6 h-6 bg-gradient-to-br from-sky-400 to-violet-500 rounded-full relative overflow-hidden">
+                      <img 
+                        src="/lovable-uploads/ffd1ed0a-7a25-477e-bc91-1da9aca3497f.png" 
+                        alt="Sakha AI" 
+                        className="w-6 h-6 rounded-full"
+                      />
+                    </div>
                   ) : (
                     <User size={16} className="text-white" />
                   )}
@@ -103,21 +113,21 @@ const HeroSection = () => {
                   onChange={(e) => setMessage(e.target.value)}
                   onKeyPress={handleKeyPress}
                   placeholder="Type your message here..."
-                  className="w-full p-3 pr-12 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-sakha-blue"
+                  className="w-full p-3 pr-12 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-sky-500"
                 />
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="absolute right-1 top-1/2 -translate-y-1/2 rounded-full hover:bg-sakha-blue/10"
+                  className="absolute right-1 top-1/2 -translate-y-1/2 rounded-full hover:bg-sky-100"
                   onClick={handleSendMessage}
                 >
-                  <SendHorizonal className="h-5 w-5 text-sakha-blue" />
+                  <SendHorizonal className="h-5 w-5 text-sky-500" />
                 </Button>
               </div>
             </div>
             <div className="mt-3 flex justify-center">
               <Button 
-                className="bg-gradient-to-r from-sakha-blue to-sakha-purple text-white"
+                className="bg-gradient-to-r from-sky-500 to-violet-500 text-white animate-glow"
                 asChild
               >
                 <Link to="/signup">Sign Up to Continue</Link>
@@ -127,9 +137,9 @@ const HeroSection = () => {
         </div>
 
         <div className="flex justify-center mt-8">
-          <Button variant="link" className="text-sakha-blue flex items-center gap-2">
+          <Button variant="link" className="text-sky-500 flex items-center gap-2 group animate-float-subtle">
             <span>Learn more about Sakha AI</span>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="group-hover:translate-y-1 transition-transform">
               <path d="M12 5V19M12 19L19 12M12 19L5 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           </Button>

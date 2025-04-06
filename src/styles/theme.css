@@ -10,10 +10,10 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 203 89% 53%;
+    --primary: 199 89% 48%;
     --primary-foreground: 210 40% 98%;
 
-    --secondary: 262 70% 74%;
+    --secondary: 267 70% 74%;
     --secondary-foreground: 222.2 47.4% 11.2%;
 
     --muted: 210 40% 96.1%;
@@ -39,6 +39,13 @@
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+    
+    /* Updated Sakha colors based on requirements */
+    --sakha-sky-blue: 198 100% 50%;
+    --sakha-lilac: 252 100% 94%;
+    --sakha-deep-purple: 227 24% 14%;
+    --sakha-primary-purple: 258 79% 74%;
+    --sakha-light-blue: 190 100% 81%;
   }
 
   .dark {
@@ -51,10 +58,10 @@
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 203 89% 53%;
+    --primary: 199 89% 48%;
     --primary-foreground: 222.2 47.4% 11.2%;
 
-    --secondary: 262 70% 74%;
+    --secondary: 267 70% 74%;
     --secondary-foreground: 210 40% 98%;
 
     --muted: 217.2 32.6% 17.5%;
@@ -78,6 +85,13 @@
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+    
+    /* Updated Sakha colors for dark mode */
+    --sakha-sky-blue: 198 100% 50%;
+    --sakha-lilac: 252 60% 94%;
+    --sakha-deep-purple: 227 24% 14%;
+    --sakha-primary-purple: 258 79% 74%;
+    --sakha-light-blue: 190 100% 81%;
   }
 }
 
@@ -86,5 +100,48 @@
 }
 
 .gradient-text {
-  @apply bg-clip-text text-transparent bg-gradient-to-r from-sakha-blue to-sakha-purple;
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-sky-500 to-violet-500;
+}
+
+/* Avatar glow effect */
+.avatar-glow {
+  @apply relative;
+}
+
+.avatar-glow::before {
+  content: '';
+  @apply absolute -inset-0.5 rounded-full bg-gradient-to-r from-sky-400 to-violet-500 opacity-75 blur-sm animate-pulse;
+  z-index: -1;
+}
+
+/* Micro animations */
+@keyframes float-subtle {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+.animate-float-subtle {
+  animation: float-subtle 3s ease-in-out infinite;
+}
+
+@keyframes glow {
+  0%, 100% {
+    box-shadow: 0 0 5px 2px rgba(79, 70, 229, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 15px 5px rgba(79, 70, 229, 0.7);
+  }
+}
+
+.animate-glow {
+  animation: glow 4s ease-in-out infinite;
+}
+
+/* Smooth transitions */
+.transition-smooth {
+  @apply transition-all duration-300 ease-in-out;
 }
