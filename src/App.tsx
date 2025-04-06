@@ -1,4 +1,5 @@
 
+import React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -15,7 +16,7 @@ import StudentDashboard from "./pages/dashboard/StudentDashboard";
 import EmployeeDashboard from "./pages/dashboard/EmployeeDashboard";
 import DoctorDashboard from "./pages/dashboard/DoctorDashboard";
 import FounderDashboard from "./pages/dashboard/FounderDashboard";
-import StudyProgress from "./pages/dashboard/StudyProgress"; // Add this import
+import StudyProgress from "./pages/dashboard/StudyProgress"; 
 import NotFound from "./pages/NotFound";
 import "./styles/animations.css";
 
