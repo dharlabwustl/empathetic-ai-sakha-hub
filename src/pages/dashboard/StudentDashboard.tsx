@@ -1,29 +1,11 @@
 
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { 
-  Calendar, 
-  LineChart, 
-  MessageSquare, 
-  PencilRuler,
-  User,
-  Lightbulb,
-  Activity,
-  Dices,
-  Code,
-  BookOpen,
-  Brain,
-  Clock,
-  Heart,
-  Target
-} from "lucide-react";
+import { Clock, MessageSquare, Calendar, LineChart, PencilRuler,
+  User, Lightbulb, Activity, Dices, Code, BookOpen, Brain, Heart, Target } from "lucide-react";
 import SidebarNav from "@/components/dashboard/SidebarNav";
 import ChatAssistant from "@/components/dashboard/ChatAssistant";
-import KpiCard from "@/components/dashboard/KpiCard";
-import NudgePanel from "@/components/dashboard/NudgePanel";
-import ProfileCard from "@/components/dashboard/ProfileCard";
 import TutorCard from "@/components/dashboard/student/TutorCard";
 import StudyPlannerCard from "@/components/dashboard/student/StudyPlannerCard";
 import ProgressCard from "@/components/dashboard/student/ProgressCard";
@@ -32,8 +14,9 @@ import AcademicAdvisorCard from "@/components/dashboard/student/AcademicAdvisorC
 import MotivationCard from "@/components/dashboard/student/MotivationCard";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { useKpiTracking } from "@/hooks/useKpiTracking";
-import FeatureCard from "@/components/dashboard/FeatureCard";
-import { Button } from "@/components/ui/button";
+import WelcomeTour from "@/components/dashboard/student/WelcomeTour";
+import DashboardOverview from "@/components/dashboard/student/DashboardOverview";
+import DashboardTabs from "@/components/dashboard/student/DashboardTabs";
 
 const StudentDashboard = () => {
   const { toast } = useToast();
@@ -44,7 +27,6 @@ const StudentDashboard = () => {
   const { userProfile } = useUserProfile("Student");
   const { kpis, nudges, markNudgeAsRead } = useKpiTracking("Student");
   const [showWelcomeTour, setShowWelcomeTour] = useState(true);
-  const [tourStep, setTourStep] = useState(0);
 
   useEffect(() => {
     if (tab) {
@@ -70,15 +52,11 @@ const StudentDashboard = () => {
     navigate(`/dashboard/student/${newTab}`);
   };
 
-  const handleNextTourStep = () => {
-    if (tourStep < 4) {
-      setTourStep(tourStep + 1);
-    } else {
-      setShowWelcomeTour(false);
-    }
+  const handleSkipTour = () => {
+    setShowWelcomeTour(false);
   };
 
-  const handleSkipTour = () => {
+  const handleCompleteTour = () => {
     setShowWelcomeTour(false);
   };
 
@@ -177,83 +155,30 @@ const StudentDashboard = () => {
     },
   ];
 
-  const renderTabContent = () => {
-    switch (activeTab) {
-      case "overview":
-        return (
-          <>
-            {showWelcomeTour && (
-              <div className="relative z-20 mb-8 bg-gradient-to-r from-sky-50 to-violet-50 p-6 rounded-xl border border-violet-100 shadow-lg">
-                <h3 className="text-xl font-semibold mb-4 gradient-text">
-                  {tourStep === 0 && "Welcome to Your Smart Study Plan! 🎉"}
-                  {tourStep === 1 && "Today's Focus 📚"}
-                  {tourStep === 2 && "Track Your Progress 📈"}
-                  {tourStep === 3 && "Practice with Flashcards & Quizzes 🧠"}
-                  {tourStep === 4 && "Get Help Anytime 💬"}
-                </h3>
-                
-                <p className="mb-6 text-gray-700">
-                  {tourStep === 0 && "Let's take a quick tour of your personalized dashboard. We've created a smart plan based on your exam goals and preferences."}
-                  {tourStep === 1 && "Your daily study tasks are organized here. Each day, we'll suggest topics based on your exam syllabus and learning pace."}
-                  {tourStep === 2 && "Monitor your study streak, completion rates, and performance metrics. We'll help you stay on track."}
-                  {tourStep === 3 && "Review key concepts with AI-generated flashcards and test your knowledge with adaptive quizzes."}
-                  {tourStep === 4 && "Have questions? Need help with a topic? The Sakha AI assistant is always ready to help you."}
-                </p>
-                
-                <div className="flex justify-between">
-                  <Button variant="outline" onClick={handleSkipTour}>Skip Tour</Button>
-                  <Button onClick={handleNextTourStep} className="bg-gradient-to-r from-sky-500 to-violet-500">
-                    {tourStep < 4 ? "Next" : "Start Studying"}
-                  </Button>
-                </div>
-              </div>
-            )}
-          
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-              {kpis.map(kpi => (
-                <KpiCard key={kpi.id} kpi={kpi} />
-              ))}
-            </div>
-            
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-              <div className="lg:col-span-2">
-                <NudgePanel nudges={nudges} markAsRead={markNudgeAsRead} />
-              </div>
-              <div>
-                <ProfileCard profile={userProfile} />
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {features.map((feature, index) => (
-                <FeatureCard
-                  key={index}
-                  title={feature.title}
-                  description={feature.description}
-                  icon={feature.icon}
-                  path={feature.path}
-                  isPremium={feature.isPremium}
-                  userSubscription={userProfile.subscription}
-                />
-              ))}
-            </div>
-          </>
-        );
-      case "tutor":
-        return <TutorCard />;
-      case "planner":
-        return <StudyPlannerCard />;
-      case "academic":
-        return <AcademicAdvisorCard />;
-      case "motivation":
-        return <MotivationCard />;
-      case "progress":
-        return <ProgressCard />;
-      case "projects":
-        return <ProjectsCard />;
-      default:
-        return <div>Coming soon...</div>;
-    }
+  const tabContents: Record<string, React.ReactNode> = {
+    overview: (
+      <>
+        {showWelcomeTour && (
+          <WelcomeTour 
+            onSkipTour={handleSkipTour} 
+            onCompleteTour={handleCompleteTour}
+          />
+        )}
+        <DashboardOverview
+          userProfile={userProfile}
+          kpis={kpis}
+          nudges={nudges}
+          markNudgeAsRead={markNudgeAsRead}
+          features={features}
+        />
+      </>
+    ),
+    tutor: <TutorCard />,
+    planner: <StudyPlannerCard />,
+    academic: <AcademicAdvisorCard />,
+    motivation: <MotivationCard />,
+    progress: <ProgressCard />,
+    projects: <ProjectsCard />
   };
 
   return (
@@ -277,46 +202,11 @@ const StudentDashboard = () => {
           </div>
         </div>
         
-        <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
-          <TabsList className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 xl:grid-cols-8 gap-2">
-            <TabsTrigger value="overview" className="flex items-center gap-2">
-              <Lightbulb size={16} />
-              <span>Overview</span>
-            </TabsTrigger>
-            <TabsTrigger value="tutor" className="flex items-center gap-2">
-              <MessageSquare size={16} />
-              <span>24/7 Tutor</span>
-            </TabsTrigger>
-            <TabsTrigger value="academic" className="flex items-center gap-2">
-              <Calendar size={16} />
-              <span>Academic Advisor</span>
-            </TabsTrigger>
-            <TabsTrigger value="motivation" className="flex items-center gap-2">
-              <Activity size={16} />
-              <span>Motivation</span>
-            </TabsTrigger>
-            <TabsTrigger value="progress" className="flex items-center gap-2">
-              <LineChart size={16} />
-              <span>Progress</span>
-            </TabsTrigger>
-            <TabsTrigger value="flashcards" className="flex items-center gap-2">
-              <Brain size={16} />
-              <span>Flashcards</span>
-            </TabsTrigger>
-            <TabsTrigger value="materials" className="flex items-center gap-2">
-              <BookOpen size={16} />
-              <span>Materials</span>
-            </TabsTrigger>
-            <TabsTrigger value="wellness" className="flex items-center gap-2">
-              <Heart size={16} />
-              <span>Wellness</span>
-            </TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value={activeTab} className="focus-visible:outline-none focus-visible:ring-0">
-            {renderTabContent()}
-          </TabsContent>
-        </Tabs>
+        <DashboardTabs
+          activeTab={activeTab}
+          onTabChange={handleTabChange}
+          tabContents={tabContents}
+        />
       </main>
       
       <ChatAssistant userType="student" />

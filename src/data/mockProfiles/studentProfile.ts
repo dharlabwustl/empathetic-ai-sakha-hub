@@ -45,10 +45,15 @@ export const mockStudentProfile: StudentProfile = {
   lastActive: "2025-05-12",
   educationLevel: "11th Grade",
   subjects: ["Physics", "Chemistry", "Mathematics", "Biology"],
+  studyStreak: 5,
+  quizzesTaken: 12,
+  flashcardsCreated: 35,
   examPreparation: "IIT-JEE",
   studyHoursToday: 2.5,
   subjectsCovered: 3,
   quizPerformance: 82,
   mood: "Focused" as MoodType,
   syllabusCoverage: 65,
+  strongSubjects: ["Physics", "Mathematics"],
+  weakSubjects: ["Chemistry", "Biology"]
 };

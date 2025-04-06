@@ -5,6 +5,22 @@ export type SubscriptionType = "Free" | "Basic" | "Premium" | "Enterprise";
 
 export type SkillLevel = "Beginner" | "Intermediate" | "Advanced" | "Expert";
 
+export type PersonalityType = 
+  | "Strategic Thinker" 
+  | "Creative Mind" 
+  | "Analytical Problem Solver" 
+  | "Dedicated Achiever" 
+  | "Balanced Learner";
+
+export type MoodType = 
+  | "Focused" 
+  | "Motivated" 
+  | "Anxious" 
+  | "Tired" 
+  | "Confident" 
+  | "Stressed" 
+  | "Relaxed";
+
 export interface UserGoal {
   id: string;
   title: string;
@@ -68,6 +84,14 @@ export interface StudentProfile extends UserProfileType {
   examGoal?: ExamGoal;
   strongSubjects?: string[];
   weakSubjects?: string[];
+  // Additional fields for student profile
+  educationLevel?: string;
+  examPreparation?: string;
+  studyHoursToday?: number;
+  subjectsCovered?: number;
+  quizPerformance?: number;
+  mood?: MoodType;
+  syllabusCoverage?: number;
 }
 
 export interface EmployeeProfile extends UserProfileType {
@@ -78,6 +102,8 @@ export interface EmployeeProfile extends UserProfileType {
   skillsToImprove?: string[];
   upcomingTrainings?: string[];
   burnoutRisk?: number;
+  // Additional fields for employee profile
+  jobTitle?: string;
 }
 
 export interface DoctorProfile extends UserProfileType {
@@ -87,6 +113,8 @@ export interface DoctorProfile extends UserProfileType {
   publications?: number;
   activeStudies?: number;
   researchBudget?: number;
+  // Additional fields for doctor profile
+  specialization?: string;
 }
 
 export interface FounderProfile extends UserProfileType {
