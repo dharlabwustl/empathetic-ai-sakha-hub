@@ -1,102 +1,22 @@
 
-import { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { useState } from "react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { 
-  LayoutDashboard, 
-  MessageSquare, 
-  Calendar, 
-  LineChart, 
-  User, 
-  Settings, 
   LogOut,
   ChevronLeft,
   ChevronRight,
-  Menu,
-  BookOpen,
-  Brain,
-  Heart,
-  Target
+  Menu
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-interface SidebarNavProps {
-  userType: string;
-  userName?: string;
-}
+import { SidebarNavProps } from "./types/sidebar";
+import { SidebarAvatar } from "./SidebarAvatar";
+import { SidebarNavRoutes } from "./SidebarNavRoutes";
 
 const SidebarNav = ({ userType, userName = "User" }: SidebarNavProps) => {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const location = useLocation();
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-
-  // Track mouse position for avatar eye movement
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({ x: e.clientX, y: e.clientY });
-    };
-
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-    };
-  }, []);
-
-  const getEyePosition = (eyeIndex: number) => {
-    const basePosition = eyeIndex === 1 ? { x: 8, y: 12 } : { x: 17, y: 12 };
-    const maxMovement = 1.5;
-    
-    // Calculate movement direction based on mouse position
-    // This is a simplified calculation for demo purposes
-    const moveX = mousePosition.x > window.innerWidth / 2 ? maxMovement : -maxMovement;
-    const moveY = mousePosition.y > window.innerHeight / 2 ? maxMovement : -maxMovement;
-    
-    return {
-      left: `${basePosition.x + moveX}px`,
-      top: `${basePosition.y + moveY}px`
-    };
-  };
-
-  const userTypeRoutes = {
-    student: [
-      { name: "Dashboard", path: "/dashboard/student", icon: <LayoutDashboard size={20} /> },
-      { name: "24/7 Tutor", path: "/dashboard/student/tutor", icon: <MessageSquare size={20} /> },
-      { name: "Academic Advisor", path: "/dashboard/student/academic", icon: <Calendar size={20} /> },
-      { name: "Progress", path: "/dashboard/student/progress", icon: <LineChart size={20} /> },
-      { name: "Flashcards", path: "/dashboard/student/flashcards", icon: <Brain size={20} /> },
-      { name: "Materials Vault", path: "/dashboard/student/materials", icon: <BookOpen size={20} /> },
-      { name: "Wellness", path: "/dashboard/student/wellness", icon: <Heart size={20} /> }
-    ],
-    employee: [
-      { name: "Dashboard", path: "/dashboard/employee", icon: <LayoutDashboard size={20} /> },
-      { name: "Job Advisor", path: "/dashboard/employee/advisor", icon: <MessageSquare size={20} /> },
-      { name: "Productivity", path: "/dashboard/employee/productivity", icon: <LineChart size={20} /> },
-      { name: "Training", path: "/dashboard/employee/training", icon: <Calendar size={20} /> },
-      { name: "Career Guide", path: "/dashboard/employee/career", icon: <Target size={20} /> },
-      { name: "Motivation", path: "/dashboard/employee/motivation", icon: <Heart size={20} /> }
-    ],
-    doctor: [
-      { name: "Dashboard", path: "/dashboard/doctor", icon: <LayoutDashboard size={20} /> },
-      { name: "Research Hub", path: "/dashboard/doctor/research", icon: <MessageSquare size={20} /> },
-      { name: "Thesis Planner", path: "/dashboard/doctor/thesis", icon: <Calendar size={20} /> },
-      { name: "Publications", path: "/dashboard/doctor/publications", icon: <LineChart size={20} /> }
-    ],
-    founder: [
-      { name: "Dashboard", path: "/dashboard/founder", icon: <LayoutDashboard size={20} /> },
-      { name: "Startup Advisor", path: "/dashboard/founder/advisor", icon: <MessageSquare size={20} /> },
-      { name: "MVP Builder", path: "/dashboard/founder/mvp", icon: <Calendar size={20} /> },
-      { name: "Metrics", path: "/dashboard/founder/metrics", icon: <LineChart size={20} /> }
-    ]
-  };
-  
-  const routes = userTypeRoutes[userType as keyof typeof userTypeRoutes] || userTypeRoutes.student;
-  
-  const commonRoutes = [
-    { name: "Profile", path: "/dashboard/profile", icon: <User size={20} /> },
-    { name: "Settings", path: "/dashboard/settings", icon: <Settings size={20} /> }
-  ];
 
   return (
     <>
@@ -128,15 +48,12 @@ const SidebarNav = ({ userType, userName = "User" }: SidebarNavProps) => {
       >
         <div className="p-4 border-b border-sidebar-border flex items-center justify-between">
           <div className={cn("flex items-center gap-2", collapsed && "justify-center")}>
-            {/* Avatar with eyes animation */}
             <div className="avatar-eyes w-10 h-10 bg-gradient-to-br from-sky-400 to-violet-500 rounded-full relative overflow-hidden animate-glow">
               <img 
                 src="/lovable-uploads/ffd1ed0a-7a25-477e-bc91-1da9aca3497f.png" 
                 alt="Sakha AI Logo" 
                 className="w-10 h-10"
               />
-              <div className="eye absolute w-2 h-2 bg-white rounded-full" style={getEyePosition(1)}></div>
-              <div className="eye absolute w-2 h-2 bg-white rounded-full" style={getEyePosition(2)}></div>
             </div>
             {!collapsed && <span className="font-display font-semibold gradient-text">Sakha AI</span>}
           </div>
@@ -151,63 +68,17 @@ const SidebarNav = ({ userType, userName = "User" }: SidebarNavProps) => {
         </div>
         
         <div className="flex-1 overflow-y-auto py-4">
-          <div className={cn("px-4 mb-6", collapsed && "text-center")}>
-            <div className="flex items-center justify-center mb-2">
-              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-sky-400/20 to-violet-500/20 flex items-center justify-center text-sky-500">
-                {userName.charAt(0).toUpperCase()}
-              </div>
-            </div>
-            {!collapsed && (
-              <div className="text-center">
-                <p className="font-medium">{userName}</p>
-                <p className="text-xs text-muted-foreground capitalize">{userType}</p>
-              </div>
-            )}
-          </div>
+          <SidebarAvatar 
+            userName={userName} 
+            userType={userType} 
+            collapsed={collapsed} 
+          />
           
-          <div className="space-y-6">
-            <nav className="space-y-1 px-2">
-              {routes.map((route) => (
-                <Link
-                  key={route.path}
-                  to={route.path}
-                  className={cn(
-                    "flex items-center gap-3 px-3 py-2 rounded-md transition-colors",
-                    location.pathname === route.path
-                      ? "bg-gradient-to-r from-sky-500 to-violet-500 text-white shadow-lg"
-                      : "hover:bg-accent",
-                    collapsed && "justify-center"
-                  )}
-                  onClick={() => setMobileOpen(false)}
-                >
-                  <span>{route.icon}</span>
-                  {!collapsed && <span>{route.name}</span>}
-                </Link>
-              ))}
-            </nav>
-            
-            <div className="px-2 pt-4 border-t border-sidebar-border">
-              <nav className="space-y-1">
-                {commonRoutes.map((route) => (
-                  <Link
-                    key={route.path}
-                    to={route.path}
-                    className={cn(
-                      "flex items-center gap-3 px-3 py-2 rounded-md transition-colors",
-                      location.pathname === route.path
-                        ? "bg-gradient-to-r from-sky-500 to-violet-500 text-white"
-                        : "hover:bg-accent",
-                      collapsed && "justify-center"
-                    )}
-                    onClick={() => setMobileOpen(false)}
-                  >
-                    <span>{route.icon}</span>
-                    {!collapsed && <span>{route.name}</span>}
-                  </Link>
-                ))}
-              </nav>
-            </div>
-          </div>
+          <SidebarNavRoutes 
+            userType={userType} 
+            collapsed={collapsed}
+            onMobileClose={() => setMobileOpen(false)} 
+          />
         </div>
         
         <div className="p-4 border-t border-sidebar-border">
