@@ -1,16 +1,30 @@
-
 export type UserRole = "Student" | "Employee" | "Doctor" | "Founder";
 
 export type SubscriptionType = "Free" | "Basic" | "Premium";
 
 export type MoodType = "Happy" | "Okay" | "Sad" | "Focused" | "Tired" | "Overwhelmed" | "Motivated";
 
+export type ExamGoal = 
+  | "IIT JEE"
+  | "NEET"
+  | "MBA"
+  | "CUET UG"
+  | "UPSC"
+  | "CLAT"
+  | "BANK PO";
+
+export type PersonalityType = 
+  | "Analytical"
+  | "Creative"
+  | "Practical"
+  | "Social";
+
 export interface UserProfileType {
   id: string;
   name: string;
   phoneNumber: string;
   role: UserRole;
-  personalityType?: string;
+  personalityType?: PersonalityType;
   goals?: Goal[];
   areasOfInterest?: Interest[];
   subscription: SubscriptionType;
@@ -120,4 +134,3 @@ export interface StudyStreak {
   thisWeek: number[];
   lastMonth: number[];
 }
-

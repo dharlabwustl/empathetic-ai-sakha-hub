@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { 
@@ -216,7 +215,7 @@ const StudyProgress = () => {
               <Progress 
                 value={topSubject?.progress} 
                 className="mt-2 h-2" 
-                style={{ backgroundColor: 'rgb(251 243 207)', '--tw-bg-opacity': 0.5 }}
+                style={{ backgroundColor: 'rgb(251 243 207)', opacity: 0.5 }}
               />
             </CardContent>
           </Card>
