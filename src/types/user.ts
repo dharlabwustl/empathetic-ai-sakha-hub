@@ -1,3 +1,4 @@
+
 export type UserRole = "Student" | "Employee" | "Doctor" | "Founder";
 
 export type SubscriptionType = "Free" | "Basic" | "Premium";
@@ -78,3 +79,45 @@ export interface FounderProfile extends UserProfileType {
   mvpStatus: number;
   pitchDeckReady: boolean;
 }
+
+// New types for study progress tracking
+export interface SubjectProgress {
+  id: string;
+  name: string;
+  progress: number;
+  lastWeekProgress: number;
+  color: string;
+  topics: TopicProgress[];
+  quizScores: QuizScore[];
+  studyHours: StudyHoursData[];
+}
+
+export interface TopicProgress {
+  id: string;
+  name: string;
+  completed: boolean;
+  masteryLevel: number; // 0-100
+  lastPracticed?: string;
+}
+
+export interface QuizScore {
+  id: string;
+  title: string;
+  score: number;
+  maxScore: number;
+  date: string;
+  timeTaken: number; // in minutes
+}
+
+export interface StudyHoursData {
+  date: string;
+  hours: number;
+}
+
+export interface StudyStreak {
+  current: number;
+  longest: number;
+  thisWeek: number[];
+  lastMonth: number[];
+}
+

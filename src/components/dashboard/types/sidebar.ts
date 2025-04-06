@@ -1,4 +1,5 @@
 
+
 export interface NavigationRoute {
   name: string;
   path: string;
@@ -17,3 +18,4 @@ export interface SidebarNavProps {
   userType: string;
   userName?: string;
 }
+

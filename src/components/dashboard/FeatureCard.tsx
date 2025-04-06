@@ -1,18 +1,18 @@
 
-import { ReactNode } from "react";
 import { Link } from "react-router-dom";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Lock } from "lucide-react";
+import { SubscriptionType } from "@/types/user";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ChevronRight, LockIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface FeatureCardProps {
   title: string;
   description: string;
-  icon: ReactNode;
+  icon: React.ReactNode;
   path: string;
   isPremium: boolean;
-  userSubscription: "Basic" | "Premium";
+  userSubscription: SubscriptionType;
 }
 
 export default function FeatureCard({
@@ -21,49 +21,46 @@ export default function FeatureCard({
   icon,
   path,
   isPremium,
-  userSubscription,
+  userSubscription
 }: FeatureCardProps) {
-  const isLocked = isPremium && userSubscription === "Basic";
+  const isPremiumUser = userSubscription === "Premium";
+  const isBasicUser = userSubscription === "Basic" || userSubscription === "Premium";
+  const canAccess = !isPremium || (isPremium && isPremiumUser);
 
   return (
-    <Card className={`h-full flex flex-col ${isLocked ? "opacity-75" : ""}`}>
+    <Card className={`h-full flex flex-col ${!canAccess ? 'opacity-75' : ''}`}>
       <CardHeader className="pb-2">
-        <CardTitle className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="text-sakha-blue">{icon}</span>
-            <span>{title}</span>
+        <div className="flex justify-between items-start">
+          <div className="p-2 rounded-md bg-primary/10 text-primary">
+            {icon}
           </div>
           {isPremium && (
-            <Badge variant={isLocked ? "outline" : "default"} className={isLocked ? "text-amber-500 border-amber-300" : "bg-sakha-purple"}>
+            <Badge variant="default" className="bg-gradient-to-r from-amber-500 to-yellow-600">
               Premium
             </Badge>
           )}
-        </CardTitle>
+        </div>
+        <CardTitle className="mt-2">{title}</CardTitle>
+        <CardDescription>{description}</CardDescription>
       </CardHeader>
       <CardContent className="flex-grow">
-        <p className="text-gray-600">{description}</p>
+        {!canAccess && (
+          <div className="flex items-center gap-2 text-sm text-amber-600 mt-2">
+            <Lock size={14} />
+            <span>Requires Premium plan</span>
+          </div>
+        )}
       </CardContent>
-      <CardFooter className="pt-0">
-        <Button
-          variant={isLocked ? "outline" : "default"}
-          className={isLocked ? "w-full" : "w-full bg-gradient-to-r from-sakha-blue to-sakha-purple text-white"}
-          disabled={isLocked}
-          asChild
-        >
-          <Link to={isLocked ? "/pricing" : path} className="flex items-center justify-center gap-2">
-            {isLocked ? (
-              <>
-                <LockIcon size={16} />
-                <span>Upgrade to Premium</span>
-              </>
-            ) : (
-              <>
-                <span>Open {title}</span>
-                <ChevronRight size={16} />
-              </>
-            )}
-          </Link>
-        </Button>
+      <CardFooter>
+        {canAccess ? (
+          <Button asChild className="w-full">
+            <Link to={path}>Open</Link>
+          </Button>
+        ) : (
+          <Button variant="outline" className="w-full">
+            Upgrade
+          </Button>
+        )}
       </CardFooter>
     </Card>
   );

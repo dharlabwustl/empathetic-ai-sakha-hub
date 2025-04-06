@@ -15,6 +15,7 @@ import StudentDashboard from "./pages/dashboard/StudentDashboard";
 import EmployeeDashboard from "./pages/dashboard/EmployeeDashboard";
 import DoctorDashboard from "./pages/dashboard/DoctorDashboard";
 import FounderDashboard from "./pages/dashboard/FounderDashboard";
+import StudyProgress from "./pages/dashboard/StudyProgress"; // Add this import
 import NotFound from "./pages/NotFound";
 import "./styles/animations.css";
 
@@ -38,6 +39,9 @@ const App = () => (
             {/* Student Dashboard Routes */}
             <Route path="/dashboard/student" element={<StudentDashboard />} />
             <Route path="/dashboard/student/:tab" element={<StudentDashboard />} />
+            
+            {/* New Study Progress Route */}
+            <Route path="/dashboard/student/progress" element={<StudyProgress />} />
             
             {/* Employee Dashboard Routes */}
             <Route path="/dashboard/employee" element={<EmployeeDashboard />} />
