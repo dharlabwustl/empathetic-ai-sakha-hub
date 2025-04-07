@@ -5,11 +5,22 @@ import { mockDoctorProfile } from './doctorProfile';
 import { mockFounderProfile } from './founderProfile';
 import { UserRole, UserProfileType, ExamGoal } from '@/types/user';
 
-// New exam goals as specified in the requirements
+// New exam goals as string literals as per updated type
 export const examGoals: ExamGoal[] = [
+  "IIT JEE",
+  "NEET",
+  "MBA",
+  "CUET UG", 
+  "UPSC",
+  "CLAT",
+  "BANK PO"
+];
+
+// Additional exam goal details for UI/UX
+export const examGoalDetails = [
   {
     id: "iit-jee",
-    name: "IIT-JEE",
+    name: "IIT JEE",
     description: "Joint Entrance Examination for Indian Institutes of Technology",
     commonExamDate: "May 2026",
     recommendedHours: 6

@@ -1,23 +1,20 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { ExamGoal, PersonalityType, UserRole, OnboardingData } from "@/types/user";
+import { ExamGoal, PersonalityType, UserRole, OnboardingData, MoodType } from "@/types/user";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Send, ArrowRight, User, Book, Briefcase, Stethoscope, Rocket } from "lucide-react";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { 
+  Send, ArrowRight, User, Book, Briefcase, 
+  Stethoscope, Rocket, Brain, Users, Calendar, 
+  Clock, Target, Smile, Frown, Meh
+} from "lucide-react";
+import { Slider } from "@/components/ui/slider";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
 
 const SignUp = () => {
   const navigate = useNavigate();
@@ -35,8 +32,27 @@ const SignUp = () => {
   });
 
   const [showRoleOptions, setShowRoleOptions] = useState(true);
+  const [showStudentAgeInput, setShowStudentAgeInput] = useState(false);
   const [showGradeOptions, setShowGradeOptions] = useState(false);
+  const [showLocationInput, setShowLocationInput] = useState(false);
   const [showExamGoalOptions, setShowExamGoalOptions] = useState(false);
+  const [showJobTitleInput, setShowJobTitleInput] = useState(false);
+  const [showExperienceOptions, setShowExperienceOptions] = useState(false);
+  const [showIndustryInput, setShowIndustryInput] = useState(false);
+  const [showSkillsInput, setShowSkillsInput] = useState(false);
+  const [showSpecializationInput, setShowSpecializationInput] = useState(false);
+  const [showInstitutionInput, setShowInstitutionInput] = useState(false);
+  const [showResearchTopicInput, setShowResearchTopicInput] = useState(false);
+  const [showStartupStageOptions, setShowStartupStageOptions] = useState(false);
+  const [showTeamSizeInput, setShowTeamSizeInput] = useState(false);
+  const [showStartupIndustryInput, setShowStartupIndustryInput] = useState(false);
+  const [showStartupGoalOptions, setShowStartupGoalOptions] = useState(false);
+  const [showPersonalityTest, setShowPersonalityTest] = useState(false);
+  const [showMoodOptions, setShowMoodOptions] = useState(false);
+  const [showSleepScheduleInput, setShowSleepScheduleInput] = useState(false);
+  const [showFocusHoursInput, setShowFocusHoursInput] = useState(false);
+  const [showStressInput, setShowStressInput] = useState(false);
+  const [showBreakInput, setShowBreakInput] = useState(false);
   const [showNameInput, setShowNameInput] = useState(false);
   const [showPhoneInput, setShowPhoneInput] = useState(false);
   const [userInput, setUserInput] = useState("");
@@ -56,16 +72,59 @@ const SignUp = () => {
       if (role === "Student") {
         setMessages(prev => [...prev, { 
           type: "bot", 
-          content: "Great! What class/grade are you in?" 
+          content: "Great! What's your age?" 
         }]);
-        setShowGradeOptions(true);
-      } else {
+        setShowStudentAgeInput(true);
+      } else if (role === "Employee") {
         setMessages(prev => [...prev, { 
           type: "bot", 
-          content: "Please enter your name to continue" 
+          content: "What's your job title?" 
         }]);
-        setShowNameInput(true);
+        setShowJobTitleInput(true);
+      } else if (role === "Doctor") {
+        setMessages(prev => [...prev, { 
+          type: "bot", 
+          content: "What is your specialization?" 
+        }]);
+        setShowSpecializationInput(true);
+      } else if (role === "Founder") {
+        setMessages(prev => [...prev, { 
+          type: "bot", 
+          content: "What stage is your startup in?" 
+        }]);
+        setShowStartupStageOptions(true);
       }
+    }, 500);
+  };
+
+  const handleStudentAgeSubmit = () => {
+    if (!userInput.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter your age",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setOnboardingData(prev => ({ ...prev, age: parseInt(userInput) }));
+    setShowStudentAgeInput(false);
+    
+    // Add user input to chat
+    setMessages(prev => [...prev, { 
+      type: "user", 
+      content: userInput 
+    }]);
+    
+    setUserInput("");
+    
+    // Bot follow-up
+    setTimeout(() => {
+      setMessages(prev => [...prev, { 
+        type: "bot", 
+        content: "What class/grade are you in?" 
+      }]);
+      setShowGradeOptions(true);
     }, 500);
   };
 
@@ -78,6 +137,37 @@ const SignUp = () => {
       type: "user", 
       content: grade 
     }]);
+    
+    // Bot follow-up
+    setTimeout(() => {
+      setMessages(prev => [...prev, { 
+        type: "bot", 
+        content: "Where are you located?" 
+      }]);
+      setShowLocationInput(true);
+    }, 500);
+  };
+
+  const handleLocationSubmit = () => {
+    if (!userInput.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter your location",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setOnboardingData(prev => ({ ...prev, location: userInput }));
+    setShowLocationInput(false);
+    
+    // Add user input to chat
+    setMessages(prev => [...prev, { 
+      type: "user", 
+      content: userInput 
+    }]);
+    
+    setUserInput("");
     
     // Bot follow-up
     setTimeout(() => {
@@ -99,13 +189,485 @@ const SignUp = () => {
       content: examGoal 
     }]);
     
+    // Bot follow-up - Personality Test
+    setTimeout(() => {
+      setMessages(prev => [...prev, { 
+        type: "bot", 
+        content: "Let's understand your working style to better guide you. Take this short quiz? Do you plan ahead or go with the flow?" 
+      }]);
+      setShowPersonalityTest(true);
+    }, 500);
+  };
+
+  const handlePersonalitySelection = (personalityType: PersonalityType) => {
+    setOnboardingData(prev => ({ ...prev, personalityType }));
+    setShowPersonalityTest(false);
+    
+    // Add user selection to chat
+    setMessages(prev => [...prev, { 
+      type: "user", 
+      content: personalityType 
+    }]);
+    
+    // Bot follow-up - Mood check
+    setTimeout(() => {
+      setMessages(prev => [...prev, { 
+        type: "bot", 
+        content: "How are you feeling today?" 
+      }]);
+      setShowMoodOptions(true);
+    }, 500);
+  };
+
+  const handleMoodSelection = (mood: MoodType) => {
+    setOnboardingData(prev => ({ ...prev, mood }));
+    setShowMoodOptions(false);
+    
+    // Add user selection to chat
+    setMessages(prev => [...prev, { 
+      type: "user", 
+      content: mood 
+    }]);
+    
+    // Bot follow-up - Sleep schedule
+    setTimeout(() => {
+      setMessages(prev => [...prev, { 
+        type: "bot", 
+        content: "Let's understand your routine. What time do you usually sleep/wake up?" 
+      }]);
+      setShowSleepScheduleInput(true);
+    }, 500);
+  };
+
+  const handleSleepScheduleSubmit = () => {
+    if (!userInput.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter your sleep schedule",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setOnboardingData(prev => ({ ...prev, sleepSchedule: userInput }));
+    setShowSleepScheduleInput(false);
+    
+    // Add user input to chat
+    setMessages(prev => [...prev, { 
+      type: "user", 
+      content: userInput 
+    }]);
+    
+    setUserInput("");
+    
+    // Bot follow-up - Focus hours
+    setTimeout(() => {
+      setMessages(prev => [...prev, { 
+        type: "bot", 
+        content: "How many hours can you focus without a break?" 
+      }]);
+      setShowFocusHoursInput(true);
+    }, 500);
+  };
+
+  const handleFocusHoursSubmit = () => {
+    if (!userInput.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter your focus hours",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setOnboardingData(prev => ({ ...prev, focusHours: parseFloat(userInput) }));
+    setShowFocusHoursInput(false);
+    
+    // Add user input to chat
+    setMessages(prev => [...prev, { 
+      type: "user", 
+      content: userInput + " hours" 
+    }]);
+    
+    setUserInput("");
+    
+    // Bot follow-up - Stress management
+    setTimeout(() => {
+      setMessages(prev => [...prev, { 
+        type: "bot", 
+        content: "How do you currently manage stress?" 
+      }]);
+      setShowStressInput(true);
+    }, 500);
+  };
+
+  const handleStressManagementSubmit = () => {
+    if (!userInput.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter your stress management technique",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setOnboardingData(prev => ({ ...prev, stressManagement: userInput }));
+    setShowStressInput(false);
+    
+    // Add user input to chat
+    setMessages(prev => [...prev, { 
+      type: "user", 
+      content: userInput 
+    }]);
+    
+    setUserInput("");
+    
+    // Bot follow-up - Break routine
+    setTimeout(() => {
+      setMessages(prev => [...prev, { 
+        type: "bot", 
+        content: "Do you take regular breaks? How often?" 
+      }]);
+      setShowBreakInput(true);
+    }, 500);
+  };
+
+  const handleBreakRoutineSubmit = () => {
+    if (!userInput.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter your break routine",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setOnboardingData(prev => ({ ...prev, breakRoutine: userInput }));
+    setShowBreakInput(false);
+    
+    // Add user input to chat
+    setMessages(prev => [...prev, { 
+      type: "user", 
+      content: userInput 
+    }]);
+    
+    setUserInput("");
+    
+    // Bot follow-up - Name input
+    setTimeout(() => {
+      setMessages(prev => [...prev, { 
+        type: "bot", 
+        content: "Your personalized Sakha dashboard is ready. Please enter your name to create your account!" 
+      }]);
+      setShowNameInput(true);
+    }, 500);
+  };
+
+  const handleJobTitleSubmit = () => {
+    if (!userInput.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter your job title",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setOnboardingData(prev => ({ ...prev, jobTitle: userInput }));
+    setShowJobTitleInput(false);
+    
+    // Add user input to chat
+    setMessages(prev => [...prev, { 
+      type: "user", 
+      content: userInput 
+    }]);
+    
+    setUserInput("");
+    
     // Bot follow-up
     setTimeout(() => {
       setMessages(prev => [...prev, { 
         type: "bot", 
-        content: "Please enter your name to continue" 
+        content: "What's your experience level?" 
       }]);
-      setShowNameInput(true);
+      setShowExperienceOptions(true);
+    }, 500);
+  };
+
+  const handleExperienceSelection = (experience: string) => {
+    setOnboardingData(prev => ({ ...prev, experience }));
+    setShowExperienceOptions(false);
+    
+    // Add user selection to chat
+    setMessages(prev => [...prev, { 
+      type: "user", 
+      content: experience 
+    }]);
+    
+    // Bot follow-up
+    setTimeout(() => {
+      setMessages(prev => [...prev, { 
+        type: "bot", 
+        content: "What industry or domain do you work in?" 
+      }]);
+      setShowIndustryInput(true);
+    }, 500);
+  };
+
+  const handleIndustrySubmit = () => {
+    if (!userInput.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter your industry",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setOnboardingData(prev => ({ ...prev, industry: userInput }));
+    setShowIndustryInput(false);
+    
+    // Add user input to chat
+    setMessages(prev => [...prev, { 
+      type: "user", 
+      content: userInput 
+    }]);
+    
+    setUserInput("");
+    
+    // Bot follow-up
+    setTimeout(() => {
+      setMessages(prev => [...prev, { 
+        type: "bot", 
+        content: "What skills do you want to grow?" 
+      }]);
+      setShowSkillsInput(true);
+    }, 500);
+  };
+
+  const handleSkillsSubmit = () => {
+    if (!userInput.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter the skills you want to grow",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setOnboardingData(prev => ({ ...prev, skills: userInput.split(',').map(skill => skill.trim()) }));
+    setShowSkillsInput(false);
+    
+    // Add user input to chat
+    setMessages(prev => [...prev, { 
+      type: "user", 
+      content: userInput 
+    }]);
+    
+    setUserInput("");
+    
+    // Continue with personality test
+    setTimeout(() => {
+      setMessages(prev => [...prev, { 
+        type: "bot", 
+        content: "Let's understand your working style to better guide you. Take this short quiz? Do you plan ahead or go with the flow?" 
+      }]);
+      setShowPersonalityTest(true);
+    }, 500);
+  };
+
+  const handleSpecializationSubmit = () => {
+    if (!userInput.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter your specialization",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setOnboardingData(prev => ({ ...prev, specialization: userInput }));
+    setShowSpecializationInput(false);
+    
+    // Add user input to chat
+    setMessages(prev => [...prev, { 
+      type: "user", 
+      content: userInput 
+    }]);
+    
+    setUserInput("");
+    
+    // Bot follow-up
+    setTimeout(() => {
+      setMessages(prev => [...prev, { 
+        type: "bot", 
+        content: "Which institution or hospital are you affiliated with?" 
+      }]);
+      setShowInstitutionInput(true);
+    }, 500);
+  };
+
+  const handleInstitutionSubmit = () => {
+    if (!userInput.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter your institution",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setOnboardingData(prev => ({ ...prev, institution: userInput }));
+    setShowInstitutionInput(false);
+    
+    // Add user input to chat
+    setMessages(prev => [...prev, { 
+      type: "user", 
+      content: userInput 
+    }]);
+    
+    setUserInput("");
+    
+    // Bot follow-up
+    setTimeout(() => {
+      setMessages(prev => [...prev, { 
+        type: "bot", 
+        content: "What's your current research topic or clinical interest?" 
+      }]);
+      setShowResearchTopicInput(true);
+    }, 500);
+  };
+
+  const handleResearchTopicSubmit = () => {
+    if (!userInput.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter your research topic",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setOnboardingData(prev => ({ ...prev, researchTopic: userInput }));
+    setShowResearchTopicInput(false);
+    
+    // Add user input to chat
+    setMessages(prev => [...prev, { 
+      type: "user", 
+      content: userInput 
+    }]);
+    
+    setUserInput("");
+    
+    // Continue with personality test
+    setTimeout(() => {
+      setMessages(prev => [...prev, { 
+        type: "bot", 
+        content: "Let's understand your working style to better guide you. Take this short quiz? Do you plan ahead or go with the flow?" 
+      }]);
+      setShowPersonalityTest(true);
+    }, 500);
+  };
+
+  const handleStartupStageSelection = (startupStage: string) => {
+    setOnboardingData(prev => ({ ...prev, startupStage }));
+    setShowStartupStageOptions(false);
+    
+    // Add user selection to chat
+    setMessages(prev => [...prev, { 
+      type: "user", 
+      content: startupStage 
+    }]);
+    
+    // Bot follow-up
+    setTimeout(() => {
+      setMessages(prev => [...prev, { 
+        type: "bot", 
+        content: "How big is your team?" 
+      }]);
+      setShowTeamSizeInput(true);
+    }, 500);
+  };
+
+  const handleTeamSizeSubmit = () => {
+    if (!userInput.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter your team size",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setOnboardingData(prev => ({ ...prev, teamSize: parseInt(userInput) }));
+    setShowTeamSizeInput(false);
+    
+    // Add user input to chat
+    setMessages(prev => [...prev, { 
+      type: "user", 
+      content: userInput 
+    }]);
+    
+    setUserInput("");
+    
+    // Bot follow-up
+    setTimeout(() => {
+      setMessages(prev => [...prev, { 
+        type: "bot", 
+        content: "What industry are you in?" 
+      }]);
+      setShowStartupIndustryInput(true);
+    }, 500);
+  };
+
+  const handleStartupIndustrySubmit = () => {
+    if (!userInput.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter your startup industry",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setOnboardingData(prev => ({ ...prev, industry: userInput }));
+    setShowStartupIndustryInput(false);
+    
+    // Add user input to chat
+    setMessages(prev => [...prev, { 
+      type: "user", 
+      content: userInput 
+    }]);
+    
+    setUserInput("");
+    
+    // Bot follow-up
+    setTimeout(() => {
+      setMessages(prev => [...prev, { 
+        type: "bot", 
+        content: "What's your immediate goal?" 
+      }]);
+      setShowStartupGoalOptions(true);
+    }, 500);
+  };
+
+  const handleStartupGoalSelection = (startupGoal: string) => {
+    setOnboardingData(prev => ({ ...prev, startupGoal }));
+    setShowStartupGoalOptions(false);
+    
+    // Add user selection to chat
+    setMessages(prev => [...prev, { 
+      type: "user", 
+      content: startupGoal 
+    }]);
+    
+    // Continue with personality test
+    setTimeout(() => {
+      setMessages(prev => [...prev, { 
+        type: "bot", 
+        content: "Let's understand your working style to better guide you. Take this short quiz? Do you plan ahead or go with the flow?" 
+      }]);
+      setShowPersonalityTest(true);
     }, 500);
   };
 
@@ -190,7 +752,35 @@ const SignUp = () => {
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
-      if (showNameInput) {
+      if (showStudentAgeInput) {
+        handleStudentAgeSubmit();
+      } else if (showLocationInput) {
+        handleLocationSubmit();
+      } else if (showJobTitleInput) {
+        handleJobTitleSubmit();
+      } else if (showIndustryInput) {
+        handleIndustrySubmit();
+      } else if (showSkillsInput) {
+        handleSkillsSubmit();
+      } else if (showSpecializationInput) {
+        handleSpecializationSubmit();
+      } else if (showInstitutionInput) {
+        handleInstitutionSubmit();
+      } else if (showResearchTopicInput) {
+        handleResearchTopicSubmit();
+      } else if (showTeamSizeInput) {
+        handleTeamSizeSubmit();
+      } else if (showStartupIndustryInput) {
+        handleStartupIndustrySubmit();
+      } else if (showSleepScheduleInput) {
+        handleSleepScheduleSubmit();
+      } else if (showFocusHoursInput) {
+        handleFocusHoursSubmit();
+      } else if (showStressInput) {
+        handleStressManagementSubmit();
+      } else if (showBreakInput) {
+        handleBreakRoutineSubmit();
+      } else if (showNameInput) {
         handleNameSubmit();
       } else if (showPhoneInput) {
         handlePhoneSubmit();
@@ -216,13 +806,27 @@ const SignUp = () => {
     "BANK PO"
   ];
 
+  const experienceLevels = ["Intern", "Junior", "Mid", "Senior"];
+  const startupStages = ["Idea", "Prototype", "Fundraising", "Growth"];
+  const startupGoals = ["Launch MVP", "Raise funds", "Grow users", "Hire team"];
+  const personalityTypes: PersonalityType[] = ["Strategic Thinker", "Empathetic Learner", "Creative Builder", "Analytical"];
+  const moods: MoodType[] = ["Happy", "Okay", "Sad", "Focused", "Tired", "Overwhelmed", "Motivated"];
+
+  // Auto-scroll chat to bottom when messages change
+  const messagesEndRef = React.useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages]);
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-cyan-500 to-violet-500 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-cyan-600 via-blue-700 to-indigo-800 p-4">
       <Card className="w-full max-w-4xl shadow-xl overflow-hidden bg-white rounded-xl">
-        <CardHeader className="bg-gradient-to-r from-cyan-600 to-blue-700 text-white py-6">
+        <CardHeader className="bg-gradient-to-r from-sky-500 to-indigo-600 text-white py-6">
           <div className="flex items-center gap-3">
             <Avatar className="h-12 w-12 border-2 border-white/50">
-              <AvatarImage src="/lovable-uploads/c34ee0e2-be15-44a9-971e-1c65aa62095a.png" alt="Sakha AI" />
+              <AvatarImage src="/lovable-uploads/2a3b330c-09e1-40bd-b9bd-85ecb5cc394a.png" alt="Sakha AI" />
               <AvatarFallback className="bg-gradient-to-br from-cyan-400 to-blue-500">SA</AvatarFallback>
             </Avatar>
             <div>
@@ -233,17 +837,17 @@ const SignUp = () => {
         </CardHeader>
         
         <CardContent className="p-0">
-          <div className="h-[400px] overflow-y-auto p-6 bg-gray-50">
+          <div className="h-[450px] overflow-y-auto p-6 bg-slate-50" id="chat-container">
             {messages.map((msg, index) => (
               <div 
                 key={index} 
                 className={`flex mb-4 ${msg.type === "user" ? "justify-end" : "justify-start"}`}
               >
                 <div 
-                  className={`max-w-[80%] p-3 rounded-lg ${
+                  className={`max-w-[80%] p-3 rounded-lg shadow-sm ${
                     msg.type === "user" 
                       ? "bg-blue-600 text-white rounded-br-none" 
-                      : "bg-white border border-gray-200 rounded-bl-none"
+                      : "bg-white border border-gray-200 shadow-md rounded-bl-none"
                   }`}
                 >
                   <p>{msg.content}</p>
@@ -253,10 +857,10 @@ const SignUp = () => {
 
             {/* Role Selection Options */}
             {showRoleOptions && (
-              <div className="my-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="my-4 grid grid-cols-1 sm:grid-cols-2 gap-3 animate-fade-in">
                 <Button 
                   onClick={() => handleRoleSelection("Student")}
-                  className="flex justify-start gap-2 p-4 h-auto bg-white text-blue-700 border border-blue-200 hover:bg-blue-50"
+                  className="flex justify-start gap-2 p-4 h-auto bg-white text-blue-700 border border-blue-200 hover:bg-blue-50 shadow-md"
                   variant="outline"
                 >
                   <User className="h-5 w-5" />
@@ -268,7 +872,7 @@ const SignUp = () => {
                 
                 <Button 
                   onClick={() => handleRoleSelection("Employee")}
-                  className="flex justify-start gap-2 p-4 h-auto bg-white text-blue-700 border border-blue-200 hover:bg-blue-50"
+                  className="flex justify-start gap-2 p-4 h-auto bg-white text-blue-700 border border-blue-200 hover:bg-blue-50 shadow-md"
                   variant="outline"
                 >
                   <Briefcase className="h-5 w-5" />
@@ -280,19 +884,19 @@ const SignUp = () => {
                 
                 <Button 
                   onClick={() => handleRoleSelection("Doctor")}
-                  className="flex justify-start gap-2 p-4 h-auto bg-white text-blue-700 border border-blue-200 hover:bg-blue-50"
+                  className="flex justify-start gap-2 p-4 h-auto bg-white text-blue-700 border border-blue-200 hover:bg-blue-50 shadow-md"
                   variant="outline"
                 >
                   <Stethoscope className="h-5 w-5" />
                   <div className="text-left">
-                    <div className="font-medium">Doctor / Researcher</div>
+                    <div className="font-medium">Doctor / Research Scholar</div>
                     <div className="text-xs text-gray-500">For research & medical expertise</div>
                   </div>
                 </Button>
                 
                 <Button 
                   onClick={() => handleRoleSelection("Founder")}
-                  className="flex justify-start gap-2 p-4 h-auto bg-white text-blue-700 border border-blue-200 hover:bg-blue-50"
+                  className="flex justify-start gap-2 p-4 h-auto bg-white text-blue-700 border border-blue-200 hover:bg-blue-50 shadow-md"
                   variant="outline"
                 >
                   <Rocket className="h-5 w-5" />
@@ -304,14 +908,35 @@ const SignUp = () => {
               </div>
             )}
 
+            {/* Student Age Input */}
+            {showStudentAgeInput && (
+              <div className="animate-fade-in">
+                <Input
+                  value={userInput}
+                  onChange={(e) => setUserInput(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  placeholder="Enter your age"
+                  type="number"
+                  className="bg-white border-2 border-blue-100 focus:border-blue-400"
+                />
+                <Button 
+                  onClick={handleStudentAgeSubmit} 
+                  className="mt-2 w-full bg-gradient-to-r from-blue-500 to-indigo-600"
+                >
+                  <Send className="h-4 w-4 mr-2" />
+                  Continue
+                </Button>
+              </div>
+            )}
+
             {/* Grade Selection Options */}
             {showGradeOptions && (
-              <div className="my-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+              <div className="my-4 grid grid-cols-1 gap-2 animate-fade-in">
                 {grades.map((grade) => (
                   <Button 
                     key={grade}
                     onClick={() => handleGradeSelection(grade)}
-                    className="bg-white text-blue-700 border border-blue-200 hover:bg-blue-50"
+                    className="bg-white text-blue-700 border border-blue-200 hover:bg-blue-50 justify-start shadow-md"
                     variant="outline"
                   >
                     <Book className="h-4 w-4 mr-2" />
@@ -321,14 +946,34 @@ const SignUp = () => {
               </div>
             )}
 
+            {/* Location Input */}
+            {showLocationInput && (
+              <div className="animate-fade-in">
+                <Input
+                  value={userInput}
+                  onChange={(e) => setUserInput(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  placeholder="Enter your location (city, country)"
+                  className="bg-white border-2 border-blue-100 focus:border-blue-400"
+                />
+                <Button 
+                  onClick={handleLocationSubmit} 
+                  className="mt-2 w-full bg-gradient-to-r from-blue-500 to-indigo-600"
+                >
+                  <Send className="h-4 w-4 mr-2" />
+                  Continue
+                </Button>
+              </div>
+            )}
+
             {/* Exam Goal Selection Options */}
             {showExamGoalOptions && (
-              <div className="my-4 grid grid-cols-1 gap-2">
+              <div className="my-4 grid grid-cols-1 gap-2 animate-fade-in">
                 {examGoals.map((goal) => (
                   <Button 
                     key={goal}
                     onClick={() => handleExamGoalSelection(goal)}
-                    className="flex justify-between w-full bg-white text-blue-700 border border-blue-200 hover:bg-blue-50"
+                    className="flex justify-between w-full bg-white text-blue-700 border border-blue-200 hover:bg-blue-50 shadow-md"
                     variant="outline"
                   >
                     <div className="flex items-center">
@@ -340,37 +985,430 @@ const SignUp = () => {
                 ))}
               </div>
             )}
+
+            {/* Job Title Input */}
+            {showJobTitleInput && (
+              <div className="animate-fade-in">
+                <Input
+                  value={userInput}
+                  onChange={(e) => setUserInput(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  placeholder="Enter your job title"
+                  className="bg-white border-2 border-blue-100 focus:border-blue-400"
+                />
+                <Button 
+                  onClick={handleJobTitleSubmit} 
+                  className="mt-2 w-full bg-gradient-to-r from-blue-500 to-indigo-600"
+                >
+                  <Send className="h-4 w-4 mr-2" />
+                  Continue
+                </Button>
+              </div>
+            )}
+
+            {/* Experience Level Options */}
+            {showExperienceOptions && (
+              <div className="my-4 grid grid-cols-2 gap-2 animate-fade-in">
+                {experienceLevels.map((level) => (
+                  <Button 
+                    key={level}
+                    onClick={() => handleExperienceSelection(level)}
+                    className="bg-white text-blue-700 border border-blue-200 hover:bg-blue-50 shadow-md"
+                    variant="outline"
+                  >
+                    {level}
+                  </Button>
+                ))}
+              </div>
+            )}
+
+            {/* Industry Input */}
+            {showIndustryInput && (
+              <div className="animate-fade-in">
+                <Input
+                  value={userInput}
+                  onChange={(e) => setUserInput(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  placeholder="Enter your industry or domain"
+                  className="bg-white border-2 border-blue-100 focus:border-blue-400"
+                />
+                <Button 
+                  onClick={handleIndustrySubmit} 
+                  className="mt-2 w-full bg-gradient-to-r from-blue-500 to-indigo-600"
+                >
+                  <Send className="h-4 w-4 mr-2" />
+                  Continue
+                </Button>
+              </div>
+            )}
+
+            {/* Skills Input */}
+            {showSkillsInput && (
+              <div className="animate-fade-in">
+                <Input
+                  value={userInput}
+                  onChange={(e) => setUserInput(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  placeholder="Enter skills (comma separated)"
+                  className="bg-white border-2 border-blue-100 focus:border-blue-400"
+                />
+                <Button 
+                  onClick={handleSkillsSubmit} 
+                  className="mt-2 w-full bg-gradient-to-r from-blue-500 to-indigo-600"
+                >
+                  <Send className="h-4 w-4 mr-2" />
+                  Continue
+                </Button>
+              </div>
+            )}
+
+            {/* Specialization Input */}
+            {showSpecializationInput && (
+              <div className="animate-fade-in">
+                <Input
+                  value={userInput}
+                  onChange={(e) => setUserInput(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  placeholder="Enter your specialization"
+                  className="bg-white border-2 border-blue-100 focus:border-blue-400"
+                />
+                <Button 
+                  onClick={handleSpecializationSubmit} 
+                  className="mt-2 w-full bg-gradient-to-r from-blue-500 to-indigo-600"
+                >
+                  <Send className="h-4 w-4 mr-2" />
+                  Continue
+                </Button>
+              </div>
+            )}
+
+            {/* Institution Input */}
+            {showInstitutionInput && (
+              <div className="animate-fade-in">
+                <Input
+                  value={userInput}
+                  onChange={(e) => setUserInput(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  placeholder="Enter your institution or hospital"
+                  className="bg-white border-2 border-blue-100 focus:border-blue-400"
+                />
+                <Button 
+                  onClick={handleInstitutionSubmit} 
+                  className="mt-2 w-full bg-gradient-to-r from-blue-500 to-indigo-600"
+                >
+                  <Send className="h-4 w-4 mr-2" />
+                  Continue
+                </Button>
+              </div>
+            )}
+
+            {/* Research Topic Input */}
+            {showResearchTopicInput && (
+              <div className="animate-fade-in">
+                <Input
+                  value={userInput}
+                  onChange={(e) => setUserInput(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  placeholder="Enter your research topic or clinical interest"
+                  className="bg-white border-2 border-blue-100 focus:border-blue-400"
+                />
+                <Button 
+                  onClick={handleResearchTopicSubmit} 
+                  className="mt-2 w-full bg-gradient-to-r from-blue-500 to-indigo-600"
+                >
+                  <Send className="h-4 w-4 mr-2" />
+                  Continue
+                </Button>
+              </div>
+            )}
+
+            {/* Startup Stage Options */}
+            {showStartupStageOptions && (
+              <div className="my-4 grid grid-cols-2 gap-2 animate-fade-in">
+                {startupStages.map((stage) => (
+                  <Button 
+                    key={stage}
+                    onClick={() => handleStartupStageSelection(stage)}
+                    className="bg-white text-blue-700 border border-blue-200 hover:bg-blue-50 shadow-md"
+                    variant="outline"
+                  >
+                    {stage}
+                  </Button>
+                ))}
+              </div>
+            )}
+
+            {/* Team Size Input */}
+            {showTeamSizeInput && (
+              <div className="animate-fade-in">
+                <Input
+                  value={userInput}
+                  onChange={(e) => setUserInput(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  placeholder="Enter your team size"
+                  type="number"
+                  className="bg-white border-2 border-blue-100 focus:border-blue-400"
+                />
+                <Button 
+                  onClick={handleTeamSizeSubmit} 
+                  className="mt-2 w-full bg-gradient-to-r from-blue-500 to-indigo-600"
+                >
+                  <Send className="h-4 w-4 mr-2" />
+                  Continue
+                </Button>
+              </div>
+            )}
+
+            {/* Startup Industry Input */}
+            {showStartupIndustryInput && (
+              <div className="animate-fade-in">
+                <Input
+                  value={userInput}
+                  onChange={(e) => setUserInput(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  placeholder="Enter your startup industry"
+                  className="bg-white border-2 border-blue-100 focus:border-blue-400"
+                />
+                <Button 
+                  onClick={handleStartupIndustrySubmit} 
+                  className="mt-2 w-full bg-gradient-to-r from-blue-500 to-indigo-600"
+                >
+                  <Send className="h-4 w-4 mr-2" />
+                  Continue
+                </Button>
+              </div>
+            )}
+
+            {/* Startup Goal Options */}
+            {showStartupGoalOptions && (
+              <div className="my-4 grid grid-cols-1 gap-2 animate-fade-in">
+                {startupGoals.map((goal) => (
+                  <Button 
+                    key={goal}
+                    onClick={() => handleStartupGoalSelection(goal)}
+                    className="bg-white text-blue-700 border border-blue-200 hover:bg-blue-50 justify-start shadow-md"
+                    variant="outline"
+                  >
+                    <Target className="h-4 w-4 mr-2" />
+                    {goal}
+                  </Button>
+                ))}
+              </div>
+            )}
+
+            {/* Personality Test */}
+            {showPersonalityTest && (
+              <div className="my-4 grid grid-cols-1 gap-3 animate-fade-in">
+                <RadioGroup defaultValue="default" className="grid grid-cols-1 gap-2">
+                  {personalityTypes.map((type) => (
+                    <div key={type}>
+                      <Button 
+                        onClick={() => handlePersonalitySelection(type)}
+                        className="flex justify-start gap-2 p-4 h-auto w-full bg-white text-blue-700 border border-blue-200 hover:bg-blue-50 shadow-md"
+                        variant="outline"
+                      >
+                        <Brain className="h-5 w-5" />
+                        <div className="text-left">
+                          <div className="font-medium">{type}</div>
+                        </div>
+                      </Button>
+                    </div>
+                  ))}
+                </RadioGroup>
+              </div>
+            )}
+
+            {/* Mood Options */}
+            {showMoodOptions && (
+              <div className="my-4 grid grid-cols-2 md:grid-cols-3 gap-2 animate-fade-in">
+                <Button 
+                  onClick={() => handleMoodSelection("Happy")}
+                  className="flex flex-col gap-2 p-4 h-auto bg-white text-green-600 border border-green-200 hover:bg-green-50 shadow-md"
+                  variant="outline"
+                >
+                  <Smile className="h-8 w-8" />
+                  <div>Happy</div>
+                </Button>
+                
+                <Button 
+                  onClick={() => handleMoodSelection("Okay")}
+                  className="flex flex-col gap-2 p-4 h-auto bg-white text-amber-600 border border-amber-200 hover:bg-amber-50 shadow-md"
+                  variant="outline"
+                >
+                  <Meh className="h-8 w-8" />
+                  <div>Okay</div>
+                </Button>
+                
+                <Button 
+                  onClick={() => handleMoodSelection("Sad")}
+                  className="flex flex-col gap-2 p-4 h-auto bg-white text-blue-600 border border-blue-200 hover:bg-blue-50 shadow-md"
+                  variant="outline"
+                >
+                  <Frown className="h-8 w-8" />
+                  <div>Sad</div>
+                </Button>
+                
+                <Button 
+                  onClick={() => handleMoodSelection("Focused")}
+                  className="flex flex-col gap-2 p-4 h-auto bg-white text-indigo-600 border border-indigo-200 hover:bg-indigo-50 shadow-md"
+                  variant="outline"
+                >
+                  <Target className="h-8 w-8" />
+                  <div>Focused</div>
+                </Button>
+                
+                <Button 
+                  onClick={() => handleMoodSelection("Tired")}
+                  className="flex flex-col gap-2 p-4 h-auto bg-white text-gray-600 border border-gray-200 hover:bg-gray-50 shadow-md"
+                  variant="outline"
+                >
+                  <Clock className="h-8 w-8" />
+                  <div>Tired</div>
+                </Button>
+                
+                <Button 
+                  onClick={() => handleMoodSelection("Overwhelmed")}
+                  className="flex flex-col gap-2 p-4 h-auto bg-white text-red-600 border border-red-200 hover:bg-red-50 shadow-md"
+                  variant="outline"
+                >
+                  <Users className="h-8 w-8" />
+                  <div>Overwhelmed</div>
+                </Button>
+              </div>
+            )}
+
+            {/* Sleep Schedule Input */}
+            {showSleepScheduleInput && (
+              <div className="animate-fade-in">
+                <Input
+                  value={userInput}
+                  onChange={(e) => setUserInput(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  placeholder="When do you sleep & wake up? (e.g., 11 PM - 7 AM)"
+                  className="bg-white border-2 border-blue-100 focus:border-blue-400"
+                />
+                <Button 
+                  onClick={handleSleepScheduleSubmit} 
+                  className="mt-2 w-full bg-gradient-to-r from-blue-500 to-indigo-600"
+                >
+                  <Send className="h-4 w-4 mr-2" />
+                  Continue
+                </Button>
+              </div>
+            )}
+
+            {/* Focus Hours Input */}
+            {showFocusHoursInput && (
+              <div className="animate-fade-in">
+                <div className="mb-4">
+                  <Label htmlFor="focus-hours" className="block mb-2">Hours: {userInput || "0"}</Label>
+                  <Slider
+                    id="focus-hours"
+                    value={[userInput ? parseFloat(userInput) : 0]}
+                    max={8}
+                    step={0.5}
+                    onValueChange={(value) => setUserInput(value[0].toString())}
+                    className="py-4"
+                  />
+                </div>
+                <Button 
+                  onClick={handleFocusHoursSubmit} 
+                  className="w-full bg-gradient-to-r from-blue-500 to-indigo-600"
+                >
+                  <Send className="h-4 w-4 mr-2" />
+                  Continue
+                </Button>
+              </div>
+            )}
+
+            {/* Stress Management Input */}
+            {showStressInput && (
+              <div className="animate-fade-in">
+                <Input
+                  value={userInput}
+                  onChange={(e) => setUserInput(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  placeholder="How do you manage stress? (e.g., meditation, exercise)"
+                  className="bg-white border-2 border-blue-100 focus:border-blue-400"
+                />
+                <Button 
+                  onClick={handleStressManagementSubmit} 
+                  className="mt-2 w-full bg-gradient-to-r from-blue-500 to-indigo-600"
+                >
+                  <Send className="h-4 w-4 mr-2" />
+                  Continue
+                </Button>
+              </div>
+            )}
+
+            {/* Break Routine Input */}
+            {showBreakInput && (
+              <div className="animate-fade-in">
+                <Input
+                  value={userInput}
+                  onChange={(e) => setUserInput(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  placeholder="Tell us about your break routine"
+                  className="bg-white border-2 border-blue-100 focus:border-blue-400"
+                />
+                <Button 
+                  onClick={handleBreakRoutineSubmit} 
+                  className="mt-2 w-full bg-gradient-to-r from-blue-500 to-indigo-600"
+                >
+                  <Send className="h-4 w-4 mr-2" />
+                  Continue
+                </Button>
+              </div>
+            )}
+
+            {/* Name Input */}
+            {showNameInput && (
+              <div className="animate-fade-in">
+                <Input
+                  value={userInput}
+                  onChange={(e) => setUserInput(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  placeholder="Enter your full name"
+                  className="bg-white border-2 border-blue-100 focus:border-blue-400"
+                />
+                <Button 
+                  onClick={handleNameSubmit} 
+                  className="mt-2 w-full bg-gradient-to-r from-blue-500 to-indigo-600"
+                >
+                  <Send className="h-4 w-4 mr-2" />
+                  Continue
+                </Button>
+              </div>
+            )}
+            
+            {/* Phone Input */}
+            {showPhoneInput && (
+              <div className="animate-fade-in">
+                <Input
+                  value={userInput}
+                  onChange={(e) => setUserInput(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  placeholder="Enter your 10-digit phone number"
+                  type="tel"
+                  maxLength={10}
+                  className="bg-white border-2 border-blue-100 focus:border-blue-400"
+                />
+                <Button 
+                  onClick={handlePhoneSubmit} 
+                  className="mt-2 w-full bg-gradient-to-r from-blue-500 to-indigo-600"
+                >
+                  <Send className="h-4 w-4 mr-2" />
+                  Verify & Create Account
+                </Button>
+              </div>
+            )}
+
+            <div ref={messagesEndRef} />
           </div>
         </CardContent>
         
         <CardFooter className="p-4 bg-white border-t">
-          <div className="flex w-full gap-2">
-            {(showNameInput || showPhoneInput) && (
-              <Input
-                value={userInput}
-                onChange={(e) => setUserInput(e.target.value)}
-                onKeyPress={handleKeyPress}
-                placeholder={showNameInput ? "Enter your name" : "Enter your phone number"}
-                className="flex-grow"
-              />
-            )}
-            
-            {showNameInput && (
-              <Button onClick={handleNameSubmit}>
-                <Send className="h-4 w-4 mr-1" />
-                Send
-              </Button>
-            )}
-            
-            {showPhoneInput && (
-              <Button onClick={handlePhoneSubmit}>
-                <Send className="h-4 w-4 mr-1" />
-                Verify
-              </Button>
-            )}
-          </div>
-          
-          <div className="w-full mt-4 text-center text-sm text-gray-500">
+          <div className="w-full text-center text-sm text-gray-500">
             Already have an account?{" "}
             <Link to="/login" className="text-blue-600 hover:underline font-medium">
               Log in

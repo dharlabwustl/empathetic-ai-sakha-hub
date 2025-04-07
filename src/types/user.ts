@@ -5,7 +5,7 @@ export type SubscriptionType = "Free" | "Basic" | "Premium";
 
 export type MoodType = "Happy" | "Okay" | "Sad" | "Focused" | "Tired" | "Overwhelmed" | "Motivated";
 
-// Updated ExamGoal from string literals to string | object type
+// Updated ExamGoal to include both string literals and object type
 export type ExamGoal = 
   | "IIT JEE"
   | "NEET"
@@ -13,7 +13,15 @@ export type ExamGoal =
   | "CUET UG"
   | "UPSC"
   | "CLAT"
-  | "BANK PO";
+  | "BANK PO"
+  | {
+      id: string;
+      name: string;
+      description: string;
+      commonExamDate: string;
+      recommendedHours: number;
+      subjects?: string[];
+    };
 
 export type PersonalityType = 
   | "Analytical"
@@ -23,7 +31,8 @@ export type PersonalityType =
   | "Strategic Thinker"
   | "Empathetic Learner"
   | "Creative Builder"
-  | "Collaborative Leader";
+  | "Collaborative Leader"
+  | "Analytical Problem Solver";
 
 export interface UserProfileType {
   id: string;
@@ -36,6 +45,7 @@ export interface UserProfileType {
   subscription: SubscriptionType;
   joinDate: string;
   lastActive: string;
+  examPreparation?: string;
 }
 
 export interface Goal {
@@ -66,6 +76,9 @@ export interface StudentProfile extends UserProfileType {
   syllabusCoverage: number;
   strongSubjects: string[];
   weakSubjects: string[];
+  age?: number;
+  location?: string;
+  grade?: string;
 }
 
 export interface EmployeeProfile extends UserProfileType {
@@ -77,6 +90,7 @@ export interface EmployeeProfile extends UserProfileType {
   careerGoal: string;
   projectsCompleted: number;
   trainingCompleted: number;
+  experienceLevel?: string;
 }
 
 export interface DoctorProfile extends UserProfileType {
@@ -87,6 +101,9 @@ export interface DoctorProfile extends UserProfileType {
   institution?: string;
   yearsOfPractice: number;
   certifications: string[];
+  researchTopic?: string;
+  thesisTitle?: string;
+  clinicalInterest?: string;
 }
 
 export interface FounderProfile extends UserProfileType {
@@ -98,6 +115,8 @@ export interface FounderProfile extends UserProfileType {
   stage: string;
   mvpStatus: number;
   pitchDeckReady: boolean;
+  startupStage?: string;
+  startupGoal?: string;
 }
 
 // New types for study progress tracking
