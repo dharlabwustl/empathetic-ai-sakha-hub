@@ -1,9 +1,11 @@
+
 export type UserRole = "Student" | "Employee" | "Doctor" | "Founder";
 
 export type SubscriptionType = "Free" | "Basic" | "Premium";
 
 export type MoodType = "Happy" | "Okay" | "Sad" | "Focused" | "Tired" | "Overwhelmed" | "Motivated";
 
+// Updated ExamGoal from string literals to string | object type
 export type ExamGoal = 
   | "IIT JEE"
   | "NEET"
@@ -17,7 +19,11 @@ export type PersonalityType =
   | "Analytical"
   | "Creative"
   | "Practical"
-  | "Social";
+  | "Social"
+  | "Strategic Thinker"
+  | "Empathetic Learner"
+  | "Creative Builder"
+  | "Collaborative Leader";
 
 export interface UserProfileType {
   id: string;
@@ -133,4 +139,50 @@ export interface StudyStreak {
   longest: number;
   thisWeek: number[];
   lastMonth: number[];
+}
+
+// New types for onboarding
+export interface ExamGoalDetails {
+  id: string;
+  name: ExamGoal;
+  description: string;
+  commonExamDate: string;
+  recommendedHours: number;
+  subjects: string[];
+}
+
+export interface OnboardingData {
+  role: UserRole;
+  age?: number;
+  grade?: string;
+  location?: string;
+  examGoal?: ExamGoal;
+  jobTitle?: string;
+  experience?: string;
+  industry?: string;
+  skills?: string[];
+  specialization?: string;
+  institution?: string;
+  researchTopic?: string;
+  startupStage?: string;
+  teamSize?: number;
+  startupGoal?: string;
+  personalityType?: PersonalityType;
+  mood?: MoodType;
+  sleepSchedule?: string;
+  focusHours?: number;
+  stressManagement?: string;
+  breakRoutine?: string;
+  interests?: string[];
+  name?: string;
+  phoneNumber?: string;
+}
+
+export interface StudyPlanSettings {
+  examDate: string;
+  dailyStudyHours: number;
+  strongSubjects: string[];
+  weakSubjects: string[];
+  studyPace: "Aggressive" | "Balanced" | "Relaxed";
+  preferredStudyTime: "Morning" | "Afternoon" | "Evening" | "Night";
 }
