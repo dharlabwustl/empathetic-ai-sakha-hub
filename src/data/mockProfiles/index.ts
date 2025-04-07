@@ -3,9 +3,9 @@ import { mockStudentProfile } from './studentProfile';
 import { mockEmployeeProfile } from './employeeProfile';
 import { mockDoctorProfile } from './doctorProfile';
 import { mockFounderProfile } from './founderProfile';
-import { UserRole, UserProfileType, ExamGoal } from '@/types/user';
+import { UserRole, UserProfileType } from '@/types/user';
 
-// Update to only use string literals for exam goals
+// Using string literals for exam goals
 export const examGoals: string[] = [
   "IIT JEE",
   "NEET",

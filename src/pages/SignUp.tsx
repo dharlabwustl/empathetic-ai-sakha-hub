@@ -1,20 +1,23 @@
+
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { ExamGoal, PersonalityType, UserRole, OnboardingData, MoodType } from "@/types/user";
+import { PersonalityType, UserRole, OnboardingData, MoodType } from "@/types/user";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { motion } from "framer-motion";
 import { 
   Send, ArrowRight, User, Book, Briefcase, 
   Stethoscope, Rocket, Brain, Users, Calendar, 
-  Clock, Target, Smile, Frown, Meh
+  Clock, Target, Smile, Frown, Meh, Moon, Sun
 } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import ChatMessage from "@/components/signup/ChatMessage";
+import { examGoals } from "@/data/mockProfiles/index";
 
 const SignUp = () => {
   const navigate = useNavigate();
@@ -797,16 +800,6 @@ const SignUp = () => {
     "Postgraduate"
   ];
 
-  const examGoals: string[] = [
-    "IIT JEE",
-    "NEET",
-    "MBA",
-    "CUET UG",
-    "UPSC",
-    "CLAT",
-    "BANK PO"
-  ];
-
   const experienceLevels = ["Intern", "Junior", "Mid", "Senior"];
   const startupStages = ["Idea", "Prototype", "Fundraising", "Growth"];
   const startupGoals = ["Launch MVP", "Raise funds", "Grow users", "Hire team"];
@@ -822,158 +815,688 @@ const SignUp = () => {
   }, [messages]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-cyan-600 via-blue-700 to-indigo-800 p-4">
-      <Card className="w-full max-w-4xl shadow-xl overflow-hidden bg-white rounded-xl">
-        <CardHeader className="bg-gradient-to-r from-sky-500 to-indigo-600 text-white py-6">
-          <div className="flex items-center gap-3">
-            <Avatar className="h-12 w-12 border-2 border-white/50">
-              <AvatarImage src="/lovable-uploads/2a3b330c-09e1-40bd-b9bd-85ecb5cc394a.png" alt="Sakha AI" />
-              <AvatarFallback className="bg-gradient-to-br from-cyan-400 to-blue-500">SA</AvatarFallback>
-            </Avatar>
-            <div>
-              <h1 className="text-2xl font-bold">Sakha AI</h1>
-              <p className="text-blue-100">Your personalized learning companion</p>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-700 via-purple-700 to-pink-600 p-4">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5 }}
+        className="w-full max-w-4xl"
+      >
+        <Card className="shadow-2xl overflow-hidden bg-white/95 backdrop-blur rounded-2xl border-0">
+          <CardHeader className="bg-gradient-to-br from-blue-600 to-indigo-800 text-white py-6">
+            <div className="flex items-center gap-3">
+              <Avatar className="h-14 w-14 border-2 border-white/50 shadow-lg">
+                <AvatarImage src="/lovable-uploads/2a3b330c-09e1-40bd-b9bd-85ecb5cc394a.png" alt="Sakha AI" />
+                <AvatarFallback className="bg-gradient-to-br from-cyan-400 to-blue-500">SA</AvatarFallback>
+              </Avatar>
+              <div>
+                <h1 className="text-2xl md:text-3xl font-bold flex items-center gap-2">
+                  Sakha AI
+                  <span className="bg-blue-400/20 text-xs font-normal px-2 py-1 rounded-full">Beta</span>
+                </h1>
+                <p className="text-blue-100 text-sm md:text-base">Your personalized learning companion</p>
+              </div>
             </div>
-          </div>
-        </CardHeader>
-        
-        <CardContent className="p-0">
-          <div className="h-[450px] overflow-y-auto p-6 bg-slate-50" id="chat-container">
-            {messages.map((msg, index) => (
-              <ChatMessage key={index} type={msg.type} content={msg.content} />
-            ))}
+          </CardHeader>
+          
+          <CardContent className="p-0">
+            <div className="h-[500px] overflow-y-auto p-6 bg-gradient-to-b from-blue-50 to-indigo-50" id="chat-container">
+              {messages.map((msg, index) => (
+                <ChatMessage key={index} type={msg.type} content={msg.content} />
+              ))}
 
-            {/* Role Selection Options */}
-            {showRoleOptions && (
-              <div className="my-4 grid grid-cols-1 sm:grid-cols-2 gap-3 animate-fade-in">
-                <Button 
-                  onClick={() => handleRoleSelection("Student")}
-                  className="flex justify-start gap-2 p-4 h-auto bg-white text-blue-700 border border-blue-200 hover:bg-blue-50 shadow-md"
-                  variant="outline"
+              {/* Role Selection Options */}
+              {showRoleOptions && (
+                <motion.div 
+                  className="my-4 grid grid-cols-1 sm:grid-cols-2 gap-3"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: 0.2 }}
                 >
-                  <User className="h-5 w-5" />
-                  <div className="text-left">
-                    <div className="font-medium">Student</div>
-                    <div className="text-xs text-gray-500">For exam preparation & academic support</div>
-                  </div>
-                </Button>
-                
-                <Button 
-                  onClick={() => handleRoleSelection("Employee")}
-                  className="flex justify-start gap-2 p-4 h-auto bg-white text-blue-700 border border-blue-200 hover:bg-blue-50 shadow-md"
-                  variant="outline"
-                >
-                  <Briefcase className="h-5 w-5" />
-                  <div className="text-left">
-                    <div className="font-medium">Employee</div>
-                    <div className="text-xs text-gray-500">For career growth & skill development</div>
-                  </div>
-                </Button>
-                
-                <Button 
-                  onClick={() => handleRoleSelection("Doctor")}
-                  className="flex justify-start gap-2 p-4 h-auto bg-white text-blue-700 border border-blue-200 hover:bg-blue-50 shadow-md"
-                  variant="outline"
-                >
-                  <Stethoscope className="h-5 w-5" />
-                  <div className="text-left">
-                    <div className="font-medium">Doctor / Research Scholar</div>
-                    <div className="text-xs text-gray-500">For research & medical expertise</div>
-                  </div>
-                </Button>
-                
-                <Button 
-                  onClick={() => handleRoleSelection("Founder")}
-                  className="flex justify-start gap-2 p-4 h-auto bg-white text-blue-700 border border-blue-200 hover:bg-blue-50 shadow-md"
-                  variant="outline"
-                >
-                  <Rocket className="h-5 w-5" />
-                  <div className="text-left">
-                    <div className="font-medium">Founder</div>
-                    <div className="text-xs text-gray-500">For startup guidance & growth</div>
-                  </div>
-                </Button>
-              </div>
-            )}
-
-            {/* Student Age Input */}
-            {showStudentAgeInput && (
-              <div className="animate-fade-in">
-                <Input
-                  value={userInput}
-                  onChange={(e) => setUserInput(e.target.value)}
-                  onKeyPress={handleKeyPress}
-                  placeholder="Enter your age"
-                  type="number"
-                  className="bg-white border-2 border-blue-100 focus:border-blue-400"
-                />
-                <Button 
-                  onClick={handleStudentAgeSubmit} 
-                  className="mt-2 w-full bg-gradient-to-r from-blue-500 to-indigo-600"
-                >
-                  <Send className="h-4 w-4 mr-2" />
-                  Continue
-                </Button>
-              </div>
-            )}
-
-            {/* Grade Selection Options */}
-            {showGradeOptions && (
-              <div className="my-4 grid grid-cols-1 gap-2 animate-fade-in">
-                {grades.map((grade) => (
                   <Button 
-                    key={grade}
-                    onClick={() => handleGradeSelection(grade)}
-                    className="bg-white text-blue-700 border border-blue-200 hover:bg-blue-50 justify-start shadow-md"
-                    variant="outline"
+                    onClick={() => handleRoleSelection("Student")}
+                    className="flex justify-start gap-3 p-4 h-auto bg-gradient-to-br from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white border-0 shadow-md group transform transition-all hover:-translate-y-1"
                   >
-                    <Book className="h-4 w-4 mr-2" />
-                    {grade}
-                  </Button>
-                ))}
-              </div>
-            )}
-
-            {/* Location Input */}
-            {showLocationInput && (
-              <div className="animate-fade-in">
-                <Input
-                  value={userInput}
-                  onChange={(e) => setUserInput(e.target.value)}
-                  onKeyPress={handleKeyPress}
-                  placeholder="Enter your location (city, country)"
-                  className="bg-white border-2 border-blue-100 focus:border-blue-400"
-                />
-                <Button 
-                  onClick={handleLocationSubmit} 
-                  className="mt-2 w-full bg-gradient-to-r from-blue-500 to-indigo-600"
-                >
-                  <Send className="h-4 w-4 mr-2" />
-                  Continue
-                </Button>
-              </div>
-            )}
-
-            {/* Exam Goal Selection Options */}
-            {showExamGoalOptions && (
-              <div className="my-4 grid grid-cols-1 gap-2 animate-fade-in">
-                {examGoals.map((goal) => (
-                  <Button 
-                    key={goal}
-                    onClick={() => handleExamGoalSelection(goal)}
-                    className="flex justify-between w-full bg-white text-blue-700 border border-blue-200 hover:bg-blue-50 shadow-md"
-                    variant="outline"
-                  >
-                    <div className="flex items-center">
-                      <Book className="h-4 w-4 mr-2" />
-                      {goal}
+                    <div className="p-2 bg-white/20 rounded-lg">
+                      <User className="h-5 w-5 text-white" />
                     </div>
-                    <ArrowRight className="h-4 w-4" />
+                    <div className="text-left">
+                      <div className="font-medium">Student</div>
+                      <div className="text-xs text-blue-100">For exam preparation & academic support</div>
+                    </div>
                   </Button>
-                ))}
-              </div>
-            )}
+                  
+                  <Button 
+                    onClick={() => handleRoleSelection("Employee")}
+                    className="flex justify-start gap-3 p-4 h-auto bg-gradient-to-br from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white border-0 shadow-md group transform transition-all hover:-translate-y-1"
+                  >
+                    <div className="p-2 bg-white/20 rounded-lg">
+                      <Briefcase className="h-5 w-5 text-white" />
+                    </div>
+                    <div className="text-left">
+                      <div className="font-medium">Employee</div>
+                      <div className="text-xs text-indigo-100">For career growth & skill development</div>
+                    </div>
+                  </Button>
+                  
+                  <Button 
+                    onClick={() => handleRoleSelection("Doctor")}
+                    className="flex justify-start gap-3 p-4 h-auto bg-gradient-to-br from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white border-0 shadow-md group transform transition-all hover:-translate-y-1"
+                  >
+                    <div className="p-2 bg-white/20 rounded-lg">
+                      <Stethoscope className="h-5 w-5 text-white" />
+                    </div>
+                    <div className="text-left">
+                      <div className="font-medium">Doctor / Research Scholar</div>
+                      <div className="text-xs text-purple-100">For research & medical expertise</div>
+                    </div>
+                  </Button>
+                  
+                  <Button 
+                    onClick={() => handleRoleSelection("Founder")}
+                    className="flex justify-start gap-3 p-4 h-auto bg-gradient-to-br from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700 text-white border-0 shadow-md group transform transition-all hover:-translate-y-1"
+                  >
+                    <div className="p-2 bg-white/20 rounded-lg">
+                      <Rocket className="h-5 w-5 text-white" />
+                    </div>
+                    <div className="text-left">
+                      <div className="font-medium">Founder</div>
+                      <div className="text-xs text-pink-100">For startup guidance & growth</div>
+                    </div>
+                  </Button>
+                </motion.div>
+              )}
 
-            {/* Job Title Input */}
-            {showJobTitleInput && (
-              <div className
+              {/* Student Age Input */}
+              {showStudentAgeInput && (
+                <motion.div 
+                  className="animate-fade-in space-y-3"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                >
+                  <Input
+                    value={userInput}
+                    onChange={(e) => setUserInput(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    placeholder="Enter your age"
+                    type="number"
+                    className="bg-white border-2 border-blue-100 focus:border-blue-400 shadow-sm"
+                  />
+                  <Button 
+                    onClick={handleStudentAgeSubmit} 
+                    className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white"
+                  >
+                    <Send className="h-4 w-4 mr-2" />
+                    Continue
+                  </Button>
+                </motion.div>
+              )}
+
+              {/* Grade Selection Options */}
+              {showGradeOptions && (
+                <motion.div 
+                  className="my-4 grid grid-cols-1 gap-2"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                >
+                  {grades.map((grade) => (
+                    <Button 
+                      key={grade}
+                      onClick={() => handleGradeSelection(grade)}
+                      className="bg-white text-blue-700 border border-blue-200 hover:bg-blue-50 justify-start shadow-md group transition-all hover:-translate-y-1"
+                      variant="outline"
+                    >
+                      <Book className="h-4 w-4 mr-2 text-blue-500 group-hover:text-blue-600" />
+                      {grade}
+                    </Button>
+                  ))}
+                </motion.div>
+              )}
+
+              {/* Location Input */}
+              {showLocationInput && (
+                <motion.div 
+                  className="space-y-3"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                >
+                  <Input
+                    value={userInput}
+                    onChange={(e) => setUserInput(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    placeholder="Enter your location (city, country)"
+                    className="bg-white border-2 border-blue-100 focus:border-blue-400 shadow-sm"
+                  />
+                  <Button 
+                    onClick={handleLocationSubmit} 
+                    className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white"
+                  >
+                    <Send className="h-4 w-4 mr-2" />
+                    Continue
+                  </Button>
+                </motion.div>
+              )}
+
+              {/* Exam Goal Selection Options */}
+              {showExamGoalOptions && (
+                <motion.div 
+                  className="my-4 grid grid-cols-1 gap-2"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                >
+                  {examGoals.map((goal) => (
+                    <Button 
+                      key={goal}
+                      onClick={() => handleExamGoalSelection(goal)}
+                      className="flex justify-between w-full bg-white text-blue-700 border border-blue-200 hover:bg-blue-50 shadow-md group transition-all hover:-translate-y-1"
+                      variant="outline"
+                    >
+                      <div className="flex items-center">
+                        <Book className="h-4 w-4 mr-2 text-blue-500 group-hover:text-blue-600" />
+                        {goal}
+                      </div>
+                      <ArrowRight className="h-4 w-4 text-blue-500 group-hover:text-blue-600" />
+                    </Button>
+                  ))}
+                </motion.div>
+              )}
+
+              {/* Job Title Input */}
+              {showJobTitleInput && (
+                <motion.div 
+                  className="space-y-3"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                >
+                  <Input
+                    value={userInput}
+                    onChange={(e) => setUserInput(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    placeholder="Enter your job title"
+                    className="bg-white border-2 border-indigo-100 focus:border-indigo-400 shadow-sm"
+                  />
+                  <Button 
+                    onClick={handleJobTitleSubmit} 
+                    className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white"
+                  >
+                    <Send className="h-4 w-4 mr-2" />
+                    Continue
+                  </Button>
+                </motion.div>
+              )}
+
+              {/* Experience Level Options */}
+              {showExperienceOptions && (
+                <motion.div 
+                  className="my-4 grid grid-cols-2 gap-2"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                >
+                  {experienceLevels.map((level) => (
+                    <Button 
+                      key={level}
+                      onClick={() => handleExperienceSelection(level)}
+                      className="bg-white text-indigo-700 border border-indigo-200 hover:bg-indigo-50 justify-center shadow-md group transition-all hover:-translate-y-1"
+                      variant="outline"
+                    >
+                      {level}
+                    </Button>
+                  ))}
+                </motion.div>
+              )}
+
+              {/* Industry Input */}
+              {showIndustryInput && (
+                <motion.div 
+                  className="space-y-3"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                >
+                  <Input
+                    value={userInput}
+                    onChange={(e) => setUserInput(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    placeholder="Enter your industry (e.g. Technology, Healthcare)"
+                    className="bg-white border-2 border-indigo-100 focus:border-indigo-400 shadow-sm"
+                  />
+                  <Button 
+                    onClick={handleIndustrySubmit} 
+                    className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white"
+                  >
+                    <Send className="h-4 w-4 mr-2" />
+                    Continue
+                  </Button>
+                </motion.div>
+              )}
+
+              {/* Skills Input */}
+              {showSkillsInput && (
+                <motion.div 
+                  className="space-y-3"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                >
+                  <Input
+                    value={userInput}
+                    onChange={(e) => setUserInput(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    placeholder="Enter skills (separated by commas)"
+                    className="bg-white border-2 border-indigo-100 focus:border-indigo-400 shadow-sm"
+                  />
+                  <p className="text-xs text-gray-500">e.g. Python, Leadership, Communication</p>
+                  <Button 
+                    onClick={handleSkillsSubmit} 
+                    className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white"
+                  >
+                    <Send className="h-4 w-4 mr-2" />
+                    Continue
+                  </Button>
+                </motion.div>
+              )}
+
+              {/* Specialization Input */}
+              {showSpecializationInput && (
+                <motion.div 
+                  className="space-y-3"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                >
+                  <Input
+                    value={userInput}
+                    onChange={(e) => setUserInput(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    placeholder="Enter your specialization"
+                    className="bg-white border-2 border-purple-100 focus:border-purple-400 shadow-sm"
+                  />
+                  <Button 
+                    onClick={handleSpecializationSubmit} 
+                    className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
+                  >
+                    <Send className="h-4 w-4 mr-2" />
+                    Continue
+                  </Button>
+                </motion.div>
+              )}
+
+              {/* Institution Input */}
+              {showInstitutionInput && (
+                <motion.div 
+                  className="space-y-3"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                >
+                  <Input
+                    value={userInput}
+                    onChange={(e) => setUserInput(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    placeholder="Enter your institution or hospital"
+                    className="bg-white border-2 border-purple-100 focus:border-purple-400 shadow-sm"
+                  />
+                  <Button 
+                    onClick={handleInstitutionSubmit} 
+                    className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
+                  >
+                    <Send className="h-4 w-4 mr-2" />
+                    Continue
+                  </Button>
+                </motion.div>
+              )}
+
+              {/* Research Topic Input */}
+              {showResearchTopicInput && (
+                <motion.div 
+                  className="space-y-3"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                >
+                  <Input
+                    value={userInput}
+                    onChange={(e) => setUserInput(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    placeholder="Enter your research topic or clinical interest"
+                    className="bg-white border-2 border-purple-100 focus:border-purple-400 shadow-sm"
+                  />
+                  <Button 
+                    onClick={handleResearchTopicSubmit} 
+                    className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
+                  >
+                    <Send className="h-4 w-4 mr-2" />
+                    Continue
+                  </Button>
+                </motion.div>
+              )}
+
+              {/* Startup Stage Options */}
+              {showStartupStageOptions && (
+                <motion.div 
+                  className="my-4 grid grid-cols-2 gap-2"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                >
+                  {startupStages.map((stage) => (
+                    <Button 
+                      key={stage}
+                      onClick={() => handleStartupStageSelection(stage)}
+                      className="bg-white text-pink-700 border border-pink-200 hover:bg-pink-50 justify-center shadow-md group transition-all hover:-translate-y-1"
+                      variant="outline"
+                    >
+                      {stage}
+                    </Button>
+                  ))}
+                </motion.div>
+              )}
+
+              {/* Team Size Input */}
+              {showTeamSizeInput && (
+                <motion.div 
+                  className="space-y-3"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                >
+                  <Input
+                    value={userInput}
+                    onChange={(e) => setUserInput(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    placeholder="Enter your team size"
+                    type="number"
+                    className="bg-white border-2 border-pink-100 focus:border-pink-400 shadow-sm"
+                  />
+                  <Button 
+                    onClick={handleTeamSizeSubmit} 
+                    className="w-full bg-gradient-to-r from-pink-600 to-red-500 hover:from-pink-700 hover:to-red-600 text-white"
+                  >
+                    <Send className="h-4 w-4 mr-2" />
+                    Continue
+                  </Button>
+                </motion.div>
+              )}
+
+              {/* Startup Industry Input */}
+              {showStartupIndustryInput && (
+                <motion.div 
+                  className="space-y-3"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                >
+                  <Input
+                    value={userInput}
+                    onChange={(e) => setUserInput(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    placeholder="Enter your startup industry"
+                    className="bg-white border-2 border-pink-100 focus:border-pink-400 shadow-sm"
+                  />
+                  <Button 
+                    onClick={handleStartupIndustrySubmit} 
+                    className="w-full bg-gradient-to-r from-pink-600 to-red-500 hover:from-pink-700 hover:to-red-600 text-white"
+                  >
+                    <Send className="h-4 w-4 mr-2" />
+                    Continue
+                  </Button>
+                </motion.div>
+              )}
+
+              {/* Startup Goal Options */}
+              {showStartupGoalOptions && (
+                <motion.div 
+                  className="my-4 grid grid-cols-2 gap-2"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                >
+                  {startupGoals.map((goal) => (
+                    <Button 
+                      key={goal}
+                      onClick={() => handleStartupGoalSelection(goal)}
+                      className="bg-white text-pink-700 border border-pink-200 hover:bg-pink-50 justify-center shadow-md group transition-all hover:-translate-y-1"
+                      variant="outline"
+                    >
+                      {goal}
+                    </Button>
+                  ))}
+                </motion.div>
+              )}
+
+              {/* Personality Test Options */}
+              {showPersonalityTest && (
+                <motion.div 
+                  className="my-4 grid grid-cols-1 sm:grid-cols-2 gap-2"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                >
+                  {personalityTypes.map((type) => (
+                    <Button 
+                      key={type}
+                      onClick={() => handlePersonalitySelection(type)}
+                      className="bg-white border hover:bg-slate-50 justify-center shadow-md group transition-all hover:-translate-y-1"
+                      variant="outline"
+                    >
+                      <Brain className="h-4 w-4 mr-2 text-indigo-500" />
+                      {type}
+                    </Button>
+                  ))}
+                </motion.div>
+              )}
+
+              {/* Mood Options */}
+              {showMoodOptions && (
+                <motion.div 
+                  className="my-4 grid grid-cols-2 md:grid-cols-3 gap-2"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                >
+                  <Button 
+                    onClick={() => handleMoodSelection("Happy")}
+                    className="bg-white text-amber-600 border border-amber-200 hover:bg-amber-50 shadow-md group transition-all hover:-translate-y-1"
+                    variant="outline"
+                  >
+                    <Smile className="h-5 w-5 mr-2 text-amber-500" />
+                    Happy
+                  </Button>
+                  <Button 
+                    onClick={() => handleMoodSelection("Okay")}
+                    className="bg-white text-blue-600 border border-blue-200 hover:bg-blue-50 shadow-md group transition-all hover:-translate-y-1"
+                    variant="outline"
+                  >
+                    <Meh className="h-5 w-5 mr-2 text-blue-500" />
+                    Okay
+                  </Button>
+                  <Button 
+                    onClick={() => handleMoodSelection("Sad")}
+                    className="bg-white text-purple-600 border border-purple-200 hover:bg-purple-50 shadow-md group transition-all hover:-translate-y-1"
+                    variant="outline"
+                  >
+                    <Frown className="h-5 w-5 mr-2 text-purple-500" />
+                    Sad
+                  </Button>
+                  <Button 
+                    onClick={() => handleMoodSelection("Focused")}
+                    className="bg-white text-green-600 border border-green-200 hover:bg-green-50 shadow-md group transition-all hover:-translate-y-1"
+                    variant="outline"
+                  >
+                    <Target className="h-5 w-5 mr-2 text-green-500" />
+                    Focused
+                  </Button>
+                  <Button 
+                    onClick={() => handleMoodSelection("Tired")}
+                    className="bg-white text-orange-600 border border-orange-200 hover:bg-orange-50 shadow-md group transition-all hover:-translate-y-1"
+                    variant="outline"
+                  >
+                    <Moon className="h-5 w-5 mr-2 text-orange-500" />
+                    Tired
+                  </Button>
+                  <Button 
+                    onClick={() => handleMoodSelection("Motivated")}
+                    className="bg-white text-red-600 border border-red-200 hover:bg-red-50 shadow-md group transition-all hover:-translate-y-1" 
+                    variant="outline"
+                  >
+                    <Sun className="h-5 w-5 mr-2 text-red-500" />
+                    Motivated
+                  </Button>
+                </motion.div>
+              )}
+
+              {/* Sleep Schedule Input */}
+              {showSleepScheduleInput && (
+                <motion.div 
+                  className="space-y-3"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                >
+                  <Input
+                    value={userInput}
+                    onChange={(e) => setUserInput(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    placeholder="Enter your sleep/wake-up hours"
+                    className="bg-white border-2 border-blue-100 focus:border-blue-400 shadow-sm"
+                  />
+                  <p className="text-xs text-gray-500">e.g. Sleep at 11pm, Wake up at 6am</p>
+                  <Button 
+                    onClick={handleSleepScheduleSubmit} 
+                    className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white"
+                  >
+                    <Clock className="h-4 w-4 mr-2" />
+                    Continue
+                  </Button>
+                </motion.div>
+              )}
+
+              {/* Focus Hours Input */}
+              {showFocusHoursInput && (
+                <motion.div 
+                  className="space-y-3"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                >
+                  <Input
+                    value={userInput}
+                    onChange={(e) => setUserInput(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    placeholder="Hours you can focus without a break"
+                    type="number"
+                    step="0.5"
+                    className="bg-white border-2 border-blue-100 focus:border-blue-400 shadow-sm"
+                  />
+                  <Button 
+                    onClick={handleFocusHoursSubmit} 
+                    className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white"
+                  >
+                    <Clock className="h-4 w-4 mr-2" />
+                    Continue
+                  </Button>
+                </motion.div>
+              )}
+
+              {/* Stress Management Input */}
+              {showStressInput && (
+                <motion.div 
+                  className="space-y-3"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                >
+                  <Input
+                    value={userInput}
+                    onChange={(e) => setUserInput(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    placeholder="How do you manage stress?"
+                    className="bg-white border-2 border-blue-100 focus:border-blue-400 shadow-sm"
+                  />
+                  <Button 
+                    onClick={handleStressManagementSubmit} 
+                    className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white"
+                  >
+                    <Send className="h-4 w-4 mr-2" />
+                    Continue
+                  </Button>
+                </motion.div>
+              )}
+
+              {/* Break Routine Input */}
+              {showBreakInput && (
+                <motion.div 
+                  className="space-y-3"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                >
+                  <Input
+                    value={userInput}
+                    onChange={(e) => setUserInput(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    placeholder="Describe your break routine"
+                    className="bg-white border-2 border-blue-100 focus:border-blue-400 shadow-sm"
+                  />
+                  <Button 
+                    onClick={handleBreakRoutineSubmit} 
+                    className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white"
+                  >
+                    <Send className="h-4 w-4 mr-2" />
+                    Continue
+                  </Button>
+                </motion.div>
+              )}
+
+              {/* Name Input */}
+              {showNameInput && (
+                <motion.div 
+                  className="space-y-3"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                >
+                  <Input
+                    value={userInput}
+                    onChange={(e) => setUserInput(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    placeholder="Enter your full name"
+                    className="bg-white border-2 border-blue-100 focus:border-blue-400 shadow-sm"
+                  />
+                  <Button 
+                    onClick={handleNameSubmit} 
+                    className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white"
+                  >
+                    <User className="h-4 w-4 mr-2" />
+                    Continue
+                  </Button>
+                </motion.div>
+              )}
+
+              {/* Phone Input */}
+              {showPhoneInput && (
+                <motion.div 
+                  className="space-y-3"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                >
+                  <Input
+                    value={userInput}
+                    onChange={(e) => setUserInput(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    placeholder="Enter 10-digit phone number"
+                    className="bg-white border-2 border-blue-100 focus:border-blue-400 shadow-sm"
+                  />
+                  <Button 
+                    onClick={handlePhoneSubmit} 
+                    className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white"
+                  >
+                    <Send className="h-4 w-4 mr-2" />
+                    Create My Account
+                  </Button>
+                </motion.div>
+              )}
+              
+              <div ref={messagesEndRef} />
+            </div>
+          </CardContent>
+
+          <CardFooter className="border-t border-gray-100 p-4 flex justify-between">
+            <div className="text-xs text-gray-500">
+              Already have an account? <Link to="/login" className="text-blue-600 hover:underline">Login</Link>
+            </div>
+            <div className="text-xs text-gray-500">
+              © Sakha AI 2025
+            </div>
+          </CardFooter>
+        </Card>
+      </motion.div>
+    </div>
+  );
+};
+
+export default SignUp;

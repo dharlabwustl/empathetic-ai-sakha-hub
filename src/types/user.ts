@@ -4,7 +4,7 @@ export type SubscriptionType = "Free" | "Basic" | "Premium";
 
 export type MoodType = "Happy" | "Okay" | "Sad" | "Focused" | "Tired" | "Overwhelmed" | "Motivated";
 
-// Updated ExamGoal to include both string literals and object type
+// Use string type for ExamGoal to resolve type issues
 export type ExamGoal = 
   | "IIT JEE"
   | "NEET"
@@ -12,15 +12,17 @@ export type ExamGoal =
   | "CUET UG"
   | "UPSC"
   | "CLAT"
-  | "BANK PO"
-  | {
-      id: string;
-      name: string;
-      description: string;
-      commonExamDate: string;
-      recommendedHours: number;
-      subjects?: string[];
-    };
+  | "BANK PO";
+
+// Keep the detailed exam goal type as a separate interface
+export interface ExamGoalDetails {
+  id: string;
+  name: string;
+  description: string;
+  commonExamDate: string;
+  recommendedHours: number;
+  subjects?: string[];
+}
 
 export type PersonalityType = 
   | "Analytical"
@@ -90,7 +92,7 @@ export interface EmployeeProfile extends UserProfileType {
   projectsCompleted: number;
   trainingCompleted: number;
   experienceLevel?: string;
-  skillsToGrow?: string[];
+  skillsToGrow?: string[]; // Adding this property
 }
 
 export interface DoctorProfile extends UserProfileType {
@@ -104,7 +106,7 @@ export interface DoctorProfile extends UserProfileType {
   researchTopic?: string;
   thesisTitle?: string;
   clinicalInterest?: string;
-  researchPhase?: string;
+  researchPhase?: string; // Adding this property
 }
 
 export interface FounderProfile extends UserProfileType {
@@ -118,7 +120,7 @@ export interface FounderProfile extends UserProfileType {
   pitchDeckReady: boolean;
   startupStage?: string;
   startupGoal?: string;
-  mvpCompletion?: number;
+  mvpCompletion?: number; // Adding this property
 }
 
 export interface SubjectProgress {
@@ -161,21 +163,12 @@ export interface StudyStreak {
   lastMonth: number[];
 }
 
-export interface ExamGoalDetails {
-  id: string;
-  name: ExamGoal;
-  description: string;
-  commonExamDate: string;
-  recommendedHours: number;
-  subjects: string[];
-}
-
 export interface OnboardingData {
   role: UserRole;
   age?: number;
   grade?: string;
   location?: string;
-  examGoal?: ExamGoal;
+  examGoal?: string; // Changed from ExamGoal to string
   jobTitle?: string;
   experience?: string;
   industry?: string;
