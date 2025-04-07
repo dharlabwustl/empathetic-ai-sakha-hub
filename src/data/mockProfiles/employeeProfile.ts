@@ -1,42 +1,60 @@
 
-import { EmployeeProfile, UserRole } from "@/types/user";
+// Correcting the mock data for employee profile
+import { EmployeeProfile } from "@/types/user";
+import { v4 as uuidv4 } from "uuid";
 
 export const mockEmployeeProfile: EmployeeProfile = {
-  id: "2",
-  name: "Priya Sharma",
-  phoneNumber: "9876543211",
-  role: "Employee" as UserRole,
-  personalityType: "Collaborative Leader",
+  id: uuidv4(),
+  name: "Rajesh Kumar",
+  phoneNumber: "+919876543211",
+  role: "Employee",
+  personalityType: "Strategic Thinker",
+  subscription: "Basic",
+  joinDate: "2025-01-15",
+  lastActive: "2025-04-06",
+  jobTitle: "Product Manager",
+  workExperience: 6,
+  skills: [
+    "Product Strategy",
+    "User Research",
+    "Agile Methodologies",
+    "Roadmapping",
+    "Team Leadership"
+  ],
+  company: "TechSolutions India",
+  industry: "SaaS",
+  careerGoal: "Director of Product",
+  projectsCompleted: 12,
+  trainingCompleted: 8,
+  experienceLevel: "Mid-Senior",
+  skillsToGrow: ["Data Analytics", "Machine Learning Basics", "Product Marketing"],
+  productivityScore: 85,
   goals: [
     {
-      id: "g1",
-      title: "Complete Python Certification",
-      description: "Finish advanced Python course",
-      progress: 60,
-      dueDate: "2025-06-15",
+      id: uuidv4(),
+      title: "Complete PMP Certification",
+      description: "Pass the Project Management Professional exam",
+      progress: 75,
+      dueDate: "2025-05-30"
+    },
+    {
+      id: uuidv4(),
+      title: "Learn SQL",
+      description: "Complete advanced SQL course for data analysis",
+      progress: 45,
+      dueDate: "2025-07-15"
     }
   ],
   areasOfInterest: [
     {
-      id: "i1",
-      name: "Data Science",
-      level: "Intermediate" as const,
+      id: uuidv4(),
+      name: "Product Analytics",
+      level: "Intermediate"
     },
     {
-      id: "i2",
-      name: "Project Management",
-      level: "Advanced" as const,
+      id: uuidv4(),
+      name: "UX Design",
+      level: "Beginner"
     }
-  ],
-  subscription: "Premium" as const,
-  joinDate: "2025-02-15",
-  lastActive: "2025-05-12",
-  jobTitle: "Senior Project Manager",
-  industry: "Technology",
-  experienceLevel: "Senior",
-  skillsToGrow: ["Data Analysis", "Leadership", "Python"],
-  productivityScore: 85,
-  workHoursToday: 7.5,
-  tasksCovered: 6,
-  wellnessScore: 75,
+  ]
 };

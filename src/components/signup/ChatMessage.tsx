@@ -1,6 +1,7 @@
 
 import React from "react";
 import { motion } from "framer-motion";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface ChatMessageProps {
   type: "bot" | "user";
@@ -8,31 +9,55 @@ interface ChatMessageProps {
 }
 
 const ChatMessage = ({ type, content }: ChatMessageProps) => {
+  const isBot = type === "bot";
+  
   return (
     <motion.div 
-      className={`flex mb-4 ${type === "user" ? "justify-end" : "justify-start"}`}
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
+      className={`flex mb-5 ${isBot ? "justify-start" : "justify-end"}`}
+      initial={{ opacity: 0, y: 10, scale: 0.98 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ duration: 0.3 }}
     >
-      {type === "bot" && (
-        <div className="flex-shrink-0 h-8 w-8 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 mr-2 flex items-center justify-center text-white text-sm font-bold">
-          S
-        </div>
+      {isBot && (
+        <motion.div 
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 0.2 }}
+          className="flex-shrink-0 mr-3"
+        >
+          <Avatar className="h-9 w-9 border-2 border-blue-100 shadow-md">
+            <AvatarImage src="/lovable-uploads/2a3b330c-09e1-40bd-b9bd-85ecb5cc394a.png" alt="Sakha AI" />
+            <AvatarFallback className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-sm">S</AvatarFallback>
+          </Avatar>
+        </motion.div>
       )}
-      <div 
-        className={`max-w-[80%] p-4 rounded-lg shadow-md ${
-          type === "user" 
-            ? "bg-gradient-to-r from-blue-600 to-indigo-700 text-white rounded-br-none" 
-            : "bg-white border border-blue-100 shadow-lg rounded-bl-none"
+      
+      <motion.div 
+        className={`max-w-[80%] p-4 rounded-2xl shadow-sm ${
+          isBot 
+            ? "bg-white border border-blue-100 rounded-tl-none" 
+            : "bg-gradient-to-r from-blue-600 to-indigo-700 text-white rounded-tr-none"
         }`}
+        initial={{ x: isBot ? -20 : 20, opacity: 0 }}
+        animate={{ x: 0, opacity: 1 }}
+        transition={{ type: "spring", stiffness: 120, damping: 20 }}
       >
-        <p className={`${type === "user" ? "text-white" : "text-gray-800"} text-sm md:text-base`}>{content}</p>
-      </div>
-      {type === "user" && (
-        <div className="flex-shrink-0 h-8 w-8 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 ml-2 flex items-center justify-center text-white text-sm font-bold">
-          U
-        </div>
+        <p className={`${isBot ? "text-gray-800" : "text-white"} text-sm md:text-base`}>
+          {content}
+        </p>
+      </motion.div>
+      
+      {!isBot && (
+        <motion.div 
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 0.2 }}
+          className="flex-shrink-0 ml-3"
+        >
+          <div className="h-9 w-9 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center text-white text-sm shadow-md border-2 border-indigo-100">
+            <span className="font-medium">You</span>
+          </div>
+        </motion.div>
       )}
     </motion.div>
   );

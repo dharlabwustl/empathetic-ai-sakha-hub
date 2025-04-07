@@ -1,42 +1,55 @@
 
-import { FounderProfile, UserRole } from "@/types/user";
+// Correcting the mock data for founder profile
+import { FounderProfile } from "@/types/user";
+import { v4 as uuidv4 } from "uuid";
 
 export const mockFounderProfile: FounderProfile = {
-  id: "4",
-  name: "Vikram Mehta",
-  phoneNumber: "9876543213",
-  role: "Founder" as UserRole,
+  id: uuidv4(),
+  name: "Priya Mehta",
+  phoneNumber: "+919876543212",
+  role: "Founder",
   personalityType: "Creative Builder",
+  subscription: "Premium",
+  joinDate: "2024-12-05",
+  lastActive: "2025-04-07",
+  startupName: "EduMatch",
+  industry: "EdTech",
+  foundingYear: "2024",
+  teamSize: 4,
+  funding: "Seed",
+  stage: "Early Traction",
+  mvpStatus: 80,
+  pitchDeckReady: true,
+  startupStage: "Product-Market Fit",
+  startupGoal: "Series A Funding",
+  mvpCompletion: 80,
+  pitchDeckStatus: 100,
   goals: [
     {
-      id: "g1",
-      title: "Raise Seed Funding",
-      description: "Secure $500K in seed funding",
-      progress: 40,
-      dueDate: "2025-07-30",
+      id: uuidv4(),
+      title: "Secure Series A",
+      description: "Raise $1.5M in Series A funding",
+      progress: 35,
+      dueDate: "2025-09-30"
+    },
+    {
+      id: uuidv4(),
+      title: "User Growth",
+      description: "Reach 50,000 active users",
+      progress: 60,
+      dueDate: "2025-06-15"
     }
   ],
   areasOfInterest: [
     {
-      id: "i1",
-      name: "HealthTech",
-      level: "Advanced" as const,
+      id: uuidv4(),
+      name: "Growth Marketing",
+      level: "Intermediate"
     },
     {
-      id: "i2",
-      name: "AI",
-      level: "Intermediate" as const,
+      id: uuidv4(),
+      name: "Financial Modeling",
+      level: "Beginner"
     }
-  ],
-  subscription: "Premium" as const,
-  joinDate: "2024-12-05",
-  lastActive: "2025-05-12",
-  startupName: "MediSync",
-  startupStage: "Prototype",
-  industry: "HealthTech",
-  teamSize: 4,
-  mvpCompletion: 75,
-  pitchDeckStatus: 90,
-  burnoutRisk: 35,
-  investorMeetings: 8,
+  ]
 };

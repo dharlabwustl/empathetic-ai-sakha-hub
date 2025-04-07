@@ -1,3 +1,4 @@
+
 export type UserRole = "Student" | "Employee" | "Doctor" | "Founder";
 
 export type SubscriptionType = "Free" | "Basic" | "Premium";
@@ -92,7 +93,8 @@ export interface EmployeeProfile extends UserProfileType {
   projectsCompleted: number;
   trainingCompleted: number;
   experienceLevel?: string;
-  skillsToGrow?: string[]; // Adding this property
+  skillsToGrow?: string[];
+  productivityScore?: number; // Added this property
 }
 
 export interface DoctorProfile extends UserProfileType {
@@ -106,7 +108,8 @@ export interface DoctorProfile extends UserProfileType {
   researchTopic?: string;
   thesisTitle?: string;
   clinicalInterest?: string;
-  researchPhase?: string; // Adding this property
+  researchPhase?: string;
+  publicationsCount?: number; // Added this property
 }
 
 export interface FounderProfile extends UserProfileType {
@@ -120,7 +123,8 @@ export interface FounderProfile extends UserProfileType {
   pitchDeckReady: boolean;
   startupStage?: string;
   startupGoal?: string;
-  mvpCompletion?: number; // Adding this property
+  mvpCompletion?: number;
+  pitchDeckStatus?: number; // Added this property
 }
 
 export interface SubjectProgress {
