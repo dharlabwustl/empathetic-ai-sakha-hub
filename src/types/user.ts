@@ -1,4 +1,3 @@
-
 export type UserRole = "Student" | "Employee" | "Doctor" | "Founder";
 
 export type SubscriptionType = "Free" | "Basic" | "Premium";
@@ -91,6 +90,7 @@ export interface EmployeeProfile extends UserProfileType {
   projectsCompleted: number;
   trainingCompleted: number;
   experienceLevel?: string;
+  skillsToGrow?: string[];
 }
 
 export interface DoctorProfile extends UserProfileType {
@@ -104,6 +104,7 @@ export interface DoctorProfile extends UserProfileType {
   researchTopic?: string;
   thesisTitle?: string;
   clinicalInterest?: string;
+  researchPhase?: string;
 }
 
 export interface FounderProfile extends UserProfileType {
@@ -117,9 +118,9 @@ export interface FounderProfile extends UserProfileType {
   pitchDeckReady: boolean;
   startupStage?: string;
   startupGoal?: string;
+  mvpCompletion?: number;
 }
 
-// New types for study progress tracking
 export interface SubjectProgress {
   id: string;
   name: string;
@@ -135,7 +136,7 @@ export interface TopicProgress {
   id: string;
   name: string;
   completed: boolean;
-  masteryLevel: number; // 0-100
+  masteryLevel: number;
   lastPracticed?: string;
 }
 
@@ -145,7 +146,7 @@ export interface QuizScore {
   score: number;
   maxScore: number;
   date: string;
-  timeTaken: number; // in minutes
+  timeTaken: number;
 }
 
 export interface StudyHoursData {
@@ -160,7 +161,6 @@ export interface StudyStreak {
   lastMonth: number[];
 }
 
-// New types for onboarding
 export interface ExamGoalDetails {
   id: string;
   name: ExamGoal;

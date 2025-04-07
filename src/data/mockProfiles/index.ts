@@ -5,8 +5,8 @@ import { mockDoctorProfile } from './doctorProfile';
 import { mockFounderProfile } from './founderProfile';
 import { UserRole, UserProfileType, ExamGoal } from '@/types/user';
 
-// New exam goals as string literals as per updated type
-export const examGoals: ExamGoal[] = [
+// Update to only use string literals for exam goals
+export const examGoals: string[] = [
   "IIT JEE",
   "NEET",
   "MBA",
