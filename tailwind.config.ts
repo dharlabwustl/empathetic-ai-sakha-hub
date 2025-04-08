@@ -130,6 +130,14 @@ export default {
           "0%, 100%": { opacity: "1" },
           "50%": { opacity: "0.7" },
         },
+        "pulse-subtle": {
+          "0%, 100%": { opacity: "1" },
+          "50%": { opacity: "0.85" },
+        },
+        "bounce-subtle": {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-5px)" },
+        },
         glow: {
           "0%, 100%": { boxShadow: "0 0 5px 2px rgba(56, 189, 248, 0.4)" },
           "50%": { boxShadow: "0 0 20px 10px rgba(56, 189, 248, 0.7)" }
@@ -151,6 +159,8 @@ export default {
         "slide-in": "slide-in 0.5s ease-out forwards",
         float: "float 3s ease-in-out infinite",
         pulse: "pulse 2s ease-in-out infinite",
+        "pulse-subtle": "pulse-subtle 2s ease-in-out infinite",
+        "bounce-subtle": "bounce-subtle 2s ease-in-out infinite",
         glow: "glow 3s ease-in-out infinite",
         "eye-movement": "eye-movement 5s ease-in-out infinite"
       },
@@ -163,6 +173,9 @@ export default {
         "hero-pattern": "linear-gradient(to bottom right, #9DF3FF, #0EA5E9, #8B5CF6)",
         "glass-gradient": "linear-gradient(to bottom right, rgba(255,255,255,0.8), rgba(255,255,255,0.2))",
       },
+      blur: {
+        '3xl': '64px',
+      }
     },
   },
   plugins: [
