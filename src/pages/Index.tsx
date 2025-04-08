@@ -1,4 +1,5 @@
 
+import { useState } from "react";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import HeroSection from "@/components/home/HeroSection";
@@ -10,13 +11,20 @@ import OnboardingSection from "@/components/home/OnboardingSection";
 import FeaturesSection from "@/components/home/FeaturesSection";
 import CallToAction from "@/components/home/CallToAction";
 import FloatingAvatar from "@/components/shared/FloatingAvatar";
+import ExamPreparationSection from "@/components/home/ExamPreparationSection";
+import StudentBenefitsSection from "@/components/home/StudentBenefitsSection";
+import ExamReadinessAnalyzer from "@/components/home/ExamReadinessAnalyzer";
 
 const Index = () => {
+  const [showAnalyzer, setShowAnalyzer] = useState(false);
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-grow">
-        <HeroSection />
+        <HeroSection onAnalyzeClick={() => setShowAnalyzer(true)} />
+        <ExamPreparationSection />
+        <StudentBenefitsSection />
         <WhatIsSection />
         <ForWhomSection />
         <FounderSection />
@@ -27,6 +35,7 @@ const Index = () => {
       </main>
       <Footer />
       <FloatingAvatar />
+      {showAnalyzer && <ExamReadinessAnalyzer onClose={() => setShowAnalyzer(false)} />}
     </div>
   );
 };

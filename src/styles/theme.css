@@ -10,7 +10,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 199 89% 48%;
+    --primary: 270 70% 60%;
     --primary-foreground: 210 40% 98%;
 
     --secondary: 267 70% 74%;
@@ -19,7 +19,7 @@
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
 
-    --accent: 210 40% 96.1%;
+    --accent: 270 70% 96%;
     --accent-foreground: 222.2 47.4% 11.2%;
 
     --destructive: 0 84.2% 60.2%;
@@ -27,7 +27,7 @@
 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --ring: 270 70% 60%;
 
     --radius: 0.75rem;
 
@@ -40,11 +40,11 @@
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
     
-    /* Updated Sakha colors based on requirements */
+    /* Updated Sakha colors for a more vibrant purple theme */
     --sakha-sky-blue: 198 100% 50%;
-    --sakha-lilac: 252 100% 94%;
-    --sakha-deep-purple: 227 24% 14%;
-    --sakha-primary-purple: 258 79% 74%;
+    --sakha-lilac: 267 70% 94%;
+    --sakha-deep-purple: 267 40% 30%;
+    --sakha-primary-purple: 270 70% 60%;
     --sakha-light-blue: 190 100% 81%;
   }
 
@@ -58,7 +58,7 @@
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 199 89% 48%;
+    --primary: 270 70% 60%;
     --primary-foreground: 222.2 47.4% 11.2%;
 
     --secondary: 267 70% 74%;
@@ -67,7 +67,7 @@
     --muted: 217.2 32.6% 17.5%;
     --muted-foreground: 215 20.2% 65.1%;
 
-    --accent: 217.2 32.6% 17.5%;
+    --accent: 270 30% 25%;
     --accent-foreground: 210 40% 98%;
 
     --destructive: 0 62.8% 30.6%;
@@ -75,7 +75,7 @@
 
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    --ring: 270 70% 60%;
 
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
@@ -88,9 +88,9 @@
     
     /* Updated Sakha colors for dark mode */
     --sakha-sky-blue: 198 100% 50%;
-    --sakha-lilac: 252 60% 94%;
-    --sakha-deep-purple: 227 24% 14%;
-    --sakha-primary-purple: 258 79% 74%;
+    --sakha-lilac: 267 60% 94%;
+    --sakha-deep-purple: 267 40% 30%;
+    --sakha-primary-purple: 270 70% 60%;
     --sakha-light-blue: 190 100% 81%;
   }
 }
@@ -100,7 +100,7 @@
 }
 
 .gradient-text {
-  @apply bg-clip-text text-transparent bg-gradient-to-r from-sky-500 to-violet-500;
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-violet-500 to-purple-500;
 }
 
 /* Avatar glow effect */
@@ -110,7 +110,7 @@
 
 .avatar-glow::before {
   content: '';
-  @apply absolute -inset-0.5 rounded-full bg-gradient-to-r from-sky-400 to-violet-500 opacity-75 blur-sm animate-pulse;
+  @apply absolute -inset-0.5 rounded-full bg-gradient-to-r from-violet-400 to-purple-500 opacity-75 blur-sm animate-pulse;
   z-index: -1;
 }
 
@@ -130,10 +130,10 @@
 
 @keyframes glow {
   0%, 100% {
-    box-shadow: 0 0 5px 2px rgba(79, 70, 229, 0.4);
+    box-shadow: 0 0 5px 2px rgba(124, 58, 237, 0.4);
   }
   50% {
-    box-shadow: 0 0 15px 5px rgba(79, 70, 229, 0.7);
+    box-shadow: 0 0 15px 5px rgba(124, 58, 237, 0.7);
   }
 }
 
@@ -144,4 +144,22 @@
 /* Smooth transitions */
 .transition-smooth {
   @apply transition-all duration-300 ease-in-out;
+}
+
+/* New student-focused styles */
+.exam-card {
+  @apply bg-white rounded-xl p-6 border border-purple-100 hover:border-purple-300 hover:shadow-lg transition-all cursor-pointer;
+}
+
+.feature-highlight {
+  @apply relative overflow-hidden rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 p-6 text-white;
+}
+
+.feature-highlight::before {
+  content: '';
+  @apply absolute -right-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-xl;
+}
+
+.student-badge {
+  @apply bg-purple-100 text-purple-800 text-xs font-semibold px-2.5 py-0.5 rounded-full inline-flex items-center;
 }
