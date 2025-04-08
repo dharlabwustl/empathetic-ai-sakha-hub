@@ -73,7 +73,7 @@
   
   /* Tab scrollbar */
   .tab-scrollbar {
-    @apply overflow-x-auto scrollbar-thin scrollbar-thumb-violet-200 scrollbar-track-transparent pb-2;
+    @apply overflow-x-auto scrollbar-thin scrollbar-track-transparent pb-2;
     scrollbar-width: thin;
     -ms-overflow-style: none;
   }
@@ -111,6 +111,8 @@
 }
 
 /* Add scrollbar-thin utility */
-.scrollbar-thin {
-  scrollbar-width: thin;
+@layer utilities {
+  .scrollbar-thin {
+    scrollbar-width: thin;
+  }
 }
