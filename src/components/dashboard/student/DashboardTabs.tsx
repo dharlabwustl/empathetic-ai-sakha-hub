@@ -46,7 +46,6 @@ export default function DashboardTabs({
     { id: "materials", label: "Materials", icon: <BookOpen size={16} /> },
     { id: "goals", label: "Goals", icon: <Target size={16} /> },
     { id: "wellness", label: "Wellness", icon: <Heart size={16} /> },
-    // New feature tabs
     { id: "live-tutors", label: "Live Tutors", icon: <Video size={16} /> },
     { id: "forum", label: "Forum", icon: <Users size={16} /> },
     { id: "videos", label: "Videos", icon: <Video size={16} /> },

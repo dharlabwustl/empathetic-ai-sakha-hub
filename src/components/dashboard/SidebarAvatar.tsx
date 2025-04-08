@@ -44,12 +44,10 @@ export const SidebarAvatar = ({ userName, userType, collapsed }: SidebarAvatarPr
             {/* Avatar with animated eyes */}
             <div className="avatar-eyes relative w-10 h-10 overflow-hidden">
               <img 
-                src="/lovable-uploads/ffd1ed0a-7a25-477e-bc91-1da9aca3497f.png" 
+                src="/lovable-uploads/37933273-088b-4a83-a5ec-24b13c8c89f5.png" 
                 alt="Sakha AI Logo" 
                 className="w-10 h-10"
               />
-              <div className="eye absolute w-2 h-2 bg-white rounded-full" style={getEyePosition(1)}></div>
-              <div className="eye absolute w-2 h-2 bg-white rounded-full" style={getEyePosition(2)}></div>
             </div>
           </div>
         </div>

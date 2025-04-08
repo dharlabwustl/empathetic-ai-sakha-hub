@@ -70,6 +70,25 @@
     @apply absolute w-2 h-2 bg-white rounded-full;
     transition: all 0.3s ease;
   }
+  
+  /* Tab scrollbar */
+  .tab-scrollbar {
+    @apply overflow-x-auto scrollbar-thin scrollbar-thumb-violet-200 scrollbar-track-transparent pb-2;
+    scrollbar-width: thin;
+    -ms-overflow-style: none;
+  }
+  
+  .tab-scrollbar::-webkit-scrollbar {
+    height: 4px;
+  }
+  
+  .tab-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-violet-300 rounded-full;
+  }
+  
+  .tab-scrollbar::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
 }
 
 /* Animation keyframes */
@@ -89,4 +108,9 @@
 
 .animate-slide-in {
   animation: slideIn 0.5s ease forwards;
+}
+
+/* Add scrollbar-thin utility */
+.scrollbar-thin {
+  scrollbar-width: thin;
 }

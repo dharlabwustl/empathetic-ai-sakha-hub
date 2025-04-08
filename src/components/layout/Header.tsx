@@ -13,7 +13,7 @@ const Header = () => {
         <Link to="/" className="flex items-center gap-2">
           <div className="w-10 h-10 bg-gradient-to-br from-violet-500 to-purple-600 rounded-full relative overflow-hidden flex items-center justify-center">
             <img 
-              src="/lovable-uploads/ffd1ed0a-7a25-477e-bc91-1da9aca3497f.png" 
+              src="/lovable-uploads/37933273-088b-4a83-a5ec-24b13c8c89f5.png" 
               alt="Sakha AI Logo" 
               className="w-10 h-10 object-contain"
             />

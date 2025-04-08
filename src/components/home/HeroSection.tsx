@@ -81,12 +81,10 @@ const HeroSection = ({ onAnalyzeClick }: HeroSectionProps) => {
                 <div className="avatar-pulse" style={{ animationDelay: "0.5s" }}></div>
                 <div className="avatar-eyes w-10 h-10 bg-gradient-to-br from-violet-400 to-purple-500 rounded-full relative overflow-hidden animate-glow">
                   <img 
-                    src="/lovable-uploads/ffd1ed0a-7a25-477e-bc91-1da9aca3497f.png" 
+                    src="/lovable-uploads/37933273-088b-4a83-a5ec-24b13c8c89f5.png" 
                     alt="Sakha AI Avatar" 
                     className="w-10 h-10 rounded-full z-10 relative"
                   />
-                  <div className="eye absolute w-2 h-2 bg-white rounded-full" style={{ left: '8px', top: '12px'}}></div>
-                  <div className="eye absolute w-2 h-2 bg-white rounded-full" style={{ left: '17px', top: '12px'}}></div>
                 </div>
               </div>
               <div>
@@ -107,7 +105,7 @@ const HeroSection = ({ onAnalyzeClick }: HeroSectionProps) => {
                   {msg.type === "bot" ? (
                     <div className="avatar-eyes w-6 h-6 bg-gradient-to-br from-violet-400 to-purple-500 rounded-full relative overflow-hidden">
                       <img 
-                        src="/lovable-uploads/ffd1ed0a-7a25-477e-bc91-1da9aca3497f.png" 
+                        src="/lovable-uploads/37933273-088b-4a83-a5ec-24b13c8c89f5.png" 
                         alt="Sakha AI" 
                         className="w-6 h-6 rounded-full"
                       />

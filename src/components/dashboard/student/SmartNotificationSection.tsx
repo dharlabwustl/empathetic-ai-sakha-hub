@@ -3,437 +3,286 @@ import { useState } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
 import { 
   Bell, 
   Calendar, 
-  MessageSquare, 
+  CheckCircle, 
   Clock, 
+  MessageSquare, 
+  Book, 
+  AlertCircle, 
   Smartphone,
   Mail,
-  CheckCircle, 
-  AlertCircle,
-  Send,
-  Settings 
+  PhoneCall
 } from "lucide-react";
 
-interface Notification {
-  id: string;
-  title: string;
-  message: string;
-  date: string;
-  time: string;
-  type: "reminder" | "alert" | "info";
-  channel: "app" | "sms" | "whatsapp" | "email";
-  read: boolean;
-}
-
-const mockNotifications: Notification[] = [
-  {
-    id: "n1",
-    title: "Study Reminder: Physics",
-    message: "Your scheduled 1-hour study session for Physics - Electromagnetism starts in 30 minutes.",
-    date: "2023-06-18",
-    time: "10:30 AM",
-    type: "reminder",
-    channel: "app",
-    read: false
-  },
-  {
-    id: "n2",
-    title: "Concept Review Due",
-    message: "You have a pending review for 'Integration by Parts' concept in Mathematics scheduled for today.",
-    date: "2023-06-18",
-    time: "09:15 AM",
-    type: "alert",
-    channel: "whatsapp",
-    read: true
-  },
-  {
-    id: "n3",
-    title: "Weekly Goal Update",
-    message: "You're 70% through your weekly goal! Keep going to earn your streak bonus.",
-    date: "2023-06-17",
-    time: "08:00 PM",
-    type: "info",
-    channel: "sms",
-    read: true
-  },
-  {
-    id: "n4",
-    title: "Mock Test Scheduled",
-    message: "Your JEE Physics mock test is scheduled for tomorrow at 2:00 PM. Make sure to be prepared!",
-    date: "2023-06-17",
-    time: "06:45 PM",
-    type: "reminder",
-    channel: "email",
-    read: false
-  }
-];
-
-const SmartNotificationSection = () => {
-  const [activeTab, setActiveTab] = useState("all");
-  const [notifications, setNotifications] = useState(mockNotifications);
+export const SmartNotificationSection = () => {
+  const [activeTab, setActiveTab] = useState("upcoming");
   
-  // Notification settings
-  const [pushEnabled, setPushEnabled] = useState(true);
-  const [emailEnabled, setEmailEnabled] = useState(true);
-  const [smsEnabled, setSmsEnabled] = useState(true);
-  const [whatsappEnabled, setWhatsappEnabled] = useState(true);
-  const [phoneNumber, setPhoneNumber] = useState("+91 98765 43210");
-  const [emailAddress, setEmailAddress] = useState("student@example.com");
-  
-  const [showSettings, setShowSettings] = useState(false);
-
-  const filteredNotifications = notifications.filter(notification => {
-    if (activeTab === "all") return true;
-    if (activeTab === "unread") return !notification.read;
-    if (activeTab === "reminders") return notification.type === "reminder";
-    if (activeTab === "alerts") return notification.type === "alert";
-    return true;
-  });
-
-  const markAsRead = (id: string) => {
-    setNotifications(notifications.map(notification => 
-      notification.id === id ? { ...notification, read: true } : notification
-    ));
+  const notifications = {
+    upcoming: [
+      {
+        id: 1,
+        title: "Physics Test Tomorrow",
+        description: "Your scheduled test on 'Electromagnetism' is tomorrow at 10:00 AM",
+        time: "Tomorrow, 10:00 AM",
+        type: "exam",
+        delivered: ["app", "email", "sms"]
+      },
+      {
+        id: 2,
+        title: "Study Reminder: Organic Chemistry",
+        description: "As per your study plan, it's time to review Aldehydes and Ketones",
+        time: "Today, 4:30 PM",
+        type: "study",
+        delivered: ["app", "whatsapp"]
+      },
+      {
+        id: 3,
+        title: "Live Session with Dr. Sharma",
+        description: "Your booked session on 'JEE Advanced Physics' starts in 2 hours",
+        time: "Today, 7:00 PM",
+        type: "session",
+        delivered: ["app", "email", "sms", "whatsapp"]
+      },
+      {
+        id: 4,
+        title: "Weekly Progress Review",
+        description: "Let's review your study progress for the week and adjust your plan",
+        time: "Sunday, 11:00 AM",
+        type: "progress",
+        delivered: ["app"]
+      }
+    ],
+    past: [
+      {
+        id: 5,
+        title: "Biology Quiz Completed",
+        description: "You scored 85% on your Cell Biology quiz. Great progress!",
+        time: "Yesterday, 3:45 PM",
+        type: "result",
+        delivered: ["app", "email"]
+      },
+      {
+        id: 6,
+        title: "Missed Study Session",
+        description: "You missed your scheduled study session on Calculus",
+        time: "Yesterday, 9:00 AM",
+        type: "missed",
+        delivered: ["app", "whatsapp"]
+      },
+      {
+        id: 7,
+        title: "New Forum Discussion",
+        description: "A new discussion on 'Integration Techniques' was created that matches your interests",
+        time: "2 days ago",
+        type: "forum",
+        delivered: ["app"]
+      }
+    ]
   };
 
-  const markAllAsRead = () => {
-    setNotifications(notifications.map(notification => ({ ...notification, read: true })));
+  const notificationPreferences = [
+    {
+      category: "Study Plan Reminders",
+      description: "Notifications about upcoming study sessions and topics",
+      app: true,
+      email: true,
+      sms: false,
+      whatsapp: true
+    },
+    {
+      category: "Test & Quiz Alerts",
+      description: "Reminders about scheduled tests and quizzes",
+      app: true,
+      email: true,
+      sms: true,
+      whatsapp: true
+    },
+    {
+      category: "Progress Reports",
+      description: "Weekly and monthly progress summaries",
+      app: true,
+      email: true,
+      sms: false,
+      whatsapp: false
+    },
+    {
+      category: "Forum Activity",
+      description: "Updates on discussions you're participating in",
+      app: true,
+      email: false,
+      sms: false,
+      whatsapp: false
+    },
+    {
+      category: "Tutor Sessions",
+      description: "Reminders about upcoming tutor sessions",
+      app: true,
+      email: true,
+      sms: true,
+      whatsapp: true
+    }
+  ];
+
+  const getNotificationIcon = (type: string) => {
+    switch (type) {
+      case "exam": return <AlertCircle className="text-red-500" />;
+      case "study": return <Book className="text-blue-500" />;
+      case "session": return <PhoneCall className="text-violet-500" />;
+      case "progress": return <CheckCircle className="text-green-500" />;
+      case "result": return <CheckCircle className="text-green-500" />;
+      case "missed": return <Clock className="text-amber-500" />;
+      case "forum": return <MessageSquare className="text-blue-500" />;
+      default: return <Bell className="text-gray-500" />;
+    }
+  };
+
+  const getDeliveryIcon = (method: string) => {
+    switch (method) {
+      case "app": return <Bell size={14} />;
+      case "email": return <Mail size={14} />;
+      case "sms": return <Smartphone size={14} />;
+      case "whatsapp": return <MessageSquare size={14} />;
+      default: return null;
+    }
   };
 
   return (
-    <div className="space-y-8">
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-2xl font-bold mb-2">Smart Notifications</h2>
-          <p className="text-muted-foreground">
-            Manage your study reminders and notifications across all channels
-          </p>
-        </div>
-        <Button 
-          variant="outline" 
-          className="gap-2"
-          onClick={() => setShowSettings(!showSettings)}
-        >
-          <Settings size={16} />
-          Notification Settings
-        </Button>
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-2xl font-bold">Smart Notifications</h2>
+        <p className="text-muted-foreground">
+          Manage your study reminders and stay on track with timely notifications
+        </p>
       </div>
 
-      {!showSettings ? (
-        <>
-          <Tabs defaultValue="all" className="w-full" value={activeTab} onValueChange={setActiveTab}>
-            <div className="flex justify-between items-center mb-4">
-              <TabsList>
-                <TabsTrigger value="all" className="gap-2">
-                  <Bell size={14} />
-                  <span>All</span>
-                  <Badge variant="secondary" className="ml-1 bg-gray-200">{notifications.length}</Badge>
-                </TabsTrigger>
-                <TabsTrigger value="unread" className="gap-2">
-                  <AlertCircle size={14} />
-                  <span>Unread</span>
-                  <Badge variant="secondary" className="ml-1 bg-gray-200">
-                    {notifications.filter(n => !n.read).length}
-                  </Badge>
-                </TabsTrigger>
-                <TabsTrigger value="reminders" className="gap-2">
-                  <Clock size={14} />
-                  <span>Reminders</span>
-                </TabsTrigger>
-              </TabsList>
-              
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={markAllAsRead}
-                className="text-violet-600"
-                disabled={!notifications.some(n => !n.read)}
-              >
-                <CheckCircle size={14} className="mr-1" />
-                Mark all as read
-              </Button>
-            </div>
+      <Tabs defaultValue="upcoming" value={activeTab} onValueChange={setActiveTab}>
+        <TabsList>
+          <TabsTrigger value="upcoming">Upcoming</TabsTrigger>
+          <TabsTrigger value="past">Past Notifications</TabsTrigger>
+          <TabsTrigger value="settings">Notification Settings</TabsTrigger>
+        </TabsList>
 
-            <TabsContent value="all" className="mt-0">
-              <Card>
-                <CardContent className="p-0">
-                  {filteredNotifications.length > 0 ? (
-                    <ul className="divide-y">
-                      {filteredNotifications.map((notification) => (
-                        <li 
-                          key={notification.id} 
-                          className={`p-4 ${notification.read ? 'bg-white' : 'bg-violet-50'} hover:bg-slate-50`}
-                        >
-                          <div className="flex gap-3">
-                            <div className="pt-1">
-                              {notification.type === 'reminder' && (
-                                <Clock className="h-5 w-5 text-violet-500" />
-                              )}
-                              {notification.type === 'alert' && (
-                                <AlertCircle className="h-5 w-5 text-amber-500" />
-                              )}
-                              {notification.type === 'info' && (
-                                <Bell className="h-5 w-5 text-sky-500" />
-                              )}
-                            </div>
-                            <div className="flex-1">
-                              <div className="flex justify-between mb-1">
-                                <h4 className={`font-medium ${notification.read ? '' : 'text-violet-700'}`}>
-                                  {notification.title}
-                                </h4>
-                                <div className="flex items-center gap-2">
-                                  <span className="text-xs text-muted-foreground">
-                                    {notification.time}
-                                  </span>
-                                  {notification.channel === 'whatsapp' && (
-                                    <Badge variant="outline" className="bg-green-50 text-green-600 text-xs">
-                                      WhatsApp
-                                    </Badge>
-                                  )}
-                                  {notification.channel === 'sms' && (
-                                    <Badge variant="outline" className="bg-blue-50 text-blue-600 text-xs">
-                                      SMS
-                                    </Badge>
-                                  )}
-                                  {notification.channel === 'email' && (
-                                    <Badge variant="outline" className="bg-orange-50 text-orange-600 text-xs">
-                                      Email
-                                    </Badge>
-                                  )}
-                                </div>
-                              </div>
-                              <p className="text-sm text-muted-foreground mb-2">
-                                {notification.message}
-                              </p>
-                              <div className="flex justify-end gap-2">
-                                {!notification.read && (
-                                  <Button 
-                                    variant="ghost" 
-                                    size="sm" 
-                                    className="text-xs text-violet-600 hover:text-violet-700"
-                                    onClick={() => markAsRead(notification.id)}
-                                  >
-                                    Mark as read
-                                  </Button>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        </li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <div className="text-center py-8">
-                      <Bell className="h-12 w-12 text-muted-foreground mx-auto mb-3 opacity-50" />
-                      <h3 className="text-lg font-medium mb-1">No notifications</h3>
-                      <p className="text-muted-foreground">
-                        You're all caught up! No {activeTab} notifications.
-                      </p>
-                    </div>
-                  )}
-                </CardContent>
+        <TabsContent value="upcoming" className="mt-6">
+          <div className="space-y-4">
+            {notifications.upcoming.map((notification) => (
+              <Card key={notification.id} className="hover:shadow-sm transition-all">
+                <CardHeader className="pb-2 flex flex-row items-start space-x-4">
+                  <div className="mt-1 bg-violet-100 p-2 rounded-full">
+                    {getNotificationIcon(notification.type)}
+                  </div>
+                  <div className="space-y-1">
+                    <CardTitle className="text-base">{notification.title}</CardTitle>
+                    <CardDescription>{notification.description}</CardDescription>
+                  </div>
+                </CardHeader>
+                <CardFooter className="pt-2 flex justify-between items-center">
+                  <div className="flex items-center text-sm text-muted-foreground">
+                    <Calendar className="h-4 w-4 mr-1" />
+                    {notification.time}
+                  </div>
+                  <div className="flex space-x-2">
+                    {notification.delivered.map(method => (
+                      <Badge key={method} variant="outline" className="bg-violet-50 text-violet-700">
+                        {getDeliveryIcon(method)}
+                      </Badge>
+                    ))}
+                  </div>
+                </CardFooter>
               </Card>
-            </TabsContent>
-
-            <TabsContent value="unread" className="mt-0">
-              {/* Similar content structure as "all" tab */}
-            </TabsContent>
-
-            <TabsContent value="reminders" className="mt-0">
-              {/* Similar content structure as "all" tab */}
-            </TabsContent>
-          </Tabs>
-
-          <div className="mt-8">
-            <h3 className="text-xl font-bold mb-4">Upcoming Reminders</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Card>
-                <CardContent className="p-4">
-                  <div className="flex justify-between items-start mb-3">
-                    <div className="bg-violet-100 p-2 rounded-md">
-                      <Calendar className="h-5 w-5 text-violet-600" />
-                    </div>
-                    <Badge variant="outline" className="bg-violet-50 text-violet-600">Today</Badge>
-                  </div>
-                  <h4 className="font-medium mb-1">Physics Study Session</h4>
-                  <p className="text-sm text-muted-foreground mb-2">Electromagnetism chapter review</p>
-                  <div className="flex items-center gap-1 text-sm text-violet-600">
-                    <Clock size={14} />
-                    <span>2:00 PM - 3:30 PM</span>
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardContent className="p-4">
-                  <div className="flex justify-between items-start mb-3">
-                    <div className="bg-violet-100 p-2 rounded-md">
-                      <Calendar className="h-5 w-5 text-violet-600" />
-                    </div>
-                    <Badge variant="outline" className="bg-violet-50 text-violet-600">Tomorrow</Badge>
-                  </div>
-                  <h4 className="font-medium mb-1">Chemistry Quiz</h4>
-                  <p className="text-sm text-muted-foreground mb-2">Weekly assessment on Organic Chemistry</p>
-                  <div className="flex items-center gap-1 text-sm text-violet-600">
-                    <Clock size={14} />
-                    <span>10:00 AM - 11:00 AM</span>
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardContent className="p-4">
-                  <div className="flex justify-between items-start mb-3">
-                    <div className="bg-violet-100 p-2 rounded-md">
-                      <Calendar className="h-5 w-5 text-violet-600" />
-                    </div>
-                    <Badge variant="outline" className="bg-violet-50 text-violet-600">Jun 21</Badge>
-                  </div>
-                  <h4 className="font-medium mb-1">Mock Test: JEE Mathematics</h4>
-                  <p className="text-sm text-muted-foreground mb-2">Full-length practice exam</p>
-                  <div className="flex items-center gap-1 text-sm text-violet-600">
-                    <Clock size={14} />
-                    <span>9:00 AM - 12:00 PM</span>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+            ))}
           </div>
-        </>
-      ) : (
-        <Card>
-          <CardHeader>
-            <CardTitle>Notification Settings</CardTitle>
-            <CardDescription>Configure how and when you receive notifications</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="space-y-4">
-              <h3 className="text-lg font-medium">Notification Channels</h3>
-              
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="bg-violet-100 p-2 rounded-md">
-                    <Bell className="h-5 w-5 text-violet-600" />
+        </TabsContent>
+        
+        <TabsContent value="past" className="mt-6">
+          <div className="space-y-4">
+            {notifications.past.map((notification) => (
+              <Card key={notification.id} className="hover:shadow-sm transition-all bg-muted/30">
+                <CardHeader className="pb-2 flex flex-row items-start space-x-4">
+                  <div className="mt-1 bg-gray-100 p-2 rounded-full">
+                    {getNotificationIcon(notification.type)}
                   </div>
-                  <div>
-                    <Label>Push Notifications</Label>
-                    <p className="text-sm text-muted-foreground">Receive notifications in the app</p>
+                  <div className="space-y-1">
+                    <CardTitle className="text-base">{notification.title}</CardTitle>
+                    <CardDescription>{notification.description}</CardDescription>
                   </div>
-                </div>
-                <Switch checked={pushEnabled} onCheckedChange={setPushEnabled} />
+                </CardHeader>
+                <CardFooter className="pt-2 flex justify-between items-center">
+                  <div className="flex items-center text-sm text-muted-foreground">
+                    <Clock className="h-4 w-4 mr-1" />
+                    {notification.time}
+                  </div>
+                  <div className="flex space-x-2">
+                    {notification.delivered.map(method => (
+                      <Badge key={method} variant="outline" className="bg-gray-100 text-gray-500">
+                        {getDeliveryIcon(method)}
+                      </Badge>
+                    ))}
+                  </div>
+                </CardFooter>
+              </Card>
+            ))}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="settings" className="mt-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Notification Preferences</CardTitle>
+              <CardDescription>
+                Choose how and when you want to receive notifications
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                {notificationPreferences.map((pref, index) => (
+                  <div key={index} className="rounded-lg border p-4">
+                    <h4 className="text-sm font-medium">{pref.category}</h4>
+                    <p className="text-sm text-muted-foreground mb-4">{pref.description}</p>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                      <div className="flex items-center justify-between space-x-2">
+                        <div className="flex items-center space-x-2">
+                          <Bell className="h-4 w-4" />
+                          <span className="text-sm">App</span>
+                        </div>
+                        <Switch defaultChecked={pref.app} />
+                      </div>
+                      <div className="flex items-center justify-between space-x-2">
+                        <div className="flex items-center space-x-2">
+                          <Mail className="h-4 w-4" />
+                          <span className="text-sm">Email</span>
+                        </div>
+                        <Switch defaultChecked={pref.email} />
+                      </div>
+                      <div className="flex items-center justify-between space-x-2">
+                        <div className="flex items-center space-x-2">
+                          <Smartphone className="h-4 w-4" />
+                          <span className="text-sm">SMS</span>
+                        </div>
+                        <Switch defaultChecked={pref.sms} />
+                      </div>
+                      <div className="flex items-center justify-between space-x-2">
+                        <div className="flex items-center space-x-2">
+                          <MessageSquare className="h-4 w-4" />
+                          <span className="text-sm">WhatsApp</span>
+                        </div>
+                        <Switch defaultChecked={pref.whatsapp} />
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
-              
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="bg-orange-100 p-2 rounded-md">
-                    <Mail className="h-5 w-5 text-orange-600" />
-                  </div>
-                  <div>
-                    <Label>Email Notifications</Label>
-                    <p className="text-sm text-muted-foreground">Receive notifications via email</p>
-                  </div>
-                </div>
-                <Switch checked={emailEnabled} onCheckedChange={setEmailEnabled} />
-              </div>
-              
-              {emailEnabled && (
-                <div className="ml-10 pl-2 border-l border-gray-200">
-                  <Label className="text-sm">Email Address</Label>
-                  <Input value={emailAddress} onChange={(e) => setEmailAddress(e.target.value)} className="mt-1" />
-                </div>
-              )}
-              
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="bg-blue-100 p-2 rounded-md">
-                    <MessageSquare className="h-5 w-5 text-blue-600" />
-                  </div>
-                  <div>
-                    <Label>SMS Notifications</Label>
-                    <p className="text-sm text-muted-foreground">Receive notifications via SMS</p>
-                  </div>
-                </div>
-                <Switch checked={smsEnabled} onCheckedChange={setSmsEnabled} />
-              </div>
-              
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="bg-green-100 p-2 rounded-md">
-                    <Smartphone className="h-5 w-5 text-green-600" />
-                  </div>
-                  <div>
-                    <Label>WhatsApp Notifications</Label>
-                    <p className="text-sm text-muted-foreground">Receive notifications via WhatsApp</p>
-                  </div>
-                </div>
-                <Switch checked={whatsappEnabled} onCheckedChange={setWhatsappEnabled} />
-              </div>
-              
-              {(smsEnabled || whatsappEnabled) && (
-                <div className="ml-10 pl-2 border-l border-gray-200">
-                  <Label className="text-sm">Phone Number</Label>
-                  <Input value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} className="mt-1" />
-                </div>
-              )}
-            </div>
-            
-            <div className="space-y-4 pt-4 border-t">
-              <h3 className="text-lg font-medium">Notification Types</h3>
-              
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <Label>Study Reminders</Label>
-                    <p className="text-sm text-muted-foreground">Daily reminders for your study plan</p>
-                  </div>
-                  <Switch defaultChecked />
-                </div>
-                
-                <div className="flex items-center justify-between">
-                  <div>
-                    <Label>Quiz & Test Alerts</Label>
-                    <p className="text-sm text-muted-foreground">Reminders for upcoming quizzes and tests</p>
-                  </div>
-                  <Switch defaultChecked />
-                </div>
-                
-                <div className="flex items-center justify-between">
-                  <div>
-                    <Label>Performance Updates</Label>
-                    <p className="text-sm text-muted-foreground">Weekly summary of your progress</p>
-                  </div>
-                  <Switch defaultChecked />
-                </div>
-                
-                <div className="flex items-center justify-between">
-                  <div>
-                    <Label>System Announcements</Label>
-                    <p className="text-sm text-muted-foreground">Important updates about the platform</p>
-                  </div>
-                  <Switch defaultChecked />
-                </div>
-              </div>
-            </div>
-          </CardContent>
-          <CardFooter className="flex justify-between">
-            <Button variant="outline" onClick={() => setShowSettings(false)}>Cancel</Button>
-            <Button 
-              className="bg-gradient-to-r from-violet-600 to-purple-600"
-              onClick={() => setShowSettings(false)}
-            >
-              Save Settings
-            </Button>
-          </CardFooter>
-        </Card>
-      )}
+            </CardContent>
+            <CardFooter className="flex justify-between">
+              <Button variant="outline">Reset to Default</Button>
+              <Button className="bg-gradient-to-r from-violet-500 to-purple-600">Save Preferences</Button>
+            </CardFooter>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
-
-export default SmartNotificationSection;
