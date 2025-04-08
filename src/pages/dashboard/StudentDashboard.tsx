@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -18,10 +19,10 @@ import DashboardOverview from "@/components/dashboard/student/DashboardOverview"
 import DashboardTabs from "@/components/dashboard/student/DashboardTabs";
 import OnboardingFlow from "@/components/dashboard/student/OnboardingFlow";
 import TodayStudyPlan from "@/components/dashboard/student/TodayStudyPlan";
-import LiveTutorSection from "@/components/dashboard/student/LiveTutorSection";
-import CollaborativeForumSection from "@/components/dashboard/student/CollaborativeForumSection";
-import VideoLibrarySection from "@/components/dashboard/student/VideoLibrarySection";
-import SmartNotificationSection from "@/components/dashboard/student/SmartNotificationSection";
+import { LiveTutorSection } from "@/components/dashboard/student/LiveTutorSection";
+import { CollaborativeForumSection } from "@/components/dashboard/student/CollaborativeForumSection";
+import { VideoLibrarySection } from "@/components/dashboard/student/VideoLibrarySection";
+import { SmartNotificationSection } from "@/components/dashboard/student/SmartNotificationSection";
 
 const StudentDashboard = () => {
   const { toast } = useToast();
