@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -939,4 +940,181 @@ const SignUp = () => {
               {/* Student Age Input */}
               {showStudentAgeInput && (
                 <motion.div 
-                  className="animate-fade-in space-y
+                  className="animate-fade-in space-y-4"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4 }}
+                >
+                  <div className="flex items-end gap-2">
+                    <div className="flex-1">
+                      <Input
+                        type="number"
+                        placeholder="Enter your age"
+                        value={userInput}
+                        onChange={(e) => setUserInput(e.target.value)}
+                        onKeyPress={handleKeyPress}
+                        min={13}
+                        className="bg-white/80"
+                      />
+                    </div>
+                    <Button onClick={handleStudentAgeSubmit} size="icon">
+                      <Send className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </motion.div>
+              )}
+
+              {/* Grade Options */}
+              {showGradeOptions && (
+                <motion.div
+                  className="animate-fade-in my-4"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4 }}
+                >
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                    {grades.map((grade) => (
+                      <Button
+                        key={grade}
+                        variant="outline"
+                        onClick={() => handleGradeSelection(grade)}
+                        className="bg-white/80 hover:bg-blue-50 border-blue-100"
+                      >
+                        {grade}
+                      </Button>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+              
+              {/* Location Input */}
+              {showLocationInput && (
+                <motion.div 
+                  className="animate-fade-in space-y-4"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4 }}
+                >
+                  <div className="flex items-end gap-2">
+                    <div className="flex-1">
+                      <Input
+                        type="text"
+                        placeholder="Enter your city/country"
+                        value={userInput}
+                        onChange={(e) => setUserInput(e.target.value)}
+                        onKeyPress={handleKeyPress}
+                        className="bg-white/80"
+                      />
+                    </div>
+                    <Button onClick={handleLocationSubmit} size="icon">
+                      <Send className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </motion.div>
+              )}
+              
+              {/* Exam Goal Options */}
+              {showExamGoalOptions && (
+                <motion.div
+                  className="animate-fade-in my-4"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4 }}
+                >
+                  <div className="grid grid-cols-2 gap-2">
+                    {examGoals.map((examGoal) => (
+                      <Button
+                        key={examGoal}
+                        variant="outline"
+                        onClick={() => handleExamGoalSelection(examGoal)}
+                        className="bg-white/80 hover:bg-blue-50 border-blue-100"
+                      >
+                        {examGoal}
+                      </Button>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+              
+              {/* Reference to the end of messages for auto-scroll */}
+              <div ref={messagesEndRef} />
+            </div>
+          </CardContent>
+          
+          <CardFooter className="border-t border-gray-100 p-4">
+            <div className="flex w-full gap-2 items-center">
+              <Input
+                placeholder="Type a message..."
+                value={userInput}
+                onChange={(e) => setUserInput(e.target.value)}
+                onKeyPress={handleKeyPress}
+                disabled={!(
+                  showStudentAgeInput || 
+                  showLocationInput || 
+                  showJobTitleInput || 
+                  showIndustryInput || 
+                  showSkillsInput || 
+                  showSpecializationInput || 
+                  showInstitutionInput || 
+                  showResearchTopicInput || 
+                  showTeamSizeInput || 
+                  showStartupIndustryInput ||
+                  showSleepScheduleInput ||
+                  showFocusHoursInput ||
+                  showStressInput ||
+                  showBreakInput ||
+                  showNameInput ||
+                  showPhoneInput
+                )}
+                className="bg-white"
+              />
+              <Button 
+                size="icon" 
+                disabled={!(
+                  showStudentAgeInput || 
+                  showLocationInput || 
+                  showJobTitleInput || 
+                  showIndustryInput || 
+                  showSkillsInput || 
+                  showSpecializationInput || 
+                  showInstitutionInput || 
+                  showResearchTopicInput || 
+                  showTeamSizeInput || 
+                  showStartupIndustryInput ||
+                  showSleepScheduleInput ||
+                  showFocusHoursInput ||
+                  showStressInput ||
+                  showBreakInput ||
+                  showNameInput ||
+                  showPhoneInput
+                )}
+                onClick={() => {
+                  if (showStudentAgeInput) handleStudentAgeSubmit();
+                  else if (showLocationInput) handleLocationSubmit();
+                  else if (showJobTitleInput) handleJobTitleSubmit();
+                  else if (showIndustryInput) handleIndustrySubmit();
+                  else if (showSkillsInput) handleSkillsSubmit();
+                  else if (showSpecializationInput) handleSpecializationSubmit();
+                  else if (showInstitutionInput) handleInstitutionSubmit();
+                  else if (showResearchTopicInput) handleResearchTopicSubmit();
+                  else if (showTeamSizeInput) handleTeamSizeSubmit();
+                  else if (showStartupIndustryInput) handleStartupIndustrySubmit();
+                  else if (showSleepScheduleInput) handleSleepScheduleSubmit();
+                  else if (showFocusHoursInput) handleFocusHoursSubmit();
+                  else if (showStressInput) handleStressManagementSubmit();
+                  else if (showBreakInput) handleBreakRoutineSubmit();
+                  else if (showNameInput) handleNameSubmit();
+                  else if (showPhoneInput) handlePhoneSubmit();
+                }}
+              >
+                <Send className="h-4 w-4" />
+              </Button>
+            </div>
+          </CardFooter>
+        </Card>
+      </motion.div>
+    </div>
+  );
+};
+
+export default SignUp;
