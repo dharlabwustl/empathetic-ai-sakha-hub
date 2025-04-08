@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { Clock, MessageSquare, Calendar, LineChart, PencilRuler,
-  User, Lightbulb, Activity, Dices, Code, BookOpen, Brain, Heart, Target } from "lucide-react";
+  User, Lightbulb, Activity, Dices, Code, BookOpen, Brain, Heart, Target, Video, Bell, Users } from "lucide-react";
 import SidebarNav from "@/components/dashboard/SidebarNav";
 import ChatAssistant from "@/components/dashboard/ChatAssistant";
 import TutorCard from "@/components/dashboard/student/TutorCard";
@@ -18,6 +18,10 @@ import DashboardOverview from "@/components/dashboard/student/DashboardOverview"
 import DashboardTabs from "@/components/dashboard/student/DashboardTabs";
 import OnboardingFlow from "@/components/dashboard/student/OnboardingFlow";
 import TodayStudyPlan from "@/components/dashboard/student/TodayStudyPlan";
+import LiveTutorSection from "@/components/dashboard/student/LiveTutorSection";
+import CollaborativeForumSection from "@/components/dashboard/student/CollaborativeForumSection";
+import VideoLibrarySection from "@/components/dashboard/student/VideoLibrarySection";
+import SmartNotificationSection from "@/components/dashboard/student/SmartNotificationSection";
 
 const StudentDashboard = () => {
   const { toast } = useToast();
@@ -166,6 +170,34 @@ const StudentDashboard = () => {
       path: "/dashboard/student/materials",
       isPremium: true,
     },
+    {
+      icon: <Video />,
+      title: "Live Tutors",
+      description: "Connect with expert tutors for personalized 1:1 sessions.",
+      path: "/dashboard/student/live-tutors",
+      isPremium: true,
+    },
+    {
+      icon: <Users />,
+      title: "Collaborative Forum",
+      description: "Join or create study groups with peers preparing for similar exams.",
+      path: "/dashboard/student/forum",
+      isPremium: true,
+    },
+    {
+      icon: <Video />,
+      title: "Video Library",
+      description: "Access curated educational videos for your exam preparation.",
+      path: "/dashboard/student/videos",
+      isPremium: false,
+    },
+    {
+      icon: <Bell />,
+      title: "Smart Notifications",
+      description: "Get personalized reminders via app, SMS, email, or WhatsApp.",
+      path: "/dashboard/student/notifications",
+      isPremium: false,
+    }
   ];
 
   const tabContents: Record<string, React.ReactNode> = {
@@ -192,7 +224,11 @@ const StudentDashboard = () => {
     academic: <AcademicAdvisorCard />,
     motivation: <MotivationCard />,
     progress: <ProgressCard />,
-    projects: <ProjectsCard />
+    projects: <ProjectsCard />,
+    "live-tutors": <LiveTutorSection />,
+    forum: <CollaborativeForumSection />,
+    videos: <VideoLibrarySection />,
+    notifications: <SmartNotificationSection />
   };
 
   return (

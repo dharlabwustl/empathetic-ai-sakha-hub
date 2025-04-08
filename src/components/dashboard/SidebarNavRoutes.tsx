@@ -11,7 +11,10 @@ import {
   BookOpen,
   Brain,
   Heart,
-  Target
+  Target,
+  Video,
+  Users,
+  Bell
 } from "lucide-react";
 import { NavigationRoute, UserRouteMap } from "./types/sidebar";
 
@@ -36,6 +39,10 @@ export const SidebarNavRoutes = ({
       { name: "Progress", path: "/dashboard/student/progress", icon: <LineChart size={20} /> },
       { name: "Flashcards", path: "/dashboard/student/flashcards", icon: <Brain size={20} /> },
       { name: "Materials Vault", path: "/dashboard/student/materials", icon: <BookOpen size={20} /> },
+      { name: "Live Tutors", path: "/dashboard/student/live-tutors", icon: <Video size={20} /> },
+      { name: "Forum", path: "/dashboard/student/forum", icon: <Users size={20} /> },
+      { name: "Video Library", path: "/dashboard/student/videos", icon: <Video size={20} /> },
+      { name: "Notifications", path: "/dashboard/student/notifications", icon: <Bell size={20} /> },
       { name: "Wellness", path: "/dashboard/student/wellness", icon: <Heart size={20} /> }
     ],
     employee: [
