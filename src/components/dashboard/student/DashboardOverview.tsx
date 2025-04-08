@@ -5,6 +5,7 @@ import KpiCard from "@/components/dashboard/KpiCard";
 import NudgePanel from "@/components/dashboard/NudgePanel";
 import ProfileCard from "@/components/dashboard/ProfileCard";
 import FeatureCard from "@/components/dashboard/FeatureCard";
+import TodayStudyPlan from "@/components/dashboard/student/TodayStudyPlan";
 import { ReactNode } from "react";
 
 interface DashboardOverviewProps {
@@ -38,11 +39,15 @@ export default function DashboardOverview({
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
         <div className="lg:col-span-2">
-          <NudgePanel nudges={nudges} markAsRead={markNudgeAsRead} />
+          <TodayStudyPlan />
         </div>
         <div>
           <ProfileCard profile={userProfile} />
         </div>
+      </div>
+      
+      <div className="mb-8">
+        <NudgePanel nudges={nudges} markAsRead={markNudgeAsRead} />
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

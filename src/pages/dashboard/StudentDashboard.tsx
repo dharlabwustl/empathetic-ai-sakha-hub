@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -17,6 +16,8 @@ import { useKpiTracking } from "@/hooks/useKpiTracking";
 import WelcomeTour from "@/components/dashboard/student/WelcomeTour";
 import DashboardOverview from "@/components/dashboard/student/DashboardOverview";
 import DashboardTabs from "@/components/dashboard/student/DashboardTabs";
+import OnboardingFlow from "@/components/dashboard/student/OnboardingFlow";
+import TodayStudyPlan from "@/components/dashboard/student/TodayStudyPlan";
 
 const StudentDashboard = () => {
   const { toast } = useToast();
@@ -27,6 +28,7 @@ const StudentDashboard = () => {
   const { userProfile } = useUserProfile("Student");
   const { kpis, nudges, markNudgeAsRead } = useKpiTracking("Student");
   const [showWelcomeTour, setShowWelcomeTour] = useState(true);
+  const [showOnboarding, setShowOnboarding] = useState(true);
 
   useEffect(() => {
     if (tab) {
@@ -35,7 +37,6 @@ const StudentDashboard = () => {
   }, [tab]);
 
   useEffect(() => {
-    // Simulate loading
     const timer = setTimeout(() => {
       setLoading(false);
       toast({
@@ -58,6 +59,10 @@ const StudentDashboard = () => {
 
   const handleCompleteTour = () => {
     setShowWelcomeTour(false);
+  };
+
+  const handleCompleteOnboarding = () => {
+    setShowOnboarding(false);
   };
 
   if (loading || !userProfile) {
@@ -94,6 +99,14 @@ const StudentDashboard = () => {
         </div>
       </div>
     );
+  }
+
+  if (showOnboarding && userProfile.goals?.[0]?.title) {
+    return <OnboardingFlow 
+      userProfile={userProfile} 
+      goalTitle={userProfile.goals[0].title}
+      onComplete={handleCompleteOnboarding}
+    />;
   }
 
   const features = [
@@ -173,6 +186,7 @@ const StudentDashboard = () => {
         />
       </>
     ),
+    today: <TodayStudyPlan />,
     tutor: <TutorCard />,
     planner: <StudyPlannerCard />,
     academic: <AcademicAdvisorCard />,
