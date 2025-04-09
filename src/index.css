@@ -73,7 +73,7 @@
   
   /* Tab scrollbar */
   .tab-scrollbar {
-    @apply overflow-x-auto scrollbar-thin pb-2;
+    @apply overflow-x-auto pb-2;
     scrollbar-width: thin;
     -ms-overflow-style: none;
   }
