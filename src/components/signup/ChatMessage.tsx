@@ -4,12 +4,12 @@ import { motion } from "framer-motion";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface ChatMessageProps {
-  type?: "bot" | "user";
   content: string;
   isBot?: boolean;
+  type?: "bot" | "user"; // For backwards compatibility
 }
 
-const ChatMessage = ({ type, content, isBot = false }: ChatMessageProps) => {
+const ChatMessage = ({ content, isBot = false, type }: ChatMessageProps) => {
   // If isBot is provided directly, use it, otherwise determine from type
   const isBotMessage = isBot !== undefined ? isBot : type === "bot";
   

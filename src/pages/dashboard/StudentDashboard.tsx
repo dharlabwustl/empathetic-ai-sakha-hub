@@ -12,6 +12,9 @@ import DashboardHeader from "./student/DashboardHeader";
 import SidebarNavigation from "./student/SidebarNavigation";
 import DashboardContent from "./student/DashboardContent";
 import { getFeatures, formatTime, formatDate } from "./student/StudentDashboardUtils";
+import StudyPlanDialog from "./student/StudyPlanDialog";
+import { Button } from "@/components/ui/button";
+import { Eye } from "lucide-react";
 
 const StudentDashboard = () => {
   const { toast } = useToast();
@@ -21,9 +24,10 @@ const StudentDashboard = () => {
   const [activeTab, setActiveTab] = useState(tab || "overview");
   const { userProfile } = useUserProfile("Student");
   const { kpis, nudges, markNudgeAsRead } = useKpiTracking("Student");
-  const [showWelcomeTour, setShowWelcomeTour] = useState(true);
-  const [showOnboarding, setShowOnboarding] = useState(true);
+  const [showWelcomeTour, setShowWelcomeTour] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [showStudyPlan, setShowStudyPlan] = useState(false);
 
   // Get features data
   const features = getFeatures();
@@ -47,11 +51,18 @@ const StudentDashboard = () => {
       setCurrentTime(new Date());
     }, 60000);
 
+    // Check if user is a first-time user
+    const isFirstTime = localStorage.getItem("firstTimeUser");
+    if (isFirstTime !== "false" && userProfile) {
+      setShowOnboarding(true);
+      localStorage.setItem("firstTimeUser", "false");
+    }
+
     return () => {
       clearTimeout(timer);
       clearInterval(intervalId);
     };
-  }, [toast]);
+  }, [toast, userProfile]);
 
   const handleTabChange = (newTab: string) => {
     setActiveTab(newTab);
@@ -68,6 +79,14 @@ const StudentDashboard = () => {
 
   const handleCompleteOnboarding = () => {
     setShowOnboarding(false);
+  };
+  
+  const handleViewStudyPlan = () => {
+    setShowStudyPlan(true);
+  };
+  
+  const handleCloseStudyPlan = () => {
+    setShowStudyPlan(false);
   };
   
   // Format current time and date
@@ -98,6 +117,7 @@ const StudentDashboard = () => {
           userProfile={userProfile}
           formattedTime={formattedTime}
           formattedDate={formattedDate}
+          onViewStudyPlan={handleViewStudyPlan}
         />
         
         {/* Main dashboard content area */}
@@ -125,6 +145,14 @@ const StudentDashboard = () => {
       </main>
       
       <ChatAssistant userType="student" />
+      
+      {/* Study Plan Dialog */}
+      {showStudyPlan && (
+        <StudyPlanDialog 
+          userProfile={userProfile} 
+          onClose={handleCloseStudyPlan} 
+        />
+      )}
     </div>
   );
 };

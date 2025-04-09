@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Clock, Search, Bell } from "lucide-react";
+import { Clock, Search, Bell, BookOpen } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -11,9 +11,10 @@ interface DashboardHeaderProps {
   userProfile: UserProfileType;
   formattedTime: string;
   formattedDate: string;
+  onViewStudyPlan: () => void;
 }
 
-const DashboardHeader = ({ userProfile, formattedTime, formattedDate }: DashboardHeaderProps) => {
+const DashboardHeader = ({ userProfile, formattedTime, formattedDate, onViewStudyPlan }: DashboardHeaderProps) => {
   return (
     <div className="mb-8 mt-10 md:mt-0">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -78,7 +79,11 @@ const DashboardHeader = ({ userProfile, formattedTime, formattedDate }: Dashboar
               </Badge>
             </div>
           </div>
-          <Button className="bg-gradient-to-r from-sky-500 to-violet-500 hover:from-sky-600 hover:to-violet-600">
+          <Button 
+            onClick={onViewStudyPlan}
+            className="bg-gradient-to-r from-sky-500 to-violet-500 hover:from-sky-600 hover:to-violet-600 text-white shadow-lg flex items-center gap-2"
+          >
+            <BookOpen size={18} />
             View Study Plan
           </Button>
         </div>
