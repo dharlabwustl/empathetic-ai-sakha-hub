@@ -7,13 +7,19 @@ import { X } from "lucide-react";
 import { UserRole } from "@/types/user";
 import { motion } from "framer-motion";
 
-interface OnboardingQuestionsProps {
-  role: UserRole;
-  onComplete: (data: any) => void;
-  onClose: () => void;
+export interface OnboardingData {
+  role?: UserRole;
+  [key: string]: any;
 }
 
-const OnboardingQuestions = ({ role, onComplete, onClose }: OnboardingQuestionsProps) => {
+export interface OnboardingQuestionsProps {
+  role: UserRole;
+  onComplete: (data: OnboardingData) => void;
+  onClose: () => void;
+  isLoading?: boolean;
+}
+
+const OnboardingQuestions = ({ role, onComplete, onClose, isLoading = false }: OnboardingQuestionsProps) => {
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
 
@@ -124,7 +130,7 @@ const OnboardingQuestions = ({ role, onComplete, onClose }: OnboardingQuestionsP
     if (step < questions.length - 1) {
       setStep(step + 1);
     } else {
-      onComplete(answers);
+      onComplete({...answers, role});
     }
   };
 
@@ -207,10 +213,10 @@ const OnboardingQuestions = ({ role, onComplete, onClose }: OnboardingQuestionsP
         
         <Button 
           onClick={handleNext} 
-          disabled={!isAnswered}
+          disabled={!isAnswered || isLoading}
           className="bg-gradient-to-r from-sky-500 to-violet-500"
         >
-          {isLastQuestion ? "Complete" : "Next"}
+          {isLoading ? "Processing..." : isLastQuestion ? "Complete" : "Next"}
         </Button>
       </div>
     </motion.div>

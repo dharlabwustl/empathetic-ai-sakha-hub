@@ -70,7 +70,7 @@ const SignUp = () => {
     setTimeout(() => {
       setIsLoading(false);
       // Navigate to the dashboard based on user type
-      navigate(`/dashboard/${data.userType.toLowerCase()}`);
+      navigate(`/dashboard/${data.userType?.toLowerCase()}`);
       
       toast({
         title: "Setup complete!",
@@ -188,21 +188,23 @@ const SignUp = () => {
               <div className="flex gap-6">
                 <div className="w-1/3 border-r border-gray-200 dark:border-gray-700 pr-6">
                   <ChatMessage
+                    content="Hi there! I'm Sakha AI. I'll help customize your learning experience."
                     isBot={true}
-                    message="Hi there! I'm Sakha AI. I'll help customize your learning experience."
                   />
                   <ChatMessage
+                    content="Please answer a few questions about your learning goals."
                     isBot={true}
-                    message="Please answer a few questions about your learning goals."
                   />
                   <ChatMessage
+                    content="Sure, I'm ready to get started!"
                     isBot={false}
-                    message="Sure, I'm ready to get started!"
                   />
                 </div>
                 <div className="w-2/3">
                   <OnboardingQuestions 
+                    role="Student"
                     onComplete={handleOnboardingComplete}
+                    onClose={() => {}} // Empty function as this cannot be closed
                     isLoading={isLoading}
                   />
                 </div>

@@ -4,21 +4,23 @@ import { motion } from "framer-motion";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface ChatMessageProps {
-  type: "bot" | "user";
+  type?: "bot" | "user";
   content: string;
+  isBot?: boolean;
 }
 
-const ChatMessage = ({ type, content }: ChatMessageProps) => {
-  const isBot = type === "bot";
+const ChatMessage = ({ type, content, isBot = false }: ChatMessageProps) => {
+  // If isBot is provided directly, use it, otherwise determine from type
+  const isBotMessage = isBot !== undefined ? isBot : type === "bot";
   
   return (
     <motion.div 
-      className={`flex mb-5 ${isBot ? "justify-start" : "justify-end"}`}
+      className={`flex mb-5 ${isBotMessage ? "justify-start" : "justify-end"}`}
       initial={{ opacity: 0, y: 10, scale: 0.98 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ duration: 0.3 }}
     >
-      {isBot && (
+      {isBotMessage && (
         <motion.div 
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
@@ -34,20 +36,20 @@ const ChatMessage = ({ type, content }: ChatMessageProps) => {
       
       <motion.div 
         className={`max-w-[80%] p-4 rounded-2xl shadow-sm ${
-          isBot 
+          isBotMessage 
             ? "bg-white border border-blue-100 rounded-tl-none" 
             : "bg-gradient-to-r from-blue-600 to-indigo-700 text-white rounded-tr-none"
         }`}
-        initial={{ x: isBot ? -20 : 20, opacity: 0 }}
+        initial={{ x: isBotMessage ? -20 : 20, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
         transition={{ type: "spring", stiffness: 120, damping: 20 }}
       >
-        <p className={`${isBot ? "text-gray-800" : "text-white"} text-sm md:text-base`}>
+        <p className={`${isBotMessage ? "text-gray-800" : "text-white"} text-sm md:text-base`}>
           {content}
         </p>
       </motion.div>
       
-      {!isBot && (
+      {!isBotMessage && (
         <motion.div 
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}

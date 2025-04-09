@@ -25,28 +25,25 @@ const DashboardLoading = () => {
           <div className="space-y-4">
             <div className="flex items-center">
               <motion.div 
-                className="h-3 w-3 bg-sky-500 rounded-full"
+                className="h-3 w-3 bg-sky-500 rounded-full mr-3"
                 animate={{ scale: [1, 1.5, 1] }}
                 transition={{ duration: 1.5, repeat: Infinity, repeatType: "reverse" }}
-                className="mr-3"
               />
               <p className="text-sm">Analyzing exam syllabus...</p>
             </div>
             <div className="flex items-center">
               <motion.div 
-                className="h-3 w-3 bg-violet-500 rounded-full"
+                className="h-3 w-3 bg-violet-500 rounded-full mr-3"
                 animate={{ scale: [1, 1.5, 1] }}
                 transition={{ duration: 1.5, repeat: Infinity, repeatType: "reverse", delay: 0.5 }}
-                className="mr-3"
               />
               <p className="text-sm">Creating personalized study calendar...</p>
             </div>
             <div className="flex items-center">
               <motion.div 
-                className="h-3 w-3 bg-emerald-500 rounded-full"
+                className="h-3 w-3 bg-emerald-500 rounded-full mr-3"
                 animate={{ scale: [1, 1.5, 1] }}
                 transition={{ duration: 1.5, repeat: Infinity, repeatType: "reverse", delay: 1 }}
-                className="mr-3"
               />
               <p className="text-sm">Generating adaptive flashcards...</p>
             </div>
