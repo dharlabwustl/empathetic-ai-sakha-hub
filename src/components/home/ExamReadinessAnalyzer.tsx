@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { X, ChevronRight, ChevronLeft, Check, ArrowRight } from "lucide-react";
@@ -494,7 +493,7 @@ const examQuestionsMap = {
 // Custom progress component for better visual presentation
 const CustomProgress = ({ value, className }) => {
   return (
-    <div className={cn("relative w-full h-2 bg-gray-200 rounded-full overflow-hidden", className)}>
+    <div className={cn("relative w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden", className)}>
       <div 
         className="h-full bg-gradient-to-r from-sky-500 to-violet-500 rounded-full"
         style={{ width: `${value}%` }}
@@ -636,28 +635,28 @@ const ExamReadinessAnalyzer = ({ onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto">
+    <div className="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center z-50 p-4 overflow-y-auto">
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
-        className="w-full max-w-3xl bg-white dark:bg-gray-900 rounded-xl shadow-2xl overflow-hidden"
+        className="w-full max-w-3xl bg-white dark:bg-gray-900 rounded-2xl shadow-2xl overflow-hidden border border-white/10 dark:border-gray-800"
       >
         {/* Header with close button */}
-        <div className="bg-gradient-to-r from-sky-600 to-violet-600 text-white p-4 flex items-center justify-between">
-          <h2 className="text-xl font-semibold">Exam Readiness Analyzer</h2>
+        <div className="bg-gradient-to-r from-sky-600 to-violet-600 text-white p-5 flex items-center justify-between">
+          <h2 className="text-2xl font-semibold">Exam Readiness Analyzer</h2>
           <button
             onClick={onClose}
-            className="p-1 rounded-full hover:bg-white/20 transition-colors"
+            className="p-1.5 rounded-full hover:bg-white/20 transition-colors"
             aria-label="Close"
           >
-            <X size={20} />
+            <X size={22} />
           </button>
         </div>
 
         {/* Progress bar */}
-        <div className="px-6 pt-4">
-          <div className="mb-2 flex justify-between text-xs text-gray-500 dark:text-gray-400">
+        <div className="px-6 pt-5">
+          <div className="mb-3 flex justify-between text-sm text-gray-500 dark:text-gray-400">
             <span>
               {step === "select-exam" && "Step 1: Select Exam"}
               {step === "profile-questions" && "Step 2: Your Profile"}
@@ -676,7 +675,7 @@ const ExamReadinessAnalyzer = ({ onClose }) => {
               step === "exam" ? 50 + ((currentQuestionIndex + 1) / totalQuestions) * 25 :
               step === "results" ? 100 : 0
             }
-            className="mb-4"
+            className="mb-5"
           />
         </div>
 
@@ -702,14 +701,14 @@ const ExamReadinessAnalyzer = ({ onClose }) => {
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.98 }}
                       onClick={() => handleExamSelect(exam)}
-                      className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-md border border-gray-200 dark:border-gray-700 cursor-pointer hover:shadow-lg transition-all text-center"
+                      className="bg-white dark:bg-gray-800 rounded-xl p-5 shadow-lg border border-gray-100 dark:border-gray-700 cursor-pointer hover:shadow-xl transition-all text-center"
                     >
                       <div
-                        className={`w-12 h-12 rounded-full ${exam.color} flex items-center justify-center text-white text-2xl mx-auto mb-3`}
+                        className={`w-16 h-16 rounded-full ${exam.color} flex items-center justify-center text-white text-3xl mx-auto mb-4 shadow-md`}
                       >
                         {exam.icon}
                       </div>
-                      <h4 className="font-medium">{exam.name}</h4>
+                      <h4 className="font-medium text-lg">{exam.name}</h4>
                     </motion.div>
                   ))}
                 </div>
@@ -725,14 +724,14 @@ const ExamReadinessAnalyzer = ({ onClose }) => {
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.2 }}
               >
-                <div className="flex items-center mb-6">
+                <div className="flex items-center mb-8">
                   <div className="mr-4">
-                    <div className={`w-12 h-12 rounded-full ${selectedExam.color} flex items-center justify-center text-white text-2xl`}>
+                    <div className={`w-14 h-14 rounded-full ${selectedExam.color} flex items-center justify-center text-white text-2xl shadow-md`}>
                       {selectedExam.icon}
                     </div>
                   </div>
                   <div>
-                    <h3 className="text-xl font-semibold">
+                    <h3 className="text-2xl font-semibold">
                       {selectedExam.name} Assessment
                     </h3>
                     <p className="text-gray-500 dark:text-gray-400">
@@ -743,8 +742,8 @@ const ExamReadinessAnalyzer = ({ onClose }) => {
 
                 <div className="space-y-8">
                   {profileQuestions.map((question) => (
-                    <div key={question.id} className="bg-gray-50 dark:bg-gray-800 rounded-lg p-5">
-                      <h4 className="font-semibold mb-4">{question.question}</h4>
+                    <div key={question.id} className="bg-gray-50 dark:bg-gray-800/70 rounded-lg p-5 shadow-sm border border-gray-100 dark:border-gray-700">
+                      <h4 className="font-semibold mb-4 text-lg">{question.question}</h4>
                       <RadioGroup
                         value={profileAnswers[question.id] || ""}
                         onValueChange={(value) => handleProfileAnswer(question.id, value)}
@@ -753,10 +752,10 @@ const ExamReadinessAnalyzer = ({ onClose }) => {
                           {question.options.map((option) => (
                             <div
                               key={option.id}
-                              className={`flex items-center p-3 rounded-lg cursor-pointer ${
+                              className={`flex items-center p-4 rounded-lg cursor-pointer transition-all ${
                                 profileAnswers[question.id] === option.id
-                                  ? "bg-sky-50 border border-sky-200 dark:bg-sky-900/30 dark:border-sky-700"
-                                  : "bg-white border border-gray-200 dark:bg-gray-800 dark:border-gray-700"
+                                  ? "bg-sky-50 border border-sky-200 dark:bg-sky-900/30 dark:border-sky-700 shadow-md"
+                                  : "bg-white border border-gray-200 dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50"
                               }`}
                             >
                               <RadioGroupItem
@@ -779,9 +778,9 @@ const ExamReadinessAnalyzer = ({ onClose }) => {
 
                   <Button
                     onClick={handleStartExam}
-                    className="w-full bg-gradient-to-r from-sky-500 to-violet-500 mt-6"
+                    className="w-full bg-gradient-to-r from-sky-500 to-violet-500 hover:from-sky-600 hover:to-violet-600 text-lg py-6 mt-6 shadow-lg"
                   >
-                    Start Assessment <ArrowRight className="ml-2" size={16} />
+                    Start Assessment <ArrowRight className="ml-2" size={18} />
                   </Button>
                 </div>
               </motion.div>
@@ -805,13 +804,13 @@ const ExamReadinessAnalyzer = ({ onClose }) => {
                   return (
                     <div>
                       <div className="flex items-center mb-6">
-                        <Badge className={`${selectedExam.color} text-white mr-3`}>
+                        <Badge className={`${selectedExam.color} text-white mr-3 px-3 py-1 text-sm`}>
                           {currentQuestion.subject}
                         </Badge>
                         <h3 className="text-xl font-semibold">Question {currentQuestionIndex + 1}</h3>
                       </div>
 
-                      <Card className="mb-8">
+                      <Card className="mb-8 shadow-lg border-gray-200 dark:border-gray-700">
                         <CardContent className="pt-6">
                           <p className="text-lg mb-6">{currentQuestion.question}</p>
                           
@@ -823,10 +822,10 @@ const ExamReadinessAnalyzer = ({ onClose }) => {
                             {currentQuestion.options.map((option) => (
                               <div
                                 key={option.id}
-                                className={`flex items-center p-4 rounded-lg cursor-pointer ${
+                                className={`flex items-center p-4 rounded-lg cursor-pointer transition-all ${
                                   examAnswers[currentQuestion.id] === option.id
-                                    ? "bg-sky-50 border border-sky-200 dark:bg-sky-900/30 dark:border-sky-700"
-                                    : "bg-white border border-gray-200 dark:bg-gray-800 dark:border-gray-700"
+                                    ? "bg-sky-50 border border-sky-200 dark:bg-sky-900/30 dark:border-sky-700 shadow-md"
+                                    : "bg-white border border-gray-200 dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50"
                                 }`}
                               >
                                 <RadioGroupItem
@@ -848,18 +847,18 @@ const ExamReadinessAnalyzer = ({ onClose }) => {
                           variant="outline"
                           onClick={handlePrevQuestion}
                           disabled={currentQuestionIndex === 0}
-                          className="flex items-center"
+                          className="flex items-center border-gray-300 dark:border-gray-600"
                         >
-                          <ChevronLeft size={16} /> Previous
+                          <ChevronLeft size={16} className="mr-1" /> Previous
                         </Button>
                         <Button
                           onClick={handleNextQuestion}
-                          className="bg-gradient-to-r from-sky-500 to-violet-500"
+                          className="bg-gradient-to-r from-sky-500 to-violet-500 hover:from-sky-600 hover:to-violet-600"
                         >
                           {currentQuestionIndex < questions.length - 1 ? (
-                            <>Next <ChevronRight size={16} /></>
+                            <>Next <ChevronRight size={16} className="ml-1" /></>
                           ) : (
-                            <>Finish <Check size={16} /></>
+                            <>Finish <Check size={16} className="ml-1" /></>
                           )}
                         </Button>
                       </div>
@@ -879,12 +878,12 @@ const ExamReadinessAnalyzer = ({ onClose }) => {
                 transition={{ duration: 0.2 }}
               >
                 <div className="text-center mb-8">
-                  <div className={`w-20 h-20 ${
-                    score < 40 ? "bg-amber-100 text-amber-600" :
-                    score < 70 ? "bg-sky-100 text-sky-600" :
-                    "bg-green-100 text-green-600"
-                  } rounded-full flex items-center justify-center mx-auto mb-4`}>
-                    <span className="text-2xl font-bold">{Math.round(score)}%</span>
+                  <div className={`w-24 h-24 ${
+                    score < 40 ? "bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-300" :
+                    score < 70 ? "bg-sky-100 text-sky-600 dark:bg-sky-900/30 dark:text-sky-300" :
+                    "bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-300"
+                  } rounded-full flex items-center justify-center mx-auto mb-4 shadow-inner`}>
+                    <span className="text-3xl font-bold">{Math.round(score)}%</span>
                   </div>
                   <h3 className="text-2xl font-semibold">
                     {score < 40 ? "Keep Going!" : 
@@ -898,9 +897,9 @@ const ExamReadinessAnalyzer = ({ onClose }) => {
                   </p>
                 </div>
 
-                <Card className="mb-6">
+                <Card className="mb-6 shadow-lg border-gray-200 dark:border-gray-700">
                   <CardContent className="pt-6">
-                    <h4 className="font-semibold mb-4">Our Recommendations</h4>
+                    <h4 className="font-semibold mb-4 text-lg">Our Recommendations</h4>
                     <ul className="space-y-3">
                       {recommendations.map((recommendation, index) => (
                         <li key={index} className="flex items-start">
@@ -914,16 +913,17 @@ const ExamReadinessAnalyzer = ({ onClose }) => {
                   </CardContent>
                 </Card>
 
-                <div className="flex flex-col sm:flex-row gap-3 justify-between">
+                <div className="flex flex-col sm:flex-row gap-4 justify-between">
                   <Button 
-                    variant="outline" 
+                    variant="outline"
                     onClick={handleReset}
+                    className="border-gray-300 dark:border-gray-600"
                   >
                     Try Another Exam
                   </Button>
-                  <Link to="/signup">
-                    <Button className="w-full sm:w-auto bg-gradient-to-r from-sky-500 to-violet-500">
-                      Create Your Study Plan <ArrowRight size={16} className="ml-1" />
+                  <Link to="/signup" className="w-full sm:w-auto">
+                    <Button className="w-full bg-gradient-to-r from-sky-500 to-violet-500 hover:from-sky-600 hover:to-violet-600">
+                      Create Your Study Plan <ArrowRight size={16} className="ml-2" />
                     </Button>
                   </Link>
                 </div>

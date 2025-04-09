@@ -19,7 +19,7 @@ const Index = () => {
   const [showAnalyzer, setShowAnalyzer] = useState(false);
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-sky-50/30 via-white to-violet-50/30 dark:from-gray-950 dark:via-gray-900 dark:to-violet-950/30">
       <Header />
       <main className="flex-grow">
         <HeroSection onAnalyzeClick={() => setShowAnalyzer(true)} />

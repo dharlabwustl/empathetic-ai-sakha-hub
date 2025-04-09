@@ -36,7 +36,7 @@ const SidebarNavigation = ({ activeTab, onTabChange }: SidebarNavigationProps) =
   
   return (
     <div className="hidden lg:block lg:col-span-3 xl:col-span-2">
-      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-700 overflow-hidden">
+      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-md overflow-hidden">
         <div className="p-3 bg-gray-50 dark:bg-gray-800/80 border-b border-gray-100 dark:border-gray-700">
           <h3 className="font-semibold text-sm">Navigation</h3>
         </div>
@@ -46,9 +46,9 @@ const SidebarNavigation = ({ activeTab, onTabChange }: SidebarNavigationProps) =
             <button
               key={item.tab}
               onClick={() => handleTabChange(item.tab)}
-              className={`w-full flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors ${
+              className={`w-full flex items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-all ${
                 activeTab === item.tab
-                  ? "bg-gradient-to-r from-sky-500 to-violet-500 text-white"
+                  ? "bg-gradient-to-r from-sky-500 to-violet-500 text-white shadow-sm"
                   : "hover:bg-gray-100 dark:hover:bg-gray-700"
               }`}
             >
@@ -62,12 +62,12 @@ const SidebarNavigation = ({ activeTab, onTabChange }: SidebarNavigationProps) =
           
           <Separator className="my-3" />
           
-          <button className="w-full flex items-center gap-3 rounded-md px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+          <button className="w-full flex items-center gap-3 rounded-md px-3 py-2.5 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-all">
             <Settings size={20} />
             <span>Settings</span>
           </button>
           
-          <button className="w-full flex items-center gap-3 rounded-md px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+          <button className="w-full flex items-center gap-3 rounded-md px-3 py-2.5 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-red-500 dark:hover:text-red-400 transition-all">
             <LogOut size={20} />
             <span>Logout</span>
           </button>

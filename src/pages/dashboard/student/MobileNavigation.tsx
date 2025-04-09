@@ -27,13 +27,17 @@ const MobileNavigation = ({ activeTab, onTabChange }: MobileNavigationProps) => 
   };
 
   return (
-    <div className="md:hidden mb-6 overflow-x-auto tab-scrollbar pb-2">
+    <div className="md:hidden mb-6 overflow-x-auto tab-scrollbar pb-3">
       <div className="flex gap-3">
         {navItems.map((item) => (
           <Button
             key={item.tab}
             variant={activeTab === item.tab ? "default" : "outline"}
-            className={`flex-shrink-0 ${activeTab === item.tab ? "bg-gradient-to-r from-sky-500 to-violet-500" : ""}`}
+            className={`flex-shrink-0 shadow-sm ${
+              activeTab === item.tab 
+                ? "bg-gradient-to-r from-sky-500 to-violet-500 hover:from-sky-600 hover:to-violet-600" 
+                : "hover:bg-gray-100 dark:hover:bg-gray-800 border-gray-200 dark:border-gray-700"
+            }`}
             size="sm"
             onClick={() => handleTabChange(item.tab)}
           >

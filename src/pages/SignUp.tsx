@@ -1,291 +1,216 @@
 
-import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
-import { Button } from "@/components/ui/button";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import ChatMessage from "@/components/signup/ChatMessage";
-import { ArrowRight, X, CheckCircle2 } from "lucide-react";
+import { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { OnboardingData } from "@/components/signup/OnboardingQuestions";
 import { useToast } from "@/hooks/use-toast";
-import { UserRole, OnboardingData } from "@/types/user";
+
+import { 
+  Card, 
+  CardContent, 
+  CardDescription, 
+  CardFooter, 
+  CardHeader, 
+  CardTitle 
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
 import OnboardingQuestions from "@/components/signup/OnboardingQuestions";
+import ChatMessage from "@/components/signup/ChatMessage";
 
 const SignUp = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  
   const [step, setStep] = useState(1);
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [selectedRole, setSelectedRole] = useState<UserRole | null>(null);
-  const [messages, setMessages] = useState([
-    { type: "bot", content: "Hello! I'm Sakha AI, your personalized education assistant. Let's get to know you better!" },
-  ]);
-  const [showOnboarding, setShowOnboarding] = useState(false);
-  const [onboardingData, setOnboardingData] = useState<OnboardingData>({});
+  const [isLoading, setIsLoading] = useState(false);
+  const [formValues, setFormValues] = useState({
+    name: "",
+    email: "",
+    password: "",
+  });
+  
+  const [onboardingData, setOnboardingData] = useState<OnboardingData>({
+    userType: "",
+    goals: [],
+    examDate: "",
+    examType: "",
+    studyHours: "",
+    topicStrengths: [],
+    topicWeaknesses: [],
+    preferredStyle: "",
+  });
 
-  const roles = [
-    { id: "Student", label: "Student", description: "Preparing for exams and academic success", icon: "📚" },
-    { id: "Employee", label: "Working Professional", description: "Career growth and skill development", icon: "💼" },
-    { id: "Doctor", label: "Medical Professional", description: "Research and medical advancement", icon: "🩺" },
-    { id: "Founder", label: "Entrepreneur/Founder", description: "Building and growing your startup", icon: "🚀" },
-  ];
-
-  const handleNextStep = () => {
-    if (step === 1) {
-      if (!name.trim()) {
-        toast({
-          title: "Name required",
-          description: "Please enter your name to continue",
-          variant: "destructive",
-        });
-        return;
-      }
-      
-      setMessages([
-        ...messages,
-        { type: "bot", content: `Nice to meet you, ${name}! What's your mobile number?` },
-      ]);
-      setStep(2);
-    } else if (step === 2) {
-      if (!phone.trim() || phone.length < 10) {
-        toast({
-          title: "Valid phone number required",
-          description: "Please enter a valid phone number to continue",
-          variant: "destructive",
-        });
-        return;
-      }
-      
-      setMessages([
-        ...messages,
-        { type: "user", content: phone },
-        { type: "bot", content: "Great! Now, tell me which role best describes you?" },
-      ]);
-      setStep(3);
-    } else if (step === 3) {
-      if (!selectedRole) {
-        toast({
-          title: "Selection required",
-          description: "Please select a role to continue",
-          variant: "destructive",
-        });
-        return;
-      }
-      
-      // Show appropriate role-specific onboarding questions
-      setShowOnboarding(true);
-    }
-  };
-
-  const handleRoleSelect = (role: UserRole) => {
-    setSelectedRole(role);
-    
-    setMessages([
-      ...messages,
-      { type: "user", content: `I am a ${role.toLowerCase()}` },
-    ]);
-  };
-
-  const handleOnboardingComplete = (data: any) => {
-    setOnboardingData({
-      ...onboardingData,
-      role: selectedRole,
-      name,
-      phoneNumber: phone,
-      ...data,
-    });
-    
-    setMessages([
-      ...messages,
-      { type: "bot", content: "All set! Your personalized AI assistant is ready. Let's create your smart study plan." },
-    ]);
-    
-    toast({
-      title: "Account created!",
-      description: "Your AI assistant is ready to help you succeed."
-    });
-    
-    // Redirect to dashboard after a brief delay
-    setTimeout(() => {
-      navigate(`/dashboard/${selectedRole?.toLowerCase()}`);
-    }, 1500);
+  const handleFormChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormValues({ ...formValues, [name]: value });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    handleNextStep();
+    setIsLoading(true);
+    
+    // Simulating API call
+    setTimeout(() => {
+      setIsLoading(false);
+      setStep(2);
+      
+      toast({
+        title: "Account created!",
+        description: "Now let's set up your personalized experience.",
+      });
+    }, 1500);
   };
-
-  const handleClose = () => {
-    navigate("/");
+  
+  const handleOnboardingComplete = (data: OnboardingData) => {
+    setOnboardingData(data);
+    setIsLoading(true);
+    
+    // Simulate API call
+    setTimeout(() => {
+      setIsLoading(false);
+      // Navigate to the dashboard based on user type
+      navigate(`/dashboard/${data.userType.toLowerCase()}`);
+      
+      toast({
+        title: "Setup complete!",
+        description: "Your personalized dashboard is ready.",
+      });
+    }, 2000);
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-sky-100 via-white to-violet-100 dark:from-sky-900/30 dark:via-gray-900 dark:to-violet-900/30 p-4">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="w-full max-w-lg"
-      >
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden border border-gray-100 dark:border-gray-700">
-          {/* Header */}
-          <div className="bg-gradient-to-r from-sky-600 to-violet-600 p-6 flex justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-white">Create Your Account</h1>
-              <p className="text-sky-100">Your personalized AI learning assistant awaits</p>
-            </div>
-            <button 
-              onClick={handleClose} 
-              className="text-white hover:bg-white/20 p-1.5 rounded-full"
-            >
-              <X size={20} />
-            </button>
-          </div>
-
-          {/* Chat interface */}
-          <div className="p-6 max-h-[500px] overflow-y-auto">
-            <div className="space-y-6">
-              {messages.map((message, idx) => (
-                <ChatMessage 
-                  key={idx} 
-                  type={message.type as "bot" | "user"} 
-                  content={message.content} 
-                />
-              ))}
-            </div>
-            
-            <AnimatePresence mode="wait">
-              {step === 1 && (
-                <motion.div
-                  key="name-input"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <form onSubmit={handleSubmit} className="mt-6">
-                    <div className="space-y-2">
-                      <Label htmlFor="name">Your Name</Label>
-                      <Input
-                        id="name"
-                        type="text"
-                        placeholder="Enter your name"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        className="py-6 px-4"
-                      />
-                    </div>
-                  </form>
-                </motion.div>
-              )}
-              
-              {step === 2 && (
-                <motion.div
-                  key="phone-input"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <form onSubmit={handleSubmit} className="mt-6">
-                    <div className="space-y-2">
-                      <Label htmlFor="phone">Mobile Number</Label>
-                      <Input
-                        id="phone"
-                        type="tel"
-                        placeholder="Enter your mobile number"
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
-                        className="py-6 px-4"
-                      />
-                    </div>
-                  </form>
-                </motion.div>
-              )}
-              
-              {step === 3 && !showOnboarding && (
-                <motion.div
-                  key="role-selection"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <RadioGroup
-                    value={selectedRole || ""}
-                    onValueChange={(value) => handleRoleSelect(value as UserRole)}
-                    className="mt-6 space-y-3"
-                  >
-                    {roles.map((role) => (
-                      <div
-                        key={role.id}
-                        className={`flex items-center border rounded-lg p-4 cursor-pointer transition-all hover:bg-gray-50 dark:hover:bg-gray-700 ${
-                          selectedRole === role.id
-                            ? "border-sky-500 bg-sky-50 dark:bg-sky-900/20"
-                            : "border-gray-200 dark:border-gray-700"
-                        }`}
-                        onClick={() => handleRoleSelect(role.id as UserRole)}
-                      >
-                        <RadioGroupItem
-                          value={role.id}
-                          id={role.id}
-                          className="mr-3"
-                        />
-                        <div className="mr-4 text-2xl">{role.icon}</div>
-                        <div>
-                          <Label htmlFor={role.id} className="text-base font-medium">
-                            {role.label}
-                          </Label>
-                          <p className="text-sm text-gray-500 dark:text-gray-400">
-                            {role.description}
-                          </p>
-                        </div>
-                        {selectedRole === role.id && (
-                          <CheckCircle2 className="ml-auto text-sky-500" size={18} />
-                        )}
-                      </div>
-                    ))}
-                  </RadioGroup>
-                </motion.div>
-              )}
-
-              {showOnboarding && selectedRole && (
-                <OnboardingQuestions 
-                  role={selectedRole} 
-                  onComplete={handleOnboardingComplete} 
-                  onClose={() => setShowOnboarding(false)}
-                />
-              )}
-            </AnimatePresence>
-          </div>
-
-          {/* Footer */}
-          <div className="p-6 bg-gray-50 dark:bg-gray-800/50 border-t border-gray-100 dark:border-gray-700">
-            {!showOnboarding && (
-              <div className="flex justify-between items-center">
-                <div className="text-sm">
-                  Already have an account?{" "}
-                  <Link to="/login" className="text-sky-600 dark:text-sky-400 font-medium">
-                    Login
-                  </Link>
+    <div className="min-h-screen bg-gradient-to-br from-sky-100/30 via-white to-violet-100/30 dark:from-sky-900/10 dark:via-gray-900 dark:to-violet-900/10 flex items-center justify-center p-4">
+      {step === 1 ? (
+        <Card className="w-full max-w-md shadow-xl border-gray-200 dark:border-gray-700">
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-2xl">Create an account</CardTitle>
+            <CardDescription>
+              Enter your details to get started with Sakha AI
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit}>
+              <div className="grid gap-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="name">Full Name</Label>
+                  <Input
+                    id="name"
+                    name="name"
+                    placeholder="John Doe"
+                    required
+                    value={formValues.name}
+                    onChange={handleFormChange}
+                    className="border-gray-200 dark:border-gray-700"
+                  />
                 </div>
-
-                <Button
-                  onClick={handleNextStep}
-                  className="bg-gradient-to-r from-sky-500 to-violet-500 group"
+                <div className="grid gap-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    id="email"
+                    name="email"
+                    type="email"
+                    placeholder="john@example.com"
+                    required
+                    value={formValues.email}
+                    onChange={handleFormChange}
+                    className="border-gray-200 dark:border-gray-700"
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="password">Password</Label>
+                  <Input
+                    id="password"
+                    name="password"
+                    type="password"
+                    required
+                    value={formValues.password}
+                    onChange={handleFormChange}
+                    className="border-gray-200 dark:border-gray-700"
+                  />
+                </div>
+                <Button 
+                  type="submit"
+                  className="bg-gradient-to-r from-sky-500 to-violet-500 hover:from-sky-600 hover:to-violet-600 mt-2"
+                  disabled={isLoading}
                 >
-                  Continue{" "}
-                  <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" size={16} />
+                  {isLoading ? "Creating Account..." : "Create Account"}
                 </Button>
               </div>
-            )}
-          </div>
+            </form>
+
+            <div className="mt-6 space-y-4">
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <Separator />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-background px-2 text-muted-foreground">
+                    Or continue with
+                  </span>
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-3">
+                <Button variant="outline" className="border-gray-200 dark:border-gray-700">
+                  <img src="https://api.iconify.design/flat-color-icons:google.svg" className="w-5 h-5 mr-2" />
+                  Google
+                </Button>
+                <Button variant="outline" className="border-gray-200 dark:border-gray-700">
+                  <img src="https://api.iconify.design/devicon:apple.svg" className="w-5 h-5 mr-2" />
+                  Apple
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+          <CardFooter className="flex justify-center pb-5">
+            <p className="text-center text-sm text-muted-foreground">
+              Already have an account?{" "}
+              <Link
+                to="/login"
+                className="text-primary underline-offset-4 hover:underline"
+              >
+                Login
+              </Link>
+            </p>
+          </CardFooter>
+        </Card>
+      ) : (
+        <div className="w-full max-w-2xl">
+          <Card className="shadow-xl border-gray-200 dark:border-gray-700">
+            <CardHeader>
+              <CardTitle>Let's personalize your experience</CardTitle>
+              <CardDescription>
+                Answer a few questions to help us tailor Sakha AI to your needs
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex gap-6">
+                <div className="w-1/3 border-r border-gray-200 dark:border-gray-700 pr-6">
+                  <ChatMessage
+                    isBot={true}
+                    message="Hi there! I'm Sakha AI. I'll help customize your learning experience."
+                  />
+                  <ChatMessage
+                    isBot={true}
+                    message="Please answer a few questions about your learning goals."
+                  />
+                  <ChatMessage
+                    isBot={false}
+                    message="Sure, I'm ready to get started!"
+                  />
+                </div>
+                <div className="w-2/3">
+                  <OnboardingQuestions 
+                    onComplete={handleOnboardingComplete}
+                    isLoading={isLoading}
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
-      </motion.div>
+      )}
     </div>
   );
 };
