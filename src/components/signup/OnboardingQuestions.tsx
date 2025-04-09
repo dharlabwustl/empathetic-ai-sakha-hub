@@ -4,8 +4,9 @@ import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { X } from "lucide-react";
-import { UserRole } from "@/types/user";
 import { motion } from "framer-motion";
+
+export type UserRole = "Student" | "Employee" | "Doctor" | "Founder";
 
 export interface OnboardingData {
   role?: UserRole;

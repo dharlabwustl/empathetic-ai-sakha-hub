@@ -2,16 +2,13 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { PencilRuler } from "lucide-react";
 import SidebarNav from "@/components/dashboard/SidebarNav";
 import ChatAssistant from "@/components/dashboard/ChatAssistant";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { useKpiTracking } from "@/hooks/useKpiTracking";
 import OnboardingFlow from "@/components/dashboard/student/OnboardingFlow";
-import { Button } from "@/components/ui/button";
 import DashboardLoading from "./student/DashboardLoading";
 import DashboardHeader from "./student/DashboardHeader";
-import MobileNavigation from "./student/MobileNavigation";
 import SidebarNavigation from "./student/SidebarNavigation";
 import DashboardContent from "./student/DashboardContent";
 import { getFeatures, formatTime, formatDate } from "./student/StudentDashboardUtils";
@@ -101,12 +98,6 @@ const StudentDashboard = () => {
           userProfile={userProfile}
           formattedTime={formattedTime}
           formattedDate={formattedDate}
-        />
-        
-        {/* Mobile navigation */}
-        <MobileNavigation 
-          activeTab={activeTab} 
-          onTabChange={handleTabChange} 
         />
         
         {/* Main dashboard content area */}
