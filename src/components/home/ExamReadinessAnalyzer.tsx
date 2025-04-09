@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { X, ChevronRight, ChevronLeft, Check, ArrowRight } from "lucide-react";
@@ -742,4 +743,197 @@ const ExamReadinessAnalyzer = ({ onClose }) => {
 
                 <div className="space-y-8">
                   {profileQuestions.map((question) => (
-                    <div key={question.id} className="bg-gray-50 dark:bg-gray-8
+                    <div key={question.id} className="bg-gray-50 dark:bg-gray-800 rounded-lg p-5">
+                      <h4 className="font-semibold mb-4">{question.question}</h4>
+                      <RadioGroup
+                        value={profileAnswers[question.id] || ""}
+                        onValueChange={(value) => handleProfileAnswer(question.id, value)}
+                      >
+                        <div className="space-y-3">
+                          {question.options.map((option) => (
+                            <div
+                              key={option.id}
+                              className={`flex items-center p-3 rounded-lg cursor-pointer ${
+                                profileAnswers[question.id] === option.id
+                                  ? "bg-sky-50 border border-sky-200 dark:bg-sky-900/30 dark:border-sky-700"
+                                  : "bg-white border border-gray-200 dark:bg-gray-800 dark:border-gray-700"
+                              }`}
+                            >
+                              <RadioGroupItem
+                                value={option.id}
+                                id={option.id}
+                                className="mr-3"
+                              />
+                              <Label htmlFor={option.id} className="flex-1 cursor-pointer">
+                                {option.text}
+                              </Label>
+                              {profileAnswers[question.id] === option.id && (
+                                <Check className="text-sky-500 ml-2" size={16} />
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </RadioGroup>
+                    </div>
+                  ))}
+
+                  <Button
+                    onClick={handleStartExam}
+                    className="w-full bg-gradient-to-r from-sky-500 to-violet-500 mt-6"
+                  >
+                    Start Assessment <ArrowRight className="ml-2" size={16} />
+                  </Button>
+                </div>
+              </motion.div>
+            )}
+
+            {/* Exam Questions */}
+            {step === "exam" && selectedExam && (
+              <motion.div
+                key="exam-questions"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.2 }}
+              >
+                {(() => {
+                  const questions = examQuestionsMap[selectedExam.id] || [];
+                  const currentQuestion = questions[currentQuestionIndex];
+
+                  if (!currentQuestion) return null;
+
+                  return (
+                    <div>
+                      <div className="flex items-center mb-6">
+                        <Badge className={`${selectedExam.color} text-white mr-3`}>
+                          {currentQuestion.subject}
+                        </Badge>
+                        <h3 className="text-xl font-semibold">Question {currentQuestionIndex + 1}</h3>
+                      </div>
+
+                      <Card className="mb-8">
+                        <CardContent className="pt-6">
+                          <p className="text-lg mb-6">{currentQuestion.question}</p>
+                          
+                          <RadioGroup
+                            value={examAnswers[currentQuestion.id] || ""}
+                            onValueChange={(value) => handleExamAnswer(currentQuestion.id, value)}
+                            className="space-y-3"
+                          >
+                            {currentQuestion.options.map((option) => (
+                              <div
+                                key={option.id}
+                                className={`flex items-center p-4 rounded-lg cursor-pointer ${
+                                  examAnswers[currentQuestion.id] === option.id
+                                    ? "bg-sky-50 border border-sky-200 dark:bg-sky-900/30 dark:border-sky-700"
+                                    : "bg-white border border-gray-200 dark:bg-gray-800 dark:border-gray-700"
+                                }`}
+                              >
+                                <RadioGroupItem
+                                  value={option.id}
+                                  id={option.id}
+                                  className="mr-3"
+                                />
+                                <Label htmlFor={option.id} className="flex-1 cursor-pointer">
+                                  {option.text}
+                                </Label>
+                              </div>
+                            ))}
+                          </RadioGroup>
+                        </CardContent>
+                      </Card>
+
+                      <div className="flex justify-between">
+                        <Button
+                          variant="outline"
+                          onClick={handlePrevQuestion}
+                          disabled={currentQuestionIndex === 0}
+                          className="flex items-center"
+                        >
+                          <ChevronLeft size={16} /> Previous
+                        </Button>
+                        <Button
+                          onClick={handleNextQuestion}
+                          className="bg-gradient-to-r from-sky-500 to-violet-500"
+                        >
+                          {currentQuestionIndex < questions.length - 1 ? (
+                            <>Next <ChevronRight size={16} /></>
+                          ) : (
+                            <>Finish <Check size={16} /></>
+                          )}
+                        </Button>
+                      </div>
+                    </div>
+                  );
+                })()}
+              </motion.div>
+            )}
+
+            {/* Results */}
+            {step === "results" && (
+              <motion.div
+                key="results"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.2 }}
+              >
+                <div className="text-center mb-8">
+                  <div className={`w-20 h-20 ${
+                    score < 40 ? "bg-amber-100 text-amber-600" :
+                    score < 70 ? "bg-sky-100 text-sky-600" :
+                    "bg-green-100 text-green-600"
+                  } rounded-full flex items-center justify-center mx-auto mb-4`}>
+                    <span className="text-2xl font-bold">{Math.round(score)}%</span>
+                  </div>
+                  <h3 className="text-2xl font-semibold">
+                    {score < 40 ? "Keep Going!" : 
+                     score < 70 ? "Good Progress!" : 
+                     "Excellent Work!"}
+                  </h3>
+                  <p className="text-gray-500 dark:text-gray-400 mt-1">
+                    {score < 40 ? "You're just getting started. Let's build a solid foundation." :
+                     score < 70 ? "You're making good progress. Let's focus on the weak areas." : 
+                     "You're doing fantastic! Let's master advanced concepts."}
+                  </p>
+                </div>
+
+                <Card className="mb-6">
+                  <CardContent className="pt-6">
+                    <h4 className="font-semibold mb-4">Our Recommendations</h4>
+                    <ul className="space-y-3">
+                      {recommendations.map((recommendation, index) => (
+                        <li key={index} className="flex items-start">
+                          <div className="bg-sky-100 dark:bg-sky-900/30 p-1 rounded-full mr-3 mt-0.5">
+                            <Check className="text-sky-600 dark:text-sky-400" size={14} />
+                          </div>
+                          <span>{recommendation}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </CardContent>
+                </Card>
+
+                <div className="flex flex-col sm:flex-row gap-3 justify-between">
+                  <Button 
+                    variant="outline" 
+                    onClick={handleReset}
+                  >
+                    Try Another Exam
+                  </Button>
+                  <Link to="/signup">
+                    <Button className="w-full sm:w-auto bg-gradient-to-r from-sky-500 to-violet-500">
+                      Create Your Study Plan <ArrowRight size={16} className="ml-1" />
+                    </Button>
+                  </Link>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </motion.div>
+    </div>
+  );
+};
+
+export default ExamReadinessAnalyzer;
