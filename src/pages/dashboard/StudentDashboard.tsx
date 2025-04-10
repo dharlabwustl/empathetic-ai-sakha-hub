@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import SidebarNav from "@/components/dashboard/SidebarNav";
 import ChatAssistant from "@/components/dashboard/ChatAssistant";
@@ -19,6 +19,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 const StudentDashboard = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
+  const location = useLocation();
   const { tab } = useParams();
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState(tab || "overview");
@@ -52,30 +53,26 @@ const StudentDashboard = () => {
       setCurrentTime(new Date());
     }, 60000);
 
-    // Check if user is a first-time user
-    const isFirstTime = localStorage.getItem("firstTimeUser");
-    if (isFirstTime !== "false" && userProfile) {
+    // Check for user data and show onboarding/welcome as needed
+    const userData = localStorage.getItem("userData");
+    const searchParams = new URLSearchParams(location.search);
+    const completedOnboarding = searchParams.get('completedOnboarding');
+    
+    if (completedOnboarding === 'true') {
+      setShowWelcomeTour(true);
+      // Clean the URL to remove the query param
+      navigate(location.pathname, { replace: true });
+    }
+    else if (!userData && userProfile) {
+      // First time user, show onboarding
       setShowOnboarding(true);
-      localStorage.setItem("firstTimeUser", "false");
     }
 
     return () => {
       clearTimeout(timer);
       clearInterval(intervalId);
     };
-  }, [toast, userProfile]);
-
-  // Check for completed onboarding from URL
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const completedOnboarding = urlParams.get('completedOnboarding');
-    
-    if (completedOnboarding === 'true') {
-      setShowWelcomeTour(true);
-      // Clean the URL to remove the query param
-      window.history.replaceState({}, document.title, window.location.pathname);
-    }
-  }, []);
+  }, [toast, userProfile, location, navigate]);
 
   const handleTabChange = (newTab: string) => {
     setActiveTab(newTab);

@@ -118,11 +118,22 @@ const StepHandler = ({
   const handleSignupSubmit = (formValues: { name: string; mobile: string; otp: string }) => {
     setIsLoading(true);
     
+    // Save user data to localStorage
+    const userData = {
+      ...onboardingData,
+      name: formValues.name,
+      mobile: formValues.mobile,
+      completedOnboarding: true
+    };
+    
+    localStorage.setItem("userData", JSON.stringify(userData));
+    
     // Simulate API call
     setTimeout(() => {
       setIsLoading(false);
       
-      navigate(`/dashboard/student`);
+      // Navigate with showWelcomeTour flag set to true
+      navigate(`/dashboard/student?completedOnboarding=true`);
       
       toast({
         title: "Welcome to Sakha AI!",

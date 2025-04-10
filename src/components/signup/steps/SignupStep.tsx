@@ -46,16 +46,15 @@ const SignupStep: React.FC<SignupStepProps> = ({ onSubmit, isLoading }) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Directly navigate with the completedOnboarding flag
     if (formValues.name && formValues.mobile && formValues.otp) {
-      navigate("/dashboard/student?completedOnboarding=true");
-      
-      toast({
-        title: "Welcome to Sakha AI!",
-        description: "Your personalized dashboard is ready.",
-      });
-    } else {
+      // Instead of directly navigating, let the StepHandler handle the completion
       onSubmit(formValues);
+    } else {
+      toast({
+        title: "Please fill in all fields",
+        description: "All fields are required to create your account.",
+        variant: "destructive"
+      });
     }
   };
 
