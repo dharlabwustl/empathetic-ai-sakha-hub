@@ -11,7 +11,7 @@ interface DialogFooterButtonsProps {
   selectedExam: string;
   onClose: () => void;
   handleStartTest: () => void;
-  handleNavigation: (direction: 'prev' | 'next') => void;
+  handleNavigation: (test: TestType) => void;
 }
 
 const DialogFooterButtons: React.FC<DialogFooterButtonsProps> = ({
@@ -48,18 +48,24 @@ const DialogFooterButtons: React.FC<DialogFooterButtonsProps> = ({
   
   // For test screens that have been completed
   if ((currentTest === 'stress' || currentTest === 'readiness' || currentTest === 'concept') && testCompleted[currentTest]) {
+    const nextTest = currentTest === 'stress' ? 'readiness' : 
+                     currentTest === 'readiness' ? 'concept' : 'report';
+                     
+    const prevTest = currentTest === 'stress' ? 'intro' : 
+                     currentTest === 'readiness' ? 'stress' : 'readiness';
+    
     return (
       <DialogFooter className="space-x-2 pt-4">
         <Button 
           variant="outline" 
-          onClick={() => handleNavigation('prev')}
+          onClick={() => handleNavigation(prevTest)}
           className="flex items-center gap-2 border-2 border-gray-200 dark:border-gray-700 hover:bg-gray-100"
         >
           <ChevronLeft size={16} />
           <span>Previous</span>
         </Button>
         <Button 
-          onClick={() => handleNavigation('next')}
+          onClick={() => handleNavigation(nextTest)}
           className="bg-gradient-to-r from-sky-500 to-violet-500 hover:from-sky-600 hover:to-violet-600 transition-all duration-300 shadow-md hover:shadow-lg px-6 flex items-center"
         >
           <span>Continue</span>
@@ -71,11 +77,14 @@ const DialogFooterButtons: React.FC<DialogFooterButtonsProps> = ({
   
   // For in-progress test screens
   if (currentTest === 'stress' || currentTest === 'readiness' || currentTest === 'concept') {
+    const prevTest = currentTest === 'stress' ? 'intro' : 
+                     currentTest === 'readiness' ? 'stress' : 'readiness';
+                     
     return (
       <DialogFooter className="space-x-2 pt-4">
         <Button 
           variant="outline" 
-          onClick={() => handleNavigation('prev')}
+          onClick={() => handleNavigation(prevTest)}
           className="flex items-center gap-2 border-2 border-gray-200 dark:border-gray-700"
         >
           <ChevronLeft size={16} />
@@ -98,7 +107,7 @@ const DialogFooterButtons: React.FC<DialogFooterButtonsProps> = ({
       <DialogFooter className="space-x-2 pt-4">
         <Button 
           variant="outline" 
-          onClick={() => handleNavigation('prev')}
+          onClick={() => handleNavigation('concept')}
           className="flex items-center gap-2 border-2 border-gray-200 dark:border-gray-700"
         >
           <ChevronLeft size={16} />

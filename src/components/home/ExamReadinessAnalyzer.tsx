@@ -56,6 +56,7 @@ export function ExamReadinessAnalyzer({ onClose }: { onClose: () => void }) {
           handleStressTestComplete={handleStressTestComplete}
           handleReadinessTestComplete={handleReadinessTestComplete}
           handleConceptTestComplete={handleConceptTestComplete}
+          handleNavigation={handleNavigation}
         />
         
         <DialogFooterButtons 

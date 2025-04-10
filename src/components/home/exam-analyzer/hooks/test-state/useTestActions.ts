@@ -16,7 +16,7 @@ export interface TestStateActions {
   handleReadinessTestComplete: (answers: UserAnswer[]) => void;
   simulateConceptTest: () => void;
   handleConceptTestComplete: (answers: UserAnswer[]) => void;
-  handleNavigation: (direction: 'prev' | 'next') => void;
+  handleNavigation: (test: TestType) => void;
   handleStartOver: () => void;
 }
 
@@ -144,32 +144,20 @@ export const useTestActions = ({
     setProgress(100);
   };
 
-  const handleNavigation = (direction: 'prev' | 'next') => {
-    if (direction === 'prev') {
-      if (currentTest === 'stress') {
-        setCurrentTest('intro');
-        setProgress(0);
-      } else if (currentTest === 'readiness') {
-        setCurrentTest('stress');
-        setProgress(10);
-      } else if (currentTest === 'concept') {
-        setCurrentTest('readiness');
-        setProgress(30);
-      } else if (currentTest === 'report') {
-        setCurrentTest('concept');
-        setProgress(60);
-      }
-    } else {
-      if (currentTest === 'stress' && testCompleted.stress) {
-        setCurrentTest('readiness');
-        setProgress(30);
-      } else if (currentTest === 'readiness' && testCompleted.readiness) {
-        setCurrentTest('concept');
-        setProgress(60);
-      } else if (currentTest === 'concept' && testCompleted.concept) {
-        setCurrentTest('report');
-        setProgress(100);
-      }
+  const handleNavigation = (test: TestType) => {
+    setCurrentTest(test);
+    
+    // Update progress based on the test
+    if (test === 'intro') {
+      setProgress(0);
+    } else if (test === 'stress') {
+      setProgress(10);
+    } else if (test === 'readiness') {
+      setProgress(30);
+    } else if (test === 'concept') {
+      setProgress(60);
+    } else if (test === 'report') {
+      setProgress(100);
     }
   };
 

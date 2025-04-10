@@ -15,6 +15,7 @@ interface ConceptTestSectionProps {
   results: TestResults;
   simulateTest: () => void;
   onCompleteTest: (answers: UserAnswer[]) => void;
+  onContinue?: () => void;
 }
 
 const ConceptTestSection: React.FC<ConceptTestSectionProps> = ({
@@ -23,7 +24,8 @@ const ConceptTestSection: React.FC<ConceptTestSectionProps> = ({
   selectedExam,
   results,
   simulateTest,
-  onCompleteTest
+  onCompleteTest,
+  onContinue
 }) => {
   const [isTestActive, setIsTestActive] = useState(false);
   const [selectedSubjects, setSelectedSubjects] = useState<string[]>([]);
@@ -132,7 +134,7 @@ const ConceptTestSection: React.FC<ConceptTestSectionProps> = ({
   }
 
   if (testCompleted) {
-    return <ConceptTestResults results={results} />;
+    return <ConceptTestResults results={results} onContinue={onContinue} />;
   }
 
   if (isTestActive) {
