@@ -51,6 +51,7 @@ interface DashboardContentProps {
   showWelcomeTour: boolean;
   handleSkipTour: () => void;
   handleCompleteTour: () => void;
+  hideTabsNav?: boolean;
 }
 
 const DashboardContent = ({
@@ -63,7 +64,8 @@ const DashboardContent = ({
   features,
   showWelcomeTour,
   handleSkipTour,
-  handleCompleteTour
+  handleCompleteTour,
+  hideTabsNav = false
 }: DashboardContentProps) => {
   
   const tabs = [
@@ -124,18 +126,20 @@ const DashboardContent = ({
   return (
     <div className="lg:col-span-9 xl:col-span-10">
       <Tabs value={activeTab} onValueChange={onTabChange} className="space-y-6">
-        <TabsList className="tab-scrollbar grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-7 gap-2">
-          {tabs.map(tab => (
-            <TabsTrigger 
-              key={tab.id} 
-              value={tab.id} 
-              className="flex items-center gap-2"
-            >
-              {tab.icon}
-              <span>{tab.label}</span>
-            </TabsTrigger>
-          ))}
-        </TabsList>
+        {!hideTabsNav && (
+          <TabsList className="tab-scrollbar grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-7 gap-2">
+            {tabs.map(tab => (
+              <TabsTrigger 
+                key={tab.id} 
+                value={tab.id} 
+                className="flex items-center gap-2"
+              >
+                {tab.icon}
+                <span>{tab.label}</span>
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        )}
         
         <TabsContent value={activeTab} className="focus-visible:outline-none focus-visible:ring-0">
           {tabContents[activeTab] || <div>Coming soon...</div>}

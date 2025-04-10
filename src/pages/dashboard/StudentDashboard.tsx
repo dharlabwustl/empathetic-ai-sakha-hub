@@ -29,6 +29,7 @@ const StudentDashboard = () => {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [showStudyPlan, setShowStudyPlan] = useState(false);
+  const [hideTabsNav, setHideTabsNav] = useState(false);
   const [hideSidebar, setHideSidebar] = useState(false);
 
   // Get features data
@@ -112,6 +113,10 @@ const StudentDashboard = () => {
   const toggleSidebar = () => {
     setHideSidebar(!hideSidebar);
   };
+
+  const toggleTabsNav = () => {
+    setHideTabsNav(!hideTabsNav);
+  };
   
   // Format current time and date
   const formattedTime = formatTime(currentTime);
@@ -164,19 +169,35 @@ const StudentDashboard = () => {
             />
           )}
           
-          {/* Main content area */}
-          <DashboardContent
-            activeTab={activeTab}
-            onTabChange={handleTabChange}
-            userProfile={userProfile}
-            kpis={kpis}
-            nudges={nudges}
-            markNudgeAsRead={markNudgeAsRead}
-            features={features}
-            showWelcomeTour={showWelcomeTour}
-            handleSkipTour={handleSkipTour}
-            handleCompleteTour={handleCompleteTour}
-          />
+          {/* Toggle tabs visibility button */}
+          <div className="lg:col-span-9 xl:col-span-10">
+            <div className="flex justify-end mb-4">
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex items-center gap-1 bg-white shadow-sm"
+                onClick={toggleTabsNav}
+              >
+                {hideTabsNav ? "Show Tabs" : "Hide Tabs"} 
+                {hideTabsNav ? <ChevronRight size={15} /> : <ChevronLeft size={15} />}
+              </Button>
+            </div>
+            
+            {/* Main content area */}
+            <DashboardContent
+              activeTab={activeTab}
+              onTabChange={handleTabChange}
+              userProfile={userProfile}
+              kpis={kpis}
+              nudges={nudges}
+              markNudgeAsRead={markNudgeAsRead}
+              features={features}
+              showWelcomeTour={showWelcomeTour}
+              handleSkipTour={handleSkipTour}
+              handleCompleteTour={handleCompleteTour}
+              hideTabsNav={hideTabsNav}
+            />
+          </div>
         </div>
       </main>
       
