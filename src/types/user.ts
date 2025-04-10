@@ -7,9 +7,10 @@ export type InterestLevel = "Beginner" | "Intermediate" | "Advanced";
 export interface UserProfileType {
   id: string;
   name: string;
-  email: string;
-  imageUrl: string;
-  userType: string;
+  email?: string;
+  phoneNumber?: string;
+  imageUrl?: string;
+  userType?: string;
   subscription: SubscriptionType;
   goals: Goal[];
   bio?: string;
@@ -135,6 +136,7 @@ export interface StudentProfile extends UserProfileType {
     current: MoodType;
     history: Array<{ date: Date; mood: MoodType }>;
   };
+  phoneNumber?: string;
 }
 
 export interface EmployeeProfile extends UserProfileType {
@@ -149,6 +151,7 @@ export interface EmployeeProfile extends UserProfileType {
   experienceLevel: string;
   skillsToGrow: string[];
   productivityScore: number;
+  phoneNumber?: string;
 }
 
 export interface DoctorProfile extends UserProfileType {
@@ -163,6 +166,7 @@ export interface DoctorProfile extends UserProfileType {
   thesisTitle: string;
   clinicalInterest: string;
   researchPhase: string;
+  phoneNumber?: string;
 }
 
 export interface FounderProfile extends UserProfileType {
@@ -178,4 +182,5 @@ export interface FounderProfile extends UserProfileType {
   startupGoal: string;
   mvpCompletion: number;
   pitchDeckStatus: number;
+  phoneNumber?: string;
 }

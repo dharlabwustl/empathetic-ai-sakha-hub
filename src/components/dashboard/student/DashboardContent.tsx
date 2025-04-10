@@ -16,7 +16,7 @@ import WelcomeTour from '@/components/dashboard/student/WelcomeTour';
 import { UserProfileType } from '@/types/user';
 import { KpiData, NudgeData } from '@/hooks/useKpiTracking';
 import { ReactNode } from 'react';
-import { MicroConceptView, FlashcardsView, PracticeExamsView } from '../../pages/dashboard/student/TabContentViews';
+import { MicroConceptView, FlashcardsView, PracticeExamsView } from '@/pages/dashboard/student/TabContentViews';
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 
 interface DashboardContentProps {
