@@ -35,9 +35,10 @@ export interface TestQuestion {
   timeLimit: number;
   explanation?: string;
   imageUrl?: string;
-  type?: 'multiple-choice' | 'self-assessment';
+  type?: 'multiple-choice' | 'self-assessment' | 'pattern-recognition' | 'memory-recall';
   category?: string;
   difficulty?: 'easy' | 'medium' | 'hard';
+  complexityLevel?: number; // 1-5 for increasing complexity
 }
 
 export interface SubjectTopic {
@@ -51,7 +52,7 @@ export interface UserAnswer {
   answer: string;
   timeToAnswer: number;
   isCorrect?: boolean;
-  confidenceLevel?: number;  // Added for concept test
+  confidenceLevel?: number;  // 1-5 scale or 0-100%
 }
 
 export interface TestDescription {
@@ -67,4 +68,22 @@ export interface ConfidenceMapping {
   confidence: number;
   accuracy: number;
   status: 'overconfident' | 'aligned' | 'underconfident';
+}
+
+export interface ConceptCompletion {
+  topicsCompleted: number;
+  totalTopics: number;
+  percentageCompleted: number;
+}
+
+export interface PracticePerformance {
+  avgScore: number;
+  consistencyScore: number; // Measure of score consistency
+  timeAccuracyRatio: number; // Higher is better
+}
+
+export interface ReadinessScoreComponents {
+  conceptCompletion: number; // 0-100
+  practicePerformance: number; // 0-100
+  confidenceAlignment: number; // 0-100
 }

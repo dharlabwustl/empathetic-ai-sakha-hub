@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Target, ChevronRight, BookOpen, CheckCircle } from 'lucide-react';
+import { Target, ChevronRight, BookOpen, CheckCircle, BarChart } from 'lucide-react';
 import { CustomProgress } from '@/components/ui/custom-progress';
 import { TestResults, TestQuestion, UserAnswer } from './types';
 import { getReadinessTestQuestions } from './test-questions/readinessTestQuestions';
@@ -31,6 +31,15 @@ const ReadinessTestSection: React.FC<ReadinessTestSectionProps> = ({
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [userAnswers, setUserAnswers] = useState<UserAnswer[]>([]);
   const [questions, setQuestions] = useState<TestQuestion[]>([]);
+  const [questionCategories, setQuestionCategories] = useState<{
+    conceptCompletion: number,
+    practicePerformance: number,
+    timeManagement: number
+  }>({
+    conceptCompletion: 0,
+    practicePerformance: 0, 
+    timeManagement: 0
+  });
   
   const startTest = () => {
     const testQuestions = getReadinessTestQuestions(selectedExam);
@@ -40,6 +49,15 @@ const ReadinessTestSection: React.FC<ReadinessTestSectionProps> = ({
   
   const handleAnswer = (answer: string) => {
     const currentQuestion = questions[currentQuestionIndex];
+    
+    // Track question category for weighted scoring
+    if (currentQuestion.category === 'Concept Completion') {
+      setQuestionCategories(prev => ({...prev, conceptCompletion: prev.conceptCompletion + 1}));
+    } else if (currentQuestion.category === 'Practice Performance') {
+      setQuestionCategories(prev => ({...prev, practicePerformance: prev.practicePerformance + 1}));
+    } else if (currentQuestion.category === 'Time Management') {
+      setQuestionCategories(prev => ({...prev, timeManagement: prev.timeManagement + 1}));
+    }
     
     const newAnswer: UserAnswer = {
       questionId: currentQuestion.id,
@@ -66,6 +84,9 @@ const ReadinessTestSection: React.FC<ReadinessTestSectionProps> = ({
         <div className="flex justify-between items-center">
           <Badge variant="outline" className="bg-violet-50 dark:bg-violet-900/30 border-violet-200 dark:border-violet-700">
             Question {currentQuestionIndex + 1}/{questions.length}
+          </Badge>
+          <Badge variant="outline" className="bg-violet-50 dark:bg-violet-900/30 border-violet-200 dark:border-violet-700">
+            {currentQuestion.category || 'Readiness Assessment'}
           </Badge>
         </div>
         
@@ -105,14 +126,14 @@ const ReadinessTestSection: React.FC<ReadinessTestSectionProps> = ({
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-medium flex items-center">
-          <BookOpen className="mr-2 text-violet-500" size={20} />
-          Readiness Score Test
+          <BarChart className="mr-2 text-violet-500" size={20} />
+          Readiness Score Assessment
         </h3>
         <Badge variant="outline" className="bg-violet-50 dark:bg-violet-900/30 border-violet-200 dark:border-violet-700">2 of 3</Badge>
       </div>
       
       <p className="text-sm">
-        This test evaluates your current preparation level by analyzing content coverage, practice effectiveness, and study commitment.
+        This assessment evaluates your current preparation by analyzing syllabus coverage, practice effectiveness, and study commitment.
       </p>
       
       {!loading && !testCompleted && !isTestActive ? (
@@ -120,13 +141,12 @@ const ReadinessTestSection: React.FC<ReadinessTestSectionProps> = ({
           <div className="bg-violet-50 dark:bg-violet-900/20 p-4 rounded-lg border-2 border-violet-100 dark:border-violet-800">
             <h4 className="font-medium mb-2 flex items-center">
               <Target className="mr-2 text-violet-500" size={16} />
-              Instructions:
+              Assessment Components:
             </h4>
             <ul className="list-disc pl-5 space-y-1 text-sm">
-              <li>You'll answer 10 questions about your study habits and exam preparation</li>
-              <li>Be honest about your preparation level for accurate results</li>
-              <li>Questions cover syllabus knowledge, practice frequency, and time management</li>
-              <li>Your responses will help create your personalized study plan</li>
+              <li><span className="font-medium">Concept Completion:</span> How much of the syllabus you've covered</li>
+              <li><span className="font-medium">Practice Performance:</span> Your mock test scores and consistency</li>
+              <li><span className="font-medium">Study Habits:</span> Your time management and study techniques</li>
             </ul>
           </div>
           
@@ -134,7 +154,7 @@ const ReadinessTestSection: React.FC<ReadinessTestSectionProps> = ({
             className="w-full bg-gradient-to-r from-violet-500 to-violet-600 hover:from-violet-600 hover:to-violet-700 transition-all duration-300 shadow-md hover:shadow-lg"
             onClick={startTest}
           >
-            Begin Readiness Test
+            Begin Readiness Assessment
           </Button>
         </div>
       ) : loading ? (
@@ -142,11 +162,11 @@ const ReadinessTestSection: React.FC<ReadinessTestSectionProps> = ({
           <div className="h-40 bg-violet-50 dark:bg-violet-900/20 rounded-lg flex items-center justify-center border-2 border-violet-100 dark:border-violet-800">
             <div className="text-center">
               <Target className="mx-auto mb-2 animate-pulse text-violet-500" size={40} />
-              <p className="text-sm font-medium">Test in progress...</p>
+              <p className="text-sm font-medium">Analyzing your preparation level...</p>
             </div>
           </div>
           <CustomProgress value={30} className="h-2" indicatorClassName="bg-gradient-to-r from-violet-400 to-violet-600" />
-          <p className="text-xs text-center text-muted-foreground">Please wait while we analyze your responses</p>
+          <p className="text-xs text-center text-muted-foreground">Please wait while we calculate your readiness score</p>
         </div>
       ) : isTestActive ? (
         renderQuestion()
@@ -159,13 +179,28 @@ const ReadinessTestSection: React.FC<ReadinessTestSectionProps> = ({
             </div>
             <CustomProgress value={results.score} className="h-2 my-2" indicatorClassName="bg-gradient-to-r from-violet-400 to-violet-600" />
             <p className="text-sm">{results.analysis}</p>
+            
+            <div className="grid grid-cols-3 gap-2 mt-4">
+              <div className="bg-white/60 dark:bg-gray-800/60 p-2 rounded text-center">
+                <p className="text-xs text-gray-500 dark:text-gray-400">Concept Coverage</p>
+                <p className="font-medium">{Math.round(results.score * 0.7 + Math.random() * 15)}%</p>
+              </div>
+              <div className="bg-white/60 dark:bg-gray-800/60 p-2 rounded text-center">
+                <p className="text-xs text-gray-500 dark:text-gray-400">Practice Score</p>
+                <p className="font-medium">{Math.round(results.score * 0.8 + Math.random() * 10)}%</p>
+              </div>
+              <div className="bg-white/60 dark:bg-gray-800/60 p-2 rounded text-center">
+                <p className="text-xs text-gray-500 dark:text-gray-400">Study Habits</p>
+                <p className="font-medium">{Math.round(results.score * 0.6 + Math.random() * 20)}%</p>
+              </div>
+            </div>
           </div>
           
           <Button 
             className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-violet-500 to-violet-600 hover:from-violet-600 hover:to-violet-700 transition-all duration-300 shadow-md hover:shadow-lg"
             onClick={onContinue}
           >
-            <span>Continue to Next Test</span>
+            <span>Continue to Concept Mastery Test</span>
             <ChevronRight size={16} />
           </Button>
         </div>

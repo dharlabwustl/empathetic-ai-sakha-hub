@@ -1,5 +1,5 @@
 
-import { TestResults, ExamType, UserAnswer } from './types';
+import { TestResults, ExamType, UserAnswer, ReadinessScoreComponents } from './types';
 
 export const examTypes: ExamType[] = [
   { value: 'iit', label: 'IIT-JEE' },
@@ -18,17 +18,30 @@ export function calculateStressTestResults(answers: UserAnswer[]): TestResults {
   const totalAnswered = answeredQuestions.length;
   
   // Calculate score based on correct answers and response time
-  let score = Math.round((correctAnswers / answers.length) * 100);
+  let baseAccuracy = Math.round((correctAnswers / answers.length) * 100);
   
-  // Adjust score based on average response time (faster responses get higher scores)
+  // Calculate time-based metrics
   const avgResponseTime = answeredQuestions.length > 0 ? 
     answeredQuestions.reduce((sum, a) => sum + a.timeToAnswer, 0) / answeredQuestions.length : 15;
   
   // Calculate time efficiency - higher score for faster responses
   const timeEfficiency = Math.max(0, Math.min(20, 20 * (1 - (avgResponseTime / 15))));
   
-  // Adjust score by time efficiency (up to 20% boost for very fast responses)
-  score = Math.min(100, Math.round(score * (1 + timeEfficiency / 100)));
+  // Calculate error rate under pressure
+  const errorRate = totalAnswered > 0 ? 
+    (totalAnswered - correctAnswers) / totalAnswered : 1;
+  
+  // Calculate timeout rate (measure of severe stress impact)
+  const timeoutRate = (answers.length - totalAnswered) / answers.length;
+  
+  // Scientific formula for cognitive stress score:
+  // BaseAccuracy + TimeEfficiency - (ErrorRate * 10) - (TimeoutRate * 15)
+  let score = Math.max(0, Math.min(100, Math.round(
+    baseAccuracy + 
+    timeEfficiency - 
+    (errorRate * 10) - 
+    (timeoutRate * 15)
+  )));
   
   let level = '';
   let analysis = '';
@@ -37,19 +50,24 @@ export function calculateStressTestResults(answers: UserAnswer[]): TestResults {
   
   if (score >= 80) {
     level = 'Excellent';
-    analysis = 'You handle pressure extremely well. Your ability to focus and solve problems quickly under time constraints is outstanding.';
-    strengths.push('Outstanding focus under time pressure', 'Excellent pattern recognition', 'Quick and accurate decision making');
-    improvements.push('Maintain this level through regular practice', 'Continue challenging yourself with increasingly difficult problems');
-  } else if (score >= 60) {
+    analysis = 'Your cognitive performance under stress is exceptional. You maintain focus and accuracy even with time constraints and increasing complexity.';
+    strengths.push('Excellent focus under time pressure', 'Superior pattern recognition ability', 'Quick and accurate decision making');
+    improvements.push('Challenge yourself with even more complex problems', 'Try integrating additional stressors to build resilience');
+  } else if (score >= 65) {
     level = 'Good';
-    analysis = 'You handle stress reasonably well, but there\'s room for improvement in maintaining focus and speed under pressure.';
-    strengths.push('Good focus under time constraints', 'Effective problem-solving abilities');
-    improvements.push('Work on reaction speed', 'Practice more timed exercises', 'Develop faster pattern recognition techniques');
+    analysis = 'You handle cognitive stress well, maintaining reasonable focus and accuracy under pressure. Some minor improvements in reaction time could boost your performance.';
+    strengths.push('Good focus under time constraints', 'Effective problem-solving abilities', 'Decent pattern recognition');
+    improvements.push('Work on improving reaction speed', 'Practice with more varied pattern recognition tasks', 'Develop strategies for managing time pressure');
+  } else if (score >= 50) {
+    level = 'Average';
+    analysis = 'Your performance under cognitive stress is adequate but inconsistent. You show capability but may struggle with time pressure and complex patterns.';
+    strengths.push('Basic problem-solving abilities', 'Some resilience under pressure');
+    improvements.push('Practice timed exercises regularly', 'Focus on pattern recognition training', 'Work on maintaining focus under pressure');
   } else {
     level = 'Needs Improvement';
-    analysis = 'You may find it challenging to maintain focus and accuracy under time pressure. Regular timed practice can help improve this skill.';
-    strengths.push('Basic problem-solving abilities');
-    improvements.push('Practice timed exercises daily', 'Work on stress management techniques', 'Focus on improving pattern recognition speed');
+    analysis = 'Cognitive stress significantly impacts your performance. You may find it challenging to maintain focus and accuracy under time constraints.';
+    strengths.push('Awareness of areas for improvement');
+    improvements.push('Begin with simple timed exercises daily', 'Practice basic pattern recognition without time limits first', 'Gradually introduce time constraints to build tolerance');
   }
   
   return {
@@ -62,56 +80,92 @@ export function calculateStressTestResults(answers: UserAnswer[]): TestResults {
 }
 
 export function calculateReadinessTestResults(answers: UserAnswer[]): TestResults {
-  let score = 0;
+  // Calculate component scores for the scientific formula
+  let conceptCompletionScore = 0;
+  let practicePerformanceScore = 0;
+  let studyHabitsScore = 0;
   
-  // Calculate score based on answer quality (higher values = better preparation)
+  let conceptQuestions = 0;
+  let practiceQuestions = 0;
+  let habitsQuestions = 0;
+  
+  // Process each answer based on the question category
   answers.forEach((answer) => {
-    if (answer.answer.includes('More than') || answer.answer.includes('thorough') || 
-        answer.answer.includes('Very familiar') || answer.answer.includes('multiple') || 
-        answer.answer.includes('Expert')) {
-      score += 10;
+    const value = getAnswerValue(answer.answer);
+    
+    // Sort into components based on the questionId prefix
+    if (answer.questionId.startsWith('cc-')) {
+      conceptCompletionScore += value;
+      conceptQuestions++;
     }
-    else if (answer.answer.includes('detailed') || answer.answer.includes('comprehensive') || 
-             answer.answer.includes('Weekly') || answer.answer.includes('Confident') || 
-             answer.answer.includes('75%')) {
-      score += 8;
-    }
-    else if (answer.answer.includes('3-4') || answer.answer.includes('6-15') || 
-             answer.answer.includes('basic strategy') || answer.answer.includes('familiar') || 
-             answer.answer.includes('spreadsheet')) {
-      score += 6;
-    }
-    else if (answer.answer.includes('1-2') || answer.answer.includes('Sometimes') || 
-             answer.answer.includes('occasionally') || answer.answer.includes('1-5')) {
-      score += 4;
+    else if (answer.questionId.startsWith('pp-')) {
+      practicePerformanceScore += value;
+      practiceQuestions++;
     }
     else {
-      score += 2;
+      studyHabitsScore += value;
+      habitsQuestions++;
     }
   });
   
-  score = Math.min(Math.round(score / answers.length * 10), 100);
+  // Calculate average for each component (normalized to 0-100)
+  const conceptScore = conceptQuestions > 0 ? (conceptCompletionScore / conceptQuestions) * 20 : 0;
+  const practiceScore = practiceQuestions > 0 ? (practicePerformanceScore / practiceQuestions) * 20 : 0;
+  const habitsScore = habitsQuestions > 0 ? (studyHabitsScore / habitsQuestions) * 20 : 0;
   
+  // Final weighted formula:
+  // Readiness = (Concept Completion x 0.3) + (Practice Performance x 0.5) + (Study Habits x 0.2)
+  const score = Math.round(
+    (conceptScore * 0.3) +
+    (practiceScore * 0.5) +
+    (habitsScore * 0.2)
+  );
+  
+  // Generate analysis and recommendations
   let level = '';
   let analysis = '';
   const strengths = [];
   const improvements = [];
   
+  // Component-specific feedback
+  if (conceptScore < 50) {
+    improvements.push('Increase syllabus coverage through systematic topic review');
+    improvements.push('Use concept mapping to identify knowledge gaps');
+  } else {
+    strengths.push('Good coverage of syllabus content');
+  }
+  
+  if (practiceScore < 50) {
+    improvements.push('Increase frequency of mock tests and practice questions');
+    improvements.push('Review mistakes after each practice session');
+  } else {
+    strengths.push('Effective practice routines');
+  }
+  
+  if (habitsScore < 50) {
+    improvements.push('Develop a more structured study schedule');
+    improvements.push('Adopt better time management techniques');
+  } else {
+    strengths.push('Productive study habits');
+  }
+  
   if (score >= 80) {
     level = 'Excellent';
-    analysis = 'Your study habits and preparation level are excellent. You have a structured approach to learning and consistent revision practices.';
-    strengths.push('Strong preparation routine', 'Consistent study habits', 'Effective use of resources');
-    improvements.push('Focus on targeted revision of specific weak areas', 'Consider advanced problem-solving techniques', 'Maintain current study momentum');
-  } else if (score >= 60) {
+    analysis = 'Your exam preparation is highly effective. You have excellent syllabus coverage, strong practice performance, and effective study habits.';
+    strengths.push('Comprehensive exam preparation strategy', 'Excellent balance of theory and practice');
+  } else if (score >= 65) {
     level = 'Good';
-    analysis = 'Your preparation level is good, but some areas need attention to optimize your study effectiveness and content coverage.';
-    strengths.push('Good content coverage', 'Regular study habits', 'Basic preparation structure');
-    improvements.push('Increase practice test frequency', 'Develop a more structured study plan', 'Track progress more systematically');
+    analysis = 'Your preparation level is good with a solid foundation. Some targeted improvements in specific areas will help optimize your readiness.';
+    strengths.push('Good overall preparation approach');
+    improvements.push('Focus on optimizing your study efficiency');
+  } else if (score >= 50) {
+    level = 'Average';
+    analysis = 'Your preparation has a basic foundation but needs more structure and consistency to reach optimal readiness.';
+    improvements.push('Create a more systematic study plan', 'Increase consistency in your practice routine');
   } else {
     level = 'Needs Improvement';
-    analysis = 'Your preparation requires a more structured and consistent approach. Focus on developing regular study habits and a comprehensive plan.';
-    strengths.push('Awareness of preparation needs', 'Some basic content knowledge');
-    improvements.push('Create a detailed daily study schedule', 'Increase study hours consistently', 'Use more diverse study resources and tools');
+    analysis = 'Your preparation needs significant enhancement across multiple areas. A structured approach to syllabus coverage and regular practice is essential.';
+    improvements.push('Create a comprehensive study plan with daily goals', 'Dramatically increase practice frequency and coverage');
   }
   
   return {
@@ -123,66 +177,134 @@ export function calculateReadinessTestResults(answers: UserAnswer[]): TestResult
   };
 }
 
+// Helper function to convert text answers to numerical values
+function getAnswerValue(answer: string): number {
+  if (answer.includes('More than') || answer.includes('thorough') || 
+      answer.includes('Very familiar') || answer.includes('multiple') || 
+      answer.includes('Expert') || answer.includes('100%') || 
+      answer.includes('Always')) {
+    return 5;
+  }
+  else if (answer.includes('detailed') || answer.includes('comprehensive') || 
+           answer.includes('Weekly') || answer.includes('Confident') || 
+           answer.includes('75%') || answer.includes('Often')) {
+    return 4;
+  }
+  else if (answer.includes('3-4') || answer.includes('6-15') || 
+           answer.includes('basic strategy') || answer.includes('familiar') || 
+           answer.includes('50%') || answer.includes('Sometimes')) {
+    return 3;
+  }
+  else if (answer.includes('1-2') || answer.includes('occasionally') || 
+           answer.includes('25%') || answer.includes('Rarely')) {
+    return 2;
+  }
+  else {
+    return 1;
+  }
+}
+
 export function calculateConceptTestResults(answers: UserAnswer[]): TestResults {
-  // Calculate percentage of correct answers
-  const correctAnswers = answers.filter(a => a.isCorrect).length;
-  const baseScore = Math.round((correctAnswers / answers.length) * 100);
-  
-  // Calculate the confidence accuracy - how well confidence matched performance
-  let confidenceScore = 0;
-  let confidenceMismatch = 0;
+  // Calculate confidence-accuracy alignment
+  let totalConfidenceScore = 0;
+  let totalAccuracyScore = 0;
+  let confidenceMisalignment = 0;
+  let answersWithConfidence = 0;
   
   answers.forEach(answer => {
-    if (answer.confidenceLevel) {
+    if (answer.confidenceLevel !== undefined) {
       // Convert confidence level 1-5 to percentage (0-100)
       const confidencePercent = (answer.confidenceLevel / 5) * 100;
+      totalConfidenceScore += confidencePercent;
       
-      // Calculate mismatch between confidence and correctness
+      // Track accuracy (100 for correct, 0 for incorrect)
+      const accuracyScore = answer.isCorrect ? 100 : 0;
+      totalAccuracyScore += accuracyScore;
+      
+      // Calculate misalignment (penalty for overconfidence, smaller penalty for underconfidence)
       if (answer.isCorrect) {
-        // If correct, high confidence is good
-        confidenceScore += answer.confidenceLevel;
+        // If correct, minor penalty for underconfidence
+        confidenceMisalignment += Math.max(0, (accuracyScore - confidencePercent) * 0.5);
       } else {
-        // If incorrect but high confidence, larger penalty
-        confidenceMismatch += answer.confidenceLevel > 3 ? 2 : 1;
+        // If incorrect, larger penalty for overconfidence
+        confidenceMisalignment += Math.max(0, (confidencePercent - accuracyScore) * 1.0);
       }
+      
+      answersWithConfidence++;
     }
   });
   
-  // Calculate confidence accuracy score (higher is better)
-  const confidenceAccuracy = confidenceScore - confidenceMismatch;
+  // Calculate average confidence and accuracy
+  const avgConfidence = answersWithConfidence > 0 ? totalConfidenceScore / answersWithConfidence : 0;
+  const avgAccuracy = answersWithConfidence > 0 ? totalAccuracyScore / answersWithConfidence : 0;
   
-  // Adjust base score by confidence accuracy
-  let score = baseScore;
-  if (confidenceAccuracy > 0) {
-    // Boost score for good confidence alignment (max 10% boost)
-    score = Math.min(100, score + Math.min(10, confidenceAccuracy * 2));
-  } else if (confidenceAccuracy < 0) {
-    // Penalty for poor confidence alignment (max 15% penalty)
-    score = Math.max(0, score - Math.min(15, Math.abs(confidenceAccuracy) * 3));
-  }
+  // Calculate confidence alignment score (higher is better)
+  // 100 - (average misalignment) gives a 0-100 score where 100 is perfect alignment
+  const confidenceAlignment = Math.max(0, 100 - (confidenceMisalignment / answersWithConfidence));
   
-  score = Math.round(score);
+  // Base score is the average of accuracy and confidence alignment
+  let score = Math.round((avgAccuracy * 0.6) + (confidenceAlignment * 0.4));
+  
+  // Add slight bonus for well-calibrated confidence (when confidence ≈ accuracy)
+  const calibrationBonus = Math.max(0, 10 - Math.abs(avgConfidence - avgAccuracy) / 10);
+  score = Math.min(100, score + calibrationBonus);
   
   let level = '';
   let analysis = '';
   const strengths = [];
   const improvements = [];
   
+  // Determine confidence calibration status
+  const isOverconfident = avgConfidence > avgAccuracy + 15;
+  const isUnderconfident = avgAccuracy > avgConfidence + 15;
+  const isWellCalibrated = !isOverconfident && !isUnderconfident;
+  
   if (score >= 80) {
     level = 'Excellent';
-    analysis = 'You have excellent mastery of key concepts and an accurate understanding of your knowledge level. Your confidence aligns well with your performance.';
-    strengths.push('Strong conceptual understanding', 'Excellent knowledge accuracy', 'Good self-assessment ability');
-    improvements.push('Challenge yourself with advanced application problems', 'Explore interdisciplinary connections of concepts');
+    analysis = `Your concept mastery is excellent with ${Math.round(avgAccuracy)}% accuracy. `;
+    strengths.push('Strong grasp of key concepts', 'Excellent subject knowledge');
+    
+    if (isWellCalibrated) {
+      analysis += 'You have a realistic assessment of your knowledge level.';
+      strengths.push('Well-calibrated confidence level');
+    } else if (isOverconfident) {
+      analysis += 'However, you tend to overestimate your knowledge in some areas.';
+      improvements.push('Be more careful with topics where you feel very confident');
+    } else {
+      analysis += 'However, you tend to underestimate your knowledge level.';
+      improvements.push('Trust your knowledge more on familiar topics');
+    }
   } else if (score >= 60) {
     level = 'Good';
-    analysis = 'You have good concept mastery with some areas needing reinforcement. There are some gaps between your perceived and actual knowledge.';
-    strengths.push('Good theoretical understanding', 'Solid grasp of fundamentals');
-    improvements.push('Focus on specific weak conceptual areas', 'Practice more application questions', 'Adjust study focus based on performance');
+    analysis = `Your concept mastery is good with ${Math.round(avgAccuracy)}% accuracy. `;
+    strengths.push('Good understanding of most concepts');
+    improvements.push('Focus on strengthening specific weak areas');
+    
+    if (isWellCalibrated) {
+      analysis += 'You generally have a realistic assessment of your knowledge.';
+      strengths.push('Balanced self-assessment');
+    } else if (isOverconfident) {
+      analysis += 'However, you often overestimate your knowledge on topics you need to review.';
+      improvements.push('Double-check topics where you feel very confident');
+    } else {
+      analysis += 'However, you often underestimate your abilities on topics you know well.';
+      improvements.push('Build more confidence in your knowledge');
+    }
   } else {
     level = 'Needs Improvement';
-    analysis = 'Your concept mastery needs significant improvement. There appears to be a significant mismatch between your confidence and actual performance.';
-    strengths.push('Basic conceptual awareness', 'Recognition of core principles');
-    improvements.push('Revisit fundamental concepts thoroughly', 'Increase practice with guided examples', 'Develop better self-assessment techniques');
+    analysis = `Your concept mastery needs improvement with ${Math.round(avgAccuracy)}% accuracy. `;
+    improvements.push('Review fundamental concepts thoroughly', 'Increase practice with guided examples');
+    
+    if (isOverconfident) {
+      analysis += 'You significantly overestimate your knowledge on most topics.';
+      improvements.push('Focus on testing your knowledge objectively', 'Use spaced repetition to reinforce concepts');
+    } else if (isUnderconfident) {
+      analysis += 'You significantly underestimate your knowledge on most topics.';
+      improvements.push('Build confidence through practice tests', 'Focus on areas where you perform better than expected');
+    } else {
+      analysis += 'Your confidence level is reasonable, but your overall knowledge needs improvement.';
+      improvements.push('Create a systematic plan to cover all topics');
+    }
   }
   
   return {
@@ -195,11 +317,18 @@ export function calculateConceptTestResults(answers: UserAnswer[]): TestResults 
 }
 
 export function calculateOverallResults(stressResults: TestResults, readinessResults: TestResults, conceptResults: TestResults, selectedExam: string): TestResults {
-  // Weighted average: Concept knowledge (50%), Readiness (30%), Stress handling (20%)
-  const overallScore = Math.floor(
-    (conceptResults.score * 0.5) + 
-    (readinessResults.score * 0.3) + 
-    (stressResults.score * 0.2)
+  // Apply the scientific formula:
+  // Readiness = (Concept Mastery × 0.3) + (Stress Performance × 0.5) + (Confidence Alignment × 0.2)
+  
+  // For confidence alignment, we'll use concept score as proxy
+  const conceptScore = conceptResults.score;
+  const stressScore = stressResults.score;
+  const readinessScore = readinessResults.score;
+  
+  const overallScore = Math.round(
+    (conceptScore * 0.3) + 
+    (stressScore * 0.5) + 
+    (readinessScore * 0.2)
   );
   
   let level = '';
@@ -207,9 +336,9 @@ export function calculateOverallResults(stressResults: TestResults, readinessRes
   
   if (overallScore >= 80) {
     level = 'Excellent';
-  } else if (overallScore >= 70) {
+  } else if (overallScore >= 65) {
     level = 'Good';
-  } else if (overallScore >= 60) {
+  } else if (overallScore >= 50) {
     level = 'Average';
   } else {
     level = 'Needs Improvement';
@@ -217,14 +346,33 @@ export function calculateOverallResults(stressResults: TestResults, readinessRes
   
   const examLabel = examTypes.find(e => e.value === selectedExam)?.label || selectedExam.toUpperCase();
   
-  analysis = `Your overall preparation for ${examLabel} is ${level.toLowerCase()}. `;
+  // Generate personalized analysis based on score components
+  analysis = `Your overall preparation for ${examLabel} is ${level.toLowerCase()} with a score of ${overallScore}%. `;
   
-  if (conceptResults.score < readinessResults.score && conceptResults.score < stressResults.score) {
-    analysis += 'Focus on strengthening your conceptual understanding of key topics. ';
-  } else if (readinessResults.score < conceptResults.score && readinessResults.score < stressResults.score) {
-    analysis += 'Improve your study habits and preparation strategy. ';
-  } else if (stressResults.score < conceptResults.score && stressResults.score < readinessResults.score) {
-    analysis += 'Work on your performance under time pressure. ';
+  // Identify weakest area for targeted advice
+  const scores = [
+    { name: 'concept mastery', score: conceptScore },
+    { name: 'cognitive performance under stress', score: stressScore },
+    { name: 'overall study readiness', score: readinessScore }
+  ];
+  
+  scores.sort((a, b) => a.score - b.score);
+  const weakestArea = scores[0];
+  const strongestArea = scores[2];
+  
+  if (weakestArea.score < 60) {
+    analysis += `Your ${weakestArea.name} needs the most attention, while your ${strongestArea.name} is your strongest area. `;
+    
+    if (weakestArea.name === 'cognitive performance under stress') {
+      analysis += 'Focus on improving your performance under time pressure through regular timed practice sessions.';
+    } else if (weakestArea.name === 'concept mastery') {
+      analysis += 'Prioritize strengthening your understanding of fundamental concepts before moving to advanced topics.';
+    } else {
+      analysis += 'Improve your study habits and preparation strategy with a more structured approach.';
+    }
+  } else {
+    analysis += `You demonstrate balanced performance across all assessment areas, with particular strength in ${strongestArea.name}. `;
+    analysis += 'Continue your current approach while refining specific areas to reach your peak potential.';
   }
   
   // Get all strengths and prioritize by importance
@@ -279,7 +427,7 @@ export function getDialogTitle(currentTest: string): string {
 export function getDialogDescription(currentTest: string): string | undefined {
   switch (currentTest) {
     case 'intro':
-      return 'Complete these three assessments to evaluate your exam preparation level';
+      return 'Complete these three scientific assessments to evaluate your exam preparation level';
     case 'stress':
       return 'Test your ability to focus and solve problems under time pressure';
     case 'readiness':
@@ -292,4 +440,3 @@ export function getDialogDescription(currentTest: string): string | undefined {
       return 'Complete these assessments to evaluate your exam preparation level';
   }
 }
-
