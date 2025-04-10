@@ -2,10 +2,7 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Calendar, CheckCircle2 } from 'lucide-react';
-
-interface StudyStreak {
-  current: number;
-}
+import { StudyStreak } from "@/types/user";
 
 interface StudyProgressHeaderProps {
   studyStreak: StudyStreak | null;

@@ -3,24 +3,13 @@ import React from 'react';
 import { Clock } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip, Legend, Bar } from 'recharts';
-
-interface StudyHour {
-  date: string;
-  hours: number;
-}
-
-interface Subject {
-  id: string;
-  name: string;
-  studyHours: StudyHour[];
-  [key: string]: any;
-}
+import { SubjectProgress, StudyStreak } from "@/types/user";
 
 interface StudyTimeChartProps {
-  selectedSubject: Subject | null;
-  subjects: Subject[];
+  selectedSubject: SubjectProgress | null;
+  subjects: SubjectProgress[];
   selectSubject: (id: string) => void;
-  studyStreak: { thisWeek: number[] } | null;
+  studyStreak: StudyStreak | null;
 }
 
 export const StudyTimeChart: React.FC<StudyTimeChartProps> = ({

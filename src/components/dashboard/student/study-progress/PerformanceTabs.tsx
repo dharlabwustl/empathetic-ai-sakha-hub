@@ -6,20 +6,13 @@ import { SubjectOverview } from './SubjectOverview';
 import { TopicsList } from './TopicsList';
 import { QuizzesList } from './QuizzesList';
 import { StudyTimeChart } from './StudyTimeChart';
-
-interface Subject {
-  id: string;
-  name: string;
-  progress: number;
-  color: string;
-  [key: string]: any;
-}
+import { SubjectProgress, StudyStreak } from "@/types/user";
 
 interface PerformanceTabsProps {
-  subjects: Subject[];
-  selectedSubject: Subject | null;
+  subjects: SubjectProgress[];
+  selectedSubject: SubjectProgress | null;
   selectSubject: (id: string) => void;
-  studyStreak: { thisWeek: number[] } | null;
+  studyStreak: StudyStreak | null;
 }
 
 export const PerformanceTabs: React.FC<PerformanceTabsProps> = ({

@@ -2,17 +2,10 @@
 import React from 'react';
 import { Progress } from "@/components/ui/progress";
 import { BarChart, ResponsiveContainer, XAxis, YAxis, Bar, Tooltip } from 'recharts';
-
-interface Subject {
-  id: string;
-  name: string;
-  progress: number;
-  color: string;
-  [key: string]: any;
-}
+import { SubjectProgress } from "@/types/user";
 
 interface SubjectOverviewProps {
-  subjects: Subject[];
+  subjects: SubjectProgress[];
 }
 
 export const SubjectOverview: React.FC<SubjectOverviewProps> = ({ subjects }) => {

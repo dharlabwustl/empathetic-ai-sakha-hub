@@ -2,26 +2,11 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { BookOpen } from 'lucide-react';
-
-interface QuizScore {
-  id: string;
-  title: string;
-  score: number;
-  maxScore: number;
-  date: string;
-  timeTaken: number;
-}
-
-interface Subject {
-  id: string;
-  name: string;
-  quizScores: QuizScore[];
-  [key: string]: any;
-}
+import { SubjectProgress } from "@/types/user";
 
 interface QuizzesListProps {
-  selectedSubject: Subject | null;
-  subjects: Subject[];
+  selectedSubject: SubjectProgress | null;
+  subjects: SubjectProgress[];
   selectSubject: (id: string) => void;
 }
 

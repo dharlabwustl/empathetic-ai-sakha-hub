@@ -2,25 +2,11 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { BookOpen } from 'lucide-react';
-
-interface Topic {
-  id: string;
-  name: string;
-  completed: boolean;
-  masteryLevel: number;
-  lastPracticed?: string;
-}
-
-interface Subject {
-  id: string;
-  name: string;
-  topics: Topic[];
-  [key: string]: any;
-}
+import { SubjectProgress } from "@/types/user";
 
 interface TopicsListProps {
-  selectedSubject: Subject | null;
-  subjects: Subject[];
+  selectedSubject: SubjectProgress | null;
+  subjects: SubjectProgress[];
   selectSubject: (id: string) => void;
 }
 
