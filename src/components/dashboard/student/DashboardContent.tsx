@@ -18,7 +18,7 @@ import { KpiData, NudgeData } from '@/hooks/useKpiTracking';
 import { ReactNode } from 'react';
 import { MicroConceptView, FlashcardsView, PracticeExamsView } from '@/pages/dashboard/student/views';
 import { Tabs, TabsContent } from "@/components/ui/tabs";
-import { FeelGoodCorner } from './feel-good-corner';
+import FeelGoodCorner from '@/components/dashboard/student/FeelGoodCorner';
 
 interface DashboardContentProps {
   activeTab: string;

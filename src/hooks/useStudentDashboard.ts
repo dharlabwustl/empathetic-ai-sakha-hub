@@ -24,20 +24,14 @@ export function useStudentDashboard() {
   const features = getFeatures();
 
   useEffect(() => {
-    if (tab) {
+    if (tab && tab !== activeTab) {
       setActiveTab(tab);
     }
-  }, [tab]);
+  }, [tab, activeTab]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
       setLoading(false);
-      if (userProfile) {
-        toast({
-          title: "Welcome to your smart study plan!",
-          description: "Your personalized dashboard is ready.",
-        });
-      }
     }, 1000);
 
     const intervalId = setInterval(() => {
@@ -48,20 +42,26 @@ export function useStudentDashboard() {
     const needsOnboarding = localStorage.getItem("needsOnboarding") === "true";
     const firstTimeUser = localStorage.getItem("firstTimeUser") === "true";
     
-    if (needsOnboarding && userProfile) {
+    if (needsOnboarding) {
       setShowOnboarding(true);
-      localStorage.removeItem("needsOnboarding"); // Clear so it doesn't show again
-    } else if (firstTimeUser && userProfile) {
+    } else if (firstTimeUser) {
       // If user was marked as first time but didn't go through onboarding
       setShowWelcomeTour(true);
-      localStorage.setItem("firstTimeUser", "false"); // Update this to prevent loop
+    }
+    
+    // Show welcome message if user profile is loaded
+    if (userProfile && !loading) {
+      toast({
+        title: "Welcome to your smart study plan!",
+        description: "Your personalized dashboard is ready.",
+      });
     }
 
     return () => {
       clearTimeout(timer);
       clearInterval(intervalId);
     };
-  }, [toast, userProfile]);
+  }, [toast, userProfile, loading]);
 
   const handleTabChange = (newTab: string) => {
     setActiveTab(newTab);
@@ -81,16 +81,22 @@ export function useStudentDashboard() {
   };
 
   const handleCompleteOnboarding = () => {
+    console.log("Completing onboarding...");
+    
+    // Clear onboarding flags
     setShowOnboarding(false);
     setOnboardingCompleted(true);
+    
+    // Update local storage
     localStorage.setItem("firstTimeUser", "false");
     localStorage.removeItem("needsOnboarding");
     
     // Show welcome tour after onboarding is completed
     setShowWelcomeTour(true);
     
-    // Navigate to the overview tab
-    navigate('/dashboard/student/overview');
+    // Navigate to overview tab
+    setActiveTab("overview");
+    navigate('/dashboard/student/overview', { replace: true });
   };
   
   const handleViewStudyPlan = () => {

@@ -10,7 +10,6 @@ import DashboardContent from "@/components/dashboard/student/DashboardContent";
 import StudyPlanDialog from "./student/StudyPlanDialog";
 import SidebarNavigation from "./student/SidebarNavigation";
 import { DashboardTabs } from "@/components/dashboard/student/DashboardTabs";
-import { Tabs } from "@/components/ui/tabs";
 
 const StudentDashboard = () => {
   const {
