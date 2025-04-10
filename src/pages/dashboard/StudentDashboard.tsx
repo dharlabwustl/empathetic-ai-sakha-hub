@@ -1,123 +1,39 @@
 
-import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { useToast } from "@/hooks/use-toast";
+import { useStudentDashboard } from "@/hooks/useStudentDashboard";
+import { formatTime, formatDate } from "./student/StudentDashboardUtils";
 import SidebarNav from "@/components/dashboard/SidebarNav";
 import ChatAssistant from "@/components/dashboard/ChatAssistant";
-import { useUserProfile } from "@/hooks/useUserProfile";
-import { useKpiTracking } from "@/hooks/useKpiTracking";
 import OnboardingFlow from "@/components/dashboard/student/OnboardingFlow";
 import DashboardLoading from "./student/DashboardLoading";
 import DashboardHeader from "./student/DashboardHeader";
 import DashboardContent from "@/components/dashboard/student/DashboardContent";
-import { getFeatures, formatTime, formatDate } from "./student/StudentDashboardUtils";
 import StudyPlanDialog from "./student/StudyPlanDialog";
 import SidebarNavigation from "./student/SidebarNavigation";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { 
-  Lightbulb, 
-  MessageSquare, 
-  Calendar, 
-  Activity, 
-  LineChart, 
-  Brain, 
-  BookOpen, 
-  Heart,
-  Target,
-  ListTodo,
-  Video,
-  Users,
-  Bell
-} from "lucide-react";
+import { DashboardTabs } from "@/components/dashboard/student/DashboardTabs";
+import { Tabs } from "@/components/ui/tabs";
 
 const StudentDashboard = () => {
-  const { toast } = useToast();
-  const navigate = useNavigate();
-  const { tab } = useParams();
-  const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState(tab || "overview");
-  const { userProfile } = useUserProfile("Student");
-  const { kpis, nudges, markNudgeAsRead } = useKpiTracking("Student");
-  const [showWelcomeTour, setShowWelcomeTour] = useState(false);
-  const [showOnboarding, setShowOnboarding] = useState(false);
-  const [currentTime, setCurrentTime] = useState(new Date());
-  const [showStudyPlan, setShowStudyPlan] = useState(false);
-  const [onboardingCompleted, setOnboardingCompleted] = useState(false);
+  const {
+    loading,
+    activeTab,
+    userProfile,
+    kpis,
+    nudges,
+    markNudgeAsRead,
+    showWelcomeTour,
+    showOnboarding,
+    currentTime,
+    showStudyPlan,
+    onboardingCompleted,
+    features,
+    handleTabChange,
+    handleSkipTour,
+    handleCompleteTour,
+    handleCompleteOnboarding,
+    handleViewStudyPlan,
+    handleCloseStudyPlan
+  } = useStudentDashboard();
 
-  // Get features data
-  const features = getFeatures();
-
-  useEffect(() => {
-    if (tab) {
-      setActiveTab(tab);
-    }
-  }, [tab]);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoading(false);
-      toast({
-        title: "Welcome to your smart study plan!",
-        description: "Your personalized dashboard is ready.",
-      });
-    }, 1000);
-
-    const intervalId = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 60000);
-
-    // Check if user is coming from signup or needs onboarding
-    const needsOnboarding = localStorage.getItem("needsOnboarding") === "true";
-    const firstTimeUser = localStorage.getItem("firstTimeUser") === "true";
-    
-    if (needsOnboarding && userProfile) {
-      setShowOnboarding(true);
-      localStorage.removeItem("needsOnboarding"); // Clear so it doesn't show again
-    } else if (firstTimeUser && userProfile) {
-      // If user was marked as first time but didn't go through onboarding
-      setShowWelcomeTour(true);
-      localStorage.setItem("firstTimeUser", "false"); // Update this to prevent loop
-    }
-
-    return () => {
-      clearTimeout(timer);
-      clearInterval(intervalId);
-    };
-  }, [toast, userProfile]);
-
-  const handleTabChange = (newTab: string) => {
-    setActiveTab(newTab);
-    navigate(`/dashboard/student/${newTab}`);
-  };
-
-  const handleSkipTour = () => {
-    setShowWelcomeTour(false);
-    localStorage.setItem("welcomeTourShown", "true");
-    localStorage.setItem("firstTimeUser", "false");
-  };
-
-  const handleCompleteTour = () => {
-    setShowWelcomeTour(false);
-    localStorage.setItem("welcomeTourShown", "true");
-    localStorage.setItem("firstTimeUser", "false");
-  };
-
-  const handleCompleteOnboarding = () => {
-    setShowOnboarding(false);
-    setOnboardingCompleted(true);
-    localStorage.setItem("firstTimeUser", "false");
-    // Show welcome tour after onboarding is completed
-    setShowWelcomeTour(true);
-  };
-  
-  const handleViewStudyPlan = () => {
-    setShowStudyPlan(true);
-  };
-  
-  const handleCloseStudyPlan = () => {
-    setShowStudyPlan(false);
-  };
-  
   // Format current time and date
   const formattedTime = formatTime(currentTime);
   const formattedDate = formatDate(currentTime);
@@ -136,23 +52,6 @@ const StudentDashboard = () => {
     );
   }
 
-  const tabs = [
-    { id: "overview", label: "Overview", icon: <Lightbulb size={16} /> },
-    { id: "today", label: "Today's Focus", icon: <ListTodo size={16} /> },
-    { id: "tutor", label: "24/7 Tutor", icon: <MessageSquare size={16} /> },
-    { id: "academic", label: "Academic Advisor", icon: <Calendar size={16} /> },
-    { id: "motivation", label: "Motivation", icon: <Activity size={16} /> },
-    { id: "progress", label: "Progress", icon: <LineChart size={16} /> },
-    { id: "flashcards", label: "Flashcards", icon: <Brain size={16} /> },
-    { id: "materials", label: "Materials", icon: <BookOpen size={16} /> },
-    { id: "goals", label: "Goals", icon: <Target size={16} /> },
-    { id: "wellness", label: "Wellness", icon: <Heart size={16} /> },
-    { id: "live-tutors", label: "Live Tutors", icon: <Video size={16} /> },
-    { id: "forum", label: "Forum", icon: <Users size={16} /> },
-    { id: "videos", label: "Videos", icon: <Video size={16} /> },
-    { id: "notifications", label: "Notifications", icon: <Bell size={16} /> }
-  ];
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-sky-100/10 via-white to-violet-100/10 dark:from-sky-900/10 dark:via-gray-900 dark:to-violet-900/10">
       <SidebarNav userType="student" userName={userProfile.name} />
@@ -167,25 +66,7 @@ const StudentDashboard = () => {
         />
         
         {/* Horizontal Tab Navigation */}
-        <div className="mb-6 overflow-x-auto px-1 py-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
-          <TabsList className="inline-flex h-10 w-auto min-w-full gap-2 bg-transparent p-0">
-            {tabs.map(tab => (
-              <TabsTrigger 
-                key={tab.id} 
-                value={tab.id} 
-                onClick={() => handleTabChange(tab.id)}
-                className={`flex h-9 items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-all ${
-                  activeTab === tab.id 
-                    ? "bg-gradient-to-r from-sky-500 to-violet-500 text-white shadow-lg" 
-                    : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-                }`}
-              >
-                {tab.icon}
-                <span>{tab.label}</span>
-              </TabsTrigger>
-            ))}
-          </TabsList>
-        </div>
+        <DashboardTabs activeTab={activeTab} onTabChange={handleTabChange} />
         
         {/* Main dashboard content area */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">

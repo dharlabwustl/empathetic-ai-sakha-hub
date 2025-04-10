@@ -1,6 +1,6 @@
 
 import { ReactNode } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   Lightbulb, 
   MessageSquare, 
@@ -17,24 +17,15 @@ import {
   Bell
 } from "lucide-react";
 
-interface TabContent {
-  id: string;
-  label: string;
-  icon: ReactNode;
-  content: ReactNode;
-}
-
 interface DashboardTabsProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
-  tabContents: Record<string, ReactNode>;
 }
 
-export default function DashboardTabs({
+export const DashboardTabs = ({
   activeTab,
-  onTabChange,
-  tabContents
-}: DashboardTabsProps) {
+  onTabChange
+}: DashboardTabsProps) => {
   const tabs = [
     { id: "overview", label: "Overview", icon: <Lightbulb size={16} /> },
     { id: "today", label: "Today's Focus", icon: <ListTodo size={16} /> },
@@ -53,23 +44,24 @@ export default function DashboardTabs({
   ];
 
   return (
-    <Tabs value={activeTab} onValueChange={onTabChange} className="space-y-6">
-      <TabsList className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-7 gap-2">
+    <div className="mb-6 overflow-x-auto px-1 py-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+      <TabsList className="inline-flex h-10 w-auto min-w-full gap-2 bg-transparent p-0">
         {tabs.map(tab => (
           <TabsTrigger 
             key={tab.id} 
             value={tab.id} 
-            className="flex items-center gap-2"
+            onClick={() => onTabChange(tab.id)}
+            className={`flex h-9 items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-all ${
+              activeTab === tab.id 
+                ? "bg-gradient-to-r from-sky-500 to-violet-500 text-white shadow-lg" 
+                : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+            }`}
           >
             {tab.icon}
             <span>{tab.label}</span>
           </TabsTrigger>
         ))}
       </TabsList>
-      
-      <TabsContent value={activeTab} className="focus-visible:outline-none focus-visible:ring-0">
-        {tabContents[activeTab] || <div>Coming soon...</div>}
-      </TabsContent>
-    </Tabs>
+    </div>
   );
-}
+};
