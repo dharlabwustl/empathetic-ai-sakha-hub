@@ -3,40 +3,57 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X, BookOpen } from "lucide-react";
+import { 
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger
+} from "@/components/ui/navigation-menu";
+import { cn } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const isMobile = useIsMobile();
+
+  const menuItems = [
+    { title: "What is Sakha 1.0?", link: "/about" },
+    { title: "Features", link: "/features" },
+    { title: "Pricing", link: "/pricing" },
+  ];
 
   return (
-    <header className="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-md z-50 border-b border-gray-100">
-      <div className="container mx-auto flex justify-between items-center py-4 px-6 lg:px-8">
+    <header className="fixed top-0 left-0 right-0 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md z-50 border-b border-gray-100 dark:border-gray-800">
+      <div className="container mx-auto flex justify-between items-center py-3 sm:py-4 px-4 sm:px-6 lg:px-8">
         <Link to="/" className="flex items-center gap-2">
-          <div className="w-10 h-10 bg-gradient-to-br from-violet-500 to-purple-600 rounded-full relative overflow-hidden flex items-center justify-center">
+          <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-violet-500 to-purple-600 rounded-full relative overflow-hidden flex items-center justify-center">
             <img 
               src="/lovable-uploads/37933273-088b-4a83-a5ec-24b13c8c89f5.png" 
               alt="Sakha AI Logo" 
-              className="w-10 h-10 object-contain"
+              className="w-8 h-8 sm:w-10 sm:h-10 object-contain"
             />
           </div>
-          <span className="text-2xl font-display font-semibold gradient-text">Sakha AI</span>
+          <span className="text-xl sm:text-2xl font-display font-semibold gradient-text">Sakha AI</span>
         </Link>
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-8">
-          <Link to="/about" className="text-gray-600 hover:text-violet-600 transition-colors">
-            What is Sakha 1.0?
-          </Link>
-          <Link to="/features" className="text-gray-600 hover:text-violet-600 transition-colors">
-            Features
-          </Link>
-          <Link to="/pricing" className="text-gray-600 hover:text-violet-600 transition-colors">
-            Pricing
-          </Link>
+          {menuItems.map((item) => (
+            <Link 
+              key={item.link} 
+              to={item.link} 
+              className="text-gray-600 dark:text-gray-300 hover:text-violet-600 dark:hover:text-violet-400 transition-colors"
+            >
+              {item.title}
+            </Link>
+          ))}
           <div className="flex items-center gap-4">
-            <Button variant="outline" className="border-violet-500 text-violet-600 hover:bg-violet-50" asChild>
+            <Button variant="outline" className="border-violet-500 text-violet-600 hover:bg-violet-50 dark:border-violet-400 dark:text-violet-400 dark:hover:bg-violet-900/20" asChild>
               <Link to="/login">Login</Link>
             </Button>
-            <Button className="bg-gradient-to-r from-violet-500 to-purple-600 text-white" asChild>
+            <Button className="bg-gradient-to-r from-violet-500 to-purple-600 text-white hover:from-violet-600 hover:to-purple-700" asChild>
               <Link to="/signup">
                 <BookOpen className="mr-2 h-4 w-4" /> 
                 Start Learning
@@ -47,44 +64,37 @@ const Header = () => {
 
         {/* Mobile Menu Button */}
         <button 
-          className="md:hidden text-gray-700"
+          className="md:hidden text-gray-700 dark:text-gray-200 p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
           onClick={() => setIsMenuOpen(!isMenuOpen)}
+          aria-label="Toggle menu"
         >
           {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
       </div>
 
-      {/* Mobile Navigation */}
+      {/* Mobile Navigation - Improved visibility and accessibility */}
       {isMenuOpen && (
-        <div className="md:hidden absolute top-full left-0 right-0 bg-white border-b border-gray-200 py-4 px-6 animate-fade-in">
-          <nav className="flex flex-col gap-4">
-            <Link 
-              to="/about" 
-              className="py-2 text-gray-600 hover:text-violet-600 transition-colors"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              What is Sakha 1.0?
-            </Link>
-            <Link 
-              to="/features" 
-              className="py-2 text-gray-600 hover:text-violet-600 transition-colors"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Features
-            </Link>
-            <Link 
-              to="/pricing" 
-              className="py-2 text-gray-600 hover:text-violet-600 transition-colors"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Pricing
-            </Link>
-            <div className="flex flex-col gap-3 pt-2">
-              <Button variant="outline" className="w-full border-violet-500 text-violet-600" asChild>
+        <div className="md:hidden fixed inset-0 top-[57px] sm:top-[65px] z-40 bg-white dark:bg-slate-900 animate-fade-in">
+          <nav className="flex flex-col gap-2 p-4">
+            {menuItems.map((item) => (
+              <Link 
+                key={item.link}
+                to={item.link} 
+                className="py-3 px-4 text-gray-600 dark:text-gray-300 hover:text-violet-600 dark:hover:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-900/20 rounded-md transition-colors text-lg font-medium"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                {item.title}
+              </Link>
+            ))}
+            <div className="flex flex-col gap-3 pt-4 mt-2 border-t border-gray-100 dark:border-gray-800">
+              <Button variant="outline" className="w-full border-violet-500 text-violet-600 dark:border-violet-400 dark:text-violet-400 h-12 text-lg" asChild>
                 <Link to="/login" onClick={() => setIsMenuOpen(false)}>Login</Link>
               </Button>
-              <Button className="w-full bg-gradient-to-r from-violet-500 to-purple-600 text-white" asChild>
-                <Link to="/signup" onClick={() => setIsMenuOpen(false)}>Start Learning</Link>
+              <Button className="w-full bg-gradient-to-r from-violet-500 to-purple-600 text-white h-12 text-lg" asChild>
+                <Link to="/signup" onClick={() => setIsMenuOpen(false)}>
+                  <BookOpen className="mr-2 h-5 w-5" />
+                  Start Learning
+                </Link>
               </Button>
             </div>
           </nav>

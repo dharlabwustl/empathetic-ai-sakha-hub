@@ -6,6 +6,7 @@ import { CustomProgress } from '@/components/ui/custom-progress';
 import QuestionHeader from './components/QuestionHeader';
 import QuestionContainer from './components/QuestionContainer';
 import AnswerExplanation from './components/AnswerExplanation';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface StressTestQuestionProps {
   currentQuestion: TestQuestion;
@@ -30,13 +31,15 @@ const StressTestQuestion: React.FC<StressTestQuestionProps> = ({
   userAnswers,
   onAnswer
 }) => {
+  const isMobile = useIsMobile();
+  
   // Add a special class for memory recall questions to highlight the urgency
   const questionTypeClass = currentQuestion.type === 'memory-recall' 
     ? 'border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/10'
     : '';
 
   return (
-    <div className={`space-y-6 ${questionTypeClass} rounded-lg p-1`}>
+    <div className={`space-y-4 sm:space-y-6 ${questionTypeClass} rounded-lg p-1`}>
       <QuestionHeader
         currentQuestionIndex={currentQuestionIndex}
         questionsLength={questionsLength}
@@ -67,7 +70,7 @@ const StressTestQuestion: React.FC<StressTestQuestionProps> = ({
 
       {/* Extra info for memory recall questions */}
       {currentQuestion.type === 'memory-recall' && !showExplanation && (
-        <div className="text-center text-xs text-amber-600 dark:text-amber-400 animate-pulse">
+        <div className="text-center text-xs text-amber-600 dark:text-amber-400 animate-pulse font-medium">
           Quick response required - answer from memory!
         </div>
       )}

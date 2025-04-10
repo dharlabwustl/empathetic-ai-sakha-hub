@@ -3,6 +3,7 @@ import React from 'react';
 import { Badge } from "@/components/ui/badge";
 import QuestionTimer from './QuestionTimer';
 import ComplexityIndicator from './ComplexityIndicator';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface QuestionHeaderProps {
   currentQuestionIndex: number;
@@ -19,6 +20,8 @@ const QuestionHeader: React.FC<QuestionHeaderProps> = ({
   questionType,
   currentComplexity
 }) => {
+  const isMobile = useIsMobile();
+  
   const getQuestionTypeLabel = () => {
     switch (questionType) {
       case 'pattern-recognition':
@@ -50,19 +53,20 @@ const QuestionHeader: React.FC<QuestionHeaderProps> = ({
   };
   
   return (
-    <div className="flex justify-between items-center">
+    <div className={`flex ${isMobile ? 'flex-col gap-2' : 'justify-between'} items-start sm:items-center`}>
       <div>
-        <div className="text-sm text-gray-500 dark:text-gray-400">
+        <div className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
           Question {currentQuestionIndex + 1} of {questionsLength}
         </div>
         <Badge 
-          className={`mt-1 ${getQuestionTypeColor()}`}
+          className={`mt-1 text-xs ${getQuestionTypeColor()}`}
+          variant="outline"
         >
           {getQuestionTypeLabel()}
         </Badge>
       </div>
       
-      <div className="flex items-center space-x-4">
+      <div className={`flex ${isMobile ? 'w-full justify-between' : ''} items-center space-x-4`}>
         <ComplexityIndicator level={currentComplexity} />
         <QuestionTimer timeLeft={timeLeft} questionType={questionType} />
       </div>
