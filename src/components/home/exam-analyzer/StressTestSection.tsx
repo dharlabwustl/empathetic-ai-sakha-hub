@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Clock, AlertCircle, CheckCircle2, XCircle } from 'lucide-react';
@@ -32,6 +32,18 @@ const StressTestSection: React.FC<StressTestSectionProps> = ({
   const [questions, setQuestions] = useState<TestQuestion[]>([]);
   const [showExplanation, setShowExplanation] = useState(false);
   
+  // Use ref to store timer
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // Clean up timer on unmount
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+    };
+  }, []);
+  
   const startTest = () => {
     // Get questions for the selected exam type
     const testQuestions = getStressTestQuestions(selectedExam);
@@ -40,22 +52,48 @@ const StressTestSection: React.FC<StressTestSectionProps> = ({
     setTimeLeft(testQuestions[0].timeLimit);
     
     // Start the countdown timer
-    const timer = setInterval(() => {
+    startTimer();
+  };
+  
+  const startTimer = () => {
+    // Clear existing timer if any
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+    }
+    
+    // Start new timer
+    timerRef.current = setInterval(() => {
       setTimeLeft(prev => {
         if (prev <= 1) {
-          clearInterval(timer);
+          // Time's up - move to next question
+          if (timerRef.current) {
+            clearInterval(timerRef.current);
+          }
+          
+          // Record timed-out answer
+          const currentQ = questions[currentQuestionIndex];
+          const timeoutAnswer: UserAnswer = {
+            questionId: currentQ.id,
+            answer: "TIMEOUT",
+            timeToAnswer: currentQ.timeLimit,
+            isCorrect: false
+          };
+          
+          setUserAnswers(prev => [...prev, timeoutAnswer]);
           handleNextQuestion();
           return 0;
         }
         return prev - 1;
       });
     }, 1000);
-    
-    // Clean up the timer when component unmounts
-    return () => clearInterval(timer);
   };
   
   const handleAnswer = (answer: string) => {
+    // Clear the timer
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+    }
+    
     const currentQuestion = questions[currentQuestionIndex];
     const isCorrect = answer === currentQuestion.correctAnswer;
     
@@ -80,6 +118,7 @@ const StressTestSection: React.FC<StressTestSectionProps> = ({
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(prevIndex => prevIndex + 1);
       setTimeLeft(questions[currentQuestionIndex + 1].timeLimit);
+      startTimer(); // Restart timer for next question
     } else {
       // Test is complete
       setIsTestActive(false);
@@ -98,7 +137,7 @@ const StressTestSection: React.FC<StressTestSectionProps> = ({
           </Badge>
           <div className="flex items-center gap-2">
             <Clock className="text-blue-500" size={16} />
-            <span className={`font-medium ${timeLeft < 5 ? 'text-red-500' : ''}`}>{timeLeft}s</span>
+            <span className={`font-medium ${timeLeft < 5 ? 'text-red-500 animate-pulse' : ''}`}>{timeLeft}s</span>
           </div>
         </div>
         
@@ -194,8 +233,8 @@ const StressTestSection: React.FC<StressTestSectionProps> = ({
             </h4>
             <ul className="list-disc pl-5 space-y-1 text-sm">
               <li>You'll face 8 pattern recognition challenges</li>
-              <li>Each question has a 15-second time limit</li>
-              <li>Try to maintain focus despite distractions</li>
+              <li>Each question has a strict 15-second time limit</li>
+              <li>Try to maintain focus despite the time pressure</li>
               <li>Answer as quickly and accurately as possible</li>
             </ul>
           </div>

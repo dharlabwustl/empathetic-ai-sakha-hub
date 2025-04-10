@@ -51,6 +51,7 @@ export interface UserAnswer {
   answer: string;
   timeToAnswer: number;
   isCorrect?: boolean;
+  confidenceLevel?: number;  // Added for concept test
 }
 
 export interface TestDescription {

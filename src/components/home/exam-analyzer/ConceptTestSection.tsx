@@ -54,6 +54,7 @@ const ConceptTestSection: React.FC<ConceptTestSectionProps> = ({
     const testQuestions = getConceptTestQuestions(selectedExam, selectedSubject);
     setQuestions(testQuestions);
     setIsTestActive(true);
+    setCurrentQuestionIndex(-1); // Start with confidence question
   };
   
   const handleConfidenceRating = (rating: number) => {
@@ -61,8 +62,6 @@ const ConceptTestSection: React.FC<ConceptTestSectionProps> = ({
   };
   
   const handleAnswer = (answer: string) => {
-    if (confidenceRating === null) return;
-    
     const currentQuestion = questions[currentQuestionIndex];
     const isCorrect = answer === currentQuestion.correctAnswer;
     
@@ -70,7 +69,8 @@ const ConceptTestSection: React.FC<ConceptTestSectionProps> = ({
       questionId: currentQuestion.id,
       answer,
       timeToAnswer: 0,
-      isCorrect
+      isCorrect,
+      confidenceLevel: confidenceRating || 3
     };
     
     setUserAnswers(prev => [...prev, newAnswer]);
@@ -79,7 +79,6 @@ const ConceptTestSection: React.FC<ConceptTestSectionProps> = ({
     // Automatically proceed to next question after explanation
     setTimeout(() => {
       setShowExplanation(false);
-      setConfidenceRating(null);
       
       if (currentQuestionIndex < questions.length - 1) {
         setCurrentQuestionIndex(prevIndex => prevIndex + 1);
@@ -87,7 +86,7 @@ const ConceptTestSection: React.FC<ConceptTestSectionProps> = ({
         setIsTestActive(false);
         onCompleteTest(userAnswers);
       }
-    }, 2000);
+    }, 2500);
   };
   
   const renderConfidenceQuestion = () => {
@@ -236,9 +235,9 @@ const ConceptTestSection: React.FC<ConceptTestSectionProps> = ({
             </h4>
             <ul className="list-disc pl-5 space-y-1 text-sm">
               <li>Rate your confidence on key topics from the exam syllabus</li>
-              <li>Answer 5 multiple-choice questions on each topic</li>
-              <li>The test adapts to your responses</li>
-              <li>We'll map your confidence against actual performance</li>
+              <li>Answer 5 multiple-choice questions on each selected topic</li>
+              <li>The test compares your confidence with your actual performance</li>
+              <li>We'll identify knowledge gaps to optimize your study plan</li>
             </ul>
           </div>
           

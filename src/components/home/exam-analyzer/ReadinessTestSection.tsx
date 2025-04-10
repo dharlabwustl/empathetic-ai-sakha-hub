@@ -123,10 +123,10 @@ const ReadinessTestSection: React.FC<ReadinessTestSectionProps> = ({
               Instructions:
             </h4>
             <ul className="list-disc pl-5 space-y-1 text-sm">
-              <li>You'll answer 10 questions about your study habits</li>
-              <li>Be honest about your preparation level</li>
-              <li>Questions cover syllabus knowledge, practice, and time management</li>
-              <li>Results will help create your personalized study plan</li>
+              <li>You'll answer 10 questions about your study habits and exam preparation</li>
+              <li>Be honest about your preparation level for accurate results</li>
+              <li>Questions cover syllabus knowledge, practice frequency, and time management</li>
+              <li>Your responses will help create your personalized study plan</li>
             </ul>
           </div>
           
