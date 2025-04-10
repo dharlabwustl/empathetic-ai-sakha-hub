@@ -1,9 +1,10 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { BarChart3, Download, RefreshCw, BookOpen, ArrowRight, UserPlus, FileText } from 'lucide-react';
+import { BarChart3, Download, BookOpen, ArrowRight, UserPlus, FileText } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Separator } from '@/components/ui/separator';
+import { Link } from 'react-router-dom';
 
 interface StudyPlanSectionProps {
   recommendations: string[];
@@ -45,24 +46,7 @@ const StudyPlanSection: React.FC<StudyPlanSectionProps> = ({ recommendations, on
           </motion.li>
         ))}
       </ul>
-      
-      <Separator className="my-4" />
-      
-      <div className="flex flex-col sm:flex-row gap-3 mt-4">
-        <Button variant="outline" className="flex-1 flex items-center justify-center gap-2 border-blue-200 dark:border-blue-800 hover:bg-blue-50 dark:hover:bg-blue-900/30">
-          <FileText size={16} />
-          <span>Save Results PDF</span>
-        </Button>
-        
-        <Button 
-          onClick={onStartOver} 
-          className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-violet-500 to-blue-500 hover:from-violet-600 hover:to-blue-600 shadow-md hover:shadow-lg transition-all duration-300"
-        >
-          <RefreshCw size={16} />
-          <span>Take Another Test</span>
-        </Button>
-      </div>
-      
+
       <div className="mt-6 p-6 bg-gradient-to-br from-violet-500/10 to-blue-500/10 dark:from-violet-900/20 dark:to-blue-900/20 rounded-xl border border-violet-100 dark:border-violet-800/50 shadow-lg">
         <div className="flex flex-col items-center text-center">
           <div className="bg-white dark:bg-gray-800 p-3 rounded-full shadow-md mb-3">
@@ -74,9 +58,26 @@ const StudyPlanSection: React.FC<StudyPlanSectionProps> = ({ recommendations, on
           <p className="text-sm text-violet-600/90 dark:text-violet-300/90 mt-2 mb-4">
             Sign up now to get a detailed study plan, personalized practice questions, and expert guidance.
           </p>
-          <Button className="w-full md:w-auto bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-700 hover:to-blue-700 shadow-md hover:shadow-xl transition-all duration-300 animate-pulse">
-            Sign Up Free <ArrowRight className="ml-1 h-4 w-4" />
-          </Button>
+          <div className="flex flex-col sm:flex-row w-full gap-3">
+            <Button 
+              onClick={onStartOver}
+              className="flex-1 bg-gradient-to-r from-blue-500 to-violet-500 hover:from-blue-600 hover:to-violet-600 text-white shadow-md hover:shadow-lg transition-all"
+            >
+              <BookOpen className="mr-2 h-4 w-4" />
+              Take Another Test
+            </Button>
+            
+            <Button 
+              asChild
+              className="flex-1 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white shadow-md hover:shadow-lg transition-all"
+            >
+              <Link to="/signup">
+                <UserPlus className="mr-2 h-4 w-4" />
+                Sign Up Free
+                <ArrowRight className="ml-1 h-4 w-4" />
+              </Link>
+            </Button>
+          </div>
         </div>
       </div>
     </motion.div>

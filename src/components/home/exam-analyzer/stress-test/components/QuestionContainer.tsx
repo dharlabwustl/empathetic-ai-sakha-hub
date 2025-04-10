@@ -40,12 +40,12 @@ const QuestionContainer: React.FC<QuestionContainerProps> = ({
             <img 
               src={currentQuestion.imageUrl} 
               alt="Question visual" 
-              className="w-full max-h-[250px] object-cover" 
+              className="w-full max-h-[250px] object-cover mx-auto rounded-lg" 
             />
           </motion.div>
         )}
         
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-6">
           {currentQuestion.options.map((option, index) => (
             <Button
               key={index}

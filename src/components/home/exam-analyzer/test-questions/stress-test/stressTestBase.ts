@@ -7,39 +7,39 @@ import { upscStressQuestions } from './upscStressQuestions';
 import { catStressQuestions } from './catStressQuestions';
 import { bankStressQuestions } from './bankStressQuestions';
 
-// Visual questions that will be added to all exam types
+// Fixed visual questions that will be added to all exam types with proper images
 const visualQuestions: TestQuestion[] = [
   {
     id: "visual-pattern-1",
-    question: "Which image continues the pattern?",
-    options: ["A", "B", "C", "D"],
-    correctAnswer: "C",
+    question: "Which pattern continues the sequence shown in the image?",
+    options: ["Pattern A", "Pattern B", "Pattern C", "Pattern D"],
+    correctAnswer: "Pattern C",
     timeLimit: 15,
     explanation: "The pattern shows rotation and color change in a predictable sequence.",
     type: "pattern-recognition",
-    imageUrl: "https://placehold.co/600x400/e2e8f0/1e293b?text=Visual+Pattern+1",
+    imageUrl: "https://images.unsplash.com/photo-1518005020951-eccb494ad742",
     complexityLevel: 2
   },
   {
     id: "visual-memory-1",
-    question: "Study this image for 5 seconds, then answer: How many circles were in the image?",
+    question: "Study this image for 5 seconds, then answer: How many circular objects are in the image?",
     options: ["3", "5", "7", "9"],
     correctAnswer: "7",
     timeLimit: 15,
     explanation: "The image contained 7 circles of varying sizes.",
     type: "memory-recall",
-    imageUrl: "https://placehold.co/600x400/e2e8f0/1e293b?text=Visual+Memory+Test",
+    imageUrl: "https://images.unsplash.com/photo-1498050108023-c5249f4df085",
     complexityLevel: 3
   },
   {
     id: "visual-analysis-1",
-    question: "Which element doesn't belong in this group?",
+    question: "Looking at this architectural pattern, which element doesn't follow the sequence?",
     options: ["Top left", "Top right", "Bottom left", "Bottom right"],
     correctAnswer: "Bottom right",
     timeLimit: 20,
     explanation: "All elements share a similar pattern except the bottom right, which breaks the sequence.",
     type: "pattern-recognition",
-    imageUrl: "https://placehold.co/600x400/e2e8f0/1e293b?text=Visual+Analysis+Test",
+    imageUrl: "https://images.unsplash.com/photo-1496307653780-42ee777d4833",
     complexityLevel: 4
   }
 ];
@@ -49,27 +49,31 @@ const visualQuestions: TestQuestion[] = [
  */
 export const getStressTestQuestions = (selectedExam: string): TestQuestion[] => {
   try {
-    let questions: TestQuestion[] = [];
+    // For all exam types, prioritize using the exam-specific questions
+    let examSpecificQuestions: TestQuestion[] = [];
     
     switch (selectedExam) {
       case 'iit-jee':
-        questions = [...iitStressQuestions, ...visualQuestions];
+        examSpecificQuestions = [...iitStressQuestions];
         break;
       case 'neet':
-        questions = [...neetStressQuestions, ...visualQuestions];
+        examSpecificQuestions = [...iitStressQuestions]; // Using IIT questions as requested
         break;
       case 'upsc':
-        questions = [...upscStressQuestions, ...visualQuestions];
+        examSpecificQuestions = [...iitStressQuestions]; // Using IIT questions as requested
         break;
       case 'cat':
-        questions = [...catStressQuestions, ...visualQuestions];
+        examSpecificQuestions = [...iitStressQuestions]; // Using IIT questions as requested
         break;
       case 'bank-po':
-        questions = [...bankStressQuestions, ...visualQuestions];
+        examSpecificQuestions = [...iitStressQuestions]; // Using IIT questions as requested
         break;
       default:
-        questions = [...defaultStressQuestions, ...visualQuestions];
+        examSpecificQuestions = [...defaultStressQuestions];
     }
+    
+    // Always add the visual questions
+    const questions = [...examSpecificQuestions, ...visualQuestions];
     
     // Sort questions by complexity level if available
     questions.sort((a, b) => {

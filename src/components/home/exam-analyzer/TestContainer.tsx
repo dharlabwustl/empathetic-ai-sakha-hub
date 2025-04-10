@@ -27,6 +27,7 @@ interface TestContainerProps {
   handleStressTestComplete: (answers: UserAnswer[]) => void;
   handleReadinessTestComplete: (answers: UserAnswer[]) => void;
   handleConceptTestComplete: (answers: UserAnswer[]) => void;
+  handleNavigation: (test: TestType) => void;
 }
 
 const TestContainer: React.FC<TestContainerProps> = ({
@@ -46,16 +47,18 @@ const TestContainer: React.FC<TestContainerProps> = ({
   handleStressTestComplete,
   handleReadinessTestComplete,
   handleConceptTestComplete,
+  handleNavigation,
 }) => {
   return (
     <div className="my-4 space-y-6">
-      <ProgressIndicator progress={progress} />
+      <ProgressIndicator progress={progress} currentTest={currentTest} />
       
       {currentTest === 'intro' && (
         <IntroSection 
           examTypes={examTypes} 
           selectedExam={selectedExam}
           setSelectedExam={setSelectedExam}
+          onStartTest={handleStartTest}
         />
       )}
       
@@ -78,6 +81,7 @@ const TestContainer: React.FC<TestContainerProps> = ({
           results={results.readiness}
           simulateTest={simulateReadinessTest}
           onCompleteTest={handleReadinessTestComplete}
+          onContinue={() => handleNavigation('concept')}
         />
       )}
       
@@ -89,6 +93,7 @@ const TestContainer: React.FC<TestContainerProps> = ({
           results={results.concept}
           simulateTest={simulateConceptTest}
           onCompleteTest={handleConceptTestComplete}
+          onContinue={() => handleNavigation('report')}
         />
       )}
       
@@ -96,7 +101,7 @@ const TestContainer: React.FC<TestContainerProps> = ({
         <ReportSection
           results={results}
           selectedExam={selectedExam}
-          handleStartOver={handleStartOver}
+          onStartOver={handleStartOver}
         />
       )}
     </div>

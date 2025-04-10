@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { ExamResults, ExamType, ConfidenceMapping } from './types';
+import { ExamResults, ConfidenceMapping } from './types';
 import { CustomProgress } from '@/components/ui/custom-progress';
 import ReportHeader from './report-components/ReportHeader';
 import ScoreBadges from './report-components/ScoreBadges';
@@ -9,21 +9,36 @@ import StrengthsAndImprovements from './report-components/StrengthsAndImprovemen
 import StudyPlanSection from './report-components/StudyPlanSection';
 import { Card, CardContent } from '@/components/ui/card';
 import { motion } from 'framer-motion';
+import { Button } from '@/components/ui/button';
+import { RefreshCw, UserPlus, ArrowRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 interface ReportSectionProps {
   results: ExamResults;
   selectedExam: string;
-  examTypes: ExamType[];
   onStartOver: () => void;
 }
 
 const ReportSection: React.FC<ReportSectionProps> = ({ 
   results, 
   selectedExam,
-  examTypes,
   onStartOver
 }) => {
-  const examLabel = examTypes.find(exam => exam.value === selectedExam)?.label || selectedExam;
+  // Get the exam label from the selected exam
+  const getExamLabel = (examId: string): string => {
+    const examLabels: Record<string, string> = {
+      'iit-jee': 'IIT-JEE',
+      'neet': 'NEET',
+      'upsc': 'UPSC',
+      'cat': 'CAT',
+      'bank-po': 'Bank PO',
+      'default': 'Entrance Exam'
+    };
+    
+    return examLabels[examId] || examLabels.default;
+  };
+  
+  const examLabel = getExamLabel(selectedExam);
   
   // Get all strengths and improvements for recommendation cards
   const allStrengths = [
@@ -97,7 +112,7 @@ const ReportSection: React.FC<ReportSectionProps> = ({
     "Dedicate time to review and reinforce weak subjects regularly.",
     "Use active recall techniques instead of passive reading for better retention.",
     "Create a visual progress tracker to maintain motivation and accountability."
-  ].filter(Boolean);
+  ].filter(Boolean) as string[];
   
   // Color coding for score ranges
   const getScoreColorClass = (score: number) => {
@@ -172,6 +187,30 @@ const ReportSection: React.FC<ReportSectionProps> = ({
           recommendations={studyPlanRecommendations}
           onStartOver={onStartOver}
         />
+      </motion.div>
+      
+      <motion.div 
+        variants={item}
+        className="flex flex-col sm:flex-row gap-4 mt-8"
+      >
+        <Button 
+          onClick={onStartOver} 
+          className="flex-1 py-6 bg-gradient-to-r from-violet-500 to-blue-500 hover:from-violet-600 hover:to-blue-600 shadow-md hover:shadow-lg transition-all duration-300"
+        >
+          <RefreshCw size={18} className="mr-2" />
+          <span>Take Another Test</span>
+        </Button>
+        
+        <Button 
+          asChild
+          className="flex-1 py-6 bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600 shadow-md hover:shadow-lg transition-all duration-300"
+        >
+          <Link to="/signup">
+            <UserPlus size={18} className="mr-2" />
+            <span>Sign Up for Full Results</span>
+            <ArrowRight size={16} className="ml-2" />
+          </Link>
+        </Button>
       </motion.div>
     </motion.div>
   );
