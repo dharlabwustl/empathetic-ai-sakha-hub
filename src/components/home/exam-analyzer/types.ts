@@ -61,3 +61,10 @@ export interface TestDescription {
   duration: string;
   questionCount: number;
 }
+
+export interface ConfidenceMapping {
+  topic: string;
+  confidence: number;
+  accuracy: number;
+  status: 'overconfident' | 'aligned' | 'underconfident';
+}

@@ -138,11 +138,13 @@ const HeroSection = ({ onAnalyzeClick }: HeroSectionProps) => {
             
             <Button 
               size="lg"
-              variant="outline" 
-              className="border-2 border-violet-200 dark:border-violet-800 text-violet-700 dark:text-violet-300 hover:bg-violet-50 dark:hover:bg-violet-900/30"
               onClick={onAnalyzeClick}
+              className="relative overflow-hidden border-2 border-violet-200 dark:border-violet-800 bg-white dark:bg-gray-900 hover:bg-violet-50 dark:hover:bg-violet-900/30 group"
             >
-              Check Exam Readiness
+              <span className="absolute inset-0 bg-gradient-to-r from-violet-600/20 to-blue-600/20 group-hover:from-violet-600/30 group-hover:to-blue-600/30 animate-pulse"></span>
+              <span className="relative text-violet-700 dark:text-violet-300 font-medium">
+                Check Exam Readiness
+              </span>
             </Button>
           </motion.div>
 
@@ -195,6 +197,35 @@ const HeroSection = ({ onAnalyzeClick }: HeroSectionProps) => {
                 <span className="font-medium">{exam.name}</span>
               </motion.div>
             ))}
+          </div>
+        </motion.div>
+
+        {/* Exam Readiness Analyzer Banner */}
+        <motion.div
+          className="max-w-5xl mx-auto mt-16 bg-gradient-to-r from-violet-600/10 to-blue-600/10 dark:from-violet-900/30 dark:to-blue-900/30 rounded-xl p-6 border-2 border-violet-200/50 dark:border-violet-800/50 shadow-lg"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1.6, duration: 0.6 }}
+          whileHover={{ y: -5 }}
+        >
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="space-y-3 text-center md:text-left">
+              <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300 font-medium">
+                Scientific Assessment
+              </Badge>
+              <h3 className="text-xl lg:text-2xl font-bold">Discover Your Exam Readiness Score</h3>
+              <p className="text-gray-600 dark:text-gray-300 text-sm md:text-base">
+                Complete three quick tests to get a personalized study plan based on your unique strengths and weaknesses.
+              </p>
+            </div>
+            <Button 
+              size="lg"
+              onClick={onAnalyzeClick}
+              className="bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-700 hover:to-blue-700 text-white shadow-md hover:shadow-lg px-6"
+            >
+              <Brain className="mr-2" size={20} />
+              Analyze My Readiness
+            </Button>
           </div>
         </motion.div>
 

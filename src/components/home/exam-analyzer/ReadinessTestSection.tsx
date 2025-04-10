@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Target, ChevronRight } from 'lucide-react';
+import { Target, ChevronRight, BookOpen, CheckCircle } from 'lucide-react';
 import { CustomProgress } from '@/components/ui/custom-progress';
 import { TestResults, TestQuestion, UserAnswer } from './types';
 import { getReadinessTestQuestions } from './test-questions/readinessTestQuestions';
@@ -105,7 +105,7 @@ const ReadinessTestSection: React.FC<ReadinessTestSectionProps> = ({
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-medium flex items-center">
-          <Target className="mr-2 text-violet-500" size={20} />
+          <BookOpen className="mr-2 text-violet-500" size={20} />
           Readiness Score Test
         </h3>
         <Badge variant="outline" className="bg-violet-50 dark:bg-violet-900/30 border-violet-200 dark:border-violet-700">2 of 3</Badge>
