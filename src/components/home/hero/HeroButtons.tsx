@@ -37,26 +37,44 @@ const HeroButtons = ({ onAnalyzeClick }: HeroButtonsProps) => {
       initial="hidden"
       animate="visible"
     >
-      <motion.div variants={itemVariants}>
+      <motion.div 
+        variants={itemVariants}
+        whileHover={{ scale: 1.03 }}
+        whileTap={{ scale: 0.98 }}
+      >
         <Button 
           size="lg"
-          className="bg-gradient-to-r from-violet-600 to-purple-500 hover:opacity-90 text-white px-8 py-6 shadow-md hover:shadow-lg"
+          className="bg-gradient-to-r from-violet-600 to-purple-500 hover:opacity-90 text-white px-8 py-6 shadow-md hover:shadow-xl transition-all"
           onClick={onAnalyzeClick}
         >
-          <TrendingUp className="mr-2" />
+          <motion.div
+            animate={{ rotate: [0, 3, -3, 0] }}
+            transition={{ repeat: Infinity, repeatDelay: 2, duration: 0.5 }}
+          >
+            <TrendingUp className="mr-2" />
+          </motion.div>
           Test Your Exam Readiness Now
         </Button>
       </motion.div>
       
-      <motion.div variants={itemVariants}>
+      <motion.div 
+        variants={itemVariants}
+        whileHover={{ scale: 1.03 }}
+        whileTap={{ scale: 0.98 }}
+      >
         <Button 
           size="lg" 
           variant="outline"
-          className="border-violet-500 text-violet-600 hover:bg-violet-50 shadow-sm hover:shadow-md"
+          className="border-violet-500 text-violet-600 hover:bg-violet-50 shadow-sm hover:shadow-md transition-all"
           asChild
         >
           <Link to="/signup">
-            <BookOpen className="mr-2" />
+            <motion.div
+              animate={{ rotate: [0, -5, 5, 0] }}
+              transition={{ repeat: Infinity, repeatDelay: 3, duration: 0.5 }}
+            >
+              <BookOpen className="mr-2" />
+            </motion.div>
             Start Free Preparation
           </Link>
         </Button>

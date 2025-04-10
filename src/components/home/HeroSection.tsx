@@ -86,13 +86,47 @@ const HeroSection = ({ onAnalyzeClick }: HeroSectionProps) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2, duration: 0.6 }}
           >
-            {/* Real image of exam aspirants */}
+            {/* Updated with the new image of exam aspirants */}
             <div className="mb-6 rounded-xl overflow-hidden shadow-lg">
-              <img 
-                src="/lovable-uploads/26a404be-3145-4a01-9204-8e74a5984c36.png" 
-                alt="Students preparing for exams" 
-                className="w-full h-64 object-cover"
-              />
+              <motion.div
+                initial={{ scale: 1 }}
+                whileHover={{ scale: 1.02 }}
+                transition={{ duration: 0.3 }}
+              >
+                <img 
+                  src="/lovable-uploads/0aee9e2f-6c2f-484e-a580-f28fe3d23820.png" 
+                  alt="Students using Sakha AI for exam preparation" 
+                  className="w-full h-64 object-cover"
+                />
+              </motion.div>
+              
+              {/* Overlaid badges to highlight ecosystem */}
+              <motion.div 
+                className="absolute -top-2 -right-2 bg-gradient-to-r from-violet-500 to-purple-500 text-white px-3 py-1 rounded-full shadow-md"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.8 }}
+              >
+                <span className="text-xs font-medium">Collaborative Learning</span>
+              </motion.div>
+              
+              <motion.div 
+                className="absolute top-1/2 -right-2 bg-gradient-to-r from-blue-500 to-sky-500 text-white px-3 py-1 rounded-full shadow-md"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1.0 }}
+              >
+                <span className="text-xs font-medium">AI-Guided</span>
+              </motion.div>
+              
+              <motion.div 
+                className="absolute bottom-4 left-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white px-3 py-1 rounded-full shadow-md"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1.2 }}
+              >
+                <span className="text-xs font-medium">Personalized Study Plans</span>
+              </motion.div>
             </div>
 
             {/* Chat Interface */}

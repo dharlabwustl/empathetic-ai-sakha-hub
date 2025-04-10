@@ -1,6 +1,6 @@
 
 import { motion } from "framer-motion";
-import { Clock, CheckCircle } from "lucide-react";
+import { Clock, CheckCircle, AlertTriangle, Target, Zap, ScrollText, Brain, Smile } from "lucide-react";
 
 interface PainPointsProps {
   painPoints: string[];
@@ -8,8 +8,40 @@ interface PainPointsProps {
 }
 
 const PainPoints = ({ painPoints, solutions }: PainPointsProps) => {
+  // Create factor icons based on the first image
+  const factorIcons = [
+    { name: "Peer Anxiety", icon: <AlertTriangle size={16} className="text-orange-500" /> },
+    { name: "Doubts/Digital Space", icon: <ScrollText size={16} className="text-sky-500" /> },
+    { name: "Materials/Notes", icon: <Brain size={16} className="text-indigo-500" /> },
+    { name: "Stress & Fear of Failure", icon: <Zap size={16} className="text-red-500" /> },
+    { name: "Self Direction", icon: <Target size={16} className="text-green-500" /> },
+    { name: "Parental Support", icon: <Smile size={16} className="text-amber-500" /> }
+  ];
+  
   return (
     <div className="mb-8 bg-white/70 backdrop-blur-sm rounded-lg p-5 border border-violet-100 shadow-sm">
+      {/* Ecosystem factors visualization */}
+      <motion.div 
+        className="mb-4 flex flex-wrap gap-2"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+      >
+        {factorIcons.map((factor, index) => (
+          <motion.div
+            key={index}
+            className="flex items-center gap-1 bg-gray-50 px-2 py-1 rounded-full border border-gray-100 text-xs"
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.1 * index }}
+            whileHover={{ scale: 1.05 }}
+          >
+            <div className="p-1 rounded-full">{factor.icon}</div>
+            {factor.name}
+          </motion.div>
+        ))}
+      </motion.div>
+      
       <h3 className="font-semibold text-lg mb-3 text-violet-800">We understand your struggles:</h3>
       <ul className="space-y-2 mb-5">
         {painPoints.map((point, index) => (
