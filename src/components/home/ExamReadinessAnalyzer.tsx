@@ -78,7 +78,116 @@ export function ExamReadinessAnalyzer({ onClose }: ExamReadinessAnalyzerProps) {
     "Other": []
   };
   
-  const questions = [
+  // Questions organized by exam goal
+  const questionsByExam: Record<string, any[]> = {
+    "IIT JEE (Engineering Entrance)": [
+      {
+        subject: "Physics",
+        question: "A particle moves in a circle of radius 20 cm with constant speed and time period 4π seconds. What is the acceleration of the particle?",
+        options: ["0.05 m/s²", "0.1 m/s²", "0.2 m/s²", "0.4 m/s²"]
+      },
+      {
+        subject: "Chemistry",
+        question: "Which of the following elements has the highest first ionization energy?",
+        options: ["Sodium", "Magnesium", "Neon", "Fluorine"]
+      },
+      {
+        subject: "Mathematics",
+        question: "The differential equation that represents a family of ellipses with foci on the x-axis is:",
+        options: ["x²/a² + y²/b² = 1", "x²/a² - y²/b² = 1", "(d²y/dx²) + y = 0", "d²y/dx² = -k²y"]
+      },
+      {
+        subject: "Physics",
+        question: "A body is thrown vertically upwards with an initial velocity v. The time taken to reach the maximum height is proportional to:",
+        options: ["v", "v²", "1/v", "√v"]
+      },
+      {
+        subject: "Chemistry",
+        question: "Which of the following compounds will show optical isomerism?",
+        options: ["CH₃CH₂OH", "CH₃CHClCH₃", "CH₃CH₂COOH", "CH₃CH₂CHO"]
+      },
+      {
+        subject: "Mathematics",
+        question: "If the vectors a, b and c are coplanar, then which of the following is true?",
+        options: ["a × (b × c) = 0", "a · (b × c) = 0", "a × b = b × c", "(a × b) · c = 0"]
+      },
+      {
+        subject: "Physics",
+        question: "A spring of spring constant k is cut into n equal parts. The spring constant of each part will be:",
+        options: ["k/n", "k", "nk", "n²k"]
+      },
+      {
+        subject: "Chemistry",
+        question: "Which of the following represents the correct order of increasing bond angles?",
+        options: ["NH₃ < PH₃ < AsH₃", "PH₃ < NH₃ < AsH₃", "PH₃ < AsH₃ < NH₃", "AsH₃ < PH₃ < NH₃"]
+      },
+      {
+        subject: "Mathematics",
+        question: "If A and B are two events such that P(A) = 0.3, P(B) = 0.4 and P(A∩B) = 0.1, then P(A|B) is:",
+        options: ["0.1", "0.25", "0.3", "0.4"]
+      },
+      {
+        subject: "Mathematics",
+        question: "The value of the determinant |cos x  sin x|/|-sin x  cos x| is:",
+        options: ["1", "0", "cos 2x", "sin 2x"]
+      }
+    ],
+    "NEET (Medical Entrance)": [
+      {
+        subject: "Biology",
+        question: "Which of the following organelles is known as the 'power house of the cell'?",
+        options: ["Ribosome", "Lysosome", "Mitochondria", "Golgi apparatus"]
+      },
+      {
+        subject: "Chemistry", 
+        question: "Which hormone is called the emergency hormone?",
+        options: ["Insulin", "Thyroxine", "Adrenaline", "Estrogen"]
+      },
+      {
+        subject: "Physics",
+        question: "The human eye forms the image of an object at its:",
+        options: ["Cornea", "Iris", "Pupil", "Retina"]
+      },
+      {
+        subject: "Biology",
+        question: "Pneumatophores are specialized roots in:",
+        options: ["Epiphytes", "Halophytes", "Mangroves", "Xerophytes"]
+      },
+      {
+        subject: "Chemistry",
+        question: "Which of the following is a non-biodegradable pollutant?",
+        options: ["Animal waste", "Sewage", "Plastic", "Vegetable waste"]
+      },
+      {
+        subject: "Physics",
+        question: "A tuning fork produces 4 beats per second with another tuning fork of frequency 256 Hz. If the first tuning fork has a frequency less than 256 Hz, what is its frequency?",
+        options: ["252 Hz", "254 Hz", "258 Hz", "260 Hz"]
+      },
+      {
+        subject: "Biology",
+        question: "The final electron acceptor in aerobic respiration is:",
+        options: ["NAD+", "FAD", "Oxygen", "Pyruvate"]
+      },
+      {
+        subject: "Chemistry",
+        question: "Which of the following is not a greenhouse gas?",
+        options: ["Carbon dioxide", "Methane", "Nitrogen", "Water vapor"]
+      },
+      {
+        subject: "Physics",
+        question: "Which of the following electromagnetic waves has the shortest wavelength?",
+        options: ["Gamma rays", "X-rays", "Ultraviolet rays", "Visible light"]
+      },
+      {
+        subject: "Biology",
+        question: "The function of hemoglobin is:",
+        options: ["Transport of oxygen", "Blood clotting", "Providing immunity", "Hormone regulation"]
+      }
+    ]
+  };
+
+  // Default questions for other exams
+  const defaultQuestions = [
     {
       subject: "General Knowledge",
       question: "What is the capital of Australia?",
@@ -88,26 +197,6 @@ export function ExamReadinessAnalyzer({ onClose }: ExamReadinessAnalyzerProps) {
       subject: "Mathematics",
       question: "If x² - 3x + 2 = 0, what are the values of x?",
       options: ["1 and 2", "2 and 3", "-1 and -2", "0 and 2"]
-    },
-    {
-      subject: "Physics",
-      question: "What is Newton's First Law of Motion?",
-      options: [
-        "F = ma",
-        "An object at rest stays at rest, and an object in motion stays in motion unless acted upon by an external force",
-        "For every action, there is an equal and opposite reaction",
-        "Energy cannot be created or destroyed"
-      ]
-    },
-    {
-      subject: "Chemistry",
-      question: "What is the chemical symbol for gold?",
-      options: ["Gd", "Au", "Ag", "Fe"]
-    },
-    {
-      subject: "English",
-      question: "Which of these is NOT a Shakespeare play?",
-      options: ["Hamlet", "Macbeth", "Romeo and Juliet", "Pride and Prejudice"]
     },
     {
       subject: "Logical Reasoning",
@@ -138,8 +227,30 @@ export function ExamReadinessAnalyzer({ onClose }: ExamReadinessAnalyzerProps) {
       subject: "Computer Knowledge",
       question: "Which of these is NOT a programming language?",
       options: ["Python", "Java", "HTML", "BIOS"]
+    },
+    {
+      subject: "General Studies",
+      question: "Which country has the largest coastline in the world?",
+      options: ["Australia", "United States", "Canada", "Russia"]
+    },
+    {
+      subject: "English",
+      question: "Choose the correctly spelled word:",
+      options: ["Accomodation", "Accommodation", "Acommodation", "Accommoddation"]
+    },
+    {
+      subject: "Quantitative Aptitude",
+      question: "If a shopkeeper sells an item at Rs. 1,140 with 5% discount, then what was the marked price?",
+      options: ["Rs. 1,197", "Rs. 1,200", "Rs. 1,083", "Rs. 1,225"]
     }
   ];
+
+  // Get the appropriate questions based on exam goal
+  const getQuestions = () => {
+    return questionsByExam[examGoal] || defaultQuestions;
+  };
+  
+  const questions = getQuestions();
 
   const handleExamGoalSelect = (goal: string) => {
     setExamGoal(goal);
@@ -191,12 +302,24 @@ export function ExamReadinessAnalyzer({ onClose }: ExamReadinessAnalyzerProps) {
   };
 
   const generateResults = (answerData: Record<string, string>) => {
-    // Analyze answers and generate results (simplified for demo)
-    const score = Math.floor(Math.random() * 41) + 60; // Random score between 60-100
+    // For demo purposes, generate insights based on exam goal
+    let score: number;
+    let strengths: string[] = [];
+    let weaknesses: string[] = [];
     
-    // Set random strengths and weaknesses for demo
-    const strengths = ["Quantitative Ability", "Logical Reasoning", "Data Interpretation"];
-    const weaknesses = ["Verbal Ability", "General Knowledge", "Current Affairs"];
+    if (examGoal === "IIT JEE (Engineering Entrance)") {
+      score = Math.floor(Math.random() * 31) + 60; // 60-90
+      strengths = ["Mathematical problem-solving", "Application of concepts"];
+      weaknesses = ["Physical Chemistry", "Coordinate Geometry"];
+    } else if (examGoal === "NEET (Medical Entrance)") {
+      score = Math.floor(Math.random() * 25) + 65; // 65-90
+      strengths = ["Biology fundamentals", "Organic Chemistry"];
+      weaknesses = ["Physics numerical problems", "Inorganic Chemistry"];
+    } else {
+      score = Math.floor(Math.random() * 41) + 60; // 60-100
+      strengths = ["Quantitative Ability", "Logical Reasoning", "Data Interpretation"];
+      weaknesses = ["Verbal Ability", "General Knowledge", "Current Affairs"];
+    }
     
     setReadinessScore(score);
     setStrength(strengths[Math.floor(Math.random() * strengths.length)]);
@@ -222,6 +345,20 @@ export function ExamReadinessAnalyzer({ onClose }: ExamReadinessAnalyzerProps) {
     onClose();
     navigate('/signup');
   };
+  
+  const handleTryAnotherExam = () => {
+    setStep("goal");
+    setExamGoal("");
+    setCustomExamGoal("");
+    setStudyStyle("");
+    setExamDate("");
+    setStudyHoursPerDay("");
+    setSubjects([]);
+    setCurrentQuestionIndex(0);
+    setAnswers({});
+    setProgress(0);
+    setShowResults(false);
+  };
 
   const renderStepContent = () => {
     switch (step) {
@@ -229,7 +366,7 @@ export function ExamReadinessAnalyzer({ onClose }: ExamReadinessAnalyzerProps) {
         return (
           <div className="space-y-6">
             <div>
-              <h2 className="text-xl font-semibold mb-4 flex items-center">
+              <h2 className="text-xl font-semibold mb-4 flex items-center text-gray-900">
                 <Target className="mr-2 text-violet-500" size={20} />
                 Select Your Exam Goal
               </h2>
@@ -266,7 +403,7 @@ export function ExamReadinessAnalyzer({ onClose }: ExamReadinessAnalyzerProps) {
         return (
           <div className="space-y-6">
             <div>
-              <h2 className="text-xl font-semibold mb-4 flex items-center">
+              <h2 className="text-xl font-semibold mb-4 flex items-center text-gray-900">
                 <BrainCircuit className="mr-2 text-violet-500" size={20} />
                 Your Study Style
               </h2>
@@ -281,7 +418,7 @@ export function ExamReadinessAnalyzer({ onClose }: ExamReadinessAnalyzerProps) {
                       onClick={() => setStudyStyle(style)}
                     >
                       <RadioGroupItem value={style} id={style} className="mr-3" />
-                      <Label htmlFor={style} className="cursor-pointer flex-1">
+                      <Label htmlFor={style} className="cursor-pointer flex-1 text-gray-800">
                         {style}
                       </Label>
                     </div>
@@ -305,13 +442,13 @@ export function ExamReadinessAnalyzer({ onClose }: ExamReadinessAnalyzerProps) {
         return (
           <div className="space-y-6">
             <div>
-              <h2 className="text-xl font-semibold mb-4 flex items-center">
+              <h2 className="text-xl font-semibold mb-4 flex items-center text-gray-900">
                 <Calendar className="mr-2 text-violet-500" size={20} />
                 Time Until Your Exam
               </h2>
               <div className="space-y-4">
                 <div>
-                  <Label htmlFor="exam-date">When is your exam?</Label>
+                  <Label htmlFor="exam-date" className="text-gray-800">When is your exam?</Label>
                   <Input 
                     id="exam-date" 
                     type="date" 
@@ -322,7 +459,7 @@ export function ExamReadinessAnalyzer({ onClose }: ExamReadinessAnalyzerProps) {
                 </div>
                 
                 <div>
-                  <Label htmlFor="study-hours">How many hours can you study per day?</Label>
+                  <Label htmlFor="study-hours" className="text-gray-800">How many hours can you study per day?</Label>
                   <Input
                     id="study-hours"
                     type="number"
@@ -355,7 +492,7 @@ export function ExamReadinessAnalyzer({ onClose }: ExamReadinessAnalyzerProps) {
         return (
           <div className="space-y-6">
             <div>
-              <h2 className="text-xl font-semibold mb-4 flex items-center">
+              <h2 className="text-xl font-semibold mb-4 flex items-center text-gray-900">
                 <BookOpen className="mr-2 text-violet-500" size={20} />
                 Select Subjects to Focus On
               </h2>
@@ -376,7 +513,7 @@ export function ExamReadinessAnalyzer({ onClose }: ExamReadinessAnalyzerProps) {
                         <CheckCircle size={14} className="text-white" />
                       )}
                     </div>
-                    <span>{subject}</span>
+                    <span className="text-gray-800">{subject}</span>
                   </div>
                 ))}
               </div>
@@ -405,27 +542,27 @@ export function ExamReadinessAnalyzer({ onClose }: ExamReadinessAnalyzerProps) {
       case "questions":
         const currentQuestion = questions[currentQuestionIndex];
         return (
-          <div className="space-y-6">
+          <div className="space-y-6 bg-white p-6 rounded-lg shadow-sm">
             <div>
               <div className="flex justify-between items-center mb-2">
                 <span className="text-sm font-medium text-violet-600">
                   Question {currentQuestionIndex + 1} of {questions.length}
                 </span>
-                <span className="text-sm text-gray-500">
+                <span className="text-sm text-gray-600">
                   Subject: {currentQuestion.subject}
                 </span>
               </div>
               
-              <Progress value={progress} className="h-2 mb-6" />
+              <Progress value={progress} className="h-2 mb-6 bg-gray-100" />
               
-              <h2 className="text-xl font-semibold mb-6">{currentQuestion.question}</h2>
+              <h2 className="text-xl font-semibold mb-6 text-gray-900">{currentQuestion.question}</h2>
               
               <div className="space-y-3">
                 {currentQuestion.options.map((option, index) => (
                   <Button
                     key={index}
                     variant="outline"
-                    className="w-full justify-start h-auto py-3 text-left hover:bg-violet-50"
+                    className="w-full justify-start h-auto py-3 text-left hover:bg-violet-50 text-gray-800"
                     onClick={() => handleAnswerQuestion(option)}
                   >
                     {option}
@@ -438,49 +575,62 @@ export function ExamReadinessAnalyzer({ onClose }: ExamReadinessAnalyzerProps) {
         
       case "results":
         return (
-          <div className="space-y-6">
+          <div className="space-y-6 bg-white p-6 rounded-lg shadow-sm">
             <div className="text-center mb-8">
-              <h2 className="text-2xl font-bold mb-2">Your Exam Readiness Score</h2>
+              <h2 className="text-2xl font-bold mb-2 text-gray-900">Your Exam Readiness Score</h2>
               <div className="w-36 h-36 mx-auto rounded-full border-4 border-violet-500 flex items-center justify-center mb-4">
-                <span className="text-4xl font-bold">{readinessScore}%</span>
+                <span className="text-4xl font-bold text-violet-600">{readinessScore}%</span>
               </div>
               
-              <p className="text-lg font-medium">
+              <p className="text-lg font-medium text-gray-800">
                 {readinessScore >= 80 ? "Excellent!" : 
                  readinessScore >= 60 ? "Good progress!" : "You need more practice"}
               </p>
             </div>
             
             <div className="grid md:grid-cols-2 gap-6">
-              <Card>
+              <Card className="bg-green-50 border-green-100">
                 <CardContent className="p-4">
                   <h3 className="font-semibold flex items-center text-green-600 mb-2">
                     <CheckCircle size={18} className="mr-2" /> Strengths
                   </h3>
-                  <p>{strength}</p>
+                  <p className="text-gray-800">{strength}</p>
                 </CardContent>
               </Card>
               
-              <Card>
+              <Card className="bg-red-50 border-red-100">
                 <CardContent className="p-4">
                   <h3 className="font-semibold flex items-center text-red-600 mb-2">
                     <AlertCircle size={18} className="mr-2" /> Areas for Improvement
                   </h3>
-                  <p>{weakness}</p>
+                  <p className="text-gray-800">{weakness}</p>
                 </CardContent>
               </Card>
             </div>
             
-            <div className="text-center bg-violet-50 border border-violet-100 rounded-lg p-6 mt-6">
-              <h3 className="text-xl font-semibold mb-2">Get your personalized study plan!</h3>
-              <p className="mb-4">Sign up now to receive a customized study plan that targets your weak areas and builds on your strengths.</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+              <div className="text-center bg-violet-50 border border-violet-100 rounded-lg p-6">
+                <h3 className="text-xl font-semibold mb-2 text-violet-700">Get your personalized study plan!</h3>
+                <p className="mb-4 text-gray-700">Sign up now for a customized study plan targeting your weak areas.</p>
+                <Button 
+                  onClick={handleSignUp}
+                  className="bg-gradient-to-r from-violet-600 to-purple-600 text-white"
+                >
+                  Create Free Account
+                </Button>
+              </div>
               
-              <Button 
-                onClick={handleSignUp}
-                className="bg-gradient-to-r from-violet-600 to-purple-600 text-white"
-              >
-                Create Free Account
-              </Button>
+              <div className="text-center bg-blue-50 border border-blue-100 rounded-lg p-6">
+                <h3 className="text-xl font-semibold mb-2 text-blue-700">Try another assessment</h3>
+                <p className="mb-4 text-gray-700">Check your readiness for a different exam or subject area.</p>
+                <Button 
+                  onClick={handleTryAnotherExam}
+                  variant="outline"
+                  className="border-blue-300 text-blue-700 hover:bg-blue-100"
+                >
+                  Start New Assessment
+                </Button>
+              </div>
             </div>
           </div>
         );
@@ -489,19 +639,21 @@ export function ExamReadinessAnalyzer({ onClose }: ExamReadinessAnalyzerProps) {
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-3xl max-h-[90vh] overflow-y-auto">
-        <div className="flex justify-between items-center">
-          <DialogTitle className="text-xl font-bold">Exam Readiness Analyzer</DialogTitle>
-          <Button variant="ghost" size="icon" onClick={onClose}>
+      <DialogContent className="sm:max-w-3xl max-h-[90vh] overflow-y-auto bg-white">
+        <div className="flex justify-between items-center border-b pb-4">
+          <DialogTitle className="text-xl font-bold text-gray-900">Exam Readiness Analyzer</DialogTitle>
+          <Button variant="ghost" size="icon" onClick={onClose} className="rounded-full">
             <X size={18} />
           </Button>
         </div>
         
-        <DialogDescription>
+        <DialogDescription className="text-gray-700">
           Take this quick assessment to discover your exam readiness level and get personalized recommendations.
         </DialogDescription>
         
-        {renderStepContent()}
+        <div className="bg-gray-50 p-6 rounded-lg">
+          {renderStepContent()}
+        </div>
       </DialogContent>
     </Dialog>
   );

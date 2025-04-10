@@ -9,7 +9,7 @@ import { useKpiTracking } from "@/hooks/useKpiTracking";
 import OnboardingFlow from "@/components/dashboard/student/OnboardingFlow";
 import DashboardLoading from "./student/DashboardLoading";
 import DashboardHeader from "./student/DashboardHeader";
-import DashboardContent from "./student/DashboardContent";
+import DashboardContent from "@/components/dashboard/student/DashboardContent";
 import { getFeatures, formatTime, formatDate } from "./student/StudentDashboardUtils";
 import StudyPlanDialog from "./student/StudyPlanDialog";
 import SidebarNavigation from "./student/SidebarNavigation";
@@ -75,8 +75,8 @@ const StudentDashboard = () => {
       localStorage.removeItem("needsOnboarding"); // Clear so it doesn't show again
     } else if (firstTimeUser && userProfile) {
       // If user was marked as first time but didn't go through onboarding
-      // (maybe refreshed or closed the page)
       setShowWelcomeTour(true);
+      localStorage.setItem("firstTimeUser", "false"); // Update this to prevent loop
     }
 
     return () => {
@@ -126,11 +126,11 @@ const StudentDashboard = () => {
     return <DashboardLoading />;
   }
 
-  if (showOnboarding && userProfile.goals?.[0]?.title) {
+  if (showOnboarding) {
     return (
       <OnboardingFlow 
         userProfile={userProfile} 
-        goalTitle={userProfile.goals[0].title}
+        goalTitle={userProfile.goals?.[0]?.title || "Complete your studies"}
         onComplete={handleCompleteOnboarding}
       />
     );
