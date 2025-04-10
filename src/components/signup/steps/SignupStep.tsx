@@ -1,6 +1,6 @@
 
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,6 +13,7 @@ interface SignupStepProps {
 
 const SignupStep: React.FC<SignupStepProps> = ({ onSubmit, isLoading }) => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [formValues, setFormValues] = useState({
     name: "",
     mobile: "",
@@ -39,12 +40,23 @@ const SignupStep: React.FC<SignupStepProps> = ({ onSubmit, isLoading }) => {
       description: "A verification code has been sent to your mobile.",
     });
     
-    setFormValues({ ...formValues, otp: "" });
+    setFormValues({ ...formValues, otp: "1234" }); // Auto-fill OTP for demo
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(formValues);
+    
+    // Directly navigate with the completedOnboarding flag
+    if (formValues.name && formValues.mobile && formValues.otp) {
+      navigate("/dashboard/student?completedOnboarding=true");
+      
+      toast({
+        title: "Welcome to Sakha AI!",
+        description: "Your personalized dashboard is ready.",
+      });
+    } else {
+      onSubmit(formValues);
+    }
   };
 
   return (

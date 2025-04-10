@@ -1,368 +1,797 @@
-import { useState } from "react";
-import { 
-  Chart, 
-  ChartData, 
-  ChartOptions, 
-  RadialLinearScale, 
-  PointElement, 
-  LineElement, 
-  Filler, 
-  Tooltip, 
-  Legend 
-} from "chart.js";
-import { Radar } from "react-chartjs-2";
-import { Button } from "@/components/ui/button";
-import { 
+
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from '@/components/ui/tabs';
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { X, ChevronRight, TrendingUp, TrendingDown } from "lucide-react";
+} from '@/components/ui/select';
+import { Progress } from '@/components/ui/progress';
+import { Badge } from '@/components/ui/badge';
+import { X, ChevronRight, ArrowRight, XCircle, Check, Clock, Target, Brain, AlertTriangle, ChevronLeft } from 'lucide-react';
 
-Chart.register(RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend);
-
-interface ReadinessData {
-  name: string;
-  categories: Array<{
-    name: string;
-    score: number;
-  }>;
-  overallScore: number;
-  strengths: Array<string>;
-  weaknesses: Array<string>;
-  improvements: Array<string>;
-}
-
-interface ExamReadinessAnalyzerProps {
-  onClose?: () => void;
-}
-
-export function ExamReadinessAnalyzer({ onClose }: ExamReadinessAnalyzerProps) {
-  const [selectedExam, setSelectedExam] = useState("jee");
-  const [showAnalysis, setShowAnalysis] = useState(false);
-  const [readinessData, setReadinessData] = useState<ReadinessData | null>(null);
-
-  const handleStartAssessment = () => {
-    // In a real app, this would be an actual assessment
-    // Here we just show the analysis after a brief delay
-    setTimeout(() => {
-      const exam = mockExams.find(e => e.id === selectedExam);
-      if (exam) {
-        setReadinessData(exam.data);
-        setShowAnalysis(true);
-      }
-    }, 1000);
-  };
-
-  const handleClose = () => {
-    setShowAnalysis(false);
-    setReadinessData(null);
-    if (onClose) {
-      onClose();
+export function ExamReadinessAnalyzer({ onClose }: { onClose: () => void }) {
+  const navigate = useNavigate();
+  const [currentTest, setCurrentTest] = useState<'intro' | 'stress' | 'readiness' | 'concept' | 'report'>('intro');
+  const [selectedExam, setSelectedExam] = useState<string>('');
+  const [progress, setProgress] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [testCompleted, setTestCompleted] = useState({
+    stress: false,
+    readiness: false,
+    concept: false
+  });
+  const [results, setResults] = useState({
+    stress: {
+      score: 0,
+      level: '',
+      analysis: '',
+      strengths: [] as string[],
+      improvements: [] as string[],
+    },
+    readiness: {
+      score: 0,
+      level: '',
+      analysis: '',
+      strengths: [] as string[],
+      improvements: [] as string[],
+    },
+    concept: {
+      score: 0,
+      level: '',
+      analysis: '',
+      strengths: [] as string[],
+      improvements: [] as string[],
+    },
+    overall: {
+      score: 0,
+      level: '',
+      analysis: '',
+      strengths: [] as string[],
+      improvements: [] as string[],
     }
+  });
+
+  const examTypes = [
+    { value: 'iit', label: 'IIT-JEE' },
+    { value: 'neet', label: 'NEET' },
+    { value: 'upsc', label: 'UPSC' },
+    { value: 'bank', label: 'Bank PO' },
+    { value: 'cat', label: 'MBA/CAT' },
+    { value: 'cuet', label: 'CUET' },
+    { value: 'clat', label: 'CLAT' },
+  ];
+
+  const handleStartTest = () => {
+    if (!selectedExam) return;
+    setCurrentTest('stress');
+    setProgress(10);
   };
 
-  const radarData: ChartData<"radar"> = {
-    labels: readinessData?.categories.map(cat => cat.name) || [],
-    datasets: [
-      {
-        label: readinessData?.name || "Exam Readiness",
-        data: readinessData?.categories.map(cat => cat.score) || [],
-        backgroundColor: "rgba(111, 66, 193, 0.2)",
-        borderColor: "rgba(111, 66, 193, 1)",
-        borderWidth: 2,
-        pointBackgroundColor: "rgba(111, 66, 193, 1)",
-        pointBorderColor: "#fff",
-        pointHoverBackgroundColor: "#fff",
-        pointHoverBorderColor: "rgba(111, 66, 193, 1)"
-      }
-    ]
-  };
-
-  const options: ChartOptions<"radar"> = {
-    scales: {
-      r: {
-        beginAtZero: true,
-        max: 100,
-        ticks: {
-          stepSize: 20
-        }
-      }
-    },
-    plugins: {
-      legend: {
-        display: false
-      }
-    },
-    elements: {
-      line: {
-        tension: 0.2
-      }
-    },
-    responsive: true,
-    maintainAspectRatio: false
-  };
-
-  return (
-    <div className="bg-gradient-to-br from-violet-50 to-indigo-50 dark:from-violet-900/20 dark:to-indigo-900/20 rounded-2xl p-8 shadow-lg border border-violet-100 dark:border-violet-900/30">
-      <div className="flex flex-col gap-6">
-        <div>
-          <h3 className="text-2xl font-bold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-violet-600 to-indigo-600">
-            Exam Readiness Analyzer
-          </h3>
-          <p className="text-gray-600 dark:text-gray-300">
-            Get a personalized analysis of your preparation level for competitive exams
-          </p>
-        </div>
+  const simulateStressTest = () => {
+    setLoading(true);
+    let progressCounter = 10;
+    const interval = setInterval(() => {
+      progressCounter += 5;
+      setProgress(progressCounter);
+      if (progressCounter >= 30) {
+        clearInterval(interval);
+        setLoading(false);
+        setTestCompleted(prev => ({ ...prev, stress: true }));
         
-        {!showAnalysis ? (
+        // Generate mock results
+        setResults(prev => ({
+          ...prev,
+          stress: {
+            score: Math.floor(Math.random() * 40) + 60,
+            level: 'Moderate',
+            analysis: 'You handle stress reasonably well, but there\'s room for improvement.',
+            strengths: ['Good focus under time constraints', 'Effective problem-solving'],
+            improvements: ['Work on reaction speed', 'Practice memory recall techniques'],
+          }
+        }));
+        
+        // Move to next test
+        setCurrentTest('readiness');
+      }
+    }, 300);
+  };
+
+  const simulateReadinessTest = () => {
+    setLoading(true);
+    let progressCounter = 30;
+    const interval = setInterval(() => {
+      progressCounter += 5;
+      setProgress(progressCounter);
+      if (progressCounter >= 60) {
+        clearInterval(interval);
+        setLoading(false);
+        setTestCompleted(prev => ({ ...prev, readiness: true }));
+        
+        // Generate mock results
+        setResults(prev => ({
+          ...prev,
+          readiness: {
+            score: Math.floor(Math.random() * 30) + 65,
+            level: 'Above Average',
+            analysis: 'Your preparation level is good, but some areas need attention.',
+            strengths: ['Strong content coverage', 'Consistent study habits'],
+            improvements: ['Increase practice test frequency', 'Focus more on weak topics'],
+          }
+        }));
+        
+        // Move to next test
+        setCurrentTest('concept');
+      }
+    }, 300);
+  };
+
+  const simulateConceptTest = () => {
+    setLoading(true);
+    let progressCounter = 60;
+    const interval = setInterval(() => {
+      progressCounter += 5;
+      setProgress(progressCounter);
+      if (progressCounter >= 100) {
+        clearInterval(interval);
+        setLoading(false);
+        setTestCompleted(prev => ({ ...prev, concept: true }));
+        
+        // Generate mock results
+        setResults(prev => ({
+          ...prev,
+          concept: {
+            score: Math.floor(Math.random() * 25) + 70,
+            level: 'Strong',
+            analysis: 'You have good concept mastery, with some confidence gaps.',
+            strengths: ['Strong theoretical understanding', 'Good application of concepts'],
+            improvements: ['Bridge the gap between knowledge and confidence', 'Practice more application questions'],
+          }
+        }));
+        
+        // Calculate overall results
+        const overallScore = Math.floor((results.stress.score + results.readiness.score + results.concept.score) / 3);
+        
+        setResults(prev => ({
+          ...prev,
+          overall: {
+            score: overallScore,
+            level: overallScore >= 80 ? 'Excellent' : overallScore >= 70 ? 'Good' : overallScore >= 60 ? 'Average' : 'Needs Improvement',
+            analysis: `Your overall preparation is ${overallScore >= 80 ? 'excellent' : overallScore >= 70 ? 'good' : overallScore >= 60 ? 'average' : 'below average'} for ${examTypes.find(e => e.value === selectedExam)?.label} preparation.`,
+            strengths: [
+              ...new Set([...prev.stress.strengths, ...prev.readiness.strengths, ...prev.concept.strengths].slice(0, 3))
+            ],
+            improvements: [
+              ...new Set([...prev.stress.improvements, ...prev.readiness.improvements, ...prev.concept.improvements].slice(0, 3))
+            ],
+          }
+        }));
+        
+        // Show report
+        setCurrentTest('report');
+      }
+    }, 300);
+  };
+
+  const renderTestContent = () => {
+    switch (currentTest) {
+      case 'intro':
+        return (
           <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="col-span-2">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Select your target exam
-                </label>
-                <Select value={selectedExam} onValueChange={setSelectedExam}>
-                  <SelectTrigger className="w-full bg-white dark:bg-gray-800">
-                    <SelectValue placeholder="Select an exam" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {mockExams.map((exam) => (
-                      <SelectItem key={exam.id} value={exam.id}>
-                        {exam.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div className="flex items-end">
-                <Button 
-                  onClick={handleStartAssessment}
-                  className="w-full bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white shadow-md"
-                >
-                  Start Assessment
-                </Button>
-              </div>
+            <div className="space-y-4">
+              <h3 className="text-lg font-medium">Select Your Target Exam</h3>
+              <Select value={selectedExam} onValueChange={setSelectedExam}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Choose exam type" />
+                </SelectTrigger>
+                <SelectContent>
+                  {examTypes.map(exam => (
+                    <SelectItem key={exam.value} value={exam.value}>
+                      {exam.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
-            
-            <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm rounded-xl p-6 border border-violet-100 dark:border-violet-900/30 shadow-sm">
-              <h4 className="text-lg font-medium mb-3">How it works</h4>
+
+            <div className="space-y-2">
+              <h3 className="text-lg font-medium">Test Components</h3>
               <ul className="space-y-3">
-                <li className="flex items-start gap-3">
-                  <div className="bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-300 p-1 rounded-full">
-                    <ChevronRight size={16} />
+                <li className="flex items-start gap-2">
+                  <Clock className="mt-0.5 text-blue-500 flex-shrink-0" size={18} />
+                  <div>
+                    <span className="font-medium">Stress Level Test</span>
+                    <p className="text-sm text-muted-foreground">Measures your cognitive performance under pressure</p>
                   </div>
-                  <span className="text-gray-700 dark:text-gray-300">
-                    Our AI analyzes your current preparation level across key areas
-                  </span>
                 </li>
-                <li className="flex items-start gap-3">
-                  <div className="bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-300 p-1 rounded-full">
-                    <ChevronRight size={16} />
+                <li className="flex items-start gap-2">
+                  <Target className="mt-0.5 text-violet-500 flex-shrink-0" size={18} />
+                  <div>
+                    <span className="font-medium">Readiness Score Test</span>
+                    <p className="text-sm text-muted-foreground">Evaluates your current preparation level</p>
                   </div>
-                  <span className="text-gray-700 dark:text-gray-300">
-                    Identifies your strengths and areas needing improvement
-                  </span>
                 </li>
-                <li className="flex items-start gap-3">
-                  <div className="bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-300 p-1 rounded-full">
-                    <ChevronRight size={16} />
+                <li className="flex items-start gap-2">
+                  <Brain className="mt-0.5 text-pink-500 flex-shrink-0" size={18} />
+                  <div>
+                    <span className="font-medium">Concept Mastery & Confidence Mapping</span>
+                    <p className="text-sm text-muted-foreground">Identifies gaps in knowledge and confidence</p>
                   </div>
-                  <span className="text-gray-700 dark:text-gray-300">
-                    Creates a personalized study plan to maximize your exam score
-                  </span>
                 </li>
               </ul>
             </div>
+
+            <p className="text-sm text-muted-foreground">
+              This test takes approximately 5-7 minutes to complete and provides personalized insights to boost your exam performance.
+            </p>
           </div>
-        ) : (
-          <div className="relative animate-fade-in">
-            <Button
-              variant="outline"
-              size="icon"
-              className="absolute top-0 right-0 z-10"
-              onClick={handleClose}
-            >
-              <X size={18} />
-            </Button>
+        );
+
+      case 'stress':
+        return (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-medium flex items-center">
+                <Clock className="mr-2 text-blue-500" size={20} />
+                Stress Level Test
+              </h3>
+              <Badge variant="outline" className="bg-blue-50">1 of 3</Badge>
+            </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="bg-white/80 dark:bg-gray-800/80 rounded-xl shadow-md border border-violet-100 dark:border-violet-900/30 p-6">
-                <h4 className="text-lg font-medium mb-3 text-center">
-                  {readinessData?.name} Readiness Profile
-                </h4>
-                <div className="h-[300px] w-full">
-                  <Radar data={radarData} options={options} />
+            <p className="text-sm">
+              This test measures your ability to perform under pressure through pattern recognition, reaction speed, and memory recall exercises.
+            </p>
+            
+            {!loading && !testCompleted.stress ? (
+              <div className="space-y-6">
+                <div className="bg-blue-50 p-4 rounded-md border border-blue-100">
+                  <h4 className="font-medium mb-2">Instructions:</h4>
+                  <ul className="list-disc pl-5 space-y-1 text-sm">
+                    <li>You'll face 8 pattern recognition challenges</li>
+                    <li>Each question has a 15-second time limit</li>
+                    <li>Try to maintain focus despite distractions</li>
+                    <li>Answer as quickly and accurately as possible</li>
+                  </ul>
                 </div>
-                <div className="text-center mt-4">
-                  <div className="text-sm text-gray-600 dark:text-gray-400">Overall Score</div>
-                  <div className="text-3xl font-bold text-violet-600 dark:text-violet-400">
-                    {readinessData?.overallScore}%
-                  </div>
-                </div>
-              </div>
-              
-              <div className="space-y-4">
-                <Card className="border-green-100 dark:border-green-900/30 shadow-md">
-                  <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 pb-3">
-                    <div className="flex items-center gap-2">
-                      <TrendingUp className="text-emerald-500" size={18} />
-                      <CardTitle className="text-lg text-emerald-700 dark:text-emerald-400">Strengths</CardTitle>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="pt-4">
-                    <ul className="space-y-2">
-                      {readinessData?.strengths.map((strength, index) => (
-                        <li key={index} className="flex items-start gap-2">
-                          <div className="bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 p-1 rounded-full mt-0.5">
-                            <ChevronRight size={12} />
-                          </div>
-                          <span className="text-sm">{strength}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </CardContent>
-                </Card>
-                
-                <Card className="border-red-100 dark:border-red-900/30 shadow-md">
-                  <CardHeader className="bg-gradient-to-r from-red-50 to-rose-50 dark:from-red-900/20 dark:to-rose-900/20 pb-3">
-                    <div className="flex items-center gap-2">
-                      <TrendingDown className="text-rose-500" size={18} />
-                      <CardTitle className="text-lg text-rose-700 dark:text-rose-400">Areas to Improve</CardTitle>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="pt-4">
-                    <ul className="space-y-2">
-                      {readinessData?.weaknesses.map((weakness, index) => (
-                        <li key={index} className="flex items-start gap-2">
-                          <div className="bg-rose-100 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 p-1 rounded-full mt-0.5">
-                            <ChevronRight size={12} />
-                          </div>
-                          <span className="text-sm">{weakness}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </CardContent>
-                </Card>
                 
                 <Button 
-                  className="w-full bg-gradient-to-r from-violet-600 to-indigo-600 text-white"
-                  onClick={handleClose}
+                  className="w-full bg-gradient-to-r from-blue-500 to-blue-600"
+                  onClick={simulateStressTest}
                 >
-                  Get Personalized Study Plan
+                  Begin Stress Test
                 </Button>
               </div>
+            ) : loading ? (
+              <div className="space-y-4">
+                <div className="h-40 bg-blue-50 rounded-md flex items-center justify-center">
+                  <div className="text-center">
+                    <Clock className="mx-auto mb-2 animate-pulse text-blue-500" size={40} />
+                    <p className="text-sm font-medium">Test in progress...</p>
+                  </div>
+                </div>
+                <Progress value={progress - 10} className="h-2" />
+                <p className="text-xs text-center text-muted-foreground">Please wait while we analyze your responses</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div className="bg-blue-50 p-4 rounded-md border border-blue-100">
+                  <div className="flex justify-between items-center">
+                    <h4 className="font-medium">Your Stress Level Score:</h4>
+                    <span className="text-lg font-bold">{results.stress.score}%</span>
+                  </div>
+                  <Progress value={results.stress.score} className="h-2 my-2" />
+                  <p className="text-sm">{results.stress.analysis}</p>
+                </div>
+              </div>
+            )}
+          </div>
+        );
+
+      case 'readiness':
+        return (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-medium flex items-center">
+                <Target className="mr-2 text-violet-500" size={20} />
+                Readiness Score Test
+              </h3>
+              <Badge variant="outline" className="bg-violet-50">2 of 3</Badge>
+            </div>
+            
+            <p className="text-sm">
+              This test evaluates your current preparation level by analyzing content coverage, practice effectiveness, and study commitment.
+            </p>
+            
+            {!loading && !testCompleted.readiness ? (
+              <div className="space-y-6">
+                <div className="bg-violet-50 p-4 rounded-md border border-violet-100">
+                  <h4 className="font-medium mb-2">Instructions:</h4>
+                  <ul className="list-disc pl-5 space-y-1 text-sm">
+                    <li>You'll answer 10 questions about your study habits</li>
+                    <li>Be honest about your preparation level</li>
+                    <li>Questions cover syllabus knowledge, practice, and time management</li>
+                    <li>Results will help create your personalized study plan</li>
+                  </ul>
+                </div>
+                
+                <Button 
+                  className="w-full bg-gradient-to-r from-violet-500 to-violet-600"
+                  onClick={simulateReadinessTest}
+                >
+                  Begin Readiness Test
+                </Button>
+              </div>
+            ) : loading ? (
+              <div className="space-y-4">
+                <div className="h-40 bg-violet-50 rounded-md flex items-center justify-center">
+                  <div className="text-center">
+                    <Target className="mx-auto mb-2 animate-pulse text-violet-500" size={40} />
+                    <p className="text-sm font-medium">Test in progress...</p>
+                  </div>
+                </div>
+                <Progress value={progress - 30} className="h-2" />
+                <p className="text-xs text-center text-muted-foreground">Please wait while we analyze your responses</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div className="bg-violet-50 p-4 rounded-md border border-violet-100">
+                  <div className="flex justify-between items-center">
+                    <h4 className="font-medium">Your Readiness Score:</h4>
+                    <span className="text-lg font-bold">{results.readiness.score}%</span>
+                  </div>
+                  <Progress value={results.readiness.score} className="h-2 my-2" />
+                  <p className="text-sm">{results.readiness.analysis}</p>
+                </div>
+                
+                <Button 
+                  className="w-full flex items-center justify-center gap-2"
+                  onClick={() => setCurrentTest('concept')}
+                >
+                  <span>Continue to Next Test</span>
+                  <ChevronRight size={16} />
+                </Button>
+              </div>
+            )}
+          </div>
+        );
+
+      case 'concept':
+        return (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-medium flex items-center">
+                <Brain className="mr-2 text-pink-500" size={20} />
+                Concept Mastery Test
+              </h3>
+              <Badge variant="outline" className="bg-pink-50">3 of 3</Badge>
+            </div>
+            
+            <p className="text-sm">
+              This test identifies gaps between your perceived knowledge and actual performance on key topics.
+            </p>
+            
+            {!loading && !testCompleted.concept ? (
+              <div className="space-y-6">
+                <div className="bg-pink-50 p-4 rounded-md border border-pink-100">
+                  <h4 className="font-medium mb-2">Instructions:</h4>
+                  <ul className="list-disc pl-5 space-y-1 text-sm">
+                    <li>Rate your confidence on key topics from the exam syllabus</li>
+                    <li>Answer 5 multiple-choice questions on each topic</li>
+                    <li>The test adapts to your responses</li>
+                    <li>We'll map your confidence against actual performance</li>
+                  </ul>
+                </div>
+                
+                <Button 
+                  className="w-full bg-gradient-to-r from-pink-500 to-pink-600"
+                  onClick={simulateConceptTest}
+                >
+                  Begin Concept Test
+                </Button>
+              </div>
+            ) : loading ? (
+              <div className="space-y-4">
+                <div className="h-40 bg-pink-50 rounded-md flex items-center justify-center">
+                  <div className="text-center">
+                    <Brain className="mx-auto mb-2 animate-pulse text-pink-500" size={40} />
+                    <p className="text-sm font-medium">Test in progress...</p>
+                  </div>
+                </div>
+                <Progress value={progress - 60} className="h-2" />
+                <p className="text-xs text-center text-muted-foreground">Please wait while we analyze your responses</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div className="bg-pink-50 p-4 rounded-md border border-pink-100">
+                  <div className="flex justify-between items-center">
+                    <h4 className="font-medium">Your Concept Mastery Score:</h4>
+                    <span className="text-lg font-bold">{results.concept.score}%</span>
+                  </div>
+                  <Progress value={results.concept.score} className="h-2 my-2" />
+                  <p className="text-sm">{results.concept.analysis}</p>
+                </div>
+              </div>
+            )}
+          </div>
+        );
+
+      case 'report':
+        return (
+          <div className="space-y-6">
+            <div>
+              <h3 className="text-lg font-medium">Your Comprehensive Analysis</h3>
+              <p className="text-sm text-muted-foreground">
+                Based on your performance across all three tests for {examTypes.find(e => e.value === selectedExam)?.label} preparation
+              </p>
+            </div>
+            
+            <div className="bg-gradient-to-r from-blue-50 to-violet-50 p-4 rounded-md border border-blue-100">
+              <div className="flex justify-between items-center">
+                <h4 className="font-medium">Overall Readiness Score:</h4>
+                <span className="text-lg font-bold">{results.overall.score}%</span>
+              </div>
+              <Progress value={results.overall.score} className="h-3 my-3 bg-white/50" />
+              <p className="text-sm font-medium">{results.overall.analysis}</p>
+            </div>
+            
+            <Tabs defaultValue="summary" className="w-full">
+              <TabsList className="grid grid-cols-4 w-full">
+                <TabsTrigger value="summary">Summary</TabsTrigger>
+                <TabsTrigger value="stress">Stress</TabsTrigger>
+                <TabsTrigger value="readiness">Readiness</TabsTrigger>
+                <TabsTrigger value="concept">Concept</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="summary" className="space-y-4 pt-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-green-50 p-3 rounded-md border border-green-100">
+                    <h5 className="font-medium flex items-center text-sm mb-2">
+                      <Check size={16} className="mr-1 text-green-500" />
+                      Key Strengths
+                    </h5>
+                    <ul className="space-y-1">
+                      {results.overall.strengths.map((strength, i) => (
+                        <li key={i} className="text-sm flex items-start gap-1">
+                          <span className="text-green-500 text-xs mt-0.5">●</span>
+                          <span>{strength}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  
+                  <div className="bg-amber-50 p-3 rounded-md border border-amber-100">
+                    <h5 className="font-medium flex items-center text-sm mb-2">
+                      <AlertTriangle size={16} className="mr-1 text-amber-500" />
+                      Areas to Improve
+                    </h5>
+                    <ul className="space-y-1">
+                      {results.overall.improvements.map((improvement, i) => (
+                        <li key={i} className="text-sm flex items-start gap-1">
+                          <span className="text-amber-500 text-xs mt-0.5">●</span>
+                          <span>{improvement}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+                
+                <div className="bg-gradient-to-r from-sky-500 to-violet-500 text-white p-4 rounded-md shadow-lg">
+                  <h5 className="font-medium mb-2">Get Your Detailed Improvement Plan</h5>
+                  <p className="text-sm text-white/90 mb-4">Sign up to receive a personalized study schedule and resources tailored to your needs.</p>
+                  <Button 
+                    className="bg-white text-violet-700 hover:bg-white/90 hover:text-violet-800 w-full"
+                    onClick={() => navigate('/signup')}
+                  >
+                    Create Free Account <ArrowRight size={16} className="ml-2" />
+                  </Button>
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="stress" className="pt-4">
+                <div className="space-y-4">
+                  <div className="bg-blue-50 p-4 rounded-md border border-blue-100">
+                    <h5 className="font-medium mb-2 flex items-center">
+                      <Clock size={18} className="mr-2 text-blue-500" />
+                      Stress Level Performance
+                    </h5>
+                    <div className="flex justify-between items-center mt-3">
+                      <span>Your Score:</span>
+                      <span className="font-bold">{results.stress.score}%</span>
+                    </div>
+                    <Progress value={results.stress.score} className="h-2 my-2" />
+                    <p className="text-sm mt-2">{results.stress.analysis}</p>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-green-50 p-3 rounded-md border border-green-100">
+                      <h5 className="font-medium flex items-center text-sm mb-2">
+                        <Check size={16} className="mr-1 text-green-500" />
+                        Strengths
+                      </h5>
+                      <ul className="space-y-1">
+                        {results.stress.strengths.map((strength, i) => (
+                          <li key={i} className="text-sm flex items-start gap-1">
+                            <span className="text-green-500 text-xs mt-0.5">●</span>
+                            <span>{strength}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                    
+                    <div className="bg-amber-50 p-3 rounded-md border border-amber-100">
+                      <h5 className="font-medium flex items-center text-sm mb-2">
+                        <AlertTriangle size={16} className="mr-1 text-amber-500" />
+                        To Improve
+                      </h5>
+                      <ul className="space-y-1">
+                        {results.stress.improvements.map((improvement, i) => (
+                          <li key={i} className="text-sm flex items-start gap-1">
+                            <span className="text-amber-500 text-xs mt-0.5">●</span>
+                            <span>{improvement}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="readiness" className="pt-4">
+                <div className="space-y-4">
+                  <div className="bg-violet-50 p-4 rounded-md border border-violet-100">
+                    <h5 className="font-medium mb-2 flex items-center">
+                      <Target size={18} className="mr-2 text-violet-500" />
+                      Exam Readiness
+                    </h5>
+                    <div className="flex justify-between items-center mt-3">
+                      <span>Your Score:</span>
+                      <span className="font-bold">{results.readiness.score}%</span>
+                    </div>
+                    <Progress value={results.readiness.score} className="h-2 my-2" />
+                    <p className="text-sm mt-2">{results.readiness.analysis}</p>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-green-50 p-3 rounded-md border border-green-100">
+                      <h5 className="font-medium flex items-center text-sm mb-2">
+                        <Check size={16} className="mr-1 text-green-500" />
+                        Strengths
+                      </h5>
+                      <ul className="space-y-1">
+                        {results.readiness.strengths.map((strength, i) => (
+                          <li key={i} className="text-sm flex items-start gap-1">
+                            <span className="text-green-500 text-xs mt-0.5">●</span>
+                            <span>{strength}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                    
+                    <div className="bg-amber-50 p-3 rounded-md border border-amber-100">
+                      <h5 className="font-medium flex items-center text-sm mb-2">
+                        <AlertTriangle size={16} className="mr-1 text-amber-500" />
+                        To Improve
+                      </h5>
+                      <ul className="space-y-1">
+                        {results.readiness.improvements.map((improvement, i) => (
+                          <li key={i} className="text-sm flex items-start gap-1">
+                            <span className="text-amber-500 text-xs mt-0.5">●</span>
+                            <span>{improvement}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="concept" className="pt-4">
+                <div className="space-y-4">
+                  <div className="bg-pink-50 p-4 rounded-md border border-pink-100">
+                    <h5 className="font-medium mb-2 flex items-center">
+                      <Brain size={18} className="mr-2 text-pink-500" />
+                      Concept Mastery
+                    </h5>
+                    <div className="flex justify-between items-center mt-3">
+                      <span>Your Score:</span>
+                      <span className="font-bold">{results.concept.score}%</span>
+                    </div>
+                    <Progress value={results.concept.score} className="h-2 my-2" />
+                    <p className="text-sm mt-2">{results.concept.analysis}</p>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-green-50 p-3 rounded-md border border-green-100">
+                      <h5 className="font-medium flex items-center text-sm mb-2">
+                        <Check size={16} className="mr-1 text-green-500" />
+                        Strengths
+                      </h5>
+                      <ul className="space-y-1">
+                        {results.concept.strengths.map((strength, i) => (
+                          <li key={i} className="text-sm flex items-start gap-1">
+                            <span className="text-green-500 text-xs mt-0.5">●</span>
+                            <span>{strength}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                    
+                    <div className="bg-amber-50 p-3 rounded-md border border-amber-100">
+                      <h5 className="font-medium flex items-center text-sm mb-2">
+                        <AlertTriangle size={16} className="mr-1 text-amber-500" />
+                        To Improve
+                      </h5>
+                      <ul className="space-y-1">
+                        {results.concept.improvements.map((improvement, i) => (
+                          <li key={i} className="text-sm flex items-start gap-1">
+                            <span className="text-amber-500 text-xs mt-0.5">●</span>
+                            <span>{improvement}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </TabsContent>
+            </Tabs>
+            
+            <div className="flex justify-between">
+              <Button 
+                variant="outline" 
+                onClick={() => {
+                  setCurrentTest('intro');
+                  setSelectedExam('');
+                  setTestCompleted({
+                    stress: false,
+                    readiness: false,
+                    concept: false
+                  });
+                  setProgress(0);
+                }}
+                className="flex items-center gap-2"
+              >
+                <ChevronLeft size={16} />
+                <span>Start Over</span>
+              </Button>
+              
+              <Button 
+                onClick={() => navigate('/signup')}
+                className="bg-gradient-to-r from-sky-500 to-violet-500"
+              >
+                Sign Up for Full Plan
+              </Button>
             </div>
           </div>
+        );
+        
+      default:
+        return null;
+    }
+  };
+
+  const handleNavigation = () => {
+    if (currentTest === 'stress') {
+      setCurrentTest('intro');
+      setProgress(0);
+    } else if (currentTest === 'readiness') {
+      setCurrentTest('stress');
+      setProgress(10);
+    } else if (currentTest === 'concept') {
+      setCurrentTest('readiness');
+      setProgress(30);
+    } else if (currentTest === 'report') {
+      setCurrentTest('concept');
+      setProgress(60);
+    }
+  };
+
+  const getDialogTitle = () => {
+    switch (currentTest) {
+      case 'intro':
+        return 'Exam Readiness Analyzer';
+      case 'stress':
+        return 'Stress Level Test';
+      case 'readiness':
+        return 'Exam Readiness Test';
+      case 'concept':
+        return 'Concept Mastery Test';
+      case 'report':
+        return 'Your Comprehensive Analysis';
+      default:
+        return 'Exam Readiness Analyzer';
+    }
+  };
+
+  return (
+    <Dialog open onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-md md:max-w-xl">
+        <div className="absolute right-4 top-4">
+          <Button variant="ghost" size="icon" onClick={onClose} className="h-6 w-6">
+            <XCircle className="h-4 w-4" />
+          </Button>
+        </div>
+        <DialogHeader>
+          <DialogTitle>{getDialogTitle()}</DialogTitle>
+          <DialogDescription>
+            {currentTest !== 'report' && 'Complete these tests to assess your preparation level.'}
+          </DialogDescription>
+        </DialogHeader>
+
+        {currentTest !== 'intro' && currentTest !== 'report' && (
+          <div className="w-full bg-gray-100 h-2 rounded-full mt-2">
+            <div 
+              className="h-full bg-gradient-to-r from-sky-500 to-violet-500 rounded-full transition-all duration-300"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
         )}
-      </div>
-    </div>
+        
+        <div className="py-4">
+          {renderTestContent()}
+        </div>
+        
+        {currentTest === 'intro' && (
+          <DialogFooter>
+            <Button 
+              variant="outline" 
+              onClick={onClose}
+              className="flex items-center gap-2"
+            >
+              <X size={16} />
+              <span>Cancel</span>
+            </Button>
+            <Button 
+              onClick={handleStartTest} 
+              disabled={!selectedExam}
+              className="bg-gradient-to-r from-sky-500 to-violet-500"
+            >
+              <span>Start Assessment</span>
+              <ChevronRight size={16} className="ml-2" />
+            </Button>
+          </DialogFooter>
+        )}
+        
+        {(currentTest === 'stress' || currentTest === 'readiness' || currentTest === 'concept') && !loading && testCompleted[currentTest] && (
+          <DialogFooter>
+            <Button 
+              variant="outline" 
+              onClick={handleNavigation}
+              className="flex items-center gap-2"
+            >
+              <ChevronLeft size={16} />
+              <span>Previous</span>
+            </Button>
+            <Button 
+              onClick={currentTest === 'stress' ? simulateReadinessTest : 
+                      currentTest === 'readiness' ? simulateConceptTest :
+                      () => setCurrentTest('report')}
+              className="bg-gradient-to-r from-sky-500 to-violet-500"
+            >
+              <span>Continue</span>
+              <ChevronRight size={16} className="ml-2" />
+            </Button>
+          </DialogFooter>
+        )}
+      </DialogContent>
+    </Dialog>
   );
 }
-
-const mockExams = [
-  {
-    id: "jee",
-    name: "IIT-JEE",
-    data: {
-      name: "IIT-JEE",
-      categories: [
-        { name: "Math Proficiency", score: 75 },
-        { name: "Physics Concepts", score: 82 },
-        { name: "Chemistry Knowledge", score: 65 },
-        { name: "Problem Solving", score: 78 },
-        { name: "Time Management", score: 60 },
-        { name: "Revision Strategy", score: 71 },
-      ],
-      overallScore: 72,
-      strengths: [
-        "Strong grasp of Physics mechanics and electromagnetism",
-        "Excellent at geometry and calculus problems",
-        "Good at formula application and derivations"
-      ],
-      weaknesses: [
-        "Organic chemistry concepts need strengthening",
-        "Time management during complex problem solving", 
-        "Thermodynamics and electrochemistry require attention"
-      ],
-      improvements: [
-        "Focus on solving more organic chemistry problems",
-        "Practice timed mock tests to improve speed",
-        "Review thermodynamics and electrochemistry concepts"
-      ]
-    }
-  },
-  {
-    id: "neet",
-    name: "NEET",
-    data: {
-      name: "NEET",
-      categories: [
-        { name: "Biology Concepts", score: 85 },
-        { name: "Chemistry Knowledge", score: 72 },
-        { name: "Physics Understanding", score: 68 },
-        { name: "Memorization", score: 80 },
-        { name: "Application Skills", score: 75 },
-        { name: "Exam Strategy", score: 65 },
-      ],
-      overallScore: 74,
-      strengths: [
-        "Excellent knowledge of human physiology and anatomy",
-        "Strong understanding of cellular biology concepts",
-        "Good grasp of organic chemistry mechanisms"
-      ],
-      weaknesses: [
-        "Physics numerical problems need more practice",
-        "Plant biology concepts require strengthening",
-        "Need to improve on connecting theoretical knowledge to applications"
-      ],
-      improvements: [
-        "Focus on solving more physics numerical problems",
-        "Review plant biology chapters thoroughly",
-        "Practice more application-based questions"
-      ]
-    }
-  },
-  {
-    id: "upsc",
-    name: "UPSC",
-    data: {
-      name: "UPSC",
-      categories: [
-        { name: "General Knowledge", score: 79 },
-        { name: "Current Affairs", score: 82 },
-        { name: "Essay Writing", score: 75 },
-        { name: "History & Culture", score: 68 },
-        { name: "Economics & Polity", score: 72 },
-        { name: "Answer Presentation", score: 65 },
-      ],
-      overallScore: 73,
-      strengths: [
-        "Strong understanding of current national and international affairs",
-        "Good analytical skills and logical reasoning",
-        "Effective essay structuring and articulation"
-      ],
-      weaknesses: [
-        "Ancient and medieval history concepts need strengthening",
-        "Economic theories and applications require more depth",
-        "Answer presentation needs to be more concise and focused"
-      ],
-      improvements: [
-        "Study ancient and medieval history topics in more depth",
-        "Practice applying economic theories to current scenarios",
-        "Work on answer writing technique to be more precise"
-      ]
-    }
-  }
-];

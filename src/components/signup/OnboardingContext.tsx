@@ -36,6 +36,7 @@ export interface OnboardingData {
   focusDuration?: string;
   studyPreference?: string;
   interests?: string[];
+  completedOnboarding?: boolean;
 }
 
 interface OnboardingContextType {

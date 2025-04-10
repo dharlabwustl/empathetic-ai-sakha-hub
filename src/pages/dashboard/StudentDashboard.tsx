@@ -14,7 +14,7 @@ import DashboardContent from "./student/DashboardContent";
 import { getFeatures, formatTime, formatDate } from "./student/StudentDashboardUtils";
 import StudyPlanDialog from "./student/StudyPlanDialog";
 import { Button } from "@/components/ui/button";
-import { Eye } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const StudentDashboard = () => {
   const { toast } = useToast();
@@ -28,6 +28,7 @@ const StudentDashboard = () => {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [showStudyPlan, setShowStudyPlan] = useState(false);
+  const [hideSidebar, setHideSidebar] = useState(false);
 
   // Get features data
   const features = getFeatures();
@@ -64,6 +65,18 @@ const StudentDashboard = () => {
     };
   }, [toast, userProfile]);
 
+  // Check for completed onboarding from URL
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const completedOnboarding = urlParams.get('completedOnboarding');
+    
+    if (completedOnboarding === 'true') {
+      setShowWelcomeTour(true);
+      // Clean the URL to remove the query param
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, []);
+
   const handleTabChange = (newTab: string) => {
     setActiveTab(newTab);
     navigate(`/dashboard/student/${newTab}`);
@@ -79,6 +92,7 @@ const StudentDashboard = () => {
 
   const handleCompleteOnboarding = () => {
     setShowOnboarding(false);
+    setShowWelcomeTour(true);
   };
   
   const handleViewStudyPlan = () => {
@@ -87,6 +101,10 @@ const StudentDashboard = () => {
   
   const handleCloseStudyPlan = () => {
     setShowStudyPlan(false);
+  };
+
+  const toggleSidebar = () => {
+    setHideSidebar(!hideSidebar);
   };
   
   // Format current time and date
@@ -111,7 +129,17 @@ const StudentDashboard = () => {
     <div className="min-h-screen bg-gradient-to-br from-sky-100/10 via-white to-violet-100/10 dark:from-sky-900/10 dark:via-gray-900 dark:to-violet-900/10">
       <SidebarNav userType="student" userName={userProfile.name} />
       
-      <main className="md:ml-64 p-6 pb-20 md:pb-6">
+      <main className={`transition-all duration-300 ${hideSidebar ? 'md:ml-0' : 'md:ml-64'} p-6 pb-20 md:pb-6`}>
+        {/* Toggle sidebar button */}
+        <Button
+          variant="outline"
+          size="icon"
+          className="fixed top-4 left-20 z-40 hidden md:flex bg-white shadow-md hover:bg-gray-100"
+          onClick={toggleSidebar}
+        >
+          {hideSidebar ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
+        </Button>
+        
         {/* Top header section */}
         <DashboardHeader 
           userProfile={userProfile}
@@ -123,10 +151,12 @@ const StudentDashboard = () => {
         {/* Main dashboard content area */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Left navigation sidebar (desktop) */}
-          <SidebarNavigation 
-            activeTab={activeTab} 
-            onTabChange={handleTabChange} 
-          />
+          {!hideSidebar && (
+            <SidebarNavigation 
+              activeTab={activeTab} 
+              onTabChange={handleTabChange} 
+            />
+          )}
           
           {/* Main content area */}
           <DashboardContent
