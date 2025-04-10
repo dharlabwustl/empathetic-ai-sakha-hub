@@ -1,5 +1,5 @@
 
-import { ReactNode } from "react";
+import React, { ReactNode } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   Lightbulb, 
@@ -17,23 +17,18 @@ import {
   Bell
 } from "lucide-react";
 
-interface TabContent {
-  id: string;
-  label: string;
-  icon: ReactNode;
-  content: ReactNode;
-}
-
 interface DashboardTabsProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
   tabContents: Record<string, ReactNode>;
+  hideTabsNav?: boolean;
 }
 
 export default function DashboardTabs({
   activeTab,
   onTabChange,
-  tabContents
+  tabContents,
+  hideTabsNav = false
 }: DashboardTabsProps) {
   const tabs = [
     { id: "overview", label: "Overview", icon: <Lightbulb size={16} /> },
@@ -54,18 +49,20 @@ export default function DashboardTabs({
 
   return (
     <Tabs value={activeTab} onValueChange={onTabChange} className="space-y-6">
-      <TabsList className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-7 gap-2">
-        {tabs.map(tab => (
-          <TabsTrigger 
-            key={tab.id} 
-            value={tab.id} 
-            className="flex items-center gap-2"
-          >
-            {tab.icon}
-            <span>{tab.label}</span>
-          </TabsTrigger>
-        ))}
-      </TabsList>
+      {!hideTabsNav && (
+        <TabsList className="tab-scrollbar grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-7 gap-2">
+          {tabs.map(tab => (
+            <TabsTrigger 
+              key={tab.id} 
+              value={tab.id} 
+              className="flex items-center gap-2"
+            >
+              {tab.icon}
+              <span>{tab.label}</span>
+            </TabsTrigger>
+          ))}
+        </TabsList>
+      )}
       
       <TabsContent value={activeTab} className="focus-visible:outline-none focus-visible:ring-0">
         {tabContents[activeTab] || <div>Coming soon...</div>}
