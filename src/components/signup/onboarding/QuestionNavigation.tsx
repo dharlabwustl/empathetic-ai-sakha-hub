@@ -1,6 +1,7 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
+import { X, ChevronRight, ChevronLeft } from "lucide-react";
 
 interface QuestionNavigationProps {
   isFirstStep: boolean;
@@ -9,6 +10,8 @@ interface QuestionNavigationProps {
   isLoading: boolean;
   onPrevious: () => void;
   onNext: () => void;
+  onClose?: () => void;
+  showCloseButton?: boolean;
 }
 
 const QuestionNavigation: React.FC<QuestionNavigationProps> = ({
@@ -18,23 +21,39 @@ const QuestionNavigation: React.FC<QuestionNavigationProps> = ({
   isLoading,
   onPrevious,
   onNext,
+  onClose,
+  showCloseButton = false,
 }) => {
   return (
     <div className="flex justify-between">
-      <Button 
-        variant="outline" 
-        onClick={onPrevious} 
-        disabled={isFirstStep}
-      >
-        Back
-      </Button>
+      {showCloseButton ? (
+        <Button 
+          variant="outline" 
+          onClick={onClose} 
+          className="flex items-center gap-2 border-2 border-gray-200 dark:border-gray-700"
+        >
+          <X size={16} />
+          <span>Cancel</span>
+        </Button>
+      ) : (
+        <Button 
+          variant="outline" 
+          onClick={onPrevious} 
+          disabled={isFirstStep}
+          className="flex items-center gap-2"
+        >
+          <ChevronLeft size={16} />
+          <span>Back</span>
+        </Button>
+      )}
       
       <Button 
         onClick={onNext} 
         disabled={!isAnswered || isLoading}
-        className="bg-gradient-to-r from-sky-500 to-violet-500"
+        className="bg-gradient-to-r from-sky-500 to-violet-500 flex items-center gap-2"
       >
-        {isLoading ? "Processing..." : isLastStep ? "Complete" : "Next"}
+        <span>{isLoading ? "Processing..." : isLastStep ? "Complete" : "Next"}</span>
+        <ChevronRight size={16} />
       </Button>
     </div>
   );

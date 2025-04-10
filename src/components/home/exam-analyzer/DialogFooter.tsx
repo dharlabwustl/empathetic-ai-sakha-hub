@@ -22,6 +22,7 @@ const DialogFooterButtons: React.FC<DialogFooterButtonsProps> = ({
   handleStartTest,
   handleNavigation
 }) => {
+  // For intro screen - cancel and start assessment buttons
   if (currentTest === 'intro') {
     return (
       <DialogFooter className="space-x-2 pt-4">
@@ -36,7 +37,7 @@ const DialogFooterButtons: React.FC<DialogFooterButtonsProps> = ({
         <Button 
           onClick={handleStartTest} 
           disabled={!selectedExam}
-          className="bg-gradient-to-r from-sky-500 to-violet-500 hover:from-sky-600 hover:to-violet-600 transition-all duration-300 shadow-md hover:shadow-lg px-6 py-2 text-white"
+          className="bg-gradient-to-r from-sky-500 to-violet-500 hover:from-sky-600 hover:to-violet-600 transition-all duration-300 shadow-md hover:shadow-lg px-6 py-2 text-white flex items-center"
         >
           <span>Start Assessment</span>
           <ChevronRight size={16} className="ml-2" />
@@ -45,6 +46,7 @@ const DialogFooterButtons: React.FC<DialogFooterButtonsProps> = ({
     );
   }
   
+  // For test screens that have been completed
   if ((currentTest === 'stress' || currentTest === 'readiness' || currentTest === 'concept') && testCompleted[currentTest]) {
     return (
       <DialogFooter className="space-x-2 pt-4">
@@ -58,7 +60,7 @@ const DialogFooterButtons: React.FC<DialogFooterButtonsProps> = ({
         </Button>
         <Button 
           onClick={() => handleNavigation('next')}
-          className="bg-gradient-to-r from-sky-500 to-violet-500 hover:from-sky-600 hover:to-violet-600 transition-all duration-300 shadow-md hover:shadow-lg px-6"
+          className="bg-gradient-to-r from-sky-500 to-violet-500 hover:from-sky-600 hover:to-violet-600 transition-all duration-300 shadow-md hover:shadow-lg px-6 flex items-center"
         >
           <span>Continue</span>
           <ChevronRight size={16} className="ml-2" />
@@ -66,7 +68,31 @@ const DialogFooterButtons: React.FC<DialogFooterButtonsProps> = ({
       </DialogFooter>
     );
   }
+  
+  // For in-progress test screens
+  if (currentTest === 'stress' || currentTest === 'readiness' || currentTest === 'concept') {
+    return (
+      <DialogFooter className="space-x-2 pt-4">
+        <Button 
+          variant="outline" 
+          onClick={() => handleNavigation('prev')}
+          className="flex items-center gap-2 border-2 border-gray-200 dark:border-gray-700"
+        >
+          <ChevronLeft size={16} />
+          <span>Back</span>
+        </Button>
+        <Button 
+          disabled={true}
+          className="bg-gradient-to-r from-sky-500/50 to-violet-500/50 flex items-center cursor-not-allowed"
+        >
+          <span>Complete Test to Continue</span>
+          <ChevronRight size={16} className="ml-2" />
+        </Button>
+      </DialogFooter>
+    );
+  }
 
+  // For final report screen
   if (currentTest === 'report') {
     return (
       <DialogFooter className="space-x-2 pt-4">
@@ -80,7 +106,7 @@ const DialogFooterButtons: React.FC<DialogFooterButtonsProps> = ({
         </Button>
         <Button 
           onClick={onClose}
-          className="bg-gradient-to-r from-sky-500 to-violet-500 hover:from-sky-600 hover:to-violet-600 transition-all duration-300 shadow-md hover:shadow-lg px-6"
+          className="bg-gradient-to-r from-sky-500 to-violet-500 hover:from-sky-600 hover:to-violet-600 transition-all duration-300 shadow-md hover:shadow-lg px-6 flex items-center"
         >
           <span>Finish</span>
           <X size={16} className="ml-2" />

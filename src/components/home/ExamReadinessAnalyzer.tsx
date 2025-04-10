@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -159,6 +158,7 @@ export function ExamReadinessAnalyzer({ onClose }: { onClose: () => void }) {
     }));
     
     setCurrentTest('report');
+    setProgress(100);
   };
 
   const handleNavigation = (direction: 'prev' | 'next') => {
