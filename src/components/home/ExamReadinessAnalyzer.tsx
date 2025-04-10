@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { 
   Chart, 
@@ -44,103 +43,11 @@ interface ReadinessData {
   improvements: Array<string>;
 }
 
-const mockExams = [
-  {
-    id: "jee",
-    name: "IIT-JEE",
-    data: {
-      name: "IIT-JEE",
-      categories: [
-        { name: "Math Proficiency", score: 75 },
-        { name: "Physics Concepts", score: 82 },
-        { name: "Chemistry Knowledge", score: 65 },
-        { name: "Problem Solving", score: 78 },
-        { name: "Time Management", score: 60 },
-        { name: "Revision Strategy", score: 71 },
-      ],
-      overallScore: 72,
-      strengths: [
-        "Strong grasp of Physics mechanics and electromagnetism",
-        "Excellent at geometry and calculus problems",
-        "Good at formula application and derivations"
-      ],
-      weaknesses: [
-        "Organic chemistry concepts need strengthening",
-        "Time management during complex problem solving", 
-        "Thermodynamics and electrochemistry require attention"
-      ],
-      improvements: [
-        "Focus on solving more organic chemistry problems",
-        "Practice timed mock tests to improve speed",
-        "Review thermodynamics and electrochemistry concepts"
-      ]
-    }
-  },
-  {
-    id: "neet",
-    name: "NEET",
-    data: {
-      name: "NEET",
-      categories: [
-        { name: "Biology Concepts", score: 85 },
-        { name: "Chemistry Knowledge", score: 72 },
-        { name: "Physics Understanding", score: 68 },
-        { name: "Memorization", score: 80 },
-        { name: "Application Skills", score: 75 },
-        { name: "Exam Strategy", score: 65 },
-      ],
-      overallScore: 74,
-      strengths: [
-        "Excellent knowledge of human physiology and anatomy",
-        "Strong understanding of cellular biology concepts",
-        "Good grasp of organic chemistry mechanisms"
-      ],
-      weaknesses: [
-        "Physics numerical problems need more practice",
-        "Plant biology concepts require strengthening",
-        "Need to improve on connecting theoretical knowledge to applications"
-      ],
-      improvements: [
-        "Focus on solving more physics numerical problems",
-        "Review plant biology chapters thoroughly",
-        "Practice more application-based questions"
-      ]
-    }
-  },
-  {
-    id: "upsc",
-    name: "UPSC",
-    data: {
-      name: "UPSC",
-      categories: [
-        { name: "General Knowledge", score: 79 },
-        { name: "Current Affairs", score: 82 },
-        { name: "Essay Writing", score: 75 },
-        { name: "History & Culture", score: 68 },
-        { name: "Economics & Polity", score: 72 },
-        { name: "Answer Presentation", score: 65 },
-      ],
-      overallScore: 73,
-      strengths: [
-        "Strong understanding of current national and international affairs",
-        "Good analytical skills and logical reasoning",
-        "Effective essay structuring and articulation"
-      ],
-      weaknesses: [
-        "Ancient and medieval history concepts need strengthening",
-        "Economic theories and applications require more depth",
-        "Answer presentation needs to be more concise and focused"
-      ],
-      improvements: [
-        "Study ancient and medieval history topics in more depth",
-        "Practice applying economic theories to current scenarios",
-        "Work on answer writing technique to be more precise"
-      ]
-    }
-  }
-];
+interface ExamReadinessAnalyzerProps {
+  onClose?: () => void;
+}
 
-export function ExamReadinessAnalyzer() {
+export function ExamReadinessAnalyzer({ onClose }: ExamReadinessAnalyzerProps) {
   const [selectedExam, setSelectedExam] = useState("jee");
   const [showAnalysis, setShowAnalysis] = useState(false);
   const [readinessData, setReadinessData] = useState<ReadinessData | null>(null);
@@ -160,6 +67,9 @@ export function ExamReadinessAnalyzer() {
   const handleClose = () => {
     setShowAnalysis(false);
     setReadinessData(null);
+    if (onClose) {
+      onClose();
+    }
   };
 
   const radarData: ChartData<"radar"> = {
@@ -360,3 +270,99 @@ export function ExamReadinessAnalyzer() {
     </div>
   );
 }
+
+const mockExams = [
+  {
+    id: "jee",
+    name: "IIT-JEE",
+    data: {
+      name: "IIT-JEE",
+      categories: [
+        { name: "Math Proficiency", score: 75 },
+        { name: "Physics Concepts", score: 82 },
+        { name: "Chemistry Knowledge", score: 65 },
+        { name: "Problem Solving", score: 78 },
+        { name: "Time Management", score: 60 },
+        { name: "Revision Strategy", score: 71 },
+      ],
+      overallScore: 72,
+      strengths: [
+        "Strong grasp of Physics mechanics and electromagnetism",
+        "Excellent at geometry and calculus problems",
+        "Good at formula application and derivations"
+      ],
+      weaknesses: [
+        "Organic chemistry concepts need strengthening",
+        "Time management during complex problem solving", 
+        "Thermodynamics and electrochemistry require attention"
+      ],
+      improvements: [
+        "Focus on solving more organic chemistry problems",
+        "Practice timed mock tests to improve speed",
+        "Review thermodynamics and electrochemistry concepts"
+      ]
+    }
+  },
+  {
+    id: "neet",
+    name: "NEET",
+    data: {
+      name: "NEET",
+      categories: [
+        { name: "Biology Concepts", score: 85 },
+        { name: "Chemistry Knowledge", score: 72 },
+        { name: "Physics Understanding", score: 68 },
+        { name: "Memorization", score: 80 },
+        { name: "Application Skills", score: 75 },
+        { name: "Exam Strategy", score: 65 },
+      ],
+      overallScore: 74,
+      strengths: [
+        "Excellent knowledge of human physiology and anatomy",
+        "Strong understanding of cellular biology concepts",
+        "Good grasp of organic chemistry mechanisms"
+      ],
+      weaknesses: [
+        "Physics numerical problems need more practice",
+        "Plant biology concepts require strengthening",
+        "Need to improve on connecting theoretical knowledge to applications"
+      ],
+      improvements: [
+        "Focus on solving more physics numerical problems",
+        "Review plant biology chapters thoroughly",
+        "Practice more application-based questions"
+      ]
+    }
+  },
+  {
+    id: "upsc",
+    name: "UPSC",
+    data: {
+      name: "UPSC",
+      categories: [
+        { name: "General Knowledge", score: 79 },
+        { name: "Current Affairs", score: 82 },
+        { name: "Essay Writing", score: 75 },
+        { name: "History & Culture", score: 68 },
+        { name: "Economics & Polity", score: 72 },
+        { name: "Answer Presentation", score: 65 },
+      ],
+      overallScore: 73,
+      strengths: [
+        "Strong understanding of current national and international affairs",
+        "Good analytical skills and logical reasoning",
+        "Effective essay structuring and articulation"
+      ],
+      weaknesses: [
+        "Ancient and medieval history concepts need strengthening",
+        "Economic theories and applications require more depth",
+        "Answer presentation needs to be more concise and focused"
+      ],
+      improvements: [
+        "Study ancient and medieval history topics in more depth",
+        "Practice applying economic theories to current scenarios",
+        "Work on answer writing technique to be more precise"
+      ]
+    }
+  }
+];
