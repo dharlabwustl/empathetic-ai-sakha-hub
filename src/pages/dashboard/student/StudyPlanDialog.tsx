@@ -15,7 +15,7 @@ import { Badge } from '@/components/ui/badge';
 import { useStudyProgress } from '@/hooks/useStudyProgress';
 import { UserProfileType } from '@/types/user';
 
-// Extended subject progress interface to add missing properties
+// Extended types to fix TypeScript errors
 interface ExtendedSubjectProgress {
   id: string;
   name: string;
@@ -23,6 +23,12 @@ interface ExtendedSubjectProgress {
   totalTopics: number;
   completedTopics: number;
   expectedMastery: string;
+}
+
+interface ExtendedStudyStreak {
+  current: number;
+  longest: number;
+  lastUpdated: Date;
 }
 
 interface StudyPlanDialogProps {
@@ -34,6 +40,13 @@ const StudyPlanDialog = ({ userProfile, onClose }: StudyPlanDialogProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const { subjects, studyStreak } = useStudyProgress();
   const [activeTab, setActiveTab] = useState('overview');
+
+  // Extended study streak to fix TypeScript errors
+  const extendedStreak: ExtendedStudyStreak = {
+    current: studyStreak?.current || 7,
+    longest: studyStreak?.longest || 14,
+    lastUpdated: studyStreak?.lastUpdated || new Date()
+  };
 
   // Add missing properties to subjects
   const extendedSubjects = subjects.map(subject => ({
@@ -53,9 +66,9 @@ const StudyPlanDialog = ({ userProfile, onClose }: StudyPlanDialogProps) => {
   });
 
   // Default values for missing user profile properties
-  const personality = userProfile.personalityType || "Strategic Thinker";
-  const focusDuration = "45 minutes with 15-minute breaks";
-  const studyPreference = "Visual learning with practical applications";
+  const personalityType = userProfile.personalityType || "Strategic Thinker";
+  const focusDuration = userProfile.focusDuration || "45 minutes with 15-minute breaks";
+  const studyPreference = userProfile.studyPreference || "Visual learning with practical applications";
   
   return (
     <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
@@ -117,7 +130,7 @@ const StudyPlanDialog = ({ userProfile, onClose }: StudyPlanDialogProps) => {
                     <div className="flex flex-col gap-3">
                       <div>
                         <h4 className="text-sm font-medium text-muted-foreground">Personality Type</h4>
-                        <p className="font-medium">{personality}</p>
+                        <p className="font-medium">{personalityType}</p>
                       </div>
                       <div>
                         <h4 className="text-sm font-medium text-muted-foreground">Focus Duration</h4>
@@ -150,8 +163,8 @@ const StudyPlanDialog = ({ userProfile, onClose }: StudyPlanDialogProps) => {
                 <div className="bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 rounded-xl p-5 border border-emerald-100 dark:border-gray-700 shadow-sm flex flex-col items-center justify-center text-center">
                   <BadgeCheck className="text-emerald-500 mb-2" size={28} />
                   <h3 className="text-lg font-semibold">Study Streak</h3>
-                  <p className="text-2xl font-bold mt-1">{studyStreak?.current || 7} days</p>
-                  <p className="text-sm text-muted-foreground mt-1">Longest: {studyStreak?.longest || 14} days</p>
+                  <p className="text-2xl font-bold mt-1">{extendedStreak.current} days</p>
+                  <p className="text-sm text-muted-foreground mt-1">Longest: {extendedStreak.longest} days</p>
                 </div>
               </div>
             </TabsContent>

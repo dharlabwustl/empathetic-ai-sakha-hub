@@ -208,166 +208,189 @@ export function ExamReadinessAnalyzer({ onClose }: { onClose?: () => void }) {
   };
 
   return (
-    <div className="bg-gradient-to-br from-violet-50 to-indigo-50 dark:from-violet-900/20 dark:to-indigo-900/20 rounded-2xl p-8 shadow-lg border border-violet-100 dark:border-violet-900/30 relative">
-      {/* Add close button at top right */}
-      <button 
-        onClick={handleClose}
-        className="absolute top-4 right-4 p-1 rounded-full bg-white/80 dark:bg-gray-800/80 hover:bg-white dark:hover:bg-gray-700 transition-colors"
-      >
-        <X className="h-5 w-5 text-gray-600 dark:text-gray-300" />
-      </button>
-      
-      <div className="flex flex-col gap-6">
-        <div>
-          <h3 className="text-2xl font-bold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-violet-600 to-indigo-600">
-            Exam Readiness Analyzer
-          </h3>
-          <p className="text-gray-600 dark:text-gray-300">
-            Get a personalized analysis of your preparation level for competitive exams
-          </p>
-        </div>
+    <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+      <div className="bg-gradient-to-br from-violet-50 to-indigo-50 dark:from-violet-900/20 dark:to-indigo-900/20 rounded-2xl p-8 shadow-lg border border-violet-100 dark:border-violet-900/30 relative max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+        {/* Close button on top right */}
+        <button 
+          onClick={handleClose}
+          className="absolute top-4 right-4 p-1 rounded-full bg-white/80 dark:bg-gray-800/80 hover:bg-white dark:hover:bg-gray-700 transition-colors"
+        >
+          <X className="h-5 w-5 text-gray-600 dark:text-gray-300" />
+        </button>
         
-        {!showAnalysis ? (
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="col-span-2">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Select your target exam
-                </label>
-                <Select value={selectedExam} onValueChange={setSelectedExam}>
-                  <SelectTrigger className="w-full bg-white dark:bg-gray-800">
-                    <SelectValue placeholder="Select an exam" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {mockExams.map((exam) => (
-                      <SelectItem key={exam.id} value={exam.id}>
-                        {exam.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div className="flex items-end">
-                <Button 
-                  onClick={handleStartAssessment}
-                  className="w-full bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white shadow-md"
-                >
-                  Start Assessment
-                </Button>
-              </div>
-            </div>
-            
-            <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm rounded-xl p-6 border border-violet-100 dark:border-violet-900/30 shadow-sm">
-              <h4 className="text-lg font-medium mb-3">How it works</h4>
-              <ul className="space-y-3">
-                <li className="flex items-start gap-3">
-                  <div className="bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-300 p-1 rounded-full">
-                    <ChevronRight size={16} />
-                  </div>
-                  <span className="text-gray-700 dark:text-gray-300">
-                    Our AI analyzes your current preparation level across key areas
-                  </span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <div className="bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-300 p-1 rounded-full">
-                    <ChevronRight size={16} />
-                  </div>
-                  <span className="text-gray-700 dark:text-gray-300">
-                    Identifies your strengths and areas needing improvement
-                  </span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <div className="bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-300 p-1 rounded-full">
-                    <ChevronRight size={16} />
-                  </div>
-                  <span className="text-gray-700 dark:text-gray-300">
-                    Creates a personalized study plan to maximize your exam score
-                  </span>
-                </li>
-              </ul>
-            </div>
+        <div className="flex flex-col gap-6">
+          <div>
+            <h3 className="text-2xl font-bold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-violet-600 to-indigo-600">
+              Exam Readiness Analyzer
+            </h3>
+            <p className="text-gray-600 dark:text-gray-300">
+              Get a personalized analysis of your preparation level for competitive exams
+            </p>
           </div>
-        ) : (
-          <div className="relative animate-fade-in">
-            <Button
-              variant="outline"
-              size="icon"
-              className="absolute top-0 right-0 z-10"
-              onClick={handleClose}
-            >
-              <X size={18} />
-            </Button>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="bg-white/80 dark:bg-gray-800/80 rounded-xl shadow-md border border-violet-100 dark:border-violet-900/30 p-6">
-                <h4 className="text-lg font-medium mb-3 text-center">
-                  {readinessData?.name} Readiness Profile
-                </h4>
-                <div className="h-[300px] w-full">
-                  <Radar data={radarData} options={options} />
+          
+          {!showAnalysis ? (
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Select your target exam
+                  </label>
+                  <Select value={selectedExam} onValueChange={setSelectedExam}>
+                    <SelectTrigger className="w-full bg-white dark:bg-gray-800">
+                      <SelectValue placeholder="Select an exam" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {mockExams.map((exam) => (
+                        <SelectItem key={exam.id} value={exam.id}>
+                          {exam.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
-                <div className="text-center mt-4">
-                  <div className="text-sm text-gray-600 dark:text-gray-400">Overall Score</div>
-                  <div className="text-3xl font-bold text-violet-600 dark:text-violet-400">
-                    {readinessData?.overallScore}%
-                  </div>
+                
+                <div className="flex items-end">
+                  <Button 
+                    onClick={handleStartAssessment}
+                    className="w-full bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white shadow-md"
+                  >
+                    Start Assessment
+                  </Button>
                 </div>
               </div>
               
-              <div className="space-y-4">
-                <Card className="border-green-100 dark:border-green-900/30 shadow-md">
-                  <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 pb-3">
-                    <div className="flex items-center gap-2">
-                      <TrendingUp className="text-emerald-500" size={18} />
-                      <CardTitle className="text-lg text-emerald-700 dark:text-emerald-400">Strengths</CardTitle>
+              <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm rounded-xl p-6 border border-violet-100 dark:border-violet-900/30 shadow-sm">
+                <h4 className="text-lg font-medium mb-3">How it works</h4>
+                <ul className="space-y-3">
+                  <li className="flex items-start gap-3">
+                    <div className="bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-300 p-1 rounded-full">
+                      <ChevronRight size={16} />
                     </div>
-                  </CardHeader>
-                  <CardContent className="pt-4">
-                    <ul className="space-y-2">
-                      {readinessData?.strengths.map((strength, index) => (
-                        <li key={index} className="flex items-start gap-2">
-                          <div className="bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 p-1 rounded-full mt-0.5">
-                            <ChevronRight size={12} />
-                          </div>
-                          <span className="text-sm">{strength}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </CardContent>
-                </Card>
-                
-                <Card className="border-red-100 dark:border-red-900/30 shadow-md">
-                  <CardHeader className="bg-gradient-to-r from-red-50 to-rose-50 dark:from-red-900/20 dark:to-rose-900/20 pb-3">
-                    <div className="flex items-center gap-2">
-                      <TrendingDown className="text-rose-500" size={18} />
-                      <CardTitle className="text-lg text-rose-700 dark:text-rose-400">Areas to Improve</CardTitle>
+                    <span className="text-gray-700 dark:text-gray-300">
+                      Our AI analyzes your current preparation level across key areas
+                    </span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <div className="bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-300 p-1 rounded-full">
+                      <ChevronRight size={16} />
                     </div>
-                  </CardHeader>
-                  <CardContent className="pt-4">
-                    <ul className="space-y-2">
-                      {readinessData?.weaknesses.map((weakness, index) => (
-                        <li key={index} className="flex items-start gap-2">
-                          <div className="bg-rose-100 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 p-1 rounded-full mt-0.5">
-                            <ChevronRight size={12} />
-                          </div>
-                          <span className="text-sm">{weakness}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </CardContent>
-                </Card>
-                
-                <Button 
-                  className="w-full bg-gradient-to-r from-violet-600 to-indigo-600 text-white"
-                  onClick={handleClose}
-                >
-                  Get Personalized Study Plan
-                </Button>
+                    <span className="text-gray-700 dark:text-gray-300">
+                      Identifies your strengths and areas needing improvement
+                    </span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <div className="bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-300 p-1 rounded-full">
+                      <ChevronRight size={16} />
+                    </div>
+                    <span className="text-gray-700 dark:text-gray-300">
+                      Creates a personalized study plan to maximize your exam score
+                    </span>
+                  </li>
+                </ul>
               </div>
             </div>
-          </div>
-        )}
+          ) : (
+            <div className="relative animate-fade-in">
+              <Button
+                variant="outline"
+                size="icon"
+                className="absolute top-0 right-0 z-10"
+                onClick={handleClose}
+              >
+                <X size={18} />
+              </Button>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="bg-white/80 dark:bg-gray-800/80 rounded-xl shadow-md border border-violet-100 dark:border-violet-900/30 p-6">
+                  <h4 className="text-lg font-medium mb-3 text-center">
+                    {readinessData?.name} Readiness Profile
+                  </h4>
+                  <div className="h-[300px] w-full">
+                    <Radar data={radarData} options={options} />
+                  </div>
+                  <div className="text-center mt-4">
+                    <div className="text-sm text-gray-600 dark:text-gray-400">Overall Score</div>
+                    <div className="text-3xl font-bold text-violet-600 dark:text-violet-400">
+                      {readinessData?.overallScore}%
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="space-y-4">
+                  <Card className="border-green-100 dark:border-green-900/30 shadow-md">
+                    <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 pb-3">
+                      <div className="flex items-center gap-2">
+                        <TrendingUp className="text-emerald-500" size={18} />
+                        <CardTitle className="text-lg text-emerald-700 dark:text-emerald-400">Strengths</CardTitle>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="pt-4">
+                      <ul className="space-y-2">
+                        {readinessData?.strengths.map((strength, index) => (
+                          <li key={index} className="flex items-start gap-2">
+                            <div className="bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 p-1 rounded-full mt-0.5">
+                              <ChevronRight size={12} />
+                            </div>
+                            <span className="text-sm">{strength}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </CardContent>
+                  </Card>
+                  
+                  <Card className="border-red-100 dark:border-red-900/30 shadow-md">
+                    <CardHeader className="bg-gradient-to-r from-red-50 to-rose-50 dark:from-red-900/20 dark:to-rose-900/20 pb-3">
+                      <div className="flex items-center gap-2">
+                        <TrendingDown className="text-rose-500" size={18} />
+                        <CardTitle className="text-lg text-rose-700 dark:text-rose-400">Areas to Improve</CardTitle>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="pt-4">
+                      <ul className="space-y-2">
+                        {readinessData?.weaknesses.map((weakness, index) => (
+                          <li key={index} className="flex items-start gap-2">
+                            <div className="bg-rose-100 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 p-1 rounded-full mt-0.5">
+                              <ChevronRight size={12} />
+                            </div>
+                            <span className="text-sm">{weakness}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </CardContent>
+                  </Card>
+                  
+                  <Card className="border-amber-100 dark:border-amber-900/30 shadow-md">
+                    <CardHeader className="bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-900/20 dark:to-yellow-900/20 pb-3">
+                      <div className="flex items-center gap-2">
+                        <TrendingUp className="text-amber-500" size={18} />
+                        <CardTitle className="text-lg text-amber-700 dark:text-amber-400">Recommended Improvements</CardTitle>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="pt-4">
+                      <ul className="space-y-2">
+                        {readinessData?.improvements.map((improvement, index) => (
+                          <li key={index} className="flex items-start gap-2">
+                            <div className="bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 p-1 rounded-full mt-0.5">
+                              <ChevronRight size={12} />
+                            </div>
+                            <span className="text-sm">{improvement}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </CardContent>
+                  </Card>
+                  
+                  <Button 
+                    className="w-full bg-gradient-to-r from-violet-600 to-indigo-600 text-white"
+                    onClick={handleClose}
+                  >
+                    Get Personalized Study Plan
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
