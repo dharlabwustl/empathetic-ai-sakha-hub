@@ -1,10 +1,11 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { BarChart3, Download, BookOpen, ArrowRight, UserPlus, FileText } from 'lucide-react';
+import { BarChart3, BookOpen, ArrowRight, UserPlus, FileText, CheckCircle } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Separator } from '@/components/ui/separator';
 import { Link } from 'react-router-dom';
+import { Card } from '@/components/ui/card';
 
 interface StudyPlanSectionProps {
   recommendations: string[];
@@ -17,7 +18,7 @@ const StudyPlanSection: React.FC<StudyPlanSectionProps> = ({ recommendations, on
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.5, duration: 0.4 }}
-      className="bg-white dark:bg-gray-800 rounded-xl border-2 border-blue-100 dark:border-blue-800/50 p-5 shadow-lg"
+      className="bg-white dark:bg-gray-800 rounded-xl border-2 border-blue-100 dark:border-blue-800/50 p-6 shadow-lg"
     >
       <h4 className="flex items-center text-blue-700 dark:text-blue-400 font-medium mb-4">
         <div className="p-2 mr-2 bg-blue-50 dark:bg-blue-900/30 rounded-lg">
@@ -26,11 +27,11 @@ const StudyPlanSection: React.FC<StudyPlanSectionProps> = ({ recommendations, on
         Personalized Study Plan
       </h4>
       
-      <div className="bg-blue-50/50 dark:bg-blue-900/20 rounded-lg p-4 mb-4">
+      <div className="bg-blue-50/50 dark:bg-blue-900/20 rounded-lg p-4 mb-5">
         <p className="text-sm">Based on your performance, we recommend focusing on these key areas:</p>
       </div>
       
-      <ul className="space-y-3 mb-5">
+      <ul className="space-y-3 mb-6">
         {recommendations.slice(0, 5).map((recommendation, i) => (
           <motion.li 
             key={i} 
@@ -39,29 +40,27 @@ const StudyPlanSection: React.FC<StudyPlanSectionProps> = ({ recommendations, on
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.1 * i, duration: 0.3 }}
           >
-            <div className="h-5 w-5 rounded-full bg-gradient-to-r from-violet-400 to-blue-500 flex items-center justify-center text-xs text-white mr-2 mt-0.5 flex-shrink-0">
-              {i + 1}
-            </div>
+            <CheckCircle className="h-5 w-5 text-blue-500 mr-2 flex-shrink-0" />
             <span className="text-sm">{recommendation}</span>
           </motion.li>
         ))}
       </ul>
 
-      <div className="mt-6 p-6 bg-gradient-to-br from-violet-500/10 to-blue-500/10 dark:from-violet-900/20 dark:to-blue-900/20 rounded-xl border border-violet-100 dark:border-violet-800/50 shadow-lg">
+      <Card className="mt-6 p-6 bg-gradient-to-br from-violet-500/10 to-blue-500/10 dark:from-violet-900/20 dark:to-blue-900/20 rounded-xl border border-violet-100 dark:border-violet-800/50 shadow-lg">
         <div className="flex flex-col items-center text-center">
-          <div className="bg-white dark:bg-gray-800 p-3 rounded-full shadow-md mb-3">
+          <div className="bg-white dark:bg-gray-800 p-3 rounded-full shadow-md mb-4">
             <UserPlus className="h-6 w-6 text-violet-600 dark:text-violet-400" />
           </div>
           <h4 className="text-lg font-semibold text-violet-700 dark:text-violet-400">
-            Unlock Your Full Potential
+            Get Your Complete Study Plan
           </h4>
-          <p className="text-sm text-violet-600/90 dark:text-violet-300/90 mt-2 mb-4">
-            Sign up now to get a detailed study plan, personalized practice questions, and expert guidance.
+          <p className="text-sm text-violet-600/90 dark:text-violet-300/90 mt-2 mb-5 max-w-md mx-auto">
+            Sign up now to receive a detailed study plan customized for your strengths and areas of improvement, with day-by-day guidance.
           </p>
-          <div className="flex flex-col sm:flex-row w-full gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 w-full gap-4">
             <Button 
               onClick={onStartOver}
-              className="flex-1 bg-gradient-to-r from-blue-500 to-violet-500 hover:from-blue-600 hover:to-violet-600 text-white shadow-md hover:shadow-lg transition-all"
+              className="bg-gradient-to-r from-blue-500 to-violet-500 hover:from-blue-600 hover:to-violet-600 text-white shadow-md hover:shadow-lg transition-all py-6 h-auto"
             >
               <BookOpen className="mr-2 h-4 w-4" />
               Take Another Test
@@ -69,7 +68,7 @@ const StudyPlanSection: React.FC<StudyPlanSectionProps> = ({ recommendations, on
             
             <Button 
               asChild
-              className="flex-1 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white shadow-md hover:shadow-lg transition-all"
+              className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white shadow-md hover:shadow-lg transition-all py-6 h-auto"
             >
               <Link to="/signup">
                 <UserPlus className="mr-2 h-4 w-4" />
@@ -79,7 +78,7 @@ const StudyPlanSection: React.FC<StudyPlanSectionProps> = ({ recommendations, on
             </Button>
           </div>
         </div>
-      </div>
+      </Card>
     </motion.div>
   );
 };

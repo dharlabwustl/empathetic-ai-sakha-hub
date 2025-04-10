@@ -10,8 +10,21 @@ import StudyPlanSection from './report-components/StudyPlanSection';
 import { Card, CardContent } from '@/components/ui/card';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { RefreshCw, UserPlus, ArrowRight } from 'lucide-react';
+import { 
+  FileText, 
+  Download, 
+  RefreshCw, 
+  UserPlus, 
+  Share2,
+  ArrowRight,
+  Mail,
+  BookOpen,
+  Medal,
+  Sparkles
+} from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { Separator } from '@/components/ui/separator';
+import { toast } from 'sonner';
 
 interface ReportSectionProps {
   results: ExamResults;
@@ -137,6 +150,20 @@ const ReportSection: React.FC<ReportSectionProps> = ({
     hidden: { opacity: 0, y: 20 },
     show: { opacity: 1, y: 0 }
   };
+
+  const handleShareResults = () => {
+    // In a real app, this would open a share dialog
+    toast.success("Sharing options opened", {
+      description: "You can share your results via various platforms."
+    });
+  };
+
+  const handleDownloadReport = () => {
+    // In a real app, this would download a PDF report
+    toast.success("Report download started", {
+      description: "Your detailed analysis report will be downloaded shortly."
+    });
+  };
   
   return (
     <motion.div 
@@ -145,10 +172,12 @@ const ReportSection: React.FC<ReportSectionProps> = ({
       initial="hidden"
       animate="show"
     >
+      {/* Summary Card with Score */}
       <motion.div variants={item}>
         <Card className="overflow-hidden border-2 border-violet-100 dark:border-violet-800/50 shadow-lg">
           <CardContent className="p-0">
-            <div className="bg-gradient-to-r from-violet-500/10 to-blue-500/10 dark:from-violet-900/30 dark:to-blue-900/30 p-6">
+            <div className="bg-gradient-to-r from-violet-500/20 to-blue-500/20 dark:from-violet-900/30 dark:to-blue-900/40 p-6 relative overflow-hidden">
+              <div className="absolute -top-10 -right-10 w-40 h-40 bg-gradient-to-br from-violet-400/20 to-blue-500/20 dark:from-violet-600/20 dark:to-blue-600/20 rounded-full blur-2xl"></div>
               <ReportHeader 
                 examLabel={examLabel}
                 weightedScore={weightedScore}
@@ -169,6 +198,34 @@ const ReportSection: React.FC<ReportSectionProps> = ({
         </Card>
       </motion.div>
       
+      {/* Primary CTA Section */}
+      <motion.div 
+        variants={item} 
+        className="bg-gradient-to-br from-violet-600 to-blue-600 dark:from-violet-700 dark:to-blue-700 p-6 rounded-xl shadow-lg text-white"
+      >
+        <div className="flex flex-col sm:flex-row items-center gap-5">
+          <div className="flex-1 space-y-3 text-center sm:text-left">
+            <h3 className="text-xl font-bold flex items-center gap-2">
+              <Medal className="h-6 w-6" />
+              Unlock Your Full Potential
+            </h3>
+            <p className="opacity-90">Sign up now to access personalized study plans, premium practice content, and detailed performance analytics.</p>
+          </div>
+          <Button 
+            asChild
+            size="lg"
+            className="bg-white text-violet-700 hover:bg-violet-50 shadow-md hover:shadow-lg transition-all duration-300 px-6 py-6 h-auto text-base font-medium"
+          >
+            <Link to="/signup">
+              <Sparkles className="mr-2 h-5 w-5" />
+              <span>Get Premium Access</span>
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </Link>
+          </Button>
+        </div>
+      </motion.div>
+      
+      {/* Analysis Sections */}
       <motion.div variants={item}>
         <ConfidenceMappingSection
           confidenceMappings={confidenceMappings}
@@ -189,28 +246,77 @@ const ReportSection: React.FC<ReportSectionProps> = ({
         />
       </motion.div>
       
-      <motion.div 
-        variants={item}
-        className="flex flex-col sm:flex-row gap-4 mt-8"
-      >
-        <Button 
-          onClick={onStartOver} 
-          className="flex-1 py-6 bg-gradient-to-r from-violet-500 to-blue-500 hover:from-violet-600 hover:to-blue-600 shadow-md hover:shadow-lg transition-all duration-300"
-        >
-          <RefreshCw size={18} className="mr-2" />
-          <span>Take Another Test</span>
-        </Button>
+      {/* Action Buttons */}
+      <motion.div variants={item}>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+          <Button 
+            onClick={onStartOver} 
+            className="py-7 bg-gradient-to-r from-violet-500 to-blue-500 hover:from-violet-600 hover:to-blue-600 shadow-md hover:shadow-lg transition-all duration-300"
+          >
+            <RefreshCw size={18} className="mr-2" />
+            <span>Take Test Again</span>
+          </Button>
+          
+          <Button 
+            onClick={handleDownloadReport}
+            className="py-7 bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600 shadow-md hover:shadow-lg transition-all duration-300"
+          >
+            <Download size={18} className="mr-2" />
+            <span>Download Full Report</span>
+          </Button>
+          
+          <Button 
+            onClick={handleShareResults}
+            className="py-7 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 shadow-md hover:shadow-lg transition-all duration-300"
+          >
+            <Share2 size={18} className="mr-2" />
+            <span>Share Results</span>
+          </Button>
+        </div>
+      </motion.div>
+      
+      <motion.div variants={item} className="pt-4">
+        <Separator className="mb-6" />
         
-        <Button 
-          asChild
-          className="flex-1 py-6 bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600 shadow-md hover:shadow-lg transition-all duration-300"
-        >
-          <Link to="/signup">
-            <UserPlus size={18} className="mr-2" />
-            <span>Sign Up for Full Results</span>
-            <ArrowRight size={16} className="ml-2" />
-          </Link>
-        </Button>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <Card className="p-5 border-2 border-green-100 dark:border-green-800/30">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="p-2 bg-green-50 dark:bg-green-900/30 rounded-lg">
+                <BookOpen className="h-5 w-5 text-green-600 dark:text-green-400" />
+              </div>
+              <h3 className="font-medium text-green-700 dark:text-green-400">Start Your Preparation</h3>
+            </div>
+            <p className="text-sm mb-4">Begin your structured study journey with expert-designed plans.</p>
+            <Button 
+              asChild
+              className="w-full bg-gradient-to-r from-green-500 to-emerald-500"
+            >
+              <Link to="/signup?plan=study">
+                Get Started
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+          </Card>
+          
+          <Card className="p-5 border-2 border-blue-100 dark:border-blue-800/30">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="p-2 bg-blue-50 dark:bg-blue-900/30 rounded-lg">
+                <Mail className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+              </div>
+              <h3 className="font-medium text-blue-700 dark:text-blue-400">Contact a Counselor</h3>
+            </div>
+            <p className="text-sm mb-4">Get personalized guidance from our expert academic counselors.</p>
+            <Button 
+              asChild
+              className="w-full bg-gradient-to-r from-blue-500 to-indigo-500"
+            >
+              <Link to="/contact">
+                Schedule Call
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+          </Card>
+        </div>
       </motion.div>
     </motion.div>
   );
