@@ -32,10 +32,12 @@ export function useStudentDashboard() {
   useEffect(() => {
     const timer = setTimeout(() => {
       setLoading(false);
-      toast({
-        title: "Welcome to your smart study plan!",
-        description: "Your personalized dashboard is ready.",
-      });
+      if (userProfile) {
+        toast({
+          title: "Welcome to your smart study plan!",
+          description: "Your personalized dashboard is ready.",
+        });
+      }
     }, 1000);
 
     const intervalId = setInterval(() => {
@@ -82,8 +84,13 @@ export function useStudentDashboard() {
     setShowOnboarding(false);
     setOnboardingCompleted(true);
     localStorage.setItem("firstTimeUser", "false");
+    localStorage.removeItem("needsOnboarding");
+    
     // Show welcome tour after onboarding is completed
     setShowWelcomeTour(true);
+    
+    // Navigate to the overview tab
+    navigate('/dashboard/student/overview');
   };
   
   const handleViewStudyPlan = () => {

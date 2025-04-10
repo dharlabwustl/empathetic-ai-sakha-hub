@@ -1,3 +1,4 @@
+
 import React from 'react';
 import TutorCard from '@/components/dashboard/student/TutorCard';
 import StudyPlannerCard from '@/components/dashboard/student/StudyPlannerCard';
@@ -86,7 +87,8 @@ const DashboardContent = ({
     "live-tutors": <LiveTutorSection />,
     forum: <CollaborativeForumSection />,
     videos: <VideoLibrarySection />,
-    notifications: <SmartNotificationSection />
+    notifications: <SmartNotificationSection />,
+    "feel-good": <FeelGoodCorner />
   };
 
   return (
