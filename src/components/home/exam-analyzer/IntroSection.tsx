@@ -2,19 +2,22 @@
 import React from 'react';
 import { ExamType } from './types';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
-import { GraduationCap, BookOpen, Calculator, Brain, CheckCircle } from 'lucide-react';
+import { GraduationCap, BookOpen, Calculator, Brain, CheckCircle, ArrowRight } from 'lucide-react';
 
 interface IntroSectionProps {
   selectedExam: string;
   setSelectedExam: (exam: string) => void;
   examTypes: ExamType[];
+  onStartTest: () => void;
 }
 
 const IntroSection: React.FC<IntroSectionProps> = ({ 
   selectedExam, 
   setSelectedExam, 
-  examTypes 
+  examTypes,
+  onStartTest 
 }) => {
   return (
     <div className="space-y-8">
@@ -56,6 +59,14 @@ const IntroSection: React.FC<IntroSectionProps> = ({
             ))}
           </SelectContent>
         </Select>
+        
+        <Button 
+          className="w-full mt-4 bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-700 hover:to-blue-700"
+          onClick={onStartTest}
+          disabled={!selectedExam}
+        >
+          Start Analysis <ArrowRight size={16} className="ml-2" />
+        </Button>
       </motion.div>
 
       <motion.div

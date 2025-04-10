@@ -8,6 +8,7 @@ import HeroButtons from "./hero/HeroButtons";
 import ExamBadges from "./hero/ExamBadges";
 import ScrollIndicator from "./hero/ScrollIndicator";
 import { GraduationCap, FileText, Medal, Brain, BarChart3, Award, Trophy } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface HeroSectionProps {
   onAnalyzeClick: () => void;
@@ -121,7 +122,29 @@ const HeroSection = ({ onAnalyzeClick }: HeroSectionProps) => {
           </motion.p>
 
           {/* CTA Buttons */}
-          <HeroButtons onAnalyzeClick={onAnalyzeClick} />
+          <motion.div
+            className="flex flex-col sm:flex-row gap-4 justify-center mb-8"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6, duration: 0.5 }}
+          >
+            <Button 
+              size="lg"
+              className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white border-0 shadow-md hover:shadow-lg"
+              onClick={() => navigate('/signup')}
+            >
+              Get Started Free
+            </Button>
+            
+            <Button 
+              size="lg"
+              variant="outline" 
+              className="border-2 border-violet-200 dark:border-violet-800 text-violet-700 dark:text-violet-300 hover:bg-violet-50 dark:hover:bg-violet-900/30"
+              onClick={onAnalyzeClick}
+            >
+              Check Exam Readiness
+            </Button>
+          </motion.div>
 
           {/* Display exam badges */}
           <ExamBadges badges={examBadges} />

@@ -7,18 +7,21 @@ import StressTestSection from './StressTestSection';
 import ReadinessTestSection from './ReadinessTestSection';
 import ConceptTestSection from './ConceptTestSection';
 import ReportSection from './ReportSection';
+import { Progress } from "@/components/ui/progress";
 
 interface TestContainerProps {
   currentTest: TestType;
   selectedExam: string;
   setSelectedExam: (exam: string) => void;
   loading: boolean;
+  progress: number;
   testCompleted: TestCompletionState;
   results: ExamResults;
   examTypes: ExamType[];
   simulateStressTest: () => void;
   simulateReadinessTest: () => void;
   simulateConceptTest: () => void;
+  handleStartTest: () => void;
   handleStartOver: () => void;
   handleStressTestComplete: (answers: UserAnswer[]) => void;
   handleReadinessTestComplete: (answers: UserAnswer[]) => void;
@@ -30,12 +33,14 @@ const TestContainer: React.FC<TestContainerProps> = ({
   selectedExam,
   setSelectedExam,
   loading,
+  progress,
   testCompleted,
   results,
   examTypes,
   simulateStressTest,
   simulateReadinessTest,
   simulateConceptTest,
+  handleStartTest,
   handleStartOver,
   handleStressTestComplete,
   handleReadinessTestComplete,
@@ -46,6 +51,25 @@ const TestContainer: React.FC<TestContainerProps> = ({
     visible: { opacity: 1, y: 0, transition: { duration: 0.4 } }
   };
 
+  // Progress indicator
+  const renderProgressIndicator = () => {
+    if (currentTest === 'intro') return null;
+    
+    return (
+      <div className="mb-4">
+        <div className="flex justify-between text-xs mb-1">
+          <span className="text-gray-500 dark:text-gray-400">
+            {currentTest === 'stress' ? 'Stress Test' : 
+             currentTest === 'readiness' ? 'Readiness Score' : 
+             currentTest === 'concept' ? 'Concept Mastery' : 'Complete'}
+          </span>
+          <span className="font-medium">{progress}%</span>
+        </div>
+        <Progress value={progress} className="h-2" />
+      </div>
+    );
+  };
+
   const renderTestContent = () => {
     switch (currentTest) {
       case 'intro':
@@ -54,6 +78,7 @@ const TestContainer: React.FC<TestContainerProps> = ({
             selectedExam={selectedExam}
             setSelectedExam={setSelectedExam}
             examTypes={examTypes}
+            onStartTest={handleStartTest}
           />
         );
 
@@ -110,15 +135,18 @@ const TestContainer: React.FC<TestContainerProps> = ({
   };
 
   return (
-    <motion.div 
-      className="py-6"
-      key={currentTest}
-      variants={fadeVariants}
-      initial="hidden"
-      animate="visible"
-    >
-      {renderTestContent()}
-    </motion.div>
+    <>
+      {renderProgressIndicator()}
+      <motion.div 
+        className="py-6"
+        key={currentTest}
+        variants={fadeVariants}
+        initial="hidden"
+        animate="visible"
+      >
+        {renderTestContent()}
+      </motion.div>
+    </>
   );
 };
 
