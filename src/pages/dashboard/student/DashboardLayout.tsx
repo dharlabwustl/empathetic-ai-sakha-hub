@@ -11,6 +11,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { UserProfileType } from "@/types/user";
 import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
 import { formatTime, formatDate } from "./utils/DateTimeFormatter";
+import { motion } from "framer-motion";
 
 interface DashboardLayoutProps {
   userProfile: UserProfileType;
@@ -62,16 +63,6 @@ const DashboardLayout = ({
       <SidebarNav userType="student" userName={userProfile.name} />
       
       <main className={`transition-all duration-300 ${hideSidebar ? 'md:ml-0' : 'md:ml-64'} p-6 pb-20 md:pb-6`}>
-        {/* Toggle sidebar button */}
-        <Button
-          variant="outline"
-          size="icon"
-          className="fixed top-4 left-20 z-40 hidden md:flex bg-white shadow-md hover:bg-gray-100"
-          onClick={onToggleSidebar}
-        >
-          {hideSidebar ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
-        </Button>
-        
         {/* Top header section */}
         <DashboardHeader 
           userProfile={userProfile}
@@ -90,18 +81,42 @@ const DashboardLayout = ({
             />
           )}
           
-          {/* Toggle tabs visibility button */}
+          {/* Main content area with improved button position */}
           <div className="lg:col-span-9 xl:col-span-10">
-            <div className="flex justify-end mb-4">
-              <Button
-                variant="outline"
-                size="sm"
-                className="flex items-center gap-1 bg-white shadow-sm hover:bg-violet-50 border-violet-200 text-violet-700"
-                onClick={onToggleTabsNav}
+            <div className="flex items-center justify-between mb-4">
+              {/* Toggle sidebar button - moved to better position */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.3 }}
               >
-                {hideTabsNav ? "Show Navigation" : "Hide Navigation"} 
-                {hideTabsNav ? <ChevronRight size={15} /> : <ChevronLeft size={15} />}
-              </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex items-center gap-1 bg-white shadow-sm hover:bg-purple-50 border-purple-200 text-purple-700"
+                  onClick={onToggleSidebar}
+                >
+                  {hideSidebar ? "Show Sidebar" : "Hide Sidebar"} 
+                  {hideSidebar ? <ChevronRight size={15} /> : <ChevronLeft size={15} />}
+                </Button>
+              </motion.div>
+              
+              {/* Toggle tabs visibility button */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.3, delay: 0.1 }}
+              >
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex items-center gap-1 bg-white shadow-sm hover:bg-violet-50 border-violet-200 text-violet-700"
+                  onClick={onToggleTabsNav}
+                >
+                  {hideTabsNav ? "Show Navigation" : "Hide Navigation"} 
+                  {hideTabsNav ? <ChevronRight size={15} /> : <ChevronLeft size={15} />}
+                </Button>
+              </motion.div>
             </div>
             
             {/* Main content area */}

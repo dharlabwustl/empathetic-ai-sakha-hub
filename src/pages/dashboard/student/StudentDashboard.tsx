@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -43,14 +42,42 @@ const StudentDashboard = () => {
     }, 1000);
 
     // Check for user data and show onboarding/welcome as needed
-    const { shouldShowOnboarding, shouldShowWelcomeTour } = handleNewUser(location, navigate);
-    setShowOnboarding(shouldShowOnboarding);
-    setShowWelcomeTour(shouldShowWelcomeTour);
+    const userData = localStorage.getItem("userData");
+    const searchParams = new URLSearchParams(location.search);
+    const completedOnboarding = searchParams.get('completedOnboarding');
+    const isNewSignup = searchParams.get('newUser') === 'true';
+    
+    // If coming from signup, always show onboarding first
+    if (isNewSignup) {
+      setShowOnboarding(true);
+      // Clean the URL to remove the query params
+      navigate(location.pathname, { replace: true });
+    }
+    // If completed onboarding via regular flow, show welcome tour
+    else if (completedOnboarding === 'true') {
+      setShowWelcomeTour(true);
+      // Clean the URL to remove the query param
+      navigate(location.pathname, { replace: true });
+    }
+    // For returning users with userData, go straight to dashboard
+    else if (userData) {
+      // Existing user, don't show onboarding or welcome tour
+      const parsedUserData = JSON.parse(userData);
+      if (!parsedUserData.completedOnboarding) {
+        // Edge case: user has data but never completed onboarding
+        setShowOnboarding(true);
+      }
+    }
+    // Complete new user with no data, start onboarding
+    else {
+      // First time user, show onboarding
+      setShowOnboarding(true);
+    }
 
     return () => {
       clearTimeout(timer);
     };
-  }, [toast, userProfile, location, navigate]);
+  }, [toast, location, navigate]);
 
   const handleTabChange = (newTab: string) => {
     setActiveTab(newTab);
