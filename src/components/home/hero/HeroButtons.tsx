@@ -32,7 +32,7 @@ const HeroButtons = ({ onAnalyzeClick }: HeroButtonsProps) => {
 
   return (
     <motion.div 
-      className="flex flex-col sm:flex-row justify-start items-center gap-4 mb-6"
+      className="flex flex-col sm:flex-row justify-start items-center gap-4 mb-8"
       variants={containerVariants}
       initial="hidden"
       animate="visible"
@@ -44,7 +44,7 @@ const HeroButtons = ({ onAnalyzeClick }: HeroButtonsProps) => {
       >
         <Button 
           size="lg"
-          className="bg-gradient-to-r from-violet-600 to-purple-500 hover:opacity-90 text-white px-8 py-6 shadow-md hover:shadow-xl transition-all"
+          className="bg-gradient-to-r from-violet-600 to-purple-500 hover:opacity-90 text-white px-8 py-6 shadow-lg hover:shadow-xl transition-all"
           onClick={onAnalyzeClick}
         >
           <motion.div
@@ -65,7 +65,7 @@ const HeroButtons = ({ onAnalyzeClick }: HeroButtonsProps) => {
         <Button 
           size="lg" 
           variant="outline"
-          className="border-violet-500 text-violet-600 hover:bg-violet-50 shadow-sm hover:shadow-md transition-all"
+          className="border-violet-500 text-violet-600 hover:bg-violet-50 shadow-md hover:shadow-lg transition-all"
           asChild
         >
           <Link to="/signup">

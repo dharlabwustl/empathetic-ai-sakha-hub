@@ -59,12 +59,14 @@ const StudentDashboard = () => {
     const searchParams = new URLSearchParams(location.search);
     const completedOnboarding = searchParams.get('completedOnboarding');
     
+    // If first time login flow (coming from signup)
     if (completedOnboarding === 'true') {
       setShowWelcomeTour(true);
       // Clean the URL to remove the query param
       navigate(location.pathname, { replace: true });
     }
-    else if (!userData && userProfile) {
+    // Check if this is a first-time user and not coming from signup
+    else if (!userData) {
       // First time user, show onboarding
       setShowOnboarding(true);
     }
@@ -126,11 +128,16 @@ const StudentDashboard = () => {
     return <DashboardLoading />;
   }
 
-  if (showOnboarding && userProfile?.goals?.[0]?.title) {
+  // Show onboarding flow for first-time users
+  if (showOnboarding) {
+    // Make sure we have a goal to work with
+    const defaultGoal = "IIT-JEE";
+    const goalTitle = userProfile?.goals?.[0]?.title || defaultGoal;
+    
     return (
       <OnboardingFlow 
         userProfile={userProfile} 
-        goalTitle={userProfile.goals[0].title}
+        goalTitle={goalTitle}
         onComplete={handleCompleteOnboarding}
       />
     );
@@ -169,16 +176,16 @@ const StudentDashboard = () => {
             />
           )}
           
-          {/* Toggle tabs visibility button */}
+          {/* Toggle tabs visibility button - Improved positioning */}
           <div className="lg:col-span-9 xl:col-span-10">
             <div className="flex justify-end mb-4">
               <Button
                 variant="outline"
                 size="sm"
-                className="flex items-center gap-1 bg-white shadow-sm"
+                className="flex items-center gap-1 bg-white shadow-sm hover:bg-violet-50 border-violet-200 text-violet-700"
                 onClick={toggleTabsNav}
               >
-                {hideTabsNav ? "Show Tabs" : "Hide Tabs"} 
+                {hideTabsNav ? "Show Navigation" : "Hide Navigation"} 
                 {hideTabsNav ? <ChevronRight size={15} /> : <ChevronLeft size={15} />}
               </Button>
             </div>

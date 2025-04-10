@@ -24,46 +24,15 @@ interface ExamBadgesProps {
 }
 
 const ExamBadges = ({ badges }: ExamBadgesProps) => {
-  // Create a circular layout with animation
+  // Create a badge list without the circular animation
   return (
-    <div className="relative mb-6">
-      {/* Animated ecosystem visualization based on first image */}
-      <motion.div
-        className="absolute -left-4 -top-4 w-full h-full"
+    <div className="relative mt-6 mb-6">
+      <motion.div 
+        className="flex flex-wrap gap-2 relative z-30"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ duration: 0.8 }}
+        transition={{ delay: 0.2, duration: 0.5 }}
       >
-        <div className="relative w-40 h-40 md:w-52 md:h-52">
-          {/* Center element */}
-          <motion.div
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 rounded-full bg-gradient-to-r from-violet-500 to-purple-600 flex items-center justify-center text-white shadow-lg z-20"
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: 0.2, duration: 0.5, type: "spring" }}
-          >
-            <p className="text-sm font-bold">Exam</p>
-          </motion.div>
-
-          {/* Connecting lines */}
-          {[30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330, 360].map((angle, idx) => (
-            <motion.div
-              key={angle}
-              className="absolute top-1/2 left-1/2 h-px bg-violet-300 origin-left z-10"
-              style={{ 
-                rotate: `${angle}deg`,
-                width: '100px'
-              }}
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 0.4 + (idx * 0.05), duration: 0.4 }}
-            />
-          ))}
-        </div>
-      </motion.div>
-
-      {/* Badges */}
-      <div className="flex flex-wrap gap-2 relative z-30">
         {badges.map((badge, index) => (
           <motion.div
             key={index}
@@ -85,7 +54,7 @@ const ExamBadges = ({ badges }: ExamBadgesProps) => {
             </Badge>
           </motion.div>
         ))}
-      </div>
+      </motion.div>
     </div>
   );
 };

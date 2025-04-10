@@ -6,7 +6,7 @@ import { ChevronDown } from "lucide-react";
 const ScrollIndicator = () => {
   return (
     <motion.div 
-      className="flex justify-center mt-8 mb-4"
+      className="flex justify-center mt-12 mb-4"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ delay: 0.8 }}
@@ -22,15 +22,27 @@ const ScrollIndicator = () => {
         <span className="text-sm font-medium group-hover:text-violet-700 transition-colors">Explore More</span>
         <motion.div
           animate={{ 
-            y: [0, 5, 0],
+            y: [0, 8, 0],
           }}
           transition={{ 
             repeat: Infinity, 
             duration: 1.5,
             ease: "easeInOut"
           }}
+          className="relative"
         >
-          <ChevronDown size={16} />
+          <motion.div 
+            className="absolute -inset-1 rounded-full bg-violet-100 opacity-70"
+            animate={{ 
+              scale: [1, 1.2, 1],
+            }}
+            transition={{ 
+              repeat: Infinity, 
+              duration: 1.5,
+              ease: "easeInOut"
+            }}
+          />
+          <ChevronDown size={18} className="relative z-10"/>
         </motion.div>
       </Button>
     </motion.div>

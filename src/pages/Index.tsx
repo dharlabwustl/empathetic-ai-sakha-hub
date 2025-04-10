@@ -14,6 +14,7 @@ import FloatingAvatar from "@/components/shared/FloatingAvatar";
 import ExamPreparationSection from "@/components/home/ExamPreparationSection";
 import StudentBenefitsSection from "@/components/home/StudentBenefitsSection";
 import { ExamReadinessAnalyzer } from "@/components/home/ExamReadinessAnalyzer";
+import EcosystemAnimation from "@/components/home/EcosystemAnimation";
 
 const Index = () => {
   const [showAnalyzer, setShowAnalyzer] = useState(false);
@@ -23,6 +24,7 @@ const Index = () => {
       <Header />
       <main className="flex-grow">
         <HeroSection onAnalyzeClick={() => setShowAnalyzer(true)} />
+        <EcosystemAnimation />
         <ExamPreparationSection />
         <StudentBenefitsSection />
         <WhatIsSection />

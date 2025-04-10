@@ -57,9 +57,6 @@ const HeroSection = ({ onAnalyzeClick }: HeroSectionProps) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            {/* Competitive Exam Badges */}
-            <ExamBadges badges={examBadges} />
-            
             <Badge className="mb-4 bg-violet-100 text-violet-800 hover:bg-violet-200 transition-colors py-1.5 px-4 font-medium">
               Supercharge Your Exam Preparation
             </Badge>
@@ -72,11 +69,14 @@ const HeroSection = ({ onAnalyzeClick }: HeroSectionProps) => {
               Sakha delivers personalized exam preparation strategies with AI-powered study plans that adapt to your learning style and goals.
             </p>
 
+            {/* CTA Buttons - Moved up as requested */}
+            <HeroButtons onAnalyzeClick={onAnalyzeClick} />
+            
             {/* Pain points and solutions */}
             <PainPoints painPoints={painPoints} solutions={features} />
             
-            {/* CTA Buttons */}
-            <HeroButtons onAnalyzeClick={onAnalyzeClick} />
+            {/* Competitive Exam Badges */}
+            <ExamBadges badges={examBadges} />
           </motion.div>
           
           {/* Right content - Image and chat */}
