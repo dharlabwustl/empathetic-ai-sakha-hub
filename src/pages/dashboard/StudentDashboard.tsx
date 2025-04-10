@@ -90,6 +90,15 @@ const StudentDashboard = () => {
   const handleCompleteOnboarding = () => {
     setShowOnboarding(false);
     setShowWelcomeTour(true);
+    
+    // Store that the user has completed onboarding
+    if (userProfile) {
+      const userData = {
+        ...userProfile,
+        completedOnboarding: true
+      };
+      localStorage.setItem("userData", JSON.stringify(userData));
+    }
   };
   
   const handleViewStudyPlan = () => {
@@ -112,7 +121,7 @@ const StudentDashboard = () => {
     return <DashboardLoading />;
   }
 
-  if (showOnboarding && userProfile.goals?.[0]?.title) {
+  if (showOnboarding && userProfile?.goals?.[0]?.title) {
     return (
       <OnboardingFlow 
         userProfile={userProfile} 
