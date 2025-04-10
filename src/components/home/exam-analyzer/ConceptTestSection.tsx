@@ -2,12 +2,13 @@
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Brain, CheckCircle2, XCircle } from 'lucide-react';
+import { Brain, CheckCircle2, XCircle, Clock } from 'lucide-react';
 import { CustomProgress } from '@/components/ui/custom-progress';
 import { TestResults, TestQuestion, SubjectTopic, UserAnswer } from './types';
 import { getConceptTopics, getConceptTestQuestions } from './test-questions/conceptTestQuestions';
 import { motion } from 'framer-motion';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface ConceptTestSectionProps {
   loading: boolean;
@@ -27,34 +28,57 @@ const ConceptTestSection: React.FC<ConceptTestSectionProps> = ({
   onCompleteTest
 }) => {
   const [isTestActive, setIsTestActive] = useState(false);
-  const [selectedSubject, setSelectedSubject] = useState<string>('');
+  const [selectedSubjects, setSelectedSubjects] = useState<string[]>([]);
   const [topics, setTopics] = useState<SubjectTopic[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [questions, setQuestions] = useState<TestQuestion[]>([]);
   const [userAnswers, setUserAnswers] = useState<UserAnswer[]>([]);
   const [confidenceRating, setConfidenceRating] = useState<number | null>(null);
   const [showExplanation, setShowExplanation] = useState(false);
+  const [currentSubjectIndex, setCurrentSubjectIndex] = useState(0);
   
   // Initialize topics based on exam type
   React.useEffect(() => {
     if (selectedExam) {
       const examTopics = getConceptTopics(selectedExam);
       setTopics(examTopics);
-      
-      // Set default subject if available
-      if (examTopics.length > 0) {
-        setSelectedSubject(examTopics[0].subject);
-      }
+      setSelectedSubjects([]);
     }
   }, [selectedExam]);
   
+  const toggleSubjectSelection = (subject: string) => {
+    setSelectedSubjects(prev => {
+      // If already selected, remove it
+      if (prev.includes(subject)) {
+        return prev.filter(s => s !== subject);
+      }
+      
+      // If trying to add more than 2 subjects, don't allow
+      if (prev.length >= 2) {
+        return prev;
+      }
+      
+      // Add the subject
+      return [...prev, subject];
+    });
+  };
+  
   const startTest = () => {
-    if (!selectedSubject) return;
+    if (selectedSubjects.length === 0) return;
     
-    const testQuestions = getConceptTestQuestions(selectedExam, selectedSubject);
-    setQuestions(testQuestions);
+    let allQuestions: TestQuestion[] = [];
+    
+    // Get 5 questions from each selected subject
+    selectedSubjects.forEach(subject => {
+      const subjectQuestions = getConceptTestQuestions(selectedExam, subject);
+      allQuestions = [...allQuestions, ...subjectQuestions.slice(0, 5)];
+    });
+    
+    setQuestions(allQuestions);
+    setCurrentSubjectIndex(0);
     setIsTestActive(true);
     setCurrentQuestionIndex(-1); // Start with confidence question
+    setUserAnswers([]);
   };
   
   const handleConfidenceRating = (rating: number) => {
@@ -90,10 +114,12 @@ const ConceptTestSection: React.FC<ConceptTestSectionProps> = ({
   };
   
   const renderConfidenceQuestion = () => {
+    const currentSubject = selectedSubjects[currentSubjectIndex];
+    
     return (
       <div className="bg-white dark:bg-gray-800 p-6 rounded-lg border-2 border-pink-100 dark:border-pink-800 shadow-md">
         <h3 className="text-lg font-medium mb-4">
-          How confident are you about your knowledge of {selectedSubject}?
+          How confident are you about your knowledge of {currentSubject}?
         </h3>
         
         <div className="grid grid-cols-5 gap-3 mt-6">
@@ -141,6 +167,10 @@ const ConceptTestSection: React.FC<ConceptTestSectionProps> = ({
   
   const renderQuestion = () => {
     const currentQuestion = questions[currentQuestionIndex];
+    const currentSubjectQuestions = questions.filter(q => 
+      q.id.includes(selectedSubjects[currentSubjectIndex].toLowerCase().substring(0, 3))
+    );
+    const subjectQuestionIndex = currentSubjectQuestions.findIndex(q => q.id === currentQuestion.id);
     
     return (
       <div className="space-y-6">
@@ -149,7 +179,7 @@ const ConceptTestSection: React.FC<ConceptTestSectionProps> = ({
             Question {currentQuestionIndex + 1}/{questions.length}
           </Badge>
           <Badge variant="outline" className="bg-pink-50 dark:bg-pink-900/30 border-pink-200 dark:border-pink-700">
-            {selectedSubject}
+            {getCurrentSubjectFromQuestionId(currentQuestion.id)}
           </Badge>
         </div>
         
@@ -212,6 +242,27 @@ const ConceptTestSection: React.FC<ConceptTestSectionProps> = ({
     );
   };
   
+  const getCurrentSubjectFromQuestionId = (questionId: string): string => {
+    // Find which subject this question belongs to based on the ID prefix
+    for (const subject of selectedSubjects) {
+      if (questionId.toLowerCase().includes(subject.toLowerCase().substring(0, 3))) {
+        return subject;
+      }
+    }
+    return selectedSubjects[0]; // Fallback
+  };
+  
+  const getEstimatedTestTime = (): number => {
+    // Each question takes about 1 minute (60 seconds)
+    const questionsPerSubject = 5;
+    return selectedSubjects.length * questionsPerSubject * 60;
+  };
+  
+  const formatTime = (seconds: number): string => {
+    const minutes = Math.floor(seconds / 60);
+    return `${minutes} min`;
+  };
+  
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -234,35 +285,47 @@ const ConceptTestSection: React.FC<ConceptTestSectionProps> = ({
               Instructions:
             </h4>
             <ul className="list-disc pl-5 space-y-1 text-sm">
-              <li>Rate your confidence on key topics from the exam syllabus</li>
-              <li>Answer 5 multiple-choice questions on each selected topic</li>
-              <li>The test compares your confidence with your actual performance</li>
+              <li>Select up to 2 subjects you want to test your knowledge on</li>
+              <li>Rate your confidence on each selected subject</li>
+              <li>Answer 5 multiple-choice questions per subject</li>
               <li>We'll identify knowledge gaps to optimize your study plan</li>
             </ul>
+            
+            <div className="mt-3 flex items-center text-sm text-pink-700 dark:text-pink-300">
+              <Clock size={16} className="mr-1" />
+              <span>Total test time: {formatTime(getEstimatedTestTime())}</span>
+            </div>
           </div>
           
           <div className="space-y-3">
-            <label className="text-sm font-medium">Select Subject</label>
-            <Select value={selectedSubject} onValueChange={setSelectedSubject}>
-              <SelectTrigger className="w-full bg-white dark:bg-gray-800 border-2 border-pink-100 dark:border-pink-800">
-                <SelectValue placeholder="Select a subject" />
-              </SelectTrigger>
-              <SelectContent className="bg-white dark:bg-gray-800 border-2 border-pink-100 dark:border-pink-800">
-                {topics.map((topic) => (
-                  <SelectItem key={topic.id} value={topic.subject}>
-                    {topic.subject}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <label className="text-sm font-medium">Select Subjects (max 2)</label>
+            <div className="grid grid-cols-1 gap-2">
+              {topics.map((topic) => (
+                <div key={topic.id} className="flex items-center space-x-2 bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
+                  <Checkbox 
+                    id={topic.id} 
+                    checked={selectedSubjects.includes(topic.subject)} 
+                    onCheckedChange={() => toggleSubjectSelection(topic.subject)}
+                    disabled={selectedSubjects.length >= 2 && !selectedSubjects.includes(topic.subject)}
+                  />
+                  <label 
+                    htmlFor={topic.id} 
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex justify-between w-full"
+                  >
+                    <span>{topic.subject}</span>
+                    <span className="text-xs text-gray-500 dark:text-gray-400">{topic.topics} questions · {formatTime(topic.topics * 60)}</span>
+                  </label>
+                </div>
+              ))}
+            </div>
           </div>
           
           <Button 
             className="w-full bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700 transition-all duration-300 shadow-md hover:shadow-lg"
             onClick={startTest}
-            disabled={!selectedSubject}
+            disabled={selectedSubjects.length === 0}
           >
-            Begin Concept Test
+            Begin Concept Test ({selectedSubjects.length} {selectedSubjects.length === 1 ? 'subject' : 'subjects'})
           </Button>
         </div>
       ) : loading ? (
