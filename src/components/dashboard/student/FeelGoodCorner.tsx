@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { 
   Card, 
@@ -46,10 +45,10 @@ const brainTeasers = [
 ];
 
 const quotes = [
-  ""Dream, dream, dream. Dreams transform into thoughts and thoughts result in action." - A.P.J. Abdul Kalam",
-  ""When you want something, all the universe conspires in helping you to achieve it." - Paulo Coelho",
-  ""Learn from yesterday, live for today, hope for tomorrow." - Albert Einstein",
-  ""The future belongs to those who believe in the beauty of their dreams." - Eleanor Roosevelt"
+  "Dream, dream, dream. Dreams transform into thoughts and thoughts result in action. - A.P.J. Abdul Kalam",
+  "When you want something, all the universe conspires in helping you to achieve it. - Paulo Coelho",
+  "Learn from yesterday, live for today, hope for tomorrow. - Albert Einstein",
+  "The future belongs to those who believe in the beauty of their dreams. - Eleanor Roosevelt"
 ];
 
 const wellnessHacks = [
