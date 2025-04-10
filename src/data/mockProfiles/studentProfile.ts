@@ -52,14 +52,7 @@ export const mockStudentProfile: StudentProfile = {
   studyHoursToday: 2.5,
   subjectsCovered: 3,
   quizPerformance: 82,
-  mood: {
-    current: "Focused" as MoodType,
-    history: [
-      { date: new Date('2025-05-12'), mood: "Focused" as MoodType },
-      { date: new Date('2025-05-11'), mood: "Okay" as MoodType },
-      { date: new Date('2025-05-10'), mood: "Tired" as MoodType }
-    ]
-  },
+  mood: "Focused" as MoodType,
   syllabusCoverage: 65,
   strongSubjects: ["Physics", "Mathematics"],
   weakSubjects: ["Chemistry", "Biology"]

@@ -13,7 +13,7 @@ import CallToAction from "@/components/home/CallToAction";
 import FloatingAvatar from "@/components/shared/FloatingAvatar";
 import ExamPreparationSection from "@/components/home/ExamPreparationSection";
 import StudentBenefitsSection from "@/components/home/StudentBenefitsSection";
-import { ExamReadinessAnalyzer } from "@/components/home/ExamReadinessAnalyzer";
+import ExamReadinessAnalyzer from "@/components/home/ExamReadinessAnalyzer";
 
 const Index = () => {
   const [showAnalyzer, setShowAnalyzer] = useState(false);

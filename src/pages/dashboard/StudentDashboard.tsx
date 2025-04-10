@@ -1,70 +1,112 @@
 
-import { useStudentDashboard } from "@/hooks/useStudentDashboard";
-import { formatTime, formatDate } from "./student/StudentDashboardUtils";
+import { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 import SidebarNav from "@/components/dashboard/SidebarNav";
 import ChatAssistant from "@/components/dashboard/ChatAssistant";
+import { useUserProfile } from "@/hooks/useUserProfile";
+import { useKpiTracking } from "@/hooks/useKpiTracking";
 import OnboardingFlow from "@/components/dashboard/student/OnboardingFlow";
 import DashboardLoading from "./student/DashboardLoading";
 import DashboardHeader from "./student/DashboardHeader";
-import DashboardContent from "@/components/dashboard/student/DashboardContent";
-import StudyPlanDialog from "./student/StudyPlanDialog";
 import SidebarNavigation from "./student/SidebarNavigation";
-import { DashboardTabs } from "@/components/dashboard/student/DashboardTabs";
-import { useEffect } from "react";
+import DashboardContent from "./student/DashboardContent";
+import { getFeatures, formatTime, formatDate } from "./student/StudentDashboardUtils";
+import StudyPlanDialog from "./student/StudyPlanDialog";
+import { Button } from "@/components/ui/button";
+import { Eye } from "lucide-react";
 
 const StudentDashboard = () => {
-  const {
-    loading,
-    activeTab,
-    userProfile,
-    kpis,
-    nudges,
-    markNudgeAsRead,
-    showWelcomeTour,
-    showOnboarding,
-    currentTime,
-    showStudyPlan,
-    onboardingCompleted,
-    features,
-    handleTabChange,
-    handleSkipTour,
-    handleCompleteTour,
-    handleCompleteOnboarding,
-    handleViewStudyPlan,
-    handleCloseStudyPlan
-  } = useStudentDashboard();
+  const { toast } = useToast();
+  const navigate = useNavigate();
+  const { tab } = useParams();
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState(tab || "overview");
+  const { userProfile } = useUserProfile("Student");
+  const { kpis, nudges, markNudgeAsRead } = useKpiTracking("Student");
+  const [showWelcomeTour, setShowWelcomeTour] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [currentTime, setCurrentTime] = useState(new Date());
+  const [showStudyPlan, setShowStudyPlan] = useState(false);
 
+  // Get features data
+  const features = getFeatures();
+
+  useEffect(() => {
+    if (tab) {
+      setActiveTab(tab);
+    }
+  }, [tab]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false);
+      toast({
+        title: "Welcome to your smart study plan!",
+        description: "Your personalized dashboard is ready.",
+      });
+    }, 1000);
+
+    const intervalId = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 60000);
+
+    // Check if user is a first-time user
+    const isFirstTime = localStorage.getItem("firstTimeUser");
+    if (isFirstTime !== "false" && userProfile) {
+      setShowOnboarding(true);
+      localStorage.setItem("firstTimeUser", "false");
+    }
+
+    return () => {
+      clearTimeout(timer);
+      clearInterval(intervalId);
+    };
+  }, [toast, userProfile]);
+
+  const handleTabChange = (newTab: string) => {
+    setActiveTab(newTab);
+    navigate(`/dashboard/student/${newTab}`);
+  };
+
+  const handleSkipTour = () => {
+    setShowWelcomeTour(false);
+  };
+
+  const handleCompleteTour = () => {
+    setShowWelcomeTour(false);
+  };
+
+  const handleCompleteOnboarding = () => {
+    setShowOnboarding(false);
+  };
+  
+  const handleViewStudyPlan = () => {
+    setShowStudyPlan(true);
+  };
+  
+  const handleCloseStudyPlan = () => {
+    setShowStudyPlan(false);
+  };
+  
   // Format current time and date
   const formattedTime = formatTime(currentTime);
   const formattedDate = formatDate(currentTime);
 
-  // Debug logging
-  useEffect(() => {
-    console.log("Dashboard state:", {
-      loading,
-      showOnboarding,
-      userProfile: !!userProfile,
-      activeTab
-    });
-  }, [loading, showOnboarding, userProfile, activeTab]);
-
   if (loading || !userProfile) {
-    console.log("Showing loading screen");
     return <DashboardLoading />;
   }
 
-  if (showOnboarding) {
-    console.log("Showing onboarding flow");
+  if (showOnboarding && userProfile.goals?.[0]?.title) {
     return (
       <OnboardingFlow 
         userProfile={userProfile} 
-        goalTitle={userProfile.goals?.[0]?.title || "Complete your studies"}
+        goalTitle={userProfile.goals[0].title}
         onComplete={handleCompleteOnboarding}
       />
     );
   }
 
-  console.log("Rendering main dashboard");
   return (
     <div className="min-h-screen bg-gradient-to-br from-sky-100/10 via-white to-violet-100/10 dark:from-sky-900/10 dark:via-gray-900 dark:to-violet-900/10">
       <SidebarNav userType="student" userName={userProfile.name} />
@@ -77,9 +119,6 @@ const StudentDashboard = () => {
           formattedDate={formattedDate}
           onViewStudyPlan={handleViewStudyPlan}
         />
-        
-        {/* Horizontal Tab Navigation */}
-        <DashboardTabs activeTab={activeTab} onTabChange={handleTabChange} />
         
         {/* Main dashboard content area */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -98,7 +137,7 @@ const StudentDashboard = () => {
             nudges={nudges}
             markNudgeAsRead={markNudgeAsRead}
             features={features}
-            showWelcomeTour={showWelcomeTour || onboardingCompleted}
+            showWelcomeTour={showWelcomeTour}
             handleSkipTour={handleSkipTour}
             handleCompleteTour={handleCompleteTour}
           />
