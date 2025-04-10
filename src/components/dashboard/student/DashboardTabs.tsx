@@ -17,6 +17,7 @@ import {
   Users,
   Bell
 } from "lucide-react";
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface DashboardTabsProps {
   activeTab: string;
@@ -31,6 +32,8 @@ export default function DashboardTabs({
   tabContents,
   hideTabsNav = false
 }: DashboardTabsProps) {
+  const isMobile = useIsMobile();
+  
   const tabs = [
     { id: "overview", label: "Overview", icon: <Lightbulb size={16} /> },
     { id: "today", label: "Today's Focus", icon: <ListTodo size={16} /> },
@@ -88,22 +91,22 @@ export default function DashboardTabs({
   };
 
   return (
-    <Tabs value={activeTab} onValueChange={onTabChange} className="space-y-6">
+    <Tabs value={activeTab} onValueChange={onTabChange} className="space-y-4 sm:space-y-6">
       {!hideTabsNav && (
         <motion.div
           variants={containerVariants}
           initial="hidden"
           animate="visible"
         >
-          <TabsList className="tab-scrollbar grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-7 gap-2">
+          <TabsList className="tab-scrollbar grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-7 gap-2 overflow-x-auto">
             {tabs.map(tab => (
               <motion.div key={tab.id} variants={itemVariants}>
                 <TabsTrigger 
                   value={tab.id} 
-                  className="flex items-center gap-2 transition-all duration-300 hover:bg-violet-100/50"
+                  className="flex items-center gap-2 transition-all duration-300 hover:bg-violet-100/50 text-sm"
                 >
                   {tab.icon}
-                  <span>{tab.label}</span>
+                  <span className={isMobile ? "text-xs" : ""}>{tab.label}</span>
                 </TabsTrigger>
               </motion.div>
             ))}
@@ -119,14 +122,14 @@ export default function DashboardTabs({
       >
         <TabsContent value={activeTab} className="focus-visible:outline-none focus-visible:ring-0">
           {tabContents[activeTab] || (
-            <div className="text-center p-12">
+            <div className="text-center p-8 sm:p-12">
               <motion.div
                 initial={{ scale: 0.9, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ duration: 0.3 }}
               >
-                <p className="text-lg text-gray-500">Coming soon...</p>
-                <p className="text-sm text-gray-400 mt-2">This feature is under development</p>
+                <p className="text-base sm:text-lg text-gray-500">Coming soon...</p>
+                <p className="text-xs sm:text-sm text-gray-400 mt-2">This feature is under development</p>
               </motion.div>
             </div>
           )}

@@ -9,6 +9,7 @@ import TodayStudyPlan from "@/components/dashboard/student/TodayStudyPlan";
 import { ReactNode } from "react";
 import { motion } from "framer-motion";
 import { AlertCircle, BookOpen, Coffee } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface DashboardOverviewProps {
   userProfile: UserProfileType;
@@ -31,6 +32,8 @@ export default function DashboardOverview({
   markNudgeAsRead,
   features
 }: DashboardOverviewProps) {
+  const isMobile = useIsMobile();
+  
   // Animation variants
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
@@ -85,14 +88,14 @@ export default function DashboardOverview({
           </div>
           <div>
             <h3 className="font-medium text-sm text-amber-800 dark:text-amber-300">Today's Study Tip</h3>
-            <p className="text-gray-700 dark:text-gray-300">{studyTip}</p>
+            <p className="text-sm text-gray-700 dark:text-gray-300">{studyTip}</p>
           </div>
         </div>
       </motion.div>
 
       {/* KPI Cards */}
       <motion.div 
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8"
         variants={itemVariants}
       >
         {kpis.map((kpi, index) => (
@@ -102,7 +105,7 @@ export default function DashboardOverview({
             variants={staggerCardVariants}
             initial="hidden"
             animate="visible"
-            whileHover={{ scale: 1.03, transition: { duration: 0.2 } }}
+            whileHover={{ scale: isMobile ? 1.01 : 1.03, transition: { duration: 0.2 } }}
           >
             <KpiCard kpi={kpi} />
           </motion.div>
@@ -111,17 +114,17 @@ export default function DashboardOverview({
       
       {/* Study Plan and Profile */}
       <motion.div 
-        className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8"
+        className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8"
         variants={itemVariants}
       >
         <motion.div 
           className="lg:col-span-2"
-          whileHover={{ scale: 1.01, transition: { duration: 0.2 } }}
+          whileHover={{ scale: isMobile ? 1.005 : 1.01, transition: { duration: 0.2 } }}
         >
           <TodayStudyPlan />
         </motion.div>
         <motion.div
-          whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
+          whileHover={{ scale: isMobile ? 1.005 : 1.02, transition: { duration: 0.2 } }}
         >
           <ProfileCard profile={userProfile} />
         </motion.div>
@@ -129,7 +132,7 @@ export default function DashboardOverview({
       
       {/* Nudges Panel */}
       <motion.div 
-        className="mb-8"
+        className="mb-6 sm:mb-8"
         variants={itemVariants}
       >
         <NudgePanel nudges={nudges} markAsRead={markNudgeAsRead} />
@@ -137,7 +140,7 @@ export default function DashboardOverview({
       
       {/* Feature Cards */}
       <motion.div 
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6"
         variants={itemVariants}
       >
         {features.map((feature, index) => (
@@ -148,7 +151,7 @@ export default function DashboardOverview({
             initial="hidden"
             animate="visible"
             whileHover={{ 
-              scale: 1.05, 
+              scale: isMobile ? 1.01 : 1.05, 
               transition: { duration: 0.2 },
               boxShadow: "0 10px 30px -10px rgba(0,0,0,0.1)"
             }}

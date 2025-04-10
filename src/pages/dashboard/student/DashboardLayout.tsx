@@ -12,6 +12,7 @@ import { UserProfileType } from "@/types/user";
 import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
 import { formatTime, formatDate } from "./utils/DateTimeFormatter";
 import { motion, AnimatePresence } from "framer-motion";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface DashboardLayoutProps {
   userProfile: UserProfileType;
@@ -53,6 +54,7 @@ const DashboardLayout = ({
   const currentTime = new Date();
   const formattedTime = formatTime(currentTime);
   const formattedDate = formatDate(currentTime);
+  const isMobile = useIsMobile();
   
   // Get features from utility
   const { getFeatures } = require("./utils/FeatureManager");
@@ -62,9 +64,9 @@ const DashboardLayout = ({
     <div className="min-h-screen bg-gradient-to-br from-sky-100/10 via-white to-violet-100/10 dark:from-sky-900/10 dark:via-gray-900 dark:to-violet-900/10">
       <SidebarNav userType="student" userName={userProfile.name} />
       
-      <main className={`transition-all duration-300 ${hideSidebar ? 'md:ml-0' : 'md:ml-64'} p-6 pb-20 md:pb-6`}>
+      <main className={`transition-all duration-300 ${hideSidebar ? 'md:ml-0' : 'md:ml-64'} p-4 sm:p-6 pb-20 md:pb-6`}>
         {/* Top navigation controls */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-4 sm:mb-6">
           {/* Toggle sidebar button - improved position */}
           <motion.div
             initial={{ opacity: 0 }}
@@ -75,7 +77,7 @@ const DashboardLayout = ({
             <Button
               variant="outline"
               size="sm"
-              className="flex items-center gap-1 bg-white shadow-sm hover:bg-purple-50 border-purple-200 text-purple-700"
+              className="hidden md:flex items-center gap-1 bg-white shadow-sm hover:bg-purple-50 border-purple-200 text-purple-700"
               onClick={onToggleSidebar}
             >
               {hideSidebar ? 
@@ -101,10 +103,17 @@ const DashboardLayout = ({
           onViewStudyPlan={onViewStudyPlan}
         />
         
+        {/* Mobile Navigation */}
+        {isMobile && (
+          <div className="mb-6">
+            <MobileNavigation activeTab={activeTab} onTabChange={onTabChange} />
+          </div>
+        )}
+        
         {/* Main dashboard content area */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mt-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 mt-4 sm:mt-6">
           {/* Left navigation sidebar (desktop) */}
-          {!hideSidebar && (
+          {!hideSidebar && !isMobile && (
             <SidebarNavigation 
               activeTab={activeTab} 
               onTabChange={onTabChange} 
@@ -113,30 +122,32 @@ const DashboardLayout = ({
           
           {/* Main content area */}
           <div className="lg:col-span-9 xl:col-span-10">
-            <div className="flex items-center justify-end mb-4">
-              {/* Toggle tabs visibility button with improved UI */}
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={hideTabsNav ? 'show' : 'hide'}
-                  initial={{ opacity: 0, x: 10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -10 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="flex items-center gap-1 bg-white shadow-sm hover:bg-violet-50 border-violet-200 text-violet-700"
-                    onClick={onToggleTabsNav}
+            {!isMobile && (
+              <div className="flex items-center justify-end mb-4">
+                {/* Toggle tabs visibility button with improved UI */}
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={hideTabsNav ? 'show' : 'hide'}
+                    initial={{ opacity: 0, x: 10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -10 }}
+                    transition={{ duration: 0.2 }}
                   >
-                    {hideTabsNav ? 
-                      <><ChevronRight size={15} /> Show Navigation</> : 
-                      <><X size={15} /> Hide Navigation</>
-                    }
-                  </Button>
-                </motion.div>
-              </AnimatePresence>
-            </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex items-center gap-1 bg-white shadow-sm hover:bg-violet-50 border-violet-200 text-violet-700"
+                      onClick={onToggleTabsNav}
+                    >
+                      {hideTabsNav ? 
+                        <><ChevronRight size={15} /> Show Navigation</> : 
+                        <><X size={15} /> Hide Navigation</>
+                      }
+                    </Button>
+                  </motion.div>
+                </AnimatePresence>
+              </div>
+            )}
             
             {/* Main content area */}
             <DashboardContent
@@ -150,7 +161,7 @@ const DashboardLayout = ({
               showWelcomeTour={showWelcomeTour}
               handleSkipTour={onSkipTour}
               handleCompleteTour={onCompleteTour}
-              hideTabsNav={hideTabsNav}
+              hideTabsNav={hideTabsNav || isMobile}
             />
           </div>
         </div>
@@ -165,6 +176,47 @@ const DashboardLayout = ({
           onClose={onCloseStudyPlan} 
         />
       )}
+    </div>
+  );
+};
+
+// Mobile Navigation Component
+const MobileNavigation = ({ activeTab, onTabChange }: { activeTab: string; onTabChange: (tab: string) => void }) => {
+  const navigate = require('react-router-dom').useNavigate();
+  
+  const navItems = [
+    { icon: <ChevronRight size={16} />, title: "Dashboard", tab: "overview" },
+    { icon: <ChevronRight size={16} />, title: "Today", tab: "today" },
+    { icon: <ChevronRight size={16} />, title: "Academic", tab: "academic" },
+    { icon: <ChevronRight size={16} />, title: "Tutor", tab: "tutor" },
+    { icon: <ChevronRight size={16} />, title: "Flashcards", tab: "flashcards" },
+    { icon: <ChevronRight size={16} />, title: "Exams", tab: "exams" },
+  ];
+
+  const handleTabChange = (tab: string) => {
+    onTabChange(tab);
+    navigate(`/dashboard/student/${tab}`);
+  };
+
+  return (
+    <div className="overflow-x-auto pb-2">
+      <div className="flex gap-2 min-w-max">
+        {navItems.map((item) => (
+          <Button
+            key={item.tab}
+            variant={activeTab === item.tab ? "default" : "outline"}
+            size="sm"
+            className={`flex-shrink-0 ${
+              activeTab === item.tab 
+                ? "bg-gradient-to-r from-sky-500 to-violet-500" 
+                : ""
+            }`}
+            onClick={() => handleTabChange(item.tab)}
+          >
+            <span className="whitespace-nowrap">{item.title}</span>
+          </Button>
+        ))}
+      </div>
     </div>
   );
 };

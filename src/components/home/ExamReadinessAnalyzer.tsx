@@ -35,7 +35,7 @@ export function ExamReadinessAnalyzer({ onClose }: { onClose: () => void }) {
 
   return (
     <Dialog open onOpenChange={onClose}>
-      <DialogContent className={`sm:max-w-md md:max-w-2xl lg:max-w-4xl bg-white dark:bg-gray-900 shadow-xl border-2 border-violet-100 dark:border-violet-800 ${isMobile ? 'p-3 w-[95%] max-h-[90vh] overflow-y-auto' : 'p-6'}`}>
+      <DialogContent className={`sm:max-w-md md:max-w-2xl lg:max-w-4xl bg-white dark:bg-gray-900 shadow-xl border-2 border-violet-100 dark:border-violet-800 ${isMobile ? 'p-3 w-[95vw] max-h-[90vh] overflow-y-auto' : 'p-6'} mx-auto`}>
         <ExamDialogHeader 
           title={getDialogTitle(currentTest)} 
           description={getDialogDescription(currentTest)}

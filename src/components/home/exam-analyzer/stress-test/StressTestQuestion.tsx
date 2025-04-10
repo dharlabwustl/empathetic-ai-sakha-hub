@@ -39,7 +39,7 @@ const StressTestQuestion: React.FC<StressTestQuestionProps> = ({
     : '';
 
   return (
-    <div className={`space-y-4 sm:space-y-6 ${questionTypeClass} rounded-lg p-1`}>
+    <div className={`space-y-3 sm:space-y-6 ${questionTypeClass} rounded-lg p-1`}>
       <QuestionHeader
         currentQuestionIndex={currentQuestionIndex}
         questionsLength={questionsLength}

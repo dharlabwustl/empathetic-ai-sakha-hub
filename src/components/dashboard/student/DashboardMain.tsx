@@ -7,7 +7,9 @@ import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
 import DashboardHeader from "@/pages/dashboard/student/DashboardHeader";
 import DashboardContent from "@/pages/dashboard/student/DashboardContent";
 import SidebarNavigation from "@/pages/dashboard/student/SidebarNavigation";
+import MobileNavigation from "@/pages/dashboard/student/MobileNavigation";
 import { formatTime, formatDate } from "@/pages/dashboard/student/utils/DateTimeFormatter";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface DashboardMainProps {
   userProfile: UserProfileType;
@@ -48,9 +50,10 @@ const DashboardMain: React.FC<DashboardMainProps> = ({
 }) => {
   const formattedTime = formatTime(currentTime);
   const formattedDate = formatDate(currentTime);
+  const isMobile = useIsMobile();
 
   return (
-    <main className={`transition-all duration-300 ${hideSidebar ? 'md:ml-0' : 'md:ml-64'} p-6 pb-20 md:pb-6`}>
+    <main className={`transition-all duration-300 ${hideSidebar ? 'md:ml-0' : 'md:ml-64'} p-4 sm:p-6 pb-20 md:pb-6`}>
       {/* Toggle sidebar button */}
       <Button
         variant="outline"
@@ -68,30 +71,37 @@ const DashboardMain: React.FC<DashboardMainProps> = ({
         formattedDate={formattedDate}
         onViewStudyPlan={onViewStudyPlan}
       />
+
+      {/* Mobile Navigation */}
+      {isMobile && (
+        <MobileNavigation activeTab={activeTab} onTabChange={onTabChange} />
+      )}
       
       {/* Main dashboard content area */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
         {/* Left navigation sidebar (desktop) */}
-        {!hideSidebar && (
+        {!hideSidebar && !isMobile && (
           <SidebarNavigation 
             activeTab={activeTab} 
             onTabChange={onTabChange} 
           />
         )}
         
-        {/* Toggle tabs visibility button - Improved positioning */}
+        {/* Main content area */}
         <div className="lg:col-span-9 xl:col-span-10">
-          <div className="flex justify-end mb-4">
-            <Button
-              variant="outline"
-              size="sm"
-              className="flex items-center gap-1 bg-white shadow-sm hover:bg-violet-50 border-violet-200 text-violet-700"
-              onClick={onToggleTabsNav}
-            >
-              {hideTabsNav ? "Show Navigation" : "Hide Navigation"} 
-              {hideTabsNav ? <ChevronRight size={15} /> : <ChevronLeft size={15} />}
-            </Button>
-          </div>
+          {!isMobile && (
+            <div className="flex justify-end mb-4">
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex items-center gap-1 bg-white shadow-sm hover:bg-violet-50 border-violet-200 text-violet-700"
+                onClick={onToggleTabsNav}
+              >
+                {hideTabsNav ? "Show Navigation" : "Hide Navigation"} 
+                {hideTabsNav ? <ChevronRight size={15} /> : <ChevronLeft size={15} />}
+              </Button>
+            </div>
+          )}
           
           {/* Main content area */}
           <DashboardContent
@@ -105,7 +115,7 @@ const DashboardMain: React.FC<DashboardMainProps> = ({
             showWelcomeTour={showWelcomeTour}
             handleSkipTour={onSkipTour}
             handleCompleteTour={onCompleteTour}
-            hideTabsNav={hideTabsNav}
+            hideTabsNav={hideTabsNav || isMobile}
           />
         </div>
       </div>

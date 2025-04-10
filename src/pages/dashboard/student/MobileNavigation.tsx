@@ -3,6 +3,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Home, Calendar, BookMarked, MessageSquare, Brain, BookOpen, LineChart, Activity, Heart, Folder, Video, Users, Bell } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface MobileNavigationProps {
   activeTab: string;
@@ -11,6 +12,7 @@ interface MobileNavigationProps {
 
 const MobileNavigation = ({ activeTab, onTabChange }: MobileNavigationProps) => {
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   
   const navItems = [
     { icon: <Home size={16} />, title: "Dashboard", tab: "overview" },
@@ -26,9 +28,13 @@ const MobileNavigation = ({ activeTab, onTabChange }: MobileNavigationProps) => 
     navigate(`/dashboard/student/${tab}`);
   };
 
+  if (!isMobile) {
+    return null;
+  }
+
   return (
     <div className="md:hidden mb-6 overflow-x-auto tab-scrollbar pb-3">
-      <div className="flex gap-3">
+      <div className="flex gap-3 px-1">
         {navItems.map((item) => (
           <Button
             key={item.tab}
@@ -42,7 +48,7 @@ const MobileNavigation = ({ activeTab, onTabChange }: MobileNavigationProps) => 
             onClick={() => handleTabChange(item.tab)}
           >
             {item.icon}
-            <span className="ml-2">{item.title}</span>
+            <span className="ml-2 whitespace-nowrap">{item.title}</span>
           </Button>
         ))}
       </div>

@@ -7,16 +7,19 @@ import {
   LogOut,
   ChevronLeft,
   ChevronRight,
-  Menu
+  Menu,
+  X
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SidebarNavProps } from "./types/sidebar";
 import { SidebarAvatar } from "./SidebarAvatar";
 import { SidebarNavRoutes } from "./SidebarNavRoutes";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const SidebarNav = ({ userType, userName = "User" }: SidebarNavProps) => {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const isMobile = useIsMobile();
 
   return (
     <>
@@ -27,7 +30,7 @@ const SidebarNav = ({ userType, userName = "User" }: SidebarNavProps) => {
         className="fixed top-4 left-4 z-50 md:hidden"
         onClick={() => setMobileOpen(!mobileOpen)}
       >
-        <Menu size={20} />
+        {mobileOpen ? <X size={20} /> : <Menu size={20} />}
       </Button>
       
       {/* Sidebar Overlay for Mobile */}
@@ -43,7 +46,7 @@ const SidebarNav = ({ userType, userName = "User" }: SidebarNavProps) => {
         className={cn(
           "fixed top-0 left-0 h-full bg-sidebar dark:bg-gradient-to-b dark:from-slate-900 dark:to-slate-800 border-r border-sidebar-border z-40 transition-all duration-300 flex flex-col",
           collapsed ? "w-20" : "w-64",
-          mobileOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+          isMobile ? (mobileOpen ? "translate-x-0" : "-translate-x-full") : "md:translate-x-0"
         )}
       >
         <div className="p-4 border-b border-sidebar-border flex items-center justify-between">
@@ -65,6 +68,15 @@ const SidebarNav = ({ userType, userName = "User" }: SidebarNavProps) => {
           >
             {collapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
           </Button>
+          {isMobile && (
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={() => setMobileOpen(false)}
+            >
+              <X size={18} />
+            </Button>
+          )}
         </div>
         
         <div className="flex-1 overflow-y-auto py-4">

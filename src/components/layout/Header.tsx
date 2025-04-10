@@ -1,22 +1,20 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, BookOpen } from "lucide-react";
-import { 
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuTrigger
-} from "@/components/ui/navigation-menu";
-import { cn } from "@/lib/utils";
+import { Menu, X, BookOpen, ChevronRight } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const isMobile = useIsMobile();
+
+  // Close menu when screen size changes from mobile to desktop
+  useEffect(() => {
+    if (!isMobile && isMenuOpen) {
+      setIsMenuOpen(false);
+    }
+  }, [isMobile]);
 
   const menuItems = [
     { title: "What is Sakha 1.0?", link: "/about" },
@@ -80,10 +78,11 @@ const Header = () => {
               <Link 
                 key={item.link}
                 to={item.link} 
-                className="py-3 px-4 text-gray-600 dark:text-gray-300 hover:text-violet-600 dark:hover:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-900/20 rounded-md transition-colors text-lg font-medium"
+                className="py-3 px-4 text-gray-600 dark:text-gray-300 hover:text-violet-600 dark:hover:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-900/20 rounded-md transition-colors text-lg font-medium flex items-center justify-between"
                 onClick={() => setIsMenuOpen(false)}
               >
-                {item.title}
+                <span>{item.title}</span>
+                <ChevronRight size={16} />
               </Link>
             ))}
             <div className="flex flex-col gap-3 pt-4 mt-2 border-t border-gray-100 dark:border-gray-800">

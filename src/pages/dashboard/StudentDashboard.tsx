@@ -5,7 +5,7 @@ import ChatAssistant from "@/components/dashboard/ChatAssistant";
 import OnboardingFlow from "@/components/dashboard/student/OnboardingFlow";
 import DashboardLoading from "./student/DashboardLoading";
 import StudyPlanDialog from "./student/StudyPlanDialog";
-import DashboardMain from "@/components/dashboard/student/DashboardMain";
+import DashboardLayout from "./student/DashboardLayout";
 import { useStudentDashboard } from "@/hooks/useStudentDashboard";
 
 const StudentDashboard = () => {
@@ -53,38 +53,24 @@ const StudentDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-sky-100/10 via-white to-violet-100/10 dark:from-sky-900/10 dark:via-gray-900 dark:to-violet-900/10">
-      <SidebarNav userType="student" userName={userProfile.name} />
-      
-      <DashboardMain
-        userProfile={userProfile}
-        hideSidebar={hideSidebar}
-        hideTabsNav={hideTabsNav}
-        activeTab={activeTab}
-        kpis={kpis}
-        nudges={nudges}
-        markNudgeAsRead={markNudgeAsRead}
-        features={features}
-        showWelcomeTour={showWelcomeTour}
-        currentTime={currentTime}
-        onTabChange={handleTabChange}
-        onViewStudyPlan={handleViewStudyPlan}
-        onToggleSidebar={toggleSidebar}
-        onToggleTabsNav={toggleTabsNav}
-        onSkipTour={handleSkipTour}
-        onCompleteTour={handleCompleteTour}
-      />
-      
-      <ChatAssistant userType="student" />
-      
-      {/* Study Plan Dialog */}
-      {showStudyPlan && (
-        <StudyPlanDialog 
-          userProfile={userProfile} 
-          onClose={handleCloseStudyPlan} 
-        />
-      )}
-    </div>
+    <DashboardLayout
+      userProfile={userProfile}
+      hideSidebar={hideSidebar}
+      hideTabsNav={hideTabsNav}
+      activeTab={activeTab}
+      kpis={kpis}
+      nudges={nudges}
+      markNudgeAsRead={markNudgeAsRead}
+      showWelcomeTour={showWelcomeTour}
+      onTabChange={handleTabChange}
+      onViewStudyPlan={handleViewStudyPlan}
+      onToggleSidebar={toggleSidebar}
+      onToggleTabsNav={toggleTabsNav}
+      onSkipTour={handleSkipTour}
+      onCompleteTour={handleCompleteTour}
+      showStudyPlan={showStudyPlan}
+      onCloseStudyPlan={handleCloseStudyPlan}
+    />
   );
 };
 
