@@ -1,128 +1,37 @@
 
-import { useState, useEffect } from "react";
-import { useParams, useNavigate, useLocation } from "react-router-dom";
-import { useToast } from "@/hooks/use-toast";
+import React from "react";
 import SidebarNav from "@/components/dashboard/SidebarNav";
 import ChatAssistant from "@/components/dashboard/ChatAssistant";
-import { useUserProfile } from "@/hooks/useUserProfile";
-import { useKpiTracking } from "@/hooks/useKpiTracking";
 import OnboardingFlow from "@/components/dashboard/student/OnboardingFlow";
 import DashboardLoading from "./student/DashboardLoading";
-import DashboardHeader from "./student/DashboardHeader";
-import SidebarNavigation from "./student/SidebarNavigation";
-import DashboardContent from "./student/DashboardContent";
-import { getFeatures, formatTime, formatDate } from "./student/StudentDashboardUtils";
 import StudyPlanDialog from "./student/StudyPlanDialog";
-import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import DashboardMain from "@/components/dashboard/student/DashboardMain";
+import { useStudentDashboard } from "@/hooks/useStudentDashboard";
 
 const StudentDashboard = () => {
-  const { toast } = useToast();
-  const navigate = useNavigate();
-  const location = useLocation();
-  const { tab } = useParams();
-  const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState(tab || "overview");
-  const { userProfile } = useUserProfile("Student");
-  const { kpis, nudges, markNudgeAsRead } = useKpiTracking("Student");
-  const [showWelcomeTour, setShowWelcomeTour] = useState(false);
-  const [showOnboarding, setShowOnboarding] = useState(false);
-  const [currentTime, setCurrentTime] = useState(new Date());
-  const [showStudyPlan, setShowStudyPlan] = useState(false);
-  const [hideTabsNav, setHideTabsNav] = useState(false);
-  const [hideSidebar, setHideSidebar] = useState(false);
-
-  // Get features data
-  const features = getFeatures();
-
-  useEffect(() => {
-    if (tab) {
-      setActiveTab(tab);
-    }
-  }, [tab]);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoading(false);
-      toast({
-        title: "Welcome to your smart study plan!",
-        description: "Your personalized dashboard is ready.",
-      });
-    }, 1000);
-
-    const intervalId = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 60000);
-
-    // Check for user data and show onboarding/welcome as needed
-    const userData = localStorage.getItem("userData");
-    const searchParams = new URLSearchParams(location.search);
-    const completedOnboarding = searchParams.get('completedOnboarding');
-    
-    // If first time login flow (coming from signup)
-    if (completedOnboarding === 'true') {
-      setShowWelcomeTour(true);
-      // Clean the URL to remove the query param
-      navigate(location.pathname, { replace: true });
-    }
-    // Check if this is a first-time user and not coming from signup
-    else if (!userData) {
-      // First time user, show onboarding
-      setShowOnboarding(true);
-    }
-
-    return () => {
-      clearTimeout(timer);
-      clearInterval(intervalId);
-    };
-  }, [toast, userProfile, location, navigate]);
-
-  const handleTabChange = (newTab: string) => {
-    setActiveTab(newTab);
-    navigate(`/dashboard/student/${newTab}`);
-  };
-
-  const handleSkipTour = () => {
-    setShowWelcomeTour(false);
-  };
-
-  const handleCompleteTour = () => {
-    setShowWelcomeTour(false);
-  };
-
-  const handleCompleteOnboarding = () => {
-    setShowOnboarding(false);
-    setShowWelcomeTour(true);
-    
-    // Store that the user has completed onboarding
-    if (userProfile) {
-      const userData = {
-        ...userProfile,
-        completedOnboarding: true
-      };
-      localStorage.setItem("userData", JSON.stringify(userData));
-    }
-  };
-  
-  const handleViewStudyPlan = () => {
-    setShowStudyPlan(true);
-  };
-  
-  const handleCloseStudyPlan = () => {
-    setShowStudyPlan(false);
-  };
-
-  const toggleSidebar = () => {
-    setHideSidebar(!hideSidebar);
-  };
-
-  const toggleTabsNav = () => {
-    setHideTabsNav(!hideTabsNav);
-  };
-  
-  // Format current time and date
-  const formattedTime = formatTime(currentTime);
-  const formattedDate = formatDate(currentTime);
+  const {
+    loading,
+    userProfile,
+    activeTab,
+    showWelcomeTour,
+    showOnboarding,
+    currentTime,
+    showStudyPlan,
+    hideTabsNav,
+    hideSidebar,
+    kpis,
+    nudges,
+    features,
+    markNudgeAsRead,
+    handleTabChange,
+    handleSkipTour,
+    handleCompleteTour,
+    handleCompleteOnboarding,
+    handleViewStudyPlan,
+    handleCloseStudyPlan,
+    toggleSidebar,
+    toggleTabsNav
+  } = useStudentDashboard();
 
   if (loading || !userProfile) {
     return <DashboardLoading />;
@@ -147,66 +56,24 @@ const StudentDashboard = () => {
     <div className="min-h-screen bg-gradient-to-br from-sky-100/10 via-white to-violet-100/10 dark:from-sky-900/10 dark:via-gray-900 dark:to-violet-900/10">
       <SidebarNav userType="student" userName={userProfile.name} />
       
-      <main className={`transition-all duration-300 ${hideSidebar ? 'md:ml-0' : 'md:ml-64'} p-6 pb-20 md:pb-6`}>
-        {/* Toggle sidebar button */}
-        <Button
-          variant="outline"
-          size="icon"
-          className="fixed top-4 left-20 z-40 hidden md:flex bg-white shadow-md hover:bg-gray-100"
-          onClick={toggleSidebar}
-        >
-          {hideSidebar ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
-        </Button>
-        
-        {/* Top header section */}
-        <DashboardHeader 
-          userProfile={userProfile}
-          formattedTime={formattedTime}
-          formattedDate={formattedDate}
-          onViewStudyPlan={handleViewStudyPlan}
-        />
-        
-        {/* Main dashboard content area */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* Left navigation sidebar (desktop) */}
-          {!hideSidebar && (
-            <SidebarNavigation 
-              activeTab={activeTab} 
-              onTabChange={handleTabChange} 
-            />
-          )}
-          
-          {/* Toggle tabs visibility button - Improved positioning */}
-          <div className="lg:col-span-9 xl:col-span-10">
-            <div className="flex justify-end mb-4">
-              <Button
-                variant="outline"
-                size="sm"
-                className="flex items-center gap-1 bg-white shadow-sm hover:bg-violet-50 border-violet-200 text-violet-700"
-                onClick={toggleTabsNav}
-              >
-                {hideTabsNav ? "Show Navigation" : "Hide Navigation"} 
-                {hideTabsNav ? <ChevronRight size={15} /> : <ChevronLeft size={15} />}
-              </Button>
-            </div>
-            
-            {/* Main content area */}
-            <DashboardContent
-              activeTab={activeTab}
-              onTabChange={handleTabChange}
-              userProfile={userProfile}
-              kpis={kpis}
-              nudges={nudges}
-              markNudgeAsRead={markNudgeAsRead}
-              features={features}
-              showWelcomeTour={showWelcomeTour}
-              handleSkipTour={handleSkipTour}
-              handleCompleteTour={handleCompleteTour}
-              hideTabsNav={hideTabsNav}
-            />
-          </div>
-        </div>
-      </main>
+      <DashboardMain
+        userProfile={userProfile}
+        hideSidebar={hideSidebar}
+        hideTabsNav={hideTabsNav}
+        activeTab={activeTab}
+        kpis={kpis}
+        nudges={nudges}
+        markNudgeAsRead={markNudgeAsRead}
+        features={features}
+        showWelcomeTour={showWelcomeTour}
+        currentTime={currentTime}
+        onTabChange={handleTabChange}
+        onViewStudyPlan={handleViewStudyPlan}
+        onToggleSidebar={toggleSidebar}
+        onToggleTabsNav={toggleTabsNav}
+        onSkipTour={handleSkipTour}
+        onCompleteTour={handleCompleteTour}
+      />
       
       <ChatAssistant userType="student" />
       
