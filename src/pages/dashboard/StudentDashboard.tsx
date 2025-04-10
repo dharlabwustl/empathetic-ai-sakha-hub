@@ -42,6 +42,7 @@ const StudentDashboard = () => {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [showStudyPlan, setShowStudyPlan] = useState(false);
+  const [onboardingCompleted, setOnboardingCompleted] = useState(false);
 
   // Get features data
   const features = getFeatures();
@@ -85,14 +86,19 @@ const StudentDashboard = () => {
 
   const handleSkipTour = () => {
     setShowWelcomeTour(false);
+    localStorage.setItem("welcomeTourShown", "true");
   };
 
   const handleCompleteTour = () => {
     setShowWelcomeTour(false);
+    localStorage.setItem("welcomeTourShown", "true");
   };
 
   const handleCompleteOnboarding = () => {
     setShowOnboarding(false);
+    setOnboardingCompleted(true);
+    // Show welcome tour after onboarding is completed
+    setShowWelcomeTour(true);
   };
   
   const handleViewStudyPlan = () => {
@@ -189,7 +195,7 @@ const StudentDashboard = () => {
             nudges={nudges}
             markNudgeAsRead={markNudgeAsRead}
             features={features}
-            showWelcomeTour={showWelcomeTour}
+            showWelcomeTour={showWelcomeTour || onboardingCompleted}
             handleSkipTour={handleSkipTour}
             handleCompleteTour={handleCompleteTour}
           />

@@ -1,6 +1,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { ChevronRight } from "lucide-react";
 
 interface WelcomeTourProps {
   onSkipTour: () => void;
@@ -19,7 +20,7 @@ export default function WelcomeTour({ onSkipTour, onCompleteTour }: WelcomeTourP
   };
 
   return (
-    <div className="relative z-20 mb-8 bg-gradient-to-r from-sky-50 to-violet-50 p-6 rounded-xl border border-violet-100 shadow-lg">
+    <div className="relative z-20 mb-8 bg-gradient-to-r from-sky-50 to-violet-50 p-6 rounded-xl border border-violet-100 shadow-lg animate-fade-in-up">
       <h3 className="text-xl font-semibold mb-4 gradient-text">
         {tourStep === 0 && "Welcome to Your Smart Study Plan! 🎉"}
         {tourStep === 1 && "Today's Focus 📚"}
@@ -36,11 +37,33 @@ export default function WelcomeTour({ onSkipTour, onCompleteTour }: WelcomeTourP
         {tourStep === 4 && "Have questions? Need help with a topic? The Sakha AI assistant is always ready to help you."}
       </p>
       
-      <div className="flex justify-between">
+      <div className="flex flex-col sm:flex-row justify-between gap-4">
         <Button variant="outline" onClick={onSkipTour}>Skip Tour</Button>
-        <Button onClick={handleNextTourStep} className="bg-gradient-to-r from-sky-500 to-violet-500">
-          {tourStep < 4 ? "Next" : "Start Studying"}
+        <Button 
+          onClick={handleNextTourStep} 
+          className="bg-gradient-to-r from-sky-500 to-violet-500 flex items-center gap-2"
+        >
+          {tourStep < 4 ? (
+            <>
+              <span>Next</span>
+              <ChevronRight size={16} />
+            </>
+          ) : (
+            "Start Studying"
+          )}
         </Button>
+      </div>
+      
+      {/* Progress indicator */}
+      <div className="mt-4 flex justify-center items-center gap-2">
+        {[0, 1, 2, 3, 4].map((step) => (
+          <div
+            key={step}
+            className={`h-2 w-2 rounded-full transition-all ${
+              step === tourStep ? "bg-violet-500 w-4" : "bg-violet-200"
+            }`}
+          />
+        ))}
       </div>
     </div>
   );
