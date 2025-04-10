@@ -35,7 +35,7 @@ export interface TestQuestion {
   timeLimit: number;
   explanation?: string;
   imageUrl?: string;
-  type?: 'multiple-choice' | 'self-assessment' | 'pattern-recognition' | 'memory-recall';
+  type?: 'multiple-choice' | 'self-assessment' | 'pattern-recognition' | 'memory-recall' | 'timed-calculation';
   category?: string;
   difficulty?: 'easy' | 'medium' | 'hard';
   complexityLevel?: number; // 1-5 for increasing complexity
