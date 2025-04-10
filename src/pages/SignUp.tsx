@@ -238,6 +238,11 @@ const SignUp = () => {
     e.preventDefault();
     setIsLoading(true);
     
+    // Store onboarding data in localStorage to trigger onboarding flow
+    localStorage.setItem("needsOnboarding", "true");
+    localStorage.setItem("onboardingData", JSON.stringify(onboardingData));
+    localStorage.setItem("firstTimeUser", "true");
+    
     // Simulate API call
     setTimeout(() => {
       setIsLoading(false);

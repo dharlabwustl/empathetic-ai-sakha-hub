@@ -130,7 +130,11 @@ export interface StudentProfile extends UserProfileType {
   syllabusCoverage: number;
   strongSubjects: string[];
   weakSubjects: string[];
-  mood: MoodType;
+  // Replace string mood with same structure as in UserProfileType
+  mood: {
+    current: MoodType;
+    history: Array<{ date: Date; mood: MoodType }>;
+  };
 }
 
 export interface EmployeeProfile extends UserProfileType {

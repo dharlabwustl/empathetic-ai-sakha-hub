@@ -66,11 +66,17 @@ const StudentDashboard = () => {
       setCurrentTime(new Date());
     }, 60000);
 
-    // Check if user is a first-time user
-    const isFirstTime = localStorage.getItem("firstTimeUser");
-    if (isFirstTime !== "false" && userProfile) {
+    // Check if user is coming from signup or needs onboarding
+    const needsOnboarding = localStorage.getItem("needsOnboarding") === "true";
+    const firstTimeUser = localStorage.getItem("firstTimeUser") === "true";
+    
+    if (needsOnboarding && userProfile) {
       setShowOnboarding(true);
-      localStorage.setItem("firstTimeUser", "false");
+      localStorage.removeItem("needsOnboarding"); // Clear so it doesn't show again
+    } else if (firstTimeUser && userProfile) {
+      // If user was marked as first time but didn't go through onboarding
+      // (maybe refreshed or closed the page)
+      setShowWelcomeTour(true);
     }
 
     return () => {
@@ -87,16 +93,19 @@ const StudentDashboard = () => {
   const handleSkipTour = () => {
     setShowWelcomeTour(false);
     localStorage.setItem("welcomeTourShown", "true");
+    localStorage.setItem("firstTimeUser", "false");
   };
 
   const handleCompleteTour = () => {
     setShowWelcomeTour(false);
     localStorage.setItem("welcomeTourShown", "true");
+    localStorage.setItem("firstTimeUser", "false");
   };
 
   const handleCompleteOnboarding = () => {
     setShowOnboarding(false);
     setOnboardingCompleted(true);
+    localStorage.setItem("firstTimeUser", "false");
     // Show welcome tour after onboarding is completed
     setShowWelcomeTour(true);
   };

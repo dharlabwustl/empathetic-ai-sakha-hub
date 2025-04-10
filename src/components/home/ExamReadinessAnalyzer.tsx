@@ -1,397 +1,508 @@
 
 import { useState } from "react";
-import { 
-  Chart, 
-  ChartData, 
-  ChartOptions, 
-  RadialLinearScale, 
-  PointElement, 
-  LineElement, 
-  Filler, 
-  Tooltip, 
-  Legend 
-} from "chart.js";
-import { Radar } from "react-chartjs-2";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Card, CardContent } from "@/components/ui/card";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { useNavigate } from "react-router-dom";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Textarea } from "@/components/ui/textarea";
+import { Progress } from "@/components/ui/progress";
 import { 
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { X, ChevronRight, TrendingUp, TrendingDown } from "lucide-react";
+  X, 
+  CheckCircle, 
+  BookOpen, 
+  Calendar, 
+  Clock, 
+  BrainCircuit,
+  LineChart, 
+  Target, 
+  AlertCircle,
+  ChevronRight, 
+  ChevronLeft
+} from "lucide-react";
 
-Chart.register(RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend);
-
-interface ReadinessData {
-  name: string;
-  categories: Array<{
-    name: string;
-    score: number;
-  }>;
-  overallScore: number;
-  strengths: Array<string>;
-  weaknesses: Array<string>;
-  improvements: Array<string>;
+interface ExamReadinessAnalyzerProps {
+  onClose: () => void;
 }
 
-const mockExams = [
-  {
-    id: "jee",
-    name: "IIT-JEE",
-    data: {
-      name: "IIT-JEE",
-      categories: [
-        { name: "Math Proficiency", score: 75 },
-        { name: "Physics Concepts", score: 82 },
-        { name: "Chemistry Knowledge", score: 65 },
-        { name: "Problem Solving", score: 78 },
-        { name: "Time Management", score: 60 },
-        { name: "Revision Strategy", score: 71 },
-      ],
-      overallScore: 72,
-      strengths: [
-        "Strong grasp of Physics mechanics and electromagnetism",
-        "Excellent at geometry and calculus problems",
-        "Good at formula application and derivations"
-      ],
-      weaknesses: [
-        "Organic chemistry concepts need strengthening",
-        "Time management during complex problem solving", 
-        "Thermodynamics and electrochemistry require attention"
-      ],
-      improvements: [
-        "Focus on solving more organic chemistry problems",
-        "Practice timed mock tests to improve speed",
-        "Review thermodynamics and electrochemistry concepts"
-      ]
-    }
-  },
-  {
-    id: "neet",
-    name: "NEET",
-    data: {
-      name: "NEET",
-      categories: [
-        { name: "Biology Concepts", score: 85 },
-        { name: "Chemistry Knowledge", score: 72 },
-        { name: "Physics Understanding", score: 68 },
-        { name: "Memorization", score: 80 },
-        { name: "Application Skills", score: 75 },
-        { name: "Exam Strategy", score: 65 },
-      ],
-      overallScore: 74,
-      strengths: [
-        "Excellent knowledge of human physiology and anatomy",
-        "Strong understanding of cellular biology concepts",
-        "Good grasp of organic chemistry mechanisms"
-      ],
-      weaknesses: [
-        "Physics numerical problems need more practice",
-        "Plant biology concepts require strengthening",
-        "Need to improve on connecting theoretical knowledge to applications"
-      ],
-      improvements: [
-        "Focus on solving more physics numerical problems",
-        "Review plant biology chapters thoroughly",
-        "Practice more application-based questions"
-      ]
-    }
-  },
-  {
-    id: "upsc",
-    name: "UPSC",
-    data: {
-      name: "UPSC",
-      categories: [
-        { name: "General Knowledge", score: 79 },
-        { name: "Current Affairs", score: 82 },
-        { name: "Essay Writing", score: 75 },
-        { name: "History & Culture", score: 68 },
-        { name: "Economics & Polity", score: 72 },
-        { name: "Answer Presentation", score: 65 },
-      ],
-      overallScore: 73,
-      strengths: [
-        "Strong understanding of current national and international affairs",
-        "Good analytical skills and logical reasoning",
-        "Effective essay structuring and articulation"
-      ],
-      weaknesses: [
-        "Ancient and medieval history concepts need strengthening",
-        "Economic theories and applications require more depth",
-        "Answer presentation needs to be more concise and focused"
-      ],
-      improvements: [
-        "Study ancient and medieval history topics in more depth",
-        "Practice applying economic theories to current scenarios",
-        "Work on answer writing technique to be more precise"
-      ]
-    }
-  }
-];
+type Step = "goal" | "study-style" | "time-left" | "subjects" | "questions" | "results";
 
-export function ExamReadinessAnalyzer({ onClose }: { onClose?: () => void }) {
-  const [selectedExam, setSelectedExam] = useState("jee");
-  const [showAnalysis, setShowAnalysis] = useState(false);
-  const [readinessData, setReadinessData] = useState<ReadinessData | null>(null);
+export function ExamReadinessAnalyzer({ onClose }: ExamReadinessAnalyzerProps) {
+  const navigate = useNavigate();
+  const [step, setStep] = useState<Step>("goal");
+  const [examGoal, setExamGoal] = useState("");
+  const [customExamGoal, setCustomExamGoal] = useState("");
+  const [studyStyle, setStudyStyle] = useState("");
+  const [examDate, setExamDate] = useState("");
+  const [studyHoursPerDay, setStudyHoursPerDay] = useState("");
+  const [subjects, setSubjects] = useState<string[]>([]);
+  const [customSubject, setCustomSubject] = useState("");
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [progress, setProgress] = useState(0);
+  const [showResults, setShowResults] = useState(false);
+  const [strength, setStrength] = useState("");
+  const [weakness, setWeakness] = useState("");
+  const [readinessScore, setReadinessScore] = useState(0);
 
-  const handleStartAssessment = () => {
-    // In a real app, this would be an actual assessment
-    // Here we just show the analysis after a brief delay
-    setTimeout(() => {
-      const exam = mockExams.find(e => e.id === selectedExam);
-      if (exam) {
-        setReadinessData(exam.data);
-        setShowAnalysis(true);
-      }
-    }, 1000);
+  const examGoals = [
+    "IIT JEE (Engineering Entrance)",
+    "NEET (Medical Entrance)",
+    "MBA (CAT, XAT, SNAP, CMAT, etc.)",
+    "CUET UG (Undergraduate Common Entrance Test)",
+    "UPSC (Civil Services – Prelims & Mains)",
+    "CLAT (Law Entrance)",
+    "BANK PO (Bank Probationary Officer Exams)",
+    "Other"
+  ];
+
+  const studyStyles = [
+    "Visual (learn best from diagrams, videos, and charts)",
+    "Auditory (learn best from lectures and discussions)",
+    "Reading/Writing (learn best from reading and taking notes)",
+    "Kinesthetic (learn best by doing and practical application)",
+    "Mixed (combination of different styles)"
+  ];
+
+  const subjectOptions = {
+    "IIT JEE (Engineering Entrance)": ["Physics", "Chemistry", "Mathematics"],
+    "NEET (Medical Entrance)": ["Physics", "Chemistry", "Biology"],
+    "MBA (CAT, XAT, SNAP, CMAT, etc.)": ["Quantitative Ability", "Data Interpretation", "Logical Reasoning", "Verbal Ability"],
+    "CUET UG (Undergraduate Common Entrance Test)": ["General Test", "Domain Specific Subjects", "Languages"],
+    "UPSC (Civil Services – Prelims & Mains)": ["General Studies", "CSAT", "Optional Subject"],
+    "CLAT (Law Entrance)": ["English", "Current Affairs", "Legal Reasoning", "Logical Reasoning", "Quantitative Techniques"],
+    "BANK PO (Bank Probationary Officer Exams)": ["Reasoning", "Quantitative Aptitude", "English Language", "General Awareness", "Computer Knowledge"],
+    "Other": []
+  };
+  
+  const questions = [
+    {
+      subject: "General Knowledge",
+      question: "What is the capital of Australia?",
+      options: ["Sydney", "Melbourne", "Canberra", "Perth"]
+    },
+    {
+      subject: "Mathematics",
+      question: "If x² - 3x + 2 = 0, what are the values of x?",
+      options: ["1 and 2", "2 and 3", "-1 and -2", "0 and 2"]
+    },
+    {
+      subject: "Physics",
+      question: "What is Newton's First Law of Motion?",
+      options: [
+        "F = ma",
+        "An object at rest stays at rest, and an object in motion stays in motion unless acted upon by an external force",
+        "For every action, there is an equal and opposite reaction",
+        "Energy cannot be created or destroyed"
+      ]
+    },
+    {
+      subject: "Chemistry",
+      question: "What is the chemical symbol for gold?",
+      options: ["Gd", "Au", "Ag", "Fe"]
+    },
+    {
+      subject: "English",
+      question: "Which of these is NOT a Shakespeare play?",
+      options: ["Hamlet", "Macbeth", "Romeo and Juliet", "Pride and Prejudice"]
+    },
+    {
+      subject: "Logical Reasoning",
+      question: "In a certain code, EARTH is written as FBSUI. How would WATER be written in that code?",
+      options: ["XBUFS", "XBSFU", "XBUFQ", "XBUFT"]
+    },
+    {
+      subject: "Data Interpretation",
+      question: "The average of 5 consecutive numbers is 15. What is the largest of these numbers?",
+      options: ["13", "15", "17", "19"]
+    },
+    {
+      subject: "Verbal Ability",
+      question: "Which word is the antonym of 'Benevolent'?",
+      options: ["Charitable", "Malevolent", "Generous", "Beneficial"]
+    },
+    {
+      subject: "Current Affairs",
+      question: "What does ESG stand for in the context of sustainable investing?",
+      options: [
+        "Economic, Social, Governance", 
+        "Environmental, Social, Governance", 
+        "Ethical, Sustainable, Growth", 
+        "Environmental, Sustainable, Growth"
+      ]
+    },
+    {
+      subject: "Computer Knowledge",
+      question: "Which of these is NOT a programming language?",
+      options: ["Python", "Java", "HTML", "BIOS"]
+    }
+  ];
+
+  const handleExamGoalSelect = (goal: string) => {
+    setExamGoal(goal);
+    if (goal !== "Other") {
+      nextStep();
+    }
   };
 
-  const handleClose = () => {
-    if (onClose) {
-      onClose();
+  const handleSubjectSelect = (subject: string) => {
+    if (subjects.includes(subject)) {
+      setSubjects(subjects.filter(s => s !== subject));
     } else {
-      setShowAnalysis(false);
-      setReadinessData(null);
+      setSubjects([...subjects, subject]);
     }
   };
 
-  const radarData: ChartData<"radar"> = {
-    labels: readinessData?.categories.map(cat => cat.name) || [],
-    datasets: [
-      {
-        label: readinessData?.name || "Exam Readiness",
-        data: readinessData?.categories.map(cat => cat.score) || [],
-        backgroundColor: "rgba(111, 66, 193, 0.2)",
-        borderColor: "rgba(111, 66, 193, 1)",
-        borderWidth: 2,
-        pointBackgroundColor: "rgba(111, 66, 193, 1)",
-        pointBorderColor: "#fff",
-        pointHoverBackgroundColor: "#fff",
-        pointHoverBorderColor: "rgba(111, 66, 193, 1)"
-      }
-    ]
+  const addCustomSubject = () => {
+    if (customSubject && !subjects.includes(customSubject)) {
+      setSubjects([...subjects, customSubject]);
+      setCustomSubject("");
+    }
   };
 
-  const options: ChartOptions<"radar"> = {
-    scales: {
-      r: {
-        beginAtZero: true,
-        max: 100,
-        ticks: {
-          stepSize: 20
-        }
+  const handleSubmitCustomGoal = () => {
+    if (customExamGoal) {
+      setExamGoal(customExamGoal);
+      nextStep();
+    }
+  };
+
+  const handleAnswerQuestion = (answer: string) => {
+    const updatedAnswers = { ...answers, [currentQuestionIndex]: answer };
+    setAnswers(updatedAnswers);
+    
+    // Calculate progress percentage
+    const progressPercentage = ((currentQuestionIndex + 1) / questions.length) * 100;
+    setProgress(progressPercentage);
+    
+    // Move to next question or results
+    setTimeout(() => {
+      if (currentQuestionIndex < questions.length - 1) {
+        setCurrentQuestionIndex(currentQuestionIndex + 1);
+      } else {
+        // Generate results
+        generateResults(updatedAnswers);
+        setStep("results");
       }
-    },
-    plugins: {
-      legend: {
-        display: false
-      }
-    },
-    elements: {
-      line: {
-        tension: 0.2
-      }
-    },
-    responsive: true,
-    maintainAspectRatio: false
+    }, 300);
+  };
+
+  const generateResults = (answerData: Record<string, string>) => {
+    // Analyze answers and generate results (simplified for demo)
+    const score = Math.floor(Math.random() * 41) + 60; // Random score between 60-100
+    
+    // Set random strengths and weaknesses for demo
+    const strengths = ["Quantitative Ability", "Logical Reasoning", "Data Interpretation"];
+    const weaknesses = ["Verbal Ability", "General Knowledge", "Current Affairs"];
+    
+    setReadinessScore(score);
+    setStrength(strengths[Math.floor(Math.random() * strengths.length)]);
+    setWeakness(weaknesses[Math.floor(Math.random() * weaknesses.length)]);
+    setShowResults(true);
+  };
+
+  const nextStep = () => {
+    if (step === "goal") setStep("study-style");
+    else if (step === "study-style") setStep("time-left");
+    else if (step === "time-left") setStep("subjects");
+    else if (step === "subjects") setStep("questions");
+  };
+
+  const prevStep = () => {
+    if (step === "study-style") setStep("goal");
+    else if (step === "time-left") setStep("study-style");
+    else if (step === "subjects") setStep("time-left");
+    else if (step === "questions") setStep("subjects");
+  };
+
+  const handleSignUp = () => {
+    onClose();
+    navigate('/signup');
+  };
+
+  const renderStepContent = () => {
+    switch (step) {
+      case "goal":
+        return (
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-xl font-semibold mb-4 flex items-center">
+                <Target className="mr-2 text-violet-500" size={20} />
+                Select Your Exam Goal
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {examGoals.map((goal) => (
+                  <Button
+                    key={goal}
+                    variant={examGoal === goal ? "default" : "outline"}
+                    className={`justify-start h-auto py-3 ${
+                      examGoal === goal ? "bg-violet-600 text-white" : "text-gray-700"
+                    }`}
+                    onClick={() => handleExamGoalSelect(goal)}
+                  >
+                    {goal}
+                  </Button>
+                ))}
+              </div>
+              
+              {examGoal === "Other" && (
+                <div className="mt-4 flex gap-2">
+                  <Input
+                    placeholder="Enter your exam goal"
+                    value={customExamGoal}
+                    onChange={(e) => setCustomExamGoal(e.target.value)}
+                  />
+                  <Button onClick={handleSubmitCustomGoal}>Next</Button>
+                </div>
+              )}
+            </div>
+          </div>
+        );
+        
+      case "study-style":
+        return (
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-xl font-semibold mb-4 flex items-center">
+                <BrainCircuit className="mr-2 text-violet-500" size={20} />
+                Your Study Style
+              </h2>
+              <RadioGroup value={studyStyle} onValueChange={setStudyStyle}>
+                <div className="grid gap-3">
+                  {studyStyles.map((style) => (
+                    <div
+                      key={style}
+                      className={`flex items-center border rounded-lg p-3 cursor-pointer hover:bg-violet-50 ${
+                        studyStyle === style ? "border-violet-500 bg-violet-50" : "border-gray-200"
+                      }`}
+                      onClick={() => setStudyStyle(style)}
+                    >
+                      <RadioGroupItem value={style} id={style} className="mr-3" />
+                      <Label htmlFor={style} className="cursor-pointer flex-1">
+                        {style}
+                      </Label>
+                    </div>
+                  ))}
+                </div>
+              </RadioGroup>
+            </div>
+            
+            <div className="flex justify-between">
+              <Button variant="outline" onClick={prevStep}>
+                <ChevronLeft size={16} className="mr-1" /> Back
+              </Button>
+              <Button onClick={nextStep} disabled={!studyStyle}>
+                Next <ChevronRight size={16} className="ml-1" />
+              </Button>
+            </div>
+          </div>
+        );
+        
+      case "time-left":
+        return (
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-xl font-semibold mb-4 flex items-center">
+                <Calendar className="mr-2 text-violet-500" size={20} />
+                Time Until Your Exam
+              </h2>
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="exam-date">When is your exam?</Label>
+                  <Input 
+                    id="exam-date" 
+                    type="date" 
+                    value={examDate}
+                    onChange={(e) => setExamDate(e.target.value)}
+                    className="mt-1"
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="study-hours">How many hours can you study per day?</Label>
+                  <Input
+                    id="study-hours"
+                    type="number"
+                    placeholder="Hours per day"
+                    min="1"
+                    max="24"
+                    value={studyHoursPerDay}
+                    onChange={(e) => setStudyHoursPerDay(e.target.value)}
+                    className="mt-1"
+                  />
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex justify-between">
+              <Button variant="outline" onClick={prevStep}>
+                <ChevronLeft size={16} className="mr-1" /> Back
+              </Button>
+              <Button 
+                onClick={nextStep} 
+                disabled={!examDate || !studyHoursPerDay}
+              >
+                Next <ChevronRight size={16} className="ml-1" />
+              </Button>
+            </div>
+          </div>
+        );
+        
+      case "subjects":
+        return (
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-xl font-semibold mb-4 flex items-center">
+                <BookOpen className="mr-2 text-violet-500" size={20} />
+                Select Subjects to Focus On
+              </h2>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+                {subjectOptions[examGoal as keyof typeof subjectOptions]?.map((subject) => (
+                  <div
+                    key={subject}
+                    onClick={() => handleSubjectSelect(subject)}
+                    className={`flex items-center border rounded-lg p-3 cursor-pointer hover:bg-violet-50 ${
+                      subjects.includes(subject) ? "border-violet-500 bg-violet-50" : "border-gray-200"
+                    }`}
+                  >
+                    <div className={`w-5 h-5 rounded-full mr-3 flex items-center justify-center ${
+                      subjects.includes(subject) ? "bg-violet-500" : "border border-gray-300"
+                    }`}>
+                      {subjects.includes(subject) && (
+                        <CheckCircle size={14} className="text-white" />
+                      )}
+                    </div>
+                    <span>{subject}</span>
+                  </div>
+                ))}
+              </div>
+              
+              <div className="flex gap-2 mt-4">
+                <Input
+                  placeholder="Add another subject"
+                  value={customSubject}
+                  onChange={(e) => setCustomSubject(e.target.value)}
+                />
+                <Button onClick={addCustomSubject}>Add</Button>
+              </div>
+            </div>
+            
+            <div className="flex justify-between">
+              <Button variant="outline" onClick={prevStep}>
+                <ChevronLeft size={16} className="mr-1" /> Back
+              </Button>
+              <Button onClick={nextStep} disabled={subjects.length === 0}>
+                Start Test <ChevronRight size={16} className="ml-1" />
+              </Button>
+            </div>
+          </div>
+        );
+        
+      case "questions":
+        const currentQuestion = questions[currentQuestionIndex];
+        return (
+          <div className="space-y-6">
+            <div>
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-sm font-medium text-violet-600">
+                  Question {currentQuestionIndex + 1} of {questions.length}
+                </span>
+                <span className="text-sm text-gray-500">
+                  Subject: {currentQuestion.subject}
+                </span>
+              </div>
+              
+              <Progress value={progress} className="h-2 mb-6" />
+              
+              <h2 className="text-xl font-semibold mb-6">{currentQuestion.question}</h2>
+              
+              <div className="space-y-3">
+                {currentQuestion.options.map((option, index) => (
+                  <Button
+                    key={index}
+                    variant="outline"
+                    className="w-full justify-start h-auto py-3 text-left hover:bg-violet-50"
+                    onClick={() => handleAnswerQuestion(option)}
+                  >
+                    {option}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          </div>
+        );
+        
+      case "results":
+        return (
+          <div className="space-y-6">
+            <div className="text-center mb-8">
+              <h2 className="text-2xl font-bold mb-2">Your Exam Readiness Score</h2>
+              <div className="w-36 h-36 mx-auto rounded-full border-4 border-violet-500 flex items-center justify-center mb-4">
+                <span className="text-4xl font-bold">{readinessScore}%</span>
+              </div>
+              
+              <p className="text-lg font-medium">
+                {readinessScore >= 80 ? "Excellent!" : 
+                 readinessScore >= 60 ? "Good progress!" : "You need more practice"}
+              </p>
+            </div>
+            
+            <div className="grid md:grid-cols-2 gap-6">
+              <Card>
+                <CardContent className="p-4">
+                  <h3 className="font-semibold flex items-center text-green-600 mb-2">
+                    <CheckCircle size={18} className="mr-2" /> Strengths
+                  </h3>
+                  <p>{strength}</p>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardContent className="p-4">
+                  <h3 className="font-semibold flex items-center text-red-600 mb-2">
+                    <AlertCircle size={18} className="mr-2" /> Areas for Improvement
+                  </h3>
+                  <p>{weakness}</p>
+                </CardContent>
+              </Card>
+            </div>
+            
+            <div className="text-center bg-violet-50 border border-violet-100 rounded-lg p-6 mt-6">
+              <h3 className="text-xl font-semibold mb-2">Get your personalized study plan!</h3>
+              <p className="mb-4">Sign up now to receive a customized study plan that targets your weak areas and builds on your strengths.</p>
+              
+              <Button 
+                onClick={handleSignUp}
+                className="bg-gradient-to-r from-violet-600 to-purple-600 text-white"
+              >
+                Create Free Account
+              </Button>
+            </div>
+          </div>
+        );
+    }
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-gradient-to-br from-violet-50 to-indigo-50 dark:from-violet-900/20 dark:to-indigo-900/20 rounded-2xl p-8 shadow-lg border border-violet-100 dark:border-violet-900/30 relative max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-        {/* Close button on top right */}
-        <button 
-          onClick={handleClose}
-          className="absolute top-4 right-4 p-1 rounded-full bg-white/80 dark:bg-gray-800/80 hover:bg-white dark:hover:bg-gray-700 transition-colors"
-        >
-          <X className="h-5 w-5 text-gray-600 dark:text-gray-300" />
-        </button>
-        
-        <div className="flex flex-col gap-6">
-          <div>
-            <h3 className="text-2xl font-bold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-violet-600 to-indigo-600">
-              Exam Readiness Analyzer
-            </h3>
-            <p className="text-gray-600 dark:text-gray-300">
-              Get a personalized analysis of your preparation level for competitive exams
-            </p>
-          </div>
-          
-          {!showAnalysis ? (
-            <div className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Select your target exam
-                  </label>
-                  <Select value={selectedExam} onValueChange={setSelectedExam}>
-                    <SelectTrigger className="w-full bg-white dark:bg-gray-800">
-                      <SelectValue placeholder="Select an exam" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {mockExams.map((exam) => (
-                        <SelectItem key={exam.id} value={exam.id}>
-                          {exam.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div className="flex items-end">
-                  <Button 
-                    onClick={handleStartAssessment}
-                    className="w-full bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white shadow-md"
-                  >
-                    Start Assessment
-                  </Button>
-                </div>
-              </div>
-              
-              <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm rounded-xl p-6 border border-violet-100 dark:border-violet-900/30 shadow-sm">
-                <h4 className="text-lg font-medium mb-3">How it works</h4>
-                <ul className="space-y-3">
-                  <li className="flex items-start gap-3">
-                    <div className="bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-300 p-1 rounded-full">
-                      <ChevronRight size={16} />
-                    </div>
-                    <span className="text-gray-700 dark:text-gray-300">
-                      Our AI analyzes your current preparation level across key areas
-                    </span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <div className="bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-300 p-1 rounded-full">
-                      <ChevronRight size={16} />
-                    </div>
-                    <span className="text-gray-700 dark:text-gray-300">
-                      Identifies your strengths and areas needing improvement
-                    </span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <div className="bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-300 p-1 rounded-full">
-                      <ChevronRight size={16} />
-                    </div>
-                    <span className="text-gray-700 dark:text-gray-300">
-                      Creates a personalized study plan to maximize your exam score
-                    </span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          ) : (
-            <div className="relative animate-fade-in">
-              <Button
-                variant="outline"
-                size="icon"
-                className="absolute top-0 right-0 z-10"
-                onClick={handleClose}
-              >
-                <X size={18} />
-              </Button>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="bg-white/80 dark:bg-gray-800/80 rounded-xl shadow-md border border-violet-100 dark:border-violet-900/30 p-6">
-                  <h4 className="text-lg font-medium mb-3 text-center">
-                    {readinessData?.name} Readiness Profile
-                  </h4>
-                  <div className="h-[300px] w-full">
-                    <Radar data={radarData} options={options} />
-                  </div>
-                  <div className="text-center mt-4">
-                    <div className="text-sm text-gray-600 dark:text-gray-400">Overall Score</div>
-                    <div className="text-3xl font-bold text-violet-600 dark:text-violet-400">
-                      {readinessData?.overallScore}%
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="space-y-4">
-                  <Card className="border-green-100 dark:border-green-900/30 shadow-md">
-                    <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 pb-3">
-                      <div className="flex items-center gap-2">
-                        <TrendingUp className="text-emerald-500" size={18} />
-                        <CardTitle className="text-lg text-emerald-700 dark:text-emerald-400">Strengths</CardTitle>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="pt-4">
-                      <ul className="space-y-2">
-                        {readinessData?.strengths.map((strength, index) => (
-                          <li key={index} className="flex items-start gap-2">
-                            <div className="bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 p-1 rounded-full mt-0.5">
-                              <ChevronRight size={12} />
-                            </div>
-                            <span className="text-sm">{strength}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </CardContent>
-                  </Card>
-                  
-                  <Card className="border-red-100 dark:border-red-900/30 shadow-md">
-                    <CardHeader className="bg-gradient-to-r from-red-50 to-rose-50 dark:from-red-900/20 dark:to-rose-900/20 pb-3">
-                      <div className="flex items-center gap-2">
-                        <TrendingDown className="text-rose-500" size={18} />
-                        <CardTitle className="text-lg text-rose-700 dark:text-rose-400">Areas to Improve</CardTitle>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="pt-4">
-                      <ul className="space-y-2">
-                        {readinessData?.weaknesses.map((weakness, index) => (
-                          <li key={index} className="flex items-start gap-2">
-                            <div className="bg-rose-100 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 p-1 rounded-full mt-0.5">
-                              <ChevronRight size={12} />
-                            </div>
-                            <span className="text-sm">{weakness}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </CardContent>
-                  </Card>
-                  
-                  <Card className="border-amber-100 dark:border-amber-900/30 shadow-md">
-                    <CardHeader className="bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-900/20 dark:to-yellow-900/20 pb-3">
-                      <div className="flex items-center gap-2">
-                        <TrendingUp className="text-amber-500" size={18} />
-                        <CardTitle className="text-lg text-amber-700 dark:text-amber-400">Recommended Improvements</CardTitle>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="pt-4">
-                      <ul className="space-y-2">
-                        {readinessData?.improvements.map((improvement, index) => (
-                          <li key={index} className="flex items-start gap-2">
-                            <div className="bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 p-1 rounded-full mt-0.5">
-                              <ChevronRight size={12} />
-                            </div>
-                            <span className="text-sm">{improvement}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </CardContent>
-                  </Card>
-                  
-                  <Button 
-                    className="w-full bg-gradient-to-r from-violet-600 to-indigo-600 text-white"
-                    onClick={handleClose}
-                  >
-                    Get Personalized Study Plan
-                  </Button>
-                </div>
-              </div>
-            </div>
-          )}
+    <Dialog open={true} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-3xl max-h-[90vh] overflow-y-auto">
+        <div className="flex justify-between items-center">
+          <DialogTitle className="text-xl font-bold">Exam Readiness Analyzer</DialogTitle>
+          <Button variant="ghost" size="icon" onClick={onClose}>
+            <X size={18} />
+          </Button>
         </div>
-      </div>
-    </div>
+        
+        <DialogDescription>
+          Take this quick assessment to discover your exam readiness level and get personalized recommendations.
+        </DialogDescription>
+        
+        {renderStepContent()}
+      </DialogContent>
+    </Dialog>
   );
 }
