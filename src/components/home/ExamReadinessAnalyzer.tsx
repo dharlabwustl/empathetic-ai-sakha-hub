@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Dialog, DialogContent, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { X, ChevronRight } from 'lucide-react';
-import { TestType, TestCompletionState, ExamResults, ExamType } from './exam-analyzer/types';
+import { TestType, TestCompletionState, ExamResults, ExamType, UserAnswer } from './exam-analyzer/types';
 import IntroSection from './exam-analyzer/IntroSection';
 import StressTestSection from './exam-analyzer/StressTestSection';
 import ReadinessTestSection from './exam-analyzer/ReadinessTestSection';
@@ -80,24 +80,55 @@ export function ExamReadinessAnalyzer({ onClose }: { onClose: () => void }) {
       if (progressCounter >= 30) {
         clearInterval(interval);
         setLoading(false);
-        setTestCompleted(prev => ({ ...prev, stress: true }));
-        
-        // Generate mock results
-        setResults(prev => ({
-          ...prev,
-          stress: {
-            score: Math.floor(Math.random() * 40) + 60,
-            level: 'Moderate',
-            analysis: 'You handle stress reasonably well, but there\'s room for improvement.',
-            strengths: ['Good focus under time constraints', 'Effective problem-solving'],
-            improvements: ['Work on reaction speed', 'Practice memory recall techniques'],
-          }
-        }));
-        
-        // Move to next test
-        setCurrentTest('readiness');
       }
     }, 300);
+  };
+  
+  const handleStressTestComplete = (answers: UserAnswer[]) => {
+    // Calculate score based on correct answers
+    const correctAnswers = answers.filter(a => a.isCorrect).length;
+    const score = Math.round((correctAnswers / answers.length) * 100);
+    
+    // Generate analysis based on score
+    let level = '';
+    let analysis = '';
+    const strengths = [];
+    const improvements = [];
+    
+    if (score >= 80) {
+      level = 'Excellent';
+      analysis = 'You handle pressure extremely well. Your ability to focus and solve problems quickly is excellent.';
+      strengths.push('Outstanding focus under pressure', 'Excellent pattern recognition');
+      improvements.push('Maintain this level through regular practice');
+    } else if (score >= 60) {
+      level = 'Good';
+      analysis = 'You handle stress reasonably well, but there\'s room for improvement in maintaining focus under pressure.';
+      strengths.push('Good focus under time constraints', 'Effective problem-solving');
+      improvements.push('Work on reaction speed', 'Practice memory recall techniques');
+    } else {
+      level = 'Needs Improvement';
+      analysis = 'You may find it challenging to maintain focus under pressure. Regular practice can help improve this skill.';
+      strengths.push('Basic pattern recognition abilities');
+      improvements.push('Practice timed exercises regularly', 'Work on stress management techniques');
+    }
+    
+    // Update results
+    setResults(prev => ({
+      ...prev,
+      stress: {
+        score,
+        level,
+        analysis,
+        strengths,
+        improvements,
+      }
+    }));
+    
+    setTestCompleted(prev => ({ ...prev, stress: true }));
+    
+    // Move to next test
+    setCurrentTest('readiness');
+    setProgress(30);
   };
 
   const simulateReadinessTest = () => {
@@ -109,24 +140,68 @@ export function ExamReadinessAnalyzer({ onClose }: { onClose: () => void }) {
       if (progressCounter >= 60) {
         clearInterval(interval);
         setLoading(false);
-        setTestCompleted(prev => ({ ...prev, readiness: true }));
-        
-        // Generate mock results
-        setResults(prev => ({
-          ...prev,
-          readiness: {
-            score: Math.floor(Math.random() * 30) + 65,
-            level: 'Above Average',
-            analysis: 'Your preparation level is good, but some areas need attention.',
-            strengths: ['Strong content coverage', 'Consistent study habits'],
-            improvements: ['Increase practice test frequency', 'Focus more on weak topics'],
-          }
-        }));
-        
-        // Move to next test
-        setCurrentTest('concept');
       }
     }, 300);
+  };
+  
+  const handleReadinessTestComplete = (answers: UserAnswer[]) => {
+    // Calculate score based on the selected options
+    // For readiness test, we evaluate based on the study habits indicated in answers
+    let score = 0;
+    answers.forEach((answer) => {
+      // For simplicity, we assign scores based on the position of the answer in the options array
+      // This would be more sophisticated in a real implementation
+      if (answer.answer.includes('More than')) score += 10;
+      else if (answer.answer.includes('detailed') || answer.answer.includes('comprehensive')) score += 10;
+      else if (answer.answer.includes('Daily') || answer.answer.includes('Frequently')) score += 10;
+      else if (answer.answer.includes('75%') || answer.answer.includes('Very')) score += 10;
+      else if (answer.answer.includes('3-4') || answer.answer.includes('6-15')) score += 7;
+      else if (answer.answer.includes('Confident')) score += 7;
+      else score += 5;
+    });
+    
+    score = Math.min(Math.round(score / answers.length * 10), 100);
+    
+    // Generate analysis based on score
+    let level = '';
+    let analysis = '';
+    const strengths = [];
+    const improvements = [];
+    
+    if (score >= 80) {
+      level = 'Excellent';
+      analysis = 'Your study habits and preparation level are excellent. You have a structured approach to learning.';
+      strengths.push('Strong preparation routine', 'Consistent study habits');
+      improvements.push('Focus on targeted revision of weak areas');
+    } else if (score >= 60) {
+      level = 'Good';
+      analysis = 'Your preparation level is good, but some areas need attention to optimize your study effectiveness.';
+      strengths.push('Good content coverage', 'Regular study habits');
+      improvements.push('Increase practice test frequency', 'Develop a more structured study plan');
+    } else {
+      level = 'Needs Improvement';
+      analysis = 'Your preparation requires a more structured approach. Focus on developing consistent study habits.';
+      strengths.push('Awareness of preparation needs');
+      improvements.push('Create a detailed study schedule', 'Increase daily study hours');
+    }
+    
+    // Update results
+    setResults(prev => ({
+      ...prev,
+      readiness: {
+        score,
+        level,
+        analysis,
+        strengths,
+        improvements,
+      }
+    }));
+    
+    setTestCompleted(prev => ({ ...prev, readiness: true }));
+    
+    // Move to next test
+    setCurrentTest('concept');
+    setProgress(60);
   };
 
   const simulateConceptTest = () => {
@@ -138,42 +213,72 @@ export function ExamReadinessAnalyzer({ onClose }: { onClose: () => void }) {
       if (progressCounter >= 100) {
         clearInterval(interval);
         setLoading(false);
-        setTestCompleted(prev => ({ ...prev, concept: true }));
-        
-        // Generate mock results
-        setResults(prev => ({
-          ...prev,
-          concept: {
-            score: Math.floor(Math.random() * 25) + 70,
-            level: 'Strong',
-            analysis: 'You have good concept mastery, with some confidence gaps.',
-            strengths: ['Strong theoretical understanding', 'Good application of concepts'],
-            improvements: ['Bridge the gap between knowledge and confidence', 'Practice more application questions'],
-          }
-        }));
-        
-        // Calculate overall results
-        const overallScore = Math.floor((results.stress.score + results.readiness.score + results.concept.score) / 3);
-        
-        setResults(prev => ({
-          ...prev,
-          overall: {
-            score: overallScore,
-            level: overallScore >= 80 ? 'Excellent' : overallScore >= 70 ? 'Good' : overallScore >= 60 ? 'Average' : 'Needs Improvement',
-            analysis: `Your overall preparation is ${overallScore >= 80 ? 'excellent' : overallScore >= 70 ? 'good' : overallScore >= 60 ? 'average' : 'below average'} for ${examTypes.find(e => e.value === selectedExam)?.label} preparation.`,
-            strengths: [
-              ...new Set([...prev.stress.strengths, ...prev.readiness.strengths, ...prev.concept.strengths].slice(0, 3))
-            ],
-            improvements: [
-              ...new Set([...prev.stress.improvements, ...prev.readiness.improvements, ...prev.concept.improvements].slice(0, 3))
-            ],
-          }
-        }));
-        
-        // Show report
-        setCurrentTest('report');
       }
     }, 300);
+  };
+  
+  const handleConceptTestComplete = (answers: UserAnswer[]) => {
+    // Calculate score based on correct answers
+    const correctAnswers = answers.filter(a => a.isCorrect).length;
+    const score = Math.round((correctAnswers / answers.length) * 100);
+    
+    // Generate analysis based on score
+    let level = '';
+    let analysis = '';
+    const strengths = [];
+    const improvements = [];
+    
+    if (score >= 80) {
+      level = 'Excellent';
+      analysis = 'You have excellent mastery of the key concepts. Your understanding is clear and comprehensive.';
+      strengths.push('Strong conceptual understanding', 'Excellent application of concepts');
+      improvements.push('Challenge yourself with advanced problems');
+    } else if (score >= 60) {
+      level = 'Good';
+      analysis = 'You have good concept mastery with some areas needing reinforcement.';
+      strengths.push('Good theoretical understanding', 'Solid application of concepts');
+      improvements.push('Focus on specific weak areas', 'Practice more application questions');
+    } else {
+      level = 'Needs Improvement';
+      analysis = 'Your concept mastery needs improvement. Focus on strengthening your understanding of fundamental principles.';
+      strengths.push('Basic conceptual awareness');
+      improvements.push('Revisit fundamental concepts', 'Increase practice with guided examples');
+    }
+    
+    // Update results
+    setResults(prev => ({
+      ...prev,
+      concept: {
+        score,
+        level,
+        analysis,
+        strengths,
+        improvements,
+      }
+    }));
+    
+    setTestCompleted(prev => ({ ...prev, concept: true }));
+    
+    // Calculate overall results
+    const overallScore = Math.floor((results.stress.score + results.readiness.score + score) / 3);
+    
+    setResults(prev => ({
+      ...prev,
+      overall: {
+        score: overallScore,
+        level: overallScore >= 80 ? 'Excellent' : overallScore >= 70 ? 'Good' : overallScore >= 60 ? 'Average' : 'Needs Improvement',
+        analysis: `Your overall preparation is ${overallScore >= 80 ? 'excellent' : overallScore >= 70 ? 'good' : overallScore >= 60 ? 'average' : 'below average'} for ${examTypes.find(e => e.value === selectedExam)?.label} preparation.`,
+        strengths: [
+          ...new Set([...prev.stress.strengths, ...prev.readiness.strengths, ...strengths].slice(0, 3))
+        ],
+        improvements: [
+          ...new Set([...prev.stress.improvements, ...prev.readiness.improvements, ...improvements].slice(0, 3))
+        ],
+      }
+    }));
+    
+    // Show report
+    setCurrentTest('report');
   };
 
   const handleNavigation = () => {
@@ -243,8 +348,10 @@ export function ExamReadinessAnalyzer({ onClose }: { onClose: () => void }) {
           <StressTestSection
             loading={loading}
             testCompleted={testCompleted.stress}
+            selectedExam={selectedExam}
             results={results.stress}
             simulateTest={simulateStressTest}
+            onCompleteTest={handleStressTestComplete}
           />
         );
 
@@ -253,8 +360,10 @@ export function ExamReadinessAnalyzer({ onClose }: { onClose: () => void }) {
           <ReadinessTestSection
             loading={loading}
             testCompleted={testCompleted.readiness}
+            selectedExam={selectedExam}
             results={results.readiness}
             simulateTest={simulateReadinessTest}
+            onCompleteTest={handleReadinessTestComplete}
             onContinue={() => setCurrentTest('concept')}
           />
         );
@@ -264,8 +373,10 @@ export function ExamReadinessAnalyzer({ onClose }: { onClose: () => void }) {
           <ConceptTestSection
             loading={loading}
             testCompleted={testCompleted.concept}
+            selectedExam={selectedExam}
             results={results.concept}
             simulateTest={simulateConceptTest}
+            onCompleteTest={handleConceptTestComplete}
           />
         );
 
@@ -327,7 +438,7 @@ export function ExamReadinessAnalyzer({ onClose }: { onClose: () => void }) {
           </DialogFooter>
         )}
         
-        {(currentTest === 'stress' || currentTest === 'readiness' || currentTest === 'concept') && !loading && testCompleted[currentTest] && (
+        {(currentTest === 'stress' || currentTest === 'readiness' || currentTest === 'concept') && testCompleted[currentTest] && (
           <DialogFooter>
             <Button 
               variant="outline" 
@@ -337,9 +448,7 @@ export function ExamReadinessAnalyzer({ onClose }: { onClose: () => void }) {
               <span>Previous</span>
             </Button>
             <Button 
-              onClick={currentTest === 'stress' ? simulateReadinessTest : 
-                      currentTest === 'readiness' ? simulateConceptTest :
-                      () => setCurrentTest('report')}
+              onClick={currentTest === 'concept' ? () => setCurrentTest('report') : null}
               className="bg-gradient-to-r from-sky-500 to-violet-500 hover:from-sky-600 hover:to-violet-600 transition-all duration-300 shadow-md hover:shadow-lg"
             >
               <span>Continue</span>

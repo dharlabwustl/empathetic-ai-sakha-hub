@@ -26,3 +26,27 @@ export interface TestCompletionState {
   readiness: boolean;
   concept: boolean;
 }
+
+export interface TestQuestion {
+  id: string;
+  question: string;
+  options: string[];
+  correctAnswer?: string;
+  timeLimit: number;
+  explanation?: string;
+  imageUrl?: string;
+  type?: 'multiple-choice' | 'self-assessment';
+}
+
+export interface SubjectTopic {
+  id: string;
+  subject: string;
+  topics: number;
+}
+
+export interface UserAnswer {
+  questionId: string;
+  answer: string;
+  timeToAnswer: number;
+  isCorrect?: boolean;
+}

@@ -1,26 +1,106 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Target, ChevronRight } from 'lucide-react';
 import { CustomProgress } from '@/components/ui/custom-progress';
-import { TestResults } from './types';
+import { TestResults, TestQuestion, UserAnswer } from './types';
+import { getReadinessTestQuestions } from './test-questions/readinessTestQuestions';
+import { motion } from 'framer-motion';
 
 interface ReadinessTestSectionProps {
   loading: boolean;
   testCompleted: boolean;
+  selectedExam: string;
   results: TestResults;
   simulateTest: () => void;
+  onCompleteTest: (answers: UserAnswer[]) => void;
   onContinue: () => void;
 }
 
 const ReadinessTestSection: React.FC<ReadinessTestSectionProps> = ({
   loading,
   testCompleted,
+  selectedExam,
   results,
   simulateTest,
+  onCompleteTest,
   onContinue
 }) => {
+  const [isTestActive, setIsTestActive] = useState(false);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [userAnswers, setUserAnswers] = useState<UserAnswer[]>([]);
+  const [questions, setQuestions] = useState<TestQuestion[]>([]);
+  
+  const startTest = () => {
+    const testQuestions = getReadinessTestQuestions(selectedExam);
+    setQuestions(testQuestions);
+    setIsTestActive(true);
+  };
+  
+  const handleAnswer = (answer: string) => {
+    const currentQuestion = questions[currentQuestionIndex];
+    
+    const newAnswer: UserAnswer = {
+      questionId: currentQuestion.id,
+      answer,
+      timeToAnswer: 0, // Time doesn't matter for self-assessment
+    };
+    
+    setUserAnswers(prev => [...prev, newAnswer]);
+    
+    // Move to next question or complete test
+    if (currentQuestionIndex < questions.length - 1) {
+      setCurrentQuestionIndex(prevIndex => prevIndex + 1);
+    } else {
+      setIsTestActive(false);
+      onCompleteTest(userAnswers);
+    }
+  };
+  
+  const renderQuestion = () => {
+    const currentQuestion = questions[currentQuestionIndex];
+    
+    return (
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <Badge variant="outline" className="bg-violet-50 dark:bg-violet-900/30 border-violet-200 dark:border-violet-700">
+            Question {currentQuestionIndex + 1}/{questions.length}
+          </Badge>
+        </div>
+        
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg border-2 border-violet-100 dark:border-violet-800 shadow-md">
+          <h3 className="text-lg font-medium mb-4">{currentQuestion.question}</h3>
+          
+          <div className="space-y-3">
+            {currentQuestion.options.map((option, index) => (
+              <motion.div 
+                key={index}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <Button 
+                  variant="outline" 
+                  className="w-full text-left justify-start p-4 h-auto"
+                  onClick={() => handleAnswer(option)}
+                >
+                  <span className="mr-2">{String.fromCharCode(65 + index)}.</span>
+                  {option}
+                </Button>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+        
+        <CustomProgress 
+          value={(currentQuestionIndex + 1) / questions.length * 100} 
+          className="h-2" 
+          indicatorClassName="bg-gradient-to-r from-violet-400 to-violet-600" 
+        />
+      </div>
+    );
+  };
+  
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -35,7 +115,7 @@ const ReadinessTestSection: React.FC<ReadinessTestSectionProps> = ({
         This test evaluates your current preparation level by analyzing content coverage, practice effectiveness, and study commitment.
       </p>
       
-      {!loading && !testCompleted ? (
+      {!loading && !testCompleted && !isTestActive ? (
         <div className="space-y-6">
           <div className="bg-violet-50 dark:bg-violet-900/20 p-4 rounded-lg border-2 border-violet-100 dark:border-violet-800">
             <h4 className="font-medium mb-2 flex items-center">
@@ -52,7 +132,7 @@ const ReadinessTestSection: React.FC<ReadinessTestSectionProps> = ({
           
           <Button 
             className="w-full bg-gradient-to-r from-violet-500 to-violet-600 hover:from-violet-600 hover:to-violet-700 transition-all duration-300 shadow-md hover:shadow-lg"
-            onClick={simulateTest}
+            onClick={startTest}
           >
             Begin Readiness Test
           </Button>
@@ -68,6 +148,8 @@ const ReadinessTestSection: React.FC<ReadinessTestSectionProps> = ({
           <CustomProgress value={30} className="h-2" indicatorClassName="bg-gradient-to-r from-violet-400 to-violet-600" />
           <p className="text-xs text-center text-muted-foreground">Please wait while we analyze your responses</p>
         </div>
+      ) : isTestActive ? (
+        renderQuestion()
       ) : (
         <div className="space-y-4">
           <div className="bg-violet-50 dark:bg-violet-900/20 p-4 rounded-lg border-2 border-violet-100 dark:border-violet-800">
