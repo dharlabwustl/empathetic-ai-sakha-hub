@@ -2,7 +2,7 @@
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
-import { UserRole, UserGoal } from "./OnboardingContext";
+import { UserRole, UserGoal, OnboardingStep } from "./OnboardingContext";
 import { getDemographicsQuestion } from "./utils/stepUtils";
 
 interface StepHandlerProps {
@@ -10,7 +10,7 @@ interface StepHandlerProps {
   setOnboardingData: (data: any) => void;
   messages: { content: string; isBot: boolean }[];
   setMessages: (messages: { content: string; isBot: boolean }[]) => void;
-  setStep: (step: string) => void;
+  setStep: React.Dispatch<React.SetStateAction<OnboardingStep>>;
 }
 
 const StepHandler = ({ 
