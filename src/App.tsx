@@ -6,7 +6,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "@/providers/ThemeProvider";
 import Index from "./pages/Index";
 import About from "./pages/About";
@@ -40,7 +40,7 @@ const App = () => (
             <Route path="/login" element={<Login />} />
             
             {/* Student Dashboard Routes */}
-            <Route path="/dashboard/student" element={<StudentDashboard />} />
+            <Route path="/dashboard/student" element={<Navigate to="/dashboard/student/overview" replace />} />
             <Route path="/dashboard/student/:tab" element={<StudentDashboard />} />
             
             {/* New Study Progress Route */}

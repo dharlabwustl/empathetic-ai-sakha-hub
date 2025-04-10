@@ -88,8 +88,12 @@ const DashboardContent = ({
     forum: <CollaborativeForumSection />,
     videos: <VideoLibrarySection />,
     notifications: <SmartNotificationSection />,
-    "feel-good": <FeelGoodCorner />
+    "feel-good": <FeelGoodCorner />,
+    wellness: <FeelGoodCorner />
   };
+
+  // Log the active tab to debug
+  console.log("Active tab:", activeTab);
 
   return (
     <div className="col-span-12">

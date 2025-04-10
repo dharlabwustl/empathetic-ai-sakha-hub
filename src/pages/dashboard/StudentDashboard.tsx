@@ -10,6 +10,7 @@ import DashboardContent from "@/components/dashboard/student/DashboardContent";
 import StudyPlanDialog from "./student/StudyPlanDialog";
 import SidebarNavigation from "./student/SidebarNavigation";
 import { DashboardTabs } from "@/components/dashboard/student/DashboardTabs";
+import { useEffect } from "react";
 
 const StudentDashboard = () => {
   const {
@@ -37,11 +38,23 @@ const StudentDashboard = () => {
   const formattedTime = formatTime(currentTime);
   const formattedDate = formatDate(currentTime);
 
+  // Debug logging
+  useEffect(() => {
+    console.log("Dashboard state:", {
+      loading,
+      showOnboarding,
+      userProfile: !!userProfile,
+      activeTab
+    });
+  }, [loading, showOnboarding, userProfile, activeTab]);
+
   if (loading || !userProfile) {
+    console.log("Showing loading screen");
     return <DashboardLoading />;
   }
 
   if (showOnboarding) {
+    console.log("Showing onboarding flow");
     return (
       <OnboardingFlow 
         userProfile={userProfile} 
@@ -51,6 +64,7 @@ const StudentDashboard = () => {
     );
   }
 
+  console.log("Rendering main dashboard");
   return (
     <div className="min-h-screen bg-gradient-to-br from-sky-100/10 via-white to-violet-100/10 dark:from-sky-900/10 dark:via-gray-900 dark:to-violet-900/10">
       <SidebarNav userType="student" userName={userProfile.name} />

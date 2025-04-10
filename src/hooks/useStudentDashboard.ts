@@ -43,38 +43,45 @@ export function useStudentDashboard() {
     const firstTimeUser = localStorage.getItem("firstTimeUser") === "true";
     
     if (needsOnboarding) {
+      console.log("User needs onboarding");
       setShowOnboarding(true);
     } else if (firstTimeUser) {
+      console.log("First time user - showing welcome tour");
       // If user was marked as first time but didn't go through onboarding
       setShowWelcomeTour(true);
     }
     
-    // Show welcome message if user profile is loaded
+    return () => {
+      clearTimeout(timer);
+      clearInterval(intervalId);
+    };
+  }, []);
+  
+  // Show welcome message when userProfile is loaded
+  useEffect(() => {
     if (userProfile && !loading) {
       toast({
         title: "Welcome to your smart study plan!",
         description: "Your personalized dashboard is ready.",
       });
     }
-
-    return () => {
-      clearTimeout(timer);
-      clearInterval(intervalId);
-    };
-  }, [toast, userProfile, loading]);
+  }, [userProfile, loading, toast]);
 
   const handleTabChange = (newTab: string) => {
+    console.log("Changing tab to:", newTab);
     setActiveTab(newTab);
     navigate(`/dashboard/student/${newTab}`);
   };
 
   const handleSkipTour = () => {
+    console.log("Skipping welcome tour");
     setShowWelcomeTour(false);
     localStorage.setItem("welcomeTourShown", "true");
     localStorage.setItem("firstTimeUser", "false");
   };
 
   const handleCompleteTour = () => {
+    console.log("Completing welcome tour");
     setShowWelcomeTour(false);
     localStorage.setItem("welcomeTourShown", "true");
     localStorage.setItem("firstTimeUser", "false");
