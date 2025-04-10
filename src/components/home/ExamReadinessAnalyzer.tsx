@@ -140,7 +140,7 @@ const mockExams = [
   }
 ];
 
-export function ExamReadinessAnalyzer() {
+export function ExamReadinessAnalyzer({ onClose }: { onClose?: () => void }) {
   const [selectedExam, setSelectedExam] = useState("jee");
   const [showAnalysis, setShowAnalysis] = useState(false);
   const [readinessData, setReadinessData] = useState<ReadinessData | null>(null);
@@ -158,8 +158,12 @@ export function ExamReadinessAnalyzer() {
   };
 
   const handleClose = () => {
-    setShowAnalysis(false);
-    setReadinessData(null);
+    if (onClose) {
+      onClose();
+    } else {
+      setShowAnalysis(false);
+      setReadinessData(null);
+    }
   };
 
   const radarData: ChartData<"radar"> = {
@@ -204,7 +208,15 @@ export function ExamReadinessAnalyzer() {
   };
 
   return (
-    <div className="bg-gradient-to-br from-violet-50 to-indigo-50 dark:from-violet-900/20 dark:to-indigo-900/20 rounded-2xl p-8 shadow-lg border border-violet-100 dark:border-violet-900/30">
+    <div className="bg-gradient-to-br from-violet-50 to-indigo-50 dark:from-violet-900/20 dark:to-indigo-900/20 rounded-2xl p-8 shadow-lg border border-violet-100 dark:border-violet-900/30 relative">
+      {/* Add close button at top right */}
+      <button 
+        onClick={handleClose}
+        className="absolute top-4 right-4 p-1 rounded-full bg-white/80 dark:bg-gray-800/80 hover:bg-white dark:hover:bg-gray-700 transition-colors"
+      >
+        <X className="h-5 w-5 text-gray-600 dark:text-gray-300" />
+      </button>
+      
       <div className="flex flex-col gap-6">
         <div>
           <h3 className="text-2xl font-bold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-violet-600 to-indigo-600">
