@@ -1,42 +1,43 @@
 
-import { TestQuestion, TestDescription } from '../../types';
+import { TestQuestion } from '../../types';
+import { defaultStressQuestions } from './defaultStressQuestions';
+import { iitStressQuestions } from './iitStressQuestions';
+import { neetStressQuestions } from './neetStressQuestions';
+import { upscStressQuestions } from './upscStressQuestions';
+import { catStressQuestions } from './catStressQuestions';
+import { bankStressQuestions } from './bankStressQuestions';
 
-// Test descriptions for stress test
-export const stressTestDescriptions: TestDescription = {
-  title: "Stress Level Test",
-  description: "Measure how well you perform under time pressure",
-  instructions: [
-    "Face 8 pattern recognition challenges",
-    "Each question has a 15-second time limit",
-    "Try to maintain focus despite distractions",
-    "Answer as quickly and accurately as possible"
-  ],
-  duration: "2-3 minutes",
-  questionCount: 8
-};
-
-// Function to get questions based on exam type
-export const getStressTestQuestions = (examType: string): TestQuestion[] => {
+/**
+ * Helper function to get stress test questions based on the selected exam
+ */
+export const getStressTestQuestions = (selectedExam: string): TestQuestion[] => {
   try {
-    // Dynamic import based on exam type
-    switch (examType) {
-      case 'default':
-        return require('./defaultStressQuestions').defaultStressQuestions;
-      case 'iit':
-        return require('./iitStressQuestions').iitStressQuestions;
+    let questions: TestQuestion[] = [];
+    
+    switch (selectedExam) {
+      case 'iit-jee':
+        questions = iitStressQuestions;
+        break;
       case 'neet':
-        return require('./neetStressQuestions').neetStressQuestions;
+        questions = neetStressQuestions;
+        break;
       case 'upsc':
-        return require('./upscStressQuestions').upscStressQuestions;
-      case 'bank':
-        return require('./bankStressQuestions').bankStressQuestions;
+        questions = upscStressQuestions;
+        break;
       case 'cat':
-        return require('./catStressQuestions').catStressQuestions;
+        questions = catStressQuestions;
+        break;
+      case 'bank-po':
+        questions = bankStressQuestions;
+        break;
       default:
-        return require('./defaultStressQuestions').defaultStressQuestions;
+        questions = defaultStressQuestions;
     }
+    
+    return questions;
   } catch (error) {
-    console.error(`Error loading stress test questions for ${examType}:`, error);
-    return require('./defaultStressQuestions').defaultStressQuestions;
+    console.error(`Error loading stress test questions for ${selectedExam}:`, error);
+    // Fallback to default questions in case of error
+    return defaultStressQuestions;
   }
 };
