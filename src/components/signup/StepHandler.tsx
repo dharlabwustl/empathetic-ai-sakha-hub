@@ -123,7 +123,8 @@ const StepHandler = ({
       ...onboardingData,
       name: formValues.name,
       phoneNumber: formValues.mobile,
-      completedOnboarding: false // Set to false so the onboarding flow happens first
+      completedOnboarding: false, // Set to false so the onboarding flow happens first
+      isNewUser: true, // Flag to indicate this is a new user
     };
     
     localStorage.setItem("userData", JSON.stringify(userData));
@@ -133,7 +134,7 @@ const StepHandler = ({
       setIsLoading(false);
       
       // Navigate to dashboard with newUser flag to trigger onboarding
-      navigate(`/dashboard/student?newUser=true&completedOnboarding=false`);
+      navigate(`/dashboard/student?newUser=true`);
       
       toast({
         title: "Welcome to Sakha AI!",

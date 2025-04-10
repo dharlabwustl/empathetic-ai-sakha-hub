@@ -1,9 +1,8 @@
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Dialog, DialogContent, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { X, ChevronRight } from 'lucide-react';
+import { X, ChevronRight, ChevronLeft } from 'lucide-react';
 import { TestType, TestCompletionState, ExamResults, ExamType, UserAnswer } from './exam-analyzer/types';
 import IntroSection from './exam-analyzer/IntroSection';
 import StressTestSection from './exam-analyzer/StressTestSection';
@@ -11,6 +10,7 @@ import ReadinessTestSection from './exam-analyzer/ReadinessTestSection';
 import ConceptTestSection from './exam-analyzer/ConceptTestSection';
 import ReportSection from './exam-analyzer/ReportSection';
 import ExamDialogHeader from './exam-analyzer/DialogHeader';
+import { motion } from "framer-motion";
 
 export function ExamReadinessAnalyzer({ onClose }: { onClose: () => void }) {
   const navigate = useNavigate();
@@ -85,11 +85,9 @@ export function ExamReadinessAnalyzer({ onClose }: { onClose: () => void }) {
   };
   
   const handleStressTestComplete = (answers: UserAnswer[]) => {
-    // Calculate score based on correct answers
     const correctAnswers = answers.filter(a => a.isCorrect).length;
     const score = Math.round((correctAnswers / answers.length) * 100);
     
-    // Generate analysis based on score
     let level = '';
     let analysis = '';
     const strengths = [];
@@ -112,7 +110,6 @@ export function ExamReadinessAnalyzer({ onClose }: { onClose: () => void }) {
       improvements.push('Practice timed exercises regularly', 'Work on stress management techniques');
     }
     
-    // Update results
     setResults(prev => ({
       ...prev,
       stress: {
@@ -126,7 +123,6 @@ export function ExamReadinessAnalyzer({ onClose }: { onClose: () => void }) {
     
     setTestCompleted(prev => ({ ...prev, stress: true }));
     
-    // Move to next test
     setCurrentTest('readiness');
     setProgress(30);
   };
@@ -145,12 +141,8 @@ export function ExamReadinessAnalyzer({ onClose }: { onClose: () => void }) {
   };
   
   const handleReadinessTestComplete = (answers: UserAnswer[]) => {
-    // Calculate score based on the selected options
-    // For readiness test, we evaluate based on the study habits indicated in answers
     let score = 0;
     answers.forEach((answer) => {
-      // For simplicity, we assign scores based on the position of the answer in the options array
-      // This would be more sophisticated in a real implementation
       if (answer.answer.includes('More than')) score += 10;
       else if (answer.answer.includes('detailed') || answer.answer.includes('comprehensive')) score += 10;
       else if (answer.answer.includes('Daily') || answer.answer.includes('Frequently')) score += 10;
@@ -162,7 +154,6 @@ export function ExamReadinessAnalyzer({ onClose }: { onClose: () => void }) {
     
     score = Math.min(Math.round(score / answers.length * 10), 100);
     
-    // Generate analysis based on score
     let level = '';
     let analysis = '';
     const strengths = [];
@@ -185,7 +176,6 @@ export function ExamReadinessAnalyzer({ onClose }: { onClose: () => void }) {
       improvements.push('Create a detailed study schedule', 'Increase daily study hours');
     }
     
-    // Update results
     setResults(prev => ({
       ...prev,
       readiness: {
@@ -199,7 +189,6 @@ export function ExamReadinessAnalyzer({ onClose }: { onClose: () => void }) {
     
     setTestCompleted(prev => ({ ...prev, readiness: true }));
     
-    // Move to next test
     setCurrentTest('concept');
     setProgress(60);
   };
@@ -218,11 +207,9 @@ export function ExamReadinessAnalyzer({ onClose }: { onClose: () => void }) {
   };
   
   const handleConceptTestComplete = (answers: UserAnswer[]) => {
-    // Calculate score based on correct answers
     const correctAnswers = answers.filter(a => a.isCorrect).length;
     const score = Math.round((correctAnswers / answers.length) * 100);
     
-    // Generate analysis based on score
     let level = '';
     let analysis = '';
     const strengths = [];
@@ -245,7 +232,6 @@ export function ExamReadinessAnalyzer({ onClose }: { onClose: () => void }) {
       improvements.push('Revisit fundamental concepts', 'Increase practice with guided examples');
     }
     
-    // Update results
     setResults(prev => ({
       ...prev,
       concept: {
@@ -259,7 +245,6 @@ export function ExamReadinessAnalyzer({ onClose }: { onClose: () => void }) {
     
     setTestCompleted(prev => ({ ...prev, concept: true }));
     
-    // Calculate overall results
     const overallScore = Math.floor((results.stress.score + results.readiness.score + score) / 3);
     
     setResults(prev => ({
@@ -277,23 +262,35 @@ export function ExamReadinessAnalyzer({ onClose }: { onClose: () => void }) {
       }
     }));
     
-    // Show report
     setCurrentTest('report');
   };
 
-  const handleNavigation = () => {
-    if (currentTest === 'stress') {
-      setCurrentTest('intro');
-      setProgress(0);
-    } else if (currentTest === 'readiness') {
-      setCurrentTest('stress');
-      setProgress(10);
-    } else if (currentTest === 'concept') {
-      setCurrentTest('readiness');
-      setProgress(30);
-    } else if (currentTest === 'report') {
-      setCurrentTest('concept');
-      setProgress(60);
+  const handleNavigation = (direction: 'prev' | 'next') => {
+    if (direction === 'prev') {
+      if (currentTest === 'stress') {
+        setCurrentTest('intro');
+        setProgress(0);
+      } else if (currentTest === 'readiness') {
+        setCurrentTest('stress');
+        setProgress(10);
+      } else if (currentTest === 'concept') {
+        setCurrentTest('readiness');
+        setProgress(30);
+      } else if (currentTest === 'report') {
+        setCurrentTest('concept');
+        setProgress(60);
+      }
+    } else {
+      if (currentTest === 'stress' && testCompleted.stress) {
+        setCurrentTest('readiness');
+        setProgress(30);
+      } else if (currentTest === 'readiness' && testCompleted.readiness) {
+        setCurrentTest('concept');
+        setProgress(60);
+      } else if (currentTest === 'concept' && testCompleted.concept) {
+        setCurrentTest('report');
+        setProgress(100);
+      }
     }
   };
 
@@ -326,10 +323,20 @@ export function ExamReadinessAnalyzer({ onClose }: { onClose: () => void }) {
   };
 
   const getDialogDescription = () => {
-    if (currentTest !== 'report') {
-      return 'Complete these tests to assess your preparation level.';
+    switch (currentTest) {
+      case 'intro':
+        return 'Complete these tests to assess your exam preparation level';
+      case 'stress':
+        return 'Test your ability to focus under pressure with time-limited questions';
+      case 'readiness':
+        return 'Evaluate your current study habits and preparation strategy';
+      case 'concept':
+        return 'Check your mastery of key concepts required for your exam';
+      case 'report':
+        return undefined;
+      default:
+        return 'Complete these tests to assess your preparation level';
     }
-    return undefined;
   };
 
   const renderTestContent = () => {
@@ -395,9 +402,14 @@ export function ExamReadinessAnalyzer({ onClose }: { onClose: () => void }) {
     }
   };
 
+  const fadeVariants = {
+    hidden: { opacity: 0, y: 10 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.4 } }
+  };
+
   return (
     <Dialog open onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md md:max-w-xl bg-white dark:bg-gray-900 shadow-xl border-2 border-violet-100 dark:border-violet-800">
+      <DialogContent className="sm:max-w-md md:max-w-2xl lg:max-w-3xl bg-white dark:bg-gray-900 shadow-xl border-2 border-violet-100 dark:border-violet-800 p-6">
         <ExamDialogHeader 
           title={getDialogTitle()} 
           description={getDialogDescription()}
@@ -405,24 +417,32 @@ export function ExamReadinessAnalyzer({ onClose }: { onClose: () => void }) {
         />
 
         {currentTest !== 'intro' && currentTest !== 'report' && (
-          <div className="w-full bg-gray-100 dark:bg-gray-800 h-2 rounded-full mt-2">
-            <div 
-              className="h-full bg-gradient-to-r from-sky-500 to-violet-500 rounded-full transition-all duration-300"
-              style={{ width: `${progress}%` }}
+          <div className="w-full bg-gray-100 dark:bg-gray-800 h-3 rounded-full mt-2">
+            <motion.div 
+              className="h-full bg-gradient-to-r from-sky-500 to-violet-500 rounded-full"
+              initial={{ width: 0 }}
+              animate={{ width: `${progress}%` }}
+              transition={{ duration: 0.5 }}
             />
           </div>
         )}
         
-        <div className="py-4">
+        <motion.div 
+          className="py-6"
+          key={currentTest}
+          variants={fadeVariants}
+          initial="hidden"
+          animate="visible"
+        >
           {renderTestContent()}
-        </div>
+        </motion.div>
         
         {currentTest === 'intro' && (
-          <DialogFooter>
+          <DialogFooter className="space-x-2 pt-4">
             <Button 
               variant="outline" 
               onClick={onClose}
-              className="flex items-center gap-2 border-2 border-gray-200 dark:border-gray-700"
+              className="flex items-center gap-2 border-2 border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800"
             >
               <X size={16} />
               <span>Cancel</span>
@@ -430,7 +450,7 @@ export function ExamReadinessAnalyzer({ onClose }: { onClose: () => void }) {
             <Button 
               onClick={handleStartTest} 
               disabled={!selectedExam}
-              className="bg-gradient-to-r from-sky-500 to-violet-500 hover:from-sky-600 hover:to-violet-600 transition-all duration-300 shadow-md hover:shadow-lg"
+              className="bg-gradient-to-r from-sky-500 to-violet-500 hover:from-sky-600 hover:to-violet-600 transition-all duration-300 shadow-md hover:shadow-lg px-6 py-2 text-white"
             >
               <span>Start Assessment</span>
               <ChevronRight size={16} className="ml-2" />
@@ -439,20 +459,41 @@ export function ExamReadinessAnalyzer({ onClose }: { onClose: () => void }) {
         )}
         
         {(currentTest === 'stress' || currentTest === 'readiness' || currentTest === 'concept') && testCompleted[currentTest] && (
-          <DialogFooter>
+          <DialogFooter className="space-x-2 pt-4">
             <Button 
               variant="outline" 
-              onClick={handleNavigation}
-              className="flex items-center gap-2 border-2 border-gray-200 dark:border-gray-700"
+              onClick={() => handleNavigation('prev')}
+              className="flex items-center gap-2 border-2 border-gray-200 dark:border-gray-700 hover:bg-gray-100"
             >
+              <ChevronLeft size={16} />
               <span>Previous</span>
             </Button>
             <Button 
-              onClick={currentTest === 'concept' ? () => setCurrentTest('report') : null}
-              className="bg-gradient-to-r from-sky-500 to-violet-500 hover:from-sky-600 hover:to-violet-600 transition-all duration-300 shadow-md hover:shadow-lg"
+              onClick={() => handleNavigation('next')}
+              className="bg-gradient-to-r from-sky-500 to-violet-500 hover:from-sky-600 hover:to-violet-600 transition-all duration-300 shadow-md hover:shadow-lg px-6"
             >
               <span>Continue</span>
               <ChevronRight size={16} className="ml-2" />
+            </Button>
+          </DialogFooter>
+        )}
+
+        {currentTest === 'report' && (
+          <DialogFooter className="space-x-2 pt-4">
+            <Button 
+              variant="outline" 
+              onClick={() => handleNavigation('prev')}
+              className="flex items-center gap-2 border-2 border-gray-200 dark:border-gray-700"
+            >
+              <ChevronLeft size={16} />
+              <span>Back to Tests</span>
+            </Button>
+            <Button 
+              onClick={onClose}
+              className="bg-gradient-to-r from-sky-500 to-violet-500 hover:from-sky-600 hover:to-violet-600 transition-all duration-300 shadow-md hover:shadow-lg px-6"
+            >
+              <span>Finish</span>
+              <X size={16} className="ml-2" />
             </Button>
           </DialogFooter>
         )}

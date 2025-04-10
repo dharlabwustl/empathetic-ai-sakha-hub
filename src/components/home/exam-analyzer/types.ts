@@ -36,6 +36,8 @@ export interface TestQuestion {
   explanation?: string;
   imageUrl?: string;
   type?: 'multiple-choice' | 'self-assessment';
+  category?: string;
+  difficulty?: 'easy' | 'medium' | 'hard';
 }
 
 export interface SubjectTopic {
@@ -49,4 +51,12 @@ export interface UserAnswer {
   answer: string;
   timeToAnswer: number;
   isCorrect?: boolean;
+}
+
+export interface TestDescription {
+  title: string;
+  description: string;
+  instructions: string[];
+  duration: string;
+  questionCount: number;
 }

@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -33,50 +34,45 @@ const StudentDashboard = () => {
   }, [tab]);
 
   useEffect(() => {
+    // Initial loading simulation for dashboard
     const timer = setTimeout(() => {
       setLoading(false);
-      toast({
-        title: "Welcome to your smart study plan!",
-        description: "Your personalized dashboard is ready.",
-      });
     }, 1000);
 
-    // Check for user data and show onboarding/welcome as needed
+    // Handle onboarding and welcome flow
     const userData = localStorage.getItem("userData");
     const searchParams = new URLSearchParams(location.search);
-    const completedOnboarding = searchParams.get('completedOnboarding');
-    const isNewSignup = searchParams.get('newUser') === 'true';
+    const isNewUser = searchParams.get('newUser') === 'true';
     
-    // If coming from signup, always show onboarding first
-    if (isNewSignup) {
+    if (isNewUser) {
+      // When coming directly from signup, show onboarding first
       setShowOnboarding(true);
+      
       // Clean the URL to remove the query params
       navigate(location.pathname, { replace: true });
-    }
-    // If completed onboarding via regular flow, show welcome tour
-    else if (completedOnboarding === 'true') {
-      setShowWelcomeTour(true);
-      // Clean the URL to remove the query param
-      navigate(location.pathname, { replace: true });
-    }
-    // For returning users with userData, go straight to dashboard
+      
+      // Later we'll show welcome tour after onboarding completes
+    } 
     else if (userData) {
-      // Existing user, don't show onboarding or welcome tour
+      // Check if it's a returning user with stored data
       const parsedUserData = JSON.parse(userData);
-      if (!parsedUserData.completedOnboarding) {
-        // Edge case: user has data but never completed onboarding
+      if (parsedUserData.isNewUser || !parsedUserData.completedOnboarding) {
+        // First time returning after signup, still need onboarding
         setShowOnboarding(true);
+      } else {
+        // Regular returning user - show dashboard directly
+        toast({
+          title: "Welcome back to Sakha AI!",
+          description: "Your personalized dashboard is ready.",
+        });
       }
-    }
-    // Complete new user with no data, start onboarding
+    } 
     else {
-      // First time user, show onboarding
+      // Completely new user with no data
       setShowOnboarding(true);
     }
 
-    return () => {
-      clearTimeout(timer);
-    };
+    return () => clearTimeout(timer);
   }, [toast, location, navigate]);
 
   const handleTabChange = (newTab: string) => {
@@ -86,10 +82,29 @@ const StudentDashboard = () => {
 
   const handleSkipTour = () => {
     setShowWelcomeTour(false);
+    
+    // Save that tour was seen
+    if (userProfile) {
+      const userData = JSON.parse(localStorage.getItem("userData") || "{}");
+      userData.sawWelcomeTour = true;
+      localStorage.setItem("userData", JSON.stringify(userData));
+    }
   };
 
   const handleCompleteTour = () => {
     setShowWelcomeTour(false);
+    
+    // Save that tour was completed
+    if (userProfile) {
+      const userData = JSON.parse(localStorage.getItem("userData") || "{}");
+      userData.sawWelcomeTour = true;
+      localStorage.setItem("userData", JSON.stringify(userData));
+    }
+    
+    toast({
+      title: "Welcome to your dashboard!",
+      description: "You're all set up and ready to start.",
+    });
   };
 
   const handleCompleteOnboarding = () => {
@@ -98,12 +113,16 @@ const StudentDashboard = () => {
     
     // Store that the user has completed onboarding
     if (userProfile) {
-      const userData = {
-        ...userProfile,
-        completedOnboarding: true
-      };
+      const userData = JSON.parse(localStorage.getItem("userData") || "{}");
+      userData.completedOnboarding = true;
+      userData.isNewUser = false;
       localStorage.setItem("userData", JSON.stringify(userData));
     }
+    
+    toast({
+      title: "Onboarding completed!",
+      description: "Let's explore your personalized dashboard.",
+    });
   };
   
   const handleViewStudyPlan = () => {

@@ -5,6 +5,7 @@ import { generateTabContents } from '@/components/dashboard/student/TabContentMa
 import { UserProfileType } from '@/types/user';
 import { KpiData, NudgeData } from '@/hooks/useKpiTracking';
 import { ReactNode } from 'react';
+import { motion } from 'framer-motion';
 
 interface DashboardContentProps {
   activeTab: string;
@@ -51,15 +52,31 @@ const DashboardContent = ({
     handleCompleteTour
   });
 
+  // Animation variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.05,
+      }
+    }
+  };
+
   return (
-    <div className="lg:col-span-9 xl:col-span-10">
+    <motion.div 
+      className="lg:col-span-9 xl:col-span-10"
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+    >
       <DashboardTabs 
         activeTab={activeTab}
         onTabChange={onTabChange}
         tabContents={tabContents}
         hideTabsNav={hideTabsNav}
       />
-    </div>
+    </motion.div>
   );
 };
 
