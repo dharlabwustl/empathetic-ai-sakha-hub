@@ -7,6 +7,8 @@ import ScoreBadges from './report-components/ScoreBadges';
 import ConfidenceMappingSection from './report-components/ConfidenceMapping';
 import StrengthsAndImprovements from './report-components/StrengthsAndImprovements';
 import StudyPlanSection from './report-components/StudyPlanSection';
+import { Card, CardContent } from '@/components/ui/card';
+import { motion } from 'framer-motion';
 
 interface ReportSectionProps {
   results: ExamResults;
@@ -104,38 +106,74 @@ const ReportSection: React.FC<ReportSectionProps> = ({
     if (score >= 50) return 'from-amber-400 to-amber-600';
     return 'from-red-400 to-red-600';
   };
+
+  const container = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+        delayChildren: 0.2
+      }
+    }
+  };
+
+  const item = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0 }
+  };
   
   return (
-    <div className="space-y-8">
-      <ReportHeader 
-        examLabel={examLabel}
-        weightedScore={weightedScore}
-        overallAnalysis={results.overall.analysis}
-        getScoreColorClass={getScoreColorClass}
-      />
+    <motion.div 
+      className="space-y-8"
+      variants={container}
+      initial="hidden"
+      animate="show"
+    >
+      <motion.div variants={item}>
+        <Card className="overflow-hidden border-2 border-violet-100 dark:border-violet-800/50 shadow-lg">
+          <CardContent className="p-0">
+            <div className="bg-gradient-to-r from-violet-500/10 to-blue-500/10 dark:from-violet-900/30 dark:to-blue-900/30 p-6">
+              <ReportHeader 
+                examLabel={examLabel}
+                weightedScore={weightedScore}
+                overallAnalysis={results.overall.analysis}
+                getScoreColorClass={getScoreColorClass}
+              />
+            </div>
+            <div className="p-6">
+              <ScoreBadges 
+                stressScore={results.stress.score}
+                conceptCompletionScore={conceptCompletionScore}
+                mockAccuracyScore={mockAccuracyScore}
+                confidenceAlignmentScore={confidenceAlignmentScore}
+                getScoreColorClass={getScoreColorClass}
+              />
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
       
-      <ScoreBadges 
-        stressScore={results.stress.score}
-        conceptCompletionScore={conceptCompletionScore}
-        mockAccuracyScore={mockAccuracyScore}
-        confidenceAlignmentScore={confidenceAlignmentScore}
-        getScoreColorClass={getScoreColorClass}
-      />
+      <motion.div variants={item}>
+        <ConfidenceMappingSection
+          confidenceMappings={confidenceMappings}
+        />
+      </motion.div>
       
-      <ConfidenceMappingSection
-        confidenceMappings={confidenceMappings}
-      />
+      <motion.div variants={item}>
+        <StrengthsAndImprovements
+          strengths={uniqueStrengths}
+          improvements={uniqueImprovements}
+        />
+      </motion.div>
       
-      <StrengthsAndImprovements
-        strengths={uniqueStrengths}
-        improvements={uniqueImprovements}
-      />
-      
-      <StudyPlanSection
-        recommendations={studyPlanRecommendations}
-        onStartOver={onStartOver}
-      />
-    </div>
+      <motion.div variants={item}>
+        <StudyPlanSection
+          recommendations={studyPlanRecommendations}
+          onStartOver={onStartOver}
+        />
+      </motion.div>
+    </motion.div>
   );
 };
 

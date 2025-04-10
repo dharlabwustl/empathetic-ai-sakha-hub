@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { BarChart3, Download, RefreshCw, BookOpen, ArrowRight } from 'lucide-react';
+import { BarChart3, Download, RefreshCw, BookOpen, ArrowRight, UserPlus, FileText } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Separator } from '@/components/ui/separator';
 
@@ -50,7 +50,7 @@ const StudyPlanSection: React.FC<StudyPlanSectionProps> = ({ recommendations, on
       
       <div className="flex flex-col sm:flex-row gap-3 mt-4">
         <Button variant="outline" className="flex-1 flex items-center justify-center gap-2 border-blue-200 dark:border-blue-800 hover:bg-blue-50 dark:hover:bg-blue-900/30">
-          <Download size={16} />
+          <FileText size={16} />
           <span>Save Results PDF</span>
         </Button>
         
@@ -63,20 +63,19 @@ const StudyPlanSection: React.FC<StudyPlanSectionProps> = ({ recommendations, on
         </Button>
       </div>
       
-      <div className="mt-5 p-4 bg-gradient-to-br from-violet-50 to-blue-50 dark:from-violet-900/20 dark:to-blue-900/20 rounded-lg border border-violet-100 dark:border-violet-800 shadow-md">
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div>
-            <h4 className="font-medium text-violet-700 dark:text-violet-400 flex items-center">
-              <BookOpen className="mr-2 h-4 w-4" />
-              Start Your Learning Journey
-            </h4>
-            <p className="text-sm text-violet-600 dark:text-violet-300 mt-1">
-              Access personalized study plans, adaptive practice, and expert guidance
-            </p>
+      <div className="mt-6 p-6 bg-gradient-to-br from-violet-500/10 to-blue-500/10 dark:from-violet-900/20 dark:to-blue-900/20 rounded-xl border border-violet-100 dark:border-violet-800/50 shadow-lg">
+        <div className="flex flex-col items-center text-center">
+          <div className="bg-white dark:bg-gray-800 p-3 rounded-full shadow-md mb-3">
+            <UserPlus className="h-6 w-6 text-violet-600 dark:text-violet-400" />
           </div>
-          <Button className="bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-700 hover:to-blue-700 shadow-md hover:shadow-lg transition-all duration-300 animate-pulse">
-            Sign Up Now
-            <ArrowRight className="ml-1 h-4 w-4" />
+          <h4 className="text-lg font-semibold text-violet-700 dark:text-violet-400">
+            Unlock Your Full Potential
+          </h4>
+          <p className="text-sm text-violet-600/90 dark:text-violet-300/90 mt-2 mb-4">
+            Sign up now to get a detailed study plan, personalized practice questions, and expert guidance.
+          </p>
+          <Button className="w-full md:w-auto bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-700 hover:to-blue-700 shadow-md hover:shadow-xl transition-all duration-300 animate-pulse">
+            Sign Up Free <ArrowRight className="ml-1 h-4 w-4" />
           </Button>
         </div>
       </div>

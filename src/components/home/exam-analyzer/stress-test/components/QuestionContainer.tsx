@@ -1,9 +1,9 @@
 
 import React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { TestQuestion } from '../../types';
-import { Button } from '@/components/ui/button';
-import { Activity } from 'lucide-react';
+import { Button } from "@/components/ui/button";
+import { AlertTriangle } from "lucide-react";
+import { motion } from 'framer-motion';
 
 interface QuestionContainerProps {
   currentQuestion: TestQuestion;
@@ -18,62 +18,66 @@ const QuestionContainer: React.FC<QuestionContainerProps> = ({
   showExplanation,
   onAnswer
 }) => {
+  const isVisualQuestion = !!currentQuestion.imageUrl;
+
+  const distractAnimation = {
+    hidden: { opacity: 0, scale: 0.8 },
+    visible: { opacity: 1, scale: 1 }
+  };
+
   return (
-    <motion.div 
-      className="bg-white dark:bg-gray-800 p-6 rounded-2xl border-2 border-blue-100 dark:border-blue-800/50 shadow-lg"
-      animate={{ scale: showDistraction ? 0.98 : 1 }}
-      transition={{ duration: 0.2 }}
-    >
-      <h3 className="text-lg font-medium mb-4">{currentQuestion.question}</h3>
-      
-      {currentQuestion.imageUrl && (
-        <div className="mb-4">
-          <img 
-            src={currentQuestion.imageUrl} 
-            alt="Question visual" 
-            className="mx-auto max-h-40 object-contain rounded-lg shadow-md"
-          />
-        </div>
-      )}
-      
-      <div className="space-y-3 relative">
-        {currentQuestion.options.map((option, index) => (
+    <div className="relative">
+      <div className="bg-white dark:bg-gray-800 p-5 rounded-xl shadow-lg border border-violet-100 dark:border-violet-800/30">
+        <h3 className="text-lg font-medium mb-4 text-center">{currentQuestion.question}</h3>
+        
+        {/* Visual question image */}
+        {isVisualQuestion && (
           <motion.div 
-            key={index}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-6 rounded-lg overflow-hidden shadow-md"
           >
-            <Button 
-              variant="outline" 
-              className="w-full text-left justify-start p-4 h-auto border-blue-100 dark:border-blue-800 hover:bg-blue-50/50 dark:hover:bg-blue-900/20 transition-all duration-200"
+            <img 
+              src={currentQuestion.imageUrl} 
+              alt="Question visual" 
+              className="w-full max-h-[250px] object-cover" 
+            />
+          </motion.div>
+        )}
+        
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
+          {currentQuestion.options.map((option, index) => (
+            <Button
+              key={index}
               onClick={() => onAnswer(option)}
               disabled={showExplanation}
+              className="p-4 h-auto text-left justify-start hover:bg-violet-50 dark:hover:bg-violet-900/20 transition-colors"
+              variant="outline"
             >
-              <div className="h-6 w-6 rounded-full bg-gradient-to-br from-blue-100 to-violet-100 dark:from-blue-900 dark:to-violet-900 flex items-center justify-center text-sm font-medium text-blue-700 dark:text-blue-300 mr-2">
+              <span className="w-6 h-6 flex items-center justify-center rounded-full bg-violet-100 dark:bg-violet-800/40 text-violet-800 dark:text-violet-300 mr-3 flex-shrink-0">
                 {String.fromCharCode(65 + index)}
-              </div>
-              <span>{option}</span>
+              </span>
+              <span className="text-gray-700 dark:text-gray-200">{option}</span>
             </Button>
-          </motion.div>
-        ))}
-        
-        <AnimatePresence>
-          {showDistraction && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="absolute inset-0 flex items-center justify-center pointer-events-none"
-            >
-              <div className="bg-red-100 dark:bg-red-900/30 p-3 rounded-lg border border-red-200 dark:border-red-800 shadow-lg flex items-center">
-                <Activity className="text-red-500 mr-2 animate-pulse" size={20} />
-                <span className="font-medium text-red-600 dark:text-red-300">Stay focused!</span>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+          ))}
+        </div>
       </div>
-    </motion.div>
+
+      {showDistraction && (
+        <motion.div 
+          className="absolute inset-0 bg-gradient-to-r from-red-500/30 to-orange-500/30 flex items-center justify-center rounded-xl backdrop-blur-sm z-10"
+          variants={distractAnimation}
+          initial="hidden"
+          animate="visible"
+          exit="hidden"
+        >
+          <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg flex items-center">
+            <AlertTriangle className="text-amber-500 mr-2" size={24} />
+            <span className="font-medium">Stay focused!</span>
+          </div>
+        </motion.div>
+      )}
+    </div>
   );
 };
 
