@@ -1,4 +1,4 @@
 
-import { getStressTestQuestions, stressTestDescriptions } from './stress-test/stressTestBase';
+import { getStressTestQuestions } from './stress-test/stressTestBase';
 
-export { getStressTestQuestions, stressTestDescriptions };
+export { getStressTestQuestions };
