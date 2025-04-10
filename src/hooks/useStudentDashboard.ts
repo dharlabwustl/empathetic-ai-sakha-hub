@@ -34,10 +34,6 @@ export const useStudentDashboard = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       setLoading(false);
-      toast({
-        title: "Welcome to your smart study plan!",
-        description: "Your personalized dashboard is ready.",
-      });
     }, 1000);
 
     const intervalId = setInterval(() => {
@@ -47,17 +43,35 @@ export const useStudentDashboard = () => {
     // Check for user data and show onboarding/welcome as needed
     const userData = localStorage.getItem("userData");
     const searchParams = new URLSearchParams(location.search);
-    const completedOnboarding = searchParams.get('completedOnboarding');
+    const newUser = searchParams.get('newUser');
     
-    // If first time login flow (coming from signup)
-    if (completedOnboarding === 'true') {
-      setShowWelcomeTour(true);
+    // If coming directly from signup
+    if (newUser === 'true') {
+      setShowOnboarding(true);
       // Clean the URL to remove the query param
       navigate(location.pathname, { replace: true });
-    }
-    // Check if this is a first-time user and not coming from signup
-    else if (!userData) {
-      // First time user, show onboarding
+    } 
+    // Check if this is a returning user who hasn't completed onboarding yet
+    else if (userData) {
+      const parsedUserData = JSON.parse(userData);
+      if (!parsedUserData.completedOnboarding) {
+        setShowOnboarding(true);
+      } else if (!parsedUserData.sawWelcomeTour) {
+        setShowWelcomeTour(true);
+        toast({
+          title: "Welcome to your dashboard!",
+          description: "Let's take a tour of your learning space.",
+        });
+      } else {
+        // Regular returning user
+        toast({
+          title: "Welcome back!",
+          description: "Your personalized dashboard is ready.",
+        });
+      }
+    } 
+    // First-time user with no data
+    else {
       setShowOnboarding(true);
     }
 
@@ -65,7 +79,7 @@ export const useStudentDashboard = () => {
       clearTimeout(timer);
       clearInterval(intervalId);
     };
-  }, [toast, userProfile, location, navigate]);
+  }, [toast, location, navigate]);
 
   const handleTabChange = (newTab: string) => {
     setActiveTab(newTab);
@@ -74,10 +88,27 @@ export const useStudentDashboard = () => {
 
   const handleSkipTour = () => {
     setShowWelcomeTour(false);
+    // Save that tour was seen but skipped
+    if (userProfile) {
+      const userData = JSON.parse(localStorage.getItem("userData") || "{}");
+      userData.sawWelcomeTour = true;
+      localStorage.setItem("userData", JSON.stringify(userData));
+    }
   };
 
   const handleCompleteTour = () => {
     setShowWelcomeTour(false);
+    // Save that tour was completed
+    if (userProfile) {
+      const userData = JSON.parse(localStorage.getItem("userData") || "{}");
+      userData.sawWelcomeTour = true;
+      localStorage.setItem("userData", JSON.stringify(userData));
+    }
+    
+    toast({
+      title: "Tour completed!",
+      description: "You're all set to start your learning journey.",
+    });
   };
 
   const handleCompleteOnboarding = () => {
@@ -86,12 +117,16 @@ export const useStudentDashboard = () => {
     
     // Store that the user has completed onboarding
     if (userProfile) {
-      const userData = {
-        ...userProfile,
-        completedOnboarding: true
-      };
+      const userData = JSON.parse(localStorage.getItem("userData") || "{}");
+      userData.completedOnboarding = true;
+      userData.isNewUser = false;
       localStorage.setItem("userData", JSON.stringify(userData));
     }
+    
+    toast({
+      title: "Onboarding completed!",
+      description: "Now let's explore your personalized dashboard.",
+    });
   };
   
   const handleViewStudyPlan = () => {
