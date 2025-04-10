@@ -1,10 +1,8 @@
 
 import React from 'react';
-import { Badge } from '@/components/ui/badge';
-import { Zap, Brain } from 'lucide-react';
-import { motion } from 'framer-motion';
-import ComplexityIndicator from './ComplexityIndicator';
+import { Badge } from "@/components/ui/badge";
 import QuestionTimer from './QuestionTimer';
+import ComplexityIndicator from './ComplexityIndicator';
 
 interface QuestionHeaderProps {
   currentQuestionIndex: number;
@@ -21,32 +19,54 @@ const QuestionHeader: React.FC<QuestionHeaderProps> = ({
   questionType,
   currentComplexity
 }) => {
+  const getQuestionTypeLabel = () => {
+    switch (questionType) {
+      case 'pattern-recognition':
+        return 'Pattern Recognition';
+      case 'memory-recall':
+        return 'Memory Recall';
+      case 'timed-calculation':
+        return 'Calculation';
+      case 'multiple-choice':
+        return 'Multiple Choice';
+      case 'self-assessment':
+        return 'Self Assessment';
+      default:
+        return 'Question';
+    }
+  };
+  
+  const getQuestionTypeColor = () => {
+    switch (questionType) {
+      case 'pattern-recognition':
+        return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300';
+      case 'memory-recall':
+        return 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 animate-pulse';
+      case 'timed-calculation':
+        return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300';
+      default:
+        return 'bg-violet-100 text-violet-800 dark:bg-violet-900/30 dark:text-violet-300';
+    }
+  };
+  
   return (
-    <>
-      <div className="flex justify-between items-center">
-        <Badge variant="outline" className="bg-gradient-to-r from-blue-50 to-violet-50 dark:from-blue-900/30 dark:to-violet-900/30 border-blue-200 dark:border-blue-700 text-blue-700 dark:text-blue-300">
-          Question {currentQuestionIndex + 1}/{questionsLength}
+    <div className="flex justify-between items-center">
+      <div>
+        <div className="text-sm text-gray-500 dark:text-gray-400">
+          Question {currentQuestionIndex + 1} of {questionsLength}
+        </div>
+        <Badge 
+          className={`mt-1 ${getQuestionTypeColor()}`}
+        >
+          {getQuestionTypeLabel()}
         </Badge>
-        <QuestionTimer timeLeft={timeLeft} />
       </div>
       
-      <motion.div
-        initial={{ opacity: 0.8, scale: 0.98 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="flex items-center justify-between mt-2"
-      >
-        {questionType && (
-          <div className="flex items-center">
-            <Badge variant="outline" className="bg-gradient-to-r from-blue-50 to-violet-50 dark:from-blue-900/30 dark:to-violet-900/30 border-blue-200 dark:border-blue-700 text-blue-700 dark:text-blue-300 flex items-center gap-1">
-              {questionType === 'pattern-recognition' && <Zap className="h-3 w-3" aria-hidden="true" />}
-              {questionType === 'memory-recall' && <Brain className="h-3 w-3" aria-hidden="true" />}
-              {questionType}
-            </Badge>
-          </div>
-        )}
-        <ComplexityIndicator currentComplexity={currentComplexity} />
-      </motion.div>
-    </>
+      <div className="flex items-center space-x-4">
+        <ComplexityIndicator level={currentComplexity} />
+        <QuestionTimer timeLeft={timeLeft} questionType={questionType} />
+      </div>
+    </div>
   );
 };
 

@@ -1,9 +1,9 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { TestQuestion } from '../../types';
 import { Button } from "@/components/ui/button";
-import { AlertTriangle } from "lucide-react";
-import { motion } from 'framer-motion';
+import { AlertTriangle, Eye } from "lucide-react";
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface QuestionContainerProps {
   currentQuestion: TestQuestion;
@@ -19,29 +19,83 @@ const QuestionContainer: React.FC<QuestionContainerProps> = ({
   onAnswer
 }) => {
   const isVisualQuestion = !!currentQuestion.imageUrl;
+  const isMemoryQuestion = currentQuestion.type === 'memory-recall';
+  const [showMemoryItem, setShowMemoryItem] = useState(isMemoryQuestion);
+  
+  // For memory questions, hide the item after a few seconds
+  useEffect(() => {
+    if (isMemoryQuestion && showMemoryItem) {
+      const timer = setTimeout(() => {
+        setShowMemoryItem(false);
+      }, 5000); // Show for 5 seconds
+      
+      return () => clearTimeout(timer);
+    }
+  }, [isMemoryQuestion, currentQuestion.id]);
+  
+  // Reset memory item display when question changes
+  useEffect(() => {
+    if (isMemoryQuestion) {
+      setShowMemoryItem(true);
+    }
+  }, [currentQuestion.id, isMemoryQuestion]);
 
   const distractAnimation = {
     hidden: { opacity: 0, scale: 0.8 },
     visible: { opacity: 1, scale: 1 }
   };
+  
+  const memoryFadeAnimation = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1 },
+    exit: { opacity: 0 }
+  };
 
   return (
     <div className="relative">
-      <div className="bg-white dark:bg-gray-800 p-5 rounded-xl shadow-lg border border-violet-100 dark:border-violet-800/30">
+      <div className="bg-white dark:bg-gray-800 p-5 rounded-xl shadow-lg border border-violet-100 dark:border-violet-800">
         <h3 className="text-lg font-medium mb-4 text-center">{currentQuestion.question}</h3>
         
-        {/* Visual question image */}
+        {/* Visual or memory question image */}
         {isVisualQuestion && (
-          <motion.div 
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-6 rounded-lg overflow-hidden shadow-md"
+          <AnimatePresence>
+            {(!isMemoryQuestion || showMemoryItem) && (
+              <motion.div 
+                key={`image-${currentQuestion.id}`}
+                initial="hidden"
+                animate="visible"
+                exit={isMemoryQuestion ? "exit" : undefined}
+                variants={isMemoryQuestion ? memoryFadeAnimation : {
+                  hidden: { opacity: 0, y: 10 },
+                  visible: { opacity: 1, y: 0 }
+                }}
+                className="mb-6 rounded-lg overflow-hidden shadow-md relative"
+              >
+                <img 
+                  src={currentQuestion.imageUrl} 
+                  alt="Question visual" 
+                  className="w-full max-h-[250px] object-contain mx-auto rounded-lg bg-gray-50 dark:bg-gray-700" 
+                />
+                
+                {isMemoryQuestion && (
+                  <div className="absolute top-2 right-2 bg-violet-100 dark:bg-violet-900 text-violet-800 dark:text-violet-100 px-2 py-1 rounded-md text-xs flex items-center">
+                    <Eye className="w-3 h-3 mr-1" />
+                    Memorize
+                  </div>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        )}
+        
+        {/* Memory question removed notice */}
+        {isMemoryQuestion && !showMemoryItem && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="mb-6 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg text-center text-gray-600 dark:text-gray-300"
           >
-            <img 
-              src={currentQuestion.imageUrl} 
-              alt="Question visual" 
-              className="w-full max-h-[250px] object-cover mx-auto rounded-lg" 
-            />
+            <p>Image removed. Please answer from memory.</p>
           </motion.div>
         )}
         

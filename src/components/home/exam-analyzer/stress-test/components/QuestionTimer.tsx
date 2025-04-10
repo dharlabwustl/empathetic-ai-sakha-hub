@@ -1,15 +1,17 @@
 
 import React, { useEffect, useState } from 'react';
-import { Timer } from 'lucide-react';
+import { Timer, AlertCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface QuestionTimerProps {
   timeLeft: number;
+  questionType?: string;
 }
 
-const QuestionTimer: React.FC<QuestionTimerProps> = ({ timeLeft }) => {
+const QuestionTimer: React.FC<QuestionTimerProps> = ({ timeLeft, questionType }) => {
   const [initialTime, setInitialTime] = useState<number>(30); // Default to 30s
   const isRunningLow = timeLeft < 5;
+  const isMemoryQuestion = questionType === 'memory-recall';
   
   // Set initial time once when component mounts
   useEffect(() => {
@@ -23,8 +25,9 @@ const QuestionTimer: React.FC<QuestionTimerProps> = ({ timeLeft }) => {
   const circumference = 2 * Math.PI * 18; // Circle radius is 18
   const strokeDashoffset = circumference * (1 - progress);
   
-  // Determine color based on time left
+  // Determine color based on time left and question type
   const getColor = () => {
+    if (isMemoryQuestion) return 'text-amber-500 stroke-amber-500';
     if (timeLeft > 10) return 'text-blue-500 stroke-blue-500';
     if (timeLeft > 5) return 'text-amber-500 stroke-amber-500';
     return 'text-red-500 stroke-red-500';
@@ -63,16 +66,23 @@ const QuestionTimer: React.FC<QuestionTimerProps> = ({ timeLeft }) => {
         
         {/* Timer Icon in Center */}
         <div className="absolute inset-0 flex items-center justify-center">
-          <Timer 
-            className={`${getColor()} ${isRunningLow ? 'animate-pulse' : ''}`} 
-            size={16} 
-          />
+          {isMemoryQuestion ? (
+            <AlertCircle 
+              className={`${getColor()} ${isRunningLow || isMemoryQuestion ? 'animate-pulse' : ''}`} 
+              size={16} 
+            />
+          ) : (
+            <Timer 
+              className={`${getColor()} ${isRunningLow ? 'animate-pulse' : ''}`} 
+              size={16} 
+            />
+          )}
         </div>
       </div>
       
       {/* Time Text */}
       <span 
-        className={`ml-2 font-medium ${getColor()} ${isRunningLow ? 'animate-pulse' : ''}`}
+        className={`ml-2 font-medium ${getColor()} ${isRunningLow || isMemoryQuestion ? 'animate-pulse' : ''}`}
         aria-live={isRunningLow ? "assertive" : "polite"}
       >
         {timeLeft}s

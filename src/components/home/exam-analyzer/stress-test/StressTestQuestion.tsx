@@ -30,8 +30,13 @@ const StressTestQuestion: React.FC<StressTestQuestionProps> = ({
   userAnswers,
   onAnswer
 }) => {
+  // Add a special class for memory recall questions to highlight the urgency
+  const questionTypeClass = currentQuestion.type === 'memory-recall' 
+    ? 'border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/10'
+    : '';
+
   return (
-    <div className="space-y-6">
+    <div className={`space-y-6 ${questionTypeClass} rounded-lg p-1`}>
       <QuestionHeader
         currentQuestionIndex={currentQuestionIndex}
         questionsLength={questionsLength}
@@ -59,6 +64,13 @@ const StressTestQuestion: React.FC<StressTestQuestionProps> = ({
         className="h-2" 
         indicatorClassName="bg-gradient-to-r from-blue-400 to-violet-600" 
       />
+
+      {/* Extra info for memory recall questions */}
+      {currentQuestion.type === 'memory-recall' && !showExplanation && (
+        <div className="text-center text-xs text-amber-600 dark:text-amber-400 animate-pulse">
+          Quick response required - answer from memory!
+        </div>
+      )}
     </div>
   );
 };
