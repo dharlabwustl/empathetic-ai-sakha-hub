@@ -119,6 +119,30 @@ const HeroSection = ({ onAnalyzeClick }: HeroSectionProps) => {
             Sakha delivers personalized exam preparation with AI-powered study plans that adapt to your unique learning style and goals.
           </motion.p>
 
+          {/* CTA Buttons below subtitle */}
+          <motion.div 
+            className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6, duration: 0.5 }}
+          >
+            <Button
+              onClick={() => navigate('/signup')}
+              className="w-full sm:w-auto bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white px-8 py-6 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 text-lg font-medium"
+              size="lg"
+            >
+              Get Started Free
+            </Button>
+            <Button
+              onClick={onAnalyzeClick}
+              variant="outline"
+              className="w-full sm:w-auto border-2 border-violet-300 dark:border-violet-700 hover:bg-violet-50 dark:hover:bg-violet-900/30 hover:text-violet-700 dark:hover:text-violet-300 px-8 py-6 rounded-lg text-lg font-medium"
+              size="lg"
+            >
+              Test Your Readiness
+            </Button>
+          </motion.div>
+
           {/* Pain points and solutions animation */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-12 mb-16">
             <div className="space-y-4">
@@ -336,6 +360,36 @@ const HeroSection = ({ onAnalyzeClick }: HeroSectionProps) => {
             </motion.div>
           </motion.div>
         </div>
+
+        {/* Exam Icons Section */}
+        <motion.div 
+          className="max-w-5xl mx-auto mt-20 text-center"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1.4, duration: 0.6 }}
+        >
+          <h3 className="text-xl font-semibold mb-6 text-gray-800 dark:text-gray-200">Trusted by students preparing for</h3>
+          <div className="flex flex-wrap justify-center items-center gap-4 md:gap-8">
+            {[
+              { name: "IIT-JEE", icon: <GraduationCap className="text-violet-500" size={32} /> },
+              { name: "NEET", icon: <FileText className="text-green-500" size={32} /> },
+              { name: "UPSC", icon: <Award className="text-amber-500" size={32} /> },
+              { name: "Bank PO", icon: <Medal className="text-blue-500" size={32} /> },
+              { name: "CAT", icon: <BarChart3 className="text-indigo-500" size={32} /> },
+              { name: "GATE", icon: <Trophy className="text-rose-500" size={32} /> },
+            ].map((exam, index) => (
+              <motion.div
+                key={index}
+                className="bg-white dark:bg-gray-800 p-3 px-5 rounded-lg shadow-sm border border-gray-100 dark:border-gray-700 flex items-center gap-2"
+                whileHover={{ y: -5, boxShadow: "0 10px 15px -3px rgba(0,0,0,0.1)" }}
+                transition={{ type: "spring", stiffness: 300 }}
+              >
+                {exam.icon}
+                <span className="font-medium">{exam.name}</span>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
       </div>
     </section>
   );
