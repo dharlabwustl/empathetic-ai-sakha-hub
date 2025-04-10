@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { TestResults, TestQuestion, UserAnswer } from './types';
 import { getStressTestQuestions } from './test-questions/stressTestQuestions';
@@ -34,12 +33,10 @@ const StressTestSection: React.FC<StressTestSectionProps> = ({
   const [currentComplexity, setCurrentComplexity] = useState(1);
   const [showDistraction, setShowDistraction] = useState(false);
   
-  // Use ref to store timer
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const startTimeRef = useRef<number>(0);
   const distractionTimerRef = useRef<NodeJS.Timeout | null>(null);
   
-  // Clean up timer on unmount
   useEffect(() => {
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
@@ -48,10 +45,8 @@ const StressTestSection: React.FC<StressTestSectionProps> = ({
   }, []);
   
   const startTest = () => {
-    // Get questions for the selected exam type
     const testQuestions = getStressTestQuestions(selectedExam);
     
-    // Sort questions by complexity if available
     const sortedQuestions = [...testQuestions].sort((a, b) => {
       const complexityA = a.complexityLevel || 1;
       const complexityB = b.complexityLevel || 1;
@@ -63,29 +58,23 @@ const StressTestSection: React.FC<StressTestSectionProps> = ({
     setTimeLeft(sortedQuestions[0].timeLimit);
     setCurrentComplexity(sortedQuestions[0].complexityLevel || 1);
     
-    // Start the countdown timer
     startTimer();
   };
   
   const startTimer = () => {
-    // Clear existing timer if any
     if (timerRef.current) {
       clearInterval(timerRef.current);
     }
     
-    // Record start time for reaction time measurement
     startTimeRef.current = Date.now();
     
-    // Start new timer
     timerRef.current = setInterval(() => {
       setTimeLeft(prev => {
         if (prev <= 1) {
-          // Time's up - move to next question
           if (timerRef.current) {
             clearInterval(timerRef.current);
           }
           
-          // Record timed-out answer
           const currentQ = questions[currentQuestionIndex];
           const timeoutAnswer: UserAnswer = {
             questionId: currentQ.id,
@@ -102,24 +91,20 @@ const StressTestSection: React.FC<StressTestSectionProps> = ({
       });
     }, 1000);
     
-    // Add random distractions for scientific stress testing
     scheduleDistraction();
   };
   
   const scheduleDistraction = () => {
-    // Clear existing distraction timer if any
     if (distractionTimerRef.current) {
       clearTimeout(distractionTimerRef.current);
     }
     
-    // Schedule a distraction at random time during the question
     const currentQuestion = questions[currentQuestionIndex];
     const distractionDelay = Math.floor(Math.random() * (currentQuestion.timeLimit - 3) * 1000) + 2000;
     
     distractionTimerRef.current = setTimeout(() => {
       setShowDistraction(true);
       
-      // Hide the distraction after 1.5 seconds
       setTimeout(() => {
         setShowDistraction(false);
       }, 1500);
@@ -127,12 +112,10 @@ const StressTestSection: React.FC<StressTestSectionProps> = ({
   };
   
   const handleAnswer = (answer: string) => {
-    // Clear the timer
     if (timerRef.current) {
       clearInterval(timerRef.current);
     }
     
-    // Clear the distraction timer
     if (distractionTimerRef.current) {
       clearTimeout(distractionTimerRef.current);
       setShowDistraction(false);
@@ -141,20 +124,18 @@ const StressTestSection: React.FC<StressTestSectionProps> = ({
     const currentQuestion = questions[currentQuestionIndex];
     const isCorrect = answer === currentQuestion.correctAnswer;
     
-    // Calculate time taken to answer
     const timeToAnswer = (Date.now() - startTimeRef.current) / 1000;
     
     const newAnswer: UserAnswer = {
       questionId: currentQuestion.id,
       answer,
-      timeToAnswer: Math.min(timeToAnswer, currentQuestion.timeLimit), // Cap at max time limit
+      timeToAnswer: Math.min(timeToAnswer, currentQuestion.timeLimit),
       isCorrect
     };
     
     setUserAnswers(prev => [...prev, newAnswer]);
     setShowExplanation(true);
     
-    // Automatically proceed to next question after explanation
     setTimeout(() => {
       setShowExplanation(false);
       handleNextQuestion();
@@ -166,16 +147,14 @@ const StressTestSection: React.FC<StressTestSectionProps> = ({
       const nextIndex = currentQuestionIndex + 1;
       setCurrentQuestionIndex(nextIndex);
       
-      // Update complexity level if available
       const nextQuestion = questions[nextIndex];
       if (nextQuestion.complexityLevel) {
         setCurrentComplexity(nextQuestion.complexityLevel);
       }
       
       setTimeLeft(questions[nextIndex].timeLimit);
-      startTimer(); // Restart timer for next question
+      startTimer();
     } else {
-      // Test is complete
       setIsTestActive(false);
       onCompleteTest(userAnswers);
     }
