@@ -1,4 +1,3 @@
-
 import { motion } from "framer-motion";
 import { Clock, CheckCircle, AlertTriangle, Target, Zap, ScrollText, Brain, Smile, ArrowRight } from "lucide-react";
 
@@ -105,7 +104,6 @@ const PainPoints = ({ painPoints, solutions }: PainPointsProps) => {
       whileHover={{ scale: 1.01 }}
       transition={{ type: "spring", stiffness: 100 }}
       animate="animate"
-      initial={glowVariants.initial}
     >
       {/* Decorative background elements */}
       <div className="absolute -top-10 -right-10 w-40 h-40 bg-violet-200/30 rounded-full blur-3xl"></div>
