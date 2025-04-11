@@ -224,7 +224,6 @@ const sampleExams: Exam[] = [
         concept: "Calculus",
         difficulty: "Medium"
       },
-      // More questions would be here
     ]
   },
   {
@@ -246,7 +245,6 @@ const sampleExams: Exam[] = [
         concept: "Periodic Table",
         difficulty: "Easy"
       },
-      // More questions would be here
     ]
   }
 ];
@@ -461,7 +459,7 @@ const PracticeExamFeature = () => {
           {examInProgress && (
             <div className="flex items-center gap-2">
               <Badge variant="outline" className="bg-amber-100 text-amber-700 border-amber-200">
-                <Clock size={14} className="mr-1" /> {formatTime(timeRemaining)}
+                <Clock width={14} height={14} className="mr-1" /> {formatTime(timeRemaining)}
               </Badge>
               <Button 
                 size="sm" 
@@ -469,7 +467,7 @@ const PracticeExamFeature = () => {
                 className="h-8"
                 onClick={togglePause}
               >
-                {examPaused ? <Play size={14} /> : <PauseCircle size={14} />}
+                {examPaused ? <Play width={14} height={14} /> : <PauseCircle width={14} height={14} />}
               </Button>
             </div>
           )}

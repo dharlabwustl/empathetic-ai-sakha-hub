@@ -13,33 +13,33 @@ const mockBrainTeasers = [
     id: 1, 
     question: "I speak without a mouth and hear without ears. I have no body, but I come alive with wind. What am I?", 
     answer: "An echo",
-    difficulty: "Easy"
+    difficulty: "Easy" as const
   },
   { 
     id: 2, 
     question: "What has keys but no locks, space but no room, and you can enter but not go in?", 
     answer: "A keyboard",
-    difficulty: "Medium"
+    difficulty: "Medium" as const
   },
   { 
     id: 3, 
     question: "The more you take, the more you leave behind. What am I?", 
     answer: "Footsteps",
-    difficulty: "Easy"
+    difficulty: "Easy" as const
   },
   { 
     id: 4, 
     question: "What has a head, a tail, is brown, and has no legs?", 
     answer: "A penny",
-    difficulty: "Medium"
+    difficulty: "Medium" as const
   },
   { 
     id: 5, 
     question: "What gets wet while drying?", 
     answer: "A towel",
-    difficulty: "Easy"
+    difficulty: "Easy" as const
   }
-] as const;
+];
 
 interface TeasersTabProps {
   initialTeasers?: BrainTeaser[];
