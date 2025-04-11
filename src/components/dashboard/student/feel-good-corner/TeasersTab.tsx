@@ -7,8 +7,8 @@ import { motion } from "framer-motion";
 import { BrainTeaser } from "./types";
 import { Trophy } from "./icons";
 
-// Mock data
-const mockBrainTeasers = [
+// Mock data with proper type definition
+const mockBrainTeasers: BrainTeaser[] = [
   { 
     id: 1, 
     question: "I speak without a mouth and hear without ears. I have no body, but I come alive with wind. What am I?", 
