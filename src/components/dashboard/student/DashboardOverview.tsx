@@ -7,6 +7,7 @@ import ProfileCard from "@/components/dashboard/ProfileCard";
 import FeatureCard from "@/components/dashboard/FeatureCard";
 import TodayStudyPlan from "@/components/dashboard/student/TodayStudyPlan";
 import FeelGoodCorner from "@/components/dashboard/student/FeelGoodCorner";
+import SurroundingInfluencesMeter from "@/components/dashboard/student/SurroundingInfluencesMeter";
 import { ReactNode } from "react";
 import { motion } from "framer-motion";
 import { AlertCircle, BookOpen, Coffee } from "lucide-react";
@@ -96,6 +97,15 @@ export default function DashboardOverview({
             <p className="text-sm text-gray-700 dark:text-gray-300">{studyTip}</p>
           </div>
         </div>
+      </motion.div>
+
+      {/* Surrounding Influences Meter - Added near the top for visibility */}
+      <motion.div 
+        className="mb-6 sm:mb-8"
+        variants={itemVariants}
+        whileHover={{ scale: isMobile ? 1.005 : 1.01, transition: { duration: 0.2 } }}
+      >
+        <SurroundingInfluencesMeter />
       </motion.div>
 
       {/* KPI Cards */}

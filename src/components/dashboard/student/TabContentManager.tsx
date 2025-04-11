@@ -16,6 +16,10 @@ import WelcomeTour from '@/components/dashboard/student/WelcomeTour';
 import { UserProfileType } from '@/types/user';
 import { KpiData, NudgeData } from '@/hooks/useKpiTracking';
 import { MicroConceptView, FlashcardsView, PracticeExamsView } from '@/pages/dashboard/student/TabContentViews';
+import FlashcardsFeature from '@/components/dashboard/student/FlashcardsFeature';
+import PracticeExamFeature from '@/components/dashboard/student/PracticeExamFeature';
+import SurroundingInfluencesMeter from '@/components/dashboard/student/SurroundingInfluencesMeter';
+import FeelGoodCorner from '@/components/dashboard/student/FeelGoodCorner';
 
 interface TabContentManagerProps {
   userProfile: UserProfileType;
@@ -65,11 +69,17 @@ export const generateTabContents = ({
     today: (
       <div className="space-y-8">
         <TodayStudyPlan />
+        <SurroundingInfluencesMeter />
         <MicroConceptView />
-        <FlashcardsView />
-        <PracticeExamsView />
+        <FlashcardsFeature />
+        <PracticeExamFeature />
+        <FeelGoodCorner />
       </div>
     ),
+    flashcards: <FlashcardsFeature />,
+    'practice-exam': <PracticeExamFeature />,
+    'influence-meter': <SurroundingInfluencesMeter />,
+    'feel-good': <FeelGoodCorner />,
     tutor: <TutorCard />,
     planner: <StudyPlannerCard />,
     academic: <AcademicAdvisorCard />,
