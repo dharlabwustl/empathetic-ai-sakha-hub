@@ -28,11 +28,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
             Sakha AI adapts to your unique learning style, making exam preparation smarter, faster, and stress-free.
           </p>
           
-          <HeroButtons 
-            scrollToFeatures={scrollToFeatures} 
-            scrollToForWhom={scrollToForWhom}
-            openExamAnalyzer={openExamAnalyzer}
-          />
+          <HeroButtons onAnalyzeClick={openExamAnalyzer} />
         </div>
         
         <ExamBadges />
