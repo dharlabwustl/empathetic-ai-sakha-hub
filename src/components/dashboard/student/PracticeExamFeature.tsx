@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { 
   Card, 
@@ -43,6 +42,7 @@ import {
   ArrowRight,
   ChevronLeft,
   HelpCircle,
+  Trophy
 } from 'lucide-react';
 
 interface Question {
@@ -72,7 +72,6 @@ interface Exam {
   };
 }
 
-// Sample exam data
 const sampleExams: Exam[] = [
   {
     id: "e1",
@@ -280,7 +279,6 @@ const PracticeExamFeature = () => {
   } | null>(null);
   const [showExplanation, setShowExplanation] = useState(false);
   
-  // Initialize from local storage
   useEffect(() => {
     const savedExams = localStorage.getItem('practiceExams');
     if (savedExams) {
@@ -288,12 +286,10 @@ const PracticeExamFeature = () => {
     }
   }, []);
   
-  // Save to local storage when exams change
   useEffect(() => {
     localStorage.setItem('practiceExams', JSON.stringify(exams));
   }, [exams]);
   
-  // Timer effect
   useEffect(() => {
     let timer: NodeJS.Timeout | null = null;
     
@@ -301,7 +297,6 @@ const PracticeExamFeature = () => {
       timer = setInterval(() => {
         setTimeRemaining(prev => {
           if (prev <= 1) {
-            // Time's up - submit exam automatically
             handleSubmitExam();
             return 0;
           }
@@ -320,7 +315,7 @@ const PracticeExamFeature = () => {
     setExamInProgress(true);
     setCurrentQuestionIndex(0);
     setSelectedAnswers(Array(exam.questions.length).fill(null));
-    setTimeRemaining(exam.duration * 60); // Convert minutes to seconds
+    setTimeRemaining(exam.duration * 60);
     setExamPaused(false);
     setExamCompleted(false);
     setExamResults(null);
@@ -372,12 +367,10 @@ const PracticeExamFeature = () => {
     
     const conceptPerformance: Record<string, {correct: number, total: number}> = {};
     
-    // Initialize concept performance tracking
     activeExam.concepts.forEach(concept => {
       conceptPerformance[concept] = { correct: 0, total: 0 };
     });
     
-    // Calculate results
     selectedAnswers.forEach((selected, index) => {
       const question = activeExam.questions[index];
       const concept = question.concept;
@@ -402,7 +395,6 @@ const PracticeExamFeature = () => {
     
     const score = Math.round((correctAnswers / activeExam.questions.length) * 100);
     
-    // Update exam with last attempt info
     const updatedExams = exams.map(exam => {
       if (exam.id === activeExam.id) {
         return {
@@ -410,7 +402,7 @@ const PracticeExamFeature = () => {
           lastAttempt: {
             date: new Date().toISOString().split('T')[0],
             score,
-            timeTaken: Math.round(timeTaken / 60) // Convert to minutes
+            timeTaken: Math.round(timeTaken / 60)
           }
         };
       }
@@ -442,7 +434,6 @@ const PracticeExamFeature = () => {
     setExamResults(null);
   };
   
-  // Format time (seconds) to mm:ss
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -619,7 +610,6 @@ const PracticeExamFeature = () => {
                                 variant="outline"
                                 size="sm"
                                 onClick={() => {
-                                  // View detailed results logic would go here
                                   toast({
                                     title: "Coming soon!",
                                     description: "Detailed results view is under development.",
@@ -797,7 +787,6 @@ const PracticeExamFeature = () => {
                 transition={{ duration: 0.3 }}
               >
                 <div className="space-y-6">
-                  {/* Question navigation */}
                   <div className="flex justify-between items-center">
                     <Badge variant="outline">
                       Question {currentQuestionIndex + 1} of {activeExam.questions.length}
@@ -812,13 +801,11 @@ const PracticeExamFeature = () => {
                     </div>
                   </div>
                   
-                  {/* Question text */}
                   <div className="bg-white rounded-lg p-4 shadow-sm border">
                     <h3 className="text-lg font-medium mb-4">
                       {activeExam.questions[currentQuestionIndex].text}
                     </h3>
                     
-                    {/* Options */}
                     <div className="space-y-3">
                       {activeExam.questions[currentQuestionIndex].options.map((option, index) => (
                         <div
@@ -867,7 +854,6 @@ const PracticeExamFeature = () => {
                       ))}
                     </div>
                     
-                    {/* Explanation section */}
                     {showExplanation && (
                       <motion.div
                         initial={{ opacity: 0, height: 0 }}
@@ -882,7 +868,6 @@ const PracticeExamFeature = () => {
                     )}
                   </div>
                   
-                  {/* Question navigation */}
                   <div className="flex justify-between">
                     <Button 
                       variant="outline" 
@@ -950,7 +935,6 @@ const PracticeExamFeature = () => {
                     )}
                   </div>
                   
-                  {/* Question progress indicators */}
                   <div>
                     <p className="text-xs text-gray-500 mb-2">Question Progress:</p>
                     <div className="flex flex-wrap gap-1">
@@ -977,6 +961,14 @@ const PracticeExamFeature = () => {
       </CardContent>
       
       <CardFooter className="bg-gradient-to-r from-emerald-500/5 to-indigo-500/5 border-t px-3 py-2">
+        <div className="flex gap-2 items-center">
+          <div className="rounded-full bg-indigo-200 p-1.5">
+            <Trophy className="h-3 w-3 text-indigo-700" />
+          </div>
+          <div className="text-xs">
+            <span className="font-medium">Today's Top Solvers:</span> @MindMaster, @PuzzleKing, @QuickThinker
+          </div>
+        </div>
         <p className="text-xs text-gray-500 w-full text-center">
           Regular practice with sample exams can improve your final score by up to 25%
         </p>
