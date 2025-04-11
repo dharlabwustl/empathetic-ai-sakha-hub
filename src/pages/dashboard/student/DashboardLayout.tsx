@@ -13,6 +13,8 @@ import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
 import { formatTime, formatDate } from "./utils/DateTimeFormatter";
 import { motion, AnimatePresence } from "framer-motion";
 import { useIsMobile } from "@/hooks/use-mobile";
+import MobileNavigation from "./MobileNavigation";
+import { getFeatures } from "./utils/FeatureManager";
 
 interface DashboardLayoutProps {
   userProfile: UserProfileType;
@@ -57,7 +59,6 @@ const DashboardLayout = ({
   const isMobile = useIsMobile();
   
   // Get features from utility
-  const { getFeatures } = require("./utils/FeatureManager");
   const features = getFeatures();
   
   return (
@@ -176,47 +177,6 @@ const DashboardLayout = ({
           onClose={onCloseStudyPlan} 
         />
       )}
-    </div>
-  );
-};
-
-// Mobile Navigation Component
-const MobileNavigation = ({ activeTab, onTabChange }: { activeTab: string; onTabChange: (tab: string) => void }) => {
-  const navigate = require('react-router-dom').useNavigate();
-  
-  const navItems = [
-    { icon: <ChevronRight size={16} />, title: "Dashboard", tab: "overview" },
-    { icon: <ChevronRight size={16} />, title: "Today", tab: "today" },
-    { icon: <ChevronRight size={16} />, title: "Academic", tab: "academic" },
-    { icon: <ChevronRight size={16} />, title: "Tutor", tab: "tutor" },
-    { icon: <ChevronRight size={16} />, title: "Flashcards", tab: "flashcards" },
-    { icon: <ChevronRight size={16} />, title: "Exams", tab: "exams" },
-  ];
-
-  const handleTabChange = (tab: string) => {
-    onTabChange(tab);
-    navigate(`/dashboard/student/${tab}`);
-  };
-
-  return (
-    <div className="overflow-x-auto pb-2">
-      <div className="flex gap-2 min-w-max">
-        {navItems.map((item) => (
-          <Button
-            key={item.tab}
-            variant={activeTab === item.tab ? "default" : "outline"}
-            size="sm"
-            className={`flex-shrink-0 ${
-              activeTab === item.tab 
-                ? "bg-gradient-to-r from-sky-500 to-violet-500" 
-                : ""
-            }`}
-            onClick={() => handleTabChange(item.tab)}
-          >
-            <span className="whitespace-nowrap">{item.title}</span>
-          </Button>
-        ))}
-      </div>
     </div>
   );
 };

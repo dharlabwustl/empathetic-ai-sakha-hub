@@ -1,12 +1,9 @@
 
 import React from "react";
-import SidebarNav from "@/components/dashboard/SidebarNav";
-import ChatAssistant from "@/components/dashboard/ChatAssistant";
+import { useStudentDashboard } from "@/hooks/useStudentDashboard";
 import OnboardingFlow from "@/components/dashboard/student/OnboardingFlow";
 import DashboardLoading from "./student/DashboardLoading";
-import StudyPlanDialog from "./student/StudyPlanDialog";
 import DashboardLayout from "./student/DashboardLayout";
-import { useStudentDashboard } from "@/hooks/useStudentDashboard";
 
 const StudentDashboard = () => {
   const {
