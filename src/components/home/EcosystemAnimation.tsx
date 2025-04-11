@@ -86,16 +86,13 @@ const EcosystemAnimation = () => {
               whileInView={{ scale: 1 }}
               viewport={{ once: true }}
               transition={{ delay: 0.3, duration: 0.5 }}
-              style={{ 
-                transform: "rotate(360deg)"
-              }}
               animate={{
-                rotate: 360
-              }}
-              transition={{
-                duration: 60,
-                repeat: Infinity,
-                ease: "linear"
+                rotate: 360,
+                transition: {
+                  duration: 60,
+                  repeat: Infinity,
+                  ease: "linear"
+                }
               }}
             />
 
@@ -106,12 +103,12 @@ const EcosystemAnimation = () => {
               viewport={{ once: true }}
               transition={{ delay: 0.4, duration: 0.5 }}
               animate={{
-                rotate: -360
-              }}
-              transition={{
-                duration: 80,
-                repeat: Infinity,
-                ease: "linear"
+                rotate: -360,
+                transition: {
+                  duration: 80,
+                  repeat: Infinity,
+                  ease: "linear"
+                }
               }}
             />
 
@@ -122,12 +119,12 @@ const EcosystemAnimation = () => {
               viewport={{ once: true }}
               transition={{ delay: 0.5, duration: 0.5 }}
               animate={{
-                rotate: 360
-              }}
-              transition={{
-                duration: 100,
-                repeat: Infinity,
-                ease: "linear"
+                rotate: 360,
+                transition: {
+                  duration: 100,
+                  repeat: Infinity,
+                  ease: "linear"
+                }
               }}
             />
 
