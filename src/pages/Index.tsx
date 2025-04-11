@@ -46,9 +46,9 @@ const Index = () => {
       
       <main>
         <HeroSection 
-          onScrollToFeatures={scrollToFeatures} 
-          onScrollToForWhom={scrollToForWhom}
-          onOpenExamAnalyzer={handleOpenExamAnalyzer}
+          scrollToFeatures={scrollToFeatures} 
+          scrollToForWhom={scrollToForWhom}
+          openExamAnalyzer={handleOpenExamAnalyzer}
         />
         
         <WhatIsSection />

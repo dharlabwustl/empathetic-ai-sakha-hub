@@ -21,7 +21,7 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 import StudentsPage from "./pages/admin/StudentsPage";
 import ContentPage from "./pages/admin/ContentPage";
 import SettingsPage from "./pages/admin/SettingsPage";
-import StudentDashboard from "./pages/dashboard/StudentDashboard";
+import StudentDashboard from "./pages/dashboard/student/StudentDashboard";
 import EmployeeDashboard from "./pages/dashboard/EmployeeDashboard";
 import DoctorDashboard from "./pages/dashboard/DoctorDashboard";
 import FounderDashboard from "./pages/dashboard/FounderDashboard";

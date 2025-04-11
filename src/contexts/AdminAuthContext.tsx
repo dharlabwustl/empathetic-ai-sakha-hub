@@ -1,6 +1,7 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { AdminUser } from '@/types/admin';
+import { useToast } from '@/hooks/use-toast';
 
 interface AdminAuthContextType {
   adminUser: AdminUser | null;
@@ -27,6 +28,7 @@ interface AdminAuthProviderProps {
 export const AdminAuthProvider = ({ children }: AdminAuthProviderProps) => {
   const [adminUser, setAdminUser] = useState<AdminUser | null>(null);
   const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
 
   useEffect(() => {
     // Check if admin is already logged in
@@ -51,11 +53,20 @@ export const AdminAuthProvider = ({ children }: AdminAuthProviderProps) => {
       ...adminData,
       isAdmin: true
     }));
+    
+    toast({
+      title: "Login Successful",
+      description: `Welcome back, ${adminData.name}!`
+    });
   };
 
   const logout = () => {
     setAdminUser(null);
     localStorage.removeItem('adminUser');
+    toast({
+      title: "Logged Out",
+      description: "You have been logged out successfully."
+    });
   };
 
   return (

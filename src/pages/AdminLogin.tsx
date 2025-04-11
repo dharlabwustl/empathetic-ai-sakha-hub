@@ -15,10 +15,12 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { Eye, EyeOff, Lock, Mail, ArrowRight } from "lucide-react";
 import { adminService } from "@/services/adminService";
+import { useAdminAuth } from "@/contexts/AdminAuthContext";
 
 const AdminLogin = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { login } = useAdminAuth();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -46,23 +48,11 @@ const AdminLogin = () => {
     setIsLoading(true);
     
     try {
+      // Using the mock admin service for now, will be replaced with Flask backend later
       const adminUser = await adminService.login(formData.email, formData.password);
       
-      // Store admin data in localStorage
-      localStorage.setItem("adminUser", JSON.stringify({
-        id: adminUser.id,
-        name: adminUser.name,
-        email: adminUser.email,
-        role: adminUser.role,
-        permissions: adminUser.permissions,
-        lastLogin: new Date(),
-        isAdmin: true
-      }));
-      
-      toast({
-        title: "Login Successful",
-        description: `Welcome back, ${adminUser.name}!`,
-      });
+      // Call the login function from AdminAuthContext
+      login(adminUser);
       
       // Navigate to admin dashboard
       navigate("/admin/dashboard");
@@ -72,6 +62,7 @@ const AdminLogin = () => {
         description: "Invalid email or password. Please try again.",
         variant: "destructive"
       });
+      console.error("Login error:", error);
     } finally {
       setIsLoading(false);
     }
