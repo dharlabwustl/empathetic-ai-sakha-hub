@@ -87,8 +87,15 @@ const EcosystemAnimation = () => {
               viewport={{ once: true }}
               transition={{ delay: 0.3, duration: 0.5 }}
               style={{ 
-                transition: "transform 60s linear infinite",
                 transform: "rotate(360deg)"
+              }}
+              animate={{
+                rotate: 360
+              }}
+              transition={{
+                duration: 60,
+                repeat: Infinity,
+                ease: "linear"
               }}
             />
 
@@ -98,9 +105,13 @@ const EcosystemAnimation = () => {
               whileInView={{ scale: 1 }}
               viewport={{ once: true }}
               transition={{ delay: 0.4, duration: 0.5 }}
-              style={{ 
-                transition: "transform 80s linear infinite",
-                transform: "rotate(-360deg)"
+              animate={{
+                rotate: -360
+              }}
+              transition={{
+                duration: 80,
+                repeat: Infinity,
+                ease: "linear"
               }}
             />
 
@@ -110,9 +121,13 @@ const EcosystemAnimation = () => {
               whileInView={{ scale: 1 }}
               viewport={{ once: true }}
               transition={{ delay: 0.5, duration: 0.5 }}
-              style={{ 
-                transition: "transform 100s linear infinite",
-                transform: "rotate(360deg)"
+              animate={{
+                rotate: 360
+              }}
+              transition={{
+                duration: 100,
+                repeat: Infinity,
+                ease: "linear"
               }}
             />
 
@@ -223,11 +238,11 @@ const EcosystemAnimation = () => {
           transition={{ delay: 1.5, duration: 0.6 }}
         >
           {[
-            { text: "Student-Centric Approach", bg: "bg-violet-100", text: "text-violet-700" },
-            { text: "AI-Powered Learning", bg: "bg-indigo-100", text: "text-indigo-700" },
-            { text: "Comprehensive Resources", bg: "bg-sky-100", text: "text-sky-700" },
-            { text: "Adaptive Study Plans", bg: "bg-emerald-100", text: "text-emerald-700" },
-            { text: "Continuous Assessment", bg: "bg-amber-100", text: "text-amber-700" }
+            { text: "Student-Centric Approach", bg: "bg-violet-100", textColor: "text-violet-700" },
+            { text: "AI-Powered Learning", bg: "bg-indigo-100", textColor: "text-indigo-700" },
+            { text: "Comprehensive Resources", bg: "bg-sky-100", textColor: "text-sky-700" },
+            { text: "Adaptive Study Plans", bg: "bg-emerald-100", textColor: "text-emerald-700" },
+            { text: "Continuous Assessment", bg: "bg-amber-100", textColor: "text-amber-700" }
           ].map((badge, index) => (
             <motion.div
               key={index}
@@ -237,7 +252,7 @@ const EcosystemAnimation = () => {
               transition={{ delay: 1.6 + index * 0.1, duration: 0.4 }}
               whileHover={{ scale: 1.05 }}
             >
-              <Badge className={`${badge.bg} ${badge.text} px-3 py-1`}>
+              <Badge className={`${badge.bg} ${badge.textColor} px-3 py-1`}>
                 {badge.text}
               </Badge>
             </motion.div>
