@@ -347,7 +347,7 @@ const EngagementTab = () => {
                               <SelectItem value="all">All Users</SelectItem>
                               <SelectItem value="active">Active Users</SelectItem>
                               <SelectItem value="inactive">Inactive Users (7+ days)</SelectItem>
-                              <SelectItem value="new">New Users (< 30 days)</SelectItem>
+                              <SelectItem value="new">New Users ({"<"} 30 days)</SelectItem>
                             </SelectContent>
                           </Select>
                         </div>
