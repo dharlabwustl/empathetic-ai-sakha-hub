@@ -4,13 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { 
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { motion } from "framer-motion";
 
 interface HabitsStepProps {
@@ -56,36 +49,22 @@ const HabitsStep: React.FC<HabitsStepProps> = ({ onSubmit }) => {
     >
       <motion.div variants={itemVariants}>
         <Label htmlFor="sleepPattern">Sleep Pattern</Label>
-        <Select name="sleepPattern" defaultValue="">
-          <SelectTrigger>
-            <SelectValue placeholder="Select or type your sleep pattern" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="6-8 hours daily">6-8 hours daily</SelectItem>
-            <SelectItem value="Less than 6 hours">Less than 6 hours</SelectItem>
-            <SelectItem value="8+ hours daily">8+ hours daily</SelectItem>
-            <SelectItem value="Irregular sleep schedule">Irregular sleep schedule</SelectItem>
-            <SelectItem value="">Custom (type below)</SelectItem>
-          </SelectContent>
-        </Select>
-        <Input id="sleepPatternCustom" name="sleepPatternCustom" placeholder="Or type your custom sleep pattern" className="mt-2" />
+        <Input 
+          id="sleepPattern" 
+          name="sleepPattern" 
+          placeholder="Describe your sleep pattern (e.g., 6-8 hours daily)" 
+          className="mt-2" 
+        />
       </motion.div>
       
       <motion.div variants={itemVariants}>
         <Label htmlFor="dailyRoutine">Daily Routine</Label>
-        <Select name="dailyRoutine" defaultValue="">
-          <SelectTrigger>
-            <SelectValue placeholder="Select your daily routine" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="Morning study, evening review">Morning study, evening review</SelectItem>
-            <SelectItem value="Afternoon focused sessions">Afternoon focused sessions</SelectItem>
-            <SelectItem value="Night owl - study late">Night owl - study late</SelectItem>
-            <SelectItem value="Study between classes">Study between classes</SelectItem>
-            <SelectItem value="">Custom (type below)</SelectItem>
-          </SelectContent>
-        </Select>
-        <Input id="dailyRoutineCustom" name="dailyRoutineCustom" placeholder="Or describe your custom daily routine" className="mt-2" />
+        <Input 
+          id="dailyRoutine" 
+          name="dailyRoutine" 
+          placeholder="Describe your daily routine" 
+          className="mt-2" 
+        />
       </motion.div>
       
       <motion.div variants={itemVariants}>
@@ -117,19 +96,12 @@ const HabitsStep: React.FC<HabitsStepProps> = ({ onSubmit }) => {
       
       <motion.div variants={itemVariants}>
         <Label htmlFor="focusDuration">Focus Duration</Label>
-        <Select name="focusDuration" defaultValue="">
-          <SelectTrigger>
-            <SelectValue placeholder="How long can you focus?" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="25 minutes with 5-minute breaks">25 minutes with 5-minute breaks</SelectItem>
-            <SelectItem value="45 minutes with 15-minute breaks">45 minutes with 15-minute breaks</SelectItem>
-            <SelectItem value="1 hour with 20-minute breaks">1 hour with 20-minute breaks</SelectItem>
-            <SelectItem value="90+ minutes, long breaks">90+ minutes, long breaks</SelectItem>
-            <SelectItem value="">Custom (type below)</SelectItem>
-          </SelectContent>
-        </Select>
-        <Input id="focusDurationCustom" name="focusDurationCustom" placeholder="Or describe your custom focus pattern" className="mt-2" />
+        <Input 
+          id="focusDuration" 
+          name="focusDuration" 
+          placeholder="How long can you focus? (e.g., 25 minutes with 5-minute breaks)" 
+          className="mt-2" 
+        />
       </motion.div>
       
       <motion.div variants={itemVariants}>
