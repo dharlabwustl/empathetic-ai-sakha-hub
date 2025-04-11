@@ -1,5 +1,24 @@
 
-import { AdminDashboardStats, StudentData, ContentItem, SystemLog, AdminSettings, AdminUser, NotificationTemplate } from "@/types/admin";
+import { 
+  AdminDashboardStats, 
+  StudentData, 
+  ContentItem, 
+  SystemLog, 
+  AdminSettings, 
+  AdminUser, 
+  NotificationTemplate, 
+  Flashcard,
+  ConceptCard,
+  ExamPaper,
+  Question,
+  FeelGoodContent,
+  SurroundingInfluence,
+  StudyPlan,
+  MoodLog,
+  UserDoubts,
+  TutorChat,
+  Notification
+} from "@/types/admin";
 
 // This is a placeholder service that would be connected to a Flask backend
 // For now, it returns mock data but would be replaced with actual API calls
@@ -11,6 +30,30 @@ const simulateApiCall = <T>(data: T, delay: number = 500): Promise<T> => {
   return new Promise((resolve) => {
     setTimeout(() => resolve(data), delay);
   });
+};
+
+// Helper function for real API calls (when backend is ready)
+const apiCall = async <T>(endpoint: string, method: string = 'GET', data?: any): Promise<T> => {
+  const options: RequestInit = {
+    method,
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${localStorage.getItem('admin_token')}`,
+    },
+  };
+  
+  if (data) {
+    options.body = JSON.stringify(data);
+  }
+  
+  const response = await fetch(`${API_URL}${endpoint}`, options);
+  
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || 'API call failed');
+  }
+  
+  return response.json();
 };
 
 // Mock data for development (would come from Flask backend)
@@ -46,6 +89,7 @@ export const adminService = {
     // This would be a real API call to authenticate the admin
     console.log('Attempting admin login with:', email);
     
+    // For development, simulate authentication
     if (email === 'admin@sakha.ai' && password === 'admin123') {
       return simulateApiCall<AdminUser>({
         id: 'admin-1',
@@ -57,18 +101,21 @@ export const adminService = {
       });
     }
     
+    // In production, this would be:
+    // return apiCall<AdminUser>('/admin/login', 'POST', { email, password });
+    
     throw new Error('Invalid email or password');
   },
 
   getDashboardStats: async (): Promise<AdminDashboardStats> => {
     // This would fetch stats from Flask API
-    // return fetch(`${API_URL}/admin/stats`).then(res => res.json());
+    // return apiCall<AdminDashboardStats>('/admin/stats');
     return simulateApiCall(mockStats);
   },
 
   getStudents: async (page: number = 1, limit: number = 10): Promise<{data: StudentData[], total: number}> => {
     // This would fetch students from Flask API with pagination
-    // return fetch(`${API_URL}/admin/students?page=${page}&limit=${limit}`).then(res => res.json());
+    // return apiCall<{data: StudentData[], total: number}>(`/admin/students?page=${page}&limit=${limit}`);
     const start = (page - 1) * limit;
     const end = start + limit;
     return simulateApiCall({
@@ -79,7 +126,7 @@ export const adminService = {
 
   getStudent: async (id: string): Promise<StudentData> => {
     // This would fetch a specific student from Flask API
-    // return fetch(`${API_URL}/admin/students/${id}`).then(res => res.json());
+    // return apiCall<StudentData>(`/admin/students/${id}`);
     const student = mockStudents.find(s => s.id === id);
     if (!student) throw new Error('Student not found');
     return simulateApiCall(student);
@@ -87,7 +134,7 @@ export const adminService = {
 
   getContent: async (type: string, page: number = 1, limit: number = 10): Promise<{data: ContentItem[], total: number}> => {
     // This would fetch content items from Flask API
-    // return fetch(`${API_URL}/admin/content?type=${type}&page=${page}&limit=${limit}`).then(res => res.json());
+    // return apiCall<{data: ContentItem[], total: number}>(`/admin/content?type=${type}&page=${page}&limit=${limit}`);
     const mockContent: ContentItem[] = Array(30).fill(0).map((_, i) => ({
       id: `content-${i+100}`,
       type: ['concept', 'flashcard', 'question', 'exam'][Math.floor(Math.random() * 4)] as any,
@@ -112,7 +159,7 @@ export const adminService = {
   
   getSystemLogs: async (level: string = '', page: number = 1, limit: number = 10): Promise<{data: SystemLog[], total: number}> => {
     // This would fetch system logs from Flask API
-    // return fetch(`${API_URL}/admin/logs?level=${level}&page=${page}&limit=${limit}`).then(res => res.json());
+    // return apiCall<{data: SystemLog[], total: number}>(`/admin/logs?level=${level}&page=${page}&limit=${limit}`);
     const mockLogs: SystemLog[] = Array(50).fill(0).map((_, i) => ({
       id: `log-${i+100}`,
       timestamp: new Date(Date.now() - Math.floor(Math.random() * 7 * 24 * 60 * 60 * 1000)),
@@ -134,7 +181,7 @@ export const adminService = {
   
   getSettings: async (): Promise<AdminSettings> => {
     // This would fetch admin settings from Flask API
-    // return fetch(`${API_URL}/admin/settings`).then(res => res.json());
+    // return apiCall<AdminSettings>('/admin/settings');
     return simulateApiCall({
       aiModels: [
         {
@@ -165,18 +212,13 @@ export const adminService = {
   
   updateSettings: async (settings: AdminSettings): Promise<AdminSettings> => {
     // This would update admin settings via Flask API
-    // return fetch(`${API_URL}/admin/settings`, {
-    //   method: 'PUT',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify(settings)
-    // }).then(res => res.json());
-    
+    // return apiCall<AdminSettings>('/admin/settings', 'PUT', settings);
     return simulateApiCall(settings);
   },
   
   getNotificationTemplates: async (): Promise<NotificationTemplate[]> => {
     // This would fetch notification templates from Flask API
-    // return fetch(`${API_URL}/admin/notifications/templates`).then(res => res.json());
+    // return apiCall<NotificationTemplate[]>('/admin/notifications/templates');
     return simulateApiCall([
       {
         id: 'notif-1',
@@ -207,13 +249,217 @@ export const adminService = {
   
   sendTestNotification: async (templateId: string, userId: string): Promise<boolean> => {
     // This would send a test notification via Flask API
-    // return fetch(`${API_URL}/admin/notifications/test`, {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify({ templateId, userId })
-    // }).then(res => res.json()).then(data => data.success);
+    // return apiCall<{success: boolean}>('/admin/notifications/test', 'POST', { templateId, userId })
+    //   .then(res => res.success);
     
     console.log(`Sending test notification: Template ${templateId} to User ${userId}`);
+    return simulateApiCall(true);
+  },
+
+  // AI Personalization related endpoints
+  getLearningStyles: async (): Promise<{styleName: string, count: number}[]> => {
+    // This would fetch learning style statistics from Flask API
+    // return apiCall<{styleName: string, count: number}[]>('/admin/ai/learning-styles');
+    return simulateApiCall([
+      { styleName: 'Visual', count: 542 },
+      { styleName: 'Auditory', count: 324 },
+      { styleName: 'Reading', count: 189 },
+      { styleName: 'Kinesthetic', count: 190 }
+    ]);
+  },
+
+  updateLearningStyleSettings: async (settings: any): Promise<boolean> => {
+    // This would update learning style detection settings
+    // return apiCall<{success: boolean}>('/admin/ai/learning-styles/settings', 'PUT', settings)
+    //   .then(res => res.success);
+    console.log('Updating learning style settings:', settings);
+    return simulateApiCall(true);
+  },
+
+  updateReinforcementSettings: async (settings: any): Promise<boolean> => {
+    // This would update concept reinforcement settings
+    // return apiCall<{success: boolean}>('/admin/ai/reinforcement/settings', 'PUT', settings)
+    //   .then(res => res.success);
+    console.log('Updating reinforcement settings:', settings);
+    return simulateApiCall(true);
+  },
+
+  updatePlannerSettings: async (settings: any): Promise<boolean> => {
+    // This would update study planner settings
+    // return apiCall<{success: boolean}>('/admin/ai/planner/settings', 'PUT', settings)
+    //   .then(res => res.success);
+    console.log('Updating planner settings:', settings);
+    return simulateApiCall(true);
+  },
+
+  // Feel-Good Corner management
+  getFeelGoodContent: async (page: number = 1, limit: number = 10): Promise<{data: FeelGoodContent[], total: number}> => {
+    // This would fetch feel-good content items
+    // return apiCall<{data: FeelGoodContent[], total: number}>(`/admin/feel-good?page=${page}&limit=${limit}`);
+    const mockContent: FeelGoodContent[] = Array(30).fill(0).map((_, i) => ({
+      id: `feel-good-${i+100}`,
+      type: ['meme', 'joke', 'quote', 'puzzle', 'video'][Math.floor(Math.random() * 5)] as any,
+      content: `Sample ${['meme', 'joke', 'quote', 'puzzle', 'video'][Math.floor(Math.random() * 5)]} content ${i+1}`,
+      imageUrl: Math.random() > 0.5 ? `https://example.com/image${i}.jpg` : undefined,
+      videoUrl: Math.random() > 0.8 ? `https://example.com/video${i}.mp4` : undefined,
+      tags: ['funny', 'motivational', 'educational', 'inspirational'].slice(0, Math.floor(Math.random() * 3) + 1),
+      moodTags: ['stress', 'anxiety', 'motivation', 'focus'].slice(0, Math.floor(Math.random() * 3) + 1),
+      usageCount: Math.floor(Math.random() * 500),
+      approved: Math.random() > 0.2,
+      createdAt: new Date(Date.now() - Math.floor(Math.random() * 90 * 24 * 60 * 60 * 1000))
+    }));
+    
+    const start = (page - 1) * limit;
+    const end = start + limit;
+    
+    return simulateApiCall({
+      data: mockContent.slice(start, end),
+      total: mockContent.length
+    });
+  },
+
+  createFeelGoodContent: async (content: Partial<FeelGoodContent>): Promise<FeelGoodContent> => {
+    // This would create a new feel-good content item
+    // return apiCall<FeelGoodContent>('/admin/feel-good', 'POST', content);
+    const newContent: FeelGoodContent = {
+      id: `feel-good-${Date.now()}`,
+      type: content.type!,
+      content: content.content!,
+      imageUrl: content.imageUrl,
+      videoUrl: content.videoUrl,
+      tags: content.tags || [],
+      moodTags: content.moodTags || [],
+      usageCount: 0,
+      approved: true,
+      createdAt: new Date()
+    };
+    
+    return simulateApiCall(newContent);
+  },
+
+  // Surrounding Influence Meter
+  getSurroundingInfluenceSettings: async (): Promise<any> => {
+    // This would fetch surrounding influence meter settings
+    // return apiCall<any>('/admin/surrounding-influence/settings');
+    return simulateApiCall({
+      confidenceWeight: 0.4,
+      peerInfluenceWeight: 0.3,
+      environmentalFactorsWeight: 0.3,
+      updateFrequency: 'daily',
+      minThreshold: 3,
+      maxThreshold: 8
+    });
+  },
+
+  updateSurroundingInfluenceSettings: async (settings: any): Promise<boolean> => {
+    // This would update surrounding influence meter settings
+    // return apiCall<{success: boolean}>('/admin/surrounding-influence/settings', 'PUT', settings)
+    //   .then(res => res.success);
+    console.log('Updating surrounding influence settings:', settings);
+    return simulateApiCall(true);
+  },
+
+  // Peer Community Feed Tuner
+  getPeerFeedSettings: async (): Promise<any> => {
+    // This would fetch peer community feed settings
+    // return apiCall<any>('/admin/peer-feed/settings');
+    return simulateApiCall({
+      maximumPostsPerDay: 10,
+      contentFilters: ['inappropriate', 'promotional', 'irrelevant'],
+      moderationLevel: 'medium',
+      requireApproval: false,
+      influencerThreshold: 50
+    });
+  },
+
+  updatePeerFeedSettings: async (settings: any): Promise<boolean> => {
+    // This would update peer community feed settings
+    // return apiCall<{success: boolean}>('/admin/peer-feed/settings', 'PUT', settings)
+    //   .then(res => res.success);
+    console.log('Updating peer feed settings:', settings);
+    return simulateApiCall(true);
+  },
+
+  // Learning Pulse Generator
+  getLearningPulseSettings: async (): Promise<any> => {
+    // This would fetch learning pulse generator settings
+    // return apiCall<any>('/admin/learning-pulse/settings');
+    return simulateApiCall({
+      generationFrequency: 'daily',
+      includeMoodMetrics: true,
+      includePerformanceMetrics: true,
+      includeEngagementMetrics: true,
+      summaryLength: 'medium'
+    });
+  },
+
+  updateLearningPulseSettings: async (settings: any): Promise<boolean> => {
+    // This would update learning pulse generator settings
+    // return apiCall<{success: boolean}>('/admin/learning-pulse/settings', 'PUT', settings)
+    //   .then(res => res.success);
+    console.log('Updating learning pulse settings:', settings);
+    return simulateApiCall(true);
+  },
+
+  // Doubt Auto-Responder
+  getDoubtResponderSettings: async (): Promise<any> => {
+    // This would fetch doubt auto-responder settings
+    // return apiCall<any>('/admin/doubt-responder/settings');
+    return simulateApiCall({
+      confidenceThreshold: 0.75,
+      maxResponseTime: 10, // seconds
+      escalationThreshold: 0.5,
+      includeReferences: true,
+      responseStyle: 'educational'
+    });
+  },
+
+  updateDoubtResponderSettings: async (settings: any): Promise<boolean> => {
+    // This would update doubt auto-responder settings
+    // return apiCall<{success: boolean}>('/admin/doubt-responder/settings', 'PUT', settings)
+    //   .then(res => res.success);
+    console.log('Updating doubt responder settings:', settings);
+    return simulateApiCall(true);
+  },
+
+  // 24x7 Tutor Chat
+  getTutorChatSettings: async (): Promise<any> => {
+    // This would fetch tutor chat settings
+    // return apiCall<any>('/admin/tutor-chat/settings');
+    return simulateApiCall({
+      aiPersonality: 'friendly and supportive',
+      responseLength: 'adaptive',
+      includeExamples: true,
+      includeFollowUpQuestions: true,
+      maxSessionLength: 30 // minutes
+    });
+  },
+
+  updateTutorChatSettings: async (settings: any): Promise<boolean> => {
+    // This would update tutor chat settings
+    // return apiCall<{success: boolean}>('/admin/tutor-chat/settings', 'PUT', settings)
+    //   .then(res => res.success);
+    console.log('Updating tutor chat settings:', settings);
+    return simulateApiCall(true);
+  },
+
+  // Mood-Based Suggestions
+  getMoodEngineSettings: async (): Promise<any> => {
+    // This would fetch mood engine settings
+    // return apiCall<any>('/admin/mood-engine/settings');
+    return simulateApiCall({
+      moodDetectionSensitivity: 0.7,
+      interventionThreshold: 0.6,
+      positiveReinforcementRate: 0.8,
+      customMoodCategories: ['focused', 'confused', 'motivated', 'frustrated', 'bored']
+    });
+  },
+
+  updateMoodEngineSettings: async (settings: any): Promise<boolean> => {
+    // This would update mood engine settings
+    // return apiCall<{success: boolean}>('/admin/mood-engine/settings', 'PUT', settings)
+    //   .then(res => res.success);
+    console.log('Updating mood engine settings:', settings);
     return simulateApiCall(true);
   }
 };
