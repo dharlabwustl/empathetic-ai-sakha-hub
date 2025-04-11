@@ -5,11 +5,13 @@ import { useToast } from "@/hooks/use-toast";
 import { useAdminAuth } from "@/contexts/AdminAuthContext";
 import { adminService } from "@/services/adminService";
 import { AdminDashboardStats, StudentData, SystemLog } from "@/types/admin";
+import { Sparkles, RefreshCcw, Download } from "lucide-react";
 
 import AdminLayout from "@/components/admin/AdminLayout";
 import DashboardStats from "@/components/admin/dashboard/DashboardStats";
 import DashboardTabs from "@/components/admin/dashboard/DashboardTabs";
 import LoadingState from "@/components/admin/dashboard/LoadingState";
+import { Button } from "@/components/ui/button";
 
 const AdminDashboard = () => {
   const { adminUser, isAuthenticated, loading: authLoading } = useAdminAuth();
@@ -69,6 +71,14 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleRefresh = () => {
+    fetchDashboardData();
+    toast({
+      title: "Refreshing Data",
+      description: "Fetching the latest dashboard information"
+    });
+  };
+
   if (authLoading || loading) {
     return (
       <AdminLayout>
@@ -79,9 +89,30 @@ const AdminDashboard = () => {
 
   return (
     <AdminLayout>
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-        <p className="text-gray-500">Welcome back, {adminUser?.name || 'Admin'}. Here's an overview of your system.</p>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
+        <div>
+          <h1 className="text-3xl font-bold">Admin Dashboard</h1>
+          <p className="text-gray-500 dark:text-gray-400">
+            Welcome back, {adminUser?.name || 'Admin'}. Here's an overview of your system.
+          </p>
+        </div>
+        
+        <div className="flex items-center gap-2 self-end sm:self-auto">
+          <Button variant="outline" size="sm" onClick={handleRefresh} className="flex items-center gap-2">
+            <RefreshCcw size={16} />
+            <span className="hidden sm:inline">Refresh</span>
+          </Button>
+          
+          <Button variant="outline" size="sm" className="flex items-center gap-2">
+            <Download size={16} />
+            <span className="hidden sm:inline">Export</span>
+          </Button>
+          
+          <Button size="sm" className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white flex items-center gap-2">
+            <Sparkles size={16} />
+            <span className="hidden sm:inline">Optimize System</span>
+          </Button>
+        </div>
       </div>
       
       {stats && <DashboardStats stats={stats} />}
