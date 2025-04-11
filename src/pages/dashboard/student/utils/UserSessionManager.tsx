@@ -23,9 +23,22 @@ export const handleNewUser = (
     // Clean the URL to remove the query param
     navigate(location.pathname, { replace: true });
   }
-  // Check if this is a first-time user and not coming from signup
-  else if (!userData) {
-    // First time user, show onboarding
+  // Check if user data exists
+  else if (userData) {
+    const parsedUserData = JSON.parse(userData);
+    
+    // For returning users who have completed onboarding, skip both flows
+    if (parsedUserData.completedOnboarding === true) {
+      shouldShowOnboarding = false;
+      shouldShowWelcomeTour = parsedUserData.sawWelcomeTour !== true; // Only show welcome tour if they haven't seen it
+    } 
+    // For new users who haven't completed onboarding, show onboarding
+    else {
+      shouldShowOnboarding = true;
+    }
+  }
+  // First time user with no data
+  else {
     shouldShowOnboarding = true;
   }
 

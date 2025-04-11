@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -67,6 +66,24 @@ const Login = () => {
     setIsLoading(true);
     
     setTimeout(() => {
+      const existingUserData = localStorage.getItem("userData");
+      
+      if (existingUserData) {
+        const userData = JSON.parse(existingUserData);
+        userData.completedOnboarding = true;
+        userData.isNewUser = false;
+        localStorage.setItem("userData", JSON.stringify(userData));
+      } else {
+        const userData = {
+          name: "Returning User",
+          phoneNumber: formData.phoneNumber,
+          completedOnboarding: true,
+          isNewUser: false,
+          sawWelcomeTour: true
+        };
+        localStorage.setItem("userData", JSON.stringify(userData));
+      }
+      
       toast({
         title: "Login Successful",
         description: "Welcome back to Sakha AI!",
