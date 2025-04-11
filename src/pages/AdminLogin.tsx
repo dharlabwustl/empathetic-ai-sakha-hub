@@ -54,8 +54,13 @@ const AdminLogin = () => {
       // Call the login function from AdminAuthContext
       login(adminUser);
       
-      // Navigate to admin dashboard
-      navigate("/admin/dashboard");
+      console.log("Login successful, redirecting to /admin/dashboard");
+      
+      // Use a small delay to ensure state is updated before redirect
+      setTimeout(() => {
+        navigate("/admin/dashboard", { replace: true });
+      }, 100);
+      
     } catch (error) {
       toast({
         title: "Login Failed",

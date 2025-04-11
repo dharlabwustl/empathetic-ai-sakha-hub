@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -29,29 +28,34 @@ const AdminDashboard = () => {
   const [recentLogs, setRecentLogs] = useState<SystemLog[]>([]);
 
   useEffect(() => {
-    // Redirect if not authenticated
-    if (!authLoading && !isAuthenticated) {
-      navigate('/admin/login');
-      return;
-    }
-    
-    if (isAuthenticated) {
+    console.log("AdminDashboard - Auth state:", { 
+      isAuthenticated, 
+      authLoading, 
+      user: adminUser?.name, 
+      role: adminUser?.role 
+    });
+  }, [isAuthenticated, authLoading, adminUser]);
+
+  useEffect(() => {
+    if (!authLoading && isAuthenticated && adminUser) {
+      console.log("Admin authenticated, fetching dashboard data");
       fetchDashboardData();
+    } else if (!authLoading && !isAuthenticated) {
+      console.log("Not authenticated, redirecting to login");
+      navigate('/admin/login');
     }
-  }, [isAuthenticated, authLoading, navigate]);
+  }, [isAuthenticated, authLoading, adminUser, navigate]);
 
   const fetchDashboardData = async () => {
     setLoading(true);
     try {
-      // Fetch dashboard stats
+      console.log("Fetching dashboard data...");
       const dashboardStats = await adminService.getDashboardStats();
       setStats(dashboardStats);
       
-      // Fetch recent students
       const studentsRes = await adminService.getStudents(1, 5);
       setRecentStudents(studentsRes.data);
       
-      // Fetch recent logs
       const logsRes = await adminService.getSystemLogs('', 1, 5);
       setRecentLogs(logsRes.data);
       
@@ -59,6 +63,7 @@ const AdminDashboard = () => {
         title: "Dashboard Loaded",
         description: "Admin dashboard data has been loaded successfully"
       });
+      console.log("Dashboard data loaded successfully");
     } catch (error) {
       console.error("Error fetching dashboard data:", error);
       toast({
@@ -132,7 +137,7 @@ const AdminDashboard = () => {
     <AdminLayout>
       <div className="mb-6">
         <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-        <p className="text-gray-500">Welcome back, {adminUser?.name}. Here's an overview of your system.</p>
+        <p className="text-gray-500">Welcome back, {adminUser?.name || 'Admin'}. Here's an overview of your system.</p>
       </div>
       
       {stats && (

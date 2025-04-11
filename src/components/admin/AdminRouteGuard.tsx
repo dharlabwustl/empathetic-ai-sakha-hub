@@ -12,6 +12,11 @@ const AdminRouteGuard = ({ children, requiredPermission }: AdminRouteGuardProps)
   const { adminUser, isAuthenticated, loading } = useAdminAuth();
   const location = useLocation();
 
+  // For debugging
+  useEffect(() => {
+    console.log("AdminRouteGuard - Auth state:", { isAuthenticated, loading, user: adminUser?.name });
+  }, [isAuthenticated, loading, adminUser]);
+
   // Check if user is loading
   if (loading) {
     return (
@@ -26,6 +31,7 @@ const AdminRouteGuard = ({ children, requiredPermission }: AdminRouteGuardProps)
 
   // If not authenticated, redirect to login
   if (!isAuthenticated) {
+    console.log("Not authenticated, redirecting to login");
     return <Navigate to="/admin/login" state={{ from: location }} replace />;
   }
 
@@ -54,6 +60,7 @@ const AdminRouteGuard = ({ children, requiredPermission }: AdminRouteGuardProps)
     );
   }
 
+  console.log("Authorization successful, rendering admin content");
   // If all checks pass, render the protected content
   return <>{children}</>;
 };

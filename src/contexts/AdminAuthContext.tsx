@@ -37,6 +37,7 @@ export const AdminAuthProvider = ({ children }: AdminAuthProviderProps) => {
       try {
         const parsedAdmin = JSON.parse(storedAdmin);
         if (parsedAdmin.isAdmin) {
+          console.log("Found stored admin user:", parsedAdmin.name);
           setAdminUser(parsedAdmin);
         }
       } catch (error) {
@@ -48,11 +49,19 @@ export const AdminAuthProvider = ({ children }: AdminAuthProviderProps) => {
   }, []);
 
   const login = (adminData: AdminUser) => {
-    setAdminUser(adminData);
-    localStorage.setItem('adminUser', JSON.stringify({
+    console.log("AdminAuthContext: Setting admin user:", adminData.name);
+    
+    // Create admin object with isAdmin flag
+    const adminWithFlag = {
       ...adminData,
       isAdmin: true
-    }));
+    };
+    
+    // Update state
+    setAdminUser(adminWithFlag);
+    
+    // Store in localStorage
+    localStorage.setItem('adminUser', JSON.stringify(adminWithFlag));
     
     toast({
       title: "Login Successful",
@@ -61,6 +70,7 @@ export const AdminAuthProvider = ({ children }: AdminAuthProviderProps) => {
   };
 
   const logout = () => {
+    console.log("AdminAuthContext: Logging out admin");
     setAdminUser(null);
     localStorage.removeItem('adminUser');
     toast({
