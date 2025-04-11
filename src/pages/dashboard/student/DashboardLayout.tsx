@@ -1,13 +1,14 @@
 
-import React from "react";
+import React, { useState } from "react";
 import SidebarNav from "@/components/dashboard/SidebarNav";
 import ChatAssistant from "@/components/dashboard/ChatAssistant";
 import DashboardHeader from "./DashboardHeader";
 import SidebarNavigation from "./SidebarNavigation";
 import DashboardContent from "./DashboardContent";
 import StudyPlanDialog from "./StudyPlanDialog";
+import SurroundingInfluencesMeter from "@/components/dashboard/student/SurroundingInfluencesMeter";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, PanelLeft, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, PanelLeft, X, ChevronDown, ChevronUp } from "lucide-react";
 import { UserProfileType } from "@/types/user";
 import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
 import { formatTime, formatDate } from "./utils/DateTimeFormatter";
@@ -57,6 +58,7 @@ const DashboardLayout = ({
   const formattedTime = formatTime(currentTime);
   const formattedDate = formatDate(currentTime);
   const isMobile = useIsMobile();
+  const [influenceMeterCollapsed, setInfluenceMeterCollapsed] = useState(false);
   
   // Get features from utility
   const features = getFeatures();
@@ -82,8 +84,8 @@ const DashboardLayout = ({
               onClick={onToggleSidebar}
             >
               {hideSidebar ? 
-                <><ChevronRight size={15} /> Show Sidebar</> : 
-                <><PanelLeft size={15} /> Hide Sidebar</>
+                <><ChevronRight width={15} height={15} /> Show Sidebar</> : 
+                <><PanelLeft width={15} height={15} /> Hide Sidebar</>
               }
             </Button>
           </motion.div>
@@ -103,6 +105,45 @@ const DashboardLayout = ({
           formattedDate={formattedDate}
           onViewStudyPlan={onViewStudyPlan}
         />
+
+        {/* Surrounding Influences Meter - Positioned below header */}
+        <div className="mt-4 sm:mt-6 mb-0 sm:mb-2">
+          <div className="flex justify-between items-center mb-2">
+            <h2 className="text-lg font-medium text-gray-800">Surrounding Influences</h2>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => setInfluenceMeterCollapsed(!influenceMeterCollapsed)}
+              className="flex items-center gap-1 text-gray-600"
+            >
+              {influenceMeterCollapsed ? (
+                <>
+                  <ChevronDown width={16} height={16} />
+                  <span>Expand</span>
+                </>
+              ) : (
+                <>
+                  <ChevronUp width={16} height={16} />
+                  <span>Collapse</span>
+                </>
+              )}
+            </Button>
+          </div>
+
+          <AnimatePresence>
+            {!influenceMeterCollapsed && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.3 }}
+                className="overflow-hidden"
+              >
+                <SurroundingInfluencesMeter />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
         
         {/* Mobile Navigation */}
         {isMobile && (
@@ -141,8 +182,8 @@ const DashboardLayout = ({
                       onClick={onToggleTabsNav}
                     >
                       {hideTabsNav ? 
-                        <><ChevronRight size={15} /> Show Navigation</> : 
-                        <><X size={15} /> Hide Navigation</>
+                        <><ChevronRight width={15} height={15} /> Show Navigation</> : 
+                        <><X width={15} height={15} /> Hide Navigation</>
                       }
                     </Button>
                   </motion.div>

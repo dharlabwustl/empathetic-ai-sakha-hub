@@ -18,7 +18,6 @@ import { KpiData, NudgeData } from '@/hooks/useKpiTracking';
 import { MicroConceptView, FlashcardsView, PracticeExamsView } from '@/pages/dashboard/student/TabContentViews';
 import FlashcardsFeature from '@/components/dashboard/student/FlashcardsFeature';
 import PracticeExamFeature from '@/components/dashboard/student/PracticeExamFeature';
-import SurroundingInfluencesMeter from '@/components/dashboard/student/SurroundingInfluencesMeter';
 import FeelGoodCorner from '@/components/dashboard/student/FeelGoodCorner';
 
 interface TabContentManagerProps {
@@ -69,7 +68,6 @@ export const generateTabContents = ({
     today: (
       <div className="space-y-8">
         <TodayStudyPlan />
-        <SurroundingInfluencesMeter />
         <MicroConceptView />
         <FlashcardsFeature />
         <PracticeExamFeature />
@@ -78,7 +76,7 @@ export const generateTabContents = ({
     ),
     flashcards: <FlashcardsFeature />,
     'practice-exam': <PracticeExamFeature />,
-    'influence-meter': <SurroundingInfluencesMeter />,
+    'influence-meter': <div className="mt-4"><h2 className="text-lg font-medium text-gray-800 mb-4">Surrounding Influences Dashboard</h2></div>,
     'feel-good': <FeelGoodCorner />,
     tutor: <TutorCard />,
     planner: <StudyPlannerCard />,
