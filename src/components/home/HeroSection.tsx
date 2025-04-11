@@ -22,7 +22,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto text-center mb-8 md:mb-12">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 font-display gradient-text animate-fade-in">
-            Your Personal AI Study Companion
+            India's 1st personalized AI study partner for exam success
           </h1>
           <p className="text-lg md:text-xl text-gray-600 dark:text-gray-400 mb-8 animate-fade-in animation-delay-200">
             Sakha AI adapts to your unique learning style, making exam preparation smarter, faster, and stress-free.
@@ -33,9 +33,12 @@ const HeroSection: React.FC<HeroSectionProps> = ({
         
         <ExamBadges />
         
+        <div className="mt-12">
+          <ChatInterface />
+        </div>
+        
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-12">
           <PainPoints />
-          <ChatInterface />
         </div>
         
         <ScrollIndicator />

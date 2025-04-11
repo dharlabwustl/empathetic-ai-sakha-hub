@@ -51,6 +51,8 @@ const Index = () => {
           openExamAnalyzer={handleOpenExamAnalyzer}
         />
         
+        <EcosystemAnimation />
+        
         <WhatIsSection />
         
         <div ref={featuresRef}>
@@ -66,8 +68,6 @@ const Index = () => {
         {showExamAnalyzer && <ExamReadinessAnalyzer onClose={handleCloseExamAnalyzer} />}
         
         <StudentBenefitsSection />
-        
-        <EcosystemAnimation />
         
         <OnboardingSection />
         
