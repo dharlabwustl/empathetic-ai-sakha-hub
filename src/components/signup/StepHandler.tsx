@@ -1,3 +1,4 @@
+
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
@@ -116,13 +117,21 @@ const StepHandler = ({
         setStep("habits");
       },
       handleHabitsSubmit: (habits: Record<string, string>) => {
+        // Clean up habits data
+        const cleanedHabits = {...habits};
+        
+        // Create a readable message for chat from the habits
         let userMessage = "";
         Object.entries(habits).forEach(([key, value]) => {
+          // Skip custom fields in the message if they've already been included
+          if (key === "stressManagementCustom" || key === "studyPreferenceCustom") {
+            return;
+          }
           userMessage += `${key}: ${value}, `;
         });
-        userMessage = userMessage.slice(0, -2);
+        userMessage = userMessage.slice(0, -2); // Remove trailing comma
         
-        setOnboardingData({ ...onboardingData, ...habits });
+        setOnboardingData({ ...onboardingData, ...cleanedHabits });
         setMessages([
           ...messages,
           { content: userMessage, isBot: false },

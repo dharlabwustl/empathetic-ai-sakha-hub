@@ -15,9 +15,27 @@ const HabitsStep: React.FC<HabitsStepProps> = ({ onSubmit }) => {
     e.preventDefault();
     const formData = new FormData(e.target as HTMLFormElement);
     const habits: Record<string, string> = {};
+    
+    // Process form data properly
     formData.forEach((value, key) => {
-      habits[key] = value as string;
+      if (typeof value === 'string') {
+        habits[key] = value;
+      }
     });
+    
+    // Handle custom fields if blank
+    const stressManagement = habits.stressManagement || '';
+    const stressManagementCustom = habits.stressManagementCustom || '';
+    if (stressManagement === 'custom' && stressManagementCustom) {
+      habits.stressManagement = stressManagementCustom;
+    }
+    
+    const studyPreference = habits.studyPreference || '';
+    const studyPreferenceCustom = habits.studyPreferenceCustom || '';
+    if (studyPreference === 'custom-study' && studyPreferenceCustom) {
+      habits.studyPreference = studyPreferenceCustom;
+    }
+    
     onSubmit(habits);
   };
 
@@ -54,6 +72,7 @@ const HabitsStep: React.FC<HabitsStepProps> = ({ onSubmit }) => {
           name="sleepPattern" 
           placeholder="Describe your sleep pattern (e.g., 6-8 hours daily)" 
           className="mt-2" 
+          required
         />
       </motion.div>
       
@@ -64,6 +83,7 @@ const HabitsStep: React.FC<HabitsStepProps> = ({ onSubmit }) => {
           name="dailyRoutine" 
           placeholder="Describe your daily routine" 
           className="mt-2" 
+          required
         />
       </motion.div>
       
@@ -101,6 +121,7 @@ const HabitsStep: React.FC<HabitsStepProps> = ({ onSubmit }) => {
           name="focusDuration" 
           placeholder="How long can you focus? (e.g., 25 minutes with 5-minute breaks)" 
           className="mt-2" 
+          required
         />
       </motion.div>
       
