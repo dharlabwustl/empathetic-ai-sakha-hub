@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -16,7 +15,8 @@ import {
   Brain,
   Book,
   Settings,
-  MessageSquare
+  MessageSquare,
+  Eye
 } from "lucide-react";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { adminService } from "@/services/adminService";
@@ -196,7 +196,6 @@ const AdminDashboard = () => {
           </TabsTrigger>
         </TabsList>
         
-        {/* AI Personalization Engine Controls */}
         <TabsContent value="personalization">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Card>
@@ -426,7 +425,6 @@ const AdminDashboard = () => {
           </Card>
         </TabsContent>
         
-        {/* Content Management Section */}
         <TabsContent value="content">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             <Card>
@@ -546,7 +544,6 @@ const AdminDashboard = () => {
           </Card>
         </TabsContent>
         
-        {/* User Management Section */}
         <TabsContent value="users">
           <Card>
             <CardHeader>
@@ -697,7 +694,6 @@ const AdminDashboard = () => {
           </div>
         </TabsContent>
         
-        {/* System & Logs Section */}
         <TabsContent value="system">
           <Card>
             <CardHeader>
