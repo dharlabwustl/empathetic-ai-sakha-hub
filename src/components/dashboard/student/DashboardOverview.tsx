@@ -6,6 +6,7 @@ import NudgePanel from "@/components/dashboard/NudgePanel";
 import ProfileCard from "@/components/dashboard/ProfileCard";
 import FeatureCard from "@/components/dashboard/FeatureCard";
 import TodayStudyPlan from "@/components/dashboard/student/TodayStudyPlan";
+import FeelGoodCorner from "@/components/dashboard/student/FeelGoodCorner";
 import { ReactNode } from "react";
 import { motion } from "framer-motion";
 import { AlertCircle, BookOpen, Coffee } from "lucide-react";
@@ -35,6 +36,17 @@ export default function DashboardOverview({
   const isMobile = useIsMobile();
   
   // Animation variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { 
+      opacity: 1,
+      transition: { 
+        when: "beforeChildren",
+        staggerChildren: 0.1
+      }
+    }
+  };
+  
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: { 
@@ -46,17 +58,6 @@ export default function DashboardOverview({
         damping: 20
       }
     }
-  };
-
-  const staggerCardVariants = {
-    hidden: { opacity: 0 },
-    visible: (i: number) => ({ 
-      opacity: 1,
-      transition: { 
-        delay: i * 0.1,
-        duration: 0.3
-      }
-    })
   };
 
   // Current time for personalized tip
@@ -76,7 +77,11 @@ export default function DashboardOverview({
   }
 
   return (
-    <>
+    <motion.div
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+    >
       {/* Study Tip Banner */}
       <motion.div
         variants={itemVariants}
@@ -99,16 +104,7 @@ export default function DashboardOverview({
         variants={itemVariants}
       >
         {kpis.map((kpi, index) => (
-          <motion.div
-            key={kpi.id}
-            custom={index}
-            variants={staggerCardVariants}
-            initial="hidden"
-            animate="visible"
-            whileHover={{ scale: isMobile ? 1.01 : 1.03, transition: { duration: 0.2 } }}
-          >
-            <KpiCard kpi={kpi} />
-          </motion.div>
+          <KpiCard key={kpi.id} kpi={kpi} delay={index} />
         ))}
       </motion.div>
       
@@ -120,22 +116,29 @@ export default function DashboardOverview({
         <motion.div 
           className="lg:col-span-2"
           whileHover={{ scale: isMobile ? 1.005 : 1.01, transition: { duration: 0.2 } }}
+          variants={itemVariants}
         >
           <TodayStudyPlan />
         </motion.div>
         <motion.div
           whileHover={{ scale: isMobile ? 1.005 : 1.02, transition: { duration: 0.2 } }}
+          variants={itemVariants}
         >
           <ProfileCard profile={userProfile} />
         </motion.div>
       </motion.div>
       
-      {/* Nudges Panel */}
+      {/* Feel Good Corner and Nudges */}
       <motion.div 
-        className="mb-6 sm:mb-8"
+        className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8"
         variants={itemVariants}
       >
-        <NudgePanel nudges={nudges} markAsRead={markNudgeAsRead} />
+        <motion.div variants={itemVariants}>
+          <FeelGoodCorner />
+        </motion.div>
+        <motion.div variants={itemVariants}>
+          <NudgePanel nudges={nudges} markAsRead={markNudgeAsRead} />
+        </motion.div>
       </motion.div>
       
       {/* Feature Cards */}
@@ -146,10 +149,8 @@ export default function DashboardOverview({
         {features.map((feature, index) => (
           <motion.div
             key={index}
+            variants={itemVariants}
             custom={index}
-            variants={staggerCardVariants}
-            initial="hidden"
-            animate="visible"
             whileHover={{ 
               scale: isMobile ? 1.01 : 1.05, 
               transition: { duration: 0.2 },
@@ -167,6 +168,6 @@ export default function DashboardOverview({
           </motion.div>
         ))}
       </motion.div>
-    </>
+    </motion.div>
   );
 }
