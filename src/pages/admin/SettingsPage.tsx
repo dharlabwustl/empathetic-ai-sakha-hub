@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import AdminLayout from "@/components/admin/AdminLayout";
@@ -10,6 +9,8 @@ import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { adminService } from "@/services/adminService";
 import { AdminSettings } from "@/types/admin";
+import { Download } from "lucide-react";
+import { downloadDatabaseSchema } from "@/utils/schemaExport";
 
 const SettingsPage = () => {
   const { toast } = useToast();
@@ -83,6 +84,23 @@ const SettingsPage = () => {
       aiModels: updatedModels
     });
   };
+  
+  const handleDownloadSchema = () => {
+    try {
+      downloadDatabaseSchema();
+      toast({
+        title: "Success",
+        description: "Database schema file is being downloaded."
+      });
+    } catch (error) {
+      console.error("Error downloading schema:", error);
+      toast({
+        title: "Error",
+        description: "Failed to generate database schema file.",
+        variant: "destructive"
+      });
+    }
+  };
 
   if (loading) {
     return (
@@ -99,17 +117,28 @@ const SettingsPage = () => {
 
   return (
     <AdminLayout>
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold">System Settings</h1>
-        <p className="text-gray-500">Configure your Sakha AI admin portal settings</p>
+      <div className="mb-6 flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold">System Settings</h1>
+          <p className="text-gray-500">Configure your Sakha AI admin portal settings</p>
+        </div>
+        <Button 
+          variant="outline" 
+          onClick={handleDownloadSchema} 
+          className="flex items-center gap-2"
+        >
+          <Download className="h-4 w-4" />
+          <span>Download DB Schema</span>
+        </Button>
       </div>
       
       <Tabs defaultValue="api" className="space-y-6">
-        <TabsList className="grid grid-cols-1 md:grid-cols-4 gap-2">
+        <TabsList className="grid grid-cols-1 md:grid-cols-5 gap-2">
           <TabsTrigger value="api">API Configuration</TabsTrigger>
           <TabsTrigger value="notifications">Notification Settings</TabsTrigger>
           <TabsTrigger value="content">Content Controls</TabsTrigger>
           <TabsTrigger value="database">Database Settings</TabsTrigger>
+          <TabsTrigger value="schema">Database Schema</TabsTrigger>
         </TabsList>
         
         {settings && (
@@ -381,6 +410,79 @@ const SettingsPage = () => {
                     <Button variant="outline" className="text-amber-600 hover:text-amber-700">
                       Clear Cache
                     </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+            
+            <TabsContent value="schema">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Database Schema</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-md">
+                    <p className="mb-4">
+                      The Sakha AI platform uses a relational database schema designed to store and manage all student data, 
+                      learning content, and application settings. The schema includes tables for:
+                    </p>
+                    <ul className="list-disc pl-5 mb-4 space-y-1">
+                      <li>User accounts and profiles</li>
+                      <li>Student onboarding information</li>
+                      <li>Study plans and sessions</li>
+                      <li>Learning content (concepts, flashcards, questions, exams)</li>
+                      <li>Engagement metrics (mood logs, surrounding influences)</li>
+                      <li>AI personalization settings and data</li>
+                      <li>System configuration and administration</li>
+                    </ul>
+                    <p className="mb-4">
+                      The schema includes appropriate relationships between tables, with foreign key constraints
+                      to maintain data integrity across the application.
+                    </p>
+                  </div>
+                  
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <h3 className="font-medium text-lg">Database Schema Export</h3>
+                      <p className="text-sm text-gray-500">Download the complete SQL schema for your reference or database implementation</p>
+                    </div>
+                    <Button 
+                      onClick={handleDownloadSchema}
+                      className="flex items-center gap-2"
+                    >
+                      <Download className="h-4 w-4" />
+                      <span>Download Schema (SQL)</span>
+                    </Button>
+                  </div>
+                  
+                  <div className="border-t pt-4">
+                    <h3 className="font-medium text-lg mb-2">Database Schema Overview</h3>
+                    <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-md overflow-auto max-h-96">
+                      <pre className="text-xs">
+                        <code>
+                          {`-- Simplified schema overview
+CREATE TABLE students (
+  id VARCHAR(36) PRIMARY KEY,
+  user_id VARCHAR(36) NOT NULL,
+  name VARCHAR(255) NOT NULL,
+  email VARCHAR(255) NOT NULL,
+  /* ... other fields */
+);
+
+CREATE TABLE student_goals (
+  id VARCHAR(36) PRIMARY KEY,
+  student_id VARCHAR(36) NOT NULL,
+  title VARCHAR(255) NOT NULL,
+  /* ... other fields */
+  FOREIGN KEY (student_id) REFERENCES students(id)
+);
+
+/* ... additional tables ... */
+
+-- See full schema in the downloaded SQL file`}
+                        </code>
+                      </pre>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
