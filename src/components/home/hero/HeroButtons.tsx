@@ -5,10 +5,12 @@ import { Link } from "react-router-dom";
 import { TrendingUp, BookOpen } from "lucide-react";
 
 interface HeroButtonsProps {
-  onAnalyzeClick: () => void;
+  scrollToFeatures: () => void;
+  scrollToForWhom: () => void;
+  openExamAnalyzer: () => void;
 }
 
-const HeroButtons = ({ onAnalyzeClick }: HeroButtonsProps) => {
+const HeroButtons = ({ scrollToFeatures, scrollToForWhom, openExamAnalyzer }: HeroButtonsProps) => {
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -45,7 +47,7 @@ const HeroButtons = ({ onAnalyzeClick }: HeroButtonsProps) => {
         <Button 
           size="lg"
           className="bg-gradient-to-r from-violet-600 to-purple-500 hover:opacity-90 text-white px-8 py-6 shadow-lg hover:shadow-xl transition-all"
-          onClick={onAnalyzeClick}
+          onClick={openExamAnalyzer}
         >
           <motion.div
             animate={{ rotate: [0, 3, -3, 0] }}
@@ -66,17 +68,15 @@ const HeroButtons = ({ onAnalyzeClick }: HeroButtonsProps) => {
           size="lg" 
           variant="outline"
           className="border-violet-500 text-violet-600 hover:bg-violet-50 shadow-md hover:shadow-lg transition-all"
-          asChild
+          onClick={scrollToFeatures}
         >
-          <Link to="/signup">
-            <motion.div
-              animate={{ rotate: [0, -5, 5, 0] }}
-              transition={{ repeat: Infinity, repeatDelay: 3, duration: 0.5 }}
-            >
-              <BookOpen className="mr-2" />
-            </motion.div>
-            Start Free Preparation
-          </Link>
+          <motion.div
+            animate={{ rotate: [0, -5, 5, 0] }}
+            transition={{ repeat: Infinity, repeatDelay: 3, duration: 0.5 }}
+          >
+            <BookOpen className="mr-2" />
+          </motion.div>
+          Explore Features
         </Button>
       </motion.div>
     </motion.div>
