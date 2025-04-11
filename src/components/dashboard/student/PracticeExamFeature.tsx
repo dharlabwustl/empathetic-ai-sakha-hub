@@ -614,14 +614,14 @@ const PracticeExamFeature = () => {
                                   });
                                 }}
                               >
-                                <BarChart3 size={14} className="mr-1" /> Results
+                                <BarChart3 width={14} height={14} className="mr-1" /> Results
                               </Button>
                               <Button 
                                 onClick={() => startExam(exam)}
                                 size="sm"
                                 className="bg-emerald-600 hover:bg-emerald-700"
                               >
-                                <RotateCw size={14} className="mr-1" /> Retake
+                                <RotateCw width={14} height={14} className="mr-1" /> Retake
                               </Button>
                             </div>
                           </div>
