@@ -82,37 +82,37 @@ const EcosystemAnimation = () => {
             {/* Orbit layers with continuous rotation */}
             <motion.div
               className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[260px] md:w-[320px] h-[260px] md:h-[320px] rounded-full border border-violet-200 z-10"
-              initial={{ scale: 0, rotate: 0 }}
-              whileInView={{ scale: 1, rotate: 0 }}
+              initial={{ scale: 0 }}
+              whileInView={{ scale: 1 }}
               viewport={{ once: true }}
-              transition={{ scale: { delay: 0.3, duration: 0.5 } }}
-              animate={{ rotate: 360 }}
+              transition={{ delay: 0.3, duration: 0.5 }}
               style={{ 
                 transition: "transform 60s linear infinite",
+                transform: "rotate(360deg)"
               }}
             />
 
             <motion.div
               className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[380px] md:w-[440px] h-[380px] md:h-[440px] rounded-full border border-indigo-200 z-10"
-              initial={{ scale: 0, rotate: 0 }}
-              whileInView={{ scale: 1, rotate: 0 }}
+              initial={{ scale: 0 }}
+              whileInView={{ scale: 1 }}
               viewport={{ once: true }}
-              transition={{ scale: { delay: 0.4, duration: 0.5 } }}
-              animate={{ rotate: -360 }}
+              transition={{ delay: 0.4, duration: 0.5 }}
               style={{ 
                 transition: "transform 80s linear infinite",
+                transform: "rotate(-360deg)"
               }}
             />
 
             <motion.div
               className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] md:w-[580px] h-[500px] md:h-[580px] rounded-full border border-violet-100 z-10"
-              initial={{ scale: 0, rotate: 0 }}
-              whileInView={{ scale: 1, rotate: 0 }}
+              initial={{ scale: 0 }}
+              whileInView={{ scale: 1 }}
               viewport={{ once: true }}
-              transition={{ scale: { delay: 0.5, duration: 0.5 } }}
-              animate={{ rotate: 360 }}
+              transition={{ delay: 0.5, duration: 0.5 }}
               style={{ 
                 transition: "transform 100s linear infinite",
+                transform: "rotate(360deg)"
               }}
             />
 

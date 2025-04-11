@@ -164,14 +164,17 @@ const HabitsStep: React.FC<HabitsStepProps> = ({ onSubmit }) => {
       </motion.div>
       
       <motion.div variants={itemVariants}>
-        <Button 
-          type="submit" 
-          className="w-full bg-gradient-to-r from-blue-600 to-indigo-700"
+        <motion.div
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
         >
-          Next
-        </Button>
+          <Button 
+            type="submit" 
+            className="w-full bg-gradient-to-r from-blue-600 to-indigo-700"
+          >
+            Next
+          </Button>
+        </motion.div>
       </motion.div>
     </motion.form>
   );

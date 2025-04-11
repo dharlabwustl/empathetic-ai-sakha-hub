@@ -1,4 +1,3 @@
-
 export type UserRole = "Student" | "Employee" | "Doctor" | "Founder";
 
 export type SubscriptionType = "Free" | "Basic" | "Premium";
@@ -48,6 +47,7 @@ export interface UserProfileType {
   joinDate: string;
   lastActive: string;
   examPreparation?: string;
+  studyStreak?: number;
 }
 
 export interface Goal {

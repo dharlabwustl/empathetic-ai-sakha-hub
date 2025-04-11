@@ -13,6 +13,11 @@ interface DashboardHeaderProps {
   onViewStudyPlan: () => void;
 }
 
+// Extend the userProfile type locally to handle the streak property
+interface ExtendedUserProfile extends UserProfileType {
+  studyStreak?: number;
+}
+
 const DashboardHeader = ({
   userProfile,
   formattedTime,
@@ -20,6 +25,8 @@ const DashboardHeader = ({
   onViewStudyPlan
 }: DashboardHeaderProps) => {
   const isMobile = useIsMobile();
+  // Cast to our extended type
+  const extendedProfile = userProfile as ExtendedUserProfile;
 
   // Animation variants
   const containerVariants = {
@@ -123,7 +130,7 @@ const DashboardHeader = ({
         </motion.div>
       </div>
       
-      {userProfile.streak && userProfile.streak > 0 && (
+      {extendedProfile.studyStreak && extendedProfile.studyStreak > 0 && (
         <motion.div 
           className="mt-3 sm:mt-4 flex items-center gap-2"
           initial={{ opacity: 0, y: 20 }}
@@ -131,7 +138,7 @@ const DashboardHeader = ({
           transition={{ delay: 0.8, duration: 0.5 }}
         >
           <div className="flex">
-            {[...Array(Math.min(userProfile.streak, 5))].map((_, i) => (
+            {[...Array(Math.min(extendedProfile.studyStreak, 5))].map((_, i) => (
               <motion.div 
                 key={i}
                 className="w-6 h-6 bg-amber-100 rounded-full border-2 border-amber-300 flex items-center justify-center -ml-1 first:ml-0"
@@ -144,7 +151,7 @@ const DashboardHeader = ({
             ))}
           </div>
           <span className="text-xs font-medium text-amber-700">
-            {userProfile.streak} day{userProfile.streak > 1 ? 's' : ''} streak! Keep it up!
+            {extendedProfile.studyStreak} day{extendedProfile.studyStreak > 1 ? 's' : ''} streak! Keep it up!
           </span>
         </motion.div>
       )}
