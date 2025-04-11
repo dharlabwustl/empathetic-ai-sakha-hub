@@ -2,8 +2,8 @@
 import React from "react";
 import { useStudentDashboard } from "@/hooks/useStudentDashboard";
 import OnboardingFlow from "@/components/dashboard/student/OnboardingFlow";
-import DashboardLoading from "./student/DashboardLoading";
-import DashboardLayout from "./student/DashboardLayout";
+import DashboardLoading from "@/pages/dashboard/student/DashboardLoading";
+import DashboardLayout from "@/pages/dashboard/student/DashboardLayout";
 
 const StudentDashboard = () => {
   const {
