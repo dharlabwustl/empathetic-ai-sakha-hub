@@ -1,9 +1,9 @@
 
 import React from 'react';
-import { ExamBadges } from './hero/ExamBadges';
-import { PainPoints } from './hero/PainPoints';
-import { ChatInterface } from './hero/ChatInterface';
-import { ScrollIndicator } from './hero/ScrollIndicator';
+import ExamBadges from './hero/ExamBadges';
+import PainPoints from './hero/PainPoints';
+import ChatInterface from './hero/ChatInterface';
+import ScrollIndicator from './hero/ScrollIndicator';
 import HeroButtons from './hero/HeroButtons';
 
 export interface HeroSectionProps {
