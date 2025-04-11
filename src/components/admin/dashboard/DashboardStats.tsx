@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Users, Activity, Book, Brain, ArrowUp, PieChart, Clock, Smile } from "lucide-react";
+import { Users, MessageSquare, Book, LineChart, ArrowUp } from "lucide-react";
 import { AdminDashboardStats } from "@/types/admin";
 import { useNavigate } from "react-router-dom";
 
@@ -37,7 +37,7 @@ const DashboardStats = ({ stats }: DashboardStatsProps) => {
             {trend && (
               <p className="flex items-center text-xs mt-2 text-green-600 dark:text-green-400">
                 <ArrowUp size={14} className="mr-1" />
-                {trend} from last week
+                {trend}
               </p>
             )}
           </div>
@@ -52,38 +52,38 @@ const DashboardStats = ({ stats }: DashboardStatsProps) => {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
       <StatCard 
-        title="Total Students" 
-        value={stats.totalStudents.toLocaleString()} 
-        icon={<Users size={24} className="text-purple-600" />}
-        trend="+5.2%"
-        route="/admin/students"
-        iconColor="text-purple-600"
-        bgColor="bg-purple-100 dark:bg-purple-900/20"
-      />
-      <StatCard 
-        title="Active Students" 
-        value={stats.activeStudents.toLocaleString()} 
-        icon={<Activity size={24} className="text-blue-600" />}
-        trend="+3.1%"
+        title="Total Users" 
+        value="2,350" 
+        icon={<Users size={24} className="text-blue-600" />}
+        trend="+12% from last month"
+        route="/admin/users"
         iconColor="text-blue-600"
         bgColor="bg-blue-100 dark:bg-blue-900/20"
       />
       <StatCard 
-        title="Content Items" 
-        value={(stats.totalQuestions + stats.totalConcepts + stats.totalFlashcards).toLocaleString()} 
-        icon={<Book size={24} className="text-indigo-600" />}
-        trend="+8.3%"
-        route="/admin/content"
-        iconColor="text-indigo-600"
-        bgColor="bg-indigo-100 dark:bg-indigo-900/20"
+        title="Active Sessions" 
+        value="186" 
+        icon={<LineChart size={24} className="text-green-600" />}
+        trend="+3% from yesterday"
+        iconColor="text-green-600"
+        bgColor="bg-green-100 dark:bg-green-900/20"
       />
       <StatCard 
-        title="Avg. Mood Score" 
-        value={stats.averageMoodScore.toFixed(1) + "/10"} 
-        icon={<Smile size={24} className="text-amber-600" />}
-        trend="+0.7"
+        title="Content Items" 
+        value="12,543" 
+        icon={<Book size={24} className="text-amber-600" />}
+        trend="+8% from last week"
+        route="/admin/content"
         iconColor="text-amber-600"
         bgColor="bg-amber-100 dark:bg-amber-900/20"
+      />
+      <StatCard 
+        title="AI Interactions" 
+        value="32,842" 
+        icon={<MessageSquare size={24} className="text-purple-600" />}
+        trend="+24% from last month"
+        iconColor="text-purple-600"
+        bgColor="bg-purple-100 dark:bg-purple-900/20"
       />
     </div>
   );

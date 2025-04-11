@@ -5,7 +5,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAdminAuth } from "@/contexts/AdminAuthContext";
 import { adminService } from "@/services/adminService";
 import { AdminDashboardStats, StudentData, SystemLog } from "@/types/admin";
-import { Sparkles, RefreshCcw, Download } from "lucide-react";
+import { Sparkles, RefreshCcw, Download, FileText } from "lucide-react";
 
 import AdminLayout from "@/components/admin/AdminLayout";
 import DashboardStats from "@/components/admin/dashboard/DashboardStats";
@@ -21,6 +21,7 @@ const AdminDashboard = () => {
   const [stats, setStats] = useState<AdminDashboardStats | null>(null);
   const [recentStudents, setRecentStudents] = useState<StudentData[]>([]);
   const [recentLogs, setRecentLogs] = useState<SystemLog[]>([]);
+  const [activeTab, setActiveTab] = useState("overview");
 
   useEffect(() => {
     console.log("AdminDashboard - Auth state:", { 
@@ -79,6 +80,10 @@ const AdminDashboard = () => {
     });
   };
 
+  const handleShowDocs = () => {
+    setActiveTab("documentation");
+  };
+
   if (authLoading || loading) {
     return (
       <AdminLayout>
@@ -108,7 +113,12 @@ const AdminDashboard = () => {
             <span className="hidden sm:inline">Export</span>
           </Button>
           
-          <Button size="sm" className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={handleShowDocs} className="flex items-center gap-2">
+            <FileText size={16} />
+            <span className="hidden sm:inline">Documentation</span>
+          </Button>
+          
+          <Button size="sm" className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white flex items-center gap-2">
             <Sparkles size={16} />
             <span className="hidden sm:inline">Optimize System</span>
           </Button>

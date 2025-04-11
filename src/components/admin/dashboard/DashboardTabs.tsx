@@ -1,13 +1,28 @@
 
 import React from "react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Brain, FileText, Users, Settings, Tag, BarChart2, Activity, Calendar } from "lucide-react";
+import { 
+  Users, 
+  Brain, 
+  BookOpen, 
+  MessageSquare, 
+  CreditCard, 
+  BarChart2, 
+  AlertCircle, 
+  Bell,
+  FileText
+} from "lucide-react";
 import { AdminDashboardStats, StudentData, SystemLog } from "@/types/admin";
 
-import PersonalizationTab from "./PersonalizationTab";
-import ContentTab from "./ContentTab";
-import UsersTab from "./UsersTab";
-import SystemTab from "./SystemTab";
+import UserManagementTab from "./tabs/UserManagementTab";
+import AIPersonalizationTab from "./tabs/AIPersonalizationTab";
+import ContentManagementTab from "./tabs/ContentManagementTab";
+import EngagementTab from "./tabs/EngagementTab";
+import SubscriptionTab from "./tabs/SubscriptionTab";
+import SystemAnalyticsTab from "./tabs/SystemAnalyticsTab";
+import IssueResolutionTab from "./tabs/IssueResolutionTab";
+import NotificationsTab from "./tabs/NotificationsTab";
+import DocumentationTab from "./tabs/DocumentationTab";
 
 interface DashboardTabsProps {
   stats: AdminDashboardStats | null;
@@ -17,80 +32,99 @@ interface DashboardTabsProps {
 
 const DashboardTabs = ({ stats, recentStudents, recentLogs }: DashboardTabsProps) => {
   return (
-    <Tabs defaultValue="personalization" className="space-y-6">
-      <TabsList className="grid grid-cols-2 md:grid-cols-4 gap-2 p-1 bg-gray-100 dark:bg-gray-800 rounded-lg">
-        <TabsTrigger value="personalization" className="flex items-center gap-2 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:shadow-sm">
-          <Brain size={16} className="text-purple-500" />
-          <span>AI Personalization</span>
-        </TabsTrigger>
-        <TabsTrigger value="content" className="flex items-center gap-2 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:shadow-sm">
-          <FileText size={16} className="text-indigo-500" />
-          <span>Content & Insights</span>
+    <Tabs defaultValue="overview" className="space-y-6">
+      <TabsList className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-9 gap-2 p-1 bg-gray-100 dark:bg-gray-800 rounded-lg">
+        <TabsTrigger value="overview" className="flex items-center gap-2 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:shadow-sm">
+          <BarChart2 size={16} className="text-blue-500" />
+          <span>Overview</span>
         </TabsTrigger>
         <TabsTrigger value="users" className="flex items-center gap-2 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:shadow-sm">
-          <Users size={16} className="text-sky-500" />
-          <span>Students</span>
+          <Users size={16} className="text-indigo-500" />
+          <span>Users</span>
         </TabsTrigger>
-        <TabsTrigger value="system" className="flex items-center gap-2 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:shadow-sm">
-          <Settings size={16} className="text-amber-500" />
-          <span>System & Logs</span>
+        <TabsTrigger value="ai" className="flex items-center gap-2 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:shadow-sm">
+          <Brain size={16} className="text-purple-500" />
+          <span>AI</span>
+        </TabsTrigger>
+        <TabsTrigger value="content" className="flex items-center gap-2 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:shadow-sm">
+          <BookOpen size={16} className="text-amber-500" />
+          <span>Content</span>
+        </TabsTrigger>
+        <TabsTrigger value="engagement" className="flex items-center gap-2 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:shadow-sm">
+          <MessageSquare size={16} className="text-green-500" />
+          <span>Engagement</span>
+        </TabsTrigger>
+        <TabsTrigger value="subscriptions" className="flex items-center gap-2 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:shadow-sm">
+          <CreditCard size={16} className="text-pink-500" />
+          <span>Subscriptions</span>
+        </TabsTrigger>
+        <TabsTrigger value="analytics" className="flex items-center gap-2 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:shadow-sm">
+          <BarChart2 size={16} className="text-blue-500" />
+          <span>Analytics</span>
+        </TabsTrigger>
+        <TabsTrigger value="issues" className="flex items-center gap-2 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:shadow-sm">
+          <AlertCircle size={16} className="text-red-500" />
+          <span>Issues</span>
+        </TabsTrigger>
+        <TabsTrigger value="notifications" className="flex items-center gap-2 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:shadow-sm">
+          <Bell size={16} className="text-orange-500" />
+          <span>Notifications</span>
         </TabsTrigger>
       </TabsList>
       
-      <TabsContent value="personalization" className="space-y-6">
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center gap-2">
-            <Brain size={20} className="text-purple-500" />
-            <h2 className="text-xl font-semibold">AI Personalization Engine</h2>
+      <TabsContent value="overview" className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="border rounded-lg p-6">
+            <h3 className="text-lg font-medium mb-4">Student Engagement</h3>
+            <p className="text-sm text-gray-500 mb-2">Time spent on platform over the last 30 days</p>
+            <div className="h-64 bg-gray-100 dark:bg-gray-800 rounded-md flex items-center justify-center">
+              <span className="text-gray-500">Chart Placeholder</span>
+            </div>
           </div>
-          <div className="flex items-center gap-1 text-xs bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300 px-2 py-1 rounded-md">
-            <Activity size={14} />
-            <span>AI Status: Active</span>
+          <div className="border rounded-lg p-6">
+            <h3 className="text-lg font-medium mb-4">Emotional Trends</h3>
+            <p className="text-sm text-gray-500 mb-2">Learner mood distribution</p>
+            <div className="h-64 bg-gray-100 dark:bg-gray-800 rounded-md flex items-center justify-center">
+              <span className="text-gray-500">Chart Placeholder</span>
+            </div>
           </div>
         </div>
-        <PersonalizationTab />
       </TabsContent>
       
-      <TabsContent value="content" className="space-y-6">
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center gap-2">
-            <FileText size={20} className="text-indigo-500" />
-            <h2 className="text-xl font-semibold">Content Management</h2>
-          </div>
-          <div className="flex items-center gap-1 text-xs bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-300 px-2 py-1 rounded-md">
-            <Tag size={14} />
-            <span>Items: {stats?.totalQuestions || 0}</span>
-          </div>
-        </div>
-        <ContentTab stats={stats} />
+      <TabsContent value="users">
+        <UserManagementTab recentStudents={recentStudents} />
       </TabsContent>
       
-      <TabsContent value="users" className="space-y-6">
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center gap-2">
-            <Users size={20} className="text-sky-500" />
-            <h2 className="text-xl font-semibold">Student Management</h2>
-          </div>
-          <div className="flex items-center gap-1 text-xs bg-sky-50 dark:bg-sky-900/20 text-sky-700 dark:text-sky-300 px-2 py-1 rounded-md">
-            <BarChart2 size={14} />
-            <span>Active: {stats?.activeStudents || 0}/{stats?.totalStudents || 0}</span>
-          </div>
-        </div>
-        <UsersTab stats={stats} recentStudents={recentStudents} />
+      <TabsContent value="ai">
+        <AIPersonalizationTab />
       </TabsContent>
       
-      <TabsContent value="system" className="space-y-6">
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center gap-2">
-            <Settings size={20} className="text-amber-500" />
-            <h2 className="text-xl font-semibold">System Configuration</h2>
-          </div>
-          <div className="flex items-center gap-1 text-xs bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300 px-2 py-1 rounded-md">
-            <Calendar size={14} />
-            <span>Last Update: Today</span>
-          </div>
-        </div>
-        <SystemTab recentLogs={recentLogs} />
+      <TabsContent value="content">
+        <ContentManagementTab />
+      </TabsContent>
+      
+      <TabsContent value="engagement">
+        <EngagementTab />
+      </TabsContent>
+      
+      <TabsContent value="subscriptions">
+        <SubscriptionTab />
+      </TabsContent>
+      
+      <TabsContent value="analytics">
+        <SystemAnalyticsTab />
+      </TabsContent>
+      
+      <TabsContent value="issues">
+        <IssueResolutionTab recentLogs={recentLogs} />
+      </TabsContent>
+      
+      <TabsContent value="notifications">
+        <NotificationsTab />
+      </TabsContent>
+      
+      <TabsContent value="documentation">
+        <DocumentationTab />
       </TabsContent>
     </Tabs>
   );
