@@ -1,5 +1,5 @@
 
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import Header from '@/components/layout/HeaderWithAdmin';
 import Footer from '@/components/layout/Footer';
 import HeroSection from '@/components/home/HeroSection';
@@ -13,11 +13,12 @@ import CallToAction from '@/components/home/CallToAction';
 import FounderSection from '@/components/home/FounderSection';
 import VideoSection from '@/components/home/VideoSection';
 import EcosystemAnimation from '@/components/home/EcosystemAnimation';
-import ExamReadinessAnalyzer from '@/components/home/ExamReadinessAnalyzer';
+import { ExamReadinessAnalyzer } from '@/components/home/ExamReadinessAnalyzer';
 
 const Index = () => {
   const featuresRef = useRef<HTMLDivElement>(null);
   const forWhomRef = useRef<HTMLDivElement>(null);
+  const [showExamAnalyzer, setShowExamAnalyzer] = useState(false);
   
   const scrollToFeatures = () => {
     if (featuresRef.current) {
@@ -30,6 +31,14 @@ const Index = () => {
       forWhomRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   };
+  
+  const handleOpenExamAnalyzer = () => {
+    setShowExamAnalyzer(true);
+  };
+  
+  const handleCloseExamAnalyzer = () => {
+    setShowExamAnalyzer(false);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-background overflow-hidden">
@@ -37,8 +46,9 @@ const Index = () => {
       
       <main>
         <HeroSection 
-          scrollToFeatures={scrollToFeatures} 
-          scrollToForWhom={scrollToForWhom}
+          onScrollToFeatures={scrollToFeatures} 
+          onScrollToForWhom={scrollToForWhom}
+          onOpenExamAnalyzer={handleOpenExamAnalyzer}
         />
         
         <WhatIsSection />
@@ -53,7 +63,7 @@ const Index = () => {
         
         <ExamPreparationSection />
         
-        <ExamReadinessAnalyzer />
+        {showExamAnalyzer && <ExamReadinessAnalyzer onClose={handleCloseExamAnalyzer} />}
         
         <StudentBenefitsSection />
         
