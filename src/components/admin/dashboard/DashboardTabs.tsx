@@ -2,15 +2,16 @@
 import React from "react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { 
+  BarChart2, 
   Users, 
   Brain, 
   BookOpen, 
   MessageSquare, 
   CreditCard, 
-  BarChart2, 
   AlertCircle, 
   Bell,
-  FileText
+  FileText,
+  Settings
 } from "lucide-react";
 import { AdminDashboardStats, StudentData, SystemLog } from "@/types/admin";
 
@@ -23,6 +24,7 @@ import SystemAnalyticsTab from "./tabs/SystemAnalyticsTab";
 import IssueResolutionTab from "./tabs/IssueResolutionTab";
 import NotificationsTab from "./tabs/NotificationsTab";
 import DocumentationTab from "./tabs/DocumentationTab";
+import SettingsTab from "./tabs/SettingsTab";
 
 interface DashboardTabsProps {
   stats: AdminDashboardStats | null;
@@ -33,7 +35,7 @@ interface DashboardTabsProps {
 const DashboardTabs = ({ stats, recentStudents, recentLogs }: DashboardTabsProps) => {
   return (
     <Tabs defaultValue="overview" className="space-y-6">
-      <TabsList className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-9 gap-2 p-1 bg-gray-100 dark:bg-gray-800 rounded-lg">
+      <TabsList className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-2 p-1 bg-gray-100 dark:bg-gray-800 rounded-lg">
         <TabsTrigger value="overview" className="flex items-center gap-2 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:shadow-sm">
           <BarChart2 size={16} className="text-blue-500" />
           <span>Overview</span>
@@ -58,17 +60,9 @@ const DashboardTabs = ({ stats, recentStudents, recentLogs }: DashboardTabsProps
           <CreditCard size={16} className="text-pink-500" />
           <span>Subscriptions</span>
         </TabsTrigger>
-        <TabsTrigger value="analytics" className="flex items-center gap-2 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:shadow-sm">
-          <BarChart2 size={16} className="text-blue-500" />
-          <span>Analytics</span>
-        </TabsTrigger>
-        <TabsTrigger value="issues" className="flex items-center gap-2 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:shadow-sm">
-          <AlertCircle size={16} className="text-red-500" />
-          <span>Issues</span>
-        </TabsTrigger>
-        <TabsTrigger value="notifications" className="flex items-center gap-2 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:shadow-sm">
-          <Bell size={16} className="text-orange-500" />
-          <span>Notifications</span>
+        <TabsTrigger value="system" className="flex items-center gap-2 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:shadow-sm">
+          <Settings size={16} className="text-gray-500" />
+          <span>System</span>
         </TabsTrigger>
       </TabsList>
       
@@ -111,7 +105,7 @@ const DashboardTabs = ({ stats, recentStudents, recentLogs }: DashboardTabsProps
         <SubscriptionTab />
       </TabsContent>
       
-      <TabsContent value="analytics">
+      <TabsContent value="system">
         <SystemAnalyticsTab />
       </TabsContent>
       
@@ -125,6 +119,10 @@ const DashboardTabs = ({ stats, recentStudents, recentLogs }: DashboardTabsProps
       
       <TabsContent value="documentation">
         <DocumentationTab />
+      </TabsContent>
+      
+      <TabsContent value="settings">
+        <SettingsTab />
       </TabsContent>
     </Tabs>
   );

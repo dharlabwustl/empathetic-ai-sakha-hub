@@ -9,15 +9,18 @@ import {
   Users,
   FileText,
   Settings,
-  Bell,
   LogOut,
   Database,
   BarChart,
-  AlertCircle,
   Menu,
   X,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Brain,
+  MessageSquare,
+  CreditCard,
+  AlertCircle,
+  Bell
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -47,14 +50,34 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
       icon: <LayoutDashboard size={20} />
     },
     {
-      name: 'Students',
-      path: '/admin/students',
+      name: 'User Management',
+      path: '/admin/users',
       icon: <Users size={20} />
     },
     {
-      name: 'Content',
+      name: 'AI Personalization',
+      path: '/admin/ai',
+      icon: <Brain size={20} />
+    },
+    {
+      name: 'Content Management',
       path: '/admin/content',
       icon: <FileText size={20} />
+    },
+    {
+      name: 'Engagement',
+      path: '/admin/engagement',
+      icon: <MessageSquare size={20} />
+    },
+    {
+      name: 'Subscriptions',
+      path: '/admin/subscriptions',
+      icon: <CreditCard size={20} />
+    },
+    {
+      name: 'System Monitoring',
+      path: '/admin/system',
+      icon: <Database size={20} />
     },
     {
       name: 'Analytics',
@@ -62,9 +85,9 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
       icon: <BarChart size={20} />
     },
     {
-      name: 'Database',
-      path: '/admin/database',
-      icon: <Database size={20} />
+      name: 'Issue Resolution',
+      path: '/admin/issues',
+      icon: <AlertCircle size={20} />
     },
     {
       name: 'Notifications',
@@ -72,9 +95,9 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
       icon: <Bell size={20} />
     },
     {
-      name: 'System Logs',
-      path: '/admin/logs',
-      icon: <AlertCircle size={20} />
+      name: 'Documentation',
+      path: '/admin/documentation',
+      icon: <FileText size={20} />
     },
     {
       name: 'Settings',
