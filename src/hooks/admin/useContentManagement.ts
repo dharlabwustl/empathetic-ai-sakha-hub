@@ -11,7 +11,8 @@ export const useContentManagement = (): ContentManagementHookReturn => {
   const [currentTab, setCurrentTab] = useState<ContentType>("study-material");
   const [searchTerm, setSearchTerm] = useState("");
   
-  const [uploadedFiles, setUploadedFiles] = useState([
+  // Ensure the sample data strictly follows ContentType
+  const [uploadedFiles, setUploadedFiles] = useState<ContentFile[]>([
     {
       id: "file1",
       name: "NEET Biology Notes.pdf",
@@ -87,7 +88,8 @@ export const useContentManagement = (): ContentManagementHookReturn => {
           clearInterval(interval);
           setUploading(false);
           
-          const newFile = {
+          // Ensure we create a new file with the correct ContentType
+          const newFile: ContentFile = {
             id: `file${uploadedFiles.length + 1}`,
             name: selectedFile.name,
             type: currentTab,

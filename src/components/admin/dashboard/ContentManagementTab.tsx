@@ -57,6 +57,11 @@ const ContentManagementTab = () => {
     });
   };
 
+  // This function converts string to ContentType to fix the type mismatch
+  const handleTabChange = (value: string) => {
+    setCurrentTab(value as ContentType);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row justify-between gap-4">
@@ -83,7 +88,7 @@ const ContentManagementTab = () => {
         </div>
       </div>
 
-      <Tabs defaultValue="study-material" onValueChange={setCurrentTab}>
+      <Tabs defaultValue="study-material" onValueChange={handleTabChange}>
         <div className="flex justify-between items-center mb-4">
           <TabsList>
             <TabsTrigger value="study-material" className="flex items-center gap-1">
