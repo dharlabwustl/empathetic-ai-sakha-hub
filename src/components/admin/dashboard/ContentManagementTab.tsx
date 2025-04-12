@@ -14,7 +14,8 @@ import {
   FileText,
   Upload,
   Book,
-  FlashCard,
+  // Fix error 1: Replace 'FlashCard' with a valid icon
+  FileSpreadsheet, // Using FileSpreadsheet instead of non-existent FlashCard
   MoveRight,
   CheckCircle2,
   Tag,
@@ -199,7 +200,8 @@ const ContentManagementTab = () => {
               <span>Syllabus</span>
             </TabsTrigger>
             <TabsTrigger value="practice" className="flex items-center gap-1">
-              <FlashCard size={16} />
+              {/* Fix: Use FileSpreadsheet instead of FlashCard */}
+              <FileSpreadsheet size={16} />
               <span>Practice</span>
             </TabsTrigger>
             <TabsTrigger value="exam-material" className="flex items-center gap-1">
@@ -377,7 +379,14 @@ const ContentUploader = ({
             <Button 
               variant="destructive" 
               size="sm" 
-              onClick={() => document.getElementById('fileUpload')!.value = ''}
+              onClick={() => {
+                // Fix: Clear the file input by properly casting to HTMLInputElement
+                const fileInput = document.getElementById('fileUpload') as HTMLInputElement;
+                if (fileInput) {
+                  fileInput.value = '';
+                }
+                setSelectedFile(null);
+              }}
             >
               Remove
             </Button>
