@@ -128,6 +128,16 @@ const HeroSection: React.FC<HeroSectionProps> = ({
           </motion.div>
         </div>
         
+        {/* Add the Ecosystem Animation section right after the grid */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.8, delay: 1.2 }}
+          className="mt-16 mb-12"
+        >
+          <EcosystemAnimation />
+        </motion.div>
+        
         <ScrollIndicator />
       </div>
     </section>

@@ -13,7 +13,6 @@ import CallToAction from '@/components/home/CallToAction';
 import FounderSection from '@/components/home/FounderSection';
 import VideoSection from '@/components/home/VideoSection';
 import { ExamReadinessAnalyzer } from '@/components/home/ExamReadinessAnalyzer';
-import EcosystemAnimation from '@/components/home/EcosystemAnimation';
 
 const Index = () => {
   const featuresRef = useRef<HTMLDivElement>(null);
@@ -67,8 +66,7 @@ const Index = () => {
         
         <StudentBenefitsSection />
         
-        {/* Add Ecosystem Animation section here after the student benefits section */}
-        <EcosystemAnimation />
+        {/* Remove duplicate EcosystemAnimation section since it's now in HeroSection */}
         
         <OnboardingSection />
         
