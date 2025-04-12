@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { 
   Dialog, 
@@ -29,7 +28,7 @@ import {
   Award,
   LineChart
 } from "lucide-react";
-import { Progress } from "@/components/ui/progress";
+import { CustomProgress } from "@/components/ui/custom-progress";
 import { Badge } from "@/components/ui/badge";
 import { StudentData } from "@/types/admin";
 
@@ -44,7 +43,6 @@ const StudentProfileModal: React.FC<StudentProfileModalProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState("overview");
 
-  // Helper function to format date
   const formatDate = (date: Date) => {
     return new Date(date).toLocaleDateString('en-US', {
       month: 'short',
@@ -53,9 +51,7 @@ const StudentProfileModal: React.FC<StudentProfileModalProps> = ({
     });
   };
 
-  // Mock data for student profile - this would come from the backend in a real app
   const studentProfile = {
-    // Personal Data
     personalityType: "Analytical Learner",
     studyStyle: "Visual",
     studyPace: "Balanced",
@@ -64,7 +60,6 @@ const StudentProfileModal: React.FC<StudentProfileModalProps> = ({
     startDate: new Date('2023-07-15'),
     targetExamDate: new Date('2024-05-20'),
     
-    // Academic Data
     subjects: [
       { name: "Physics", strength: 78 },
       { name: "Chemistry", strength: 62 },
@@ -74,14 +69,12 @@ const StudentProfileModal: React.FC<StudentProfileModalProps> = ({
     weakAreas: ["Organic Chemistry", "Thermodynamics", "Cell Biology"],
     strongAreas: ["Mechanics", "Algebra", "Electrostatics"],
     
-    // Engagement Data
     studyStreak: 14,
     totalHoursStudied: 247,
     questionsSolved: 2564,
     quizzesTaken: 48,
     averageScore: 72,
     
-    // Emotional Data
     moodTrend: [
       { date: '2023-09-01', mood: 'Motivated' },
       { date: '2023-09-02', mood: 'Focused' },
@@ -92,7 +85,6 @@ const StudentProfileModal: React.FC<StudentProfileModalProps> = ({
     stressLevel: 'Moderate',
     motivationTriggers: ['Progress tracking', 'Competitive quizzes'],
     
-    // Daily Pattern
     sleepHours: 7.5,
     focusHours: ["8:00 AM - 10:00 AM", "4:00 PM - 6:00 PM"],
     breakPattern: "Pomodoro (25/5)",
@@ -134,7 +126,6 @@ const StudentProfileModal: React.FC<StudentProfileModalProps> = ({
             <TabsTrigger value="schedule">Schedule</TabsTrigger>
           </TabsList>
           
-          {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <Card>
@@ -160,7 +151,7 @@ const StudentProfileModal: React.FC<StudentProfileModalProps> = ({
                           {Math.ceil((studentProfile.targetExamDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))}
                         </span>
                       </div>
-                      <Progress 
+                      <CustomProgress 
                         value={65} 
                         className="h-2 mt-2" 
                         indicatorClassName="bg-gradient-to-r from-pink-500 to-purple-600" 
@@ -254,7 +245,7 @@ const StudentProfileModal: React.FC<StudentProfileModalProps> = ({
                         <span className="text-sm">{subject.name}</span>
                         <span className="text-sm font-medium">{subject.strength}%</span>
                       </div>
-                      <Progress 
+                      <CustomProgress 
                         value={subject.strength} 
                         className="h-2" 
                         indicatorClassName={`${
@@ -269,7 +260,6 @@ const StudentProfileModal: React.FC<StudentProfileModalProps> = ({
             </Card>
           </TabsContent>
           
-          {/* Study Plan Tab */}
           <TabsContent value="study-plan" className="space-y-4">
             <Card>
               <CardHeader>
@@ -391,7 +381,6 @@ const StudentProfileModal: React.FC<StudentProfileModalProps> = ({
             </Card>
           </TabsContent>
           
-          {/* Personality Tab */}
           <TabsContent value="personality" className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Card>
@@ -418,22 +407,22 @@ const StudentProfileModal: React.FC<StudentProfileModalProps> = ({
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
                         <span className="text-sm">Visual</span>
-                        <Progress value={85} className="w-32 h-2" indicatorClassName="bg-blue-500" />
+                        <CustomProgress value={85} className="w-32 h-2" indicatorClassName="bg-blue-500" />
                         <span className="text-xs font-medium">85%</span>
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-sm">Auditory</span>
-                        <Progress value={45} className="w-32 h-2" indicatorClassName="bg-green-500" />
+                        <CustomProgress value={45} className="w-32 h-2" indicatorClassName="bg-green-500" />
                         <span className="text-xs font-medium">45%</span>
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-sm">Reading/Writing</span>
-                        <Progress value={70} className="w-32 h-2" indicatorClassName="bg-purple-500" />
+                        <CustomProgress value={70} className="w-32 h-2" indicatorClassName="bg-purple-500" />
                         <span className="text-xs font-medium">70%</span>
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-sm">Kinesthetic</span>
-                        <Progress value={30} className="w-32 h-2" indicatorClassName="bg-amber-500" />
+                        <CustomProgress value={30} className="w-32 h-2" indicatorClassName="bg-amber-500" />
                         <span className="text-xs font-medium">30%</span>
                       </div>
                     </div>
@@ -529,7 +518,6 @@ const StudentProfileModal: React.FC<StudentProfileModalProps> = ({
             </Card>
           </TabsContent>
           
-          {/* Engagement Tab */}
           <TabsContent value="engagement" className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <Card>
@@ -675,7 +663,6 @@ const StudentProfileModal: React.FC<StudentProfileModalProps> = ({
             </Card>
           </TabsContent>
           
-          {/* Schedule Tab */}
           <TabsContent value="schedule" className="space-y-4">
             <Card>
               <CardHeader>
@@ -709,7 +696,6 @@ const StudentProfileModal: React.FC<StudentProfileModalProps> = ({
                   
                   <div className="grid grid-cols-7 h-64 overflow-y-auto">
                     {Array.from({ length: 7 }).map((_, i) => {
-                      // Today is the 3rd day (Wednesday) in our mock calendar
                       const isToday = i === 3;
                       return (
                         <div 
@@ -728,9 +714,9 @@ const StudentProfileModal: React.FC<StudentProfileModalProps> = ({
                             {12 + i}
                           </div>
                           
-                          {i >= 2 && i <= 4 && ( // Add study sessions to Wed-Fri
-                            <div className="space-y-1">
-                              {i === 3 && ( // Today (Wednesday) has 2 sessions
+                          {i >= 2 && i <= 4 && (
+                            <>
+                              {i === 3 && (
                                 <>
                                   <div className="bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 text-xs p-1 rounded">
                                     <div className="font-medium">Physics</div>
@@ -743,20 +729,20 @@ const StudentProfileModal: React.FC<StudentProfileModalProps> = ({
                                 </>
                               )}
                               
-                              {i === 4 && ( // Thursday has 1 session
+                              {i === 4 && (
                                 <div className="bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 text-xs p-1 rounded">
                                   <div className="font-medium">Mathematics</div>
                                   <div className="text-xs">5:00 - 6:30 PM</div>
                                 </div>
                               )}
                               
-                              {i === 2 && ( // Tuesday has 1 session
+                              {i === 2 && (
                                 <div className="bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 text-xs p-1 rounded">
                                   <div className="font-medium">Biology</div>
                                   <div className="text-xs">4:30 - 6:00 PM</div>
                                 </div>
                               )}
-                            </div>
+                            </>
                           )}
                         </div>
                       );

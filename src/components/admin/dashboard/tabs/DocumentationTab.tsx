@@ -19,7 +19,8 @@ import {
   Search,
   Download,
   ExternalLink,
-  ChevronRight
+  ChevronRight,
+  Brain
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
