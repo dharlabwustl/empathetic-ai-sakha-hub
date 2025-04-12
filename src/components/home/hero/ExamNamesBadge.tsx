@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 const examNames = [
-  "JEE Main", "JEE Advanced", "CLAT", "UGC NET", "CTET", "Defence Exams", "State PSCs"
+  "UPSC", "JEE", "NEET", "GMAT", "CAT", "GATE", "SSC", "Banking", "GRE", "CLAT", "CUET"
 ];
 
 const ExamNamesBadge = () => {
@@ -43,7 +43,7 @@ const ExamNamesBadge = () => {
           <motion.span
             key={index}
             variants={item}
-            className="px-3 py-1 bg-gradient-to-r from-pink-50 to-purple-50 dark:from-pink-900/40 dark:to-purple-900/40 text-pink-800 dark:text-pink-300 text-sm md:text-base font-medium rounded-full shadow-sm border border-pink-200/50 dark:border-pink-700/30"
+            className="px-3 py-1 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/40 dark:to-blue-900/40 text-purple-800 dark:text-purple-300 text-sm md:text-base font-medium rounded-full shadow-sm border border-purple-200/50 dark:border-purple-700/30"
           >
             {exam}
           </motion.span>

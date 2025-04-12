@@ -1,9 +1,12 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { AdminDashboardStats, StudentData } from "@/types/admin";
+import { useToast } from "@/hooks/use-toast";
+import { Eye } from "lucide-react";
+import StudentProfileModal from "./students/StudentProfileModal";
 
 interface UsersTabProps {
   stats: AdminDashboardStats | null;
@@ -12,6 +15,9 @@ interface UsersTabProps {
 
 const UsersTab = ({ stats, recentStudents }: UsersTabProps) => {
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const [selectedStudent, setSelectedStudent] = useState<StudentData | null>(null);
+  const [showProfileModal, setShowProfileModal] = useState(false);
 
   const formatDate = (date: Date) => {
     return new Date(date).toLocaleDateString('en-US', {
@@ -19,6 +25,16 @@ const UsersTab = ({ stats, recentStudents }: UsersTabProps) => {
       day: 'numeric',
       year: 'numeric'
     });
+  };
+
+  const handleViewProfile = (student: StudentData) => {
+    setSelectedStudent(student);
+    setShowProfileModal(true);
+  };
+
+  const closeProfileModal = () => {
+    setShowProfileModal(false);
+    setSelectedStudent(null);
   };
 
   return (
@@ -53,12 +69,19 @@ const UsersTab = ({ stats, recentStudents }: UsersTabProps) => {
                     <td className="py-3 px-4">{student.examType}</td>
                     <td className="py-3 px-4">{formatDate(student.registrationDate)}</td>
                     <td className="py-3 px-4">
-                      <span className="inline-block px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">
+                      <span className="inline-block px-2 py-1 bg-purple-100 text-purple-800 rounded-full text-xs">
                         {["Visual", "Auditory", "Reading", "Kinesthetic"][Math.floor(Math.random() * 4)]}
                       </span>
                     </td>
                     <td className="py-3 px-4">
-                      <Button variant="outline" size="sm">View Profile</Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        className="flex items-center gap-1"
+                        onClick={() => handleViewProfile(student)}
+                      >
+                        <Eye size={14} /> View
+                      </Button>
                     </td>
                   </tr>
                 ))}
@@ -170,6 +193,15 @@ const UsersTab = ({ stats, recentStudents }: UsersTabProps) => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Student Profile Modal */}
+      {showProfileModal && selectedStudent && (
+        <StudentProfileModal 
+          student={selectedStudent}
+          isOpen={showProfileModal}
+          onClose={closeProfileModal}
+        />
+      )}
     </div>
   );
 };

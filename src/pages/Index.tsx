@@ -12,7 +12,6 @@ import OnboardingSection from '@/components/home/OnboardingSection';
 import CallToAction from '@/components/home/CallToAction';
 import FounderSection from '@/components/home/FounderSection';
 import VideoSection from '@/components/home/VideoSection';
-import EcosystemAnimation from '@/components/home/EcosystemAnimation';
 import { ExamReadinessAnalyzer } from '@/components/home/ExamReadinessAnalyzer';
 
 const Index = () => {
@@ -50,8 +49,6 @@ const Index = () => {
           scrollToForWhom={scrollToForWhom}
           openExamAnalyzer={handleOpenExamAnalyzer}
         />
-        
-        <EcosystemAnimation />
         
         <WhatIsSection />
         

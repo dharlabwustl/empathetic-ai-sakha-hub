@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
+import { CustomProgress } from "@/components/ui/custom-progress";
 
 const ContentUploader = ({ 
   handleFileSelect, 
@@ -21,7 +22,7 @@ const ContentUploader = ({
   const { toast } = useToast();
   const [tags, setTags] = useState<string[]>([]);
   const [currentTag, setCurrentTag] = useState("");
-  const [contentType, setContentType] = useState("study_material");
+  const [contentType, setContentType] = useState("");
   const [subject, setSubject] = useState("");
   const [examType, setExamType] = useState("");
 
@@ -57,7 +58,7 @@ const ContentUploader = ({
 
     toast({
       title: "Upload Started",
-      description: "Connecting to Flask backend for content upload...",
+      description: "Processing your content upload...",
       variant: "default"
     });
 
@@ -157,6 +158,10 @@ const ContentUploader = ({
                     <SelectItem value="computer_science">Computer Science</SelectItem>
                     <SelectItem value="general_knowledge">General Knowledge</SelectItem>
                     <SelectItem value="social_sciences">Social Sciences</SelectItem>
+                    <SelectItem value="history">History</SelectItem>
+                    <SelectItem value="geography">Geography</SelectItem>
+                    <SelectItem value="polity">Polity</SelectItem>
+                    <SelectItem value="economics">Economics</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -167,15 +172,21 @@ const ContentUploader = ({
                     <SelectValue placeholder="Select exam type" />
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="upsc">UPSC</SelectItem>
                     <SelectItem value="jee">JEE Main</SelectItem>
                     <SelectItem value="jee_advanced">JEE Advanced</SelectItem>
                     <SelectItem value="neet">NEET</SelectItem>
                     <SelectItem value="cat">CAT</SelectItem>
+                    <SelectItem value="gmat">GMAT</SelectItem>
                     <SelectItem value="gate">GATE</SelectItem>
                     <SelectItem value="clat">CLAT</SelectItem>
+                    <SelectItem value="cuet">CUET</SelectItem>
+                    <SelectItem value="gre">GRE</SelectItem>
                     <SelectItem value="ugc_net">UGC NET</SelectItem>
-                    <SelectItem value="bank_exams">Bank Exams</SelectItem>
+                    <SelectItem value="bank_exams">Banking</SelectItem>
                     <SelectItem value="ssc">SSC</SelectItem>
+                    <SelectItem value="state_psc">State PSCs</SelectItem>
+                    <SelectItem value="defense">Defense Exams</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -212,11 +223,12 @@ const ContentUploader = ({
         )}
         
         {uploading && (
-          <div className="w-full bg-gray-200 rounded-full h-2.5 mb-4">
-            <div 
-              className="bg-gradient-to-r from-pink-500 to-purple-600 h-2.5 rounded-full" 
-              style={{ width: `${uploadProgress}%` }}
-            ></div>
+          <div className="w-full mb-4">
+            <CustomProgress 
+              value={uploadProgress} 
+              className="h-2.5" 
+              indicatorClassName="bg-gradient-to-r from-purple-500 to-blue-600"
+            />
             <p className="text-center text-sm mt-1 text-gray-600">Uploading... {uploadProgress}%</p>
           </div>
         )}
@@ -224,7 +236,7 @@ const ContentUploader = ({
         <div className="flex flex-col sm:flex-row gap-2">
           <Button 
             onClick={simulateHandleUpload} 
-            className="w-full bg-gradient-to-r from-pink-500 to-purple-600 text-white hover:from-pink-600 hover:to-purple-700" 
+            className="w-full bg-gradient-to-r from-purple-500 to-blue-600 text-white hover:from-purple-600 hover:to-blue-700" 
             disabled={!selectedFile || uploading}
           >
             {uploading ? (

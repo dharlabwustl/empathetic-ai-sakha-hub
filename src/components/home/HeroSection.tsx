@@ -1,6 +1,5 @@
 
 import React from 'react';
-import ExamBadges from './hero/ExamBadges';
 import PainPoints from './hero/PainPoints';
 import ChatInterface from './hero/ChatInterface';
 import ScrollIndicator from './hero/ScrollIndicator';
@@ -23,8 +22,8 @@ const HeroSection: React.FC<HeroSectionProps> = ({
   return (
     <section className="pt-24 md:pt-32 pb-16 md:pb-24 relative overflow-hidden">
       {/* Hero background decorative elements */}
-      <div className="absolute -top-24 -right-24 w-96 h-96 bg-gradient-to-br from-pink-200/30 to-purple-300/20 rounded-full blur-3xl"></div>
-      <div className="absolute top-1/3 -left-48 w-96 h-96 bg-gradient-to-tr from-purple-200/30 to-pink-300/20 rounded-full blur-3xl"></div>
+      <div className="absolute -top-24 -right-24 w-96 h-96 bg-gradient-to-br from-purple-200/30 to-blue-300/20 rounded-full blur-3xl"></div>
+      <div className="absolute top-1/3 -left-48 w-96 h-96 bg-gradient-to-tr from-blue-200/30 to-purple-300/20 rounded-full blur-3xl"></div>
       
       <div className="container mx-auto px-4 relative">
         <div className="max-w-4xl mx-auto text-center mb-8 md:mb-12">
@@ -34,7 +33,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
           >
-            <span className="bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
               India's 1st personalized AI study partner
             </span>{" "}
             <span className="relative">
@@ -60,8 +59,8 @@ const HeroSection: React.FC<HeroSectionProps> = ({
                     y2="9" 
                     gradientUnits="userSpaceOnUse"
                   >
-                    <stop stopColor="#EC4899" />
-                    <stop offset="1" stopColor="#8B5CF6" />
+                    <stop stopColor="#7C3AED" />
+                    <stop offset="1" stopColor="#3B82F6" />
                   </linearGradient>
                 </defs>
               </svg>
@@ -98,14 +97,6 @@ const HeroSection: React.FC<HeroSectionProps> = ({
           <ExamNamesBadge />
         </motion.div>
         
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.8 }}
-        >
-          <ExamBadges />
-        </motion.div>
-        
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center mt-12">
           <motion.div
             initial={{ opacity: 0, x: -30 }}
@@ -120,7 +111,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
             initial={{ opacity: 0, x: 30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.8 }}
-            className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm shadow-xl rounded-2xl border border-pink-100 dark:border-pink-800 overflow-hidden"
+            className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm shadow-xl rounded-2xl border border-purple-100 dark:border-purple-800 overflow-hidden"
           >
             <ChatInterface />
           </motion.div>
