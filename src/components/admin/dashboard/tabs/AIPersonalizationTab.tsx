@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -131,7 +130,7 @@ const AIPersonalizationTab = () => {
       toast({
         title: "AI Model Test Complete",
         description: `${modelName} model is connected and functioning correctly.`,
-        variant: "success"
+        variant: "default"
       });
     }, 2000);
   };
@@ -140,7 +139,7 @@ const AIPersonalizationTab = () => {
     toast({
       title: "Settings Saved",
       description: `${section} settings have been updated successfully.`,
-      variant: "success"
+      variant: "default"
     });
   };
 

@@ -95,7 +95,7 @@ const AdminDashboard = () => {
       toast({
         title: "Optimization Complete",
         description: "System has been successfully optimized.",
-        variant: "success"
+        variant: "default" // Changed from "success" to "default"
       });
     }, 3000);
   };

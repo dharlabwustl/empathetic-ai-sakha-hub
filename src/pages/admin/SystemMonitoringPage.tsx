@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import AdminLayout from "@/components/admin/AdminLayout";
@@ -17,7 +16,6 @@ import {
   XCircle, 
   Clock, 
   Cpu,
-  Memory,
   HardDrive,
   Network,
   Download,
@@ -44,7 +42,7 @@ const SystemMonitoringPage = () => {
       toast({
         title: "Data Updated",
         description: "System monitoring data is now up to date.",
-        variant: "success"
+        variant: "default"
       });
     }, 2000);
   };
@@ -159,7 +157,6 @@ const SystemMonitoringPage = () => {
               </CardHeader>
               <CardContent>
                 <div className="h-80 bg-gray-100 dark:bg-gray-800 rounded-md flex items-center justify-center">
-                  {/* This would be a chart in the actual implementation */}
                   <BarChart2 size={48} className="text-gray-400" />
                 </div>
               </CardContent>
@@ -282,7 +279,6 @@ const SystemMonitoringPage = () => {
               </CardHeader>
               <CardContent>
                 <div className="h-80 bg-gray-100 dark:bg-gray-800 rounded-md flex items-center justify-center mb-6">
-                  {/* This would be a chart in the actual implementation */}
                   <Activity size={48} className="text-gray-400" />
                 </div>
                 
