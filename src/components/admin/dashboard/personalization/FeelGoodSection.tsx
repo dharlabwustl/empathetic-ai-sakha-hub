@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { 
-  Laugh, MessageSquare, PuzzlePiece, Flag, Filter, 
+  Laugh, MessageSquare, Puzzle, Flag, Filter, 
   ThumbsUp, ThumbsDown, BarChart2
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -125,7 +125,7 @@ const FeelGoodSection = () => {
                     <Button size="sm" variant="outline" className="h-7 text-xs">Configure</Button>
                   </div>
                   <div className="flex items-center gap-2 p-2 bg-white dark:bg-gray-800 rounded-md">
-                    <PuzzlePiece size={18} className="text-blue-500" />
+                    <Puzzle size={18} className="text-blue-500" />
                     <div className="flex-1">
                       <p className="font-medium text-sm">Puzzles</p>
                       <p className="text-xs text-gray-600">Mental refreshers</p>
