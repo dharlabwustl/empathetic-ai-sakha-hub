@@ -41,7 +41,7 @@ export const SidebarAvatar = ({ userName, userType, collapsed }: SidebarAvatarPr
     <div className="px-4 mb-6 text-center">
       <div className="flex items-center justify-center mb-2">
         <div className="relative w-12 h-12">
-          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-sky-400/20 to-violet-500/20 flex items-center justify-center text-sky-500 animate-glow">
+          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-400/20 to-violet-500/20 flex items-center justify-center text-purple-500 animate-glow">
             {/* Avatar with animated eyes */}
             <div className="avatar-eyes relative w-10 h-10 overflow-hidden">
               <SakhaLogo width={40} height={40} />

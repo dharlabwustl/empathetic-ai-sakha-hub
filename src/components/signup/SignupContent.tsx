@@ -83,10 +83,10 @@ const SignUpContent = () => {
         className="w-full max-w-3xl"
       >
         <Card className="w-full shadow-xl border-gray-200 overflow-hidden bg-white dark:bg-gray-900">
-          <CardHeader className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white">
+          <CardHeader className="bg-gradient-to-r from-purple-600 to-violet-700 text-white">
             <CardTitle className="text-2xl flex items-center">
               <motion.img 
-                src="/lovable-uploads/ffd1ed0a-7a25-477e-bc91-1da9aca3497f.png" 
+                src="/lovable-uploads/6bd65589-a748-4b63-a28b-12521c233a7e.png" 
                 alt="Sakha AI Logo" 
                 className="w-10 h-10 mr-3" 
                 variants={logoVariants}
@@ -95,7 +95,7 @@ const SignUpContent = () => {
               />
               Sakha AI Onboarding
             </CardTitle>
-            <CardDescription className="text-blue-100">
+            <CardDescription className="text-purple-100">
               Let's personalize your learning experience
             </CardDescription>
           </CardHeader>
@@ -119,7 +119,7 @@ const SignUpContent = () => {
                   ))}
                 </div>
               </div>
-              <div className="p-6 bg-white dark:bg-gray-900">
+              <div className="p-6 bg-white dark:bg-gray-900 border-l border-purple-100 dark:border-purple-900/20">
                 <StepRenderer 
                   step={step}
                   onboardingData={onboardingData}

@@ -10,16 +10,16 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 268 73% 60%;
+    --primary: 266 73% 60%;
     --primary-foreground: 210 40% 98%;
 
-    --secondary: 224 76% 60%;
+    --secondary: 262 76% 60%;
     --secondary-foreground: 222.2 47.4% 11.2%;
 
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
 
-    --accent: 268 73% 96%;
+    --accent: 266 73% 96%;
     --accent-foreground: 222.2 47.4% 11.2%;
 
     --destructive: 0 84.2% 60.2%;
@@ -27,26 +27,26 @@
 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 268 73% 60%;
+    --ring: 266 73% 60%;
 
     --radius: 0.75rem;
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary: 266 73% 60%;
     --sidebar-primary-foreground: 0 0% 98%;
     --sidebar-accent: 240 4.8% 95.9%;
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-ring: 266 73% 60%;
     
-    /* Updated Sakha colors for a more vibrant purple/blue theme */
-    --sakha-light-blue: 220 100% 75%;
-    --sakha-blue: 224 76% 60%;
-    --sakha-purple: 268 73% 60%;
-    --sakha-pink: 290 73% 69%;
-    --sakha-lavender: 268 60% 94%;
-    --sakha-deep-blue: 240 70% 30%;
+    /* Updated Sakha colors for a more vibrant purple theme */
+    --sakha-light-blue: 266 100% 85%;
+    --sakha-blue: 262 76% 60%;
+    --sakha-purple: 266 73% 60%;
+    --sakha-pink: 284 73% 69%;
+    --sakha-lavender: 266 60% 94%;
+    --sakha-deep-blue: 264 70% 40%;
   }
 
   .dark {
@@ -59,16 +59,16 @@
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 268 73% 60%;
+    --primary: 266 73% 60%;
     --primary-foreground: 222.2 47.4% 11.2%;
 
-    --secondary: 224 76% 60%;
+    --secondary: 262 76% 60%;
     --secondary-foreground: 210 40% 98%;
 
     --muted: 217.2 32.6% 17.5%;
     --muted-foreground: 215 20.2% 65.1%;
 
-    --accent: 268 30% 25%;
+    --accent: 266 30% 25%;
     --accent-foreground: 210 40% 98%;
 
     --destructive: 0 62.8% 30.6%;
@@ -76,24 +76,24 @@
 
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: 268 73% 60%;
+    --ring: 266 73% 60%;
 
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary: 266 73% 60%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 240 3.7% 15.9%;
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-ring: 266 73% 60%;
     
     /* Updated Sakha colors for dark mode */
-    --sakha-light-blue: 220 80% 75%;
-    --sakha-blue: 224 76% 60%;
-    --sakha-purple: 268 73% 60%;
-    --sakha-pink: 290 73% 69%;
-    --sakha-lavender: 268 60% 94%;
-    --sakha-deep-blue: 240 70% 30%;
+    --sakha-light-blue: 266 80% 75%;
+    --sakha-blue: 262 76% 60%;
+    --sakha-purple: 266 73% 60%;
+    --sakha-pink: 284 73% 69%;
+    --sakha-lavender: 266 60% 94%;
+    --sakha-deep-blue: 264 70% 40%;
   }
 }
 
@@ -102,7 +102,7 @@
 }
 
 .gradient-text {
-  @apply bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600;
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-violet-600;
 }
 
 /* Avatar glow effect */
@@ -112,7 +112,7 @@
 
 .avatar-glow::before {
   content: '';
-  @apply absolute -inset-0.5 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 opacity-75 blur-sm animate-pulse;
+  @apply absolute -inset-0.5 rounded-full bg-gradient-to-r from-purple-500 to-violet-500 opacity-75 blur-sm animate-pulse;
   z-index: -1;
 }
 
@@ -132,10 +132,10 @@
 
 @keyframes glow {
   0%, 100% {
-    box-shadow: 0 0 5px 2px rgba(125, 88, 216, 0.4);
+    box-shadow: 0 0 5px 2px rgba(139, 92, 246, 0.4);
   }
   50% {
-    box-shadow: 0 0 15px 5px rgba(125, 88, 216, 0.7);
+    box-shadow: 0 0 15px 5px rgba(139, 92, 246, 0.7);
   }
 }
 
@@ -154,7 +154,7 @@
 }
 
 .feature-highlight {
-  @apply relative overflow-hidden rounded-xl bg-gradient-to-br from-purple-600 to-blue-600 p-6 text-white;
+  @apply relative overflow-hidden rounded-xl bg-gradient-to-br from-purple-600 to-violet-600 p-6 text-white;
 }
 
 .feature-highlight::before {

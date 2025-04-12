@@ -15,7 +15,7 @@ const Header = () => {
     if (!isMobile && isMenuOpen) {
       setIsMenuOpen(false);
     }
-  }, [isMobile]);
+  }, [isMobile, isMenuOpen]);
 
   const menuItems = [
     { title: "What is Sakha 1.0?", link: "/about" },
@@ -39,16 +39,16 @@ const Header = () => {
             <Link 
               key={item.link} 
               to={item.link} 
-              className="text-gray-600 dark:text-gray-300 hover:text-violet-600 dark:hover:text-violet-400 transition-colors"
+              className="text-gray-600 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
             >
               {item.title}
             </Link>
           ))}
           <div className="flex items-center gap-4">
-            <Button variant="outline" className="border-violet-500 text-violet-600 hover:bg-violet-50 dark:border-violet-400 dark:text-violet-400 dark:hover:bg-violet-900/20" asChild>
+            <Button variant="outline" className="border-purple-500 text-purple-600 hover:bg-purple-50 dark:border-purple-400 dark:text-purple-400 dark:hover:bg-purple-900/20" asChild>
               <Link to="/login">Login</Link>
             </Button>
-            <Button className="bg-gradient-to-r from-violet-500 to-purple-600 text-white hover:from-violet-600 hover:to-purple-700" asChild>
+            <Button className="bg-gradient-to-r from-purple-500 to-violet-600 text-white hover:from-purple-600 hover:to-violet-700" asChild>
               <Link to="/signup">
                 <BookOpen className="mr-2 h-4 w-4" /> 
                 Start Learning
@@ -75,7 +75,7 @@ const Header = () => {
               <Link 
                 key={item.link}
                 to={item.link} 
-                className="py-3 px-4 text-gray-600 dark:text-gray-300 hover:text-violet-600 dark:hover:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-900/20 rounded-md transition-colors text-lg font-medium flex items-center justify-between"
+                className="py-3 px-4 text-gray-600 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20 rounded-md transition-colors text-lg font-medium flex items-center justify-between"
                 onClick={() => setIsMenuOpen(false)}
               >
                 <span>{item.title}</span>
@@ -83,10 +83,10 @@ const Header = () => {
               </Link>
             ))}
             <div className="flex flex-col gap-3 pt-4 mt-2 border-t border-gray-100 dark:border-gray-800">
-              <Button variant="outline" className="w-full border-violet-500 text-violet-600 dark:border-violet-400 dark:text-violet-400 h-12 text-lg" asChild>
+              <Button variant="outline" className="w-full border-purple-500 text-purple-600 dark:border-purple-400 dark:text-purple-400 h-12 text-lg" asChild>
                 <Link to="/login" onClick={() => setIsMenuOpen(false)}>Login</Link>
               </Button>
-              <Button className="w-full bg-gradient-to-r from-violet-500 to-purple-600 text-white h-12 text-lg" asChild>
+              <Button className="w-full bg-gradient-to-r from-purple-500 to-violet-600 text-white h-12 text-lg" asChild>
                 <Link to="/signup" onClick={() => setIsMenuOpen(false)}>
                   <BookOpen className="mr-2 h-5 w-5" />
                   Start Learning

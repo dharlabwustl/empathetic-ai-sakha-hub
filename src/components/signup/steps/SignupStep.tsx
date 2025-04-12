@@ -68,6 +68,7 @@ const SignupStep: React.FC<SignupStepProps> = ({ onSubmit, isLoading }) => {
           value={formValues.name} 
           onChange={handleFormChange} 
           required 
+          className="border-purple-200 focus:border-purple-500 focus:ring-purple-500"
         />
       </div>
       <div>
@@ -79,6 +80,7 @@ const SignupStep: React.FC<SignupStepProps> = ({ onSubmit, isLoading }) => {
           onChange={handleFormChange} 
           required 
           type="tel"
+          className="border-purple-200 focus:border-purple-500 focus:ring-purple-500"
         />
       </div>
       {formValues.mobile && (
@@ -87,6 +89,7 @@ const SignupStep: React.FC<SignupStepProps> = ({ onSubmit, isLoading }) => {
           className="w-full" 
           variant="outline"
           onClick={handleRequestOtp}
+          className="w-full border-purple-500 text-purple-600 hover:bg-purple-50"
         >
           Get OTP
         </Button>
@@ -100,12 +103,13 @@ const SignupStep: React.FC<SignupStepProps> = ({ onSubmit, isLoading }) => {
             value={formValues.otp} 
             onChange={handleFormChange} 
             required 
+            className="border-purple-200 focus:border-purple-500 focus:ring-purple-500"
           />
         </div>
       )}
       <Button 
         type="submit" 
-        className="w-full bg-gradient-to-r from-blue-600 to-indigo-700"
+        className="w-full bg-gradient-to-r from-purple-600 to-violet-700"
         disabled={isLoading || !formValues.name || !formValues.mobile || !formValues.otp}
       >
         {isLoading ? "Creating Account..." : "Create Account"}
@@ -113,7 +117,7 @@ const SignupStep: React.FC<SignupStepProps> = ({ onSubmit, isLoading }) => {
       <div className="text-center">
         <p className="text-sm text-gray-600">
           Already have an account?{" "}
-          <Link to="/login" className="text-indigo-600 hover:underline">Login</Link>
+          <Link to="/login" className="text-purple-600 hover:underline">Login</Link>
         </p>
       </div>
     </form>

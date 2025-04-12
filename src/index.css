@@ -21,11 +21,11 @@
   }
   
   .gradient-text {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-sky-500 to-violet-500;
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-violet-600;
   }
   
   .avatar-pulse {
-    @apply absolute w-full h-full rounded-full animate-pulse bg-sky-300/50;
+    @apply absolute w-full h-full rounded-full animate-pulse bg-purple-300/50;
   }
   
   .chat-container {
@@ -37,7 +37,7 @@
   }
   
   .user-message {
-    @apply chat-message bg-sky-500 text-white ml-auto;
+    @apply chat-message bg-purple-600 text-white ml-auto;
   }
   
   .bot-message {
@@ -45,12 +45,12 @@
   }
   
   .floating-avatar {
-    @apply fixed bottom-6 right-6 w-16 h-16 flex items-center justify-center rounded-full bg-gradient-to-r from-sky-400 to-violet-500 shadow-lg cursor-pointer z-50 animate-float;
+    @apply fixed bottom-6 right-6 w-16 h-16 flex items-center justify-center rounded-full bg-gradient-to-r from-purple-500 to-violet-600 shadow-lg cursor-pointer z-50 animate-float;
   }
 
   /* New UI components */
   .input-field {
-    @apply bg-white/90 dark:bg-slate-800/90 border border-gray-200 dark:border-gray-700 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-all;
+    @apply bg-white/90 dark:bg-slate-800/90 border border-gray-200 dark:border-gray-700 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all;
   }
   
   .card-hover {
@@ -58,7 +58,7 @@
   }
   
   .btn-primary {
-    @apply bg-gradient-to-r from-sky-500 to-violet-500 text-white font-medium px-6 py-2 rounded-lg hover:shadow-lg hover:opacity-90 transition-all;
+    @apply bg-gradient-to-r from-purple-600 to-violet-600 text-white font-medium px-6 py-2 rounded-lg hover:shadow-lg hover:opacity-90 transition-all;
   }
 
   /* Avatar with eye movement */
@@ -83,7 +83,7 @@
   }
   
   .tab-scrollbar::-webkit-scrollbar-thumb {
-    @apply bg-violet-300 rounded-full;
+    @apply bg-purple-300 rounded-full;
   }
   
   .tab-scrollbar::-webkit-scrollbar-track {

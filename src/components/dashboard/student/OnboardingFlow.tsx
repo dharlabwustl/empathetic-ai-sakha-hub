@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardFooter } from "@/components/ui/card";
-import { AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { format, addMonths } from "date-fns";
 import { UserProfileType } from "@/types/user";
 
@@ -138,18 +138,41 @@ export default function OnboardingFlow({ userProfile, goalTitle, onComplete }: O
     return <SuccessScreen />;
   }
 
+  // Animation variants
+  const pageVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: {
+        duration: 0.5,
+        ease: "easeOut"
+      }
+    },
+    exit: {
+      opacity: 0,
+      y: -20,
+      transition: {
+        duration: 0.3
+      }
+    }
+  };
+
   // Main onboarding flow
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-sky-100/10 via-white to-violet-100/10 dark:from-sky-900/10 dark:via-gray-900 dark:to-violet-900/10 p-4">
-      <div
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-100/10 via-white to-violet-100/10 dark:from-purple-900/10 dark:via-gray-900 dark:to-violet-900/10 p-4">
+      <motion.div
         className="max-w-4xl w-full"
+        initial="hidden"
+        animate="visible"
+        variants={pageVariants}
       >
         <Card className="shadow-xl overflow-hidden border-0">
-          <CardHeader className="bg-gradient-to-br from-sky-600 to-indigo-700 text-white p-6">
+          <CardHeader className="bg-gradient-to-br from-purple-600 to-violet-700 text-white p-6">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between">
               <div>
                 <h2 className="text-2xl font-bold">Let's create your personalized study plan</h2>
-                <p className="text-sky-100">For {goalTitle}</p>
+                <p className="text-purple-100">For {goalTitle}</p>
               </div>
               <OnboardingProgress currentStep={currentStep} loading={loading} />
             </div>
@@ -201,7 +224,7 @@ export default function OnboardingFlow({ userProfile, goalTitle, onComplete }: O
             />
           </CardFooter>
         </Card>
-      </div>
+      </motion.div>
     </div>
   );
 }

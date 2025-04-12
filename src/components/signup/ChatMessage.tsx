@@ -27,9 +27,9 @@ const ChatMessage = ({ content, isBot = false, type }: ChatMessageProps) => {
           transition={{ duration: 0.2 }}
           className="flex-shrink-0 mr-3"
         >
-          <Avatar className="h-9 w-9 border-2 border-blue-100 shadow-md">
-            <AvatarImage src="/lovable-uploads/2a3b330c-09e1-40bd-b9bd-85ecb5cc394a.png" alt="Sakha AI" />
-            <AvatarFallback className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-sm">S</AvatarFallback>
+          <Avatar className="h-9 w-9 border-2 border-purple-100 shadow-md">
+            <AvatarImage src="/lovable-uploads/6bd65589-a748-4b63-a28b-12521c233a7e.png" alt="Sakha AI" />
+            <AvatarFallback className="bg-gradient-to-r from-purple-500 to-violet-600 text-white text-sm">S</AvatarFallback>
           </Avatar>
         </motion.div>
       )}
@@ -37,8 +37,8 @@ const ChatMessage = ({ content, isBot = false, type }: ChatMessageProps) => {
       <motion.div 
         className={`max-w-[80%] p-4 rounded-2xl shadow-sm ${
           isBotMessage 
-            ? "bg-white border border-blue-100 rounded-tl-none" 
-            : "bg-gradient-to-r from-blue-600 to-indigo-700 text-white rounded-tr-none"
+            ? "bg-white border border-purple-100 rounded-tl-none" 
+            : "bg-gradient-to-r from-purple-600 to-violet-700 text-white rounded-tr-none"
         }`}
         initial={{ x: isBotMessage ? -20 : 20, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
@@ -56,7 +56,7 @@ const ChatMessage = ({ content, isBot = false, type }: ChatMessageProps) => {
           transition={{ duration: 0.2 }}
           className="flex-shrink-0 ml-3"
         >
-          <div className="h-9 w-9 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center text-white text-sm shadow-md border-2 border-indigo-100">
+          <div className="h-9 w-9 rounded-full bg-gradient-to-r from-purple-500 to-violet-600 flex items-center justify-center text-white text-sm shadow-md border-2 border-purple-100">
             <span className="font-medium">You</span>
           </div>
         </motion.div>

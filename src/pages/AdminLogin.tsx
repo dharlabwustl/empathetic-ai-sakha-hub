@@ -74,12 +74,12 @@ const AdminLogin = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-sky-100/30 via-white to-violet-100/30 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-purple-100/30 via-white to-violet-100/30 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex items-center gap-2">
             <img 
-              src="/lovable-uploads/ffd1ed0a-7a25-477e-bc91-1da9aca3497f.png" 
+              src="/lovable-uploads/6bd65589-a748-4b63-a28b-12521c233a7e.png" 
               alt="Sakha AI Logo" 
               className="w-16 h-16 object-contain"
             />
@@ -89,9 +89,9 @@ const AdminLogin = () => {
         </div>
         
         <Card className="shadow-xl border-gray-200 overflow-hidden animate-fade-in">
-          <CardHeader className="bg-gradient-to-r from-purple-500 to-indigo-600 text-white">
+          <CardHeader className="bg-gradient-to-r from-purple-600 to-violet-700 text-white">
             <CardTitle className="text-2xl font-semibold">Admin Sign In</CardTitle>
-            <CardDescription className="text-white/80">
+            <CardDescription className="text-purple-100">
               Enter your admin credentials to access the dashboard
             </CardDescription>
           </CardHeader>
@@ -112,7 +112,7 @@ const AdminLogin = () => {
                       onChange={handleInputChange}
                       placeholder="Enter your admin email"
                       type="email"
-                      className="pl-9 border-gray-300 focus:ring-indigo-500 focus:border-indigo-500"
+                      className="pl-9 border-purple-200 focus:ring-purple-500 focus:border-purple-500"
                     />
                   </div>
                 </div>
@@ -130,7 +130,7 @@ const AdminLogin = () => {
                       onChange={handleInputChange}
                       placeholder="Enter your password"
                       type={showPassword ? "text" : "password"}
-                      className="pl-9 border-gray-300 focus:ring-indigo-500 focus:border-indigo-500 pr-10"
+                      className="pl-9 border-purple-200 focus:ring-purple-500 focus:border-purple-500 pr-10"
                     />
                     <Button 
                       variant="ghost"
@@ -145,7 +145,7 @@ const AdminLogin = () => {
                 </div>
                 
                 <Button 
-                  className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-md"
+                  className="w-full bg-gradient-to-r from-purple-600 to-violet-700 hover:from-purple-700 hover:to-violet-800 text-white shadow-md"
                   type="submit"
                   disabled={isLoading}
                 >
@@ -168,7 +168,7 @@ const AdminLogin = () => {
           <CardFooter className="flex justify-center pb-6 border-t pt-6">
             <p className="text-sm text-gray-600">
               Not an admin?{" "}
-              <Link to="/login" className="text-indigo-600 hover:text-indigo-700 font-medium hover:underline">
+              <Link to="/login" className="text-purple-600 hover:text-purple-700 font-medium hover:underline">
                 Go to Student Login
               </Link>
             </p>
@@ -176,7 +176,7 @@ const AdminLogin = () => {
         </Card>
         
         <div className="mt-6 text-center text-sm text-gray-500">
-          <p>Need help? <a href="#" className="text-indigo-600 hover:underline">Contact Support</a></p>
+          <p>Need help? <a href="#" className="text-purple-600 hover:underline">Contact Support</a></p>
         </div>
       </div>
     </div>
