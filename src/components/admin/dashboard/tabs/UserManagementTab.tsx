@@ -43,7 +43,7 @@ const UserManagementTab = ({ recentStudents }: UserManagementTabProps) => {
   };
 
   return (
-    <Card className="p-6">
+    <Card className="p-6 bg-white dark:bg-slate-900">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
         <h2 className="text-2xl font-bold">Students Directory</h2>
         <div className="flex items-center gap-2">
@@ -51,7 +51,7 @@ const UserManagementTab = ({ recentStudents }: UserManagementTabProps) => {
             <Download size={16} />
             <span>Export</span>
           </Button>
-          <Button className="flex items-center gap-2">
+          <Button className="flex items-center gap-2 bg-gradient-to-r from-pink-500 to-purple-600 text-white hover:from-pink-600 hover:to-purple-700">
             <Plus size={16} />
             <span>Add User</span>
           </Button>
@@ -66,7 +66,7 @@ const UserManagementTab = ({ recentStudents }: UserManagementTabProps) => {
               variant={filterStatus === "all" ? "default" : "ghost"} 
               size="sm"
               onClick={() => setFilterStatus("all")}
-              className={filterStatus === "all" ? "" : "hover:bg-gray-200 dark:hover:bg-gray-700"}
+              className={filterStatus === "all" ? "bg-gradient-to-r from-pink-500 to-purple-600 text-white" : "hover:bg-gray-200 dark:hover:bg-gray-700"}
             >
               All
             </Button>
@@ -74,7 +74,7 @@ const UserManagementTab = ({ recentStudents }: UserManagementTabProps) => {
               variant={filterStatus === "active" ? "default" : "ghost"} 
               size="sm"
               onClick={() => setFilterStatus("active")}
-              className={filterStatus === "active" ? "" : "hover:bg-gray-200 dark:hover:bg-gray-700"}
+              className={filterStatus === "active" ? "bg-gradient-to-r from-pink-500 to-purple-600 text-white" : "hover:bg-gray-200 dark:hover:bg-gray-700"}
             >
               Active
             </Button>
@@ -82,7 +82,7 @@ const UserManagementTab = ({ recentStudents }: UserManagementTabProps) => {
               variant={filterStatus === "new" ? "default" : "ghost"} 
               size="sm"
               onClick={() => setFilterStatus("new")}
-              className={filterStatus === "new" ? "" : "hover:bg-gray-200 dark:hover:bg-gray-700"}
+              className={filterStatus === "new" ? "bg-gradient-to-r from-pink-500 to-purple-600 text-white" : "hover:bg-gray-200 dark:hover:bg-gray-700"}
             >
               New
             </Button>
@@ -90,7 +90,7 @@ const UserManagementTab = ({ recentStudents }: UserManagementTabProps) => {
               variant={filterStatus === "inactive" ? "default" : "ghost"} 
               size="sm"
               onClick={() => setFilterStatus("inactive")}
-              className={filterStatus === "inactive" ? "" : "hover:bg-gray-200 dark:hover:bg-gray-700"}
+              className={filterStatus === "inactive" ? "bg-gradient-to-r from-pink-500 to-purple-600 text-white" : "hover:bg-gray-200 dark:hover:bg-gray-700"}
             >
               Inactive
             </Button>
@@ -102,23 +102,23 @@ const UserManagementTab = ({ recentStudents }: UserManagementTabProps) => {
         </div>
       </div>
       
-      <div className="rounded-md border overflow-hidden">
+      <div className="rounded-md border overflow-hidden bg-white dark:bg-slate-900">
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Phone</TableHead>
-                <TableHead>Registration Date</TableHead>
-                <TableHead>Exam Goal</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Actions</TableHead>
+              <TableRow className="bg-gray-50 dark:bg-slate-800">
+                <TableHead className="font-semibold">Name</TableHead>
+                <TableHead className="font-semibold">Email</TableHead>
+                <TableHead className="font-semibold">Phone</TableHead>
+                <TableHead className="font-semibold">Registration Date</TableHead>
+                <TableHead className="font-semibold">Exam Goal</TableHead>
+                <TableHead className="font-semibold">Status</TableHead>
+                <TableHead className="font-semibold">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {recentStudents.map((student) => (
-                <TableRow key={student.id}>
+                <TableRow key={student.id} className="border-b hover:bg-gray-50 dark:hover:bg-slate-800/50">
                   <TableCell className="font-medium">{student.name}</TableCell>
                   <TableCell>{student.email}</TableCell>
                   <TableCell>{student.phoneNumber}</TableCell>
@@ -127,7 +127,7 @@ const UserManagementTab = ({ recentStudents }: UserManagementTabProps) => {
                   <TableCell>
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
                       ${student.lastActive > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) 
-                        ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' 
+                        ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400' 
                         : 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400'}`
                     }>
                       {student.lastActive > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) ? 'Active' : 'Inactive'}
@@ -137,7 +137,7 @@ const UserManagementTab = ({ recentStudents }: UserManagementTabProps) => {
                     <Button 
                       variant="ghost" 
                       size="sm" 
-                      className="flex items-center gap-1"
+                      className="flex items-center gap-1 text-purple-600 hover:text-purple-700 hover:bg-purple-50"
                       onClick={() => viewStudentProfile(student)}
                     >
                       <Eye size={14} />

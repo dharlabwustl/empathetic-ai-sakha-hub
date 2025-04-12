@@ -1,125 +1,131 @@
 
 import React, { useState } from "react";
-import { X, Calendar, Brain, Heart, Book, Clock, Activity, BarChart } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle,
+  DialogDescription,
+  DialogFooter
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Calendar as CalendarComponent } from "@/components/ui/calendar";
-import { StudentData, OnboardingData } from "@/types/admin";
-import { PersonalityType, MoodType } from "@/types/user";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { 
+  Calendar, 
+  GraduationCap, 
+  Book, 
+  Brain, 
+  Clock, 
+  Smile, 
+  Activity,
+  Mail,
+  Phone,
+  CalendarCheck,
+  Users,
+  Sparkles,
+  AlertTriangle,
+  UserCheck,
+  Award,
+  LineChart
+} from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
+import { StudentData } from "@/types/admin";
 
 interface StudentProfileModalProps {
   student: StudentData;
   onClose: () => void;
 }
 
-const StudentProfileModal = ({ student, onClose }: StudentProfileModalProps) => {
-  const [tab, setTab] = useState("overview");
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
-  
-  // Mock data - in a real app, you would fetch these details from your API
-  const mockStudyPlanData = {
-    examDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
-    dailyStudyHours: student.studyHours || 4,
-    strongSubjects: ["Physics", "Mathematics"],
-    weakSubjects: ["Chemistry", "Biology"],
-    studyPace: "Balanced" as "Aggressive" | "Balanced" | "Relaxed",
-    preferredStudyTime: "Evening" as "Morning" | "Afternoon" | "Evening" | "Night",
-  };
-  
-  const mockOnboardingData: Partial<OnboardingData> = {
-    examType: student.examType,
-    studyHours: student.studyHours,
-    studyPace: mockStudyPlanData.studyPace.toLowerCase() as "relaxed" | "balanced" | "intensive",
-    preferredStudyTime: mockStudyPlanData.preferredStudyTime.toLowerCase() as "morning" | "afternoon" | "evening" | "night",
-    subjectsSelected: student.subjectsSelected,
-    learningStyle: "visual" as "visual" | "auditory" | "reading" | "kinesthetic" | "mixed",
-    completedAt: student.registrationDate,
-  };
-  
-  const mockMoodData = {
-    current: "Focused" as MoodType,
-    history: [
-      { date: "2025-04-01", mood: "Happy" as MoodType },
-      { date: "2025-04-02", mood: "Focused" as MoodType },
-      { date: "2025-04-03", mood: "Overwhelmed" as MoodType },
-      { date: "2025-04-04", mood: "Motivated" as MoodType },
-      { date: "2025-04-05", mood: "Focused" as MoodType },
-    ]
-  };
-  
-  const mockPersonalityType: PersonalityType = "Strategic Thinker";
-  
-  const mockEngagementData = {
-    studyStreak: 7,
-    quizzesCompleted: 24,
-    flashcardsCreated: 56,
-    questionsAnswered: 312,
-    doubtsAsked: 17,
-    tutorSessionsAttended: 5,
-    engagementScore: 82,
-    lastWeekActivity: [4.5, 3.2, 5.0, 2.1, 4.7, 1.5, 3.8], // hours per day
-  };
-  
-  const mockScheduleForSelectedDay = [
-    { time: "08:00 - 09:30", subject: "Physics", topic: "Kinematics", completed: true },
-    { time: "10:00 - 11:30", subject: "Chemistry", topic: "Organic Chemistry", completed: true },
-    { time: "13:00 - 14:30", subject: "Mathematics", topic: "Calculus", completed: false },
-    { time: "16:00 - 17:30", subject: "Biology", topic: "Cell Structure", completed: false },
-  ];
-  
+const StudentProfileModal: React.FC<StudentProfileModalProps> = ({
+  student,
+  onClose
+}) => {
+  const [activeTab, setActiveTab] = useState("overview");
+
+  // Helper function to format date
   const formatDate = (date: Date) => {
     return new Date(date).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
+      month: 'short',
       day: 'numeric',
+      year: 'numeric'
     });
   };
-  
-  const getMoodColor = (mood: MoodType) => {
-    const moodColors: Record<MoodType, string> = {
-      "Happy": "bg-green-100 text-green-800",
-      "Okay": "bg-blue-100 text-blue-800",
-      "Sad": "bg-red-100 text-red-800",
-      "Focused": "bg-purple-100 text-purple-800",
-      "Tired": "bg-gray-100 text-gray-800",
-      "Overwhelmed": "bg-orange-100 text-orange-800",
-      "Motivated": "bg-indigo-100 text-indigo-800",
-    };
+
+  // Mock data for student profile - this would come from the backend in a real app
+  const studentProfile = {
+    // Personal Data
+    personalityType: "Analytical Learner",
+    studyStyle: "Visual",
+    studyPace: "Balanced",
+    studyTime: "Evening",
+    commitmentHours: 4,
+    startDate: new Date('2023-07-15'),
+    targetExamDate: new Date('2024-05-20'),
     
-    return moodColors[mood] || "bg-gray-100 text-gray-800";
+    // Academic Data
+    subjects: [
+      { name: "Physics", strength: 78 },
+      { name: "Chemistry", strength: 62 },
+      { name: "Mathematics", strength: 85 },
+      { name: "Biology", strength: 45 }
+    ],
+    weakAreas: ["Organic Chemistry", "Thermodynamics", "Cell Biology"],
+    strongAreas: ["Mechanics", "Algebra", "Electrostatics"],
+    
+    // Engagement Data
+    studyStreak: 14,
+    totalHoursStudied: 247,
+    questionsSolved: 2564,
+    quizzesTaken: 48,
+    averageScore: 72,
+    
+    // Emotional Data
+    moodTrend: [
+      { date: '2023-09-01', mood: 'Motivated' },
+      { date: '2023-09-02', mood: 'Focused' },
+      { date: '2023-09-03', mood: 'Tired' },
+      { date: '2023-09-04', mood: 'Anxious' },
+      { date: '2023-09-05', mood: 'Motivated' },
+    ],
+    stressLevel: 'Moderate',
+    motivationTriggers: ['Progress tracking', 'Competitive quizzes'],
+    
+    // Daily Pattern
+    sleepHours: 7.5,
+    focusHours: ["8:00 AM - 10:00 AM", "4:00 PM - 6:00 PM"],
+    breakPattern: "Pomodoro (25/5)",
+    studyEnvironment: "Quiet room with natural light"
   };
-  
+
   return (
     <Dialog open={true} onOpenChange={() => onClose()}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[85vh] overflow-y-auto bg-white dark:bg-slate-900">
         <DialogHeader>
-          <div className="flex items-start justify-between">
-            <DialogTitle className="text-2xl font-bold">{student.name}'s Profile</DialogTitle>
-            <Button variant="ghost" size="icon" onClick={onClose} className="rounded-full">
-              <X size={18} />
-            </Button>
-          </div>
-          <div className="flex flex-wrap gap-2 mt-2">
-            <Badge variant="outline" className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
-              {student.examType}
-            </Badge>
-            <Badge variant="outline" className="bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400">
-              {mockPersonalityType}
-            </Badge>
-            <Badge variant="outline" className={getMoodColor(mockMoodData.current)}>
-              {mockMoodData.current}
-            </Badge>
-            <Badge variant="outline" className="bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400">
-              Registered: {formatDate(student.registrationDate)}
-            </Badge>
-          </div>
+          <DialogTitle className="text-xl flex items-center gap-2">
+            <span className="w-10 h-10 rounded-full bg-gradient-to-r from-pink-500 to-purple-600 flex items-center justify-center text-white">
+              {student.name.charAt(0)}
+            </span>
+            <span>{student.name}</span>
+          </DialogTitle>
+          <DialogDescription className="flex flex-col sm:flex-row gap-2 sm:gap-6 mt-2">
+            <div className="flex items-center gap-2">
+              <Mail size={14} className="text-gray-500" />
+              <span>{student.email}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Phone size={14} className="text-gray-500" />
+              <span>{student.phoneNumber}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <CalendarCheck size={14} className="text-gray-500" />
+              <span>Joined {formatDate(student.registrationDate)}</span>
+            </div>
+          </DialogDescription>
         </DialogHeader>
         
-        <Tabs value={tab} onValueChange={setTab} className="w-full">
+        <Tabs defaultValue="overview" value={activeTab} onValueChange={setActiveTab} className="mt-2">
           <TabsList className="grid grid-cols-5 mb-4">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="study-plan">Study Plan</TabsTrigger>
@@ -128,751 +134,759 @@ const StudentProfileModal = ({ student, onClose }: StudentProfileModalProps) => 
             <TabsTrigger value="schedule">Schedule</TabsTrigger>
           </TabsList>
           
-          <TabsContent value="overview">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Overview Tab */}
+          <TabsContent value="overview" className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <Card>
-                <CardHeader>
-                  <CardTitle>Personal Details</CardTitle>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm flex items-center gap-2">
+                    <GraduationCap size={16} className="text-purple-500" />
+                    <span>Exam Goal</span>
+                  </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-2">
-                  <div className="grid grid-cols-3 gap-1">
-                    <span className="text-sm text-gray-500">Name:</span>
-                    <span className="col-span-2 font-medium">{student.name}</span>
-                    
-                    <span className="text-sm text-gray-500">Email:</span>
-                    <span className="col-span-2">{student.email}</span>
-                    
-                    <span className="text-sm text-gray-500">Phone:</span>
-                    <span className="col-span-2">{student.phoneNumber}</span>
-                    
-                    <span className="text-sm text-gray-500">Exam Goal:</span>
-                    <span className="col-span-2">{student.examType}</span>
-                    
-                    <span className="text-sm text-gray-500">Registration:</span>
-                    <span className="col-span-2">{formatDate(student.registrationDate)}</span>
-                    
-                    <span className="text-sm text-gray-500">Last Active:</span>
-                    <span className="col-span-2">{formatDate(student.lastActive)}</span>
-                    
-                    <span className="text-sm text-gray-500">Status:</span>
-                    <span className="col-span-2">
-                      <Badge variant="outline" className={
-                        student.lastActive > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) 
-                          ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
-                          : "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400"
-                      }>
-                        {student.lastActive > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) ? "Active" : "Inactive"}
-                      </Badge>
-                    </span>
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardHeader>
-                  <CardTitle>Study Progress</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent>
                   <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span>Overall Progress</span>
-                      <span className="font-medium">{student.engagementScore}%</span>
-                    </div>
-                    <Progress value={student.engagementScore} className="h-2" />
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-muted p-3 rounded-lg">
-                      <div className="text-sm text-gray-500">Study Hours</div>
-                      <div className="text-xl font-bold">{student.studyHours}h</div>
-                      <div className="text-xs text-gray-400">daily average</div>
-                    </div>
-                    
-                    <div className="bg-muted p-3 rounded-lg">
-                      <div className="text-sm text-gray-500">Mood Score</div>
-                      <div className="text-xl font-bold">{student.moodScore}/10</div>
-                      <div className="text-xs text-gray-400">average</div>
+                    <h3 className="text-lg font-bold">{student.examType}</h3>
+                    <div className="text-sm text-gray-500 flex flex-col gap-1">
+                      <div className="flex justify-between">
+                        <span>Exam Date:</span>
+                        <span className="font-medium text-gray-700 dark:text-gray-300">
+                          {formatDate(studentProfile.targetExamDate)}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Days Remaining:</span>
+                        <span className="font-medium text-gray-700 dark:text-gray-300">
+                          {Math.ceil((studentProfile.targetExamDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))}
+                        </span>
+                      </div>
+                      <Progress 
+                        value={65} 
+                        className="h-2 mt-2" 
+                        indicatorClassName="bg-gradient-to-r from-pink-500 to-purple-600" 
+                      />
+                      <span className="text-xs text-right">65% syllabus covered</span>
                     </div>
                   </div>
                 </CardContent>
               </Card>
-              
+
               <Card>
-                <CardHeader>
-                  <CardTitle>Exam Preparation</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span>Syllabus Covered</span>
-                      <span className="font-medium">68%</span>
-                    </div>
-                    <Progress value={68} className="h-2" />
-                  </div>
-                  
-                  <div>
-                    <h4 className="text-sm font-medium mb-2">Strong Subjects</h4>
-                    <div className="flex flex-wrap gap-1">
-                      {mockStudyPlanData.strongSubjects.map(subject => (
-                        <Badge key={subject} variant="outline" className="bg-green-100 text-green-800">
-                          {subject}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <h4 className="text-sm font-medium mb-2">Weak Subjects</h4>
-                    <div className="flex flex-wrap gap-1">
-                      {mockStudyPlanData.weakSubjects.map(subject => (
-                        <Badge key={subject} variant="outline" className="bg-red-100 text-red-800">
-                          {subject}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardHeader>
-                  <CardTitle>Recent Activity</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <ul className="space-y-3">
-                    <li className="flex items-start gap-2">
-                      <div className="bg-purple-100 rounded-full p-1 mt-0.5">
-                        <Activity size={14} className="text-purple-600" />
-                      </div>
-                      <div>
-                        <p className="text-sm">Completed 3 physics quizzes</p>
-                        <p className="text-xs text-gray-500">Today, 2:30 PM</p>
-                      </div>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <div className="bg-blue-100 rounded-full p-1 mt-0.5">
-                        <Book size={14} className="text-blue-600" />
-                      </div>
-                      <div>
-                        <p className="text-sm">Created 12 flashcards on Chemistry</p>
-                        <p className="text-xs text-gray-500">Yesterday, 4:15 PM</p>
-                      </div>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <div className="bg-green-100 rounded-full p-1 mt-0.5">
-                        <Brain size={14} className="text-green-600" />
-                      </div>
-                      <div>
-                        <p className="text-sm">Asked a doubt on Calculus</p>
-                        <p className="text-xs text-gray-500">Apr 10, 10:20 AM</p>
-                      </div>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <div className="bg-amber-100 rounded-full p-1 mt-0.5">
-                        <Heart size={14} className="text-amber-600" />
-                      </div>
-                      <div>
-                        <p className="text-sm">Updated mood to "Focused"</p>
-                        <p className="text-xs text-gray-500">Apr 9, 9:45 AM</p>
-                      </div>
-                    </li>
-                  </ul>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="study-plan">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Study Plan Settings</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-3 gap-1">
-                    <span className="text-sm text-gray-500">Exam Date:</span>
-                    <span className="col-span-2 font-medium">{formatDate(mockStudyPlanData.examDate)}</span>
-                    
-                    <span className="text-sm text-gray-500">Days Remaining:</span>
-                    <span className="col-span-2 font-medium">
-                      {Math.ceil((mockStudyPlanData.examDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24))} days
-                    </span>
-                    
-                    <span className="text-sm text-gray-500">Daily Study Hours:</span>
-                    <span className="col-span-2">{mockStudyPlanData.dailyStudyHours} hours</span>
-                    
-                    <span className="text-sm text-gray-500">Study Pace:</span>
-                    <span className="col-span-2">{mockStudyPlanData.studyPace}</span>
-                    
-                    <span className="text-sm text-gray-500">Preferred Time:</span>
-                    <span className="col-span-2">{mockStudyPlanData.preferredStudyTime}</span>
-                    
-                    <span className="text-sm text-gray-500">Strong Subjects:</span>
-                    <div className="col-span-2 flex flex-wrap gap-1">
-                      {mockStudyPlanData.strongSubjects.map(subject => (
-                        <Badge key={subject} variant="outline" className="bg-green-100 text-green-800">
-                          {subject}
-                        </Badge>
-                      ))}
-                    </div>
-                    
-                    <span className="text-sm text-gray-500">Weak Subjects:</span>
-                    <div className="col-span-2 flex flex-wrap gap-1">
-                      {mockStudyPlanData.weakSubjects.map(subject => (
-                        <Badge key={subject} variant="outline" className="bg-red-100 text-red-800">
-                          {subject}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardHeader>
-                  <CardTitle>Current Progress</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <h4 className="text-sm font-medium mb-2">Overall Syllabus Coverage</h4>
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span>Overall</span>
-                        <span className="font-medium">68%</span>
-                      </div>
-                      <Progress value={68} className="h-2" />
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <h4 className="text-sm font-medium mb-2">Subject-wise Progress</h4>
-                    <div className="space-y-3">
-                      <div className="space-y-1">
-                        <div className="flex justify-between text-sm">
-                          <span>Physics</span>
-                          <span className="font-medium">82%</span>
-                        </div>
-                        <Progress value={82} className="h-1.5" />
-                      </div>
-                      
-                      <div className="space-y-1">
-                        <div className="flex justify-between text-sm">
-                          <span>Chemistry</span>
-                          <span className="font-medium">53%</span>
-                        </div>
-                        <Progress value={53} className="h-1.5" />
-                      </div>
-                      
-                      <div className="space-y-1">
-                        <div className="flex justify-between text-sm">
-                          <span>Mathematics</span>
-                          <span className="font-medium">76%</span>
-                        </div>
-                        <Progress value={76} className="h-1.5" />
-                      </div>
-                      
-                      <div className="space-y-1">
-                        <div className="flex justify-between text-sm">
-                          <span>Biology</span>
-                          <span className="font-medium">45%</span>
-                        </div>
-                        <Progress value={45} className="h-1.5" />
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card className="md:col-span-2">
-                <CardHeader>
-                  <CardTitle>Study Recommendations</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
-                      <h4 className="font-medium text-amber-800 mb-1">Focus Areas</h4>
-                      <ul className="text-sm text-amber-800 space-y-1">
-                        <li>• Organic Chemistry - Spend 2 more hours this week</li>
-                        <li>• Biology Cell Structure - Practice needs improvement</li>
-                        <li>• Trigonometry - Review formulas and take practice test</li>
-                      </ul>
-                    </div>
-                    
-                    <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-                      <h4 className="font-medium text-green-800 mb-1">Strengths</h4>
-                      <ul className="text-sm text-green-800 space-y-1">
-                        <li>• Physics Mechanics - Excellent progress, maintain practice</li>
-                        <li>• Calculus - Strong understanding, ready for advanced problems</li>
-                        <li>• Inorganic Chemistry - Good recall of concepts</li>
-                      </ul>
-                    </div>
-                    
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                      <h4 className="font-medium text-blue-800 mb-1">Study Tips</h4>
-                      <ul className="text-sm text-blue-800 space-y-1">
-                        <li>• Try spaced repetition for Biology concepts</li>
-                        <li>• Take more timed practice tests for Mathematics</li>
-                        <li>• Create more flashcards for Chemistry reactions</li>
-                        <li>• Consider joining the Physics group study session</li>
-                      </ul>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="personality">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Personality Profile</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <h4 className="text-sm font-medium mb-2">Personality Type</h4>
-                    <div className="flex items-center gap-2">
-                      <Badge className="bg-purple-100 text-purple-800">{mockPersonalityType}</Badge>
-                      <span className="text-sm text-gray-500">Based on onboarding assessment</span>
-                    </div>
-                    
-                    <div className="mt-4 text-sm">
-                      <p className="mb-2">As a <strong>Strategic Thinker</strong>, {student.name} tends to:</p>
-                      <ul className="space-y-1 list-disc pl-5">
-                        <li>Plan ahead and organize study material methodically</li>
-                        <li>Enjoy analytical problem-solving and logical reasoning</li>
-                        <li>Prefer structured learning environments</li>
-                        <li>Benefit from seeing the big picture before details</li>
-                        <li>Learn best through conceptual understanding</li>
-                      </ul>
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <h4 className="text-sm font-medium mb-2">Learning Style</h4>
-                    <div className="flex gap-2 flex-wrap">
-                      <Badge className="bg-blue-100 text-blue-800">Visual</Badge>
-                      <Badge className="bg-gray-100 text-gray-800">Reading/Writing</Badge>
-                    </div>
-                    
-                    <div className="mt-4 text-sm">
-                      <p>Recommended learning methods:</p>
-                      <ul className="space-y-1 list-disc pl-5 mt-1">
-                        <li>Diagrams, charts, and visual representations</li>
-                        <li>Written notes and text-based materials</li>
-                        <li>Mind maps and visual organizers</li>
-                      </ul>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardHeader>
-                  <CardTitle>Emotional Analysis</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <h4 className="text-sm font-medium mb-2">Current Mood</h4>
-                    <Badge className={`${getMoodColor(mockMoodData.current)} text-sm px-3 py-1`}>
-                      {mockMoodData.current}
-                    </Badge>
-                  </div>
-                  
-                  <div>
-                    <h4 className="text-sm font-medium mb-2">Mood History</h4>
-                    <div className="space-y-2">
-                      {mockMoodData.history.map((entry, index) => (
-                        <div key={index} className="flex justify-between items-center">
-                          <span className="text-sm text-gray-500">{entry.date}</span>
-                          <Badge className={getMoodColor(entry.mood)}>
-                            {entry.mood}
-                          </Badge>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <h4 className="text-sm font-medium mb-2">Stress Management</h4>
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                      <p className="text-sm text-blue-800">
-                        Student shows moderate stress levels before exams. Responds well to break reminders and 
-                        benefits from guided meditation exercises.
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card className="md:col-span-2">
-                <CardHeader>
-                  <CardTitle>Interests & Goals</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <h4 className="text-sm font-medium mb-2">Areas of Interest</h4>
-                      <div className="flex flex-wrap gap-1.5">
-                        <Badge variant="outline">Physics</Badge>
-                        <Badge variant="outline">Astronomy</Badge>
-                        <Badge variant="outline">Robotics</Badge>
-                        <Badge variant="outline">AI/ML</Badge>
-                        <Badge variant="outline">Mathematics</Badge>
-                        <Badge variant="outline">Computer Science</Badge>
-                      </div>
-                      
-                      <div className="mt-4">
-                        <h4 className="text-sm font-medium mb-2">Career Aspirations</h4>
-                        <p className="text-sm">Interested in pursuing Engineering at a top-tier institution, 
-                        with a focus on either Computer Science or Aerospace Engineering.</p>
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <h4 className="text-sm font-medium mb-2">Personal Goals</h4>
-                      <ul className="space-y-2">
-                        <li className="text-sm flex items-center gap-2">
-                          <div className="h-4 w-4 rounded-full bg-green-100 flex items-center justify-center">
-                            <div className="h-2 w-2 rounded-full bg-green-600"></div>
-                          </div>
-                          Score above 95% in the final examination
-                        </li>
-                        <li className="text-sm flex items-center gap-2">
-                          <div className="h-4 w-4 rounded-full bg-green-100 flex items-center justify-center">
-                            <div className="h-2 w-2 rounded-full bg-green-600"></div>
-                          </div>
-                          Qualify for the national-level science olympiad
-                        </li>
-                        <li className="text-sm flex items-center gap-2">
-                          <div className="h-4 w-4 rounded-full bg-green-100 flex items-center justify-center">
-                            <div className="h-2 w-2 rounded-full bg-green-600"></div>
-                          </div>
-                          Complete an independent research project
-                        </li>
-                        <li className="text-sm flex items-center gap-2">
-                          <div className="h-4 w-4 rounded-full bg-green-100 flex items-center justify-center">
-                            <div className="h-2 w-2 rounded-full bg-green-600"></div>
-                          </div>
-                          Improve time management skills during exams
-                        </li>
-                      </ul>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="engagement">
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
-              <Card className="md:col-span-8">
-                <CardHeader>
-                  <CardTitle>Engagement Metrics</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div className="bg-muted p-3 rounded-lg">
-                      <div className="text-sm text-gray-500">Study Streak</div>
-                      <div className="text-xl font-bold">{mockEngagementData.studyStreak} days</div>
-                    </div>
-                    
-                    <div className="bg-muted p-3 rounded-lg">
-                      <div className="text-sm text-gray-500">Quizzes</div>
-                      <div className="text-xl font-bold">{mockEngagementData.quizzesCompleted}</div>
-                    </div>
-                    
-                    <div className="bg-muted p-3 rounded-lg">
-                      <div className="text-sm text-gray-500">Flashcards</div>
-                      <div className="text-xl font-bold">{mockEngagementData.flashcardsCreated}</div>
-                    </div>
-                    
-                    <div className="bg-muted p-3 rounded-lg">
-                      <div className="text-sm text-gray-500">Questions</div>
-                      <div className="text-xl font-bold">{mockEngagementData.questionsAnswered}</div>
-                    </div>
-                  </div>
-                  
-                  <div className="mt-6">
-                    <h4 className="text-sm font-medium mb-3">Last Week Activity</h4>
-                    <div className="h-40 bg-muted/50 rounded-md flex items-end justify-between px-4 pb-4">
-                      {mockEngagementData.lastWeekActivity.map((hours, i) => (
-                        <div 
-                          key={i} 
-                          className="bg-primary w-8 rounded-t-sm" 
-                          style={{height: `${(hours / 6) * 100}%`}}
-                        />
-                      ))}
-                    </div>
-                    <div className="flex justify-between mt-2 text-xs text-gray-600">
-                      <span>Mon</span>
-                      <span>Tue</span>
-                      <span>Wed</span>
-                      <span>Thu</span>
-                      <span>Fri</span>
-                      <span>Sat</span>
-                      <span>Sun</span>
-                    </div>
-                    <div className="text-xs text-gray-500 text-center mt-1">Study hours per day</div>
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card className="md:col-span-4">
-                <CardHeader>
-                  <CardTitle>Engagement Score</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex flex-col items-center justify-center">
-                    <div className="relative h-32 w-32 flex items-center justify-center">
-                      <svg viewBox="0 0 100 100" className="h-full w-full">
-                        <circle
-                          cx="50"
-                          cy="50"
-                          r="40"
-                          fill="none"
-                          stroke="#e2e8f0"
-                          strokeWidth="10"
-                        />
-                        <circle
-                          cx="50"
-                          cy="50"
-                          r="40"
-                          fill="none"
-                          stroke="#3b82f6"
-                          strokeWidth="10"
-                          strokeDasharray="251.2"
-                          strokeDashoffset={251.2 - (251.2 * mockEngagementData.engagementScore) / 100}
-                          transform="rotate(-90 50 50)"
-                        />
-                      </svg>
-                      <div className="absolute">
-                        <span className="text-3xl font-bold">{mockEngagementData.engagementScore}</span>
-                        <span className="text-lg">%</span>
-                      </div>
-                    </div>
-                    
-                    <div className="text-center mt-4 space-y-1">
-                      <p className="text-sm font-medium">Engagement Level</p>
-                      <Badge className="bg-green-100 text-green-800">High</Badge>
-                      <p className="text-xs text-gray-500 mt-1">
-                        Top 15% compared to peers
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card className="md:col-span-6">
-                <CardHeader>
-                  <CardTitle>Feature Usage</CardTitle>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm flex items-center gap-2">
+                    <Brain size={16} className="text-purple-500" />
+                    <span>Learning Profile</span>
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    <div className="space-y-1">
-                      <div className="flex justify-between text-sm">
-                        <span>Flashcards</span>
-                        <span className="font-medium">92%</span>
-                      </div>
-                      <Progress value={92} className="h-1.5" />
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-500">Personality:</span>
+                      <Badge className="bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-300">
+                        {studentProfile.personalityType}
+                      </Badge>
                     </div>
-                    
-                    <div className="space-y-1">
-                      <div className="flex justify-between text-sm">
-                        <span>Practice Tests</span>
-                        <span className="font-medium">78%</span>
-                      </div>
-                      <Progress value={78} className="h-1.5" />
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-500">Study Style:</span>
+                      <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300">
+                        {studentProfile.studyStyle}
+                      </Badge>
                     </div>
-                    
-                    <div className="space-y-1">
-                      <div className="flex justify-between text-sm">
-                        <span>Study Plan</span>
-                        <span className="font-medium">85%</span>
-                      </div>
-                      <Progress value={85} className="h-1.5" />
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-500">Study Pace:</span>
+                      <Badge className="bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300">
+                        {studentProfile.studyPace}
+                      </Badge>
                     </div>
-                    
-                    <div className="space-y-1">
-                      <div className="flex justify-between text-sm">
-                        <span>AI Tutor</span>
-                        <span className="font-medium">63%</span>
-                      </div>
-                      <Progress value={63} className="h-1.5" />
-                    </div>
-                    
-                    <div className="space-y-1">
-                      <div className="flex justify-between text-sm">
-                        <span>Feel Good Corner</span>
-                        <span className="font-medium">42%</span>
-                      </div>
-                      <Progress value={42} className="h-1.5" />
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-500">Daily Commitment:</span>
+                      <span className="font-medium">{studentProfile.commitmentHours} hours</span>
                     </div>
                   </div>
                 </CardContent>
               </Card>
-              
-              <Card className="md:col-span-6">
-                <CardHeader>
-                  <CardTitle>Time Analysis</CardTitle>
+
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm flex items-center gap-2">
+                    <Activity size={16} className="text-purple-500" />
+                    <span>Recent Performance</span>
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-5">
-                    <div>
-                      <h4 className="text-sm font-medium mb-2">Time Distribution</h4>
-                      <div className="flex h-4 rounded-full overflow-hidden">
-                        <div className="bg-blue-500 w-[35%]" title="Physics: 35%"></div>
-                        <div className="bg-green-500 w-[25%]" title="Chemistry: 25%"></div>
-                        <div className="bg-purple-500 w-[30%]" title="Mathematics: 30%"></div>
-                        <div className="bg-amber-500 w-[10%]" title="Biology: 10%"></div>
-                      </div>
-                      <div className="flex text-xs mt-2 justify-between px-1">
-                        <span>Physics (35%)</span>
-                        <span>Chemistry (25%)</span>
-                        <span>Math (30%)</span>
-                        <span>Bio (10%)</span>
-                      </div>
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-500">Study Streak:</span>
+                      <span className="font-medium text-orange-600">{studentProfile.studyStreak} days</span>
                     </div>
-                    
-                    <div>
-                      <h4 className="text-sm font-medium mb-2">Activity by Time of Day</h4>
-                      <div className="flex items-end h-24 gap-1">
-                        {Array.from({ length: 24 }).map((_, i) => {
-                          // Generate a realistic height based on time of day
-                          // Morning: moderate, afternoon: high, evening: highest, night: low
-                          let height;
-                          if (i < 6) height = Math.random() * 10 + 5; // Night (low)
-                          else if (i < 12) height = Math.random() * 20 + 30; // Morning (moderate)
-                          else if (i < 18) height = Math.random() * 20 + 50; // Afternoon (high)
-                          else height = Math.random() * 20 + 70; // Evening (highest)
-                          
-                          return (
-                            <div
-                              key={i}
-                              className="flex-1 bg-primary/70 rounded-t"
-                              style={{ height: `${height}%` }}
-                              title={`${i}:00 - ${i + 1}:00`}
-                            ></div>
-                          );
-                        })}
-                      </div>
-                      <div className="flex justify-between text-xs mt-1">
-                        <span>12 AM</span>
-                        <span>6 AM</span>
-                        <span>12 PM</span>
-                        <span>6 PM</span>
-                        <span>12 AM</span>
-                      </div>
-                      <div className="text-xs text-center text-gray-500 mt-1">Hours of the day</div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-500">Questions Solved:</span>
+                      <span className="font-medium">{studentProfile.questionsSolved}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-500">Avg. Quiz Score:</span>
+                      <span className="font-medium">{studentProfile.averageScore}%</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-500">Recent Mood:</span>
+                      <Badge className="bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300 flex items-center gap-1">
+                        <Smile size={12} />
+                        {studentProfile.moodTrend[studentProfile.moodTrend.length - 1].mood}
+                      </Badge>
                     </div>
                   </div>
                 </CardContent>
               </Card>
             </div>
+
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <Book size={16} className="text-purple-500" />
+                  <span>Subject Performance</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {studentProfile.subjects.map((subject, index) => (
+                    <div key={index} className="space-y-1">
+                      <div className="flex justify-between">
+                        <span className="text-sm">{subject.name}</span>
+                        <span className="text-sm font-medium">{subject.strength}%</span>
+                      </div>
+                      <Progress 
+                        value={subject.strength} 
+                        className="h-2" 
+                        indicatorClassName={`${
+                          subject.strength > 70 ? 'bg-green-500' : 
+                          subject.strength > 50 ? 'bg-orange-500' : 'bg-red-500'
+                        }`} 
+                      />
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
           
-          <TabsContent value="schedule">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Study Calendar</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <CalendarComponent
-                    mode="single"
-                    selected={selectedDate}
-                    onSelect={setSelectedDate}
-                    className="border rounded-md"
-                  />
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between">
-                  <CardTitle>Schedule for {formatDate(selectedDate || new Date())}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {mockScheduleForSelectedDay.map((item, index) => (
-                      <div 
-                        key={index} 
-                        className={`p-3 rounded-lg border ${
-                          item.completed 
-                            ? 'bg-green-50 border-green-200' 
-                            : 'bg-white border-gray-200'
-                        }`}
-                      >
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <h4 className="font-medium">{item.subject}: {item.topic}</h4>
-                            <div className="text-sm text-gray-500">{item.time}</div>
-                          </div>
-                          {item.completed && (
-                            <Badge className="bg-green-100 text-green-800">Completed</Badge>
-                          )}
-                        </div>
+          {/* Study Plan Tab */}
+          <TabsContent value="study-plan" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between">
+                  <span className="flex items-center gap-2">
+                    <Calendar size={18} className="text-purple-500" />
+                    Study Plan Details
+                  </span>
+                  <Button variant="outline" size="sm" className="text-purple-600 border-purple-200 hover:bg-purple-50">
+                    View Full Plan
+                  </Button>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="bg-gray-50 dark:bg-slate-800 rounded-lg p-4">
+                      <h3 className="text-sm font-medium text-gray-500 mb-2">Exam Target</h3>
+                      <div className="flex items-center justify-between">
+                        <span className="font-semibold">{student.examType}</span>
+                        <Badge className="bg-purple-100 text-purple-800">
+                          {formatDate(studentProfile.targetExamDate)}
+                        </Badge>
                       </div>
-                    ))}
-                    
-                    {mockScheduleForSelectedDay.length === 0 && (
-                      <div className="text-center py-8">
-                        <Calendar className="mx-auto h-12 w-12 text-gray-400" />
-                        <h3 className="mt-2 text-lg font-medium text-gray-900">No sessions scheduled</h3>
-                        <p className="mt-1 text-sm text-gray-500">
-                          No study sessions are scheduled for this day.
-                        </p>
+                    </div>
+                    <div className="bg-gray-50 dark:bg-slate-800 rounded-lg p-4">
+                      <h3 className="text-sm font-medium text-gray-500 mb-2">Daily Study Hours</h3>
+                      <div className="flex items-center justify-between">
+                        <span className="font-semibold">{studentProfile.commitmentHours} hours/day</span>
+                        <Badge className="bg-blue-100 text-blue-800">
+                          {studentProfile.studyPace} Pace
+                        </Badge>
                       </div>
-                    )}
+                    </div>
+                    <div className="bg-gray-50 dark:bg-slate-800 rounded-lg p-4">
+                      <h3 className="text-sm font-medium text-gray-500 mb-2">Preferred Study Time</h3>
+                      <div className="flex items-center justify-between">
+                        <span className="font-semibold">{studentProfile.studyTime}</span>
+                        <Clock size={16} className="text-gray-500" />
+                      </div>
+                    </div>
                   </div>
-                </CardContent>
-              </Card>
-              
-              <Card className="md:col-span-2">
-                <CardHeader>
-                  <CardTitle>Weekly Overview</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-7 gap-1">
-                    {Array.from({ length: 7 }).map((_, dayIndex) => {
-                      const day = new Date();
-                      day.setDate(day.getDate() - day.getDay() + dayIndex);
-                      const isToday = new Date().toDateString() === day.toDateString();
-                      
-                      return (
-                        <div 
-                          key={dayIndex}
-                          className={`p-2 rounded-lg border ${
-                            isToday ? 'border-primary bg-primary/10' : 'border-gray-200'
-                          }`}
-                        >
-                          <div className={`text-center font-medium ${isToday ? 'text-primary' : ''}`}>
-                            {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][dayIndex]}
-                          </div>
-                          <div className="text-center text-xs text-gray-500">
-                            {day.getDate()}
-                          </div>
-                          
-                          <div className="mt-2 space-y-1">
-                            {/* Generate random study blocks */}
-                            {Array.from({ length: Math.floor(Math.random() * 3) + 1 }).map((_, i) => (
-                              <div 
-                                key={i}
-                                className="bg-blue-100 text-blue-800 p-1 text-xs rounded truncate"
-                                title={['Physics', 'Chemistry', 'Mathematics', 'Biology'][Math.floor(Math.random() * 4)]}
-                              >
-                                {['Physics', 'Chemistry', 'Mathematics', 'Biology'][Math.floor(Math.random() * 4)]}
+                  
+                  <div className="space-y-4">
+                    <h3 className="text-sm font-medium">Upcoming Study Sessions</h3>
+                    <div className="space-y-2">
+                      {[
+                        {
+                          day: "Today",
+                          sessions: [
+                            { time: "4:00 PM - 5:30 PM", subject: "Physics", topic: "Electrostatics" },
+                            { time: "6:00 PM - 7:00 PM", subject: "Chemistry", topic: "Chemical Bonding" }
+                          ]
+                        },
+                        {
+                          day: "Tomorrow",
+                          sessions: [
+                            { time: "9:00 AM - 10:30 AM", subject: "Mathematics", topic: "Calculus" },
+                            { time: "11:00 AM - 12:30 PM", subject: "Physics", topic: "Thermodynamics" }
+                          ]
+                        }
+                      ].map((day, i) => (
+                        <div key={i} className="bg-white dark:bg-slate-900 border rounded-lg p-3">
+                          <h4 className="text-sm font-medium text-purple-700 dark:text-purple-400 mb-2">{day.day}</h4>
+                          <div className="space-y-2">
+                            {day.sessions.map((session, j) => (
+                              <div key={j} className="flex items-start gap-2">
+                                <div className="bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-400 rounded-full p-1">
+                                  <Clock size={14} />
+                                </div>
+                                <div>
+                                  <p className="text-sm font-medium">{session.time}</p>
+                                  <p className="text-xs text-gray-500">
+                                    {session.subject} - {session.topic}
+                                  </p>
+                                </div>
                               </div>
                             ))}
                           </div>
                         </div>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-center">
+                      <h3 className="text-sm font-medium">Focus Areas</h3>
+                      <Badge className="bg-amber-100 text-amber-800">AI Recommended</Badge>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <h4 className="text-xs font-medium text-gray-500 mb-2">Weak Areas (Focus More)</h4>
+                        <div className="space-y-1">
+                          {studentProfile.weakAreas.map((area, i) => (
+                            <div key={i} className="flex items-center gap-2">
+                              <AlertTriangle size={14} className="text-amber-500" />
+                              <span className="text-sm">{area}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                      
+                      <div>
+                        <h4 className="text-xs font-medium text-gray-500 mb-2">Strong Areas (Maintain)</h4>
+                        <div className="space-y-1">
+                          {studentProfile.strongAreas.map((area, i) => (
+                            <div key={i} className="flex items-center gap-2">
+                              <Award size={14} className="text-green-500" />
+                              <span className="text-sm">{area}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+          
+          {/* Personality Tab */}
+          <TabsContent value="personality" className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <Brain size={18} className="text-purple-500" />
+                    Learning Style & Personality
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-500 mb-2">Personality Type</h3>
+                    <div className="bg-purple-50 dark:bg-purple-900/20 border border-purple-100 dark:border-purple-800/30 rounded-lg p-3">
+                      <span className="font-semibold text-purple-800 dark:text-purple-300">{studentProfile.personalityType}</span>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                        An analytical learner who thrives on organized information and prefers to understand 
+                        concepts thoroughly before moving on. Excels with structured study methods.
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-500 mb-2">Learning Style Preferences</h3>
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm">Visual</span>
+                        <Progress value={85} className="w-32 h-2" indicatorClassName="bg-blue-500" />
+                        <span className="text-xs font-medium">85%</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm">Auditory</span>
+                        <Progress value={45} className="w-32 h-2" indicatorClassName="bg-green-500" />
+                        <span className="text-xs font-medium">45%</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm">Reading/Writing</span>
+                        <Progress value={70} className="w-32 h-2" indicatorClassName="bg-purple-500" />
+                        <span className="text-xs font-medium">70%</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm">Kinesthetic</span>
+                        <Progress value={30} className="w-32 h-2" indicatorClassName="bg-amber-500" />
+                        <span className="text-xs font-medium">30%</span>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <Clock size={18} className="text-purple-500" />
+                    Daily Life Pattern
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <span className="text-xs text-gray-500">Average Sleep</span>
+                      <p className="font-semibold">{studentProfile.sleepHours} hours</p>
+                    </div>
+                    <div className="space-y-1">
+                      <span className="text-xs text-gray-500">Break Pattern</span>
+                      <p className="font-semibold">{studentProfile.breakPattern}</p>
+                    </div>
+                    <div className="space-y-1">
+                      <span className="text-xs text-gray-500">Study Environment</span>
+                      <p className="font-semibold text-sm">{studentProfile.studyEnvironment}</p>
+                    </div>
+                    <div className="space-y-1">
+                      <span className="text-xs text-gray-500">Study Pace</span>
+                      <p className="font-semibold">{studentProfile.studyPace}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <h3 className="text-sm font-medium text-gray-500">Peak Focus Hours</h3>
+                    <div className="space-y-2">
+                      {studentProfile.focusHours.map((hours, i) => (
+                        <div key={i} className="bg-gray-50 dark:bg-slate-800 rounded p-2 text-sm font-medium">
+                          {hours}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+            
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Smile size={18} className="text-purple-500" />
+                  Emotional Intelligence
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="space-y-1">
+                    <span className="text-xs text-gray-500">Current Stress Level</span>
+                    <div className="flex items-center gap-2">
+                      <span className="font-semibold">{studentProfile.stressLevel}</span>
+                      <Badge className="bg-amber-100 text-amber-800">Needs Attention</Badge>
+                    </div>
+                  </div>
+                  <div className="space-y-1">
+                    <span className="text-xs text-gray-500">Mood Trend (Last 5 Days)</span>
+                    <div className="flex gap-1">
+                      {studentProfile.moodTrend.map((day, i) => {
+                        const moodColor = 
+                          day.mood === 'Motivated' || day.mood === 'Focused' ? 'bg-green-500' :
+                          day.mood === 'Tired' ? 'bg-amber-500' : 'bg-red-500';
+                        return (
+                          <div key={i} className="flex flex-col items-center">
+                            <div className={`w-2 h-8 rounded-full ${moodColor}`}></div>
+                            <span className="text-xs mt-1">{day.date.split('-')[2]}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                  <div className="space-y-1">
+                    <span className="text-xs text-gray-500">Motivation Triggers</span>
+                    <div className="flex flex-wrap gap-1">
+                      {studentProfile.motivationTriggers.map((trigger, i) => (
+                        <Badge key={i} className="bg-purple-100 text-purple-800">
+                          {trigger}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+          
+          {/* Engagement Tab */}
+          <TabsContent value="engagement" className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm flex items-center gap-2">
+                    <Activity size={16} className="text-purple-500" />
+                    <span>Study Activity</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-500">Total Hours</span>
+                    <span className="font-semibold">{studentProfile.totalHoursStudied} hrs</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-500">Avg. Daily</span>
+                    <span className="font-semibold">{Math.round(studentProfile.totalHoursStudied / 90 * 10) / 10} hrs</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-500">Current Streak</span>
+                    <span className="font-semibold text-orange-600">{studentProfile.studyStreak} days</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-500">Last Active</span>
+                    <Badge variant="outline">Today</Badge>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm flex items-center gap-2">
+                    <Users size={16} className="text-purple-500" />
+                    <span>Peer Comparison</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-500">Study Hours</span>
+                    <Badge className="bg-green-100 text-green-800">Top 15%</Badge>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-500">Quiz Performance</span>
+                    <Badge className="bg-blue-100 text-blue-800">Top 30%</Badge>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-500">Consistency</span>
+                    <Badge className="bg-purple-100 text-purple-800">Top 20%</Badge>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-500">Overall Rank</span>
+                    <span className="font-semibold">42 of 278</span>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm flex items-center gap-2">
+                    <LineChart size={16} className="text-purple-500" />
+                    <span>Progress Metrics</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-500">Questions Solved</span>
+                    <span className="font-semibold">{studentProfile.questionsSolved}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-500">Quizzes Taken</span>
+                    <span className="font-semibold">{studentProfile.quizzesTaken}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-500">Average Score</span>
+                    <span className="font-semibold">{studentProfile.averageScore}%</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-500">Syllabus Coverage</span>
+                    <span className="font-semibold">65%</span>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+            
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Sparkles size={18} className="text-purple-500" />
+                  Achievement & Contribution
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-3">
+                    <h3 className="text-sm font-medium text-gray-500">Achievements</h3>
+                    <div className="grid grid-cols-2 gap-3">
+                      {[
+                        { name: "7-Day Streak", desc: "Study 7 days in a row", completed: true },
+                        { name: "Quiz Master", desc: "Score >90% in 5 quizzes", completed: true },
+                        { name: "Early Bird", desc: "Complete 5 sessions before 9AM", completed: true },
+                        { name: "Problem Solver", desc: "Solve 1000 practice problems", completed: true },
+                        { name: "Marathon Runner", desc: "Study for 100 total hours", completed: true },
+                        { name: "Subject Expert", desc: "Master all topics in a subject", completed: false }
+                      ].map((achievement, i) => (
+                        <div 
+                          key={i}
+                          className={`border rounded-lg p-3 ${achievement.completed ? 'bg-purple-50 border-purple-200 dark:bg-purple-900/20 dark:border-purple-800/30' : 'bg-gray-50 border-gray-200 dark:bg-gray-800/50 dark:border-gray-700'}`}
+                        >
+                          <div className="flex items-center gap-2 mb-1">
+                            {achievement.completed ? (
+                              <UserCheck size={14} className="text-purple-600" />
+                            ) : (
+                              <Award size={14} className="text-gray-400" />
+                            )}
+                            <span className={`text-sm font-medium ${achievement.completed ? 'text-purple-800 dark:text-purple-400' : 'text-gray-400'}`}>
+                              {achievement.name}
+                            </span>
+                          </div>
+                          <p className="text-xs text-gray-500">{achievement.desc}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    <h3 className="text-sm font-medium text-gray-500">Contributions</h3>
+                    <div className="space-y-2">
+                      {[
+                        { type: "Questions Added", count: 12 },
+                        { type: "Notes Shared", count: 5 },
+                        { type: "Forum Answers", count: 8 },
+                        { type: "Reviews Given", count: 15 }
+                      ].map((contribution, i) => (
+                        <div key={i} className="flex justify-between items-center bg-gray-50 dark:bg-gray-800/50 p-2 rounded">
+                          <span className="text-sm">{contribution.type}</span>
+                          <Badge variant="outline">{contribution.count}</Badge>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+          
+          {/* Schedule Tab */}
+          <TabsContent value="schedule" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between">
+                  <span className="flex items-center gap-2">
+                    <Calendar size={18} className="text-purple-500" />
+                    Study Calendar
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <Button variant="outline" size="sm">
+                      Month
+                    </Button>
+                    <Button variant="default" size="sm" className="bg-gradient-to-r from-pink-500 to-purple-600 text-white">
+                      Week
+                    </Button>
+                    <Button variant="outline" size="sm">
+                      Day
+                    </Button>
+                  </div>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="border rounded-lg overflow-hidden">
+                  <div className="grid grid-cols-7 bg-gray-50 dark:bg-gray-800">
+                    {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
+                      <div key={day} className="py-2 text-center font-medium text-sm border-b">
+                        {day}
+                      </div>
+                    ))}
+                  </div>
+                  
+                  <div className="grid grid-cols-7 h-64 overflow-y-auto">
+                    {Array.from({ length: 7 }).map((_, i) => {
+                      // Today is the 3rd day (Wednesday) in our mock calendar
+                      const isToday = i === 3;
+                      return (
+                        <div 
+                          key={i} 
+                          className={`border-r border-b p-1 h-full ${
+                            isToday 
+                              ? 'bg-purple-50 dark:bg-purple-900/20' 
+                              : ''
+                          }`}
+                        >
+                          <div className={`w-6 h-6 flex items-center justify-center text-xs rounded-full mb-1 ${
+                            isToday 
+                              ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white font-bold' 
+                              : 'text-gray-700 dark:text-gray-300'
+                          }`}>
+                            {12 + i}
+                          </div>
+                          
+                          {i >= 2 && i <= 4 && ( // Add study sessions to Wed-Fri
+                            <div className="space-y-1">
+                              {i === 3 && ( // Today (Wednesday) has 2 sessions
+                                <>
+                                  <div className="bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 text-xs p-1 rounded">
+                                    <div className="font-medium">Physics</div>
+                                    <div className="text-xs">4:00 - 5:30 PM</div>
+                                  </div>
+                                  <div className="bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 text-xs p-1 rounded">
+                                    <div className="font-medium">Chemistry</div>
+                                    <div className="text-xs">6:00 - 7:00 PM</div>
+                                  </div>
+                                </>
+                              )}
+                              
+                              {i === 4 && ( // Thursday has 1 session
+                                <div className="bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 text-xs p-1 rounded">
+                                  <div className="font-medium">Mathematics</div>
+                                  <div className="text-xs">5:00 - 6:30 PM</div>
+                                </div>
+                              )}
+                              
+                              {i === 2 && ( // Tuesday has 1 session
+                                <div className="bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 text-xs p-1 rounded">
+                                  <div className="font-medium">Biology</div>
+                                  <div className="text-xs">4:30 - 6:00 PM</div>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
                       );
                     })}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-sm flex items-center gap-2">
+                    <Clock size={16} className="text-purple-500" />
+                    Study Time Distribution
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-1">
+                        <span className="text-xs text-gray-500">Weekly Target</span>
+                        <p className="font-semibold">{studentProfile.commitmentHours * 7} hours</p>
+                      </div>
+                      <div className="space-y-1">
+                        <span className="text-xs text-gray-500">Weekly Actual</span>
+                        <p className="font-semibold">26 hours</p>
+                      </div>
+                      <div className="space-y-1">
+                        <span className="text-xs text-gray-500">Daily Average</span>
+                        <p className="font-semibold">3.7 hours</p>
+                      </div>
+                      <div className="space-y-1">
+                        <span className="text-xs text-gray-500">Consistency</span>
+                        <p className="font-semibold text-green-600">92%</p>
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <h3 className="text-xs font-medium text-gray-500">Subject Distribution</h3>
+                      <div className="h-4 w-full rounded-full overflow-hidden flex">
+                        <div className="bg-blue-500 h-full" style={{ width: '35%' }}></div>
+                        <div className="bg-green-500 h-full" style={{ width: '25%' }}></div>
+                        <div className="bg-purple-500 h-full" style={{ width: '30%' }}></div>
+                        <div className="bg-amber-500 h-full" style={{ width: '10%' }}></div>
+                      </div>
+                      <div className="flex text-xs justify-between">
+                        <div className="flex items-center gap-1">
+                          <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                          <span>Physics (35%)</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                          <span>Chemistry (25%)</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                          <span>Mathematics (30%)</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <div className="w-2 h-2 bg-amber-500 rounded-full"></div>
+                          <span>Biology (10%)</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-sm flex items-center gap-2">
+                    <UserCheck size={16} className="text-purple-500" />
+                    Study Habits Analysis
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm">Study Session Duration</span>
+                        <Badge className="bg-green-100 text-green-800">Excellent</Badge>
+                      </div>
+                      <p className="text-xs text-gray-500">
+                        Maintains focused study sessions of 60-90 minutes with adequate breaks.
+                      </p>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm">Consistency</span>
+                        <Badge className="bg-green-100 text-green-800">Good</Badge>
+                      </div>
+                      <p className="text-xs text-gray-500">
+                        Studies regularly with occasional missed days. Current streak: {studentProfile.studyStreak} days.
+                      </p>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm">Subject Balance</span>
+                        <Badge className="bg-amber-100 text-amber-800">Needs Improvement</Badge>
+                      </div>
+                      <p className="text-xs text-gray-500">
+                        Some subjects receive significantly less attention (Biology: 10%).
+                      </p>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm">Time of Day Preference</span>
+                        <Badge className="bg-blue-100 text-blue-800">Evening Learner</Badge>
+                      </div>
+                      <p className="text-xs text-gray-500">
+                        Most productive between 4PM - 8PM, aligns with identified preferred study time.
+                      </p>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
             </div>
           </TabsContent>
         </Tabs>
+        
+        <DialogFooter className="mt-6">
+          <Button variant="outline" onClick={onClose}>Close</Button>
+          <Button className="bg-gradient-to-r from-pink-500 to-purple-600 text-white hover:from-pink-600 hover:to-purple-700">
+            Generate Report
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
