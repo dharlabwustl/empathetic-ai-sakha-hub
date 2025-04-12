@@ -1,8 +1,20 @@
-
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Brain, TrendingUp, Settings, RefreshCw, Save, Power } from "lucide-react";
+import { 
+  Brain, 
+  TrendingUp, 
+  Settings, 
+  RefreshCw, 
+  Save, 
+  Power, 
+  MessageCircle,
+  Smile,
+  Users,
+  Gauge,
+  MessageSquare,
+  ThumbsUp
+} from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Switch } from "@/components/ui/switch";
 import LearningStyleSection from "../personalization/LearningStyleSection";
@@ -10,6 +22,14 @@ import AdaptiveDifficultySection from "../personalization/AdaptiveDifficultySect
 import StudyPlanSection from "../personalization/StudyPlanSection";
 import FeelGoodSection from "../personalization/FeelGoodSection";
 import AIModelConfiguration from "../personalization/AIModelConfiguration";
+
+// New components for additional features
+import MoodBasedSuggestionsSection from "../personalization/MoodBasedSuggestionsSection";
+import SurroundingInfluenceSection from "../personalization/SurroundingInfluenceSection";
+import PeerCommunityFeedSection from "../personalization/PeerCommunityFeedSection";
+import LearningPulseSection from "../personalization/LearningPulseSection";
+import DoubtResponderSection from "../personalization/DoubtResponderSection";
+import TutorChatSection from "../personalization/TutorChatSection";
 
 const AIPersonalizationTab = () => {
   const { toast } = useToast();
@@ -103,11 +123,199 @@ const AIPersonalizationTab = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {/* Original features */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         <LearningStyleSection />
         <AdaptiveDifficultySection />
         <StudyPlanSection />
         <FeelGoodSection />
+      </div>
+
+      {/* New additional features */}
+      <h3 className="text-xl font-semibold mb-4 mt-8">Advanced AI Features</h3>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+        {/* Mood-Based Suggestions */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center justify-between">
+              <div className="flex items-center">
+                <Smile className="mr-2 h-5 w-5 text-pink-500" />
+                <span>Mood-Based Suggestions</span>
+              </div>
+              <Switch id="mood-suggestions" defaultChecked onCheckedChange={(checked) => handleModelToggle("Mood Suggestions", checked)} />
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-gray-600 mb-3">Provides content suggestions based on student's emotional state</p>
+            <div className="space-y-4">
+              <div className="bg-muted/50 p-3 rounded-lg text-sm">
+                <p className="font-medium">Lightweight emotion model + GPT</p>
+                <div className="flex justify-between items-center mt-2">
+                  <span>Trigger accuracy:</span>
+                  <span className="text-pink-600 font-medium">86%</span>
+                </div>
+              </div>
+              <div className="flex justify-between">
+                <Button size="sm" variant="outline" onClick={() => handleConfigureModel("Mood Suggestions")}>
+                  Track Alerts
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => handleConfigureModel("Mood Engine")}>
+                  Tune Engine
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Surrounding Influence Meter */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center justify-between">
+              <div className="flex items-center">
+                <Gauge className="mr-2 h-5 w-5 text-purple-500" />
+                <span>Influence Meter</span>
+              </div>
+              <Switch id="influence-meter" defaultChecked onCheckedChange={(checked) => handleModelToggle("Influence Meter", checked)} />
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-gray-600 mb-3">Tracks confidence, peer influence and exposure</p>
+            <div className="space-y-4">
+              <div className="bg-muted/50 p-3 rounded-lg text-sm">
+                <p className="font-medium">Hybrid behavior+LLM model</p>
+                <div className="flex justify-between items-center mt-2">
+                  <span>Data points tracked:</span>
+                  <span className="text-purple-600 font-medium">12</span>
+                </div>
+              </div>
+              <Button size="sm" className="w-full" onClick={() => handleConfigureModel("Influence Meter")}>
+                View Dashboard
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Peer Community Feed Tuner */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center justify-between">
+              <div className="flex items-center">
+                <Users className="mr-2 h-5 w-5 text-blue-500" />
+                <span>Peer Feed Tuner</span>
+              </div>
+              <Switch id="peer-feed" defaultChecked onCheckedChange={(checked) => handleModelToggle("Peer Feed", checked)} />
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-gray-600 mb-3">Filter peer content by influence level</p>
+            <div className="space-y-4">
+              <div className="bg-muted/50 p-3 rounded-lg text-sm">
+                <p className="font-medium">NLP filter + Mood Engine</p>
+                <div className="flex justify-between items-center mt-2">
+                  <span>Moderation accuracy:</span>
+                  <span className="text-blue-600 font-medium">92%</span>
+                </div>
+              </div>
+              <Button size="sm" className="w-full" onClick={() => handleConfigureModel("Moderation Controls")}>
+                Moderation Controls
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Learning Pulse Generator */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center justify-between">
+              <div className="flex items-center">
+                <TrendingUp className="mr-2 h-5 w-5 text-green-500" />
+                <span>Learning Pulse</span>
+              </div>
+              <Switch id="learning-pulse" defaultChecked onCheckedChange={(checked) => handleModelToggle("Learning Pulse", checked)} />
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-gray-600 mb-3">30-sec mood + readiness summary</p>
+            <div className="space-y-4">
+              <div className="bg-muted/50 p-3 rounded-lg text-sm">
+                <p className="font-medium">LLM + mood scoring</p>
+                <div className="flex justify-between items-center mt-2">
+                  <span>Reports generated:</span>
+                  <span className="text-green-600 font-medium">458</span>
+                </div>
+              </div>
+              <Button size="sm" className="w-full" onClick={() => handleConfigureModel("Learning Pulse")}>
+                Access Report Logs
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Doubt Auto-Responder */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center justify-between">
+              <div className="flex items-center">
+                <MessageSquare className="mr-2 h-5 w-5 text-yellow-500" />
+                <span>Doubt Responder</span>
+              </div>
+              <Switch id="doubt-responder" defaultChecked onCheckedChange={(checked) => handleModelToggle("Doubt Responder", checked)} />
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-gray-600 mb-3">GPT answers from knowledge base</p>
+            <div className="space-y-4">
+              <div className="bg-muted/50 p-3 rounded-lg text-sm">
+                <p className="font-medium">GPT + curated KB</p>
+                <div className="flex justify-between items-center mt-2">
+                  <span>Response accuracy:</span>
+                  <span className="text-yellow-600 font-medium">94%</span>
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <Button size="sm" variant="outline" className="flex-1" onClick={() => handleConfigureModel("View Logs")}>
+                  View Logs
+                </Button>
+                <Button size="sm" variant="outline" className="flex-1" onClick={() => handleConfigureModel("Approve KB")}>
+                  Approve KB
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* 24x7 Tutor Chat */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center justify-between">
+              <div className="flex items-center">
+                <MessageCircle className="mr-2 h-5 w-5 text-pink-500" />
+                <span>24x7 Tutor Chat</span>
+              </div>
+              <Switch id="tutor-chat" defaultChecked onCheckedChange={(checked) => handleModelToggle("Tutor Chat", checked)} />
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-gray-600 mb-3">Conversational learning assistant</p>
+            <div className="space-y-4">
+              <div className="bg-muted/50 p-3 rounded-lg text-sm">
+                <p className="font-medium">GPT + Chat Layer</p>
+                <div className="flex justify-between items-center mt-2">
+                  <span>Total conversations:</span>
+                  <span className="text-pink-600 font-medium">1,248</span>
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <Button size="sm" variant="outline" className="flex-1" onClick={() => handleConfigureModel("View Chats")}>
+                  View Chats
+                </Button>
+                <Button size="sm" variant="outline" className="flex-1" onClick={() => handleConfigureModel("Escalate Issues")}>
+                  Escalate
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       <Card className="mt-6">
@@ -170,6 +378,63 @@ const AIPersonalizationTab = () => {
                     </Button>
                   </td>
                 </tr>
+                
+                {/* Add more rows for other models like in the original */}
+                <tr className="border-b hover:bg-gray-50">
+                  <td className="py-3 px-4">Mood-Based Suggestions</td>
+                  <td className="py-3 px-4">Sentiment Model v3</td>
+                  <td className="py-3 px-4">86%</td>
+                  <td className="py-3 px-4">0.9s</td>
+                  <td className="py-3 px-4">
+                    <span className="inline-block px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">Active</span>
+                  </td>
+                  <td className="py-3 px-4">
+                    <div className="flex items-center gap-2">
+                      <Switch id="mood-suggestions-switch" defaultChecked onCheckedChange={(checked) => handleModelToggle("Mood Suggestions", checked)} />
+                      <label htmlFor="mood-suggestions-switch" className="text-xs">
+                        <Power size={14} className={`inline ${true ? 'text-green-600' : 'text-gray-400'}`} />
+                      </label>
+                    </div>
+                  </td>
+                  <td className="py-3 px-4">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => handleConfigureModel("Mood Suggestions")}
+                    >
+                      Configure
+                    </Button>
+                  </td>
+                </tr>
+
+                <tr className="border-b hover:bg-gray-50">
+                  <td className="py-3 px-4">24x7 Tutor Chat</td>
+                  <td className="py-3 px-4">GPT-4 + Edu Context</td>
+                  <td className="py-3 px-4">95%</td>
+                  <td className="py-3 px-4">1.5s</td>
+                  <td className="py-3 px-4">
+                    <span className="inline-block px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">Active</span>
+                  </td>
+                  <td className="py-3 px-4">
+                    <div className="flex items-center gap-2">
+                      <Switch id="tutor-chat-switch" defaultChecked onCheckedChange={(checked) => handleModelToggle("Tutor Chat", checked)} />
+                      <label htmlFor="tutor-chat-switch" className="text-xs">
+                        <Power size={14} className={`inline ${true ? 'text-green-600' : 'text-gray-400'}`} />
+                      </label>
+                    </div>
+                  </td>
+                  <td className="py-3 px-4">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => handleConfigureModel("Tutor Chat")}
+                    >
+                      Configure
+                    </Button>
+                  </td>
+                </tr>
+
+                {/* Keep other existing rows */}
                 <tr className="border-b hover:bg-gray-50">
                   <td className="py-3 px-4">Study Planner</td>
                   <td className="py-3 px-4">GPT-4 + Scheduling Algorithm</td>
@@ -248,6 +513,7 @@ const AIPersonalizationTab = () => {
                     </Button>
                   </td>
                 </tr>
+                {/* ... other rows ... */}
               </tbody>
             </table>
           </div>

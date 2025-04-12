@@ -1,4 +1,3 @@
-
 @layer base {
   :root {
     --background: 210 40% 98%;
@@ -10,10 +9,10 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 328 73% 69%;
+    --primary: 328 85% 55%;
     --primary-foreground: 210 40% 98%;
 
-    --secondary: 288 60% 76%;
+    --secondary: 288 75% 65%;
     --secondary-foreground: 222.2 47.4% 11.2%;
 
     --muted: 210 40% 96.1%;
@@ -27,7 +26,7 @@
 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 328 73% 69%;
+    --ring: 328 85% 55%;
 
     --radius: 0.75rem;
 
@@ -40,13 +39,13 @@
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
     
-    /* Updated Sakha colors for a more vibrant pink/purple theme */
+    /* Updated Sakha colors for a more vibrant premium pink/purple theme */
     --sakha-light-blue: 224 100% 75%;
-    --sakha-blue: 240 100% 50%;
-    --sakha-purple: 288 60% 58%;
-    --sakha-pink: 328 73% 69%;
-    --sakha-lavender: 288 60% 94%;
-    --sakha-deep-blue: 240 70% 30%;
+    --sakha-blue: 240 100% 60%;
+    --sakha-purple: 288 75% 65%;
+    --sakha-pink: 328 85% 55%;
+    --sakha-lavender: 288 70% 94%;
+    --sakha-deep-blue: 240 80% 30%;
   }
 
   .dark {
@@ -59,16 +58,16 @@
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 328 73% 69%;
+    --primary: 328 85% 60%;
     --primary-foreground: 222.2 47.4% 11.2%;
 
-    --secondary: 288 60% 76%;
+    --secondary: 288 75% 70%;
     --secondary-foreground: 210 40% 98%;
 
     --muted: 217.2 32.6% 17.5%;
     --muted-foreground: 215 20.2% 65.1%;
 
-    --accent: 328 30% 25%;
+    --accent: 328 35% 25%;
     --accent-foreground: 210 40% 98%;
 
     --destructive: 0 62.8% 30.6%;
@@ -76,7 +75,7 @@
 
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: 328 73% 69%;
+    --ring: 328 85% 60%;
 
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
@@ -89,11 +88,11 @@
     
     /* Updated Sakha colors for dark mode */
     --sakha-light-blue: 224 80% 75%;
-    --sakha-blue: 240 90% 60%;
-    --sakha-purple: 288 60% 58%;
-    --sakha-pink: 328 73% 69%;
-    --sakha-lavender: 288 60% 94%;
-    --sakha-deep-blue: 240 70% 30%;
+    --sakha-blue: 240 90% 70%;
+    --sakha-purple: 288 75% 65%;
+    --sakha-pink: 328 85% 65%;
+    --sakha-lavender: 288 70% 94%;
+    --sakha-deep-blue: 240 80% 40%;
   }
 }
 

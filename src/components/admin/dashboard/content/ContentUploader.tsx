@@ -61,8 +61,8 @@ const ContentUploader = ({
       variant: "default"
     });
 
-    // Simulate the upload process
-    handleUpload();
+    // Simulate the upload process with the actual handleUpload function
+    handleUpload(contentType, subject, examType, tags);
 
     // Simulate successful upload after progress completes
     setTimeout(() => {
@@ -77,7 +77,7 @@ const ContentUploader = ({
   return (
     <div className="mb-6 p-6 border-2 border-dashed rounded-lg border-gray-300 dark:border-gray-700 bg-white/50 dark:bg-slate-900/50">
       <div className="text-center mb-4">
-        <Upload className="mx-auto h-12 w-12 text-purple-400" />
+        <Upload className="mx-auto h-12 w-12 text-pink-400" />
         <h3 className="mt-2 text-lg font-semibold">Upload Content</h3>
         <p className="text-sm text-gray-500 dark:text-gray-400">
           Drag and drop files or click to browse

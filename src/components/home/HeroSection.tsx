@@ -6,6 +6,7 @@ import ChatInterface from './hero/ChatInterface';
 import ScrollIndicator from './hero/ScrollIndicator';
 import HeroButtons from './hero/HeroButtons';
 import { motion } from "framer-motion";
+// We'll still import but not use ExamNamesBadge as we're removing the duplicate display
 import ExamNamesBadge from './hero/ExamNamesBadge';
 
 export interface HeroSectionProps {
@@ -94,7 +95,8 @@ const HeroSection: React.FC<HeroSectionProps> = ({
           transition={{ duration: 0.8, delay: 0.6 }}
           className="mb-12"
         >
-          <ExamNamesBadge />
+          {/* Removed this component as it was causing repetition */}
+          {/* <ExamNamesBadge /> */}
         </motion.div>
         
         <motion.div
