@@ -13,6 +13,7 @@ import { Card } from "@/components/ui/card";
 import { Eye, Download, Plus, Search } from "lucide-react";
 import { StudentData } from "@/types/admin";
 import { Input } from "@/components/ui/input";
+import StudentProfileModal from "../students/StudentProfileModal";
 
 interface UserManagementTabProps {
   recentStudents: StudentData[];
@@ -20,6 +21,8 @@ interface UserManagementTabProps {
 
 const UserManagementTab = ({ recentStudents }: UserManagementTabProps) => {
   const [filterStatus, setFilterStatus] = useState("all");
+  const [selectedStudent, setSelectedStudent] = useState<StudentData | null>(null);
+  const [showProfileModal, setShowProfileModal] = useState(false);
   
   const formatDate = (date: Date) => {
     return new Date(date).toLocaleDateString('en-US', {
@@ -27,6 +30,16 @@ const UserManagementTab = ({ recentStudents }: UserManagementTabProps) => {
       day: 'numeric',
       year: 'numeric'
     });
+  };
+
+  const viewStudentProfile = (student: StudentData) => {
+    setSelectedStudent(student);
+    setShowProfileModal(true);
+  };
+
+  const closeProfileModal = () => {
+    setShowProfileModal(false);
+    setSelectedStudent(null);
   };
 
   return (
@@ -121,7 +134,12 @@ const UserManagementTab = ({ recentStudents }: UserManagementTabProps) => {
                     </span>
                   </TableCell>
                   <TableCell>
-                    <Button variant="ghost" size="sm" className="flex items-center gap-1">
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="flex items-center gap-1"
+                      onClick={() => viewStudentProfile(student)}
+                    >
                       <Eye size={14} />
                       <span>View</span>
                     </Button>
@@ -132,6 +150,13 @@ const UserManagementTab = ({ recentStudents }: UserManagementTabProps) => {
           </Table>
         </div>
       </div>
+
+      {showProfileModal && selectedStudent && (
+        <StudentProfileModal 
+          student={selectedStudent} 
+          onClose={closeProfileModal} 
+        />
+      )}
     </Card>
   );
 };
