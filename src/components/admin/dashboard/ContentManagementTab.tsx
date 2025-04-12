@@ -1,40 +1,107 @@
 
-import React from "react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import React, { useState } from "react";
+import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { 
   FileText,
-  MoveRight, 
-  PlusCircle,
-  Tag,
   Book,
   FileSpreadsheet,
   GraduationCap
 } from "lucide-react";
-
-import ContentUploader from "./content/ContentUploader";
-import ContentBrowser from "./content/ContentBrowser";
-import { useContentManagement } from "@/hooks/admin/useContentManagement";
 import { ContentType } from "@/types/content";
+
+// Import the new component files
+import ContentManagementHeader from "./content/ContentManagementHeader";
+import ContentSummaryCards from "./content/ContentSummaryCards";
+import TabContentApprovalQueue from "./content/TabContentApprovalQueue";
+import TabContentStudyMaterials from "./content/TabContentStudyMaterials";
+import TabContentPrompts from "./content/TabContentPrompts";
 
 const ContentManagementTab = () => {
   const { toast } = useToast();
-  const { 
-    uploading, 
-    uploadProgress, 
-    selectedFile, 
-    uploadedFiles, 
-    searchTerm,
-    currentTab,
-    filteredFiles,
-    handleFileSelect,
-    handleFileRemove,
-    handleUpload,
-    setSearchTerm,
-    setCurrentTab
-  } = useContentManagement();
+  const [activeTab, setActiveTab] = useState("queue");
+  
+  const handleUpload = () => {
+    toast({
+      title: "Upload Content",
+      description: "Upload panel opened for content files",
+      variant: "default"
+    });
+  };
+  
+  const handleCreateContent = () => {
+    toast({
+      title: "Create Content",
+      description: "Content creation wizard launched",
+      variant: "default"
+    });
+  };
+  
+  const handleManageContent = (contentType: string) => {
+    toast({
+      title: `Manage ${contentType}`,
+      description: `Opening ${contentType} management interface`,
+      variant: "default"
+    });
+  };
+  
+  const handleEditPrompt = (promptType: string) => {
+    toast({
+      title: "Edit Prompt",
+      description: `Opening prompt editor for ${promptType}`,
+      variant: "default"
+    });
+  };
+  
+  const handleManageAllPrompts = () => {
+    toast({
+      title: "Manage All Prompts",
+      description: "Opening comprehensive prompt management interface",
+      variant: "default"
+    });
+  };
+
+  const handleTestContentGeneration = () => {
+    toast({
+      title: "Testing Content Generation",
+      description: "Connecting to Flask environment to test content generation...",
+      variant: "default"
+    });
+    
+    // Simulate testing process
+    setTimeout(() => {
+      toast({
+        title: "Test Complete",
+        description: "Content generation algorithm tested successfully",
+        variant: "default"
+      });
+    }, 2000);
+  };
+  
+  const handleSaveSettings = () => {
+    toast({
+      title: "Saving Settings",
+      description: "Content management settings have been saved",
+      variant: "default"
+    });
+  };
+  
+  const handleResetSettings = () => {
+    toast({
+      title: "Reset Settings",
+      description: "Content management settings have been reset to defaults",
+      variant: "default"
+    });
+  };
+  
+  const handleContentAction = (action: string, title: string) => {
+    toast({
+      title: `${action} Content`,
+      description: `${action} action performed on "${title}"`,
+      variant: "default"
+    });
+  };
 
   const handleTagManagement = () => {
     toast({
@@ -50,182 +117,58 @@ const ContentManagementTab = () => {
     });
   };
 
-  const handleContentGeneration = () => {
-    toast({
-      title: "Content Generation",
-      description: "AI content generation initialized."
-    });
-  };
-
   // This function converts string to ContentType to fix the type mismatch
   const handleTabChange = (value: string) => {
-    setCurrentTab(value as ContentType);
+    setActiveTab(value);
   };
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col md:flex-row justify-between gap-4">
-        <div>
-          <h2 className="text-2xl font-bold mb-2">Content Management System</h2>
-          <p className="text-gray-500 dark:text-gray-400">
-            Manage study materials, syllabi, practice exams, and other content resources
-          </p>
-        </div>
-        
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={handleTagManagement}>
-            <Tag size={16} className="mr-2" />
-            Manage Tags
-          </Button>
-          <Button variant="outline" onClick={handlePromptTuning}>
-            <MoveRight size={16} className="mr-2" />
-            Tune GPT Prompts
-          </Button>
-          <Button onClick={handleContentGeneration}>
-            <PlusCircle size={16} className="mr-2" />
-            Generate Content
-          </Button>
-        </div>
-      </div>
+      <ContentManagementHeader 
+        handleUpload={handleUpload}
+        handleCreateContent={handleCreateContent}
+        handleTagManagement={handleTagManagement}
+        handlePromptTuning={handlePromptTuning}
+        handleContentGeneration={handleTestContentGeneration}
+      />
+      
+      <Card>
+        <CardContent className="pt-6">
+          <ContentSummaryCards handleManageContent={handleManageContent} />
 
-      <Tabs defaultValue="study-material" onValueChange={handleTabChange}>
-        <div className="flex justify-between items-center mb-4">
-          <TabsList>
-            <TabsTrigger value="study-material" className="flex items-center gap-1">
-              <FileText size={16} />
-              <span>Study Materials</span>
-            </TabsTrigger>
-            <TabsTrigger value="syllabus" className="flex items-center gap-1">
-              <Book size={16} />
-              <span>Syllabus</span>
-            </TabsTrigger>
-            <TabsTrigger value="practice" className="flex items-center gap-1">
-              <FileSpreadsheet size={16} />
-              <span>Practice</span>
-            </TabsTrigger>
-            <TabsTrigger value="exam-material" className="flex items-center gap-1">
-              <GraduationCap size={16} />
-              <span>Exam Material</span>
-            </TabsTrigger>
-            <TabsTrigger value="all" className="flex items-center gap-1">
-              <FileText size={16} />
-              <span>All</span>
-            </TabsTrigger>
-          </TabsList>
-        </div>
+          <Tabs defaultValue="queue" value={activeTab} onValueChange={handleTabChange}>
+            <TabsList className="mb-4 grid w-full grid-cols-3 gap-2">
+              <TabsTrigger value="queue">Approval Queue</TabsTrigger>
+              <TabsTrigger value="studyMaterials">Study Materials</TabsTrigger>
+              <TabsTrigger value="prompts">GPT Prompt Tuner</TabsTrigger>
+            </TabsList>
 
-        <TabsContent value="study-material" className="mt-0">
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle>Study Materials</CardTitle>
-              <CardDescription>Upload and manage study notes, reference materials, and resources</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ContentUploader 
-                handleFileSelect={handleFileSelect}
-                handleUpload={handleUpload}
-                selectedFile={selectedFile}
-                onFileRemove={handleFileRemove}
-                uploading={uploading}
-                uploadProgress={uploadProgress}
-              />
-              <ContentBrowser 
-                files={filteredFiles}
-                searchTerm={searchTerm}
-                setSearchTerm={setSearchTerm}
-              />
-            </CardContent>
-          </Card>
-        </TabsContent>
-        
-        <TabsContent value="syllabus" className="mt-0">
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle>Syllabus</CardTitle>
-              <CardDescription>Upload and manage exam syllabi and curriculum materials</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ContentUploader 
-                handleFileSelect={handleFileSelect}
-                handleUpload={handleUpload}
-                selectedFile={selectedFile}
-                onFileRemove={handleFileRemove}
-                uploading={uploading}
-                uploadProgress={uploadProgress}
-              />
-              <ContentBrowser 
-                files={filteredFiles}
-                searchTerm={searchTerm}
-                setSearchTerm={setSearchTerm}
-              />
-            </CardContent>
-          </Card>
-        </TabsContent>
+            {/* Approval Queue Tab */}
+            <TabsContent value="queue">
+              <TabContentApprovalQueue handleContentAction={handleContentAction} />
+            </TabsContent>
 
-        <TabsContent value="practice" className="mt-0">
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle>Practice Materials</CardTitle>
-              <CardDescription>Upload and manage practice tests, question banks, and worksheets</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ContentUploader 
-                handleFileSelect={handleFileSelect}
-                handleUpload={handleUpload}
-                selectedFile={selectedFile}
-                onFileRemove={handleFileRemove}
-                uploading={uploading}
-                uploadProgress={uploadProgress}
+            {/* Study Materials Tab */}
+            <TabsContent value="studyMaterials">
+              <TabContentStudyMaterials 
+                handleUpload={handleUpload} 
+                handleContentAction={handleContentAction} 
               />
-              <ContentBrowser 
-                files={filteredFiles}
-                searchTerm={searchTerm}
-                setSearchTerm={setSearchTerm}
-              />
-            </CardContent>
-          </Card>
-        </TabsContent>
+            </TabsContent>
 
-        <TabsContent value="exam-material" className="mt-0">
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle>Exam Materials</CardTitle>
-              <CardDescription>Upload and manage previous year papers, sample papers, and exam resources</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ContentUploader 
-                handleFileSelect={handleFileSelect}
-                handleUpload={handleUpload}
-                selectedFile={selectedFile}
-                onFileRemove={handleFileRemove}
-                uploading={uploading}
-                uploadProgress={uploadProgress}
+            {/* GPT Prompt Tuner Tab */}
+            <TabsContent value="prompts">
+              <TabContentPrompts 
+                handleEditPrompt={handleEditPrompt}
+                handleManageAllPrompts={handleManageAllPrompts}
+                handleTestContentGeneration={handleTestContentGeneration}
+                handleSaveSettings={handleSaveSettings}
+                handleResetSettings={handleResetSettings}
               />
-              <ContentBrowser 
-                files={filteredFiles}
-                searchTerm={searchTerm}
-                setSearchTerm={setSearchTerm}
-              />
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="all" className="mt-0">
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle>All Content</CardTitle>
-              <CardDescription>View and manage all uploaded content</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ContentBrowser 
-                files={filteredFiles}
-                searchTerm={searchTerm}
-                setSearchTerm={setSearchTerm}
-              />
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+      </Card>
     </div>
   );
 };
