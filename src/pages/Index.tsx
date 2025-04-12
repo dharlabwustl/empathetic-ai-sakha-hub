@@ -62,21 +62,22 @@ const Index = () => {
           <ForWhomSection />
         </div>
         
+        {/* Reordered sections */}
+        <MobileAppPromotion />
+        
+        <EcosystemAnimation />
+        
         <ExamPreparationSection />
         
         {showExamAnalyzer && <ExamReadinessAnalyzer onClose={handleCloseExamAnalyzer} />}
         
         <StudentBenefitsSection />
         
-        <MobileAppPromotion />
-        
         <OnboardingSection />
         
         <VideoSection />
         
         <FounderSection />
-        
-        <EcosystemAnimation />
         
         <CallToAction />
       </main>
