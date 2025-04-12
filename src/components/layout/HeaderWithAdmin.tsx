@@ -5,6 +5,8 @@ import { useTheme } from "@/providers/ThemeProvider";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
+import { ChevronDown, Lock } from "lucide-react";
 
 export const Header = () => {
   const { theme } = useTheme();
@@ -40,24 +42,33 @@ export const Header = () => {
       className={cn(
         "fixed top-0 w-full z-30 transition-all duration-300",
         scrolled
-          ? "bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg shadow-sm"
+          ? "bg-white/80 dark:bg-gray-900/90 backdrop-blur-lg shadow-sm"
           : "bg-transparent"
       )}
     >
       <div className="container mx-auto px-4 sm:px-6">
         <div className="flex items-center justify-between h-16 md:h-20">
-          <div className="flex items-center">
-            <Link to="/" className="flex items-center gap-2">
-              <img
-                src="/lovable-uploads/ffd1ed0a-7a25-477e-bc91-1da9aca3497f.png"
-                alt="Sakha AI"
-                className="w-10 h-10"
-              />
-              <span className="font-display font-bold text-xl md:text-2xl gradient-text">
+          <Link to="/" className="flex items-center gap-2">
+            <motion.img
+              src="/lovable-uploads/ffd1ed0a-7a25-477e-bc91-1da9aca3497f.png"
+              alt="Sakha AI"
+              className="w-10 h-10"
+              whileHover={{ 
+                rotate: [0, -10, 10, -10, 0],
+                transition: { duration: 0.5 }
+              }}
+            />
+            <motion.span 
+              className="font-display font-bold text-xl md:text-2xl"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5 }}
+            >
+              <span className="bg-gradient-to-r from-violet-600 to-indigo-600 bg-clip-text text-transparent">
                 Sakha AI
               </span>
-            </Link>
-          </div>
+            </motion.span>
+          </Link>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-1">
@@ -67,24 +78,30 @@ export const Header = () => {
                   key={link.path}
                   to={link.path}
                   className={cn(
-                    "px-3 py-2 rounded-md text-sm font-medium transition-colors",
+                    "px-3 py-2 rounded-md text-sm font-medium transition-colors relative group",
                     isActive(link.path)
-                      ? "text-primary bg-primary/10"
+                      ? "text-primary"
                       : "text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary"
                   )}
                 >
                   {link.title}
+                  <span className={cn(
+                    "absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-violet-600 to-indigo-600 transform scale-x-0 transition-transform duration-300",
+                    isActive(link.path) ? "scale-x-100" : "group-hover:scale-x-100"
+                  )}></span>
                 </Link>
               ))}
             </div>
             <ThemeToggle />
             <Link to="/login">
-              <Button variant="outline" className="ml-2">
-                Student Login
+              <Button variant="outline" className="ml-2 flex gap-2">
+                <span>Login</span>
               </Button>
             </Link>
             <Link to="/signup">
-              <Button className="ml-2">Sign Up</Button>
+              <Button className="ml-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 transition-all duration-300">
+                Sign Up
+              </Button>
             </Link>
           </nav>
 
@@ -134,7 +151,12 @@ export const Header = () => {
 
       {/* Mobile Navigation Menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-white dark:bg-gray-900 shadow-lg">
+        <motion.div 
+          className="md:hidden bg-white dark:bg-gray-900 shadow-lg"
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: "auto" }}
+          transition={{ duration: 0.3 }}
+        >
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
             {navLinks.map((link) => (
               <Link
@@ -164,7 +186,7 @@ export const Header = () => {
               </Link>
             </div>
           </div>
-        </div>
+        </motion.div>
       )}
     </header>
   );

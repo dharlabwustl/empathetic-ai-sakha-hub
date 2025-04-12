@@ -1,85 +1,49 @@
 
-import { motion } from "framer-motion";
+import React from "react";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
-import { TrendingUp, BookOpen } from "lucide-react";
+import { motion } from "framer-motion";
+import { ArrowRight, SparklesIcon } from "lucide-react";
 
-interface HeroButtonsProps {
+export interface HeroButtonsProps {
+  scrollToFeatures?: () => void;
+  scrollToForWhom?: () => void;
   onAnalyzeClick: () => void;
 }
 
-const HeroButtons = ({ onAnalyzeClick }: HeroButtonsProps) => {
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1
-      }
-    }
-  };
-  
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.5
-      }
-    }
-  };
-
+const HeroButtons: React.FC<HeroButtonsProps> = ({
+  scrollToFeatures,
+  scrollToForWhom,
+  onAnalyzeClick
+}) => {
   return (
-    <motion.div 
-      className="flex flex-col sm:flex-row justify-start items-center gap-4 mb-8"
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-    >
-      <motion.div 
-        variants={itemVariants}
-        whileHover={{ scale: 1.03 }}
-        whileTap={{ scale: 0.98 }}
+    <div className="flex flex-col sm:flex-row gap-4 justify-center">
+      <Button 
+        onClick={onAnalyzeClick}
+        size="lg" 
+        className="relative overflow-hidden group"
       >
-        <Button 
-          size="lg"
-          className="bg-gradient-to-r from-violet-600 to-purple-500 hover:opacity-90 text-white px-8 py-6 shadow-lg hover:shadow-xl transition-all"
-          onClick={onAnalyzeClick}
-        >
-          <motion.div
-            animate={{ rotate: [0, 3, -3, 0] }}
-            transition={{ repeat: Infinity, repeatDelay: 2, duration: 0.5 }}
-          >
-            <TrendingUp className="mr-2" />
-          </motion.div>
-          Test Your Exam Readiness Now
-        </Button>
-      </motion.div>
+        <span className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-purple-600 transition-all duration-300 group-hover:scale-105"></span>
+        <span className="relative flex items-center justify-center gap-2">
+          <SparklesIcon size={18} className="text-white" />
+          <span>Test Your Exam Readiness</span>
+        </span>
+      </Button>
       
-      <motion.div 
-        variants={itemVariants}
-        whileHover={{ scale: 1.03 }}
-        whileTap={{ scale: 0.98 }}
+      <Button 
+        onClick={scrollToFeatures}
+        size="lg" 
+        variant="outline" 
+        className="border-indigo-300 text-indigo-600 hover:bg-indigo-50 flex items-center gap-2 transition-colors duration-300"
       >
-        <Button 
-          size="lg" 
-          variant="outline"
-          className="border-violet-500 text-violet-600 hover:bg-violet-50 shadow-md hover:shadow-lg transition-all"
-          asChild
+        Explore Features
+        <motion.div
+          animate={{ x: [0, 5, 0] }}
+          transition={{ repeat: Infinity, duration: 1.5 }}
         >
-          <Link to="/signup">
-            <motion.div
-              animate={{ rotate: [0, -5, 5, 0] }}
-              transition={{ repeat: Infinity, repeatDelay: 3, duration: 0.5 }}
-            >
-              <BookOpen className="mr-2" />
-            </motion.div>
-            Start Free Preparation
-          </Link>
-        </Button>
-      </motion.div>
-    </motion.div>
+          <ArrowRight size={18} />
+        </motion.div>
+      </Button>
+    </div>
   );
 };
 

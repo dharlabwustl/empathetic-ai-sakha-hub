@@ -4,6 +4,7 @@ import AdminLayout from "@/components/admin/AdminLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { BarChart, PieChart, LineChart, TrendingUp, Users } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const AnalyticsPage = () => {
   const { toast } = useToast();
@@ -11,8 +12,7 @@ const AnalyticsPage = () => {
   const showToast = () => {
     toast({
       title: "Analytics Feature",
-      description: "This feature is currently under development.",
-      variant: "default"
+      description: "This feature is currently under development."
     });
   };
 
@@ -105,12 +105,12 @@ const AnalyticsPage = () => {
                 Soon you'll be able to track detailed metrics, create custom reports,
                 and analyze student performance trends.
               </p>
-              <button 
+              <Button 
                 className="mt-4 px-4 py-2 rounded-md bg-primary text-white"
                 onClick={showToast}
               >
                 Show Preview
-              </button>
+              </Button>
             </div>
           </CardContent>
         </Card>
