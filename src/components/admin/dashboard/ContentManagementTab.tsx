@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import {
   Card,
@@ -14,8 +13,7 @@ import {
   FileText,
   Upload,
   Book,
-  // Fix error 1: Replace 'FlashCard' with a valid icon
-  FileSpreadsheet, // Using FileSpreadsheet instead of non-existent FlashCard
+  FileSpreadsheet,
   MoveRight,
   CheckCircle2,
   Tag,
@@ -78,14 +76,12 @@ const ContentManagementTab = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentTab, setCurrentTab] = useState("study-material");
 
-  // Handle file selection
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setSelectedFile(e.target.files[0]);
     }
   };
 
-  // Simulate file upload
   const handleUpload = () => {
     if (!selectedFile) {
       toast({
@@ -99,14 +95,12 @@ const ContentManagementTab = () => {
     setUploading(true);
     setUploadProgress(0);
 
-    // Simulate upload progress
     const interval = setInterval(() => {
       setUploadProgress(prev => {
         if (prev >= 100) {
           clearInterval(interval);
           setUploading(false);
           
-          // Add the new file to the list
           const newFile = {
             id: `file${uploadedFiles.length + 1}`,
             name: selectedFile.name,
@@ -133,6 +127,14 @@ const ContentManagementTab = () => {
     }, 300);
   };
 
+  const handleFileRemove = () => {
+    const fileInput = document.getElementById('fileUpload') as HTMLInputElement;
+    if (fileInput) {
+      fileInput.value = '';
+    }
+    setSelectedFile(null);
+  };
+
   const handleTagManagement = () => {
     toast({
       title: "Tag Management",
@@ -154,7 +156,6 @@ const ContentManagementTab = () => {
     });
   };
 
-  // Filter the uploaded files based on type and search term
   const filteredFiles = uploadedFiles.filter(file => 
     (currentTab === "all" || file.type === currentTab) && 
     (file.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
@@ -200,7 +201,6 @@ const ContentManagementTab = () => {
               <span>Syllabus</span>
             </TabsTrigger>
             <TabsTrigger value="practice" className="flex items-center gap-1">
-              {/* Fix: Use FileSpreadsheet instead of FlashCard */}
               <FileSpreadsheet size={16} />
               <span>Practice</span>
             </TabsTrigger>
@@ -215,7 +215,6 @@ const ContentManagementTab = () => {
           </TabsList>
         </div>
 
-        {/* Content for all tabs */}
         <TabsContent value="study-material" className="mt-0">
           <Card>
             <CardHeader className="pb-3">
@@ -227,6 +226,7 @@ const ContentManagementTab = () => {
                 handleFileSelect={handleFileSelect}
                 handleUpload={handleUpload}
                 selectedFile={selectedFile}
+                onFileRemove={handleFileRemove}
                 uploading={uploading}
                 uploadProgress={uploadProgress}
               />
@@ -250,6 +250,7 @@ const ContentManagementTab = () => {
                 handleFileSelect={handleFileSelect}
                 handleUpload={handleUpload}
                 selectedFile={selectedFile}
+                onFileRemove={handleFileRemove}
                 uploading={uploading}
                 uploadProgress={uploadProgress}
               />
@@ -273,6 +274,7 @@ const ContentManagementTab = () => {
                 handleFileSelect={handleFileSelect}
                 handleUpload={handleUpload}
                 selectedFile={selectedFile}
+                onFileRemove={handleFileRemove}
                 uploading={uploading}
                 uploadProgress={uploadProgress}
               />
@@ -296,6 +298,7 @@ const ContentManagementTab = () => {
                 handleFileSelect={handleFileSelect}
                 handleUpload={handleUpload}
                 selectedFile={selectedFile}
+                onFileRemove={handleFileRemove}
                 uploading={uploading}
                 uploadProgress={uploadProgress}
               />
@@ -328,11 +331,11 @@ const ContentManagementTab = () => {
   );
 };
 
-// Content Uploader Component
 interface ContentUploaderProps {
   handleFileSelect: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleUpload: () => void;
   selectedFile: File | null;
+  onFileRemove: () => void;
   uploading: boolean;
   uploadProgress: number;
 }
@@ -341,6 +344,7 @@ const ContentUploader = ({
   handleFileSelect, 
   handleUpload, 
   selectedFile, 
+  onFileRemove,
   uploading, 
   uploadProgress 
 }: ContentUploaderProps) => {
@@ -379,14 +383,7 @@ const ContentUploader = ({
             <Button 
               variant="destructive" 
               size="sm" 
-              onClick={() => {
-                // Fix: Clear the file input by properly casting to HTMLInputElement
-                const fileInput = document.getElementById('fileUpload') as HTMLInputElement;
-                if (fileInput) {
-                  fileInput.value = '';
-                }
-                setSelectedFile(null);
-              }}
+              onClick={onFileRemove}
             >
               Remove
             </Button>
@@ -429,7 +426,6 @@ const ContentUploader = ({
   );
 };
 
-// Content Browser Component
 interface ContentBrowserProps {
   files: any[];
   searchTerm: string;
