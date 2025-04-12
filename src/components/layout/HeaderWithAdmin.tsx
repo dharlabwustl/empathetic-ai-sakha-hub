@@ -78,18 +78,18 @@ export const Header = () => {
               ))}
             </div>
             <ThemeToggle />
+            <Link to="/login">
+              <Button variant="outline" className="ml-2">
+                Student Login
+              </Button>
+            </Link>
             <Link to="/admin/login">
               <Button variant="outline" className="ml-2">
-                Admin
+                Admin Login
               </Button>
             </Link>
             <Link to="/signup">
               <Button className="ml-2">Sign Up</Button>
-            </Link>
-            <Link to="/login">
-              <Button variant="outline" className="ml-2">
-                Log In
-              </Button>
             </Link>
           </nav>
 
@@ -157,20 +157,22 @@ export const Header = () => {
               </Link>
             ))}
             <Link
+              to="/login"
+              className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Student Login
+            </Link>
+            <Link
               to="/admin/login"
               className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary"
               onClick={() => setMobileMenuOpen(false)}
             >
-              Admin
+              Admin Login
             </Link>
             <div className="flex flex-col space-y-2 pt-2 pb-3 border-t dark:border-gray-800">
               <Link to="/signup" onClick={() => setMobileMenuOpen(false)}>
                 <Button className="w-full">Sign Up</Button>
-              </Link>
-              <Link to="/login" onClick={() => setMobileMenuOpen(false)}>
-                <Button variant="outline" className="w-full">
-                  Log In
-                </Button>
               </Link>
             </div>
           </div>

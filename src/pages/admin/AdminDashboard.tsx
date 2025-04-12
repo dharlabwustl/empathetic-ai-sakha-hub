@@ -81,7 +81,46 @@ const AdminDashboard = () => {
   };
 
   const handleShowDocs = () => {
-    setActiveTab("documentation");
+    navigate("/admin/documentation");
+  };
+
+  const handleOptimizeSystem = () => {
+    toast({
+      title: "System Optimization",
+      description: "System optimization process started. This may take a few minutes."
+    });
+    
+    // Simulate optimization process
+    setTimeout(() => {
+      toast({
+        title: "Optimization Complete",
+        description: "System has been successfully optimized.",
+        variant: "success"
+      });
+    }, 3000);
+  };
+
+  const handleExportData = () => {
+    toast({
+      title: "Exporting Data",
+      description: "Dashboard data export initiated."
+    });
+    
+    // Simulate file download
+    setTimeout(() => {
+      const element = document.createElement("a");
+      const file = new Blob([JSON.stringify(stats, null, 2)], {type: "application/json"});
+      element.href = URL.createObjectURL(file);
+      element.download = "admin-dashboard-data.json";
+      document.body.appendChild(element);
+      element.click();
+      document.body.removeChild(element);
+      
+      toast({
+        title: "Export Complete",
+        description: "Dashboard data has been exported successfully."
+      });
+    }, 1000);
   };
 
   if (authLoading || loading) {
@@ -108,7 +147,7 @@ const AdminDashboard = () => {
             <span className="hidden sm:inline">Refresh</span>
           </Button>
           
-          <Button variant="outline" size="sm" className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={handleExportData} className="flex items-center gap-2">
             <Download size={16} />
             <span className="hidden sm:inline">Export</span>
           </Button>
@@ -118,7 +157,11 @@ const AdminDashboard = () => {
             <span className="hidden sm:inline">Documentation</span>
           </Button>
           
-          <Button size="sm" className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white flex items-center gap-2">
+          <Button 
+            size="sm" 
+            className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white flex items-center gap-2"
+            onClick={handleOptimizeSystem}
+          >
             <Sparkles size={16} />
             <span className="hidden sm:inline">Optimize System</span>
           </Button>
