@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X, BookOpen, ChevronRight } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import SakhaLogo from "@/components/common/SakhaLogo";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -26,12 +27,8 @@ const Header = () => {
     <header className="fixed top-0 left-0 right-0 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md z-50 border-b border-gray-100 dark:border-gray-800">
       <div className="container mx-auto flex justify-between items-center py-3 sm:py-4 px-4 sm:px-6 lg:px-8">
         <Link to="/" className="flex items-center gap-2">
-          <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-violet-500 to-purple-600 rounded-full relative overflow-hidden flex items-center justify-center">
-            <img 
-              src="/lovable-uploads/37933273-088b-4a83-a5ec-24b13c8c89f5.png" 
-              alt="Sakha AI Logo" 
-              className="w-8 h-8 sm:w-10 sm:h-10 object-contain"
-            />
+          <div className="w-8 h-8 sm:w-10 sm:h-10 relative overflow-hidden flex items-center justify-center">
+            <SakhaLogo width={40} height={40} />
           </div>
           <span className="text-xl sm:text-2xl font-display font-semibold gradient-text">Sakha AI</span>
         </Link>

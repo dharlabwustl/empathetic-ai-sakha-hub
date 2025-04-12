@@ -7,6 +7,7 @@ import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { ChevronDown, Lock } from "lucide-react";
+import SakhaLogo from "@/components/common/SakhaLogo";
 
 export const Header = () => {
   const { theme } = useTheme();
@@ -49,15 +50,14 @@ export const Header = () => {
       <div className="container mx-auto px-4 sm:px-6">
         <div className="flex items-center justify-between h-16 md:h-20">
           <Link to="/" className="flex items-center gap-2">
-            <motion.img
-              src="/lovable-uploads/e43342b1-bdb8-4aa4-ab51-f2ff046cebfc.png"
-              alt="Sakha AI"
-              className="w-10 h-10"
+            <motion.div
               whileHover={{ 
                 rotate: [0, -10, 10, -10, 0],
                 transition: { duration: 0.5 }
               }}
-            />
+            >
+              <SakhaLogo width={40} height={40} />
+            </motion.div>
             <motion.span 
               className="font-display font-bold text-xl md:text-2xl"
               initial={{ opacity: 0 }}

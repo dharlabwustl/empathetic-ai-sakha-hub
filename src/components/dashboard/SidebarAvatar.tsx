@@ -1,5 +1,6 @@
 
 import { useState, useEffect } from "react";
+import SakhaLogo from "@/components/common/SakhaLogo";
 
 interface SidebarAvatarProps {
   userName: string;
@@ -43,11 +44,7 @@ export const SidebarAvatar = ({ userName, userType, collapsed }: SidebarAvatarPr
           <div className="w-12 h-12 rounded-full bg-gradient-to-br from-sky-400/20 to-violet-500/20 flex items-center justify-center text-sky-500 animate-glow">
             {/* Avatar with animated eyes */}
             <div className="avatar-eyes relative w-10 h-10 overflow-hidden">
-              <img 
-                src="/lovable-uploads/37933273-088b-4a83-a5ec-24b13c8c89f5.png" 
-                alt="Sakha AI Logo" 
-                className="w-10 h-10"
-              />
+              <SakhaLogo width={40} height={40} />
             </div>
           </div>
         </div>
