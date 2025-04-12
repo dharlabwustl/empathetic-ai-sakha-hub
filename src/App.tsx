@@ -21,11 +21,6 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 import StudentsPage from "./pages/admin/StudentsPage";
 import ContentPage from "./pages/admin/ContentPage";
 import SettingsPage from "./pages/admin/SettingsPage";
-import DocumentationPage from "./pages/admin/DocumentationPage";
-import AIPersonalizationPage from "./pages/admin/AIPersonalizationPage";
-import EngagementPage from "./pages/admin/EngagementPage";
-import SystemMonitoringPage from "./pages/admin/SystemMonitoringPage";
-import SubscriptionsPage from "./pages/admin/SubscriptionsPage";
 import StudentDashboard from "./pages/dashboard/student/StudentDashboard";
 import EmployeeDashboard from "./pages/dashboard/EmployeeDashboard";
 import DoctorDashboard from "./pages/dashboard/DoctorDashboard";
@@ -72,31 +67,6 @@ const App = () => (
               <Route path="/admin/settings" element={
                 <AdminRouteGuard>
                   <SettingsPage />
-                </AdminRouteGuard>
-              } />
-              <Route path="/admin/documentation" element={
-                <AdminRouteGuard>
-                  <DocumentationPage />
-                </AdminRouteGuard>
-              } />
-              <Route path="/admin/ai" element={
-                <AdminRouteGuard>
-                  <AIPersonalizationPage />
-                </AdminRouteGuard>
-              } />
-              <Route path="/admin/engagement" element={
-                <AdminRouteGuard>
-                  <EngagementPage />
-                </AdminRouteGuard>
-              } />
-              <Route path="/admin/system" element={
-                <AdminRouteGuard>
-                  <SystemMonitoringPage />
-                </AdminRouteGuard>
-              } />
-              <Route path="/admin/subscriptions" element={
-                <AdminRouteGuard>
-                  <SubscriptionsPage />
                 </AdminRouteGuard>
               } />
               

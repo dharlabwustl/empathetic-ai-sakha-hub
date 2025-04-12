@@ -1,437 +1,345 @@
 
-/**
- * Utility for exporting database schema information
- */
+import { 
+  AdminUser,
+  StudentProfile,
+  StudentGoal,
+  OnboardingData,
+  StudyPlan,
+  StudySession,
+  ContentItemReference,
+  ConceptCard,
+  Flashcard,
+  Question,
+  ExamPaper,
+  MoodLog,
+  FeelGoodContent,
+  SurroundingInfluence,
+  UserDoubts,
+  TutorChat,
+  Notification
+} from "@/types/admin";
 
-// Function to download the database schema as SQL file
-export const downloadDatabaseSchema = () => {
-  // In a real implementation, this would fetch from the backend
-  // Here we'll generate a sample SQL schema based on our application's needs
+type TableSchema = {
+  tableName: string;
+  fields: {
+    name: string;
+    type: string;
+    isRequired: boolean;
+    isPrimaryKey: boolean;
+    isForeignKey: boolean;
+    references?: string;
+  }[];
+};
+
+// Helper function to get type as string
+const getType = (val: any): string => {
+  if (val === String) return 'VARCHAR(255)';
+  if (val === Number) return 'INT';
+  if (val === Boolean) return 'BOOLEAN';
+  if (val === Date) return 'DATETIME';
+  if (Array.isArray(val)) return `JSON`;
+  if (typeof val === 'object') return 'JSON';
+  return 'VARCHAR(255)';
+};
+
+export const generateDatabaseSchema = (): TableSchema[] => {
+  // This is a simplified schema generator
+  // In a real application, you would extract this from your database or ORM
+
+  return [
+    {
+      tableName: 'admin_users',
+      fields: [
+        { name: 'id', type: 'VARCHAR(36)', isRequired: true, isPrimaryKey: true, isForeignKey: false },
+        { name: 'name', type: 'VARCHAR(255)', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'email', type: 'VARCHAR(255)', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'role', type: 'ENUM("admin", "superadmin")', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'permissions', type: 'JSON', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'last_login', type: 'DATETIME', isRequired: false, isPrimaryKey: false, isForeignKey: false },
+        { name: 'password_hash', type: 'VARCHAR(255)', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'created_at', type: 'DATETIME', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'updated_at', type: 'DATETIME', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+      ]
+    },
+    {
+      tableName: 'students',
+      fields: [
+        { name: 'id', type: 'VARCHAR(36)', isRequired: true, isPrimaryKey: true, isForeignKey: false },
+        { name: 'user_id', type: 'VARCHAR(36)', isRequired: true, isPrimaryKey: false, isForeignKey: true, references: 'users(id)' },
+        { name: 'name', type: 'VARCHAR(255)', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'email', type: 'VARCHAR(255)', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'phone_number', type: 'VARCHAR(20)', isRequired: false, isPrimaryKey: false, isForeignKey: false },
+        { name: 'registration_date', type: 'DATETIME', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'last_active', type: 'DATETIME', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'completed_onboarding', type: 'BOOLEAN', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'role', type: 'ENUM("student", "tutor", "admin")', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'preferences', type: 'JSON', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+      ]
+    },
+    {
+      tableName: 'student_goals',
+      fields: [
+        { name: 'id', type: 'VARCHAR(36)', isRequired: true, isPrimaryKey: true, isForeignKey: false },
+        { name: 'student_id', type: 'VARCHAR(36)', isRequired: true, isPrimaryKey: false, isForeignKey: true, references: 'students(id)' },
+        { name: 'title', type: 'VARCHAR(255)', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'target_date', type: 'DATETIME', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'current_progress', type: 'INT', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'status', type: 'ENUM("active", "completed", "abandoned")', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'created_at', type: 'DATETIME', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+      ]
+    },
+    {
+      tableName: 'onboarding_data',
+      fields: [
+        { name: 'id', type: 'VARCHAR(36)', isRequired: true, isPrimaryKey: true, isForeignKey: false },
+        { name: 'student_id', type: 'VARCHAR(36)', isRequired: true, isPrimaryKey: false, isForeignKey: true, references: 'students(id)' },
+        { name: 'exam_type', type: 'VARCHAR(255)', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'study_hours', type: 'INT', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'study_pace', type: 'ENUM("relaxed", "balanced", "intensive")', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'preferred_study_time', type: 'ENUM("morning", "afternoon", "evening", "night")', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'subjects_selected', type: 'JSON', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'learning_style', type: 'ENUM("visual", "auditory", "reading", "kinesthetic", "mixed")', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'completed_at', type: 'DATETIME', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+      ]
+    },
+    {
+      tableName: 'study_plans',
+      fields: [
+        { name: 'id', type: 'VARCHAR(36)', isRequired: true, isPrimaryKey: true, isForeignKey: false },
+        { name: 'student_id', type: 'VARCHAR(36)', isRequired: true, isPrimaryKey: false, isForeignKey: true, references: 'students(id)' },
+        { name: 'title', type: 'VARCHAR(255)', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'description', type: 'TEXT', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'created_at', type: 'DATETIME', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'valid_until', type: 'DATETIME', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'status', type: 'ENUM("active", "completed", "expired")', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'generation_type', type: 'ENUM("ai", "manual", "mixed")', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+      ]
+    },
+    {
+      tableName: 'study_sessions',
+      fields: [
+        { name: 'id', type: 'VARCHAR(36)', isRequired: true, isPrimaryKey: true, isForeignKey: false },
+        { name: 'plan_id', type: 'VARCHAR(36)', isRequired: true, isPrimaryKey: false, isForeignKey: true, references: 'study_plans(id)' },
+        { name: 'date', type: 'DATETIME', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'start_time', type: 'VARCHAR(10)', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'duration', type: 'INT', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'subject', type: 'VARCHAR(255)', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'topics', type: 'JSON', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'status', type: 'ENUM("pending", "completed", "missed")', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+      ]
+    },
+    {
+      tableName: 'content_item_references',
+      fields: [
+        { name: 'id', type: 'VARCHAR(36)', isRequired: true, isPrimaryKey: true, isForeignKey: false },
+        { name: 'session_id', type: 'VARCHAR(36)', isRequired: true, isPrimaryKey: false, isForeignKey: true, references: 'study_sessions(id)' },
+        { name: 'content_type', type: 'ENUM("concept", "flashcard", "question", "exam")', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'content_id', type: 'VARCHAR(36)', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'status', type: 'ENUM("pending", "completed")', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'score', type: 'INT', isRequired: false, isPrimaryKey: false, isForeignKey: false },
+        { name: 'time_spent', type: 'INT', isRequired: false, isPrimaryKey: false, isForeignKey: false },
+      ]
+    },
+    {
+      tableName: 'concept_cards',
+      fields: [
+        { name: 'id', type: 'VARCHAR(36)', isRequired: true, isPrimaryKey: true, isForeignKey: false },
+        { name: 'subject', type: 'VARCHAR(255)', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'topic', type: 'VARCHAR(255)', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'title', type: 'VARCHAR(255)', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'content', type: 'TEXT', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'difficulty', type: 'ENUM("easy", "medium", "hard")', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'tags', type: 'JSON', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'image_url', type: 'VARCHAR(255)', isRequired: false, isPrimaryKey: false, isForeignKey: false },
+        { name: 'created_at', type: 'DATETIME', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'created_by', type: 'ENUM("ai", "admin")', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'approved', type: 'BOOLEAN', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'usage_count', type: 'INT', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+      ]
+    },
+    {
+      tableName: 'flashcards',
+      fields: [
+        { name: 'id', type: 'VARCHAR(36)', isRequired: true, isPrimaryKey: true, isForeignKey: false },
+        { name: 'subject', type: 'VARCHAR(255)', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'topic', type: 'VARCHAR(255)', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'front', type: 'TEXT', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'back', type: 'TEXT', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'difficulty', type: 'ENUM("easy", "medium", "hard")', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'tags', type: 'JSON', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'image_url', type: 'VARCHAR(255)', isRequired: false, isPrimaryKey: false, isForeignKey: false },
+        { name: 'created_at', type: 'DATETIME', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'created_by', type: 'ENUM("ai", "admin")', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'approved', type: 'BOOLEAN', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'usage_count', type: 'INT', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+      ]
+    },
+    {
+      tableName: 'questions',
+      fields: [
+        { name: 'id', type: 'VARCHAR(36)', isRequired: true, isPrimaryKey: true, isForeignKey: false },
+        { name: 'subject', type: 'VARCHAR(255)', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'topic', type: 'VARCHAR(255)', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'question_text', type: 'TEXT', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'options', type: 'JSON', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'correct_answer', type: 'INT', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'explanation', type: 'TEXT', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'difficulty', type: 'ENUM("easy", "medium", "hard")', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'tags', type: 'JSON', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'image_url', type: 'VARCHAR(255)', isRequired: false, isPrimaryKey: false, isForeignKey: false },
+        { name: 'created_at', type: 'DATETIME', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'created_by', type: 'ENUM("ai", "admin")', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'approved', type: 'BOOLEAN', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'usage_count', type: 'INT', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+      ]
+    },
+    {
+      tableName: 'exam_papers',
+      fields: [
+        { name: 'id', type: 'VARCHAR(36)', isRequired: true, isPrimaryKey: true, isForeignKey: false },
+        { name: 'title', type: 'VARCHAR(255)', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'subject', type: 'VARCHAR(255)', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'description', type: 'TEXT', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'duration', type: 'INT', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'total_marks', type: 'INT', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'difficulty', type: 'ENUM("easy", "medium", "hard")', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'question_ids', type: 'JSON', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'created_at', type: 'DATETIME', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'created_by', type: 'ENUM("ai", "admin")', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'approved', type: 'BOOLEAN', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'usage_count', type: 'INT', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+      ]
+    },
+    {
+      tableName: 'mood_logs',
+      fields: [
+        { name: 'id', type: 'VARCHAR(36)', isRequired: true, isPrimaryKey: true, isForeignKey: false },
+        { name: 'student_id', type: 'VARCHAR(36)', isRequired: true, isPrimaryKey: false, isForeignKey: true, references: 'students(id)' },
+        { name: 'score', type: 'INT', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'notes', type: 'TEXT', isRequired: false, isPrimaryKey: false, isForeignKey: false },
+        { name: 'timestamp', type: 'DATETIME', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+      ]
+    },
+    {
+      tableName: 'feel_good_content',
+      fields: [
+        { name: 'id', type: 'VARCHAR(36)', isRequired: true, isPrimaryKey: true, isForeignKey: false },
+        { name: 'type', type: 'ENUM("meme", "joke", "quote", "puzzle", "video")', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'content', type: 'TEXT', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'image_url', type: 'VARCHAR(255)', isRequired: false, isPrimaryKey: false, isForeignKey: false },
+        { name: 'video_url', type: 'VARCHAR(255)', isRequired: false, isPrimaryKey: false, isForeignKey: false },
+        { name: 'tags', type: 'JSON', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'mood_tags', type: 'JSON', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'usage_count', type: 'INT', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'approved', type: 'BOOLEAN', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'created_at', type: 'DATETIME', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+      ]
+    },
+    {
+      tableName: 'surrounding_influences',
+      fields: [
+        { name: 'id', type: 'VARCHAR(36)', isRequired: true, isPrimaryKey: true, isForeignKey: false },
+        { name: 'student_id', type: 'VARCHAR(36)', isRequired: true, isPrimaryKey: false, isForeignKey: true, references: 'students(id)' },
+        { name: 'timestamp', type: 'DATETIME', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'confidence_level', type: 'INT', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'peer_influence', type: 'INT', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'environmental_factors', type: 'JSON', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'overall_score', type: 'INT', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+      ]
+    },
+    {
+      tableName: 'user_doubts',
+      fields: [
+        { name: 'id', type: 'VARCHAR(36)', isRequired: true, isPrimaryKey: true, isForeignKey: false },
+        { name: 'student_id', type: 'VARCHAR(36)', isRequired: true, isPrimaryKey: false, isForeignKey: true, references: 'students(id)' },
+        { name: 'question', type: 'TEXT', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'subject', type: 'VARCHAR(255)', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'topic', type: 'VARCHAR(255)', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'response', type: 'TEXT', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'response_source', type: 'ENUM("ai", "tutor")', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'satisfied', type: 'BOOLEAN', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'timestamp', type: 'DATETIME', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'escalated', type: 'BOOLEAN', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+      ]
+    },
+    {
+      tableName: 'tutor_chats',
+      fields: [
+        { name: 'id', type: 'VARCHAR(36)', isRequired: true, isPrimaryKey: true, isForeignKey: false },
+        { name: 'student_id', type: 'VARCHAR(36)', isRequired: true, isPrimaryKey: false, isForeignKey: true, references: 'students(id)' },
+        { name: 'tutor_id', type: 'VARCHAR(36)', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'messages', type: 'JSON', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'subject', type: 'VARCHAR(255)', isRequired: false, isPrimaryKey: false, isForeignKey: false },
+        { name: 'topic', type: 'VARCHAR(255)', isRequired: false, isPrimaryKey: false, isForeignKey: false },
+        { name: 'status', type: 'ENUM("active", "closed")', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'rating', type: 'INT', isRequired: false, isPrimaryKey: false, isForeignKey: false },
+        { name: 'started_at', type: 'DATETIME', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'ended_at', type: 'DATETIME', isRequired: false, isPrimaryKey: false, isForeignKey: false },
+      ]
+    },
+    {
+      tableName: 'notifications',
+      fields: [
+        { name: 'id', type: 'VARCHAR(36)', isRequired: true, isPrimaryKey: true, isForeignKey: false },
+        { name: 'user_id', type: 'VARCHAR(36)', isRequired: true, isPrimaryKey: false, isForeignKey: true, references: 'users(id)' },
+        { name: 'title', type: 'VARCHAR(255)', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'body', type: 'TEXT', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'type', type: 'ENUM("reminder", "achievement", "suggestion", "system")', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'read', type: 'BOOLEAN', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'action_url', type: 'VARCHAR(255)', isRequired: false, isPrimaryKey: false, isForeignKey: false },
+        { name: 'created_at', type: 'DATETIME', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'expires_at', type: 'DATETIME', isRequired: false, isPrimaryKey: false, isForeignKey: false },
+        { name: 'priority', type: 'ENUM("low", "normal", "high")', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+      ]
+    },
+  ];
+};
+
+// Function to generate SQL for creating tables
+export const generateSQLSchema = (): string => {
+  const tables = generateDatabaseSchema();
   
-  const sqlSchemaContent = generateDatabaseSchema();
+  let sqlScript = '-- Sakha AI Database Schema\n';
+  sqlScript += '-- Generated on ' + new Date().toISOString().split('T')[0] + '\n\n';
   
-  // Create a blob with the SQL content
-  const blob = new Blob([sqlSchemaContent], { type: 'text/plain' });
+  // Add SQL to drop existing tables (in reverse order to handle foreign key constraints)
+  sqlScript += '-- Drop existing tables (if they exist)\n';
+  [...tables].reverse().forEach(table => {
+    sqlScript += `DROP TABLE IF EXISTS ${table.tableName};\n`;
+  });
+  sqlScript += '\n';
+  
+  // Add SQL to create tables
+  tables.forEach(table => {
+    sqlScript += `-- Table: ${table.tableName}\n`;
+    sqlScript += `CREATE TABLE ${table.tableName} (\n`;
+    
+    const fieldDefinitions = table.fields.map(field => {
+      let definition = `  ${field.name} ${field.type}`;
+      if (field.isRequired) definition += ' NOT NULL';
+      if (field.isPrimaryKey) definition += ' PRIMARY KEY';
+      if (field.isForeignKey && field.references) 
+        definition += `, FOREIGN KEY (${field.name}) REFERENCES ${field.references}`;
+      return definition;
+    });
+    
+    sqlScript += fieldDefinitions.join(',\n');
+    sqlScript += '\n);\n\n';
+  });
+  
+  return sqlScript;
+};
+
+// Function to generate a downloadable schema file
+export const downloadDatabaseSchema = (): void => {
+  const sqlSchema = generateSQLSchema();
+  const blob = new Blob([sqlSchema], { type: 'text/plain' });
   const url = URL.createObjectURL(blob);
-  
-  // Create a link element and trigger download
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = 'sakha_ai_db_schema.sql';
-  document.body.appendChild(link);
-  link.click();
-  
-  // Clean up
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'sakha_ai_database_schema.sql';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
   URL.revokeObjectURL(url);
-  document.body.removeChild(link);
-};
-
-// Generate database schema SQL
-const generateDatabaseSchema = (): string => {
-  // This would normally come from the server
-  // Creating a detailed schema based on our application requirements
-  return `-- Sakha AI Database Schema
--- Generated: ${new Date().toISOString()}
-
--- Users Table
-CREATE TABLE users (
-  id VARCHAR(36) PRIMARY KEY,
-  email VARCHAR(255) NOT NULL UNIQUE,
-  password VARCHAR(255) NOT NULL,
-  name VARCHAR(255) NOT NULL,
-  role ENUM('student', 'admin', 'teacher') NOT NULL DEFAULT 'student',
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
-
--- Students Table
-CREATE TABLE students (
-  id VARCHAR(36) PRIMARY KEY,
-  user_id VARCHAR(36) NOT NULL,
-  grade VARCHAR(50),
-  school VARCHAR(255),
-  birth_date DATE,
-  preferred_learning_style VARCHAR(50),
-  active_status ENUM('active', 'inactive', 'suspended') DEFAULT 'active',
-  last_active_at TIMESTAMP,
-  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-);
-
--- Student Onboarding Data
-CREATE TABLE student_onboarding (
-  id VARCHAR(36) PRIMARY KEY,
-  student_id VARCHAR(36) NOT NULL,
-  completed BOOLEAN DEFAULT FALSE,
-  preferred_subjects TEXT,
-  study_goals TEXT,
-  study_hours_per_week INT,
-  target_exam VARCHAR(255),
-  target_date DATE,
-  learning_pace ENUM('slow', 'medium', 'fast') DEFAULT 'medium',
-  FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE
-);
-
--- Subjects
-CREATE TABLE subjects (
-  id VARCHAR(36) PRIMARY KEY,
-  name VARCHAR(255) NOT NULL,
-  description TEXT,
-  icon_url VARCHAR(255)
-);
-
--- Topics
-CREATE TABLE topics (
-  id VARCHAR(36) PRIMARY KEY,
-  subject_id VARCHAR(36) NOT NULL,
-  name VARCHAR(255) NOT NULL,
-  description TEXT,
-  difficulty_level ENUM('beginner', 'intermediate', 'advanced'),
-  estimated_time_minutes INT,
-  FOREIGN KEY (subject_id) REFERENCES subjects(id) ON DELETE CASCADE
-);
-
--- Concepts
-CREATE TABLE concepts (
-  id VARCHAR(36) PRIMARY KEY,
-  topic_id VARCHAR(36) NOT NULL,
-  title VARCHAR(255) NOT NULL,
-  description TEXT,
-  content TEXT NOT NULL,
-  difficulty_level ENUM('beginner', 'intermediate', 'advanced'),
-  created_by VARCHAR(36),
-  is_ai_generated BOOLEAN DEFAULT FALSE,
-  admin_approved BOOLEAN DEFAULT FALSE,
-  FOREIGN KEY (topic_id) REFERENCES topics(id) ON DELETE CASCADE,
-  FOREIGN KEY (created_by) REFERENCES users(id)
-);
-
--- Flashcards
-CREATE TABLE flashcards (
-  id VARCHAR(36) PRIMARY KEY,
-  concept_id VARCHAR(36) NOT NULL,
-  front_content TEXT NOT NULL,
-  back_content TEXT NOT NULL,
-  difficulty_level ENUM('beginner', 'intermediate', 'advanced'),
-  is_ai_generated BOOLEAN DEFAULT FALSE,
-  admin_approved BOOLEAN DEFAULT FALSE,
-  FOREIGN KEY (concept_id) REFERENCES concepts(id) ON DELETE CASCADE
-);
-
--- Study Materials
-CREATE TABLE study_materials (
-  id VARCHAR(36) PRIMARY KEY,
-  topic_id VARCHAR(36) NOT NULL,
-  title VARCHAR(255) NOT NULL,
-  description TEXT,
-  file_url VARCHAR(255) NOT NULL,
-  file_type ENUM('pdf', 'image', 'video', 'audio', 'other') NOT NULL,
-  material_type ENUM('study_material', 'syllabus', 'exam_material', 'previous_year_paper'),
-  uploaded_by VARCHAR(36) NOT NULL,
-  uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (topic_id) REFERENCES topics(id) ON DELETE CASCADE,
-  FOREIGN KEY (uploaded_by) REFERENCES users(id)
-);
-
--- Exams
-CREATE TABLE exams (
-  id VARCHAR(36) PRIMARY KEY,
-  title VARCHAR(255) NOT NULL,
-  description TEXT,
-  time_limit_minutes INT,
-  passing_percentage INT DEFAULT 60,
-  is_ai_generated BOOLEAN DEFAULT FALSE,
-  admin_approved BOOLEAN DEFAULT FALSE,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- Exam Questions
-CREATE TABLE exam_questions (
-  id VARCHAR(36) PRIMARY KEY,
-  exam_id VARCHAR(36) NOT NULL,
-  question_text TEXT NOT NULL,
-  question_type ENUM('multiple_choice', 'true_false', 'short_answer', 'essay'),
-  difficulty_level ENUM('easy', 'medium', 'hard'),
-  marks INT DEFAULT 1,
-  is_ai_generated BOOLEAN DEFAULT FALSE,
-  FOREIGN KEY (exam_id) REFERENCES exams(id) ON DELETE CASCADE
-);
-
--- Question Options
-CREATE TABLE question_options (
-  id VARCHAR(36) PRIMARY KEY,
-  question_id VARCHAR(36) NOT NULL,
-  option_text TEXT NOT NULL,
-  is_correct BOOLEAN DEFAULT FALSE,
-  FOREIGN KEY (question_id) REFERENCES exam_questions(id) ON DELETE CASCADE
-);
-
--- Student Exams
-CREATE TABLE student_exams (
-  id VARCHAR(36) PRIMARY KEY,
-  student_id VARCHAR(36) NOT NULL,
-  exam_id VARCHAR(36) NOT NULL,
-  start_time TIMESTAMP,
-  end_time TIMESTAMP,
-  score DECIMAL(5,2),
-  status ENUM('not_started', 'in_progress', 'completed', 'abandoned'),
-  FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
-  FOREIGN KEY (exam_id) REFERENCES exams(id) ON DELETE CASCADE
-);
-
--- Student Study Plans
-CREATE TABLE study_plans (
-  id VARCHAR(36) PRIMARY KEY,
-  student_id VARCHAR(36) NOT NULL,
-  title VARCHAR(255) NOT NULL,
-  description TEXT,
-  start_date DATE NOT NULL,
-  end_date DATE NOT NULL,
-  goal VARCHAR(255),
-  is_active BOOLEAN DEFAULT TRUE,
-  is_ai_generated BOOLEAN DEFAULT TRUE,
-  FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE
-);
-
--- Study Plan Items
-CREATE TABLE study_plan_items (
-  id VARCHAR(36) PRIMARY KEY,
-  study_plan_id VARCHAR(36) NOT NULL,
-  title VARCHAR(255) NOT NULL,
-  description TEXT,
-  scheduled_date DATE,
-  duration_minutes INT,
-  topic_id VARCHAR(36),
-  concept_id VARCHAR(36),
-  status ENUM('not_started', 'in_progress', 'completed', 'skipped') DEFAULT 'not_started',
-  FOREIGN KEY (study_plan_id) REFERENCES study_plans(id) ON DELETE CASCADE,
-  FOREIGN KEY (topic_id) REFERENCES topics(id),
-  FOREIGN KEY (concept_id) REFERENCES concepts(id)
-);
-
--- Student Progress
-CREATE TABLE student_progress (
-  id VARCHAR(36) PRIMARY KEY,
-  student_id VARCHAR(36) NOT NULL,
-  topic_id VARCHAR(36) NOT NULL,
-  concept_id VARCHAR(36),
-  completion_percentage INT DEFAULT 0,
-  last_accessed TIMESTAMP,
-  FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
-  FOREIGN KEY (topic_id) REFERENCES topics(id),
-  FOREIGN KEY (concept_id) REFERENCES concepts(id)
-);
-
--- Mood Logs
-CREATE TABLE mood_logs (
-  id VARCHAR(36) PRIMARY KEY,
-  student_id VARCHAR(36) NOT NULL,
-  mood_rating TINYINT NOT NULL,
-  mood_description VARCHAR(255),
-  recorded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  surrounding_influences TEXT,
-  confidence_level TINYINT,
-  FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE
-);
-
--- Surrounding Influences
-CREATE TABLE surrounding_influences (
-  id VARCHAR(36) PRIMARY KEY,
-  student_id VARCHAR(36) NOT NULL,
-  noise_level TINYINT,
-  peer_support_level TINYINT,
-  environmental_comfort TINYINT,
-  stress_level TINYINT,
-  timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE
-);
-
--- Feel Good Content
-CREATE TABLE feel_good_content (
-  id VARCHAR(36) PRIMARY KEY,
-  content_type ENUM('meme', 'joke', 'puzzle', 'quote', 'fact') NOT NULL,
-  content TEXT NOT NULL,
-  difficulty_level TINYINT,
-  mood_target VARCHAR(50),
-  is_active BOOLEAN DEFAULT TRUE,
-  admin_approved BOOLEAN DEFAULT TRUE,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- AI Models
-CREATE TABLE ai_models (
-  id VARCHAR(36) PRIMARY KEY,
-  model_name VARCHAR(255) NOT NULL,
-  description TEXT,
-  api_endpoint VARCHAR(255),
-  api_key VARCHAR(255),
-  temperature DECIMAL(3,2) DEFAULT 0.7,
-  max_tokens INT DEFAULT 2000,
-  active BOOLEAN DEFAULT TRUE,
-  last_tested TIMESTAMP,
-  purpose VARCHAR(255),
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- AI Prompts
-CREATE TABLE ai_prompts (
-  id VARCHAR(36) PRIMARY KEY,
-  name VARCHAR(255) NOT NULL,
-  prompt_text TEXT NOT NULL,
-  use_case ENUM('concept_card', 'flashcard', 'exam', 'study_plan', 'doubt_resolution'),
-  variables TEXT,
-  ai_model_id VARCHAR(36),
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (ai_model_id) REFERENCES ai_models(id)
-);
-
--- Feedback
-CREATE TABLE feedback (
-  id VARCHAR(36) PRIMARY KEY,
-  user_id VARCHAR(36) NOT NULL,
-  feedback_type ENUM('feature', 'bug', 'suggestion', 'experience'),
-  content TEXT NOT NULL,
-  sentiment ENUM('very_negative', 'negative', 'neutral', 'positive', 'very_positive'),
-  reviewed BOOLEAN DEFAULT FALSE,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (user_id) REFERENCES users(id)
-);
-
--- Notifications
-CREATE TABLE notifications (
-  id VARCHAR(36) PRIMARY KEY,
-  title VARCHAR(255) NOT NULL,
-  message TEXT NOT NULL,
-  notification_type ENUM('system', 'user', 'content', 'security') NOT NULL,
-  target_audience VARCHAR(255),
-  scheduled_time TIMESTAMP,
-  sent BOOLEAN DEFAULT FALSE,
-  sent_time TIMESTAMP,
-  created_by VARCHAR(36),
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (created_by) REFERENCES users(id)
-);
-
--- User Notifications
-CREATE TABLE user_notifications (
-  id VARCHAR(36) PRIMARY KEY,
-  notification_id VARCHAR(36) NOT NULL,
-  user_id VARCHAR(36) NOT NULL,
-  read BOOLEAN DEFAULT FALSE,
-  read_at TIMESTAMP,
-  FOREIGN KEY (notification_id) REFERENCES notifications(id) ON DELETE CASCADE,
-  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-);
-
--- Subscriptions
-CREATE TABLE subscriptions (
-  id VARCHAR(36) PRIMARY KEY,
-  name VARCHAR(255) NOT NULL,
-  description TEXT,
-  price DECIMAL(10,2) NOT NULL,
-  duration_days INT NOT NULL,
-  features TEXT,
-  is_active BOOLEAN DEFAULT TRUE
-);
-
--- User Subscriptions
-CREATE TABLE user_subscriptions (
-  id VARCHAR(36) PRIMARY KEY,
-  user_id VARCHAR(36) NOT NULL,
-  subscription_id VARCHAR(36) NOT NULL,
-  start_date DATE NOT NULL,
-  end_date DATE NOT NULL,
-  payment_status ENUM('pending', 'completed', 'failed', 'refunded'),
-  payment_method VARCHAR(50),
-  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-  FOREIGN KEY (subscription_id) REFERENCES subscriptions(id)
-);
-
--- AI Settings
-CREATE TABLE ai_settings (
-  id VARCHAR(36) PRIMARY KEY,
-  setting_name VARCHAR(255) NOT NULL,
-  setting_value TEXT,
-  setting_description TEXT,
-  category VARCHAR(100) NOT NULL,
-  is_active BOOLEAN DEFAULT TRUE,
-  last_modified_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
-
--- System Logs
-CREATE TABLE system_logs (
-  id VARCHAR(36) PRIMARY KEY,
-  log_level ENUM('info', 'warning', 'error', 'critical') NOT NULL,
-  source VARCHAR(255) NOT NULL,
-  message TEXT NOT NULL,
-  details TEXT,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- API Logs
-CREATE TABLE api_logs (
-  id VARCHAR(36) PRIMARY KEY,
-  endpoint VARCHAR(255) NOT NULL,
-  method VARCHAR(10) NOT NULL,
-  request_body TEXT,
-  response_code INT,
-  response_time_ms INT,
-  user_id VARCHAR(36),
-  ip_address VARCHAR(45),
-  timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (user_id) REFERENCES users(id)
-);
-
--- Doubt Sessions
-CREATE TABLE doubt_sessions (
-  id VARCHAR(36) PRIMARY KEY,
-  student_id VARCHAR(36) NOT NULL,
-  topic_id VARCHAR(36),
-  title VARCHAR(255) NOT NULL,
-  status ENUM('active', 'resolved', 'escalated') DEFAULT 'active',
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  resolved_at TIMESTAMP,
-  FOREIGN KEY (student_id) REFERENCES students(id),
-  FOREIGN KEY (topic_id) REFERENCES topics(id)
-);
-
--- Doubt Messages
-CREATE TABLE doubt_messages (
-  id VARCHAR(36) PRIMARY KEY,
-  doubt_session_id VARCHAR(36) NOT NULL,
-  sender_type ENUM('student', 'ai', 'admin') NOT NULL,
-  message TEXT NOT NULL,
-  is_ai_generated BOOLEAN DEFAULT FALSE,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (doubt_session_id) REFERENCES doubt_sessions(id) ON DELETE CASCADE
-);
-
--- Indexes
-CREATE INDEX idx_students_user_id ON students(user_id);
-CREATE INDEX idx_student_onboarding_student_id ON student_onboarding(student_id);
-CREATE INDEX idx_topics_subject_id ON topics(subject_id);
-CREATE INDEX idx_concepts_topic_id ON concepts(topic_id);
-CREATE INDEX idx_flashcards_concept_id ON flashcards(concept_id);
-CREATE INDEX idx_study_materials_topic_id ON study_materials(topic_id);
-CREATE INDEX idx_exam_questions_exam_id ON exam_questions(exam_id);
-CREATE INDEX idx_question_options_question_id ON question_options(question_id);
-CREATE INDEX idx_student_exams_student_id ON student_exams(student_id);
-CREATE INDEX idx_student_exams_exam_id ON student_exams(exam_id);
-CREATE INDEX idx_study_plans_student_id ON study_plans(student_id);
-CREATE INDEX idx_study_plan_items_plan_id ON study_plan_items(study_plan_id);
-CREATE INDEX idx_student_progress_student_id ON student_progress(student_id);
-CREATE INDEX idx_mood_logs_student_id ON mood_logs(student_id);
-CREATE INDEX idx_surrounding_influences_student_id ON surrounding_influences(student_id);
-CREATE INDEX idx_user_subscriptions_user_id ON user_subscriptions(user_id);
-CREATE INDEX idx_notifications_target_audience ON notifications(target_audience);
-CREATE INDEX idx_user_notifications_user_id ON user_notifications(user_id);
-CREATE INDEX idx_system_logs_log_level ON system_logs(log_level);
-CREATE INDEX idx_api_logs_endpoint ON api_logs(endpoint);
-CREATE INDEX idx_doubt_sessions_student_id ON doubt_sessions(student_id);
-`;
-};
-
-// Function to generate ERD diagram in the future
-export const generateERDiagram = () => {
-  // This would integrate with a diagramming library or API
-  console.log("ERD generation not implemented yet");
 };
