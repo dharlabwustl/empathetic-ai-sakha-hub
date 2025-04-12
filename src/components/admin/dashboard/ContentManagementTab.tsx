@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -17,6 +17,7 @@ import {
 import ContentUploader from "./content/ContentUploader";
 import ContentBrowser from "./content/ContentBrowser";
 import { useContentManagement } from "@/hooks/admin/useContentManagement";
+import { ContentType } from "@/types/content";
 
 const ContentManagementTab = () => {
   const { toast } = useToast();

@@ -1,13 +1,14 @@
 
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { ContentType, ContentFile, ContentManagementHookReturn } from "@/types/content";
 
-export const useContentManagement = () => {
+export const useContentManagement = (): ContentManagementHookReturn => {
   const { toast } = useToast();
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [currentTab, setCurrentTab] = useState("study-material");
+  const [currentTab, setCurrentTab] = useState<ContentType>("study-material");
   const [searchTerm, setSearchTerm] = useState("");
   
   const [uploadedFiles, setUploadedFiles] = useState([

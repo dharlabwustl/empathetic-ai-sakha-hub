@@ -1,16 +1,7 @@
-
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Loader2, Upload } from "lucide-react";
-
-interface ContentUploaderProps {
-  handleFileSelect: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  handleUpload: () => void;
-  selectedFile: File | null;
-  onFileRemove: () => void;
-  uploading: boolean;
-  uploadProgress: number;
-}
+import { ContentUploaderProps } from "@/types/content";
 
 const ContentUploader = ({ 
   handleFileSelect, 

@@ -1,14 +1,14 @@
-
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Search, Filter, Download, Tag } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-
-interface ContentBrowserProps {
-  files: any[];
-  searchTerm: string;
-  setSearchTerm: React.Dispatch<React.SetStateAction<string>>;
-}
+import { 
+  ContentBrowserProps, 
+  EmptyStateProps, 
+  FilesTableProps, 
+  FileRowProps 
+} from "@/types/content";
+import { FileText } from "lucide-react";
 
 const ContentBrowser = ({ files, searchTerm, setSearchTerm }: ContentBrowserProps) => {
   const { toast } = useToast();
@@ -66,10 +66,6 @@ const ContentBrowser = ({ files, searchTerm, setSearchTerm }: ContentBrowserProp
   );
 };
 
-interface EmptyStateProps {
-  searchTerm: string;
-}
-
 const EmptyState = ({ searchTerm }: EmptyStateProps) => (
   <div className="text-center py-8">
     <FileText className="mx-auto h-12 w-12 text-gray-400" />
@@ -81,13 +77,6 @@ const EmptyState = ({ searchTerm }: EmptyStateProps) => (
     </p>
   </div>
 );
-
-interface FilesTableProps {
-  files: any[];
-  onDownload: (fileName: string) => void;
-  onView: (fileId: string) => void;
-  onTagFile: (fileId: string) => void;
-}
 
 const FilesTable = ({ files, onDownload, onView, onTagFile }: FilesTableProps) => (
   <div className="overflow-x-auto">
@@ -117,13 +106,6 @@ const FilesTable = ({ files, onDownload, onView, onTagFile }: FilesTableProps) =
     </table>
   </div>
 );
-
-interface FileRowProps {
-  file: any;
-  onDownload: (fileName: string) => void;
-  onView: (fileId: string) => void;
-  onTagFile: (fileId: string) => void;
-}
 
 const FileRow = ({ file, onDownload, onView, onTagFile }: FileRowProps) => (
   <tr className="border-b hover:bg-gray-50 dark:hover:bg-gray-900">
@@ -171,8 +153,5 @@ const FileRow = ({ file, onDownload, onView, onTagFile }: FileRowProps) => (
     </td>
   </tr>
 );
-
-// Import this to ensure the FileText icon is available for the EmptyState
-import { FileText } from "lucide-react";
 
 export default ContentBrowser;
