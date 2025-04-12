@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import { storage } from "@/lib/firebase";
@@ -61,7 +62,7 @@ const ContentUploader: React.FC<ContentUploaderProps> = ({ onContentUploaded }) 
           toast({
             title: "Success",
             description: "File uploaded successfully",
-            variant: "success"
+            variant: "default"
           });
         });
       }

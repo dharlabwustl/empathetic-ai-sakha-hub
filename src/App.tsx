@@ -22,12 +22,12 @@ import AdminRouteGuard from '@/components/admin/AdminRouteGuard';
 import StudentRouteGuard from '@/components/student/StudentRouteGuard';
 // New Android App page
 import AndroidApp from '@/pages/AndroidApp';
-import { ThemeProvider } from '@/providers/ThemeProvider';
 import MobileApp from '@/pages/MobileApp';
+import { ThemeProvider } from '@/providers/ThemeProvider';
 
 function App() {
   return (
-    <ThemeProvider defaultTheme="light" storageKey="sakha-ui-theme">
+    <ThemeProvider>
       <ToastProvider>
         <Router>
           <AdminAuthProvider>
