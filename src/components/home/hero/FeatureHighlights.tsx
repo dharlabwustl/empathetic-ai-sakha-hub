@@ -170,7 +170,7 @@ const FeatureHighlights = () => {
               />
             </motion.div>
             <div>
-              <h3 className="text-sm font-semibold text-white dark:text-white flex items-center gap-1.5">
+              <h3 className="text-sm font-semibold text-black dark:text-black flex items-center gap-1.5">
                 <motion.div
                   initial={{ opacity: 0, scale: 0 }}
                   animate={{ opacity: 1, scale: 1 }}
@@ -185,7 +185,7 @@ const FeatureHighlights = () => {
                 </motion.div>
                 <span className="font-bold">{point.title}</span>
               </h3>
-              <p className="text-xs text-white/80 dark:text-white/80 mt-1.5 font-medium">
+              <p className="text-xs text-black/80 dark:text-black/80 mt-1.5 font-medium">
                 {point.description}
               </p>
             </div>
