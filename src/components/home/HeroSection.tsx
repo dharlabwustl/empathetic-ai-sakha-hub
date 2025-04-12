@@ -7,6 +7,7 @@ import HeroButtons from './hero/HeroButtons';
 import { motion } from "framer-motion";
 import ExamNamesBadge from './hero/ExamNamesBadge';
 import EcosystemAnimation from './EcosystemAnimation';
+import FeatureHighlights from './hero/FeatureHighlights';
 
 export interface HeroSectionProps {
   scrollToFeatures: () => void;
@@ -92,16 +93,26 @@ const HeroSection: React.FC<HeroSectionProps> = ({
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.6 }}
-          className="mb-12"
+          className="mb-6"
         >
           <ExamNamesBadge />
+        </motion.div>
+        
+        {/* Add the Feature Highlights section here */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.8, delay: 0.8 }}
+          className="mb-12"
+        >
+          <FeatureHighlights />
         </motion.div>
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center mt-12">
           <motion.div
             initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, delay: 0.8 }}
+            transition={{ duration: 0.8, delay: 1 }}
             className="bg-white/90 dark:bg-slate-900/90 shadow-lg backdrop-blur-sm p-6 rounded-2xl border border-gray-100 dark:border-gray-800"
           >
             <PainPoints />
@@ -110,21 +121,12 @@ const HeroSection: React.FC<HeroSectionProps> = ({
           <motion.div
             initial={{ opacity: 0, x: 30 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, delay: 0.8 }}
+            transition={{ duration: 0.8, delay: 1 }}
             className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm shadow-xl rounded-2xl border border-purple-100 dark:border-purple-800 overflow-hidden"
           >
             <ChatInterface />
           </motion.div>
         </div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 1 }}
-          className="mt-16"
-        >
-          <EcosystemAnimation />
-        </motion.div>
         
         <ScrollIndicator />
       </div>

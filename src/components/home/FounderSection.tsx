@@ -10,7 +10,7 @@ const FounderSection = () => {
             <div className="relative">
               <div className="absolute inset-0 bg-gradient-to-r from-sakha-blue to-sakha-purple rounded-2xl transform rotate-3"></div>
               <img 
-                src="/lovable-uploads/26a404be-3145-4a01-9204-8e74a5984c36.png" 
+                src="/lovable-uploads/9ca5a007-1086-4c37-81cc-cc869e880b5b.png" 
                 alt="Amit Singh - Founder of Sakha AI" 
                 className="relative z-10 rounded-2xl object-cover w-full max-w-md mx-auto"
               />
@@ -22,10 +22,10 @@ const FounderSection = () => {
               <Quote size={48} className="text-sakha-blue opacity-20" />
             </div>
             <blockquote className="text-xl md:text-2xl font-display text-gray-800 mb-8">
-              We created Sakha AI with a vision to transform how technology supports human growth. 
-              Beyond just providing answers, Sakha's empathetic understanding and personalized guidance 
-              helps users discover their potential, whether they're students mastering concepts, 
-              professionals navigating careers, or founders building dreams.
+              We created Sakha AI to transform how students prepare for competitive exams in India. 
+              Our AI companion provides personalized guidance, adapts to individual learning styles, 
+              and helps students discover their true potential. With Sakha, students can overcome 
+              study challenges and achieve better results with less stress.
             </blockquote>
             
             <div className="flex items-center gap-4">
