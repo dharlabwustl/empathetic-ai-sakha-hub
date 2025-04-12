@@ -69,7 +69,7 @@ export default function Login() {
             id: "admin-001",
             name: "Admin User",
             email: values.email,
-            role: "Administrator",
+            role: "admin", // Changed from "Administrator" to "admin" to match the expected type
             permissions: ["all"],
             lastLogin: new Date()
           });
