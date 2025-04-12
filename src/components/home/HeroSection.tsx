@@ -7,6 +7,7 @@ import ScrollIndicator from './hero/ScrollIndicator';
 import HeroButtons from './hero/HeroButtons';
 import { motion } from "framer-motion";
 import ExamNamesBadge from './hero/ExamNamesBadge';
+import EcosystemAnimation from './EcosystemAnimation';
 
 export interface HeroSectionProps {
   scrollToFeatures: () => void;
@@ -124,6 +125,15 @@ const HeroSection: React.FC<HeroSectionProps> = ({
             <ChatInterface />
           </motion.div>
         </div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 1 }}
+          className="mt-16"
+        >
+          <EcosystemAnimation />
+        </motion.div>
         
         <ScrollIndicator />
       </div>
