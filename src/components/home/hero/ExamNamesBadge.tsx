@@ -3,10 +3,9 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { useIsMobile } from '@/hooks/use-mobile';
 
-// We'll remove this static array since we'll use the comprehensive list below
-// const examNames = [
-//   "JEE Main", "JEE Advanced", "CLAT", "UGC NET", "CTET", "Defence Exams", "State PSCs"
-// ];
+const examNames = [
+  "JEE Main", "JEE Advanced", "CLAT", "UGC NET", "CTET", "Defence Exams", "State PSCs"
+];
 
 const ExamNamesBadge = () => {
   const isMobile = useIsMobile();
@@ -38,9 +37,17 @@ const ExamNamesBadge = () => {
         variants={container}
         initial="hidden"
         animate="show"
-        className="flex flex-wrap justify-center gap-2 md:gap-3 px-4 py-4 bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-xl shadow-sm border border-pink-100 dark:border-pink-800/30"
+        className="flex flex-wrap justify-center gap-2 md:gap-3 px-4 py-3 bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-xl shadow-sm border border-violet-100 dark:border-violet-800/30"
       >
-        {/* No component here as we've removed the duplicative display */}
+        {examNames.map((exam, index) => (
+          <motion.span
+            key={index}
+            variants={item}
+            className="px-3 py-1 bg-gradient-to-r from-pink-50 to-purple-50 dark:from-pink-900/40 dark:to-purple-900/40 text-pink-800 dark:text-pink-300 text-sm md:text-base font-medium rounded-full shadow-sm border border-pink-200/50 dark:border-pink-700/30"
+          >
+            {exam}
+          </motion.span>
+        ))}
       </motion.div>
     </div>
   );

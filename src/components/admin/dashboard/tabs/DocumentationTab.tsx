@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { 
   Card, 
@@ -18,12 +19,12 @@ import {
   Search,
   Download,
   ExternalLink,
-  ChevronRight
+  ChevronRight,
+  Brain
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
-import { Brain } from "lucide-react";
 
 const DocumentationTab = () => {
   const { toast } = useToast();

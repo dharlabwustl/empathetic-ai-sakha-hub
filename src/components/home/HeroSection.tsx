@@ -6,6 +6,7 @@ import ChatInterface from './hero/ChatInterface';
 import ScrollIndicator from './hero/ScrollIndicator';
 import HeroButtons from './hero/HeroButtons';
 import { motion } from "framer-motion";
+import ExamNamesBadge from './hero/ExamNamesBadge';
 
 export interface HeroSectionProps {
   scrollToFeatures: () => void;
@@ -90,21 +91,18 @@ const HeroSection: React.FC<HeroSectionProps> = ({
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.6 }}
+          className="mb-12"
+        >
+          <ExamNamesBadge />
+        </motion.div>
+        
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.8 }}
         >
-          <div className="flex flex-wrap justify-center gap-2 mb-8">
-            {["UPSC", "JEE", "NEET", "GMAT", "CAT", "GATE", "SSC", "Banking", "GRE", "CLAT", "CUET"].map((exam, index) => (
-              <motion.span
-                key={index}
-                className="px-3 py-1 bg-gradient-to-r from-violet-100 to-pink-100 text-violet-800 rounded-full text-sm font-medium"
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.8 + index * 0.05, duration: 0.3 }}
-              >
-                {exam}
-              </motion.span>
-            ))}
-          </div>
+          <ExamBadges />
         </motion.div>
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center mt-12">

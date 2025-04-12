@@ -11,11 +11,7 @@ import {
   BarChart3, 
   Award, 
   Trophy,
-  BookOpen,
-  Scale,
-  BookMarked,
-  Landmark,
-  Building
+  BookOpen
 } from "lucide-react";
 
 interface ExamBadge {
@@ -32,7 +28,7 @@ const ExamBadges = ({ badges }: ExamBadgesProps) => {
   return (
     <div className="relative mt-6 mb-6">
       <motion.div 
-        className="flex flex-wrap gap-2 relative z-30 justify-center"
+        className="flex flex-wrap gap-2 relative z-30"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.2, duration: 0.5 }}
@@ -45,7 +41,7 @@ const ExamBadges = ({ badges }: ExamBadgesProps) => {
             transition={{ delay: 0.1 * index, duration: 0.3 }}
             whileHover={{ scale: 1.05, y: -2 }}
           >
-            <Badge className="bg-gradient-to-r from-white to-white/95 text-pink-700 hover:bg-violet-50 border border-pink-200 shadow-sm py-1.5 px-3 flex items-center gap-1">
+            <Badge className="bg-white text-violet-700 hover:bg-violet-50 border border-violet-200 shadow-sm py-1.5 px-3 flex items-center gap-1">
               {badge.icon}
               <span className="ml-1">{badge.name}</span>
               <motion.div
@@ -63,20 +59,18 @@ const ExamBadges = ({ badges }: ExamBadgesProps) => {
   );
 };
 
-// Updated exam badges
+// Default exam badges
 ExamBadges.defaultProps = {
   badges: [
-    { name: "UPSC", icon: <Landmark size={12} /> },
+    { name: "UPSC", icon: <FileText size={12} /> },
     { name: "JEE", icon: <GraduationCap size={12} /> },
     { name: "NEET", icon: <Medal size={12} /> },
     { name: "GMAT", icon: <Brain size={12} /> },
     { name: "CAT", icon: <BarChart3 size={12} /> },
     { name: "GATE", icon: <Award size={12} /> },
     { name: "SSC", icon: <FileText size={12} /> },
-    { name: "Banking", icon: <Building size={12} /> },
-    { name: "GRE", icon: <BookOpen size={12} /> },
-    { name: "CLAT", icon: <Scale size={12} /> },
-    { name: "CUET", icon: <BookMarked size={12} /> }
+    { name: "Banking", icon: <Trophy size={12} /> },
+    { name: "GRE", icon: <BookOpen size={12} /> }
   ]
 };
 

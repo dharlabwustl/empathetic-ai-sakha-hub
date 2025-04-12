@@ -14,7 +14,6 @@ import FounderSection from '@/components/home/FounderSection';
 import VideoSection from '@/components/home/VideoSection';
 import EcosystemAnimation from '@/components/home/EcosystemAnimation';
 import { ExamReadinessAnalyzer } from '@/components/home/ExamReadinessAnalyzer';
-import MobileAppPromotion from '@/components/home/MobileAppPromotion';
 
 const Index = () => {
   const featuresRef = useRef<HTMLDivElement>(null);
@@ -52,6 +51,8 @@ const Index = () => {
           openExamAnalyzer={handleOpenExamAnalyzer}
         />
         
+        <EcosystemAnimation />
+        
         <WhatIsSection />
         
         <div ref={featuresRef}>
@@ -61,11 +62,6 @@ const Index = () => {
         <div ref={forWhomRef}>
           <ForWhomSection />
         </div>
-        
-        {/* Reordered sections */}
-        <MobileAppPromotion />
-        
-        <EcosystemAnimation />
         
         <ExamPreparationSection />
         
