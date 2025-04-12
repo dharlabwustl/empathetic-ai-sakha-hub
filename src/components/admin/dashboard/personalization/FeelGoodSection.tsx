@@ -8,10 +8,24 @@ import {
   ThumbsUp, ThumbsDown, BarChart2
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 const FeelGoodSection = () => {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("stats");
+  
+  // Feature toggle states
+  const [featuresEnabled, setFeaturesEnabled] = useState({
+    humor: true,
+    puzzles: true,
+    doodles: true,
+    quotes: false
+  });
+  
+  const [sentimentModelEnabled, setSentimentModelEnabled] = useState(true);
+  const [moodEngineEnabled, setMoodEngineEnabled] = useState(true);
+  const [contentFilteringEnabled, setContentFilteringEnabled] = useState(true);
   
   const handleManage = () => {
     toast({
@@ -38,9 +52,22 @@ const FeelGoodSection = () => {
   };
 
   const handleToggleContent = (contentType: string, enabled: boolean) => {
+    setFeaturesEnabled(prev => ({
+      ...prev,
+      [contentType]: enabled
+    }));
+    
     toast({
       title: `${contentType} ${enabled ? 'Enabled' : 'Disabled'}`,
       description: `${contentType} content is now ${enabled ? 'enabled' : 'disabled'} in the Feel-Good Corner`,
+      variant: "default"
+    });
+  };
+  
+  const handleConfigureFeature = (featureName: string) => {
+    toast({
+      title: `Configure ${featureName}`,
+      description: `Opening configuration panel for ${featureName}`,
       variant: "default"
     });
   };
@@ -95,10 +122,10 @@ const FeelGoodSection = () => {
                 <h3 className="font-medium mb-2">User Sentiment Impact</h3>
                 <div className="h-32 bg-gray-100 dark:bg-gray-800 rounded-md">
                   <div className="flex items-end h-full">
-                    <div className="w-1/4 h-[70%] bg-gradient-to-t from-green-500 to-green-300 rounded-tl-md"></div>
+                    <div className="w-1/4 h-[70%] bg-gradient-to-t from-purple-500 to-purple-300 rounded-tl-md"></div>
                     <div className="w-1/4 h-[40%] bg-gradient-to-t from-blue-500 to-blue-300"></div>
                     <div className="w-1/4 h-[85%] bg-gradient-to-t from-purple-500 to-purple-300"></div>
-                    <div className="w-1/4 h-[55%] bg-gradient-to-t from-pink-500 to-pink-300 rounded-tr-md"></div>
+                    <div className="w-1/4 h-[55%] bg-gradient-to-t from-blue-500 to-blue-300 rounded-tr-md"></div>
                   </div>
                 </div>
                 <div className="flex justify-between mt-2 text-xs text-gray-600">
@@ -122,7 +149,14 @@ const FeelGoodSection = () => {
                       <p className="font-medium text-sm">Humor & Jokes</p>
                       <p className="text-xs text-gray-600">Based on emotional state</p>
                     </div>
-                    <Button size="sm" variant="outline" className="h-7 text-xs">Configure</Button>
+                    <div className="flex items-center gap-2">
+                      <Switch 
+                        id="humor-toggle"
+                        checked={featuresEnabled.humor}
+                        onCheckedChange={(checked) => handleToggleContent('humor', checked)} 
+                      />
+                      <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => handleConfigureFeature('Humor & Jokes')}>Configure</Button>
+                    </div>
                   </div>
                   <div className="flex items-center gap-2 p-2 bg-white dark:bg-gray-800 rounded-md">
                     <Puzzle size={18} className="text-blue-500" />
@@ -130,7 +164,14 @@ const FeelGoodSection = () => {
                       <p className="font-medium text-sm">Puzzles</p>
                       <p className="text-xs text-gray-600">Mental refreshers</p>
                     </div>
-                    <Button size="sm" variant="outline" className="h-7 text-xs">Configure</Button>
+                    <div className="flex items-center gap-2">
+                      <Switch 
+                        id="puzzles-toggle"
+                        checked={featuresEnabled.puzzles}
+                        onCheckedChange={(checked) => handleToggleContent('puzzles', checked)} 
+                      />
+                      <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => handleConfigureFeature('Puzzles')}>Configure</Button>
+                    </div>
                   </div>
                   <div className="flex items-center gap-2 p-2 bg-white dark:bg-gray-800 rounded-md">
                     <MessageSquare size={18} className="text-green-500" />
@@ -138,7 +179,14 @@ const FeelGoodSection = () => {
                       <p className="font-medium text-sm">Doodles</p>
                       <p className="text-xs text-gray-600">Visual relaxation</p>
                     </div>
-                    <Button size="sm" variant="outline" className="h-7 text-xs">Configure</Button>
+                    <div className="flex items-center gap-2">
+                      <Switch 
+                        id="doodles-toggle"
+                        checked={featuresEnabled.doodles}
+                        onCheckedChange={(checked) => handleToggleContent('doodles', checked)} 
+                      />
+                      <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => handleConfigureFeature('Doodles')}>Configure</Button>
+                    </div>
                   </div>
                   <div className="flex items-center gap-2 p-2 bg-white dark:bg-gray-800 rounded-md">
                     <Flag size={18} className="text-purple-500" />
@@ -146,7 +194,14 @@ const FeelGoodSection = () => {
                       <p className="font-medium text-sm">Quotes</p>
                       <p className="text-xs text-gray-600">Motivational</p>
                     </div>
-                    <Button size="sm" variant="outline" className="h-7 text-xs">Configure</Button>
+                    <div className="flex items-center gap-2">
+                      <Switch 
+                        id="quotes-toggle"
+                        checked={featuresEnabled.quotes}
+                        onCheckedChange={(checked) => handleToggleContent('quotes', checked)} 
+                      />
+                      <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => handleConfigureFeature('Quotes')}>Configure</Button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -172,8 +227,25 @@ const FeelGoodSection = () => {
                       <span className="font-medium text-sm">Sentiment Model v2</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="text-xs text-gray-600">78% Accuracy</span>
-                      <Button size="sm" variant="outline" className="h-7 text-xs">Tune</Button>
+                      <div className="flex items-center space-x-2 mr-2">
+                        <Switch 
+                          id="sentiment-model-toggle"
+                          checked={sentimentModelEnabled}
+                          onCheckedChange={setSentimentModelEnabled} 
+                        />
+                        <Label htmlFor="sentiment-model-toggle" className="text-xs text-gray-600">
+                          {sentimentModelEnabled ? '78% Accuracy' : 'Disabled'}
+                        </Label>
+                      </div>
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="h-7 text-xs"
+                        onClick={() => handleConfigureFeature('Sentiment Model')}
+                        disabled={!sentimentModelEnabled}
+                      >
+                        Tune
+                      </Button>
                     </div>
                   </div>
                   <div className="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded-md">
@@ -182,8 +254,25 @@ const FeelGoodSection = () => {
                       <span className="font-medium text-sm">Mood Engine</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="text-xs text-green-600">Active</span>
-                      <Button size="sm" variant="outline" className="h-7 text-xs">Configure</Button>
+                      <div className="flex items-center space-x-2 mr-2">
+                        <Switch 
+                          id="mood-engine-toggle"
+                          checked={moodEngineEnabled}
+                          onCheckedChange={setMoodEngineEnabled} 
+                        />
+                        <Label htmlFor="mood-engine-toggle" className="text-xs text-green-600">
+                          {moodEngineEnabled ? 'Active' : 'Inactive'}
+                        </Label>
+                      </div>
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="h-7 text-xs"
+                        onClick={() => handleConfigureFeature('Mood Engine')}
+                        disabled={!moodEngineEnabled}
+                      >
+                        Configure
+                      </Button>
                     </div>
                   </div>
                   <div className="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded-md">
@@ -192,16 +281,45 @@ const FeelGoodSection = () => {
                       <span className="font-medium text-sm">Content Filtering</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="text-xs text-amber-600">Needs Review</span>
-                      <Button size="sm" variant="outline" className="h-7 text-xs">Review</Button>
+                      <div className="flex items-center space-x-2 mr-2">
+                        <Switch 
+                          id="content-filtering-toggle"
+                          checked={contentFilteringEnabled}
+                          onCheckedChange={setContentFilteringEnabled} 
+                        />
+                        <Label htmlFor="content-filtering-toggle" className="text-xs text-amber-600">
+                          {contentFilteringEnabled ? 'Needs Review' : 'Disabled'}
+                        </Label>
+                      </div>
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="h-7 text-xs"
+                        onClick={() => handleConfigureFeature('Content Filtering')}
+                        disabled={!contentFilteringEnabled}
+                      >
+                        Review
+                      </Button>
                     </div>
                   </div>
                 </div>
               </div>
               
               <div className="flex justify-between">
-                <Button variant="outline">View Usage Logs</Button>
-                <Button className="bg-gradient-to-r from-purple-500 to-blue-600 text-white hover:from-purple-600 hover:to-blue-700">
+                <Button variant="outline" onClick={() => {
+                  toast({
+                    title: "Usage Logs",
+                    description: "Viewing Feel-Good Corner usage logs",
+                    variant: "default"
+                  });
+                }}>View Usage Logs</Button>
+                <Button className="bg-gradient-to-r from-purple-500 to-blue-600 text-white hover:from-purple-600 hover:to-blue-700" onClick={() => {
+                  toast({
+                    title: "Settings Saved",
+                    description: "Feel-Good Corner settings have been saved",
+                    variant: "default"
+                  });
+                }}>
                   Save Settings
                 </Button>
               </div>

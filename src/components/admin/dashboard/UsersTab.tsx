@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -177,14 +178,26 @@ const UsersTab = ({ stats, recentStudents }: UsersTabProps) => {
                       <span className="font-medium">Aryan Sharma</span>
                       <p className="text-xs text-gray-600">High stress for 5 days</p>
                     </div>
-                    <Button variant="outline" size="sm" className="h-8">View</Button>
+                    <Button variant="outline" size="sm" className="h-8" onClick={() => {
+                      toast({
+                        title: "Student Profile",
+                        description: "Viewing student profile: Aryan Sharma",
+                        variant: "default"
+                      });
+                    }}>View</Button>
                   </div>
                   <div className="bg-red-50 p-2 rounded-md flex items-center justify-between">
                     <div>
                       <span className="font-medium">Priya Patel</span>
                       <p className="text-xs text-gray-600">Mood dropped by 40%</p>
                     </div>
-                    <Button variant="outline" size="sm" className="h-8">View</Button>
+                    <Button variant="outline" size="sm" className="h-8" onClick={() => {
+                      toast({
+                        title: "Student Profile",
+                        description: "Viewing student profile: Priya Patel",
+                        variant: "default"
+                      });
+                    }}>View</Button>
                   </div>
                 </div>
               </div>

@@ -1,7 +1,7 @@
 
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Loader2, Upload, Tag, X } from "lucide-react";
+import { Loader2, Upload, Tag, X, Download } from "lucide-react";
 import { ContentUploaderProps } from "@/types/content";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -69,10 +69,26 @@ const ContentUploader = ({
     setTimeout(() => {
       toast({
         title: "Upload Successful",
-        description: `${selectedFile.name} has been uploaded and tagged successfully`,
+        description: `${selectedFile.name} has been uploaded and tagged successfully for ${examType} - ${subject}`,
         variant: "default"
       });
     }, 2500);
+  };
+  
+  const handleGenerateDocumentation = () => {
+    toast({
+      title: "Generating Documentation",
+      description: "Creating comprehensive documentation for the uploaded content...",
+      variant: "default"
+    });
+    
+    setTimeout(() => {
+      toast({
+        title: "Documentation Created",
+        description: "Documentation has been successfully generated and is ready for download",
+        variant: "default"
+      });
+    }, 1800);
   };
 
   return (
@@ -140,6 +156,7 @@ const ContentUploader = ({
                     <SelectItem value="question_bank">Question Bank</SelectItem>
                     <SelectItem value="notes">Notes</SelectItem>
                     <SelectItem value="reference">Reference Material</SelectItem>
+                    <SelectItem value="previous_papers">Previous Year Papers</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -264,6 +281,17 @@ const ContentUploader = ({
             }}
           >
             Generate with AI
+          </Button>
+        </div>
+        
+        <div className="mt-4">
+          <Button 
+            variant="outline" 
+            className="w-full flex items-center gap-2"
+            onClick={handleGenerateDocumentation}
+          >
+            <Download size={16} />
+            Generate & Download Documentation
           </Button>
         </div>
       </div>
