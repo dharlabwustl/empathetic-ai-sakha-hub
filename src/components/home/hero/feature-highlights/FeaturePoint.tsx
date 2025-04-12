@@ -48,13 +48,13 @@ const FeaturePoint: React.FC<FeaturePointProps> = ({
       className="bg-white/95 backdrop-blur-sm dark:bg-slate-800/95 rounded-xl p-5 shadow-lg border border-purple-100 dark:border-purple-900/30 transform transition-all relative overflow-hidden"
       style={{ originY: 0.5, originX: 0.5 }}
     >
-      {/* Background gradient */}
+      {/* Background gradient - fixed the opacity to 0.1 from 0.1 */}
       <motion.div 
         className={`absolute inset-0 bg-gradient-to-br ${color} opacity-10 dark:opacity-15`}
         variants={{
           pulse: {
             scale: [1, 1.05, 1],
-            opacity: [0.7, 1, 0.7],
+            opacity: [0.1, 0.15, 0.1], // Adjusted opacity animation
             transition: {
               duration: 3,
               ease: "easeInOut",

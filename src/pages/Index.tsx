@@ -8,7 +8,6 @@ import ForWhomSection from '@/components/home/ForWhomSection';
 import FeaturesSection from '@/components/home/FeaturesSection';
 import ExamPreparationSection from '@/components/home/ExamPreparationSection';
 import StudentBenefitsSection from '@/components/home/StudentBenefitsSection';
-import OnboardingSection from '@/components/home/OnboardingSection';
 import CallToAction from '@/components/home/CallToAction';
 import FounderSection from '@/components/home/FounderSection';
 import VideoSection from '@/components/home/VideoSection';
@@ -66,9 +65,7 @@ const Index = () => {
         
         <StudentBenefitsSection />
         
-        {/* Remove duplicate EcosystemAnimation section since it's now in HeroSection */}
-        
-        <OnboardingSection />
+        {/* Both EcosystemAnimation and OnboardingSection are now in HeroSection */}
         
         <VideoSection />
         

@@ -8,6 +8,7 @@ import { motion } from "framer-motion";
 import ExamNamesBadge from './hero/ExamNamesBadge';
 import EcosystemAnimation from './EcosystemAnimation';
 import FeatureHighlights from './hero/FeatureHighlights';
+import OnboardingSection from './OnboardingSection';
 
 export interface HeroSectionProps {
   scrollToFeatures: () => void;
@@ -98,7 +99,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
           <ExamNamesBadge />
         </motion.div>
         
-        {/* Add the Feature Highlights section here */}
+        {/* Feature Highlights section */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -128,7 +129,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
           </motion.div>
         </div>
         
-        {/* Add the Ecosystem Animation section right after the grid */}
+        {/* Add the Ecosystem Animation section right after the grid with chat and pain points */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -136,6 +137,15 @@ const HeroSection: React.FC<HeroSectionProps> = ({
           className="mt-16 mb-12"
         >
           <EcosystemAnimation />
+        </motion.div>
+        
+        {/* Add the OnboardingSection right after the EcosystemAnimation */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.8, delay: 1.4 }}
+        >
+          <OnboardingSection />
         </motion.div>
         
         <ScrollIndicator />

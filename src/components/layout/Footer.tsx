@@ -113,11 +113,14 @@ const Footer = () => {
               </li>
               <li className="text-purple-200 flex items-center gap-2">
                 <Phone size={16} className="text-purple-300" />
-                <span>+91 123-456-7890</span>
+                <span>+91-8007194747</span>
               </li>
-              <li className="text-purple-200 flex items-center gap-2">
-                <MapPin size={16} className="text-purple-300" />
-                <span>Bengaluru, India</span>
+              <li className="text-purple-200 flex items-start gap-2">
+                <MapPin size={16} className="text-purple-300 mt-1 flex-shrink-0" />
+                <div>
+                  <p className="mb-1">Gurgaon Office: Nasscom office Udyog Vihar, India</p>
+                  <p>Patna Office: Boring Road, Patna, Bihar</p>
+                </div>
               </li>
             </ul>
           </div>
