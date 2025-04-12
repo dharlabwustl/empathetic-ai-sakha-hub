@@ -13,6 +13,7 @@ import CallToAction from '@/components/home/CallToAction';
 import FounderSection from '@/components/home/FounderSection';
 import VideoSection from '@/components/home/VideoSection';
 import { ExamReadinessAnalyzer } from '@/components/home/ExamReadinessAnalyzer';
+import EcosystemAnimation from '@/components/home/EcosystemAnimation';
 
 const Index = () => {
   const featuresRef = useRef<HTMLDivElement>(null);
@@ -65,6 +66,9 @@ const Index = () => {
         {showExamAnalyzer && <ExamReadinessAnalyzer onClose={handleCloseExamAnalyzer} />}
         
         <StudentBenefitsSection />
+        
+        {/* Add Ecosystem Animation section here after the student benefits section */}
+        <EcosystemAnimation />
         
         <OnboardingSection />
         

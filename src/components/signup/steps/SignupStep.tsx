@@ -86,7 +86,6 @@ const SignupStep: React.FC<SignupStepProps> = ({ onSubmit, isLoading }) => {
       {formValues.mobile && (
         <Button 
           type="button" 
-          className="w-full" 
           variant="outline"
           onClick={handleRequestOtp}
           className="w-full border-purple-500 text-purple-600 hover:bg-purple-50"

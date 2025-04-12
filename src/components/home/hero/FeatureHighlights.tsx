@@ -170,7 +170,7 @@ const FeatureHighlights = () => {
               />
             </motion.div>
             <div>
-              <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-1.5">
+              <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-100 flex items-center gap-1.5">
                 <motion.div
                   initial={{ opacity: 0, scale: 0 }}
                   animate={{ opacity: 1, scale: 1 }}
@@ -183,9 +183,9 @@ const FeatureHighlights = () => {
                 >
                   <CheckCircle2 size={14} className="text-green-500" />
                 </motion.div>
-                {point.title}
+                <span className="font-bold">{point.title}</span>
               </h3>
-              <p className="text-xs text-gray-600 dark:text-gray-300 mt-1.5">
+              <p className="text-xs text-gray-700 dark:text-gray-300 mt-1.5 font-medium">
                 {point.description}
               </p>
             </div>
