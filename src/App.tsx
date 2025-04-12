@@ -1,6 +1,5 @@
 
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { ThemeProvider } from '@/components/theme-provider';
 import Index from '@/pages/Index';
 // Admin pages
 import AdminLogin from '@/pages/admin/AdminLogin';
@@ -23,6 +22,8 @@ import AdminRouteGuard from '@/components/admin/AdminRouteGuard';
 import StudentRouteGuard from '@/components/student/StudentRouteGuard';
 // New Android App page
 import AndroidApp from '@/pages/AndroidApp';
+import { ThemeProvider } from '@/providers/ThemeProvider';
+import MobileApp from '@/pages/MobileApp';
 
 function App() {
   return (
@@ -35,6 +36,7 @@ function App() {
                 {/* Public pages */}
                 <Route path="/" element={<Index />} />
                 <Route path="/android-app" element={<AndroidApp />} />
+                <Route path="/mobile-app" element={<MobileApp />} />
 
                 {/* Admin pages */}
                 <Route path="/admin/login" element={<AdminLogin />} />
