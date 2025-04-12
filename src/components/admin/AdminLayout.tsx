@@ -25,6 +25,7 @@ import {
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useToast } from "@/hooks/use-toast";
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -34,6 +35,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
   const { adminUser, logout } = useAdminAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const { toast } = useToast();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const isMobile = useIsMobile();
@@ -41,6 +43,19 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
   const handleLogout = () => {
     logout();
     navigate('/admin/login');
+  };
+
+  const handleNavClick = (path: string, name: string) => {
+    navigate(path);
+    if (isMobile) {
+      setMobileOpen(false);
+    }
+    
+    toast({
+      title: `Navigating to ${name}`,
+      description: `Opening ${name} section`,
+      variant: "default"
+    });
   };
 
   const navItems = [
@@ -51,7 +66,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
     },
     {
       name: 'User Management',
-      path: '/admin/users',
+      path: '/admin/students',
       icon: <Users size={20} />
     },
     {
@@ -185,21 +200,21 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
         <div className="flex-1 overflow-y-auto py-4 px-2">
           <nav className="space-y-1">
             {navItems.map((item) => (
-              <Link
+              <Button
                 key={item.path}
-                to={item.path}
+                variant="ghost"
                 className={cn(
-                  "flex items-center gap-3 px-3 py-2 rounded-md transition-colors",
+                  "w-full flex items-center gap-3 px-3 py-2 rounded-md transition-colors justify-start",
                   location.pathname === item.path
                     ? "bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-md"
                     : "hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300",
                   collapsed && "justify-center"
                 )}
-                onClick={() => isMobile && setMobileOpen(false)}
+                onClick={() => handleNavClick(item.path, item.name)}
               >
                 {item.icon}
                 {!collapsed && <span>{item.name}</span>}
-              </Link>
+              </Button>
             ))}
           </nav>
         </div>
@@ -220,7 +235,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
           {!collapsed && (
             <Button 
               variant="ghost" 
-              className="w-full text-gray-500 hover:text-red-500 flex items-center gap-2"
+              className="w-full text-gray-500 hover:text-red-500 flex items-center gap-2 justify-start"
               onClick={handleLogout}
             >
               <LogOut size={18} />

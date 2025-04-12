@@ -21,6 +21,14 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 import StudentsPage from "./pages/admin/StudentsPage";
 import ContentPage from "./pages/admin/ContentPage";
 import SettingsPage from "./pages/admin/SettingsPage";
+import AnalyticsPage from "./pages/admin/AnalyticsPage";
+import SystemMonitoringPage from "./pages/admin/SystemMonitoringPage";
+import EngagementPage from "./pages/admin/EngagementPage";
+import SubscriptionsPage from "./pages/admin/SubscriptionsPage";
+import AIPersonalizationPage from "./pages/admin/AIPersonalizationPage";
+import IssuesPage from "./pages/admin/IssuesPage";
+import NotificationsPage from "./pages/admin/NotificationsPage";
+import DocumentationPage from "./pages/admin/DocumentationPage";
 import StudentDashboard from "./pages/dashboard/student/StudentDashboard";
 import EmployeeDashboard from "./pages/dashboard/EmployeeDashboard";
 import DoctorDashboard from "./pages/dashboard/DoctorDashboard";
@@ -59,9 +67,49 @@ const App = () => (
                   <StudentsPage />
                 </AdminRouteGuard>
               } />
+              <Route path="/admin/ai" element={
+                <AdminRouteGuard>
+                  <AIPersonalizationPage />
+                </AdminRouteGuard>
+              } />
               <Route path="/admin/content" element={
                 <AdminRouteGuard>
                   <ContentPage />
+                </AdminRouteGuard>
+              } />
+              <Route path="/admin/engagement" element={
+                <AdminRouteGuard>
+                  <EngagementPage />
+                </AdminRouteGuard>
+              } />
+              <Route path="/admin/subscriptions" element={
+                <AdminRouteGuard>
+                  <SubscriptionsPage />
+                </AdminRouteGuard>
+              } />
+              <Route path="/admin/system" element={
+                <AdminRouteGuard>
+                  <SystemMonitoringPage />
+                </AdminRouteGuard>
+              } />
+              <Route path="/admin/analytics" element={
+                <AdminRouteGuard>
+                  <AnalyticsPage />
+                </AdminRouteGuard>
+              } />
+              <Route path="/admin/issues" element={
+                <AdminRouteGuard>
+                  <IssuesPage />
+                </AdminRouteGuard>
+              } />
+              <Route path="/admin/notifications" element={
+                <AdminRouteGuard>
+                  <NotificationsPage />
+                </AdminRouteGuard>
+              } />
+              <Route path="/admin/documentation" element={
+                <AdminRouteGuard>
+                  <DocumentationPage />
                 </AdminRouteGuard>
               } />
               <Route path="/admin/settings" element={

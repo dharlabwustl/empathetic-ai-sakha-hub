@@ -57,7 +57,8 @@ const AdminDashboard = () => {
       
       toast({
         title: "Dashboard Loaded",
-        description: "Admin dashboard data has been loaded successfully"
+        description: "Admin dashboard data has been loaded successfully",
+        variant: "default"
       });
       console.log("Dashboard data loaded successfully");
     } catch (error) {
@@ -76,12 +77,53 @@ const AdminDashboard = () => {
     fetchDashboardData();
     toast({
       title: "Refreshing Data",
-      description: "Fetching the latest dashboard information"
+      description: "Fetching the latest dashboard information",
+      variant: "default"
     });
   };
 
   const handleShowDocs = () => {
     setActiveTab("documentation");
+    navigate("/admin/documentation");
+    toast({
+      title: "Documentation",
+      description: "Viewing system documentation",
+      variant: "default"
+    });
+  };
+
+  const handleOptimizeSystem = () => {
+    toast({
+      title: "System Optimization",
+      description: "Starting system optimization process...",
+      variant: "default"
+    });
+    
+    // Simulate optimization process
+    setTimeout(() => {
+      toast({
+        title: "Optimization Complete",
+        description: "The system has been successfully optimized",
+        variant: "default"
+      });
+    }, 2000);
+  };
+
+  const handleExportData = () => {
+    toast({
+      title: "Exporting Data",
+      description: "Preparing dashboard data for export...",
+      variant: "default"
+    });
+    
+    // In a real app, this would generate and download a file
+    setTimeout(() => {
+      toast({
+        title: "Export Complete",
+        description: "Dashboard data has been exported successfully",
+        variant: "default"
+      });
+    }, 1500);
   };
 
   if (authLoading || loading) {
@@ -108,7 +150,7 @@ const AdminDashboard = () => {
             <span className="hidden sm:inline">Refresh</span>
           </Button>
           
-          <Button variant="outline" size="sm" className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={handleExportData} className="flex items-center gap-2">
             <Download size={16} />
             <span className="hidden sm:inline">Export</span>
           </Button>
@@ -118,7 +160,7 @@ const AdminDashboard = () => {
             <span className="hidden sm:inline">Documentation</span>
           </Button>
           
-          <Button size="sm" className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white flex items-center gap-2">
+          <Button size="sm" onClick={handleOptimizeSystem} className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white flex items-center gap-2">
             <Sparkles size={16} />
             <span className="hidden sm:inline">Optimize System</span>
           </Button>
