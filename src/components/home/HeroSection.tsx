@@ -6,6 +6,7 @@ import ChatInterface from './hero/ChatInterface';
 import ScrollIndicator from './hero/ScrollIndicator';
 import HeroButtons from './hero/HeroButtons';
 import { motion } from "framer-motion";
+import ExamNamesBadge from './hero/ExamNamesBadge';
 
 export interface HeroSectionProps {
   scrollToFeatures: () => void;
@@ -91,6 +92,15 @@ const HeroSection: React.FC<HeroSectionProps> = ({
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.6 }}
+          className="mb-12"
+        >
+          <ExamNamesBadge />
+        </motion.div>
+        
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.8 }}
         >
           <ExamBadges />
         </motion.div>
@@ -100,6 +110,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
             initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.8 }}
+            className="bg-white/5 backdrop-blur-sm p-6 rounded-2xl border border-gray-100/10"
           >
             <PainPoints />
           </motion.div>
@@ -108,7 +119,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
             initial={{ opacity: 0, x: 30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.8 }}
-            className="bg-white/95 backdrop-blur-sm shadow-xl rounded-2xl border border-violet-100 overflow-hidden"
+            className="bg-white/95 backdrop-blur-sm shadow-xl rounded-2xl border border-violet-100 dark:border-violet-800 overflow-hidden"
           >
             <ChatInterface />
           </motion.div>
