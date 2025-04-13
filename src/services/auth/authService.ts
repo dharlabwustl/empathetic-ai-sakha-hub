@@ -41,7 +41,7 @@ const authService = {
     return response;
   },
   
-  // Register user
+  // Register user - Updated to accept a single RegisterData object
   async register(userData: RegisterData): Promise<ApiResponse<AuthUser>> {
     const response = await apiClient.post<AuthUser>(API_ENDPOINTS.AUTH.REGISTER, userData);
     

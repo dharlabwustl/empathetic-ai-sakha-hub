@@ -48,14 +48,14 @@ const StepHandler = ({
         role: (onboardingData.role || 'Student').toLowerCase(),
       };
       
-      // Register the user using auth service
-      const response = await authService.register(
-        userData.name,
-        userData.email,
-        userData.phoneNumber,
-        userData.password,
-        userData.role
-      );
+      // Register the user using auth service - Fix: Pass a single object instead of multiple arguments
+      const response = await authService.register({
+        name: userData.name,
+        email: userData.email,
+        phoneNumber: userData.phoneNumber,
+        password: userData.password,
+        role: userData.role
+      });
       
       if (response) {
         // Save additional onboarding data to localStorage

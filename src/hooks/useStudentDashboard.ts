@@ -13,8 +13,8 @@ export const useStudentDashboard = () => {
   const [showStudyPlan, setShowStudyPlan] = useState(false);
   const [hideSidebar, setHideSidebar] = useState(false);
   const [hideTabsNav, setHideTabsNav] = useState(false);
-  const { userProfile, isLoading: profileLoading } = useUserProfile();
-  const { kpis, nudges, markNudgeAsRead } = useKpiTracking();
+  const { userProfile, loading: profileLoading } = useUserProfile(); // Fixed: using loading instead of isLoading
+  const { kpis, nudges, markNudgeAsRead } = useKpiTracking("Student"); // Fixed: passing the required role parameter
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
