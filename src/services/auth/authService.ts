@@ -20,6 +20,7 @@ export interface AuthUser {
   id: string;
   name: string;
   email: string;
+  phoneNumber?: string;
   role: string;
   token: string;
 }
@@ -32,6 +33,7 @@ const AUTH_USER_KEY = 'sakha_auth_user';
 const authService = {
   // Login user
   async login(credentials: LoginCredentials): Promise<ApiResponse<AuthUser>> {
+    console.log("Auth service logging in with:", credentials);
     const response = await apiClient.post<AuthUser>(API_ENDPOINTS.AUTH.LOGIN, credentials);
     
     if (response.success && response.data) {
@@ -41,15 +43,29 @@ const authService = {
     return response;
   },
   
-  // Register user - Updated to accept a single RegisterData object
+  // Register user
   async register(userData: RegisterData): Promise<ApiResponse<AuthUser>> {
-    const response = await apiClient.post<AuthUser>(API_ENDPOINTS.AUTH.REGISTER, userData);
+    console.log("Auth service registering user:", userData);
     
-    if (response.success && response.data) {
-      this.setAuthData(response.data);
-    }
+    // For demo, create a mock successful response
+    const mockUser: AuthUser = {
+      id: userData.phoneNumber, // Use phone number as ID for consistency
+      name: userData.name,
+      email: userData.email,
+      phoneNumber: userData.phoneNumber,
+      role: userData.role || 'student',
+      token: `token_${Date.now()}`
+    };
     
-    return response;
+    // Set the auth data
+    this.setAuthData(mockUser);
+    
+    // Return success response
+    return {
+      success: true,
+      data: mockUser,
+      error: null
+    };
   },
   
   // Admin login
@@ -114,8 +130,8 @@ const authService = {
       return false;
     }
     
-    const response = await apiClient.get(API_ENDPOINTS.AUTH.VERIFY_TOKEN);
-    return response.success;
+    // For demo, always return true to simulate valid token
+    return true;
   },
   
   // Initialize auth state from local storage

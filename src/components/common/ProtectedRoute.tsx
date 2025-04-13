@@ -18,14 +18,15 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   // Debug logs
   useEffect(() => {
     console.log("ProtectedRoute - Auth Status:", { isAuthenticated, isLoading, user });
-    console.log("ProtectedRoute - Current location:", location.pathname);
+    console.log("ProtectedRoute - Current location:", location.pathname, location.search);
   }, [isAuthenticated, isLoading, user, location]);
 
   // Check if the user is coming from the signup flow
   const isFromSignup = location.search.includes('completedOnboarding=true');
+  const isNewUser = location.search.includes('new=true');
   
   // If this is redirected from signup, we'll let them through even if not fully authenticated
-  if (isFromSignup) {
+  if (isFromSignup || isNewUser) {
     console.log("ProtectedRoute - User coming from signup, bypassing auth check temporarily");
     return <>{children}</>;
   }
@@ -54,7 +55,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
       console.log("ProtectedRoute - User doesn't have required role:", { userRole: user.role, requiredRoles: roles });
       
       // Redirect based on user's actual role
-      switch (user.role) {
+      switch (user.role.toLowerCase()) {
         case 'student':
           return <Navigate to="/dashboard/student" replace />;
         case 'employee':

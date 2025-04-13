@@ -42,13 +42,15 @@ const StepHandler = ({
       // Create a user object with the collected data
       const userData = {
         name: formValues.name,
-        email: `${formValues.mobile}@example.com`, // Using mobile as placeholder email
+        email: `${formValues.mobile}@sakha.ai`, // Use consistent email format based on mobile
         phoneNumber: formValues.mobile,
-        password: `${formValues.otp}${formValues.mobile.slice(-4)}`, // Create a simple password for demo
-        role: (onboardingData.role || 'Student').toLowerCase(),
+        password: formValues.otp, // Simplified password for easier login
+        role: (onboardingData.role || 'student').toLowerCase(), // Make sure role is lowercase
       };
       
-      // Register the user using auth service - Fix: Pass a single object instead of multiple arguments
+      console.log("Registering user:", userData);
+      
+      // Register the user using auth service
       const response = await authService.register({
         name: userData.name,
         email: userData.email,
@@ -57,8 +59,10 @@ const StepHandler = ({
         role: userData.role
       });
       
-      if (response) {
-        // Save additional onboarding data to localStorage
+      if (response.success && response.data) {
+        console.log("Registration successful:", response.data);
+        
+        // Save additional onboarding data to localStorage with consistent format
         const extendedUserData = {
           ...onboardingData,
           name: formValues.name,
@@ -70,14 +74,13 @@ const StepHandler = ({
         
         localStorage.setItem("userData", JSON.stringify(extendedUserData));
         
-        // Navigate to dashboard with appropriate params
         toast({
           title: "Welcome to Sakha AI!",
           description: "Let's customize your learning experience.",
         });
         
-        // Navigate to the dashboard
-        navigate(`/dashboard/student?completedOnboarding=true`);
+        // Add explicit completedOnboarding URL parameter to ensure proper redirection
+        navigate(`/dashboard/student?completedOnboarding=true&new=true`);
       } else {
         throw new Error("Registration failed");
       }

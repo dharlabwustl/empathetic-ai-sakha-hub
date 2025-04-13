@@ -1,24 +1,25 @@
-
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { Lock, Mail, User, Loader2, School, Building2 } from "lucide-react";
+import { Lock, Mail, User, Loader2, School, Building2, Phone } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Login = () => {
-  const [email, setEmail] = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("student");
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { login } = useAuth();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!email || !password) {
+    if (!identifier || !password) {
       toast({
         title: "Error",
         description: "Please fill in all fields",
@@ -29,35 +30,41 @@ const Login = () => {
     
     setLoading(true);
     
-    // Simulate API call
-    setTimeout(() => {
-      setLoading(false);
+    try {
+      const isPhone = /^\d+$/.test(identifier);
+      const email = isPhone ? `${identifier}@sakha.ai` : identifier;
+      const success = await login(email, password);
       
-      // Based on active tab, redirect to appropriate dashboard
-      if (activeTab === "admin") {
-        navigate("/admin/login");
-        return;
-      }
-      
-      // Redirect based on role
-      if (activeTab === "student") {
-        navigate("/dashboard/student");
-      } else if (activeTab === "tutor") {
-        toast({
-          title: "Tutor login successful",
-          description: "Redirecting to tutor dashboard",
-        });
-        // Could redirect to tutor dashboard in the future
-        navigate("/dashboard/student");
+      if (success) {
+        if (activeTab === "admin") {
+          navigate("/admin/login");
+          return;
+        }
+        
+        if (activeTab === "student") {
+          navigate("/dashboard/student");
+        } else if (activeTab === "tutor") {
+          toast({
+            title: "Tutor login successful",
+            description: "Redirecting to tutor dashboard",
+          });
+          navigate("/dashboard/student");
+        } else {
+          navigate("/dashboard/student");
+        }
       } else {
-        navigate("/dashboard/student");
+        throw new Error("Login failed");
       }
-      
+    } catch (error) {
+      console.error("Login error:", error);
       toast({
-        title: "Login Successful",
-        description: "Welcome back to Sakha AI!"
+        title: "Login failed",
+        description: "Invalid credentials, please try again",
+        variant: "destructive"
       });
-    }, 1500);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -99,17 +106,16 @@ const Login = () => {
             </TabsTrigger>
           </TabsList>
           
-          {/* Login form - same for all tabs but will redirect differently */}
           <TabsContent value="student">
             <form onSubmit={handleLogin} className="space-y-6">
               <div className="space-y-4">
                 <div className="relative">
-                  <Mail className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                  <Phone className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
                   <Input 
-                    type="email" 
-                    placeholder="Email address"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    type="text" 
+                    placeholder="Email or Phone Number"
+                    value={identifier}
+                    onChange={(e) => setIdentifier(e.target.value)}
                     className="pl-10"
                   />
                 </div>
@@ -168,15 +174,14 @@ const Login = () => {
           
           <TabsContent value="tutor">
             <form onSubmit={handleLogin} className="space-y-6">
-              {/* Same form as student tab, just for clarity */}
               <div className="space-y-4">
                 <div className="relative">
                   <Mail className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
                   <Input 
                     type="email" 
                     placeholder="Email address"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    value={identifier}
+                    onChange={(e) => setIdentifier(e.target.value)}
                     className="pl-10"
                   />
                 </div>

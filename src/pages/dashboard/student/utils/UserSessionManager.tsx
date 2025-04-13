@@ -13,17 +13,20 @@ export const handleNewUser = (
   const userData = localStorage.getItem("userData");
   const searchParams = new URLSearchParams(location.search);
   const completedOnboarding = searchParams.get('completedOnboarding');
+  const isNew = searchParams.get('new');
   
   let shouldShowOnboarding = false;
   let shouldShowWelcomeTour = false;
   
   console.log("UserSessionManager - Current URL params:", location.search);
   console.log("UserSessionManager - completedOnboarding param:", completedOnboarding);
+  console.log("UserSessionManager - isNew param:", isNew);
   console.log("UserSessionManager - userData:", userData);
   
   // If first time login flow (coming from signup)
-  if (completedOnboarding === 'true') {
-    shouldShowWelcomeTour = true;
+  if (completedOnboarding === 'true' || isNew === 'true') {
+    console.log("UserSessionManager - New user detected from URL parameters");
+    shouldShowOnboarding = true;
     // Clean the URL to remove the query param
     navigate(location.pathname, { replace: true });
   }
