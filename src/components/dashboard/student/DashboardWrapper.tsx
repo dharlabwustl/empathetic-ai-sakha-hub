@@ -1,17 +1,18 @@
 
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import { UserProfileType } from "@/types/user";
 import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
 import DashboardHeader from "@/pages/dashboard/student/DashboardHeader";
-import DashboardContent from "@/pages/dashboard/student/DashboardContent";
 import SidebarNavigation from "@/pages/dashboard/student/SidebarNavigation";
 import MobileNavigation from "@/pages/dashboard/student/MobileNavigation";
-import { formatTime, formatDate } from "@/pages/dashboard/student/utils/DateTimeFormatter";
+import SidebarToggleButton from '@/components/dashboard/student/SidebarToggleButton';
+import TopNavigationControls from '@/components/dashboard/student/TopNavigationControls';
+import SurroundingInfluencesSection from '@/components/dashboard/student/SurroundingInfluencesSection';
+import MainContent from '@/components/dashboard/student/MainContent';
 import { useIsMobile } from "@/hooks/use-mobile";
 
-interface DashboardMainProps {
+interface DashboardWrapperProps {
   userProfile: UserProfileType;
   hideSidebar: boolean;
   hideTabsNav: boolean;
@@ -30,7 +31,7 @@ interface DashboardMainProps {
   onCompleteTour: () => void;
 }
 
-const DashboardMain: React.FC<DashboardMainProps> = ({
+const DashboardWrapper: React.FC<DashboardWrapperProps> = ({
   userProfile,
   hideSidebar,
   hideTabsNav,
@@ -48,23 +49,25 @@ const DashboardMain: React.FC<DashboardMainProps> = ({
   onSkipTour,
   onCompleteTour
 }) => {
+  const isMobile = useIsMobile();
   const formattedTime = formatTime(currentTime);
   const formattedDate = formatDate(currentTime);
-  const isMobile = useIsMobile();
+  const [influenceMeterCollapsed, setInfluenceMeterCollapsed] = React.useState(true);
 
   return (
     <main className={`transition-all duration-300 ${hideSidebar ? 'md:ml-0' : 'md:ml-64'} p-4 sm:p-6 pb-20 md:pb-6`}>
-      {/* Toggle sidebar button */}
-      <Button
-        variant="outline"
-        size="icon"
-        className="fixed top-4 left-20 z-40 hidden md:flex bg-white shadow-md hover:bg-gray-100"
-        onClick={onToggleSidebar}
-      >
-        {hideSidebar ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
-      </Button>
+      {/* Sidebar toggle button */}
+      <SidebarToggleButton hideSidebar={hideSidebar} onToggle={onToggleSidebar} />
       
-      {/* Top header section */}
+      {/* Top navigation controls */}
+      <TopNavigationControls 
+        hideSidebar={hideSidebar}
+        onToggleSidebar={onToggleSidebar}
+        formattedDate={formattedDate}
+        formattedTime={formattedTime}
+      />
+      
+      {/* Dashboard header */}
       <DashboardHeader 
         userProfile={userProfile}
         formattedTime={formattedTime}
@@ -72,6 +75,12 @@ const DashboardMain: React.FC<DashboardMainProps> = ({
         onViewStudyPlan={onViewStudyPlan}
       />
 
+      {/* Surrounding Influences Meter */}
+      <SurroundingInfluencesSection 
+        influenceMeterCollapsed={influenceMeterCollapsed}
+        setInfluenceMeterCollapsed={setInfluenceMeterCollapsed}
+      />
+      
       {/* Mobile Navigation */}
       {isMobile && (
         <MobileNavigation activeTab={activeTab} onTabChange={onTabChange} />
@@ -88,39 +97,27 @@ const DashboardMain: React.FC<DashboardMainProps> = ({
         )}
         
         {/* Main content area */}
-        <div className="lg:col-span-9 xl:col-span-10">
-          {!isMobile && (
-            <div className="flex justify-end mb-4">
-              <Button
-                variant="outline"
-                size="sm"
-                className="flex items-center gap-1 bg-white shadow-sm hover:bg-violet-50 border-violet-200 text-violet-700"
-                onClick={onToggleTabsNav}
-              >
-                {hideTabsNav ? "Show Navigation" : "Hide Navigation"} 
-                {hideTabsNav ? <ChevronRight size={15} /> : <ChevronLeft size={15} />}
-              </Button>
-            </div>
-          )}
-          
-          {/* Main content area */}
-          <DashboardContent
-            activeTab={activeTab}
-            onTabChange={onTabChange}
-            userProfile={userProfile}
-            kpis={kpis}
-            nudges={nudges}
-            markNudgeAsRead={markNudgeAsRead}
-            features={features}
-            showWelcomeTour={showWelcomeTour}
-            handleSkipTour={onSkipTour}
-            handleCompleteTour={onCompleteTour}
-            hideTabsNav={hideTabsNav || isMobile}
-          />
-        </div>
+        <MainContent 
+          hideTabsNav={hideTabsNav}
+          activeTab={activeTab}
+          userProfile={userProfile}
+          kpis={kpis}
+          nudges={nudges}
+          markNudgeAsRead={markNudgeAsRead}
+          features={features}
+          showWelcomeTour={showWelcomeTour}
+          onTabChange={onTabChange}
+          onToggleTabsNav={onToggleTabsNav}
+          onSkipTour={onSkipTour}
+          onCompleteTour={onCompleteTour}
+          isMobile={isMobile}
+        />
       </div>
     </main>
   );
 };
 
-export default DashboardMain;
+export default DashboardWrapper;
+
+// Import formatting utilities
+import { formatTime, formatDate } from "@/pages/dashboard/student/utils/DateTimeFormatter";
