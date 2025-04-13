@@ -16,7 +16,7 @@ import Settings from '@/pages/admin/SettingsPage';
 import Analytics from '@/pages/admin/AnalyticsPage';
 import Notifications from '@/pages/admin/NotificationsPage';
 import SystemLogs from '@/pages/admin/SystemMonitoringPage';
-import Signup from '@/pages/Signup';
+import Signup from '@/pages/Signup';  // Corrected import path
 import ApiTest from "./pages/ApiTest";
 
 const App = () => {
