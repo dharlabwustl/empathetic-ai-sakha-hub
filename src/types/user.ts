@@ -48,6 +48,8 @@ export interface UserProfileType {
   lastActive: string;
   examPreparation?: string;
   studyStreak?: number;
+  loginCount?: number;      // Added this property
+  completedOnboarding?: boolean;  // Added this property
 }
 
 export interface Goal {
