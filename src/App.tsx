@@ -1,21 +1,22 @@
+
 import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 import { AdminAuthProvider } from '@/contexts/AdminAuthContext';
 import ProtectedRoute from '@/components/common/ProtectedRoute';
 import AdminRouteGuard from '@/components/admin/AdminRouteGuard';
-import Login from '@/pages/auth/Login';
-import Register from '@/pages/auth/Register';
+import Login from '@/pages/Login';
+import Register from '@/pages/Register';
 import StudentDashboard from '@/pages/dashboard/student/StudentDashboard';
 import AdminDashboard from '@/pages/admin/AdminDashboard';
-import AdminLogin from '@/pages/admin/AdminLogin';
-import Students from '@/pages/admin/Students';
-import Content from '@/pages/admin/Content';
-import Settings from '@/pages/admin/Settings';
-import Analytics from '@/pages/admin/Analytics';
-import Notifications from '@/pages/admin/Notifications';
-import SystemLogs from '@/pages/admin/SystemLogs';
-import Signup from '@/pages/signup/Signup';
+import AdminLogin from '@/pages/AdminLogin';
+import Students from '@/pages/admin/StudentsPage';
+import Content from '@/pages/admin/ContentPage';
+import Settings from '@/pages/admin/SettingsPage';
+import Analytics from '@/pages/admin/AnalyticsPage';
+import Notifications from '@/pages/admin/NotificationsPage';
+import SystemLogs from '@/pages/admin/SystemMonitoringPage';
+import Signup from '@/pages/SignUp';
 import ApiTest from "./pages/ApiTest";
 
 const App = () => {
