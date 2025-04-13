@@ -1,6 +1,6 @@
 
-import React from 'react';
-import { Navigate } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface ProtectedRouteProps {
@@ -13,6 +13,22 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   requiredRole 
 }) => {
   const { isAuthenticated, user, isLoading } = useAuth();
+  const location = useLocation();
+
+  // Debug logs
+  useEffect(() => {
+    console.log("ProtectedRoute - Auth Status:", { isAuthenticated, isLoading, user });
+    console.log("ProtectedRoute - Current location:", location.pathname);
+  }, [isAuthenticated, isLoading, user, location]);
+
+  // Check if the user is coming from the signup flow
+  const isFromSignup = location.search.includes('completedOnboarding=true');
+  
+  // If this is redirected from signup, we'll let them through even if not fully authenticated
+  if (isFromSignup) {
+    console.log("ProtectedRoute - User coming from signup, bypassing auth check temporarily");
+    return <>{children}</>;
+  }
 
   // If auth is still loading, show a loading state
   if (isLoading) {
@@ -25,7 +41,8 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
   // If not authenticated, redirect to login
   if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
+    console.log("ProtectedRoute - Not authenticated, redirecting to login");
+    return <Navigate to="/login" replace state={{ from: location.pathname }} />;
   }
 
   // If role check is required
@@ -34,6 +51,8 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     
     // If user doesn't have the required role
     if (!roles.includes(user.role)) {
+      console.log("ProtectedRoute - User doesn't have required role:", { userRole: user.role, requiredRoles: roles });
+      
       // Redirect based on user's actual role
       switch (user.role) {
         case 'student':

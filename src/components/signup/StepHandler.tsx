@@ -4,6 +4,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import { UserRole, UserGoal, OnboardingStep } from "./OnboardingContext";
 import { getDemographicsQuestion } from "./utils/stepUtils";
+import authService from "@/services/auth/authService"; // Import auth service
 
 interface StepHandlerProps {
   onboardingData: any;
@@ -34,33 +35,62 @@ const StepHandler = ({
     setStep("demographics");
   };
   
-  const handleSignupSubmit = (formValues: { name: string; mobile: string; otp: string }) => {
+  const handleSignupSubmit = async (formValues: { name: string; mobile: string; otp: string }) => {
     setIsLoading(true);
     
-    // Save user data to localStorage with proper flags
-    const userData = {
-      ...onboardingData,
-      name: formValues.name,
-      phoneNumber: formValues.mobile,
-      completedOnboarding: false, // This will trigger the onboarding flow
-      isNewUser: true,            // Flag to indicate this is a new user
-      sawWelcomeTour: false       // Flag to show welcome tour after onboarding
-    };
-    
-    localStorage.setItem("userData", JSON.stringify(userData));
-    
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false);
+    try {
+      // Create a user object with the collected data
+      const userData = {
+        name: formValues.name,
+        email: `${formValues.mobile}@example.com`, // Using mobile as placeholder email
+        phoneNumber: formValues.mobile,
+        password: `${formValues.otp}${formValues.mobile.slice(-4)}`, // Create a simple password for demo
+        role: (onboardingData.role || 'Student').toLowerCase(),
+      };
       
-      // Navigate to dashboard with newUser flag
-      navigate(`/dashboard/student?newUser=true`);
+      // Register the user using auth service
+      const response = await authService.register(
+        userData.name,
+        userData.email,
+        userData.phoneNumber,
+        userData.password,
+        userData.role
+      );
       
+      if (response) {
+        // Save additional onboarding data to localStorage
+        const extendedUserData = {
+          ...onboardingData,
+          name: formValues.name,
+          phoneNumber: formValues.mobile,
+          completedOnboarding: false, // This will trigger the onboarding flow
+          isNewUser: true,
+          sawWelcomeTour: false
+        };
+        
+        localStorage.setItem("userData", JSON.stringify(extendedUserData));
+        
+        // Navigate to dashboard with appropriate params
+        toast({
+          title: "Welcome to Sakha AI!",
+          description: "Let's customize your learning experience.",
+        });
+        
+        // Navigate to the dashboard
+        navigate(`/dashboard/student?completedOnboarding=true`);
+      } else {
+        throw new Error("Registration failed");
+      }
+    } catch (error) {
+      console.error("Signup error:", error);
       toast({
-        title: "Welcome to Sakha AI!",
-        description: "Let's customize your learning experience.",
+        title: "Signup failed",
+        description: "Please try again later",
+        variant: "destructive"
       });
-    }, 1000);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return {

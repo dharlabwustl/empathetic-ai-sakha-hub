@@ -1,134 +1,165 @@
 
 import { useState, useEffect } from "react";
-import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useUserProfile } from "@/hooks/useUserProfile";
+import { handleNewUser } from "@/pages/dashboard/student/utils/UserSessionManager";
 import { useKpiTracking } from "@/hooks/useKpiTracking";
-import { getFeatures } from "@/pages/dashboard/student/utils/FeatureManager";
 
 export const useStudentDashboard = () => {
-  const { toast } = useToast();
+  const [loading, setLoading] = useState(true);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [showWelcomeTour, setShowWelcomeTour] = useState(false);
+  const [showStudyPlan, setShowStudyPlan] = useState(false);
+  const [hideSidebar, setHideSidebar] = useState(false);
+  const [hideTabsNav, setHideTabsNav] = useState(false);
+  const { userProfile, isLoading: profileLoading } = useUserProfile();
+  const { kpis, nudges, markNudgeAsRead } = useKpiTracking();
   const navigate = useNavigate();
   const location = useLocation();
-  const { tab } = useParams();
-  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
+  const { tab } = useParams<{ tab?: string }>();
+  
   const [activeTab, setActiveTab] = useState(tab || "overview");
-  const { userProfile } = useUserProfile("Student");
-  const { kpis, nudges, markNudgeAsRead } = useKpiTracking("Student");
-  const [showWelcomeTour, setShowWelcomeTour] = useState(false);
-  const [showOnboarding, setShowOnboarding] = useState(false);
-  const [currentTime, setCurrentTime] = useState(new Date());
-  const [showStudyPlan, setShowStudyPlan] = useState(false);
-  const [hideTabsNav, setHideTabsNav] = useState(false);
-  const [hideSidebar, setHideSidebar] = useState(false);
-
-  // Get features data
-  const features = getFeatures();
-
+  
+  // Calculate current time greeting
+  const now = new Date();
+  const hour = now.getHours();
+  let currentTime = "";
+  
+  if (hour < 12) currentTime = "Good Morning";
+  else if (hour < 17) currentTime = "Good Afternoon";
+  else currentTime = "Good Evening";
+  
+  // Features list
+  const features = {
+    overview: true,
+    subjects: true,
+    quizzes: true,
+    resources: true,
+    community: true,
+    progress: true,
+    settings: true,
+  };
+  
+  // Handle tab changes
   useEffect(() => {
     if (tab) {
       setActiveTab(tab);
     }
   }, [tab]);
-
+  
+  // Initialize dashboard state
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 1000);
-
-    const intervalId = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 60000);
-
-    // Check for user data and show onboarding/welcome as needed
-    const userData = localStorage.getItem("userData");
-    const searchParams = new URLSearchParams(location.search);
-    const newUser = searchParams.get('newUser');
+    console.log("useStudentDashboard - Initializing dashboard");
     
-    // If coming directly from signup
-    if (newUser === 'true') {
-      setShowOnboarding(true);
-      // Clean the URL to remove the query param
-      navigate(location.pathname, { replace: true });
-    } 
-    // Check if this is a returning user who hasn't completed onboarding yet
-    else if (userData) {
-      const parsedUserData = JSON.parse(userData);
-      if (!parsedUserData.completedOnboarding) {
-        setShowOnboarding(true);
-      } else if (!parsedUserData.sawWelcomeTour) {
-        setShowWelcomeTour(true);
-        toast({
-          title: "Welcome to your dashboard!",
-          description: "Let's take a tour of your learning space.",
+    const initDashboard = async () => {
+      try {
+        setLoading(true);
+        
+        // Check if this is a new user session
+        console.log("useStudentDashboard - Checking user session");
+        const { shouldShowOnboarding, shouldShowWelcomeTour } = handleNewUser(location, navigate);
+        
+        console.log("useStudentDashboard - Session result:", { 
+          shouldShowOnboarding, 
+          shouldShowWelcomeTour 
         });
-      } else {
-        // Regular returning user
+        
+        // Update state based on user session
+        setShowOnboarding(shouldShowOnboarding);
+        setShowWelcomeTour(shouldShowWelcomeTour);
+      } catch (error) {
+        console.error("Dashboard initialization error:", error);
         toast({
-          title: "Welcome back!",
-          description: "Your personalized dashboard is ready.",
+          title: "Error",
+          description: "Failed to initialize dashboard",
+          variant: "destructive",
         });
+      } finally {
+        // Wait for profile loading to complete
+        if (!profileLoading) {
+          setLoading(false);
+        }
       }
-    } 
-    // First-time user with no data
-    else {
-      setShowOnboarding(true);
-    }
-
-    return () => {
-      clearTimeout(timer);
-      clearInterval(intervalId);
     };
-  }, [toast, location, navigate]);
-
-  const handleTabChange = (newTab: string) => {
-    setActiveTab(newTab);
-    navigate(`/dashboard/student/${newTab}`);
+    
+    initDashboard();
+  }, [location, navigate, profileLoading]);
+  
+  // Update loading state when profile loading changes
+  useEffect(() => {
+    if (!profileLoading) {
+      setLoading(false);
+    }
+  }, [profileLoading]);
+  
+  // Handle tab change
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
+    navigate(`/dashboard/student/${tab}`);
   };
-
+  
+  // Toggle sidebar
+  const toggleSidebar = () => {
+    setHideSidebar(!hideSidebar);
+  };
+  
+  // Toggle tabs navigation
+  const toggleTabsNav = () => {
+    setHideTabsNav(!hideTabsNav);
+  };
+  
+  // Handle welcome tour
   const handleSkipTour = () => {
     setShowWelcomeTour(false);
-    // Save that tour was seen but skipped
-    if (userProfile) {
-      const userData = JSON.parse(localStorage.getItem("userData") || "{}");
-      userData.sawWelcomeTour = true;
-      localStorage.setItem("userData", JSON.stringify(userData));
+    // Mark that user has seen welcome tour
+    const userData = localStorage.getItem("userData");
+    if (userData) {
+      const parsedData = JSON.parse(userData);
+      parsedData.sawWelcomeTour = true;
+      localStorage.setItem("userData", JSON.stringify(parsedData));
     }
   };
-
+  
   const handleCompleteTour = () => {
     setShowWelcomeTour(false);
-    // Save that tour was completed
-    if (userProfile) {
-      const userData = JSON.parse(localStorage.getItem("userData") || "{}");
-      userData.sawWelcomeTour = true;
-      localStorage.setItem("userData", JSON.stringify(userData));
+    // Mark that user has seen welcome tour
+    const userData = localStorage.getItem("userData");
+    if (userData) {
+      const parsedData = JSON.parse(userData);
+      parsedData.sawWelcomeTour = true;
+      localStorage.setItem("userData", JSON.stringify(parsedData));
     }
     
     toast({
-      title: "Tour completed!",
-      description: "You're all set to start your learning journey.",
-    });
-  };
-
-  const handleCompleteOnboarding = () => {
-    setShowOnboarding(false);
-    setShowWelcomeTour(true);
-    
-    // Store that the user has completed onboarding
-    if (userProfile) {
-      const userData = JSON.parse(localStorage.getItem("userData") || "{}");
-      userData.completedOnboarding = true;
-      userData.isNewUser = false;
-      localStorage.setItem("userData", JSON.stringify(userData));
-    }
-    
-    toast({
-      title: "Onboarding completed!",
-      description: "Now let's explore your personalized dashboard.",
+      title: "Welcome to Sakha AI!",
+      description: "You're all set to start your personalized learning journey.",
     });
   };
   
+  // Handle onboarding completion
+  const handleCompleteOnboarding = () => {
+    setShowOnboarding(false);
+    
+    // Update onboarding completion status in user data
+    const userData = localStorage.getItem("userData");
+    if (userData) {
+      const parsedData = JSON.parse(userData);
+      parsedData.completedOnboarding = true;
+      localStorage.setItem("userData", JSON.stringify(parsedData));
+    }
+    
+    // Show welcome tour after onboarding
+    setShowWelcomeTour(true);
+    
+    toast({
+      title: "Onboarding Complete!",
+      description: "Your personalized learning plan is ready.",
+    });
+  };
+  
+  // Study plan handlers
   const handleViewStudyPlan = () => {
     setShowStudyPlan(true);
   };
@@ -136,15 +167,7 @@ export const useStudentDashboard = () => {
   const handleCloseStudyPlan = () => {
     setShowStudyPlan(false);
   };
-
-  const toggleSidebar = () => {
-    setHideSidebar(!hideSidebar);
-  };
-
-  const toggleTabsNav = () => {
-    setHideTabsNav(!hideTabsNav);
-  };
-
+  
   return {
     loading,
     userProfile,

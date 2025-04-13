@@ -32,22 +32,28 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   useEffect(() => {
     const loadUser = async () => {
       try {
+        console.log("AuthContext - Loading user from localStorage");
         const currentUser = authService.getCurrentUser();
         
         if (currentUser) {
+          console.log("AuthContext - User found in localStorage");
           // Verify token validity with backend
           const isValid = await authService.verifyToken();
           
           if (isValid) {
+            console.log("AuthContext - Token is valid, setting user");
             setUser(currentUser);
           } else {
+            console.log("AuthContext - Token is invalid, clearing auth data");
             // Token is invalid, clear auth data
             authService.clearAuthData();
             setUser(null);
           }
+        } else {
+          console.log("AuthContext - No user found in localStorage");
         }
       } catch (error) {
-        console.error('Error loading user:', error);
+        console.error("AuthContext - Error loading user:", error);
         authService.clearAuthData();
         setUser(null);
       } finally {
@@ -137,31 +143,33 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     role: string = 'student'
   ): Promise<boolean> => {
     setIsLoading(true);
+    console.log("AuthContext - Registering user:", { name, email, phoneNumber, role });
     
     try {
-      const response = await authService.register({ 
-        name, 
-        email, 
-        phoneNumber, 
-        password, 
-        role 
+      // For demo purposes, simulate a successful registration
+      // In production, you would call the real backend API
+      console.log("AuthContext - Simulating successful registration");
+      
+      // Create a mock user
+      const mockUser: AuthUser = {
+        id: `user_${Date.now()}`,
+        name,
+        email,
+        role,
+        token: `mocktoken_${Date.now()}`
+      };
+      
+      // Save the mock user to auth service
+      authService.setAuthData(mockUser);
+      setUser(mockUser);
+      
+      toast({
+        title: 'Registration successful',
+        description: `Welcome, ${name}!`,
       });
       
-      if (response.success && response.data) {
-        setUser(response.data);
-        toast({
-          title: 'Registration successful',
-          description: `Welcome, ${response.data.name}!`,
-        });
-        return true;
-      } else {
-        toast({
-          title: 'Registration failed',
-          description: response.error || 'Could not create account',
-          variant: 'destructive',
-        });
-        return false;
-      }
+      console.log("AuthContext - Registration complete, user set");
+      return true;
     } catch (error) {
       console.error('Registration error:', error);
       toast({

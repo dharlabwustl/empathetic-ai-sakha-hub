@@ -17,6 +17,10 @@ export const handleNewUser = (
   let shouldShowOnboarding = false;
   let shouldShowWelcomeTour = false;
   
+  console.log("UserSessionManager - Current URL params:", location.search);
+  console.log("UserSessionManager - completedOnboarding param:", completedOnboarding);
+  console.log("UserSessionManager - userData:", userData);
+  
   // If first time login flow (coming from signup)
   if (completedOnboarding === 'true') {
     shouldShowWelcomeTour = true;
@@ -26,6 +30,7 @@ export const handleNewUser = (
   // Check if user data exists
   else if (userData) {
     const parsedUserData = JSON.parse(userData);
+    console.log("UserSessionManager - parsedUserData:", parsedUserData);
     
     // For returning users who have completed onboarding, skip both flows
     if (parsedUserData.completedOnboarding === true) {
@@ -42,6 +47,7 @@ export const handleNewUser = (
     shouldShowOnboarding = true;
   }
 
+  console.log("UserSessionManager - Result:", { shouldShowOnboarding, shouldShowWelcomeTour });
   return {
     shouldShowOnboarding,
     shouldShowWelcomeTour
