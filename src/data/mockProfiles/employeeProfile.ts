@@ -6,6 +6,7 @@ import { v4 as uuidv4 } from "uuid";
 export const mockEmployeeProfile: EmployeeProfile = {
   id: uuidv4(),
   name: "Rajesh Kumar",
+  email: "rajesh.kumar@techsolutions.com", // Added missing email field
   phoneNumber: "+919876543211",
   role: "Employee",
   personalityType: "Strategic Thinker",

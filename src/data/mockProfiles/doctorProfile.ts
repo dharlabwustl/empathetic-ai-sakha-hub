@@ -6,6 +6,7 @@ import { v4 as uuidv4 } from "uuid";
 export const mockDoctorProfile: DoctorProfile = {
   id: uuidv4(),
   name: "Dr. Aisha Sharma",
+  email: "dr.aisha.sharma@maxhealthcare.com", // Added missing email
   phoneNumber: "+919876543210",
   role: "Doctor",
   personalityType: "Analytical Problem Solver",

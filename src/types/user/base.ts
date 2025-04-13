@@ -3,7 +3,7 @@
 
 export type UserRole = "Student" | "Professor" | "Employee" | "Doctor" | "Founder";
 export type SubscriptionType = "Free" | "Basic" | "Premium" | "Enterprise";
-export type PersonalityType = "Strategic Thinker" | "Creative Explorer" | "Detailed Analyzer" | "Collaborative Leader" | "Practical Implementer";
+export type PersonalityType = "Strategic Thinker" | "Creative Explorer" | "Detailed Analyzer" | "Collaborative Leader" | "Practical Implementer" | "Analytical Problem Solver" | "Creative Builder";
 export type MoodType = "Happy" | "Okay" | "Tired" | "Overwhelmed" | "Focused";
 
 export interface BaseUserProfile {

@@ -6,6 +6,7 @@ import { v4 as uuidv4 } from "uuid";
 export const mockFounderProfile: FounderProfile = {
   id: uuidv4(),
   name: "Priya Mehta",
+  email: "priya.mehta@edumatch.com", // Added missing email
   phoneNumber: "+919876543212",
   role: "Founder",
   personalityType: "Creative Builder",

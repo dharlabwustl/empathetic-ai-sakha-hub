@@ -5,8 +5,17 @@ export const mockStudentProfile: StudentProfile = {
   id: "1",
   name: "Rahul Singh",
   phoneNumber: "9876543210",
+  email: "rahul.singh@example.com", 
   role: "Student" as UserRole,
   personalityType: "Strategic Thinker",
+  subscription: "Basic",
+  joinDate: "2025-03-01",
+  lastActive: "2025-05-12",
+  areasOfInterest: [
+    { id: "i1", name: "Physics", level: "Advanced" },
+    { id: "i2", name: "Mathematics", level: "Intermediate" },
+    { id: "i3", name: "Chemistry", level: "Intermediate" }
+  ],
   goals: [
     {
       id: "g1",
@@ -23,28 +32,13 @@ export const mockStudentProfile: StudentProfile = {
       dueDate: "2025-05-15",
     },
   ],
-  areasOfInterest: [
-    {
-      id: "i1",
-      name: "Physics",
-      level: "Advanced" as const,
-    },
-    {
-      id: "i2",
-      name: "Mathematics",
-      level: "Intermediate" as const,
-    },
-    {
-      id: "i3",
-      name: "Chemistry",
-      level: "Intermediate" as const,
-    },
-  ],
-  subscription: "Basic" as const,
-  joinDate: "2025-03-01",
-  lastActive: "2025-05-12",
   educationLevel: "11th Grade",
-  subjects: ["Physics", "Chemistry", "Mathematics", "Biology"],
+  subjects: [
+    { id: "s1", name: "Physics", progress: 75 },
+    { id: "s2", name: "Chemistry", progress: 60 },
+    { id: "s3", name: "Mathematics", progress: 80 },
+    { id: "s4", name: "Biology", progress: 45 }
+  ],
   studyStreak: 5,
   quizzesTaken: 12,
   flashcardsCreated: 35,
