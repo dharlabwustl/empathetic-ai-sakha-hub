@@ -1,7 +1,7 @@
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
-import { AuthProvider, useAuth } from '@/contexts/AuthContext';
+import { AuthProvider } from '@/contexts/AuthContext';
 import { AdminAuthProvider } from '@/contexts/AdminAuthContext';
 import ProtectedRoute from '@/components/common/ProtectedRoute';
 import AdminRouteGuard from '@/components/admin/AdminRouteGuard';
@@ -16,7 +16,7 @@ import Settings from '@/pages/admin/SettingsPage';
 import Analytics from '@/pages/admin/AnalyticsPage';
 import Notifications from '@/pages/admin/NotificationsPage';
 import SystemLogs from '@/pages/admin/SystemMonitoringPage';
-import Signup from '@/pages/SignUp';
+import Signup from '@/pages/Signup';  // Corrected import path
 import ApiTest from "./pages/ApiTest";
 
 const App = () => {
