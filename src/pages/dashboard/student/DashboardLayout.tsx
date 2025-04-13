@@ -6,17 +6,16 @@ import DashboardHeader from "./DashboardHeader";
 import SidebarNavigation from "./SidebarNavigation";
 import DashboardContent from "./DashboardContent";
 import StudyPlanDialog from "./StudyPlanDialog";
-import SurroundingInfluencesMeter from "@/components/dashboard/student/SurroundingInfluencesMeter";
-import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, PanelLeft, X, ChevronDown, ChevronUp } from "lucide-react";
+import TopNavigationControls from "@/components/dashboard/student/TopNavigationControls";
+import SurroundingInfluencesSection from "@/components/dashboard/student/SurroundingInfluencesSection";
+import NavigationToggleButton from "@/components/dashboard/student/NavigationToggleButton";
 import { UserProfileType } from "@/types/user";
 import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
 import { formatTime, formatDate } from "./utils/DateTimeFormatter";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { useIsMobile } from "@/hooks/use-mobile";
 import MobileNavigation from "./MobileNavigation";
 import { getFeatures } from "./utils/FeatureManager";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 interface DashboardLayoutProps {
   userProfile: UserProfileType;
@@ -74,35 +73,12 @@ const DashboardLayout = ({
       <SidebarNav userType="student" userName={userProfile.name} />
       
       <main className={`transition-all duration-300 ${hideSidebar ? 'md:ml-0' : 'md:ml-64'} p-4 sm:p-6 pb-20 md:pb-6`}>
-        {/* Top navigation controls */}
-        <div className="flex items-center justify-between mb-4 sm:mb-6">
-          {/* Toggle sidebar button - improved position */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.3 }}
-            className="flex items-center space-x-2"
-          >
-            <Button
-              variant="outline"
-              size="sm"
-              className="hidden md:flex items-center gap-1 bg-white shadow-sm hover:bg-purple-50 border-purple-200 text-purple-700"
-              onClick={onToggleSidebar}
-            >
-              {hideSidebar ? 
-                <><ChevronRight width={15} height={15} /> Show Sidebar</> : 
-                <><PanelLeft width={15} height={15} /> Hide Sidebar</>
-              }
-            </Button>
-          </motion.div>
-          
-          {/* Date/time display */}
-          <div className="text-sm text-gray-600 dark:text-gray-300 hidden sm:block">
-            <span>{formattedDate}</span>
-            <span className="mx-2">•</span>
-            <span>{formattedTime}</span>
-          </div>
-        </div>
+        <TopNavigationControls 
+          hideSidebar={hideSidebar}
+          onToggleSidebar={onToggleSidebar}
+          formattedDate={formattedDate}
+          formattedTime={formattedTime}
+        />
         
         {/* Top header section */}
         <DashboardHeader 
@@ -112,45 +88,11 @@ const DashboardLayout = ({
           onViewStudyPlan={onViewStudyPlan}
         />
 
-        {/* Surrounding Influences Meter - Using Collapsible component */}
-        <Collapsible className="mt-4 sm:mt-6 mb-0 sm:mb-2">
-          <div className="flex justify-between items-center mb-2">
-            <h2 className="text-lg font-medium text-gray-800">Surrounding Influences</h2>
-            <CollapsibleTrigger asChild>
-              <Button 
-                variant="ghost" 
-                size="sm"
-                className="flex items-center gap-1 text-gray-600"
-                onClick={() => setInfluenceMeterCollapsed(!influenceMeterCollapsed)}
-              >
-                {influenceMeterCollapsed ? (
-                  <>
-                    <ChevronDown width={16} height={16} />
-                    <span>Expand</span>
-                  </>
-                ) : (
-                  <>
-                    <ChevronUp width={16} height={16} />
-                    <span>Collapse</span>
-                  </>
-                )}
-              </Button>
-            </CollapsibleTrigger>
-          </div>
-
-          <CollapsibleContent className="overflow-hidden">
-            <AnimatePresence>
-              <motion.div
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: "auto", opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                transition={{ duration: 0.3 }}
-              >
-                <SurroundingInfluencesMeter />
-              </motion.div>
-            </AnimatePresence>
-          </CollapsibleContent>
-        </Collapsible>
+        {/* Surrounding Influences Meter */}
+        <SurroundingInfluencesSection 
+          influenceMeterCollapsed={influenceMeterCollapsed}
+          setInfluenceMeterCollapsed={setInfluenceMeterCollapsed}
+        />
         
         {/* Mobile Navigation */}
         {isMobile && (
@@ -172,30 +114,10 @@ const DashboardLayout = ({
           {/* Main content area */}
           <div className="lg:col-span-9 xl:col-span-10">
             {!isMobile && (
-              <div className="flex items-center justify-end mb-4">
-                {/* Toggle tabs visibility button with improved UI */}
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={hideTabsNav ? 'show' : 'hide'}
-                    initial={{ opacity: 0, x: 10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -10 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="flex items-center gap-1 bg-white shadow-sm hover:bg-violet-50 border-violet-200 text-violet-700"
-                      onClick={onToggleTabsNav}
-                    >
-                      {hideTabsNav ? 
-                        <><ChevronRight width={15} height={15} /> Show Navigation</> : 
-                        <><X width={15} height={15} /> Hide Navigation</>
-                      }
-                    </Button>
-                  </motion.div>
-                </AnimatePresence>
-              </div>
+              <NavigationToggleButton 
+                hideTabsNav={hideTabsNav} 
+                onToggleTabsNav={onToggleTabsNav}
+              />
             )}
             
             {/* Main content area */}
