@@ -1,4 +1,3 @@
-
 "use client";
 
 import React from "react";
@@ -9,7 +8,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "@/providers/ThemeProvider";
 import { AdminAuthProvider } from "@/contexts/AdminAuthContext";
-import { AuthProvider } from "@/contexts/AuthContext"; // Add AuthProvider
+import { AuthProvider } from "@/contexts/auth/AuthContext"; // Update import path
 import AdminRouteGuard from "@/components/admin/AdminRouteGuard";
 import ProtectedRoute from "@/components/common/ProtectedRoute"; // We'll create this
 import Index from "./pages/Index";
@@ -52,7 +51,7 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider>
       <TooltipProvider>
-        <AuthProvider> {/* Add AuthProvider */}
+        <AuthProvider>
           <AdminAuthProvider>
             <Toaster />
             <Sonner />
