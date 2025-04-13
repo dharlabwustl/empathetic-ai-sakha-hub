@@ -35,6 +35,8 @@ interface TabContentManagerProps {
   showWelcomeTour: boolean;
   handleSkipTour: () => void;
   handleCompleteTour: () => void;
+  lastActivity?: { type: string; description: string } | null;
+  suggestedNextAction?: string | null;
 }
 
 export const generateTabContents = ({
@@ -46,7 +48,13 @@ export const generateTabContents = ({
   showWelcomeTour,
   handleSkipTour,
   handleCompleteTour,
+  lastActivity,
+  suggestedNextAction
 }: TabContentManagerProps): Record<string, ReactNode> => {
+  // Check if user is a first time user based on profile data
+  // Assume users with less than 3 logins are "new" users
+  const isFirstTimeUser = userProfile?.loginCount < 3 || !userProfile?.completedOnboarding;
+
   return {
     overview: (
       <>
@@ -54,6 +62,9 @@ export const generateTabContents = ({
           <WelcomeTour 
             onSkipTour={handleSkipTour} 
             onCompleteTour={handleCompleteTour}
+            isFirstTimeUser={isFirstTimeUser}
+            lastActivity={lastActivity}
+            suggestedNextAction={suggestedNextAction}
           />
         )}
         <DashboardOverview

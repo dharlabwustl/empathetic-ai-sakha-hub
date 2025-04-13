@@ -13,8 +13,10 @@ export const useStudentDashboard = () => {
   const [showStudyPlan, setShowStudyPlan] = useState(false);
   const [hideSidebar, setHideSidebar] = useState(false);
   const [hideTabsNav, setHideTabsNav] = useState(false);
-  const { userProfile, loading: profileLoading } = useUserProfile(); // Fixed: using loading instead of isLoading
-  const { kpis, nudges, markNudgeAsRead } = useKpiTracking("Student"); // Fixed: passing the required role parameter
+  const [lastActivity, setLastActivity] = useState<{ type: string, description: string } | null>(null);
+  const [suggestedNextAction, setSuggestedNextAction] = useState<string | null>(null);
+  const { userProfile, loading: profileLoading } = useUserProfile();
+  const { kpis, nudges, markNudgeAsRead } = useKpiTracking("Student");
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
@@ -68,7 +70,38 @@ export const useStudentDashboard = () => {
         
         // Update state based on user session
         setShowOnboarding(shouldShowOnboarding);
+        // Always show welcome tour for first-time users after onboarding
         setShowWelcomeTour(shouldShowWelcomeTour);
+        
+        // Get user's last activity and suggest next actions for returning users
+        if (!shouldShowOnboarding && !shouldShowWelcomeTour) {
+          // This would normally come from an API call to get the user's activity history
+          // For now, we'll use mock data stored in localStorage
+          const userData = localStorage.getItem("userData");
+          if (userData) {
+            const parsedData = JSON.parse(userData);
+            
+            // Set mock last activity if available
+            if (parsedData.lastActivity) {
+              setLastActivity(parsedData.lastActivity);
+            } else {
+              // Default last activity if none exists
+              setLastActivity({
+                type: "login",
+                description: "You last logged in yesterday"
+              });
+            }
+            
+            // Set next action suggestion based on user progress
+            if (parsedData.completedModules && parsedData.completedModules.length > 0) {
+              const lastModule = parsedData.completedModules[parsedData.completedModules.length - 1];
+              setSuggestedNextAction(`Continue with ${lastModule.nextModule || "Practice Exercises"}`);
+            } else {
+              setSuggestedNextAction("Start today's recommended study plan");
+            }
+          }
+        }
+        
       } catch (error) {
         console.error("Dashboard initialization error:", error);
         toast({
@@ -181,6 +214,8 @@ export const useStudentDashboard = () => {
     kpis,
     nudges,
     features,
+    lastActivity,
+    suggestedNextAction,
     markNudgeAsRead,
     handleTabChange,
     handleSkipTour,

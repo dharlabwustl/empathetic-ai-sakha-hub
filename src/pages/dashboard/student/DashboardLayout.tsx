@@ -16,6 +16,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useIsMobile } from "@/hooks/use-mobile";
 import MobileNavigation from "./MobileNavigation";
 import { getFeatures } from "./utils/FeatureManager";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 interface DashboardLayoutProps {
   userProfile: UserProfileType;
@@ -34,6 +35,8 @@ interface DashboardLayoutProps {
   onCompleteTour: () => void;
   showStudyPlan: boolean;
   onCloseStudyPlan: () => void;
+  lastActivity?: { type: string; description: string } | null;
+  suggestedNextAction?: string | null;
 }
 
 const DashboardLayout = ({
@@ -52,13 +55,16 @@ const DashboardLayout = ({
   onSkipTour,
   onCompleteTour,
   showStudyPlan,
-  onCloseStudyPlan
+  onCloseStudyPlan,
+  lastActivity,
+  suggestedNextAction
 }: DashboardLayoutProps) => {
   const currentTime = new Date();
   const formattedTime = formatTime(currentTime);
   const formattedDate = formatDate(currentTime);
   const isMobile = useIsMobile();
-  const [influenceMeterCollapsed, setInfluenceMeterCollapsed] = useState(false);
+  // Always start with influences section collapsed
+  const [influenceMeterCollapsed, setInfluenceMeterCollapsed] = useState(true);
   
   // Get features from utility
   const features = getFeatures();
@@ -106,44 +112,45 @@ const DashboardLayout = ({
           onViewStudyPlan={onViewStudyPlan}
         />
 
-        {/* Surrounding Influences Meter - Positioned below header */}
-        <div className="mt-4 sm:mt-6 mb-0 sm:mb-2">
+        {/* Surrounding Influences Meter - Using Collapsible component */}
+        <Collapsible className="mt-4 sm:mt-6 mb-0 sm:mb-2">
           <div className="flex justify-between items-center mb-2">
             <h2 className="text-lg font-medium text-gray-800">Surrounding Influences</h2>
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={() => setInfluenceMeterCollapsed(!influenceMeterCollapsed)}
-              className="flex items-center gap-1 text-gray-600"
-            >
-              {influenceMeterCollapsed ? (
-                <>
-                  <ChevronDown width={16} height={16} />
-                  <span>Expand</span>
-                </>
-              ) : (
-                <>
-                  <ChevronUp width={16} height={16} />
-                  <span>Collapse</span>
-                </>
-              )}
-            </Button>
+            <CollapsibleTrigger asChild>
+              <Button 
+                variant="ghost" 
+                size="sm"
+                className="flex items-center gap-1 text-gray-600"
+                onClick={() => setInfluenceMeterCollapsed(!influenceMeterCollapsed)}
+              >
+                {influenceMeterCollapsed ? (
+                  <>
+                    <ChevronDown width={16} height={16} />
+                    <span>Expand</span>
+                  </>
+                ) : (
+                  <>
+                    <ChevronUp width={16} height={16} />
+                    <span>Collapse</span>
+                  </>
+                )}
+              </Button>
+            </CollapsibleTrigger>
           </div>
 
-          <AnimatePresence>
-            {!influenceMeterCollapsed && (
+          <CollapsibleContent className="overflow-hidden">
+            <AnimatePresence>
               <motion.div
                 initial={{ height: 0, opacity: 0 }}
                 animate={{ height: "auto", opacity: 1 }}
                 exit={{ height: 0, opacity: 0 }}
                 transition={{ duration: 0.3 }}
-                className="overflow-hidden"
               >
                 <SurroundingInfluencesMeter />
               </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
+            </AnimatePresence>
+          </CollapsibleContent>
+        </Collapsible>
         
         {/* Mobile Navigation */}
         {isMobile && (
@@ -204,6 +211,8 @@ const DashboardLayout = ({
               handleSkipTour={onSkipTour}
               handleCompleteTour={onCompleteTour}
               hideTabsNav={hideTabsNav || isMobile}
+              lastActivity={lastActivity}
+              suggestedNextAction={suggestedNextAction}
             />
           </div>
         </div>

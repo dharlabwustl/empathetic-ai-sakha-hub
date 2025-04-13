@@ -19,6 +19,8 @@ const StudentDashboard = () => {
     kpis,
     nudges,
     features,
+    lastActivity,
+    suggestedNextAction,
     markNudgeAsRead,
     handleTabChange,
     handleSkipTour,
