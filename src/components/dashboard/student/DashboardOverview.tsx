@@ -98,7 +98,7 @@ export default function DashboardOverview({
         </div>
       </motion.div>
 
-      {/* KPI Cards */}
+      {/* KPI Cards - Only show here, not duplicated */}
       <motion.div 
         className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8"
         variants={itemVariants}
@@ -108,7 +108,7 @@ export default function DashboardOverview({
         ))}
       </motion.div>
       
-      {/* Study Plan and Profile */}
+      {/* Study Plan and Profile - Only show study plan here, not duplicated */}
       <motion.div 
         className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8"
         variants={itemVariants}

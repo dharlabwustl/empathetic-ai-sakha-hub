@@ -82,24 +82,14 @@ export const generateTabContents = ({
       <div className="space-y-8">
         <TodayStudyPlan />
         <MicroConceptView />
-        <FlashcardsFeature />
-        <PracticeExamFeature />
-        <FeelGoodCorner />
       </div>
     ),
+    academic: <AcademicAdvisorCard />,
+    concepts: <MicroConceptView />,
     flashcards: <FlashcardsFeature />,
     'practice-exam': <PracticeExamFeature />,
     'influence-meter': <div className="mt-4"><h2 className="text-lg font-medium text-gray-800 mb-4">Surrounding Influences Dashboard</h2></div>,
     'feel-good': <FeelGoodCorner />,
-    tutor: <TutorCard />,
-    planner: <StudyPlannerCard />,
-    academic: <AcademicAdvisorCard />,
-    motivation: <MotivationCard />,
-    progress: <ProgressCard />,
-    projects: <ProjectsCard />,
-    "live-tutors": <LiveTutorSection />,
-    forum: <CollaborativeForumSection />,
-    videos: <VideoLibrarySection />,
     notifications: <SmartNotificationSection />
   };
 };

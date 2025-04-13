@@ -3,18 +3,14 @@ import React, { ReactNode } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { motion } from "framer-motion";
 import { 
-  Lightbulb, 
-  MessageSquare, 
-  Calendar, 
-  Activity, 
-  LineChart, 
-  Brain, 
+  LayoutDashboard, 
+  CalendarDays, 
+  GraduationCap, 
   BookOpen, 
-  Heart,
-  Target,
-  ListTodo,
-  Video,
-  Users,
+  Brain, 
+  FileText, 
+  Smile,
+  CloudSun,
   Bell
 } from "lucide-react";
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -34,20 +30,16 @@ export default function DashboardTabs({
 }: DashboardTabsProps) {
   const isMobile = useIsMobile();
   
+  // Updated main navigation tabs with more focused menu items
   const tabs = [
-    { id: "overview", label: "Overview", icon: <Lightbulb size={16} /> },
-    { id: "today", label: "Today's Focus", icon: <ListTodo size={16} /> },
-    { id: "tutor", label: "24/7 Tutor", icon: <MessageSquare size={16} /> },
-    { id: "academic", label: "Academic Advisor", icon: <Calendar size={16} /> },
-    { id: "motivation", label: "Motivation", icon: <Activity size={16} /> },
-    { id: "progress", label: "Progress", icon: <LineChart size={16} /> },
+    { id: "overview", label: "Overview", icon: <LayoutDashboard size={16} /> },
+    { id: "today", label: "Today's Plan", icon: <CalendarDays size={16} /> },
+    { id: "academic", label: "Academic Advisor", icon: <GraduationCap size={16} /> },
+    { id: "concepts", label: "Concept Cards", icon: <BookOpen size={16} /> },
     { id: "flashcards", label: "Flashcards", icon: <Brain size={16} /> },
-    { id: "materials", label: "Materials", icon: <BookOpen size={16} /> },
-    { id: "goals", label: "Goals", icon: <Target size={16} /> },
-    { id: "wellness", label: "Wellness", icon: <Heart size={16} /> },
-    { id: "live-tutors", label: "Live Tutors", icon: <Video size={16} /> },
-    { id: "forum", label: "Forum", icon: <Users size={16} /> },
-    { id: "videos", label: "Videos", icon: <Video size={16} /> },
+    { id: "practice-exam", label: "Practice Exams", icon: <FileText size={16} /> },
+    { id: "feel-good", label: "Feel Good Corner", icon: <Smile size={16} /> },
+    { id: "influence-meter", label: "Surrounding Influences", icon: <CloudSun size={16} /> },
     { id: "notifications", label: "Notifications", icon: <Bell size={16} /> }
   ];
 
@@ -97,16 +89,17 @@ export default function DashboardTabs({
           variants={containerVariants}
           initial="hidden"
           animate="visible"
+          className="mb-2"
         >
-          <TabsList className="tab-scrollbar grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-7 gap-2 overflow-x-auto">
+          <TabsList className="p-1 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-between overflow-x-auto max-w-full">
             {tabs.map(tab => (
-              <motion.div key={tab.id} variants={itemVariants}>
+              <motion.div key={tab.id} variants={itemVariants} className="flex-shrink-0">
                 <TabsTrigger 
                   value={tab.id} 
-                  className="flex items-center gap-2 transition-all duration-300 hover:bg-violet-100/50 text-sm"
+                  className="rounded-full flex items-center gap-2 py-2 px-4 transition-all duration-300 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:shadow-sm"
                 >
                   {tab.icon}
-                  <span className={isMobile ? "text-xs" : ""}>{tab.label}</span>
+                  <span className={isMobile ? "hidden sm:inline text-xs" : ""}>{tab.label}</span>
                 </TabsTrigger>
               </motion.div>
             ))}
