@@ -1,9 +1,9 @@
 
-import React from "react";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import React from 'react';
 import { UserProfileType } from "@/types/user";
 import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
 import { generateTabContents } from "@/components/dashboard/student/TabContentManager";
+import DashboardTabs from "@/components/dashboard/student/DashboardTabs";
 
 interface DashboardContentProps {
   activeTab: string;
@@ -21,7 +21,7 @@ interface DashboardContentProps {
   suggestedNextAction?: string | null;
 }
 
-const DashboardContent: React.FC<DashboardContentProps> = ({
+const DashboardContent = ({
   activeTab,
   onTabChange,
   userProfile,
@@ -35,8 +35,8 @@ const DashboardContent: React.FC<DashboardContentProps> = ({
   hideTabsNav,
   lastActivity,
   suggestedNextAction
-}) => {
-  // Generate the tab contents
+}: DashboardContentProps) => {
+  // Generate tab contents
   const tabContents = generateTabContents({
     userProfile,
     kpis,
@@ -49,28 +49,26 @@ const DashboardContent: React.FC<DashboardContentProps> = ({
     lastActivity,
     suggestedNextAction
   });
-  
+
   return (
-    <Tabs defaultValue={activeTab} value={activeTab} onValueChange={onTabChange} className="w-full">
-      {/* Show tabs nav unless hidden */}
+    <div className="h-full flex flex-col">
+      {/* Tabs navigation */}
       {!hideTabsNav && (
-        <TabsList className="flex overflow-x-auto max-w-full p-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg mb-4">
-          <TabsTrigger value="overview" className="px-4">Overview</TabsTrigger>
-          <TabsTrigger value="today" className="px-4">Today</TabsTrigger>
-          <TabsTrigger value="flashcards" className="px-4">Flashcards</TabsTrigger>
-          <TabsTrigger value="practice-exam" className="px-4">Practice Exams</TabsTrigger>
-          <TabsTrigger value="influence-meter" className="px-4">Influence Meter</TabsTrigger>
-          <TabsTrigger value="feel-good" className="px-4">Feel Good Corner</TabsTrigger>
-        </TabsList>
+        <DashboardTabs activeTab={activeTab} onTabChange={onTabChange} />
       )}
-      
+
       {/* Tab content */}
-      {Object.entries(tabContents).map(([tab, content]) => (
-        <TabsContent key={tab} value={tab}>
-          {content}
-        </TabsContent>
-      ))}
-    </Tabs>
+      <div className="mt-6 bg-white dark:bg-gray-800 rounded-lg shadow p-4 sm:p-6 flex-grow">
+        {tabContents[activeTab] || (
+          <div className="text-center py-8">
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white">Coming Soon</h3>
+            <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+              This tab is not yet available. Check back later.
+            </p>
+          </div>
+        )}
+      </div>
+    </div>
   );
 };
 

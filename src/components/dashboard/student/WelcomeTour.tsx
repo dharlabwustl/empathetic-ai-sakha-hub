@@ -1,8 +1,8 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { CheckCircle, ChevronRight, Info, Sparkles, ArrowRight, Clock, Calendar } from "lucide-react";
+import ReturnUserRecap from "./ReturnUserRecap";
 
 interface WelcomeTourProps {
   onSkipTour: () => void;
@@ -10,6 +10,7 @@ interface WelcomeTourProps {
   isFirstTimeUser?: boolean;
   lastActivity?: { type: string; description: string } | null;
   suggestedNextAction?: string | null;
+  loginCount?: number;
 }
 
 export default function WelcomeTour({ 
@@ -17,7 +18,8 @@ export default function WelcomeTour({
   onCompleteTour, 
   isFirstTimeUser = true,
   lastActivity,
-  suggestedNextAction 
+  suggestedNextAction,
+  loginCount = 0
 }: WelcomeTourProps) {
   const [tourStep, setTourStep] = useState(0);
 
@@ -62,8 +64,35 @@ export default function WelcomeTour({
     </motion.div>
   ];
 
-  // If this is a returning user, show the welcome back screen instead
+  // If this is a returning user, show the recap screen instead
   if (!isFirstTimeUser) {
+    // For users with multiple logins, show our new recap component
+    if (loginCount && loginCount > 2) {
+      // Transform lastActivity and suggestedNextAction into the format ReturnUserRecap expects
+      const completedTasks = lastActivity ? [
+        { 
+          id: '1', 
+          title: lastActivity.description, 
+          date: 'Last session', 
+          type: lastActivity.type 
+        }
+      ] : [];
+      
+      const suggestedTasks = suggestedNextAction ? [suggestedNextAction] : [];
+      
+      return (
+        <ReturnUserRecap
+          userName=""
+          lastLoginDate="your last session"
+          completedTasks={completedTasks}
+          suggestedNextTasks={suggestedTasks}
+          onClose={onCompleteTour}
+          loginCount={loginCount}
+        />
+      );
+    }
+    
+    // For users with fewer logins, keep the original welcome back UI
     return (
       <motion.div 
         initial={{ opacity: 0, y: -20 }}

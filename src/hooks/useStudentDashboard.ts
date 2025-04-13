@@ -15,7 +15,7 @@ export const useStudentDashboard = () => {
   const [hideTabsNav, setHideTabsNav] = useState(false);
   const [lastActivity, setLastActivity] = useState<{ type: string, description: string } | null>(null);
   const [suggestedNextAction, setSuggestedNextAction] = useState<string | null>(null);
-  const { userProfile, loading: profileLoading } = useUserProfile();
+  const { userProfile, loading: profileLoading, updateUserProfile } = useUserProfile();
   const { kpis, nudges, markNudgeAsRead } = useKpiTracking("Student");
   const navigate = useNavigate();
   const location = useLocation();
@@ -101,6 +101,21 @@ export const useStudentDashboard = () => {
             }
           }
         }
+
+        // Update login count for returning users
+        if (userProfile && !shouldShowOnboarding) {
+          const currentLoginCount = userProfile.loginCount || 0;
+          
+          // Only increment login count if this is a new session (after a page reload/new browser session)
+          if (!sessionStorage.getItem('session_active')) {
+            updateUserProfile({
+              loginCount: currentLoginCount + 1
+            });
+            
+            // Mark this session as active to prevent multiple increments during the same session
+            sessionStorage.setItem('session_active', 'true');
+          }
+        }
         
       } catch (error) {
         console.error("Dashboard initialization error:", error);
@@ -118,7 +133,7 @@ export const useStudentDashboard = () => {
     };
     
     initDashboard();
-  }, [location, navigate, profileLoading]);
+  }, [location, navigate, profileLoading, userProfile, updateUserProfile]);
   
   // Update loading state when profile loading changes
   useEffect(() => {

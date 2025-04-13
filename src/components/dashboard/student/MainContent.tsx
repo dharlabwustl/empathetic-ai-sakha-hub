@@ -18,6 +18,8 @@ interface MainContentProps {
   onSkipTour: () => void;
   onCompleteTour: () => void;
   isMobile: boolean;
+  lastActivity?: { type: string; description: string } | null;
+  suggestedNextAction?: string | null;
 }
 
 const MainContent: React.FC<MainContentProps> = ({
@@ -33,7 +35,9 @@ const MainContent: React.FC<MainContentProps> = ({
   onToggleTabsNav,
   onSkipTour,
   onCompleteTour,
-  isMobile
+  isMobile,
+  lastActivity,
+  suggestedNextAction
 }) => {
   return (
     <div className="lg:col-span-9 xl:col-span-10">
@@ -58,6 +62,8 @@ const MainContent: React.FC<MainContentProps> = ({
         handleSkipTour={onSkipTour}
         handleCompleteTour={onCompleteTour}
         hideTabsNav={hideTabsNav || isMobile}
+        lastActivity={lastActivity}
+        suggestedNextAction={suggestedNextAction}
       />
     </div>
   );

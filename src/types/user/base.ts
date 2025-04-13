@@ -1,48 +1,54 @@
 
-export type UserRole = "Student" | "Employee" | "Doctor" | "Founder";
+// Base user types
 
-export type SubscriptionType = "Free" | "Basic" | "Premium";
+export type UserRole = "Student" | "Professor" | "Employee" | "Doctor" | "Founder";
 
-export type MoodType = "Happy" | "Okay" | "Sad" | "Focused" | "Tired" | "Overwhelmed" | "Motivated";
-
-export type PersonalityType = 
-  | "Analytical"
-  | "Creative"
-  | "Practical"
-  | "Social"
-  | "Strategic Thinker"
-  | "Empathetic Learner"
-  | "Creative Builder"
-  | "Collaborative Leader"
-  | "Analytical Problem Solver";
-
-export interface Goal {
-  id: string;
-  title: string;
-  description: string;
-  progress: number;
-  dueDate: string;
-}
-
-export interface Interest {
+export interface BaseUserProfile {
   id: string;
   name: string;
-  level: "Beginner" | "Intermediate" | "Advanced";
-}
-
-export interface UserProfileType {
-  id: string;
-  name: string;
+  email: string;
   phoneNumber: string;
   role: UserRole;
-  personalityType?: PersonalityType;
-  goals?: Goal[];
-  areasOfInterest?: Interest[];
-  subscription: SubscriptionType;
-  joinDate: string;
-  lastActive: string;
-  examPreparation?: string;
-  studyStreak?: number;
+  avatar?: string;
+  bio?: string;
   loginCount?: number;
   completedOnboarding?: boolean;
 }
+
+// Combined user type (union of all user types)
+export type UserProfileType = BaseUserProfile & {
+  goals?: Array<{
+    id: string;
+    title: string;
+    targetDate?: Date;
+    progress: number;
+    type?: string;
+  }>;
+  subjects?: Array<{
+    id: string;
+    name: string;
+    progress: number;
+    lastStudied?: Date;
+  }>;
+  schedule?: {
+    preferredStudyTime?: 'morning' | 'afternoon' | 'evening' | 'night';
+    studyHoursPerDay?: number;
+    studyDays?: string[];
+  };
+  examDetails?: {
+    examId?: string;
+    examName?: string;
+    examDate?: Date;
+  };
+  preferences?: {
+    theme?: 'light' | 'dark' | 'system';
+    emailNotifications?: boolean;
+    pushNotifications?: boolean;
+  };
+  stats?: {
+    averageScore?: number;
+    studyStreak?: number;
+    totalStudyHours?: number;
+    quizzesCompleted?: number;
+  };
+};

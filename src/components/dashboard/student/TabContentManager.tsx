@@ -54,6 +54,7 @@ export const generateTabContents = ({
   // Check if user is a first time user based on profile data
   // Using optional chaining to safely access potentially undefined properties
   const isFirstTimeUser = (userProfile?.loginCount ?? 0) < 3 || !(userProfile?.completedOnboarding ?? false);
+  const loginCount = userProfile?.loginCount ?? 0;
 
   return {
     overview: (
@@ -65,6 +66,7 @@ export const generateTabContents = ({
             isFirstTimeUser={isFirstTimeUser}
             lastActivity={lastActivity}
             suggestedNextAction={suggestedNextAction}
+            loginCount={loginCount}
           />
         )}
         <DashboardOverview

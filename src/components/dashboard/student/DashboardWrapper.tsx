@@ -29,6 +29,8 @@ interface DashboardWrapperProps {
   onToggleTabsNav: () => void;
   onSkipTour: () => void;
   onCompleteTour: () => void;
+  lastActivity?: { type: string; description: string } | null;
+  suggestedNextAction?: string | null;
 }
 
 const DashboardWrapper: React.FC<DashboardWrapperProps> = ({
@@ -47,7 +49,9 @@ const DashboardWrapper: React.FC<DashboardWrapperProps> = ({
   onToggleSidebar,
   onToggleTabsNav,
   onSkipTour,
-  onCompleteTour
+  onCompleteTour,
+  lastActivity,
+  suggestedNextAction
 }) => {
   const isMobile = useIsMobile();
   const formattedTime = formatTime(currentTime);
@@ -111,6 +115,8 @@ const DashboardWrapper: React.FC<DashboardWrapperProps> = ({
           onSkipTour={onSkipTour}
           onCompleteTour={onCompleteTour}
           isMobile={isMobile}
+          lastActivity={lastActivity}
+          suggestedNextAction={suggestedNextAction}
         />
       </div>
     </main>
