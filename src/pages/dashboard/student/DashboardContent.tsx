@@ -5,6 +5,12 @@ import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
 import { generateTabContents } from "@/components/dashboard/student/TabContentManager";
 import DashboardTabs from "@/components/dashboard/student/DashboardTabs";
 
+interface DashboardTabsProps {
+  activeTab: string;
+  onTabChange: (tab: string) => void;
+  tabContents?: Record<string, React.ReactNode>; // Added tabContents field
+}
+
 interface DashboardContentProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
@@ -54,7 +60,11 @@ const DashboardContent = ({
     <div className="h-full flex flex-col">
       {/* Tabs navigation */}
       {!hideTabsNav && (
-        <DashboardTabs activeTab={activeTab} onTabChange={onTabChange} />
+        <DashboardTabs 
+          activeTab={activeTab} 
+          onTabChange={onTabChange} 
+          tabContents={tabContents} // Pass tabContents down to DashboardTabs
+        />
       )}
 
       {/* Tab content */}
@@ -73,3 +83,4 @@ const DashboardContent = ({
 };
 
 export default DashboardContent;
+export type { DashboardTabsProps };
