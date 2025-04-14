@@ -1,101 +1,101 @@
 
-import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { Menu, X, BookOpen, ChevronRight } from "lucide-react";
-import { useIsMobile } from "@/hooks/use-mobile";
-import SakhaLogo from "@/components/common/SakhaLogo";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { Menu, X } from 'lucide-react';
+import { useAuth } from '@/contexts/auth/AuthContext';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const isMobile = useIsMobile();
-
-  // Close menu when screen size changes from mobile to desktop
-  useEffect(() => {
-    if (!isMobile && isMenuOpen) {
-      setIsMenuOpen(false);
-    }
-  }, [isMobile, isMenuOpen]);
-
-  const menuItems = [
-    { title: "What is Sakha 1.0?", link: "/about" },
-    { title: "Features", link: "/features" },
-    { title: "Pricing", link: "/pricing" },
-  ];
-
+  const { user, logout } = useAuth();
+  
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
+  
   return (
-    <header className="fixed top-0 left-0 right-0 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md z-50 border-b border-gray-100 dark:border-gray-800">
-      <div className="container mx-auto flex justify-between items-center py-3 sm:py-4 px-4 sm:px-6 lg:px-8">
-        <Link to="/" className="flex items-center gap-2">
-          <div className="w-8 h-8 sm:w-10 sm:h-10 relative overflow-hidden flex items-center justify-center">
-            <SakhaLogo width={40} height={40} />
-          </div>
-          <span className="text-xl sm:text-2xl font-display font-semibold gradient-text">Sakha AI</span>
-        </Link>
-
-        {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-8">
-          {menuItems.map((item) => (
-            <Link 
-              key={item.link} 
-              to={item.link} 
-              className="text-gray-600 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
-            >
-              {item.title}
+    <header className="bg-white dark:bg-gray-900 shadow-sm sticky top-0 z-50">
+      <div className="container mx-auto px-4 py-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <Link to="/" className="flex items-center space-x-2">
+              <img 
+                src="/lovable-uploads/ffd1ed0a-7a25-477e-bc91-1da9aca3497f.png" 
+                alt="Sakha AI Logo" 
+                className="w-10 h-10"
+              />
+              <div>
+                <h1 className="font-bold text-xl sm:text-2xl font-display gradient-text">
+                  Sakha AI – पहली बार, पढ़ाई से पहले, आपको समझने वाला साथी
+                </h1>
+                <p className="hidden sm:block text-xs text-gray-500 dark:text-gray-400">
+                  India's 1st Emotionally Intelligent Study Partner – Tuned to Your Mood, Habits, Mind & Mission to Crack Exams.
+                </p>
+              </div>
             </Link>
-          ))}
-          <div className="flex items-center gap-4">
-            <Button variant="outline" className="border-purple-500 text-purple-600 hover:bg-purple-50 dark:border-purple-400 dark:text-purple-400 dark:hover:bg-purple-900/20" asChild>
-              <Link to="/login">Login</Link>
-            </Button>
-            <Button className="bg-gradient-to-r from-purple-500 to-violet-600 text-white hover:from-purple-600 hover:to-violet-700" asChild>
-              <Link to="/signup">
-                <BookOpen className="mr-2 h-4 w-4" /> 
-                Start Learning
-              </Link>
+          </div>
+          
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center space-x-4">
+            <ThemeToggle />
+            {user ? (
+              <div className="flex space-x-2">
+                <Button variant="ghost" asChild>
+                  <Link to="/dashboard">Dashboard</Link>
+                </Button>
+                <Button variant="ghost" onClick={() => logout()}>
+                  Logout
+                </Button>
+              </div>
+            ) : (
+              <div className="flex space-x-2">
+                <Button variant="ghost" asChild>
+                  <Link to="/login">Login</Link>
+                </Button>
+                <Button variant="primary" asChild>
+                  <Link to="/register">Register</Link>
+                </Button>
+              </div>
+            )}
+          </div>
+          
+          {/* Mobile Menu Button */}
+          <div className="md:hidden">
+            <Button variant="ghost" size="icon" onClick={toggleMenu}>
+              {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </Button>
           </div>
-        </nav>
-
-        {/* Mobile Menu Button */}
-        <button 
-          className="md:hidden text-gray-700 dark:text-gray-200 p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
-          aria-label="Toggle menu"
-        >
-          {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
-      </div>
-
-      {/* Mobile Navigation - Improved visibility and accessibility */}
-      {isMenuOpen && (
-        <div className="md:hidden fixed inset-0 top-[57px] sm:top-[65px] z-40 bg-white dark:bg-slate-900 animate-fade-in">
-          <nav className="flex flex-col gap-2 p-4">
-            {menuItems.map((item) => (
-              <Link 
-                key={item.link}
-                to={item.link} 
-                className="py-3 px-4 text-gray-600 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20 rounded-md transition-colors text-lg font-medium flex items-center justify-between"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                <span>{item.title}</span>
-                <ChevronRight size={16} />
-              </Link>
-            ))}
-            <div className="flex flex-col gap-3 pt-4 mt-2 border-t border-gray-100 dark:border-gray-800">
-              <Button variant="outline" className="w-full border-purple-500 text-purple-600 dark:border-purple-400 dark:text-purple-400 h-12 text-lg" asChild>
-                <Link to="/login" onClick={() => setIsMenuOpen(false)}>Login</Link>
-              </Button>
-              <Button className="w-full bg-gradient-to-r from-purple-500 to-violet-600 text-white h-12 text-lg" asChild>
-                <Link to="/signup" onClick={() => setIsMenuOpen(false)}>
-                  <BookOpen className="mr-2 h-5 w-5" />
-                  Start Learning
-                </Link>
-              </Button>
-            </div>
-          </nav>
         </div>
-      )}
+        
+        {/* Mobile Navigation */}
+        {isMenuOpen && (
+          <div className="md:hidden mt-4 pb-4">
+            <div className="flex flex-col space-y-2">
+              <ThemeToggle />
+              {user ? (
+                <>
+                  <Button variant="ghost" asChild className="justify-start">
+                    <Link to="/dashboard">Dashboard</Link>
+                  </Button>
+                  <Button variant="ghost" onClick={() => logout()} className="justify-start">
+                    Logout
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button variant="ghost" asChild className="justify-start">
+                    <Link to="/login">Login</Link>
+                  </Button>
+                  <Button variant="primary" asChild className="justify-start">
+                    <Link to="/register">Register</Link>
+                  </Button>
+                </>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
     </header>
   );
 };

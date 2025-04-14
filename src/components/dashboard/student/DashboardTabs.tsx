@@ -91,12 +91,12 @@ export default function DashboardTabs({
           animate="visible"
           className="mb-2"
         >
-          <TabsList className="p-1 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-between overflow-x-auto max-w-full">
+          <TabsList className="p-1.5 rounded-xl bg-gradient-to-r from-indigo-50/80 via-purple-50/80 to-pink-50/80 dark:from-indigo-900/20 dark:via-purple-900/20 dark:to-pink-900/20 border border-indigo-100/50 dark:border-indigo-800/30 flex items-center justify-between overflow-x-auto max-w-full shadow-sm">
             {tabs.map(tab => (
               <motion.div key={tab.id} variants={itemVariants} className="flex-shrink-0">
                 <TabsTrigger 
                   value={tab.id} 
-                  className="rounded-full flex items-center gap-2 py-2 px-4 transition-all duration-300 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:shadow-sm"
+                  className="rounded-lg flex items-center gap-2 py-2.5 px-4 transition-all duration-300 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800 data-[state=active]:text-indigo-600 dark:data-[state=active]:text-indigo-400 data-[state=active]:shadow-sm"
                 >
                   {tab.icon}
                   <span className={isMobile ? "hidden sm:inline text-xs" : ""}>{tab.label}</span>

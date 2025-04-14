@@ -48,7 +48,7 @@ const DashboardContent = ({
     Boolean(userProfile.loginCount && userProfile.loginCount > 1 && lastActivity)
   );
 
-  // Generate tab contents
+  // Generate tab contents only once
   const tabContents = generateTabContents({
     userProfile,
     kpis,
@@ -85,7 +85,7 @@ const DashboardContent = ({
         <DashboardTabs 
           activeTab={activeTab} 
           onTabChange={onTabChange} 
-          tabContents={tabContents} // Pass tabContents down to DashboardTabs
+          tabContents={tabContents} // Pass tabContents to avoid regenerating
         />
       )}
 

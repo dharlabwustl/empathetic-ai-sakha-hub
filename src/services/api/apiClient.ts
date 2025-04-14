@@ -97,6 +97,11 @@ class ApiClient {
   async delete<T>(endpoint: string, customHeaders?: Record<string, string>): Promise<ApiResponse<T>> {
     return this.request<T>(endpoint, 'DELETE', undefined, customHeaders);
   }
+  
+  // Adding HEAD method for API endpoint checking
+  async head<T>(endpoint: string, customHeaders?: Record<string, string>): Promise<ApiResponse<T>> {
+    return this.request<T>(endpoint, 'HEAD', undefined, customHeaders);
+  }
 }
 
 // Create and export a singleton instance
