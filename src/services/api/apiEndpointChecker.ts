@@ -1,6 +1,6 @@
 
-import apiClient from '../api/apiClient';
-import { API_ENDPOINTS } from '../api/apiConfig';
+import apiClient from './apiClient';
+import { API_ENDPOINTS } from './apiConfig';
 
 /**
  * API Endpoint Checker - Used to verify API endpoints are correctly configured
@@ -21,7 +21,7 @@ export const apiEndpointChecker = {
       const response = await apiClient.head(endpoint);
       return {
         exists: true,
-        status: 200, // Since it was successful
+        status: response.status || 200,
         message: `Endpoint exists and returned successfully`,
       };
     } catch (error: any) {

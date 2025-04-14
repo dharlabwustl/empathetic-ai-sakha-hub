@@ -89,7 +89,7 @@ const DashboardContent = ({
         />
       )}
 
-      {/* Tab content - Only show the content, not duplicating tabs */}
+      {/* Tab content */}
       <div className="mt-6 bg-white dark:bg-gray-800 rounded-lg shadow p-4 sm:p-6 flex-grow">
         {tabContents[activeTab] || (
           <div className="text-center py-8">

@@ -68,20 +68,6 @@ export default function DashboardTabs({
     }
   };
 
-  const contentVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { 
-      opacity: 1, 
-      y: 0,
-      transition: {
-        type: "spring",
-        stiffness: 300,
-        damping: 25,
-        duration: 0.4
-      }
-    }
-  };
-
   return (
     <Tabs value={activeTab} onValueChange={onTabChange} className="space-y-4 sm:space-y-6">
       {!hideTabsNav && (
@@ -106,16 +92,6 @@ export default function DashboardTabs({
           </TabsList>
         </motion.div>
       )}
-      
-      <motion.div
-        variants={contentVariants}
-        initial="hidden"
-        animate="visible"
-        key={activeTab}
-      >
-        {/* We don't render TabsContent here anymore to avoid the duplicate rendering */}
-        {/* The tabContents are now handled in DashboardContent.tsx */}
-      </motion.div>
     </Tabs>
   );
 }

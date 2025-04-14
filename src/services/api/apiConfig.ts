@@ -1,104 +1,82 @@
 
-// API Configuration for Flask backend integration
-import { AdminSettings } from "@/types/admin";
+/**
+ * API Configuration and Endpoints
+ */
 
-// Environment-specific API URLs
-const getApiBaseUrl = (): string => {
-  const environment = import.meta.env.VITE_APP_ENVIRONMENT || 'development';
-  
-  switch (environment) {
-    case 'production':
-      return import.meta.env.VITE_API_URL_PRODUCTION || 'https://api.sakha.ai/api/v1';
-    case 'staging':
-      return import.meta.env.VITE_API_URL_STAGING || 'https://staging-api.sakha.ai/api/v1';
-    case 'development':
-    default:
-      return import.meta.env.VITE_API_URL_DEVELOPMENT || 'http://localhost:5000/api/v1';
-  }
-};
+// Base API URL - should be configured based on the environment
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://api.sakhaai.com/v1';
 
-// API endpoints organized by feature
+// API Endpoints configuration
 export const API_ENDPOINTS = {
   // Authentication endpoints
   AUTH: {
-    LOGIN: '/auth/login',
-    REGISTER: '/auth/register',
-    LOGOUT: '/auth/logout',
-    VERIFY_EMAIL: '/auth/verify-email',
-    RESET_PASSWORD: '/auth/reset-password',
-    REFRESH_TOKEN: '/auth/refresh-token',
-    ADMIN_LOGIN: '/auth/admin/login',
-    VERIFY_TOKEN: '/auth/verify-token',
+    LOGIN: `${API_BASE_URL}/auth/login`,
+    REGISTER: `${API_BASE_URL}/auth/register`,
+    REFRESH_TOKEN: `${API_BASE_URL}/auth/refresh-token`,
+    FORGOT_PASSWORD: `${API_BASE_URL}/auth/forgot-password`,
+    RESET_PASSWORD: `${API_BASE_URL}/auth/reset-password`,
+    LOGOUT: `${API_BASE_URL}/auth/logout`,
   },
   
-  // Student-related endpoints
+  // Student related endpoints
   STUDENTS: {
-    BASE: '/students',
-    PROFILE: (id: string) => `/students/${id}/profile`,
-    ONBOARDING: (id: string) => `/students/${id}/onboarding`,
-    STUDY_PLAN: (id: string) => `/students/${id}/study-plan`,
-    PROGRESS: (id: string) => `/students/${id}/progress`,
-    MOOD_LOGS: (id: string) => `/students/${id}/mood-logs`,
-    GOALS: (id: string) => `/students/${id}/goals`,
-    DOUBTS: (id: string) => `/students/${id}/doubts`,
+    PROFILE: (id: string) => `${API_BASE_URL}/students/${id}/profile`,
+    GOALS: (id: string) => `${API_BASE_URL}/students/${id}/goals`,
+    STUDY_PLAN: (id: string) => `${API_BASE_URL}/students/${id}/study-plan`,
+    PROGRESS: (id: string) => `${API_BASE_URL}/students/${id}/progress`,
+    ACTIVITIES: (id: string) => `${API_BASE_URL}/students/${id}/activities`,
+    MOOD_LOGS: (id: string) => `${API_BASE_URL}/students/${id}/mood-logs`,
+    RECOMMENDATIONS: (id: string) => `${API_BASE_URL}/students/${id}/recommendations`,
+    DOUBTS: (id: string) => `${API_BASE_URL}/students/${id}/doubts`,
+    ONBOARDING: (id: string) => `${API_BASE_URL}/students/${id}/onboarding`,
+    STUDY_MATERIALS: (id: string) => `${API_BASE_URL}/students/${id}/study-materials`,
+    CONCEPT_CARDS: (id: string) => `${API_BASE_URL}/students/${id}/concept-cards`,
+    FLASHCARDS: (id: string) => `${API_BASE_URL}/students/${id}/flashcards`,
+    PRACTICE_EXAMS: (id: string) => `${API_BASE_URL}/students/${id}/practice-exams`,
   },
   
-  // Content-related endpoints
-  CONTENT: {
-    CONCEPTS: '/content/concepts',
-    FLASHCARDS: '/content/flashcards',
-    QUESTIONS: '/content/questions',
-    EXAMS: '/content/exams',
-    FEEL_GOOD: '/content/feel-good',
-    UPLOAD: '/content/upload',
-    APPROVE: (id: string) => `/content/${id}/approve`,
-  },
-  
-  // AI personalization endpoints
-  AI: {
-    PERSONALIZE: '/ai/personalize',
-    LEARNING_STYLE: '/ai/learning-style',
-    GENERATE_PLAN: '/ai/generate-plan',
-    DOUBT_RESPONSE: '/ai/doubt-response',
-    TUTOR_CHAT: '/ai/tutor-chat',
-    MOOD_SUGGESTIONS: '/ai/mood-suggestions',
-  },
-  
-  // Analytics endpoints
-  ANALYTICS: {
-    DASHBOARD: '/analytics/dashboard',
-    STUDENT_ENGAGEMENT: '/analytics/student-engagement',
-    CONTENT_USAGE: '/analytics/content-usage',
-    LEARNING_PULSE: '/analytics/learning-pulse',
-    SURROUNDING_INFLUENCES: '/analytics/surrounding-influences',
-  },
-  
-  // Admin endpoints
+  // Admin related endpoints
   ADMIN: {
-    DASHBOARD: '/admin/dashboard',
-    STUDENTS: '/admin/students',
-    CONTENT: '/admin/content',
-    SETTINGS: '/admin/settings',
-    NOTIFICATIONS: '/admin/notifications',
-    SYSTEM_LOGS: '/admin/system-logs',
+    DASHBOARD: `${API_BASE_URL}/admin/dashboard`,
+    USERS: `${API_BASE_URL}/admin/users`,
+    CONTENT: `${API_BASE_URL}/admin/content`,
+    SYSTEM_LOGS: `${API_BASE_URL}/admin/system-logs`,
+    CONFIGURATIONS: `${API_BASE_URL}/admin/configurations`,
+    AI_MODELS: `${API_BASE_URL}/admin/ai-models`,
+    DATABASE_SCHEMA: `${API_BASE_URL}/admin/database-schema`,
+    FLASK_INTEGRATION: `${API_BASE_URL}/admin/flask-integration`,
+    API_HEALTH: `${API_BASE_URL}/admin/api-health`,
+    ML_MODELS: `${API_BASE_URL}/admin/ml-models`,
   },
+  
+  // Content related endpoints
+  CONTENT: {
+    GET_ALL: `${API_BASE_URL}/content`,
+    GET_BY_ID: (id: string) => `${API_BASE_URL}/content/${id}`,
+    CREATE: `${API_BASE_URL}/content`,
+    UPDATE: (id: string) => `${API_BASE_URL}/content/${id}`,
+    DELETE: (id: string) => `${API_BASE_URL}/content/${id}`,
+    UPLOAD: `${API_BASE_URL}/content/upload`,
+    GENERATE: `${API_BASE_URL}/content/generate`,
+  },
+  
+  // AI and ML endpoints
+  AI: {
+    ANALYZE_MOOD: `${API_BASE_URL}/ai/analyze-mood`,
+    GENERATE_PLAN: `${API_BASE_URL}/ai/generate-plan`,
+    ANSWER_DOUBT: `${API_BASE_URL}/ai/answer-doubt`,
+    DETECT_LEARNING_STYLE: `${API_BASE_URL}/ai/detect-learning-style`,
+    PERSONALIZE_CONTENT: `${API_BASE_URL}/ai/personalize-content`,
+    MODEL_STATUS: `${API_BASE_URL}/ai/model-status`,
+    UPDATE_MODEL: (id: string) => `${API_BASE_URL}/ai/models/${id}`,
+  },
+  
+  // Miscellaneous endpoints
+  MISC: {
+    HEALTH_CHECK: `${API_BASE_URL}/health`,
+    VERSION: `${API_BASE_URL}/version`,
+    FEEDBACK: `${API_BASE_URL}/feedback`,
+  }
 };
 
-// API response types
-export interface ApiResponse<T> {
-  success: boolean;
-  data?: T;
-  error?: string;
-  message?: string;
-}
-
-// API configuration
-export const apiConfig = {
-  baseUrl: getApiBaseUrl(),
-  defaultHeaders: {
-    'Content-Type': 'application/json',
-  },
-  withCredentials: true,
-};
-
-export default apiConfig;
+export default API_ENDPOINTS;
