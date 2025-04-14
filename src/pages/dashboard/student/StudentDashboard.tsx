@@ -1,11 +1,14 @@
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useStudentDashboard } from "@/hooks/useStudentDashboard";
 import OnboardingFlow from "@/components/dashboard/student/OnboardingFlow";
 import DashboardLoading from "@/pages/dashboard/student/DashboardLoading";
 import DashboardLayout from "@/pages/dashboard/student/DashboardLayout";
+import SplashScreen from "@/components/dashboard/student/SplashScreen";
 
 const StudentDashboard = () => {
+  const [showSplash, setShowSplash] = useState(true);
+  
   const {
     loading,
     userProfile,
@@ -31,6 +34,25 @@ const StudentDashboard = () => {
     toggleSidebar,
     toggleTabsNav
   } = useStudentDashboard();
+
+  useEffect(() => {
+    // Check if the user has seen the splash screen in this session
+    const hasSeen = sessionStorage.getItem("hasSeenSplash");
+    if (hasSeen) {
+      setShowSplash(false);
+    }
+  }, []);
+  
+  const handleSplashComplete = () => {
+    setShowSplash(false);
+    // Mark that the user has seen the splash screen in this session
+    sessionStorage.setItem("hasSeenSplash", "true");
+  };
+
+  // Show splash screen if needed
+  if (showSplash) {
+    return <SplashScreen onComplete={handleSplashComplete} />;
+  }
 
   if (loading || !userProfile) {
     return <DashboardLoading />;

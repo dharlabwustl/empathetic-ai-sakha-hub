@@ -1,9 +1,9 @@
 
-import axios from 'axios';
+import axios, { AxiosInstance } from 'axios';
 import { API_BASE_URL } from './apiConfig';
 
 // Create axios instance with default config
-const apiClient = axios.create({
+const axiosInstance = axios.create({
   baseURL: API_BASE_URL,
   timeout: 30000, // 30 seconds
   headers: {
@@ -13,7 +13,7 @@ const apiClient = axios.create({
 });
 
 // Add request interceptor to include auth token
-apiClient.interceptors.request.use(config => {
+axiosInstance.interceptors.request.use(config => {
   const token = localStorage.getItem('authToken');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
@@ -24,7 +24,7 @@ apiClient.interceptors.request.use(config => {
 });
 
 // Add response interceptor to handle common errors
-apiClient.interceptors.response.use(response => {
+axiosInstance.interceptors.response.use(response => {
   return response;
 }, error => {
   // Handle 401 errors (unauthorized)
@@ -45,14 +45,24 @@ apiClient.interceptors.response.use(response => {
   return Promise.reject(error);
 });
 
-// Add method to set auth token
-const setAuthToken = (token: string | null) => {
-  if (token) {
-    apiClient.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-  } else {
-    delete apiClient.defaults.headers.common['Authorization'];
-  }
+// Create apiClient object with HTTP methods and the setAuthToken function
+const apiClient = {
+  get: axiosInstance.get.bind(axiosInstance),
+  post: axiosInstance.post.bind(axiosInstance),
+  put: axiosInstance.put.bind(axiosInstance),
+  delete: axiosInstance.delete.bind(axiosInstance),
+  patch: axiosInstance.patch.bind(axiosInstance),
+  head: axiosInstance.head.bind(axiosInstance),
+  options: axiosInstance.options.bind(axiosInstance),
+  setAuthToken: (token: string | null) => {
+    if (token) {
+      axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    } else {
+      delete axiosInstance.defaults.headers.common['Authorization'];
+    }
+  },
+  defaults: axiosInstance.defaults,
+  interceptors: axiosInstance.interceptors
 };
 
-// Export the apiClient with the setAuthToken method
-export default { ...apiClient, setAuthToken };
+export default apiClient;

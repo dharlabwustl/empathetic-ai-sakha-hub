@@ -1,6 +1,7 @@
 
 import apiClient from '../api/apiClient';
 import { API_ENDPOINTS, ApiResponse } from '../api/apiConfig';
+import { validateCredentials } from './accountData';
 
 // Auth service types
 export interface LoginCredentials {
@@ -23,6 +24,7 @@ export interface AuthUser {
   phoneNumber?: string;
   role: string;
   token: string;
+  permissions?: string[];
 }
 
 // Local storage keys
@@ -34,19 +36,28 @@ const authService = {
   // Login user
   async login(credentials: LoginCredentials): Promise<ApiResponse<AuthUser>> {
     console.log("Auth service logging in with:", credentials);
-    const response = await apiClient.post(API_ENDPOINTS.AUTH.LOGIN, credentials);
     
-    const authResponse: ApiResponse<AuthUser> = {
-      success: true,
-      data: response.data,
-      error: null
-    };
+    // For demo, validate against mock accounts
+    const user = validateCredentials(credentials.email, credentials.password);
     
-    if (authResponse.success && authResponse.data) {
-      this.setAuthData(authResponse.data);
+    if (user) {
+      // Set the auth data
+      this.setAuthData(user);
+      
+      // Return success response
+      return {
+        success: true,
+        data: user,
+        error: null
+      };
+    } else {
+      // Return error response
+      return {
+        success: false,
+        data: null,
+        error: "Invalid email or password"
+      };
     }
-    
-    return authResponse;
   },
   
   // Register user
@@ -55,7 +66,7 @@ const authService = {
     
     // For demo, create a mock successful response
     const mockUser: AuthUser = {
-      id: userData.phoneNumber, // Use phone number as ID for consistency
+      id: `user_${Date.now()}`,
       name: userData.name,
       email: userData.email,
       phoneNumber: userData.phoneNumber,
@@ -76,27 +87,34 @@ const authService = {
   
   // Admin login
   async adminLogin(credentials: LoginCredentials): Promise<ApiResponse<AuthUser>> {
-    const response = await apiClient.post(API_ENDPOINTS.AUTH.ADMIN_LOGIN, credentials);
+    console.log("Admin login with:", credentials);
     
-    const authResponse: ApiResponse<AuthUser> = {
-      success: true,
-      data: response.data,
-      error: null
-    };
+    // For demo, validate against admin accounts only
+    const user = validateCredentials(credentials.email, credentials.password);
     
-    if (authResponse.success && authResponse.data) {
-      this.setAuthData(authResponse.data);
+    if (user && user.role === 'admin') {
+      // Set the auth data
+      this.setAuthData(user);
+      
+      // Return success response
+      return {
+        success: true,
+        data: user,
+        error: null
+      };
+    } else {
+      // Return error response
+      return {
+        success: false,
+        data: null,
+        error: "Invalid admin credentials"
+      };
     }
-    
-    return authResponse;
   },
   
   // Logout user
   async logout(): Promise<ApiResponse<void>> {
-    // Call logout API
-    const response = await apiClient.post(API_ENDPOINTS.AUTH.LOGOUT, {});
-    
-    // Always clear local auth data regardless of API response
+    // Always clear local auth data
     this.clearAuthData();
     
     return {
@@ -148,6 +166,21 @@ const authService = {
     
     // For demo, always return true to simulate valid token
     return true;
+  },
+  
+  // Check if user has admin access
+  isAdmin(): boolean {
+    const user = this.getCurrentUser();
+    return user?.role === 'admin';
+  },
+  
+  // Check if user has specific permissions
+  hasPermission(permission: string): boolean {
+    const user = this.getCurrentUser();
+    if (!user || user.role !== 'admin') return false;
+    
+    // If user has 'all' permission or the specific requested permission
+    return user.permissions?.includes('all') || user.permissions?.includes(permission) || false;
   },
   
   // Initialize auth state from local storage
