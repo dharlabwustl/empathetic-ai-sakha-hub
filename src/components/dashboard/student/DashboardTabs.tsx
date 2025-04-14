@@ -113,20 +113,8 @@ export default function DashboardTabs({
         animate="visible"
         key={activeTab}
       >
-        <TabsContent value={activeTab} className="focus-visible:outline-none focus-visible:ring-0">
-          {tabContents[activeTab] || (
-            <div className="text-center p-8 sm:p-12">
-              <motion.div
-                initial={{ scale: 0.9, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ duration: 0.3 }}
-              >
-                <p className="text-base sm:text-lg text-gray-500">Coming soon...</p>
-                <p className="text-xs sm:text-sm text-gray-400 mt-2">This feature is under development</p>
-              </motion.div>
-            </div>
-          )}
-        </TabsContent>
+        {/* We don't render TabsContent here anymore to avoid the duplicate rendering */}
+        {/* The tabContents are now handled in DashboardContent.tsx */}
       </motion.div>
     </Tabs>
   );

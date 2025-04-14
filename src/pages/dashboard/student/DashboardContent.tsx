@@ -48,7 +48,7 @@ const DashboardContent = ({
     Boolean(userProfile.loginCount && userProfile.loginCount > 1 && lastActivity)
   );
 
-  // Generate tab contents only once
+  // Generate tab contents once
   const tabContents = generateTabContents({
     userProfile,
     kpis,
@@ -89,7 +89,7 @@ const DashboardContent = ({
         />
       )}
 
-      {/* Tab content */}
+      {/* Tab content - Only show the content, not duplicating tabs */}
       <div className="mt-6 bg-white dark:bg-gray-800 rounded-lg shadow p-4 sm:p-6 flex-grow">
         {tabContents[activeTab] || (
           <div className="text-center py-8">
