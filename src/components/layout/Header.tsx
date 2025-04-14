@@ -53,7 +53,7 @@ const Header = () => {
                 <Button variant="ghost" asChild>
                   <Link to="/login">Login</Link>
                 </Button>
-                <Button variant="primary" asChild>
+                <Button variant="default" asChild>
                   <Link to="/register">Register</Link>
                 </Button>
               </div>
@@ -87,7 +87,7 @@ const Header = () => {
                   <Button variant="ghost" asChild className="justify-start">
                     <Link to="/login">Login</Link>
                   </Button>
-                  <Button variant="primary" asChild className="justify-start">
+                  <Button variant="default" asChild className="justify-start">
                     <Link to="/register">Register</Link>
                   </Button>
                 </>

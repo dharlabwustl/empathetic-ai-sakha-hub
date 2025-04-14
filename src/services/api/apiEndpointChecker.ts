@@ -21,8 +21,8 @@ export const apiEndpointChecker = {
       const response = await apiClient.head(endpoint);
       return {
         exists: true,
-        status: response.status,
-        message: `Endpoint exists and returned status ${response.status}`,
+        status: 200, // Since it was successful
+        message: `Endpoint exists and returned successfully`,
       };
     } catch (error: any) {
       // If we got a 404, the endpoint doesn't exist

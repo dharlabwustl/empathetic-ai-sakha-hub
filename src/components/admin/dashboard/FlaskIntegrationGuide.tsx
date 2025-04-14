@@ -10,7 +10,7 @@ import {
   Download, FileCog, Code, Server, 
   Brain, Database, Network, Puzzle, 
   ListChecks, FileJson, ArrowRight, RefreshCw,
-  Check, Play, BookOpen, ExternalLink, Copy
+  Check, Play, BookOpen, ExternalLink, Copy, MessageSquare
 } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
