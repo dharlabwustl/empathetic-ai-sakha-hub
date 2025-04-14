@@ -8,6 +8,7 @@ import SplashScreen from "@/components/dashboard/student/SplashScreen";
 
 const StudentDashboard = () => {
   const [showSplash, setShowSplash] = useState(true);
+  const [currentMood, setCurrentMood] = useState<'sad' | 'neutral' | 'happy' | 'motivated' | undefined>(undefined);
   
   const {
     loading,
@@ -38,6 +39,16 @@ const StudentDashboard = () => {
   useEffect(() => {
     // Check if the user has seen the splash screen in this session
     const hasSeen = sessionStorage.getItem("hasSeenSplash");
+    
+    // Try to get saved mood from local storage
+    const savedUserData = localStorage.getItem("userData");
+    if (savedUserData) {
+      const parsedData = JSON.parse(savedUserData);
+      if (parsedData.mood) {
+        setCurrentMood(parsedData.mood);
+      }
+    }
+    
     if (hasSeen) {
       setShowSplash(false);
     }
@@ -47,11 +58,22 @@ const StudentDashboard = () => {
     setShowSplash(false);
     // Mark that the user has seen the splash screen in this session
     sessionStorage.setItem("hasSeenSplash", "true");
+    
+    // Save a default optimistic mood if none is set
+    if (!currentMood) {
+      setCurrentMood('motivated');
+      const userData = localStorage.getItem("userData");
+      if (userData) {
+        const parsedData = JSON.parse(userData);
+        parsedData.mood = 'motivated';
+        localStorage.setItem("userData", JSON.stringify(parsedData));
+      }
+    }
   };
 
   // Show splash screen if needed
   if (showSplash) {
-    return <SplashScreen onComplete={handleSplashComplete} />;
+    return <SplashScreen onComplete={handleSplashComplete} mood={currentMood} />;
   }
 
   if (loading || !userProfile) {
@@ -93,6 +115,7 @@ const StudentDashboard = () => {
       onCloseStudyPlan={handleCloseStudyPlan}
       lastActivity={lastActivity}
       suggestedNextAction={suggestedNextAction}
+      currentMood={currentMood}
     />
   );
 };

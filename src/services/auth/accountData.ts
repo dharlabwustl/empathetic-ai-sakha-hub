@@ -28,6 +28,14 @@ export const accountData = {
       password: "content123",
       role: "admin",
       permissions: ["content_management", "content_creation", "content_upload"]
+    },
+    {
+      id: "content_uploader1",
+      name: "Content Uploader",
+      email: "uploader@sakhaai.com",
+      password: "uploader123",
+      role: "admin",
+      permissions: ["content_upload", "content_management"]
     }
   ]
 };
