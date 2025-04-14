@@ -34,13 +34,19 @@ const authService = {
   // Login user
   async login(credentials: LoginCredentials): Promise<ApiResponse<AuthUser>> {
     console.log("Auth service logging in with:", credentials);
-    const response = await apiClient.post<AuthUser>(API_ENDPOINTS.AUTH.LOGIN, credentials);
+    const response = await apiClient.post(API_ENDPOINTS.AUTH.LOGIN, credentials);
     
-    if (response.success && response.data) {
-      this.setAuthData(response.data);
+    const authResponse: ApiResponse<AuthUser> = {
+      success: true,
+      data: response.data,
+      error: null
+    };
+    
+    if (authResponse.success && authResponse.data) {
+      this.setAuthData(authResponse.data);
     }
     
-    return response;
+    return authResponse;
   },
   
   // Register user
@@ -70,24 +76,34 @@ const authService = {
   
   // Admin login
   async adminLogin(credentials: LoginCredentials): Promise<ApiResponse<AuthUser>> {
-    const response = await apiClient.post<AuthUser>(API_ENDPOINTS.AUTH.ADMIN_LOGIN, credentials);
+    const response = await apiClient.post(API_ENDPOINTS.AUTH.ADMIN_LOGIN, credentials);
     
-    if (response.success && response.data) {
-      this.setAuthData(response.data);
+    const authResponse: ApiResponse<AuthUser> = {
+      success: true,
+      data: response.data,
+      error: null
+    };
+    
+    if (authResponse.success && authResponse.data) {
+      this.setAuthData(authResponse.data);
     }
     
-    return response;
+    return authResponse;
   },
   
   // Logout user
   async logout(): Promise<ApiResponse<void>> {
     // Call logout API
-    const response = await apiClient.post<void>(API_ENDPOINTS.AUTH.LOGOUT, {});
+    const response = await apiClient.post(API_ENDPOINTS.AUTH.LOGOUT, {});
     
     // Always clear local auth data regardless of API response
     this.clearAuthData();
     
-    return response;
+    return {
+      success: true,
+      data: null,
+      error: null
+    };
   },
   
   // Set auth data in local storage and configure API client

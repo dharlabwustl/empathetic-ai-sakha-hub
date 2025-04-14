@@ -6,12 +6,21 @@
 // Base API URL - should be configured based on the environment
 export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://api.sakhaai.com/v1';
 
+// API Response interface
+export interface ApiResponse<T> {
+  success: boolean;
+  data: T | null;
+  error: string | null;
+  status?: number;
+}
+
 // API Endpoints configuration
 export const API_ENDPOINTS = {
   // Authentication endpoints
   AUTH: {
     LOGIN: `${API_BASE_URL}/auth/login`,
     REGISTER: `${API_BASE_URL}/auth/register`,
+    ADMIN_LOGIN: `${API_BASE_URL}/auth/admin-login`,
     REFRESH_TOKEN: `${API_BASE_URL}/auth/refresh-token`,
     FORGOT_PASSWORD: `${API_BASE_URL}/auth/forgot-password`,
     RESET_PASSWORD: `${API_BASE_URL}/auth/reset-password`,
@@ -47,6 +56,9 @@ export const API_ENDPOINTS = {
     FLASK_INTEGRATION: `${API_BASE_URL}/admin/flask-integration`,
     API_HEALTH: `${API_BASE_URL}/admin/api-health`,
     ML_MODELS: `${API_BASE_URL}/admin/ml-models`,
+    STUDENTS: `${API_BASE_URL}/admin/students`,
+    SETTINGS: `${API_BASE_URL}/admin/settings`,
+    NOTIFICATIONS: `${API_BASE_URL}/admin/notifications`,
   },
   
   // Content related endpoints
@@ -69,6 +81,11 @@ export const API_ENDPOINTS = {
     PERSONALIZE_CONTENT: `${API_BASE_URL}/ai/personalize-content`,
     MODEL_STATUS: `${API_BASE_URL}/ai/model-status`,
     UPDATE_MODEL: (id: string) => `${API_BASE_URL}/ai/models/${id}`,
+    PERSONALIZE: `${API_BASE_URL}/ai/personalize`,
+    LEARNING_STYLE: `${API_BASE_URL}/ai/learning-style`,
+    DOUBT_RESPONSE: `${API_BASE_URL}/ai/doubt-response`,
+    TUTOR_CHAT: `${API_BASE_URL}/ai/tutor-chat`,
+    MOOD_SUGGESTIONS: `${API_BASE_URL}/ai/mood-suggestions`,
   },
   
   // Miscellaneous endpoints

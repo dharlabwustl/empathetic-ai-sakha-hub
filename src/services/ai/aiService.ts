@@ -7,50 +7,86 @@ const aiService = {
   // Get personalized content recommendations
   async getPersonalizedContent(userId: string, contentType: string, count: number = 5): Promise<ApiResponse<any[]>> {
     const endpoint = `${API_ENDPOINTS.AI.PERSONALIZE}?userId=${userId}&type=${contentType}&count=${count}`;
-    return apiClient.get<any[]>(endpoint);
+    const response = await apiClient.get(endpoint);
+    
+    return {
+      success: true,
+      data: response.data,
+      error: null
+    };
   },
   
   // Detect learning style
   async detectLearningStyle(userId: string, interactionData: any): Promise<ApiResponse<any>> {
-    return apiClient.post<any>(`${API_ENDPOINTS.AI.LEARNING_STYLE}`, {
+    const response = await apiClient.post(API_ENDPOINTS.AI.LEARNING_STYLE, {
       userId,
       interactionData
     });
+    
+    return {
+      success: true,
+      data: response.data,
+      error: null
+    };
   },
   
   // Generate study plan based on user data
   async generateStudyPlan(userId: string, preferences: any): Promise<ApiResponse<any>> {
-    return apiClient.post<any>(`${API_ENDPOINTS.AI.GENERATE_PLAN}`, {
+    const response = await apiClient.post(API_ENDPOINTS.AI.GENERATE_PLAN, {
       userId,
       preferences
     });
+    
+    return {
+      success: true,
+      data: response.data,
+      error: null
+    };
   },
   
   // Get response to student doubt
   async getDoubtResponse(userId: string, question: string, subject: string, topic: string): Promise<ApiResponse<any>> {
-    return apiClient.post<any>(`${API_ENDPOINTS.AI.DOUBT_RESPONSE}`, {
+    const response = await apiClient.post(API_ENDPOINTS.AI.DOUBT_RESPONSE, {
       userId,
       question,
       subject,
       topic
     });
+    
+    return {
+      success: true,
+      data: response.data,
+      error: null
+    };
   },
   
   // Send message to AI tutor
   async sendTutorChatMessage(userId: string, message: string, context?: any): Promise<ApiResponse<any>> {
-    return apiClient.post<any>(`${API_ENDPOINTS.AI.TUTOR_CHAT}`, {
+    const response = await apiClient.post(API_ENDPOINTS.AI.TUTOR_CHAT, {
       userId,
       message,
       context
     });
+    
+    return {
+      success: true,
+      data: response.data,
+      error: null
+    };
   },
   
   // Get mood-based content suggestions
   async getMoodSuggestions(userId: string, mood: number): Promise<ApiResponse<any>> {
-    return apiClient.post<any>(`${API_ENDPOINTS.AI.MOOD_SUGGESTIONS}`, {
+    const response = await apiClient.post(API_ENDPOINTS.AI.MOOD_SUGGESTIONS, {
       userId,
       mood
     });
+    
+    return {
+      success: true,
+      data: response.data,
+      error: null
+    };
   }
 };
 

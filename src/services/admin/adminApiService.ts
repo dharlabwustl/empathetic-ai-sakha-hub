@@ -15,7 +15,12 @@ import {
 const adminApiService = {
   // Get dashboard stats
   async getDashboardStats(): Promise<ApiResponse<AdminDashboardStats>> {
-    return apiClient.get<AdminDashboardStats>(API_ENDPOINTS.ADMIN.DASHBOARD);
+    const response = await apiClient.get(API_ENDPOINTS.ADMIN.DASHBOARD);
+    return {
+      success: true,
+      data: response.data,
+      error: null
+    };
   },
   
   // Get students with pagination
@@ -31,92 +36,177 @@ const adminApiService = {
       });
     }
     
-    return apiClient.get<{data: StudentData[], total: number}>(endpoint);
+    const response = await apiClient.get(endpoint);
+    return {
+      success: true,
+      data: response.data,
+      error: null
+    };
   },
   
   // Get specific student
   async getStudent(id: string): Promise<ApiResponse<StudentData>> {
-    return apiClient.get<StudentData>(`${API_ENDPOINTS.ADMIN.STUDENTS}/${id}`);
+    const response = await apiClient.get(`${API_ENDPOINTS.ADMIN.STUDENTS}/${id}`);
+    return {
+      success: true,
+      data: response.data,
+      error: null
+    };
   },
   
   // Get content items with type filter and pagination
   async getContent(type: string = '', page: number = 1, limit: number = 10): Promise<ApiResponse<{data: ContentItem[], total: number}>> {
     const endpoint = `${API_ENDPOINTS.ADMIN.CONTENT}?type=${type}&page=${page}&limit=${limit}`;
-    return apiClient.get<{data: ContentItem[], total: number}>(endpoint);
+    const response = await apiClient.get(endpoint);
+    return {
+      success: true,
+      data: response.data,
+      error: null
+    };
   },
   
   // Approve content item
   async approveContent(contentId: string): Promise<ApiResponse<ContentItem>> {
-    return apiClient.post<ContentItem>(`${API_ENDPOINTS.ADMIN.CONTENT}/${contentId}/approve`, {});
+    const response = await apiClient.post(`${API_ENDPOINTS.ADMIN.CONTENT}/${contentId}/approve`, {});
+    return {
+      success: true,
+      data: response.data,
+      error: null
+    };
   },
   
   // Get system logs with level filter and pagination
   async getSystemLogs(level: string = '', page: number = 1, limit: number = 10): Promise<ApiResponse<{data: SystemLog[], total: number}>> {
     const endpoint = `${API_ENDPOINTS.ADMIN.SYSTEM_LOGS}?level=${level}&page=${page}&limit=${limit}`;
-    return apiClient.get<{data: SystemLog[], total: number}>(endpoint);
+    const response = await apiClient.get(endpoint);
+    return {
+      success: true,
+      data: response.data,
+      error: null
+    };
   },
   
   // Get admin settings
   async getSettings(): Promise<ApiResponse<AdminSettings>> {
-    return apiClient.get<AdminSettings>(API_ENDPOINTS.ADMIN.SETTINGS);
+    const response = await apiClient.get(API_ENDPOINTS.ADMIN.SETTINGS);
+    return {
+      success: true,
+      data: response.data,
+      error: null
+    };
   },
   
   // Update admin settings
   async updateSettings(settings: Partial<AdminSettings>): Promise<ApiResponse<AdminSettings>> {
-    return apiClient.put<AdminSettings>(API_ENDPOINTS.ADMIN.SETTINGS, settings);
+    const response = await apiClient.put(API_ENDPOINTS.ADMIN.SETTINGS, settings);
+    return {
+      success: true,
+      data: response.data,
+      error: null
+    };
   },
   
   // Get notification templates
   async getNotificationTemplates(): Promise<ApiResponse<NotificationTemplate[]>> {
-    return apiClient.get<NotificationTemplate[]>(`${API_ENDPOINTS.ADMIN.NOTIFICATIONS}/templates`);
+    const response = await apiClient.get(`${API_ENDPOINTS.ADMIN.NOTIFICATIONS}/templates`);
+    return {
+      success: true,
+      data: response.data,
+      error: null
+    };
   },
   
   // Create notification template
   async createNotificationTemplate(template: Partial<NotificationTemplate>): Promise<ApiResponse<NotificationTemplate>> {
-    return apiClient.post<NotificationTemplate>(`${API_ENDPOINTS.ADMIN.NOTIFICATIONS}/templates`, template);
+    const response = await apiClient.post(`${API_ENDPOINTS.ADMIN.NOTIFICATIONS}/templates`, template);
+    return {
+      success: true,
+      data: response.data,
+      error: null
+    };
   },
   
   // Update notification template
   async updateNotificationTemplate(id: string, template: Partial<NotificationTemplate>): Promise<ApiResponse<NotificationTemplate>> {
-    return apiClient.put<NotificationTemplate>(`${API_ENDPOINTS.ADMIN.NOTIFICATIONS}/templates/${id}`, template);
+    const response = await apiClient.put(`${API_ENDPOINTS.ADMIN.NOTIFICATIONS}/templates/${id}`, template);
+    return {
+      success: true,
+      data: response.data,
+      error: null
+    };
   },
   
   // Send test notification
   async sendTestNotification(templateId: string, userId: string): Promise<ApiResponse<boolean>> {
-    return apiClient.post<boolean>(`${API_ENDPOINTS.ADMIN.NOTIFICATIONS}/test`, { templateId, userId });
+    const response = await apiClient.post(`${API_ENDPOINTS.ADMIN.NOTIFICATIONS}/test`, { templateId, userId });
+    return {
+      success: true,
+      data: response.data,
+      error: null
+    };
   },
   
   // Get feel-good content
   async getFeelGoodContent(page: number = 1, limit: number = 10): Promise<ApiResponse<{data: FeelGoodContent[], total: number}>> {
     const endpoint = `${API_ENDPOINTS.ADMIN.CONTENT}/feel-good?page=${page}&limit=${limit}`;
-    return apiClient.get<{data: FeelGoodContent[], total: number}>(endpoint);
+    const response = await apiClient.get(endpoint);
+    return {
+      success: true,
+      data: response.data,
+      error: null
+    };
   },
   
   // Create feel-good content
   async createFeelGoodContent(content: Partial<FeelGoodContent>): Promise<ApiResponse<FeelGoodContent>> {
-    return apiClient.post<FeelGoodContent>(`${API_ENDPOINTS.ADMIN.CONTENT}/feel-good`, content);
+    const response = await apiClient.post(`${API_ENDPOINTS.ADMIN.CONTENT}/feel-good`, content);
+    return {
+      success: true,
+      data: response.data,
+      error: null
+    };
   },
   
   // AI Personalization settings
   
   // Get learning style settings
   async getLearningStyleSettings(): Promise<ApiResponse<any>> {
-    return apiClient.get<any>(`${API_ENDPOINTS.ADMIN.SETTINGS}/ai/learning-styles`);
+    const response = await apiClient.get(`${API_ENDPOINTS.ADMIN.SETTINGS}/ai/learning-styles`);
+    return {
+      success: true,
+      data: response.data,
+      error: null
+    };
   },
   
   // Update learning style settings
   async updateLearningStyleSettings(settings: any): Promise<ApiResponse<any>> {
-    return apiClient.put<any>(`${API_ENDPOINTS.ADMIN.SETTINGS}/ai/learning-styles`, settings);
+    const response = await apiClient.put(`${API_ENDPOINTS.ADMIN.SETTINGS}/ai/learning-styles`, settings);
+    return {
+      success: true,
+      data: response.data,
+      error: null
+    };
   },
   
   // Update doubt responder settings
   async updateDoubtResponderSettings(settings: any): Promise<ApiResponse<any>> {
-    return apiClient.put<any>(`${API_ENDPOINTS.ADMIN.SETTINGS}/ai/doubt-responder`, settings);
+    const response = await apiClient.put(`${API_ENDPOINTS.ADMIN.SETTINGS}/ai/doubt-responder`, settings);
+    return {
+      success: true,
+      data: response.data,
+      error: null
+    };
   },
   
   // Update mood engine settings
   async updateMoodEngineSettings(settings: any): Promise<ApiResponse<any>> {
-    return apiClient.put<any>(`${API_ENDPOINTS.ADMIN.SETTINGS}/ai/mood-engine`, settings);
+    const response = await apiClient.put(`${API_ENDPOINTS.ADMIN.SETTINGS}/ai/mood-engine`, settings);
+    return {
+      success: true,
+      data: response.data,
+      error: null
+    };
   },
 };
 

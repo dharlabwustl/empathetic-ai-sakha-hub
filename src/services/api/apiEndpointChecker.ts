@@ -1,6 +1,6 @@
 
 import apiClient from './apiClient';
-import { API_ENDPOINTS } from './apiConfig';
+import { API_ENDPOINTS, ApiResponse } from './apiConfig';
 
 /**
  * API Endpoint Checker - Used to verify API endpoints are correctly configured

@@ -13,57 +13,112 @@ import {
 const studentService = {
   // Get student profile
   async getProfile(studentId: string): Promise<ApiResponse<StudentProfile>> {
-    return apiClient.get<StudentProfile>(API_ENDPOINTS.STUDENTS.PROFILE(studentId));
+    const response = await apiClient.get(API_ENDPOINTS.STUDENTS.PROFILE(studentId));
+    return {
+      success: true,
+      data: response.data,
+      error: null
+    };
   },
   
   // Update student profile
   async updateProfile(studentId: string, profileData: Partial<StudentProfile>): Promise<ApiResponse<StudentProfile>> {
-    return apiClient.patch<StudentProfile>(API_ENDPOINTS.STUDENTS.PROFILE(studentId), profileData);
+    const response = await apiClient.patch(API_ENDPOINTS.STUDENTS.PROFILE(studentId), profileData);
+    return {
+      success: true,
+      data: response.data,
+      error: null
+    };
   },
   
   // Get student goals
   async getGoals(studentId: string): Promise<ApiResponse<StudentGoal[]>> {
-    return apiClient.get<StudentGoal[]>(API_ENDPOINTS.STUDENTS.GOALS(studentId));
+    const response = await apiClient.get(API_ENDPOINTS.STUDENTS.GOALS(studentId));
+    return {
+      success: true,
+      data: response.data,
+      error: null
+    };
   },
   
   // Create student goal
   async createGoal(studentId: string, goalData: Partial<StudentGoal>): Promise<ApiResponse<StudentGoal>> {
-    return apiClient.post<StudentGoal>(API_ENDPOINTS.STUDENTS.GOALS(studentId), goalData);
+    const response = await apiClient.post(API_ENDPOINTS.STUDENTS.GOALS(studentId), goalData);
+    return {
+      success: true,
+      data: response.data,
+      error: null
+    };
   },
   
   // Update student goal
   async updateGoal(studentId: string, goalId: string, goalData: Partial<StudentGoal>): Promise<ApiResponse<StudentGoal>> {
-    return apiClient.patch<StudentGoal>(`${API_ENDPOINTS.STUDENTS.GOALS(studentId)}/${goalId}`, goalData);
+    const response = await apiClient.patch(`${API_ENDPOINTS.STUDENTS.GOALS(studentId)}/${goalId}`, goalData);
+    return {
+      success: true,
+      data: response.data,
+      error: null
+    };
   },
   
   // Get onboarding data
   async getOnboardingData(studentId: string): Promise<ApiResponse<OnboardingData>> {
-    return apiClient.get<OnboardingData>(API_ENDPOINTS.STUDENTS.ONBOARDING(studentId));
+    const response = await apiClient.get(API_ENDPOINTS.STUDENTS.ONBOARDING(studentId));
+    return {
+      success: true,
+      data: response.data,
+      error: null
+    };
   },
   
   // Save onboarding data
   async saveOnboardingData(studentId: string, onboardingData: Partial<OnboardingData>): Promise<ApiResponse<OnboardingData>> {
-    return apiClient.post<OnboardingData>(API_ENDPOINTS.STUDENTS.ONBOARDING(studentId), onboardingData);
+    const response = await apiClient.post(API_ENDPOINTS.STUDENTS.ONBOARDING(studentId), onboardingData);
+    return {
+      success: true,
+      data: response.data,
+      error: null
+    };
   },
   
   // Get study plan
   async getStudyPlan(studentId: string): Promise<ApiResponse<StudyPlan>> {
-    return apiClient.get<StudyPlan>(API_ENDPOINTS.STUDENTS.STUDY_PLAN(studentId));
+    const response = await apiClient.get(API_ENDPOINTS.STUDENTS.STUDY_PLAN(studentId));
+    return {
+      success: true,
+      data: response.data,
+      error: null
+    };
   },
   
   // Generate new study plan
   async generateStudyPlan(studentId: string, preferences: Record<string, any>): Promise<ApiResponse<StudyPlan>> {
-    return apiClient.post<StudyPlan>(API_ENDPOINTS.STUDENTS.STUDY_PLAN(studentId), preferences);
+    const response = await apiClient.post(API_ENDPOINTS.STUDENTS.STUDY_PLAN(studentId), preferences);
+    return {
+      success: true,
+      data: response.data,
+      error: null
+    };
   },
   
   // Update study plan
   async updateStudyPlan(studentId: string, planId: string, planData: Partial<StudyPlan>): Promise<ApiResponse<StudyPlan>> {
-    return apiClient.patch<StudyPlan>(`${API_ENDPOINTS.STUDENTS.STUDY_PLAN(studentId)}/${planId}`, planData);
+    const response = await apiClient.patch(`${API_ENDPOINTS.STUDENTS.STUDY_PLAN(studentId)}/${planId}`, planData);
+    return {
+      success: true,
+      data: response.data,
+      error: null
+    };
   },
   
   // Record mood log
   async recordMood(studentId: string, moodData: Partial<MoodLog>): Promise<ApiResponse<MoodLog>> {
-    return apiClient.post<MoodLog>(API_ENDPOINTS.STUDENTS.MOOD_LOGS(studentId), moodData);
+    const response = await apiClient.post(API_ENDPOINTS.STUDENTS.MOOD_LOGS(studentId), moodData);
+    return {
+      success: true,
+      data: response.data,
+      error: null
+    };
   },
   
   // Get mood logs
@@ -76,16 +131,27 @@ const studentService = {
       endpoint += `?start=${startDate}&end=${endDate}`;
     }
     
-    return apiClient.get<MoodLog[]>(endpoint);
+    const response = await apiClient.get(endpoint);
+    return {
+      success: true,
+      data: response.data,
+      error: null
+    };
   },
   
   // Submit doubt/question
   async submitDoubt(studentId: string, question: string, subject: string, topic: string): Promise<ApiResponse<any>> {
-    return apiClient.post(API_ENDPOINTS.STUDENTS.DOUBTS(studentId), {
+    const response = await apiClient.post(API_ENDPOINTS.STUDENTS.DOUBTS(studentId), {
       question,
       subject,
       topic
     });
+    
+    return {
+      success: true,
+      data: response.data,
+      error: null
+    };
   }
 };
 

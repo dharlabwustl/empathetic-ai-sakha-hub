@@ -45,4 +45,14 @@ apiClient.interceptors.response.use(response => {
   return Promise.reject(error);
 });
 
-export default apiClient;
+// Add method to set auth token
+const setAuthToken = (token: string | null) => {
+  if (token) {
+    apiClient.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+  } else {
+    delete apiClient.defaults.headers.common['Authorization'];
+  }
+};
+
+// Export the apiClient with the setAuthToken method
+export default { ...apiClient, setAuthToken };
