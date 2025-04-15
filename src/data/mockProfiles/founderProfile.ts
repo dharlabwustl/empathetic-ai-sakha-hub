@@ -1,6 +1,6 @@
 
-import { UserRole } from '@/types/user/base';
-import { FounderProfile } from '@/types/user';
+import { UserRole, GoalType, SubscriptionType } from '@/types/user/base';
+import { FounderProfile } from '@/types/user/professional';
 
 export const mockFounderProfile: FounderProfile = {
   id: "4",
@@ -9,7 +9,7 @@ export const mockFounderProfile: FounderProfile = {
   email: "vikram@startup.com",
   role: "founder" as UserRole,
   personalityType: "Creative Explorer",
-  subscription: "Enterprise",
+  subscription: "Enterprise" as SubscriptionType,
   joinDate: "2024-11-25",
   createdAt: "2024-11-25",
   lastActive: "2025-05-12",
@@ -24,7 +24,7 @@ export const mockFounderProfile: FounderProfile = {
       title: "Secure Series A Funding",
       description: "Prepare pitch deck and investor meetings",
       progress: 70,
-      type: "other",
+      type: "other" as GoalType,
       dueDate: "2025-08-15"
     },
     {
@@ -32,7 +32,7 @@ export const mockFounderProfile: FounderProfile = {
       title: "Launch Product Beta",
       description: "Complete MVP and prepare beta launch",
       progress: 85,
-      type: "other",
+      type: "other" as GoalType,
       dueDate: "2025-06-01"
     }
   ],

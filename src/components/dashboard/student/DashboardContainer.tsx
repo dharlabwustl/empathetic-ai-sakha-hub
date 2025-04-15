@@ -2,12 +2,11 @@
 import React from 'react';
 import { UserProfileType } from "@/types/user";
 import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
-import ChatAssistant from "@/components/dashboard/ChatAssistant";
-import SidebarNav from "@/components/dashboard/SidebarNav";
-import StudyPlanDialog from "@/pages/dashboard/student/StudyPlanDialog";
-import DashboardWrapper from '@/components/dashboard/student/DashboardWrapper';
+import { motion } from "framer-motion";
+import { generateTabContents } from './TabContentManager';
+import MotivationCard from './MotivationCard';
 
-interface DashboardContainerProps {
+export interface DashboardContainerProps {
   userProfile: UserProfileType;
   hideSidebar: boolean;
   hideTabsNav: boolean;
@@ -15,16 +14,22 @@ interface DashboardContainerProps {
   kpis: KpiData[];
   nudges: NudgeData[];
   markNudgeAsRead: (id: string) => void;
-  features: any[];
+  features: {
+    icon: React.ReactNode;
+    title: string;
+    description: string;
+    path: string;
+    isPremium: boolean;
+  }[];
   showWelcomeTour: boolean;
   currentTime: Date;
-  showStudyPlan: boolean;
   onTabChange: (tab: string) => void;
   onViewStudyPlan: () => void;
   onToggleSidebar: () => void;
   onToggleTabsNav: () => void;
   onSkipTour: () => void;
   onCompleteTour: () => void;
+  showStudyPlan: boolean;
   onCloseStudyPlan: () => void;
   lastActivity?: { type: string; description: string } | null;
   suggestedNextAction?: string | null;
@@ -42,55 +47,58 @@ const DashboardContainer: React.FC<DashboardContainerProps> = ({
   features,
   showWelcomeTour,
   currentTime,
-  showStudyPlan,
   onTabChange,
   onViewStudyPlan,
   onToggleSidebar,
   onToggleTabsNav,
   onSkipTour,
   onCompleteTour,
+  showStudyPlan,
   onCloseStudyPlan,
   lastActivity,
   suggestedNextAction,
   currentMood
 }) => {
+  // Create tab content
+  const tabContents = generateTabContents({
+    userProfile,
+    kpis,
+    nudges,
+    markNudgeAsRead,
+    features,
+    showWelcomeTour,
+    handleSkipTour: onSkipTour,
+    handleCompleteTour: onCompleteTour,
+    lastActivity,
+    suggestedNextAction
+  });
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-sky-100/10 via-white to-violet-100/10 dark:from-sky-900/10 dark:via-gray-900 dark:to-violet-900/10">
-      {/* Main sidebar navigation */}
-      <SidebarNav userType="student" userName={userProfile.name} />
-      
-      {/* Main dashboard content */}
-      <DashboardWrapper 
-        userProfile={userProfile}
-        hideSidebar={hideSidebar}
-        hideTabsNav={hideTabsNav}
-        activeTab={activeTab}
-        kpis={kpis}
-        nudges={nudges}
-        markNudgeAsRead={markNudgeAsRead}
-        features={features}
-        showWelcomeTour={showWelcomeTour}
-        currentTime={currentTime}
-        onTabChange={onTabChange}
-        onViewStudyPlan={onViewStudyPlan}
-        onToggleSidebar={onToggleSidebar}
-        onToggleTabsNav={onToggleTabsNav}
-        onSkipTour={onSkipTour}
-        onCompleteTour={onCompleteTour}
-        lastActivity={lastActivity}
-        suggestedNextAction={suggestedNextAction}
-      />
-      
-      {/* Chat assistant */}
-      <ChatAssistant userType="student" />
-      
-      {/* Study Plan Dialog */}
-      {showStudyPlan && (
-        <StudyPlanDialog 
-          userProfile={userProfile} 
-          onClose={onCloseStudyPlan} 
-        />
-      )}
+    <div className="flex flex-col">
+      {/* Main content */}
+      <div className="p-4 md:p-6">
+        {/* Content for selected tab */}
+        <div className="space-y-6">
+          {/* Mood card if mood is set */}
+          {currentMood && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+            >
+              <MotivationCard currentMood={currentMood} />
+            </motion.div>
+          )}
+
+          {/* Tab content */}
+          {tabContents[activeTab] || (
+            <div className="text-center py-10">
+              <h3 className="text-lg font-medium">Tab content not found</h3>
+              <p className="text-muted-foreground">The selected tab does not exist or is under construction.</p>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 };

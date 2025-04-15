@@ -1,6 +1,6 @@
 
-import { UserRole } from '@/types/user/base';
-import { EmployeeProfile } from '@/types/user';
+import { UserRole, GoalType, SubscriptionType } from '@/types/user/base';
+import { EmployeeProfile } from '@/types/user/professional';
 
 export const mockEmployeeProfile: EmployeeProfile = {
   id: "2",
@@ -9,7 +9,7 @@ export const mockEmployeeProfile: EmployeeProfile = {
   email: "ananya.patel@company.com",
   role: "employee" as UserRole,
   personalityType: "Collaborative Leader",
-  subscription: "Basic",
+  subscription: "Basic" as SubscriptionType,
   joinDate: "2025-02-15",
   createdAt: "2025-02-15",
   lastActive: "2025-05-10",
@@ -24,7 +24,7 @@ export const mockEmployeeProfile: EmployeeProfile = {
       title: "Complete PMP Certification",
       description: "Study for project management professional exam",
       progress: 60,
-      type: "course",
+      type: "course" as GoalType,
       dueDate: "2025-07-30"
     },
     {
@@ -32,7 +32,7 @@ export const mockEmployeeProfile: EmployeeProfile = {
       title: "Learn Data Visualization",
       description: "Master Tableau for business intelligence",
       progress: 35,
-      type: "skill",
+      type: "skill" as GoalType,
       dueDate: "2025-06-15"
     }
   ],

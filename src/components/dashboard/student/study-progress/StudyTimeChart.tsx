@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { SubjectProgress, StudyStreak } from "@/types/user";
+import { SubjectProgress, StudyStreak } from "@/types/user/student";
 import { BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Bar, ResponsiveContainer } from 'recharts';
 
 interface StudyTimeChartProps {

@@ -10,6 +10,7 @@ import { ReactNode } from "react";
 import { motion } from "framer-motion";
 import { AlertCircle, BookOpen, Coffee } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { SubscriptionType } from "@/types/user/base";
 
 interface DashboardOverviewProps {
   userProfile: UserProfileType;
@@ -162,7 +163,7 @@ export default function DashboardOverview({
               icon={feature.icon}
               path={feature.path}
               isPremium={feature.isPremium}
-              userSubscription={userProfile.subscription || 'Basic'}
+              userSubscription={userProfile.subscription as SubscriptionType}
             />
           </motion.div>
         ))}

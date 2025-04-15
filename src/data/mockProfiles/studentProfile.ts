@@ -1,14 +1,15 @@
 
-import { UserRole, MoodType } from '@/types/user';
+import { UserRole, GoalType, SubscriptionType, MoodType } from '@/types/user/base';
+import { StudentProfile } from '@/types/user/student';
 
-export const mockStudentProfile = {
+export const mockStudentProfile: StudentProfile = {
   id: "1",
   name: "Rahul Singh",
   phoneNumber: "9876543210",
   email: "rahul.singh@example.com",
   role: "student" as UserRole,
   personalityType: "Strategic Thinker",
-  subscription: "Basic",
+  subscription: "Basic" as SubscriptionType,
   joinDate: "2025-03-01",
   createdAt: "2025-03-01",
   lastActive: "2025-05-12",
@@ -23,17 +24,17 @@ export const mockStudentProfile = {
       title: "Complete Physics Syllabus",
       description: "Finish all chapters in NCERT Physics",
       progress: 75,
-      type: "course",
-      dueDate: "2025-05-30",
+      type: "course" as GoalType,
+      dueDate: "2025-05-30"
     },
     {
       id: "g2",
       title: "Score 90% in Math Test",
       description: "Practice integration problems",
       progress: 60,
-      type: "exam",
-      dueDate: "2025-05-15",
-    },
+      type: "exam" as GoalType,
+      dueDate: "2025-05-15"
+    }
   ],
   educationLevel: "11th Grade",
   subjects: [

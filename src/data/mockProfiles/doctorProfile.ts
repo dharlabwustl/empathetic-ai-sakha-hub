@@ -1,6 +1,6 @@
 
-import { UserRole } from '@/types/user/base';
-import { DoctorProfile } from '@/types/user';
+import { UserRole, GoalType, SubscriptionType } from '@/types/user/base';
+import { DoctorProfile } from '@/types/user/professional';
 
 export const mockDoctorProfile: DoctorProfile = {
   id: "3",
@@ -9,7 +9,7 @@ export const mockDoctorProfile: DoctorProfile = {
   email: "priya.sharma@hospital.com",
   role: "doctor" as UserRole,
   personalityType: "Analytical Problem Solver",
-  subscription: "Premium",
+  subscription: "Premium" as SubscriptionType,
   joinDate: "2025-01-15",
   createdAt: "2025-01-15",
   lastActive: "2025-05-11",
@@ -24,7 +24,7 @@ export const mockDoctorProfile: DoctorProfile = {
       title: "Complete Research Paper",
       description: "Finish cardiovascular research paper",
       progress: 85,
-      type: "skill",
+      type: "skill" as GoalType,
       dueDate: "2025-06-15"
     },
     {
@@ -32,7 +32,7 @@ export const mockDoctorProfile: DoctorProfile = {
       title: "Prepare for Medical Conference",
       description: "Create presentation for international conference",
       progress: 40,
-      type: "other",
+      type: "other" as GoalType,
       dueDate: "2025-07-10"
     }
   ],

@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { SubjectProgress, StudyStreak } from "@/types/user";
+import { SubjectProgress, StudyStreak } from "@/types/user/student";
 
 interface PerformanceTabsProps {
   subjectsProgress: SubjectProgress[];

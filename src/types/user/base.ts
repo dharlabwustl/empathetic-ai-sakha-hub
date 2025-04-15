@@ -1,3 +1,4 @@
+
 // Base user types
 
 export type UserRole = 'student' | 'employee' | 'doctor' | 'founder' | 'admin' | 'content_creator' | 'teacher' | 'parent';
@@ -14,6 +15,8 @@ export type MoodType =
   | 'motivated'
   | 'curious'
   | 'stressed';
+
+export type GoalType = 'exam' | 'course' | 'skill' | 'other';
 
 export interface BaseUserProfile {
   id: string;
@@ -40,7 +43,7 @@ export type UserProfileType = BaseUserProfile & {
     title: string;
     targetDate?: string;
     progress: number;
-    type?: string;
+    type: GoalType;
     description?: string;
     dueDate?: string; // Adding dueDate explicitly
   }>;

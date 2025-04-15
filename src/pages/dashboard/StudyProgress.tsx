@@ -2,15 +2,15 @@
 import React from 'react';
 import { useStudyProgress } from "@/hooks/useStudyProgress";
 import { useUserProfile } from "@/hooks/useUserProfile";
-import { StudyProgressHeader } from "@/components/dashboard/student/study-progress/StudyProgressHeader";
+import StudyProgressHeader from "@/components/dashboard/student/study-progress/StudyProgressHeader";
 import { ProgressStatCards } from "@/components/dashboard/student/study-progress/ProgressStatCards";
 import { WeeklyProgressChart } from "@/components/dashboard/student/study-progress/WeeklyProgressChart";
 import { StudyStreakCard } from "@/components/dashboard/student/study-progress/StudyStreakCard";
-import { PerformanceTabs } from "@/components/dashboard/student/study-progress/PerformanceTabs";
+import PerformanceTabs from "@/components/dashboard/student/study-progress/PerformanceTabs";
 
 const StudyProgress = () => {
   const { subjects, studyStreak, loading, selectedSubject, selectSubject } = useStudyProgress();
-  const { userProfile } = useUserProfile("Student");
+  const { userProfile } = useUserProfile("student");
   
   // Check if userProfile isn't null before accessing examPreparation
   const examGoal = userProfile?.examPreparation || "General Study";
@@ -39,10 +39,8 @@ const StudyProgress = () => {
       </div>
       
       <PerformanceTabs
-        subjects={subjects}
-        selectedSubject={selectedSubject}
-        selectSubject={selectSubject}
-        studyStreak={studyStreak}
+        subjectsProgress={subjects}
+        streak={studyStreak}
       />
     </div>
   );

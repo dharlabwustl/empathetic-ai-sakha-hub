@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { getMockProgressData } from "@/data/mockProgressData";
-import { SubjectProgress, StudyStreak } from "@/types/user";
+import { SubjectProgress, StudyStreak } from "@/types/user/student";
 
 // Update the hook to match the expected return structure
 export function useStudyProgress() {
@@ -43,6 +43,8 @@ export function useStudyProgress() {
   };
 
   return {
+    subjects: subjectsProgress, // Alias for compatibility
+    studyStreak: streak, // Alias for compatibility
     subjectsProgress,
     streak,
     loading,
