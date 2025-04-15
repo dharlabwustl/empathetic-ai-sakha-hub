@@ -1,10 +1,10 @@
 
 // Base user types
 
-export type UserRole = "Student" | "Professor" | "Employee" | "Doctor" | "Founder";
+export type UserRole = "Student" | "Professor" | "Employee" | "Doctor" | "Founder" | "admin" | "content_creator" | "teacher" | "parent" | "student"; 
 export type SubscriptionType = "Free" | "Basic" | "Premium" | "Enterprise";
 export type PersonalityType = "Strategic Thinker" | "Creative Explorer" | "Detailed Analyzer" | "Collaborative Leader" | "Practical Implementer" | "Analytical Problem Solver" | "Creative Builder";
-export type MoodType = "Happy" | "Okay" | "Tired" | "Overwhelmed" | "Focused";
+export type MoodType = "Happy" | "Okay" | "Tired" | "Overwhelmed" | "Focused" | "sad" | "neutral" | "happy" | "motivated" | "curious" | "stressed";
 
 export interface BaseUserProfile {
   id: string;
@@ -16,7 +16,6 @@ export interface BaseUserProfile {
   bio?: string;
   loginCount?: number;
   completedOnboarding?: boolean;
-  // Added missing properties
   subscription: SubscriptionType;
   joinDate: string;
   personalityType: PersonalityType;
@@ -32,7 +31,7 @@ export type UserProfileType = BaseUserProfile & {
     targetDate?: Date;
     progress: number;
     type?: string;
-    description?: string; // Added this to fix description-related errors
+    description?: string;
     dueDate?: string;
   }>;
   subjects?: Array<{
@@ -62,6 +61,15 @@ export type UserProfileType = BaseUserProfile & {
     totalStudyHours?: number;
     quizzesCompleted?: number;
   };
-  // Added for compatibility with StudentProfile
   examPreparation?: string;
+  moodHistory?: MoodEntry[];
+  profileImage?: string;
+  school?: string;
+  grade?: string;
 };
+
+export interface MoodEntry {
+  mood: MoodType;
+  timestamp: string;
+  note?: string;
+}

@@ -3,222 +3,260 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Search, FolderOpen, Filter } from "lucide-react";
-import {
-  ContentBrowserProps,
-  EmptyStateProps,
-  FilesTableProps,
-  FileRowProps,
-  ContentItem
-} from "@/types/content";
-import { Badge } from "@/components/ui/badge";
-import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { FileText, Search, Filter } from "lucide-react";
+import { ContentType, ContentItem, ContentBrowserProps } from "@/types/content";
+import { EmptyState } from "./EmptyState";
+import { FilesTable } from "./FilesTable";
 
-// Empty state component for when no files are found
-const EmptyState = ({ message, icon, actionLabel, onAction }: EmptyStateProps) => (
-  <div className="flex flex-col items-center justify-center p-12 text-center">
-    <div className="h-12 w-12 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-4">
-      {icon || <FolderOpen className="h-6 w-6 text-gray-400" />}
-    </div>
-    <h3 className="mb-2 text-xl font-medium">{message || "No files found"}</h3>
-    <p className="mb-6 text-sm text-gray-500 dark:text-gray-400">
-      Upload or create content to get started
-    </p>
-    {actionLabel && onAction && (
-      <Button onClick={onAction}>{actionLabel}</Button>
-    )}
-  </div>
-);
-
-// File row component
-const FileRow = ({ 
-  file, 
-  isSelected, 
-  onSelect, 
-  onDelete, 
-  onEdit 
-}: FileRowProps) => (
-  <TableRow className={isSelected ? "bg-blue-50 dark:bg-blue-900/20" : ""}>
-    <TableCell>
-      <Checkbox
-        checked={isSelected}
-        onCheckedChange={() => onSelect(file)}
-      />
-    </TableCell>
-    <TableCell className="font-medium">{file.title}</TableCell>
-    <TableCell>
-      <Badge variant="outline" className="capitalize">
-        {file.type.replace("_", " ")}
-      </Badge>
-    </TableCell>
-    <TableCell>{file.subject}</TableCell>
-    <TableCell>{file.examGoal}</TableCell>
-    <TableCell className="text-gray-500 text-sm">
-      {new Date(file.updatedAt).toLocaleDateString()}
-    </TableCell>
-    <TableCell>
-      <div className="flex items-center gap-2">
-        {onEdit && (
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-8"
-            onClick={() => onEdit(file)}
-          >
-            Edit
-          </Button>
-        )}
-        {onDelete && (
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-8 text-red-600 hover:text-red-700 hover:bg-red-100"
-            onClick={() => onDelete(file)}
-          >
-            Delete
-          </Button>
-        )}
-      </div>
-    </TableCell>
-  </TableRow>
-);
-
-// Files table component
-const FilesTable = ({ 
-  files, 
-  onSelect, 
-  onDelete, 
-  onEdit, 
-  selectedFile 
-}: FilesTableProps) => (
-  <div className="rounded-md border overflow-hidden">
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead className="w-12"></TableHead>
-          <TableHead>Title</TableHead>
-          <TableHead>Type</TableHead>
-          <TableHead>Subject</TableHead>
-          <TableHead>Exam Goal</TableHead>
-          <TableHead>Updated</TableHead>
-          <TableHead>Actions</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {files.map((file) => (
-          <FileRow
-            key={file.id}
-            file={file}
-            isSelected={selectedFile?.id === file.id}
-            onSelect={onSelect}
-            onDelete={onDelete}
-            onEdit={onEdit}
-          />
-        ))}
-      </TableBody>
-    </Table>
-  </div>
-);
-
-// Main content browser component
-const ContentBrowser = ({ 
-  contentType, 
-  onSelect, 
-  selectedContent 
-}: ContentBrowserProps) => {
+export const ContentBrowser: React.FC<ContentBrowserProps> = ({
+  contentType = "concept",
+  onSelect,
+  selectedContent
+}) => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [files, setFiles] = useState<ContentItem[]>([
+  const [subject, setSubject] = useState<string>("all");
+  const [examGoal, setExamGoal] = useState<string>("all");
+  const [currentTab, setCurrentTab] = useState<ContentType | "all">("all");
+  const [sortOrder, setSortOrder] = useState<"newest" | "oldest" | "a-z" | "z-a">("newest");
+  
+  // Mock content items for demonstration
+  const contentItems: ContentItem[] = [
     {
       id: "1",
-      title: "Physics Formula Cheat Sheet",
-      type: "study_material",
-      subject: "Physics",
-      examGoal: "JEE",
-      createdAt: "2025-03-15T10:30:00Z",
-      updatedAt: "2025-04-10T08:45:00Z",
-      tags: ["formulas", "quick-reference"]
+      title: "Periodic Table Concepts",
+      type: "concept",
+      subject: "Chemistry",
+      examGoal: "NEET",
+      difficultyLevel: "Intermediate",
+      createdAt: "2025-04-10T09:00:00",
+      updatedAt: "2025-04-10T09:00:00",
+      tags: ["chemistry", "periodic table", "elements"],
+      fileUrl: "/content/periodic-table.pdf",
+      fileSize: 1250000,
+      fileName: "periodic-table.pdf"
     },
     {
       id: "2",
-      title: "NEET Biology Flash Cards",
+      title: "Newton's Laws of Motion",
       type: "flashcard",
-      subject: "Biology",
-      examGoal: "NEET",
-      createdAt: "2025-03-20T14:20:00Z",
-      updatedAt: "2025-04-09T16:30:00Z",
-      tags: ["flashcards", "spaced-repetition"]
+      subject: "Physics",
+      examGoal: "JEE",
+      difficultyLevel: "Advanced",
+      createdAt: "2025-04-09T14:30:00",
+      updatedAt: "2025-04-09T14:30:00",
+      tags: ["physics", "newton", "motion"],
+      fileUrl: "/content/newtons-laws.pdf",
+      fileSize: 850000,
+      fileName: "newtons-laws.pdf"
     },
     {
       id: "3",
-      title: "Mock Test Series - JEE Advanced",
-      type: "practice_exam",
+      title: "Calculus Integration Formulas",
+      type: "notes",
       subject: "Mathematics",
       examGoal: "JEE Advanced",
-      createdAt: "2025-03-25T09:15:00Z",
-      updatedAt: "2025-04-12T11:10:00Z",
-      tags: ["mock-test", "timed"]
+      difficultyLevel: "Advanced",
+      createdAt: "2025-04-08T11:15:00",
+      updatedAt: "2025-04-08T16:45:00",
+      tags: ["mathematics", "calculus", "integration"],
+      fileUrl: "/content/calculus.pdf",
+      fileSize: 1450000,
+      fileName: "calculus.pdf"
+    },
+    {
+      id: "4",
+      title: "Cell Biology Structures",
+      type: "concept",
+      subject: "Biology",
+      examGoal: "NEET",
+      difficultyLevel: "Intermediate",
+      createdAt: "2025-04-07T10:20:00",
+      updatedAt: "2025-04-07T10:20:00",
+      tags: ["biology", "cell", "organelles"],
+      fileUrl: "/content/cell-biology.pdf",
+      fileSize: 2250000,
+      fileName: "cell-biology.pdf"
+    },
+    {
+      id: "5",
+      title: "Chemical Bonding Practice Questions",
+      type: "practice_exam",
+      subject: "Chemistry",
+      examGoal: "JEE Main",
+      difficultyLevel: "Intermediate",
+      createdAt: "2025-04-06T15:45:00",
+      updatedAt: "2025-04-06T15:45:00",
+      tags: ["chemistry", "bonding", "practice"],
+      fileUrl: "/content/chemical-bonding.pdf",
+      fileSize: 1850000,
+      fileName: "chemical-bonding.pdf"
     }
-  ]);
+  ];
   
-  // Filter files by search term and contentType
-  const filteredFiles = files.filter(file => {
-    const matchesType = contentType === file.type || contentType === 'all';
-    const matchesSearch = file.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                          (file.subject && file.subject.toLowerCase().includes(searchTerm.toLowerCase())) ||
-                          (file.examGoal && file.examGoal.toLowerCase().includes(searchTerm.toLowerCase()));
-    return matchesType && matchesSearch;
+  // Filter content based on selections
+  const filteredContent = contentItems.filter(item => {
+    // Filter by content type
+    if (currentTab !== "all" && item.type !== currentTab) {
+      return false;
+    }
+    
+    // Filter by search term
+    if (searchTerm && !item.title.toLowerCase().includes(searchTerm.toLowerCase())) {
+      return false;
+    }
+    
+    // Filter by subject
+    if (subject !== "all" && item.subject !== subject) {
+      return false;
+    }
+    
+    // Filter by exam goal
+    if (examGoal !== "all" && item.examGoal !== examGoal) {
+      return false;
+    }
+    
+    return true;
   });
   
-  const handleDelete = (file: ContentItem) => {
-    setFiles(files.filter(f => f.id !== file.id));
+  // Sort content
+  const sortedContent = [...filteredContent].sort((a, b) => {
+    switch (sortOrder) {
+      case "newest":
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      case "oldest":
+        return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+      case "a-z":
+        return a.title.localeCompare(b.title);
+      case "z-a":
+        return b.title.localeCompare(a.title);
+      default:
+        return 0;
+    }
+  });
+  
+  const handleTabChange = (value: string) => {
+    setCurrentTab(value as ContentType | "all");
   };
   
-  const handleEdit = (file: ContentItem) => {
-    console.log("Edit file:", file);
-    // Would open edit modal or navigate to edit view
-  };
-
   return (
     <div className="space-y-4">
-      <div className="flex flex-col md:flex-row gap-4 justify-between">
-        <div className="relative w-full md:w-96">
-          <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-500" />
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <h3 className="font-medium">Content Browser</h3>
+        <div className="relative w-full sm:w-64">
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
+            type="search"
             placeholder="Search content..."
-            className="pl-10"
+            className="pl-8"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        <Button variant="outline" className="flex items-center gap-2">
-          <Filter size={16} />
-          <span>Filters</span>
-        </Button>
       </div>
       
-      {filteredFiles.length > 0 ? (
-        <FilesTable
-          files={filteredFiles}
-          onSelect={onSelect}
-          onDelete={handleDelete}
-          onEdit={handleEdit}
-          selectedFile={selectedContent}
-        />
-      ) : (
-        <EmptyState
-          message="No files match your search"
-          actionLabel="Clear Filters"
-          onAction={() => setSearchTerm("")}
-        />
-      )}
+      <Tabs defaultValue="all" value={currentTab} onValueChange={handleTabChange}>
+        <div className="flex justify-between items-center">
+          <TabsList>
+            <TabsTrigger value="all">All</TabsTrigger>
+            <TabsTrigger value="concept">Concepts</TabsTrigger>
+            <TabsTrigger value="flashcard">Flashcards</TabsTrigger>
+            <TabsTrigger value="notes">Notes</TabsTrigger>
+            <TabsTrigger value="practice_exam">Practice</TabsTrigger>
+          </TabsList>
+          
+          <Select value={sortOrder} onValueChange={(value) => setSortOrder(value as any)}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Sort by" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="newest">Newest First</SelectItem>
+              <SelectItem value="oldest">Oldest First</SelectItem>
+              <SelectItem value="a-z">A-Z</SelectItem>
+              <SelectItem value="z-a">Z-A</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 my-4">
+          <div>
+            <Label className="mb-2 block">Subject</Label>
+            <Select value={subject} onValueChange={setSubject}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select subject" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Subjects</SelectItem>
+                <SelectItem value="Physics">Physics</SelectItem>
+                <SelectItem value="Chemistry">Chemistry</SelectItem>
+                <SelectItem value="Biology">Biology</SelectItem>
+                <SelectItem value="Mathematics">Mathematics</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label className="mb-2 block">Exam Goal</Label>
+            <Select value={examGoal} onValueChange={setExamGoal}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select exam goal" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Exams</SelectItem>
+                <SelectItem value="JEE">JEE</SelectItem>
+                <SelectItem value="NEET">NEET</SelectItem>
+                <SelectItem value="JEE Main">JEE Main</SelectItem>
+                <SelectItem value="JEE Advanced">JEE Advanced</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex items-end">
+            <Button variant="outline" className="w-full" onClick={() => {
+              setSearchTerm("");
+              setSubject("all");
+              setExamGoal("all");
+              setCurrentTab("all");
+            }}>
+              <Filter className="mr-2 h-4 w-4" />
+              Reset Filters
+            </Button>
+          </div>
+        </div>
+        
+        <TabsContent value="all" className="m-0">
+          {sortedContent.length > 0 ? (
+            <FilesTable
+              files={sortedContent}
+              onSelect={onSelect}
+              selectedFile={selectedContent}
+            />
+          ) : (
+            <EmptyState
+              icon={<FileText size={48} className="text-muted-foreground" />}
+              message="No content found matching your filters"
+              actionLabel="Modify filters"
+            />
+          )}
+        </TabsContent>
+        
+        {["concept", "flashcard", "notes", "practice_exam", "exam", "syllabus", "question_bank", "reference", "previous_papers", "study_material"].map((type) => (
+          <TabsContent key={type} value={type} className="m-0">
+            {sortedContent.filter(item => item.type === type).length > 0 ? (
+              <FilesTable
+                files={sortedContent.filter(item => item.type === type)}
+                onSelect={onSelect}
+                selectedFile={selectedContent}
+              />
+            ) : (
+              <EmptyState 
+                icon={<FileText size={48} className="text-muted-foreground" />} 
+                message={`No ${type.replace('_', ' ')} content found`}
+                actionLabel="Modify filters" 
+              />
+            )}
+          </TabsContent>
+        ))}
+      </Tabs>
     </div>
   );
 };

@@ -16,7 +16,7 @@ export const useStudentDashboard = () => {
   const [lastActivity, setLastActivity] = useState<{ type: string, description: string } | null>(null);
   const [suggestedNextAction, setSuggestedNextAction] = useState<string | null>(null);
   const { userProfile, loading: profileLoading, updateUserProfile } = useUserProfile();
-  const { kpis, nudges, markNudgeAsRead } = useKpiTracking("Student");
+  const { kpis, nudges, markNudgeAsRead } = useKpiTracking("student");
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();

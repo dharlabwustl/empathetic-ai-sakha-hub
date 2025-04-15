@@ -1,5 +1,5 @@
 
-export type ContentType = 'concept' | 'flashcard' | 'exam' | 'syllabus' | 'practice_exam' | 'question_bank' | 'notes' | 'reference' | 'previous_papers' | 'study_material';
+export type ContentType = 'concept' | 'flashcard' | 'exam' | 'syllabus' | 'practice_exam' | 'question_bank' | 'notes' | 'reference' | 'previous_papers' | 'study_material' | 'all';
 
 export interface ContentUploaderProps {
   handleFileSelect: (e: React.ChangeEvent<HTMLInputElement>) => void;
