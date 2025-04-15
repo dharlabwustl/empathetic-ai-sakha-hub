@@ -3,6 +3,7 @@ import React from 'react';
 import { UserProfileType } from "@/types/user";
 import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
 import DashboardContainer from '@/components/dashboard/student/DashboardContainer';
+import { BookOpen, Calendar, Lightbulb, GraduationCap } from 'lucide-react';
 
 export interface DashboardLayoutProps {
   userProfile: UserProfileType;
@@ -52,22 +53,34 @@ const DashboardLayout = ({
     {
       id: 'personalized-study',
       title: 'Personalized Study Plan',
-      description: 'AI-generated study plan based on your learning habits'
+      description: 'AI-generated study plan based on your learning habits',
+      icon: <Calendar />,
+      path: '/dashboard/student/study-plan',
+      isPremium: false
     },
     {
       id: 'concept-cards',
       title: 'Interactive Concept Cards',
-      description: 'Visual learning with concept mapping'
+      description: 'Visual learning with concept mapping',
+      icon: <BookOpen />,
+      path: '/dashboard/student/concepts',
+      isPremium: false
     },
     {
       id: 'practice-tests',
       title: 'Practice Tests',
-      description: 'Exam-like questions to test your knowledge'
+      description: 'Exam-like questions to test your knowledge',
+      icon: <GraduationCap />,
+      path: '/dashboard/student/practice',
+      isPremium: false
     },
     {
       id: 'revision-tools',
       title: 'Smart Revision Tools',
-      description: 'Spaced repetition for better memory retention'
+      description: 'Spaced repetition for better memory retention',
+      icon: <Lightbulb />,
+      path: '/dashboard/student/revision',
+      isPremium: false
     }
   ];
   

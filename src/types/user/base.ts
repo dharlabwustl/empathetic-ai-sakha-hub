@@ -30,10 +30,23 @@ export interface BaseUserProfile {
   completedOnboarding?: boolean;
   subscription: SubscriptionType;
   joinDate: string;
-  createdAt: string; // Adding this required field
+  createdAt: string;
   personalityType: PersonalityType;
   areasOfInterest: Array<{ id: string; name: string; level: 'Beginner' | 'Intermediate' | 'Advanced' }>;
   lastActive: string;
+}
+
+// Enhanced UserStats to match the one in user.ts
+export interface UserStats {
+  totalStudyTime: number;
+  questionsAnswered: number;
+  testsCompleted: number;
+  averageScore: number;
+  lastActive?: string;
+  weeklyStudyTime: number[];
+  studyStreak?: number;
+  totalStudyHours?: number;
+  quizzesCompleted?: number;
 }
 
 // Combined user type (union of all user types)
@@ -45,7 +58,7 @@ export type UserProfileType = BaseUserProfile & {
     progress: number;
     type: GoalType;
     description?: string;
-    dueDate?: string; // Adding dueDate explicitly
+    dueDate?: string;
   }>;
   subjects?: Array<{
     id: string;
@@ -68,12 +81,7 @@ export type UserProfileType = BaseUserProfile & {
     emailNotifications?: boolean;
     pushNotifications?: boolean;
   };
-  stats?: {
-    averageScore?: number;
-    studyStreak?: number;
-    totalStudyHours?: number;
-    quizzesCompleted?: number;
-  };
+  stats?: UserStats;
   examPreparation?: string;
   moodHistory?: MoodEntry[];
   profileImage?: string;

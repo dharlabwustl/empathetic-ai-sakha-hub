@@ -9,7 +9,7 @@ import { StudyStreakCard } from "@/components/dashboard/student/study-progress/S
 import PerformanceTabs from "@/components/dashboard/student/study-progress/PerformanceTabs";
 
 const StudyProgress = () => {
-  const { subjects, studyStreak, loading, selectedSubject, selectSubject } = useStudyProgress();
+  const { subjectsProgress, streak, loading, selectedSubject, selectSubject } = useStudyProgress();
   const { userProfile } = useUserProfile("student");
   
   // Check if userProfile isn't null before accessing examPreparation
@@ -25,22 +25,22 @@ const StudyProgress = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <StudyProgressHeader studyStreak={studyStreak} />
+      <StudyProgressHeader streak={streak} />
       
       <ProgressStatCards 
-        subjectsLength={subjects.length} 
-        studyStreak={studyStreak} 
+        subjectsLength={subjectsProgress.length} 
+        studyStreak={streak} 
         examGoal={examGoal} 
       />
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 my-8">
-        <WeeklyProgressChart subjects={subjects} />
-        <StudyStreakCard studyStreak={studyStreak} />
+        <WeeklyProgressChart subjects={subjectsProgress} />
+        <StudyStreakCard studyStreak={streak} />
       </div>
       
       <PerformanceTabs
-        subjectsProgress={subjects}
-        streak={studyStreak}
+        subjectsProgress={subjectsProgress}
+        streak={streak}
       />
     </div>
   );
