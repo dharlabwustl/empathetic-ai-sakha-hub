@@ -5,11 +5,11 @@ export type UserRole = 'student' | 'employee' | 'doctor' | 'founder' | 'admin' |
 export type SubscriptionType = 'Free' | 'Basic' | 'Premium' | 'Enterprise';
 export type PersonalityType = 'Strategic Thinker' | 'Creative Explorer' | 'Detailed Analyzer' | 'Collaborative Leader' | 'Practical Implementer' | 'Analytical Problem Solver' | 'Creative Builder';
 export type MoodType = 
-  | 'Happy' | 'happy'
-  | 'Okay' | 'okay'
-  | 'Tired' | 'tired'
-  | 'Overwhelmed'
-  | 'Focused'
+  | 'happy'
+  | 'okay'
+  | 'tired'
+  | 'overwhelmed'
+  | 'focused'
   | 'sad'
   | 'neutral'
   | 'motivated'
@@ -61,6 +61,12 @@ export interface UserPreferences {
   pushNotifications?: boolean;
 }
 
+export interface MoodEntry {
+  mood: MoodType;
+  timestamp: string;
+  note?: string;
+}
+
 // Combined user type (union of all user types)
 export type UserProfileType = BaseUserProfile & {
   goals?: Array<{
@@ -96,9 +102,3 @@ export type UserProfileType = BaseUserProfile & {
   school?: string;
   grade?: string;
 };
-
-export interface MoodEntry {
-  mood: MoodType;
-  timestamp: string;
-  note?: string;
-}

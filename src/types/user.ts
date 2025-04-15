@@ -38,7 +38,7 @@ export interface UserPreferences {
 }
 
 export interface MoodEntry {
-  mood: 'sad' | 'neutral' | 'happy' | 'motivated' | 'curious' | 'stressed' | 'tired';
+  mood: 'sad' | 'neutral' | 'happy' | 'motivated' | 'curious' | 'stressed' | 'tired' | 'okay';
   timestamp: string;
   note?: string;
 }
@@ -122,11 +122,6 @@ export interface StudyStreak {
 }
 
 export type MoodType =
-  | 'Happy'
-  | 'Okay'
-  | 'Tired'
-  | 'Overwhelmed'
-  | 'Focused'
   | 'sad'
   | 'neutral'
   | 'happy'
