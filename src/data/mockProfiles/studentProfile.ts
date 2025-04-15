@@ -1,5 +1,5 @@
 
-import { StudentProfile, UserRole, MoodType } from '@/types/user/base';
+import { UserRole, MoodType, StudentProfile } from '@/types/user';
 
 export const mockStudentProfile: StudentProfile = {
   id: "1",

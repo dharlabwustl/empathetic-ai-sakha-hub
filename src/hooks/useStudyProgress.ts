@@ -1,27 +1,30 @@
 
 import { useState, useEffect } from "react";
-import { UserProfileType } from "@/types/user";
-import { SubjectProgress, StudyStreak } from "@/types/user/student";
-import { getMockProgressData, getMockStudyStreak } from "@/data/mockProgressData";
+import { getMockProgressData } from "@/data/mockProgressData";
+import { SubjectProgress, StudyStreak } from "@/types/user";
 
-export function useStudyProgress(userId: string) {
+// Update the hook to match the expected return structure
+export function useStudyProgress() {
   const [subjectsProgress, setSubjectsProgress] = useState<SubjectProgress[]>([]);
-  const [streak, setStreak] = useState<StudyStreak | null>(null);
+  const [streak, setStreak] = useState<StudyStreak>({ 
+    current: 0, 
+    longest: 0, 
+    thisWeek: [], 
+    lastMonth: [] 
+  });
   const [loading, setLoading] = useState(true);
+  const [selectedSubject, setSelectedSubject] = useState<SubjectProgress | null>(null);
 
   useEffect(() => {
-    const fetchProgressData = async () => {
+    const fetchData = async () => {
       setLoading(true);
       try {
-        // In a real app, this would be an API call
-        // Simulating API delay
-        await new Promise(resolve => setTimeout(resolve, 800));
-        
-        const subjectData = getMockProgressData(userId);
-        const streakData = getMockStudyStreak(userId);
-        
-        setSubjectsProgress(subjectData);
-        setStreak(streakData);
+        const { subjects, studyStreak } = await getMockProgressData();
+        setSubjectsProgress(subjects);
+        setStreak(studyStreak);
+        if (subjects.length > 0) {
+          setSelectedSubject(subjects[0]);
+        }
       } catch (error) {
         console.error("Error fetching progress data:", error);
       } finally {
@@ -29,12 +32,21 @@ export function useStudyProgress(userId: string) {
       }
     };
 
-    fetchProgressData();
-  }, [userId]);
+    fetchData();
+  }, []);
+
+  const selectSubject = (subjectId: string) => {
+    const subject = subjectsProgress.find(s => s.id === subjectId);
+    if (subject) {
+      setSelectedSubject(subject);
+    }
+  };
 
   return {
     subjectsProgress,
     streak,
-    loading
+    loading,
+    selectedSubject,
+    selectSubject
   };
 }

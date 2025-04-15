@@ -28,6 +28,7 @@ interface DashboardContainerProps {
   onCloseStudyPlan: () => void;
   lastActivity?: { type: string; description: string } | null;
   suggestedNextAction?: string | null;
+  currentMood?: 'sad' | 'neutral' | 'happy' | 'motivated' | 'curious' | 'stressed' | 'tired';
 }
 
 const DashboardContainer: React.FC<DashboardContainerProps> = ({
@@ -50,7 +51,8 @@ const DashboardContainer: React.FC<DashboardContainerProps> = ({
   onCompleteTour,
   onCloseStudyPlan,
   lastActivity,
-  suggestedNextAction
+  suggestedNextAction,
+  currentMood
 }) => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-sky-100/10 via-white to-violet-100/10 dark:from-sky-900/10 dark:via-gray-900 dark:to-violet-900/10">

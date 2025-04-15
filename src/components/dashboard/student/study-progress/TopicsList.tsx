@@ -1,75 +1,40 @@
-
 import React from 'react';
-import { Button } from "@/components/ui/button";
-import { BookOpen } from 'lucide-react';
 import { SubjectProgress } from "@/types/user";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
+import { CheckCircle } from 'lucide-react';
 
 interface TopicsListProps {
-  selectedSubject: SubjectProgress | null;
-  subjects: SubjectProgress[];
-  selectSubject: (id: string) => void;
+  subject: SubjectProgress;
 }
 
-export const TopicsList: React.FC<TopicsListProps> = ({ 
-  selectedSubject, 
-  subjects,
-  selectSubject 
-}) => {
-  if (!selectedSubject) {
-    return (
-      <div className="text-center py-8">
-        <BookOpen className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-        <h3 className="font-medium text-lg">Select a subject to view topics</h3>
-        <div className="flex flex-wrap gap-2 justify-center mt-4">
-          {subjects.map(subject => (
-            <Button 
-              key={subject.id}
-              variant="outline"
-              onClick={() => selectSubject(subject.id)}
-            >
-              {subject.name}
-            </Button>
-          ))}
-        </div>
-      </div>
-    );
-  }
-
+const TopicsList: React.FC<TopicsListProps> = ({ subject }) => {
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-medium">{selectedSubject.name} Topics</h3>
-        <div className="text-sm text-muted-foreground">
-          {selectedSubject.topics.filter(t => t.completed).length} of {selectedSubject.topics.length} completed
-        </div>
-      </div>
-      
-      <div className="space-y-4">
-        {selectedSubject.topics.map(topic => (
-          <div key={topic.id} className="border rounded-lg p-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                  topic.masteryLevel > 80 ? 'bg-green-100 text-green-700' :
-                  topic.masteryLevel > 50 ? 'bg-amber-100 text-amber-700' :
-                  'bg-red-100 text-red-700'
-                }`}>
-                  {topic.masteryLevel}%
-                </div>
-                <div>
-                  <h4 className="font-medium">{topic.name}</h4>
-                  {topic.lastPracticed && (
-                    <p className="text-xs text-muted-foreground">
-                      Last practiced: {topic.lastPracticed}
-                    </p>
-                  )}
-                </div>
-              </div>
-              <Button variant="outline" size="sm">Practice</Button>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
+    <Accordion type="single" collapsible className="w-full">
+      {subject.topics.map((topic) => (
+        <AccordionItem value={topic.id} key={topic.id}>
+          <AccordionTrigger className="flex justify-between items-center">
+            {topic.name}
+            {topic.completed && <CheckCircle className="w-4 h-4 text-green-500" />}
+          </AccordionTrigger>
+          <AccordionContent>
+            <p className="text-sm text-gray-500">
+              Mastery Level: {topic.masteryLevel}
+            </p>
+            {topic.lastPracticed && (
+              <p className="text-sm text-gray-500">
+                Last Practiced: {topic.lastPracticed}
+              </p>
+            )}
+          </AccordionContent>
+        </AccordionItem>
+      ))}
+    </Accordion>
   );
 };
+
+export default TopicsList;

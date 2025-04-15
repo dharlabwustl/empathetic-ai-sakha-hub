@@ -1,6 +1,5 @@
-
 import { UserRole } from '@/types/user/base';
-import { EmployeeProfile } from '@/types/user/professional';
+import { EmployeeProfile } from '@/types/user';
 
 export const mockEmployeeProfile: EmployeeProfile = {
   id: "2",

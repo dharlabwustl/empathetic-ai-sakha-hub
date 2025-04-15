@@ -1,68 +1,61 @@
-
 import React from 'react';
-import { Clock } from 'lucide-react';
-import { Button } from "@/components/ui/button";
-import { BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip, Legend, Bar } from 'recharts';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { BarChart } from "@/components/ui/chart";
 import { SubjectProgress, StudyStreak } from "@/types/user";
 
 interface StudyTimeChartProps {
-  selectedSubject: SubjectProgress | null;
-  subjects: SubjectProgress[];
-  selectSubject: (id: string) => void;
-  studyStreak: StudyStreak | null;
+  subjectProgress: SubjectProgress;
+  studyStreak: StudyStreak;
 }
 
-export const StudyTimeChart: React.FC<StudyTimeChartProps> = ({
-  selectedSubject,
-  subjects,
-  selectSubject,
-  studyStreak
-}) => {
-  const totalWeeklyHours = studyStreak?.thisWeek.reduce((a, b) => a + b, 0) || 0;
+const StudyTimeChart: React.FC<StudyTimeChartProps> = ({ subjectProgress, studyStreak }) => {
+  // Mock data for the chart
+  const chartData = {
+    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+    datasets: [
+      {
+        label: 'Hours Studied',
+        data: studyStreak.thisWeek,
+        backgroundColor: 'rgba(54, 162, 235, 0.6)',
+        borderColor: 'rgba(54, 162, 235, 1)',
+        borderWidth: 1,
+      },
+    ],
+  };
 
-  if (!selectedSubject) {
-    return (
-      <div className="text-center py-8">
-        <Clock className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-        <h3 className="font-medium text-lg">Select a subject to view study time</h3>
-        <div className="flex flex-wrap gap-2 justify-center mt-4">
-          {subjects.map(subject => (
-            <Button 
-              key={subject.id}
-              variant="outline"
-              onClick={() => selectSubject(subject.id)}
-            >
-              {subject.name}
-            </Button>
-          ))}
-        </div>
-      </div>
-    );
-  }
+  const chartOptions = {
+    scales: {
+      y: {
+        beginAtZero: true,
+        title: {
+          display: true,
+          text: 'Hours',
+        },
+      },
+      x: {
+        title: {
+          display: true,
+          text: 'Day',
+        },
+      },
+    },
+    plugins: {
+      legend: {
+        display: false,
+      },
+    },
+  };
 
   return (
-    <div className="space-y-6">
-      <h3 className="font-medium">Study Hours Distribution</h3>
-      
-      <ResponsiveContainer width="100%" height={300}>
-        <BarChart data={selectedSubject.studyHours}>
-          <XAxis dataKey="date" />
-          <YAxis />
-          <Tooltip />
-          <Legend />
-          <Bar dataKey="hours" fill="#0ea5e9" name="Hours Studied" />
-        </BarChart>
-      </ResponsiveContainer>
-      
-      <div className="border-t pt-4 mt-4">
-        <h3 className="font-medium mb-4">Total Study Hours This Week</h3>
-        <div className="text-3xl font-bold">
-          {totalWeeklyHours} hours
-        </div>
-        <p className="text-sm text-muted-foreground">
-          <span className="text-green-500 font-medium">↑ 3 hours</span> from last week
-        </p>
-      </div>
-    </div>
+    <Card>
+      <CardHeader>
+        <CardTitle>Weekly Study Time</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <BarChart data={chartData} options={chartOptions} />
+      </CardContent>
+    </Card>
   );
 };
+
+export default StudyTimeChart;

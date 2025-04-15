@@ -1,17 +1,16 @@
-
 import { UserRole } from '@/types/user/base';
-import { DoctorProfile } from '@/types/user/professional';
+import { DoctorProfile } from '@/types/user';
 
 export const mockDoctorProfile: DoctorProfile = {
   id: "3",
   name: "Dr. Priya Sharma",
   phoneNumber: "9876543212",
   email: "priya.sharma@hospital.com",
-  role: "doctor" as UserRole, // Changed from "Doctor" to "doctor"
+  role: "doctor" as UserRole,
   personalityType: "Analytical Problem Solver",
   subscription: "Premium",
   joinDate: "2025-01-15",
-  createdAt: "2025-01-15", // Adding required field
+  createdAt: "2025-01-15",
   lastActive: "2025-05-11",
   areasOfInterest: [
     { id: "i1", name: "Cardiology", level: "Advanced" },
