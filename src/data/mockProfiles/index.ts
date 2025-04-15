@@ -1,5 +1,5 @@
 
-import { UserProfileType, UserRole } from '@/types/user';
+import { UserProfileType, UserRole } from '@/types/user/base';
 import { mockStudentProfile } from './studentProfile';
 import { mockEmployeeProfile } from './employeeProfile';
 import { mockDoctorProfile } from './doctorProfile';
@@ -37,6 +37,7 @@ export const generateMockProfile = (overrides: Partial<UserProfileType> = {}): U
     role: 'student',
     subscription: 'Basic',
     joinDate: new Date().toISOString(),
+    createdAt: new Date().toISOString(),
     personalityType: 'Strategic Thinker',
     areasOfInterest: [
       { id: 'ai-1', name: 'Mathematics', level: 'Advanced' }
@@ -61,15 +62,15 @@ export const generateMockProfile = (overrides: Partial<UserProfileType> = {}): U
       }
     ],
     subjects: [
-      { id: 's1', name: 'Mathematics', progress: 78, lastStudied: new Date() },
-      { id: 's2', name: 'Physics', progress: 45, lastStudied: new Date() },
-      { id: 's3', name: 'Chemistry', progress: 60, lastStudied: new Date() }
+      { id: 's1', name: 'Mathematics', progress: 78, lastStudied: new Date().toISOString() },
+      { id: 's2', name: 'Physics', progress: 45, lastStudied: new Date().toISOString() },
+      { id: 's3', name: 'Chemistry', progress: 60, lastStudied: new Date().toISOString() }
     ],
     stats: {
       averageScore: 82,
+      studyStreak: 8,
       totalStudyHours: 120,
-      quizzesCompleted: 24,
-      studyStreak: 8
+      quizzesCompleted: 24
     },
     ...overrides
   };

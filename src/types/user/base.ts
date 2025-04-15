@@ -1,7 +1,7 @@
 
 // Base user types
 
-export type UserRole = 'Student' | 'Professor' | 'Employee' | 'Doctor' | 'Founder' | 'admin' | 'content_creator' | 'teacher' | 'parent' | 'student'; 
+export type UserRole = 'student' | 'employee' | 'doctor' | 'founder' | 'admin' | 'content_creator' | 'teacher' | 'parent';
 export type SubscriptionType = 'Free' | 'Basic' | 'Premium' | 'Enterprise';
 export type PersonalityType = 'Strategic Thinker' | 'Creative Explorer' | 'Detailed Analyzer' | 'Collaborative Leader' | 'Practical Implementer' | 'Analytical Problem Solver' | 'Creative Builder';
 export type MoodType = 'Happy' | 'Okay' | 'Tired' | 'Overwhelmed' | 'Focused' | 'sad' | 'neutral' | 'happy' | 'motivated' | 'curious' | 'stressed';
@@ -18,6 +18,7 @@ export interface BaseUserProfile {
   completedOnboarding?: boolean;
   subscription: SubscriptionType;
   joinDate: string;
+  createdAt: string; // Adding this required field
   personalityType: PersonalityType;
   areasOfInterest: Array<{ id: string; name: string; level: 'Beginner' | 'Intermediate' | 'Advanced' }>;
   lastActive: string;
@@ -28,17 +29,17 @@ export type UserProfileType = BaseUserProfile & {
   goals?: Array<{
     id: string;
     title: string;
-    targetDate?: Date;
+    targetDate?: string;
     progress: number;
     type?: string;
     description?: string;
-    dueDate?: string;
+    dueDate?: string; // Adding dueDate explicitly
   }>;
   subjects?: Array<{
     id: string;
     name: string;
     progress: number;
-    lastStudied?: Date;
+    lastStudied?: string;
   }>;
   schedule?: {
     preferredStudyTime?: 'morning' | 'afternoon' | 'evening' | 'night';
@@ -48,7 +49,7 @@ export type UserProfileType = BaseUserProfile & {
   examDetails?: {
     examId?: string;
     examName?: string;
-    examDate?: Date;
+    examDate?: string;
   };
   preferences?: {
     theme?: 'light' | 'dark' | 'system';

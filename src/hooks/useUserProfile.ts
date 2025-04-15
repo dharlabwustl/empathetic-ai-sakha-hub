@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { UserProfileType, UserRole } from "@/types/user";
+import { UserProfileType, UserRole } from "@/types/user/base";
 import { getMockProfileByRole } from "@/data/mockProfiles";
 
 export function useUserProfile(role: UserRole | string = "student"): {

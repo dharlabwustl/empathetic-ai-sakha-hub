@@ -1,16 +1,17 @@
 
-import { UserRole } from "@/types/user";
-import { FounderProfile } from "@/types/user/professional";
+import { UserRole } from '@/types/user/base';
+import { FounderProfile } from '@/types/user/professional';
 
 export const mockFounderProfile: FounderProfile = {
   id: "4",
   name: "Vikram Malhotra",
   phoneNumber: "9876543213",
   email: "vikram@startup.com",
-  role: "founder" as UserRole,
+  role: "founder" as UserRole, // Changed from "Founder" to "founder"
   personalityType: "Creative Explorer",
   subscription: "Enterprise",
   joinDate: "2024-11-25",
+  createdAt: "2024-11-25", // Adding required field
   lastActive: "2025-05-12",
   areasOfInterest: [
     { id: "i1", name: "Entrepreneurship", level: "Advanced" },

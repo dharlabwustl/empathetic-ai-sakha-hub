@@ -1,15 +1,16 @@
 
-import { StudentProfile, UserRole, MoodType } from "@/types/user";
+import { StudentProfile, UserRole, MoodType } from '@/types/user/base';
 
 export const mockStudentProfile: StudentProfile = {
   id: "1",
   name: "Rahul Singh",
   phoneNumber: "9876543210",
   email: "rahul.singh@example.com",
-  role: "student" as UserRole,
+  role: "student" as UserRole, // Changed from "Student" to "student"
   personalityType: "Strategic Thinker",
   subscription: "Basic",
   joinDate: "2025-03-01",
+  createdAt: "2025-03-01", // Adding required field
   lastActive: "2025-05-12",
   areasOfInterest: [
     { id: "i1", name: "Physics", level: "Advanced" },

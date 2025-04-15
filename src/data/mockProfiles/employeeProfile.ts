@@ -1,16 +1,17 @@
 
-import { UserRole } from "@/types/user";
-import { EmployeeProfile } from "@/types/user/professional";
+import { UserRole } from '@/types/user/base';
+import { EmployeeProfile } from '@/types/user/professional';
 
 export const mockEmployeeProfile: EmployeeProfile = {
   id: "2",
   name: "Ananya Patel",
   phoneNumber: "9876543211",
   email: "ananya.patel@company.com",
-  role: "employee" as UserRole,
+  role: "employee" as UserRole, // Changed from "Employee" to "employee"
   personalityType: "Collaborative Leader",
   subscription: "Basic",
   joinDate: "2025-02-15",
+  createdAt: "2025-02-15", // Adding required field
   lastActive: "2025-05-10",
   areasOfInterest: [
     { id: "i1", name: "Project Management", level: "Advanced" },
