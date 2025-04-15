@@ -4,6 +4,7 @@ import { UserProfileType } from "@/types/user";
 import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
 import DashboardContainer from '@/components/dashboard/student/DashboardContainer';
 import { BookOpen, Calendar, Lightbulb, GraduationCap } from 'lucide-react';
+import { ReactNode } from 'react';
 
 export interface DashboardLayoutProps {
   userProfile: UserProfileType;
@@ -48,7 +49,7 @@ const DashboardLayout = ({
   suggestedNextAction,
   currentMood
 }: DashboardLayoutProps) => {
-  // Default features array for student dashboard
+  // Default features array for student dashboard with all required properties
   const features = [
     {
       id: 'personalized-study',

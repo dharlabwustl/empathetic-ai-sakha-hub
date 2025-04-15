@@ -3,7 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CalendarDays, Flame } from 'lucide-react';
 import { format, addDays } from 'date-fns';
-import { StudyStreak } from "@/types/user";
+import { StudyStreak } from "@/types/user/student";
 
 interface StudyProgressHeaderProps {
   streak: StudyStreak;

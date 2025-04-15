@@ -1,29 +1,49 @@
 
-import { UserProfileType, UserRole } from '@/types/user/base';
+import { UserProfileType, UserRole, UserPreferences } from '@/types/user/base';
 import { mockStudentProfile } from './studentProfile';
 import { mockEmployeeProfile } from './employeeProfile';
 import { mockDoctorProfile } from './doctorProfile';
 import { mockFounderProfile } from './founderProfile';
 
-// Export the mock profiles
-export const getStudentProfile = () => mockStudentProfile;
-export const getEmployeeProfile = () => mockEmployeeProfile;
-export const getDoctorProfile = () => mockDoctorProfile;
-export const getFounderProfile = () => mockFounderProfile;
+// Default mock preferences for all user profiles
+const defaultPreferences: UserPreferences = {
+  theme: 'light',
+  notifications: true,
+  studyReminders: true,
+  contentFormat: 'mixed',
+  difficulty: 'intermediate',
+  studySessionDuration: 25,
+  emailNotifications: true,
+  pushNotifications: true
+};
+
+// Helper function to add default preferences to user profiles
+const addDefaultPreferences = (profile: any): UserProfileType => {
+  return {
+    ...profile,
+    preferences: defaultPreferences
+  };
+};
+
+// Export the mock profiles with default preferences
+export const getStudentProfile = () => addDefaultPreferences(mockStudentProfile);
+export const getEmployeeProfile = () => addDefaultPreferences(mockEmployeeProfile);
+export const getDoctorProfile = () => addDefaultPreferences(mockDoctorProfile);
+export const getFounderProfile = () => addDefaultPreferences(mockFounderProfile);
 
 // Get a mock profile by role
 export const getMockProfileByRole = (role: UserRole | string): UserProfileType => {
   switch (role.toLowerCase()) {
     case 'student':
-      return mockStudentProfile as unknown as UserProfileType;
+      return addDefaultPreferences(mockStudentProfile) as unknown as UserProfileType;
     case 'employee':
-      return mockEmployeeProfile as unknown as UserProfileType;
+      return addDefaultPreferences(mockEmployeeProfile) as unknown as UserProfileType;
     case 'doctor':
-      return mockDoctorProfile as unknown as UserProfileType;
+      return addDefaultPreferences(mockDoctorProfile) as unknown as UserProfileType;
     case 'founder':
-      return mockFounderProfile as unknown as UserProfileType;
+      return addDefaultPreferences(mockFounderProfile) as unknown as UserProfileType;
     default:
-      return mockStudentProfile as unknown as UserProfileType; // Default to student profile
+      return addDefaultPreferences(mockStudentProfile) as unknown as UserProfileType; // Default to student profile
   }
 };
 
@@ -67,11 +87,16 @@ export const generateMockProfile = (overrides: Partial<UserProfileType> = {}): U
       { id: 's3', name: 'Chemistry', progress: 60, lastStudied: new Date().toISOString() }
     ],
     stats: {
+      totalStudyTime: 120,
+      questionsAnswered: 350,
+      testsCompleted: 24,
       averageScore: 82,
+      weeklyStudyTime: [2, 3, 1.5, 4, 2.5, 1, 3],
       studyStreak: 8,
       totalStudyHours: 120,
       quizzesCompleted: 24
     },
+    preferences: defaultPreferences,
     ...overrides
   } as UserProfileType;
 };

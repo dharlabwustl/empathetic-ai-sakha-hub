@@ -1,16 +1,18 @@
 
-import { UserRole, MoodType } from "@/types/user";
+import { UserRole, MoodType } from "@/types/user/base";
 import { GoalType } from "@/types/user/base";
+import { UserProfileType } from "@/types/user/base";
 
 export const mockStudentProfile: StudentProfile = {
   id: "1",
   name: "Rahul Singh",
   phoneNumber: "9876543210",
-  email: "rahul.singh@example.com", // Added missing required field
-  role: "Student" as UserRole,
+  email: "rahul.singh@example.com",
+  role: "student" as UserRole,
   personalityType: "Strategic Thinker",
-  subscription: "Basic", // Added missing field
+  subscription: "Basic",
   joinDate: "2025-03-01",
+  createdAt: "2025-03-01",
   lastActive: "2025-05-12",
   areasOfInterest: [
     { id: "i1", name: "Physics", level: "Advanced" },

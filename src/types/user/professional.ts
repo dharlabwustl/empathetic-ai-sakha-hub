@@ -1,6 +1,7 @@
 
 // Adding the missing Professional user interfaces to ensure proper typing for all user profiles
 import { BaseUserProfile, GoalType } from './base';
+import { Goal } from '../user';
 
 export interface ProfessionalProfile extends BaseUserProfile {
   // Common professional fields
@@ -10,6 +11,7 @@ export interface ProfessionalProfile extends BaseUserProfile {
   languages?: string[];
   education?: Education[];
   certifications?: string[];
+  goals?: Goal[]; // Added goals property
 }
 
 export interface EmployeeProfile extends ProfessionalProfile {

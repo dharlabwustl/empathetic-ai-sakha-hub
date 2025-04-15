@@ -49,6 +49,18 @@ export interface UserStats {
   quizzesCompleted?: number;
 }
 
+// Updated UserPreferences to match the one in user.ts
+export interface UserPreferences {
+  theme: string;
+  notifications: boolean;
+  studyReminders: boolean;
+  contentFormat: 'text' | 'visual' | 'audio' | 'mixed';
+  difficulty: 'beginner' | 'intermediate' | 'advanced';
+  studySessionDuration: number;
+  emailNotifications?: boolean;
+  pushNotifications?: boolean;
+}
+
 // Combined user type (union of all user types)
 export type UserProfileType = BaseUserProfile & {
   goals?: Array<{
@@ -76,11 +88,7 @@ export type UserProfileType = BaseUserProfile & {
     examName?: string;
     examDate?: string;
   };
-  preferences?: {
-    theme?: 'light' | 'dark' | 'system';
-    emailNotifications?: boolean;
-    pushNotifications?: boolean;
-  };
+  preferences?: UserPreferences;
   stats?: UserStats;
   examPreparation?: string;
   moodHistory?: MoodEntry[];

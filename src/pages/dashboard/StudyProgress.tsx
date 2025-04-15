@@ -29,13 +29,13 @@ const StudyProgress = () => {
       
       <ProgressStatCards 
         subjectsLength={subjectsProgress.length} 
-        studyStreak={streak} 
+        studyStreak={streak.current} 
         examGoal={examGoal} 
       />
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 my-8">
         <WeeklyProgressChart subjects={subjectsProgress} />
-        <StudyStreakCard studyStreak={streak} />
+        <StudyStreakCard studyStreak={streak.current} />
       </div>
       
       <PerformanceTabs
