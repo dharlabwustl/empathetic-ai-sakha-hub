@@ -1,3 +1,4 @@
+
 import { AuthUser } from '@/services/auth/authService';
 import authService from '@/services/auth/authService';
 import { useToast } from '@/hooks/use-toast';
@@ -20,6 +21,33 @@ export const useAuthUtils = () => {
           title: 'Login successful',
           description: `Welcome back, ${response.data.name}!`,
         });
+        
+        // Ensure userData is properly set for the login flow
+        let userData = localStorage.getItem("userData");
+        if (userData) {
+          // Update existing user data
+          const parsedData = JSON.parse(userData);
+          parsedData.isNewUser = false;
+          // Ensure onboarding is marked as complete for returning users
+          if (parsedData.completedOnboarding === undefined) {
+            parsedData.completedOnboarding = true;
+          }
+          localStorage.setItem("userData", JSON.stringify(parsedData));
+        } else {
+          // Create new userData for returning users
+          const newUserData = {
+            completedOnboarding: true, // Skip onboarding for existing users
+            sawWelcomeTour: true, // Skip welcome tour for existing users
+            isNewUser: false,
+            loginCount: 1,
+            name: response.data.name,
+            email: response.data.email,
+            phoneNumber: response.data.phoneNumber,
+            role: response.data.role
+          };
+          localStorage.setItem("userData", JSON.stringify(newUserData));
+        }
+        
         return true;
       } else {
         // For demo purposes, create a mock user if regular login fails
@@ -37,6 +65,19 @@ export const useAuthUtils = () => {
         
         // Save the mock user to auth service
         authService.setAuthData(mockUser);
+        
+        // Create userData for demo users
+        const userData = {
+          completedOnboarding: true, // Skip onboarding for mock users
+          sawWelcomeTour: true, // Skip welcome tour for mock users
+          isNewUser: false,
+          loginCount: 1,
+          name: "Demo User",
+          email: email,
+          phoneNumber: phoneNumber,
+          role: 'student'
+        };
+        localStorage.setItem("userData", JSON.stringify(userData));
         
         toast({
           title: 'Login successful',

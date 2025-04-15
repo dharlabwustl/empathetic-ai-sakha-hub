@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -68,14 +69,18 @@ export const useStudentDashboard = () => {
           searchParams: location.search
         });
         
-        // Force onboarding for users coming with onboarding params
-        if (location.search.includes('completedOnboarding=true') || location.search.includes('new=true')) {
+        // Only show onboarding for users explicitly coming from signup flow
+        // This fixes the issue of showing onboarding to returning users
+        const isFromSignup = location.search.includes('completedOnboarding=true') || location.search.includes('new=true');
+        
+        if (isFromSignup) {
           setShowOnboarding(true);
-          console.log("useStudentDashboard - Forcing onboarding flow based on URL parameters");
+          console.log("useStudentDashboard - Showing onboarding flow based on URL parameters");
         } else {
-          // Otherwise use the result from session manager
-          setShowOnboarding(shouldShowOnboarding);
+          // Skip onboarding for returning users without special URL params
+          setShowOnboarding(false);
           setShowWelcomeTour(shouldShowWelcomeTour);
+          console.log("useStudentDashboard - Regular login, skipping onboarding");
         }
         
         // Get user's last activity and suggest next actions for returning users
@@ -206,7 +211,7 @@ export const useStudentDashboard = () => {
     // Show welcome tour after onboarding
     setShowWelcomeTour(true);
     
-    // Clean up URL parameters
+    // Clean up URL parameters to avoid future onboarding loops
     if (location.search) {
       navigate('/dashboard/student', { replace: true });
     }

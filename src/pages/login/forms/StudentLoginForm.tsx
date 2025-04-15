@@ -39,7 +39,27 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
       const success = await login(email, password);
       
       if (success) {
-        // Always redirect to student dashboard after successful login
+        // Set default userData for returning users if it doesn't exist
+        const existingUserData = localStorage.getItem("userData");
+        if (!existingUserData) {
+          const userData = {
+            completedOnboarding: true, // Mark as completed for returning users
+            sawWelcomeTour: true, // Skip welcome tour for returning users
+            loginCount: 1,
+            isNewUser: false
+          };
+          localStorage.setItem("userData", JSON.stringify(userData));
+        } else {
+          // Update existing user data to ensure proper flow
+          const parsedData = JSON.parse(existingUserData);
+          parsedData.isNewUser = false;
+          if (parsedData.completedOnboarding === undefined) {
+            parsedData.completedOnboarding = true;
+          }
+          localStorage.setItem("userData", JSON.stringify(parsedData));
+        }
+        
+        // Redirect without any query parameters to avoid triggering onboarding
         navigate("/dashboard/student");
         
         toast({

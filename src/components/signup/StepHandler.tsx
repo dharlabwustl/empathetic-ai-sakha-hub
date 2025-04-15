@@ -69,7 +69,8 @@ const StepHandler = ({
           phoneNumber: formValues.mobile,
           completedOnboarding: false, // This will trigger the onboarding flow
           isNewUser: true,
-          sawWelcomeTour: false
+          sawWelcomeTour: false,
+          loginCount: 1
         };
         
         localStorage.setItem("userData", JSON.stringify(extendedUserData));
@@ -79,7 +80,7 @@ const StepHandler = ({
           description: "Let's customize your learning experience.",
         });
         
-        // Use both parameters to ensure the onboarding flow is triggered
+        // Use completedOnboarding=true AND new=true to ensure the onboarding flow is shown
         navigate(`/dashboard/student?completedOnboarding=true&new=true`);
       } else {
         throw new Error("Registration failed");
