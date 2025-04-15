@@ -1,3 +1,4 @@
+
 import { UserRole } from '@/types/user/base';
 import { EmployeeProfile } from '@/types/user';
 
@@ -6,11 +7,11 @@ export const mockEmployeeProfile: EmployeeProfile = {
   name: "Ananya Patel",
   phoneNumber: "9876543211",
   email: "ananya.patel@company.com",
-  role: "employee" as UserRole, // Changed from "Employee" to "employee"
+  role: "employee" as UserRole,
   personalityType: "Collaborative Leader",
   subscription: "Basic",
   joinDate: "2025-02-15",
-  createdAt: "2025-02-15", // Adding required field
+  createdAt: "2025-02-15",
   lastActive: "2025-05-10",
   areasOfInterest: [
     { id: "i1", name: "Project Management", level: "Advanced" },
@@ -23,6 +24,7 @@ export const mockEmployeeProfile: EmployeeProfile = {
       title: "Complete PMP Certification",
       description: "Study for project management professional exam",
       progress: 60,
+      type: "course",
       dueDate: "2025-07-30"
     },
     {
@@ -30,6 +32,7 @@ export const mockEmployeeProfile: EmployeeProfile = {
       title: "Learn Data Visualization",
       description: "Master Tableau for business intelligence",
       progress: 35,
+      type: "skill",
       dueDate: "2025-06-15"
     }
   ],

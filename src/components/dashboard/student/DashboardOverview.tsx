@@ -1,4 +1,3 @@
-
 import { UserProfileType } from "@/types/user";
 import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
 import KpiCard from "@/components/dashboard/KpiCard";

@@ -1,4 +1,4 @@
-// Update at the top of the file to import MoodType from the correct location
+
 import { MoodType } from "@/types/user";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Smile, Meh, Frown } from "lucide-react";
@@ -9,7 +9,7 @@ interface MotivationCardProps {
 
 const MotivationCard: React.FC<MotivationCardProps> = ({ currentMood }) => {
   const getMoodMessage = (mood?: MoodType) => {
-    switch (mood) {
+    switch (mood?.toLowerCase()) {
       case 'happy':
         return "Keep that positive energy flowing! You're doing great!";
       case 'motivated':
@@ -26,21 +26,18 @@ const MotivationCard: React.FC<MotivationCardProps> = ({ currentMood }) => {
         return "Embrace your curiosity! It's the first step to learning something new.";
       case 'okay':
         return "It's okay to feel just okay. Sometimes that's more than enough.";
-      case 'Focused':
+      case 'focused':
         return "Stay locked in! You're in the zone.";
-      case 'Overwhelmed':
+      case 'overwhelmed':
         return "Feeling overwhelmed? Break tasks into smaller steps.";
-      case 'Tired':
-        return "Time for a power nap! Recharge those batteries.";
-      case 'Happy':
-        return "Spread the joy! Your positivity is contagious.";
       default:
         return "How are you feeling today? Take a moment to check in with yourself.";
     }
   };
 
   const getMoodIcon = (mood?: MoodType) => {
-    switch (mood) {
+    const moodLower = mood?.toLowerCase();
+    switch (moodLower) {
       case 'happy':
       case 'motivated':
         return <Smile className="text-yellow-500" size={20} />;

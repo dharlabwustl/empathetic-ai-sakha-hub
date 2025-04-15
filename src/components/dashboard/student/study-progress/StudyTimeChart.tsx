@@ -1,7 +1,8 @@
+
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BarChart } from "@/components/ui/chart";
 import { SubjectProgress, StudyStreak } from "@/types/user";
+import { BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Bar, ResponsiveContainer } from 'recharts';
 
 interface StudyTimeChartProps {
   subjectProgress: SubjectProgress;
@@ -10,41 +11,15 @@ interface StudyTimeChartProps {
 
 const StudyTimeChart: React.FC<StudyTimeChartProps> = ({ subjectProgress, studyStreak }) => {
   // Mock data for the chart
-  const chartData = {
-    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-    datasets: [
-      {
-        label: 'Hours Studied',
-        data: studyStreak.thisWeek,
-        backgroundColor: 'rgba(54, 162, 235, 0.6)',
-        borderColor: 'rgba(54, 162, 235, 1)',
-        borderWidth: 1,
-      },
-    ],
-  };
-
-  const chartOptions = {
-    scales: {
-      y: {
-        beginAtZero: true,
-        title: {
-          display: true,
-          text: 'Hours',
-        },
-      },
-      x: {
-        title: {
-          display: true,
-          text: 'Day',
-        },
-      },
-    },
-    plugins: {
-      legend: {
-        display: false,
-      },
-    },
-  };
+  const chartData = [
+    { name: 'Mon', hours: studyStreak.thisWeek[0] },
+    { name: 'Tue', hours: studyStreak.thisWeek[1] },
+    { name: 'Wed', hours: studyStreak.thisWeek[2] },
+    { name: 'Thu', hours: studyStreak.thisWeek[3] },
+    { name: 'Fri', hours: studyStreak.thisWeek[4] },
+    { name: 'Sat', hours: studyStreak.thisWeek[5] },
+    { name: 'Sun', hours: studyStreak.thisWeek[6] },
+  ];
 
   return (
     <Card>
@@ -52,7 +27,15 @@ const StudyTimeChart: React.FC<StudyTimeChartProps> = ({ subjectProgress, studyS
         <CardTitle>Weekly Study Time</CardTitle>
       </CardHeader>
       <CardContent>
-        <BarChart data={chartData} options={chartOptions} />
+        <ResponsiveContainer width="100%" height={300}>
+          <BarChart data={chartData}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="name" />
+            <YAxis label={{ value: 'Hours', angle: -90, position: 'insideLeft' }} />
+            <Tooltip />
+            <Bar dataKey="hours" fill="#0ea5e9" name="Hours Studied" />
+          </BarChart>
+        </ResponsiveContainer>
       </CardContent>
     </Card>
   );

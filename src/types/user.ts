@@ -1,4 +1,3 @@
-
 export type UserRole = 'student' | 'employee' | 'doctor' | 'founder' | 'admin' | 'content_creator' | 'teacher' | 'parent';
 
 export interface UserProfileType {
@@ -122,7 +121,20 @@ export interface StudyStreak {
   lastMonth: number[];
 }
 
-export type MoodType = 'Happy' | 'Okay' | 'Tired' | 'Overwhelmed' | 'Focused' | 'sad' | 'neutral' | 'happy' | 'motivated' | 'curious' | 'stressed';
+export type MoodType =
+  | 'Happy'
+  | 'Okay'
+  | 'Tired'
+  | 'Overwhelmed'
+  | 'Focused'
+  | 'sad'
+  | 'neutral'
+  | 'happy'
+  | 'motivated'
+  | 'curious'
+  | 'stressed'
+  | 'tired'
+  | 'okay';
 
 // Adding these types referenced by the import errors
 export interface DoctorProfile extends UserProfileType {

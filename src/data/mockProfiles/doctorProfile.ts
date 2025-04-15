@@ -1,3 +1,4 @@
+
 import { UserRole } from '@/types/user/base';
 import { DoctorProfile } from '@/types/user';
 
@@ -23,6 +24,7 @@ export const mockDoctorProfile: DoctorProfile = {
       title: "Complete Research Paper",
       description: "Finish cardiovascular research paper",
       progress: 85,
+      type: "skill",
       dueDate: "2025-06-15"
     },
     {
@@ -30,6 +32,7 @@ export const mockDoctorProfile: DoctorProfile = {
       title: "Prepare for Medical Conference",
       description: "Create presentation for international conference",
       progress: 40,
+      type: "other",
       dueDate: "2025-07-10"
     }
   ],

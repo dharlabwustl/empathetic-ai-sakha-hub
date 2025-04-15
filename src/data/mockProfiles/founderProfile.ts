@@ -1,3 +1,4 @@
+
 import { UserRole } from '@/types/user/base';
 import { FounderProfile } from '@/types/user';
 
@@ -23,6 +24,7 @@ export const mockFounderProfile: FounderProfile = {
       title: "Secure Series A Funding",
       description: "Prepare pitch deck and investor meetings",
       progress: 70,
+      type: "other",
       dueDate: "2025-08-15"
     },
     {
@@ -30,6 +32,7 @@ export const mockFounderProfile: FounderProfile = {
       title: "Launch Product Beta",
       description: "Complete MVP and prepare beta launch",
       progress: 85,
+      type: "other",
       dueDate: "2025-06-01"
     }
   ],

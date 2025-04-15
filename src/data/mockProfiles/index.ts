@@ -15,15 +15,15 @@ export const getFounderProfile = () => mockFounderProfile;
 export const getMockProfileByRole = (role: UserRole | string): UserProfileType => {
   switch (role.toLowerCase()) {
     case 'student':
-      return mockStudentProfile;
+      return mockStudentProfile as unknown as UserProfileType;
     case 'employee':
-      return mockEmployeeProfile;
+      return mockEmployeeProfile as unknown as UserProfileType;
     case 'doctor':
-      return mockDoctorProfile;
+      return mockDoctorProfile as unknown as UserProfileType;
     case 'founder':
-      return mockFounderProfile;
+      return mockFounderProfile as unknown as UserProfileType;
     default:
-      return mockStudentProfile; // Default to student profile
+      return mockStudentProfile as unknown as UserProfileType; // Default to student profile
   }
 };
 
@@ -73,5 +73,5 @@ export const generateMockProfile = (overrides: Partial<UserProfileType> = {}): U
       quizzesCompleted: 24
     },
     ...overrides
-  };
+  } as UserProfileType;
 };

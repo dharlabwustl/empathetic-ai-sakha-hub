@@ -1,80 +1,106 @@
-import { SubjectProgress, StudyStreak } from "@/types/user";
 
-export const getMockProgressData = async (): Promise<{ subjects: SubjectProgress[]; studyStreak: StudyStreak }> => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const mockSubjects: SubjectProgress[] = [
-        {
-          id: "s1",
-          name: "Mathematics",
-          progress: 75,
-          lastWeekProgress: 70,
-          color: "#FFC107",
-          topics: [
-            { id: "t1", name: "Algebra", completed: true, masteryLevel: 80, lastPracticed: "2024-05-01" },
-            { id: "t2", name: "Calculus", completed: false, masteryLevel: 50, lastPracticed: "2024-04-28" },
-          ],
-          quizScores: [
-            { id: "q1", title: "Algebra Quiz", score: 85, maxScore: 100, date: "2024-05-05", timeTaken: 25 },
-            { id: "q2", title: "Calculus Quiz", score: 60, maxScore: 100, date: "2024-05-03", timeTaken: 30 },
-          ],
-          studyHours: [
-            { date: "2024-05-06", hours: 2 },
-            { date: "2024-05-05", hours: 3 },
-          ],
-        },
-        {
-          id: "s2",
-          name: "Physics",
-          progress: 60,
-          lastWeekProgress: 55,
-          color: "#4CAF50",
-          topics: [
-            { id: "t3", name: "Mechanics", completed: true, masteryLevel: 90, lastPracticed: "2024-05-04" },
-            { id: "t4", name: "Thermodynamics", completed: false, masteryLevel: 40, lastPracticed: "2024-04-30" },
-          ],
-          quizScores: [
-            { id: "q3", title: "Mechanics Quiz", score: 90, maxScore: 100, date: "2024-05-07", timeTaken: 20 },
-            { id: "q4", title: "Thermodynamics Quiz", score: 50, maxScore: 100, date: "2024-05-02", timeTaken: 35 },
-          ],
-          studyHours: [
-            { date: "2024-05-07", hours: 1.5 },
-            { date: "2024-05-06", hours: 2.5 },
-          ],
-        },
-        {
-          id: "s3",
-          name: "Chemistry",
-          progress: 80,
-          lastWeekProgress: 75,
-          color: "#2196F3",
-          topics: [
-            { id: "t5", name: "Organic Chemistry", completed: true, masteryLevel: 75, lastPracticed: "2024-05-02" },
-            { id: "t6", name: "Inorganic Chemistry", completed: false, masteryLevel: 60, lastPracticed: "2024-05-01" },
-          ],
-          quizScores: [
-            { id: "q5", title: "Organic Chemistry Quiz", score: 75, maxScore: 100, date: "2024-05-06", timeTaken: 28 },
-            { id: "q6", title: "Inorganic Chemistry Quiz", score: 65, maxScore: 100, date: "2024-05-04", timeTaken: 32 },
-          ],
-          studyHours: [
-            { date: "2024-05-05", hours: 3 },
-            { date: "2024-05-04", hours: 2 },
-          ],
-        },
-      ];
+import { SubjectProgress, StudyStreak } from '@/types/user';
 
-      const mockStudyStreak: StudyStreak = {
-        current: 7,
-        longest: 14,
-        thisWeek: [5, 4, 6, 3, 5, 4, 7],
-        lastMonth: [
-          3, 2, 4, 5, 6, 7, 3, 4, 5, 6, 7, 8,
-          3, 4, 5, 6, 2, 4, 5, 6, 7, 9, 3, 4,
-          5, 6, 7, 2, 4, 1
-        ],
-      };
+export const mockStudyProgressData = {
+  subjectsProgress: [
+    {
+      id: "physics",
+      name: "Physics",
+      progress: 75,
+      lastWeekProgress: 70,
+      color: "#3b82f6",
+      topics: [
+        { id: "mechanics", name: "Mechanics", completed: true, masteryLevel: 85, lastPracticed: "2025-05-10" },
+        { id: "thermodynamics", name: "Thermodynamics", completed: true, masteryLevel: 78, lastPracticed: "2025-05-08" },
+        { id: "waves", name: "Waves & Oscillations", completed: false, masteryLevel: 65, lastPracticed: "2025-05-05" },
+        { id: "optics", name: "Optics", completed: false, masteryLevel: 60, lastPracticed: "2025-04-28" }
+      ],
+      quizScores: [
+        { id: "quiz1", title: "Mechanics Quiz 1", score: 18, maxScore: 20, date: "2025-05-09", timeTaken: 15 },
+        { id: "quiz2", title: "Thermodynamics Quiz", score: 16, maxScore: 20, date: "2025-05-06", timeTaken: 18 }
+      ],
+      studyHours: [
+        { date: "2025-05-06", hours: 2.5 },
+        { date: "2025-05-07", hours: 1.0 },
+        { date: "2025-05-08", hours: 2.0 },
+        { date: "2025-05-09", hours: 1.5 },
+        { date: "2025-05-10", hours: 2.0 },
+        { date: "2025-05-11", hours: 0.0 },
+        { date: "2025-05-12", hours: 3.0 }
+      ]
+    },
+    {
+      id: "chemistry",
+      name: "Chemistry",
+      progress: 60,
+      lastWeekProgress: 52,
+      color: "#10b981",
+      topics: [
+        { id: "organic", name: "Organic Chemistry", completed: true, masteryLevel: 70, lastPracticed: "2025-05-11" },
+        { id: "inorganic", name: "Inorganic Chemistry", completed: false, masteryLevel: 55, lastPracticed: "2025-05-07" },
+        { id: "physical", name: "Physical Chemistry", completed: false, masteryLevel: 60, lastPracticed: "2025-04-30" }
+      ],
+      quizScores: [
+        { id: "quiz3", title: "Organic Chemistry Quiz", score: 14, maxScore: 20, date: "2025-05-10", timeTaken: 20 }
+      ],
+      studyHours: [
+        { date: "2025-05-06", hours: 1.0 },
+        { date: "2025-05-07", hours: 1.5 },
+        { date: "2025-05-08", hours: 0.0 },
+        { date: "2025-05-09", hours: 1.0 },
+        { date: "2025-05-10", hours: 2.5 },
+        { date: "2025-05-11", hours: 1.0 },
+        { date: "2025-05-12", hours: 1.5 }
+      ]
+    },
+    {
+      id: "mathematics",
+      name: "Mathematics",
+      progress: 80,
+      lastWeekProgress: 75,
+      color: "#f59e0b",
+      topics: [
+        { id: "calculus", name: "Calculus", completed: true, masteryLevel: 90, lastPracticed: "2025-05-12" },
+        { id: "algebra", name: "Algebra", completed: true, masteryLevel: 85, lastPracticed: "2025-05-09" },
+        { id: "statistics", name: "Statistics", completed: false, masteryLevel: 65, lastPracticed: "2025-05-04" }
+      ],
+      quizScores: [
+        { id: "quiz4", title: "Calculus Quiz 1", score: 19, maxScore: 20, date: "2025-05-11", timeTaken: 14 },
+        { id: "quiz5", title: "Algebra Quiz", score: 17, maxScore: 20, date: "2025-05-08", timeTaken: 16 }
+      ],
+      studyHours: [
+        { date: "2025-05-06", hours: 2.0 },
+        { date: "2025-05-07", hours: 1.0 },
+        { date: "2025-05-08", hours: 1.5 },
+        { date: "2025-05-09", hours: 2.0 },
+        { date: "2025-05-10", hours: 0.0 },
+        { date: "2025-05-11", hours: 2.0 },
+        { date: "2025-05-12", hours: 2.5 }
+      ]
+    }
+  ] as SubjectProgress[],
+  
+  streak: {
+    current: 5,
+    longest: 12,
+    thisWeek: [2, 1, 0, 3, 2, 0, 2],
+    lastMonth: [
+      1, 2, 0, 1, 2, 0, 2, 1, 2, 3, 
+      1, 0, 0, 1, 2, 2, 3, 1, 0, 2, 
+      1, 3, 2, 1, 2, 3, 0, 2, 1, 0
+    ]
+  } as StudyStreak,
+  
+  loading: false
+};
 
-      resolve({ subjects: mockSubjects, studyStreak: mockStudyStreak });
-    }, 500);
-  });
+export const useStudyProgress = () => {
+  return {
+    ...mockStudyProgressData,
+    selectedSubject: mockStudyProgressData.subjectsProgress[0],
+    selectSubject: (id: string) => {
+      // This is a mock implementation, in a real app this would update state
+      return mockStudyProgressData.subjectsProgress.find(s => s.id === id) || mockStudyProgressData.subjectsProgress[0];
+    }
+  };
 };
