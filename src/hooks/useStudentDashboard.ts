@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -65,13 +64,19 @@ export const useStudentDashboard = () => {
         
         console.log("useStudentDashboard - Session result:", { 
           shouldShowOnboarding, 
-          shouldShowWelcomeTour 
+          shouldShowWelcomeTour,
+          searchParams: location.search
         });
         
-        // Update state based on user session
-        setShowOnboarding(shouldShowOnboarding);
-        // Always show welcome tour for first-time users after onboarding
-        setShowWelcomeTour(shouldShowWelcomeTour);
+        // Force onboarding for users coming with onboarding params
+        if (location.search.includes('completedOnboarding=true') || location.search.includes('new=true')) {
+          setShowOnboarding(true);
+          console.log("useStudentDashboard - Forcing onboarding flow based on URL parameters");
+        } else {
+          // Otherwise use the result from session manager
+          setShowOnboarding(shouldShowOnboarding);
+          setShowWelcomeTour(shouldShowWelcomeTour);
+        }
         
         // Get user's last activity and suggest next actions for returning users
         if (!shouldShowOnboarding && !shouldShowWelcomeTour) {
@@ -200,6 +205,11 @@ export const useStudentDashboard = () => {
     
     // Show welcome tour after onboarding
     setShowWelcomeTour(true);
+    
+    // Clean up URL parameters
+    if (location.search) {
+      navigate('/dashboard/student', { replace: true });
+    }
     
     toast({
       title: "Onboarding Complete!",

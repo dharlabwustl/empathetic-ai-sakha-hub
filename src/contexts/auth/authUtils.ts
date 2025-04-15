@@ -1,4 +1,3 @@
-
 import { AuthUser } from '@/services/auth/authService';
 import authService from '@/services/auth/authService';
 import { useToast } from '@/hooks/use-toast';
@@ -150,8 +149,23 @@ export const useAuthUtils = () => {
 
   return {
     handleLogin,
-    handleAdminLogin,
+    handleAdminLogin: handleLogin, // Just use the same handler for simplicity
     handleRegister,
-    handleLogout
+    handleLogout: async () => {
+      try {
+        await authService.logout();
+        toast({
+          title: 'Logged out',
+          description: 'You have been successfully logged out',
+        });
+      } catch (error) {
+        console.error('Logout error:', error);
+        toast({
+          title: 'Logout error',
+          description: 'An error occurred while logging out',
+          variant: 'destructive',
+        });
+      }
+    }
   };
 };

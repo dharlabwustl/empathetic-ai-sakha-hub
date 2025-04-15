@@ -54,21 +54,8 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     if (!roles.includes(user.role)) {
       console.log("ProtectedRoute - User doesn't have required role:", { userRole: user.role, requiredRoles: roles });
       
-      // Redirect based on user's actual role
-      switch (user.role.toLowerCase()) {
-        case 'student':
-          return <Navigate to="/dashboard/student" replace />;
-        case 'employee':
-          return <Navigate to="/dashboard/employee" replace />;
-        case 'doctor':
-          return <Navigate to="/dashboard/doctor" replace />;
-        case 'founder':
-          return <Navigate to="/dashboard/founder" replace />;
-        case 'admin':
-          return <Navigate to="/admin/dashboard" replace />;
-        default:
-          return <Navigate to="/" replace />;
-      }
+      // Always default to student dashboard if role is missing or doesn't match
+      return <Navigate to="/dashboard/student" replace />;
     }
   }
 

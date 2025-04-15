@@ -4,7 +4,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import { UserRole, UserGoal, OnboardingStep } from "./OnboardingContext";
 import { getDemographicsQuestion } from "./utils/stepUtils";
-import authService from "@/services/auth/authService"; // Import auth service
+import authService from "@/services/auth/authService";
 
 interface StepHandlerProps {
   onboardingData: any;
@@ -79,7 +79,7 @@ const StepHandler = ({
           description: "Let's customize your learning experience.",
         });
         
-        // Add explicit completedOnboarding URL parameter to ensure proper redirection
+        // Use both parameters to ensure the onboarding flow is triggered
         navigate(`/dashboard/student?completedOnboarding=true&new=true`);
       } else {
         throw new Error("Registration failed");

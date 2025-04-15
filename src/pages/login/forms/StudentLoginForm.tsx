@@ -39,11 +39,13 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
       const success = await login(email, password);
       
       if (success) {
-        if (activeTab === "student") {
-          navigate("/dashboard/student");
-        } else {
-          navigate("/dashboard/student");
-        }
+        // Always redirect to student dashboard after successful login
+        navigate("/dashboard/student");
+        
+        toast({
+          title: "Login Successful",
+          description: "Welcome to your personalized learning dashboard!",
+        });
       } else {
         throw new Error("Login failed");
       }

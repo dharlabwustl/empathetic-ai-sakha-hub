@@ -27,8 +27,7 @@ export const handleNewUser = (
   if (completedOnboarding === 'true' || isNew === 'true') {
     console.log("UserSessionManager - New user detected from URL parameters");
     shouldShowOnboarding = true;
-    // Clean the URL to remove the query param
-    navigate(location.pathname, { replace: true });
+    // Don't clean the URL here - we need these params for the flow to work
   }
   // Check if user data exists
   else if (userData) {

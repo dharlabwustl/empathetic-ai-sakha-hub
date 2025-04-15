@@ -29,7 +29,7 @@ const StudyProgress = () => {
       
       <ProgressStatCards 
         subjectsLength={subjectsProgress.length} 
-        studyStreak={streak.current} 
+        studyStreak={streak} 
         examGoal={examGoal} 
       />
       
