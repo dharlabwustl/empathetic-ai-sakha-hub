@@ -1,10 +1,10 @@
 
 // Base user types
 
-export type UserRole = "Student" | "Professor" | "Employee" | "Doctor" | "Founder" | "admin" | "content_creator" | "teacher" | "parent" | "student"; 
-export type SubscriptionType = "Free" | "Basic" | "Premium" | "Enterprise";
-export type PersonalityType = "Strategic Thinker" | "Creative Explorer" | "Detailed Analyzer" | "Collaborative Leader" | "Practical Implementer" | "Analytical Problem Solver" | "Creative Builder";
-export type MoodType = "Happy" | "Okay" | "Tired" | "Overwhelmed" | "Focused" | "sad" | "neutral" | "happy" | "motivated" | "curious" | "stressed";
+export type UserRole = 'Student' | 'Professor' | 'Employee' | 'Doctor' | 'Founder' | 'admin' | 'content_creator' | 'teacher' | 'parent' | 'student'; 
+export type SubscriptionType = 'Free' | 'Basic' | 'Premium' | 'Enterprise';
+export type PersonalityType = 'Strategic Thinker' | 'Creative Explorer' | 'Detailed Analyzer' | 'Collaborative Leader' | 'Practical Implementer' | 'Analytical Problem Solver' | 'Creative Builder';
+export type MoodType = 'Happy' | 'Okay' | 'Tired' | 'Overwhelmed' | 'Focused' | 'sad' | 'neutral' | 'happy' | 'motivated' | 'curious' | 'stressed';
 
 export interface BaseUserProfile {
   id: string;
@@ -19,7 +19,7 @@ export interface BaseUserProfile {
   subscription: SubscriptionType;
   joinDate: string;
   personalityType: PersonalityType;
-  areasOfInterest: Array<{ id: string; name: string; level: "Beginner" | "Intermediate" | "Advanced" }>;
+  areasOfInterest: Array<{ id: string; name: string; level: 'Beginner' | 'Intermediate' | 'Advanced' }>;
   lastActive: string;
 }
 

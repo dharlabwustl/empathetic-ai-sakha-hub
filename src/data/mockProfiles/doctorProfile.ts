@@ -1,67 +1,42 @@
 
-// Correcting the mock data for doctor profile
-import { DoctorProfile } from "@/types/user";
-import { v4 as uuidv4 } from "uuid";
+import { UserRole } from "@/types/user";
+import { DoctorProfile } from "@/types/user/professional";
 
 export const mockDoctorProfile: DoctorProfile = {
-  id: uuidv4(),
-  name: "Dr. Aisha Sharma",
-  email: "dr.aisha.sharma@maxhealthcare.com", // Added missing email
-  phoneNumber: "+919876543210",
-  role: "Doctor",
+  id: "3",
+  name: "Dr. Priya Sharma",
+  phoneNumber: "9876543212",
+  email: "priya.sharma@hospital.com",
+  role: "doctor" as UserRole,
   personalityType: "Analytical Problem Solver",
   subscription: "Premium",
-  joinDate: "2025-02-10",
-  lastActive: "2025-04-07",
-  specialization: "Neurology",
-  qualifications: [
-    "MBBS - AIIMS",
-    "MD - Neurology",
-    "Fellowship - Cognitive Neuroscience"
+  joinDate: "2025-01-15",
+  lastActive: "2025-05-11",
+  areasOfInterest: [
+    { id: "i1", name: "Cardiology", level: "Advanced" },
+    { id: "i2", name: "Medical Research", level: "Intermediate" },
+    { id: "i3", name: "Patient Care", level: "Advanced" }
   ],
-  researchInterests: [
-    "Alzheimer's Disease",
-    "Neuroplasticity",
-    "Cognitive Enhancement"
-  ],
-  publications: 14,
-  institution: "Max Healthcare Institute",
-  yearsOfPractice: 8,
-  certifications: [
-    "Advanced Neurology",
-    "Clinical Research",
-    "Medical Education"
-  ],
-  researchTopic: "Neural Biomarkers for Early Alzheimer's Detection",
-  thesisTitle: "Cognitive Reserve and Neurodegenerative Progression",
-  clinicalInterest: "Memory Disorders",
-  researchPhase: "Clinical Trials",
   goals: [
     {
-      id: uuidv4(),
+      id: "g1",
       title: "Complete Research Paper",
-      description: "Finish and submit paper on neural biomarkers",
-      progress: 65,
+      description: "Finish cardiovascular research paper",
+      progress: 85,
       dueDate: "2025-06-15"
     },
     {
-      id: uuidv4(),
-      title: "Conference Presentation",
-      description: "Present findings at International Neurology Conference",
+      id: "g2",
+      title: "Prepare for Medical Conference",
+      description: "Create presentation for international conference",
       progress: 40,
-      dueDate: "2025-08-20"
+      dueDate: "2025-07-10"
     }
   ],
-  areasOfInterest: [
-    {
-      id: uuidv4(),
-      name: "Machine Learning in Diagnostics",
-      level: "Intermediate"
-    },
-    {
-      id: uuidv4(),
-      name: "Clinical Research",
-      level: "Advanced"
-    }
-  ]
+  specialization: "Cardiology",
+  institution: "Apollo Hospitals",
+  patientsHelped: 5000,
+  yearsOfExperience: 12,
+  publications: 15,
+  certifications: ["MBBS", "MD", "Fellowship in Interventional Cardiology"]
 };

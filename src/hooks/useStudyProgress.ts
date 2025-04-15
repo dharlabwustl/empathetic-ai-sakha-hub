@@ -1,50 +1,40 @@
 
-import React, { useState, useEffect } from "react";
-import { SubjectProgress, StudyStreak } from "@/types/user";
-import { getAllSubjectsProgress, getStudyStreak } from "@/data/mockProgressData";
+import { useState, useEffect } from "react";
+import { UserProfileType } from "@/types/user";
+import { SubjectProgress, StudyStreak } from "@/types/user/student";
+import { getMockProgressData, getMockStudyStreak } from "@/data/mockProgressData";
 
-export function useStudyProgress() {
-  const [subjects, setSubjects] = useState<SubjectProgress[]>([]);
-  const [studyStreak, setStudyStreak] = useState<StudyStreak | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [selectedSubject, setSelectedSubject] = useState<SubjectProgress | null>(null);
+export function useStudyProgress(userId: string) {
+  const [subjectsProgress, setSubjectsProgress] = useState<SubjectProgress[]>([]);
+  const [streak, setStreak] = useState<StudyStreak | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Simulate API fetch
-    const fetchData = () => {
+    const fetchProgressData = async () => {
       setLoading(true);
-
-      setTimeout(() => {
-        const subjectsData = getAllSubjectsProgress();
-        const streakData = getStudyStreak();
+      try {
+        // In a real app, this would be an API call
+        // Simulating API delay
+        await new Promise(resolve => setTimeout(resolve, 800));
         
-        setSubjects(subjectsData);
-        setStudyStreak(streakData);
+        const subjectData = getMockProgressData(userId);
+        const streakData = getMockStudyStreak(userId);
         
-        // Set first subject as default selected
-        if (subjectsData.length > 0) {
-          setSelectedSubject(subjectsData[0]);
-        }
-        
+        setSubjectsProgress(subjectData);
+        setStreak(streakData);
+      } catch (error) {
+        console.error("Error fetching progress data:", error);
+      } finally {
         setLoading(false);
-      }, 800);
+      }
     };
 
-    fetchData();
-  }, []);
-
-  const selectSubject = (subjectId: string) => {
-    const subject = subjects.find(s => s.id === subjectId);
-    if (subject) {
-      setSelectedSubject(subject);
-    }
-  };
+    fetchProgressData();
+  }, [userId]);
 
   return {
-    subjects,
-    studyStreak,
-    loading,
-    selectedSubject,
-    selectSubject
+    subjectsProgress,
+    streak,
+    loading
   };
 }
