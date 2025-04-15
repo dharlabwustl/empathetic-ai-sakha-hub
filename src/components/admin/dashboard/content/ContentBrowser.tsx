@@ -1,157 +1,226 @@
-import React from "react";
-import { Button } from "@/components/ui/button";
-import { Search, Filter, Download, Tag } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
-import { 
-  ContentBrowserProps, 
-  EmptyStateProps, 
-  FilesTableProps, 
-  FileRowProps 
-} from "@/types/content";
-import { FileText } from "lucide-react";
 
-const ContentBrowser = ({ files, searchTerm, setSearchTerm }: ContentBrowserProps) => {
-  const { toast } = useToast();
+import React, { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Search, FolderOpen, Filter } from "lucide-react";
+import {
+  ContentBrowserProps,
+  EmptyStateProps,
+  FilesTableProps,
+  FileRowProps,
+  ContentItem
+} from "@/types/content";
+import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+
+// Empty state component for when no files are found
+const EmptyState = ({ message, icon, actionLabel, onAction }: EmptyStateProps) => (
+  <div className="flex flex-col items-center justify-center p-12 text-center">
+    <div className="h-12 w-12 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-4">
+      {icon || <FolderOpen className="h-6 w-6 text-gray-400" />}
+    </div>
+    <h3 className="mb-2 text-xl font-medium">{message || "No files found"}</h3>
+    <p className="mb-6 text-sm text-gray-500 dark:text-gray-400">
+      Upload or create content to get started
+    </p>
+    {actionLabel && onAction && (
+      <Button onClick={onAction}>{actionLabel}</Button>
+    )}
+  </div>
+);
+
+// File row component
+const FileRow = ({ 
+  file, 
+  isSelected, 
+  onSelect, 
+  onDelete, 
+  onEdit 
+}: FileRowProps) => (
+  <TableRow className={isSelected ? "bg-blue-50 dark:bg-blue-900/20" : ""}>
+    <TableCell>
+      <Checkbox
+        checked={isSelected}
+        onCheckedChange={() => onSelect(file)}
+      />
+    </TableCell>
+    <TableCell className="font-medium">{file.title}</TableCell>
+    <TableCell>
+      <Badge variant="outline" className="capitalize">
+        {file.type.replace("_", " ")}
+      </Badge>
+    </TableCell>
+    <TableCell>{file.subject}</TableCell>
+    <TableCell>{file.examGoal}</TableCell>
+    <TableCell className="text-gray-500 text-sm">
+      {new Date(file.updatedAt).toLocaleDateString()}
+    </TableCell>
+    <TableCell>
+      <div className="flex items-center gap-2">
+        {onEdit && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-8"
+            onClick={() => onEdit(file)}
+          >
+            Edit
+          </Button>
+        )}
+        {onDelete && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-8 text-red-600 hover:text-red-700 hover:bg-red-100"
+            onClick={() => onDelete(file)}
+          >
+            Delete
+          </Button>
+        )}
+      </div>
+    </TableCell>
+  </TableRow>
+);
+
+// Files table component
+const FilesTable = ({ 
+  files, 
+  onSelect, 
+  onDelete, 
+  onEdit, 
+  selectedFile 
+}: FilesTableProps) => (
+  <div className="rounded-md border overflow-hidden">
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead className="w-12"></TableHead>
+          <TableHead>Title</TableHead>
+          <TableHead>Type</TableHead>
+          <TableHead>Subject</TableHead>
+          <TableHead>Exam Goal</TableHead>
+          <TableHead>Updated</TableHead>
+          <TableHead>Actions</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {files.map((file) => (
+          <FileRow
+            key={file.id}
+            file={file}
+            isSelected={selectedFile?.id === file.id}
+            onSelect={onSelect}
+            onDelete={onDelete}
+            onEdit={onEdit}
+          />
+        ))}
+      </TableBody>
+    </Table>
+  </div>
+);
+
+// Main content browser component
+const ContentBrowser = ({ 
+  contentType, 
+  onSelect, 
+  selectedContent 
+}: ContentBrowserProps) => {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [files, setFiles] = useState<ContentItem[]>([
+    {
+      id: "1",
+      title: "Physics Formula Cheat Sheet",
+      type: "study_material",
+      subject: "Physics",
+      examGoal: "JEE",
+      createdAt: "2025-03-15T10:30:00Z",
+      updatedAt: "2025-04-10T08:45:00Z",
+      tags: ["formulas", "quick-reference"]
+    },
+    {
+      id: "2",
+      title: "NEET Biology Flash Cards",
+      type: "flashcard",
+      subject: "Biology",
+      examGoal: "NEET",
+      createdAt: "2025-03-20T14:20:00Z",
+      updatedAt: "2025-04-09T16:30:00Z",
+      tags: ["flashcards", "spaced-repetition"]
+    },
+    {
+      id: "3",
+      title: "Mock Test Series - JEE Advanced",
+      type: "practice_exam",
+      subject: "Mathematics",
+      examGoal: "JEE Advanced",
+      createdAt: "2025-03-25T09:15:00Z",
+      updatedAt: "2025-04-12T11:10:00Z",
+      tags: ["mock-test", "timed"]
+    }
+  ]);
   
-  const handleDownload = (fileName: string) => {
-    toast({
-      title: "Download started",
-      description: `Downloading ${fileName}...`
-    });
+  // Filter files by search term and contentType
+  const filteredFiles = files.filter(file => {
+    const matchesType = contentType === file.type || contentType === 'all';
+    const matchesSearch = file.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                          (file.subject && file.subject.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                          (file.examGoal && file.examGoal.toLowerCase().includes(searchTerm.toLowerCase()));
+    return matchesType && matchesSearch;
+  });
+  
+  const handleDelete = (file: ContentItem) => {
+    setFiles(files.filter(f => f.id !== file.id));
   };
   
-  const handleView = (fileId: string) => {
-    toast({
-      title: "File viewer opened",
-      description: `Viewing file ID: ${fileId}`
-    });
-  };
-  
-  const handleTagFile = (fileId: string) => {
-    toast({
-      title: "Tag editor opened",
-      description: `Add or edit tags for file ID: ${fileId}`
-    });
+  const handleEdit = (file: ContentItem) => {
+    console.log("Edit file:", file);
+    // Would open edit modal or navigate to edit view
   };
 
   return (
-    <div>
-      <div className="flex flex-col sm:flex-row gap-4 mb-4">
-        <div className="relative flex-grow">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
-          <input
-            type="text"
-            placeholder="Search by file name, subject, or tag"
-            className="w-full pl-10 pr-4 py-2 border rounded-md"
+    <div className="space-y-4">
+      <div className="flex flex-col md:flex-row gap-4 justify-between">
+        <div className="relative w-full md:w-96">
+          <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-500" />
+          <Input
+            placeholder="Search content..."
+            className="pl-10"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        <Button variant="outline" className="flex items-center">
-          <Filter className="mr-2 h-4 w-4" /> Filter
+        <Button variant="outline" className="flex items-center gap-2">
+          <Filter size={16} />
+          <span>Filters</span>
         </Button>
       </div>
       
-      {files.length === 0 ? (
-        <EmptyState searchTerm={searchTerm} />
+      {filteredFiles.length > 0 ? (
+        <FilesTable
+          files={filteredFiles}
+          onSelect={onSelect}
+          onDelete={handleDelete}
+          onEdit={handleEdit}
+          selectedFile={selectedContent}
+        />
       ) : (
-        <FilesTable 
-          files={files}
-          onDownload={handleDownload}
-          onView={handleView}
-          onTagFile={handleTagFile}
+        <EmptyState
+          message="No files match your search"
+          actionLabel="Clear Filters"
+          onAction={() => setSearchTerm("")}
         />
       )}
     </div>
   );
 };
-
-const EmptyState = ({ searchTerm }: EmptyStateProps) => (
-  <div className="text-center py-8">
-    <FileText className="mx-auto h-12 w-12 text-gray-400" />
-    <h3 className="mt-2 font-semibold">No files found</h3>
-    <p className="text-sm text-gray-500">
-      {searchTerm 
-        ? "Try changing your search terms" 
-        : "Upload files to get started"}
-    </p>
-  </div>
-);
-
-const FilesTable = ({ files, onDownload, onView, onTagFile }: FilesTableProps) => (
-  <div className="overflow-x-auto">
-    <table className="w-full">
-      <thead>
-        <tr className="border-b">
-          <th className="text-left py-3 px-4 font-medium">File Name</th>
-          <th className="text-left py-3 px-4 font-medium">Subject</th>
-          <th className="text-left py-3 px-4 font-medium">Exam Type</th>
-          <th className="text-left py-3 px-4 font-medium">Upload Date</th>
-          <th className="text-left py-3 px-4 font-medium">Size</th>
-          <th className="text-left py-3 px-4 font-medium">Tags</th>
-          <th className="text-right py-3 px-4 font-medium">Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        {files.map((file) => (
-          <FileRow 
-            key={file.id}
-            file={file}
-            onDownload={onDownload}
-            onView={onView}
-            onTagFile={onTagFile}
-          />
-        ))}
-      </tbody>
-    </table>
-  </div>
-);
-
-const FileRow = ({ file, onDownload, onView, onTagFile }: FileRowProps) => (
-  <tr className="border-b hover:bg-gray-50 dark:hover:bg-gray-900">
-    <td className="py-3 px-4">{file.name}</td>
-    <td className="py-3 px-4">{file.subject}</td>
-    <td className="py-3 px-4">{file.examType}</td>
-    <td className="py-3 px-4">{file.uploadDate}</td>
-    <td className="py-3 px-4">{file.size}</td>
-    <td className="py-3 px-4">
-      <div className="flex flex-wrap gap-1">
-        {file.tags.map((tag: string, i: number) => (
-          <span 
-            key={i} 
-            className="px-2 py-1 text-xs bg-gray-100 dark:bg-gray-800 rounded-full"
-          >
-            {tag}
-          </span>
-        ))}
-      </div>
-    </td>
-    <td className="py-3 px-4 text-right">
-      <div className="flex justify-end gap-2">
-        <Button 
-          variant="ghost" 
-          size="icon"
-          onClick={() => onView(file.id)}
-        >
-          <Search size={16} />
-        </Button>
-        <Button 
-          variant="ghost" 
-          size="icon"
-          onClick={() => onDownload(file.name)}
-        >
-          <Download size={16} />
-        </Button>
-        <Button 
-          variant="ghost" 
-          size="icon"
-          onClick={() => onTagFile(file.id)}
-        >
-          <Tag size={16} />
-        </Button>
-      </div>
-    </td>
-  </tr>
-);
 
 export default ContentBrowser;

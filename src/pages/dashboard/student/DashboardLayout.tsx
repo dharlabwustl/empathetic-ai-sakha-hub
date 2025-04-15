@@ -1,23 +1,10 @@
 
-import React, { useState } from "react";
-import SidebarNav from "@/components/dashboard/SidebarNav";
-import ChatAssistant from "@/components/dashboard/ChatAssistant";
-import DashboardHeader from "./DashboardHeader";
-import SidebarNavigation from "./SidebarNavigation";
-import DashboardContent from "./DashboardContent";
-import StudyPlanDialog from "./StudyPlanDialog";
-import TopNavigationControls from "@/components/dashboard/student/TopNavigationControls";
-import SurroundingInfluencesSection from "@/components/dashboard/student/SurroundingInfluencesSection";
-import NavigationToggleButton from "@/components/dashboard/student/NavigationToggleButton";
+import React from 'react';
 import { UserProfileType } from "@/types/user";
 import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
-import { formatTime, formatDate } from "./utils/DateTimeFormatter";
-import { motion } from "framer-motion";
-import { useIsMobile } from "@/hooks/use-mobile";
-import MobileNavigation from "./MobileNavigation";
-import { getFeatures } from "./utils/FeatureManager";
+import DashboardContainer from '@/components/dashboard/student/DashboardContainer';
 
-interface DashboardLayoutProps {
+export interface DashboardLayoutProps {
   userProfile: UserProfileType;
   hideSidebar: boolean;
   hideTabsNav: boolean;
@@ -36,7 +23,7 @@ interface DashboardLayoutProps {
   onCloseStudyPlan: () => void;
   lastActivity?: { type: string; description: string } | null;
   suggestedNextAction?: string | null;
-  currentMood?: 'sad' | 'neutral' | 'happy' | 'motivated' | undefined;
+  currentMood?: 'sad' | 'neutral' | 'happy' | 'motivated' | 'curious' | 'stressed' | 'tired';
 }
 
 const DashboardLayout = ({
@@ -60,98 +47,57 @@ const DashboardLayout = ({
   suggestedNextAction,
   currentMood
 }: DashboardLayoutProps) => {
-  const currentTime = new Date();
-  const formattedTime = formatTime(currentTime);
-  const formattedDate = formatDate(currentTime);
-  const isMobile = useIsMobile();
-  // Always start with influences section collapsed
-  const [influenceMeterCollapsed, setInfluenceMeterCollapsed] = useState(true);
+  // Default features array for student dashboard
+  const features = [
+    {
+      id: 'personalized-study',
+      title: 'Personalized Study Plan',
+      description: 'AI-generated study plan based on your learning habits'
+    },
+    {
+      id: 'concept-cards',
+      title: 'Interactive Concept Cards',
+      description: 'Visual learning with concept mapping'
+    },
+    {
+      id: 'practice-tests',
+      title: 'Practice Tests',
+      description: 'Exam-like questions to test your knowledge'
+    },
+    {
+      id: 'revision-tools',
+      title: 'Smart Revision Tools',
+      description: 'Spaced repetition for better memory retention'
+    }
+  ];
   
-  // Get features from utility
-  const features = getFeatures();
+  // Get current time
+  const currentTime = new Date();
   
   return (
-    <div className="min-h-screen bg-gradient-to-br from-sky-100/10 via-white to-violet-100/10 dark:from-sky-900/10 dark:via-gray-900 dark:to-violet-900/10">
-      <SidebarNav userType="student" userName={userProfile.name} />
-      
-      <main className={`transition-all duration-300 ${hideSidebar ? 'md:ml-0' : 'md:ml-64'} p-4 sm:p-6 pb-20 md:pb-6`}>
-        <TopNavigationControls 
-          hideSidebar={hideSidebar}
-          onToggleSidebar={onToggleSidebar}
-          formattedDate={formattedDate}
-          formattedTime={formattedTime}
-        />
-        
-        {/* Top header section */}
-        <DashboardHeader 
-          userProfile={userProfile}
-          formattedTime={formattedTime}
-          formattedDate={formattedDate}
-          onViewStudyPlan={onViewStudyPlan}
-        />
-
-        {/* Surrounding Influences Meter */}
-        <SurroundingInfluencesSection 
-          influenceMeterCollapsed={influenceMeterCollapsed}
-          setInfluenceMeterCollapsed={setInfluenceMeterCollapsed}
-        />
-        
-        {/* Mobile Navigation */}
-        {isMobile && (
-          <div className="mb-6">
-            <MobileNavigation activeTab={activeTab} onTabChange={onTabChange} />
-          </div>
-        )}
-        
-        {/* Main dashboard content area */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 mt-4 sm:mt-6">
-          {/* Left navigation sidebar (desktop) */}
-          {!hideSidebar && !isMobile && (
-            <SidebarNavigation 
-              activeTab={activeTab} 
-              onTabChange={onTabChange} 
-            />
-          )}
-          
-          {/* Main content area */}
-          <div className="lg:col-span-9 xl:col-span-10">
-            {!isMobile && (
-              <NavigationToggleButton 
-                hideTabsNav={hideTabsNav} 
-                onToggleTabsNav={onToggleTabsNav}
-              />
-            )}
-            
-            {/* Main content area */}
-            <DashboardContent
-              activeTab={activeTab}
-              onTabChange={onTabChange}
-              userProfile={userProfile}
-              kpis={kpis}
-              nudges={nudges}
-              markNudgeAsRead={markNudgeAsRead}
-              features={features}
-              showWelcomeTour={showWelcomeTour}
-              handleSkipTour={onSkipTour}
-              handleCompleteTour={onCompleteTour}
-              hideTabsNav={hideTabsNav || isMobile}
-              lastActivity={lastActivity}
-              suggestedNextAction={suggestedNextAction}
-            />
-          </div>
-        </div>
-      </main>
-      
-      <ChatAssistant userType="student" />
-      
-      {/* Study Plan Dialog */}
-      {showStudyPlan && (
-        <StudyPlanDialog 
-          userProfile={userProfile} 
-          onClose={onCloseStudyPlan} 
-        />
-      )}
-    </div>
+    <DashboardContainer
+      userProfile={userProfile}
+      hideSidebar={hideSidebar}
+      hideTabsNav={hideTabsNav}
+      activeTab={activeTab}
+      kpis={kpis}
+      nudges={nudges}
+      markNudgeAsRead={markNudgeAsRead}
+      features={features}
+      showWelcomeTour={showWelcomeTour}
+      currentTime={currentTime}
+      onTabChange={onTabChange}
+      onViewStudyPlan={onViewStudyPlan}
+      onToggleSidebar={onToggleSidebar}
+      onToggleTabsNav={onToggleTabsNav}
+      onSkipTour={onSkipTour}
+      onCompleteTour={onCompleteTour}
+      showStudyPlan={showStudyPlan}
+      onCloseStudyPlan={onCloseStudyPlan}
+      lastActivity={lastActivity}
+      suggestedNextAction={suggestedNextAction}
+      currentMood={currentMood}
+    />
   );
 };
 
