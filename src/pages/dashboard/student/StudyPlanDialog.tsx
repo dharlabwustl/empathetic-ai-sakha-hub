@@ -16,7 +16,7 @@ interface StudyPlanDialogProps {
 }
 
 const StudyPlanDialog: React.FC<StudyPlanDialogProps> = ({ isOpen, onClose, studyProgress }) => {
-  const { subjectsProgress, streak, selectedSubject } = studyProgress;
+  const { subjectsProgress, streak } = studyProgress;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>

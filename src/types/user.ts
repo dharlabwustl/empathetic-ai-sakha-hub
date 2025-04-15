@@ -37,8 +37,21 @@ export interface UserPreferences {
   studySessionDuration: number;
 }
 
+// Update MoodType to include 'overwhelmed' and match base.ts
+export type MoodType = 
+  | 'happy'
+  | 'okay'
+  | 'tired'
+  | 'overwhelmed'
+  | 'focused'
+  | 'sad'
+  | 'neutral'
+  | 'motivated'
+  | 'curious'
+  | 'stressed';
+
 export interface MoodEntry {
-  mood: 'sad' | 'neutral' | 'happy' | 'motivated' | 'curious' | 'stressed' | 'tired' | 'okay';
+  mood: MoodType;
   timestamp: string;
   note?: string;
 }
@@ -120,16 +133,6 @@ export interface StudyStreak {
   thisWeek: number[];
   lastMonth: number[];
 }
-
-export type MoodType =
-  | 'sad'
-  | 'neutral'
-  | 'happy'
-  | 'motivated'
-  | 'curious'
-  | 'stressed'
-  | 'tired'
-  | 'okay';
 
 // Adding these types referenced by the import errors
 export interface DoctorProfile extends UserProfileType {
