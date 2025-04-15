@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 
 export interface KpiData {
@@ -89,7 +88,7 @@ export function useKpiTracking(userType: string) {
             {
               id: 'n2',
               title: 'Study Streak Milestone!',
-              message: 'You've maintained your study streak for 5 days. Keep it up!',
+              message: "You've maintained your study streak for 5 days. Keep it up!",
               type: 'celebration',
               createdAt: new Date().toISOString(),
               read: false
@@ -106,7 +105,6 @@ export function useKpiTracking(userType: string) {
             }
           ]);
         } else {
-          // Default KPIs for other user types
           setKpis([
             {
               id: 'activity',
