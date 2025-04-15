@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,11 +6,11 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
-import { UserProfile } from "@/types/user";
+import { UserProfileType, StudentProfile as StudentProfileType } from "@/types/user";
 import { Pencil, Save, X, Camera } from "lucide-react";
 
 interface StudentProfileProps {
-  userProfile: UserProfile;
+  userProfile: UserProfileType;
 }
 
 const StudentProfile: React.FC<StudentProfileProps> = ({ userProfile }) => {

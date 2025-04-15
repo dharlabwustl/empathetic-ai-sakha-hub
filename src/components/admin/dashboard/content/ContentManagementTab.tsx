@@ -11,13 +11,13 @@ import {
 } from "lucide-react";
 import { ContentType } from "@/types/content";
 
-// Import the new component files
-import ContentManagementHeader from "./content/ContentManagementHeader";
-import ContentSummaryCards from "./content/ContentSummaryCards";
-import TabContentApprovalQueue from "./content/TabContentApprovalQueue";
-import TabContentStudyMaterials from "./content/TabContentStudyMaterials";
-import TabContentPrompts from "./content/TabContentPrompts";
-import ContentUploader from "./content/ContentUploader";
+// Import the components from correct paths
+import ContentManagementHeader from "@/components/admin/dashboard/ContentManagementHeader";
+import ContentSummaryCards from "@/components/admin/dashboard/ContentSummaryCards";
+import TabContentApprovalQueue from "@/components/admin/dashboard/TabContentApprovalQueue";
+import TabContentStudyMaterials from "@/components/admin/dashboard/TabContentStudyMaterials";
+import TabContentPrompts from "@/components/admin/dashboard/TabContentPrompts";
+import ContentUploader from "@/components/admin/dashboard/ContentUploader";
 import { useContentManagement } from "@/hooks/admin/useContentManagement";
 
 const ContentManagementTab = () => {

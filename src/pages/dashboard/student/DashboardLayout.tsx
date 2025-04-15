@@ -36,6 +36,7 @@ interface DashboardLayoutProps {
   onCloseStudyPlan: () => void;
   lastActivity?: { type: string; description: string } | null;
   suggestedNextAction?: string | null;
+  currentMood?: 'sad' | 'neutral' | 'happy' | 'motivated' | undefined;
 }
 
 const DashboardLayout = ({
@@ -56,7 +57,8 @@ const DashboardLayout = ({
   showStudyPlan,
   onCloseStudyPlan,
   lastActivity,
-  suggestedNextAction
+  suggestedNextAction,
+  currentMood
 }: DashboardLayoutProps) => {
   const currentTime = new Date();
   const formattedTime = formatTime(currentTime);
