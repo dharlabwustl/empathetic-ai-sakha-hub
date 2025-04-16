@@ -13,8 +13,8 @@ import MoodTracking from "./MoodTracking";
 
 interface MoodLogButtonProps {
   className?: string;
-  currentMood?: 'sad' | 'neutral' | 'happy' | 'motivated' | undefined;
-  onMoodChange?: (mood: 'sad' | 'neutral' | 'happy' | 'motivated' | undefined) => void;
+  currentMood?: 'motivated' | 'curious' | 'neutral' | 'tired' | 'stressed' | undefined;
+  onMoodChange?: (mood: 'motivated' | 'curious' | 'neutral' | 'tired' | 'stressed' | undefined) => void;
 }
 
 const MoodLogButton: React.FC<MoodLogButtonProps> = ({ 
@@ -24,7 +24,7 @@ const MoodLogButton: React.FC<MoodLogButtonProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   
-  const handleMoodSelect = (mood: any) => {
+  const handleMoodSelect = (mood: 'motivated' | 'curious' | 'neutral' | 'tired' | 'stressed' | undefined) => {
     if (onMoodChange) {
       onMoodChange(mood);
     }

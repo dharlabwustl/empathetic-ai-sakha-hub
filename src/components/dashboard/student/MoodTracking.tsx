@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Smile, Fire, BookOpen, Coffee, Brain, HeartPulse } from "lucide-react";
+import { Smile, Flame, BookOpen, Coffee, Brain, HeartPulse } from "lucide-react";
 import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 
@@ -91,7 +91,7 @@ const MoodTracking: React.FC<MoodTrackingProps> = ({ currentMood, onMoodChange }
         return (
           <div className="p-4 bg-gradient-to-r from-orange-100 to-amber-100 dark:from-orange-900/30 dark:to-amber-900/30 rounded-lg border border-orange-200 dark:border-orange-800">
             <div className="flex items-center mb-4">
-              <Fire className="h-5 w-5 text-orange-500 mr-2" />
+              <Flame className="h-5 w-5 text-orange-500 mr-2" />
               <h3 className="font-semibold text-orange-700 dark:text-orange-300">Power Mode Activated!</h3>
             </div>
             <div className="space-y-4">
@@ -104,7 +104,7 @@ const MoodTracking: React.FC<MoodTrackingProps> = ({ currentMood, onMoodChange }
               </div>
               <div className="animate-pulse">
                 <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-orange-200 text-orange-800 dark:bg-orange-800/50 dark:text-orange-200">
-                  <Fire className="h-3 w-3 mr-1" /> Power Mode Activated
+                  <Flame className="h-3 w-3 mr-1" /> Power Mode Activated
                 </span>
               </div>
             </div>
@@ -228,7 +228,7 @@ const MoodTracking: React.FC<MoodTrackingProps> = ({ currentMood, onMoodChange }
             <MoodOption 
               mood="motivated" 
               label="Motivated" 
-              icon={<Fire className="h-6 w-6 text-orange-500" />} 
+              icon={<Flame className="h-6 w-6 text-orange-500" />} 
               color="bg-orange-100 border-orange-300 hover:bg-orange-200"
               selected={selectedMood === 'motivated'}
               onSelect={() => handleMoodSelect('motivated')}

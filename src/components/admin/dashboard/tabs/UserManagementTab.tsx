@@ -1,262 +1,344 @@
 
 import React, { useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogDescription } from "@/components/ui/dialog";
-import { UserPlus, Search, Filter, MoreVertical, Check, Trash, PenLine } from "lucide-react";
-import { StudentData } from "@/types/admin";
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from "@/components/ui/table";
-import { useToast } from "@/hooks/use-toast";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
+import { Search, MoreHorizontal, Filter, Download, UserPlus, UserX, Check, X } from "lucide-react";
+import StudentProfileModal from "../students/StudentProfileModal";
 
-interface UserManagementTabProps {
-  recentStudents: StudentData[];
+interface StudentData {
+  id: string;
+  name: string;
+  email: string;
+  joinedDate: Date | string;
+  role: string;
+  status: 'active' | 'inactive' | 'pending';
+  subjects?: string[];
+  examPrep?: string;
+  lastActive?: Date | string;
+  progress?: number;
 }
 
-const UserManagementTab: React.FC<UserManagementTabProps> = ({ recentStudents }) => {
-  const { toast } = useToast();
-  const [isAddUserOpen, setIsAddUserOpen] = useState(false);
-  const [newUserRole, setNewUserRole] = useState("content-creator");
-  const [newUserEmail, setNewUserEmail] = useState("");
-  const [newUserName, setNewUserName] = useState("");
-  const [permissionUpload, setPermissionUpload] = useState(true);
-  const [permissionGenerate, setPermissionGenerate] = useState(true);
-  const [permissionAccess, setPermissionAccess] = useState(true);
+const studentsData: StudentData[] = [
+  {
+    id: "std-001",
+    name: "Aryan Sharma",
+    email: "aryan.s@example.com",
+    joinedDate: new Date("2023-09-15"),
+    role: "Student",
+    status: "active",
+    subjects: ["Physics", "Mathematics", "Chemistry"],
+    examPrep: "IIT-JEE",
+    lastActive: new Date("2023-10-01"),
+    progress: 68
+  },
+  {
+    id: "std-002",
+    name: "Priya Patel",
+    email: "priya.p@example.com",
+    joinedDate: new Date("2023-08-22"),
+    role: "Student",
+    status: "active",
+    subjects: ["Biology", "Chemistry", "Physics"],
+    examPrep: "NEET",
+    lastActive: new Date("2023-10-02"),
+    progress: 75
+  },
+  {
+    id: "std-003",
+    name: "Vikram Singh",
+    email: "vikram.s@example.com",
+    joinedDate: new Date("2023-07-12"),
+    role: "Student",
+    status: "inactive",
+    subjects: ["Economics", "Political Science", "History"],
+    examPrep: "UPSC",
+    lastActive: new Date("2023-09-15"),
+    progress: 42
+  },
+  {
+    id: "std-004",
+    name: "Ananya Desai",
+    email: "ananya.d@example.com",
+    joinedDate: new Date("2023-09-30"),
+    role: "Student",
+    status: "pending",
+    subjects: ["Mathematics", "Computer Science"],
+    examPrep: "CAT",
+    lastActive: new Date("2023-10-01"),
+    progress: 20
+  },
+  {
+    id: "std-005",
+    name: "Rahul Kumar",
+    email: "rahul.k@example.com",
+    joinedDate: new Date("2023-06-18"),
+    role: "Student",
+    status: "active",
+    subjects: ["Physics", "Mathematics"],
+    examPrep: "IIT-JEE",
+    lastActive: new Date("2023-09-28"),
+    progress: 90
+  },
+];
 
-  const handleAddUser = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    // Validate form fields
-    if (!newUserEmail || !newUserName || !newUserRole) {
-      toast({
-        title: "Missing information",
-        description: "Please fill all required fields",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    // In a real app, this would send the data to your backend
-    toast({
-      title: "Content Creator Added",
-      description: `${newUserName} has been added as a content creator with the specified permissions.`
-    });
-    
-    // Reset form and close dialog
-    setNewUserEmail("");
-    setNewUserName("");
-    setIsAddUserOpen(false);
+const UserManagementTab = () => {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedStudent, setSelectedStudent] = useState<StudentData | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showAddStudentDialog, setShowAddStudentDialog] = useState(false);
+  const [profileModalOpen, setProfileModalOpen] = useState(false);
+
+  const filteredStudents = studentsData.filter(student => {
+    const query = searchQuery.toLowerCase();
+    return (
+      student.name.toLowerCase().includes(query) ||
+      student.email.toLowerCase().includes(query) ||
+      student.examPrep?.toLowerCase().includes(query) ||
+      student.subjects?.some(subj => subj.toLowerCase().includes(query))
+    );
+  });
+
+  const handleViewStudent = (student: StudentData) => {
+    setSelectedStudent(student);
+    setProfileModalOpen(true);
+  };
+
+  const formatDate = (date: Date | string) => {
+    if (!date) return "N/A";
+    const d = new Date(date);
+    return `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}`;
   };
 
   return (
-    <div className="space-y-6">
-      <Card className="bg-white dark:bg-gray-800 shadow-sm">
-        <CardContent className="p-6">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-            <div>
-              <h3 className="text-lg font-medium">User Management</h3>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                Manage all users and their permissions
-              </p>
+    <div className="space-y-4">
+      <div className="flex flex-col sm:flex-row justify-between gap-4">
+        <div className="relative w-full sm:w-96">
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Input
+            type="search"
+            placeholder="Search students..."
+            className="pl-8 w-full"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm">
+            <Filter className="mr-2 h-4 w-4" />
+            Filter
+          </Button>
+          <Button variant="outline" size="sm">
+            <Download className="mr-2 h-4 w-4" />
+            Export
+          </Button>
+          <Button size="sm" onClick={() => setShowAddStudentDialog(true)}>
+            <UserPlus className="mr-2 h-4 w-4" />
+            Add Student
+          </Button>
+        </div>
+      </div>
+
+      <div className="rounded-md border">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Name</TableHead>
+              <TableHead>Email</TableHead>
+              <TableHead>Exam Prep</TableHead>
+              <TableHead>Joined</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Last Active</TableHead>
+              <TableHead>Progress</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {filteredStudents.map((student) => (
+              <TableRow key={student.id} onClick={() => handleViewStudent(student)} className="cursor-pointer">
+                <TableCell className="font-medium">{student.name}</TableCell>
+                <TableCell>{student.email}</TableCell>
+                <TableCell>{student.examPrep}</TableCell>
+                <TableCell>{formatDate(student.joinedDate)}</TableCell>
+                <TableCell>
+                  {student.status === "active" && (
+                    <Badge variant="outline" className="bg-green-100 text-green-800 border-green-200">
+                      Active
+                    </Badge>
+                  )}
+                  {student.status === "inactive" && (
+                    <Badge variant="outline" className="bg-gray-100 text-gray-800 border-gray-200">
+                      Inactive
+                    </Badge>
+                  )}
+                  {student.status === "pending" && (
+                    <Badge variant="outline" className="bg-yellow-100 text-yellow-800 border-yellow-200">
+                      Pending
+                    </Badge>
+                  )}
+                </TableCell>
+                <TableCell>{formatDate(student.lastActive || '')}</TableCell>
+                <TableCell>
+                  <div className="flex items-center">
+                    <div className="w-full bg-gray-200 rounded-full h-2.5 mr-2 dark:bg-gray-700">
+                      <div
+                        className="bg-blue-600 h-2.5 rounded-full"
+                        style={{ width: `${student.progress || 0}%` }}
+                      ></div>
+                    </div>
+                    <span className="text-xs font-medium">{student.progress}%</span>
+                  </div>
+                </TableCell>
+                <TableCell className="text-right">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" className="h-8 w-8 p-0">
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={(e) => {
+                        e.stopPropagation();
+                        handleViewStudent(student);
+                      }}>View Details</DropdownMenuItem>
+                      <DropdownMenuItem>Edit Profile</DropdownMenuItem>
+                      <DropdownMenuItem>Reset Password</DropdownMenuItem>
+                      <DropdownMenuItem className="text-red-600" onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedStudent(student);
+                        setShowDeleteConfirm(true);
+                      }}>Delete Account</DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+
+      {/* Student Profile Modal */}
+      {selectedStudent && (
+        <StudentProfileModal
+          open={profileModalOpen}
+          onOpenChange={setProfileModalOpen}
+          studentData={selectedStudent}
+        />
+      )}
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirm Delete</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete {selectedStudent?.name}'s account? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowDeleteConfirm(false)}>Cancel</Button>
+            <Button variant="destructive" onClick={() => {
+              // Delete implementation would go here
+              setShowDeleteConfirm(false);
+            }}>
+              <UserX className="mr-2 h-4 w-4" />
+              Delete Account
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Student Dialog */}
+      <Dialog open={showAddStudentDialog} onOpenChange={setShowAddStudentDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Add New Student</DialogTitle>
+            <DialogDescription>
+              Create a new student account by entering their details below.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <label htmlFor="name" className="text-right text-sm font-medium">
+                Name
+              </label>
+              <Input
+                id="name"
+                placeholder="John Doe"
+                className="col-span-3"
+              />
             </div>
-            
-            <div className="flex flex-wrap gap-2">
-              <Dialog open={isAddUserOpen} onOpenChange={setIsAddUserOpen}>
-                <DialogTrigger asChild>
-                  <Button className="gap-2">
-                    <UserPlus size={16} />
-                    Add Admin User
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-md">
-                  <DialogHeader>
-                    <DialogTitle>Add Content Creator Admin</DialogTitle>
-                    <DialogDescription>
-                      Create a new admin user with content creation permissions
-                    </DialogDescription>
-                  </DialogHeader>
-                  <form onSubmit={handleAddUser} className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="name">Full Name</Label>
-                      <Input 
-                        id="name" 
-                        value={newUserName} 
-                        onChange={e => setNewUserName(e.target.value)} 
-                        placeholder="Enter full name"
-                      />
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="email">Email Address</Label>
-                      <Input 
-                        id="email" 
-                        type="email" 
-                        value={newUserEmail} 
-                        onChange={e => setNewUserEmail(e.target.value)} 
-                        placeholder="Enter email address"
-                      />
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="role">Admin Role</Label>
-                      <Select value={newUserRole} onValueChange={setNewUserRole}>
-                        <SelectTrigger id="role">
-                          <SelectValue placeholder="Select role" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="content-creator">Content Creator</SelectItem>
-                          <SelectItem value="content-reviewer">Content Reviewer</SelectItem>
-                          <SelectItem value="test-generator">Test Generator</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    
-                    <div className="space-y-3">
-                      <Label>Permissions</Label>
-                      <div className="space-y-2">
-                        <div className="flex items-center space-x-2">
-                          <Checkbox 
-                            id="permission-upload" 
-                            checked={permissionUpload} 
-                            onCheckedChange={(checked) => setPermissionUpload(checked as boolean)} 
-                          />
-                          <Label htmlFor="permission-upload">Upload Content</Label>
-                        </div>
-                        
-                        <div className="flex items-center space-x-2">
-                          <Checkbox 
-                            id="permission-generate" 
-                            checked={permissionGenerate} 
-                            onCheckedChange={(checked) => setPermissionGenerate(checked as boolean)} 
-                          />
-                          <Label htmlFor="permission-generate">Generate Test Samples</Label>
-                        </div>
-                        
-                        <div className="flex items-center space-x-2">
-                          <Checkbox 
-                            id="permission-access" 
-                            checked={permissionAccess} 
-                            onCheckedChange={(checked) => setPermissionAccess(checked as boolean)} 
-                          />
-                          <Label htmlFor="permission-access">Access Content Creation Modules</Label>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <DialogFooter>
-                      <Button type="submit">Add User</Button>
-                    </DialogFooter>
-                  </form>
-                </DialogContent>
-              </Dialog>
-              
-              <div className="flex">
-                <Input 
-                  placeholder="Search users..." 
-                  className="max-w-sm rounded-r-none"
-                />
-                <Button 
-                  variant="default" 
-                  size="icon" 
-                  className="rounded-l-none"
-                >
-                  <Search size={16} />
-                </Button>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <label htmlFor="email" className="text-right text-sm font-medium">
+                Email
+              </label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="john@example.com"
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <label htmlFor="exam" className="text-right text-sm font-medium">
+                Exam Prep
+              </label>
+              <Input
+                id="exam"
+                placeholder="IIT-JEE, NEET, etc."
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <label className="text-right text-sm font-medium">
+                Status
+              </label>
+              <div className="flex items-center col-span-3 space-x-2">
+                <Switch id="active" />
+                <label htmlFor="active">Active</label>
               </div>
-              
-              <Button variant="outline" size="icon">
-                <Filter size={16} />
-              </Button>
             </div>
           </div>
-          
-          <div className="rounded-md border bg-white dark:bg-gray-800">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[250px]">Name</TableHead>
-                  <TableHead>Role</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Last Active</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {recentStudents.map((student) => (
-                  <TableRow key={student.id}>
-                    <TableCell className="font-medium">
-                      <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
-                          {student.name.charAt(0)}
-                        </div>
-                        <div>
-                          <div>{student.name}</div>
-                          <div className="text-xs text-gray-500">{student.email}</div>
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-1">
-                        <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                        <span className="text-sm">{student.role}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <span className={`px-2 py-1 rounded-full text-xs ${
-                        student.status === 'Active' 
-                          ? 'bg-green-100 text-green-700' 
-                          : student.status === 'Pending' 
-                            ? 'bg-yellow-100 text-yellow-700' 
-                            : 'bg-gray-100 text-gray-700'
-                      }`}>
-                        {student.status}
-                      </span>
-                    </TableCell>
-                    <TableCell>{student.lastActive}</TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
-                        <Button variant="ghost" size="icon">
-                          <PenLine size={16} />
-                        </Button>
-                        <Button variant="ghost" size="icon" className="text-red-500">
-                          <Trash size={16} />
-                        </Button>
-                        <Button variant="ghost" size="icon">
-                          <MoreVertical size={16} />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-          
-          <div className="flex justify-between items-center mt-4">
-            <div className="text-sm text-gray-500">
-              Showing 5 of 25 users
-            </div>
-            <div className="flex gap-1">
-              <Button variant="outline" size="sm" disabled>
-                Previous
-              </Button>
-              <Button variant="outline" size="sm">
-                Next
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowAddStudentDialog(false)}>Cancel</Button>
+            <Button type="submit" onClick={() => {
+              // Create student implementation would go here
+              setShowAddStudentDialog(false);
+            }}>
+              <Check className="mr-2 h-4 w-4" />
+              Create Account
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
