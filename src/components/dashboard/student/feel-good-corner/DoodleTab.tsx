@@ -1,256 +1,239 @@
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { PencilLine, Check, X, Undo } from "lucide-react";
-import { motion } from "framer-motion";
+import { Trash, Save, Share, Download } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const DoodleTab: React.FC = () => {
-  const { toast } = useToast();
-  const [showDoodleCanvas, setShowDoodleCanvas] = useState(false);
-  
-  // Canvas state
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isDrawing, setIsDrawing] = useState(false);
-  const [drawingColor, setDrawingColor] = useState("#000000");
-  const [drawingHistory, setDrawingHistory] = useState<ImageData[]>([]);
-  const [historyIndex, setHistoryIndex] = useState(-1);
-  
+  const [context, setContext] = useState<CanvasRenderingContext2D | null>(null);
+  const [color, setColor] = useState("#000000");
+  const [brushSize, setBrushSize] = useState(5);
+  const [savedDoodles, setSavedDoodles] = useState<string[]>([]);
+  const { toast } = useToast();
+
+  // Initialize canvas
   useEffect(() => {
-    if (showDoodleCanvas && canvasRef.current) {
-      const canvas = canvasRef.current;
+    const canvas = canvasRef.current;
+    if (canvas) {
       const ctx = canvas.getContext('2d');
       if (ctx) {
-        ctx.fillStyle = "#FFFFFF";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        saveDrawingState();
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.strokeStyle = color;
+        ctx.lineWidth = brushSize;
+        setContext(ctx);
       }
-    }
-  }, [showDoodleCanvas]);
-  
-  const saveDrawingState = () => {
-    if (canvasRef.current) {
-      const canvas = canvasRef.current;
-      const ctx = canvas.getContext('2d');
-      if (ctx) {
-        const currentState = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        
-        // If we're not at the end of the history, truncate it
-        if (historyIndex < drawingHistory.length - 1) {
-          setDrawingHistory(prev => prev.slice(0, historyIndex + 1));
-        }
-        
-        setDrawingHistory(prev => [...prev, currentState]);
-        setHistoryIndex(prev => prev + 1);
-      }
-    }
-  };
-  
-  const undoDrawing = () => {
-    if (historyIndex > 0) {
-      setHistoryIndex(prev => prev - 1);
-      const newIndex = historyIndex - 1;
       
-      if (canvasRef.current) {
-        const canvas = canvasRef.current;
-        const ctx = canvas.getContext('2d');
-        if (ctx) {
-          ctx.putImageData(drawingHistory[newIndex], 0, 0);
+      // Set canvas size to fit its container
+      const resizeCanvas = () => {
+        const parent = canvas.parentElement;
+        if (parent) {
+          canvas.width = parent.clientWidth - 20; // padding
+          canvas.height = 300;
+          
+          // Restore saved drawing if context changes
+          if (ctx) {
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.strokeStyle = color;
+            ctx.lineWidth = brushSize;
+          }
         }
+      };
+      
+      resizeCanvas();
+      window.addEventListener('resize', resizeCanvas);
+      
+      return () => {
+        window.removeEventListener('resize', resizeCanvas);
+      };
+    }
+  }, []);
+  
+  // Update context when color or brush size changes
+  useEffect(() => {
+    if (context) {
+      context.strokeStyle = color;
+      context.lineWidth = brushSize;
+    }
+  }, [color, brushSize, context]);
+
+  const startDrawing = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
+    setIsDrawing(true);
+    if (context) {
+      const canvas = canvasRef.current;
+      if (canvas) {
+        const rect = canvas.getBoundingClientRect();
+        const x = e.type === 'mousedown' 
+          ? (e as React.MouseEvent).clientX - rect.left
+          : (e as React.TouchEvent).touches[0].clientX - rect.left;
+        const y = e.type === 'mousedown'
+          ? (e as React.MouseEvent).clientY - rect.top
+          : (e as React.TouchEvent).touches[0].clientY - rect.top;
+        
+        context.beginPath();
+        context.moveTo(x, y);
       }
     }
   };
-  
-  const startDrawing = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
-    if (!canvasRef.current) return;
-    
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-    
-    setIsDrawing(true);
-    
-    const rect = canvas.getBoundingClientRect();
-    let clientX, clientY;
-    
-    if ('touches' in e) {
-      clientX = e.touches[0].clientX;
-      clientY = e.touches[0].clientY;
-    } else {
-      clientX = e.clientX;
-      clientY = e.clientY;
-    }
-    
-    const x = clientX - rect.left;
-    const y = clientY - rect.top;
-    
-    ctx.beginPath();
-    ctx.moveTo(x, y);
-    ctx.strokeStyle = drawingColor;
-    ctx.lineWidth = 3;
-    ctx.lineCap = 'round';
-  };
-  
+
   const draw = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
-    if (!isDrawing || !canvasRef.current) return;
+    if (!isDrawing || !context) return;
     
     const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-    
-    const rect = canvas.getBoundingClientRect();
-    let clientX, clientY;
-    
-    if ('touches' in e) {
-      clientX = e.touches[0].clientX;
-      clientY = e.touches[0].clientY;
-      e.preventDefault(); // Prevent scrolling while drawing
-    } else {
-      clientX = e.clientX;
-      clientY = e.clientY;
-    }
-    
-    const x = clientX - rect.left;
-    const y = clientY - rect.top;
-    
-    ctx.lineTo(x, y);
-    ctx.stroke();
-  };
-  
-  const endDrawing = () => {
-    if (isDrawing) {
-      setIsDrawing(false);
-      saveDrawingState();
+    if (canvas) {
+      const rect = canvas.getBoundingClientRect();
+      const x = e.type === 'mousemove'
+        ? (e as React.MouseEvent).clientX - rect.left
+        : (e as React.TouchEvent).touches[0].clientX - rect.left;
+      const y = e.type === 'mousemove'
+        ? (e as React.MouseEvent).clientY - rect.top
+        : (e as React.TouchEvent).touches[0].clientY - rect.top;
+      
+      context.lineTo(x, y);
+      context.stroke();
     }
   };
-  
+
+  const stopDrawing = () => {
+    setIsDrawing(false);
+    if (context) {
+      context.closePath();
+    }
+  };
+
   const clearCanvas = () => {
-    if (!canvasRef.current) return;
-    
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
-    if (ctx) {
-      ctx.fillStyle = "#FFFFFF";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      saveDrawingState();
+    if (context && canvasRef.current) {
+      context.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
     }
   };
-  
-  const handleShareDoodle = () => {
-    if (!canvasRef.current) return;
-    
-    toast({
-      title: "Doodle shared!",
-      description: "Your masterpiece has been shared with the community.",
-    });
-    
-    setShowDoodleCanvas(false);
+
+  const saveDoodle = () => {
+    if (canvasRef.current) {
+      const dataUrl = canvasRef.current.toDataURL('image/png');
+      setSavedDoodles(prev => [...prev, dataUrl]);
+      
+      // Store in localStorage (with size limit)
+      try {
+        localStorage.setItem('savedDoodles', JSON.stringify([...savedDoodles, dataUrl].slice(-10)));
+      } catch (e) {
+        console.error("Error saving doodle to localStorage:", e);
+      }
+      
+      toast({
+        title: "Doodle Saved",
+        description: "Your artwork has been saved successfully"
+      });
+    }
   };
-  
+
+  const shareDoodle = () => {
+    if (canvasRef.current) {
+      const dataUrl = canvasRef.current.toDataURL('image/png');
+      
+      // In a real app, this would connect to a sharing backend
+      // For now, we'll simulate analysis and response
+      
+      toast({
+        title: "Doodle Shared",
+        description: "Your doodle has been shared and will be analyzed"
+      });
+      
+      // Simulate AI analysis response
+      setTimeout(() => {
+        toast({
+          title: "Doodle Analysis",
+          description: "Your drawing shows creativity and positive expression! Keep it up!",
+          variant: "default"
+        });
+      }, 2000);
+    }
+  };
+
+  const downloadDoodle = () => {
+    if (canvasRef.current) {
+      const dataUrl = canvasRef.current.toDataURL('image/png');
+      const link = document.createElement('a');
+      link.download = `sakha-doodle-${new Date().toISOString().slice(0,10)}.png`;
+      link.href = dataUrl;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  };
+
   return (
-    <motion.div 
-      key="doodle"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="space-y-4"
-    >
-      {!showDoodleCanvas ? (
-        <>
-          <div className="flex items-center justify-between">
-            <h3 className="font-medium">Express Yourself</h3>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="text-xs"
-              onClick={() => setShowDoodleCanvas(true)}
-            >
-              Create New
-            </Button>
-          </div>
-          <div className="flex flex-col items-center justify-center p-12 border rounded-lg bg-white/50">
-            <PencilLine size={48} className="text-gray-300 mb-4" />
-            <p className="text-center text-gray-500">
-              Create your own doodle to express yourself<br />
-              or just have fun taking a creative break!
-            </p>
-            <Button 
-              onClick={() => setShowDoodleCanvas(true)}
-              className="mt-4 bg-violet-600"
-            >
-              Start Doodling
-            </Button>
-          </div>
-          <p className="text-xs text-center text-gray-500">
-            Express yourself through doodles - it's great for stress relief!
-          </p>
-        </>
-      ) : (
-        <div className="space-y-3">
-          <div className="flex justify-between items-center">
-            <h3 className="font-medium">Create Your Doodle</h3>
-            <Button 
-              variant="ghost" 
-              size="sm"
-              onClick={() => setShowDoodleCanvas(false)}
-            >
-              Cancel
-            </Button>
-          </div>
-          <div className="flex justify-center gap-2 mb-2">
-            {['#000000', '#FF0000', '#0000FF', '#008000', '#FFA500', '#800080'].map((color) => (
-              <div
-                key={color}
-                className={`w-6 h-6 rounded-full cursor-pointer ${drawingColor === color ? 'ring-2 ring-offset-2 ring-black' : ''}`}
-                style={{ backgroundColor: color }}
-                onClick={() => setDrawingColor(color)}
+    <div className="space-y-4">
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center space-x-2">
+          <input 
+            type="color" 
+            value={color} 
+            onChange={e => setColor(e.target.value)} 
+            className="w-8 h-8 border-0 p-0 rounded-full overflow-hidden cursor-pointer"
+          />
+          <select 
+            value={brushSize} 
+            onChange={e => setBrushSize(Number(e.target.value))}
+            className="p-1 rounded border text-sm"
+          >
+            <option value="2">Small</option>
+            <option value="5">Medium</option>
+            <option value="10">Large</option>
+            <option value="20">Extra Large</option>
+          </select>
+        </div>
+        <div className="flex space-x-2">
+          <Button variant="destructive" size="sm" onClick={clearCanvas}>
+            <Trash size={14} className="mr-1" /> Clear
+          </Button>
+        </div>
+      </div>
+      
+      <div className="border rounded-md bg-white">
+        <canvas
+          ref={canvasRef}
+          onMouseDown={startDrawing}
+          onTouchStart={startDrawing}
+          onMouseMove={draw}
+          onTouchMove={draw}
+          onMouseUp={stopDrawing}
+          onTouchEnd={stopDrawing}
+          onMouseLeave={stopDrawing}
+          className="touch-none w-full h-[300px] border border-gray-200 rounded-md"
+        ></canvas>
+      </div>
+      
+      <div className="flex justify-center space-x-2">
+        <Button variant="outline" size="sm" onClick={saveDoodle}>
+          <Save size={14} className="mr-1" /> Save
+        </Button>
+        <Button variant="outline" size="sm" onClick={shareDoodle}>
+          <Share size={14} className="mr-1" /> Post & Analyze
+        </Button>
+        <Button variant="outline" size="sm" onClick={downloadDoodle}>
+          <Download size={14} className="mr-1" /> Download
+        </Button>
+      </div>
+
+      {savedDoodles.length > 0 && (
+        <div className="mt-4">
+          <h4 className="text-sm font-medium mb-2">Your Saved Doodles</h4>
+          <div className="grid grid-cols-3 gap-2">
+            {savedDoodles.map((doodle, index) => (
+              <img 
+                key={index} 
+                src={doodle} 
+                alt={`Saved doodle ${index + 1}`} 
+                className="border rounded-md h-20 w-full object-contain bg-white"
               />
             ))}
           </div>
-          <div className="border rounded-md bg-white flex items-center justify-center">
-            <canvas 
-              ref={canvasRef} 
-              width={300} 
-              height={250} 
-              className="border cursor-crosshair touch-none"
-              onMouseDown={startDrawing}
-              onMouseMove={draw}
-              onMouseUp={endDrawing}
-              onMouseLeave={endDrawing}
-              onTouchStart={startDrawing}
-              onTouchMove={draw}
-              onTouchEnd={endDrawing}
-            />
-          </div>
-          <div className="flex justify-between">
-            <div className="space-x-2">
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={clearCanvas}
-              >
-                <X size={14} className="mr-1" /> Clear
-              </Button>
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={undoDrawing}
-                disabled={historyIndex <= 0}
-              >
-                <Undo size={14} className="mr-1" /> Undo
-              </Button>
-            </div>
-            <Button 
-              className="bg-violet-600" 
-              size="sm"
-              onClick={handleShareDoodle}
-            >
-              <Check size={14} className="mr-1" /> Share Doodle
-            </Button>
-          </div>
         </div>
       )}
-    </motion.div>
+    </div>
   );
 };
 

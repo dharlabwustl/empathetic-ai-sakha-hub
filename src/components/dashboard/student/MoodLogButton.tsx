@@ -9,16 +9,26 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { SmilePlus } from "lucide-react";
-import SentimentStep from "@/components/signup/steps/SentimentStep";
+import MoodTracking from "./MoodTracking";
 
 interface MoodLogButtonProps {
   className?: string;
+  currentMood?: 'sad' | 'neutral' | 'happy' | 'motivated' | undefined;
+  onMoodChange?: (mood: 'sad' | 'neutral' | 'happy' | 'motivated' | undefined) => void;
 }
 
-const MoodLogButton: React.FC<MoodLogButtonProps> = ({ className }) => {
+const MoodLogButton: React.FC<MoodLogButtonProps> = ({ 
+  className, 
+  currentMood,
+  onMoodChange 
+}) => {
   const [isOpen, setIsOpen] = useState(false);
   
-  const handleMoodSelect = (mood: string) => {
+  const handleMoodSelect = (mood: any) => {
+    if (onMoodChange) {
+      onMoodChange(mood);
+    }
+    
     // Save mood to localStorage or your state management system
     localStorage.setItem('lastMoodLog', JSON.stringify({
       mood,
@@ -49,7 +59,10 @@ const MoodLogButton: React.FC<MoodLogButtonProps> = ({ className }) => {
           </DialogHeader>
           
           <div className="py-4">
-            <SentimentStep onMoodSelect={handleMoodSelect} isUpdate={true} />
+            <MoodTracking 
+              currentMood={currentMood} 
+              onMoodChange={handleMoodSelect} 
+            />
           </div>
         </DialogContent>
       </Dialog>

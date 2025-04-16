@@ -16,6 +16,7 @@ import { motion } from "framer-motion";
 import { useIsMobile } from "@/hooks/use-mobile";
 import MobileNavigation from "./MobileNavigation";
 import { getFeatures } from "./utils/FeatureManager";
+import MoodLogButton from "@/components/dashboard/student/MoodLogButton";
 
 interface DashboardLayoutProps {
   userProfile: UserProfileType;
@@ -57,7 +58,8 @@ const DashboardLayout = ({
   showStudyPlan,
   onCloseStudyPlan,
   lastActivity,
-  suggestedNextAction
+  suggestedNextAction,
+  currentMood
 }: DashboardLayoutProps) => {
   const currentTime = new Date();
   const formattedTime = formatTime(currentTime);
@@ -65,12 +67,20 @@ const DashboardLayout = ({
   const isMobile = useIsMobile();
   // Always start with influences section collapsed
   const [influenceMeterCollapsed, setInfluenceMeterCollapsed] = useState(true);
+  // State for mood
+  const [userMood, setUserMood] = useState<'sad' | 'neutral' | 'happy' | 'motivated' | undefined>(currentMood);
   
   // Get features from utility
   const features = getFeatures();
+
+  // Handle mood change
+  const handleMoodChange = (mood: 'sad' | 'neutral' | 'happy' | 'motivated' | undefined) => {
+    setUserMood(mood);
+    // Here you would also update this in your global state or backend
+  };
   
   return (
-    <div className="min-h-screen bg-gradient-to-br from-sky-100/10 via-white to-violet-100/10 dark:from-sky-900/10 dark:via-gray-900 dark:to-violet-900/10">
+    <div className={`min-h-screen bg-gradient-to-br from-sky-100/10 via-white to-violet-100/10 dark:from-sky-900/10 dark:via-gray-900 dark:to-violet-900/10 ${userMood ? `mood-${userMood}` : ''}`}>
       <SidebarNav userType="student" userName={userProfile.name} />
       
       <main className={`transition-all duration-300 ${hideSidebar ? 'md:ml-0' : 'md:ml-64'} p-4 sm:p-6 pb-20 md:pb-6`}>
@@ -82,12 +92,22 @@ const DashboardLayout = ({
         />
         
         {/* Top header section */}
-        <DashboardHeader 
-          userProfile={userProfile}
-          formattedTime={formattedTime}
-          formattedDate={formattedDate}
-          onViewStudyPlan={onViewStudyPlan}
-        />
+        <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+          <DashboardHeader 
+            userProfile={userProfile}
+            formattedTime={formattedTime}
+            formattedDate={formattedDate}
+            onViewStudyPlan={onViewStudyPlan}
+          />
+          
+          {/* Mood Log Button */}
+          <div className="flex-shrink-0">
+            <MoodLogButton 
+              currentMood={userMood} 
+              onMoodChange={handleMoodChange} 
+            />
+          </div>
+        </div>
 
         {/* Surrounding Influences Meter */}
         <SurroundingInfluencesSection 

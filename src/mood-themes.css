@@ -1,0 +1,177 @@
+
+/* Mood-based theme styles */
+
+/* Motivated Theme */
+.mood-motivated {
+  --mood-primary: #FF9500;
+  --mood-secondary: #FFB74D;
+  --mood-accent: #FFECB3;
+  --mood-text: #7A4F01;
+  --mood-bg-gradient: linear-gradient(to right, #FFF9C4, #FFECB3);
+  --mood-dark-bg-gradient: linear-gradient(to right, #7A4F01, #5D3C00);
+}
+
+.mood-motivated .dashboard-header {
+  background: var(--mood-bg-gradient);
+  border-color: var(--mood-primary);
+}
+
+.mood-motivated .kpi-card {
+  border-color: var(--mood-secondary);
+}
+
+.mood-motivated .navbar-item.active {
+  background-color: var(--mood-primary);
+  color: white;
+}
+
+/* Curious Theme */
+.mood-curious {
+  --mood-primary: #5E35B1;
+  --mood-secondary: #9575CD;
+  --mood-accent: #D1C4E9;
+  --mood-text: #311B92;
+  --mood-bg-gradient: linear-gradient(to right, #E8EAF6, #D1C4E9);
+  --mood-dark-bg-gradient: linear-gradient(to right, #311B92, #4527A0);
+}
+
+.mood-curious .dashboard-header {
+  background: var(--mood-bg-gradient);
+  border-color: var(--mood-primary);
+}
+
+.mood-curious .kpi-card {
+  border-color: var(--mood-secondary);
+}
+
+.mood-curious .navbar-item.active {
+  background-color: var(--mood-primary);
+  color: white;
+}
+
+/* Neutral Theme */
+.mood-neutral {
+  --mood-primary: #78909C;
+  --mood-secondary: #B0BEC5;
+  --mood-accent: #ECEFF1;
+  --mood-text: #455A64;
+  --mood-bg-gradient: linear-gradient(to right, #F5F7FA, #ECEFF1);
+  --mood-dark-bg-gradient: linear-gradient(to right, #455A64, #37474F);
+}
+
+.mood-neutral .dashboard-header {
+  background: var(--mood-bg-gradient);
+  border-color: var(--mood-primary);
+}
+
+.mood-neutral .kpi-card {
+  border-color: var(--mood-secondary);
+}
+
+.mood-neutral .navbar-item.active {
+  background-color: var(--mood-primary);
+  color: white;
+}
+
+/* Tired Theme */
+.mood-tired {
+  --mood-primary: #039BE5;
+  --mood-secondary: #4FC3F7;
+  --mood-accent: #B3E5FC;
+  --mood-text: #01579B;
+  --mood-bg-gradient: linear-gradient(to right, #E1F5FE, #B3E5FC);
+  --mood-dark-bg-gradient: linear-gradient(to right, #01579B, #0277BD);
+}
+
+.mood-tired .dashboard-header {
+  background: var(--mood-bg-gradient);
+  border-color: var(--mood-primary);
+}
+
+.mood-tired .kpi-card {
+  border-color: var(--mood-secondary);
+}
+
+.mood-tired .navbar-item.active {
+  background-color: var(--mood-primary);
+  color: white;
+}
+
+/* Stressed Theme */
+.mood-stressed {
+  --mood-primary: #7E57C2;
+  --mood-secondary: #B39DDB;
+  --mood-accent: #D1C4E9;
+  --mood-text: #4527A0;
+  --mood-bg-gradient: linear-gradient(to right, #EDE7F6, #D1C4E9);
+  --mood-dark-bg-gradient: linear-gradient(to right, #4527A0, #311B92);
+}
+
+.mood-stressed .dashboard-header {
+  background: var(--mood-bg-gradient);
+  border-color: var(--mood-primary);
+}
+
+.mood-stressed .kpi-card {
+  border-color: var(--mood-secondary);
+}
+
+.mood-stressed .navbar-item.active {
+  background-color: var(--mood-primary);
+  color: white;
+}
+
+/* Common theme animations */
+
+/* Sparkle effect for Curious */
+.mood-curious .sparkle {
+  position: relative;
+}
+
+.mood-curious .sparkle::after {
+  content: "✨";
+  position: absolute;
+  opacity: 0;
+  animation: sparkleAnimation 2s infinite;
+}
+
+@keyframes sparkleAnimation {
+  0% { opacity: 0; transform: translateY(0) rotate(0deg); }
+  50% { opacity: 1; transform: translateY(-10px) rotate(10deg); }
+  100% { opacity: 0; transform: translateY(-20px) rotate(20deg); }
+}
+
+/* Pulse for Motivated */
+.mood-motivated .pulse {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+/* Floating clouds for Tired */
+.mood-tired .float {
+  animation: float 5s infinite ease-in-out;
+}
+
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+
+/* Heartbeat for Stressed */
+.mood-stressed .heartbeat {
+  animation: heartbeat 1.5s infinite;
+}
+
+@keyframes heartbeat {
+  0% { transform: scale(1); }
+  14% { transform: scale(1.1); }
+  28% { transform: scale(1); }
+  42% { transform: scale(1.1); }
+  70% { transform: scale(1); }
+}
