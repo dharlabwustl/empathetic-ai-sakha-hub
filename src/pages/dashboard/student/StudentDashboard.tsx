@@ -131,7 +131,7 @@ const StudentDashboard = () => {
         lastActivity={lastActivity}
         suggestedNextAction={suggestedNextAction}
         markNudgeAsRead={markNudgeAsRead}
-        handleTabChange={handleTabChange}
+        onTabChange={handleTabChange}
         handleSkipTour={handleSkipTour}
         onCompleteTour={handleCompleteTour}
         handleCompleteOnboarding={handleCompleteOnboarding}

@@ -33,7 +33,7 @@ export const useStudentDashboard = () => {
   else if (hour < 17) currentTime = "Good Afternoon";
   else currentTime = "Good Evening";
   
-  // Features list
+  // Features list - Update the type to be an object with boolean values
   const features = {
     overview: true,
     subjects: true,

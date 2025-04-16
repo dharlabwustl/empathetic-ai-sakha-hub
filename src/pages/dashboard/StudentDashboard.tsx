@@ -49,6 +49,15 @@ const StudentDashboard = () => {
     );
   }
 
+  // Convert features object to an array format expected by DashboardLayout
+  const featuresArray = Object.keys(features).map(key => ({
+    icon: null,
+    title: key.charAt(0).toUpperCase() + key.slice(1),
+    description: `${key.charAt(0).toUpperCase() + key.slice(1)} section`,
+    path: key,
+    isPremium: false
+  }));
+
   return (
     <DashboardLayout
       loading={loading}
@@ -68,7 +77,7 @@ const StudentDashboard = () => {
       handleCloseStudyPlan={handleCloseStudyPlan}
       toggleSidebar={toggleSidebar}
       toggleTabsNav={toggleTabsNav}
-      features={features}
+      features={featuresArray}
       lastActivity={null}
       suggestedNextAction={null}
     />
