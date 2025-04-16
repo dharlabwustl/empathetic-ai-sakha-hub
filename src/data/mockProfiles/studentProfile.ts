@@ -24,6 +24,7 @@ export const mockStudentProfile: StudentProfile = {
       title: "Complete Physics Syllabus",
       description: "Finish all chapters in NCERT Physics",
       progress: 75,
+      target: "NCERT Physics Textbook",
       type: "course" as GoalType,
       dueDate: "2025-05-30"
     },
@@ -32,6 +33,7 @@ export const mockStudentProfile: StudentProfile = {
       title: "Score 90% in Math Test",
       description: "Practice integration problems",
       progress: 60,
+      target: "90% score in test",
       type: "exam" as GoalType,
       dueDate: "2025-05-15"
     }

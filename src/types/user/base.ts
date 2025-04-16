@@ -59,6 +59,9 @@ export interface UserStats {
   studyStreak?: number;
   totalStudyHours?: number;
   quizzesCompleted?: number;
+  // Adding the missing properties from user.ts
+  questionsAttempted?: number;
+  conceptsMastered?: number;
 }
 
 // Updated UserPreferences to match the one in user.ts

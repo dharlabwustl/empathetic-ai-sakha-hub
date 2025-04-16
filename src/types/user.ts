@@ -1,5 +1,4 @@
 
-
 // Define the allowed mood types
 export type MoodType = 
   | "happy" 
@@ -50,6 +49,12 @@ export interface UserProfileType {
     totalStudyHours: number;
     questionsAttempted: number;
     conceptsMastered: number;
+    // Adding these fields to make compatibility easier with UserStats in base.ts
+    questionsAnswered?: number;
+    testsCompleted?: number;
+    averageScore?: number;
+    weeklyStudyTime?: number[];
+    quizzesCompleted?: number;
   };
   preferences?: {
     theme: string;

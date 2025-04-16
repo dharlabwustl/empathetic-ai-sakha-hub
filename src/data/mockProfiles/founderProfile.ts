@@ -24,6 +24,7 @@ export const mockFounderProfile: FounderProfile = {
       title: "Secure Series A Funding",
       description: "Prepare pitch deck and investor meetings",
       progress: 70,
+      target: "5 Million Funding",
       type: "other" as GoalType,
       dueDate: "2025-08-15"
     },
@@ -32,6 +33,7 @@ export const mockFounderProfile: FounderProfile = {
       title: "Launch Product Beta",
       description: "Complete MVP and prepare beta launch",
       progress: 85,
+      target: "Beta Launch",
       type: "other" as GoalType,
       dueDate: "2025-06-01"
     }

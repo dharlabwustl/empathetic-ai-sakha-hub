@@ -24,6 +24,7 @@ export const mockEmployeeProfile: EmployeeProfile = {
       title: "Complete PMP Certification",
       description: "Study for project management professional exam",
       progress: 60,
+      target: "PMP Certification",
       type: "course" as GoalType,
       dueDate: "2025-07-30"
     },
@@ -32,6 +33,7 @@ export const mockEmployeeProfile: EmployeeProfile = {
       title: "Learn Data Visualization",
       description: "Master Tableau for business intelligence",
       progress: 35,
+      target: "Tableau Proficiency",
       type: "skill" as GoalType,
       dueDate: "2025-06-15"
     }

@@ -24,6 +24,7 @@ export const mockDoctorProfile: DoctorProfile = {
       title: "Complete Research Paper",
       description: "Finish cardiovascular research paper",
       progress: 85,
+      target: "Cardiovascular Research Paper",
       type: "skill" as GoalType,
       dueDate: "2025-06-15"
     },
@@ -32,6 +33,7 @@ export const mockDoctorProfile: DoctorProfile = {
       title: "Prepare for Medical Conference",
       description: "Create presentation for international conference",
       progress: 40,
+      target: "Conference Presentation",
       type: "other" as GoalType,
       dueDate: "2025-07-10"
     }
