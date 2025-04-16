@@ -1,16 +1,17 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import { useParams, Navigate } from "react-router-dom";
 import { useStudentDashboard } from "@/hooks/useStudentDashboard";
-import OnboardingFlow from "@/components/dashboard/student/OnboardingFlow";
-import DashboardLoading from "@/pages/dashboard/student/DashboardLoading";
 import DashboardLayout from "@/pages/dashboard/student/DashboardLayout";
-import SplashScreen from "@/components/dashboard/student/SplashScreen";
-import { MoodType } from "@/types/user";
+import MobileSidebar from "@/components/dashboard/student/MobileSidebar";
+import { Button } from "@/components/ui/button";
+import { Menu } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+
+// Define the allowed mood types
+type MoodType = "happy" | "tired" | "sad" | "neutral" | "motivated" | "curious" | "stressed";
 
 const StudentDashboard = () => {
-  const [showSplash, setShowSplash] = useState(true);
-  const [currentMood, setCurrentMood] = useState<MoodType | undefined>(undefined);
-  
   const {
     loading,
     userProfile,
@@ -36,100 +37,109 @@ const StudentDashboard = () => {
     toggleSidebar,
     toggleTabsNav
   } = useStudentDashboard();
-
-  useEffect(() => {
-    // Check if the user has seen the splash screen in this session
-    const hasSeen = sessionStorage.getItem("hasSeenSplash");
-    
-    // Try to get saved mood from local storage
-    const savedUserData = localStorage.getItem("userData");
-    if (savedUserData) {
-      const parsedData = JSON.parse(savedUserData);
-      if (parsedData.mood) {
-        setCurrentMood(parsedData.mood);
-      }
-    }
-    
-    if (hasSeen) {
-      setShowSplash(false);
-    }
-  }, []);
   
-  const handleMoodSelection = (mood: MoodType) => {
-    setCurrentMood(mood);
-    // Save mood to userData in localStorage
-    const userData = localStorage.getItem("userData");
-    if (userData) {
-      const parsedData = JSON.parse(userData);
-      parsedData.mood = mood;
-      localStorage.setItem("userData", JSON.stringify(parsedData));
-    }
+  const { toast } = useToast();
+  const { tab } = useParams<{ tab?: string }>();
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [mood, setMood] = useState<MoodType>("neutral"); // Changed from "okay" to "neutral" which is in the allowed types
+  
+  // Redirect to overview tab if no tab is specified
+  if (!tab) {
+    return <Navigate to="/dashboard/student/overview" replace />;
+  }
+  
+  // Check if the tab is valid, if not redirect to overview
+  if (tab !== "overview" && 
+      tab !== "today" && 
+      tab !== "academic" && 
+      tab !== "concepts" && 
+      tab !== "flashcards" && 
+      tab !== "practice-exam" && 
+      tab !== "influence-meter" && 
+      tab !== "feel-good" && 
+      tab !== "notifications") {
+    return <Navigate to="/dashboard/student/overview" replace />;
+  }
+  
+  const toggleMobileMenu = () => {
+    setShowMobileMenu(!showMobileMenu);
   };
   
-  const handleSplashComplete = () => {
-    setShowSplash(false);
-    // Mark that the user has seen the splash screen in this session
-    sessionStorage.setItem("hasSeenSplash", "true");
-    
-    // Save a default optimistic mood if none is set
-    if (!currentMood) {
-      setCurrentMood('motivated');
-      const userData = localStorage.getItem("userData");
-      if (userData) {
-        const parsedData = JSON.parse(userData);
-        parsedData.mood = 'motivated';
-        localStorage.setItem("userData", JSON.stringify(parsedData));
-      }
-    }
+  const handleMoodSelect = (selectedMood: MoodType) => {
+    setMood(selectedMood);
+    toast({
+      title: `Mood set to ${selectedMood}`,
+      description: "Your dashboard will adjust to your mood.",
+    });
   };
 
-  // Show splash screen if needed
-  if (showSplash) {
-    return <SplashScreen onComplete={handleSplashComplete} mood={currentMood} />;
-  }
-
-  if (loading || !userProfile) {
-    return <DashboardLoading />;
-  }
-
-  // Show onboarding flow only for users who haven't completed it
-  if (showOnboarding) {
-    // Make sure we have a goal to work with
-    const defaultGoal = "IIT-JEE";
-    const goalTitle = userProfile?.goals?.[0]?.title || defaultGoal;
-    
-    return (
-      <OnboardingFlow 
-        userProfile={userProfile} 
-        goalTitle={goalTitle}
-        onComplete={handleCompleteOnboarding}
-      />
-    );
-  }
+  // Get the array of available features for the sidebar
+  const availableFeatures = [
+    {
+      icon: null,
+      title: "Overview",
+      description: "Your learning dashboard",
+      path: "overview",
+      isPremium: false,
+    },
+    {
+      icon: null,
+      title: "Today's Plan",
+      description: "Your daily study schedule",
+      path: "today",
+      isPremium: false,
+    },
+    // ... more features
+  ];
 
   return (
-    <DashboardLayout
-      userProfile={userProfile}
-      hideSidebar={hideSidebar}
-      hideTabsNav={hideTabsNav}
-      activeTab={activeTab}
-      kpis={kpis}
-      nudges={nudges}
-      markNudgeAsRead={markNudgeAsRead}
-      showWelcomeTour={showWelcomeTour}
-      onTabChange={handleTabChange}
-      onViewStudyPlan={handleViewStudyPlan}
-      onToggleSidebar={toggleSidebar}
-      onToggleTabsNav={toggleTabsNav}
-      onSkipTour={handleSkipTour}
-      onCompleteTour={handleCompleteTour}
-      showStudyPlan={showStudyPlan}
-      onCloseStudyPlan={handleCloseStudyPlan}
-      lastActivity={lastActivity}
-      suggestedNextAction={suggestedNextAction}
-      currentMood={currentMood}
-      onMoodSelect={handleMoodSelection}
-    />
+    <div className="relative min-h-screen">
+      {/* Mobile top bar */}
+      <div className="flex items-center justify-between border-b border-gray-200 bg-white p-4 lg:hidden dark:bg-gray-800 dark:border-gray-700">
+        <h1 className="text-xl font-bold">Sakha AI</h1>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="icon" onClick={toggleMobileMenu}>
+            <Menu />
+          </Button>
+        </div>
+      </div>
+      
+      {/* Mobile sidebar */}
+      <MobileSidebar
+        isOpen={showMobileMenu}
+        onClose={toggleMobileMenu}
+        activeTab={activeTab}
+        onTabChange={(tab) => {
+          handleTabChange(tab);
+          toggleMobileMenu();
+        }}
+      />
+      
+      {/* Main dashboard layout */}
+      <DashboardLayout
+        loading={loading}
+        userProfile={userProfile}
+        activeTab={activeTab}
+        showWelcomeTour={showWelcomeTour}
+        showOnboarding={showOnboarding}
+        showStudyPlan={showStudyPlan}
+        hideSidebar={hideSidebar}
+        hideTabsNav={hideTabsNav}
+        kpis={kpis}
+        nudges={nudges}
+        features={availableFeatures}
+        lastActivity={lastActivity}
+        suggestedNextAction={suggestedNextAction}
+        markNudgeAsRead={markNudgeAsRead}
+        handleTabChange={handleTabChange}
+        handleSkipTour={handleSkipTour}
+        onCompleteTour={handleCompleteTour}
+        handleCompleteOnboarding={handleCompleteOnboarding}
+        handleCloseStudyPlan={handleCloseStudyPlan}
+        toggleSidebar={toggleSidebar}
+        toggleTabsNav={toggleTabsNav}
+      />
+    </div>
   );
 };
 

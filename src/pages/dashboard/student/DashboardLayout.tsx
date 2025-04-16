@@ -1,120 +1,162 @@
 
-import React from 'react';
-import { UserProfileType } from "@/types/user";
-import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
-import DashboardContainer from '@/components/dashboard/student/DashboardContainer';
-import { BookOpen, Calendar, Lightbulb, GraduationCap } from 'lucide-react';
-import { MoodType } from '@/types/user';
+import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
+import { UserProfileType } from '@/types/user';
+import { KpiData, NudgeData } from '@/hooks/useKpiTracking';
+import MainContent from '@/components/dashboard/student/MainContent';
+import Sidebar from '@/components/dashboard/student/Sidebar';
+import StudentOnboarding from '@/components/dashboard/student/StudentOnboarding';
+import SidebarToggleButton from '@/components/dashboard/student/SidebarToggleButton';
+import StationeryModal from '@/components/dashboard/student/StationeryModal';
+import FeelGoodCorner from '@/components/dashboard/student/FeelGoodCorner';
+import StudyPlanModal from '@/components/dashboard/student/StudyPlanModal';
 
 export interface DashboardLayoutProps {
+  loading: boolean;
   userProfile: UserProfileType;
+  activeTab: string;
+  showWelcomeTour: boolean;
+  showOnboarding: boolean;
+  showStudyPlan: boolean;
   hideSidebar: boolean;
   hideTabsNav: boolean;
-  activeTab: string;
   kpis: KpiData[];
   nudges: NudgeData[];
-  markNudgeAsRead: (id: string) => void;
-  showWelcomeTour: boolean;
-  onTabChange: (tab: string) => void;
-  onViewStudyPlan: () => void;
-  onToggleSidebar: () => void;
-  onToggleTabsNav: () => void;
-  onSkipTour: () => void;
-  onCompleteTour: () => void;
-  showStudyPlan: boolean;
-  onCloseStudyPlan: () => void;
+  features: any[];
   lastActivity?: { type: string; description: string } | null;
   suggestedNextAction?: string | null;
-  currentMood?: MoodType;
-  onMoodSelect?: (mood: MoodType) => void;
+  markNudgeAsRead: (id: string) => void;
+  handleTabChange: (tab: string) => void;
+  handleSkipTour: () => void;
+  onCompleteTour: () => void;
+  handleCompleteOnboarding: () => void;
+  handleCloseStudyPlan: () => void;
+  toggleSidebar: () => void;
+  toggleTabsNav: () => void;
 }
 
-const DashboardLayout = ({
+const DashboardLayout: React.FC<DashboardLayoutProps> = ({
+  loading,
   userProfile,
+  activeTab,
+  showWelcomeTour,
+  showOnboarding,
+  showStudyPlan,
   hideSidebar,
   hideTabsNav,
-  activeTab,
   kpis,
   nudges,
-  markNudgeAsRead,
-  showWelcomeTour,
-  onTabChange,
-  onViewStudyPlan,
-  onToggleSidebar,
-  onToggleTabsNav,
-  onSkipTour,
-  onCompleteTour,
-  showStudyPlan,
-  onCloseStudyPlan,
+  features,
   lastActivity,
   suggestedNextAction,
-  currentMood,
-  onMoodSelect
-}: DashboardLayoutProps) => {
-  // Default features array for student dashboard with all required properties
-  const features = [
-    {
-      id: 'personalized-study',
-      title: 'Personalized Study Plan',
-      description: 'AI-generated study plan based on your learning habits',
-      icon: <Calendar />,
-      path: '/dashboard/student/study-plan',
-      isPremium: false
-    },
-    {
-      id: 'concept-cards',
-      title: 'Interactive Concept Cards',
-      description: 'Visual learning with concept mapping',
-      icon: <BookOpen />,
-      path: '/dashboard/student/concepts',
-      isPremium: false
-    },
-    {
-      id: 'practice-tests',
-      title: 'Practice Tests',
-      description: 'Exam-like questions to test your knowledge',
-      icon: <GraduationCap />,
-      path: '/dashboard/student/practice',
-      isPremium: false
-    },
-    {
-      id: 'revision-tools',
-      title: 'Smart Revision Tools',
-      description: 'Spaced repetition for better memory retention',
-      icon: <Lightbulb />,
-      path: '/dashboard/student/revision',
-      isPremium: false
-    }
-  ];
+  markNudgeAsRead,
+  handleTabChange,
+  handleSkipTour,
+  onCompleteTour,
+  handleCompleteOnboarding,
+  handleCloseStudyPlan,
+  toggleSidebar,
+  toggleTabsNav
+}) => {
+  const [showStationery, setShowStationery] = useState(false);
+  const [showFeelGood, setShowFeelGood] = useState(false);
+  const location = useLocation();
+  const isMobile = window.innerWidth < 768;
   
-  // Get current time
-  const currentTime = new Date();
+  // Show loading state if data is still loading
+  if (loading) {
+    return (
+      <div className="flex h-screen w-screen items-center justify-center">
+        <div className="h-16 w-16 animate-spin rounded-full border-4 border-t-4 border-gray-200 border-t-purple-600"></div>
+      </div>
+    );
+  }
   
+  // Show onboarding if needed
+  if (showOnboarding) {
+    return <StudentOnboarding onComplete={handleCompleteOnboarding} userProfile={userProfile} />;
+  }
+  
+  const handleOpenStationery = () => {
+    setShowStationery(true);
+  };
+  
+  const handleCloseStationery = () => {
+    setShowStationery(false);
+  };
+  
+  const handleOpenFeelGood = () => {
+    setShowFeelGood(true);
+  };
+  
+  const handleCloseFeelGood = () => {
+    setShowFeelGood(false);
+  };
+
   return (
-    <DashboardContainer
-      userProfile={userProfile}
-      hideSidebar={hideSidebar}
-      hideTabsNav={hideTabsNav}
-      activeTab={activeTab}
-      kpis={kpis}
-      nudges={nudges}
-      markNudgeAsRead={markNudgeAsRead}
-      features={features}
-      showWelcomeTour={showWelcomeTour}
-      currentTime={currentTime}
-      onTabChange={onTabChange}
-      onViewStudyPlan={onViewStudyPlan}
-      onToggleSidebar={onToggleSidebar}
-      onToggleTabsNav={onToggleTabsNav}
-      onSkipTour={onSkipTour}
-      onCompleteTour={handleCompleteTour}
-      showStudyPlan={showStudyPlan}
-      onCloseStudyPlan={onCloseStudyPlan}
-      lastActivity={lastActivity}
-      suggestedNextAction={suggestedNextAction}
-      currentMood={currentMood}
-      onMoodSelect={onMoodSelect}
-    />
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      {/* Sidebar */}
+      <Sidebar 
+        hideSidebar={hideSidebar} 
+        activeTab={activeTab} 
+        onTabChange={handleTabChange} 
+        onOpenStationery={handleOpenStationery}
+        onOpenFeelGood={handleOpenFeelGood}
+      />
+      
+      {/* Sidebar toggle button */}
+      <SidebarToggleButton hideSidebar={hideSidebar} onToggle={toggleSidebar} />
+      
+      {/* Main content area */}
+      <main className={`transition-all duration-300 ${hideSidebar ? 'lg:ml-0' : 'lg:ml-60'}`}>
+        <div className="container mx-auto px-4 py-8">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
+            <MainContent 
+              hideTabsNav={hideTabsNav}
+              activeTab={activeTab} 
+              userProfile={userProfile}
+              kpis={kpis}
+              nudges={nudges}
+              markNudgeAsRead={markNudgeAsRead}
+              features={features}
+              showWelcomeTour={showWelcomeTour}
+              onTabChange={handleTabChange} 
+              onToggleTabsNav={toggleTabsNav}
+              onSkipTour={handleSkipTour}
+              onCompleteTour={onCompleteTour}
+              isMobile={isMobile}
+              lastActivity={lastActivity}
+              suggestedNextAction={suggestedNextAction}
+            />
+          </div>
+        </div>
+      </main>
+      
+      {/* Modals */}
+      <StationeryModal 
+        isOpen={showStationery} 
+        onClose={handleCloseStationery}
+      />
+      
+      <StudyPlanModal
+        isOpen={showStudyPlan}
+        onClose={handleCloseStudyPlan}
+      />
+      
+      {showFeelGood && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="relative h-[90vh] w-[90vw] overflow-auto rounded-lg bg-white p-6">
+            <button 
+              onClick={handleCloseFeelGood}
+              className="absolute right-4 top-4 rounded-full bg-gray-200 p-1 text-gray-800 hover:bg-gray-300"
+            >
+              &times;
+            </button>
+            <FeelGoodCorner />
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
 
