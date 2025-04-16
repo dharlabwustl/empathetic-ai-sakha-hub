@@ -29,20 +29,8 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Search, MoreHorizontal, Filter, Download, UserPlus, UserX, Check, X } from "lucide-react";
-import StudentProfileModal, { StudentData } from "../students/StudentProfileModal";
-
-interface StudentData {
-  id: string;
-  name: string;
-  email: string;
-  joinedDate: Date | string;
-  role: string;
-  status: 'active' | 'inactive' | 'pending';
-  subjects?: string[];
-  examPrep?: string;
-  lastActive?: Date | string;
-  progress?: number;
-}
+import StudentProfileModal from "../students/StudentProfileModal";
+import { StudentData } from "@/types/admin/studentData";
 
 const studentsData: StudentData[] = [
   {
@@ -107,7 +95,11 @@ const studentsData: StudentData[] = [
   },
 ];
 
-const UserManagementTab = ({ recentStudents = studentsData }) => {
+interface UserManagementTabProps {
+  recentStudents?: StudentData[];
+}
+
+const UserManagementTab = ({ recentStudents = studentsData }: UserManagementTabProps) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedStudent, setSelectedStudent] = useState<StudentData | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);

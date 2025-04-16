@@ -6,7 +6,7 @@ export const mockStudentProfile: StudentProfile = {
   name: "Rahul Singh",
   phoneNumber: "9876543210",
   email: "rahul.singh@example.com", // Added missing required field
-  role: "Student" as UserRole,
+  role: "student" as UserRole,
   personalityType: "Strategic Thinker",
   subscription: "Basic", // Added missing field
   joinDate: "2025-03-01",
@@ -23,6 +23,7 @@ export const mockStudentProfile: StudentProfile = {
       description: "Finish all chapters in NCERT Physics",
       progress: 75,
       dueDate: "2025-05-30",
+      status: "in-progress", // Add missing status property
     },
     {
       id: "g2",
@@ -30,6 +31,7 @@ export const mockStudentProfile: StudentProfile = {
       description: "Practice integration problems",
       progress: 60,
       dueDate: "2025-05-15",
+      status: "not-started", // Add missing status property
     },
   ],
   educationLevel: "11th Grade",
@@ -46,7 +48,7 @@ export const mockStudentProfile: StudentProfile = {
   studyHoursToday: 2.5,
   subjectsCovered: 3,
   quizPerformance: 82,
-  mood: "Focused" as MoodType,
+  mood: "focused" as MoodType,
   syllabusCoverage: 65,
   strongSubjects: ["Physics", "Mathematics"],
   weakSubjects: ["Chemistry", "Biology"]

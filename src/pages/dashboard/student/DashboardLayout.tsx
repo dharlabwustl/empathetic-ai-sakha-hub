@@ -8,7 +8,7 @@ import StudyPlanDialog from "./StudyPlanDialog";
 import TopNavigationControls from "@/components/dashboard/student/TopNavigationControls";
 import SurroundingInfluencesSection from "@/components/dashboard/student/SurroundingInfluencesSection";
 import NavigationToggleButton from "@/components/dashboard/student/NavigationToggleButton";
-import { UserProfileType } from "@/types/user";
+import { UserProfileType, MoodType } from "@/types/user";
 import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
 import { formatTime, formatDate } from "./utils/DateTimeFormatter";
 import { motion } from "framer-motion";
@@ -64,18 +64,13 @@ const DashboardLayout = ({
   const formattedTime = formatTime(currentTime);
   const formattedDate = formatDate(currentTime);
   const isMobile = useIsMobile();
-  // Always start with influences section collapsed
   const [influenceMeterCollapsed, setInfluenceMeterCollapsed] = useState(true);
-  // State for mood
   const [userMood, setUserMood] = useState<MoodType>(currentMood);
   
-  // Get features from utility
   const features = getFeatures();
 
-  // Handle mood change
   const handleMoodChange = (mood: MoodType) => {
     setUserMood(mood);
-    // Here you would also update this in your global state or backend
   };
   
   return (
@@ -90,7 +85,6 @@ const DashboardLayout = ({
           formattedTime={formattedTime}
         />
         
-        {/* Top header section */}
         <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
           <DashboardHeader 
             userProfile={userProfile}
@@ -99,7 +93,6 @@ const DashboardLayout = ({
             onViewStudyPlan={onViewStudyPlan}
           />
           
-          {/* Mood Log Button */}
           <div className="flex-shrink-0">
             <MoodLogButton 
               currentMood={userMood} 
@@ -108,22 +101,18 @@ const DashboardLayout = ({
           </div>
         </div>
 
-        {/* Surrounding Influences Meter */}
         <SurroundingInfluencesSection 
           influenceMeterCollapsed={influenceMeterCollapsed}
           setInfluenceMeterCollapsed={setInfluenceMeterCollapsed}
         />
         
-        {/* Mobile Navigation */}
         {isMobile && (
           <div className="mb-6">
             <MobileNavigation activeTab={activeTab} onTabChange={onTabChange} />
           </div>
         )}
         
-        {/* Main dashboard content area */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 mt-4 sm:mt-6">
-          {/* Left navigation sidebar (desktop) */}
           {!hideSidebar && !isMobile && (
             <SidebarNavigation 
               activeTab={activeTab} 
@@ -131,7 +120,6 @@ const DashboardLayout = ({
             />
           )}
           
-          {/* Main content area */}
           <div className="lg:col-span-9 xl:col-span-10">
             {!isMobile && (
               <NavigationToggleButton 
@@ -140,7 +128,6 @@ const DashboardLayout = ({
               />
             )}
             
-            {/* Main content area */}
             <DashboardContent
               activeTab={activeTab}
               onTabChange={onTabChange}
@@ -162,7 +149,6 @@ const DashboardLayout = ({
       
       <ChatAssistant userType="student" />
       
-      {/* Study Plan Dialog */}
       {showStudyPlan && (
         <StudyPlanDialog 
           userProfile={userProfile} 

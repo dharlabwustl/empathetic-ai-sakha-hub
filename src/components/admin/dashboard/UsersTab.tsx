@@ -1,9 +1,9 @@
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { AdminDashboardStats, StudentData } from "@/types/admin";
+import { AdminDashboardStats } from "@/types/admin";
+import { StudentData } from "@/types/admin/studentData";
 import { useToast } from "@/hooks/use-toast";
 import { Eye } from "lucide-react";
 import StudentProfileModal from "./students/StudentProfileModal";
@@ -209,8 +209,9 @@ const UsersTab = ({ stats, recentStudents }: UsersTabProps) => {
       {/* Student Profile Modal */}
       {showProfileModal && selectedStudent && (
         <StudentProfileModal 
-          student={selectedStudent}
-          onClose={closeProfileModal}
+          open={showProfileModal}
+          onOpenChange={setShowProfileModal}
+          studentData={selectedStudent}
         />
       )}
     </div>
