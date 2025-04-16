@@ -24,8 +24,8 @@ const StudentProfile: React.FC<StudentProfileProps> = ({ userProfile }) => {
     name: userProfile?.name || "",
     email: userProfile?.email || "",
     phoneNumber: userProfile?.phoneNumber || "",
-    school: userProfile?.school || "",
-    grade: userProfile?.grade || "",
+    school: (userProfile as any)?.school || "",
+    grade: (userProfile as any)?.grade || "",
     examTarget: userProfile?.goals?.[0]?.title || "JEE",
     bio: userProfile?.bio || "",
     currentPassword: "",
@@ -120,7 +120,7 @@ const StudentProfile: React.FC<StudentProfileProps> = ({ userProfile }) => {
             <div className="flex flex-col items-center space-y-4">
               <div className="relative">
                 <Avatar className="w-32 h-32">
-                  <AvatarImage src={userProfile?.profileImage || ""} />
+                  <AvatarImage src={userProfile?.avatar || ""} />
                   <AvatarFallback className="text-4xl bg-primary/20">
                     {userProfile?.name?.charAt(0) || 'U'}
                   </AvatarFallback>
