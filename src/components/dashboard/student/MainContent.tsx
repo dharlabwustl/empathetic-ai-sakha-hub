@@ -3,6 +3,8 @@ import React from 'react';
 import { UserProfileType } from "@/types/user";
 import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
 import DashboardContent from "@/pages/dashboard/student/DashboardContent";
+import { generateTabContents } from './TabContentManager';
+import DashboardTabs from './DashboardTabs';
 
 interface MainContentProps {
   hideTabsNav: boolean;
@@ -39,6 +41,20 @@ const MainContent: React.FC<MainContentProps> = ({
   lastActivity,
   suggestedNextAction
 }) => {
+  // Get tab contents from the manager
+  const tabContents = generateTabContents({
+    userProfile,
+    kpis,
+    nudges,
+    markNudgeAsRead,
+    features,
+    showWelcomeTour,
+    handleSkipTour: onSkipTour,
+    handleCompleteTour: onCompleteTour,
+    lastActivity,
+    suggestedNextAction
+  });
+
   return (
     <div className="lg:col-span-9 xl:col-span-10">
       {/* Navigation toggle button for desktop */}
@@ -49,21 +65,12 @@ const MainContent: React.FC<MainContentProps> = ({
         />
       )}
       
-      {/* Main dashboard content */}
-      <DashboardContent
+      {/* Main tabs navigation */}
+      <DashboardTabs
         activeTab={activeTab}
         onTabChange={onTabChange}
-        userProfile={userProfile}
-        kpis={kpis}
-        nudges={nudges}
-        markNudgeAsRead={markNudgeAsRead}
-        features={features}
-        showWelcomeTour={showWelcomeTour}
-        handleSkipTour={onSkipTour}
-        handleCompleteTour={onCompleteTour}
-        hideTabsNav={hideTabsNav || isMobile}
-        lastActivity={lastActivity}
-        suggestedNextAction={suggestedNextAction}
+        tabContents={tabContents}
+        hideTabsNav={hideTabsNav}
       />
     </div>
   );

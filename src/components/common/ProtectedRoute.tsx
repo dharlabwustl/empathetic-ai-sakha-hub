@@ -21,12 +21,12 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     console.log("ProtectedRoute - Current location:", location.pathname, location.search);
   }, [isAuthenticated, isLoading, user, location]);
 
-  // Check if the user is coming from the signup flow
+  // Check if onboarding parameters are present
   const isFromSignup = location.search.includes('completedOnboarding=true') || location.search.includes('new=true');
   
   // If this is redirected from signup, we'll let them through even if not fully authenticated
   if (isFromSignup) {
-    console.log("ProtectedRoute - User coming from signup, bypassing auth check temporarily");
+    console.log("ProtectedRoute - User coming from signup flow, allowing access");
     return <>{children}</>;
   }
 

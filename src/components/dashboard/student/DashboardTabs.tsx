@@ -75,23 +75,38 @@ export default function DashboardTabs({
           variants={containerVariants}
           initial="hidden"
           animate="visible"
-          className="mb-2"
+          className="sticky top-0 z-10 bg-background pt-2 pb-2"
         >
-          <TabsList className="p-1.5 rounded-xl bg-gradient-to-r from-indigo-50/80 via-purple-50/80 to-pink-50/80 dark:from-indigo-900/20 dark:via-purple-900/20 dark:to-pink-900/20 border border-indigo-100/50 dark:border-indigo-800/30 flex items-center justify-between overflow-x-auto max-w-full shadow-sm">
-            {tabs.map(tab => (
-              <motion.div key={tab.id} variants={itemVariants} className="flex-shrink-0">
-                <TabsTrigger 
-                  value={tab.id} 
-                  className="rounded-lg flex items-center gap-2 py-2.5 px-4 transition-all duration-300 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800 data-[state=active]:text-indigo-600 dark:data-[state=active]:text-indigo-400 data-[state=active]:shadow-sm"
-                >
-                  {tab.icon}
-                  <span className={isMobile ? "hidden sm:inline text-xs" : ""}>{tab.label}</span>
-                </TabsTrigger>
-              </motion.div>
-            ))}
-          </TabsList>
+          <div className="relative">
+            {/* Fixed width container with horizontal scroll */}
+            <div className="overflow-x-auto pb-2 scrollbar-hide">
+              <TabsList className="p-1.5 rounded-xl bg-gradient-to-r from-indigo-50/80 via-purple-50/80 to-pink-50/80 dark:from-indigo-900/20 dark:via-purple-900/20 dark:to-pink-900/20 border border-indigo-100/50 dark:border-indigo-800/30 flex items-center w-full sm:w-auto min-w-max shadow-sm">
+                {tabs.map(tab => (
+                  <motion.div key={tab.id} variants={itemVariants} className="flex-shrink-0">
+                    <TabsTrigger 
+                      value={tab.id} 
+                      className="rounded-lg flex items-center gap-2 py-2.5 px-4 transition-all duration-300 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800 data-[state=active]:text-indigo-600 dark:data-[state=active]:text-indigo-400 data-[state=active]:shadow-sm"
+                    >
+                      {tab.icon}
+                      <span className={isMobile ? "text-xs" : ""}>{tab.label}</span>
+                    </TabsTrigger>
+                  </motion.div>
+                ))}
+              </TabsList>
+            </div>
+            
+            {/* Gradient fades for scroll indication */}
+            <div className="absolute top-0 bottom-0 left-0 w-8 bg-gradient-to-r from-background to-transparent pointer-events-none" />
+            <div className="absolute top-0 bottom-0 right-0 w-8 bg-gradient-to-l from-background to-transparent pointer-events-none" />
+          </div>
         </motion.div>
       )}
+      
+      {Object.entries(tabContents).map(([key, content]) => (
+        <TabsContent key={key} value={key} className="focus-visible:outline-none focus-visible:ring-0">
+          {activeTab === key && content}
+        </TabsContent>
+      ))}
     </Tabs>
   );
 }

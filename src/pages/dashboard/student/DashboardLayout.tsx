@@ -4,7 +4,7 @@ import { UserProfileType } from "@/types/user";
 import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
 import DashboardContainer from '@/components/dashboard/student/DashboardContainer';
 import { BookOpen, Calendar, Lightbulb, GraduationCap } from 'lucide-react';
-import { ReactNode } from 'react';
+import { MoodType } from '@/types/user';
 
 export interface DashboardLayoutProps {
   userProfile: UserProfileType;
@@ -25,7 +25,8 @@ export interface DashboardLayoutProps {
   onCloseStudyPlan: () => void;
   lastActivity?: { type: string; description: string } | null;
   suggestedNextAction?: string | null;
-  currentMood?: 'sad' | 'neutral' | 'happy' | 'motivated' | 'curious' | 'stressed' | 'tired';
+  currentMood?: MoodType;
+  onMoodSelect?: (mood: MoodType) => void;
 }
 
 const DashboardLayout = ({
@@ -47,7 +48,8 @@ const DashboardLayout = ({
   onCloseStudyPlan,
   lastActivity,
   suggestedNextAction,
-  currentMood
+  currentMood,
+  onMoodSelect
 }: DashboardLayoutProps) => {
   // Default features array for student dashboard with all required properties
   const features = [
@@ -105,12 +107,13 @@ const DashboardLayout = ({
       onToggleSidebar={onToggleSidebar}
       onToggleTabsNav={onToggleTabsNav}
       onSkipTour={onSkipTour}
-      onCompleteTour={onCompleteTour}
+      onCompleteTour={handleCompleteTour}
       showStudyPlan={showStudyPlan}
       onCloseStudyPlan={onCloseStudyPlan}
       lastActivity={lastActivity}
       suggestedNextAction={suggestedNextAction}
       currentMood={currentMood}
+      onMoodSelect={onMoodSelect}
     />
   );
 };

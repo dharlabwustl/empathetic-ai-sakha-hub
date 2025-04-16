@@ -10,7 +10,9 @@ import SidebarToggleButton from '@/components/dashboard/student/SidebarToggleBut
 import TopNavigationControls from '@/components/dashboard/student/TopNavigationControls';
 import SurroundingInfluencesSection from '@/components/dashboard/student/SurroundingInfluencesSection';
 import MainContent from '@/components/dashboard/student/MainContent';
+import HeroPanel from '@/components/dashboard/student/HeroPanel'; 
 import { useIsMobile } from "@/hooks/use-mobile";
+import { MoodType } from "@/types/user";
 
 interface DashboardWrapperProps {
   userProfile: UserProfileType;
@@ -31,6 +33,8 @@ interface DashboardWrapperProps {
   onCompleteTour: () => void;
   lastActivity?: { type: string; description: string } | null;
   suggestedNextAction?: string | null;
+  currentMood?: MoodType;
+  onMoodSelect?: (mood: MoodType) => void;
 }
 
 const DashboardWrapper: React.FC<DashboardWrapperProps> = ({
@@ -51,12 +55,20 @@ const DashboardWrapper: React.FC<DashboardWrapperProps> = ({
   onSkipTour,
   onCompleteTour,
   lastActivity,
-  suggestedNextAction
+  suggestedNextAction,
+  currentMood,
+  onMoodSelect
 }) => {
   const isMobile = useIsMobile();
   const formattedTime = formatTime(currentTime);
   const formattedDate = formatDate(currentTime);
   const [influenceMeterCollapsed, setInfluenceMeterCollapsed] = React.useState(true);
+
+  // Get user's primary goal
+  const primaryGoal = userProfile?.goals?.[0]?.title || "UPSC 2025";
+  
+  // Get user's streak
+  const streak = userProfile?.stats?.studyStreak || 0;
 
   return (
     <main className={`transition-all duration-300 ${hideSidebar ? 'md:ml-0' : 'md:ml-64'} p-4 sm:p-6 pb-20 md:pb-6`}>
@@ -71,7 +83,19 @@ const DashboardWrapper: React.FC<DashboardWrapperProps> = ({
         formattedTime={formattedTime}
       />
       
-      {/* Dashboard header */}
+      {/* Hero Panel - New feature */}
+      <HeroPanel 
+        userName={userProfile.name}
+        primaryGoal={primaryGoal}
+        streak={streak}
+        lastActivity={lastActivity?.description}
+        suggestedAction={suggestedNextAction}
+        onViewStudyPlan={onViewStudyPlan}
+        currentMood={currentMood}
+        onMoodSelect={onMoodSelect}
+      />
+
+      {/* Dashboard header - Moving below Hero Panel */}
       <DashboardHeader 
         userProfile={userProfile}
         formattedTime={formattedTime}

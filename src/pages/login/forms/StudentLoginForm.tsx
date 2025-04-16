@@ -53,13 +53,11 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
           // Update existing user data to ensure proper flow
           const parsedData = JSON.parse(existingUserData);
           parsedData.isNewUser = false;
-          if (parsedData.completedOnboarding === undefined) {
-            parsedData.completedOnboarding = true;
-          }
+          parsedData.completedOnboarding = true; // Explicitly mark as completed for login flow
           localStorage.setItem("userData", JSON.stringify(parsedData));
         }
         
-        // Redirect without any query parameters to avoid triggering onboarding
+        // Redirect directly to dashboard for login flow
         navigate("/dashboard/student");
         
         toast({

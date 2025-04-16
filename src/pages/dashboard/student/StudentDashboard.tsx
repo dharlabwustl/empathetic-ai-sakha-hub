@@ -5,10 +5,11 @@ import OnboardingFlow from "@/components/dashboard/student/OnboardingFlow";
 import DashboardLoading from "@/pages/dashboard/student/DashboardLoading";
 import DashboardLayout from "@/pages/dashboard/student/DashboardLayout";
 import SplashScreen from "@/components/dashboard/student/SplashScreen";
+import { MoodType } from "@/types/user";
 
 const StudentDashboard = () => {
   const [showSplash, setShowSplash] = useState(true);
-  const [currentMood, setCurrentMood] = useState<'sad' | 'neutral' | 'happy' | 'motivated' | undefined>(undefined);
+  const [currentMood, setCurrentMood] = useState<MoodType | undefined>(undefined);
   
   const {
     loading,
@@ -53,6 +54,17 @@ const StudentDashboard = () => {
       setShowSplash(false);
     }
   }, []);
+  
+  const handleMoodSelection = (mood: MoodType) => {
+    setCurrentMood(mood);
+    // Save mood to userData in localStorage
+    const userData = localStorage.getItem("userData");
+    if (userData) {
+      const parsedData = JSON.parse(userData);
+      parsedData.mood = mood;
+      localStorage.setItem("userData", JSON.stringify(parsedData));
+    }
+  };
   
   const handleSplashComplete = () => {
     setShowSplash(false);
@@ -116,6 +128,7 @@ const StudentDashboard = () => {
       lastActivity={lastActivity}
       suggestedNextAction={suggestedNextAction}
       currentMood={currentMood}
+      onMoodSelect={handleMoodSelection}
     />
   );
 };

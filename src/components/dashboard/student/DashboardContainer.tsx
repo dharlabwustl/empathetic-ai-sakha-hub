@@ -3,8 +3,12 @@ import React from 'react';
 import { UserProfileType } from "@/types/user";
 import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
 import { motion } from "framer-motion";
+import { MoodType } from "@/types/user";
+import DashboardWrapper from '@/components/dashboard/student/DashboardWrapper';
 import { generateTabContents } from './TabContentManager';
 import MotivationCard from './MotivationCard';
+import LogMoodButton from './LogMoodButton';
+import StudyPlanModal from './StudyPlanModal';
 
 export interface DashboardContainerProps {
   userProfile: UserProfileType;
@@ -33,7 +37,8 @@ export interface DashboardContainerProps {
   onCloseStudyPlan: () => void;
   lastActivity?: { type: string; description: string } | null;
   suggestedNextAction?: string | null;
-  currentMood?: 'sad' | 'neutral' | 'happy' | 'motivated' | 'curious' | 'stressed' | 'tired';
+  currentMood?: MoodType;
+  onMoodSelect?: (mood: MoodType) => void;
 }
 
 const DashboardContainer: React.FC<DashboardContainerProps> = ({
@@ -57,7 +62,8 @@ const DashboardContainer: React.FC<DashboardContainerProps> = ({
   onCloseStudyPlan,
   lastActivity,
   suggestedNextAction,
-  currentMood
+  currentMood,
+  onMoodSelect
 }) => {
   // Create tab content
   const tabContents = generateTabContents({
@@ -75,30 +81,52 @@ const DashboardContainer: React.FC<DashboardContainerProps> = ({
 
   return (
     <div className="flex flex-col">
-      {/* Main content */}
-      <div className="p-4 md:p-6">
-        {/* Content for selected tab */}
-        <div className="space-y-6">
-          {/* Mood card if mood is set */}
-          {currentMood && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-            >
-              <MotivationCard currentMood={currentMood} />
-            </motion.div>
-          )}
+      {/* Dashboard Wrapper for layout */}
+      <DashboardWrapper
+        userProfile={userProfile}
+        hideSidebar={hideSidebar}
+        hideTabsNav={hideTabsNav}
+        activeTab={activeTab}
+        kpis={kpis}
+        nudges={nudges}
+        markNudgeAsRead={markNudgeAsRead}
+        features={features}
+        showWelcomeTour={showWelcomeTour}
+        currentTime={currentTime}
+        onTabChange={onTabChange}
+        onViewStudyPlan={onViewStudyPlan}
+        onToggleSidebar={onToggleSidebar}
+        onToggleTabsNav={onToggleTabsNav}
+        onSkipTour={onSkipTour}
+        onCompleteTour={onCompleteTour}
+        lastActivity={lastActivity}
+        suggestedNextAction={suggestedNextAction}
+        currentMood={currentMood}
+        onMoodSelect={onMoodSelect}
+      />
 
-          {/* Tab content */}
-          {tabContents[activeTab] || (
-            <div className="text-center py-10">
-              <h3 className="text-lg font-medium">Tab content not found</h3>
-              <p className="text-muted-foreground">The selected tab does not exist or is under construction.</p>
-            </div>
-          )}
-        </div>
-      </div>
+      {/* Mood-based card if mood is set */}
+      {currentMood && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="px-6 pb-6"
+        >
+          <MotivationCard currentMood={currentMood} />
+        </motion.div>
+      )}
+
+      {/* Log Mood Dialog */}
+      <LogMoodButton onMoodSelect={onMoodSelect} currentMood={currentMood} />
+
+      {/* Study Plan Modal */}
+      {showStudyPlan && (
+        <StudyPlanModal 
+          user={userProfile} 
+          onClose={onCloseStudyPlan} 
+        />
+      )}
     </div>
   );
 };

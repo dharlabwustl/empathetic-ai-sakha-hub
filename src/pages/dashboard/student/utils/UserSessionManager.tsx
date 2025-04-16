@@ -23,11 +23,16 @@ export const handleNewUser = (
   console.log("UserSessionManager - isNew param:", isNew);
   console.log("UserSessionManager - userData:", userData);
   
-  // If first time login flow (coming from signup)
+  // If specifically coming from signup flow with URL parameters
   if (completedOnboarding === 'true' || isNew === 'true') {
     console.log("UserSessionManager - New user detected from URL parameters");
     shouldShowOnboarding = true;
-    // Don't clean the URL here - we need these params for the flow to work
+    
+    // Clear the URL parameters after processing to avoid loops
+    if (location.search) {
+      // We'll clean up the URL after processing
+      navigate(location.pathname, { replace: true });
+    }
   }
   // Check if user data exists
   else if (userData) {
@@ -40,7 +45,7 @@ export const handleNewUser = (
       shouldShowWelcomeTour = parsedUserData.sawWelcomeTour !== true; // Only show welcome tour if they haven't seen it
       console.log("UserSessionManager - User has completed onboarding before, skipping onboarding flow");
     } 
-    // For new users who haven't completed onboarding, show onboarding
+    // For users who explicitly haven't completed onboarding, show it
     else if (parsedUserData.completedOnboarding === false) {
       shouldShowOnboarding = true;
       console.log("UserSessionManager - User has not completed onboarding, showing onboarding flow");
