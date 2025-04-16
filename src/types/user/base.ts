@@ -56,12 +56,12 @@ export interface UserStats {
   averageScore: number;
   lastActive?: string;
   weeklyStudyTime: number[];
-  studyStreak?: number;
-  totalStudyHours?: number;
+  studyStreak: number;  // Changed from optional to required
+  totalStudyHours: number; // Changed from optional to required
   quizzesCompleted?: number;
   // Adding the missing properties from user.ts
-  questionsAttempted?: number;
-  conceptsMastered?: number;
+  questionsAttempted: number; // Changed from optional to required
+  conceptsMastered: number; // Changed from optional to required
 }
 
 // Updated UserPreferences to match the one in user.ts

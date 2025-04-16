@@ -49,12 +49,14 @@ export interface UserProfileType {
     totalStudyHours: number;
     questionsAttempted: number;
     conceptsMastered: number;
-    // Adding these fields to make compatibility easier with UserStats in base.ts
+    // Optional properties from UserStats in base.ts
     questionsAnswered?: number;
     testsCompleted?: number;
     averageScore?: number;
     weeklyStudyTime?: number[];
     quizzesCompleted?: number;
+    totalStudyTime?: number; // Added to match UserStats in base.ts
+    lastActive?: string; // Added to match UserStats in base.ts
   };
   preferences?: {
     theme: string;
