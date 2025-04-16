@@ -1,6 +1,7 @@
 
 import React from "react";
 import { MoodType } from "@/types/user/base";
+import { AnimatePresence, motion } from "framer-motion";
 import MotivatedMoodPanel from "../mood-specific/MotivatedMoodPanel";
 import CuriousMoodPanel from "../mood-specific/CuriousMoodPanel";
 import NeutralMoodPanel from "../mood-specific/NeutralMoodPanel";
@@ -15,28 +16,24 @@ interface MoodSpecificContentProps {
 const MoodSpecificContent: React.FC<MoodSpecificContentProps> = ({ currentMood }) => {
   if (!currentMood) return null;
   
-  switch (currentMood) {
-    case 'motivated':
-      return <MotivatedMoodPanel />;
-    
-    case 'curious':
-      return <CuriousMoodPanel />;
-    
-    case 'neutral':
-      return <NeutralMoodPanel />;
-    
-    case 'tired':
-      return <TiredMoodPanel />;
-    
-    case 'stressed':
-      return <StressedMoodPanel />;
-      
-    case 'focused':
-      return <FocusedMoodPanel />;
-      
-    default:
-      return null;
-  }
+  return (
+    <AnimatePresence mode="wait">
+      <motion.div
+        key={currentMood}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.3 }}
+      >
+        {currentMood === 'motivated' && <MotivatedMoodPanel />}
+        {currentMood === 'curious' && <CuriousMoodPanel />}
+        {currentMood === 'neutral' && <NeutralMoodPanel />}
+        {currentMood === 'tired' && <TiredMoodPanel />}
+        {currentMood === 'stressed' && <StressedMoodPanel />}
+        {currentMood === 'focused' && <FocusedMoodPanel />}
+      </motion.div>
+    </AnimatePresence>
+  );
 };
 
 export default MoodSpecificContent;
