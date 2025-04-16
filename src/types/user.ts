@@ -63,6 +63,13 @@ export interface UserProfileType {
     notificationsEnabled: boolean;
     studyReminders: boolean;
     language: string;
+    // Adding additional fields to match with UserPreferences in base.ts
+    contentFormat?: 'text' | 'visual' | 'audio' | 'mixed';
+    difficulty?: 'beginner' | 'intermediate' | 'advanced';
+    studySessionDuration?: number;
+    emailNotifications?: boolean;
+    pushNotifications?: boolean;
+    notifications?: boolean; // For compatibility with base.ts
   };
   recentActivities?: {
     id: string;

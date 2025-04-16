@@ -74,6 +74,9 @@ export interface UserPreferences {
   studySessionDuration: number;
   emailNotifications?: boolean;
   pushNotifications?: boolean;
+  // Add the missing properties from the user.ts file
+  notificationsEnabled: boolean;
+  language: string;
 }
 
 export interface MoodEntry {
