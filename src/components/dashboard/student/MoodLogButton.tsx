@@ -10,11 +10,12 @@ import {
 } from "@/components/ui/dialog";
 import { SmilePlus } from "lucide-react";
 import MoodTracking from "./MoodTracking";
+import { MoodType } from "@/types/user";
 
 interface MoodLogButtonProps {
   className?: string;
-  currentMood?: 'motivated' | 'curious' | 'neutral' | 'tired' | 'stressed' | undefined;
-  onMoodChange?: (mood: 'motivated' | 'curious' | 'neutral' | 'tired' | 'stressed' | undefined) => void;
+  currentMood?: MoodType;
+  onMoodChange?: (mood: MoodType) => void;
 }
 
 const MoodLogButton: React.FC<MoodLogButtonProps> = ({ 
@@ -24,7 +25,7 @@ const MoodLogButton: React.FC<MoodLogButtonProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   
-  const handleMoodSelect = (mood: 'motivated' | 'curious' | 'neutral' | 'tired' | 'stressed' | undefined) => {
+  const handleMoodSelect = (mood: MoodType) => {
     if (onMoodChange) {
       onMoodChange(mood);
     }

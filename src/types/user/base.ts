@@ -6,17 +6,17 @@ export type UserProfileType = {
   email: string;
   avatar?: string;
   role: UserRole;
-  accountCreated: Date;
-  lastLogin: Date;
-  loginCount: number;
+  accountCreated?: Date;
+  lastLogin?: Date;
+  loginCount?: number;
   bio?: string;
   phone?: string;
   location?: string;
-  preferences: UserPreferences;
-  badges: Badge[];
+  preferences?: UserPreferences;
+  badges?: Badge[];
   goals: Goal[];
   mood?: MoodType;
-  notifications: Notification[];
+  notifications?: Notification[];
   // Additional fields needed to fix errors
   subscription?: 'Basic' | 'Premium' | 'Free';
   personalityType?: string;
@@ -24,13 +24,18 @@ export type UserProfileType = {
   joinDate?: string;
   completedOnboarding?: boolean;
   phoneNumber?: string;
+  lastActive?: string;
+  examPreparation?: string; // Add this to fix StudyProgress.tsx error
 };
 
 // User roles - update to lowercase to match the string literals used in code
 export type UserRole = 'student' | 'employee' | 'doctor' | 'founder' | 'admin' | 'teacher';
 
-// Mood types for tracking emotional states
-export type MoodType = 'motivated' | 'curious' | 'neutral' | 'tired' | 'stressed' | 'focused' | 'happy' | 'okay' | 'overwhelmed' | undefined;
+// Mood types for tracking emotional states - ensure they match between components
+export type MoodType = 'motivated' | 'curious' | 'neutral' | 'tired' | 'stressed' | 'focused' | 'happy' | 'okay' | 'overwhelmed' | 'sad' | undefined;
+
+// Personality type definition
+export type PersonalityType = 'Strategic Thinker' | 'Creative Builder' | 'Analytical Problem Solver' | 'Social Connector' | string;
 
 // User preferences
 export type UserPreferences = {

@@ -10,7 +10,7 @@ import { PerformanceTabs } from "@/components/dashboard/student/study-progress/P
 
 const StudyProgress = () => {
   const { subjects, studyStreak, loading, selectedSubject, selectSubject } = useStudyProgress();
-  const { userProfile } = useUserProfile("Student");
+  const { userProfile } = useUserProfile("student");
   
   // Check if userProfile isn't null before accessing examPreparation
   const examGoal = userProfile?.examPreparation || "General Study";

@@ -42,6 +42,7 @@ export const mockDoctorProfile: DoctorProfile = {
       title: "Complete Research Paper",
       description: "Finish and submit paper on neural biomarkers",
       progress: 65,
+      status: "in-progress", // Added status property
       dueDate: "2025-06-15", // Keep dueDate as Goal now supports it
       targetDate: new Date("2025-06-15")
     },
@@ -50,6 +51,7 @@ export const mockDoctorProfile: DoctorProfile = {
       title: "Conference Presentation",
       description: "Present findings at International Neurology Conference",
       progress: 40,
+      status: "not-started", // Added status property
       dueDate: "2025-08-20", // Keep dueDate as Goal now supports it
       targetDate: new Date("2025-08-20")
     }

@@ -1,5 +1,5 @@
 
-import { UserRole, PersonalityType, MoodType } from './base';
+import { UserRole, MoodType, PersonalityType } from './base';
 
 export interface OnboardingData {
   role: UserRole;

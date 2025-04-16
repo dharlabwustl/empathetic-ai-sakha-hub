@@ -13,9 +13,9 @@ import {
   FileText,
   Settings
 } from "lucide-react";
-import { AdminDashboardStats, StudentData, SystemLog } from "@/types/admin";
+import { AdminDashboardStats, SystemLog } from "@/types/admin";
 
-import UserManagementTab from "./tabs/UserManagementTab";
+import UserManagementTab, { StudentData } from "./tabs/UserManagementTab";
 import AIPersonalizationTab from "./tabs/AIPersonalizationTab";
 import ContentManagementTab from "./tabs/ContentManagementTab";
 import EngagementTab from "./tabs/EngagementTab";

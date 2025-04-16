@@ -36,6 +36,7 @@ export const mockEmployeeProfile: EmployeeProfile = {
       title: "Complete PMP Certification",
       description: "Pass the Project Management Professional exam",
       progress: 75,
+      status: "in-progress", // Added status property
       dueDate: "2025-05-30", // Keep dueDate as Goal now supports it
       targetDate: new Date("2025-05-30")
     },
@@ -44,6 +45,7 @@ export const mockEmployeeProfile: EmployeeProfile = {
       title: "Learn SQL",
       description: "Complete advanced SQL course for data analysis",
       progress: 45,
+      status: "not-started", // Added status property
       dueDate: "2025-07-15", // Keep dueDate as Goal now supports it
       targetDate: new Date("2025-07-15")
     }

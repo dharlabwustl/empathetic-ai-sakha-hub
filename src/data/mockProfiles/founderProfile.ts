@@ -31,6 +31,7 @@ export const mockFounderProfile: FounderProfile = {
       title: "Secure Series A",
       description: "Raise $1.5M in Series A funding",
       progress: 35,
+      status: "in-progress", // Added status property
       dueDate: "2025-09-30", // Keep dueDate as Goal now supports it
       targetDate: new Date("2025-09-30")
     },
@@ -39,6 +40,7 @@ export const mockFounderProfile: FounderProfile = {
       title: "User Growth",
       description: "Reach 50,000 active users",
       progress: 60,
+      status: "in-progress", // Added status property
       dueDate: "2025-06-15", // Keep dueDate as Goal now supports it
       targetDate: new Date("2025-06-15")
     }

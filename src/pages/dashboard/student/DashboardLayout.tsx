@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import SidebarNav from "@/components/dashboard/SidebarNav";
 import ChatAssistant from "@/components/dashboard/ChatAssistant";
@@ -37,7 +36,7 @@ interface DashboardLayoutProps {
   onCloseStudyPlan: () => void;
   lastActivity?: { type: string; description: string } | null;
   suggestedNextAction?: string | null;
-  currentMood?: 'sad' | 'neutral' | 'happy' | 'motivated';
+  currentMood?: MoodType;
 }
 
 const DashboardLayout = ({
@@ -68,13 +67,13 @@ const DashboardLayout = ({
   // Always start with influences section collapsed
   const [influenceMeterCollapsed, setInfluenceMeterCollapsed] = useState(true);
   // State for mood
-  const [userMood, setUserMood] = useState<'sad' | 'neutral' | 'happy' | 'motivated' | undefined>(currentMood);
+  const [userMood, setUserMood] = useState<MoodType>(currentMood);
   
   // Get features from utility
   const features = getFeatures();
 
   // Handle mood change
-  const handleMoodChange = (mood: 'sad' | 'neutral' | 'happy' | 'motivated' | undefined) => {
+  const handleMoodChange = (mood: MoodType) => {
     setUserMood(mood);
     // Here you would also update this in your global state or backend
   };

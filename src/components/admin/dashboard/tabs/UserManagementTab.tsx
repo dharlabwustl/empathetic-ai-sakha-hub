@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import {
   Table,
@@ -30,7 +29,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Search, MoreHorizontal, Filter, Download, UserPlus, UserX, Check, X } from "lucide-react";
-import StudentProfileModal from "../students/StudentProfileModal";
+import StudentProfileModal, { StudentData } from "../students/StudentProfileModal";
 
 interface StudentData {
   id: string;
@@ -108,14 +107,14 @@ const studentsData: StudentData[] = [
   },
 ];
 
-const UserManagementTab = () => {
+const UserManagementTab = ({ recentStudents = studentsData }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedStudent, setSelectedStudent] = useState<StudentData | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showAddStudentDialog, setShowAddStudentDialog] = useState(false);
   const [profileModalOpen, setProfileModalOpen] = useState(false);
 
-  const filteredStudents = studentsData.filter(student => {
+  const filteredStudents = recentStudents.filter(student => {
     const query = searchQuery.toLowerCase();
     return (
       student.name.toLowerCase().includes(query) ||
@@ -266,7 +265,6 @@ const UserManagementTab = () => {
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowDeleteConfirm(false)}>Cancel</Button>
             <Button variant="destructive" onClick={() => {
-              // Delete implementation would go here
               setShowDeleteConfirm(false);
             }}>
               <UserX className="mr-2 h-4 w-4" />
@@ -330,7 +328,6 @@ const UserManagementTab = () => {
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowAddStudentDialog(false)}>Cancel</Button>
             <Button type="submit" onClick={() => {
-              // Create student implementation would go here
               setShowAddStudentDialog(false);
             }}>
               <Check className="mr-2 h-4 w-4" />

@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -15,11 +14,10 @@ import { useKpiTracking } from "@/hooks/useKpiTracking";
 const DoctorDashboard = () => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
-  const { userProfile } = useUserProfile("Doctor");
-  const { kpis, nudges, markNudgeAsRead } = useKpiTracking("Doctor");
+  const { userProfile } = useUserProfile("doctor");
+  const { kpis, nudges, markNudgeAsRead } = useKpiTracking("doctor");
 
   useEffect(() => {
-    // Simulate loading
     const timer = setTimeout(() => {
       setLoading(false);
       toast({

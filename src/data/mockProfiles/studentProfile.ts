@@ -1,5 +1,6 @@
 
 import { StudentProfile, MoodType } from "@/types/user";
+import { v4 as uuidv4 } from "uuid";
 
 export const mockStudentProfile: StudentProfile = {
   id: "1",
@@ -22,6 +23,7 @@ export const mockStudentProfile: StudentProfile = {
       title: "Complete Physics Syllabus",
       description: "Finish all chapters in NCERT Physics",
       progress: 75,
+      status: "in-progress", // Added status property
       dueDate: "2025-05-30", // Keep dueDate as Goal now supports it 
       targetDate: new Date("2025-05-30")
     },
@@ -30,6 +32,7 @@ export const mockStudentProfile: StudentProfile = {
       title: "Score 90% in Math Test",
       description: "Practice integration problems",
       progress: 60,
+      status: "not-started", // Added status property
       dueDate: "2025-05-15", // Keep dueDate as Goal now supports it
       targetDate: new Date("2025-05-15")
     },
