@@ -51,6 +51,7 @@ const StudentDashboard = () => {
 
   return (
     <DashboardLayout
+      loading={loading}
       userProfile={userProfile}
       hideSidebar={hideSidebar}
       hideTabsNav={hideTabsNav}
@@ -60,13 +61,16 @@ const StudentDashboard = () => {
       markNudgeAsRead={markNudgeAsRead}
       showWelcomeTour={showWelcomeTour}
       onTabChange={handleTabChange}
-      onViewStudyPlan={handleViewStudyPlan}
-      onToggleSidebar={toggleSidebar}
-      onToggleTabsNav={toggleTabsNav}
-      onSkipTour={handleSkipTour}
+      handleSkipTour={handleSkipTour}
       onCompleteTour={handleCompleteTour}
+      handleCompleteOnboarding={handleCompleteOnboarding}
       showStudyPlan={showStudyPlan}
-      onCloseStudyPlan={handleCloseStudyPlan}
+      handleCloseStudyPlan={handleCloseStudyPlan}
+      toggleSidebar={toggleSidebar}
+      toggleTabsNav={toggleTabsNav}
+      features={features}
+      lastActivity={null}
+      suggestedNextAction={null}
     />
   );
 };

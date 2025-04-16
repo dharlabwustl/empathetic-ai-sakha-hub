@@ -14,7 +14,10 @@ const defaultPreferences: UserPreferences = {
   difficulty: 'intermediate',
   studySessionDuration: 25,
   emailNotifications: true,
-  pushNotifications: true
+  pushNotifications: true,
+  // Add the missing properties
+  notificationsEnabled: true,
+  language: 'en'
 };
 
 // Helper function to add default preferences to user profiles

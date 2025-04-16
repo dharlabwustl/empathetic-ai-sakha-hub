@@ -16,7 +16,7 @@ export interface DashboardLayoutProps {
   userProfile: UserProfileType;
   activeTab: string;
   showWelcomeTour: boolean;
-  showOnboarding: boolean;
+  showOnboarding?: boolean;
   showStudyPlan: boolean;
   hideSidebar: boolean;
   hideTabsNav: boolean;
@@ -26,10 +26,10 @@ export interface DashboardLayoutProps {
   lastActivity?: { type: string; description: string } | null;
   suggestedNextAction?: string | null;
   markNudgeAsRead: (id: string) => void;
-  handleTabChange: (tab: string) => void;
+  onTabChange: (tab: string) => void;
   handleSkipTour: () => void;
   onCompleteTour: () => void;
-  handleCompleteOnboarding: () => void;
+  handleCompleteOnboarding?: () => void;
   handleCloseStudyPlan: () => void;
   toggleSidebar: () => void;
   toggleTabsNav: () => void;
@@ -50,7 +50,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   lastActivity,
   suggestedNextAction,
   markNudgeAsRead,
-  handleTabChange,
+  onTabChange,
   handleSkipTour,
   onCompleteTour,
   handleCompleteOnboarding,
@@ -99,7 +99,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
       <Sidebar 
         hideSidebar={hideSidebar} 
         activeTab={activeTab} 
-        onTabChange={handleTabChange} 
+        onTabChange={onTabChange} 
         onOpenStationery={handleOpenStationery}
         onOpenFeelGood={handleOpenFeelGood}
       />
@@ -120,11 +120,11 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
               markNudgeAsRead={markNudgeAsRead}
               features={features}
               showWelcomeTour={showWelcomeTour}
-              onTabChange={handleTabChange} 
+              onTabChange={onTabChange} 
               onToggleTabsNav={toggleTabsNav}
               onSkipTour={handleSkipTour}
               onCompleteTour={onCompleteTour}
-              isMobile={isMobile}
+              isMobile={window.innerWidth < 768}
               lastActivity={lastActivity}
               suggestedNextAction={suggestedNextAction}
             />
