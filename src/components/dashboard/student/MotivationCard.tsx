@@ -3,21 +3,24 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Input as FormInput } from '@/components/ui/input'; // Rename to FormInput to avoid confusion
-import { Flame, BookOpen, BrainCircuit } from 'lucide-react'; // Replaced Fire with Flame
+import { Input as FormInput } from '@/components/ui/input';
+import { Flame, BookOpen, BrainCircuit } from 'lucide-react';
+import { MoodType } from '@/types/user';
 
 interface MotivationCardProps {
   streak: number;
   target: string;
   progress: number;
   lastActivity?: string;
+  currentMood?: MoodType;
 }
 
 const MotivationCard: React.FC<MotivationCardProps> = ({
   streak,
   target,
   progress,
-  lastActivity
+  lastActivity,
+  currentMood
 }) => {
   const [goal, setGoal] = useState("");
   
@@ -26,6 +29,44 @@ const MotivationCard: React.FC<MotivationCardProps> = ({
     // Handle goal submission
     setGoal("");
   };
+
+  // Get mood-specific content
+  const getMoodSpecificContent = () => {
+    switch (currentMood) {
+      case 'motivated':
+        return {
+          message: "You're on fire today! Let's channel this energy into something amazing.",
+          className: "bg-orange-50 dark:bg-orange-900/20"
+        };
+      case 'curious':
+        return {
+          message: "Curiosity is your superpower. Want to explore something new?",
+          className: "bg-blue-50 dark:bg-blue-900/20"
+        };
+      case 'neutral':
+        return {
+          message: "It's okay to just be. Small steps still count.",
+          className: "bg-gray-50 dark:bg-gray-800/50"
+        };
+      case 'tired':
+        return {
+          message: "Rest is part of growth. Take it slow, you're doing just fine.",
+          className: "bg-blue-50 dark:bg-blue-900/20"
+        };
+      case 'stressed':
+        return {
+          message: "It's okay to feel overwhelmed. Let's take a moment together.",
+          className: "bg-purple-50 dark:bg-purple-900/20"
+        };
+      default:
+        return {
+          message: "Set your daily goals and keep your momentum going!",
+          className: "bg-gray-50 dark:bg-gray-800/50"
+        };
+    }
+  };
+
+  const moodContent = getMoodSpecificContent();
 
   return (
     <Card>
@@ -51,6 +92,11 @@ const MotivationCard: React.FC<MotivationCardProps> = ({
               <span className="font-semibold">{progress}%</span>
             </div>
             <Progress value={progress} className="h-2" />
+          </div>
+          
+          {/* Mood specific content */}
+          <div className={`rounded-md p-3 ${moodContent.className}`}>
+            <p className="text-sm font-medium">{moodContent.message}</p>
           </div>
           
           {lastActivity && (

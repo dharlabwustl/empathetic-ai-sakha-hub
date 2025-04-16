@@ -3,14 +3,19 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Smile } from 'lucide-react'; // Replaced EmojiHappy with Smile which is available in lucide-react
+import { Smile } from 'lucide-react'; 
+import { MoodType } from '@/types/user';
 
 interface HeroPanelProps {
   userName: string;
   primaryGoal: string;
   streak: number;
-  onLogMood: () => void;
+  onLogMood?: () => void;
   onViewStudyPlan: () => void;
+  currentMood?: MoodType;
+  onMoodSelect?: (mood: MoodType) => void;
+  lastActivity?: string;
+  suggestedAction?: string;
   latestUpdate?: {
     title: string;
     description: string;
@@ -23,6 +28,10 @@ const HeroPanel: React.FC<HeroPanelProps> = ({
   streak,
   onLogMood,
   onViewStudyPlan,
+  currentMood,
+  onMoodSelect,
+  lastActivity,
+  suggestedAction,
   latestUpdate
 }) => {
   return (
@@ -48,6 +57,16 @@ const HeroPanel: React.FC<HeroPanelProps> = ({
                 View Study Plan
               </Button>
             </div>
+            {lastActivity && (
+              <p className="mt-3 text-sm text-gray-600 dark:text-gray-400">
+                Last activity: {lastActivity}
+              </p>
+            )}
+            {suggestedAction && (
+              <p className="mt-2 text-sm font-medium text-purple-700 dark:text-purple-400">
+                Suggested: {suggestedAction}
+              </p>
+            )}
           </div>
           
           {latestUpdate && (

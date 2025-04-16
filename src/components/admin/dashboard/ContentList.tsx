@@ -14,7 +14,7 @@ const mockContent = [
   {
     id: '1',
     title: 'Newton\'s Laws of Motion',
-    type: 'concept_cards',
+    type: 'concept_card',
     subject: 'Physics',
     examGoal: 'JEE',
     createdAt: '2023-05-12',
@@ -23,7 +23,7 @@ const mockContent = [
   {
     id: '2',
     title: 'Periodic Table Elements',
-    type: 'flashcards',
+    type: 'flashcard',
     subject: 'Chemistry',
     examGoal: 'NEET',
     createdAt: '2023-05-14',
@@ -32,7 +32,7 @@ const mockContent = [
   {
     id: '3',
     title: 'Calculus Practice Test',
-    type: 'practice_exams',
+    type: 'practice_exam',
     subject: 'Mathematics',
     examGoal: 'JEE Advanced',
     createdAt: '2023-05-15',
@@ -41,7 +41,7 @@ const mockContent = [
   {
     id: '4',
     title: 'Cell Structure and Function',
-    type: 'study_materials',
+    type: 'study_material',
     subject: 'Biology',
     examGoal: 'NEET',
     createdAt: '2023-05-16',
@@ -50,7 +50,7 @@ const mockContent = [
   {
     id: '5',
     title: 'Quick Cell Biology Quiz',
-    type: 'quizzes',
+    type: 'quiz',
     subject: 'Biology',
     examGoal: 'NEET',
     createdAt: '2023-05-18',

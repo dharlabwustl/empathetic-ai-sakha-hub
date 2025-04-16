@@ -7,9 +7,10 @@ import { Search, Plus, Upload, FileType, BookOpen } from "lucide-react";
 import ContentList from "@/components/admin/dashboard/ContentList";
 import ContentUploader from "@/components/admin/dashboard/ContentUploader";
 import { useToast } from "@/hooks/use-toast";
+import { ContentType } from "@/types/content";
 
 const ContentManagementTab = () => {
-  const [activeTab, setActiveTab] = useState("all");
+  const [activeTab, setActiveTab] = useState<ContentType | 'all'>('all');
   const [searchQuery, setSearchQuery] = useState("");
   const [showUploader, setShowUploader] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -21,19 +22,19 @@ const ContentManagementTab = () => {
     e.preventDefault();
     console.log("Searching for:", searchQuery);
   };
-  
+
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setSelectedFile(e.target.files[0]);
     }
   };
-  
+
   const handleUpload = () => {
     if (!selectedFile) return;
-    
     setUploading(true);
+
     const interval = setInterval(() => {
-      setUploadProgress(prev => {
+      setUploadProgress((prev) => {
         if (prev >= 100) {
           clearInterval(interval);
           setTimeout(() => {
@@ -43,7 +44,7 @@ const ContentManagementTab = () => {
             setUploadProgress(0);
             toast({
               title: "Upload completed!",
-              description: `${selectedFile.name} has been uploaded successfully.`
+              description: `${selectedFile.name} has been uploaded successfully.`,
             });
           }, 500);
           return 100;
@@ -52,14 +53,13 @@ const ContentManagementTab = () => {
       });
     }, 300);
   };
-  
+
   const handleFileRemove = () => {
     setSelectedFile(null);
   };
 
   return (
     <div className="space-y-6">
-      {/* Actions header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <form onSubmit={handleSearch} className="relative w-full sm:w-96">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
@@ -70,7 +70,6 @@ const ContentManagementTab = () => {
             className="pl-10"
           />
         </form>
-        
         <div className="flex items-center gap-2 w-full sm:w-auto">
           <Button className="w-full sm:w-auto gap-2 sm:gap-1" onClick={() => setShowUploader(true)}>
             <Plus size={16} className="sm:mr-0" />
@@ -84,8 +83,7 @@ const ContentManagementTab = () => {
           </Button>
         </div>
       </div>
-      
-      {/* Uploader section */}
+
       {showUploader && (
         <ContentUploader
           handleFileSelect={handleFileSelect}
@@ -96,35 +94,34 @@ const ContentManagementTab = () => {
           uploadProgress={uploadProgress}
         />
       )}
-      
-      {/* Content tabs */}
-      <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab}>
+
+      <Tabs defaultValue="all" value={activeTab} onValueChange={(value) => setActiveTab(value as ContentType | 'all')}>
         <TabsList className="w-full flex overflow-x-auto">
           <TabsTrigger value="all" className="flex-1">All Content</TabsTrigger>
-          <TabsTrigger value="study_materials" className="flex-1">Study Materials</TabsTrigger>
-          <TabsTrigger value="concept_cards" className="flex-1">Concept Cards</TabsTrigger>
-          <TabsTrigger value="flashcards" className="flex-1">Flashcards</TabsTrigger>
-          <TabsTrigger value="practice_exams" className="flex-1">Practice Exams</TabsTrigger>
-          <TabsTrigger value="quizzes" className="flex-1">Quizzes</TabsTrigger>
+          <TabsTrigger value="study_material" className="flex-1">Study Materials</TabsTrigger>
+          <TabsTrigger value="concept_card" className="flex-1">Concept Cards</TabsTrigger>
+          <TabsTrigger value="flashcard" className="flex-1">Flashcards</TabsTrigger>
+          <TabsTrigger value="practice_exam" className="flex-1">Practice Exams</TabsTrigger>
+          <TabsTrigger value="quiz" className="flex-1">Quizzes</TabsTrigger>
         </TabsList>
         
         <TabsContent value="all">
           <ContentList contentType="all" />
         </TabsContent>
-        <TabsContent value="study_materials">
-          <ContentList contentType="study_materials" />
+        <TabsContent value="study_material">
+          <ContentList contentType="study_material" />
         </TabsContent>
-        <TabsContent value="concept_cards">
-          <ContentList contentType="concept_cards" />
+        <TabsContent value="concept_card">
+          <ContentList contentType="concept_card" />
         </TabsContent>
-        <TabsContent value="flashcards">
-          <ContentList contentType="flashcards" />
+        <TabsContent value="flashcard">
+          <ContentList contentType="flashcard" />
         </TabsContent>
-        <TabsContent value="practice_exams">
-          <ContentList contentType="practice_exams" />
+        <TabsContent value="practice_exam">
+          <ContentList contentType="practice_exam" />
         </TabsContent>
-        <TabsContent value="quizzes">
-          <ContentList contentType="quizzes" />
+        <TabsContent value="quiz">
+          <ContentList contentType="quiz" />
         </TabsContent>
       </Tabs>
     </div>
