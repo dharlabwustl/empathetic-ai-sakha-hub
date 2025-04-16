@@ -8,6 +8,12 @@ import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 import { MoodType } from "@/types/user/base";
 
+// Utility function to sanitize mood for CSS class names
+const sanitizeMoodClass = (mood?: MoodType): string => {
+  if (!mood) return '';
+  return mood.toLowerCase().replace(/\s+/g, '-');
+};
+
 interface MoodTrackingProps {
   currentMood?: MoodType;
   onMoodChange?: (mood: MoodType) => void;
@@ -23,11 +29,18 @@ const MoodTracking: React.FC<MoodTrackingProps> = ({ currentMood, onMoodChange }
     if (!currentMood) return;
     
     // Apply CSS classes based on mood
-    document.body.classList.remove(
-      'mood-motivated', 'mood-curious', 'mood-neutral', 'mood-tired', 'mood-stressed',
-      'mood-focused', 'mood-happy', 'mood-okay', 'mood-overwhelmed', 'mood-sad'
-    );
-    document.body.classList.add(`mood-${currentMood}`);
+    const validMoodClasses = [
+      'mood-motivated', 'mood-curious', 'mood-neutral', 
+      'mood-tired', 'mood-stressed', 'mood-focused', 
+      'mood-happy', 'mood-okay', 'mood-overwhelmed', 'mood-sad'
+    ];
+    
+    // Remove all mood classes first
+    document.body.classList.remove(...validMoodClasses);
+    
+    // Add only the current valid mood class
+    const sanitizedMoodClass = `mood-${sanitizeMoodClass(currentMood)}`;
+    document.body.classList.add(sanitizedMoodClass);
     
     // Store mood in localStorage for persistence
     const userData = localStorage.getItem("userData");
@@ -309,3 +322,4 @@ const MoodOption: React.FC<MoodOptionProps> = ({
 };
 
 export default MoodTracking;
+
