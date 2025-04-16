@@ -16,7 +16,7 @@ export const useStudentDashboard = () => {
   const [lastActivity, setLastActivity] = useState<{ type: string, description: string } | null>(null);
   const [suggestedNextAction, setSuggestedNextAction] = useState<string | null>(null);
   const { userProfile, loading: profileLoading, updateUserProfile } = useUserProfile();
-  const { kpis, nudges, markNudgeAsRead } = useKpiTracking("student");
+  const { kpis, nudges, markNudgeAsRead } = useKpiTracking("Student");
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
@@ -33,7 +33,7 @@ export const useStudentDashboard = () => {
   else if (hour < 17) currentTime = "Good Afternoon";
   else currentTime = "Good Evening";
   
-  // Features list - Update the type to be an array of objects expected by DashboardLayout
+  // Features list
   const features = {
     overview: true,
     subjects: true,
@@ -65,23 +65,13 @@ export const useStudentDashboard = () => {
         
         console.log("useStudentDashboard - Session result:", { 
           shouldShowOnboarding, 
-          shouldShowWelcomeTour,
-          searchParams: location.search
+          shouldShowWelcomeTour 
         });
         
-        // Only show onboarding for users explicitly coming from signup flow
-        // This fixes the issue of showing onboarding to returning users
-        const isFromSignup = location.search.includes('completedOnboarding=true') || location.search.includes('new=true');
-        
-        if (isFromSignup) {
-          setShowOnboarding(true);
-          console.log("useStudentDashboard - Showing onboarding flow based on URL parameters");
-        } else {
-          // Skip onboarding for returning users without special URL params
-          setShowOnboarding(false);
-          setShowWelcomeTour(shouldShowWelcomeTour);
-          console.log("useStudentDashboard - Regular login, skipping onboarding");
-        }
+        // Update state based on user session
+        setShowOnboarding(shouldShowOnboarding);
+        // Always show welcome tour for first-time users after onboarding
+        setShowWelcomeTour(shouldShowWelcomeTour);
         
         // Get user's last activity and suggest next actions for returning users
         if (!shouldShowOnboarding && !shouldShowWelcomeTour) {
@@ -210,11 +200,6 @@ export const useStudentDashboard = () => {
     
     // Show welcome tour after onboarding
     setShowWelcomeTour(true);
-    
-    // Clean up URL parameters to avoid future onboarding loops
-    if (location.search) {
-      navigate('/dashboard/student', { replace: true });
-    }
     
     toast({
       title: "Onboarding Complete!",

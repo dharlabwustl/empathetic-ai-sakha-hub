@@ -4,7 +4,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import { UserRole, UserGoal, OnboardingStep } from "./OnboardingContext";
 import { getDemographicsQuestion } from "./utils/stepUtils";
-import authService from "@/services/auth/authService";
+import authService from "@/services/auth/authService"; // Import auth service
 
 interface StepHandlerProps {
   onboardingData: any;
@@ -69,8 +69,7 @@ const StepHandler = ({
           phoneNumber: formValues.mobile,
           completedOnboarding: false, // This will trigger the onboarding flow
           isNewUser: true,
-          sawWelcomeTour: false,
-          loginCount: 1
+          sawWelcomeTour: false
         };
         
         localStorage.setItem("userData", JSON.stringify(extendedUserData));
@@ -80,7 +79,7 @@ const StepHandler = ({
           description: "Let's customize your learning experience.",
         });
         
-        // Use completedOnboarding=true AND new=true to ensure the onboarding flow is shown
+        // Add explicit completedOnboarding URL parameter to ensure proper redirection
         navigate(`/dashboard/student?completedOnboarding=true&new=true`);
       } else {
         throw new Error("Registration failed");

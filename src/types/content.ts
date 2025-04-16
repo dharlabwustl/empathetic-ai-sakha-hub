@@ -1,30 +1,20 @@
 
-export type ContentType = 
-  | 'all' 
-  | 'study_material' 
-  | 'concept_card' 
-  | 'flashcard' 
-  | 'practice_exam' 
-  | 'quiz'
-  | 'notes'
-  | 'concept';
+/**
+ * Content Management System Type Definitions
+ */
 
-export interface ContentItem {
+export interface ContentFile {
   id: string;
-  title: string;
+  name: string;
   type: ContentType;
   subject: string;
-  examGoal?: string;
-  difficultyLevel?: 'beginner' | 'intermediate' | 'advanced';
-  createdAt: string;
-  updatedAt?: string;
-  fileSize?: number | string;
-  fileType?: string;
-  fileName?: string;
-  fileUrl?: string;
-  thumbnail?: string;
-  tags?: string[];
+  examType: string;
+  uploadDate: string;
+  size: string;
+  tags: string[];
 }
+
+export type ContentType = 'study-material' | 'syllabus' | 'practice' | 'exam-material' | 'all';
 
 export interface ContentUploaderProps {
   handleFileSelect: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -36,30 +26,40 @@ export interface ContentUploaderProps {
 }
 
 export interface ContentBrowserProps {
-  contentType: ContentType;
-  onSelect?: (content: ContentItem) => void;
-  selectedContent?: ContentItem;
+  files: ContentFile[];
+  searchTerm: string;
+  setSearchTerm: React.Dispatch<React.SetStateAction<string>>;
 }
 
-export interface EmptyStateProps {
-  message: string;
-  icon: React.ReactNode;
-  actionLabel?: string;
-  onAction?: () => void;
+export interface ContentManagementHookReturn {
+  uploading: boolean;
+  uploadProgress: number;
+  selectedFile: File | null;
+  uploadedFiles: ContentFile[];
+  searchTerm: string;
+  currentTab: ContentType;
+  filteredFiles: ContentFile[];
+  handleFileSelect: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  handleFileRemove: () => void;
+  handleUpload: () => void;
+  setSearchTerm: React.Dispatch<React.SetStateAction<string>>;
+  setCurrentTab: React.Dispatch<React.SetStateAction<ContentType>>;
 }
 
 export interface FileRowProps {
-  file: ContentItem;
-  onSelect?: (file: ContentItem) => void;
-  isSelected?: boolean;
-  onDelete?: (file: ContentItem) => void;
-  onEdit?: (file: ContentItem) => void;
+  file: ContentFile;
+  onDownload: (fileName: string) => void;
+  onView: (fileId: string) => void;
+  onTagFile: (fileId: string) => void;
 }
 
 export interface FilesTableProps {
-  files: ContentItem[];
-  selectedFile?: ContentItem;
-  onSelect?: (file: ContentItem) => void;
-  onDelete?: (file: ContentItem) => void;
-  onEdit?: (file: ContentItem) => void;
+  files: ContentFile[];
+  onDownload: (fileName: string) => void;
+  onView: (fileId: string) => void;
+  onTagFile: (fileId: string) => void;
+}
+
+export interface EmptyStateProps {
+  searchTerm: string;
 }

@@ -1,18 +1,15 @@
 
-import { UserRole, MoodType } from "@/types/user/base";
-import { GoalType } from "@/types/user/base";
-import { UserProfileType } from "@/types/user/base";
+import { StudentProfile, UserRole, MoodType } from "@/types/user";
 
 export const mockStudentProfile: StudentProfile = {
   id: "1",
   name: "Rahul Singh",
   phoneNumber: "9876543210",
-  email: "rahul.singh@example.com",
-  role: "student" as UserRole,
+  email: "rahul.singh@example.com", // Added missing required field
+  role: "Student" as UserRole,
   personalityType: "Strategic Thinker",
-  subscription: "Basic",
+  subscription: "Basic", // Added missing field
   joinDate: "2025-03-01",
-  createdAt: "2025-03-01",
   lastActive: "2025-05-12",
   areasOfInterest: [
     { id: "i1", name: "Physics", level: "Advanced" },
@@ -25,8 +22,6 @@ export const mockStudentProfile: StudentProfile = {
       title: "Complete Physics Syllabus",
       description: "Finish all chapters in NCERT Physics",
       progress: 75,
-      target: "NCERT Physics Textbook",
-      type: "course" as GoalType,
       dueDate: "2025-05-30",
     },
     {
@@ -34,8 +29,6 @@ export const mockStudentProfile: StudentProfile = {
       title: "Score 90% in Math Test",
       description: "Practice integration problems",
       progress: 60,
-      target: "90% score in test",
-      type: "exam" as GoalType,
       dueDate: "2025-05-15",
     },
   ],
@@ -58,19 +51,3 @@ export const mockStudentProfile: StudentProfile = {
   strongSubjects: ["Physics", "Mathematics"],
   weakSubjects: ["Chemistry", "Biology"]
 };
-
-export interface StudentProfile extends UserProfileType {
-  educationLevel: string;
-  subjects: Array<{id: string; name: string; progress: number; lastStudied?: string}>;
-  studyStreak: number;
-  quizzesTaken: number;
-  flashcardsCreated: number;
-  examPreparation: string;
-  studyHoursToday: number;
-  subjectsCovered: number;
-  quizPerformance: number;
-  mood: MoodType;
-  syllabusCoverage: number;
-  strongSubjects: string[];
-  weakSubjects: string[];
-}

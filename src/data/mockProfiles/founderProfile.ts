@@ -1,47 +1,56 @@
 
-import { UserRole, GoalType, SubscriptionType } from '@/types/user/base';
-import { FounderProfile } from '@/types/user/professional';
+// Correcting the mock data for founder profile
+import { FounderProfile } from "@/types/user";
+import { v4 as uuidv4 } from "uuid";
 
 export const mockFounderProfile: FounderProfile = {
-  id: "4",
-  name: "Vikram Malhotra",
-  phoneNumber: "9876543213",
-  email: "vikram@startup.com",
-  role: "founder" as UserRole,
-  personalityType: "Creative Explorer",
-  subscription: "Enterprise" as SubscriptionType,
-  joinDate: "2024-11-25",
-  createdAt: "2024-11-25",
-  lastActive: "2025-05-12",
-  areasOfInterest: [
-    { id: "i1", name: "Entrepreneurship", level: "Advanced" },
-    { id: "i2", name: "Product Design", level: "Advanced" },
-    { id: "i3", name: "Market Strategy", level: "Intermediate" }
-  ],
+  id: uuidv4(),
+  name: "Priya Mehta",
+  email: "priya.mehta@edumatch.com", // Added missing email
+  phoneNumber: "+919876543212",
+  role: "Founder",
+  personalityType: "Creative Builder",
+  subscription: "Premium",
+  joinDate: "2024-12-05",
+  lastActive: "2025-04-07",
+  startupName: "EduMatch",
+  industry: "EdTech",
+  foundingYear: "2024",
+  teamSize: 4,
+  funding: "Seed",
+  stage: "Early Traction",
+  mvpStatus: 80,
+  pitchDeckReady: true,
+  startupStage: "Product-Market Fit",
+  startupGoal: "Series A Funding",
+  mvpCompletion: 80,
+  pitchDeckStatus: 100,
   goals: [
     {
-      id: "g1",
-      title: "Secure Series A Funding",
-      description: "Prepare pitch deck and investor meetings",
-      progress: 70,
-      target: "5 Million Funding",
-      type: "other" as GoalType,
-      dueDate: "2025-08-15"
+      id: uuidv4(),
+      title: "Secure Series A",
+      description: "Raise $1.5M in Series A funding",
+      progress: 35,
+      dueDate: "2025-09-30"
     },
     {
-      id: "g2",
-      title: "Launch Product Beta",
-      description: "Complete MVP and prepare beta launch",
-      progress: 85,
-      target: "Beta Launch",
-      type: "other" as GoalType,
-      dueDate: "2025-06-01"
+      id: uuidv4(),
+      title: "User Growth",
+      description: "Reach 50,000 active users",
+      progress: 60,
+      dueDate: "2025-06-15"
     }
   ],
-  startupName: "InnovateTech",
-  startupStage: "Seed",
-  industry: "HealthTech",
-  teamSize: 12,
-  funding: "₹5 Crore",
-  challenges: ["Hiring talent", "Product-market fit", "Regulatory compliance", "Scaling operations"]
+  areasOfInterest: [
+    {
+      id: uuidv4(),
+      name: "Growth Marketing",
+      level: "Intermediate"
+    },
+    {
+      id: uuidv4(),
+      name: "Financial Modeling",
+      level: "Beginner"
+    }
+  ]
 };

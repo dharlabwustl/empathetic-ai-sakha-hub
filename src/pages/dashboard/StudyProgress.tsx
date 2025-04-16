@@ -2,15 +2,15 @@
 import React from 'react';
 import { useStudyProgress } from "@/hooks/useStudyProgress";
 import { useUserProfile } from "@/hooks/useUserProfile";
-import StudyProgressHeader from "@/components/dashboard/student/study-progress/StudyProgressHeader";
+import { StudyProgressHeader } from "@/components/dashboard/student/study-progress/StudyProgressHeader";
 import { ProgressStatCards } from "@/components/dashboard/student/study-progress/ProgressStatCards";
 import { WeeklyProgressChart } from "@/components/dashboard/student/study-progress/WeeklyProgressChart";
 import { StudyStreakCard } from "@/components/dashboard/student/study-progress/StudyStreakCard";
-import PerformanceTabs from "@/components/dashboard/student/study-progress/PerformanceTabs";
+import { PerformanceTabs } from "@/components/dashboard/student/study-progress/PerformanceTabs";
 
 const StudyProgress = () => {
-  const { subjectsProgress, streak, loading, selectedSubject, selectSubject } = useStudyProgress();
-  const { userProfile } = useUserProfile("student");
+  const { subjects, studyStreak, loading, selectedSubject, selectSubject } = useStudyProgress();
+  const { userProfile } = useUserProfile("Student");
   
   // Check if userProfile isn't null before accessing examPreparation
   const examGoal = userProfile?.examPreparation || "General Study";
@@ -25,22 +25,24 @@ const StudyProgress = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <StudyProgressHeader streak={streak} />
+      <StudyProgressHeader studyStreak={studyStreak} />
       
       <ProgressStatCards 
-        subjectsLength={subjectsProgress.length} 
-        studyStreak={streak} 
+        subjectsLength={subjects.length} 
+        studyStreak={studyStreak} 
         examGoal={examGoal} 
       />
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 my-8">
-        <WeeklyProgressChart subjects={subjectsProgress} />
-        <StudyStreakCard studyStreak={streak} />
+        <WeeklyProgressChart subjects={subjects} />
+        <StudyStreakCard studyStreak={studyStreak} />
       </div>
       
       <PerformanceTabs
-        subjectsProgress={subjectsProgress}
-        streak={streak}
+        subjects={subjects}
+        selectedSubject={selectedSubject}
+        selectSubject={selectSubject}
+        studyStreak={studyStreak}
       />
     </div>
   );

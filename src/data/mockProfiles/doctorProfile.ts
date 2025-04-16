@@ -1,47 +1,67 @@
 
-import { UserRole, GoalType, SubscriptionType } from '@/types/user/base';
-import { DoctorProfile } from '@/types/user/professional';
+// Correcting the mock data for doctor profile
+import { DoctorProfile } from "@/types/user";
+import { v4 as uuidv4 } from "uuid";
 
 export const mockDoctorProfile: DoctorProfile = {
-  id: "3",
-  name: "Dr. Priya Sharma",
-  phoneNumber: "9876543212",
-  email: "priya.sharma@hospital.com",
-  role: "doctor" as UserRole,
+  id: uuidv4(),
+  name: "Dr. Aisha Sharma",
+  email: "dr.aisha.sharma@maxhealthcare.com", // Added missing email
+  phoneNumber: "+919876543210",
+  role: "Doctor",
   personalityType: "Analytical Problem Solver",
-  subscription: "Premium" as SubscriptionType,
-  joinDate: "2025-01-15",
-  createdAt: "2025-01-15",
-  lastActive: "2025-05-11",
-  areasOfInterest: [
-    { id: "i1", name: "Cardiology", level: "Advanced" },
-    { id: "i2", name: "Medical Research", level: "Intermediate" },
-    { id: "i3", name: "Patient Care", level: "Advanced" }
+  subscription: "Premium",
+  joinDate: "2025-02-10",
+  lastActive: "2025-04-07",
+  specialization: "Neurology",
+  qualifications: [
+    "MBBS - AIIMS",
+    "MD - Neurology",
+    "Fellowship - Cognitive Neuroscience"
   ],
+  researchInterests: [
+    "Alzheimer's Disease",
+    "Neuroplasticity",
+    "Cognitive Enhancement"
+  ],
+  publications: 14,
+  institution: "Max Healthcare Institute",
+  yearsOfPractice: 8,
+  certifications: [
+    "Advanced Neurology",
+    "Clinical Research",
+    "Medical Education"
+  ],
+  researchTopic: "Neural Biomarkers for Early Alzheimer's Detection",
+  thesisTitle: "Cognitive Reserve and Neurodegenerative Progression",
+  clinicalInterest: "Memory Disorders",
+  researchPhase: "Clinical Trials",
   goals: [
     {
-      id: "g1",
+      id: uuidv4(),
       title: "Complete Research Paper",
-      description: "Finish cardiovascular research paper",
-      progress: 85,
-      target: "Cardiovascular Research Paper",
-      type: "skill" as GoalType,
+      description: "Finish and submit paper on neural biomarkers",
+      progress: 65,
       dueDate: "2025-06-15"
     },
     {
-      id: "g2",
-      title: "Prepare for Medical Conference",
-      description: "Create presentation for international conference",
+      id: uuidv4(),
+      title: "Conference Presentation",
+      description: "Present findings at International Neurology Conference",
       progress: 40,
-      target: "Conference Presentation",
-      type: "other" as GoalType,
-      dueDate: "2025-07-10"
+      dueDate: "2025-08-20"
     }
   ],
-  specialization: "Cardiology",
-  institution: "Apollo Hospitals",
-  patientsHelped: 5000,
-  yearsOfExperience: 12,
-  publications: 15,
-  certifications: ["MBBS", "MD", "Fellowship in Interventional Cardiology"]
+  areasOfInterest: [
+    {
+      id: uuidv4(),
+      name: "Machine Learning in Diagnostics",
+      level: "Intermediate"
+    },
+    {
+      id: uuidv4(),
+      name: "Clinical Research",
+      level: "Advanced"
+    }
+  ]
 };

@@ -1,185 +1,363 @@
+
 import { useState, useEffect } from 'react';
+import { UserRole } from '@/types/user';
 
 export interface KpiData {
   id: string;
   label: string;
-  value: string | number;
+  value: number;
+  unit: string;
+  change: number; // percentage change
+  trend: 'up' | 'down' | 'neutral';
   icon: string;
-  change: number;
-  trend?: 'up' | 'down' | 'flat';
-  unit?: string;
 }
 
 export interface NudgeData {
   id: string;
+  type: 'motivation' | 'reminder' | 'celebration' | 'suggestion' | 'warning';
   title: string;
   message: string;
-  type: 'motivation' | 'reminder' | 'celebration' | 'suggestion' | 'warning';
-  createdAt: string;
-  read: boolean;
   actionLabel?: string;
   actionUrl?: string;
-  priority?: 'high' | 'medium' | 'low';
+  timestamp: string;
+  read: boolean;
 }
 
-export function useKpiTracking(userType: string) {
+export function useKpiTracking(role: UserRole) {
   const [kpis, setKpis] = useState<KpiData[]>([]);
   const [nudges, setNudges] = useState<NudgeData[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchKpis = async () => {
+    // Simulate API call to fetch KPIs and nudges
+    const fetchKpisAndNudges = () => {
       setLoading(true);
-
-      // Simulate API call
+      
       setTimeout(() => {
-        // Generate mock KPIs based on user type
-        if (userType === 'student') {
-          setKpis([
-            {
-              id: 'study-time',
-              label: 'Study Time Today',
-              value: '2.5',
-              icon: 'Clock',
-              change: 15,
-              trend: 'up',
-              unit: 'hrs'
-            },
-            {
-              id: 'progress',
-              label: 'Overall Progress',
-              value: '68',
-              icon: 'LineChart',
-              change: 5,
-              trend: 'up',
-              unit: '%'
-            },
-            {
-              id: 'streak',
-              label: 'Study Streak',
-              value: '5',
-              icon: 'Flame',
-              change: 0,
-              trend: 'flat',
-              unit: 'days'
-            },
-            {
-              id: 'mood',
-              label: 'Focus Level',
-              value: '85',
-              icon: 'Brain',
-              change: 10,
-              trend: 'up',
-              unit: '%'
-            }
-          ]);
-          
-          setNudges([
-            {
-              id: 'n1',
-              title: 'Physics Quiz Due',
-              message: 'Your physics quiz on Thermodynamics is due tomorrow.',
-              type: 'reminder',
-              createdAt: new Date().toISOString(),
-              read: false,
-              actionLabel: 'Start Quiz',
-              actionUrl: '/quiz/physics-thermo'
-            },
-            {
-              id: 'n2',
-              title: 'Study Streak Milestone!',
-              message: "You've maintained your study streak for 5 days. Keep it up!",
-              type: 'celebration',
-              createdAt: new Date().toISOString(),
-              read: false
-            },
-            {
-              id: 'n3',
-              title: 'New Chemistry Resources',
-              message: 'Check out the new resources for Organic Chemistry.',
-              type: 'suggestion',
-              createdAt: new Date(Date.now() - 86400000).toISOString(),
-              read: true,
-              actionLabel: 'View Resources',
-              actionUrl: '/resources/chemistry'
-            }
-          ]);
-        } else {
-          setKpis([
-            {
-              id: 'activity',
-              label: 'Activity Score',
-              value: '82',
-              icon: 'LineChart',
-              change: 8,
-              trend: 'up',
-              unit: '%'
-            },
-            {
-              id: 'goals-progress',
-              label: 'Goals Progress',
-              value: '3/5',
-              icon: 'CheckSquare',
-              change: 20,
-              trend: 'up',
-              unit: ''
-            },
-            {
-              id: 'engagement',
-              label: 'Weekly Engagement',
-              value: '4.2',
-              icon: 'TrendingUp',
-              change: 5,
-              trend: 'flat',
-              unit: 'hrs'
-            },
-            {
-              id: 'wellness',
-              label: 'Wellness Score',
-              value: '75',
-              icon: 'Heart',
-              change: 0,
-              trend: 'flat',
-              unit: '%'
-            }
-          ]);
-          
-          setNudges([
-            {
-              id: 'n1',
-              title: 'Complete Your Profile',
-              message: 'Add more details to your profile to get personalized recommendations.',
-              type: 'suggestion',
-              createdAt: new Date().toISOString(),
-              read: false,
-              actionLabel: 'Update Profile',
-              actionUrl: '/profile'
-            },
-            {
-              id: 'n2',
-              title: 'Upcoming Goal Deadline',
-              message: 'Your goal "Complete Project Plan" is due in 3 days.',
-              type: 'reminder',
-              createdAt: new Date().toISOString(),
-              read: false,
-              actionLabel: 'View Goal',
-              actionUrl: '/goals'
-            }
-          ]);
-        }
+        // Set role-specific KPIs
+        const roleSpecificKpis = getRoleSpecificKpis(role);
+        setKpis(roleSpecificKpis);
+        
+        // Set role-specific nudges
+        const roleSpecificNudges = getRoleSpecificNudges(role);
+        setNudges(roleSpecificNudges);
         
         setLoading(false);
-      }, 800);
+      }, 1000);
     };
 
-    fetchKpis();
-  }, [userType]);
+    fetchKpisAndNudges();
+  }, [role]);
 
-  const markNudgeAsRead = (id: string) => {
-    setNudges(nudges.map(nudge => 
-      nudge.id === id ? { ...nudge, read: true } : nudge
-    ));
+  const markNudgeAsRead = (nudgeId: string) => {
+    setNudges(prev => 
+      prev.map(nudge => 
+        nudge.id === nudgeId ? { ...nudge, read: true } : nudge
+      )
+    );
   };
 
   return { kpis, nudges, loading, markNudgeAsRead };
+}
+
+// Helper functions to get role-specific data
+function getRoleSpecificKpis(role: UserRole): KpiData[] {
+  switch (role) {
+    case "Student":
+      return [
+        {
+          id: "study-time",
+          label: "Study Time Today",
+          value: 2.5,
+          unit: "hours",
+          change: 25,
+          trend: "up",
+          icon: "Clock",
+        },
+        {
+          id: "subjects-covered",
+          label: "Subjects Covered",
+          value: 3,
+          unit: "subjects",
+          change: 0,
+          trend: "neutral",
+          icon: "BookOpen",
+        },
+        {
+          id: "quiz-performance",
+          label: "Quiz Performance",
+          value: 82,
+          unit: "%",
+          change: -3,
+          trend: "down",
+          icon: "Brain",
+        },
+        {
+          id: "mood",
+          label: "Mood Today",
+          value: 4,
+          unit: "",
+          change: 1,
+          trend: "up",
+          icon: "Smile",
+        },
+      ];
+    case "Employee":
+      return [
+        {
+          id: "productivity-score",
+          label: "Productivity Score",
+          value: 85,
+          unit: "%",
+          change: 5,
+          trend: "up",
+          icon: "LineChart",
+        },
+        {
+          id: "tasks-completed",
+          label: "Tasks Completed",
+          value: 6,
+          unit: "tasks",
+          change: 2,
+          trend: "up",
+          icon: "CheckSquare",
+        },
+        {
+          id: "work-hours",
+          label: "Work Hours Today",
+          value: 7.5,
+          unit: "hours",
+          change: 0,
+          trend: "neutral",
+          icon: "Clock",
+        },
+        {
+          id: "wellness-score",
+          label: "Wellness Score",
+          value: 75,
+          unit: "%",
+          change: -5,
+          trend: "down",
+          icon: "Heart",
+        },
+      ];
+    case "Doctor":
+      return [
+        {
+          id: "research-hours",
+          label: "Research Hours Today",
+          value: 6.5,
+          unit: "hours",
+          change: 10,
+          trend: "up",
+          icon: "Clock",
+        },
+        {
+          id: "literature-reviewed",
+          label: "Literature Reviewed",
+          value: 23,
+          unit: "papers",
+          change: 15,
+          trend: "up",
+          icon: "FileText",
+        },
+        {
+          id: "research-progress",
+          label: "Research Progress",
+          value: 65,
+          unit: "%",
+          change: 5,
+          trend: "up",
+          icon: "TrendingUp",
+        },
+        {
+          id: "wellness-score",
+          label: "Wellness Score",
+          value: 65,
+          unit: "%",
+          change: -10,
+          trend: "down",
+          icon: "Heart",
+        },
+      ];
+    case "Founder":
+      return [
+        {
+          id: "mvp-completion",
+          label: "MVP Completion",
+          value: 75,
+          unit: "%",
+          change: 15,
+          trend: "up",
+          icon: "Code",
+        },
+        {
+          id: "pitch-deck",
+          label: "Pitch Deck Status",
+          value: 90,
+          unit: "%",
+          change: 5,
+          trend: "up",
+          icon: "PieChart",
+        },
+        {
+          id: "investor-meetings",
+          label: "Investor Meetings",
+          value: 8,
+          unit: "",
+          change: 3,
+          trend: "up",
+          icon: "Users",
+        },
+        {
+          id: "burnout-risk",
+          label: "Burnout Risk",
+          value: 35,
+          unit: "%",
+          change: 10,
+          trend: "down",
+          icon: "Battery",
+        },
+      ];
+    default:
+      return [];
+  }
+}
+
+function getRoleSpecificNudges(role: UserRole): NudgeData[] {
+  const now = new Date().toISOString();
+  
+  switch (role) {
+    case "Student":
+      return [
+        {
+          id: "n1",
+          type: "motivation",
+          title: "Keep up the momentum!",
+          message: "You've been consistent with your Physics studies. Great job maintaining your streak!",
+          actionLabel: "Continue Learning",
+          actionUrl: "/dashboard/student/tutor",
+          timestamp: now,
+          read: false,
+        },
+        {
+          id: "n2",
+          type: "reminder",
+          title: "Chemistry quiz tomorrow",
+          message: "Your scheduled Chemistry quiz on Organic Chemistry is tomorrow. Time to review!",
+          actionLabel: "Start Review",
+          actionUrl: "/dashboard/student/planner",
+          timestamp: now,
+          read: false,
+        },
+        {
+          id: "n3",
+          type: "celebration",
+          title: "Achievement unlocked!",
+          message: "You've completed 75% of your Physics syllabus. You're making excellent progress!",
+          timestamp: now,
+          read: true,
+        },
+        {
+          id: "n4",
+          type: "suggestion",
+          title: "Study break recommended",
+          message: "You've been studying for 2 hours straight. Consider taking a short break to refresh your mind.",
+          actionLabel: "Start Break Timer",
+          timestamp: now,
+          read: false,
+        },
+      ];
+    case "Employee":
+      return [
+        {
+          id: "n1",
+          type: "reminder",
+          title: "Project deadline approaching",
+          message: "Your Data Analytics project is due in 3 days. Make sure you're on track!",
+          actionLabel: "View Project",
+          timestamp: now,
+          read: false,
+        },
+        {
+          id: "n2",
+          type: "suggestion",
+          title: "Skill recommendation",
+          message: "Based on your interests, you might enjoy our new Python for Data Analysis course.",
+          actionLabel: "Explore Course",
+          timestamp: now,
+          read: false,
+        },
+        {
+          id: "n3",
+          type: "warning",
+          title: "Burnout risk detected",
+          message: "You've been working long hours for the past week. Consider scheduling some downtime.",
+          actionLabel: "View Wellness Tips",
+          timestamp: now,
+          read: false,
+        },
+      ];
+    case "Doctor":
+      return [
+        {
+          id: "n1",
+          type: "reminder",
+          title: "Research checkpoint",
+          message: "Your monthly research review is scheduled for tomorrow. Prepare your progress report.",
+          actionLabel: "Prepare Report",
+          timestamp: now,
+          read: false,
+        },
+        {
+          id: "n2",
+          type: "suggestion",
+          title: "New relevant research",
+          message: "3 new papers related to your COVID-19 research were published this week.",
+          actionLabel: "View Papers",
+          timestamp: now,
+          read: false,
+        },
+        {
+          id: "n3",
+          type: "warning",
+          title: "Wellness check",
+          message: "Your wellness score has been declining. Consider scheduling some self-care time.",
+          actionLabel: "Wellness Tips",
+          timestamp: now,
+          read: false,
+        },
+      ];
+    case "Founder":
+      return [
+        {
+          id: "n1",
+          type: "reminder",
+          title: "Investor meeting tomorrow",
+          message: "You have a meeting with Angel Investors at 2 PM tomorrow. Review your pitch deck.",
+          actionLabel: "Review Pitch",
+          timestamp: now,
+          read: false,
+        },
+        {
+          id: "n2",
+          type: "celebration",
+          title: "MVP milestone reached!",
+          message: "Congratulations! Your MVP is 75% complete. Keep up the great work!",
+          timestamp: now,
+          read: false,
+        },
+        {
+          id: "n3",
+          type: "suggestion",
+          title: "Team check-in recommended",
+          message: "It's been a week since your last team sync. Consider scheduling a quick check-in.",
+          actionLabel: "Schedule Meeting",
+          timestamp: now,
+          read: false,
+        },
+      ];
+    default:
+      return [];
+  }
 }

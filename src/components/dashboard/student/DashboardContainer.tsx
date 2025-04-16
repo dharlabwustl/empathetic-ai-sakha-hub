@@ -2,15 +2,12 @@
 import React from 'react';
 import { UserProfileType } from "@/types/user";
 import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
-import { motion } from "framer-motion";
-import { MoodType } from "@/types/user";
+import ChatAssistant from "@/components/dashboard/ChatAssistant";
+import SidebarNav from "@/components/dashboard/SidebarNav";
+import StudyPlanDialog from "@/pages/dashboard/student/StudyPlanDialog";
 import DashboardWrapper from '@/components/dashboard/student/DashboardWrapper';
-import { generateTabContents } from './TabContentManager';
-import MotivationCard from './MotivationCard';
-import LogMoodButton from './LogMoodButton';
-import StudyPlanModal from './StudyPlanModal';
 
-export interface DashboardContainerProps {
+interface DashboardContainerProps {
   userProfile: UserProfileType;
   hideSidebar: boolean;
   hideTabsNav: boolean;
@@ -18,27 +15,19 @@ export interface DashboardContainerProps {
   kpis: KpiData[];
   nudges: NudgeData[];
   markNudgeAsRead: (id: string) => void;
-  features: {
-    icon: React.ReactNode;
-    title: string;
-    description: string;
-    path: string;
-    isPremium: boolean;
-  }[];
+  features: any[];
   showWelcomeTour: boolean;
   currentTime: Date;
+  showStudyPlan: boolean;
   onTabChange: (tab: string) => void;
   onViewStudyPlan: () => void;
   onToggleSidebar: () => void;
   onToggleTabsNav: () => void;
   onSkipTour: () => void;
   onCompleteTour: () => void;
-  showStudyPlan: boolean;
   onCloseStudyPlan: () => void;
   lastActivity?: { type: string; description: string } | null;
   suggestedNextAction?: string | null;
-  currentMood?: MoodType;
-  onMoodSelect?: (mood: MoodType) => void;
 }
 
 const DashboardContainer: React.FC<DashboardContainerProps> = ({
@@ -52,46 +41,24 @@ const DashboardContainer: React.FC<DashboardContainerProps> = ({
   features,
   showWelcomeTour,
   currentTime,
+  showStudyPlan,
   onTabChange,
   onViewStudyPlan,
   onToggleSidebar,
   onToggleTabsNav,
   onSkipTour,
   onCompleteTour,
-  showStudyPlan,
   onCloseStudyPlan,
   lastActivity,
-  suggestedNextAction,
-  currentMood,
-  onMoodSelect
+  suggestedNextAction
 }) => {
-  // Create tab content
-  const tabContents = generateTabContents({
-    userProfile,
-    kpis,
-    nudges,
-    markNudgeAsRead,
-    features,
-    showWelcomeTour,
-    handleSkipTour: onSkipTour,
-    handleCompleteTour: onCompleteTour,
-    lastActivity,
-    suggestedNextAction
-  });
-
-  // Get user's streak
-  const streak = userProfile?.stats?.studyStreak || 0;
-  
-  // Get user's primary goal
-  const primaryGoal = userProfile?.goals?.[0]?.target || "";
-  
-  // Get progress
-  const progress = userProfile?.goals?.[0]?.progress || 0;
-
   return (
-    <div className="flex flex-col">
-      {/* Dashboard Wrapper for layout */}
-      <DashboardWrapper
+    <div className="min-h-screen bg-gradient-to-br from-sky-100/10 via-white to-violet-100/10 dark:from-sky-900/10 dark:via-gray-900 dark:to-violet-900/10">
+      {/* Main sidebar navigation */}
+      <SidebarNav userType="student" userName={userProfile.name} />
+      
+      {/* Main dashboard content */}
+      <DashboardWrapper 
         userProfile={userProfile}
         hideSidebar={hideSidebar}
         hideTabsNav={hideTabsNav}
@@ -110,36 +77,16 @@ const DashboardContainer: React.FC<DashboardContainerProps> = ({
         onCompleteTour={onCompleteTour}
         lastActivity={lastActivity}
         suggestedNextAction={suggestedNextAction}
-        currentMood={currentMood}
-        onMoodSelect={onMoodSelect}
       />
-
-      {/* Mood-based card if mood is set */}
-      {currentMood && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="px-6 pb-6"
-        >
-          <MotivationCard 
-            currentMood={currentMood} 
-            streak={streak}
-            target={primaryGoal}
-            progress={progress}
-          />
-        </motion.div>
-      )}
-
-      {/* Log Mood Dialog */}
-      <LogMoodButton onMoodSelect={onMoodSelect} currentMood={currentMood} />
-
-      {/* Study Plan Modal */}
+      
+      {/* Chat assistant */}
+      <ChatAssistant userType="student" />
+      
+      {/* Study Plan Dialog */}
       {showStudyPlan && (
-        <StudyPlanModal 
-          isOpen={showStudyPlan}
+        <StudyPlanDialog 
+          userProfile={userProfile} 
           onClose={onCloseStudyPlan} 
-          user={userProfile}
         />
       )}
     </div>

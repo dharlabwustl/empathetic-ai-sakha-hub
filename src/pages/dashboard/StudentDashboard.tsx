@@ -3,11 +3,9 @@ import React from "react";
 import { useStudentDashboard } from "@/hooks/useStudentDashboard";
 import OnboardingFlow from "@/components/dashboard/student/OnboardingFlow";
 import DashboardLoading from "./student/DashboardLoading";
-import DashboardContainer from "@/components/dashboard/student/DashboardContainer";
-import { MoodType } from "@/types/user";
+import DashboardLayout from "./student/DashboardLayout";
 
 const StudentDashboard = () => {
-  const [currentMood, setCurrentMood] = React.useState<MoodType | undefined>(undefined);
   const {
     loading,
     userProfile,
@@ -29,9 +27,7 @@ const StudentDashboard = () => {
     handleViewStudyPlan,
     handleCloseStudyPlan,
     toggleSidebar,
-    toggleTabsNav,
-    lastActivity,
-    suggestedNextAction
+    toggleTabsNav
   } = useStudentDashboard();
 
   if (loading || !userProfile) {
@@ -53,22 +49,8 @@ const StudentDashboard = () => {
     );
   }
 
-  // Convert features object to an array format expected by DashboardLayout
-  const featuresArray = Object.keys(features).map(key => ({
-    icon: null,
-    title: key.charAt(0).toUpperCase() + key.slice(1),
-    description: `${key.charAt(0).toUpperCase() + key.slice(1)} section`,
-    path: key,
-    isPremium: false
-  }));
-
-  // Handle mood selection
-  const handleMoodSelect = (mood: MoodType) => {
-    setCurrentMood(mood);
-  };
-
   return (
-    <DashboardContainer
+    <DashboardLayout
       userProfile={userProfile}
       hideSidebar={hideSidebar}
       hideTabsNav={hideTabsNav}
@@ -76,9 +58,7 @@ const StudentDashboard = () => {
       kpis={kpis}
       nudges={nudges}
       markNudgeAsRead={markNudgeAsRead}
-      features={featuresArray}
       showWelcomeTour={showWelcomeTour}
-      currentTime={new Date()}
       onTabChange={handleTabChange}
       onViewStudyPlan={handleViewStudyPlan}
       onToggleSidebar={toggleSidebar}
@@ -87,10 +67,6 @@ const StudentDashboard = () => {
       onCompleteTour={handleCompleteTour}
       showStudyPlan={showStudyPlan}
       onCloseStudyPlan={handleCloseStudyPlan}
-      lastActivity={lastActivity}
-      suggestedNextAction={suggestedNextAction}
-      currentMood={currentMood}
-      onMoodSelect={handleMoodSelect}
     />
   );
 };

@@ -1,3 +1,4 @@
+
 import { UserProfileType } from "@/types/user";
 import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
 import KpiCard from "@/components/dashboard/KpiCard";
@@ -10,7 +11,6 @@ import { ReactNode } from "react";
 import { motion } from "framer-motion";
 import { AlertCircle, BookOpen, Coffee } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { SubscriptionType } from "@/types/user/base";
 
 interface DashboardOverviewProps {
   userProfile: UserProfileType;
@@ -163,7 +163,7 @@ export default function DashboardOverview({
               icon={feature.icon}
               path={feature.path}
               isPremium={feature.isPremium}
-              userSubscription={userProfile.subscription as SubscriptionType}
+              userSubscription={userProfile.subscription}
             />
           </motion.div>
         ))}

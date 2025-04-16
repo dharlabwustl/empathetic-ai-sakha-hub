@@ -1,7 +1,7 @@
 
 import { Link } from "react-router-dom";
 import { Lock } from "lucide-react";
-import { SubscriptionType } from "@/types/user"; // Updated import path
+import { SubscriptionType } from "@/types/user";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";

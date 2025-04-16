@@ -1,44 +1,72 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { SubjectProgress, StudyStreak } from "@/types/user/student";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { SubjectOverview } from './SubjectOverview';
+import { TopicsList } from './TopicsList';
+import { QuizzesList } from './QuizzesList';
+import { StudyTimeChart } from './StudyTimeChart';
+import { SubjectProgress, StudyStreak } from "@/types/user";
 
 interface PerformanceTabsProps {
-  subjectsProgress: SubjectProgress[];
-  streak: StudyStreak;
+  subjects: SubjectProgress[];
+  selectedSubject: SubjectProgress | null;
+  selectSubject: (id: string) => void;
+  studyStreak: StudyStreak | null;
 }
 
-const PerformanceTabs: React.FC<PerformanceTabsProps> = ({ subjectsProgress, streak }) => {
+export const PerformanceTabs: React.FC<PerformanceTabsProps> = ({
+  subjects,
+  selectedSubject,
+  selectSubject,
+  studyStreak
+}) => {
+  const [activeTab, setActiveTab] = useState("overview");
+
   return (
-    <Tabs defaultValue="subjects" className="w-full">
-      <TabsList>
-        <TabsTrigger value="subjects">Subjects</TabsTrigger>
-        <TabsTrigger value="streak">Streak</TabsTrigger>
-      </TabsList>
-      <TabsContent value="subjects">
-        <div>
-          {subjectsProgress.map((subject) => (
-            <div key={subject.id} className="flex items-center justify-between py-2 border-b border-gray-200 dark:border-gray-700">
-              <span>{subject.name}</span>
-              <span className="text-sm font-medium">{subject.progress}%</span>
-            </div>
-          ))}
-        </div>
-      </TabsContent>
-      <TabsContent value="streak">
-        <div className="py-2">
-          <div className="flex items-center justify-between mb-4">
-            <span>Current Streak:</span>
-            <span className="font-bold">{streak.current} days</span>
-          </div>
-          <div className="flex items-center justify-between">
-            <span>Longest Streak:</span>
-            <span className="font-bold">{streak.longest} days</span>
-          </div>
-        </div>
-      </TabsContent>
-    </Tabs>
+    <Card>
+      <CardHeader>
+        <CardTitle>Subject Performance</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <Tabs defaultValue="overview" value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="mb-4">
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="topics">Topics</TabsTrigger>
+            <TabsTrigger value="quizzes">Quizzes</TabsTrigger>
+            <TabsTrigger value="time">Study Time</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="overview" className="space-y-4">
+            <SubjectOverview subjects={subjects} />
+          </TabsContent>
+          
+          <TabsContent value="topics">
+            <TopicsList
+              selectedSubject={selectedSubject}
+              subjects={subjects}
+              selectSubject={selectSubject}
+            />
+          </TabsContent>
+          
+          <TabsContent value="quizzes">
+            <QuizzesList
+              selectedSubject={selectedSubject}
+              subjects={subjects}
+              selectSubject={selectSubject}
+            />
+          </TabsContent>
+          
+          <TabsContent value="time">
+            <StudyTimeChart
+              selectedSubject={selectedSubject}
+              subjects={subjects}
+              selectSubject={selectSubject}
+              studyStreak={studyStreak}
+            />
+          </TabsContent>
+        </Tabs>
+      </CardContent>
+    </Card>
   );
 };
-
-export default PerformanceTabs;

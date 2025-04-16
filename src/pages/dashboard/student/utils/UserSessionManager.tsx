@@ -23,47 +23,34 @@ export const handleNewUser = (
   console.log("UserSessionManager - isNew param:", isNew);
   console.log("UserSessionManager - userData:", userData);
   
-  // If specifically coming from signup flow with URL parameters
+  // If first time login flow (coming from signup)
   if (completedOnboarding === 'true' || isNew === 'true') {
     console.log("UserSessionManager - New user detected from URL parameters");
     shouldShowOnboarding = true;
-    
-    // Clear the URL parameters after processing to avoid loops
-    if (location.search) {
-      // We'll clean up the URL after processing
-      navigate(location.pathname, { replace: true });
-    }
+    // Clean the URL to remove the query param
+    navigate(location.pathname, { replace: true });
   }
   // Check if user data exists
   else if (userData) {
     const parsedUserData = JSON.parse(userData);
     console.log("UserSessionManager - parsedUserData:", parsedUserData);
     
-    // For returning users who have completed onboarding previously, skip onboarding
+    // For returning users who have completed onboarding, skip both flows
     if (parsedUserData.completedOnboarding === true) {
       shouldShowOnboarding = false;
       shouldShowWelcomeTour = parsedUserData.sawWelcomeTour !== true; // Only show welcome tour if they haven't seen it
-      console.log("UserSessionManager - User has completed onboarding before, skipping onboarding flow");
     } 
-    // For users who explicitly haven't completed onboarding, show it
-    else if (parsedUserData.completedOnboarding === false) {
-      shouldShowOnboarding = true;
-      console.log("UserSessionManager - User has not completed onboarding, showing onboarding flow");
-    }
-    // Default case for existing users
+    // For new users who haven't completed onboarding, show onboarding
     else {
-      shouldShowOnboarding = false;
-      console.log("UserSessionManager - User data exists but no onboarding status, skipping onboarding");
+      shouldShowOnboarding = true;
     }
   }
   // First time user with no data
   else {
-    // For completely new users without params, skip onboarding and treat as regular login
-    shouldShowOnboarding = false;
-    console.log("UserSessionManager - No user data and no URL params, assuming regular login");
+    shouldShowOnboarding = true;
   }
 
-  console.log("UserSessionManager - Final Result:", { shouldShowOnboarding, shouldShowWelcomeTour });
+  console.log("UserSessionManager - Result:", { shouldShowOnboarding, shouldShowWelcomeTour });
   return {
     shouldShowOnboarding,
     shouldShowWelcomeTour

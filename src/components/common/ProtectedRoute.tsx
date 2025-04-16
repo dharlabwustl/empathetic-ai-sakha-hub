@@ -21,12 +21,13 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     console.log("ProtectedRoute - Current location:", location.pathname, location.search);
   }, [isAuthenticated, isLoading, user, location]);
 
-  // Check if onboarding parameters are present
-  const isFromSignup = location.search.includes('completedOnboarding=true') || location.search.includes('new=true');
+  // Check if the user is coming from the signup flow
+  const isFromSignup = location.search.includes('completedOnboarding=true');
+  const isNewUser = location.search.includes('new=true');
   
   // If this is redirected from signup, we'll let them through even if not fully authenticated
-  if (isFromSignup) {
-    console.log("ProtectedRoute - User coming from signup flow, allowing access");
+  if (isFromSignup || isNewUser) {
+    console.log("ProtectedRoute - User coming from signup, bypassing auth check temporarily");
     return <>{children}</>;
   }
 
@@ -53,8 +54,21 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     if (!roles.includes(user.role)) {
       console.log("ProtectedRoute - User doesn't have required role:", { userRole: user.role, requiredRoles: roles });
       
-      // Always default to student dashboard if role is missing or doesn't match
-      return <Navigate to="/dashboard/student" replace />;
+      // Redirect based on user's actual role
+      switch (user.role.toLowerCase()) {
+        case 'student':
+          return <Navigate to="/dashboard/student" replace />;
+        case 'employee':
+          return <Navigate to="/dashboard/employee" replace />;
+        case 'doctor':
+          return <Navigate to="/dashboard/doctor" replace />;
+        case 'founder':
+          return <Navigate to="/dashboard/founder" replace />;
+        case 'admin':
+          return <Navigate to="/admin/dashboard" replace />;
+        default:
+          return <Navigate to="/" replace />;
+      }
     }
   }
 

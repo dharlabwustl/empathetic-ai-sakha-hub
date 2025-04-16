@@ -3,15 +3,21 @@ import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
+import { 
+  FileText,
+  Book,
+  FileSpreadsheet,
+  GraduationCap
+} from "lucide-react";
 import { ContentType } from "@/types/content";
 
 // Import the new component files
-import ContentManagementHeader from "@/components/admin/dashboard/content/ContentManagementHeader";
-import ContentSummaryCards from "@/components/admin/dashboard/content/ContentSummaryCards";
-import TabContentApprovalQueue from "@/components/admin/dashboard/content/TabContentApprovalQueue";
-import TabContentStudyMaterials from "@/components/admin/dashboard/content/TabContentStudyMaterials";
-import TabContentPrompts from "@/components/admin/dashboard/content/TabContentPrompts";
-import ContentUploader from "@/components/admin/dashboard/content/ContentUploader";
+import ContentManagementHeader from "./content/ContentManagementHeader";
+import ContentSummaryCards from "./content/ContentSummaryCards";
+import TabContentApprovalQueue from "./content/TabContentApprovalQueue";
+import TabContentStudyMaterials from "./content/TabContentStudyMaterials";
+import TabContentPrompts from "./content/TabContentPrompts";
+import ContentUploader from "./content/ContentUploader";
 import { useContentManagement } from "@/hooks/admin/useContentManagement";
 
 const ContentManagementTab = () => {

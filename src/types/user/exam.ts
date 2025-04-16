@@ -1,36 +1,28 @@
+// Use string type for ExamGoal to resolve type issues
+export type ExamGoal = 
+  | "IIT JEE"
+  | "NEET"
+  | "MBA"
+  | "CUET UG"
+  | "UPSC"
+  | "CLAT"
+  | "BANK PO";
 
-// Exam related user types
-export interface ExamPreparationStats {
-  examName: string;
-  targetDate: string;
-  daysLeft: number;
-  completedTopics: number;
-  totalTopics: number;
-  averageScore: number;
-  weakAreas: string[];
-  strongAreas: string[];
+// Keep the detailed exam goal type as a separate interface
+export interface ExamGoalDetails {
+  id: string;
+  name: string;
+  description: string;
+  commonExamDate: string;
+  recommendedHours: number;
+  subjects?: string[];
 }
 
-export interface ExamSchedule {
-  examId: string;
-  examName: string;
-  date: string;
-  duration: number;
-  location?: string;
-  subjects: string[];
-  importance: 'high' | 'medium' | 'low';
-}
-
-export interface MockTestResult {
-  testId: string;
-  examType: string;
-  date: string;
-  score: number;
-  maxScore: number;
-  timeTaken: number;
-  accuracy: number;
-  rank?: number;
-  percentile?: number;
-  weakAreas: string[];
-  strongAreas: string[];
+export interface StudyPlanSettings {
+  examDate: string;
+  dailyStudyHours: number;
+  strongSubjects: string[];
+  weakSubjects: string[];
+  studyPace: "Aggressive" | "Balanced" | "Relaxed";
+  preferredStudyTime: "Morning" | "Afternoon" | "Evening" | "Night";
 }

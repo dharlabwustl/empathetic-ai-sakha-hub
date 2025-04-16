@@ -1,52 +1,46 @@
 
-// Adding the missing Professional user interfaces to ensure proper typing for all user profiles
-import { BaseUserProfile, GoalType, Goal } from './base';
+import { UserProfileType } from './base';
 
-export interface ProfessionalProfile extends BaseUserProfile {
-  // Common professional fields
-  profileCompleted?: boolean;
-  achievements?: string[];
-  skills?: string[];
-  languages?: string[];
-  education?: Education[];
-  certifications?: string[];
-  goals?: Goal[]; // Using the Goal from base.ts
-}
-
-export interface EmployeeProfile extends ProfessionalProfile {
+export interface EmployeeProfile extends UserProfileType {
   jobTitle: string;
-  industry: string;
-  company: string;
-  department: string;
+  workExperience: number;
+  skills: string[];
+  company?: string;
+  industry?: string;
+  careerGoal: string;
   projectsCompleted: number;
-  skillsAcquired: string[];
+  trainingCompleted: number;
+  experienceLevel?: string;
+  skillsToGrow?: string[];
+  productivityScore?: number;
 }
 
-export interface DoctorProfile extends ProfessionalProfile {
+export interface DoctorProfile extends UserProfileType {
   specialization: string;
-  institution: string;
-  patientsHelped: number;
-  yearsOfExperience: number;
+  qualifications: string[];
+  researchInterests: string[];
   publications: number;
+  institution?: string;
+  yearsOfPractice: number;
   certifications: string[];
+  researchTopic?: string;
+  thesisTitle?: string;
+  clinicalInterest?: string;
+  researchPhase?: string;
+  publicationsCount?: number;
 }
 
-export interface FounderProfile extends ProfessionalProfile {
+export interface FounderProfile extends UserProfileType {
   startupName: string;
-  startupStage: string;
   industry: string;
+  foundingYear: string;
   teamSize: number;
   funding: string;
-  challenges: string[];
-}
-
-export interface Education {
-  id: string;
-  institution: string;
-  degree: string;
-  field: string;
-  startDate: string;
-  endDate?: string;
-  grade?: string;
-  description?: string;
+  stage: string;
+  mvpStatus: number;
+  pitchDeckReady: boolean;
+  startupStage?: string;
+  startupGoal?: string;
+  mvpCompletion?: number;
+  pitchDeckStatus?: number;
 }

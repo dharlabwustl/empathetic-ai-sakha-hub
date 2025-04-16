@@ -2,10 +2,15 @@
 import React from 'react';
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { Star } from 'lucide-react';
-import { StudyStreak } from "@/types/user/student";
+
+interface StudyStreak {
+  current: number;
+  longest: number;
+  thisWeek: number[];
+}
 
 interface StudyStreakCardProps {
-  studyStreak: StudyStreak;
+  studyStreak: StudyStreak | null;
 }
 
 export const StudyStreakCard: React.FC<StudyStreakCardProps> = ({ studyStreak }) => {
@@ -21,7 +26,7 @@ export const StudyStreakCard: React.FC<StudyStreakCardProps> = ({ studyStreak })
           </div>
           <div>
             <p className="text-sm text-muted-foreground">Current Streak</p>
-            <h3 className="text-3xl font-bold">{studyStreak.current || 0} Days</h3>
+            <h3 className="text-3xl font-bold">{studyStreak?.current || 0} Days</h3>
           </div>
         </div>
         

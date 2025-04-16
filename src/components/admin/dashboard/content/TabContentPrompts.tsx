@@ -1,13 +1,17 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
-import { Slider } from "@/components/ui/slider";
-import { RocketIcon, BrainCircuit, Wand2, Settings2, RotateCcw } from "lucide-react";
+import { 
+  Book, 
+  FileText, 
+  FileCode,
+  PenTool,
+  Library,
+  Zap,
+  RotateCcw,
+  Save
+} from "lucide-react";
 
 interface TabContentPromptsProps {
   handleEditPrompt: (promptType: string) => void;
@@ -26,231 +30,129 @@ const TabContentPrompts = ({
 }: TabContentPromptsProps) => {
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap gap-4">
-        <Button
-          variant="outline"
-          className="flex items-center gap-2 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-950/30 dark:to-blue-950/30"
-          onClick={handleTestContentGeneration}
-        >
-          <RocketIcon size={16} className="text-purple-600 dark:text-purple-400" />
-          <span>Test Content Generation</span>
-        </Button>
-        <Button
-          variant="outline"
-          onClick={handleManageAllPrompts}
-        >
-          <span>Manage All Prompts</span>
-        </Button>
+      <div className="space-y-2">
+        <p className="text-sm text-gray-600 dark:text-gray-400">
+          Manage base prompts for GPT-based content generation and responses
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="border p-4 rounded-md bg-gray-50/50 dark:bg-gray-800/50">
+          <h3 className="text-sm font-medium mb-1 flex items-center gap-2">
+            <Book size={16} className="text-blue-500" />
+            Concept Card Creator
+          </h3>
+          <Textarea 
+            className="min-h-[100px] mb-3 mt-2" 
+            placeholder="Create a concept card for {topic} targeted at {exam_type} students..."
+            defaultValue="Create a concept card for {topic} targeted at {exam_type} students. The concept card should include: 1) A clear definition, 2) Key principles or rules, 3) 2-3 practical examples, 4) Common misconceptions, 5) Connections to other related concepts. Format the content in a structured way that's easy to understand for students preparing for {exam_type}."
+          />
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => handleEditPrompt("Concept Card Creator")}
+            className="flex items-center gap-2"
+          >
+            <PenTool size={14} />
+            Edit Prompt
+          </Button>
+        </div>
+        
+        <div className="border p-4 rounded-md bg-gray-50/50 dark:bg-gray-800/50">
+          <h3 className="text-sm font-medium mb-1 flex items-center gap-2">
+            <FileText size={16} className="text-green-500" />
+            Flashcard Generator
+          </h3>
+          <Textarea 
+            className="min-h-[100px] mb-3 mt-2" 
+            placeholder="Create a set of flashcards about {topic} with {difficulty_level}..."
+            defaultValue="Create a set of flashcards about {topic} with {difficulty_level} difficulty. Generate 10 question-answer pairs that cover the most important aspects of {topic}. Each flashcard should have a concise question on one side and a clear, comprehensive answer on the other side. Include key terms, definitions, formulas, or principles as appropriate for the subject."
+          />
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => handleEditPrompt("Flashcard Generator")}
+            className="flex items-center gap-2"
+          >
+            <PenTool size={14} />
+            Edit Prompt
+          </Button>
+        </div>
+        
+        <div className="border p-4 rounded-md bg-gray-50/50 dark:bg-gray-800/50">
+          <h3 className="text-sm font-medium mb-1 flex items-center gap-2">
+            <FileCode size={16} className="text-amber-500" />
+            Practice Exam Creator
+          </h3>
+          <Textarea 
+            className="min-h-[100px] mb-3 mt-2" 
+            placeholder="Create a practice exam for {subject} based on {exam_pattern}..."
+            defaultValue="Create a practice exam for {subject} based on {exam_pattern} with {number_of_questions} questions at {difficulty_level} difficulty. Include a mix of multiple choice, short answer, and problem-solving questions that test key concepts and analytical skills. Provide a detailed answer key with explanations for each question. The exam should mirror the format and style of {exam_pattern}."
+          />
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => handleEditPrompt("Practice Exam Creator")}
+            className="flex items-center gap-2"
+          >
+            <PenTool size={14} />
+            Edit Prompt
+          </Button>
+        </div>
+        
+        <div className="border p-4 rounded-md bg-gray-50/50 dark:bg-gray-800/50">
+          <h3 className="text-sm font-medium mb-1 flex items-center gap-2">
+            <Library size={16} className="text-purple-500" />
+            Study Guide Generator
+          </h3>
+          <Textarea 
+            className="min-h-[100px] mb-3 mt-2" 
+            placeholder="Create a comprehensive study guide for {topic}..."
+            defaultValue="Create a comprehensive study guide for {topic} targeted at {exam_type} preparation. Include: 1) An overview of the topic, 2) Key concepts and definitions, 3) Important formulas or principles, 4) Step-by-step examples of problem solving, 5) Common questions with answers, 6) Tips and strategies for mastering the topic, 7) References to additional resources. Format the guide in a clear, structured manner with sections and subsections."
+          />
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => handleEditPrompt("Study Guide Generator")}
+            className="flex items-center gap-2"
+          >
+            <PenTool size={14} />
+            Edit Prompt
+          </Button>
+        </div>
       </div>
       
-      <Tabs defaultValue="concept">
-        <TabsList>
-          <TabsTrigger value="concept">Concept Card</TabsTrigger>
-          <TabsTrigger value="flashcard">Flashcard</TabsTrigger>
-          <TabsTrigger value="quiz">Quiz Generation</TabsTrigger>
-          <TabsTrigger value="settings">AI Settings</TabsTrigger>
-        </TabsList>
+      <div className="pt-6 border-t mt-6 space-y-4">
+        <div className="flex items-center justify-between">
+          <Button 
+            variant="outline" 
+            className="flex items-center gap-2"
+            onClick={handleTestContentGeneration}
+          >
+            <Zap size={16} />
+            Test Content Generation Algorithm
+          </Button>
+          <Button onClick={handleManageAllPrompts}>
+            Manage All Prompts
+          </Button>
+        </div>
         
-        <TabsContent value="concept">
-          <Card>
-            <CardContent className="pt-6">
-              <div className="grid md:grid-cols-12 gap-4">
-                <div className="md:col-span-8 space-y-4">
-                  <div>
-                    <Label htmlFor="concept-prompt">Concept Card Generation Prompt</Label>
-                    <Textarea 
-                      id="concept-prompt"
-                      className="h-40"
-                      placeholder="Enter the prompt template for generating concept cards..."
-                      defaultValue="Create a structured concept card on {{topic}} for {{examName}} preparation level. Include: 1) Core concept definition, 2) Key formulas, 3) Step-by-step explanation with visual cues, 4) Common misconceptions, 5) Example problem with solution, 6) Related concepts."
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="concept-system">System Instruction</Label>
-                    <Textarea 
-                      id="concept-system"
-                      className="h-20"
-                      placeholder="Enter system instructions for the AI model..."
-                      defaultValue="You are an expert educational content creator specializing in creating clear, concise concept cards that help students understand complex topics quickly."
-                    />
-                  </div>
-                  <Button
-                    onClick={() => handleEditPrompt("concept")}
-                    className="w-full"
-                  >
-                    <Wand2 className="mr-2 h-4 w-4" />
-                    Edit Concept Card Prompt
-                  </Button>
-                </div>
-                
-                <div className="md:col-span-4">
-                  <div className="bg-muted p-4 rounded-lg h-full space-y-4">
-                    <h4 className="font-medium flex items-center">
-                      <BrainCircuit className="mr-2 h-5 w-5 text-primary" />
-                      Settings
-                    </h4>
-                    
-                    <div className="space-y-6">
-                      <div className="space-y-2">
-                        <div className="flex justify-between">
-                          <Label htmlFor="temperature">Temperature</Label>
-                          <span className="text-sm text-muted-foreground">0.7</span>
-                        </div>
-                        <Slider defaultValue={[0.7]} max={1} step={0.1} />
-                      </div>
-                      
-                      <div className="flex items-center justify-between">
-                        <Label htmlFor="add-examples">Include Examples</Label>
-                        <Switch id="add-examples" defaultChecked />
-                      </div>
-                      
-                      <div className="flex items-center justify-between">
-                        <Label htmlFor="visual-aids">Generate Visual Aids</Label>
-                        <Switch id="visual-aids" defaultChecked />
-                      </div>
-                      
-                      <div className="flex items-center justify-between">
-                        <Label htmlFor="multi-difficulty">Multi-Difficulty Versions</Label>
-                        <Switch id="multi-difficulty" />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-        
-        <TabsContent value="flashcard">
-          <Card>
-            <CardContent className="pt-6">
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="flashcard-prompt">Flashcard Generation Prompt</Label>
-                  <Textarea 
-                    id="flashcard-prompt"
-                    className="h-40"
-                    placeholder="Enter the prompt template for generating flashcards..."
-                    defaultValue="Create a set of 10 flashcards for {{topic}} for {{examName}} preparation. Each flashcard should have a clear question on one side and a concise answer on the other. Focus on key definitions, formulas, and concepts that are commonly tested."
-                  />
-                </div>
-                <Button
-                  onClick={() => handleEditPrompt("flashcard")}
-                >
-                  Edit Flashcard Prompt
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-        
-        <TabsContent value="quiz">
-          <Card>
-            <CardContent className="pt-6">
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="quiz-prompt">Quiz Generation Prompt</Label>
-                  <Textarea 
-                    id="quiz-prompt"
-                    className="h-40"
-                    placeholder="Enter the prompt template for generating quizzes..."
-                    defaultValue="Create a set of 5 multiple-choice questions on {{topic}} suitable for {{examName}}. Each question should have 4 options with one correct answer. Include a mix of conceptual questions, calculation problems, and application scenarios at {{difficultyLevel}} difficulty."
-                  />
-                </div>
-                <Button
-                  onClick={() => handleEditPrompt("quiz")}
-                >
-                  Edit Quiz Generation Prompt
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-        
-        <TabsContent value="settings">
-          <Card>
-            <CardContent className="pt-6">
-              <div className="grid md:grid-cols-2 gap-6">
-                <div className="space-y-4">
-                  <h4 className="font-medium flex items-center">
-                    <Settings2 className="mr-2 h-5 w-5 text-primary" />
-                    Global AI Settings
-                  </h4>
-                  
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor="auto-generate">Auto-Generate on Upload</Label>
-                      <Switch id="auto-generate" defaultChecked />
-                    </div>
-                    
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor="multi-modal">Multi-Modal Content</Label>
-                      <Switch id="multi-modal" defaultChecked />
-                    </div>
-                    
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor="quality-check">AI Quality Check</Label>
-                      <Switch id="quality-check" defaultChecked />
-                    </div>
-                    
-                    <div>
-                      <div className="flex justify-between">
-                        <Label htmlFor="model-version">Model Version</Label>
-                        <span className="text-sm text-muted-foreground">GPT-4 Turbo</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="space-y-4">
-                  <h4 className="font-medium">Safety & Review</h4>
-                  
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor="content-review">Require Review</Label>
-                      <Switch id="content-review" defaultChecked />
-                    </div>
-                    
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor="safety-filter">Content Safety Filter</Label>
-                      <Switch id="safety-filter" defaultChecked />
-                    </div>
-                    
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor="fact-check">Fact Check</Label>
-                      <Switch id="fact-check" />
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <div className="flex justify-between">
-                        <Label htmlFor="safety-level">Safety Level</Label>
-                        <span className="text-sm text-muted-foreground">Medium</span>
-                      </div>
-                      <Slider defaultValue={[0.5]} max={1} step={0.25} />
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="flex justify-between mt-6 pt-4 border-t">
-                <Button
-                  variant="outline"
-                  onClick={handleResetSettings}
-                >
-                  <RotateCcw className="mr-2 h-4 w-4" />
-                  Reset to Defaults
-                </Button>
-                
-                <Button
-                  onClick={handleSaveSettings}
-                >
-                  Save Settings
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+        <div className="flex items-center gap-2">
+          <Button 
+            className="flex-1"
+            onClick={handleSaveSettings}
+          >
+            <Save size={16} className="mr-2" /> Save Settings
+          </Button>
+          <Button 
+            variant="outline" 
+            className="flex-1"
+            onClick={handleResetSettings}
+          >
+            <RotateCcw size={16} className="mr-2" /> Reset to Defaults
+          </Button>
+        </div>
+      </div>
     </div>
   );
 };

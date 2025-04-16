@@ -1,264 +1,157 @@
-
-import React, { useState } from "react";
+import React from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { FileText, Search, Filter } from "lucide-react";
-import { ContentType, ContentItem, ContentBrowserProps } from "@/types/content";
-import { EmptyState } from "./EmptyState";
-import { FilesTable } from "./FilesTable";
+import { Search, Filter, Download, Tag } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { 
+  ContentBrowserProps, 
+  EmptyStateProps, 
+  FilesTableProps, 
+  FileRowProps 
+} from "@/types/content";
+import { FileText } from "lucide-react";
 
-export const ContentBrowser: React.FC<ContentBrowserProps> = ({
-  contentType = "concept_card",
-  onSelect,
-  selectedContent
-}) => {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [subject, setSubject] = useState<string>("all");
-  const [examGoal, setExamGoal] = useState<string>("all");
-  const [currentTab, setCurrentTab] = useState<ContentType | "all">("all");
-  const [sortOrder, setSortOrder] = useState<"newest" | "oldest" | "a-z" | "z-a">("newest");
+const ContentBrowser = ({ files, searchTerm, setSearchTerm }: ContentBrowserProps) => {
+  const { toast } = useToast();
   
-  // Mock content items for demonstration
-  const contentItems: ContentItem[] = [
-    {
-      id: "1",
-      title: "Periodic Table Concepts",
-      type: "concept_card",
-      subject: "Chemistry",
-      examGoal: "NEET",
-      difficultyLevel: "intermediate",
-      createdAt: "2025-04-10T09:00:00",
-      updatedAt: "2025-04-10T09:00:00",
-      tags: ["chemistry", "periodic table", "elements"],
-      fileUrl: "/content/periodic-table.pdf",
-      fileSize: "1250000",
-      fileName: "periodic-table.pdf"
-    },
-    {
-      id: "2",
-      title: "Newton's Laws of Motion",
-      type: "flashcard",
-      subject: "Physics",
-      examGoal: "JEE",
-      difficultyLevel: "advanced",
-      createdAt: "2025-04-09T14:30:00",
-      updatedAt: "2025-04-09T14:30:00",
-      tags: ["physics", "newton", "motion"],
-      fileUrl: "/content/newtons-laws.pdf",
-      fileSize: "850000",
-      fileName: "newtons-laws.pdf"
-    },
-    {
-      id: "3",
-      title: "Calculus Integration Formulas",
-      type: "study_material",
-      subject: "Mathematics",
-      examGoal: "JEE Advanced",
-      difficultyLevel: "advanced",
-      createdAt: "2025-04-08T11:15:00",
-      updatedAt: "2025-04-08T16:45:00",
-      tags: ["mathematics", "calculus", "integration"],
-      fileUrl: "/content/calculus.pdf",
-      fileSize: "1450000",
-      fileName: "calculus.pdf"
-    },
-    {
-      id: "4",
-      title: "Cell Biology Structures",
-      type: "concept_card",
-      subject: "Biology",
-      examGoal: "NEET",
-      difficultyLevel: "intermediate",
-      createdAt: "2025-04-07T10:20:00",
-      updatedAt: "2025-04-07T10:20:00",
-      tags: ["biology", "cell", "organelles"],
-      fileUrl: "/content/cell-biology.pdf",
-      fileSize: "2250000",
-      fileName: "cell-biology.pdf"
-    },
-    {
-      id: "5",
-      title: "Chemical Bonding Practice Questions",
-      type: "practice_exam",
-      subject: "Chemistry",
-      examGoal: "JEE Main",
-      difficultyLevel: "intermediate",
-      createdAt: "2025-04-06T15:45:00",
-      updatedAt: "2025-04-06T15:45:00",
-      tags: ["chemistry", "bonding", "practice"],
-      fileUrl: "/content/chemical-bonding.pdf",
-      fileSize: "1850000",
-      fileName: "chemical-bonding.pdf"
-    }
-  ];
-  
-  // Filter content based on selections
-  const filteredContent = contentItems.filter(item => {
-    // Filter by content type
-    if (currentTab !== "all" && item.type !== currentTab) {
-      return false;
-    }
-    
-    // Filter by search term
-    if (searchTerm && !item.title.toLowerCase().includes(searchTerm.toLowerCase())) {
-      return false;
-    }
-    
-    // Filter by subject
-    if (subject !== "all" && item.subject !== subject) {
-      return false;
-    }
-    
-    // Filter by exam goal
-    if (examGoal !== "all" && item.examGoal !== examGoal) {
-      return false;
-    }
-    
-    return true;
-  });
-  
-  // Sort content
-  const sortedContent = [...filteredContent].sort((a, b) => {
-    switch (sortOrder) {
-      case "newest":
-        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-      case "oldest":
-        return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
-      case "a-z":
-        return a.title.localeCompare(b.title);
-      case "z-a":
-        return b.title.localeCompare(a.title);
-      default:
-        return 0;
-    }
-  });
-  
-  const handleTabChange = (value: string) => {
-    setCurrentTab(value as ContentType | "all");
+  const handleDownload = (fileName: string) => {
+    toast({
+      title: "Download started",
+      description: `Downloading ${fileName}...`
+    });
   };
   
+  const handleView = (fileId: string) => {
+    toast({
+      title: "File viewer opened",
+      description: `Viewing file ID: ${fileId}`
+    });
+  };
+  
+  const handleTagFile = (fileId: string) => {
+    toast({
+      title: "Tag editor opened",
+      description: `Add or edit tags for file ID: ${fileId}`
+    });
+  };
+
   return (
-    <div className="space-y-4">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <h3 className="font-medium">Content Browser</h3>
-        <div className="relative w-full sm:w-64">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input
-            type="search"
-            placeholder="Search content..."
-            className="pl-8"
+    <div>
+      <div className="flex flex-col sm:flex-row gap-4 mb-4">
+        <div className="relative flex-grow">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
+          <input
+            type="text"
+            placeholder="Search by file name, subject, or tag"
+            className="w-full pl-10 pr-4 py-2 border rounded-md"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
+        <Button variant="outline" className="flex items-center">
+          <Filter className="mr-2 h-4 w-4" /> Filter
+        </Button>
       </div>
       
-      <Tabs defaultValue="all" value={currentTab} onValueChange={handleTabChange}>
-        <div className="flex justify-between items-center">
-          <TabsList>
-            <TabsTrigger value="all">All</TabsTrigger>
-            <TabsTrigger value="concept_card">Concepts</TabsTrigger>
-            <TabsTrigger value="flashcard">Flashcards</TabsTrigger>
-            <TabsTrigger value="study_material">Notes</TabsTrigger>
-            <TabsTrigger value="practice_exam">Practice</TabsTrigger>
-          </TabsList>
-          
-          <Select value={sortOrder} onValueChange={(value) => setSortOrder(value as any)}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Sort by" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="newest">Newest First</SelectItem>
-              <SelectItem value="oldest">Oldest First</SelectItem>
-              <SelectItem value="a-z">A-Z</SelectItem>
-              <SelectItem value="z-a">Z-A</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 my-4">
-          <div>
-            <Label className="mb-2 block">Subject</Label>
-            <Select value={subject} onValueChange={setSubject}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select subject" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Subjects</SelectItem>
-                <SelectItem value="Physics">Physics</SelectItem>
-                <SelectItem value="Chemistry">Chemistry</SelectItem>
-                <SelectItem value="Biology">Biology</SelectItem>
-                <SelectItem value="Mathematics">Mathematics</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div>
-            <Label className="mb-2 block">Exam Goal</Label>
-            <Select value={examGoal} onValueChange={setExamGoal}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select exam goal" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Exams</SelectItem>
-                <SelectItem value="JEE">JEE</SelectItem>
-                <SelectItem value="NEET">NEET</SelectItem>
-                <SelectItem value="JEE Main">JEE Main</SelectItem>
-                <SelectItem value="JEE Advanced">JEE Advanced</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="flex items-end">
-            <Button variant="outline" className="w-full" onClick={() => {
-              setSearchTerm("");
-              setSubject("all");
-              setExamGoal("all");
-              setCurrentTab("all");
-            }}>
-              <Filter className="mr-2 h-4 w-4" />
-              Reset Filters
-            </Button>
-          </div>
-        </div>
-        
-        <TabsContent value="all" className="m-0">
-          {sortedContent.length > 0 ? (
-            <FilesTable
-              files={sortedContent}
-              onSelect={onSelect}
-              selectedFile={selectedContent}
-            />
-          ) : (
-            <EmptyState
-              icon={<FileText size={48} className="text-muted-foreground" />}
-              message="No content found matching your filters"
-              actionLabel="Modify filters"
-            />
-          )}
-        </TabsContent>
-        
-        {["concept_card", "flashcard", "study_material", "practice_exam", "quiz"].map((type) => (
-          <TabsContent key={type} value={type} className="m-0">
-            {sortedContent.filter(item => item.type === type).length > 0 ? (
-              <FilesTable
-                files={sortedContent.filter(item => item.type === type)}
-                onSelect={onSelect}
-                selectedFile={selectedContent}
-              />
-            ) : (
-              <EmptyState 
-                icon={<FileText size={48} className="text-muted-foreground" />} 
-                message={`No ${type.replace('_', ' ')} content found`}
-                actionLabel="Modify filters" 
-              />
-            )}
-          </TabsContent>
-        ))}
-      </Tabs>
+      {files.length === 0 ? (
+        <EmptyState searchTerm={searchTerm} />
+      ) : (
+        <FilesTable 
+          files={files}
+          onDownload={handleDownload}
+          onView={handleView}
+          onTagFile={handleTagFile}
+        />
+      )}
     </div>
   );
 };
+
+const EmptyState = ({ searchTerm }: EmptyStateProps) => (
+  <div className="text-center py-8">
+    <FileText className="mx-auto h-12 w-12 text-gray-400" />
+    <h3 className="mt-2 font-semibold">No files found</h3>
+    <p className="text-sm text-gray-500">
+      {searchTerm 
+        ? "Try changing your search terms" 
+        : "Upload files to get started"}
+    </p>
+  </div>
+);
+
+const FilesTable = ({ files, onDownload, onView, onTagFile }: FilesTableProps) => (
+  <div className="overflow-x-auto">
+    <table className="w-full">
+      <thead>
+        <tr className="border-b">
+          <th className="text-left py-3 px-4 font-medium">File Name</th>
+          <th className="text-left py-3 px-4 font-medium">Subject</th>
+          <th className="text-left py-3 px-4 font-medium">Exam Type</th>
+          <th className="text-left py-3 px-4 font-medium">Upload Date</th>
+          <th className="text-left py-3 px-4 font-medium">Size</th>
+          <th className="text-left py-3 px-4 font-medium">Tags</th>
+          <th className="text-right py-3 px-4 font-medium">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {files.map((file) => (
+          <FileRow 
+            key={file.id}
+            file={file}
+            onDownload={onDownload}
+            onView={onView}
+            onTagFile={onTagFile}
+          />
+        ))}
+      </tbody>
+    </table>
+  </div>
+);
+
+const FileRow = ({ file, onDownload, onView, onTagFile }: FileRowProps) => (
+  <tr className="border-b hover:bg-gray-50 dark:hover:bg-gray-900">
+    <td className="py-3 px-4">{file.name}</td>
+    <td className="py-3 px-4">{file.subject}</td>
+    <td className="py-3 px-4">{file.examType}</td>
+    <td className="py-3 px-4">{file.uploadDate}</td>
+    <td className="py-3 px-4">{file.size}</td>
+    <td className="py-3 px-4">
+      <div className="flex flex-wrap gap-1">
+        {file.tags.map((tag: string, i: number) => (
+          <span 
+            key={i} 
+            className="px-2 py-1 text-xs bg-gray-100 dark:bg-gray-800 rounded-full"
+          >
+            {tag}
+          </span>
+        ))}
+      </div>
+    </td>
+    <td className="py-3 px-4 text-right">
+      <div className="flex justify-end gap-2">
+        <Button 
+          variant="ghost" 
+          size="icon"
+          onClick={() => onView(file.id)}
+        >
+          <Search size={16} />
+        </Button>
+        <Button 
+          variant="ghost" 
+          size="icon"
+          onClick={() => onDownload(file.name)}
+        >
+          <Download size={16} />
+        </Button>
+        <Button 
+          variant="ghost" 
+          size="icon"
+          onClick={() => onTagFile(file.id)}
+        >
+          <Tag size={16} />
+        </Button>
+      </div>
+    </td>
+  </tr>
+);
 
 export default ContentBrowser;

@@ -1,131 +1,275 @@
 
-import React from 'react';
-import { Card, CardContent } from "@/components/ui/card";
+import { useState } from "react";
+import { Calendar, Smile, Frown, Meh, Activity, Star, Trophy } from "lucide-react";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import { useToast } from "@/hooks/use-toast";
 import { MoodType } from "@/types/user";
 
-export interface MotivationCardProps {
-  currentMood: MoodType;
-  streak?: number;
-  target?: string;
-  progress?: number;
+interface Habit {
+  id: string;
+  name: string;
+  icon: JSX.Element;
+  streak: number;
+  target: number;
+  unit: string;
+  progress: number;
 }
 
-const MotivationCard: React.FC<MotivationCardProps> = ({
-  currentMood,
-  streak = 0,
-  target = '',
-  progress = 0
-}) => {
-  const getMoodMessage = () => {
-    switch(currentMood) {
-      case "motivated":
-        return {
-          title: "You're on fire today!",
-          message: "Let's channel this energy into something amazing.",
-          theme: "bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20 border-amber-100"
-        };
-      case "curious":
-        return {
-          title: "Curiosity drives knowledge!",
-          message: "Want to explore something new today?",
-          theme: "bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border-blue-100"
-        };
-      case "neutral":
-        return {
-          title: "Every step counts",
-          message: "Small steps still move you forward. Pick one task to focus on.",
-          theme: "bg-gradient-to-r from-gray-50 to-slate-50 dark:from-gray-900/20 dark:to-slate-900/20 border-gray-200"
-        };
-      case "tired":
-        return {
-          title: "Rest is important too",
-          message: "Take it slow today, maybe focus on review rather than new content?",
-          theme: "bg-gradient-to-r from-blue-50 to-slate-50 dark:from-blue-900/20 dark:to-slate-900/20 border-blue-100"
-        };
-      case "stressed":
-      case "overwhelmed":
-        return {
-          title: "Let's take a breath",
-          message: "It's okay to feel overwhelmed. Break things down into smaller steps.",
-          theme: "bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 border-purple-100"
-        };
-      case "happy":
-        return {
-          title: "Happiness boosts learning!",
-          message: "Great mood today! Perfect time to tackle something challenging.",
-          theme: "bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-green-100"
-        };
-      case "sad":
-        return {
-          title: "It's okay to feel down",
-          message: "Learning can help shift your mood. Start with something you enjoy.",
-          theme: "bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 border-blue-100"
-        };
-      case "focused":
-        return {
-          title: "Focus is your superpower!",
-          message: "Great time to tackle complex topics and deep work.",
-          theme: "bg-gradient-to-r from-indigo-50 to-violet-50 dark:from-indigo-900/20 dark:to-violet-900/20 border-indigo-100"
-        };
-      case "okay":
-        return {
-          title: "Ready for progress",
-          message: "You're in a good place to make steady progress today.",
-          theme: "bg-gradient-to-r from-teal-50 to-cyan-50 dark:from-teal-900/20 dark:to-cyan-900/20 border-teal-100"
-        };
+interface MoodLog {
+  date: string;
+  mood: MoodType;
+  note?: string;
+}
+
+export default function MotivationCard() {
+  const { toast } = useToast();
+  const [habits, setHabits] = useState<Habit[]>([
+    {
+      id: "habit-1",
+      name: "Study Focus Time",
+      icon: <Activity size={16} />,
+      streak: 5,
+      target: 120,
+      unit: "minutes",
+      progress: 75,
+    },
+    {
+      id: "habit-2",
+      name: "Sleep Schedule",
+      icon: <Calendar size={16} />,
+      streak: 7,
+      target: 8,
+      unit: "hours",
+      progress: 90,
+    },
+  ]);
+  
+  const [moodLogs, setMoodLogs] = useState<MoodLog[]>([
+    { date: "2025-05-12", mood: "Focused" },
+    { date: "2025-05-11", mood: "Happy" },
+    { date: "2025-05-10", mood: "Tired" },
+  ]);
+  
+  const [currentMood, setCurrentMood] = useState<MoodType | null>(null);
+  const [moodNote, setMoodNote] = useState("");
+  
+  const handleHabitProgress = (habitId: string, increment: boolean) => {
+    setHabits(prev => prev.map(habit => {
+      if (habit.id === habitId) {
+        const newProgress = Math.min(
+          100, 
+          Math.max(0, habit.progress + (increment ? 5 : -5))
+        );
+        return { ...habit, progress: newProgress };
+      }
+      return habit;
+    }));
+    
+    toast({
+      title: "Habit progress updated",
+      description: `Your habit progress has been ${increment ? "increased" : "decreased"}.`,
+    });
+  };
+  
+  const handleMoodSubmit = () => {
+    if (!currentMood) {
+      toast({
+        title: "Please select a mood",
+        description: "Select how you're feeling today",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    const today = new Date().toISOString().split('T')[0];
+    
+    // Check if we already logged mood for today
+    const existingIndex = moodLogs.findIndex(log => log.date === today);
+    
+    if (existingIndex !== -1) {
+      // Update existing mood for today
+      const updatedLogs = [...moodLogs];
+      updatedLogs[existingIndex] = { date: today, mood: currentMood, note: moodNote };
+      setMoodLogs(updatedLogs);
+    } else {
+      // Add new mood log
+      setMoodLogs([
+        { date: today, mood: currentMood, note: moodNote },
+        ...moodLogs
+      ]);
+    }
+    
+    setCurrentMood(null);
+    setMoodNote("");
+    
+    toast({
+      title: "Mood logged",
+      description: "Your mood has been recorded for today.",
+    });
+  };
+  
+  const getMoodIcon = (mood: MoodType) => {
+    switch (mood) {
+      case "Happy":
+        return <Smile className="text-green-500" />;
+      case "Okay":
+        return <Meh className="text-blue-500" />;
+      case "Tired":
+        return <Meh className="text-orange-500" />;
+      case "Overwhelmed":
+        return <Frown className="text-red-500" />;
+      case "Focused":
+        return <Star className="text-purple-500" />;
       default:
-        return {
-          title: "Welcome back",
-          message: "Ready to continue your learning journey?",
-          theme: "bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 border-purple-100"
-        };
+        return <Meh />;
     }
   };
-
-  const moodData = getMoodMessage();
+  
+  const getMotivationalQuote = () => {
+    const quotes = [
+      "The secret of getting ahead is getting started. – Mark Twain",
+      "It always seems impossible until it's done. – Nelson Mandela",
+      "The best way to predict your future is to create it. – Abraham Lincoln",
+      "Don't watch the clock; do what it does. Keep going. – Sam Levenson",
+      "Believe you can and you're halfway there. – Theodore Roosevelt"
+    ];
+    
+    return quotes[Math.floor(Math.random() * quotes.length)];
+  };
 
   return (
-    <Card className={`${moodData.theme} border shadow-sm`}>
-      <CardContent className="py-4">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <h3 className="text-lg font-medium">{moodData.title}</h3>
-            <p className="text-sm text-gray-700 dark:text-gray-300">{moodData.message}</p>
+    <Card className="h-full flex flex-col">
+      <CardHeader>
+        <CardTitle>Motivation Coach</CardTitle>
+      </CardHeader>
+      <CardContent className="flex-grow overflow-auto space-y-6">
+        {/* Daily Motivation */}
+        <div className="bg-gradient-to-r from-sakha-blue/10 to-sakha-purple/10 p-4 rounded-lg">
+          <div className="flex items-center gap-2 mb-2">
+            <Trophy size={16} className="text-sakha-blue" />
+            <h3 className="font-medium">Today's Motivation</h3>
           </div>
-          
-          {streak > 0 && (
-            <div className="flex items-center gap-2 bg-white dark:bg-gray-800 px-3 py-2 rounded-lg shadow-sm">
-              <div className="text-amber-500">🔥</div>
-              <div>
-                <p className="text-xs text-gray-500 dark:text-gray-400">Study Streak</p>
-                <p className="font-medium">{streak} days</p>
-              </div>
-            </div>
-          )}
-          
-          {target && (
-            <div className="flex items-center gap-2 bg-white dark:bg-gray-800 px-3 py-2 rounded-lg shadow-sm">
-              <div className="text-blue-500">🎯</div>
-              <div>
-                <p className="text-xs text-gray-500 dark:text-gray-400">Target</p>
-                <p className="font-medium">{target}</p>
-              </div>
-            </div>
-          )}
-          
-          {progress > 0 && (
-            <div className="flex items-center gap-2 bg-white dark:bg-gray-800 px-3 py-2 rounded-lg shadow-sm">
-              <div className="text-green-500">📊</div>
-              <div>
-                <p className="text-xs text-gray-500 dark:text-gray-400">Progress</p>
-                <p className="font-medium">{progress}%</p>
-              </div>
-            </div>
-          )}
+          <p className="italic text-sm">"{getMotivationalQuote()}"</p>
         </div>
+        
+        {/* Habit Tracker */}
+        <div>
+          <h3 className="font-medium mb-3">Habit Tracker</h3>
+          <div className="space-y-4">
+            {habits.map((habit) => (
+              <div key={habit.id} className="border rounded-lg p-3 space-y-2">
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center gap-2">
+                    <div className="bg-primary/10 p-1.5 rounded">
+                      {habit.icon}
+                    </div>
+                    <span className="text-sm font-medium">{habit.name}</span>
+                  </div>
+                  <div className="flex items-center gap-1 text-sm">
+                    <Star size={14} className="text-amber-500" /> 
+                    <span>{habit.streak} day streak</span>
+                  </div>
+                </div>
+                
+                <div className="space-y-1">
+                  <div className="flex justify-between text-xs">
+                    <span>Progress</span>
+                    <span>Target: {habit.target} {habit.unit}</span>
+                  </div>
+                  <Progress value={habit.progress} />
+                </div>
+                
+                <div className="flex justify-end gap-2">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => handleHabitProgress(habit.id, false)}
+                  >
+                    -
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => handleHabitProgress(habit.id, true)}
+                  >
+                    +
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+        
+        {/* Mood Tracker */}
+        <div>
+          <h3 className="font-medium mb-3">How are you feeling today?</h3>
+          <div className="border rounded-lg p-4 space-y-4">
+            <div className="grid grid-cols-5 gap-2">
+              {["Happy", "Okay", "Tired", "Overwhelmed", "Focused"].map((mood) => (
+                <Button
+                  key={mood}
+                  variant={currentMood === mood ? "default" : "outline"}
+                  className="flex flex-col items-center py-3 h-auto"
+                  onClick={() => setCurrentMood(mood as MoodType)}
+                >
+                  {getMoodIcon(mood as MoodType)}
+                  <span className="text-xs mt-1">{mood}</span>
+                </Button>
+              ))}
+            </div>
+            
+            {currentMood && (
+              <>
+                <input
+                  type="text"
+                  placeholder="Any notes about how you're feeling? (optional)"
+                  className="w-full p-2 border rounded"
+                  value={moodNote}
+                  onChange={(e) => setMoodNote(e.target.value)}
+                />
+                <Button 
+                  onClick={handleMoodSubmit}
+                  className="w-full bg-gradient-to-r from-sakha-blue to-sakha-purple text-white"
+                >
+                  Log Mood
+                </Button>
+              </>
+            )}
+          </div>
+        </div>
+        
+        {/* Recent Mood Logs */}
+        {moodLogs.length > 0 && (
+          <div>
+            <h3 className="font-medium mb-2">Recent Mood History</h3>
+            <div className="space-y-2">
+              {moodLogs.slice(0, 3).map((log, index) => (
+                <div key={index} className="flex items-center gap-2 bg-muted/50 p-2 rounded">
+                  <div className="p-1">
+                    {getMoodIcon(log.mood)}
+                  </div>
+                  <div>
+                    <div className="font-medium text-sm">{log.mood}</div>
+                    <div className="text-xs text-muted-foreground">{log.date}</div>
+                  </div>
+                  {log.note && (
+                    <div className="text-xs ml-auto max-w-[150px] truncate">
+                      "{log.note}"
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
-};
-
-export default MotivationCard;
+}

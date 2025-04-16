@@ -3,11 +3,10 @@ import React from 'react';
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { CheckCircle2 } from 'lucide-react';
-import { StudyStreak } from "@/types/user/student";
 
 interface ProgressStatCardsProps {
   subjectsLength: number;
-  studyStreak: StudyStreak;
+  studyStreak: { current: number } | null;
   examGoal: string;
 }
 

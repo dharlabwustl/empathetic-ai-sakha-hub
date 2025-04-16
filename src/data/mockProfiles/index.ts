@@ -1,105 +1,107 @@
 
-import { UserProfileType, UserRole, UserPreferences } from '@/types/user/base';
 import { mockStudentProfile } from './studentProfile';
 import { mockEmployeeProfile } from './employeeProfile';
 import { mockDoctorProfile } from './doctorProfile';
 import { mockFounderProfile } from './founderProfile';
+import { UserRole, UserProfileType } from '@/types/user';
 
-// Default mock preferences for all user profiles
-const defaultPreferences: UserPreferences = {
-  theme: 'light',
-  notifications: true,
-  studyReminders: true,
-  contentFormat: 'mixed',
-  difficulty: 'intermediate',
-  studySessionDuration: 25,
-  emailNotifications: true,
-  pushNotifications: true,
-  // Add the missing properties
-  notificationsEnabled: true,
-  language: 'en'
-};
+// Using string literals for exam goals
+export const examGoals: string[] = [
+  "IIT JEE",
+  "NEET",
+  "MBA",
+  "CUET UG", 
+  "UPSC",
+  "CLAT",
+  "BANK PO"
+];
 
-// Helper function to add default preferences to user profiles
-const addDefaultPreferences = (profile: any): UserProfileType => {
-  return {
-    ...profile,
-    preferences: defaultPreferences
-  };
-};
+// Additional exam goal details for UI/UX
+export const examGoalDetails = [
+  {
+    id: "iit-jee",
+    name: "IIT JEE",
+    description: "Joint Entrance Examination for Indian Institutes of Technology",
+    commonExamDate: "May 2026",
+    recommendedHours: 6
+  },
+  {
+    id: "neet",
+    name: "NEET",
+    description: "National Eligibility cum Entrance Test for Medical Colleges",
+    commonExamDate: "June 2026",
+    recommendedHours: 6
+  },
+  {
+    id: "mba",
+    name: "MBA",
+    description: "Master of Business Administration Entrance Exams",
+    commonExamDate: "December 2025",
+    recommendedHours: 4
+  },
+  {
+    id: "cuet-ug",
+    name: "CUET UG",
+    description: "Common University Entrance Test for Undergraduate Programs",
+    commonExamDate: "April 2026",
+    recommendedHours: 5
+  },
+  {
+    id: "upsc",
+    name: "UPSC",
+    description: "Union Public Service Commission Examinations",
+    commonExamDate: "June 2026",
+    recommendedHours: 8
+  },
+  {
+    id: "clat",
+    name: "CLAT",
+    description: "Common Law Admission Test",
+    commonExamDate: "May 2026",
+    recommendedHours: 5
+  },
+  {
+    id: "bank-po",
+    name: "BANK PO",
+    description: "Bank Probationary Officer Exams",
+    commonExamDate: "November 2025",
+    recommendedHours: 6
+  }
+];
 
-// Export the mock profiles with default preferences
-export const getStudentProfile = () => addDefaultPreferences(mockStudentProfile);
-export const getEmployeeProfile = () => addDefaultPreferences(mockEmployeeProfile);
-export const getDoctorProfile = () => addDefaultPreferences(mockDoctorProfile);
-export const getFounderProfile = () => addDefaultPreferences(mockFounderProfile);
+// Study pace options
+export const studyPaceOptions = [
+  { id: "aggressive", name: "Aggressive", description: "Maximum coverage, intensive pace" },
+  { id: "balanced", name: "Balanced", description: "Steady, consistent learning pace" },
+  { id: "relaxed", name: "Relaxed", description: "Flexible, less intensive pace" }
+];
 
-// Get a mock profile by role
-export const getMockProfileByRole = (role: UserRole | string): UserProfileType => {
-  switch (role.toLowerCase()) {
-    case 'student':
-      return addDefaultPreferences(mockStudentProfile) as unknown as UserProfileType;
-    case 'employee':
-      return addDefaultPreferences(mockEmployeeProfile) as unknown as UserProfileType;
-    case 'doctor':
-      return addDefaultPreferences(mockDoctorProfile) as unknown as UserProfileType;
-    case 'founder':
-      return addDefaultPreferences(mockFounderProfile) as unknown as UserProfileType;
+// Study time preferences
+export const studyTimePreferences = [
+  { id: "morning", name: "Morning", icon: "🌅", timeRange: "5:00 AM - 11:00 AM" },
+  { id: "afternoon", name: "Afternoon", icon: "🌞", timeRange: "11:00 AM - 4:00 PM" },
+  { id: "evening", name: "Evening", icon: "🌇", timeRange: "4:00 PM - 9:00 PM" },
+  { id: "night", name: "Night", icon: "🌙", timeRange: "9:00 PM - 5:00 AM" }
+];
+
+export const getMockProfileByRole = (role: UserRole): UserProfileType => {
+  switch (role) {
+    case "Student":
+      return mockStudentProfile;
+    case "Employee":
+      return mockEmployeeProfile;
+    case "Doctor":
+      return mockDoctorProfile;
+    case "Founder":
+      return mockFounderProfile;
     default:
-      return addDefaultPreferences(mockStudentProfile) as unknown as UserProfileType; // Default to student profile
+      return mockStudentProfile;
   }
 };
 
-// Generate a default mock profile for testing
-export const generateMockProfile = (overrides: Partial<UserProfileType> = {}): UserProfileType => {
-  return {
-    id: 'mock-user-id',
-    name: 'Test User',
-    email: 'test@example.com',
-    phoneNumber: '1234567890',
-    role: 'student',
-    subscription: 'Basic',
-    joinDate: new Date().toISOString(),
-    createdAt: new Date().toISOString(),
-    personalityType: 'Strategic Thinker',
-    areasOfInterest: [
-      { id: 'ai-1', name: 'Mathematics', level: 'Advanced' }
-    ],
-    lastActive: new Date().toISOString(),
-    goals: [
-      {
-        id: 'g1',
-        title: 'Complete Math Course',
-        progress: 65,
-        type: 'course',
-        description: 'Finish the advanced calculus course',
-        dueDate: '2025-06-30'
-      },
-      {
-        id: 'g2',
-        title: 'Prepare for SAT',
-        progress: 40,
-        type: 'exam',
-        description: 'Complete SAT preparation',
-        dueDate: '2025-07-15'
-      }
-    ],
-    subjects: [
-      { id: 's1', name: 'Mathematics', progress: 78, lastStudied: new Date().toISOString() },
-      { id: 's2', name: 'Physics', progress: 45, lastStudied: new Date().toISOString() },
-      { id: 's3', name: 'Chemistry', progress: 60, lastStudied: new Date().toISOString() }
-    ],
-    stats: {
-      totalStudyTime: 120,
-      questionsAnswered: 350,
-      testsCompleted: 24,
-      averageScore: 82,
-      weeklyStudyTime: [2, 3, 1.5, 4, 2.5, 1, 3],
-      studyStreak: 8,
-      totalStudyHours: 120,
-      quizzesCompleted: 24
-    },
-    preferences: defaultPreferences,
-    ...overrides
-  } as UserProfileType;
+export {
+  mockStudentProfile,
+  mockEmployeeProfile,
+  mockDoctorProfile,
+  mockFounderProfile
 };

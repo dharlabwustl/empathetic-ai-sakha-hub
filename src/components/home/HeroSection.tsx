@@ -36,7 +36,36 @@ const HeroSection: React.FC<HeroSectionProps> = ({
             transition={{ duration: 0.8, ease: "easeOut" }}
           >
             <span className="bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-              Sakha AI – पहली बार, पढ़ाई से पहले, आपको समझने वाला साथी
+              India's 1st personalized AI study partner
+            </span>{" "}
+            <span className="relative">
+              for exam success
+              <svg 
+                className="absolute -bottom-2 left-0 w-full" 
+                viewBox="0 0 300 12" 
+                fill="none" 
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path 
+                  d="M3 9C50.1667 4.16667 145.9 -1.3 297.5 9" 
+                  stroke="url(#paint0_linear)" 
+                  strokeWidth="5" 
+                  strokeLinecap="round"
+                />
+                <defs>
+                  <linearGradient 
+                    id="paint0_linear" 
+                    x1="3" 
+                    y1="9" 
+                    x2="297.5" 
+                    y2="9" 
+                    gradientUnits="userSpaceOnUse"
+                  >
+                    <stop stopColor="#7C3AED" />
+                    <stop offset="1" stopColor="#3B82F6" />
+                  </linearGradient>
+                </defs>
+              </svg>
             </span>
           </motion.h1>
           <motion.p 
@@ -45,7 +74,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
           >
-            India's 1st Emotionally Intelligent Study Partner – Tuned to Your Mood, Habits, Mind & Mission to Crack Exams.
+            Sakha AI adapts to your unique learning style, making exam preparation smarter, faster, and stress-free.
           </motion.p>
           
           <motion.div
@@ -78,33 +107,6 @@ const HeroSection: React.FC<HeroSectionProps> = ({
           className="mb-12"
         >
           <FeatureHighlights />
-        </motion.div>
-        
-        {/* Platform USPs section */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.8, delay: 0.9 }}
-          className="mb-12 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm p-6 rounded-xl shadow-md"
-        >
-          <h2 className="text-xl font-bold mb-4 text-center">Our Platform's Unique Strengths</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
-            {[
-              "Cognitive-layered exam-specific content",
-              "Personalized AI learning journey",
-              "Mood-aligned delivery",
-              "Multimodal smart content (Text + Audio + Image + Video)",
-              "Instant flashcard & test generation",
-              "Built-in quality, relevance, and difficulty scoring"
-            ].map((usp, index) => (
-              <div 
-                key={index} 
-                className="bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 p-4 rounded-lg shadow-sm border border-purple-100 dark:border-purple-800/30 flex flex-col items-center justify-center text-center"
-              >
-                <p className="text-sm font-medium">{usp}</p>
-              </div>
-            ))}
-          </div>
         </motion.div>
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center mt-12">

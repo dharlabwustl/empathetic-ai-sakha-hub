@@ -1,48 +1,50 @@
 
-import { useState, useEffect } from 'react';
-import { SubjectProgress, StudyStreak } from '@/types/user/student';
-import { getMockProgressData } from '@/data/mockProgressData';
+import React, { useState, useEffect } from "react";
+import { SubjectProgress, StudyStreak } from "@/types/user";
+import { getAllSubjectsProgress, getStudyStreak } from "@/data/mockProgressData";
 
 export function useStudyProgress() {
-  const [subjectsProgress, setSubjectsProgress] = useState<SubjectProgress[]>([]);
-  const [streak, setStreak] = useState<StudyStreak>({
-    current: 0,
-    longest: 0,
-    thisWeek: [],
-    lastMonth: []
-  });
-  const [loading, setLoading] = useState(true);
+  const [subjects, setSubjects] = useState<SubjectProgress[]>([]);
+  const [studyStreak, setStudyStreak] = useState<StudyStreak | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
   const [selectedSubject, setSelectedSubject] = useState<SubjectProgress | null>(null);
 
   useEffect(() => {
-    // Simulate API call to fetch progress data
-    const fetchProgress = async () => {
+    // Simulate API fetch
+    const fetchData = () => {
       setLoading(true);
-      
+
       setTimeout(() => {
-        const mockData = getMockProgressData();
-        setSubjectsProgress(mockData.subjectsProgress);
-        setStreak(mockData.streak);
-        setSelectedSubject(mockData.selectedSubject);
+        const subjectsData = getAllSubjectsProgress();
+        const streakData = getStudyStreak();
+        
+        setSubjects(subjectsData);
+        setStudyStreak(streakData);
+        
+        // Set first subject as default selected
+        if (subjectsData.length > 0) {
+          setSelectedSubject(subjectsData[0]);
+        }
+        
         setLoading(false);
       }, 800);
     };
 
-    fetchProgress();
+    fetchData();
   }, []);
 
   const selectSubject = (subjectId: string) => {
-    const subject = subjectsProgress.find((s) => s.id === subjectId);
+    const subject = subjects.find(s => s.id === subjectId);
     if (subject) {
       setSelectedSubject(subject);
     }
   };
 
   return {
-    subjectsProgress,
-    streak,
+    subjects,
+    studyStreak,
     loading,
-    selectedSubject: selectedSubject || (subjectsProgress.length > 0 ? subjectsProgress[0] : {} as SubjectProgress),
+    selectedSubject,
     selectSubject
   };
 }

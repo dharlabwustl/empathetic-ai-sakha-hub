@@ -1,9 +1,9 @@
 
 import { useState, useEffect } from "react";
-import { UserProfileType, UserRole } from "@/types/user/base";
+import { UserProfileType, UserRole } from "@/types/user";
 import { getMockProfileByRole } from "@/data/mockProfiles";
 
-export function useUserProfile(role: UserRole | string = "student"): {
+export function useUserProfile(role: UserRole = "Student"): {
   userProfile: UserProfileType | null;
   loading: boolean;
   updateUserProfile: (updates: Partial<UserProfileType>) => void;

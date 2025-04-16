@@ -12,13 +12,13 @@ interface ProfileCardProps {
 export default function ProfileCard({ profile }: ProfileCardProps) {
   const getRoleIcon = () => {
     switch (profile.role) {
-      case "student":
+      case "Student":
         return <GraduationCap className="text-sakha-blue" size={18} />;
-      case "employee":
+      case "Employee":
         return <Briefcase className="text-sakha-blue" size={18} />;
-      case "doctor":
+      case "Doctor":
         return <Stethoscope className="text-sakha-blue" size={18} />;
-      case "founder":
+      case "Founder":
         return <Rocket className="text-sakha-blue" size={18} />;
       default:
         return <GraduationCap className="text-sakha-blue" size={18} />;
@@ -30,7 +30,7 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
 
   const getRoleSpecificDetails = () => {
     switch (profile.role) {
-      case "student":
+      case "Student":
         const studentProfile = profile as any;
         return (
           <>
@@ -44,7 +44,7 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
             )}
           </>
         );
-      case "employee":
+      case "Employee":
         const employeeProfile = profile as any;
         return (
           <>
@@ -56,7 +56,7 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
             </p>
           </>
         );
-      case "doctor":
+      case "Doctor":
         const doctorProfile = profile as any;
         return (
           <>
@@ -68,7 +68,7 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
             </p>
           </>
         );
-      case "founder":
+      case "Founder":
         const founderProfile = profile as any;
         return (
           <>
@@ -114,53 +114,47 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
         </div>
 
         <div className="space-y-3">
-          {profile.personalityType && (
-            <div>
-              <h4 className="text-sm font-medium mb-2">Personality Type</h4>
-              <Badge variant="outline" className="bg-sakha-lavender/10">
-                {profile.personalityType}
-              </Badge>
-            </div>
-          )}
+          <div>
+            <h4 className="text-sm font-medium mb-2">Personality Type</h4>
+            <Badge variant="outline" className="bg-sakha-lavender/10">
+              {profile.personalityType}
+            </Badge>
+          </div>
 
           {getRoleSpecificDetails()}
 
-          {profile.areasOfInterest && profile.areasOfInterest.length > 0 && (
-            <div>
-              <h4 className="text-sm font-medium mb-2">Areas of Interest</h4>
-              <div className="flex flex-wrap gap-2">
-                {profile.areasOfInterest.map((interest) => (
-                  <Badge key={interest.id} variant="outline" className="bg-sakha-light-blue/10">
-                    {interest.name} ({interest.level})
-                  </Badge>
-                ))}
-              </div>
+          <div>
+            <h4 className="text-sm font-medium mb-2">Areas of Interest</h4>
+            <div className="flex flex-wrap gap-2">
+              {profile.areasOfInterest.map((interest) => (
+                <Badge key={interest.id} variant="outline" className="bg-sakha-light-blue/10">
+                  {interest.name} ({interest.level})
+                </Badge>
+              ))}
             </div>
-          )}
+          </div>
           
-          {profile.goals && profile.goals.length > 0 && (
-            <div>
-              <h4 className="text-sm font-medium mb-2">Goals</h4>
-              <div className="space-y-2">
-                {profile.goals.slice(0, 2).map((goal) => (
-                  <div key={goal.id} className="bg-gray-50 p-2 rounded-md">
-                    <div className="flex justify-between items-center mb-1">
-                      <p className="text-sm font-medium">{goal.title}</p>
-                      <span className="text-xs text-gray-500">
-                        {goal.progress}%
-                      </span>
-                    </div>
-                    <div className="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-sakha-blue rounded-full"
-                        style={{ width: `${goal.progress}%` }}
-                      ></div>
-                    </div>
+          <div>
+            <h4 className="text-sm font-medium mb-2">Goals</h4>
+            <div className="space-y-2">
+              {profile.goals.slice(0, 2).map((goal) => (
+                <div key={goal.id} className="bg-gray-50 p-2 rounded-md">
+                  <div className="flex justify-between items-center mb-1">
+                    <p className="text-sm font-medium">{goal.title}</p>
+                    <span className="text-xs text-gray-500">
+                      {goal.progress}%
+                    </span>
                   </div>
-                ))}
-              </div>
+                  <div className="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-sakha-blue rounded-full"
+                      style={{ width: `${goal.progress}%` }}
+                    ></div>
+                  </div>
+                </div>
+              ))}
             </div>
-          )}
+          </div>
         </div>
       </CardContent>
     </Card>

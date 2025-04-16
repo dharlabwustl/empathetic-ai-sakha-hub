@@ -1,47 +1,61 @@
 
-import { UserRole, GoalType, SubscriptionType } from '@/types/user/base';
-import { EmployeeProfile } from '@/types/user/professional';
+// Correcting the mock data for employee profile
+import { EmployeeProfile } from "@/types/user";
+import { v4 as uuidv4 } from "uuid";
 
 export const mockEmployeeProfile: EmployeeProfile = {
-  id: "2",
-  name: "Ananya Patel",
-  phoneNumber: "9876543211",
-  email: "ananya.patel@company.com",
-  role: "employee" as UserRole,
-  personalityType: "Collaborative Leader",
-  subscription: "Basic" as SubscriptionType,
-  joinDate: "2025-02-15",
-  createdAt: "2025-02-15",
-  lastActive: "2025-05-10",
-  areasOfInterest: [
-    { id: "i1", name: "Project Management", level: "Advanced" },
-    { id: "i2", name: "Data Analysis", level: "Intermediate" },
-    { id: "i3", name: "Team Building", level: "Advanced" }
+  id: uuidv4(),
+  name: "Rajesh Kumar",
+  email: "rajesh.kumar@techsolutions.com", // Added missing email field
+  phoneNumber: "+919876543211",
+  role: "Employee",
+  personalityType: "Strategic Thinker",
+  subscription: "Basic",
+  joinDate: "2025-01-15",
+  lastActive: "2025-04-06",
+  jobTitle: "Product Manager",
+  workExperience: 6,
+  skills: [
+    "Product Strategy",
+    "User Research",
+    "Agile Methodologies",
+    "Roadmapping",
+    "Team Leadership"
   ],
+  company: "TechSolutions India",
+  industry: "SaaS",
+  careerGoal: "Director of Product",
+  projectsCompleted: 12,
+  trainingCompleted: 8,
+  experienceLevel: "Mid-Senior",
+  skillsToGrow: ["Data Analytics", "Machine Learning Basics", "Product Marketing"],
+  productivityScore: 85,
   goals: [
     {
-      id: "g1",
+      id: uuidv4(),
       title: "Complete PMP Certification",
-      description: "Study for project management professional exam",
-      progress: 60,
-      target: "PMP Certification",
-      type: "course" as GoalType,
-      dueDate: "2025-07-30"
+      description: "Pass the Project Management Professional exam",
+      progress: 75,
+      dueDate: "2025-05-30"
     },
     {
-      id: "g2",
-      title: "Learn Data Visualization",
-      description: "Master Tableau for business intelligence",
-      progress: 35,
-      target: "Tableau Proficiency",
-      type: "skill" as GoalType,
-      dueDate: "2025-06-15"
+      id: uuidv4(),
+      title: "Learn SQL",
+      description: "Complete advanced SQL course for data analysis",
+      progress: 45,
+      dueDate: "2025-07-15"
     }
   ],
-  jobTitle: "Senior Project Manager",
-  industry: "Information Technology",
-  company: "TechSolutions Inc.",
-  department: "Product Development",
-  projectsCompleted: 24,
-  skillsAcquired: ["Agile Methodologies", "Risk Management", "Team Leadership", "Stakeholder Communication"]
+  areasOfInterest: [
+    {
+      id: uuidv4(),
+      name: "Product Analytics",
+      level: "Intermediate"
+    },
+    {
+      id: uuidv4(),
+      name: "UX Design",
+      level: "Beginner"
+    }
+  ]
 };
