@@ -1,134 +1,127 @@
 
-import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
-import { Input as FormInput } from '@/components/ui/input';
-import { Flame, BookOpen, BrainCircuit } from 'lucide-react';
-import { MoodType } from '@/types/user';
+import React from 'react';
+import { Card, CardContent } from "@/components/ui/card";
+import { MoodType } from "@/types/user";
 
-interface MotivationCardProps {
-  streak: number;
-  target: string;
-  progress: number;
-  lastActivity?: string;
-  currentMood?: MoodType;
+export interface MotivationCardProps {
+  currentMood: MoodType;
+  streak?: number;
+  target?: string;
+  progress?: number;
 }
 
 const MotivationCard: React.FC<MotivationCardProps> = ({
-  streak,
-  target,
-  progress,
-  lastActivity,
-  currentMood
+  currentMood,
+  streak = 0,
+  target = '',
+  progress = 0
 }) => {
-  const [goal, setGoal] = useState("");
-  
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Handle goal submission
-    setGoal("");
-  };
-
-  // Get mood-specific content
-  const getMoodSpecificContent = () => {
-    switch (currentMood) {
-      case 'motivated':
+  const getMoodMessage = () => {
+    switch(currentMood) {
+      case "motivated":
         return {
-          message: "You're on fire today! Let's channel this energy into something amazing.",
-          className: "bg-orange-50 dark:bg-orange-900/20"
+          title: "You're on fire today!",
+          message: "Let's channel this energy into something amazing.",
+          theme: "bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20 border-amber-100"
         };
-      case 'curious':
+      case "curious":
         return {
-          message: "Curiosity is your superpower. Want to explore something new?",
-          className: "bg-blue-50 dark:bg-blue-900/20"
+          title: "Curiosity drives knowledge!",
+          message: "Want to explore something new today?",
+          theme: "bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border-blue-100"
         };
-      case 'neutral':
+      case "neutral":
         return {
-          message: "It's okay to just be. Small steps still count.",
-          className: "bg-gray-50 dark:bg-gray-800/50"
+          title: "Every step counts",
+          message: "Small steps still move you forward. Pick one task to focus on.",
+          theme: "bg-gradient-to-r from-gray-50 to-slate-50 dark:from-gray-900/20 dark:to-slate-900/20 border-gray-200"
         };
-      case 'tired':
+      case "tired":
         return {
-          message: "Rest is part of growth. Take it slow, you're doing just fine.",
-          className: "bg-blue-50 dark:bg-blue-900/20"
+          title: "Rest is important too",
+          message: "Take it slow today, maybe focus on review rather than new content?",
+          theme: "bg-gradient-to-r from-blue-50 to-slate-50 dark:from-blue-900/20 dark:to-slate-900/20 border-blue-100"
         };
-      case 'stressed':
+      case "stressed":
+      case "overwhelmed":
         return {
-          message: "It's okay to feel overwhelmed. Let's take a moment together.",
-          className: "bg-purple-50 dark:bg-purple-900/20"
+          title: "Let's take a breath",
+          message: "It's okay to feel overwhelmed. Break things down into smaller steps.",
+          theme: "bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 border-purple-100"
+        };
+      case "happy":
+        return {
+          title: "Happiness boosts learning!",
+          message: "Great mood today! Perfect time to tackle something challenging.",
+          theme: "bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-green-100"
+        };
+      case "sad":
+        return {
+          title: "It's okay to feel down",
+          message: "Learning can help shift your mood. Start with something you enjoy.",
+          theme: "bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 border-blue-100"
+        };
+      case "focused":
+        return {
+          title: "Focus is your superpower!",
+          message: "Great time to tackle complex topics and deep work.",
+          theme: "bg-gradient-to-r from-indigo-50 to-violet-50 dark:from-indigo-900/20 dark:to-violet-900/20 border-indigo-100"
+        };
+      case "okay":
+        return {
+          title: "Ready for progress",
+          message: "You're in a good place to make steady progress today.",
+          theme: "bg-gradient-to-r from-teal-50 to-cyan-50 dark:from-teal-900/20 dark:to-cyan-900/20 border-teal-100"
         };
       default:
         return {
-          message: "Set your daily goals and keep your momentum going!",
-          className: "bg-gray-50 dark:bg-gray-800/50"
+          title: "Welcome back",
+          message: "Ready to continue your learning journey?",
+          theme: "bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 border-purple-100"
         };
     }
   };
 
-  const moodContent = getMoodSpecificContent();
+  const moodData = getMoodMessage();
 
   return (
-    <Card>
-      <CardHeader className="pb-2">
-        <CardTitle className="text-lg font-semibold flex items-center gap-2">
-          <Flame className="h-5 w-5 text-orange-500" /> 
-          Daily Motivation
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
+    <Card className={`${moodData.theme} border shadow-sm`}>
+      <CardContent className="py-4">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <p className="text-sm text-gray-500 dark:text-gray-400">Current Streak</p>
-            <div className="flex items-center gap-2">
-              <span className="text-2xl font-bold">{streak} Days</span>
-              <Flame className="h-5 w-5 text-orange-500" />
-            </div>
+            <h3 className="text-lg font-medium">{moodData.title}</h3>
+            <p className="text-sm text-gray-700 dark:text-gray-300">{moodData.message}</p>
           </div>
           
-          <div>
-            <div className="mb-1 flex items-center justify-between text-sm">
-              <span>Progress towards: {target}</span>
-              <span className="font-semibold">{progress}%</span>
-            </div>
-            <Progress value={progress} className="h-2" />
-          </div>
-          
-          {/* Mood specific content */}
-          <div className={`rounded-md p-3 ${moodContent.className}`}>
-            <p className="text-sm font-medium">{moodContent.message}</p>
-          </div>
-          
-          {lastActivity && (
-            <div className="rounded-md bg-gray-50 p-3 dark:bg-gray-800/50">
-              <p className="text-xs text-gray-500 dark:text-gray-400">Last Activity</p>
-              <p className="text-sm font-medium">{lastActivity}</p>
+          {streak > 0 && (
+            <div className="flex items-center gap-2 bg-white dark:bg-gray-800 px-3 py-2 rounded-lg shadow-sm">
+              <div className="text-amber-500">🔥</div>
+              <div>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Study Streak</p>
+                <p className="font-medium">{streak} days</p>
+              </div>
             </div>
           )}
           
-          <form onSubmit={handleSubmit} className="pt-2">
-            <p className="mb-2 text-sm font-medium">Set a mini-goal for today:</p>
-            <div className="flex gap-2">
-              <FormInput
-                placeholder="E.g., Complete 5 practice problems"
-                value={goal}
-                onChange={(e) => setGoal(e.target.value)}
-                className="flex-1"
-              />
-              <Button type="submit" size="sm">Set</Button>
+          {target && (
+            <div className="flex items-center gap-2 bg-white dark:bg-gray-800 px-3 py-2 rounded-lg shadow-sm">
+              <div className="text-blue-500">🎯</div>
+              <div>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Target</p>
+                <p className="font-medium">{target}</p>
+              </div>
             </div>
-          </form>
+          )}
           
-          <div className="flex justify-between pt-2">
-            <Button variant="ghost" size="sm" className="text-purple-600 gap-1">
-              <BookOpen className="h-4 w-4" />
-              <span>Study Tips</span>
-            </Button>
-            <Button variant="ghost" size="sm" className="text-blue-600 gap-1">
-              <BrainCircuit className="h-4 w-4" />
-              <span>Focus Mode</span>
-            </Button>
-          </div>
+          {progress > 0 && (
+            <div className="flex items-center gap-2 bg-white dark:bg-gray-800 px-3 py-2 rounded-lg shadow-sm">
+              <div className="text-green-500">📊</div>
+              <div>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Progress</p>
+                <p className="font-medium">{progress}%</p>
+              </div>
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>

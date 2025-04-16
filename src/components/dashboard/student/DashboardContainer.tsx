@@ -79,6 +79,15 @@ const DashboardContainer: React.FC<DashboardContainerProps> = ({
     suggestedNextAction
   });
 
+  // Get user's streak
+  const streak = userProfile?.stats?.studyStreak || 0;
+  
+  // Get user's primary goal
+  const primaryGoal = userProfile?.goals?.[0]?.target || "";
+  
+  // Get progress
+  const progress = userProfile?.goals?.[0]?.progress || 0;
+
   return (
     <div className="flex flex-col">
       {/* Dashboard Wrapper for layout */}
@@ -113,7 +122,12 @@ const DashboardContainer: React.FC<DashboardContainerProps> = ({
           transition={{ delay: 0.2 }}
           className="px-6 pb-6"
         >
-          <MotivationCard currentMood={currentMood} />
+          <MotivationCard 
+            currentMood={currentMood} 
+            streak={streak}
+            target={primaryGoal}
+            progress={progress}
+          />
         </motion.div>
       )}
 
@@ -123,8 +137,9 @@ const DashboardContainer: React.FC<DashboardContainerProps> = ({
       {/* Study Plan Modal */}
       {showStudyPlan && (
         <StudyPlanModal 
-          user={userProfile} 
+          isOpen={showStudyPlan}
           onClose={onCloseStudyPlan} 
+          user={userProfile}
         />
       )}
     </div>
