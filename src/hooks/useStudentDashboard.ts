@@ -33,7 +33,7 @@ export const useStudentDashboard = () => {
   else if (hour < 17) currentTime = "Good Afternoon";
   else currentTime = "Good Evening";
   
-  // Features list - Update the type to be an object with boolean values
+  // Features list - Update the type to be an array of objects expected by DashboardLayout
   const features = {
     overview: true,
     subjects: true,

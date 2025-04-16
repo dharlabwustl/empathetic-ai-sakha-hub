@@ -3,9 +3,11 @@ import React from "react";
 import { useStudentDashboard } from "@/hooks/useStudentDashboard";
 import OnboardingFlow from "@/components/dashboard/student/OnboardingFlow";
 import DashboardLoading from "./student/DashboardLoading";
-import DashboardLayout from "./student/DashboardLayout";
+import DashboardContainer from "@/components/dashboard/student/DashboardContainer";
+import { MoodType } from "@/types/user";
 
 const StudentDashboard = () => {
+  const [currentMood, setCurrentMood] = React.useState<MoodType | undefined>(undefined);
   const {
     loading,
     userProfile,
@@ -27,7 +29,9 @@ const StudentDashboard = () => {
     handleViewStudyPlan,
     handleCloseStudyPlan,
     toggleSidebar,
-    toggleTabsNav
+    toggleTabsNav,
+    lastActivity,
+    suggestedNextAction
   } = useStudentDashboard();
 
   if (loading || !userProfile) {
@@ -58,9 +62,13 @@ const StudentDashboard = () => {
     isPremium: false
   }));
 
+  // Handle mood selection
+  const handleMoodSelect = (mood: MoodType) => {
+    setCurrentMood(mood);
+  };
+
   return (
-    <DashboardLayout
-      loading={loading}
+    <DashboardContainer
       userProfile={userProfile}
       hideSidebar={hideSidebar}
       hideTabsNav={hideTabsNav}
@@ -68,18 +76,21 @@ const StudentDashboard = () => {
       kpis={kpis}
       nudges={nudges}
       markNudgeAsRead={markNudgeAsRead}
-      showWelcomeTour={showWelcomeTour}
-      onTabChange={handleTabChange}
-      handleSkipTour={handleSkipTour}
-      onCompleteTour={handleCompleteTour}
-      handleCompleteOnboarding={handleCompleteOnboarding}
-      showStudyPlan={showStudyPlan}
-      handleCloseStudyPlan={handleCloseStudyPlan}
-      toggleSidebar={toggleSidebar}
-      toggleTabsNav={toggleTabsNav}
       features={featuresArray}
-      lastActivity={null}
-      suggestedNextAction={null}
+      showWelcomeTour={showWelcomeTour}
+      currentTime={new Date()}
+      onTabChange={handleTabChange}
+      onViewStudyPlan={handleViewStudyPlan}
+      onToggleSidebar={toggleSidebar}
+      onToggleTabsNav={toggleTabsNav}
+      onSkipTour={handleSkipTour}
+      onCompleteTour={handleCompleteTour}
+      showStudyPlan={showStudyPlan}
+      onCloseStudyPlan={handleCloseStudyPlan}
+      lastActivity={lastActivity}
+      suggestedNextAction={suggestedNextAction}
+      currentMood={currentMood}
+      onMoodSelect={handleMoodSelect}
     />
   );
 };

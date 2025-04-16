@@ -35,6 +35,7 @@ interface DashboardWrapperProps {
   suggestedNextAction?: string | null;
   currentMood?: MoodType;
   onMoodSelect?: (mood: MoodType) => void;
+  onLogMood?: () => void;
 }
 
 const DashboardWrapper: React.FC<DashboardWrapperProps> = ({
@@ -57,7 +58,8 @@ const DashboardWrapper: React.FC<DashboardWrapperProps> = ({
   lastActivity,
   suggestedNextAction,
   currentMood,
-  onMoodSelect
+  onMoodSelect,
+  onLogMood
 }) => {
   const isMobile = useIsMobile();
   const formattedTime = formatTime(currentTime);
@@ -91,6 +93,7 @@ const DashboardWrapper: React.FC<DashboardWrapperProps> = ({
         lastActivity={lastActivity?.description}
         suggestedAction={suggestedNextAction}
         onViewStudyPlan={onViewStudyPlan}
+        onLogMood={onLogMood}
         currentMood={currentMood}
         onMoodSelect={onMoodSelect}
       />
