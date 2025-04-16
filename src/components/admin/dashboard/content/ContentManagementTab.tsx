@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -10,14 +9,12 @@ import {
   GraduationCap
 } from "lucide-react";
 import { ContentType } from "@/types/content";
-
-// Import the new component files
-import ContentManagementHeader from "./content/ContentManagementHeader";
-import ContentSummaryCards from "./content/ContentSummaryCards";
-import TabContentApprovalQueue from "./content/TabContentApprovalQueue";
-import TabContentStudyMaterials from "./content/TabContentStudyMaterials";
-import TabContentPrompts from "./content/TabContentPrompts";
-import ContentUploader from "./content/ContentUploader";
+import ContentManagementHeader from "@/components/admin/dashboard/content/ContentManagementHeader";
+import ContentSummaryCards from "@/components/admin/dashboard/content/ContentSummaryCards";
+import TabContentApprovalQueue from "@/components/admin/dashboard/content/TabContentApprovalQueue";
+import TabContentStudyMaterials from "@/components/admin/dashboard/content/TabContentStudyMaterials";
+import TabContentPrompts from "@/components/admin/dashboard/content/TabContentPrompts";
+import ContentUploader from "@/components/admin/dashboard/content/ContentUploader";
 import { useContentManagement } from "@/hooks/admin/useContentManagement";
 
 const ContentManagementTab = () => {
@@ -125,7 +122,6 @@ const ContentManagementTab = () => {
     });
   };
 
-  // This function converts string to ContentType to fix the type mismatch
   const handleTabChange = (value: string) => {
     setActiveTab(value);
   };
@@ -162,12 +158,10 @@ const ContentManagementTab = () => {
               <TabsTrigger value="prompts">GPT Prompt Tuner</TabsTrigger>
             </TabsList>
 
-            {/* Approval Queue Tab */}
             <TabsContent value="queue">
               <TabContentApprovalQueue handleContentAction={handleContentAction} />
             </TabsContent>
 
-            {/* Study Materials Tab */}
             <TabsContent value="studyMaterials">
               <TabContentStudyMaterials 
                 handleUpload={handleUploadClick} 
@@ -175,7 +169,6 @@ const ContentManagementTab = () => {
               />
             </TabsContent>
 
-            {/* GPT Prompt Tuner Tab */}
             <TabsContent value="prompts">
               <TabContentPrompts 
                 handleEditPrompt={handleEditPrompt}

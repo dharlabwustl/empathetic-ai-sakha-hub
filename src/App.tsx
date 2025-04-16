@@ -1,6 +1,7 @@
+
 "use client";
 
-import React from "react";
+import * as React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -38,6 +39,7 @@ import StudyProgress from "./pages/dashboard/StudyProgress";
 import NotFound from "./pages/NotFound";
 import "./styles/animations.css";
 
+// Create a new QueryClient instance properly
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -47,149 +49,153 @@ const queryClient = new QueryClient({
   },
 });
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <ThemeProvider>
-      <TooltipProvider>
-        <AuthProvider>
-          <AdminAuthProvider>
-            <Toaster />
-            <Sonner />
-            <BrowserRouter>
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/about" element={<About />} />
-                <Route path="/features" element={<Features />} />
-                <Route path="/pricing" element={<Pricing />} />
-                <Route path="/signup" element={<SignUp />} />
-                <Route path="/login" element={<Login />} />
-                
-                {/* Admin Routes */}
-                <Route path="/admin/login" element={<AdminLogin />} />
-                <Route path="/admin/dashboard" element={
-                  <AdminRouteGuard>
-                    <AdminDashboard />
-                  </AdminRouteGuard>
-                } />
-                <Route path="/admin/students" element={
-                  <AdminRouteGuard>
-                    <StudentsPage />
-                  </AdminRouteGuard>
-                } />
-                <Route path="/admin/ai" element={
-                  <AdminRouteGuard>
-                    <AIPersonalizationPage />
-                  </AdminRouteGuard>
-                } />
-                <Route path="/admin/content" element={
-                  <AdminRouteGuard>
-                    <ContentPage />
-                  </AdminRouteGuard>
-                } />
-                <Route path="/admin/engagement" element={
-                  <AdminRouteGuard>
-                    <EngagementPage />
-                  </AdminRouteGuard>
-                } />
-                <Route path="/admin/subscriptions" element={
-                  <AdminRouteGuard>
-                    <SubscriptionsPage />
-                  </AdminRouteGuard>
-                } />
-                <Route path="/admin/system" element={
-                  <AdminRouteGuard>
-                    <SystemMonitoringPage />
-                  </AdminRouteGuard>
-                } />
-                <Route path="/admin/analytics" element={
-                  <AdminRouteGuard>
-                    <AnalyticsPage />
-                  </AdminRouteGuard>
-                } />
-                <Route path="/admin/issues" element={
-                  <AdminRouteGuard>
-                    <IssuesPage />
-                  </AdminRouteGuard>
-                } />
-                <Route path="/admin/notifications" element={
-                  <AdminRouteGuard>
-                    <NotificationsPage />
-                  </AdminRouteGuard>
-                } />
-                <Route path="/admin/documentation" element={
-                  <AdminRouteGuard>
-                    <DocumentationPage />
-                  </AdminRouteGuard>
-                } />
-                <Route path="/admin/settings" element={
-                  <AdminRouteGuard>
-                    <SettingsPage />
-                  </AdminRouteGuard>
-                } />
-                
-                {/* Student Dashboard Routes - Protected */}
-                <Route path="/dashboard/student" element={
-                  <ProtectedRoute>
-                    <StudentDashboard />
-                  </ProtectedRoute>
-                } />
-                <Route path="/dashboard/student/:tab" element={
-                  <ProtectedRoute>
-                    <StudentDashboard />
-                  </ProtectedRoute>
-                } />
-                
-                {/* Study Progress Route - Protected */}
-                <Route path="/dashboard/student/progress" element={
-                  <ProtectedRoute>
-                    <StudyProgress />
-                  </ProtectedRoute>
-                } />
-                
-                {/* Employee Dashboard Routes - Protected */}
-                <Route path="/dashboard/employee" element={
-                  <ProtectedRoute>
-                    <EmployeeDashboard />
-                  </ProtectedRoute>
-                } />
-                <Route path="/dashboard/employee/:tab" element={
-                  <ProtectedRoute>
-                    <EmployeeDashboard />
-                  </ProtectedRoute>
-                } />
-                
-                {/* Doctor Dashboard Routes - Protected */}
-                <Route path="/dashboard/doctor" element={
-                  <ProtectedRoute>
-                    <DoctorDashboard />
-                  </ProtectedRoute>
-                } />
-                <Route path="/dashboard/doctor/:tab" element={
-                  <ProtectedRoute>
-                    <DoctorDashboard />
-                  </ProtectedRoute>
-                } />
-                
-                {/* Founder Dashboard Routes - Protected */}
-                <Route path="/dashboard/founder" element={
-                  <ProtectedRoute>
-                    <FounderDashboard />
-                  </ProtectedRoute>
-                } />
-                <Route path="/dashboard/founder/:tab" element={
-                  <ProtectedRoute>
-                    <FounderDashboard />
-                  </ProtectedRoute>
-                } />
-                
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </BrowserRouter>
-          </AdminAuthProvider>
-        </AuthProvider>
-      </TooltipProvider>
-    </ThemeProvider>
-  </QueryClientProvider>
-);
+const App = () => {
+  return (
+    <React.StrictMode>
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider>
+          <TooltipProvider>
+            <AuthProvider>
+              <AdminAuthProvider>
+                <Toaster />
+                <Sonner />
+                <BrowserRouter>
+                  <Routes>
+                    <Route path="/" element={<Index />} />
+                    <Route path="/about" element={<About />} />
+                    <Route path="/features" element={<Features />} />
+                    <Route path="/pricing" element={<Pricing />} />
+                    <Route path="/signup" element={<SignUp />} />
+                    <Route path="/login" element={<Login />} />
+                    
+                    {/* Admin Routes */}
+                    <Route path="/admin/login" element={<AdminLogin />} />
+                    <Route path="/admin/dashboard" element={
+                      <AdminRouteGuard>
+                        <AdminDashboard />
+                      </AdminRouteGuard>
+                    } />
+                    <Route path="/admin/students" element={
+                      <AdminRouteGuard>
+                        <StudentsPage />
+                      </AdminRouteGuard>
+                    } />
+                    <Route path="/admin/ai" element={
+                      <AdminRouteGuard>
+                        <AIPersonalizationPage />
+                      </AdminRouteGuard>
+                    } />
+                    <Route path="/admin/content" element={
+                      <AdminRouteGuard>
+                        <ContentPage />
+                      </AdminRouteGuard>
+                    } />
+                    <Route path="/admin/engagement" element={
+                      <AdminRouteGuard>
+                        <EngagementPage />
+                      </AdminRouteGuard>
+                    } />
+                    <Route path="/admin/subscriptions" element={
+                      <AdminRouteGuard>
+                        <SubscriptionsPage />
+                      </AdminRouteGuard>
+                    } />
+                    <Route path="/admin/system" element={
+                      <AdminRouteGuard>
+                        <SystemMonitoringPage />
+                      </AdminRouteGuard>
+                    } />
+                    <Route path="/admin/analytics" element={
+                      <AdminRouteGuard>
+                        <AnalyticsPage />
+                      </AdminRouteGuard>
+                    } />
+                    <Route path="/admin/issues" element={
+                      <AdminRouteGuard>
+                        <IssuesPage />
+                      </AdminRouteGuard>
+                    } />
+                    <Route path="/admin/notifications" element={
+                      <AdminRouteGuard>
+                        <NotificationsPage />
+                      </AdminRouteGuard>
+                    } />
+                    <Route path="/admin/documentation" element={
+                      <AdminRouteGuard>
+                        <DocumentationPage />
+                      </AdminRouteGuard>
+                    } />
+                    <Route path="/admin/settings" element={
+                      <AdminRouteGuard>
+                        <SettingsPage />
+                      </AdminRouteGuard>
+                    } />
+                    
+                    {/* Student Dashboard Routes - Protected */}
+                    <Route path="/dashboard/student" element={
+                      <ProtectedRoute>
+                        <StudentDashboard />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/dashboard/student/:tab" element={
+                      <ProtectedRoute>
+                        <StudentDashboard />
+                      </ProtectedRoute>
+                    } />
+                    
+                    {/* Study Progress Route - Protected */}
+                    <Route path="/dashboard/student/progress" element={
+                      <ProtectedRoute>
+                        <StudyProgress />
+                      </ProtectedRoute>
+                    } />
+                    
+                    {/* Employee Dashboard Routes - Protected */}
+                    <Route path="/dashboard/employee" element={
+                      <ProtectedRoute>
+                        <EmployeeDashboard />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/dashboard/employee/:tab" element={
+                      <ProtectedRoute>
+                        <EmployeeDashboard />
+                      </ProtectedRoute>
+                    } />
+                    
+                    {/* Doctor Dashboard Routes - Protected */}
+                    <Route path="/dashboard/doctor" element={
+                      <ProtectedRoute>
+                        <DoctorDashboard />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/dashboard/doctor/:tab" element={
+                      <ProtectedRoute>
+                        <DoctorDashboard />
+                      </ProtectedRoute>
+                    } />
+                    
+                    {/* Founder Dashboard Routes - Protected */}
+                    <Route path="/dashboard/founder" element={
+                      <ProtectedRoute>
+                        <FounderDashboard />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/dashboard/founder/:tab" element={
+                      <ProtectedRoute>
+                        <FounderDashboard />
+                      </ProtectedRoute>
+                    } />
+                    
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                </BrowserRouter>
+              </AdminAuthProvider>
+            </AuthProvider>
+          </TooltipProvider>
+        </ThemeProvider>
+      </QueryClientProvider>
+    </React.StrictMode>
+  );
+};
 
 export default App;

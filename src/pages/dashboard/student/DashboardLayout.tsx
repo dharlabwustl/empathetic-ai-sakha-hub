@@ -36,6 +36,7 @@ interface DashboardLayoutProps {
   onCloseStudyPlan: () => void;
   lastActivity?: { type: string; description: string } | null;
   suggestedNextAction?: string | null;
+  currentMood?: 'sad' | 'neutral' | 'happy' | 'motivated';
 }
 
 const DashboardLayout = ({
