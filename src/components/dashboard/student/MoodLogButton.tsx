@@ -9,8 +9,8 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { SmilePlus } from "lucide-react";
-import MoodTracking from "./MoodTracking";
 import { MoodType } from "@/types/user/base";
+import MoodSelectionDialog from './mood-tracking/MoodSelectionDialog';
 
 interface MoodLogButtonProps {
   className?: string;
@@ -60,9 +60,11 @@ const MoodLogButton: React.FC<MoodLogButtonProps> = ({
           </DialogHeader>
           
           <div className="py-4">
-            <MoodTracking 
-              currentMood={currentMood} 
-              onMoodChange={handleMoodSelect} 
+            <MoodSelectionDialog
+              isOpen={true}
+              onOpenChange={() => {}}
+              selectedMood={currentMood}
+              onMoodSelect={handleMoodSelect}
             />
           </div>
         </DialogContent>
