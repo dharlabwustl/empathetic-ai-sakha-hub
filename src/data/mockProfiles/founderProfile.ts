@@ -6,9 +6,9 @@ import { v4 as uuidv4 } from "uuid";
 export const mockFounderProfile: FounderProfile = {
   id: uuidv4(),
   name: "Priya Mehta",
-  email: "priya.mehta@edumatch.com", // Added missing email
+  email: "priya.mehta@edumatch.com",
   phoneNumber: "+919876543212",
-  role: "Founder",
+  role: "founder", // Changed from "Founder" to lowercase "founder"
   personalityType: "Creative Builder",
   subscription: "Premium",
   joinDate: "2024-12-05",
@@ -31,14 +31,16 @@ export const mockFounderProfile: FounderProfile = {
       title: "Secure Series A",
       description: "Raise $1.5M in Series A funding",
       progress: 35,
-      dueDate: "2025-09-30"
+      dueDate: "2025-09-30", // Keep dueDate as Goal now supports it
+      targetDate: new Date("2025-09-30")
     },
     {
       id: uuidv4(),
       title: "User Growth",
       description: "Reach 50,000 active users",
       progress: 60,
-      dueDate: "2025-06-15"
+      dueDate: "2025-06-15", // Keep dueDate as Goal now supports it
+      targetDate: new Date("2025-06-15")
     }
   ],
   areasOfInterest: [

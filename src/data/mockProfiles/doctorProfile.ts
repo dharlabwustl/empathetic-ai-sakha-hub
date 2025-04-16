@@ -6,9 +6,9 @@ import { v4 as uuidv4 } from "uuid";
 export const mockDoctorProfile: DoctorProfile = {
   id: uuidv4(),
   name: "Dr. Aisha Sharma",
-  email: "dr.aisha.sharma@maxhealthcare.com", // Added missing email
+  email: "dr.aisha.sharma@maxhealthcare.com",
   phoneNumber: "+919876543210",
-  role: "Doctor",
+  role: "doctor", // Changed from "Doctor" to lowercase "doctor"
   personalityType: "Analytical Problem Solver",
   subscription: "Premium",
   joinDate: "2025-02-10",
@@ -42,14 +42,16 @@ export const mockDoctorProfile: DoctorProfile = {
       title: "Complete Research Paper",
       description: "Finish and submit paper on neural biomarkers",
       progress: 65,
-      dueDate: "2025-06-15"
+      dueDate: "2025-06-15", // Keep dueDate as Goal now supports it
+      targetDate: new Date("2025-06-15")
     },
     {
       id: uuidv4(),
       title: "Conference Presentation",
       description: "Present findings at International Neurology Conference",
       progress: 40,
-      dueDate: "2025-08-20"
+      dueDate: "2025-08-20", // Keep dueDate as Goal now supports it
+      targetDate: new Date("2025-08-20")
     }
   ],
   areasOfInterest: [

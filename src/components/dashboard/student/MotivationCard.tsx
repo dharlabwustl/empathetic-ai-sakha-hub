@@ -52,9 +52,9 @@ export default function MotivationCard() {
   ]);
   
   const [moodLogs, setMoodLogs] = useState<MoodLog[]>([
-    { date: "2025-05-12", mood: "Focused" },
-    { date: "2025-05-11", mood: "Happy" },
-    { date: "2025-05-10", mood: "Tired" },
+    { date: "2025-05-12", mood: "focused" },
+    { date: "2025-05-11", mood: "happy" },
+    { date: "2025-05-10", mood: "tired" },
   ]);
   
   const [currentMood, setCurrentMood] = useState<MoodType | null>(null);
@@ -117,15 +117,15 @@ export default function MotivationCard() {
   
   const getMoodIcon = (mood: MoodType) => {
     switch (mood) {
-      case "Happy":
+      case "happy":
         return <Smile className="text-green-500" />;
-      case "Okay":
+      case "okay":
         return <Meh className="text-blue-500" />;
-      case "Tired":
+      case "tired":
         return <Meh className="text-orange-500" />;
-      case "Overwhelmed":
+      case "overwhelmed":
         return <Frown className="text-red-500" />;
-      case "Focused":
+      case "focused":
         return <Star className="text-purple-500" />;
       default:
         return <Meh />;
@@ -212,10 +212,10 @@ export default function MotivationCard() {
           <h3 className="font-medium mb-3">How are you feeling today?</h3>
           <div className="border rounded-lg p-4 space-y-4">
             <div className="grid grid-cols-5 gap-2">
-              {["Happy", "Okay", "Tired", "Overwhelmed", "Focused"].map((mood) => (
+              {["happy", "okay", "tired", "overwhelmed", "focused"].map((mood) => (
                 <Button
                   key={mood}
-                  variant={currentMood === mood ? "default" : "outline"}
+                  variant={currentMood === mood as MoodType ? "default" : "outline"}
                   className="flex flex-col items-center py-3 h-auto"
                   onClick={() => setCurrentMood(mood as MoodType)}
                 >

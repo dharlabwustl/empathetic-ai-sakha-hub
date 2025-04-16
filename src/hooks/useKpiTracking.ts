@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { UserRole } from '@/types/user';
 
@@ -63,7 +62,7 @@ export function useKpiTracking(role: UserRole) {
 // Helper functions to get role-specific data
 function getRoleSpecificKpis(role: UserRole): KpiData[] {
   switch (role) {
-    case "Student":
+    case "student":
       return [
         {
           id: "study-time",
@@ -102,7 +101,7 @@ function getRoleSpecificKpis(role: UserRole): KpiData[] {
           icon: "Smile",
         },
       ];
-    case "Employee":
+    case "employee":
       return [
         {
           id: "productivity-score",
@@ -141,7 +140,7 @@ function getRoleSpecificKpis(role: UserRole): KpiData[] {
           icon: "Heart",
         },
       ];
-    case "Doctor":
+    case "doctor":
       return [
         {
           id: "research-hours",
@@ -180,7 +179,7 @@ function getRoleSpecificKpis(role: UserRole): KpiData[] {
           icon: "Heart",
         },
       ];
-    case "Founder":
+    case "founder":
       return [
         {
           id: "mvp-completion",
@@ -228,7 +227,7 @@ function getRoleSpecificNudges(role: UserRole): NudgeData[] {
   const now = new Date().toISOString();
   
   switch (role) {
-    case "Student":
+    case "student":
       return [
         {
           id: "n1",
@@ -268,7 +267,7 @@ function getRoleSpecificNudges(role: UserRole): NudgeData[] {
           read: false,
         },
       ];
-    case "Employee":
+    case "employee":
       return [
         {
           id: "n1",
@@ -298,7 +297,7 @@ function getRoleSpecificNudges(role: UserRole): NudgeData[] {
           read: false,
         },
       ];
-    case "Doctor":
+    case "doctor":
       return [
         {
           id: "n1",
@@ -328,7 +327,7 @@ function getRoleSpecificNudges(role: UserRole): NudgeData[] {
           read: false,
         },
       ];
-    case "Founder":
+    case "founder":
       return [
         {
           id: "n1",

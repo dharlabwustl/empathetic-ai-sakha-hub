@@ -1,12 +1,12 @@
 
-import { StudentProfile, UserRole, MoodType } from "@/types/user";
+import { StudentProfile, MoodType } from "@/types/user";
 
 export const mockStudentProfile: StudentProfile = {
   id: "1",
   name: "Rahul Singh",
   phoneNumber: "9876543210",
   email: "rahul.singh@example.com", 
-  role: "Student" as UserRole,
+  role: "student", // Changed from "Student" to lowercase "student"
   personalityType: "Strategic Thinker",
   subscription: "Basic",
   joinDate: "2025-03-01",
@@ -22,14 +22,16 @@ export const mockStudentProfile: StudentProfile = {
       title: "Complete Physics Syllabus",
       description: "Finish all chapters in NCERT Physics",
       progress: 75,
-      dueDate: "2025-05-30",
+      dueDate: "2025-05-30", // Keep dueDate as Goal now supports it 
+      targetDate: new Date("2025-05-30")
     },
     {
       id: "g2",
       title: "Score 90% in Math Test",
       description: "Practice integration problems",
       progress: 60,
-      dueDate: "2025-05-15",
+      dueDate: "2025-05-15", // Keep dueDate as Goal now supports it
+      targetDate: new Date("2025-05-15")
     },
   ],
   educationLevel: "11th Grade",
@@ -46,7 +48,7 @@ export const mockStudentProfile: StudentProfile = {
   studyHoursToday: 2.5,
   subjectsCovered: 3,
   quizPerformance: 82,
-  mood: "Focused" as MoodType,
+  mood: "focused" as MoodType, // Changed from "Focused" to lowercase "focused"
   syllabusCoverage: 65,
   strongSubjects: ["Physics", "Mathematics"],
   weakSubjects: ["Chemistry", "Biology"]

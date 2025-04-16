@@ -12,25 +12,25 @@ interface ProfileCardProps {
 export default function ProfileCard({ profile }: ProfileCardProps) {
   const getRoleIcon = () => {
     switch (profile.role) {
-      case "Student":
+      case "student":
         return <GraduationCap className="text-sakha-blue" size={18} />;
-      case "Employee":
+      case "employee":
         return <Briefcase className="text-sakha-blue" size={18} />;
-      case "Doctor":
+      case "doctor":
         return <Stethoscope className="text-sakha-blue" size={18} />;
-      case "Founder":
+      case "founder":
         return <Rocket className="text-sakha-blue" size={18} />;
       default:
         return <GraduationCap className="text-sakha-blue" size={18} />;
     }
   };
 
-  const joinedDate = new Date(profile.joinDate);
+  const joinedDate = profile.joinDate ? new Date(profile.joinDate) : new Date();
   const joinedTimeAgo = formatDistanceToNow(joinedDate, { addSuffix: true });
 
   const getRoleSpecificDetails = () => {
     switch (profile.role) {
-      case "Student":
+      case "student":
         const studentProfile = profile as any;
         return (
           <>
@@ -44,7 +44,7 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
             )}
           </>
         );
-      case "Employee":
+      case "employee":
         const employeeProfile = profile as any;
         return (
           <>
@@ -56,7 +56,7 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
             </p>
           </>
         );
-      case "Doctor":
+      case "doctor":
         const doctorProfile = profile as any;
         return (
           <>
@@ -68,7 +68,7 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
             </p>
           </>
         );
-      case "Founder":
+      case "founder":
         const founderProfile = profile as any;
         return (
           <>
@@ -90,9 +90,11 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
       <CardHeader className="pb-2">
         <CardTitle className="text-lg flex items-center justify-between">
           <span>Your Profile</span>
-          <Badge variant={profile.subscription === "Premium" ? "default" : "outline"}>
-            {profile.subscription} Plan
-          </Badge>
+          {profile.subscription && (
+            <Badge variant={profile.subscription === "Premium" ? "default" : "outline"}>
+              {profile.subscription} Plan
+            </Badge>
+          )}
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -114,25 +116,29 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
         </div>
 
         <div className="space-y-3">
-          <div>
-            <h4 className="text-sm font-medium mb-2">Personality Type</h4>
-            <Badge variant="outline" className="bg-sakha-lavender/10">
-              {profile.personalityType}
-            </Badge>
-          </div>
+          {profile.personalityType && (
+            <div>
+              <h4 className="text-sm font-medium mb-2">Personality Type</h4>
+              <Badge variant="outline" className="bg-sakha-lavender/10">
+                {profile.personalityType}
+              </Badge>
+            </div>
+          )}
 
           {getRoleSpecificDetails()}
 
-          <div>
-            <h4 className="text-sm font-medium mb-2">Areas of Interest</h4>
-            <div className="flex flex-wrap gap-2">
-              {profile.areasOfInterest.map((interest) => (
-                <Badge key={interest.id} variant="outline" className="bg-sakha-light-blue/10">
-                  {interest.name} ({interest.level})
-                </Badge>
-              ))}
+          {profile.areasOfInterest && profile.areasOfInterest.length > 0 && (
+            <div>
+              <h4 className="text-sm font-medium mb-2">Areas of Interest</h4>
+              <div className="flex flex-wrap gap-2">
+                {profile.areasOfInterest.map((interest) => (
+                  <Badge key={interest.id} variant="outline" className="bg-sakha-light-blue/10">
+                    {interest.name} ({interest.level})
+                  </Badge>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
           
           <div>
             <h4 className="text-sm font-medium mb-2">Goals</h4>

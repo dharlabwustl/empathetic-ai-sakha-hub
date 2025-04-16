@@ -6,9 +6,9 @@ import { v4 as uuidv4 } from "uuid";
 export const mockEmployeeProfile: EmployeeProfile = {
   id: uuidv4(),
   name: "Rajesh Kumar",
-  email: "rajesh.kumar@techsolutions.com", // Added missing email field
+  email: "rajesh.kumar@techsolutions.com",
   phoneNumber: "+919876543211",
-  role: "Employee",
+  role: "employee", // Changed from "Employee" to lowercase "employee"
   personalityType: "Strategic Thinker",
   subscription: "Basic",
   joinDate: "2025-01-15",
@@ -36,14 +36,16 @@ export const mockEmployeeProfile: EmployeeProfile = {
       title: "Complete PMP Certification",
       description: "Pass the Project Management Professional exam",
       progress: 75,
-      dueDate: "2025-05-30"
+      dueDate: "2025-05-30", // Keep dueDate as Goal now supports it
+      targetDate: new Date("2025-05-30")
     },
     {
       id: uuidv4(),
       title: "Learn SQL",
       description: "Complete advanced SQL course for data analysis",
       progress: 45,
-      dueDate: "2025-07-15"
+      dueDate: "2025-07-15", // Keep dueDate as Goal now supports it
+      targetDate: new Date("2025-07-15")
     }
   ],
   areasOfInterest: [

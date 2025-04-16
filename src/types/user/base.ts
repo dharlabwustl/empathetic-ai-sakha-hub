@@ -17,13 +17,20 @@ export type UserProfileType = {
   goals: Goal[];
   mood?: MoodType;
   notifications: Notification[];
+  // Additional fields needed to fix errors
+  subscription?: 'Basic' | 'Premium' | 'Free';
+  personalityType?: string;
+  areasOfInterest?: Array<{id: string; name: string; level: string}>;
+  joinDate?: string;
+  completedOnboarding?: boolean;
+  phoneNumber?: string;
 };
 
-// User roles
+// User roles - update to lowercase to match the string literals used in code
 export type UserRole = 'student' | 'employee' | 'doctor' | 'founder' | 'admin' | 'teacher';
 
 // Mood types for tracking emotional states
-export type MoodType = 'motivated' | 'curious' | 'neutral' | 'tired' | 'stressed' | undefined;
+export type MoodType = 'motivated' | 'curious' | 'neutral' | 'tired' | 'stressed' | 'focused' | 'happy' | 'okay' | 'overwhelmed' | undefined;
 
 // User preferences
 export type UserPreferences = {
@@ -58,6 +65,8 @@ export interface Goal {
     unit: string;
     targetValue: number;
   }[];
+  // Add dueDate for compatibility with existing code
+  dueDate?: string;
 }
 
 export interface Notification {
@@ -69,3 +78,6 @@ export interface Notification {
   createdAt: Date;
   link?: string;
 }
+
+// Add SubscriptionType for FeatureCard
+export type SubscriptionType = 'Basic' | 'Premium' | 'Free';

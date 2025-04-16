@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { SurroundingInfluencesMeter } from "./SurroundingInfluencesMeter";
+import SurroundingInfluencesMeter from "./SurroundingInfluencesMeter"; // Fixed import
 import { useToast } from "@/hooks/use-toast";
 
 interface SurroundingInfluencesSectionProps {
