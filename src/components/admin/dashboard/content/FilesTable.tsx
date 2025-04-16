@@ -14,8 +14,15 @@ export const FileRow: React.FC<FileRowProps> = ({
   onEdit
 }) => {
   // Format file size to readable format
-  const formatFileSize = (bytes: number = 0) => {
+  const formatFileSize = (sizeValue?: string | number) => {
+    if (!sizeValue) return "-";
+    
+    // Convert string to number if needed
+    const bytes = typeof sizeValue === 'string' ? parseInt(sizeValue, 10) : sizeValue;
+    
+    if (isNaN(bytes) || bytes === 0) return '0 B';
     if (bytes < 1024) return `${bytes} B`;
+    
     const k = 1024;
     const sizes = ['B', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
@@ -27,7 +34,7 @@ export const FileRow: React.FC<FileRowProps> = ({
       className={`${
         isSelected ? "bg-primary/5" : "hover:bg-muted/50"
       } cursor-pointer transition-colors`}
-      onClick={() => onSelect(file)}
+      onClick={() => onSelect && onSelect(file)}
     >
       <td className="p-2 pl-4">
         <div className="flex items-center">

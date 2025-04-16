@@ -5,7 +5,9 @@ export type ContentType =
   | 'concept_card' 
   | 'flashcard' 
   | 'practice_exam' 
-  | 'quiz';
+  | 'quiz'
+  | 'notes'
+  | 'concept';
 
 export interface ContentItem {
   id: string;
@@ -15,8 +17,11 @@ export interface ContentItem {
   examGoal?: string;
   difficultyLevel?: 'beginner' | 'intermediate' | 'advanced';
   createdAt: string;
-  fileSize?: string;
+  updatedAt?: string;
+  fileSize?: number | string;
   fileType?: string;
+  fileName?: string;
+  fileUrl?: string;
   thumbnail?: string;
   tags?: string[];
 }
@@ -32,6 +37,8 @@ export interface ContentUploaderProps {
 
 export interface ContentBrowserProps {
   contentType: ContentType;
+  onSelect?: (content: ContentItem) => void;
+  selectedContent?: ContentItem;
 }
 
 export interface EmptyStateProps {
@@ -45,10 +52,14 @@ export interface FileRowProps {
   file: ContentItem;
   onSelect?: (file: ContentItem) => void;
   isSelected?: boolean;
+  onDelete?: (file: ContentItem) => void;
+  onEdit?: (file: ContentItem) => void;
 }
 
 export interface FilesTableProps {
   files: ContentItem[];
-  selectedFiles?: ContentItem[];
-  onFileSelect?: (file: ContentItem) => void;
+  selectedFile?: ContentItem;
+  onSelect?: (file: ContentItem) => void;
+  onDelete?: (file: ContentItem) => void;
+  onEdit?: (file: ContentItem) => void;
 }

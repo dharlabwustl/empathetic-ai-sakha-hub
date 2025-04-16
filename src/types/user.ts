@@ -109,3 +109,10 @@ export interface StudyStreak {
   thisWeek: number[];
   lastMonth: number[];
 }
+
+export interface MotivationCardProps {
+  currentMood: MoodType;
+  streak: number;
+  target: string;
+  progress: number;
+}

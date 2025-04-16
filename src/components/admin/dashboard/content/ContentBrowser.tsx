@@ -11,7 +11,7 @@ import { EmptyState } from "./EmptyState";
 import { FilesTable } from "./FilesTable";
 
 export const ContentBrowser: React.FC<ContentBrowserProps> = ({
-  contentType = "concept",
+  contentType = "concept_card",
   onSelect,
   selectedContent
 }) => {
@@ -26,15 +26,15 @@ export const ContentBrowser: React.FC<ContentBrowserProps> = ({
     {
       id: "1",
       title: "Periodic Table Concepts",
-      type: "concept",
+      type: "concept_card",
       subject: "Chemistry",
       examGoal: "NEET",
-      difficultyLevel: "Intermediate",
+      difficultyLevel: "intermediate",
       createdAt: "2025-04-10T09:00:00",
       updatedAt: "2025-04-10T09:00:00",
       tags: ["chemistry", "periodic table", "elements"],
       fileUrl: "/content/periodic-table.pdf",
-      fileSize: 1250000,
+      fileSize: "1250000",
       fileName: "periodic-table.pdf"
     },
     {
@@ -43,40 +43,40 @@ export const ContentBrowser: React.FC<ContentBrowserProps> = ({
       type: "flashcard",
       subject: "Physics",
       examGoal: "JEE",
-      difficultyLevel: "Advanced",
+      difficultyLevel: "advanced",
       createdAt: "2025-04-09T14:30:00",
       updatedAt: "2025-04-09T14:30:00",
       tags: ["physics", "newton", "motion"],
       fileUrl: "/content/newtons-laws.pdf",
-      fileSize: 850000,
+      fileSize: "850000",
       fileName: "newtons-laws.pdf"
     },
     {
       id: "3",
       title: "Calculus Integration Formulas",
-      type: "notes",
+      type: "study_material",
       subject: "Mathematics",
       examGoal: "JEE Advanced",
-      difficultyLevel: "Advanced",
+      difficultyLevel: "advanced",
       createdAt: "2025-04-08T11:15:00",
       updatedAt: "2025-04-08T16:45:00",
       tags: ["mathematics", "calculus", "integration"],
       fileUrl: "/content/calculus.pdf",
-      fileSize: 1450000,
+      fileSize: "1450000",
       fileName: "calculus.pdf"
     },
     {
       id: "4",
       title: "Cell Biology Structures",
-      type: "concept",
+      type: "concept_card",
       subject: "Biology",
       examGoal: "NEET",
-      difficultyLevel: "Intermediate",
+      difficultyLevel: "intermediate",
       createdAt: "2025-04-07T10:20:00",
       updatedAt: "2025-04-07T10:20:00",
       tags: ["biology", "cell", "organelles"],
       fileUrl: "/content/cell-biology.pdf",
-      fileSize: 2250000,
+      fileSize: "2250000",
       fileName: "cell-biology.pdf"
     },
     {
@@ -85,12 +85,12 @@ export const ContentBrowser: React.FC<ContentBrowserProps> = ({
       type: "practice_exam",
       subject: "Chemistry",
       examGoal: "JEE Main",
-      difficultyLevel: "Intermediate",
+      difficultyLevel: "intermediate",
       createdAt: "2025-04-06T15:45:00",
       updatedAt: "2025-04-06T15:45:00",
       tags: ["chemistry", "bonding", "practice"],
       fileUrl: "/content/chemical-bonding.pdf",
-      fileSize: 1850000,
+      fileSize: "1850000",
       fileName: "chemical-bonding.pdf"
     }
   ];
@@ -160,9 +160,9 @@ export const ContentBrowser: React.FC<ContentBrowserProps> = ({
         <div className="flex justify-between items-center">
           <TabsList>
             <TabsTrigger value="all">All</TabsTrigger>
-            <TabsTrigger value="concept">Concepts</TabsTrigger>
+            <TabsTrigger value="concept_card">Concepts</TabsTrigger>
             <TabsTrigger value="flashcard">Flashcards</TabsTrigger>
-            <TabsTrigger value="notes">Notes</TabsTrigger>
+            <TabsTrigger value="study_material">Notes</TabsTrigger>
             <TabsTrigger value="practice_exam">Practice</TabsTrigger>
           </TabsList>
           
@@ -239,7 +239,7 @@ export const ContentBrowser: React.FC<ContentBrowserProps> = ({
           )}
         </TabsContent>
         
-        {["concept", "flashcard", "notes", "practice_exam", "exam", "syllabus", "question_bank", "reference", "previous_papers", "study_material"].map((type) => (
+        {["concept_card", "flashcard", "study_material", "practice_exam", "quiz"].map((type) => (
           <TabsContent key={type} value={type} className="m-0">
             {sortedContent.filter(item => item.type === type).length > 0 ? (
               <FilesTable
