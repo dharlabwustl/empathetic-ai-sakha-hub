@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import SidebarNav from "@/components/dashboard/SidebarNav";
 import ChatAssistant from "@/components/dashboard/ChatAssistant";
@@ -8,7 +9,7 @@ import StudyPlanDialog from "./StudyPlanDialog";
 import TopNavigationControls from "@/components/dashboard/student/TopNavigationControls";
 import SurroundingInfluencesSection from "@/components/dashboard/student/SurroundingInfluencesSection";
 import NavigationToggleButton from "@/components/dashboard/student/NavigationToggleButton";
-import { UserProfileType, MoodType } from "@/types/user";
+import { UserProfileType, MoodType } from "@/types/user/base";
 import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
 import { formatTime, formatDate } from "./utils/DateTimeFormatter";
 import { motion } from "framer-motion";

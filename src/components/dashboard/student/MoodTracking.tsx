@@ -6,8 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Smile, Flame, BookOpen, Coffee, Brain, HeartPulse } from "lucide-react";
 import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
-
-type MoodType = 'motivated' | 'curious' | 'neutral' | 'tired' | 'stressed' | undefined;
+import { MoodType } from "@/types/user/base";
 
 interface MoodTrackingProps {
   currentMood?: MoodType;
@@ -25,7 +24,8 @@ const MoodTracking: React.FC<MoodTrackingProps> = ({ currentMood, onMoodChange }
     
     // Apply CSS classes based on mood
     document.body.classList.remove(
-      'mood-motivated', 'mood-curious', 'mood-neutral', 'mood-tired', 'mood-stressed'
+      'mood-motivated', 'mood-curious', 'mood-neutral', 'mood-tired', 'mood-stressed',
+      'mood-focused', 'mood-happy', 'mood-okay', 'mood-overwhelmed', 'mood-sad'
     );
     document.body.classList.add(`mood-${currentMood}`);
     
@@ -72,6 +72,13 @@ const MoodTracking: React.FC<MoodTrackingProps> = ({ currentMood, onMoodChange }
         message = "It's okay to feel overwhelmed.";
         description = "Let's take a moment together.";
         break;
+      case 'focused':
+        message = "Your concentration is impressive!";
+        description = "Let's make the most of this clarity.";
+        break;
+      default:
+        message = "Thanks for sharing how you feel.";
+        description = "We'll tailor your experience accordingly.";
     }
     
     toast({
