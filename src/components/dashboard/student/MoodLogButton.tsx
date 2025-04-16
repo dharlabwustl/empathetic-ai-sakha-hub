@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { 
@@ -9,7 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { SmilePlus } from "lucide-react";
 import MoodTracking from "./MoodTracking";
-import { MoodType } from "@/types/user";
+import { MoodType } from "@/types/user/base";
 
 interface MoodLogButtonProps {
   className?: string;

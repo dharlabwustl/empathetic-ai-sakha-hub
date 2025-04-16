@@ -4,7 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useAdminAuth } from "@/contexts/AdminAuthContext";
 import { adminService } from "@/services/adminService";
-import { AdminDashboardStats, StudentData, SystemLog } from "@/types/admin";
+import { AdminDashboardStats, SystemLog } from "@/types/admin";
+import { StudentData } from "@/types/admin/studentData";
 import { Sparkles, RefreshCcw, Download, FileText } from "lucide-react";
 
 import AdminLayout from "@/components/admin/AdminLayout";
@@ -50,7 +51,24 @@ const AdminDashboard = () => {
       setStats(dashboardStats);
       
       const studentsRes = await adminService.getStudents(1, 5);
-      setRecentStudents(studentsRes.data);
+      
+      // Convert admin StudentData to admin/studentData StudentData format
+      const convertedStudents: StudentData[] = studentsRes.data.map(student => ({
+        id: student.id,
+        name: student.name,
+        email: student.email,
+        joinedDate: student.registrationDate || new Date(),
+        role: "student",
+        status: "active",
+        examType: student.examType,
+        registrationDate: student.registrationDate,
+        subjects: student.subjectsSelected,
+        examPrep: student.examType,
+        lastActive: student.lastActive,
+        progress: student.engagementScore || 0
+      }));
+      
+      setRecentStudents(convertedStudents);
       
       const logsRes = await adminService.getSystemLogs('', 1, 5);
       setRecentLogs(logsRes.data);

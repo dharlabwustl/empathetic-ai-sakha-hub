@@ -23,7 +23,7 @@ export const mockStudentProfile: StudentProfile = {
       description: "Finish all chapters in NCERT Physics",
       progress: 75,
       dueDate: "2025-05-30",
-      status: "in-progress", // Add missing status property
+      status: "in-progress", // Add status property
     },
     {
       id: "g2",
@@ -31,7 +31,7 @@ export const mockStudentProfile: StudentProfile = {
       description: "Practice integration problems",
       progress: 60,
       dueDate: "2025-05-15",
-      status: "not-started", // Add missing status property
+      status: "not-started", // Add status property
     },
   ],
   educationLevel: "11th Grade",
