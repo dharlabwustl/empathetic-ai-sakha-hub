@@ -1,4 +1,5 @@
 
+
 // Define the allowed mood types
 export type MoodType = 
   | "happy" 
@@ -13,6 +14,18 @@ export type MoodType =
   | "overwhelmed";
 
 export type SubscriptionType = 'Free' | 'Basic' | 'Premium' | 'Enterprise';
+
+// Define Goal interface that matches the one in base.ts
+export interface Goal {
+  id: string;
+  title: string;
+  progress: number;
+  target: string;
+  targetDate?: string;
+  type?: string;
+  description?: string;
+  dueDate?: string;
+}
 
 // User Profile Type
 export interface UserProfileType {
@@ -31,16 +44,7 @@ export interface UserProfileType {
   school?: string;
   grade?: string;
   subjects?: Array<{id: string; name: string; progress: number; lastStudied?: string}>;
-  goals?: {
-    id: string;
-    title: string;
-    progress: number;
-    target: string;
-    targetDate?: string;
-    type?: string;
-    description?: string;
-    dueDate?: string;
-  }[];
+  goals?: Goal[];  // Using the consistent Goal interface
   stats?: {
     studyStreak: number;
     totalStudyHours: number;

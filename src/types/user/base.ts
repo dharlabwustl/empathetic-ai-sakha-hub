@@ -36,6 +36,18 @@ export interface BaseUserProfile {
   lastActive: string;
 }
 
+// Define Goal interface to match what's used in both user.ts and user/base.ts
+export interface Goal {
+  id: string;
+  title: string;
+  progress: number;
+  target: string;
+  targetDate?: string;
+  type?: string;
+  description?: string;
+  dueDate?: string;
+}
+
 // Enhanced UserStats to match the one in user.ts
 export interface UserStats {
   totalStudyTime: number;
@@ -69,15 +81,7 @@ export interface MoodEntry {
 
 // Combined user type (union of all user types)
 export type UserProfileType = BaseUserProfile & {
-  goals?: Array<{
-    id: string;
-    title: string;
-    targetDate?: string;
-    progress: number;
-    type: GoalType;
-    description?: string;
-    dueDate?: string;
-  }>;
+  goals?: Goal[];
   subjects?: Array<{
     id: string;
     name: string;
