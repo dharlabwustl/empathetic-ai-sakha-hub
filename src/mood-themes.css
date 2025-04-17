@@ -100,6 +100,17 @@
   background-image: linear-gradient(to bottom right, rgba(168, 85, 247, 0.1), rgba(147, 51, 234, 0.05), rgba(255, 255, 255, 0.7));
 }
 
+/* Okay mood */
+.mood-okay {
+  --accent-color: 14, 165, 233;  /* Sky-500 */
+  --accent-light: 186, 230, 253;  /* Sky-200 */
+  --accent-gradient: linear-gradient(135deg, rgba(14, 165, 233, 0.15), rgba(56, 189, 248, 0.05));
+}
+
+.mood-okay .bg-gradient-to-br {
+  background-image: linear-gradient(to bottom right, rgba(14, 165, 233, 0.1), rgba(56, 189, 248, 0.05), rgba(255, 255, 255, 0.7));
+}
+
 /* Apply mood-based styling to UI components */
 
 /* Cards with mood styling */
@@ -111,7 +122,8 @@
 .mood-tired .card,
 .mood-stressed .card,
 .mood-sad .card,
-.mood-overwhelmed .card {
+.mood-overwhelmed .card,
+.mood-okay .card {
   border-color: rgba(var(--accent-light), 0.5);
 }
 
@@ -124,7 +136,8 @@
 .mood-tired .btn-primary,
 .mood-stressed .btn-primary,
 .mood-sad .btn-primary,
-.mood-overwhelmed .btn-primary {
+.mood-overwhelmed .btn-primary,
+.mood-okay .btn-primary {
   background-color: rgba(var(--accent-color), 1);
   color: white;
 }
@@ -138,7 +151,8 @@
 .mood-tired .dashboard-header,
 .mood-stressed .dashboard-header,
 .mood-sad .dashboard-header,
-.mood-overwhelmed .dashboard-header {
+.mood-overwhelmed .dashboard-header,
+.mood-okay .dashboard-header {
   background-image: var(--accent-gradient);
 }
 
@@ -151,7 +165,8 @@
 .mood-tired .progress-value,
 .mood-stressed .progress-value,
 .mood-sad .progress-value,
-.mood-overwhelmed .progress-value {
+.mood-overwhelmed .progress-value,
+.mood-okay .progress-value {
   background-color: rgba(var(--accent-color), 1);
 }
 
@@ -164,7 +179,8 @@
 .dark .mood-tired,
 .dark .mood-stressed,
 .dark .mood-sad,
-.dark .mood-overwhelmed {
+.dark .mood-overwhelmed,
+.dark .mood-okay {
   --accent-light-opacity: 0.2;
 }
 
@@ -177,7 +193,8 @@
 .mood-tired::before,
 .mood-stressed::before,
 .mood-sad::before,
-.mood-overwhelmed::before {
+.mood-overwhelmed::before,
+.mood-okay::before {
   content: "";
   position: fixed;
   top: 0;

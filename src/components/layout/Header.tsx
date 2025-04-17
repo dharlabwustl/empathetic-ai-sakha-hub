@@ -38,6 +38,21 @@ const Header = () => {
           
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-4">
+            <nav className="flex items-center space-x-4 mr-4">
+              <Link to="/" className="text-sm font-medium text-gray-700 hover:text-primary dark:text-gray-200 dark:hover:text-primary">
+                Home
+              </Link>
+              <Link to="/about" className="text-sm font-medium text-gray-700 hover:text-primary dark:text-gray-200 dark:hover:text-primary">
+                About
+              </Link>
+              <Link to="/features" className="text-sm font-medium text-gray-700 hover:text-primary dark:text-gray-200 dark:hover:text-primary">
+                Features
+              </Link>
+              <Link to="/pricing" className="text-sm font-medium text-gray-700 hover:text-primary dark:text-gray-200 dark:hover:text-primary">
+                Pricing
+              </Link>
+            </nav>
+            
             <ThemeToggle />
             {user ? (
               <div className="flex space-x-2">
@@ -72,6 +87,19 @@ const Header = () => {
         {isMenuOpen && (
           <div className="md:hidden mt-4 pb-4">
             <div className="flex flex-col space-y-2">
+              <Link to="/" className="text-sm font-medium text-gray-700 hover:text-primary dark:text-gray-200 dark:hover:text-primary py-2">
+                Home
+              </Link>
+              <Link to="/about" className="text-sm font-medium text-gray-700 hover:text-primary dark:text-gray-200 dark:hover:text-primary py-2">
+                About
+              </Link>
+              <Link to="/features" className="text-sm font-medium text-gray-700 hover:text-primary dark:text-gray-200 dark:hover:text-primary py-2">
+                Features
+              </Link>
+              <Link to="/pricing" className="text-sm font-medium text-gray-700 hover:text-primary dark:text-gray-200 dark:hover:text-primary py-2">
+                Pricing
+              </Link>
+              
               <ThemeToggle />
               {user ? (
                 <>

@@ -1,161 +1,146 @@
 
+import React from "react";
 import { Button } from "@/components/ui/button";
+import { BookOpen } from "lucide-react";
 import { UserProfileType } from "@/types/user";
-import { Eye } from "lucide-react";
-import MoodLogButton from "@/components/dashboard/student/MoodLogButton";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { MoodType } from "@/types/user/base";
 import { motion } from "framer-motion";
+import { getMoodIcon } from "@/components/dashboard/student/mood-tracking/moodUtils";
 
 interface DashboardHeaderProps {
   userProfile: UserProfileType;
   formattedTime: string;
   formattedDate: string;
   onViewStudyPlan: () => void;
+  currentMood?: MoodType;
 }
 
-// Extend the userProfile type locally to handle the streak property
-interface ExtendedUserProfile extends UserProfileType {
-  studyStreak?: number;
-}
-
-const DashboardHeader = ({
+const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   userProfile,
   formattedTime,
   formattedDate,
-  onViewStudyPlan
-}: DashboardHeaderProps) => {
-  const isMobile = useIsMobile();
-  // Cast to our extended type
-  const extendedProfile = userProfile as ExtendedUserProfile;
-
-  // Animation variants
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { 
-        when: "beforeChildren",
-        staggerChildren: 0.15 
+  onViewStudyPlan,
+  currentMood
+}) => {
+  // Get greeting based on time and mood
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    let timeGreeting = "";
+    
+    if (hour < 12) timeGreeting = "Good Morning";
+    else if (hour < 17) timeGreeting = "Good Afternoon";
+    else timeGreeting = "Good Evening";
+    
+    if (currentMood) {
+      switch(currentMood) {
+        case "happy":
+          return `${timeGreeting}, ${userProfile.name}! You're beaming today!`;
+        case "motivated":
+          return `${timeGreeting}, ${userProfile.name}! You're fired up today!`;
+        case "focused":
+          return `${timeGreeting}, ${userProfile.name}! You're in the zone today!`;
+        case "curious":
+          return `${timeGreeting}, ${userProfile.name}! Ready to explore today?`;
+        case "neutral":
+          return `${timeGreeting}, ${userProfile.name}! Ready for a balanced day?`;
+        case "tired":
+          return `${timeGreeting}, ${userProfile.name}! Let's take it easy today.`;
+        case "stressed":
+          return `${timeGreeting}, ${userProfile.name}. Let's take one step at a time.`;
+        case "sad":
+          return `${timeGreeting}, ${userProfile.name}. We're here for you today.`;
+        case "overwhelmed":
+          return `${timeGreeting}, ${userProfile.name}. Let's break things down together.`;
+        case "okay":
+          return `${timeGreeting}, ${userProfile.name}! Ready for steady progress?`;
+        default:
+          return `${timeGreeting}, ${userProfile.name}!`;
       }
     }
+    
+    return `${timeGreeting}, ${userProfile.name}!`;
   };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: -20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.5 }
+  
+  // Get animation variants based on mood
+  const getHeaderAnimationVariant = () => {
+    if (!currentMood) return {};
+    
+    switch(currentMood) {
+      case "happy":
+      case "motivated":
+        return {
+          animate: {
+            y: [-2, 2, -2],
+            transition: { duration: 2, repeat: Infinity, ease: "easeInOut" }
+          }
+        };
+      case "focused":
+        return {
+          animate: {
+            scale: [1, 1.02, 1],
+            transition: { duration: 2, repeat: Infinity, ease: "easeInOut" }
+          }
+        };
+      case "curious":
+        return {
+          animate: {
+            rotate: [-1, 1, -1],
+            transition: { duration: 3, repeat: Infinity, ease: "easeInOut" }
+          }
+        };
+      case "stressed":
+      case "overwhelmed":
+        return {
+          animate: {
+            opacity: [1, 0.8, 1],
+            transition: { duration: 2, repeat: Infinity, ease: "easeInOut" }
+          }
+        };
+      default:
+        return {};
     }
   };
 
   return (
-    <motion.div 
-      className="mb-6 p-4 sm:p-6 rounded-xl bg-gradient-to-r from-violet-500/10 via-sky-100/20 to-purple-100/20 border border-violet-200/50 shadow-sm"
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-    >
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <motion.div variants={itemVariants}>
-          <motion.h1 
-            className="text-2xl md:text-3xl font-semibold flex items-center"
-            variants={itemVariants}
-          >
-            Hello, 
-            <motion.span 
-              className="gradient-text ml-2"
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ 
-                duration: 0.5, 
-                delay: 0.3,
-                type: "spring",
-                stiffness: 260,
-                damping: 20
-              }}
-            >
-              {userProfile.name}
-            </motion.span>
-            <motion.span
-              initial={{ opacity: 0, scale: 0, rotate: -20 }}
-              animate={{ opacity: 1, scale: 1, rotate: 0 }}
-              transition={{ delay: 0.6, duration: 0.5 }}
-              className="inline-block ml-2"
-            >
-              👋
-            </motion.span>
-          </motion.h1>
-          
-          <motion.div 
-            className="text-xs sm:text-sm text-muted-foreground flex flex-wrap items-center gap-x-2 sm:gap-x-4 mt-1"
-            variants={itemVariants}
-          >
-            <span>{formattedDate}</span>
-            <span className="hidden xs:inline-block">•</span>
-            <span className="hidden xs:inline-block">{formattedTime}</span>
-            {userProfile.goals && userProfile.goals[0] && (
-              <motion.span 
-                className="font-medium text-primary bg-violet-100/70 px-2 py-0.5 rounded-full"
-                whileHover={{ scale: 1.05 }}
+    <div className="dashboard-header w-full rounded-xl p-4 sm:p-6 bg-gradient-to-r from-violet-50 to-indigo-50 dark:from-violet-900/20 dark:to-indigo-900/20 shadow-sm border border-violet-100 dark:border-violet-800/30">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <motion.div {...getHeaderAnimationVariant()}>
+          <div className="flex items-center">
+            {currentMood && (
+              <motion.div
+                className="mr-2"
+                initial={{ scale: 0 }}
+                animate={{ scale: 1, rotate: [-10, 10, -10] }}
+                transition={{ duration: 2, repeat: Infinity, repeatType: "reverse" }}
               >
-                Goal: {userProfile.goals[0].title}
-              </motion.span>
+                {getMoodIcon(currentMood)}
+              </motion.div>
             )}
-          </motion.div>
+            <h1 className="text-xl md:text-2xl font-semibold">{getGreeting()}</h1>
+          </div>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            {formattedDate} • {formattedTime}
+          </p>
         </motion.div>
         
-        <motion.div 
-          className="flex gap-2 items-start justify-start md:justify-end w-full sm:w-auto"
-          variants={itemVariants}
-        >
-          <MoodLogButton className={`${isMobile ? 'text-xs px-3 py-1' : ''} whitespace-nowrap`} />
+        <div className="flex items-center gap-3">
+          {userProfile.goals && userProfile.goals[0] && (
+            <div className="px-3 py-1 bg-white dark:bg-gray-800 rounded-lg text-sm font-medium shadow-sm border border-violet-100 dark:border-violet-800/30">
+              Goal: {userProfile.goals[0].title}
+            </div>
+          )}
           
-          <motion.div
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+          <Button
+            size="sm"
+            variant="outline"
+            className="hidden sm:flex items-center bg-white hover:bg-violet-50 dark:bg-gray-800 dark:hover:bg-gray-700"
+            onClick={onViewStudyPlan}
           >
-            <Button 
-              onClick={onViewStudyPlan}
-              className={`
-                flex items-center gap-2 shadow-md whitespace-nowrap
-                bg-gradient-to-r from-violet-500 to-sky-500 hover:from-violet-600 hover:to-sky-600
-                ${isMobile ? 'text-xs px-3 py-1 h-8' : ''}
-              `}
-            >
-              <Eye size={isMobile ? 14 : 18} />
-              <span>View Study Plan</span>
-            </Button>
-          </motion.div>
-        </motion.div>
+            <BookOpen className="mr-2 h-4 w-4" /> Study Plan
+          </Button>
+        </div>
       </div>
-      
-      {extendedProfile.studyStreak && extendedProfile.studyStreak > 0 && (
-        <motion.div 
-          className="mt-3 sm:mt-4 flex items-center gap-2"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.8, duration: 0.5 }}
-        >
-          <div className="flex">
-            {[...Array(Math.min(extendedProfile.studyStreak, 5))].map((_, i) => (
-              <motion.div 
-                key={i}
-                className="w-6 h-6 bg-amber-100 rounded-full border-2 border-amber-300 flex items-center justify-center -ml-1 first:ml-0"
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ delay: 0.9 + i * 0.1 }}
-              >
-                <span className="text-xs">🔥</span>
-              </motion.div>
-            ))}
-          </div>
-          <span className="text-xs font-medium text-amber-700">
-            {extendedProfile.studyStreak} day{extendedProfile.studyStreak > 1 ? 's' : ''} streak! Keep it up!
-          </span>
-        </motion.div>
-      )}
-    </motion.div>
+    </div>
   );
 };
 
