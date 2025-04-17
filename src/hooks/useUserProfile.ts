@@ -1,9 +1,9 @@
 
 import { useState, useEffect } from "react";
-import { UserProfileType, UserRole } from "@/types/user";
+import { UserProfileType, UserRoleEnum } from "@/types/user";
 import { getMockProfileByRole } from "@/data/mockProfiles";
 
-export function useUserProfile(role: UserRole = UserRole.Student): {
+export function useUserProfile(role: UserRoleEnum = UserRoleEnum.Student): {
   userProfile: UserProfileType | null;
   loading: boolean;
   updateUserProfile: (updates: Partial<UserProfileType>) => void;
@@ -12,10 +12,8 @@ export function useUserProfile(role: UserRole = UserRole.Student): {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Simulate API call to fetch user profile
     const fetchUserProfile = () => {
       setLoading(true);
-      
       setTimeout(() => {
         const profile = getMockProfileByRole(role);
         setUserProfile(profile);
@@ -29,7 +27,7 @@ export function useUserProfile(role: UserRole = UserRole.Student): {
   const updateUserProfile = (updates: Partial<UserProfileType>) => {
     setUserProfile(prev => {
       if (!prev) return prev;
-      return { ...prev, ...updates };
+      return { ...prev, ...updates } as UserProfileType;
     });
   };
 

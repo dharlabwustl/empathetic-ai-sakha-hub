@@ -12,7 +12,19 @@ export enum UserRoleEnum {
   Founder = "founder"
 }
 
-export type MoodType = "happy" | "motivated" | "focused" | "curious" | "neutral" | "tired" | "stressed" | "sad" | "overwhelmed" | "okay";
+export type MoodType = 
+  | "happy" 
+  | "motivated" 
+  | "focused" 
+  | "curious" 
+  | "neutral" 
+  | "tired" 
+  | "stressed" 
+  | "sad" 
+  | "overwhelmed" 
+  | "okay";
+
+export type PersonalityType = "visual" | "auditory" | "kinesthetic" | "reading" | "analytical" | "creative" | "practical" | "social" | "independent" | "Strategic Thinker" | "Analytical Problem Solver" | "Creative Builder";
 
 export interface UserBasicInfo {
   id: string;
@@ -28,7 +40,6 @@ export interface UserBasicInfo {
     mood: MoodType;
     timestamp: string;
   }>;
-  // Add missing properties referenced in components
   joinDate?: string;
   personalityType?: PersonalityType;
   areasOfInterest?: Array<{ id: string; name: string; level: string }>;
@@ -38,12 +49,11 @@ export interface UserBasicInfo {
   phoneNumber?: string;
   lastActive?: string;
   gender?: "male" | "female";
+  subscription?: SubscriptionType;
 }
 
-// Define as both type and enum for SubscriptionType
 export type SubscriptionType = "free" | "basic" | "premium" | "enterprise";
 
-// Create an enum that can be used as values
 export enum SubscriptionTypeEnum {
   Free = "free",
   Basic = "basic",
@@ -51,10 +61,7 @@ export enum SubscriptionTypeEnum {
   Enterprise = "enterprise"
 }
 
-export type PersonalityType = "visual" | "auditory" | "kinesthetic" | "reading" | "analytical" | "creative" | "practical" | "social" | "independent" | "Strategic Thinker" | "Analytical Problem Solver" | "Creative Builder";
-
-// Define common goal structure
-export interface Goal {
+export type Goal = {
   id: string;
   title: string;
   progress: number;
@@ -62,9 +69,8 @@ export interface Goal {
   status?: string;
   dueDate?: string;
   targetDate?: Date;
-}
+};
 
-// Role-specific types
 export type StudentProfile = UserBasicInfo & {
   role: "student";
   grade?: string;
@@ -111,7 +117,6 @@ export type AdminProfile = UserBasicInfo & {
   goals?: Goal[];
 };
 
-// Define additional profile types
 export type EmployeeProfile = UserBasicInfo & {
   role: "employee";
   jobRole?: string;
