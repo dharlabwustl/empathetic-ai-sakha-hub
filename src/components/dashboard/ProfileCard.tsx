@@ -18,7 +18,8 @@ const ProfileCard = ({ profile, currentMood }: ProfileCardProps) => {
       <div className="flex items-center space-x-4">
         <Avatar className="h-12 w-12 ring-2 ring-offset-2 transition-all duration-300"
                 style={{
-                  ringColor: currentMood && moodTheme?.colors.text
+                  // Fix: Use proper inline style properties
+                  borderColor: currentMood && moodTheme?.colors.text
                 }}>
           {currentMood && moodTheme ? (
             <AvatarImage src={moodTheme.avatarUrl} alt="Mood Avatar" />
