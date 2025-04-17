@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -25,7 +24,6 @@ export const useStudentDashboard = () => {
   
   const [activeTab, setActiveTab] = useState(tab || "overview");
   
-  // Calculate current time greeting
   const now = new Date();
   const hour = now.getHours();
   let currentTime = "";
@@ -34,7 +32,6 @@ export const useStudentDashboard = () => {
   else if (hour < 17) currentTime = "Good Afternoon";
   else currentTime = "Good Evening";
   
-  // Features list
   const features = {
     overview: true,
     subjects: true,
@@ -45,14 +42,12 @@ export const useStudentDashboard = () => {
     settings: true,
   };
   
-  // Handle tab changes
   useEffect(() => {
     if (tab) {
       setActiveTab(tab);
     }
   }, [tab]);
   
-  // Initialize dashboard state
   useEffect(() => {
     console.log("useStudentDashboard - Initializing dashboard");
     
@@ -60,8 +55,6 @@ export const useStudentDashboard = () => {
       try {
         setLoading(true);
         
-        // Check if this is a new user session
-        console.log("useStudentDashboard - Checking user session");
         const { shouldShowOnboarding, shouldShowWelcomeTour } = handleNewUser(location, navigate);
         
         console.log("useStudentDashboard - Session result:", { 
@@ -69,31 +62,23 @@ export const useStudentDashboard = () => {
           shouldShowWelcomeTour 
         });
         
-        // Update state based on user session
         setShowOnboarding(shouldShowOnboarding);
-        // Always show welcome tour for first-time users after onboarding
         setShowWelcomeTour(shouldShowWelcomeTour);
         
-        // Get user's last activity and suggest next actions for returning users
         if (!shouldShowOnboarding && !shouldShowWelcomeTour) {
-          // This would normally come from an API call to get the user's activity history
-          // For now, we'll use mock data stored in localStorage
           const userData = localStorage.getItem("userData");
           if (userData) {
             const parsedData = JSON.parse(userData);
             
-            // Set mock last activity if available
             if (parsedData.lastActivity) {
               setLastActivity(parsedData.lastActivity);
             } else {
-              // Default last activity if none exists
               setLastActivity({
                 type: "login",
                 description: "You last logged in yesterday"
               });
             }
             
-            // Set next action suggestion based on user progress
             if (parsedData.completedModules && parsedData.completedModules.length > 0) {
               const lastModule = parsedData.completedModules[parsedData.completedModules.length - 1];
               setSuggestedNextAction(`Continue with ${lastModule.nextModule || "Practice Exercises"}`);
@@ -102,22 +87,18 @@ export const useStudentDashboard = () => {
             }
           }
         }
-
-        // Update login count for returning users
+        
         if (userProfile && !shouldShowOnboarding) {
           const currentLoginCount = userProfile.loginCount || 0;
           
-          // Only increment login count if this is a new session (after a page reload/new browser session)
           if (!sessionStorage.getItem('session_active')) {
             updateUserProfile({
               loginCount: currentLoginCount + 1
             } as Partial<typeof userProfile>);
             
-            // Mark this session as active to prevent multiple increments during the same session
             sessionStorage.setItem('session_active', 'true');
           }
         }
-        
       } catch (error) {
         console.error("Dashboard initialization error:", error);
         toast({
@@ -126,7 +107,6 @@ export const useStudentDashboard = () => {
           variant: "destructive",
         });
       } finally {
-        // Wait for profile loading to complete
         if (!profileLoading) {
           setLoading(false);
         }
@@ -136,33 +116,27 @@ export const useStudentDashboard = () => {
     initDashboard();
   }, [location, navigate, profileLoading, userProfile, updateUserProfile]);
   
-  // Update loading state when profile loading changes
   useEffect(() => {
     if (!profileLoading) {
       setLoading(false);
     }
   }, [profileLoading]);
   
-  // Handle tab change
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
     navigate(`/dashboard/student/${tab}`);
   };
   
-  // Toggle sidebar
   const toggleSidebar = () => {
     setHideSidebar(!hideSidebar);
   };
   
-  // Toggle tabs navigation
   const toggleTabsNav = () => {
     setHideTabsNav(!hideTabsNav);
   };
   
-  // Handle welcome tour
   const handleSkipTour = () => {
     setShowWelcomeTour(false);
-    // Mark that user has seen welcome tour
     const userData = localStorage.getItem("userData");
     if (userData) {
       const parsedData = JSON.parse(userData);
@@ -173,7 +147,6 @@ export const useStudentDashboard = () => {
   
   const handleCompleteTour = () => {
     setShowWelcomeTour(false);
-    // Mark that user has seen welcome tour
     const userData = localStorage.getItem("userData");
     if (userData) {
       const parsedData = JSON.parse(userData);
@@ -187,11 +160,9 @@ export const useStudentDashboard = () => {
     });
   };
   
-  // Handle onboarding completion
   const handleCompleteOnboarding = () => {
     setShowOnboarding(false);
     
-    // Update onboarding completion status in user data
     const userData = localStorage.getItem("userData");
     if (userData) {
       const parsedData = JSON.parse(userData);
@@ -199,7 +170,6 @@ export const useStudentDashboard = () => {
       localStorage.setItem("userData", JSON.stringify(parsedData));
     }
     
-    // Show welcome tour after onboarding
     setShowWelcomeTour(true);
     
     toast({
@@ -208,7 +178,6 @@ export const useStudentDashboard = () => {
     });
   };
   
-  // Study plan handlers
   const handleViewStudyPlan = () => {
     setShowStudyPlan(true);
   };

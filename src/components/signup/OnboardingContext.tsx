@@ -2,6 +2,7 @@
 import React, { createContext, useContext, useState } from "react";
 import { PersonalityType, MoodType, UserRole } from "@/types/user/base";
 
+// Re-export UserRole from base.ts
 export { UserRole };
 export type UserGoal = string;
 export type OnboardingStep = 

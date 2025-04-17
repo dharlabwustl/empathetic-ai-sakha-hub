@@ -30,7 +30,7 @@ const GoalStep: React.FC<GoalStepProps> = ({ role, onGoalSelect }) => {
 
   return (
     <div className="space-y-4">
-      {role === "Student" && (
+      {role === UserRole.Student && (
         <div className="grid grid-cols-1 gap-3">
           {studentGoals.map((goal) => (
             <Button
@@ -45,7 +45,7 @@ const GoalStep: React.FC<GoalStepProps> = ({ role, onGoalSelect }) => {
         </div>
       )}
       
-      {role !== "Student" && (
+      {role !== UserRole.Student && (
         <form onSubmit={handleCustomGoalSubmit} className="space-y-4">
           <div>
             <Label htmlFor="goal">Your Primary Goal</Label>

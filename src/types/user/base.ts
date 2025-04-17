@@ -55,6 +55,9 @@ export interface UserProfileType {
   goals: Array<{id: string, title: string, description?: string, progress: number, status?: string, dueDate?: string, targetDate?: Date}>;
   loginCount?: number;
   completedOnboarding?: boolean;
+  examPreparation?: string;
+  bio?: string;
+  avatar?: string;
 }
 
 /**

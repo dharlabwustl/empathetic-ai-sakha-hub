@@ -67,7 +67,7 @@ const MoodTracking: React.FC<MoodTrackingProps> = ({ className = "" }) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <MoodSpecificContent mood={currentMood} />
+            <MoodSpecificContent currentMood={currentMood} />
             
             <div className="mt-4">
               <Button 

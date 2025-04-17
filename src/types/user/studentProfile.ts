@@ -6,9 +6,9 @@ export const mockStudentProfile: StudentProfile = {
   name: "Rahul Singh",
   phoneNumber: "9876543210",
   email: "rahul.singh@example.com", // Added missing required field
-  role: "student" as UserRole,
+  role: UserRole.Student,
   personalityType: "Strategic Thinker",
-  subscription: "Basic", // Added missing field
+  subscription: "basic", // Fixed case sensitivity
   joinDate: "2025-03-01",
   lastActive: "2025-05-12",
   areasOfInterest: [
