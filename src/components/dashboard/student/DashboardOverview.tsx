@@ -3,7 +3,7 @@ import { UserProfileType } from "@/types/user";
 import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
 import KpiCard from "@/components/dashboard/KpiCard";
 import NudgePanel from "@/components/dashboard/NudgePanel";
-import ProfileCard from "@/components/dashboard/ProfileCard";
+import { ProfileCard } from "@/components/dashboard/ProfileCard";
 import FeatureCard from "@/components/dashboard/FeatureCard";
 import TodayStudyPlan from "@/components/dashboard/student/TodayStudyPlan";
 import FeelGoodCorner from "@/components/dashboard/student/FeelGoodCorner";

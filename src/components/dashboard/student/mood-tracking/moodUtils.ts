@@ -1,3 +1,4 @@
+
 import React from "react";
 import { 
   Smile, 
@@ -12,7 +13,6 @@ import {
   ThumbsUp 
 } from "lucide-react";
 import { MoodType } from "@/types/user/base";
-import { toast } from "@/hooks/use-toast";
 
 // Get human-readable display name for each mood
 export const getMoodDisplayName = (mood?: MoodType): string => {
@@ -164,138 +164,86 @@ export const getMoodMotivationalQuote = (mood: MoodType): string => {
     happy: [
       "Your positive energy is contagious! Perfect time to tackle challenging topics.",
       "A happy mind learns better. Make the most of this great mood!",
-      "Happiness boosts memory retention. Let's use this to our advantage!"
+      "Happiness boosts memory retention. Let's use this to your advantage!"
     ],
     motivated: [
       "Motivation is the fuel for achievement. Keep your momentum going!",
-      "When motivation strikes, the impossible becomes possible. Aim high today!",
-      "Use this drive to push past your usual limits. You've got this!"
+      "When motivation strikes, the impossible becomes possible. Let's make progress!",
+      "Your drive today can create momentum for tomorrow. Keep it up!"
     ],
     focused: [
-      "Your focus determines your reality. Make the most of this clarity!",
-      "Deep focus is a superpower. Use it wisely on your most important tasks.",
-      "In this state of concentration, you can achieve exceptional results."
+      "Deep focus is a superpower. Make the most of this concentrated energy.",
+      "In the zone! This is the perfect state for tackling difficult concepts.",
+      "Your focused mind is ready for challenges. Let's make great progress today!"
     ],
     curious: [
-      "Curiosity is the path to new knowledge. Explore widely today!",
-      "Questions lead to understanding. Keep asking and discovering!",
-      "A curious mind is always growing. Let your questions guide your learning."
+      "Curiosity is the engine of achievement. Follow where it leads you today!",
+      "Great discoveries start with curiosity. What will you discover today?",
+      "Your curious mind is open to new concepts. Perfect for exploring new topics!"
     ],
     neutral: [
-      "A neutral state provides balance. Good time for consistent progress.",
-      "Sometimes steady and stable is exactly what you need for consistent results.",
-      "Neutrality can be clarity. Use this balanced state for methodical work."
+      "A neutral mood is a clean slate. Good for methodical, steady progress.",
+      "Balance and steadiness can lead to consistent results. Keep moving forward!",
+      "Sometimes neutrality is the best foundation for clear thinking."
     ],
     tired: [
-      "Rest when you need to. Short, focused sessions work best when tired.",
-      "Energy management is key. Try the Pomodoro technique: 25 minutes work, 5 minutes rest.",
-      "Quality trumps quantity when energy is low. Focus on understanding, not volume."
+      "Even when tired, small steps add up. Be gentle with yourself today.",
+      "Consider focusing on review rather than new concepts when energy is low.",
+      "It's okay to take more breaks today. Quality over quantity!"
     ],
     stressed: [
-      "Take a deep breath. Stress narrows focus—use it for single-task concentration.",
-      "Remember: you've overcome challenges before. Take one step at a time.",
-      "Convert stress to focused energy by organizing tasks from smallest to largest."
+      "Breathe deeply. Learning happens best when we manage our stress.",
+      "One small step at a time will get you through stressful periods.",
+      "Remember: this feeling is temporary. Focus on what's in your control."
     ],
     sad: [
-      "Be gentle with yourself. Start with topics that bring you joy or confidence.",
-      "Learning can be a positive distraction. Find a subject that sparks interest.",
-      "Small wins build momentum. Set easily achievable goals today."
+      "It's okay not to be okay. Be kind to yourself today.",
+      "Small achievements on tough days count double. Celebrate any progress.",
+      "Sometimes learning can be a welcome distraction when feeling down."
     ],
     overwhelmed: [
-      "Break it down. The biggest tasks become manageable in small pieces.",
-      "Focus on just the next step. Progress comes one action at a time.",
-      "It's okay to ask for help. Reaching out is a sign of strength, not weakness."
+      "Break everything down into tiny steps. One small task at a time.",
+      "It's okay to pause and regroup when feeling overwhelmed.",
+      "Focus only on the next 5 minutes. Small progress adds up."
     ],
     okay: [
-      "Steady progress adds up. Consistency beats intensity in the long run.",
-      "This balanced state is perfect for reviewing material and filling knowledge gaps.",
-      "Sometimes 'okay' is the perfect space for learning—not too high, not too low."
+      "A steady mood makes for steady progress. You've got this!",
+      "Today is a good day for consistent, methodical learning.",
+      "Being okay is a solid foundation for learning. Let's build on it!"
     ]
   };
-  
-  const moodQuotes = quotes[mood] || quotes.neutral;
+
+  if (!mood || !quotes[mood]) return "Every moment is an opportunity to learn something new.";
+
+  const moodQuotes = quotes[mood];
   return moodQuotes[Math.floor(Math.random() * moodQuotes.length)];
 };
 
-// Apply mood-based theme to the UI
-export const applyMoodTheme = (mood: MoodType) => {
-  document.body.classList.remove(
-    "mood-happy", "mood-motivated", "mood-focused", "mood-curious",
-    "mood-neutral", "mood-tired", "mood-stressed", "mood-sad",
-    "mood-overwhelmed", "mood-okay"
-  );
-  
-  document.body.classList.add(`mood-${mood}`);
-  
-  const toastContent = getMoodToastContent(mood);
-  toast({
-    title: toastContent.title,
-    description: toastContent.description,
+// Apply mood theme to body
+export const applyMoodTheme = (mood: MoodType): void => {
+  // Remove existing mood classes
+  document.body.classList.forEach(className => {
+    if (className.startsWith('mood-')) {
+      document.body.classList.remove(className);
+    }
   });
+  
+  // Add the new mood class
+  document.body.classList.add(`mood-${mood}`);
 };
 
 // Save mood to localStorage
-export const saveMoodToLocalStorage = (mood: MoodType) => {
-  const userData = localStorage.getItem("userData");
-  if (userData) {
-    const parsedData = JSON.parse(userData);
-    parsedData.mood = mood;
-    localStorage.setItem("userData", JSON.stringify(parsedData));
-  } else {
-    localStorage.setItem("userData", JSON.stringify({ mood }));
-  }
-};
-
-// Get mood history data for the chart
-export const getMoodHistoryData = () => {
-  const userData = localStorage.getItem("userData");
-  if (!userData) return [];
-  
-  const { moodHistory = [] } = JSON.parse(userData);
-  return moodHistory.map((entry: { mood: MoodType; timestamp: string }) => ({
-    mood: entry.mood,
-    time: new Date(entry.timestamp).toLocaleDateString(),
-  }));
-};
-
-// Get study suggestions based on current mood
-export const getStudySuggestions = (mood: MoodType): string[] => {
-  switch (mood) {
-    case "happy":
-      return [
-        "Great time to tackle challenging topics!",
-        "Try group study sessions",
-        "Work on complex problem-solving"
-      ];
-    case "motivated":
-      return [
-        "Set ambitious goals for today",
-        "Take on difficult assignments",
-        "Help peers with their studies"
-      ];
-    case "focused":
-      return [
-        "Deep dive into complex subjects",
-        "Work on detailed analysis",
-        "Perfect for exam preparation"
-      ];
-    case "tired":
-      return [
-        "Review familiar material",
-        "Take short study breaks",
-        "Focus on light reading"
-      ];
-    case "stressed":
-      return [
-        "Break tasks into smaller chunks",
-        "Start with easier topics",
-        "Practice mindful studying"
-      ];
-    default:
-      return [
-        "Focus on steady progress",
-        "Review your study plan",
-        "Take it one step at a time"
-      ];
+export const saveMoodToLocalStorage = (mood: MoodType): void => {
+  try {
+    const userData = localStorage.getItem("userData");
+    if (userData) {
+      const parsedData = JSON.parse(userData);
+      parsedData.mood = mood;
+      localStorage.setItem("userData", JSON.stringify(parsedData));
+    } else {
+      localStorage.setItem("userData", JSON.stringify({ mood }));
+    }
+  } catch (error) {
+    console.error("Error saving mood to localStorage", error);
   }
 };
