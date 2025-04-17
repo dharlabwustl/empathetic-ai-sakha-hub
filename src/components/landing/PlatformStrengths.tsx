@@ -1,3 +1,4 @@
+
 import React, { useRef } from "react";
 import { motion, useInView, Variants } from "framer-motion";
 import { 
@@ -50,7 +51,7 @@ const PlatformStrengths: React.FC = () => {
       transition: {
         duration: 2,
         repeat: Infinity,
-        repeatType: "reverse"
+        repeatType: "reverse" as const // Explicitly type as "reverse" | "loop" | "mirror"
       }
     }
   };
