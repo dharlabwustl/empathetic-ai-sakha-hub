@@ -25,7 +25,7 @@ const Header = () => {
               alt="Sakha AI Logo" 
               className="w-8 h-8"
             />
-            <span className="font-medium text-gray-900 dark:text-white">Sakha AI HiFi</span>
+            <span className="font-medium text-gray-900 dark:text-white">Sakha AI</span>
           </Link>
           
           {/* Desktop Navigation */}
@@ -151,4 +151,3 @@ const Header = () => {
 };
 
 export default Header;
-
