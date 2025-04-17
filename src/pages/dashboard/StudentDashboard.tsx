@@ -30,6 +30,13 @@ const StudentDashboard = () => {
     toggleTabsNav
   } = useStudentDashboard();
 
+  // Mock peer comparison data - in a real app this would come from an API
+  const peerComparisonData = {
+    position: 42,
+    totalPeers: 350,
+    percentile: 88
+  };
+
   if (loading || !userProfile) {
     return <DashboardLoading />;
   }
@@ -67,6 +74,7 @@ const StudentDashboard = () => {
       onCompleteTour={handleCompleteTour}
       showStudyPlan={showStudyPlan}
       onCloseStudyPlan={handleCloseStudyPlan}
+      peerComparisonData={peerComparisonData}
     />
   );
 };
