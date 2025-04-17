@@ -1,10 +1,9 @@
-
-import { UserProfileType, UserRoleEnum } from "@/types/user/base";
+import { UserProfileType, UserRole } from "@/types/user/base";
 import { mockStudentProfile } from "./studentProfile";
 
-export const getMockProfileByRole = (role: UserRoleEnum): UserProfileType => {
+export const getMockProfileByRole = (role: UserRole): UserProfileType => {
   switch (role) {
-    case UserRoleEnum.Student:
+    case "student":
       return mockStudentProfile;
     // Add other role cases as needed
     default:

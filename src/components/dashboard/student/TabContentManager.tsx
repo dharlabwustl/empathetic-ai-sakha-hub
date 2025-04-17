@@ -13,7 +13,7 @@ import { SmartNotificationSection } from '@/components/dashboard/student/SmartNo
 import TodayStudyPlan from '@/components/dashboard/student/TodayStudyPlan';
 import DashboardOverview from '@/components/dashboard/student/DashboardOverview';
 import WelcomeTour from '@/components/dashboard/student/WelcomeTour';
-import { UserProfileType, MoodType } from '@/types/user';
+import { UserProfileType } from '@/types/user';
 import { KpiData, NudgeData } from '@/hooks/useKpiTracking';
 import { MicroConceptView, FlashcardsView, PracticeExamsView } from '@/pages/dashboard/student/TabContentViews';
 import FlashcardsFeature from '@/components/dashboard/student/FlashcardsFeature';
@@ -37,7 +37,6 @@ interface TabContentManagerProps {
   handleCompleteTour: () => void;
   lastActivity?: { type: string; description: string } | null;
   suggestedNextAction?: string | null;
-  currentMood?: MoodType;
 }
 
 export const generateTabContents = ({
@@ -50,8 +49,7 @@ export const generateTabContents = ({
   handleSkipTour,
   handleCompleteTour,
   lastActivity,
-  suggestedNextAction,
-  currentMood
+  suggestedNextAction
 }: TabContentManagerProps): Record<string, ReactNode> => {
   // Check if user is a first time user based on profile data
   // Using optional chaining to safely access potentially undefined properties

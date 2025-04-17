@@ -1,13 +1,15 @@
-import React, { ReactNode } from 'react';
-import { UserProfileType } from '@/types/user/base';
-import { KpiData, NudgeData } from '@/hooks/useKpiTracking';
-import { MoodType } from '@/types/user/base';
-import { generateTabContents } from '@/components/dashboard/student/TabContentManager';
 
-export interface DashboardTabsProps {
+import React from 'react';
+import { UserProfileType } from "@/types/user";
+import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
+import { generateTabContents } from "@/components/dashboard/student/TabContentManager";
+import DashboardTabs from "@/components/dashboard/student/DashboardTabs";
+import ReturnUserRecap from "@/components/dashboard/student/ReturnUserRecap";
+
+interface DashboardTabsProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
-  tabContents?: Record<string, ReactNode>;
+  tabContents?: Record<string, React.ReactNode>; // Added tabContents field
 }
 
 interface DashboardContentProps {
@@ -17,17 +19,16 @@ interface DashboardContentProps {
   kpis: KpiData[];
   nudges: NudgeData[];
   markNudgeAsRead: (id: string) => void;
-  features?: any[];
-  showWelcomeTour?: boolean;
-  handleSkipTour?: () => void;
-  handleCompleteTour?: () => void;
-  hideTabsNav?: boolean;
+  features: any[];
+  showWelcomeTour: boolean;
+  handleSkipTour: () => void;
+  handleCompleteTour: () => void;
+  hideTabsNav: boolean;
   lastActivity?: { type: string; description: string } | null;
   suggestedNextAction?: string | null;
-  currentMood?: MoodType;
 }
 
-export default function DashboardContent({
+const DashboardContent = ({
   activeTab,
   onTabChange,
   userProfile,
@@ -40,9 +41,14 @@ export default function DashboardContent({
   handleCompleteTour,
   hideTabsNav,
   lastActivity,
-  suggestedNextAction,
-  currentMood
-}: DashboardContentProps) {
+  suggestedNextAction
+}: DashboardContentProps) => {
+  // State to track whether the returning user recap has been closed
+  const [showReturnRecap, setShowReturnRecap] = React.useState(
+    Boolean(userProfile.loginCount && userProfile.loginCount > 1 && lastActivity)
+  );
+
+  // Generate tab contents once
   const tabContents = generateTabContents({
     userProfile,
     kpis,
@@ -53,13 +59,50 @@ export default function DashboardContent({
     handleSkipTour,
     handleCompleteTour,
     lastActivity,
-    suggestedNextAction,
-    currentMood
+    suggestedNextAction
   });
   
+  // Handle closing the recap
+  const handleCloseRecap = () => {
+    setShowReturnRecap(false);
+  };
+
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-100 dark:border-gray-700 p-4 sm:p-6">
-      {tabContents[activeTab] || <div>Tab content not found</div>}
+    <div className="h-full flex flex-col">
+      {/* Returning User Recap - Show for users with login count > 1 */}
+      {showReturnRecap && activeTab === "overview" && !showWelcomeTour && (
+        <ReturnUserRecap
+          userName={userProfile.name}
+          lastLoginDate={lastActivity?.description || "recently"}
+          suggestedNextTasks={suggestedNextAction ? [suggestedNextAction] : undefined}
+          onClose={handleCloseRecap}
+          loginCount={userProfile.loginCount}
+        />
+      )}
+
+      {/* Tabs navigation */}
+      {!hideTabsNav && (
+        <DashboardTabs 
+          activeTab={activeTab} 
+          onTabChange={onTabChange} 
+          tabContents={tabContents} // Pass tabContents to avoid regenerating
+        />
+      )}
+
+      {/* Tab content */}
+      <div className="mt-6 bg-white dark:bg-gray-800 rounded-lg shadow p-4 sm:p-6 flex-grow">
+        {tabContents[activeTab] || (
+          <div className="text-center py-8">
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white">Coming Soon</h3>
+            <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+              This tab is not yet available. Check back later.
+            </p>
+          </div>
+        )}
+      </div>
     </div>
   );
-}
+};
+
+export default DashboardContent;
+export type { DashboardTabsProps };

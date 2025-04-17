@@ -1,4 +1,3 @@
-
 // Define as both type and enum for UserRole
 export type UserRole = "student" | "parent" | "teacher" | "admin" | "employee" | "doctor" | "founder";
 
@@ -72,7 +71,7 @@ export type Goal = {
   targetDate?: Date;
 };
 
-export interface StudentProfile extends UserBasicInfo {
+export type StudentProfile = UserBasicInfo & {
   role: "student";
   grade?: string;
   subjects?: Array<string | { id: string; name: string; progress: number }>;
@@ -92,33 +91,33 @@ export interface StudentProfile extends UserBasicInfo {
   syllabusCoverage?: number;
   strongSubjects?: string[];
   weakSubjects?: string[];
-}
+};
 
-export interface ParentProfile extends UserBasicInfo {
+export type ParentProfile = UserBasicInfo & {
   role: "parent";
   children?: string[];
   subscription?: SubscriptionType;
   goals?: Goal[];
-}
+};
 
-export interface TeacherProfile extends UserBasicInfo {
+export type TeacherProfile = UserBasicInfo & {
   role: "teacher";
   subjects?: string[];
   classes?: string[];
   subscription?: SubscriptionType;
   specializations?: string[];
   goals?: Goal[];
-}
+};
 
-export interface AdminProfile extends UserBasicInfo {
+export type AdminProfile = UserBasicInfo & {
   role: "admin";
   permissions?: string[];
   department?: string;
   subscription?: SubscriptionType;
   goals?: Goal[];
-}
+};
 
-export interface EmployeeProfile extends UserBasicInfo {
+export type EmployeeProfile = UserBasicInfo & {
   role: "employee";
   jobRole?: string;
   seniorityLevel?: string;
@@ -127,20 +126,18 @@ export interface EmployeeProfile extends UserBasicInfo {
   goals?: Goal[];
   jobTitle?: string;
   industry?: string;
-  examPreparation?: string;
-}
+};
 
-export interface DoctorProfile extends UserBasicInfo {
+export type DoctorProfile = UserBasicInfo & {
   role: "doctor";
   specialization?: string;
   institution?: string;
   research?: string;
   subscription?: SubscriptionType;
   goals?: Goal[];
-  examPreparation?: string;
-}
+};
 
-export interface FounderProfile extends UserBasicInfo {
+export type FounderProfile = UserBasicInfo & {
   role: "founder";
   startupStage?: string;
   teamSize?: number;
@@ -148,8 +145,7 @@ export interface FounderProfile extends UserBasicInfo {
   subscription?: SubscriptionType;
   goals?: Goal[];
   startupName?: string;
-  examPreparation?: string;
-}
+};
 
 export type UserProfile = StudentProfile | ParentProfile | TeacherProfile | AdminProfile | EmployeeProfile | DoctorProfile | FounderProfile;
 export type UserProfileType = StudentProfile | ParentProfile | TeacherProfile | AdminProfile | EmployeeProfile | DoctorProfile | FounderProfile;
