@@ -31,7 +31,7 @@ export const pulseAnimation = {
     transition: {
       duration: 2,
       repeat: Infinity,
-      repeatType: "reverse"
+      repeatType: "reverse" // Changed from string to specific "reverse" value
     }
   }
 };
