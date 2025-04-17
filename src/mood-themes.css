@@ -1,177 +1,89 @@
 
-/* Mood-based theme styles */
-
-/* Motivated Theme */
+/* Mood Theme CSS */
 .mood-motivated {
-  --mood-primary: #FF9500;
-  --mood-secondary: #FFB74D;
-  --mood-accent: #FFECB3;
-  --mood-text: #7A4F01;
-  --mood-bg-gradient: linear-gradient(to right, #FFF9C4, #FFECB3);
-  --mood-dark-bg-gradient: linear-gradient(to right, #7A4F01, #5D3C00);
+  --mood-primary: 249 115 22; /* orange-600 */
+  --mood-secondary: 234 88 12; /* orange-700 */
+  --mood-accent: 254 215 170; /* orange-200 */
+  --mood-background: 255 247 237; /* orange-50 */
 }
 
-.mood-motivated .dashboard-header {
-  background: var(--mood-bg-gradient);
-  border-color: var(--mood-primary);
-}
-
-.mood-motivated .kpi-card {
-  border-color: var(--mood-secondary);
-}
-
-.mood-motivated .navbar-item.active {
-  background-color: var(--mood-primary);
-  color: white;
-}
-
-/* Curious Theme */
 .mood-curious {
-  --mood-primary: #5E35B1;
-  --mood-secondary: #9575CD;
-  --mood-accent: #D1C4E9;
-  --mood-text: #311B92;
-  --mood-bg-gradient: linear-gradient(to right, #E8EAF6, #D1C4E9);
-  --mood-dark-bg-gradient: linear-gradient(to right, #311B92, #4527A0);
+  --mood-primary: 37 99 235; /* blue-600 */
+  --mood-secondary: 29 78 216; /* blue-700 */
+  --mood-accent: 191 219 254; /* blue-200 */
+  --mood-background: 239 246 255; /* blue-50 */
 }
 
-.mood-curious .dashboard-header {
-  background: var(--mood-bg-gradient);
-  border-color: var(--mood-primary);
-}
-
-.mood-curious .kpi-card {
-  border-color: var(--mood-secondary);
-}
-
-.mood-curious .navbar-item.active {
-  background-color: var(--mood-primary);
-  color: white;
-}
-
-/* Neutral Theme */
 .mood-neutral {
-  --mood-primary: #78909C;
-  --mood-secondary: #B0BEC5;
-  --mood-accent: #ECEFF1;
-  --mood-text: #455A64;
-  --mood-bg-gradient: linear-gradient(to right, #F5F7FA, #ECEFF1);
-  --mood-dark-bg-gradient: linear-gradient(to right, #455A64, #37474F);
+  --mood-primary: 107 114 128; /* gray-500 */
+  --mood-secondary: 75 85 99; /* gray-600 */
+  --mood-accent: 229 231 235; /* gray-200 */
+  --mood-background: 249 250 251; /* gray-50 */
 }
 
-.mood-neutral .dashboard-header {
-  background: var(--mood-bg-gradient);
-  border-color: var(--mood-primary);
-}
-
-.mood-neutral .kpi-card {
-  border-color: var(--mood-secondary);
-}
-
-.mood-neutral .navbar-item.active {
-  background-color: var(--mood-primary);
-  color: white;
-}
-
-/* Tired Theme */
 .mood-tired {
-  --mood-primary: #039BE5;
-  --mood-secondary: #4FC3F7;
-  --mood-accent: #B3E5FC;
-  --mood-text: #01579B;
-  --mood-bg-gradient: linear-gradient(to right, #E1F5FE, #B3E5FC);
-  --mood-dark-bg-gradient: linear-gradient(to right, #01579B, #0277BD);
+  --mood-primary: 217 119 6; /* amber-600 */
+  --mood-secondary: 180 83 9; /* amber-700 */
+  --mood-accent: 253 230 138; /* amber-200 */
+  --mood-background: 255 251 235; /* amber-50 */
 }
 
-.mood-tired .dashboard-header {
-  background: var(--mood-bg-gradient);
-  border-color: var(--mood-primary);
-}
-
-.mood-tired .kpi-card {
-  border-color: var(--mood-secondary);
-}
-
-.mood-tired .navbar-item.active {
-  background-color: var(--mood-primary);
-  color: white;
-}
-
-/* Stressed Theme */
 .mood-stressed {
-  --mood-primary: #7E57C2;
-  --mood-secondary: #B39DDB;
-  --mood-accent: #D1C4E9;
-  --mood-text: #4527A0;
-  --mood-bg-gradient: linear-gradient(to right, #EDE7F6, #D1C4E9);
-  --mood-dark-bg-gradient: linear-gradient(to right, #4527A0, #311B92);
+  --mood-primary: 220 38 38; /* red-600 */
+  --mood-secondary: 185 28 28; /* red-700 */
+  --mood-accent: 254 202 202; /* red-200 */
+  --mood-background: 254 242 242; /* red-50 */
 }
 
-.mood-stressed .dashboard-header {
-  background: var(--mood-bg-gradient);
-  border-color: var(--mood-primary);
+.mood-focused {
+  --mood-primary: 5 150 105; /* emerald-600 */
+  --mood-secondary: 4 120 87; /* emerald-700 */
+  --mood-accent: 167 243 208; /* emerald-200 */
+  --mood-background: 236 253 245; /* emerald-50 */
 }
 
-.mood-stressed .kpi-card {
-  border-color: var(--mood-secondary);
+.mood-happy {
+  --mood-primary: 22 163 74; /* green-600 */
+  --mood-secondary: 21 128 61; /* green-700 */
+  --mood-accent: 187 247 208; /* green-200 */
+  --mood-background: 240 253 244; /* green-50 */
 }
 
-.mood-stressed .navbar-item.active {
-  background-color: var(--mood-primary);
-  color: white;
+.mood-okay {
+  --mood-primary: 2 132 199; /* sky-600 */
+  --mood-secondary: 3 105 161; /* sky-700 */
+  --mood-accent: 186 230 253; /* sky-200 */
+  --mood-background: 240 249 255; /* sky-50 */
 }
 
-/* Common theme animations */
-
-/* Sparkle effect for Curious */
-.mood-curious .sparkle {
-  position: relative;
+.mood-overwhelmed {
+  --mood-primary: 147 51 234; /* purple-600 */
+  --mood-secondary: 126 34 206; /* purple-700 */
+  --mood-accent: 233 213 255; /* purple-200 */
+  --mood-background: 250 245 255; /* purple-50 */
 }
 
-.mood-curious .sparkle::after {
-  content: "✨";
-  position: absolute;
-  opacity: 0;
-  animation: sparkleAnimation 2s infinite;
+.mood-sad {
+  --mood-primary: 79 70 229; /* indigo-600 */
+  --mood-secondary: 67 56 202; /* indigo-700 */
+  --mood-accent: 199 210 254; /* indigo-200 */
+  --mood-background: 238 242 255; /* indigo-50 */
 }
 
-@keyframes sparkleAnimation {
-  0% { opacity: 0; transform: translateY(0) rotate(0deg); }
-  50% { opacity: 1; transform: translateY(-10px) rotate(10deg); }
-  100% { opacity: 0; transform: translateY(-20px) rotate(20deg); }
+/* Dialog Background Fixes */
+.fixed.inset-0.bg-background/80.backdrop-blur-sm[data-state=open] {
+  background-color: rgba(0, 0, 0, 0.5) !important;
 }
 
-/* Pulse for Motivated */
-.mood-motivated .pulse {
-  animation: pulse 2s infinite;
+/* Dialog Content Solid Background */
+.dialog-content, 
+[role=dialog] [role=document],
+.fixed.inset-0.z-50.flex.items-center.justify-center {
+  background-color: white !important;
 }
 
-@keyframes pulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-  100% { transform: scale(1); }
-}
-
-/* Floating clouds for Tired */
-.mood-tired .float {
-  animation: float 5s infinite ease-in-out;
-}
-
-@keyframes float {
-  0% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
-  100% { transform: translateY(0px); }
-}
-
-/* Heartbeat for Stressed */
-.mood-stressed .heartbeat {
-  animation: heartbeat 1.5s infinite;
-}
-
-@keyframes heartbeat {
-  0% { transform: scale(1); }
-  14% { transform: scale(1.1); }
-  28% { transform: scale(1); }
-  42% { transform: scale(1.1); }
-  70% { transform: scale(1); }
+.dark .dialog-content,
+.dark [role=dialog] [role=document],
+.dark .fixed.inset-0.z-50.flex.items-center.justify-center {
+  background-color: rgb(30, 30, 30) !important;
 }
