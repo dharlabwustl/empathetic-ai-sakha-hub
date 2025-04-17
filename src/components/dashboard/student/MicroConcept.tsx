@@ -12,6 +12,7 @@ import { MicroConceptTabs } from "./micro-concept/MicroConceptTabs";
 import { MicroConceptFooter } from "./micro-concept/MicroConceptFooter";
 import { useMicroConcept } from "./micro-concept/useMicroConcept";
 import { MicroConceptProps } from "./micro-concept/types";
+import { ResourceDisplay } from "./micro-concept/utils/resourceTypeUtils";
 
 export default function MicroConcept({
   title = "Newton's Third Law of Motion",
@@ -51,12 +52,12 @@ export default function MicroConcept({
   chapter,
   estimatedTime,
   content,
-  resourceType,
-  resourceUrl,
+  resourceType = "Text",
+  resourceUrl = "",
   onComplete,
   onNeedHelp,
   isCompleted: initialIsCompleted = false
-}: MicroConceptProps) => {
+}: MicroConceptProps) {
   const {
     activeExplanation,
     setActiveExplanation,
@@ -97,6 +98,16 @@ export default function MicroConcept({
           setActiveExplanation={setActiveExplanation}
         />
 
+        {resourceUrl && (
+          <CardContent className="pt-0 pb-2">
+            <ResourceDisplay 
+              resourceType={resourceType}
+              resourceUrl={resourceUrl}
+              title={title}
+            />
+          </CardContent>
+        )}
+
         <CardFooter className={`${isCompleted ? 'bg-gradient-to-r from-green-50 to-emerald-50' : 'bg-gradient-to-r from-violet-50 to-indigo-50'} border-t p-3`}>
           <MicroConceptFooter 
             isCompleted={isCompleted}
@@ -107,4 +118,4 @@ export default function MicroConcept({
       </Card>
     </motion.div>
   );
-};
+}
