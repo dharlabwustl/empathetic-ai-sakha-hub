@@ -29,13 +29,21 @@ import { Badge } from "@/components/ui/badge";
 
 // Data arrays
 const indianCities = [
-  "Mumbai", "Delhi", "Bangalore", "Hyderabad", "Chennai", "Kolkata", 
-  "Pune", "Ahmedabad", "Jaipur", "Lucknow", "Kanpur", "Nagpur", 
-  "Indore", "Thane", "Bhopal", "Visakhapatnam", "Patna", "Vadodara",
-  "Ghaziabad", "Ludhiana", "Agra", "Nashik", "Faridabad", "Meerut",
-  "Rajkot", "Varanasi", "Srinagar", "Aurangabad", "Dhanbad", "Amritsar",
-  "Allahabad", "Ranchi", "Howrah", "Coimbatore", "Jabalpur", "Gwalior",
-  "Vijayawada", "Jodhpur", "Madurai", "Raipur", "Kochi", "Chandigarh"
+  "Mumbai", "Delhi", "Bengaluru", "Hyderabad", "Ahmedabad", "Chennai", "Kolkata", 
+  "Surat", "Pune", "Jaipur", "Lucknow", "Kanpur", "Nagpur", "Indore", "Thane", 
+  "Bhopal", "Visakhapatnam", "Pimpri-Chinchwad", "Patna", "Vadodara", "Ghaziabad", 
+  "Ludhiana", "Agra", "Nashik", "Faridabad", "Meerut", "Rajkot", "Kalyan-Dombivli", 
+  "Vasai-Virar", "Varanasi", "Srinagar", "Aurangabad", "Dhanbad", "Amritsar", 
+  "Navi Mumbai", "Allahabad", "Howrah", "Gwalior", "Jabalpur", "Coimbatore", 
+  "Vijayawada", "Jodhpur", "Madurai", "Raipur", "Kota", "Guwahati", "Chandigarh", 
+  "Solapur", "Hubballi–Dharwad", "Mysuru", "Tiruchirappalli", "Bareilly", "Aligarh", 
+  "Tiruppur", "Moradabad", "Jalandhar", "Bhubaneswar", "Salem", "Warangal", "Guntur", 
+  "Bhiwandi", "Saharanpur", "Gorakhpur", "Bikaner", "Amravati", "Noida", "Jamshedpur", 
+  "Bhilai", "Cuttack", "Firozabad", "Kochi", "Nellore", "Bhavnagar", "Dehradun", 
+  "Durgapur", "Asansol", "Rourkela", "Nanded", "Kolhapur", "Ajmer", "Akola", 
+  "Gulbarga", "Jamnagar", "Ujjain", "Loni", "Siliguri", "Jhansi", "Ulhasnagar", 
+  "Jammu", "Sangli", "Mangalore", "Erode", "Belgaum", "Kurnool", "Ambattur", 
+  "Rajahmundry", "Tirunelveli", "Malegaon", "Gaya"
 ];
 
 const institutes = [

@@ -48,3 +48,17 @@ export const getMoodColor = (mood?: MoodType): string => {
   
   return moodColorMap[mood] || "bg-purple-100 text-purple-700 hover:bg-purple-200 dark:bg-purple-900/30 dark:text-purple-300";
 };
+
+// Additional mood utility functions that might be imported elsewhere
+export const applyMoodTheme = (mood?: MoodType): void => {
+  // Implementation goes here
+  console.log(`Applying mood theme for: ${mood}`);
+};
+
+export const getMoodToastContent = (mood?: MoodType): string => {
+  return `Your mood has been set to ${getMoodDisplayName(mood)}`;
+};
+
+export const saveMoodToLocalStorage = (mood: MoodType): void => {
+  localStorage.setItem('currentMood', mood);
+};
