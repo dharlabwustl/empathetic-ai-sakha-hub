@@ -19,7 +19,7 @@ import MobileNavigation from "./MobileNavigation";
 import { getFeatures } from "./utils/FeatureManager";
 import MoodLogButton from "@/components/dashboard/student/MoodLogButton";
 import { Button } from "@/components/ui/button";
-import { MessageSquareText, Sparkles } from "lucide-react";
+import { BookOpen, MessageSquareText, Sparkles, Brain } from "lucide-react";
 
 interface DashboardLayoutProps {
   userProfile: UserProfileType;
@@ -69,18 +69,26 @@ const DashboardLayout = ({
   const formattedDate = formatDate(currentTime);
   const isMobile = useIsMobile();
   const [influenceMeterCollapsed, setInfluenceMeterCollapsed] = useState(true);
-  const [userMood, setUserMood] = useState<MoodType>(currentMood);
+  const [userMood, setUserMood] = useState<MoodType | undefined>(currentMood);
   
   const features = getFeatures();
 
   const handleMoodChange = (mood: MoodType) => {
     setUserMood(mood);
+    
+    // Save mood to localStorage
+    const userData = localStorage.getItem("userData");
+    if (userData) {
+      const parsedData = JSON.parse(userData);
+      parsedData.mood = mood;
+      localStorage.setItem("userData", JSON.stringify(parsedData));
+    }
   };
   
-  // Custom navigation buttons
+  // Navigation buttons for quick access
   const navigationButtons = [
     { 
-      name: "24x7 AI Tutor", 
+      name: "24/7 AI Tutor", 
       icon: <MessageSquareText className="h-4 w-4 mr-1" />, 
       path: "/dashboard/student/tutor", 
       variant: "ghost" as const,
@@ -92,6 +100,13 @@ const DashboardLayout = ({
       path: "/dashboard/student/feel-good", 
       variant: "ghost" as const,
       className: "hover:bg-pink-100 hover:text-pink-700 text-sm"
+    },
+    { 
+      name: "Academic Advisor", 
+      icon: <Brain className="h-4 w-4 mr-1" />, 
+      path: "/dashboard/student/advisor", 
+      variant: "ghost" as const,
+      className: "hover:bg-purple-100 hover:text-purple-700 text-sm"
     }
   ];
   
@@ -123,22 +138,56 @@ const DashboardLayout = ({
           </div>
         </div>
 
-        {/* Enhanced Top Navigation Buttons - Quick Access */}
-        <div className="flex flex-wrap items-center gap-2 mb-4">
-          {navigationButtons.map((button) => (
-            <Link to={button.path} key={button.name}>
-              <Button 
-                variant={button.variant} 
-                size="sm" 
-                className={`flex items-center ${button.className}`}
-              >
-                {button.icon}
-                {button.name}
-              </Button>
-            </Link>
+        {/* Enhanced Quick Access Navigation Bar */}
+        <motion.div 
+          className="flex flex-wrap items-center gap-2 mb-4 p-2 bg-white/80 dark:bg-gray-800/50 backdrop-blur-sm rounded-lg shadow-sm border border-gray-100 dark:border-gray-700"
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          {navigationButtons.map((button, index) => (
+            <motion.div
+              key={button.name}
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: index * 0.1, duration: 0.3 }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <Link to={button.path}>
+                <Button 
+                  variant={button.variant} 
+                  size="sm" 
+                  className={`flex items-center ${button.className}`}
+                >
+                  {button.icon}
+                  {button.name}
+                </Button>
+              </Link>
+            </motion.div>
           ))}
-        </div>
+          
+          <motion.div
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.3, duration: 0.3 }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="ml-auto"
+          >
+            <Button 
+              variant="outline"
+              size="sm"
+              className="bg-gradient-to-r hover:from-violet-500 hover:to-indigo-500 hover:text-white border-violet-200"
+              onClick={onViewStudyPlan}
+            >
+              <BookOpen className="h-4 w-4 mr-1" />
+              View Study Plan
+            </Button>
+          </motion.div>
+        </motion.div>
 
+        {/* Surrounding Influences Section - Enhanced with new design */}
         <SurroundingInfluencesSection 
           influenceMeterCollapsed={influenceMeterCollapsed}
           setInfluenceMeterCollapsed={setInfluenceMeterCollapsed}

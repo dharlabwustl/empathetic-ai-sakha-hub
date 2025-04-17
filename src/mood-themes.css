@@ -1,89 +1,190 @@
 
-/* Mood Theme CSS */
-.mood-motivated {
-  --mood-primary: 249 115 22; /* orange-600 */
-  --mood-secondary: 234 88 12; /* orange-700 */
-  --mood-accent: 254 215 170; /* orange-200 */
-  --mood-background: 255 247 237; /* orange-50 */
-}
+/* Mood-based theme styling */
 
-.mood-curious {
-  --mood-primary: 37 99 235; /* blue-600 */
-  --mood-secondary: 29 78 216; /* blue-700 */
-  --mood-accent: 191 219 254; /* blue-200 */
-  --mood-background: 239 246 255; /* blue-50 */
-}
-
-.mood-neutral {
-  --mood-primary: 107 114 128; /* gray-500 */
-  --mood-secondary: 75 85 99; /* gray-600 */
-  --mood-accent: 229 231 235; /* gray-200 */
-  --mood-background: 249 250 251; /* gray-50 */
-}
-
-.mood-tired {
-  --mood-primary: 217 119 6; /* amber-600 */
-  --mood-secondary: 180 83 9; /* amber-700 */
-  --mood-accent: 253 230 138; /* amber-200 */
-  --mood-background: 255 251 235; /* amber-50 */
-}
-
-.mood-stressed {
-  --mood-primary: 220 38 38; /* red-600 */
-  --mood-secondary: 185 28 28; /* red-700 */
-  --mood-accent: 254 202 202; /* red-200 */
-  --mood-background: 254 242 242; /* red-50 */
-}
-
-.mood-focused {
-  --mood-primary: 5 150 105; /* emerald-600 */
-  --mood-secondary: 4 120 87; /* emerald-700 */
-  --mood-accent: 167 243 208; /* emerald-200 */
-  --mood-background: 236 253 245; /* emerald-50 */
-}
-
+/* Happy mood */
 .mood-happy {
-  --mood-primary: 22 163 74; /* green-600 */
-  --mood-secondary: 21 128 61; /* green-700 */
-  --mood-accent: 187 247 208; /* green-200 */
-  --mood-background: 240 253 244; /* green-50 */
+  --accent-color: 250, 204, 21;  /* Yellow-400 */
+  --accent-light: 254, 240, 138;  /* Yellow-200 */
+  --accent-gradient: linear-gradient(135deg, rgba(250, 204, 21, 0.15), rgba(234, 179, 8, 0.05));
 }
 
-.mood-okay {
-  --mood-primary: 2 132 199; /* sky-600 */
-  --mood-secondary: 3 105 161; /* sky-700 */
-  --mood-accent: 186 230 253; /* sky-200 */
-  --mood-background: 240 249 255; /* sky-50 */
+.mood-happy .bg-gradient-to-br {
+  background-image: linear-gradient(to bottom right, rgba(250, 204, 21, 0.1), rgba(234, 179, 8, 0.05), rgba(255, 255, 255, 0.7));
 }
 
-.mood-overwhelmed {
-  --mood-primary: 147 51 234; /* purple-600 */
-  --mood-secondary: 126 34 206; /* purple-700 */
-  --mood-accent: 233 213 255; /* purple-200 */
-  --mood-background: 250 245 255; /* purple-50 */
+/* Motivated mood */
+.mood-motivated {
+  --accent-color: 147, 51, 234;  /* Purple-600 */
+  --accent-light: 216, 180, 254;  /* Purple-200 */
+  --accent-gradient: linear-gradient(135deg, rgba(147, 51, 234, 0.15), rgba(126, 34, 206, 0.05));
 }
 
+.mood-motivated .bg-gradient-to-br {
+  background-image: linear-gradient(to bottom right, rgba(147, 51, 234, 0.1), rgba(126, 34, 206, 0.05), rgba(255, 255, 255, 0.7));
+}
+
+/* Focused mood */
+.mood-focused {
+  --accent-color: 37, 99, 235;  /* Blue-600 */
+  --accent-light: 191, 219, 254;  /* Blue-200 */
+  --accent-gradient: linear-gradient(135deg, rgba(37, 99, 235, 0.15), rgba(59, 130, 246, 0.05));
+}
+
+.mood-focused .bg-gradient-to-br {
+  background-image: linear-gradient(to bottom right, rgba(37, 99, 235, 0.1), rgba(59, 130, 246, 0.05), rgba(255, 255, 255, 0.7));
+}
+
+/* Curious mood */
+.mood-curious {
+  --accent-color: 20, 184, 166;  /* Teal-500 */
+  --accent-light: 153, 246, 228;  /* Teal-200 */
+  --accent-gradient: linear-gradient(135deg, rgba(20, 184, 166, 0.15), rgba(13, 148, 136, 0.05));
+}
+
+.mood-curious .bg-gradient-to-br {
+  background-image: linear-gradient(to bottom right, rgba(20, 184, 166, 0.1), rgba(13, 148, 136, 0.05), rgba(255, 255, 255, 0.7));
+}
+
+/* Neutral mood */
+.mood-neutral {
+  --accent-color: 107, 114, 128;  /* Gray-500 */
+  --accent-light: 229, 231, 235;  /* Gray-200 */
+  --accent-gradient: linear-gradient(135deg, rgba(107, 114, 128, 0.15), rgba(75, 85, 99, 0.05));
+}
+
+.mood-neutral .bg-gradient-to-br {
+  background-image: linear-gradient(to bottom right, rgba(107, 114, 128, 0.1), rgba(75, 85, 99, 0.05), rgba(255, 255, 255, 0.7));
+}
+
+/* Tired mood */
+.mood-tired {
+  --accent-color: 249, 115, 22;  /* Orange-500 */
+  --accent-light: 254, 215, 170;  /* Orange-200 */
+  --accent-gradient: linear-gradient(135deg, rgba(249, 115, 22, 0.15), rgba(234, 88, 12, 0.05));
+}
+
+.mood-tired .bg-gradient-to-br {
+  background-image: linear-gradient(to bottom right, rgba(249, 115, 22, 0.1), rgba(234, 88, 12, 0.05), rgba(255, 255, 255, 0.7));
+}
+
+/* Stressed mood */
+.mood-stressed {
+  --accent-color: 220, 38, 38;  /* Red-600 */
+  --accent-light: 254, 202, 202;  /* Red-200 */
+  --accent-gradient: linear-gradient(135deg, rgba(220, 38, 38, 0.15), rgba(185, 28, 28, 0.05));
+}
+
+.mood-stressed .bg-gradient-to-br {
+  background-image: linear-gradient(to bottom right, rgba(220, 38, 38, 0.1), rgba(185, 28, 28, 0.05), rgba(255, 255, 255, 0.7));
+}
+
+/* Sad mood */
 .mood-sad {
-  --mood-primary: 79 70 229; /* indigo-600 */
-  --mood-secondary: 67 56 202; /* indigo-700 */
-  --mood-accent: 199 210 254; /* indigo-200 */
-  --mood-background: 238 242 255; /* indigo-50 */
+  --accent-color: 79, 70, 229;  /* Indigo-600 */
+  --accent-light: 199, 210, 254;  /* Indigo-200 */
+  --accent-gradient: linear-gradient(135deg, rgba(79, 70, 229, 0.15), rgba(99, 102, 241, 0.05));
 }
 
-/* Dialog Background Fixes */
-.fixed.inset-0.bg-background/80.backdrop-blur-sm[data-state=open] {
-  background-color: rgba(0, 0, 0, 0.5) !important;
+.mood-sad .bg-gradient-to-br {
+  background-image: linear-gradient(to bottom right, rgba(79, 70, 229, 0.1), rgba(99, 102, 241, 0.05), rgba(255, 255, 255, 0.7));
 }
 
-/* Dialog Content Solid Background */
-.dialog-content, 
-[role=dialog] [role=document],
-.fixed.inset-0.z-50.flex.items-center.justify-center {
-  background-color: white !important;
+/* Overwhelmed mood */
+.mood-overwhelmed {
+  --accent-color: 168, 85, 247;  /* Purple-500 */
+  --accent-light: 233, 213, 255;  /* Purple-200 */
+  --accent-gradient: linear-gradient(135deg, rgba(168, 85, 247, 0.15), rgba(147, 51, 234, 0.05));
 }
 
-.dark .dialog-content,
-.dark [role=dialog] [role=document],
-.dark .fixed.inset-0.z-50.flex.items-center.justify-center {
-  background-color: rgb(30, 30, 30) !important;
+.mood-overwhelmed .bg-gradient-to-br {
+  background-image: linear-gradient(to bottom right, rgba(168, 85, 247, 0.1), rgba(147, 51, 234, 0.05), rgba(255, 255, 255, 0.7));
+}
+
+/* Apply mood-based styling to UI components */
+
+/* Cards with mood styling */
+.mood-happy .card,
+.mood-motivated .card,
+.mood-focused .card,
+.mood-curious .card,
+.mood-neutral .card,
+.mood-tired .card,
+.mood-stressed .card,
+.mood-sad .card,
+.mood-overwhelmed .card {
+  border-color: rgba(var(--accent-light), 0.5);
+}
+
+/* Buttons with mood styling */
+.mood-happy .btn-primary,
+.mood-motivated .btn-primary,
+.mood-focused .btn-primary,
+.mood-curious .btn-primary,
+.mood-neutral .btn-primary,
+.mood-tired .btn-primary,
+.mood-stressed .btn-primary,
+.mood-sad .btn-primary,
+.mood-overwhelmed .btn-primary {
+  background-color: rgba(var(--accent-color), 1);
+  color: white;
+}
+
+/* Dashboard header with mood styling */
+.mood-happy .dashboard-header,
+.mood-motivated .dashboard-header,
+.mood-focused .dashboard-header,
+.mood-curious .dashboard-header,
+.mood-neutral .dashboard-header,
+.mood-tired .dashboard-header,
+.mood-stressed .dashboard-header,
+.mood-sad .dashboard-header,
+.mood-overwhelmed .dashboard-header {
+  background-image: var(--accent-gradient);
+}
+
+/* Progress bars */
+.mood-happy .progress-value,
+.mood-motivated .progress-value,
+.mood-focused .progress-value,
+.mood-curious .progress-value,
+.mood-neutral .progress-value,
+.mood-tired .progress-value,
+.mood-stressed .progress-value,
+.mood-sad .progress-value,
+.mood-overwhelmed .progress-value {
+  background-color: rgba(var(--accent-color), 1);
+}
+
+/* Dark mode adjustments */
+.dark .mood-happy,
+.dark .mood-motivated,
+.dark .mood-focused,
+.dark .mood-curious,
+.dark .mood-neutral,
+.dark .mood-tired,
+.dark .mood-stressed,
+.dark .mood-sad,
+.dark .mood-overwhelmed {
+  --accent-light-opacity: 0.2;
+}
+
+/* Add a subtle vignette effect based on mood */
+.mood-happy::before,
+.mood-motivated::before,
+.mood-focused::before,
+.mood-curious::before,
+.mood-neutral::before,
+.mood-tired::before,
+.mood-stressed::before,
+.mood-sad::before,
+.mood-overwhelmed::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at center, transparent 60%, rgba(var(--accent-color), 0.03) 100%);
+  z-index: -1;
 }

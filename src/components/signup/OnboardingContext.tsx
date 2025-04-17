@@ -13,7 +13,8 @@ export type OnboardingStep =
   | "sentiment"
   | "habits"
   | "interests"
-  | "signup";
+  | "signup"
+  | "complete";
 
 export interface OnboardingData {
   role?: UserRole;
@@ -48,6 +49,9 @@ interface OnboardingContextType {
   setOnboardingData: React.Dispatch<React.SetStateAction<OnboardingData>>;
   messages: { content: string; isBot: boolean }[];
   setMessages: React.Dispatch<React.SetStateAction<{ content: string; isBot: boolean }[]>>;
+  validateFieldNotEmpty: (field: keyof OnboardingData) => boolean;
+  clearDuplicateEntries: () => void;
+  completeOnboarding: () => void;
 }
 
 export const OnboardingContext = createContext<OnboardingContextType | undefined>(undefined);
@@ -59,6 +63,55 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     { content: "Hi, I'm Sakha – your personal AI companion for learning, growth, and well-being. What best describes you?", isBot: true }
   ]);
 
+  // Helper function to validate if a field is empty
+  const validateFieldNotEmpty = (field: keyof OnboardingData) => {
+    const value = onboardingData[field];
+    return value !== undefined && value !== null && value !== "";
+  };
+
+  // Helper function to clear duplicate entries by removing whitespace and normalizing
+  const clearDuplicateEntries = () => {
+    const cleanData = { ...onboardingData };
+    
+    // Clean text fields (trim whitespace)
+    Object.keys(cleanData).forEach(key => {
+      const fieldKey = key as keyof OnboardingData;
+      if (typeof cleanData[fieldKey] === 'string') {
+        cleanData[fieldKey] = (cleanData[fieldKey] as string).trim();
+      }
+    });
+    
+    // Clean arrays (remove duplicates)
+    if (cleanData.interests && Array.isArray(cleanData.interests)) {
+      cleanData.interests = Array.from(new Set(cleanData.interests.map(item => item.trim())));
+    }
+    
+    setOnboardingData(cleanData);
+  };
+  
+  // Function to mark onboarding as complete
+  const completeOnboarding = () => {
+    clearDuplicateEntries();
+    setOnboardingData({...onboardingData, completedOnboarding: true});
+    setStep("complete");
+    
+    // Store in localStorage for persistence
+    const userData = localStorage.getItem("userData");
+    if (userData) {
+      const parsedData = JSON.parse(userData);
+      localStorage.setItem("userData", JSON.stringify({
+        ...parsedData,
+        ...onboardingData,
+        completedOnboarding: true
+      }));
+    } else {
+      localStorage.setItem("userData", JSON.stringify({
+        ...onboardingData,
+        completedOnboarding: true
+      }));
+    }
+  };
+
   return (
     <OnboardingContext.Provider value={{
       step,
@@ -66,7 +119,10 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       onboardingData,
       setOnboardingData,
       messages,
-      setMessages
+      setMessages,
+      validateFieldNotEmpty,
+      clearDuplicateEntries,
+      completeOnboarding
     }}>
       {children}
     </OnboardingContext.Provider>

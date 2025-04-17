@@ -41,11 +41,15 @@ const StepHandler = ({
     setIsLoading(true);
     
     try {
+      // Clean up user input
+      const cleanName = formValues.name.trim();
+      const cleanMobile = formValues.mobile.trim();
+      
       // Create a user object with the collected data
       const userData = {
-        name: formValues.name,
-        email: `${formValues.mobile}@sakha.ai`, // Use consistent email format based on mobile
-        phoneNumber: formValues.mobile,
+        name: cleanName,
+        email: `${cleanMobile}@sakha.ai`, // Use consistent email format based on mobile
+        phoneNumber: cleanMobile,
         password: formValues.otp, // Simplified password for easier login
         role: (onboardingData.role || 'Student').toLowerCase(), // Make sure role is lowercase
       };
@@ -67,9 +71,9 @@ const StepHandler = ({
         // Save additional onboarding data to localStorage with consistent format
         const extendedUserData = {
           ...onboardingData,
-          name: formValues.name,
-          phoneNumber: formValues.mobile,
-          completedOnboarding: false, // This will trigger the onboarding flow
+          name: cleanName,
+          phoneNumber: cleanMobile,
+          completedOnboarding: true, // Mark as completed
           isNewUser: true,
           sawWelcomeTour: false
         };
@@ -78,11 +82,18 @@ const StepHandler = ({
         
         toast({
           title: "Welcome to Sakha AI!",
-          description: "Let's customize your learning experience.",
+          description: "Your personalized dashboard is ready.",
         });
         
-        // Add explicit completedOnboarding URL parameter to ensure proper redirection
-        navigate(`/dashboard/student?completedOnboarding=true&new=true`);
+        // First navigate to the landing page to show them what they've signed up for
+        setTimeout(() => {
+          navigate("/");
+        }, 1500);
+        
+        // Then after a short delay, send them to their dashboard
+        setTimeout(() => {
+          navigate(`/dashboard/student?completedOnboarding=true&new=true`);
+        }, 3500);
       } else {
         throw new Error("Registration failed");
       }
@@ -106,11 +117,17 @@ const StepHandler = ({
         // Create a readable message for chat
         let userMessage = "";
         Object.entries(data).forEach(([key, value]) => {
-          userMessage += `${key}: ${value}, `;
+          userMessage += `${key}: ${value.trim()}, `;
         });
         userMessage = userMessage.slice(0, -2); // Remove trailing comma
         
-        setOnboardingData({ ...onboardingData, ...data });
+        // Clean the data by trimming all string values
+        const cleanData: Record<string, string> = {};
+        Object.entries(data).forEach(([key, value]) => {
+          cleanData[key] = value.trim();
+        });
+        
+        setOnboardingData({ ...onboardingData, ...cleanData });
         
         setMessages([
           ...messages, 
@@ -147,16 +164,20 @@ const StepHandler = ({
         setStep("habits");
       },
       handleHabitsSubmit: (habits: Record<string, string>) => {
-        // Clean up habits data
-        const cleanedHabits = {...habits};
+        // Clean up habits data - remove whitespace and normalize
+        const cleanedHabits: Record<string, string> = {};
         
-        // Create a readable message for chat from the habits
-        let userMessage = "";
         Object.entries(habits).forEach(([key, value]) => {
-          // Skip custom fields in the message if they've already been included
+          // Skip custom fields in the cleaned data if they've already been included
           if (key === "stressManagementCustom" || key === "studyPreferenceCustom") {
             return;
           }
+          cleanedHabits[key] = value.trim();
+        });
+        
+        // Create a readable message for chat from the habits
+        let userMessage = "";
+        Object.entries(cleanedHabits).forEach(([key, value]) => {
           userMessage += `${key}: ${value}, `;
         });
         userMessage = userMessage.slice(0, -2); // Remove trailing comma
@@ -176,7 +197,10 @@ const StepHandler = ({
         setStep("interests");
       },
       handleInterestsSubmit: (interests: string) => {
-        const interestsList = interests.split(",").map(i => i.trim());
+        // Clean and deduplicate interests
+        const interestsList = Array.from(new Set(
+          interests.split(",").map(i => i.trim()).filter(i => i.length > 0)
+        ));
         
         setOnboardingData({ ...onboardingData, interests: interestsList });
         setMessages([
