@@ -35,6 +35,9 @@ interface DashboardLayoutProps {
     totalPeers: number;
     percentile: number;
   };
+  lastActivity?: { type: string; description: string } | null;
+  suggestedNextAction?: string | null;
+  currentMood?: MoodType;
 }
 
 const DashboardLayout: React.FC<DashboardLayoutProps> = ({
@@ -55,32 +58,38 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   onCompleteTour,
   showStudyPlan,
   onCloseStudyPlan,
-  peerComparisonData
+  peerComparisonData,
+  lastActivity,
+  suggestedNextAction,
+  currentMood
 }) => {
   // Mock current mood - in a real app, this would be fetched from user state
-  const currentMood: MoodType = "focused";
+  const moodToUse = currentMood || "focused";
 
   return (
-    <DashboardContainer>
+    <div className="flex h-screen overflow-hidden">
       {/* Welcome Tour for first-time users */}
       {showWelcomeTour && (
-        <WelcomeTour onSkip={onSkipTour} onComplete={onCompleteTour} />
+        <WelcomeTour 
+          handleSkipTour={onSkipTour} 
+          handleCompleteTour={onCompleteTour} 
+        />
       )}
 
       {/* Left Sidebar */}
       <SidebarNavigation
-        profile={userProfile}
+        activeTab={activeTab}
+        onTabChange={onTabChange}
         isHidden={hideSidebar}
         onToggle={onToggleSidebar}
-        kpis={kpis}
-        nudges={nudges}
-        markNudgeAsRead={markNudgeAsRead}
       />
 
       {/* Main Content Area */}
-      <MainContent>
+      <div className="flex-1 overflow-y-auto">
         <DashboardHeader
           userProfile={userProfile}
+          formattedDate={new Date().toLocaleDateString()}
+          formattedTime={new Date().toLocaleTimeString()}
           onViewStudyPlan={onViewStudyPlan}
         />
 
@@ -89,7 +98,6 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
           <DashboardTabs
             activeTab={activeTab}
             onTabChange={onTabChange}
-            onToggle={onToggleTabsNav}
           />
         )}
 
@@ -100,7 +108,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
             <div className="md:col-span-1">
               <ProfileCard 
                 profile={userProfile} 
-                currentMood={currentMood}
+                currentMood={moodToUse}
                 peerComparison={peerComparisonData}
               />
             </div>
@@ -115,13 +123,16 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
             </div>
           </div>
         </div>
-      </MainContent>
+      </div>
 
       {/* Study Plan Dialog */}
       {showStudyPlan && (
-        <StudyPlanDialog onClose={onCloseStudyPlan} />
+        <StudyPlanDialog 
+          userProfile={userProfile}
+          onClose={onCloseStudyPlan} 
+        />
       )}
-    </DashboardContainer>
+    </div>
   );
 };
 

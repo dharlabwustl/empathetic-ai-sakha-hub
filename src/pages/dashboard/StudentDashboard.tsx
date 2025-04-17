@@ -19,6 +19,8 @@ const StudentDashboard = () => {
     kpis,
     nudges,
     features,
+    lastActivity,
+    suggestedNextAction,
     markNudgeAsRead,
     handleTabChange,
     handleSkipTour,
@@ -64,6 +66,7 @@ const StudentDashboard = () => {
       activeTab={activeTab}
       kpis={kpis}
       nudges={nudges}
+      features={features}
       markNudgeAsRead={markNudgeAsRead}
       showWelcomeTour={showWelcomeTour}
       onTabChange={handleTabChange}
@@ -75,6 +78,8 @@ const StudentDashboard = () => {
       showStudyPlan={showStudyPlan}
       onCloseStudyPlan={handleCloseStudyPlan}
       peerComparisonData={peerComparisonData}
+      lastActivity={lastActivity}
+      suggestedNextAction={suggestedNextAction}
     />
   );
 };
