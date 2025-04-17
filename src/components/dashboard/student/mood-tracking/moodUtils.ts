@@ -1,92 +1,86 @@
 
 import { MoodType } from "@/types/user/base";
+import { ToastAction } from "@/components/ui/toast";
 
-// Apply theme changes based on mood
-export const applyMoodTheme = (mood: MoodType) => {
-  // Remove any existing mood classes
-  document.body.classList.forEach(cls => {
-    if (cls.startsWith('mood-')) {
-      document.body.classList.remove(cls);
-    }
-  });
-  
-  // Add the new mood class
-  document.body.classList.add(`mood-${mood}`);
+// Sanitize mood for CSS class names
+export const sanitizeMoodClass = (mood?: MoodType): string => {
+  if (!mood) return '';
+  return mood.toLowerCase().replace(/\s+/g, '-');
 };
 
-// Save mood to localStorage for persistence
-export const saveMoodToLocalStorage = (mood: MoodType) => {
-  try {
-    const userData = localStorage.getItem("userData");
-    if (userData) {
-      const parsedData = JSON.parse(userData);
-      parsedData.mood = mood;
-      localStorage.setItem("userData", JSON.stringify(parsedData));
-    } else {
-      localStorage.setItem("userData", JSON.stringify({ mood }));
-    }
-  } catch (error) {
-    console.error("Failed to save mood to localStorage:", error);
-  }
-};
-
-// Get toast content based on selected mood
-export const getMoodToastContent = (mood: MoodType): { message: string, description: string } => {
+// Get toast content based on mood
+export const getMoodToastContent = (mood: MoodType): { message: string; description: string } => {
   switch (mood) {
-    case 'happy':
-      return {
-        message: "You're feeling happy!",
-        description: "Great mood! This is the perfect time for challenging tasks."
-      };
     case 'motivated':
       return {
-        message: "You're feeling motivated!",
-        description: "Excellent! We'll suggest some productive study activities."
+        message: "You're on fire today!",
+        description: "Let's channel this energy into something amazing."
       };
     case 'curious':
       return {
-        message: "You're feeling curious!",
-        description: "Perfect time to explore new concepts and ideas."
-      };
-    case 'focused':
-      return {
-        message: "You're feeling focused!",
-        description: "Great time for deep work and problem-solving."
-      };
-    case 'okay':
-      return {
-        message: "You're feeling okay",
-        description: "A balanced mood. Good for steady progress."
+        message: "Curiosity is your superpower.",
+        description: "Want to explore something new?"
       };
     case 'neutral':
       return {
-        message: "You're feeling neutral",
-        description: "A good time for review and consolidation."
+        message: "It's okay to just be.",
+        description: "Small steps still count."
       };
     case 'tired':
       return {
-        message: "You're feeling tired",
-        description: "We'll suggest lighter study activities and breaks."
+        message: "Rest is part of growth.",
+        description: "Take it slow, you're doing just fine."
       };
     case 'stressed':
       return {
-        message: "You're feeling stressed",
-        description: "Let's focus on manageable tasks and relaxation techniques."
+        message: "It's okay to feel overwhelmed.",
+        description: "Let's take a moment together."
       };
-    case 'overwhelmed':
+    case 'focused':
       return {
-        message: "You're feeling overwhelmed",
-        description: "We'll help you break down tasks and manage your workload."
-      };
-    case 'sad':
-      return {
-        message: "You're feeling sad",
-        description: "Consider taking a short break or try some mood-lifting activities."
+        message: "Your concentration is impressive!",
+        description: "Let's make the most of this clarity."
       };
     default:
       return {
-        message: "Mood logged successfully",
-        description: "Your study recommendations will adjust accordingly."
+        message: "Thanks for sharing how you feel.",
+        description: "We'll tailor your experience accordingly."
       };
+  }
+};
+
+// Get valid mood CSS classes
+export const getValidMoodClasses = (): string[] => {
+  return [
+    'mood-motivated', 'mood-curious', 'mood-neutral', 
+    'mood-tired', 'mood-stressed', 'mood-focused', 
+    'mood-happy', 'mood-okay', 'mood-overwhelmed', 'mood-sad'
+  ];
+};
+
+// Apply mood theme to document
+export const applyMoodTheme = (mood?: MoodType): void => {
+  if (!mood) return;
+  
+  // Get all valid mood classes
+  const validMoodClasses = getValidMoodClasses();
+  
+  // Remove all mood classes first
+  document.body.classList.remove(...validMoodClasses);
+  
+  // Add only the current valid mood class
+  const sanitizedMoodClass = `mood-${sanitizeMoodClass(mood)}`;
+  document.body.classList.add(sanitizedMoodClass);
+};
+
+// Save mood to localStorage
+export const saveMoodToLocalStorage = (mood: MoodType): void => {
+  const userData = localStorage.getItem("userData");
+  if (userData) {
+    const parsedData = JSON.parse(userData);
+    parsedData.mood = mood;
+    localStorage.setItem("userData", JSON.stringify(parsedData));
+  } else {
+    localStorage.setItem("userData", JSON.stringify({ mood }));
   }
 };

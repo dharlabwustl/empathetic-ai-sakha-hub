@@ -2,7 +2,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { Home, Calendar, BookMarked, Zap, Brain, BookOpen, LineChart, Activity, Heart, Folder, Video, Users, Bell } from "lucide-react";
+import { Home, Calendar, BookMarked, MessageSquare, Brain, BookOpen, LineChart, Activity, Heart, Folder, Video, Users, Bell } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 interface MobileNavigationProps {
@@ -18,7 +18,7 @@ const MobileNavigation = ({ activeTab, onTabChange }: MobileNavigationProps) => 
     { icon: <Home size={16} />, title: "Dashboard", tab: "overview" },
     { icon: <Calendar size={16} />, title: "Today's Plan", tab: "today" },
     { icon: <BookMarked size={16} />, title: "Academic", tab: "academic" },
-    { icon: <Zap size={16} />, title: "AI Tutor", tab: "tutor" },
+    { icon: <MessageSquare size={16} />, title: "Tutor", tab: "tutor" },
     { icon: <Brain size={16} />, title: "Flashcards", tab: "flashcards" },
     { icon: <BookOpen size={16} />, title: "Exams", tab: "exams" },
   ];

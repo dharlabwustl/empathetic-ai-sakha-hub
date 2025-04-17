@@ -17,8 +17,6 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import MobileNavigation from "./MobileNavigation";
 import { getFeatures } from "./utils/FeatureManager";
 import MoodLogButton from "@/components/dashboard/student/MoodLogButton";
-import { Button } from "@/components/ui/button";
-import { Heart } from "lucide-react";
 
 interface DashboardLayoutProps {
   userProfile: UserProfileType;
@@ -68,8 +66,7 @@ const DashboardLayout = ({
   const formattedDate = formatDate(currentTime);
   const isMobile = useIsMobile();
   const [influenceMeterCollapsed, setInfluenceMeterCollapsed] = useState(true);
-  const [userMood, setUserMood] = useState<MoodType | undefined>(currentMood);
-  const [showFeelGoodCorner, setShowFeelGoodCorner] = useState(false);
+  const [userMood, setUserMood] = useState<MoodType>(currentMood);
   
   const features = getFeatures();
 
@@ -90,14 +87,12 @@ const DashboardLayout = ({
         />
         
         <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
-          <div className="flex-grow">
-            <DashboardHeader 
-              userProfile={userProfile}
-              formattedTime={formattedTime}
-              formattedDate={formattedDate}
-              onViewStudyPlan={onViewStudyPlan}
-            />
-          </div>
+          <DashboardHeader 
+            userProfile={userProfile}
+            formattedTime={formattedTime}
+            formattedDate={formattedDate}
+            onViewStudyPlan={onViewStudyPlan}
+          />
           
           <div className="flex-shrink-0">
             <MoodLogButton 
