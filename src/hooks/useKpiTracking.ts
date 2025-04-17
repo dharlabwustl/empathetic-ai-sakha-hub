@@ -1,5 +1,6 @@
+
 import { useState, useEffect } from 'react';
-import { UserRole } from '@/types/user';
+import { UserRole } from '@/types/user/base';
 
 export interface KpiData {
   id: string;
@@ -62,7 +63,7 @@ export function useKpiTracking(role: UserRole) {
 // Helper functions to get role-specific data
 function getRoleSpecificKpis(role: UserRole): KpiData[] {
   switch (role) {
-    case UserRole.Student:
+    case "student":
       return [
         {
           id: "study-time",
@@ -101,7 +102,7 @@ function getRoleSpecificKpis(role: UserRole): KpiData[] {
           icon: "Smile",
         },
       ];
-    case UserRole.Employee:
+    case "employee":
       return [
         {
           id: "productivity-score",
@@ -140,7 +141,7 @@ function getRoleSpecificKpis(role: UserRole): KpiData[] {
           icon: "Heart",
         },
       ];
-    case UserRole.Doctor:
+    case "doctor":
       return [
         {
           id: "research-hours",
@@ -179,7 +180,7 @@ function getRoleSpecificKpis(role: UserRole): KpiData[] {
           icon: "Heart",
         },
       ];
-    case UserRole.Founder:
+    case "founder":
       return [
         {
           id: "mvp-completion",
@@ -227,7 +228,7 @@ function getRoleSpecificNudges(role: UserRole): NudgeData[] {
   const now = new Date().toISOString();
   
   switch (role) {
-    case UserRole.Student:
+    case "student":
       return [
         {
           id: "n1",
@@ -267,7 +268,7 @@ function getRoleSpecificNudges(role: UserRole): NudgeData[] {
           read: false,
         },
       ];
-    case UserRole.Employee:
+    case "employee":
       return [
         {
           id: "n1",
@@ -297,7 +298,7 @@ function getRoleSpecificNudges(role: UserRole): NudgeData[] {
           read: false,
         },
       ];
-    case UserRole.Doctor:
+    case "doctor":
       return [
         {
           id: "n1",
@@ -327,7 +328,7 @@ function getRoleSpecificNudges(role: UserRole): NudgeData[] {
           read: false,
         },
       ];
-    case UserRole.Founder:
+    case "founder":
       return [
         {
           id: "n1",
