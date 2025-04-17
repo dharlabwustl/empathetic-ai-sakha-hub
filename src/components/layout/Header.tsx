@@ -15,111 +15,133 @@ const Header = () => {
   };
   
   return (
-    <header className="bg-white dark:bg-gray-900 shadow-sm sticky top-0 z-50">
-      <div className="container mx-auto px-4 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <Link to="/" className="flex items-center space-x-2">
-              <img 
-                src="/lovable-uploads/ffd1ed0a-7a25-477e-bc91-1da9aca3497f.png" 
-                alt="Sakha AI Logo" 
-                className="w-10 h-10"
-              />
-              <div>
-                <h1 className="font-bold text-xl sm:text-2xl font-display gradient-text">
-                  Sakha AI – पहली बार, पढ़ाई से पहले, आपको समझने वाला साथी
-                </h1>
-                <p className="hidden sm:block text-xs text-gray-500 dark:text-gray-400">
-                  India's 1st Emotionally Intelligent Study Partner – Tuned to Your Mood, Habits, Mind & Mission to Crack Exams.
-                </p>
-              </div>
-            </Link>
-          </div>
+    <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+      <div className="container mx-auto px-4">
+        <div className="flex items-center justify-between h-16">
+          {/* Logo and branding */}
+          <Link to="/" className="flex items-center space-x-3">
+            <img 
+              src="/lovable-uploads/ffd1ed0a-7a25-477e-bc91-1da9aca3497f.png" 
+              alt="Sakha AI Logo" 
+              className="w-8 h-8"
+            />
+            <span className="font-medium text-gray-900 dark:text-white">Sakha AI</span>
+          </Link>
           
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-4">
-            <nav className="flex items-center space-x-4 mr-4">
-              <Link to="/" className="text-sm font-medium text-gray-700 hover:text-primary dark:text-gray-200 dark:hover:text-primary">
-                Home
-              </Link>
-              <Link to="/about" className="text-sm font-medium text-gray-700 hover:text-primary dark:text-gray-200 dark:hover:text-primary">
-                About
-              </Link>
-              <Link to="/features" className="text-sm font-medium text-gray-700 hover:text-primary dark:text-gray-200 dark:hover:text-primary">
-                Features
-              </Link>
-              <Link to="/pricing" className="text-sm font-medium text-gray-700 hover:text-primary dark:text-gray-200 dark:hover:text-primary">
-                Pricing
-              </Link>
-            </nav>
-            
+          <nav className="hidden md:flex items-center space-x-6">
+            <Link to="/" className="text-sm font-medium text-gray-700 hover:text-violet-600 dark:text-gray-200 dark:hover:text-violet-400">
+              Home
+            </Link>
+            <Link to="/about" className="text-sm font-medium text-gray-700 hover:text-violet-600 dark:text-gray-200 dark:hover:text-violet-400">
+              About
+            </Link>
+            <Link to="/features" className="text-sm font-medium text-gray-700 hover:text-violet-600 dark:text-gray-200 dark:hover:text-violet-400">
+              Features
+            </Link>
+            <Link to="/pricing" className="text-sm font-medium text-gray-700 hover:text-violet-600 dark:text-gray-200 dark:hover:text-violet-400">
+              Pricing
+            </Link>
+          </nav>
+          
+          {/* Desktop Action Buttons */}
+          <div className="hidden md:flex items-center space-x-3">
             <ThemeToggle />
             {user ? (
-              <div className="flex space-x-2">
-                <Button variant="ghost" asChild>
+              <>
+                <Button variant="outline" asChild>
                   <Link to="/dashboard">Dashboard</Link>
                 </Button>
                 <Button variant="ghost" onClick={() => logout()}>
                   Logout
                 </Button>
-              </div>
+              </>
             ) : (
-              <div className="flex space-x-2">
-                <Button variant="ghost" asChild>
+              <>
+                <Button variant="outline" asChild>
                   <Link to="/login">Login</Link>
                 </Button>
-                <Button variant="default" asChild>
+                <Button variant="default" className="bg-violet-600 hover:bg-violet-700" asChild>
                   <Link to="/register">Register</Link>
                 </Button>
-              </div>
+              </>
             )}
           </div>
           
           {/* Mobile Menu Button */}
           <div className="md:hidden">
-            <Button variant="ghost" size="icon" onClick={toggleMenu}>
-              {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            <Button variant="ghost" size="sm" onClick={toggleMenu}>
+              {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </Button>
           </div>
         </div>
         
         {/* Mobile Navigation */}
         {isMenuOpen && (
-          <div className="md:hidden mt-4 pb-4">
-            <div className="flex flex-col space-y-2">
-              <Link to="/" className="text-sm font-medium text-gray-700 hover:text-primary dark:text-gray-200 dark:hover:text-primary py-2">
+          <div className="md:hidden py-4 border-t border-gray-100 dark:border-gray-700">
+            <div className="flex flex-col space-y-4">
+              <Link 
+                to="/" 
+                className="text-sm font-medium text-gray-700 hover:text-violet-600 dark:text-gray-200 dark:hover:text-violet-400"
+                onClick={() => setIsMenuOpen(false)}
+              >
                 Home
               </Link>
-              <Link to="/about" className="text-sm font-medium text-gray-700 hover:text-primary dark:text-gray-200 dark:hover:text-primary py-2">
+              <Link 
+                to="/about" 
+                className="text-sm font-medium text-gray-700 hover:text-violet-600 dark:text-gray-200 dark:hover:text-violet-400"
+                onClick={() => setIsMenuOpen(false)}
+              >
                 About
               </Link>
-              <Link to="/features" className="text-sm font-medium text-gray-700 hover:text-primary dark:text-gray-200 dark:hover:text-primary py-2">
+              <Link 
+                to="/features" 
+                className="text-sm font-medium text-gray-700 hover:text-violet-600 dark:text-gray-200 dark:hover:text-violet-400"
+                onClick={() => setIsMenuOpen(false)}
+              >
                 Features
               </Link>
-              <Link to="/pricing" className="text-sm font-medium text-gray-700 hover:text-primary dark:text-gray-200 dark:hover:text-primary py-2">
+              <Link 
+                to="/pricing" 
+                className="text-sm font-medium text-gray-700 hover:text-violet-600 dark:text-gray-200 dark:hover:text-violet-400"
+                onClick={() => setIsMenuOpen(false)}
+              >
                 Pricing
               </Link>
               
-              <ThemeToggle />
-              {user ? (
-                <>
-                  <Button variant="ghost" asChild className="justify-start">
-                    <Link to="/dashboard">Dashboard</Link>
-                  </Button>
-                  <Button variant="ghost" onClick={() => logout()} className="justify-start">
-                    Logout
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <Button variant="ghost" asChild className="justify-start">
-                    <Link to="/login">Login</Link>
-                  </Button>
-                  <Button variant="default" asChild className="justify-start">
-                    <Link to="/register">Register</Link>
-                  </Button>
-                </>
-              )}
+              <div className="pt-4 border-t border-gray-100 dark:border-gray-700">
+                <ThemeToggle />
+              </div>
+              
+              <div className="flex flex-col space-y-3">
+                {user ? (
+                  <>
+                    <Button variant="outline" asChild onClick={() => setIsMenuOpen(false)}>
+                      <Link to="/dashboard">Dashboard</Link>
+                    </Button>
+                    <Button variant="ghost" onClick={() => {
+                      logout();
+                      setIsMenuOpen(false);
+                    }}>
+                      Logout
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button variant="outline" asChild onClick={() => setIsMenuOpen(false)}>
+                      <Link to="/login">Login</Link>
+                    </Button>
+                    <Button 
+                      variant="default" 
+                      className="bg-violet-600 hover:bg-violet-700" 
+                      asChild 
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      <Link to="/register">Register</Link>
+                    </Button>
+                  </>
+                )}
+              </div>
             </div>
           </div>
         )}
