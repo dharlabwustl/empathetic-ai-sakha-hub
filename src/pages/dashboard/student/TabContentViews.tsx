@@ -8,7 +8,13 @@ import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
 interface TabContentViewsProps {
   activeTab: string;
   userProfile: UserProfileType;
-  features?: FeatureData[];
+  features?: (FeatureData | {
+    icon: React.ReactNode;
+    title: string;
+    description: string;
+    path: string;
+    isPremium: boolean;
+  })[];
   kpis?: KpiData[];
   nudges?: NudgeData[];
   markNudgeAsRead?: (id: string) => void;
@@ -50,14 +56,44 @@ export const PracticeExamsView: React.FC = () => {
   );
 };
 
+// Format features to ensure compatibility
+const formatFeatures = (features: (FeatureData | {
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+  path: string;
+  isPremium: boolean;
+})[] | undefined) => {
+  if (!features) return [];
+  
+  return features.map(feature => {
+    // If it's already in the right format with path and isPremium
+    if ('path' in feature && 'isPremium' in feature) {
+      return feature;
+    }
+    
+    // If it's a FeatureData object without path and isPremium
+    return {
+      icon: feature.icon,
+      title: feature.title,
+      description: feature.description,
+      path: ('url' in feature) ? feature.url : '',
+      isPremium: false
+    };
+  });
+};
+
 const TabContentViews: React.FC<TabContentViewsProps> = ({ 
   activeTab, 
   userProfile, 
-  features,
+  features = [],
   kpis = [],
   nudges = [],
   markNudgeAsRead = () => {} 
 }) => {
+  // Format features for compatibility
+  const formattedFeatures = formatFeatures(features);
+  
   // Return content based on active tab
   switch (activeTab) {
     case "overview":
@@ -66,7 +102,7 @@ const TabContentViews: React.FC<TabContentViewsProps> = ({
         kpis={kpis} 
         nudges={nudges} 
         markNudgeAsRead={markNudgeAsRead}
-        features={features || []} 
+        features={formattedFeatures} 
       />;
     case "concepts":
       return <MicroConceptView />;

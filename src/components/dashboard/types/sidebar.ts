@@ -48,4 +48,6 @@ export interface FeatureData {
   icon: ReactNode;
   url: string;
   enabled: boolean;
+  path?: string;      // Added for compatibility
+  isPremium?: boolean; // Added for compatibility
 }
