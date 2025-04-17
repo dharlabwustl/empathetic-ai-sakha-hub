@@ -1,71 +1,51 @@
 
-/**
- * Enum for user roles in the system
- */
+// Create or update the base.ts file with additional properties
+
 export enum UserRole {
-  Student = "student",
-  Employee = "employee",
-  Doctor = "doctor",
-  Founder = "founder",
-  Admin = "admin"
+  Student = "Student",
+  Employee = "Employee",
+  Doctor = "Doctor",
+  Founder = "Founder",
+  Admin = "Admin"
 }
 
-/**
- * Types of moods a user can select
- */
-export type MoodType = 
-  | "motivated"
-  | "curious" 
-  | "neutral" 
-  | "tired" 
-  | "stressed" 
-  | "focused" 
-  | "happy" 
-  | "okay" 
-  | "overwhelmed" 
-  | "sad";
-
-/**
- * Types of personalities a user can have
- */
-export type PersonalityType = 
-  | "analytical" 
-  | "creative" 
-  | "practical" 
-  | "social" 
-  | "independent";
-
-/**
- * Subscription type
- */
-export enum SubscriptionType {
-  Free = "free",
-  Basic = "basic",
-  Premium = "premium",
-  Enterprise = "enterprise"
+export enum MoodType {
+  Energetic = "Energetic",
+  Balanced = "Balanced",
+  Distracted = "Distracted",
+  Tired = "Tired",
+  Anxious = "Anxious"
 }
 
-/**
- * Base user profile type
- */
+export enum PersonalityType {
+  Analytical = "Analytical",
+  Creative = "Creative",
+  Practical = "Practical",
+  Social = "Social",
+  Independent = "Independent"
+}
+
 export interface UserProfileType {
   id: string;
   name: string;
   email: string;
-  role: UserRole;
-  createdAt?: string;
-  updatedAt?: string;
-  // Additional properties
-  personalityType?: string;
-  subscription?: SubscriptionType;
-  joinDate?: string;
-  lastActive?: string;
-  phoneNumber?: string;
-  areasOfInterest?: Array<{id: string, name: string, level: string}>;
-  goals: Array<{id: string, title: string, description?: string, progress: number, status?: string, dueDate?: string, targetDate?: Date}>;
-  loginCount?: number;
-  completedOnboarding?: boolean;
-  examPreparation?: string;
-  bio?: string;
+  phoneNumber: string;
   avatar?: string;
+  role: UserRole;
+  personalityType?: PersonalityType;
+  goals: Array<{id: string; title: string; progress: number}>;
+  joinDate?: string;
+  bio?: string;
+  subscription?: string;
+  areasOfInterest?: Array<{id: string; name: string; level: string}>;
+  
+  // Extended properties for student profile
+  location?: string;
+  educationLevel?: string;
+  schoolName?: string;
+  dateOfBirth?: string;
+  studyStreak?: number;
+  quizzesTaken?: number;
+  quizPerformance?: number;
+  syllabusCoverage?: number;
 }

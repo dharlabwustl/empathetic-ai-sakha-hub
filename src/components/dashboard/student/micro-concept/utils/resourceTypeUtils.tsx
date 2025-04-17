@@ -1,6 +1,7 @@
 
 import React from "react";
-import { FileText, FileVideo, FilePdf, ExternalLink } from "lucide-react";
+import { FileText, FileVideo, ExternalLink } from "lucide-react";
+import { File } from "lucide-react"; // Using File instead of FilePdf
 import { Button } from "@/components/ui/button";
 
 type ResourceType = "Video" | "Text" | "PDF";
@@ -19,7 +20,7 @@ export const getResourceIcon = (resourceType: ResourceType) => {
     case "Video":
       return <FileVideo className="h-4 w-4 mr-2" />;
     case "PDF":
-      return <FilePdf className="h-4 w-4 mr-2" />;
+      return <File className="h-4 w-4 mr-2" />; // Changed from FilePdf to File
     case "Text":
     default:
       return <FileText className="h-4 w-4 mr-2" />;
