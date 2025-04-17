@@ -50,8 +50,12 @@ export const useStressTest = ({ selectedExam, onCompleteTest }: UseStressTestPro
     
     setQuestions(sortedQuestions);
     setIsTestActive(true);
-    setTimeLeft(sortedQuestions[0].timeLimit);
-    setCurrentComplexity(sortedQuestions[0].complexityLevel || 1);
+    setCurrentQuestionIndex(0); // Ensure we start at the first question
+    setTimeLeft(sortedQuestions[0]?.timeLimit || 15);
+    setCurrentComplexity(sortedQuestions[0]?.complexityLevel || 1);
+    setUserAnswers([]);
+    setProcessingNextQuestion(false);
+    setShowExplanation(false);
     
     // Calculate total test time (sum of all question time limits plus a buffer)
     const totalTime = sortedQuestions.reduce((total, q) => total + q.timeLimit, 0) + 10;
@@ -78,6 +82,8 @@ export const useStressTest = ({ selectedExam, onCompleteTest }: UseStressTestPro
           }
           
           const currentQ = questions[currentQuestionIndex];
+          if (!currentQ) return 0; // Guard against undefined
+          
           const timeoutAnswer: UserAnswer = {
             questionId: currentQ.id,
             answer: "TIMEOUT",
@@ -142,6 +148,8 @@ export const useStressTest = ({ selectedExam, onCompleteTest }: UseStressTestPro
     }
     
     const currentQuestion = questions[currentQuestionIndex];
+    if (!currentQuestion) return; // Guard against undefined
+    
     const distractionDelay = Math.floor(Math.random() * (currentQuestion.timeLimit - 3) * 1000) + 2000;
     
     distractionTimerRef.current = setTimeout(() => {
@@ -154,6 +162,8 @@ export const useStressTest = ({ selectedExam, onCompleteTest }: UseStressTestPro
   };
   
   const handleAnswer = (answer: string) => {
+    if (processingNextQuestion) return; // Prevent multiple answers while processing
+    
     if (timerRef.current) {
       clearInterval(timerRef.current);
     }
@@ -169,6 +179,8 @@ export const useStressTest = ({ selectedExam, onCompleteTest }: UseStressTestPro
     }
     
     const currentQuestion = questions[currentQuestionIndex];
+    if (!currentQuestion) return; // Guard against undefined
+    
     const isCorrect = answer === currentQuestion.correctAnswer;
     
     const timeToAnswer = (Date.now() - startTimeRef.current) / 1000;
@@ -197,11 +209,13 @@ export const useStressTest = ({ selectedExam, onCompleteTest }: UseStressTestPro
       setCurrentQuestionIndex(nextIndex);
       
       const nextQuestion = questions[nextIndex];
+      if (!nextQuestion) return; // Guard against undefined
+      
       if (nextQuestion.complexityLevel) {
         setCurrentComplexity(nextQuestion.complexityLevel);
       }
       
-      setTimeLeft(questions[nextIndex].timeLimit);
+      setTimeLeft(nextQuestion.timeLimit);
       startTimer();
     } else {
       endTest();

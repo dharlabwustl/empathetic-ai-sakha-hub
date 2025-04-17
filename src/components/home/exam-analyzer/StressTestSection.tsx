@@ -47,6 +47,12 @@ const StressTestSection: React.FC<StressTestSectionProps> = ({
     onCompleteTest
   });
 
+  // Determine if we can render the question or if we need to show a fallback
+  const canRenderQuestion = isTestActive && 
+    questions.length > 0 && 
+    currentQuestionIndex >= 0 && 
+    currentQuestionIndex < questions.length;
+
   return (
     <div className="space-y-6">
       <StressTestHeader />
@@ -69,23 +75,32 @@ const StressTestSection: React.FC<StressTestSectionProps> = ({
         <StressTestLoading />
       ) : isTestActive ? (
         <div>
-          <TestProgressBar 
-            testTimeLeft={testTimeLeft}
-            currentQuestionIndex={currentQuestionIndex}
-            questionsLength={questions.length}
-            selectedCognitiveSet={selectedCognitiveSet}
-          />
-          <StressTestQuestion
-            currentQuestion={questions[currentQuestionIndex]}
-            currentQuestionIndex={currentQuestionIndex}
-            questionsLength={questions.length}
-            timeLeft={timeLeft}
-            showExplanation={showExplanation}
-            showDistraction={showDistraction}
-            currentComplexity={currentComplexity}
-            userAnswers={userAnswers}
-            onAnswer={!processingNextQuestion ? handleAnswer : () => {}}
-          />
+          {canRenderQuestion ? (
+            <>
+              <TestProgressBar 
+                testTimeLeft={testTimeLeft}
+                currentQuestionIndex={currentQuestionIndex}
+                questionsLength={questions.length}
+                selectedCognitiveSet={selectedCognitiveSet}
+              />
+              <StressTestQuestion
+                currentQuestion={questions[currentQuestionIndex]}
+                currentQuestionIndex={currentQuestionIndex}
+                questionsLength={questions.length}
+                timeLeft={timeLeft}
+                showExplanation={showExplanation}
+                showDistraction={showDistraction}
+                currentComplexity={currentComplexity}
+                userAnswers={userAnswers}
+                onAnswer={!processingNextQuestion ? handleAnswer : () => {}}
+              />
+            </>
+          ) : (
+            // Fallback UI in case we have no valid question to display
+            <div className="p-6 bg-gray-100 dark:bg-gray-800 rounded-lg text-center">
+              <p className="text-gray-700 dark:text-gray-300">Loading next question...</p>
+            </div>
+          )}
         </div>
       ) : (
         <StressTestResults results={results} userAnswers={userAnswers} />
