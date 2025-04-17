@@ -16,7 +16,6 @@ export const useTestProgress = ({ onCompleteTest }: UseTestProgressProps) => {
     if (currentQuestionIndex < questions.length - 1) {
       const nextIndex = currentQuestionIndex + 1;
       setCurrentQuestionIndex(nextIndex);
-      setTimeLeft(questions[nextIndex].timeLimit);
     } else {
       endTest();
     }

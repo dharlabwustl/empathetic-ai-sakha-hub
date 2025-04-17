@@ -3,7 +3,7 @@ import { useRef, useEffect } from 'react';
 
 interface UseStressTimerProps {
   timeLeft: number;
-  setTimeLeft: (time: number) => void;
+  setTimeLeft: React.Dispatch<React.SetStateAction<number>>;
   isTestActive: boolean;
   handleNextQuestion: () => void;
   setShowExplanation: (show: boolean) => void;
@@ -33,7 +33,7 @@ export const useStressTimer = ({
     startTimeRef.current = Date.now();
     
     timerRef.current = setInterval(() => {
-      setTimeLeft(prev => {
+      setTimeLeft((prev) => {
         if (prev <= 1) {
           if (timerRef.current) {
             clearInterval(timerRef.current);

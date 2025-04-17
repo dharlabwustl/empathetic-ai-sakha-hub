@@ -24,6 +24,7 @@ export const useStressTest = ({ selectedExam, onCompleteTest }: UseStressTestPro
     userAnswers,
     showExplanation,
     processingNextQuestion,
+    setCurrentQuestionIndex,
     setUserAnswers,
     setShowExplanation,
     setProcessingNextQuestion,
