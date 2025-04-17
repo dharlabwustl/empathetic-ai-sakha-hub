@@ -36,6 +36,14 @@ interface MicroConceptProps {
   commonMistakes?: CommonMistakeType[];
   examRelevance?: string;
   difficulty?: "easy" | "medium" | "hard";
+  id?: string;
+  chapter?: string;
+  estimatedTime?: number;
+  content?: string;
+  resourceType?: "Video" | "Text" | "PDF";
+  resourceUrl?: string;
+  onComplete?: (id: string) => void;
+  onNeedHelp?: (id: string) => void;
 }
 
 export default function MicroConcept({
@@ -71,7 +79,15 @@ export default function MicroConcept({
     }
   ],
   examRelevance = "This concept frequently appears in numerical problems involving rocket propulsion, collisions, and force analysis. Expect 2-3 questions directly testing this concept in competitive exams like JEE.",
-  difficulty = "medium"
+  difficulty = "medium",
+  id,
+  chapter,
+  estimatedTime,
+  content,
+  resourceType,
+  resourceUrl,
+  onComplete,
+  onNeedHelp
 }: MicroConceptProps) => {
   const [activeExplanation, setActiveExplanation] = useState<string>("Simple Explanation");
 
