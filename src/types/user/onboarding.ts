@@ -26,4 +26,7 @@ export interface OnboardingData {
   interests?: string[];
   name?: string;
   phoneNumber?: string;
+  institute?: string; // New field for institute
+  password?: string; // New field for password
+  preferredSubjects?: string[]; // New field for preferred subjects
 }

@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+
+import React, { useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,6 +11,7 @@ import {
   SelectValue 
 } from "@/components/ui/select";
 import { UserRole } from "../OnboardingContext";
+import { Checkbox } from "@/components/ui/checkbox";
 import { 
   Form, 
   FormControl, 
@@ -20,21 +22,31 @@ import {
 import { useForm } from "react-hook-form";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button as ShadcnButton } from "@/components/ui/button";
-import { Check, ChevronsUpDown } from "lucide-react";
+import { Check, ChevronsUpDown, Search } from "lucide-react";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
 import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
 
+// Data arrays
 const indianCities = [
   "Mumbai", "Delhi", "Bangalore", "Hyderabad", "Chennai", "Kolkata", 
   "Pune", "Ahmedabad", "Jaipur", "Lucknow", "Kanpur", "Nagpur", 
-  "Indore", "Thane", "Bhopal", "Visakhapatnam", "Patna", "Vadodara"
+  "Indore", "Thane", "Bhopal", "Visakhapatnam", "Patna", "Vadodara",
+  "Ghaziabad", "Ludhiana", "Agra", "Nashik", "Faridabad", "Meerut",
+  "Rajkot", "Varanasi", "Srinagar", "Aurangabad", "Dhanbad", "Amritsar",
+  "Allahabad", "Ranchi", "Howrah", "Coimbatore", "Jabalpur", "Gwalior",
+  "Vijayawada", "Jodhpur", "Madurai", "Raipur", "Kochi", "Chandigarh"
 ];
 
 const institutes = [
   "Delhi Public School", "Kendriya Vidyalaya", "Navodaya Vidyalaya", 
   "DAV Public School", "Ryan International School", "Army Public School",
   "IIT Delhi", "BITS Pilani", "NIT Warangal", "St. Stephen's College",
-  "Miranda House", "Lady Shri Ram College", "AIIMS Delhi"
+  "Miranda House", "Lady Shri Ram College", "AIIMS Delhi",
+  "Amity University", "Lovely Professional University", "Vellore Institute of Technology",
+  "Manipal Institute of Technology", "SRM University", "Chandigarh University",
+  "Allen Career Institute", "Aakash Institute", "FIITJEE", "Vidyamandir Classes",
+  "Resonance", "Bansal Classes", "Vibrant Academy"
 ];
 
 const grades = [
@@ -42,7 +54,7 @@ const grades = [
   "Class 11 (Arts)", "Class 12 (Science)", "Class 12 (Commerce)",
   "Class 12 (Arts)", "Bachelor's 1st Year", "Bachelor's 2nd Year",
   "Bachelor's 3rd Year", "Bachelor's 4th Year", "Master's 1st Year",
-  "Master's 2nd Year", "PhD Scholar"
+  "Master's 2nd Year", "PhD Scholar", "Post Graduate"
 ];
 
 const sleepHours = [
@@ -65,6 +77,10 @@ const routines = [
   "Study before exams only"
 ];
 
+const scienceSubjects = ["Physics", "Chemistry", "Biology", "Mathematics"];
+const commerceSubjects = ["Accountancy", "Business Studies", "Economics", "Mathematics"];
+const artsSubjects = ["History", "Geography", "Political Science", "Psychology", "Sociology", "Economics"];
+
 interface DemographicsStepProps {
   role?: UserRole;
   onSubmit: (formData: Record<string, string>) => void;
@@ -74,6 +90,10 @@ const DemographicsStep: React.FC<DemographicsStepProps> = ({ role, onSubmit }) =
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordMatch, setPasswordMatch] = useState(true);
+  const [selectedRoutines, setSelectedRoutines] = useState<string[]>([]);
+  const [selectedSubjects, setSelectedSubjects] = useState<string[]>([]);
+  const [selectedGrade, setSelectedGrade] = useState<string>("");
+  const [customCity, setCustomCity] = useState<string>("");
   const form = useForm();
   
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -88,6 +108,30 @@ const DemographicsStep: React.FC<DemographicsStepProps> = ({ role, onSubmit }) =
     setPasswordMatch(password === e.target.value);
   };
 
+  const toggleRoutine = (routine: string) => {
+    setSelectedRoutines(prev => 
+      prev.includes(routine) 
+        ? prev.filter(item => item !== routine) 
+        : [...prev, routine]
+    );
+  };
+
+  const toggleSubject = (subject: string) => {
+    setSelectedSubjects(prev => 
+      prev.includes(subject) 
+        ? prev.filter(item => item !== subject) 
+        : [...prev, subject]
+    );
+  };
+
+  // Get subjects based on selected grade
+  const getSubjectsForGrade = useCallback(() => {
+    if (selectedGrade.includes("Science")) return scienceSubjects;
+    if (selectedGrade.includes("Commerce")) return commerceSubjects;
+    if (selectedGrade.includes("Arts")) return artsSubjects;
+    return [...scienceSubjects, ...commerceSubjects, ...artsSubjects];
+  }, [selectedGrade]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -100,6 +144,20 @@ const DemographicsStep: React.FC<DemographicsStepProps> = ({ role, onSubmit }) =
     formData.forEach((value, key) => {
       data[key] = value as string;
     });
+
+    // Add the selected routines and subjects as comma-separated values
+    if (selectedRoutines.length > 0) {
+      data.dailyRoutine = selectedRoutines.join(", ");
+    }
+    
+    if (selectedSubjects.length > 0) {
+      data.preferredSubjects = selectedSubjects.join(", ");
+    }
+
+    // If using custom city, add it to the data
+    if (customCity && !data.location) {
+      data.location = customCity;
+    }
     
     onSubmit(data);
   };
@@ -109,31 +167,29 @@ const DemographicsStep: React.FC<DemographicsStepProps> = ({ role, onSubmit }) =
       {role === "Student" && (
         <>
           <div>
-            <Label htmlFor="age">Age</Label>
-            <Select name="age">
-              <SelectTrigger>
-                <SelectValue placeholder="Select your age" />
-              </SelectTrigger>
-              <SelectContent>
-                {Array.from({ length: 30 }, (_, i) => i + 10).map((age) => (
-                  <SelectItem key={age} value={age.toString()}>
-                    {age}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Label htmlFor="name">Full Name</Label>
+            <Input 
+              id="name" 
+              name="name" 
+              placeholder="Enter your full name" 
+              required 
+            />
           </div>
 
-          <div>
+          <div className="space-y-1">
             <Label htmlFor="password">Password</Label>
             <Input 
               id="password" 
               name="password" 
               type="password" 
+              placeholder="Create a password"
               value={password}
               onChange={handlePasswordChange}
               required 
             />
+            <p className="text-xs text-muted-foreground">
+              Password should be alphanumeric and at least 8 characters long
+            </p>
           </div>
           
           <div>
@@ -142,6 +198,7 @@ const DemographicsStep: React.FC<DemographicsStepProps> = ({ role, onSubmit }) =
               id="confirmPassword" 
               name="confirmPassword" 
               type="password" 
+              placeholder="Confirm your password"
               value={confirmPassword}
               onChange={handleConfirmPasswordChange}
               required 
@@ -152,12 +209,31 @@ const DemographicsStep: React.FC<DemographicsStepProps> = ({ role, onSubmit }) =
           </div>
           
           <div>
+            <Label htmlFor="age">Age</Label>
+            <Select name="age">
+              <SelectTrigger className="bg-white dark:bg-gray-800">
+                <SelectValue placeholder="Select your age" />
+              </SelectTrigger>
+              <SelectContent className="bg-white dark:bg-gray-800">
+                {Array.from({ length: 30 }, (_, i) => i + 10).map((age) => (
+                  <SelectItem key={age} value={age.toString()}>
+                    {age}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          
+          <div>
             <Label htmlFor="grade">Class/Grade</Label>
-            <Select name="grade">
-              <SelectTrigger>
+            <Select 
+              name="grade" 
+              onValueChange={(value) => setSelectedGrade(value)}
+            >
+              <SelectTrigger className="bg-white dark:bg-gray-800">
                 <SelectValue placeholder="Select your grade" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-white dark:bg-gray-800">
                 {grades.map((grade) => (
                   <SelectItem key={grade} value={grade}>
                     {grade}
@@ -174,32 +250,42 @@ const DemographicsStep: React.FC<DemographicsStepProps> = ({ role, onSubmit }) =
                 <ShadcnButton
                   variant="outline"
                   role="combobox"
-                  className="w-full justify-between"
+                  className="w-full justify-between bg-white dark:bg-gray-800"
                 >
                   <input 
                     name="location"
                     className="border-none bg-transparent w-full focus:outline-none"
                     placeholder="Select or type your city"
+                    value={customCity}
+                    onChange={(e) => setCustomCity(e.target.value)}
                   />
                   <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </ShadcnButton>
               </PopoverTrigger>
-              <PopoverContent className="w-full p-0">
-                <Command>
-                  <CommandInput placeholder="Search city..." />
-                  <CommandEmpty>No city found. Type to enter manually.</CommandEmpty>
-                  <CommandGroup>
+              <PopoverContent className="w-full p-0 bg-white dark:bg-gray-800">
+                <Command className="bg-white dark:bg-gray-800">
+                  <CommandInput 
+                    placeholder="Search city..." 
+                    className="bg-white dark:bg-gray-800"
+                  />
+                  <CommandEmpty>
+                    No city found. Your entry will be saved.
+                  </CommandEmpty>
+                  <CommandGroup className="max-h-64 overflow-y-auto">
                     {indianCities.map((city) => (
                       <CommandItem
                         key={city}
                         value={city}
                         onSelect={(value) => {
-                          const input = document.querySelector('input[name="location"]') as HTMLInputElement;
-                          if (input) input.value = value;
+                          setCustomCity(value);
                         }}
+                        className="cursor-pointer"
                       >
                         <Check
-                          className="mr-2 h-4 w-4 opacity-0"
+                          className={cn(
+                            "mr-2 h-4 w-4",
+                            customCity === city ? "opacity-100" : "opacity-0"
+                          )}
                         />
                         {city}
                       </CommandItem>
@@ -213,10 +299,10 @@ const DemographicsStep: React.FC<DemographicsStepProps> = ({ role, onSubmit }) =
           <div>
             <Label htmlFor="institute">Institute (Optional)</Label>
             <Select name="institute">
-              <SelectTrigger>
+              <SelectTrigger className="bg-white dark:bg-gray-800">
                 <SelectValue placeholder="Select your institute" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-white dark:bg-gray-800">
                 {institutes.map((institute) => (
                   <SelectItem key={institute} value={institute}>
                     {institute}
@@ -229,10 +315,10 @@ const DemographicsStep: React.FC<DemographicsStepProps> = ({ role, onSubmit }) =
           <div>
             <Label htmlFor="sleepPattern">Sleep Pattern</Label>
             <Select name="sleepPattern">
-              <SelectTrigger>
+              <SelectTrigger className="bg-white dark:bg-gray-800">
                 <SelectValue placeholder="Hours of sleep per day" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-white dark:bg-gray-800">
                 {sleepHours.map((hours) => (
                   <SelectItem key={hours} value={hours}>
                     {hours}
@@ -243,28 +329,53 @@ const DemographicsStep: React.FC<DemographicsStepProps> = ({ role, onSubmit }) =
           </div>
 
           <div>
-            <Label htmlFor="dailyRoutine">Daily Routine</Label>
-            <Select name="dailyRoutine">
-              <SelectTrigger>
-                <SelectValue placeholder="Select your study routine" />
-              </SelectTrigger>
-              <SelectContent>
-                {routines.map((routine) => (
-                  <SelectItem key={routine} value={routine}>
+            <Label htmlFor="dailyRoutine">Daily Routine (Select multiple)</Label>
+            <div className="grid grid-cols-2 gap-2 mt-2">
+              {routines.map((routine) => (
+                <div key={routine} className="flex items-start space-x-2">
+                  <Checkbox 
+                    id={`routine-${routine}`} 
+                    checked={selectedRoutines.includes(routine)}
+                    onCheckedChange={() => toggleRoutine(routine)}
+                  />
+                  <label 
+                    htmlFor={`routine-${routine}`} 
+                    className="text-sm leading-tight cursor-pointer"
+                  >
                     {routine}
-                  </SelectItem>
+                  </label>
+                </div>
+              ))}
+            </div>
+            {selectedRoutines.length > 0 && (
+              <div className="mt-2 flex flex-wrap gap-1">
+                {selectedRoutines.map(routine => (
+                  <Badge 
+                    key={routine} 
+                    variant="secondary" 
+                    className="flex items-center gap-1"
+                  >
+                    {routine.length > 20 ? `${routine.substring(0, 20)}...` : routine}
+                    <button
+                      type="button" 
+                      className="rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 h-4 w-4 inline-flex items-center justify-center text-xs"
+                      onClick={() => toggleRoutine(routine)}
+                    >
+                      ×
+                    </button>
+                  </Badge>
                 ))}
-              </SelectContent>
-            </Select>
+              </div>
+            )}
           </div>
 
           <div>
             <Label htmlFor="focusDuration">Focus Duration</Label>
             <Select name="focusDuration">
-              <SelectTrigger>
+              <SelectTrigger className="bg-white dark:bg-gray-800">
                 <SelectValue placeholder="Hours of focus per day" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-white dark:bg-gray-800">
                 {studyHours.map((hours) => (
                   <SelectItem key={hours} value={hours}>
                     {hours}
@@ -272,6 +383,47 @@ const DemographicsStep: React.FC<DemographicsStepProps> = ({ role, onSubmit }) =
                 ))}
               </SelectContent>
             </Select>
+          </div>
+
+          <div>
+            <Label>Preferred Subjects</Label>
+            <div className="grid grid-cols-2 gap-2 mt-2">
+              {getSubjectsForGrade().map((subject) => (
+                <div key={subject} className="flex items-start space-x-2">
+                  <Checkbox 
+                    id={`subject-${subject}`} 
+                    checked={selectedSubjects.includes(subject)}
+                    onCheckedChange={() => toggleSubject(subject)}
+                  />
+                  <label 
+                    htmlFor={`subject-${subject}`} 
+                    className="text-sm leading-tight cursor-pointer"
+                  >
+                    {subject}
+                  </label>
+                </div>
+              ))}
+            </div>
+            {selectedSubjects.length > 0 && (
+              <div className="mt-2 flex flex-wrap gap-1">
+                {selectedSubjects.map(subject => (
+                  <Badge 
+                    key={subject} 
+                    variant="secondary" 
+                    className="flex items-center gap-1"
+                  >
+                    {subject}
+                    <button
+                      type="button" 
+                      className="rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 h-4 w-4 inline-flex items-center justify-center text-xs"
+                      onClick={() => toggleSubject(subject)}
+                    >
+                      ×
+                    </button>
+                  </Badge>
+                ))}
+              </div>
+            )}
           </div>
         </>
       )}

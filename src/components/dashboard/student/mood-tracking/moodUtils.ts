@@ -1,105 +1,76 @@
 
 import { MoodType } from "@/types/user/base";
 
-// Sanitize mood for CSS class names
-export const sanitizeMoodClass = (mood?: MoodType): string => {
-  if (!mood) return '';
-  return mood.toLowerCase().replace(/\s+/g, '-');
+export const saveMoodToLocalStorage = (mood: MoodType) => {
+  localStorage.setItem('currentMood', JSON.stringify({
+    mood,
+    timestamp: new Date().toISOString()
+  }));
 };
 
-// Get toast content based on mood
-export const getMoodToastContent = (mood: MoodType): { message: string; description: string } => {
-  switch (mood) {
-    case 'motivated':
-      return {
-        message: "You're on fire today!",
-        description: "Let's channel this energy into something amazing."
-      };
-    case 'curious':
-      return {
-        message: "Curiosity is your superpower.",
-        description: "Want to explore something new?"
-      };
-    case 'neutral':
-      return {
-        message: "It's okay to just be.",
-        description: "Small steps still count."
-      };
-    case 'tired':
-      return {
-        message: "Rest is part of growth.",
-        description: "Take it slow, you're doing just fine."
-      };
-    case 'stressed':
-      return {
-        message: "It's okay to feel overwhelmed.",
-        description: "Let's take a moment together."
-      };
-    case 'focused':
-      return {
-        message: "Your concentration is impressive!",
-        description: "Let's make the most of this clarity."
-      };
-    case 'happy':
-      return {
-        message: "That smile looks great on you!",
-        description: "Let's make this energy count."
-      };
-    case 'okay':
-      return {
-        message: "You're doing fine.",
-        description: "One step at a time."
-      };
-    case 'overwhelmed':
-      return {
-        message: "It's okay to feel overwhelmed.",
-        description: "We can break things down into smaller steps."
-      };
-    case 'sad':
-      return {
-        message: "It's okay to not be okay.",
-        description: "Let's find something to brighten your day."
-      };
-    default:
-      return {
-        message: "Thanks for sharing how you feel.",
-        description: "We'll tailor your experience accordingly."
-      };
-  }
-};
-
-// Get valid mood CSS classes
-export const getValidMoodClasses = (): string[] => {
-  return [
-    'mood-motivated', 'mood-curious', 'mood-neutral', 
-    'mood-tired', 'mood-stressed', 'mood-focused', 
-    'mood-happy', 'mood-okay', 'mood-overwhelmed', 'mood-sad'
-  ];
-};
-
-// Apply mood theme to document
-export const applyMoodTheme = (mood?: MoodType): void => {
-  if (!mood) return;
+export const applyMoodTheme = (mood: MoodType) => {
+  // Remove any existing mood classes
+  document.documentElement.classList.forEach(className => {
+    if (className.startsWith('mood-')) {
+      document.documentElement.classList.remove(className);
+    }
+  });
   
-  // Get all valid mood classes
-  const validMoodClasses = getValidMoodClasses();
-  
-  // Remove all mood classes first
-  document.body.classList.remove(...validMoodClasses);
-  
-  // Add only the current valid mood class
-  const sanitizedMoodClass = `mood-${sanitizeMoodClass(mood)}`;
-  document.body.classList.add(sanitizedMoodClass);
+  // Apply new mood class
+  document.documentElement.classList.add(`mood-${mood}`);
 };
 
-// Save mood to localStorage
-export const saveMoodToLocalStorage = (mood: MoodType): void => {
-  const userData = localStorage.getItem("userData");
-  if (userData) {
-    const parsedData = JSON.parse(userData);
-    parsedData.mood = mood;
-    localStorage.setItem("userData", JSON.stringify(parsedData));
-  } else {
-    localStorage.setItem("userData", JSON.stringify({ mood }));
-  }
+interface ToastContent {
+  message: string;
+  description: string;
+}
+
+export const getMoodToastContent = (mood: MoodType): ToastContent => {
+  const moodMessages: Record<MoodType, ToastContent> = {
+    happy: {
+      message: "That's wonderful!",
+      description: "We're glad you're feeling happy. Let's keep that energy going!"
+    },
+    sad: {
+      message: "Hang in there",
+      description: "It's okay to feel down sometimes. Would you like to see something uplifting?"
+    },
+    stressed: {
+      message: "Taking a breather",
+      description: "Remember to take breaks and practice self-care. You've got this!"
+    },
+    focused: {
+      message: "In the zone!",
+      description: "Great! We'll help you make the most of your focus time."
+    },
+    tired: {
+      message: "Rest is important",
+      description: "Would you like a lighter study schedule today?"
+    },
+    motivated: {
+      message: "Ready to achieve!",
+      description: "Let's make the most of your motivation with some productive tasks."
+    },
+    curious: {
+      message: "Curiosity leads to growth",
+      description: "We've got plenty of interesting content ready for you to explore!"
+    },
+    neutral: {
+      message: "Ready for the day",
+      description: "Let us know if there's anything specific you'd like to work on today."
+    },
+    overwhelmed: {
+      message: "One step at a time",
+      description: "Let's break down your tasks into manageable chunks."
+    },
+    okay: {
+      message: "Steady progress",
+      description: "Sometimes 'okay' is the perfect place to be. Let's make progress together."
+    }
+  };
+  
+  return moodMessages[mood] || {
+    message: "Thanks for sharing",
+    description: "We'll adjust our recommendations based on your mood."
+  };
 };
