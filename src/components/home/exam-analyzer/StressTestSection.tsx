@@ -1,6 +1,7 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { TestResults, TestQuestion, UserAnswer } from './types';
-import { getStressTestQuestions } from './test-questions/stressTestQuestions';
+import { getStressTestQuestions, getCognitiveTestSets } from './test-questions/stressTestQuestions';
 import StressTestHeader from './stress-test/StressTestHeader';
 import StressTestQuestion from './stress-test/StressTestQuestion';
 import StressTestIntro from './stress-test/StressTestIntro';
@@ -32,20 +33,26 @@ const StressTestSection: React.FC<StressTestSectionProps> = ({
   const [showExplanation, setShowExplanation] = useState(false);
   const [currentComplexity, setCurrentComplexity] = useState(1);
   const [showDistraction, setShowDistraction] = useState(false);
+  const [selectedCognitiveSet, setSelectedCognitiveSet] = useState<number>(1); // Default to the first set
+  const [totalTestTime, setTotalTestTime] = useState<number>(0);
+  const [testTimeLeft, setTestTimeLeft] = useState<number>(0);
   
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const testTimerRef = useRef<NodeJS.Timeout | null>(null);
   const startTimeRef = useRef<number>(0);
   const distractionTimerRef = useRef<NodeJS.Timeout | null>(null);
   
   useEffect(() => {
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
+      if (testTimerRef.current) clearInterval(testTimerRef.current);
       if (distractionTimerRef.current) clearTimeout(distractionTimerRef.current);
     };
   }, []);
   
-  const startTest = () => {
-    const testQuestions = getStressTestQuestions(selectedExam);
+  const startTest = (setNumber: number = 1) => {
+    setSelectedCognitiveSet(setNumber);
+    const testQuestions = getStressTestQuestions(selectedExam, setNumber);
     
     const sortedQuestions = [...testQuestions].sort((a, b) => {
       const complexityA = a.complexityLevel || 1;
@@ -58,7 +65,14 @@ const StressTestSection: React.FC<StressTestSectionProps> = ({
     setTimeLeft(sortedQuestions[0].timeLimit);
     setCurrentComplexity(sortedQuestions[0].complexityLevel || 1);
     
+    // Calculate total test time (sum of all question time limits plus a buffer)
+    const totalTime = sortedQuestions.reduce((total, q) => total + q.timeLimit, 0) + 10;
+    setTotalTestTime(totalTime);
+    setTestTimeLeft(totalTime);
+    
+    // Start both question timer and overall test timer
     startTimer();
+    startTestTimer();
   };
   
   const startTimer = () => {
@@ -92,6 +106,31 @@ const StressTestSection: React.FC<StressTestSectionProps> = ({
     }, 1000);
     
     scheduleDistraction();
+  };
+  
+  const startTestTimer = () => {
+    if (testTimerRef.current) {
+      clearInterval(testTimerRef.current);
+    }
+    
+    testTimerRef.current = setInterval(() => {
+      setTestTimeLeft(prev => {
+        if (prev <= 1) {
+          endTest();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  };
+  
+  const endTest = () => {
+    if (timerRef.current) clearInterval(timerRef.current);
+    if (testTimerRef.current) clearInterval(testTimerRef.current);
+    if (distractionTimerRef.current) clearTimeout(distractionTimerRef.current);
+    
+    setIsTestActive(false);
+    onCompleteTest(userAnswers);
   };
   
   const scheduleDistraction = () => {
@@ -155,35 +194,71 @@ const StressTestSection: React.FC<StressTestSectionProps> = ({
       setTimeLeft(questions[nextIndex].timeLimit);
       startTimer();
     } else {
-      setIsTestActive(false);
-      onCompleteTest(userAnswers);
+      endTest();
     }
   };
+
+  // Get cognitive test sets for the selected exam
+  const cognitiveTestSets = getCognitiveTestSets(selectedExam);
 
   return (
     <div className="space-y-6">
       <StressTestHeader />
       
       <p className="text-sm">
-        This scientific test measures your ability to perform under pressure through pattern recognition, reaction speed, and memory exercises.
+        This scientific test measures your ability to perform under pressure through pattern recognition, 
+        reaction speed, and memory exercises specific to {selectedExam}.
       </p>
       
       {!loading && !testCompleted && !isTestActive ? (
-        <StressTestIntro onStart={startTest} />
+        <div>
+          <StressTestIntro onStart={() => startTest(selectedCognitiveSet)} />
+          <div className="mt-4">
+            <h3 className="text-sm font-medium mb-2">Select Cognitive Test Set:</h3>
+            <div className="flex gap-2">
+              {[1, 2, 3].map(setNum => (
+                <button
+                  key={setNum}
+                  className={`px-3 py-1 text-sm rounded-md ${
+                    selectedCognitiveSet === setNum 
+                      ? 'bg-purple-600 text-white' 
+                      : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'
+                  }`}
+                  onClick={() => setSelectedCognitiveSet(setNum)}
+                >
+                  Set {setNum}
+                </button>
+              ))}
+            </div>
+            <p className="text-xs text-gray-500 mt-1">
+              Each set focuses on different cognitive skills relevant to {selectedExam}.
+            </p>
+          </div>
+        </div>
       ) : loading ? (
         <StressTestLoading />
       ) : isTestActive ? (
-        <StressTestQuestion
-          currentQuestion={questions[currentQuestionIndex]}
-          currentQuestionIndex={currentQuestionIndex}
-          questionsLength={questions.length}
-          timeLeft={timeLeft}
-          showExplanation={showExplanation}
-          showDistraction={showDistraction}
-          currentComplexity={currentComplexity}
-          userAnswers={userAnswers}
-          onAnswer={handleAnswer}
-        />
+        <div>
+          <div className="mb-2 flex justify-between items-center text-xs text-gray-600 dark:text-gray-400">
+            <div>
+              Test time remaining: {Math.floor(testTimeLeft / 60)}:{(testTimeLeft % 60).toString().padStart(2, '0')}
+            </div>
+            <div>
+              Set {selectedCognitiveSet} - Question {currentQuestionIndex + 1}/{questions.length}
+            </div>
+          </div>
+          <StressTestQuestion
+            currentQuestion={questions[currentQuestionIndex]}
+            currentQuestionIndex={currentQuestionIndex}
+            questionsLength={questions.length}
+            timeLeft={timeLeft}
+            showExplanation={showExplanation}
+            showDistraction={showDistraction}
+            currentComplexity={currentComplexity}
+            userAnswers={userAnswers}
+            onAnswer={handleAnswer}
+          />
+        </div>
       ) : (
         <StressTestResults results={results} userAnswers={userAnswers} />
       )}
