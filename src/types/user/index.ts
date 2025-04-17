@@ -3,7 +3,7 @@
 export * from './base';
 
 // We need to be more selective with these exports to avoid name conflicts
-export {
+export type {
   // Export from student.ts but not the StudentProfile (already in base.ts)
   SubjectProgress,
   TopicProgress,
@@ -12,7 +12,7 @@ export {
   StudyStreak
 } from './student';
 
-export {
+export type {
   // Export from professional.ts but not the profiles (already in base.ts)
 } from './professional';
 

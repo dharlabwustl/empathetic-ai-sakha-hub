@@ -6,10 +6,10 @@ import { generateTabContents } from "@/components/dashboard/student/TabContentMa
 import DashboardTabs from "@/components/dashboard/student/DashboardTabs";
 import ReturnUserRecap from "@/components/dashboard/student/ReturnUserRecap";
 
-interface DashboardTabsProps {
+export interface DashboardTabsProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
-  tabContents?: Record<string, React.ReactNode>; // Added tabContents field
+  tabContents?: Record<string, React.ReactNode>;
 }
 
 interface DashboardContentProps {
@@ -88,7 +88,7 @@ const DashboardContent = ({
         <DashboardTabs 
           activeTab={activeTab} 
           onTabChange={onTabChange} 
-          tabContents={tabContents} // Pass tabContents to avoid regenerating
+          tabContents={tabContents} 
         />
       )}
 

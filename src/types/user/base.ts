@@ -88,6 +88,8 @@ export interface UserProfileType {
   gender?: "male" | "female";
   loginCount?: number;
   examPreparation?: string;
+  avatar?: string;
+  bio?: string;
 }
 
 export interface StudentProfile extends UserProfileType {
