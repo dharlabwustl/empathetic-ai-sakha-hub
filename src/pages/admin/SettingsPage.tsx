@@ -87,7 +87,7 @@ const SettingsPage = () => {
   
   const handleDownloadSchema = () => {
     try {
-      downloadDatabaseSchema();
+      downloadDatabaseSchemaCSV();
       toast({
         title: "Success",
         description: "Database schema file is being downloaded."
