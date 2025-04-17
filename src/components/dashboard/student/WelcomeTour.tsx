@@ -7,9 +7,29 @@ import { ChevronRight, X } from 'lucide-react';
 export interface WelcomeTourProps {
   handleSkipTour: () => void;
   handleCompleteTour: () => void;
+  isFirstTimeUser?: boolean;
+  lastActivity?: { type: string; description: string } | null;
+  suggestedNextAction?: string | null;
+  loginCount?: number;
+  // Adding aliases for compatibility
+  onSkipTour?: () => void;
+  onCompleteTour?: () => void;
 }
 
-const WelcomeTour: React.FC<WelcomeTourProps> = ({ handleSkipTour, handleCompleteTour }) => {
+const WelcomeTour: React.FC<WelcomeTourProps> = ({ 
+  handleSkipTour, 
+  handleCompleteTour,
+  onSkipTour, // Alias support
+  onCompleteTour, // Alias support
+  isFirstTimeUser,
+  lastActivity,
+  suggestedNextAction,
+  loginCount
+}) => {
+  // Use the handler or its alias
+  const skipHandler = handleSkipTour || onSkipTour || (() => {});
+  const completeHandler = handleCompleteTour || onCompleteTour || (() => {});
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 50 }}
@@ -20,7 +40,7 @@ const WelcomeTour: React.FC<WelcomeTourProps> = ({ handleSkipTour, handleComplet
       <div className="max-w-2xl w-full bg-white dark:bg-gray-800 rounded-xl shadow-2xl overflow-hidden">
         <div className="flex justify-between items-center p-6 border-b">
           <h2 className="text-xl font-bold">Welcome to Sakha AI!</h2>
-          <Button variant="ghost" size="icon" onClick={handleSkipTour}>
+          <Button variant="ghost" size="icon" onClick={skipHandler}>
             <X className="h-5 w-5" />
           </Button>
         </div>
@@ -65,8 +85,8 @@ const WelcomeTour: React.FC<WelcomeTourProps> = ({ handleSkipTour, handleComplet
           </div>
         </div>
         <div className="p-6 bg-gray-50 dark:bg-gray-900/30 flex justify-between">
-          <Button variant="outline" onClick={handleSkipTour}>Skip tour</Button>
-          <Button onClick={handleCompleteTour}>Get started</Button>
+          <Button variant="outline" onClick={skipHandler}>Skip tour</Button>
+          <Button onClick={completeHandler}>Get started</Button>
         </div>
       </div>
     </motion.div>

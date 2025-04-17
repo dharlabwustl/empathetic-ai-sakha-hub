@@ -61,11 +61,11 @@ export const generateTabContents = ({
       <>
         {showWelcomeTour && (
           <WelcomeTour 
-            onSkipTour={handleSkipTour} 
-            onCompleteTour={handleCompleteTour}
+            handleSkipTour={handleSkipTour}
+            handleCompleteTour={handleCompleteTour}
             isFirstTimeUser={isFirstTimeUser}
             lastActivity={lastActivity}
-            suggestedNextAction={suggestedNextAction}
+            suggestedNextAction={suggestedNextAction || ""}
             loginCount={loginCount}
           />
         )}
