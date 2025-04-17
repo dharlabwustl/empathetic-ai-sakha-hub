@@ -1,130 +1,144 @@
 
 import { MoodType } from "@/types/user/base";
+import { Smile, Zap, Target, Search, Frown, Battery, AlarmClock, AlertTriangle, Shell, ThumbsUp } from 'lucide-react';
 
+// Function to get a display name for each mood
 export const getMoodDisplayName = (mood: MoodType): string => {
-  const moodNames: Record<MoodType, string> = {
-    happy: "Happy",
-    motivated: "Motivated",
-    focused: "Focused",
-    curious: "Curious",
-    neutral: "Neutral",
-    tired: "Tired",
-    stressed: "Stressed",
-    sad: "Sad",
-    overwhelmed: "Overwhelmed",
-    okay: "Okay"
-  };
-  
-  return moodNames[mood] || "Unknown";
-};
-
-export const getMoodIcon = (mood: MoodType) => {
-  // Return appropriate icon based on mood
-  const className = "h-5 w-5 text-muted-foreground";
-  
   switch (mood) {
-    case "happy":
-      return <span role="img" aria-label="happy" className={className}>😊</span>;
-    case "motivated":
-      return <span role="img" aria-label="motivated" className={className}>🚀</span>;
-    case "focused":
-      return <span role="img" aria-label="focused" className={className}>🎯</span>;
-    case "curious":
-      return <span role="img" aria-label="curious" className={className}>🤔</span>;
-    case "neutral":
-      return <span role="img" aria-label="neutral" className={className}>😐</span>;
-    case "tired":
-      return <span role="img" aria-label="tired" className={className}>😴</span>;
-    case "stressed":
-      return <span role="img" aria-label="stressed" className={className}>😰</span>;
-    case "sad":
-      return <span role="img" aria-label="sad" className={className}>😢</span>;
-    case "overwhelmed":
-      return <span role="img" aria-label="overwhelmed" className={className}>😩</span>;
-    case "okay":
-      return <span role="img" aria-label="okay" className={className}>👌</span>;
-    default:
-      return <span role="img" aria-label="default" className={className}>😐</span>;
+    case "happy": return "Happy";
+    case "motivated": return "Motivated";
+    case "focused": return "Focused";
+    case "curious": return "Curious";
+    case "neutral": return "Neutral";
+    case "tired": return "Tired";
+    case "stressed": return "Stressed";
+    case "sad": return "Sad";
+    case "overwhelmed": return "Overwhelmed";
+    case "okay": return "Okay";
+    default: return "Neutral";
   }
 };
 
+// Function to get motivational quotes based on mood
 export const getMoodMotivationalQuote = (mood: MoodType): string => {
-  const quotes: Record<MoodType, string[]> = {
-    happy: [
-      "Great to see you in high spirits! Use this positive energy to tackle challenging tasks.",
-      "Your happiness is contagious. Share it with others in your study group!",
-      "A happy mind learns better. You're set for productive studying today!"
-    ],
-    motivated: [
-      "You're on fire today! Channel this motivation into your most important tasks.",
-      "Motivation is what gets you started. Habit is what keeps you going.",
-      "Your drive today will bring you closer to your goals. Keep pushing!"
-    ],
-    focused: [
-      "Great focus leads to great achievements. You're in the zone!",
-      "One hour of focused study beats three hours of distracted effort.",
-      "Your laser focus today will help you break through difficult concepts."
-    ],
-    curious: [
-      "Curiosity is the engine of achievement. Explore and discover!",
-      "Questions are the birthplace of discovery. Keep asking them!",
-      "Your curiosity will lead you to knowledge others might miss."
-    ],
-    neutral: [
-      "A balanced mind is ready for learning. You've got this!",
-      "Sometimes neutral is the perfect state for objective thinking.",
-      "Today is a clean slate with potential for great progress."
-    ],
-    tired: [
-      "Remember that rest is part of the learning process too.",
-      "Consider taking strategic breaks to recharge your mental energy.",
-      "It's okay to adjust your study plan when your energy is low."
-    ],
-    stressed: [
-      "Take a moment to breathe deeply. Stress narrows thinking.",
-      "Break your work into smaller chunks to make progress without overwhelm.",
-      "Consider a short mindfulness exercise to reset your nervous system."
-    ],
-    sad: [
-      "It's okay not to be okay sometimes. Be gentle with yourself today.",
-      "Small progress is still progress, especially on difficult days.",
-      "Consider reaching out to someone - connection often helps lift our spirits."
-    ],
-    overwhelmed: [
-      "Focus on just the next small step. You don't have to solve everything at once.",
-      "Break down your work into the smallest possible tasks and tackle just one.",
-      "Sometimes stepping back helps us see the clearer path forward."
-    ],
-    okay: [
-      "You're in a good place to make steady progress today.",
-      "An 'okay' mood is actually perfect for consistent work.",
-      "Stability is underrated - use this balanced state wisely!"
-    ]
-  };
-  
-  const moodQuotes = quotes[mood] || quotes.neutral;
-  return moodQuotes[Math.floor(Math.random() * moodQuotes.length)];
+  switch (mood) {
+    case "happy":
+      return "Your positive energy is contagious! Keep sharing that smile!";
+    case "motivated":
+      return "You're unstoppable when you're motivated like this!";
+    case "focused":
+      return "Your concentration is your superpower. Use it wisely!";
+    case "curious":
+      return "Curiosity leads to wonderful discoveries. Keep exploring!";
+    case "neutral":
+      return "Every day is a new opportunity to grow and learn!";
+    case "tired":
+      return "Rest is important. Take breaks to come back stronger!";
+    case "stressed":
+      return "Take a deep breath. You've overcome challenges before!";
+    case "sad":
+      return "It's okay to feel down sometimes. Better days are coming!";
+    case "overwhelmed":
+      return "Break it down into small steps. You don't have to do everything at once!";
+    case "okay":
+      return "You're doing fine! One step at a time.";
+    default:
+      return "Every moment is a fresh beginning. Make it count!";
+  }
 };
 
-export const getMoodToastContent = (mood: MoodType) => {
-  const moodMessages: Record<MoodType, string> = {
-    happy: "Great to see you in such good spirits!",
-    motivated: "Your motivation will help you achieve great things today!",
-    focused: "With this focus, you'll make excellent progress!",
-    curious: "Your curiosity will lead to fascinating discoveries!",
-    neutral: "Ready for a productive day of learning.",
-    tired: "Remember to take breaks when needed.",
-    stressed: "Consider some deep breathing exercises to center yourself.",
-    sad: "It's okay to have down days. Be kind to yourself.",
-    overwhelmed: "Break tasks into smaller steps to manage better.",
-    okay: "You're in a good place to make steady progress."
-  };
-  
-  return moodMessages[mood] || "Your mood has been updated.";
+// Function to get toast content based on mood
+export const getMoodToastContent = (mood: MoodType): { title: string; description: string } => {
+  switch (mood) {
+    case "happy":
+      return {
+        title: "Happy mood logged!",
+        description: "Your positive energy is contagious!"
+      };
+    case "motivated":
+      return {
+        title: "Motivated mood logged!",
+        description: "You're ready to tackle any challenge!"
+      };
+    case "focused":
+      return {
+        title: "Focused mood logged!",
+        description: "Your concentration will lead to great results!"
+      };
+    case "curious":
+      return {
+        title: "Curious mood logged!",
+        description: "Your thirst for knowledge is inspiring!"
+      };
+    case "neutral":
+      return {
+        title: "Neutral mood logged",
+        description: "Ready for whatever comes your way today."
+      };
+    case "tired":
+      return {
+        title: "Tired mood logged",
+        description: "Remember to take breaks and rest when needed."
+      };
+    case "stressed":
+      return {
+        title: "Stressed mood logged",
+        description: "Take a deep breath. You've got this!"
+      };
+    case "sad":
+      return {
+        title: "Sad mood logged",
+        description: "It's okay to not be okay sometimes."
+      };
+    case "overwhelmed":
+      return {
+        title: "Overwhelmed mood logged",
+        description: "Break tasks into smaller steps. One at a time."
+      };
+    case "okay":
+      return {
+        title: "Okay mood logged",
+        description: "Sometimes being okay is just fine."
+      };
+    default:
+      return {
+        title: "Mood updated",
+        description: "Your mood has been recorded."
+      };
+  }
 };
 
+// Function to get icon based on mood
+export const getMoodIcon = (mood: MoodType) => {
+  switch (mood) {
+    case "happy":
+      return Smile;
+    case "motivated":
+      return Zap;
+    case "focused":
+      return Target;
+    case "curious":
+      return Search;
+    case "neutral":
+      return ThumbsUp;
+    case "tired":
+      return Battery;
+    case "stressed":
+      return AlarmClock;
+    case "sad":
+      return Frown;
+    case "overwhelmed":
+      return AlertTriangle;
+    case "okay":
+      return Shell;
+    default:
+      return Smile;
+  }
+};
+
+// Function to apply mood theme to the document
 export const applyMoodTheme = (mood: MoodType): void => {
-  // First remove any existing mood classes
+  // Remove all existing mood classes
   document.body.classList.forEach(className => {
     if (className.startsWith('mood-')) {
       document.body.classList.remove(className);
@@ -135,6 +149,7 @@ export const applyMoodTheme = (mood: MoodType): void => {
   document.body.classList.add(`mood-${mood}`);
 };
 
+// Function to save mood to localStorage
 export const saveMoodToLocalStorage = (mood: MoodType): void => {
   try {
     const userData = localStorage.getItem("userData");
@@ -145,8 +160,6 @@ export const saveMoodToLocalStorage = (mood: MoodType): void => {
     } else {
       localStorage.setItem("userData", JSON.stringify({ mood }));
     }
-    // Also save directly for simpler access
-    localStorage.setItem('currentMood', mood);
   } catch (error) {
     console.error("Error saving mood to localStorage", error);
   }

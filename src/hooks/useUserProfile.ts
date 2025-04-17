@@ -1,10 +1,10 @@
 
 import { useState, useEffect } from "react";
 import { UserProfileType } from "@/types/user";
-import { UserRole } from "@/types/user";
+import { UserRoleEnum } from "@/types/user/base";
 import { getMockProfileByRole } from "@/data/mockProfiles";
 
-export function useUserProfile(role: UserRole = UserRole.Student): {
+export function useUserProfile(role: UserRoleEnum = UserRoleEnum.Student): {
   userProfile: UserProfileType | null;
   loading: boolean;
   updateUserProfile: (updates: Partial<UserProfileType>) => void;

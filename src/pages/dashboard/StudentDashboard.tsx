@@ -5,7 +5,7 @@ import DashboardLoading from "@/pages/dashboard/student/DashboardLoading";
 import DashboardLayout from "@/pages/dashboard/student/DashboardLayout";
 import SplashScreen from "@/components/dashboard/student/SplashScreen";
 import { useLocation } from "react-router-dom";
-import { MoodType } from "@/types/user";
+import { MoodType } from "@/types/user/base";
 
 // Import our mood theme CSS
 import "@/mood-themes.css";

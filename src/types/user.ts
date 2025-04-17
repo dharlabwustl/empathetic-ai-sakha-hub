@@ -2,9 +2,7 @@
 // This file re-exports all user-related types from the new modular structure
 // We need to ensure UserRole and other key types are exported correctly
 
+// Export everything from the modular index
 export * from './user/index';
 
-// Direct exports for backward compatibility to ensure critical types are available
-export type { UserRole, SubscriptionType, MoodType } from './user/base';
-export { UserRoleEnum as UserRole, SubscriptionTypeEnum as SubscriptionType } from './user/base';
-
+// Note: We've removed the duplicate exports that were causing the conflict

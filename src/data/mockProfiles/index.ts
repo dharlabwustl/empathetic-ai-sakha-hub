@@ -1,20 +1,21 @@
 
-import { UserProfileType, UserRole } from "@/types/user";
+import { UserProfileType } from "@/types/user";
+import { UserRoleEnum } from "@/types/user/base";
 import { mockStudentProfile } from "./studentProfile";
 import { mockEmployeeProfile } from "./employeeProfile";
 import { mockDoctorProfile } from "./doctorProfile";
 import { mockFounderProfile } from "./founderProfile";
 
 // Helper function to get profile by role
-export function getMockProfileByRole(role: UserRole): UserProfileType {
+export function getMockProfileByRole(role: UserRoleEnum): UserProfileType {
   switch (role) {
-    case "student":
+    case UserRoleEnum.Student:
       return mockStudentProfile;
-    case "employee":
+    case UserRoleEnum.Employee:
       return mockEmployeeProfile;
-    case "doctor":
+    case UserRoleEnum.Doctor:
       return mockDoctorProfile;
-    case "founder":
+    case UserRoleEnum.Founder:
       return mockFounderProfile;
     default:
       return mockStudentProfile; // Default to student profile

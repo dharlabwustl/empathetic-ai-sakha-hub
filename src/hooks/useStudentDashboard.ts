@@ -1,10 +1,11 @@
+
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { handleNewUser } from "@/pages/dashboard/student/utils/UserSessionManager";
 import { useKpiTracking } from "@/hooks/useKpiTracking";
-import { UserRole } from "@/types/user";
+import { UserRoleEnum } from "@/types/user/base";
 
 export const useStudentDashboard = () => {
   const [loading, setLoading] = useState(true);
@@ -15,8 +16,8 @@ export const useStudentDashboard = () => {
   const [hideTabsNav, setHideTabsNav] = useState(false);
   const [lastActivity, setLastActivity] = useState<{ type: string, description: string } | null>(null);
   const [suggestedNextAction, setSuggestedNextAction] = useState<string | null>(null);
-  const { userProfile, loading: profileLoading, updateUserProfile } = useUserProfile(UserRole.Student);
-  const { kpis, nudges, markNudgeAsRead } = useKpiTracking(UserRole.Student);
+  const { userProfile, loading: profileLoading, updateUserProfile } = useUserProfile(UserRoleEnum.Student);
+  const { kpis, nudges, markNudgeAsRead } = useKpiTracking(UserRoleEnum.Student);
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();

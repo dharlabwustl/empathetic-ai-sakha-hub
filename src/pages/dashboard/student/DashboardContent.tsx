@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { UserProfileType, MoodType } from "@/types/user";
 import { KpiData, NudgeData } from "@/hooks/useKpiTracking";

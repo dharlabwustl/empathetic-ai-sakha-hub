@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useStudyProgress } from "@/hooks/useStudyProgress";
 import { useUserProfile } from "@/hooks/useUserProfile";
@@ -6,11 +7,11 @@ import { ProgressStatCards } from "@/components/dashboard/student/study-progress
 import { WeeklyProgressChart } from "@/components/dashboard/student/study-progress/WeeklyProgressChart";
 import { StudyStreakCard } from "@/components/dashboard/student/study-progress/StudyStreakCard";
 import { PerformanceTabs } from "@/components/dashboard/student/study-progress/PerformanceTabs";
-import { UserRole } from "@/types/user";
+import { UserRoleEnum } from "@/types/user/base";
 
 const StudyProgress = () => {
   const { subjects, studyStreak, loading, selectedSubject, selectSubject } = useStudyProgress();
-  const { userProfile } = useUserProfile(UserRole.Student);
+  const { userProfile } = useUserProfile(UserRoleEnum.Student);
   
   // Get exam goal safely with type checking
   let examGoal = "General Study";

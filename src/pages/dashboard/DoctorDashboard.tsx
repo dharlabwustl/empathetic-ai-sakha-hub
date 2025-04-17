@@ -10,13 +10,13 @@ import ProfileCard from "@/components/dashboard/ProfileCard";
 import FeatureCard from "@/components/dashboard/FeatureCard";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { useKpiTracking } from "@/hooks/useKpiTracking";
-import { UserRole, SubscriptionType } from "@/types/user";
+import { UserRoleEnum, SubscriptionTypeEnum } from "@/types/user/base";
 
 const DoctorDashboard = () => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
-  const { userProfile } = useUserProfile(UserRole.Doctor);
-  const { kpis, nudges, markNudgeAsRead } = useKpiTracking(UserRole.Doctor);
+  const { userProfile } = useUserProfile(UserRoleEnum.Doctor);
+  const { kpis, nudges, markNudgeAsRead } = useKpiTracking(UserRoleEnum.Doctor);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -45,7 +45,7 @@ const DoctorDashboard = () => {
       </div>
     );
   }
-  
+
   const features = [
     {
       title: "Research Hub",
@@ -59,21 +59,21 @@ const DoctorDashboard = () => {
       description: "Plan, organize, and track your research project with AI-powered guidance.",
       icon: <Calendar size={20} />,
       path: "/dashboard/doctor/thesis",
-      isPremium: userProfile.subscription !== SubscriptionType.Premium,
+      isPremium: userProfile.subscription !== SubscriptionTypeEnum.Premium,
     },
     {
       title: "Literature Assistant",
       description: "Organize and analyze research papers, find key insights, and manage citations.",
       icon: <BookOpen size={20} />,
       path: "/dashboard/doctor/literature",
-      isPremium: userProfile.subscription !== SubscriptionType.Premium,
+      isPremium: userProfile.subscription !== SubscriptionTypeEnum.Premium,
     },
     {
       title: "Publications Tracker",
       description: "Track your publications, citations, and research impact metrics.",
       icon: <BookText size={20} />,
       path: "/dashboard/doctor/publications",
-      isPremium: userProfile.subscription !== SubscriptionType.Premium,
+      isPremium: userProfile.subscription !== SubscriptionTypeEnum.Premium,
     }
   ];
 
@@ -162,7 +162,7 @@ const DoctorDashboard = () => {
                 Plan, organize, and track your research project with milestone tracking,
                 progress analysis, and AI-powered guidance.
               </p>
-              {userProfile.subscription === SubscriptionType.Premium ? (
+              {userProfile.subscription === SubscriptionTypeEnum.Premium ? (
                 <button className="bg-gradient-to-r from-sakha-blue to-sakha-purple text-white px-6 py-3 rounded-lg font-medium">
                   View Thesis Planner
                 </button>
@@ -182,7 +182,7 @@ const DoctorDashboard = () => {
                 Find, organize, and analyze research papers with AI-powered summaries,
                 key insight extraction, and citation management.
               </p>
-              {userProfile.subscription === SubscriptionType.Premium ? (
+              {userProfile.subscription === SubscriptionTypeEnum.Premium ? (
                 <button className="bg-gradient-to-r from-sakha-blue to-sakha-purple text-white px-6 py-3 rounded-lg font-medium">
                   Access Literature Tools
                 </button>
@@ -202,7 +202,7 @@ const DoctorDashboard = () => {
                 Track your publications, citations, and research impact metrics
                 with automated updates and analysis.
               </p>
-              {userProfile.subscription === SubscriptionType.Premium ? (
+              {userProfile.subscription === SubscriptionTypeEnum.Premium ? (
                 <button className="bg-gradient-to-r from-sakha-blue to-sakha-purple text-white px-6 py-3 rounded-lg font-medium">
                   View Publication Analytics
                 </button>

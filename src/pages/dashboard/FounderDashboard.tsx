@@ -10,13 +10,13 @@ import ProfileCard from "@/components/dashboard/ProfileCard";
 import FeatureCard from "@/components/dashboard/FeatureCard";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { useKpiTracking } from "@/hooks/useKpiTracking";
-import { UserRole, SubscriptionType } from "@/types/user";
+import { UserRoleEnum, SubscriptionTypeEnum } from "@/types/user/base";
 
 const FounderDashboard = () => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
-  const { userProfile } = useUserProfile(UserRole.Founder);
-  const { kpis, nudges, markNudgeAsRead } = useKpiTracking(UserRole.Founder);
+  const { userProfile } = useUserProfile(UserRoleEnum.Founder);
+  const { kpis, nudges, markNudgeAsRead } = useKpiTracking(UserRoleEnum.Founder);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -45,7 +45,7 @@ const FounderDashboard = () => {
       </div>
     );
   }
-  
+
   const features = [
     {
       title: "Startup Advisor",
@@ -59,21 +59,21 @@ const FounderDashboard = () => {
       description: "Plan, design, and track your minimum viable product with AI assistance.",
       icon: <Code size={20} />,
       path: "/dashboard/founder/mvp",
-      isPremium: userProfile.subscription !== SubscriptionType.Premium,
+      isPremium: userProfile.subscription !== SubscriptionTypeEnum.Premium,
     },
     {
       title: "Pitch Deck Creator",
       description: "Create and refine your investor pitch deck with AI-powered guidance.",
       icon: <PieChart size={20} />,
       path: "/dashboard/founder/pitch",
-      isPremium: userProfile.subscription !== SubscriptionType.Premium,
+      isPremium: userProfile.subscription !== SubscriptionTypeEnum.Premium,
     },
     {
       title: "Startup Metrics",
       description: "Track key performance metrics for your startup and get insights.",
       icon: <LineChart size={20} />,
       path: "/dashboard/founder/metrics",
-      isPremium: userProfile.subscription !== SubscriptionType.Premium,
+      isPremium: userProfile.subscription !== SubscriptionTypeEnum.Premium,
     }
   ];
 
@@ -162,7 +162,7 @@ const FounderDashboard = () => {
                 Plan, design, and track your minimum viable product with feature prioritization,
                 resource allocation, and development timeline assistance.
               </p>
-              {userProfile.subscription === SubscriptionType.Premium ? (
+              {userProfile.subscription === SubscriptionTypeEnum.Premium ? (
                 <button className="bg-gradient-to-r from-sakha-blue to-sakha-purple text-white px-6 py-3 rounded-lg font-medium">
                   Open MVP Builder
                 </button>
@@ -182,7 +182,7 @@ const FounderDashboard = () => {
                 Create compelling pitch decks with AI-powered content generation,
                 slide design suggestions, and presentation coaching.
               </p>
-              {userProfile.subscription === SubscriptionType.Premium ? (
+              {userProfile.subscription === SubscriptionTypeEnum.Premium ? (
                 <button className="bg-gradient-to-r from-sakha-blue to-sakha-purple text-white px-6 py-3 rounded-lg font-medium">
                   Build Your Pitch Deck
                 </button>
@@ -202,7 +202,7 @@ const FounderDashboard = () => {
                 Track key performance indicators for your startup, analyze trends,
                 and get AI insights on improving your metrics.
               </p>
-              {userProfile.subscription === SubscriptionType.Premium ? (
+              {userProfile.subscription === SubscriptionTypeEnum.Premium ? (
                 <button className="bg-gradient-to-r from-sakha-blue to-sakha-purple text-white px-6 py-3 rounded-lg font-medium">
                   View Metrics Dashboard
                 </button>
