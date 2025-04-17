@@ -22,7 +22,7 @@ import {
 import { useForm } from "react-hook-form";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button as ShadcnButton } from "@/components/ui/button";
-import { Check, ChevronsUpDown, Search } from "lucide-react";
+import { Check, ChevronsUpDown } from "lucide-react";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -95,13 +95,13 @@ interface DemographicsStepProps {
 }
 
 const DemographicsStep: React.FC<DemographicsStepProps> = ({ role, onSubmit }) => {
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [passwordMatch, setPasswordMatch] = useState(true);
   const [selectedRoutines, setSelectedRoutines] = useState<string[]>([]);
   const [selectedSubjects, setSelectedSubjects] = useState<string[]>([]);
   const [selectedGrade, setSelectedGrade] = useState<string>("");
   const [customCity, setCustomCity] = useState<string>("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [passwordMatch, setPasswordMatch] = useState(true);
   const form = useForm();
   
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -183,38 +183,6 @@ const DemographicsStep: React.FC<DemographicsStepProps> = ({ role, onSubmit }) =
               required 
             />
           </div>
-
-          <div className="space-y-1">
-            <Label htmlFor="password">Password</Label>
-            <Input 
-              id="password" 
-              name="password" 
-              type="password" 
-              placeholder="Create a password"
-              value={password}
-              onChange={handlePasswordChange}
-              required 
-            />
-            <p className="text-xs text-muted-foreground">
-              Password should be alphanumeric and at least 8 characters long
-            </p>
-          </div>
-          
-          <div>
-            <Label htmlFor="confirmPassword">Confirm Password</Label>
-            <Input 
-              id="confirmPassword" 
-              name="confirmPassword" 
-              type="password" 
-              placeholder="Confirm your password"
-              value={confirmPassword}
-              onChange={handleConfirmPasswordChange}
-              required 
-            />
-            {!passwordMatch && confirmPassword && (
-              <p className="text-sm text-red-500 mt-1">Passwords do not match</p>
-            )}
-          </div>
           
           <div>
             <Label htmlFor="age">Age</Label>
@@ -253,55 +221,26 @@ const DemographicsStep: React.FC<DemographicsStepProps> = ({ role, onSubmit }) =
           
           <div>
             <Label htmlFor="location">Location</Label>
-            <Popover>
-              <PopoverTrigger asChild>
-                <ShadcnButton
-                  variant="outline"
-                  role="combobox"
-                  className="w-full justify-between bg-white dark:bg-gray-800"
-                >
-                  <input 
-                    name="location"
-                    className="border-none bg-transparent w-full focus:outline-none"
-                    placeholder="Select or type your city"
-                    value={customCity}
-                    onChange={(e) => setCustomCity(e.target.value)}
-                  />
-                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                </ShadcnButton>
-              </PopoverTrigger>
-              <PopoverContent className="w-full p-0 bg-white dark:bg-gray-800">
-                <Command className="bg-white dark:bg-gray-800">
-                  <CommandInput 
-                    placeholder="Search city..." 
-                    className="bg-white dark:bg-gray-800"
-                  />
-                  <CommandEmpty>
-                    No city found. Your entry will be saved.
-                  </CommandEmpty>
-                  <CommandGroup className="max-h-64 overflow-y-auto">
-                    {indianCities.map((city) => (
-                      <CommandItem
-                        key={city}
-                        value={city}
-                        onSelect={(value) => {
-                          setCustomCity(value);
-                        }}
-                        className="cursor-pointer"
-                      >
-                        <Check
-                          className={cn(
-                            "mr-2 h-4 w-4",
-                            customCity === city ? "opacity-100" : "opacity-0"
-                          )}
-                        />
-                        {city}
-                      </CommandItem>
-                    ))}
-                  </CommandGroup>
-                </Command>
-              </PopoverContent>
-            </Popover>
+            <div className="relative">
+              <Select name="location" onValueChange={setCustomCity}>
+                <SelectTrigger className="bg-white dark:bg-gray-800">
+                  <SelectValue placeholder="Select your city" />
+                </SelectTrigger>
+                <SelectContent className="bg-white dark:bg-gray-800 max-h-60">
+                  {indianCities.map((city) => (
+                    <SelectItem key={city} value={city}>
+                      {city}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Input
+                className="mt-2"
+                placeholder="Or type your city if not listed"
+                value={customCity}
+                onChange={(e) => setCustomCity(e.target.value)}
+              />
+            </div>
           </div>
           
           <div>
@@ -431,6 +370,39 @@ const DemographicsStep: React.FC<DemographicsStepProps> = ({ role, onSubmit }) =
                   </Badge>
                 ))}
               </div>
+            )}
+          </div>
+
+          {/* Password fields moved to the end */}
+          <div className="space-y-1">
+            <Label htmlFor="password">Password</Label>
+            <Input 
+              id="password" 
+              name="password" 
+              type="password" 
+              placeholder="Create a password"
+              value={password}
+              onChange={handlePasswordChange}
+              required 
+            />
+            <p className="text-xs text-muted-foreground">
+              Password should be alphanumeric and at least 8 characters long
+            </p>
+          </div>
+          
+          <div>
+            <Label htmlFor="confirmPassword">Confirm Password</Label>
+            <Input 
+              id="confirmPassword" 
+              name="confirmPassword" 
+              type="password" 
+              placeholder="Confirm your password"
+              value={confirmPassword}
+              onChange={handleConfirmPasswordChange}
+              required 
+            />
+            {!passwordMatch && confirmPassword && (
+              <p className="text-sm text-red-500 mt-1">Passwords do not match</p>
             )}
           </div>
         </>

@@ -34,3 +34,24 @@ export type PersonalityType =
   | "practical" 
   | "social" 
   | "independent";
+
+/**
+ * Base user profile type
+ */
+export interface UserProfileType {
+  id: string;
+  name: string;
+  email: string;
+  role: UserRole;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/**
+ * Subscription type
+ */
+export type SubscriptionType = 
+  | "free" 
+  | "basic" 
+  | "premium" 
+  | "enterprise";

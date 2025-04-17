@@ -1,74 +1,101 @@
 
 import React, { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Smile } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { MoodType } from "@/types/user/base";
-import MoodSelectionDialog from "./mood-tracking/MoodSelectionDialog";
-import { applyMoodTheme, getMoodToastContent, saveMoodToLocalStorage } from "./mood-tracking/moodUtils";
+import MoodLogButton from "./MoodLogButton";
+import MoodSpecificContent from "./mood-tracking/MoodSpecificContent";
+import { 
+  getMoodDisplayName, 
+  getMoodToastContent,
+  applyMoodTheme,
+  saveMoodToLocalStorage
+} from "./mood-tracking/moodUtils";
 
 interface MoodTrackingProps {
-  currentMood?: MoodType;
-  onMoodChange?: (mood: MoodType) => void;
+  className?: string;
 }
 
-const MoodTracking: React.FC<MoodTrackingProps> = ({ currentMood, onMoodChange }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [selectedMood, setSelectedMood] = useState<MoodType | undefined>(currentMood);
+const MoodTracking: React.FC<MoodTrackingProps> = ({ className = "" }) => {
+  const [currentMood, setCurrentMood] = useState<MoodType | undefined>(undefined);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
-  // Apply theme changes based on mood
+  // Check localStorage on component mount
   useEffect(() => {
-    if (!currentMood) return;
-    
-    // Apply mood theme to document
-    applyMoodTheme(currentMood);
-    
-    // Store mood in localStorage for persistence
-    saveMoodToLocalStorage(currentMood);
-  }, [currentMood]);
-
-  const handleClose = () => {
-    setIsOpen(false);
-  };
-
-  const handleMoodSelect = (mood: MoodType) => {
-    setSelectedMood(mood);
-    
-    if (onMoodChange) {
-      onMoodChange(mood);
+    const savedMood = localStorage.getItem('currentMood') as MoodType | null;
+    if (savedMood) {
+      setCurrentMood(savedMood);
+      applyMoodTheme(savedMood);
     }
+  }, []);
+
+  const handleMoodChange = (mood: MoodType) => {
+    setCurrentMood(mood);
+    saveMoodToLocalStorage(mood);
+    applyMoodTheme(mood);
     
-    // Show appropriate message based on mood
-    const { message, description } = getMoodToastContent(mood);
-    
+    // Show toast notification
     toast({
-      title: message,
-      description: description,
+      title: `Mood updated`,
+      description: `Your mood is now set to ${getMoodDisplayName(mood)}`,
     });
-    
-    setIsOpen(false);
   };
-  
+
+  const handleViewFullReport = () => {
+    navigate("/dashboard/student/mood");
+  };
+
   return (
-    <>
-      <Button 
-        onClick={() => setIsOpen(true)}
-        variant="outline" 
-        className="flex items-center gap-2"
-      >
-        <Smile size={18} />
-        <span>Log Today's Mood</span>
-      </Button>
-      
-      <MoodSelectionDialog
-        isOpen={isOpen}
-        onClose={handleClose}
-        selectedMood={selectedMood}
-        onSelectMood={handleMoodSelect}
-      />
-    </>
+    <Card className={`overflow-hidden ${className}`}>
+      <CardContent className="p-4">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-medium">How are you feeling today?</h3>
+          <MoodLogButton 
+            currentMood={currentMood}
+            onMoodChange={handleMoodChange}
+          />
+        </div>
+
+        {currentMood && (
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <MoodSpecificContent mood={currentMood} />
+            
+            <div className="mt-4">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={handleViewFullReport}
+                className="text-xs"
+              >
+                View Full Mood Report
+              </Button>
+              
+              <div className="mt-3 flex items-center gap-2 text-xs text-gray-500">
+                <Badge variant="outline" className="text-[10px] px-1.5 py-0">
+                  {getMoodDisplayName(currentMood)}
+                </Badge>
+                <span>Updated just now</span>
+              </div>
+            </div>
+          </motion.div>
+        )}
+        
+        {!currentMood && (
+          <div className="text-muted-foreground text-sm">
+            Click the button above to log how you're feeling today
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 };
 
