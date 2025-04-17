@@ -1,258 +1,364 @@
 
-import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { ChevronDown, ChevronUp, Users } from 'lucide-react';
-import { CustomProgress } from '@/components/ui/custom-progress';
-import { Badge } from '@/components/ui/badge';
+import React, { useState } from "react";
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle,
+  DialogDescription,
+  DialogFooter
+} from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useToast } from "@/hooks/use-toast";
+import { 
+  Activity, Home, School, UserPlus, Users, Zap,
+  TrendingUp, TrendingDown, Clock, Share2, Wifi
+} from "lucide-react";
 
 interface SurroundingInfluencesSectionProps {
   influenceMeterCollapsed: boolean;
   setInfluenceMeterCollapsed: (collapsed: boolean) => void;
 }
 
-const SurroundingInfluencesSection = ({
+const SurroundingInfluencesSection: React.FC<SurroundingInfluencesSectionProps> = ({
   influenceMeterCollapsed,
-  setInfluenceMeterCollapsed
-}: SurroundingInfluencesSectionProps) => {
+  setInfluenceMeterCollapsed,
+}) => {
+  const [showStoryDialog, setShowStoryDialog] = useState(false);
+  const [story, setStory] = useState("");
+  const [activeTab, setActiveTab] = useState("metrics");
+  const { toast } = useToast();
+  
+  const handlePostStory = () => {
+    if (!story.trim()) {
+      toast({
+        title: "Story cannot be empty",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    toast({
+      title: "Story posted!",
+      description: "Thank you for sharing your experience.",
+    });
+    
+    setStory("");
+    setShowStoryDialog(false);
+    
+    // Here you would typically save the story to your backend
+    // For now, we'll just simulate by storing it to localStorage
+    const existingStories = JSON.parse(localStorage.getItem("influenceStories") || "[]");
+    existingStories.push({
+      id: Date.now().toString(),
+      content: story,
+      timestamp: new Date().toISOString(),
+    });
+    localStorage.setItem("influenceStories", JSON.stringify(existingStories));
+  };
+
   return (
-    <Card className="w-full mb-6">
-      <CardHeader className="flex flex-row items-center justify-between py-3">
-        <CardTitle className="text-lg flex items-center">
-          <Users className="h-5 w-5 text-blue-500 mr-2" />
-          Surrounding Influence Meter
-          <Badge variant="outline" className="ml-3 bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
-            New
-          </Badge>
-        </CardTitle>
-        <Button 
-          variant="ghost" 
-          size="sm" 
+    <div className="mb-6">
+      <div className="flex items-center justify-between mb-2">
+        <h3 className="text-lg font-medium">Surrounding Influences Meter</h3>
+        <Button
+          variant="ghost"
+          size="sm"
           onClick={() => setInfluenceMeterCollapsed(!influenceMeterCollapsed)}
         >
-          {influenceMeterCollapsed ? (
-            <><ChevronDown className="h-4 w-4 mr-1" /> Expand</>
-          ) : (
-            <><ChevronUp className="h-4 w-4 mr-1" /> Collapse</>
-          )}
+          {influenceMeterCollapsed ? "Expand" : "Collapse"}
         </Button>
-      </CardHeader>
-
+      </div>
+      
       {!influenceMeterCollapsed && (
-        <CardContent>
-          <Tabs defaultValue="overview">
-            <TabsList className="grid grid-cols-3 w-full md:w-2/3 lg:w-1/3 mb-4">
-              <TabsTrigger value="overview">Overview</TabsTrigger>
-              <TabsTrigger value="insights">Insights</TabsTrigger>
-              <TabsTrigger value="recommendations">Recommendations</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="overview">
-              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div>
-                  <h3 className="font-medium mb-3">Your Environment</h3>
-                  <div className="space-y-4">
-                    <div>
-                      <div className="flex justify-between mb-1">
-                        <span className="text-sm">Noise Level</span>
-                        <span className="text-sm font-medium">68%</span>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-lg">External factors impacting your studies</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Tabs defaultValue="metrics" value={activeTab} onValueChange={setActiveTab}>
+              <TabsList className="grid grid-cols-4 mb-4">
+                <TabsTrigger value="metrics">Influence Metrics</TabsTrigger>
+                <TabsTrigger value="community">Community Insights</TabsTrigger>
+                <TabsTrigger value="recommendations">Recommendations</TabsTrigger>
+                <TabsTrigger value="stories">Stories</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="metrics">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {/* Family Environment Card */}
+                  <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-2">
+                        <Home className="h-5 w-5 text-blue-500" />
+                        <h4 className="font-medium">Family Environment</h4>
                       </div>
-                      <CustomProgress value={68} className="h-2 bg-gray-100" indicatorClassName="bg-amber-500" />
-                      <p className="text-xs text-gray-500 mt-1">High background noise detected</p>
+                      <span className="text-green-600 font-medium flex items-center">
+                        <TrendingUp className="h-4 w-4 mr-1" /> High
+                      </span>
                     </div>
-                    <div>
-                      <div className="flex justify-between mb-1">
-                        <span className="text-sm">Study Space Quality</span>
-                        <span className="text-sm font-medium">42%</span>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      Your family environment is highly conducive for studying. Low noise, good support system.
+                    </p>
+                  </div>
+                  
+                  {/* Peer Influence Card */}
+                  <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-2">
+                        <Users className="h-5 w-5 text-violet-500" />
+                        <h4 className="font-medium">Peer Influence</h4>
                       </div>
-                      <CustomProgress value={42} className="h-2 bg-gray-100" indicatorClassName="bg-red-500" />
-                      <p className="text-xs text-gray-500 mt-1">Your study space needs improvement</p>
+                      <span className="text-amber-600 font-medium flex items-center">
+                        <Activity className="h-4 w-4 mr-1" /> Medium
+                      </span>
+                    </div>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      Mixed influence from peers. Some study partners boost productivity, others distract.
+                    </p>
+                  </div>
+                  
+                  {/* School/Institute Card */}
+                  <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-2">
+                        <School className="h-5 w-5 text-emerald-500" />
+                        <h4 className="font-medium">School/Institute</h4>
+                      </div>
+                      <span className="text-green-600 font-medium flex items-center">
+                        <TrendingUp className="h-4 w-4 mr-1" /> High
+                      </span>
+                    </div>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      Strong academic environment with good teacher support and resources.
+                    </p>
+                  </div>
+                  
+                  {/* Internet Distractions Card */}
+                  <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-2">
+                        <Wifi className="h-5 w-5 text-red-500" />
+                        <h4 className="font-medium">Internet Distractions</h4>
+                      </div>
+                      <span className="text-red-600 font-medium flex items-center">
+                        <TrendingUp className="h-4 w-4 mr-1" /> High
+                      </span>
+                    </div>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      Significant time spent on social media and entertainment platforms affecting focus.
+                    </p>
+                  </div>
+                  
+                  {/* Time Management Card */}
+                  <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-2">
+                        <Clock className="h-5 w-5 text-amber-500" />
+                        <h4 className="font-medium">Time Management</h4>
+                      </div>
+                      <span className="text-amber-600 font-medium flex items-center">
+                        <Activity className="h-4 w-4 mr-1" /> Medium
+                      </span>
+                    </div>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      Some scheduled study time, but room for improvement in consistency and planning.
+                    </p>
+                  </div>
+                  
+                  {/* External Activities Card */}
+                  <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-2">
+                        <Zap className="h-5 w-5 text-orange-500" />
+                        <h4 className="font-medium">External Activities</h4>
+                      </div>
+                      <span className="text-amber-600 font-medium flex items-center">
+                        <Activity className="h-4 w-4 mr-1" /> Medium
+                      </span>
+                    </div>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      Balanced extracurricular activities that provide good breaks from studies.
+                    </p>
+                  </div>
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="community">
+                <div className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg mb-4">
+                  <h4 className="font-medium mb-2">Community Insights</h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    Based on 500+ students with similar profiles, these factors most significantly impact study effectiveness:
+                  </p>
+                  
+                  <div className="mt-4 space-y-3">
+                    <div className="flex items-center">
+                      <div className="w-48 text-sm font-medium">Consistent study time:</div>
+                      <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+                        <div className="bg-green-600 h-2.5 rounded-full" style={{width: '85%'}}></div>
+                      </div>
+                      <span className="ml-2 text-sm font-medium">85%</span>
+                    </div>
+                    
+                    <div className="flex items-center">
+                      <div className="w-48 text-sm font-medium">Reduced phone usage:</div>
+                      <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+                        <div className="bg-blue-600 h-2.5 rounded-full" style={{width: '78%'}}></div>
+                      </div>
+                      <span className="ml-2 text-sm font-medium">78%</span>
+                    </div>
+                    
+                    <div className="flex items-center">
+                      <div className="w-48 text-sm font-medium">Study environment:</div>
+                      <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+                        <div className="bg-purple-600 h-2.5 rounded-full" style={{width: '72%'}}></div>
+                      </div>
+                      <span className="ml-2 text-sm font-medium">72%</span>
+                    </div>
+                    
+                    <div className="flex items-center">
+                      <div className="w-48 text-sm font-medium">Peer study groups:</div>
+                      <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+                        <div className="bg-yellow-500 h-2.5 rounded-full" style={{width: '65%'}}></div>
+                      </div>
+                      <span className="ml-2 text-sm font-medium">65%</span>
+                    </div>
+                    
+                    <div className="flex items-center">
+                      <div className="w-48 text-sm font-medium">Family support:</div>
+                      <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+                        <div className="bg-red-500 h-2.5 rounded-full" style={{width: '60%'}}></div>
+                      </div>
+                      <span className="ml-2 text-sm font-medium">60%</span>
                     </div>
                   </div>
                 </div>
-                
-                <div>
-                  <h3 className="font-medium mb-3">Peer Influence</h3>
-                  <div className="space-y-4">
-                    <div>
-                      <div className="flex justify-between mb-1">
-                        <span className="text-sm">Positive Peer Support</span>
-                        <span className="text-sm font-medium">75%</span>
-                      </div>
-                      <CustomProgress value={75} className="h-2 bg-gray-100" indicatorClassName="bg-green-500" />
-                      <p className="text-xs text-gray-500 mt-1">Strong support network detected</p>
-                    </div>
-                    <div>
-                      <div className="flex justify-between mb-1">
-                        <span className="text-sm">Distractions from Friends</span>
-                        <span className="text-sm font-medium">38%</span>
-                      </div>
-                      <CustomProgress value={38} className="h-2 bg-gray-100" indicatorClassName="bg-amber-500" />
-                      <p className="text-xs text-gray-500 mt-1">Moderate social distractions</p>
-                    </div>
-                  </div>
-                </div>
-                
-                <div>
-                  <h3 className="font-medium mb-3">Digital Environment</h3>
-                  <div className="space-y-4">
-                    <div>
-                      <div className="flex justify-between mb-1">
-                        <span className="text-sm">Social Media Interruptions</span>
-                        <span className="text-sm font-medium">82%</span>
-                      </div>
-                      <CustomProgress value={82} className="h-2 bg-gray-100" indicatorClassName="bg-red-500" />
-                      <p className="text-xs text-gray-500 mt-1">High digital distraction detected</p>
-                    </div>
-                    <div>
-                      <div className="flex justify-between mb-1">
-                        <span className="text-sm">Learning Tools Usage</span>
-                        <span className="text-sm font-medium">59%</span>
-                      </div>
-                      <CustomProgress value={59} className="h-2 bg-gray-100" indicatorClassName="bg-green-500" />
-                      <p className="text-xs text-gray-500 mt-1">Good utilization of educational apps</p>
-                    </div>
-                  </div>
-                </div>
-                
-                <div>
-                  <h3 className="font-medium mb-3">Study Habits</h3>
-                  <div className="space-y-4">
-                    <div>
-                      <div className="flex justify-between mb-1">
-                        <span className="text-sm">Focus Duration</span>
-                        <span className="text-sm font-medium">45%</span>
-                      </div>
-                      <CustomProgress value={45} className="h-2 bg-gray-100" indicatorClassName="bg-amber-500" />
-                      <p className="text-xs text-gray-500 mt-1">You get distracted every 15 minutes</p>
-                    </div>
-                    <div>
-                      <div className="flex justify-between mb-1">
-                        <span className="text-sm">Consistency</span>
-                        <span className="text-sm font-medium">67%</span>
-                      </div>
-                      <CustomProgress value={67} className="h-2 bg-gray-100" indicatorClassName="bg-green-500" />
-                      <p className="text-xs text-gray-500 mt-1">Fairly consistent study schedule</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="insights">
-              <div className="space-y-5">
-                <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
-                  <h3 className="font-medium text-blue-800 dark:text-blue-300 mb-2">Key Insights</h3>
-                  <ul className="space-y-2 text-sm text-blue-700 dark:text-blue-200">
-                    <li className="flex items-center gap-2">
-                      <span className="w-2 h-2 rounded-full bg-blue-500"></span>
-                      <span>You study best between 9 AM and 11 AM based on your activity patterns</span>
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <span className="w-2 h-2 rounded-full bg-blue-500"></span>
-                      <span>Your study breaks are too frequent (every 15 minutes)</span>
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <span className="w-2 h-2 rounded-full bg-blue-500"></span>
-                      <span>Social media is your biggest distraction source</span>
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <span className="w-2 h-2 rounded-full bg-blue-500"></span>
-                      <span>You perform 35% better when studying with peers vs. alone</span>
-                    </li>
-                  </ul>
-                </div>
-                
+              </TabsContent>
+              
+              <TabsContent value="recommendations">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                    <h4 className="font-medium mb-2">Environmental Factors</h4>
-                    <ul className="space-y-1 text-sm">
-                      <li className="flex justify-between">
-                        <span>Noise level during study</span>
-                        <span className="font-medium text-red-500">Too High</span>
-                      </li>
-                      <li className="flex justify-between">
-                        <span>Lighting quality</span>
-                        <span className="font-medium text-green-500">Excellent</span>
-                      </li>
-                      <li className="flex justify-between">
-                        <span>Study space organization</span>
-                        <span className="font-medium text-amber-500">Needs improvement</span>
-                      </li>
-                      <li className="flex justify-between">
-                        <span>Temperature comfort</span>
-                        <span className="font-medium text-green-500">Optimal</span>
-                      </li>
-                    </ul>
+                  <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border-l-4 border-green-500 border-y border-r border-gray-200 dark:border-gray-700">
+                    <h4 className="font-medium text-green-700 dark:text-green-500 mb-2">Device Management</h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      Try using app blockers during study hours to limit social media distractions.
+                    </p>
                   </div>
                   
-                  <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                    <h4 className="font-medium mb-2">Social Factors</h4>
-                    <ul className="space-y-1 text-sm">
-                      <li className="flex justify-between">
-                        <span>Peer study group influence</span>
-                        <span className="font-medium text-green-500">Very positive</span>
-                      </li>
-                      <li className="flex justify-between">
-                        <span>Family distractions</span>
-                        <span className="font-medium text-amber-500">Moderate</span>
-                      </li>
-                      <li className="flex justify-between">
-                        <span>Social media interruptions</span>
-                        <span className="font-medium text-red-500">Excessive</span>
-                      </li>
-                      <li className="flex justify-between">
-                        <span>Community support</span>
-                        <span className="font-medium text-green-500">Strong</span>
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="recommendations">
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border-l-4 border-green-500 shadow-sm">
-                    <h4 className="font-medium text-green-700 dark:text-green-400 mb-2">Try Group Study</h4>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">Your metrics show 35% improvement when studying with peers. Schedule more group sessions.</p>
+                  <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border-l-4 border-blue-500 border-y border-r border-gray-200 dark:border-gray-700">
+                    <h4 className="font-medium text-blue-700 dark:text-blue-500 mb-2">Study Group</h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      Form a small study group (2-3 people) with classmates who have similar goals.
+                    </p>
                   </div>
                   
-                  <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border-l-4 border-red-500 shadow-sm">
-                    <h4 className="font-medium text-red-700 dark:text-red-400 mb-2">Reduce Digital Distractions</h4>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">Use app blockers during study time to limit social media access.</p>
+                  <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border-l-4 border-purple-500 border-y border-r border-gray-200 dark:border-gray-700">
+                    <h4 className="font-medium text-purple-700 dark:text-purple-500 mb-2">Environmental Setup</h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      Create a dedicated study corner with good lighting and minimal distractions.
+                    </p>
                   </div>
                   
-                  <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border-l-4 border-amber-500 shadow-sm">
-                    <h4 className="font-medium text-amber-700 dark:text-amber-400 mb-2">Improve Study Environment</h4>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">Find a quieter space or use noise-canceling headphones to minimize distractions.</p>
+                  <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border-l-4 border-orange-500 border-y border-r border-gray-200 dark:border-gray-700">
+                    <h4 className="font-medium text-orange-700 dark:text-orange-500 mb-2">Family Communication</h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      Share your study schedule with family members to help them respect your focus time.
+                    </p>
                   </div>
                 </div>
-                
-                <div className="bg-indigo-50 dark:bg-indigo-900/20 p-4 rounded-lg">
-                  <h4 className="font-medium text-indigo-700 dark:text-indigo-300 mb-2">Personalized Action Plan</h4>
-                  <ol className="list-decimal list-inside space-y-2 text-sm text-gray-700 dark:text-gray-300">
-                    <li>Use the Pomodoro technique: 25 minutes of focus followed by 5-minute breaks</li>
-                    <li>Schedule study sessions during your peak productivity hours (9-11 AM)</li>
-                    <li>Join the Physics study group that meets on Tuesdays and Thursdays</li>
-                    <li>Use the Forest app to block distracting websites and apps while studying</li>
-                    <li>Organize your study space to reduce visual clutter</li>
-                  </ol>
+              </TabsContent>
+              
+              <TabsContent value="stories">
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center mb-4">
+                    <h4 className="font-medium">Student Stories</h4>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => setShowStoryDialog(true)}
+                      className="flex items-center gap-1"
+                    >
+                      <Share2 size={16} />
+                      <span>Share Your Story</span>
+                    </Button>
+                  </div>
+                  
+                  {/* Sample stories */}
+                  <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+                    <div className="flex items-start gap-3">
+                      <img 
+                        src="https://i.pravatar.cc/150?img=4" 
+                        alt="Student" 
+                        className="w-10 h-10 rounded-full object-cover"
+                      />
+                      <div>
+                        <h5 className="font-medium">Aditya M.</h5>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                          I struggled with phone distractions until I started using a focus app. Now I'm able to concentrate for 2-hour blocks without checking my phone. It's made a huge difference in my JEE preparation!
+                        </p>
+                        <div className="text-xs text-gray-500 dark:text-gray-500 mt-2">
+                          Posted 2 days ago
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+                    <div className="flex items-start gap-3">
+                      <img 
+                        src="https://i.pravatar.cc/150?img=28" 
+                        alt="Student" 
+                        className="w-10 h-10 rounded-full object-cover"
+                      />
+                      <div>
+                        <h5 className="font-medium">Riya S.</h5>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                          Moving my study space from the living room to a quiet corner in my bedroom improved my concentration significantly. Now my family knows not to disturb me when I'm at my desk.
+                        </p>
+                        <div className="text-xs text-gray-500 dark:text-gray-500 mt-2">
+                          Posted 5 days ago
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                
-                <div className="flex justify-end">
-                  <Button className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
-                    Generate Detailed Report
-                  </Button>
-                </div>
-              </div>
-            </TabsContent>
-          </Tabs>
-        </CardContent>
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+        </Card>
       )}
-    </Card>
+      
+      {/* Share Story Dialog */}
+      <Dialog open={showStoryDialog} onOpenChange={setShowStoryDialog}>
+        <DialogContent className="sm:max-w-lg bg-white dark:bg-gray-900">
+          <DialogHeader>
+            <DialogTitle>Share Your Story</DialogTitle>
+            <DialogDescription>
+              Let others know how external factors are affecting your studies. Your story might help someone else!
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <Textarea
+              placeholder="Type your story here... What's influencing your study habits right now?"
+              value={story}
+              onChange={(e) => setStory(e.target.value)}
+              rows={5}
+              className="min-h-[100px]"
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowStoryDialog(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handlePostStory}>
+              Post Story
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
   );
 };
 

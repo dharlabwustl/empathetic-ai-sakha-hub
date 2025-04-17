@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { Zap } from "lucide-react";
+import { Heart, Zap } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
 
 interface TopNavigationControlsProps {
@@ -35,13 +35,24 @@ const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
       <div className="flex items-center gap-2">
         <Button
           onClick={() => navigate('/dashboard/student/tutor')}
-          variant="default"
-          className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 transition-all duration-300 text-white flex items-center gap-2"
+          variant="outline"
+          className="flex items-center gap-2 text-violet-600 border-violet-200 hover:bg-violet-50"
           size="sm"
         >
-          <Zap size={16} className="text-yellow-300" />
+          <Zap size={16} className="text-violet-500" />
           <span className="hidden sm:inline">24/7 AI Tutor</span>
           <span className="sm:hidden">AI Tutor</span>
+        </Button>
+        
+        <Button
+          onClick={() => navigate('/dashboard/student/feel-good')}
+          variant="outline"
+          className="flex items-center gap-2 bg-pink-50 text-pink-600 border-pink-200 hover:bg-pink-100"
+          size="sm"
+        >
+          <Heart size={16} className="text-pink-500" />
+          <span className="hidden sm:inline">Feel Good Corner</span>
+          <span className="sm:hidden">Feel Good</span>
         </Button>
       </div>
     </div>

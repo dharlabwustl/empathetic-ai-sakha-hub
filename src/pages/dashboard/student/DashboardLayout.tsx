@@ -17,6 +17,8 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import MobileNavigation from "./MobileNavigation";
 import { getFeatures } from "./utils/FeatureManager";
 import MoodLogButton from "@/components/dashboard/student/MoodLogButton";
+import { Button } from "@/components/ui/button";
+import { Heart } from "lucide-react";
 
 interface DashboardLayoutProps {
   userProfile: UserProfileType;
@@ -97,7 +99,6 @@ const DashboardLayout = ({
             />
           </div>
           
-          {/* Only show mood button here, not duplicated elsewhere */}
           <div className="flex-shrink-0">
             <MoodLogButton 
               currentMood={userMood} 
