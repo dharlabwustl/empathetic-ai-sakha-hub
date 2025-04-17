@@ -51,7 +51,7 @@ const PlatformStrengths: React.FC = () => {
       transition: {
         duration: 2,
         repeat: Infinity,
-        repeatType: "reverse" as const // Explicitly type as "reverse" | "loop" | "mirror"
+        repeatType: "reverse" as const
       }
     }
   };
