@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Calendar, Smile, Frown, Meh, Activity, Star, Trophy } from "lucide-react";
 import {
@@ -10,7 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
-import { MoodType } from "@/types/user";
+import { MoodType } from "@/types/user/base";
 
 interface Habit {
   id: string;
@@ -52,9 +51,9 @@ export default function MotivationCard() {
   ]);
   
   const [moodLogs, setMoodLogs] = useState<MoodLog[]>([
-    { date: "2025-05-12", mood: "focused" },
-    { date: "2025-05-11", mood: "happy" },
-    { date: "2025-05-10", mood: "tired" },
+    { date: "2025-05-12", mood: MoodType.Focused },
+    { date: "2025-05-11", mood: MoodType.Happy },
+    { date: "2025-05-10", mood: MoodType.Tired },
   ]);
   
   const [currentMood, setCurrentMood] = useState<MoodType | null>(null);
@@ -90,16 +89,13 @@ export default function MotivationCard() {
     
     const today = new Date().toISOString().split('T')[0];
     
-    // Check if we already logged mood for today
     const existingIndex = moodLogs.findIndex(log => log.date === today);
     
     if (existingIndex !== -1) {
-      // Update existing mood for today
       const updatedLogs = [...moodLogs];
       updatedLogs[existingIndex] = { date: today, mood: currentMood, note: moodNote };
       setMoodLogs(updatedLogs);
     } else {
-      // Add new mood log
       setMoodLogs([
         { date: today, mood: currentMood, note: moodNote },
         ...moodLogs
@@ -117,15 +113,15 @@ export default function MotivationCard() {
   
   const getMoodIcon = (mood: MoodType) => {
     switch (mood) {
-      case "happy":
+      case MoodType.Happy:
         return <Smile className="text-green-500" />;
-      case "okay":
+      case MoodType.Okay:
         return <Meh className="text-blue-500" />;
-      case "tired":
+      case MoodType.Tired:
         return <Meh className="text-orange-500" />;
-      case "overwhelmed":
+      case MoodType.Overwhelmed:
         return <Frown className="text-red-500" />;
-      case "focused":
+      case MoodType.Focused:
         return <Star className="text-purple-500" />;
       default:
         return <Meh />;
@@ -150,7 +146,6 @@ export default function MotivationCard() {
         <CardTitle>Motivation Coach</CardTitle>
       </CardHeader>
       <CardContent className="flex-grow overflow-auto space-y-6">
-        {/* Daily Motivation */}
         <div className="bg-gradient-to-r from-sakha-blue/10 to-sakha-purple/10 p-4 rounded-lg">
           <div className="flex items-center gap-2 mb-2">
             <Trophy size={16} className="text-sakha-blue" />
@@ -159,7 +154,6 @@ export default function MotivationCard() {
           <p className="italic text-sm">"{getMotivationalQuote()}"</p>
         </div>
         
-        {/* Habit Tracker */}
         <div>
           <h3 className="font-medium mb-3">Habit Tracker</h3>
           <div className="space-y-4">
@@ -207,19 +201,18 @@ export default function MotivationCard() {
           </div>
         </div>
         
-        {/* Mood Tracker */}
         <div>
           <h3 className="font-medium mb-3">How are you feeling today?</h3>
           <div className="border rounded-lg p-4 space-y-4">
             <div className="grid grid-cols-5 gap-2">
-              {["happy", "okay", "tired", "overwhelmed", "focused"].map((mood) => (
+              {[MoodType.Happy, MoodType.Okay, MoodType.Tired, MoodType.Overwhelmed, MoodType.Focused].map((mood) => (
                 <Button
                   key={mood}
-                  variant={currentMood === mood as MoodType ? "default" : "outline"}
+                  variant={currentMood === mood ? "default" : "outline"}
                   className="flex flex-col items-center py-3 h-auto"
-                  onClick={() => setCurrentMood(mood as MoodType)}
+                  onClick={() => setCurrentMood(mood)}
                 >
-                  {getMoodIcon(mood as MoodType)}
+                  {getMoodIcon(mood)}
                   <span className="text-xs mt-1">{mood}</span>
                 </Button>
               ))}
@@ -245,7 +238,6 @@ export default function MotivationCard() {
           </div>
         </div>
         
-        {/* Recent Mood Logs */}
         {moodLogs.length > 0 && (
           <div>
             <h3 className="font-medium mb-2">Recent Mood History</h3>

@@ -1,4 +1,3 @@
-
 import React, { ReactNode } from 'react';
 import TutorCard from '@/components/dashboard/student/TutorCard';
 import StudyPlannerCard from '@/components/dashboard/student/StudyPlannerCard';
@@ -13,7 +12,7 @@ import { SmartNotificationSection } from '@/components/dashboard/student/SmartNo
 import TodayStudyPlan from '@/components/dashboard/student/TodayStudyPlan';
 import DashboardOverview from '@/components/dashboard/student/DashboardOverview';
 import WelcomeTour from '@/components/dashboard/student/WelcomeTour';
-import { UserProfileType } from '@/types/user';
+import { UserProfileType } from '@/types/user/base';
 import { KpiData, NudgeData } from '@/hooks/useKpiTracking';
 import { MicroConceptView, FlashcardsView, PracticeExamsView } from '@/pages/dashboard/student/TabContentViews';
 import FlashcardsFeature from '@/components/dashboard/student/FlashcardsFeature';

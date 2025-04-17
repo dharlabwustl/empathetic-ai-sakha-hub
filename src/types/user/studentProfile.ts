@@ -1,14 +1,72 @@
+import { UserProfileType, UserRole, MoodType, SubscriptionType, PersonalityType } from './base';
 
-import { StudentProfile, UserRole, MoodType, SubscriptionType } from "@/types/user";
+export interface StudentProfile extends UserProfileType {
+  educationLevel: string;
+  subjects: Array<{id: string; name: string; progress: number; lastStudied?: Date}>; // Changed from string[] to match UserProfileType
+  studyStreak: number;
+  quizzesTaken: number;
+  flashcardsCreated: number;
+  examPreparation: string;
+  studyHoursToday: number;
+  subjectsCovered: number;
+  quizPerformance: number;
+  mood: MoodType;
+  syllabusCoverage: number;
+  strongSubjects: string[];
+  weakSubjects: string[];
+  age?: number;
+  location?: string;
+  grade?: string;
+}
+
+export interface SubjectProgress {
+  id: string;
+  name: string;
+  progress: number;
+  lastWeekProgress: number;
+  color: string;
+  topics: TopicProgress[];
+  quizScores: QuizScore[];
+  studyHours: StudyHoursData[];
+}
+
+export interface TopicProgress {
+  id: string;
+  name: string;
+  completed: boolean;
+  masteryLevel: number;
+  lastPracticed?: string;
+}
+
+export interface QuizScore {
+  id: string;
+  title: string;
+  score: number;
+  maxScore: number;
+  date: string;
+  timeTaken: number;
+}
+
+export interface StudyHoursData {
+  date: string;
+  hours: number;
+}
+
+export interface StudyStreak {
+  current: number;
+  longest: number;
+  thisWeek: number[];
+  lastMonth: number[];
+}
 
 export const mockStudentProfile: StudentProfile = {
   id: "1",
   name: "Rahul Singh",
   phoneNumber: "9876543210",
-  email: "rahul.singh@example.com", // Added missing required field
+  email: "rahul.singh@example.com",
   role: UserRole.Student,
-  personalityType: "Strategic Thinker",
-  subscription: SubscriptionType.Basic, // Updated to use enum
+  personalityType: PersonalityType.StrategicThinker,
+  subscription: SubscriptionType.Basic,
   joinDate: "2025-03-01",
   lastActive: "2025-05-12",
   areasOfInterest: [
@@ -23,7 +81,7 @@ export const mockStudentProfile: StudentProfile = {
       description: "Finish all chapters in NCERT Physics",
       progress: 75,
       dueDate: "2025-05-30",
-      status: "in-progress", // Add status property
+      status: "in-progress",
     },
     {
       id: "g2",
@@ -31,7 +89,7 @@ export const mockStudentProfile: StudentProfile = {
       description: "Practice integration problems",
       progress: 60,
       dueDate: "2025-05-15",
-      status: "not-started", // Add status property
+      status: "not-started",
     },
   ],
   educationLevel: "11th Grade",
@@ -48,7 +106,7 @@ export const mockStudentProfile: StudentProfile = {
   studyHoursToday: 2.5,
   subjectsCovered: 3,
   quizPerformance: 82,
-  mood: "focused" as MoodType,
+  mood: MoodType.Focused,
   syllabusCoverage: 65,
   strongSubjects: ["Physics", "Mathematics"],
   weakSubjects: ["Chemistry", "Biology"]
