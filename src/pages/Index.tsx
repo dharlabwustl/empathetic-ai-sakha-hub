@@ -10,7 +10,7 @@ import VideoSection from "@/components/home/VideoSection";
 import CallToAction from "@/components/home/CallToAction";
 import FounderSection from "@/components/home/FounderSection";
 import Footer from "@/components/layout/Footer";
-import Header from "@/components/layout/Header";
+import HeaderWithAdmin from "@/components/layout/HeaderWithAdmin";
 import { useState } from "react";
 import { ExamReadinessAnalyzer } from "@/components/home/ExamReadinessAnalyzer";
 
@@ -33,7 +33,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-sky-50 via-white to-violet-50 dark:from-gray-950 dark:via-gray-900 dark:to-slate-950">
-      <Header />
+      <HeaderWithAdmin />
       <main>
         <HeroSection 
           scrollToFeatures={scrollToFeatures}
