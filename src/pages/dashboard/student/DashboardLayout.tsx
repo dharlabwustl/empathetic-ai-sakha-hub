@@ -99,16 +99,7 @@ const DashboardLayout = ({
             />
           </div>
           
-          <div className="flex-shrink-0 flex items-center gap-3">
-            <Button 
-              onClick={() => setShowFeelGoodCorner(true)}
-              variant="outline" 
-              className="flex items-center gap-2 bg-pink-50 text-pink-600 border-pink-200 hover:bg-pink-100"
-            >
-              <Heart size={18} className="text-pink-500" />
-              <span>Feel Good Corner</span>
-            </Button>
-            
+          <div className="flex-shrink-0">
             <MoodLogButton 
               currentMood={userMood} 
               onMoodChange={handleMoodChange} 
@@ -170,8 +161,6 @@ const DashboardLayout = ({
           onClose={onCloseStudyPlan} 
         />
       )}
-      
-      {/* Feel Good Corner Dialog will be implemented in a separate component */}
     </div>
   );
 };

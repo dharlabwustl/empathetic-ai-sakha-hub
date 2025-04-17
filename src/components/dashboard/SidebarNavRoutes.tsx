@@ -14,7 +14,8 @@ import {
   Target,
   Video,
   Users,
-  Bell
+  Bell,
+  Zap
 } from "lucide-react";
 import { NavigationRoute, UserRouteMap } from "./types/sidebar";
 
@@ -34,7 +35,7 @@ export const SidebarNavRoutes = ({
   const userTypeRoutes: UserRouteMap = {
     student: [
       { name: "Dashboard", path: "/dashboard/student", icon: <LayoutDashboard size={20} /> },
-      { name: "24/7 Tutor", path: "/dashboard/student/tutor", icon: <MessageSquare size={20} /> },
+      { name: "24/7 AI Tutor", path: "/dashboard/student/tutor", icon: <Zap size={20} /> },
       { name: "Academic Advisor", path: "/dashboard/student/academic", icon: <Calendar size={20} /> },
       { name: "Progress", path: "/dashboard/student/progress", icon: <LineChart size={20} /> },
       { name: "Flashcards", path: "/dashboard/student/flashcards", icon: <Brain size={20} /> },
@@ -70,7 +71,7 @@ export const SidebarNavRoutes = ({
   const routes = userTypeRoutes[userType] || userTypeRoutes.student;
   
   const commonRoutes: NavigationRoute[] = [
-    { name: "Profile", path: "/dashboard/profile", icon: <User size={20} /> },
+    { name: "Profile", path: "/dashboard/student/profile", icon: <User size={20} /> },
     { name: "Settings", path: "/dashboard/settings", icon: <Settings size={20} /> }
   ];
 
@@ -101,11 +102,11 @@ export const SidebarNavRoutes = ({
           {commonRoutes.map((route) => (
             <Link
               key={route.path}
-              to={route.path === "/dashboard/profile" ? "/dashboard/student/profile" : route.path}
+              to={route.path}
               className={cn(
                 "flex items-center gap-3 px-3 py-2 rounded-md transition-colors",
                 (location.pathname === route.path || 
-                 (route.path === "/dashboard/profile" && location.pathname === "/dashboard/student/profile"))
+                 (route.path === "/dashboard/student/profile" && location.pathname === "/dashboard/student/profile"))
                   ? "bg-gradient-to-r from-sky-500 to-violet-500 text-white"
                   : "hover:bg-accent",
                 collapsed && "justify-center"

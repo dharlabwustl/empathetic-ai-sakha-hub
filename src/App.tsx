@@ -1,201 +1,146 @@
 
-"use client";
-
-import * as React from "react";
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
+import Index from "@/pages/Index";
+import Login from "@/pages/Login";
+import SignUp from "@/pages/SignUp";
+import NotFound from "@/pages/NotFound";
 import { ThemeProvider } from "@/providers/ThemeProvider";
-import { AdminAuthProvider } from "@/contexts/AdminAuthContext";
-import { AuthProvider } from "@/contexts/auth/AuthContext"; // Update import path
-import AdminRouteGuard from "@/components/admin/AdminRouteGuard";
-import ProtectedRoute from "@/components/common/ProtectedRoute"; // We'll create this
-import Index from "./pages/Index";
-import About from "./pages/About";
-import Features from "./pages/Features";
-import Pricing from "./pages/Pricing";
-import SignUp from "./pages/SignUp";
-import Login from "./pages/Login";
-import AdminLogin from "./pages/AdminLogin";
-import AdminDashboard from "./pages/admin/AdminDashboard";
-import StudentsPage from "./pages/admin/StudentsPage";
-import ContentPage from "./pages/admin/ContentPage";
-import SettingsPage from "./pages/admin/SettingsPage";
-import AnalyticsPage from "./pages/admin/AnalyticsPage";
-import SystemMonitoringPage from "./pages/admin/SystemMonitoringPage";
-import EngagementPage from "./pages/admin/EngagementPage";
-import SubscriptionsPage from "./pages/admin/SubscriptionsPage";
-import AIPersonalizationPage from "./pages/admin/AIPersonalizationPage";
-import IssuesPage from "./pages/admin/IssuesPage";
-import NotificationsPage from "./pages/admin/NotificationsPage";
-import DocumentationPage from "./pages/admin/DocumentationPage";
-import StudentDashboard from "./pages/dashboard/student/StudentDashboard";
-import EmployeeDashboard from "./pages/dashboard/EmployeeDashboard";
-import DoctorDashboard from "./pages/dashboard/DoctorDashboard";
-import FounderDashboard from "./pages/dashboard/FounderDashboard";
-import StudyProgress from "./pages/dashboard/StudyProgress"; 
-import NotFound from "./pages/NotFound";
-import "./styles/animations.css";
+import StudentDashboard from "@/pages/dashboard/StudentDashboard";
+import EmployeeDashboard from "@/pages/dashboard/EmployeeDashboard";
+import FounderDashboard from "@/pages/dashboard/FounderDashboard";
+import DoctorDashboard from "@/pages/dashboard/DoctorDashboard";
+import AdminDashboard from "@/pages/admin/Dashboard";
+import AuthRoute from "@/components/auth/AuthRoute";
+import AdminAuthRoute from "@/components/admin/AdminAuthRoute";
+import "./App.css";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import ProfilePage from "@/pages/dashboard/student/profile";
+import SettingsPage from "@/pages/dashboard/settings";
 
-// Create a new QueryClient instance properly
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: 1,
-      refetchOnWindowFocus: false,
-    },
-  },
-});
+// Create a client
+const queryClient = new QueryClient();
 
-const App = () => {
+function App() {
   return (
-    <React.StrictMode>
+    <ThemeProvider>
       <QueryClientProvider client={queryClient}>
-        <ThemeProvider>
-          <TooltipProvider>
-            <AuthProvider>
-              <AdminAuthProvider>
-                <Toaster />
-                <Sonner />
-                <BrowserRouter>
-                  <Routes>
-                    <Route path="/" element={<Index />} />
-                    <Route path="/about" element={<About />} />
-                    <Route path="/features" element={<Features />} />
-                    <Route path="/pricing" element={<Pricing />} />
-                    <Route path="/signup" element={<SignUp />} />
-                    <Route path="/login" element={<Login />} />
-                    
-                    {/* Admin Routes */}
-                    <Route path="/admin/login" element={<AdminLogin />} />
-                    <Route path="/admin/dashboard" element={
-                      <AdminRouteGuard>
-                        <AdminDashboard />
-                      </AdminRouteGuard>
-                    } />
-                    <Route path="/admin/students" element={
-                      <AdminRouteGuard>
-                        <StudentsPage />
-                      </AdminRouteGuard>
-                    } />
-                    <Route path="/admin/ai" element={
-                      <AdminRouteGuard>
-                        <AIPersonalizationPage />
-                      </AdminRouteGuard>
-                    } />
-                    <Route path="/admin/content" element={
-                      <AdminRouteGuard>
-                        <ContentPage />
-                      </AdminRouteGuard>
-                    } />
-                    <Route path="/admin/engagement" element={
-                      <AdminRouteGuard>
-                        <EngagementPage />
-                      </AdminRouteGuard>
-                    } />
-                    <Route path="/admin/subscriptions" element={
-                      <AdminRouteGuard>
-                        <SubscriptionsPage />
-                      </AdminRouteGuard>
-                    } />
-                    <Route path="/admin/system" element={
-                      <AdminRouteGuard>
-                        <SystemMonitoringPage />
-                      </AdminRouteGuard>
-                    } />
-                    <Route path="/admin/analytics" element={
-                      <AdminRouteGuard>
-                        <AnalyticsPage />
-                      </AdminRouteGuard>
-                    } />
-                    <Route path="/admin/issues" element={
-                      <AdminRouteGuard>
-                        <IssuesPage />
-                      </AdminRouteGuard>
-                    } />
-                    <Route path="/admin/notifications" element={
-                      <AdminRouteGuard>
-                        <NotificationsPage />
-                      </AdminRouteGuard>
-                    } />
-                    <Route path="/admin/documentation" element={
-                      <AdminRouteGuard>
-                        <DocumentationPage />
-                      </AdminRouteGuard>
-                    } />
-                    <Route path="/admin/settings" element={
-                      <AdminRouteGuard>
-                        <SettingsPage />
-                      </AdminRouteGuard>
-                    } />
-                    
-                    {/* Student Dashboard Routes - Protected */}
-                    <Route path="/dashboard/student" element={
-                      <ProtectedRoute>
-                        <StudentDashboard />
-                      </ProtectedRoute>
-                    } />
-                    <Route path="/dashboard/student/:tab" element={
-                      <ProtectedRoute>
-                        <StudentDashboard />
-                      </ProtectedRoute>
-                    } />
-                    
-                    {/* Study Progress Route - Protected */}
-                    <Route path="/dashboard/student/progress" element={
-                      <ProtectedRoute>
-                        <StudyProgress />
-                      </ProtectedRoute>
-                    } />
-                    
-                    {/* Employee Dashboard Routes - Protected */}
-                    <Route path="/dashboard/employee" element={
-                      <ProtectedRoute>
-                        <EmployeeDashboard />
-                      </ProtectedRoute>
-                    } />
-                    <Route path="/dashboard/employee/:tab" element={
-                      <ProtectedRoute>
-                        <EmployeeDashboard />
-                      </ProtectedRoute>
-                    } />
-                    
-                    {/* Doctor Dashboard Routes - Protected */}
-                    <Route path="/dashboard/doctor" element={
-                      <ProtectedRoute>
-                        <DoctorDashboard />
-                      </ProtectedRoute>
-                    } />
-                    <Route path="/dashboard/doctor/:tab" element={
-                      <ProtectedRoute>
-                        <DoctorDashboard />
-                      </ProtectedRoute>
-                    } />
-                    
-                    {/* Founder Dashboard Routes - Protected */}
-                    <Route path="/dashboard/founder" element={
-                      <ProtectedRoute>
-                        <FounderDashboard />
-                      </ProtectedRoute>
-                    } />
-                    <Route path="/dashboard/founder/:tab" element={
-                      <ProtectedRoute>
-                        <FounderDashboard />
-                      </ProtectedRoute>
-                    } />
-                    
-                    <Route path="*" element={<NotFound />} />
-                  </Routes>
-                </BrowserRouter>
-              </AdminAuthProvider>
-            </AuthProvider>
-          </TooltipProvider>
-        </ThemeProvider>
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<SignUp />} />
+          
+          {/* Dashboard Routes */}
+          <Route path="/dashboard">
+            <Route index element={<Navigate to="/dashboard/student" />} />
+            
+            {/* Student Dashboard */}
+            <Route
+              path="student"
+              element={
+                <AuthRoute allowedRoles={["student"]}>
+                  <StudentDashboard />
+                </AuthRoute>
+              }
+            />
+            <Route
+              path="student/:tab"
+              element={
+                <AuthRoute allowedRoles={["student"]}>
+                  <StudentDashboard />
+                </AuthRoute>
+              }
+            />
+            
+            {/* Student Profile */}
+            <Route
+              path="student/profile"
+              element={
+                <AuthRoute allowedRoles={["student"]}>
+                  <ProfilePage />
+                </AuthRoute>
+              }
+            />
+            
+            {/* Settings Page */}
+            <Route
+              path="settings"
+              element={
+                <AuthRoute>
+                  <SettingsPage />
+                </AuthRoute>
+              }
+            />
+            
+            {/* Employee Dashboard */}
+            <Route
+              path="employee"
+              element={
+                <AuthRoute allowedRoles={["employee"]}>
+                  <EmployeeDashboard />
+                </AuthRoute>
+              }
+            />
+            <Route
+              path="employee/:tab"
+              element={
+                <AuthRoute allowedRoles={["employee"]}>
+                  <EmployeeDashboard />
+                </AuthRoute>
+              }
+            />
+            
+            {/* Founder Dashboard */}
+            <Route
+              path="founder"
+              element={
+                <AuthRoute allowedRoles={["founder"]}>
+                  <FounderDashboard />
+                </AuthRoute>
+              }
+            />
+            <Route
+              path="founder/:tab"
+              element={
+                <AuthRoute allowedRoles={["founder"]}>
+                  <FounderDashboard />
+                </AuthRoute>
+              }
+            />
+            
+            {/* Doctor Dashboard */}
+            <Route
+              path="doctor"
+              element={
+                <AuthRoute allowedRoles={["doctor"]}>
+                  <DoctorDashboard />
+                </AuthRoute>
+              }
+            />
+            <Route
+              path="doctor/:tab"
+              element={
+                <AuthRoute allowedRoles={["doctor"]}>
+                  <DoctorDashboard />
+                </AuthRoute>
+              }
+            />
+          </Route>
+          
+          {/* Admin Routes */}
+          <Route
+            path="/admin/dashboard"
+            element={
+              <AdminAuthRoute>
+                <AdminDashboard />
+              </AdminAuthRoute>
+            }
+          />
+          
+          <Route path="*" element={<NotFound />} />
+        </Routes>
       </QueryClientProvider>
-    </React.StrictMode>
+    </ThemeProvider>
   );
-};
+}
 
 export default App;
