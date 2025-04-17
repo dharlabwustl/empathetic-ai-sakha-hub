@@ -1,6 +1,7 @@
 
 // Correcting the mock data for employee profile
 import { EmployeeProfile } from "@/types/user";
+import { UserRole } from "@/types/user/base";
 import { v4 as uuidv4 } from "uuid";
 
 export const mockEmployeeProfile: EmployeeProfile = {
@@ -8,9 +9,9 @@ export const mockEmployeeProfile: EmployeeProfile = {
   name: "Rajesh Kumar",
   email: "rajesh.kumar@techsolutions.com",
   phoneNumber: "+919876543211",
-  role: "employee", // Changed from "Employee" to lowercase "employee"
+  role: UserRole.Employee,
   personalityType: "Strategic Thinker",
-  subscription: "Basic",
+  subscription: "basic",
   joinDate: "2025-01-15",
   lastActive: "2025-04-06",
   jobTitle: "Product Manager",
@@ -36,8 +37,8 @@ export const mockEmployeeProfile: EmployeeProfile = {
       title: "Complete PMP Certification",
       description: "Pass the Project Management Professional exam",
       progress: 75,
-      status: "in-progress", // Added status property
-      dueDate: "2025-05-30", // Keep dueDate as Goal now supports it
+      status: "in-progress",
+      dueDate: "2025-05-30",
       targetDate: new Date("2025-05-30")
     },
     {
@@ -45,8 +46,8 @@ export const mockEmployeeProfile: EmployeeProfile = {
       title: "Learn SQL",
       description: "Complete advanced SQL course for data analysis",
       progress: 45,
-      status: "not-started", // Added status property
-      dueDate: "2025-07-15", // Keep dueDate as Goal now supports it
+      status: "not-started",
+      dueDate: "2025-07-15",
       targetDate: new Date("2025-07-15")
     }
   ],

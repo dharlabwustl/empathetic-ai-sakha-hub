@@ -62,7 +62,7 @@ export function useKpiTracking(role: UserRole) {
 // Helper functions to get role-specific data
 function getRoleSpecificKpis(role: UserRole): KpiData[] {
   switch (role) {
-    case "student":
+    case UserRole.Student:
       return [
         {
           id: "study-time",
@@ -101,7 +101,7 @@ function getRoleSpecificKpis(role: UserRole): KpiData[] {
           icon: "Smile",
         },
       ];
-    case "employee":
+    case UserRole.Employee:
       return [
         {
           id: "productivity-score",
@@ -140,7 +140,7 @@ function getRoleSpecificKpis(role: UserRole): KpiData[] {
           icon: "Heart",
         },
       ];
-    case "doctor":
+    case UserRole.Doctor:
       return [
         {
           id: "research-hours",
@@ -179,7 +179,7 @@ function getRoleSpecificKpis(role: UserRole): KpiData[] {
           icon: "Heart",
         },
       ];
-    case "founder":
+    case UserRole.Founder:
       return [
         {
           id: "mvp-completion",
@@ -227,7 +227,7 @@ function getRoleSpecificNudges(role: UserRole): NudgeData[] {
   const now = new Date().toISOString();
   
   switch (role) {
-    case "student":
+    case UserRole.Student:
       return [
         {
           id: "n1",
@@ -267,7 +267,7 @@ function getRoleSpecificNudges(role: UserRole): NudgeData[] {
           read: false,
         },
       ];
-    case "employee":
+    case UserRole.Employee:
       return [
         {
           id: "n1",
@@ -297,7 +297,7 @@ function getRoleSpecificNudges(role: UserRole): NudgeData[] {
           read: false,
         },
       ];
-    case "doctor":
+    case UserRole.Doctor:
       return [
         {
           id: "n1",
@@ -327,7 +327,7 @@ function getRoleSpecificNudges(role: UserRole): NudgeData[] {
           read: false,
         },
       ];
-    case "founder":
+    case UserRole.Founder:
       return [
         {
           id: "n1",

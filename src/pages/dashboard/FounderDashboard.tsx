@@ -10,12 +10,13 @@ import ProfileCard from "@/components/dashboard/ProfileCard";
 import FeatureCard from "@/components/dashboard/FeatureCard";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { useKpiTracking } from "@/hooks/useKpiTracking";
+import { UserRole } from "@/types/user/base";
 
 const FounderDashboard = () => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
-  const { userProfile } = useUserProfile("founder");
-  const { kpis, nudges, markNudgeAsRead } = useKpiTracking("founder");
+  const { userProfile } = useUserProfile(UserRole.Founder);
+  const { kpis, nudges, markNudgeAsRead } = useKpiTracking(UserRole.Founder);
 
   useEffect(() => {
     const timer = setTimeout(() => {

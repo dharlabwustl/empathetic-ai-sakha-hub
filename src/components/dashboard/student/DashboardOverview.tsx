@@ -163,7 +163,7 @@ export default function DashboardOverview({
               icon={feature.icon}
               path={feature.path}
               isPremium={feature.isPremium}
-              userSubscription={userProfile.subscription || "Basic"}
+              userSubscription={userProfile.subscription || "basic"}
             />
           </motion.div>
         ))}

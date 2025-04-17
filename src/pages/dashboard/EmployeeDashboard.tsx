@@ -10,12 +10,13 @@ import ProfileCard from "@/components/dashboard/ProfileCard";
 import FeatureCard from "@/components/dashboard/FeatureCard";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { useKpiTracking } from "@/hooks/useKpiTracking";
+import { UserRole } from "@/types/user/base";
 
 const EmployeeDashboard = () => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
-  const { userProfile } = useUserProfile("employee");
-  const { kpis, nudges, markNudgeAsRead } = useKpiTracking("employee");
+  const { userProfile } = useUserProfile(UserRole.Employee);
+  const { kpis, nudges, markNudgeAsRead } = useKpiTracking(UserRole.Employee);
 
   useEffect(() => {
     const timer = setTimeout(() => {

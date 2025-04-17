@@ -1,15 +1,15 @@
 
-import { StudentProfile, MoodType } from "@/types/user";
+import { StudentProfile, UserRole, MoodType } from "@/types/user";
 import { v4 as uuidv4 } from "uuid";
 
 export const mockStudentProfile: StudentProfile = {
   id: "1",
   name: "Rahul Singh",
   phoneNumber: "9876543210",
-  email: "rahul.singh@example.com", 
-  role: "student", // Changed from "Student" to lowercase "student"
+  email: "rahul.singh@example.com",
+  role: UserRole.Student,
   personalityType: "Strategic Thinker",
-  subscription: "Basic",
+  subscription: "basic",
   joinDate: "2025-03-01",
   lastActive: "2025-05-12",
   areasOfInterest: [
@@ -23,8 +23,8 @@ export const mockStudentProfile: StudentProfile = {
       title: "Complete Physics Syllabus",
       description: "Finish all chapters in NCERT Physics",
       progress: 75,
-      status: "in-progress", // Added status property
-      dueDate: "2025-05-30", // Keep dueDate as Goal now supports it 
+      status: "in-progress",
+      dueDate: "2025-05-30",
       targetDate: new Date("2025-05-30")
     },
     {
@@ -32,8 +32,8 @@ export const mockStudentProfile: StudentProfile = {
       title: "Score 90% in Math Test",
       description: "Practice integration problems",
       progress: 60,
-      status: "not-started", // Added status property
-      dueDate: "2025-05-15", // Keep dueDate as Goal now supports it
+      status: "not-started",
+      dueDate: "2025-05-15",
       targetDate: new Date("2025-05-15")
     },
   ],
@@ -51,7 +51,7 @@ export const mockStudentProfile: StudentProfile = {
   studyHoursToday: 2.5,
   subjectsCovered: 3,
   quizPerformance: 82,
-  mood: "focused" as MoodType, // Changed from "Focused" to lowercase "focused"
+  mood: "focused" as MoodType,
   syllabusCoverage: 65,
   strongSubjects: ["Physics", "Mathematics"],
   weakSubjects: ["Chemistry", "Biology"]

@@ -1,5 +1,5 @@
 
-import { UserProfileType } from "@/types/user";
+import { UserProfileType, UserRole } from "@/types/user";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CalendarIcon, GraduationCap, Briefcase, Stethoscope, Rocket } from "lucide-react";
@@ -12,13 +12,13 @@ interface ProfileCardProps {
 export default function ProfileCard({ profile }: ProfileCardProps) {
   const getRoleIcon = () => {
     switch (profile.role) {
-      case "student":
+      case UserRole.Student:
         return <GraduationCap className="text-sakha-blue" size={18} />;
-      case "employee":
+      case UserRole.Employee:
         return <Briefcase className="text-sakha-blue" size={18} />;
-      case "doctor":
+      case UserRole.Doctor:
         return <Stethoscope className="text-sakha-blue" size={18} />;
-      case "founder":
+      case UserRole.Founder:
         return <Rocket className="text-sakha-blue" size={18} />;
       default:
         return <GraduationCap className="text-sakha-blue" size={18} />;
@@ -30,7 +30,7 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
 
   const getRoleSpecificDetails = () => {
     switch (profile.role) {
-      case "student":
+      case UserRole.Student:
         const studentProfile = profile as any;
         return (
           <>
@@ -44,7 +44,7 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
             )}
           </>
         );
-      case "employee":
+      case UserRole.Employee:
         const employeeProfile = profile as any;
         return (
           <>
@@ -56,7 +56,7 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
             </p>
           </>
         );
-      case "doctor":
+      case UserRole.Doctor:
         const doctorProfile = profile as any;
         return (
           <>
@@ -68,7 +68,7 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
             </p>
           </>
         );
-      case "founder":
+      case UserRole.Founder:
         const founderProfile = profile as any;
         return (
           <>
@@ -91,7 +91,7 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
         <CardTitle className="text-lg flex items-center justify-between">
           <span>Your Profile</span>
           {profile.subscription && (
-            <Badge variant={profile.subscription === "Premium" ? "default" : "outline"}>
+            <Badge variant={profile.subscription === "premium" ? "default" : "outline"}>
               {profile.subscription} Plan
             </Badge>
           )}

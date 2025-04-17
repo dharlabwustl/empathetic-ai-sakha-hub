@@ -21,10 +21,10 @@ export default function FeatureCard({
   icon,
   path,
   isPremium,
-  userSubscription = "Basic"
+  userSubscription = "basic"
 }: FeatureCardProps) {
   const navigate = useNavigate();
-  const hasPremiumAccess = userSubscription === "Premium";
+  const hasPremiumAccess = userSubscription === "premium";
   
   const handleClick = () => {
     if (isPremium && !hasPremiumAccess) {

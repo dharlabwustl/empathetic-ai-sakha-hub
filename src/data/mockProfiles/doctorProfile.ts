@@ -1,6 +1,7 @@
 
 // Correcting the mock data for doctor profile
 import { DoctorProfile } from "@/types/user";
+import { UserRole } from "@/types/user/base";
 import { v4 as uuidv4 } from "uuid";
 
 export const mockDoctorProfile: DoctorProfile = {
@@ -8,9 +9,9 @@ export const mockDoctorProfile: DoctorProfile = {
   name: "Dr. Aisha Sharma",
   email: "dr.aisha.sharma@maxhealthcare.com",
   phoneNumber: "+919876543210",
-  role: "doctor", // Changed from "Doctor" to lowercase "doctor"
+  role: UserRole.Doctor,
   personalityType: "Analytical Problem Solver",
-  subscription: "Premium",
+  subscription: "premium",
   joinDate: "2025-02-10",
   lastActive: "2025-04-07",
   specialization: "Neurology",
@@ -42,8 +43,8 @@ export const mockDoctorProfile: DoctorProfile = {
       title: "Complete Research Paper",
       description: "Finish and submit paper on neural biomarkers",
       progress: 65,
-      status: "in-progress", // Added status property
-      dueDate: "2025-06-15", // Keep dueDate as Goal now supports it
+      status: "in-progress",
+      dueDate: "2025-06-15",
       targetDate: new Date("2025-06-15")
     },
     {
@@ -51,8 +52,8 @@ export const mockDoctorProfile: DoctorProfile = {
       title: "Conference Presentation",
       description: "Present findings at International Neurology Conference",
       progress: 40,
-      status: "not-started", // Added status property
-      dueDate: "2025-08-20", // Keep dueDate as Goal now supports it
+      status: "not-started",
+      dueDate: "2025-08-20",
       targetDate: new Date("2025-08-20")
     }
   ],

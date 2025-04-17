@@ -86,13 +86,13 @@ export const studyTimePreferences = [
 
 export const getMockProfileByRole = (role: UserRole): UserProfileType => {
   switch (role) {
-    case "student":
+    case UserRole.Student:
       return mockStudentProfile;
-    case "employee":
+    case UserRole.Employee:
       return mockEmployeeProfile;
-    case "doctor":
+    case UserRole.Doctor:
       return mockDoctorProfile;
-    case "founder":
+    case UserRole.Founder:
       return mockFounderProfile;
     default:
       return mockStudentProfile;

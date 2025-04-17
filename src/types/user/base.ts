@@ -3,11 +3,11 @@
  * Enum for user roles in the system
  */
 export enum UserRole {
-  Student = "Student",
-  Employee = "Employee",
-  Doctor = "Doctor",
-  Founder = "Founder",
-  Admin = "Admin"
+  Student = "student",
+  Employee = "employee",
+  Doctor = "doctor",
+  Founder = "founder",
+  Admin = "admin"
 }
 
 /**
@@ -43,8 +43,18 @@ export interface UserProfileType {
   name: string;
   email: string;
   role: UserRole;
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
+  // Additional properties
+  personalityType?: string;
+  subscription?: SubscriptionType;
+  joinDate?: string;
+  lastActive?: string;
+  phoneNumber?: string;
+  areasOfInterest?: Array<{id: string, name: string, level: string}>;
+  goals: Array<{id: string, title: string, description?: string, progress: number, status?: string, dueDate?: string, targetDate?: Date}>;
+  loginCount?: number;
+  completedOnboarding?: boolean;
 }
 
 /**
