@@ -1,9 +1,10 @@
+
 import React from 'react';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Lock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { SubscriptionType, SubscriptionTypeEnum } from '@/types/user/base';
+import { SubscriptionType } from '@/types/user/base';
 
 interface FeatureCardProps {
   title: string;

@@ -1,5 +1,5 @@
 
-import { UserProfileType, UserRoleEnum } from "@/types/user";
+import { UserProfileType } from "@/types/user";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CalendarIcon, GraduationCap, Briefcase, Stethoscope, Rocket } from "lucide-react";

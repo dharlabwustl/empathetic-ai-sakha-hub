@@ -21,8 +21,8 @@ export interface UserBasicInfo {
   email: string;
   role: UserRole;
   avatar?: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
   lastLogin?: string;
   currentMood?: MoodType;
   moodHistory?: Array<{
@@ -37,6 +37,7 @@ export interface UserBasicInfo {
   completedOnboarding?: boolean;
   bio?: string;
   phoneNumber?: string;
+  lastActive?: string;
 }
 
 // Define as both type and enum for SubscriptionType
@@ -50,35 +51,47 @@ export enum SubscriptionTypeEnum {
   Enterprise = "enterprise"
 }
 
-export type PersonalityType = "visual" | "auditory" | "kinesthetic" | "reading" | "analytical" | "creative" | "practical" | "social" | "independent" | "Strategic Thinker";
+export type PersonalityType = "visual" | "auditory" | "kinesthetic" | "reading" | "analytical" | "creative" | "practical" | "social" | "independent" | "Strategic Thinker" | "Analytical Problem Solver" | "Creative Builder";
+
+// Define common goal structure
+export interface Goal {
+  id: string;
+  title: string;
+  progress: number;
+  description?: string;
+  status?: string;
+  dueDate?: string;
+  targetDate?: Date;
+}
 
 // Role-specific types
 export type StudentProfile = UserBasicInfo & {
   role: "student";
   grade?: string;
-  subjects?: string[];
-  goals?: {
-    id: string;
-    title: string;
-    progress: number;
-    description?: string;
-    status?: string; // Added for compatibility
-  }[];
+  subjects?: Array<string | { id: string; name: string; progress: number }>;
+  goals?: Goal[];
   subscription?: SubscriptionType;
   personality?: PersonalityType;
-  achievements?: string[] | { id: string; name: string; progress: number }[]; // Updated to support both formats
+  achievements?: Array<string | { id: string; name: string; progress: number }>;
+  educationLevel?: string;
+  studyStreak?: number;
+  quizzesTaken?: number;
+  flashcardsCreated?: number;
+  examPreparation?: string;
+  studyHoursToday?: number;
+  subjectsCovered?: number;
+  quizPerformance?: number;
+  mood?: MoodType;
+  syllabusCoverage?: number;
+  strongSubjects?: string[];
+  weakSubjects?: string[];
 };
 
 export type ParentProfile = UserBasicInfo & {
   role: "parent";
   children?: string[];
   subscription?: SubscriptionType;
-  goals?: {
-    id: string;
-    title: string;
-    progress: number;
-    status?: string; // Added for compatibility
-  }[];
+  goals?: Goal[];
 };
 
 export type TeacherProfile = UserBasicInfo & {
@@ -87,12 +100,7 @@ export type TeacherProfile = UserBasicInfo & {
   classes?: string[];
   subscription?: SubscriptionType;
   specializations?: string[];
-  goals?: {
-    id: string;
-    title: string;
-    progress: number;
-    status?: string; // Added for compatibility
-  }[];
+  goals?: Goal[];
 };
 
 export type AdminProfile = UserBasicInfo & {
@@ -100,12 +108,7 @@ export type AdminProfile = UserBasicInfo & {
   permissions?: string[];
   department?: string;
   subscription?: SubscriptionType;
-  goals?: {
-    id: string;
-    title: string;
-    progress: number;
-    status?: string; // Added for compatibility
-  }[];
+  goals?: Goal[];
 };
 
 // Define additional profile types
@@ -115,14 +118,9 @@ export type EmployeeProfile = UserBasicInfo & {
   seniorityLevel?: string;
   domain?: string;
   subscription?: SubscriptionType;
-  goals?: {
-    id: string;
-    title: string;
-    progress: number;
-    description?: string;
-    status?: string;
-  }[];
-  id?: string; // Added for compatibility
+  goals?: Goal[];
+  jobTitle?: string;
+  industry?: string;
 };
 
 export type DoctorProfile = UserBasicInfo & {
@@ -131,14 +129,7 @@ export type DoctorProfile = UserBasicInfo & {
   institution?: string;
   research?: string;
   subscription?: SubscriptionType;
-  goals?: {
-    id: string;
-    title: string;
-    progress: number;
-    description?: string;
-    status?: string;
-  }[];
-  id?: string; // Added for compatibility
+  goals?: Goal[];
 };
 
 export type FounderProfile = UserBasicInfo & {
@@ -147,14 +138,8 @@ export type FounderProfile = UserBasicInfo & {
   teamSize?: number;
   industry?: string;
   subscription?: SubscriptionType;
-  goals?: {
-    id: string;
-    title: string;
-    progress: number;
-    description?: string;
-    status?: string;
-  }[];
-  id?: string; // Added for compatibility
+  goals?: Goal[];
+  startupName?: string;
 };
 
 export type UserProfile = StudentProfile | ParentProfile | TeacherProfile | AdminProfile | EmployeeProfile | DoctorProfile | FounderProfile;

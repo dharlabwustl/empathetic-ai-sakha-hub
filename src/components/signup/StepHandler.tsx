@@ -1,11 +1,12 @@
+
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
-import { OnboardingStep, UserGoal, UserRole } from "./OnboardingContext";
+import { OnboardingStep, UserGoal } from "./OnboardingContext";
 import { getDemographicsQuestion } from "./utils/stepUtils";
 import authService from "@/services/auth/authService"; 
 import { getSubjectsForGoal } from "@/components/dashboard/student/onboarding/SubjectData";
-import { PersonalityType, MoodType } from "@/types/user/base";
+import { PersonalityType, MoodType, UserRole } from "@/types/user/base";
 
 interface StepHandlerProps {
   onboardingData: any;
@@ -48,7 +49,7 @@ const StepHandler = ({
         email: `${cleanMobile}@sakha.ai`,
         phoneNumber: cleanMobile,
         password: formValues.otp,
-        role: (onboardingData.role || 'Student').toLowerCase()
+        role: (onboardingData.role || 'student').toLowerCase()
       };
       
       console.log("Registering user:", userData);

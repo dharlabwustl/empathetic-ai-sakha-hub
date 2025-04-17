@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { UserRole, UserRoleEnum } from "@/types/user/base";
+import { UserRole } from "@/types/user/base";
 
 interface RoleStepProps {
   onRoleSelect: (role: UserRole) => void;
@@ -19,7 +19,7 @@ const RoleStep: React.FC<RoleStepProps> = ({ onRoleSelect }) => {
         <span>Student</span>
       </Button>
       <Button
-        onClick={() => onRoleSelect("employee" as UserRole)}
+        onClick={() => onRoleSelect("employee")}
         className="bg-white hover:bg-blue-50 text-blue-700 border border-blue-200 h-auto py-6 flex flex-col items-center"
         variant="outline"
       >
@@ -27,7 +27,7 @@ const RoleStep: React.FC<RoleStepProps> = ({ onRoleSelect }) => {
         <span>Employee</span>
       </Button>
       <Button
-        onClick={() => onRoleSelect("doctor" as UserRole)}
+        onClick={() => onRoleSelect("doctor")}
         className="bg-white hover:bg-blue-50 text-blue-700 border border-blue-200 h-auto py-6 flex flex-col items-center"
         variant="outline"
       >
@@ -35,7 +35,7 @@ const RoleStep: React.FC<RoleStepProps> = ({ onRoleSelect }) => {
         <span>Doctor</span>
       </Button>
       <Button
-        onClick={() => onRoleSelect("founder" as UserRole)}
+        onClick={() => onRoleSelect("founder")}
         className="bg-white hover:bg-blue-50 text-blue-700 border border-blue-200 h-auto py-6 flex flex-col items-center"
         variant="outline"
       >
