@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import MicroConcept from "./MicroConcept";
+import { useToast } from "@/hooks/use-toast";
 
 // Mock data for today's plan
 const mockTodayPlan = {
@@ -89,6 +90,7 @@ const mockTodayPlan = {
 
 export default function TodayStudyPlan() {
   const [todayPlan, setTodayPlan] = useState(mockTodayPlan);
+  const { toast } = useToast();
   
   const handleCompleteConcept = (id: string) => {
     setTodayPlan(prev => {
@@ -96,16 +98,41 @@ export default function TodayStudyPlan() {
         concept.id === id ? {...concept, completed: true} : concept
       );
       
+      const completedCount = updatedConcepts.filter(c => c.completed).length;
+      
+      // Show completion milestone toast if needed
+      if (completedCount > prev.completedConcepts) {
+        const percentComplete = Math.round((completedCount / prev.totalConcepts) * 100);
+        if (percentComplete === 100) {
+          toast({
+            title: "Amazing achievement!",
+            description: "You've completed all concepts in today's study plan!",
+            variant: "default",
+          });
+        } else if (percentComplete >= 50 && prev.completedConcepts < Math.ceil(prev.totalConcepts / 2)) {
+          toast({
+            title: "Halfway there!",
+            description: "You've completed 50% of today's study plan.",
+            variant: "default",
+          });
+        }
+      }
+      
       return {
         ...prev,
         concepts: updatedConcepts,
-        completedConcepts: updatedConcepts.filter(c => c.completed).length
+        completedConcepts: completedCount
       };
     });
   };
   
   const handleNeedHelp = (id: string) => {
     // In a real app, this would open a chat assistant or help modal
+    toast({
+      title: "Help requested",
+      description: `A tutor will be notified about your question on concept ${id}`,
+      variant: "default",
+    });
     console.log(`Help requested for concept ${id}`);
   };
   
@@ -164,7 +191,7 @@ export default function TodayStudyPlan() {
                   title={concept.title}
                   subject={concept.subject}
                   chapter={concept.chapter}
-                  difficulty={concept.difficulty}
+                  difficulty={concept.difficulty.toLowerCase() as "easy" | "medium" | "hard"}
                   estimatedTime={concept.estimatedTime}
                   content={concept.content}
                   resourceType={concept.resourceType}

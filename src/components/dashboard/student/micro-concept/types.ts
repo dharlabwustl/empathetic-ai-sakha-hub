@@ -25,4 +25,5 @@ export interface MicroConceptProps {
   resourceUrl?: string;
   onComplete?: (id: string) => void;
   onNeedHelp?: (id: string) => void;
+  isCompleted?: boolean;
 }
