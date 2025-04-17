@@ -1,10 +1,11 @@
 
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { useOnboarding } from "../OnboardingContext";
 
 interface SignupStepProps {
   onSubmit: (formValues: { name: string; mobile: string; otp: string }) => void;
@@ -13,9 +14,9 @@ interface SignupStepProps {
 
 const SignupStep: React.FC<SignupStepProps> = ({ onSubmit, isLoading }) => {
   const { toast } = useToast();
-  const navigate = useNavigate();
+  const { onboardingData } = useOnboarding();
   const [formValues, setFormValues] = useState({
-    name: "",
+    name: onboardingData.name || "",
     mobile: "",
     otp: "",
   });
@@ -26,10 +27,10 @@ const SignupStep: React.FC<SignupStepProps> = ({ onSubmit, isLoading }) => {
   };
 
   const handleRequestOtp = () => {
-    if (!formValues.name || !formValues.mobile) {
+    if (!formValues.mobile) {
       toast({
         title: "Please fill in all fields",
-        description: "We need your name and mobile number to proceed.",
+        description: "We need your mobile number to proceed.",
         variant: "destructive"
       });
       return;
@@ -60,17 +61,6 @@ const SignupStep: React.FC<SignupStepProps> = ({ onSubmit, isLoading }) => {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <div>
-        <Label htmlFor="name">Full Name</Label>
-        <Input 
-          id="name" 
-          name="name" 
-          value={formValues.name} 
-          onChange={handleFormChange} 
-          required 
-          className="border-purple-200 focus:border-purple-500 focus:ring-purple-500"
-        />
-      </div>
       <div>
         <Label htmlFor="mobile">Mobile Number</Label>
         <Input 

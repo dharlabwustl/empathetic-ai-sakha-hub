@@ -1,9 +1,9 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import { motion } from "framer-motion";
 
 interface HabitsStepProps {
@@ -66,28 +66,6 @@ const HabitsStep: React.FC<HabitsStepProps> = ({ onSubmit }) => {
       animate="visible"
     >
       <motion.div variants={itemVariants}>
-        <Label htmlFor="sleepPattern">Sleep Pattern</Label>
-        <Input 
-          id="sleepPattern" 
-          name="sleepPattern" 
-          placeholder="Describe your sleep pattern (e.g., 6-8 hours daily)" 
-          className="mt-2" 
-          required
-        />
-      </motion.div>
-      
-      <motion.div variants={itemVariants}>
-        <Label htmlFor="dailyRoutine">Daily Routine</Label>
-        <Input 
-          id="dailyRoutine" 
-          name="dailyRoutine" 
-          placeholder="Describe your daily routine" 
-          className="mt-2" 
-          required
-        />
-      </motion.div>
-      
-      <motion.div variants={itemVariants}>
         <Label htmlFor="stressManagement">Stress Management Methods</Label>
         <RadioGroup defaultValue="meditation" name="stressManagement" className="mt-2">
           <div className="flex items-center space-x-2">
@@ -112,17 +90,6 @@ const HabitsStep: React.FC<HabitsStepProps> = ({ onSubmit }) => {
           </div>
         </RadioGroup>
         <Input id="stressManagementCustom" name="stressManagementCustom" placeholder="Describe other stress management methods" className="mt-2" />
-      </motion.div>
-      
-      <motion.div variants={itemVariants}>
-        <Label htmlFor="focusDuration">Focus Duration</Label>
-        <Input 
-          id="focusDuration" 
-          name="focusDuration" 
-          placeholder="How long can you focus? (e.g., 25 minutes with 5-minute breaks)" 
-          className="mt-2" 
-          required
-        />
       </motion.div>
       
       <motion.div variants={itemVariants}>

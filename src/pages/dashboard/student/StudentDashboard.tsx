@@ -5,10 +5,12 @@ import OnboardingFlow from "@/components/dashboard/student/OnboardingFlow";
 import DashboardLoading from "@/pages/dashboard/student/DashboardLoading";
 import DashboardLayout from "@/pages/dashboard/student/DashboardLayout";
 import SplashScreen from "@/components/dashboard/student/SplashScreen";
+import { useLocation } from "react-router-dom";
 
 const StudentDashboard = () => {
   const [showSplash, setShowSplash] = useState(true);
   const [currentMood, setCurrentMood] = useState<'sad' | 'neutral' | 'happy' | 'motivated' | undefined>(undefined);
+  const location = useLocation();
   
   const {
     loading,
@@ -36,9 +38,22 @@ const StudentDashboard = () => {
     toggleTabsNav
   } = useStudentDashboard();
 
+  // Check URL parameters for onboarding status
   useEffect(() => {
-    // Check if the user has seen the splash screen in this session
-    const hasSeen = sessionStorage.getItem("hasSeenSplash");
+    const params = new URLSearchParams(location.search);
+    const isNewUser = params.get('new') === 'true';
+    const completedOnboarding = params.get('completedOnboarding') === 'true';
+    
+    console.log("URL params:", { isNewUser, completedOnboarding });
+    
+    // Don't show splash screen for new users coming from signup flow
+    if (isNewUser) {
+      setShowSplash(false);
+    } else {
+      // Check if the user has seen the splash screen in this session
+      const hasSeen = sessionStorage.getItem("hasSeenSplash");
+      setShowSplash(!hasSeen);
+    }
     
     // Try to get saved mood from local storage
     const savedUserData = localStorage.getItem("userData");
@@ -48,11 +63,7 @@ const StudentDashboard = () => {
         setCurrentMood(parsedData.mood);
       }
     }
-    
-    if (hasSeen) {
-      setShowSplash(false);
-    }
-  }, []);
+  }, [location]);
   
   const handleSplashComplete = () => {
     setShowSplash(false);

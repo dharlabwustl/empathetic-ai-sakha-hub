@@ -73,7 +73,7 @@ const StepHandler = ({
           ...onboardingData,
           name: cleanName,
           phoneNumber: cleanMobile,
-          completedOnboarding: true, // Mark as completed
+          completedOnboarding: false, // Mark as not completed to trigger onboarding flow
           isNewUser: true,
           sawWelcomeTour: false
         };
@@ -82,18 +82,11 @@ const StepHandler = ({
         
         toast({
           title: "Welcome to Sakha AI!",
-          description: "Your personalized dashboard is ready.",
+          description: "Let's create your personalized study plan.",
         });
         
-        // First navigate to the landing page to show them what they've signed up for
-        setTimeout(() => {
-          navigate("/");
-        }, 1500);
-        
-        // Then after a short delay, send them to their dashboard
-        setTimeout(() => {
-          navigate(`/dashboard/student?completedOnboarding=true&new=true`);
-        }, 3500);
+        // Go directly to the dashboard with parameters to show onboarding
+        navigate("/dashboard/student?completedOnboarding=false&new=true");
       } else {
         throw new Error("Registration failed");
       }
@@ -159,7 +152,7 @@ const StepHandler = ({
         setMessages([
           ...messages,
           { content: mood, isBot: false },
-          { content: "Let's understand your study habits better. How would you describe your sleep pattern and daily routine?", isBot: true }
+          { content: "Let's understand your study preferences for a personalized experience.", isBot: true }
         ]);
         setStep("habits");
       },

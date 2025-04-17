@@ -1,7 +1,7 @@
 
 import React, { useEffect } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/auth/AuthContext';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -22,11 +22,10 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   }, [isAuthenticated, isLoading, user, location]);
 
   // Check if the user is coming from the signup flow
-  const isFromSignup = location.search.includes('completedOnboarding=true');
-  const isNewUser = location.search.includes('new=true');
+  const isFromSignup = location.search.includes('completedOnboarding=') || location.search.includes('new=true');
   
   // If this is redirected from signup, we'll let them through even if not fully authenticated
-  if (isFromSignup || isNewUser) {
+  if (isFromSignup) {
     console.log("ProtectedRoute - User coming from signup, bypassing auth check temporarily");
     return <>{children}</>;
   }
