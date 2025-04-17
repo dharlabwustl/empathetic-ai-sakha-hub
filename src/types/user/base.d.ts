@@ -1,4 +1,5 @@
 
+
 // If this file doesn't exist, we'll create it
 export interface UserGoal {
   id?: string;
@@ -86,3 +87,4 @@ export interface ParentProfileType extends UserProfileType {
   children?: string[];
   relationship?: string;
 }
+

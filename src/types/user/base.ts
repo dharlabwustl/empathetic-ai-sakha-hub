@@ -1,4 +1,3 @@
-
 // Base user profile type
 export type UserProfileType = {
   id: string;
@@ -25,7 +24,20 @@ export type UserProfileType = {
   completedOnboarding?: boolean;
   phoneNumber?: string;
   lastActive?: string;
-  examPreparation?: string; // Add this to fix StudyProgress.tsx error
+  examPreparation?: string; 
+  // Add address property
+  address?: {
+    city?: string;
+    state?: string;
+    country?: string;
+  };
+  // Add parentGuardian property
+  parentGuardian?: {
+    name?: string;
+    phone?: string;
+    email?: string;
+  };
+  profileImage?: string | null;
 };
 
 // User roles - update to lowercase to match the string literals used in code
