@@ -25,7 +25,7 @@ const Header = () => {
               alt="Sakha AI Logo" 
               className="w-8 h-8"
             />
-            <span className="font-medium text-gray-900 dark:text-white">Sakha AI</span>
+            <span className="font-medium text-gray-900 dark:text-white">Sakha AI HiFi</span>
           </Link>
           
           {/* Desktop Navigation */}
@@ -62,7 +62,7 @@ const Header = () => {
                   <Link to="/login">Login</Link>
                 </Button>
                 <Button variant="default" className="bg-violet-600 hover:bg-violet-700" asChild>
-                  <Link to="/register">Register</Link>
+                  <Link to="/register">Sign up</Link>
                 </Button>
               </>
             )}
@@ -137,7 +137,7 @@ const Header = () => {
                       asChild 
                       onClick={() => setIsMenuOpen(false)}
                     >
-                      <Link to="/register">Register</Link>
+                      <Link to="/register">Sign up</Link>
                     </Button>
                   </>
                 )}
@@ -151,3 +151,4 @@ const Header = () => {
 };
 
 export default Header;
+
