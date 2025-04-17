@@ -1,4 +1,3 @@
-
 import React, { useRef } from "react";
 import HeroSection from "@/components/home/HeroSection";
 import WhatIsSection from "@/components/home/WhatIsSection";
@@ -12,7 +11,7 @@ import FounderSection from "@/components/home/FounderSection";
 import Footer from "@/components/layout/Footer";
 import Header from "@/components/layout/Header";
 import { useState } from "react";
-import ExamReadinessAnalyzer from "@/components/home/ExamReadinessAnalyzer";
+import { ExamReadinessAnalyzer } from "@/components/home/ExamReadinessAnalyzer";
 
 const Index = () => {
   const featuresRef = useRef<HTMLDivElement>(null);
