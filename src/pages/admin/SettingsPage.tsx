@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { adminService } from "@/services/adminService";
 import { AdminSettings } from "@/types/admin";
 import { Download } from "lucide-react";
-import { downloadDatabaseSchema } from "@/utils/schemaExport";
+import { downloadDatabaseSchemaCSV } from "@/utils/database-schema-export";
 
 const SettingsPage = () => {
   const { toast } = useToast();
@@ -444,14 +444,29 @@ const SettingsPage = () => {
                   <div className="flex justify-between items-center">
                     <div>
                       <h3 className="font-medium text-lg">Database Schema Export</h3>
-                      <p className="text-sm text-gray-500">Download the complete SQL schema for your reference or database implementation</p>
+                      <p className="text-sm text-gray-500">Download complete database schema in CSV format</p>
                     </div>
                     <Button 
-                      onClick={handleDownloadSchema}
+                      onClick={() => {
+                        try {
+                          downloadDatabaseSchemaCSV();
+                          toast({
+                            title: "Schema Downloaded",
+                            description: "Database schema CSV has been generated."
+                          });
+                        } catch (error) {
+                          console.error("Error downloading schema:", error);
+                          toast({
+                            title: "Download Failed",
+                            description: "Unable to generate database schema.",
+                            variant: "destructive"
+                          });
+                        }
+                      }} 
                       className="flex items-center gap-2"
                     >
                       <Download className="h-4 w-4" />
-                      <span>Download Schema (SQL)</span>
+                      <span>Download Schema (CSV)</span>
                     </Button>
                   </div>
                   
