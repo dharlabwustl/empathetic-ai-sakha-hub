@@ -4,17 +4,19 @@ import { motion } from 'framer-motion';
 import { ExamType } from '../types';
 
 interface ReportHeaderProps {
-  examLabel: string;
-  weightedScore: number;
-  overallAnalysis: string;
-  getScoreColorClass: (score: number) => string;
+  examLabel?: string;
+  weightedScore?: number;
+  overallAnalysis?: string;
+  getScoreColorClass?: (score: number) => string;
+  selectedExam: string; // Added this prop
 }
 
 const ReportHeader: React.FC<ReportHeaderProps> = ({ 
   examLabel, 
-  weightedScore, 
-  overallAnalysis,
-  getScoreColorClass
+  weightedScore = 0, 
+  overallAnalysis = "",
+  getScoreColorClass = () => "from-blue-500 to-blue-600",
+  selectedExam
 }) => {
   return (
     <motion.div
@@ -24,7 +26,7 @@ const ReportHeader: React.FC<ReportHeaderProps> = ({
     >
       <div className="text-center mb-4">
         <h3 className="text-2xl font-bold bg-gradient-to-r from-violet-600 to-blue-600 bg-clip-text text-transparent">
-          Your {examLabel} Readiness Analysis
+          Your {selectedExam} Readiness Analysis
         </h3>
         <p className="text-gray-600 dark:text-gray-300 mt-2">
           Based on scientific assessment across cognitive stress, readiness, and concept mastery

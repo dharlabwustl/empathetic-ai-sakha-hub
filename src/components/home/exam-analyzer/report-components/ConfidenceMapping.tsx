@@ -6,9 +6,13 @@ import { ConfidenceMapping } from '../types';
 
 interface ConfidenceMappingProps {
   confidenceMappings: ConfidenceMapping[];
+  examType?: string; // Added this prop
 }
 
-const ConfidenceMappingSection: React.FC<ConfidenceMappingProps> = ({ confidenceMappings }) => {
+const ConfidenceMappingSection: React.FC<ConfidenceMappingProps> = ({ 
+  confidenceMappings,
+  examType 
+}) => {
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -20,7 +24,7 @@ const ConfidenceMappingSection: React.FC<ConfidenceMappingProps> = ({ confidence
         <div className="p-2 mr-2 bg-blue-50 dark:bg-blue-900/30 rounded-lg">
           <BarChart3 className="h-4 w-4 text-blue-600 dark:text-blue-400" />
         </div>
-        Confidence Mapping
+        {examType ? `${examType} Confidence Mapping` : 'Confidence Mapping'}
       </h4>
       
       <p className="text-sm mb-3 text-gray-600 dark:text-gray-400">

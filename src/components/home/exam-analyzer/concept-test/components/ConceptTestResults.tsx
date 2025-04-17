@@ -1,17 +1,26 @@
 
 import React from 'react';
 import { CustomProgress } from '@/components/ui/custom-progress';
-import { TestResults } from '../../types';
+import { TestResults, UserAnswer } from '../../types';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, FileText } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface ConceptTestResultsProps {
   results: TestResults;
   onContinue?: () => void;
+  subject?: string; // Added this prop
+  userAnswers?: UserAnswer[]; // Added this prop
 }
 
-const ConceptTestResults: React.FC<ConceptTestResultsProps> = ({ results, onContinue }) => {
+const ConceptTestResults: React.FC<ConceptTestResultsProps> = ({ 
+  results, 
+  onContinue,
+  subject,
+  userAnswers = []
+}) => {
+  const subjectText = subject ? ` for ${subject}` : '';
+
   return (
     <div className="space-y-4">
       <motion.div 
@@ -21,7 +30,9 @@ const ConceptTestResults: React.FC<ConceptTestResultsProps> = ({ results, onCont
         transition={{ duration: 0.4 }}
       >
         <div className="flex justify-between items-center mb-2">
-          <h4 className="font-medium text-pink-700 dark:text-pink-300">Your Concept Mastery Score:</h4>
+          <h4 className="font-medium text-pink-700 dark:text-pink-300">
+            Your Concept Mastery Score{subjectText}:
+          </h4>
           <span className="text-lg font-bold bg-gradient-to-r from-pink-500 to-purple-500 bg-clip-text text-transparent">{results.score}%</span>
         </div>
         
@@ -48,6 +59,16 @@ const ConceptTestResults: React.FC<ConceptTestResultsProps> = ({ results, onCont
             </div>
           )}
         </div>
+        
+        {userAnswers.length > 0 && (
+          <div className="mt-4 pt-4 border-t border-pink-100 dark:border-pink-800">
+            <p className="text-sm font-medium mb-2">Question Summary:</p>
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <div>Correct: {userAnswers.filter(a => a.isCorrect).length}</div>
+              <div>Incorrect: {userAnswers.filter(a => !a.isCorrect).length}</div>
+            </div>
+          </div>
+        )}
       </motion.div>
       
       {onContinue && (

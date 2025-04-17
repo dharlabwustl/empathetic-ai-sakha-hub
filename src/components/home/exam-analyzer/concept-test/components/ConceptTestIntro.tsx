@@ -12,6 +12,10 @@ interface ConceptTestIntroProps {
   toggleSubjectSelection: (subject: string) => void;
   getEstimatedTestTime: () => number;
   startTest: () => void;
+  selectedExam?: string; // Added this prop
+  selectedSubject?: string; // Added this prop
+  onStart?: () => void; // Added this prop
+  disabled?: boolean; // Added this prop
 }
 
 const ConceptTestIntro: React.FC<ConceptTestIntroProps> = ({
@@ -19,8 +23,15 @@ const ConceptTestIntro: React.FC<ConceptTestIntroProps> = ({
   selectedSubjects,
   toggleSubjectSelection,
   getEstimatedTestTime,
-  startTest
+  startTest,
+  selectedExam,
+  selectedSubject,
+  onStart,
+  disabled
 }) => {
+  // Use the appropriate handler based on which props are available
+  const handleStartTest = onStart || startTest;
+  
   const formatTime = (seconds: number): string => {
     const minutes = Math.floor(seconds / 60);
     return `${minutes} min`;
@@ -32,6 +43,7 @@ const ConceptTestIntro: React.FC<ConceptTestIntroProps> = ({
         <h3 className="text-lg font-medium flex items-center">
           <Brain className="mr-2 text-pink-500" size={20} />
           Concept Mastery Test
+          {selectedExam && <span className="ml-2 text-sm">({selectedExam})</span>}
         </h3>
         <Badge variant="outline" className="bg-pink-50 dark:bg-pink-900/30 border-pink-200 dark:border-pink-700">3 of 3</Badge>
       </div>
@@ -55,39 +67,45 @@ const ConceptTestIntro: React.FC<ConceptTestIntroProps> = ({
           
           <div className="mt-3 flex items-center text-sm text-pink-700 dark:text-pink-300">
             <Clock size={16} className="mr-1" />
-            <span>Total test time: {formatTime(getEstimatedTestTime())}</span>
+            <span>Total test time: {formatTime(getEstimatedTestTime ? getEstimatedTestTime() : 300)}</span>
           </div>
         </div>
         
-        <div className="space-y-3">
-          <label className="text-sm font-medium">Select Subjects (max 2)</label>
-          <div className="grid grid-cols-1 gap-2">
-            {topics.map((topic) => (
-              <div key={topic.id} className="flex items-center space-x-2 bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
-                <Checkbox 
-                  id={topic.id} 
-                  checked={selectedSubjects.includes(topic.subject)} 
-                  onCheckedChange={() => toggleSubjectSelection(topic.subject)}
-                  disabled={selectedSubjects.length >= 2 && !selectedSubjects.includes(topic.subject)}
-                />
-                <label 
-                  htmlFor={topic.id} 
-                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex justify-between w-full"
-                >
-                  <span>{topic.subject}</span>
-                  <span className="text-xs text-gray-500 dark:text-gray-400">{topic.topics} questions · {formatTime(topic.topics * 60)}</span>
-                </label>
-              </div>
-            ))}
+        {topics && topics.length > 0 ? (
+          <div className="space-y-3">
+            <label className="text-sm font-medium">Select Subjects (max 2)</label>
+            <div className="grid grid-cols-1 gap-2">
+              {topics.map((topic) => (
+                <div key={topic.id} className="flex items-center space-x-2 bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
+                  <Checkbox 
+                    id={topic.id} 
+                    checked={selectedSubjects.includes(topic.subject)} 
+                    onCheckedChange={() => toggleSubjectSelection(topic.subject)}
+                    disabled={selectedSubjects.length >= 2 && !selectedSubjects.includes(topic.subject)}
+                  />
+                  <label 
+                    htmlFor={topic.id} 
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex justify-between w-full"
+                  >
+                    <span>{topic.subject}</span>
+                    <span className="text-xs text-gray-500 dark:text-gray-400">{topic.topics} questions · {formatTime(topic.topics * 60)}</span>
+                  </label>
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
+        ) : (
+          <div className="text-center p-4">
+            <p>{selectedExam && selectedSubject ? `Ready to test your knowledge on ${selectedSubject} for ${selectedExam}?` : "Select a subject to begin"}</p>
+          </div>
+        )}
         
         <Button 
           className="w-full bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700 transition-all duration-300 shadow-md hover:shadow-lg"
-          onClick={startTest}
-          disabled={selectedSubjects.length === 0}
+          onClick={handleStartTest}
+          disabled={disabled !== undefined ? disabled : selectedSubjects.length === 0}
         >
-          Begin Concept Test ({selectedSubjects.length} {selectedSubjects.length === 1 ? 'subject' : 'subjects'})
+          Begin Concept Test {selectedSubject ? `(${selectedSubject})` : selectedSubjects.length > 0 ? `(${selectedSubjects.length} ${selectedSubjects.length === 1 ? 'subject' : 'subjects'})` : ''}
         </Button>
       </div>
     </div>

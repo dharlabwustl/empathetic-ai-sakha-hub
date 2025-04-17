@@ -1,47 +1,56 @@
 
 import React from 'react';
 import { Brain, Clock, BookOpen, Target } from 'lucide-react';
+import { ExamResults } from '../types';
 
 interface ScoreBadgesProps {
-  stressScore: number;
-  conceptCompletionScore: number;
-  mockAccuracyScore: number;
-  confidenceAlignmentScore: number;
-  getScoreColorClass: (score: number) => string;
+  stressScore?: number;
+  conceptCompletionScore?: number;
+  mockAccuracyScore?: number;
+  confidenceAlignmentScore?: number;
+  getScoreColorClass?: (score: number) => string;
+  results: ExamResults; // Added this prop
 }
 
 const ScoreBadges: React.FC<ScoreBadgesProps> = ({
-  stressScore,
-  conceptCompletionScore,
-  mockAccuracyScore,
-  confidenceAlignmentScore,
-  getScoreColorClass
+  stressScore = 0,
+  conceptCompletionScore = 0,
+  mockAccuracyScore = 0,
+  confidenceAlignmentScore = 0,
+  getScoreColorClass = () => "from-green-500 to-green-600",
+  results
 }) => {
+  // Extract scores from results if provided
+  const stress = results?.stress?.score ?? stressScore;
+  const concept = results?.concept?.score ?? conceptCompletionScore;
+  const mock = results?.readiness?.score ?? mockAccuracyScore;
+  const confidence = results?.confidence?.score ?? confidenceAlignmentScore;
+
   return (
     <div className="flex flex-wrap gap-2 mt-2">
       <Badge 
         icon={Clock} 
-        value={stressScore} 
+        value={stress} 
         label="Stress Management" 
-        colorClass={getScoreColorClass(stressScore)}
+        colorClass={getScoreColorClass(stress)}
       />
       <Badge 
         icon={BookOpen} 
-        value={Math.round(conceptCompletionScore)} 
+        value={Math.round(concept)} 
         label="Concept Coverage" 
-        colorClass={getScoreColorClass(conceptCompletionScore)}
+        colorClass={getScoreColorClass(concept)}
       />
       <Badge 
         icon={Target} 
-        value={Math.round(mockAccuracyScore)} 
+        value={Math.round(mock)} 
         label="Mock Accuracy" 
-        colorClass={getScoreColorClass(mockAccuracyScore)}
+        colorClass={getScoreColorClass(mock)}
       />
       <Badge 
         icon={Brain} 
-        value={Math.round(confidenceAlignmentScore)} 
+        value={Math.round(confidence)} 
         label="Confidence Alignment" 
-        colorClass={getScoreColorClass(confidenceAlignmentScore)}
+        colorClass={getScoreColorClass(confidence)}
       />
     </div>
   );

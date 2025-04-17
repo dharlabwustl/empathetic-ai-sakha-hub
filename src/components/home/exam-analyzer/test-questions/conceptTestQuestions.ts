@@ -1,5 +1,4 @@
-
-import { TestQuestion } from '../types';
+import { TestQuestion, SubjectTopic } from '../types';
 import { ExamGoal } from '@/types/user/exam';
 
 // Subject data mapping for each exam goal
@@ -16,6 +15,16 @@ const examSubjectsMap: Record<string, string[]> = {
 // Function to get available subjects for a specific exam
 export const getAvailableSubjects = (examType: string): string[] => {
   return examSubjectsMap[examType] || [];
+};
+
+// Function to get concept topics for exam preparation
+export const getConceptTopics = (examType: string): SubjectTopic[] => {
+  const subjects = getAvailableSubjects(examType);
+  return subjects.map((subject, index) => ({
+    id: `topic-${index + 1}`,
+    subject,
+    topics: 5, // Default number of topics/questions per subject
+  }));
 };
 
 // Sample concept test questions for each subject
@@ -46,7 +55,6 @@ const generateConceptQuestions = (subject: string, count: number = 5, setNumber:
         difficulty: 'easy',
         complexityLevel: 1
       },
-      // Add more physics questions as needed
     ],
     'Chemistry': [
       {
@@ -73,7 +81,6 @@ const generateConceptQuestions = (subject: string, count: number = 5, setNumber:
         difficulty: 'medium',
         complexityLevel: 2
       },
-      // Add more chemistry questions as needed
     ],
     'Mathematics': [
       {
@@ -100,7 +107,6 @@ const generateConceptQuestions = (subject: string, count: number = 5, setNumber:
         difficulty: 'easy',
         complexityLevel: 1
       },
-      // Add more math questions as needed
     ],
     'Biology': [
       {
@@ -127,9 +133,7 @@ const generateConceptQuestions = (subject: string, count: number = 5, setNumber:
         difficulty: 'medium',
         complexityLevel: 2
       },
-      // Add more biology questions as needed
     ],
-    // Add more subjects with their questions as needed
   };
 
   // Modify the base questions based on set number to create variety
@@ -161,7 +165,10 @@ export const getConceptTestQuestionsByExam = (examType: string, subject: string,
   return generateConceptQuestions(subject, 5, setNumber);
 };
 
-// Default function to generate concept test questions (used by other parts of the app)
-export const getConceptTestQuestions = (count: number = 5): TestQuestion[] => {
-  return generateConceptQuestions('Mathematics', count);
+// Function to get concept test questions (for backwards compatibility)
+export const getConceptTestQuestions = (examType?: string, subject?: string): TestQuestion[] => {
+  if (examType && subject) {
+    return generateConceptQuestions(subject, 5);
+  }
+  return generateConceptQuestions('Mathematics', 5);
 };

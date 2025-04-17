@@ -24,6 +24,14 @@ const ReportSection: React.FC<ReportSectionProps> = ({
   const [showAuthPrompt, setShowAuthPrompt] = useState(false);
   const navigate = useNavigate();
   
+  // Helper function for score colors
+  const getScoreColorClass = (score: number): string => {
+    if (score >= 80) return "from-green-500 to-green-600";
+    if (score >= 60) return "from-blue-500 to-blue-600";
+    if (score >= 40) return "from-amber-500 to-amber-600";
+    return "from-red-500 to-red-600";
+  };
+  
   const handleDownloadReport = () => {
     // Check if the user is logged in
     const isLoggedIn = !!localStorage.getItem('userData');
@@ -83,26 +91,50 @@ const ReportSection: React.FC<ReportSectionProps> = ({
 
   return (
     <div className="space-y-6">
-      <ReportHeader selectedExam={selectedExam} />
+      <ReportHeader 
+        selectedExam={selectedExam}
+        examLabel={selectedExam}
+        weightedScore={results.overall.score}
+        overallAnalysis={results.overall.analysis}
+        getScoreColorClass={getScoreColorClass}
+      />
       
-      <ScoreBadges results={results} />
+      <ScoreBadges 
+        results={results}
+        stressScore={results.stress?.score || 0}
+        conceptCompletionScore={results.concept?.score || 0}
+        mockAccuracyScore={results.readiness?.score || 0}
+        confidenceAlignmentScore={results.confidence?.score || 0}
+        getScoreColorClass={getScoreColorClass}
+      />
       
       <div className="grid gap-4 md:grid-cols-2">
         <StrengthsAndImprovements 
           title="Your Strengths" 
           items={results.overall.strengths} 
           type="strength"
+          strengths={results.overall.strengths}
+          improvements={results.overall.improvements}
         />
         <StrengthsAndImprovements 
           title="Areas of Improvement" 
           items={results.overall.improvements} 
           type="improvement"
+          strengths={results.overall.strengths}
+          improvements={results.overall.improvements}
         />
       </div>
       
-      <ConfidenceMapping examType={selectedExam} />
+      <ConfidenceMapping 
+        examType={selectedExam} 
+        confidenceMappings={results.confidenceMappings || []}
+      />
       
-      <StudyPlanSection examType={selectedExam} />
+      <StudyPlanSection 
+        examType={selectedExam} 
+        recommendations={results.recommendations || []}
+        onStartOver={onStartOver}
+      />
       
       <div className="flex gap-3 pt-4 justify-between items-center border-t border-gray-100 dark:border-gray-800">
         <Button variant="outline" onClick={onStartOver}>

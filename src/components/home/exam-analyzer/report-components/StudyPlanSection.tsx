@@ -10,9 +10,14 @@ import { Card } from '@/components/ui/card';
 interface StudyPlanSectionProps {
   recommendations: string[];
   onStartOver: () => void;
+  examType?: string; // Added this prop
 }
 
-const StudyPlanSection: React.FC<StudyPlanSectionProps> = ({ recommendations, onStartOver }) => {
+const StudyPlanSection: React.FC<StudyPlanSectionProps> = ({ 
+  recommendations = [], 
+  onStartOver = () => {},
+  examType 
+}) => {
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -24,7 +29,7 @@ const StudyPlanSection: React.FC<StudyPlanSectionProps> = ({ recommendations, on
         <div className="p-2 mr-2 bg-blue-50 dark:bg-blue-900/30 rounded-lg">
           <BarChart3 className="h-4 w-4 text-blue-600 dark:text-blue-400" />
         </div>
-        Personalized Study Plan
+        {examType ? `${examType} Personalized Study Plan` : 'Personalized Study Plan'}
       </h4>
       
       <div className="bg-blue-50/50 dark:bg-blue-900/20 rounded-lg p-4 mb-5">
@@ -32,7 +37,7 @@ const StudyPlanSection: React.FC<StudyPlanSectionProps> = ({ recommendations, on
       </div>
       
       <ul className="space-y-3 mb-6">
-        {recommendations.slice(0, 5).map((recommendation, i) => (
+        {(recommendations.length > 0 ? recommendations : ['Study more consistently', 'Focus on weak areas', 'Practice with mock exams', 'Review core concepts', 'Use flashcards for quick revision']).slice(0, 5).map((recommendation, i) => (
           <motion.li 
             key={i} 
             className="flex items-start"

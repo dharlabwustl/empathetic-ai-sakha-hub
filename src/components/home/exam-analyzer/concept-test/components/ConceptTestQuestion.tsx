@@ -8,35 +8,43 @@ import { TestQuestion, UserAnswer } from '../../types';
 import { motion } from 'framer-motion';
 
 interface ConceptTestQuestionProps {
-  currentQuestionIndex: number;
-  questions: TestQuestion[];
-  selectedSubjects: string[];
-  getCurrentSubject: (questionId: string) => string;
-  showExplanation: boolean;
-  userAnswers: UserAnswer[];
-  onAnswer: (answer: string) => void;
+  question: TestQuestion;
+  onAnswer: (answer: string, confidenceLevel?: number) => void;
+  currentQuestionIndex?: number;
+  questions?: TestQuestion[];
+  selectedSubjects?: string[];
+  getCurrentSubject?: (questionId: string) => string;
+  showExplanation?: boolean;
+  userAnswers?: UserAnswer[];
 }
 
 const ConceptTestQuestion: React.FC<ConceptTestQuestionProps> = ({
-  currentQuestionIndex,
-  questions,
-  selectedSubjects,
-  getCurrentSubject,
-  showExplanation,
-  userAnswers,
-  onAnswer
+  question,
+  onAnswer,
+  currentQuestionIndex = 0,
+  questions = [],
+  selectedSubjects = [],
+  getCurrentSubject = () => "Subject",
+  showExplanation = false,
+  userAnswers = []
 }) => {
-  const currentQuestion = questions[currentQuestionIndex];
+  const totalQuestions = questions.length || 1;
+  
+  // If questions array is provided, use it, otherwise just use the single question
+  const currentQuestion = questions.length > 0 ? questions[currentQuestionIndex] : question;
+  const progress = ((currentQuestionIndex + 1) / totalQuestions) * 100;
   
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <Badge variant="outline" className="bg-pink-50 dark:bg-pink-900/30 border-pink-200 dark:border-pink-700">
-          Question {currentQuestionIndex + 1}/{questions.length}
+          Question {currentQuestionIndex + 1}/{totalQuestions}
         </Badge>
-        <Badge variant="outline" className="bg-pink-50 dark:bg-pink-900/30 border-pink-200 dark:border-pink-700">
-          {getCurrentSubject(currentQuestion.id)}
-        </Badge>
+        {questions.length > 0 && selectedSubjects.length > 0 && (
+          <Badge variant="outline" className="bg-pink-50 dark:bg-pink-900/30 border-pink-200 dark:border-pink-700">
+            {getCurrentSubject(currentQuestion.id)}
+          </Badge>
+        )}
       </div>
       
       <div className="bg-white dark:bg-gray-800 p-6 rounded-lg border-2 border-pink-100 dark:border-pink-800 shadow-md">
@@ -63,7 +71,7 @@ const ConceptTestQuestion: React.FC<ConceptTestQuestionProps> = ({
         </div>
       </div>
       
-      {showExplanation && (
+      {showExplanation && userAnswers.length > 0 && (
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -90,7 +98,7 @@ const ConceptTestQuestion: React.FC<ConceptTestQuestionProps> = ({
       )}
       
       <CustomProgress 
-        value={(currentQuestionIndex + 1) / questions.length * 100} 
+        value={progress} 
         className="h-2" 
         indicatorClassName="bg-gradient-to-r from-pink-400 to-pink-600" 
       />
