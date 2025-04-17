@@ -56,7 +56,7 @@ export default function MicroConcept({
   onComplete,
   onNeedHelp,
   isCompleted: initialIsCompleted = false
-}: MicroConceptProps) => {
+}: MicroConceptProps) {
   const {
     activeExplanation,
     setActiveExplanation,
@@ -107,4 +107,4 @@ export default function MicroConcept({
       </Card>
     </motion.div>
   );
-};
+}
