@@ -9,15 +9,16 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "@/providers/ThemeProvider";
 import { AdminAuthProvider } from "@/contexts/AdminAuthContext";
-import { AuthProvider } from "@/contexts/auth/AuthContext"; // Update import path
+import { AuthProvider } from "@/contexts/auth/AuthContext";
 import AdminRouteGuard from "@/components/admin/AdminRouteGuard";
-import ProtectedRoute from "@/components/common/ProtectedRoute"; // We'll create this
+import ProtectedRoute from "@/components/common/ProtectedRoute";
 import Index from "./pages/Index";
 import About from "./pages/About";
 import Features from "./pages/Features";
 import Pricing from "./pages/Pricing";
 import SignUp from "./pages/SignUp";
 import Login from "./pages/Login";
+import LoginPage from "./pages/login/LoginPage"; // Import the new login page
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import StudentsPage from "./pages/admin/StudentsPage";
@@ -65,7 +66,8 @@ const App = () => {
                   <Route path="/features" element={<Features />} />
                   <Route path="/pricing" element={<Pricing />} />
                   <Route path="/signup" element={<SignUp />} />
-                  <Route path="/login" element={<Login />} />
+                  <Route path="/login" element={<LoginPage />} /> {/* Using the improved login page */}
+                  <Route path="/login/old" element={<Login />} /> {/* Keep the old login for reference */}
                   
                   {/* Admin Routes */}
                   <Route path="/admin/login" element={<AdminLogin />} />

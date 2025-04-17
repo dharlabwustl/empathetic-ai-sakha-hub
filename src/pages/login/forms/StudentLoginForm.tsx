@@ -39,11 +39,8 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
       const success = await login(email, password);
       
       if (success) {
-        if (activeTab === "student") {
-          navigate("/dashboard/student");
-        } else {
-          navigate("/dashboard/student");
-        }
+        // Redirect based on role
+        navigate("/dashboard/student");
       } else {
         throw new Error("Login failed");
       }
@@ -66,7 +63,7 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
           <Phone className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
           <Input 
             type="text" 
-            placeholder="Email or Phone Number"
+            placeholder="Mobile Number or Email"
             value={identifier}
             onChange={(e) => setIdentifier(e.target.value)}
             className="pl-10"
