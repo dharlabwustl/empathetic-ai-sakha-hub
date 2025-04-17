@@ -48,6 +48,23 @@ export const generateDatabaseSchema = (): TableSchema[] => {
 
   return [
     {
+      tableName: 'users',
+      fields: [
+        { name: 'id', type: 'VARCHAR(36)', isRequired: true, isPrimaryKey: true, isForeignKey: false },
+        { name: 'name', type: 'VARCHAR(255)', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'email', type: 'VARCHAR(255)', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'phone_number', type: 'VARCHAR(20)', isRequired: false, isPrimaryKey: false, isForeignKey: false },
+        { name: 'password_hash', type: 'VARCHAR(255)', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'role', type: 'ENUM("student", "employee", "doctor", "founder", "admin")', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'created_at', type: 'DATETIME', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'updated_at', type: 'DATETIME', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'last_login', type: 'DATETIME', isRequired: false, isPrimaryKey: false, isForeignKey: false },
+        { name: 'completed_onboarding', type: 'BOOLEAN', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'subscription_type', type: 'ENUM("free", "basic", "premium", "enterprise")', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'avatar_url', type: 'VARCHAR(255)', isRequired: false, isPrimaryKey: false, isForeignKey: false },
+      ]
+    },
+    {
       tableName: 'admin_users',
       fields: [
         { name: 'id', type: 'VARCHAR(36)', isRequired: true, isPrimaryKey: true, isForeignKey: false },
@@ -74,6 +91,57 @@ export const generateDatabaseSchema = (): TableSchema[] => {
         { name: 'completed_onboarding', type: 'BOOLEAN', isRequired: true, isPrimaryKey: false, isForeignKey: false },
         { name: 'role', type: 'ENUM("student", "tutor", "admin")', isRequired: true, isPrimaryKey: false, isForeignKey: false },
         { name: 'preferences', type: 'JSON', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'education_level', type: 'VARCHAR(50)', isRequired: false, isPrimaryKey: false, isForeignKey: false },
+        { name: 'study_streak', type: 'INT', isRequired: false, isPrimaryKey: false, isForeignKey: false },
+        { name: 'quizzes_taken', type: 'INT', isRequired: false, isPrimaryKey: false, isForeignKey: false },
+        { name: 'flashcards_created', type: 'INT', isRequired: false, isPrimaryKey: false, isForeignKey: false },
+        { name: 'exam_preparation', type: 'VARCHAR(50)', isRequired: false, isPrimaryKey: false, isForeignKey: false },
+        { name: 'strong_subjects', type: 'JSON', isRequired: false, isPrimaryKey: false, isForeignKey: false },
+        { name: 'weak_subjects', type: 'JSON', isRequired: false, isPrimaryKey: false, isForeignKey: false },
+      ]
+    },
+    {
+      tableName: 'employees',
+      fields: [
+        { name: 'id', type: 'VARCHAR(36)', isRequired: true, isPrimaryKey: true, isForeignKey: false },
+        { name: 'user_id', type: 'VARCHAR(36)', isRequired: true, isPrimaryKey: false, isForeignKey: true, references: 'users(id)' },
+        { name: 'job_title', type: 'VARCHAR(100)', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'work_experience', type: 'INT', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'skills', type: 'JSON', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'company', type: 'VARCHAR(100)', isRequired: false, isPrimaryKey: false, isForeignKey: false },
+        { name: 'industry', type: 'VARCHAR(100)', isRequired: false, isPrimaryKey: false, isForeignKey: false },
+        { name: 'career_goal', type: 'VARCHAR(255)', isRequired: false, isPrimaryKey: false, isForeignKey: false },
+        { name: 'projects_completed', type: 'INT', isRequired: false, isPrimaryKey: false, isForeignKey: false },
+        { name: 'training_completed', type: 'INT', isRequired: false, isPrimaryKey: false, isForeignKey: false },
+      ]
+    },
+    {
+      tableName: 'doctors',
+      fields: [
+        { name: 'id', type: 'VARCHAR(36)', isRequired: true, isPrimaryKey: true, isForeignKey: false },
+        { name: 'user_id', type: 'VARCHAR(36)', isRequired: true, isPrimaryKey: false, isForeignKey: true, references: 'users(id)' },
+        { name: 'specialization', type: 'VARCHAR(100)', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'qualifications', type: 'JSON', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'research_interests', type: 'JSON', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'publications', type: 'INT', isRequired: false, isPrimaryKey: false, isForeignKey: false },
+        { name: 'institution', type: 'VARCHAR(255)', isRequired: false, isPrimaryKey: false, isForeignKey: false },
+        { name: 'years_of_practice', type: 'INT', isRequired: false, isPrimaryKey: false, isForeignKey: false },
+        { name: 'certifications', type: 'JSON', isRequired: false, isPrimaryKey: false, isForeignKey: false },
+      ]
+    },
+    {
+      tableName: 'founders',
+      fields: [
+        { name: 'id', type: 'VARCHAR(36)', isRequired: true, isPrimaryKey: true, isForeignKey: false },
+        { name: 'user_id', type: 'VARCHAR(36)', isRequired: true, isPrimaryKey: false, isForeignKey: true, references: 'users(id)' },
+        { name: 'startup_name', type: 'VARCHAR(100)', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'industry', type: 'VARCHAR(100)', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'founding_year', type: 'VARCHAR(4)', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'team_size', type: 'INT', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'funding', type: 'VARCHAR(100)', isRequired: false, isPrimaryKey: false, isForeignKey: false },
+        { name: 'stage', type: 'VARCHAR(100)', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'mvp_status', type: 'INT', isRequired: false, isPrimaryKey: false, isForeignKey: false },
+        { name: 'pitch_deck_ready', type: 'BOOLEAN', isRequired: false, isPrimaryKey: false, isForeignKey: false },
       ]
     },
     {
@@ -82,24 +150,99 @@ export const generateDatabaseSchema = (): TableSchema[] => {
         { name: 'id', type: 'VARCHAR(36)', isRequired: true, isPrimaryKey: true, isForeignKey: false },
         { name: 'student_id', type: 'VARCHAR(36)', isRequired: true, isPrimaryKey: false, isForeignKey: true, references: 'students(id)' },
         { name: 'title', type: 'VARCHAR(255)', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'description', type: 'TEXT', isRequired: false, isPrimaryKey: false, isForeignKey: false },
         { name: 'target_date', type: 'DATETIME', isRequired: true, isPrimaryKey: false, isForeignKey: false },
         { name: 'current_progress', type: 'INT', isRequired: true, isPrimaryKey: false, isForeignKey: false },
-        { name: 'status', type: 'ENUM("active", "completed", "abandoned")', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'status', type: 'ENUM("active", "completed", "abandoned", "not-started", "in-progress")', isRequired: true, isPrimaryKey: false, isForeignKey: false },
         { name: 'created_at', type: 'DATETIME', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+      ]
+    },
+    {
+      tableName: 'student_subjects',
+      fields: [
+        { name: 'id', type: 'VARCHAR(36)', isRequired: true, isPrimaryKey: true, isForeignKey: false },
+        { name: 'student_id', type: 'VARCHAR(36)', isRequired: true, isPrimaryKey: false, isForeignKey: true, references: 'students(id)' },
+        { name: 'name', type: 'VARCHAR(100)', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'progress', type: 'INT', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'last_studied', type: 'DATETIME', isRequired: false, isPrimaryKey: false, isForeignKey: false },
+        { name: 'color', type: 'VARCHAR(20)', isRequired: false, isPrimaryKey: false, isForeignKey: false },
+      ]
+    },
+    {
+      tableName: 'subject_topics',
+      fields: [
+        { name: 'id', type: 'VARCHAR(36)', isRequired: true, isPrimaryKey: true, isForeignKey: false },
+        { name: 'subject_id', type: 'VARCHAR(36)', isRequired: true, isPrimaryKey: false, isForeignKey: true, references: 'student_subjects(id)' },
+        { name: 'name', type: 'VARCHAR(100)', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'completed', type: 'BOOLEAN', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'mastery_level', type: 'INT', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'last_practiced', type: 'DATETIME', isRequired: false, isPrimaryKey: false, isForeignKey: false },
+      ]
+    },
+    {
+      tableName: 'quiz_scores',
+      fields: [
+        { name: 'id', type: 'VARCHAR(36)', isRequired: true, isPrimaryKey: true, isForeignKey: false },
+        { name: 'subject_id', type: 'VARCHAR(36)', isRequired: true, isPrimaryKey: false, isForeignKey: true, references: 'student_subjects(id)' },
+        { name: 'title', type: 'VARCHAR(255)', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'score', type: 'INT', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'max_score', type: 'INT', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'date', type: 'DATETIME', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'time_taken', type: 'INT', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+      ]
+    },
+    {
+      tableName: 'study_hours',
+      fields: [
+        { name: 'id', type: 'VARCHAR(36)', isRequired: true, isPrimaryKey: true, isForeignKey: false },
+        { name: 'subject_id', type: 'VARCHAR(36)', isRequired: true, isPrimaryKey: false, isForeignKey: true, references: 'student_subjects(id)' },
+        { name: 'date', type: 'DATE', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'hours', type: 'FLOAT', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'student_id', type: 'VARCHAR(36)', isRequired: true, isPrimaryKey: false, isForeignKey: true, references: 'students(id)' },
+      ]
+    },
+    {
+      tableName: 'study_streaks',
+      fields: [
+        { name: 'id', type: 'VARCHAR(36)', isRequired: true, isPrimaryKey: true, isForeignKey: false },
+        { name: 'student_id', type: 'VARCHAR(36)', isRequired: true, isPrimaryKey: false, isForeignKey: true, references: 'students(id)' },
+        { name: 'current', type: 'INT', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'longest', type: 'INT', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'last_study_date', type: 'DATE', isRequired: true, isPrimaryKey: false, isForeignKey: false },
       ]
     },
     {
       tableName: 'onboarding_data',
       fields: [
         { name: 'id', type: 'VARCHAR(36)', isRequired: true, isPrimaryKey: true, isForeignKey: false },
-        { name: 'student_id', type: 'VARCHAR(36)', isRequired: true, isPrimaryKey: false, isForeignKey: true, references: 'students(id)' },
-        { name: 'exam_type', type: 'VARCHAR(255)', isRequired: true, isPrimaryKey: false, isForeignKey: false },
-        { name: 'study_hours', type: 'INT', isRequired: true, isPrimaryKey: false, isForeignKey: false },
-        { name: 'study_pace', type: 'ENUM("relaxed", "balanced", "intensive")', isRequired: true, isPrimaryKey: false, isForeignKey: false },
-        { name: 'preferred_study_time', type: 'ENUM("morning", "afternoon", "evening", "night")', isRequired: true, isPrimaryKey: false, isForeignKey: false },
-        { name: 'subjects_selected', type: 'JSON', isRequired: true, isPrimaryKey: false, isForeignKey: false },
-        { name: 'learning_style', type: 'ENUM("visual", "auditory", "reading", "kinesthetic", "mixed")', isRequired: true, isPrimaryKey: false, isForeignKey: false },
-        { name: 'completed_at', type: 'DATETIME', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'user_id', type: 'VARCHAR(36)', isRequired: true, isPrimaryKey: false, isForeignKey: true, references: 'users(id)' },
+        { name: 'role', type: 'ENUM("student", "employee", "doctor", "founder")', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'name', type: 'VARCHAR(255)', isRequired: false, isPrimaryKey: false, isForeignKey: false },
+        { name: 'phone_number', type: 'VARCHAR(20)', isRequired: false, isPrimaryKey: false, isForeignKey: false },
+        { name: 'age', type: 'INT', isRequired: false, isPrimaryKey: false, isForeignKey: false },
+        { name: 'grade', type: 'VARCHAR(50)', isRequired: false, isPrimaryKey: false, isForeignKey: false },
+        { name: 'location', type: 'VARCHAR(100)', isRequired: false, isPrimaryKey: false, isForeignKey: false },
+        { name: 'exam_goal', type: 'VARCHAR(100)', isRequired: false, isPrimaryKey: false, isForeignKey: false },
+        { name: 'job_title', type: 'VARCHAR(100)', isRequired: false, isPrimaryKey: false, isForeignKey: false },
+        { name: 'experience', type: 'VARCHAR(50)', isRequired: false, isPrimaryKey: false, isForeignKey: false },
+        { name: 'industry', type: 'VARCHAR(100)', isRequired: false, isPrimaryKey: false, isForeignKey: false },
+        { name: 'skills', type: 'JSON', isRequired: false, isPrimaryKey: false, isForeignKey: false },
+        { name: 'specialization', type: 'VARCHAR(100)', isRequired: false, isPrimaryKey: false, isForeignKey: false },
+        { name: 'institution', type: 'VARCHAR(255)', isRequired: false, isPrimaryKey: false, isForeignKey: false },
+        { name: 'research_topic', type: 'VARCHAR(255)', isRequired: false, isPrimaryKey: false, isForeignKey: false },
+        { name: 'startup_stage', type: 'VARCHAR(50)', isRequired: false, isPrimaryKey: false, isForeignKey: false },
+        { name: 'team_size', type: 'INT', isRequired: false, isPrimaryKey: false, isForeignKey: false },
+        { name: 'startup_goal', type: 'VARCHAR(255)', isRequired: false, isPrimaryKey: false, isForeignKey: false },
+        { name: 'personality_type', type: 'ENUM("analytical", "creative", "practical", "social", "independent")', isRequired: false, isPrimaryKey: false, isForeignKey: false },
+        { name: 'mood', type: 'ENUM("motivated", "curious", "neutral", "tired", "stressed", "focused", "happy", "okay", "overwhelmed", "sad")', isRequired: false, isPrimaryKey: false, isForeignKey: false },
+        { name: 'sleep_schedule', type: 'VARCHAR(100)', isRequired: false, isPrimaryKey: false, isForeignKey: false },
+        { name: 'focus_hours', type: 'INT', isRequired: false, isPrimaryKey: false, isForeignKey: false },
+        { name: 'stress_management', type: 'VARCHAR(255)', isRequired: false, isPrimaryKey: false, isForeignKey: false },
+        { name: 'break_routine', type: 'VARCHAR(255)', isRequired: false, isPrimaryKey: false, isForeignKey: false },
+        { name: 'interests', type: 'JSON', isRequired: false, isPrimaryKey: false, isForeignKey: false },
+        { name: 'institute', type: 'VARCHAR(255)', isRequired: false, isPrimaryKey: false, isForeignKey: false },
+        { name: 'preferred_subjects', type: 'JSON', isRequired: false, isPrimaryKey: false, isForeignKey: false },
+        { name: 'completed_at', type: 'DATETIME', isRequired: false, isPrimaryKey: false, isForeignKey: false },
       ]
     },
     {
@@ -113,6 +256,10 @@ export const generateDatabaseSchema = (): TableSchema[] => {
         { name: 'valid_until', type: 'DATETIME', isRequired: true, isPrimaryKey: false, isForeignKey: false },
         { name: 'status', type: 'ENUM("active", "completed", "expired")', isRequired: true, isPrimaryKey: false, isForeignKey: false },
         { name: 'generation_type', type: 'ENUM("ai", "manual", "mixed")', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'exam_date', type: 'DATE', isRequired: false, isPrimaryKey: false, isForeignKey: false },
+        { name: 'daily_study_hours', type: 'INT', isRequired: false, isPrimaryKey: false, isForeignKey: false },
+        { name: 'study_pace', type: 'ENUM("Aggressive", "Balanced", "Relaxed")', isRequired: false, isPrimaryKey: false, isForeignKey: false },
+        { name: 'preferred_study_time', type: 'ENUM("Morning", "Afternoon", "Evening", "Night")', isRequired: false, isPrimaryKey: false, isForeignKey: false },
       ]
     },
     {
@@ -216,6 +363,7 @@ export const generateDatabaseSchema = (): TableSchema[] => {
         { name: 'id', type: 'VARCHAR(36)', isRequired: true, isPrimaryKey: true, isForeignKey: false },
         { name: 'student_id', type: 'VARCHAR(36)', isRequired: true, isPrimaryKey: false, isForeignKey: true, references: 'students(id)' },
         { name: 'score', type: 'INT', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'mood_type', type: 'ENUM("motivated", "curious", "neutral", "tired", "stressed", "focused", "happy", "okay", "overwhelmed", "sad")', isRequired: true, isPrimaryKey: false, isForeignKey: false },
         { name: 'notes', type: 'TEXT', isRequired: false, isPrimaryKey: false, isForeignKey: false },
         { name: 'timestamp', type: 'DATETIME', isRequired: true, isPrimaryKey: false, isForeignKey: false },
       ]
@@ -290,6 +438,69 @@ export const generateDatabaseSchema = (): TableSchema[] => {
         { name: 'created_at', type: 'DATETIME', isRequired: true, isPrimaryKey: false, isForeignKey: false },
         { name: 'expires_at', type: 'DATETIME', isRequired: false, isPrimaryKey: false, isForeignKey: false },
         { name: 'priority', type: 'ENUM("low", "normal", "high")', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+      ]
+    },
+    {
+      tableName: 'login_history',
+      fields: [
+        { name: 'id', type: 'VARCHAR(36)', isRequired: true, isPrimaryKey: true, isForeignKey: false },
+        { name: 'user_id', type: 'VARCHAR(36)', isRequired: true, isPrimaryKey: false, isForeignKey: true, references: 'users(id)' },
+        { name: 'timestamp', type: 'DATETIME', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'ip_address', type: 'VARCHAR(45)', isRequired: false, isPrimaryKey: false, isForeignKey: false },
+        { name: 'device_info', type: 'VARCHAR(255)', isRequired: false, isPrimaryKey: false, isForeignKey: false },
+        { name: 'location', type: 'VARCHAR(255)', isRequired: false, isPrimaryKey: false, isForeignKey: false },
+        { name: 'success', type: 'BOOLEAN', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+      ]
+    },
+    {
+      tableName: 'user_settings',
+      fields: [
+        { name: 'id', type: 'VARCHAR(36)', isRequired: true, isPrimaryKey: true, isForeignKey: false },
+        { name: 'user_id', type: 'VARCHAR(36)', isRequired: true, isPrimaryKey: false, isForeignKey: true, references: 'users(id)' },
+        { name: 'theme', type: 'ENUM("light", "dark", "system")', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'notifications_enabled', type: 'BOOLEAN', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'email_notifications', type: 'BOOLEAN', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'sms_notifications', type: 'BOOLEAN', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'push_notifications', type: 'BOOLEAN', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'language', type: 'VARCHAR(10)', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'timezone', type: 'VARCHAR(50)', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+      ]
+    },
+    {
+      tableName: 'subscriptions',
+      fields: [
+        { name: 'id', type: 'VARCHAR(36)', isRequired: true, isPrimaryKey: true, isForeignKey: false },
+        { name: 'user_id', type: 'VARCHAR(36)', isRequired: true, isPrimaryKey: false, isForeignKey: true, references: 'users(id)' },
+        { name: 'plan_type', type: 'ENUM("free", "basic", "premium", "enterprise")', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'start_date', type: 'DATETIME', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'end_date', type: 'DATETIME', isRequired: false, isPrimaryKey: false, isForeignKey: false },
+        { name: 'auto_renew', type: 'BOOLEAN', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'payment_status', type: 'ENUM("paid", "pending", "failed", "cancelled")', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'payment_method', type: 'VARCHAR(50)', isRequired: false, isPrimaryKey: false, isForeignKey: false },
+        { name: 'amount', type: 'DECIMAL(10,2)', isRequired: false, isPrimaryKey: false, isForeignKey: false },
+        { name: 'currency', type: 'VARCHAR(3)', isRequired: false, isPrimaryKey: false, isForeignKey: false },
+      ]
+    },
+    {
+      tableName: 'ai_model_settings',
+      fields: [
+        { name: 'id', type: 'VARCHAR(36)', isRequired: true, isPrimaryKey: true, isForeignKey: false },
+        { name: 'model_name', type: 'VARCHAR(100)', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'api_key', type: 'VARCHAR(255)', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'temperature', type: 'FLOAT', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'max_tokens', type: 'INT', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'active', type: 'BOOLEAN', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+      ]
+    },
+    {
+      tableName: 'system_logs',
+      fields: [
+        { name: 'id', type: 'VARCHAR(36)', isRequired: true, isPrimaryKey: true, isForeignKey: false },
+        { name: 'timestamp', type: 'DATETIME', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'level', type: 'ENUM("info", "warning", "error")', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'message', type: 'TEXT', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'source', type: 'VARCHAR(100)', isRequired: true, isPrimaryKey: false, isForeignKey: false },
+        { name: 'details', type: 'JSON', isRequired: false, isPrimaryKey: false, isForeignKey: false },
       ]
     },
   ];
