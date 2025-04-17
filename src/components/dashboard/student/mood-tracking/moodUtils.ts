@@ -1,76 +1,50 @@
 
 import { MoodType } from "@/types/user/base";
 
-export const saveMoodToLocalStorage = (mood: MoodType) => {
-  localStorage.setItem('currentMood', JSON.stringify({
-    mood,
-    timestamp: new Date().toISOString()
-  }));
+// Utility function to get a CSS class name from a mood
+export const getMoodClassName = (mood?: MoodType): string => {
+  if (!mood) return '';
+  
+  // Make sure we only use valid CSS class names (no spaces, no emojis)
+  return `mood-${mood}`;
 };
 
-export const applyMoodTheme = (mood: MoodType) => {
-  // Remove any existing mood classes
-  document.documentElement.classList.forEach(className => {
-    if (className.startsWith('mood-')) {
-      document.documentElement.classList.remove(className);
-    }
-  });
+// Get display name for mood
+export const getMoodDisplayName = (mood?: MoodType): string => {
+  if (!mood) return "Log Today's Mood";
   
-  // Apply new mood class
-  document.documentElement.classList.add(`mood-${mood}`);
+  const moodMap: Record<string, string> = {
+    motivated: "Motivated",
+    curious: "Curious",
+    neutral: "Neutral",
+    tired: "Tired",
+    stressed: "Stressed",
+    focused: "Focused",
+    happy: "Happy",
+    okay: "Okay",
+    overwhelmed: "Overwhelmed",
+    sad: "Sad"
+  };
+  
+  return moodMap[mood] || "Log Today's Mood";
 };
 
-interface ToastContent {
-  message: string;
-  description: string;
-}
-
-export const getMoodToastContent = (mood: MoodType): ToastContent => {
-  const moodMessages: Record<MoodType, ToastContent> = {
-    happy: {
-      message: "That's wonderful!",
-      description: "We're glad you're feeling happy. Let's keep that energy going!"
-    },
-    sad: {
-      message: "Hang in there",
-      description: "It's okay to feel down sometimes. Would you like to see something uplifting?"
-    },
-    stressed: {
-      message: "Taking a breather",
-      description: "Remember to take breaks and practice self-care. You've got this!"
-    },
-    focused: {
-      message: "In the zone!",
-      description: "Great! We'll help you make the most of your focus time."
-    },
-    tired: {
-      message: "Rest is important",
-      description: "Would you like a lighter study schedule today?"
-    },
-    motivated: {
-      message: "Ready to achieve!",
-      description: "Let's make the most of your motivation with some productive tasks."
-    },
-    curious: {
-      message: "Curiosity leads to growth",
-      description: "We've got plenty of interesting content ready for you to explore!"
-    },
-    neutral: {
-      message: "Ready for the day",
-      description: "Let us know if there's anything specific you'd like to work on today."
-    },
-    overwhelmed: {
-      message: "One step at a time",
-      description: "Let's break down your tasks into manageable chunks."
-    },
-    okay: {
-      message: "Steady progress",
-      description: "Sometimes 'okay' is the perfect place to be. Let's make progress together."
-    }
+// Get mood color based on mood type
+export const getMoodColor = (mood?: MoodType): string => {
+  if (!mood) return "bg-purple-100 text-purple-700 hover:bg-purple-200 dark:bg-purple-900/30 dark:text-purple-300";
+  
+  const moodColorMap: Record<string, string> = {
+    motivated: "bg-orange-100 text-orange-700 hover:bg-orange-200 dark:bg-orange-900/30 dark:text-orange-300",
+    curious: "bg-blue-100 text-blue-700 hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-300",
+    neutral: "bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300",
+    tired: "bg-amber-100 text-amber-700 hover:bg-amber-200 dark:bg-amber-900/30 dark:text-amber-300",
+    stressed: "bg-red-100 text-red-700 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-300",
+    focused: "bg-emerald-100 text-emerald-700 hover:bg-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-300",
+    happy: "bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-300",
+    okay: "bg-blue-100 text-blue-700 hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-300",
+    overwhelmed: "bg-purple-100 text-purple-700 hover:bg-purple-200 dark:bg-purple-900/30 dark:text-purple-300",
+    sad: "bg-indigo-100 text-indigo-700 hover:bg-indigo-200 dark:bg-indigo-900/30 dark:text-indigo-300"
   };
   
-  return moodMessages[mood] || {
-    message: "Thanks for sharing",
-    description: "We'll adjust our recommendations based on your mood."
-  };
+  return moodColorMap[mood] || "bg-purple-100 text-purple-700 hover:bg-purple-200 dark:bg-purple-900/30 dark:text-purple-300";
 };
