@@ -2,10 +2,11 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Frown, Smile, Meh, Heart, Sun, Star, Lightbulb } from 'lucide-react';
+import { MoodType } from '@/types/user/base';
 
 interface SplashScreenProps {
   onComplete: () => void;
-  mood?: 'sad' | 'neutral' | 'happy' | 'motivated' | undefined;
+  mood?: MoodType | undefined;
 }
 
 const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete, mood = undefined }) => {
@@ -36,6 +37,38 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete, mood = undefine
         { icon: <Lightbulb />, color: "text-yellow-500", text: "Ready for breakthroughs..." },
         { icon: <Sun />, color: "text-amber-400", text: "Let's achieve even more!" },
         { icon: <Heart />, color: "text-purple-500", text: "Your success is our mission!" }
+      ];
+    } else if (mood === 'focused') {
+      return [
+        { icon: <Lightbulb />, color: "text-blue-500", text: "In the zone today..." },
+        { icon: <Star />, color: "text-yellow-500", text: "Channeling your focus..." },
+        { icon: <Sun />, color: "text-amber-400", text: "Making deliberate progress..." },
+        { icon: <Smile />, color: "text-green-500", text: "Let's accomplish your goals!" },
+        { icon: <Heart />, color: "text-purple-500", text: "Focused minds achieve more!" }
+      ];
+    } else if (mood === 'tired') {
+      return [
+        { icon: <Meh />, color: "text-gray-500", text: "Taking it easy today..." },
+        { icon: <Sun />, color: "text-amber-400", text: "Finding your energy..." },
+        { icon: <Lightbulb />, color: "text-yellow-500", text: "Adapting to your needs..." },
+        { icon: <Smile />, color: "text-green-500", text: "Small steps lead to progress!" },
+        { icon: <Heart />, color: "text-purple-500", text: "Rest and learning in balance!" }
+      ];
+    } else if (mood === 'stressed' || mood === 'overwhelmed') {
+      return [
+        { icon: <Frown />, color: "text-red-500", text: "Let's take a breath..." },
+        { icon: <Meh />, color: "text-amber-500", text: "One step at a time..." },
+        { icon: <Sun />, color: "text-amber-400", text: "Creating clarity..." },
+        { icon: <Smile />, color: "text-green-500", text: "Breaking it down for you!" },
+        { icon: <Heart />, color: "text-purple-500", text: "We're in this together!" }
+      ];
+    } else if (mood === 'curious') {
+      return [
+        { icon: <Lightbulb />, color: "text-yellow-500", text: "Curious minds..." },
+        { icon: <Star />, color: "text-yellow-500", text: "Exploring together..." },
+        { icon: <Sun />, color: "text-amber-400", text: "Discovering new paths..." },
+        { icon: <Smile />, color: "text-green-500", text: "Learning awaits!" },
+        { icon: <Heart />, color: "text-purple-500", text: "Curiosity leads to growth!" }
       ];
     } else {
       // Default sequence

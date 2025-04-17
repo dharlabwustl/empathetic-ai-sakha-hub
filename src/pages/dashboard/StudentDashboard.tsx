@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useStudentDashboard } from "@/hooks/useStudentDashboard";
 import OnboardingFlow from "@/components/dashboard/student/OnboardingFlow";
@@ -95,36 +94,6 @@ const StudentDashboard = () => {
       } catch (error) {
         console.error("Error saving mood to localStorage", error);
       }
-    }
-  };
-
-  // Handle mood changes
-  const handleMoodChange = (mood: MoodType) => {
-    // Remove all existing mood classes
-    document.body.classList.forEach(className => {
-      if (className.startsWith('mood-')) {
-        document.body.classList.remove(className);
-      }
-    });
-    
-    // Add the new mood class
-    document.body.classList.add(`mood-${mood}`);
-    
-    // Update state
-    setCurrentMood(mood);
-    
-    // Save to localStorage
-    try {
-      const userData = localStorage.getItem("userData");
-      if (userData) {
-        const parsedData = JSON.parse(userData);
-        parsedData.mood = mood;
-        localStorage.setItem("userData", JSON.stringify(parsedData));
-      } else {
-        localStorage.setItem("userData", JSON.stringify({ mood }));
-      }
-    } catch (error) {
-      console.error("Error saving mood to localStorage", error);
     }
   };
 
