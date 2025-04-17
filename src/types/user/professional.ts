@@ -1,5 +1,5 @@
 
-import { UserBasicInfo, UserRole } from "./base";
+import { UserBasicInfo, UserRole, SubscriptionType } from "./base";
 
 // Define professional user profiles with specific roles
 export interface DoctorProfile extends UserBasicInfo {
@@ -7,7 +7,7 @@ export interface DoctorProfile extends UserBasicInfo {
   specialization?: string;
   institution?: string;
   research?: string;
-  subscription?: string;
+  subscription?: SubscriptionType;
   goals?: any[];
   examPreparation?: string;
 }
@@ -17,7 +17,7 @@ export interface EmployeeProfile extends UserBasicInfo {
   jobRole?: string;
   seniorityLevel?: string;
   domain?: string;
-  subscription?: string;
+  subscription?: SubscriptionType;
   goals?: any[];
   jobTitle?: string;
   industry?: string;
@@ -29,7 +29,7 @@ export interface FounderProfile extends UserBasicInfo {
   startupStage?: string;
   teamSize?: number;
   industry?: string;
-  subscription?: string;
+  subscription?: SubscriptionType;
   goals?: any[];
   startupName?: string;
   examPreparation?: string;

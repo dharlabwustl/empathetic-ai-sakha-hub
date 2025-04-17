@@ -1,21 +1,26 @@
-
-import React from 'react';
-import { generateTabContents } from '@/components/dashboard/student/TabContentManager';
-import { UserProfileType, MoodType } from '@/types/user';
+import React, { ReactNode } from 'react';
+import { UserProfileType } from '@/types/user/base';
 import { KpiData, NudgeData } from '@/hooks/useKpiTracking';
+import { MoodType } from '@/types/user/base';
 
-export interface DashboardContentProps {
+export interface DashboardTabsProps {
+  activeTab: string;
+  onTabChange: (tab: string) => void;
+  tabContents?: Record<string, ReactNode>;
+}
+
+interface DashboardContentProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
   userProfile: UserProfileType;
   kpis: KpiData[];
   nudges: NudgeData[];
   markNudgeAsRead: (id: string) => void;
-  features: any[];
-  showWelcomeTour: boolean;
-  handleSkipTour: () => void;
-  handleCompleteTour: () => void;
-  hideTabsNav: boolean;
+  features?: any[];
+  showWelcomeTour?: boolean;
+  handleSkipTour?: () => void;
+  handleCompleteTour?: () => void;
+  hideTabsNav?: boolean;
   lastActivity?: { type: string; description: string } | null;
   suggestedNextAction?: string | null;
   currentMood?: MoodType;

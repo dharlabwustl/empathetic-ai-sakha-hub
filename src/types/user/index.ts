@@ -29,3 +29,12 @@ export * from './exam';
 export * from './student';
 export * from './professional';
 export * from './onboarding';
+
+// Export progress types
+export type {
+  SubjectProgress,
+  StudyStreak,
+  StudyHours,
+  QuizScore,
+  Topic
+} from './progress';

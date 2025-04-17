@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -163,7 +162,7 @@ const DoctorDashboard = () => {
                 Plan, organize, and track your research project with milestone tracking,
                 progress analysis, and AI-powered guidance.
               </p>
-              {userProfile.subscription === SubscriptionType.Premium ? (
+              {userProfile.subscription === SubscriptionTypeEnum.Premium ? (
                 <button className="bg-gradient-to-r from-sakha-blue to-sakha-purple text-white px-6 py-3 rounded-lg font-medium">
                   View Thesis Planner
                 </button>
@@ -183,7 +182,7 @@ const DoctorDashboard = () => {
                 Find, organize, and analyze research papers with AI-powered summaries,
                 key insight extraction, and citation management.
               </p>
-              {userProfile.subscription === SubscriptionType.Premium ? (
+              {userProfile.subscription === SubscriptionTypeEnum.Premium ? (
                 <button className="bg-gradient-to-r from-sakha-blue to-sakha-purple text-white px-6 py-3 rounded-lg font-medium">
                   Access Literature Tools
                 </button>
@@ -203,7 +202,7 @@ const DoctorDashboard = () => {
                 Track your publications, citations, and research impact metrics
                 with automated updates and analysis.
               </p>
-              {userProfile.subscription === SubscriptionType.Premium ? (
+              {userProfile.subscription === SubscriptionTypeEnum.Premium ? (
                 <button className="bg-gradient-to-r from-sakha-blue to-sakha-purple text-white px-6 py-3 rounded-lg font-medium">
                   View Publication Analytics
                 </button>

@@ -1,12 +1,12 @@
 
-import { UserBasicInfo, UserRole, MoodType } from "./base";
+import { UserBasicInfo, UserRole, MoodType, SubscriptionType } from "./base";
 
 export interface StudentProfile extends UserBasicInfo {
   role: "student";
   grade?: string;
   subjects?: Array<string | { id: string; name: string; progress: number }>;
   goals?: any[];
-  subscription?: string;
+  subscription?: SubscriptionType;
   personality?: string;
   achievements?: Array<string | { id: string; name: string; progress: number }>;
   educationLevel?: string;
