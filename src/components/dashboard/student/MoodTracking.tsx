@@ -16,7 +16,7 @@ interface MoodTrackingProps {
 
 const MoodTracking: React.FC<MoodTrackingProps> = ({ currentMood, onMoodChange }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedMood, setSelectedMood] = useState<MoodType>(currentMood);
+  const [selectedMood, setSelectedMood] = useState<MoodType | undefined>(currentMood);
   const { toast } = useToast();
 
   // Apply theme changes based on mood
@@ -28,6 +28,9 @@ const MoodTracking: React.FC<MoodTrackingProps> = ({ currentMood, onMoodChange }
     
     // Store mood in localStorage for persistence
     saveMoodToLocalStorage(currentMood);
+    
+    // Update selected mood state
+    setSelectedMood(currentMood);
   }, [currentMood]);
 
   const handleMoodSelect = (mood: MoodType) => {
@@ -66,7 +69,7 @@ const MoodTracking: React.FC<MoodTrackingProps> = ({ currentMood, onMoodChange }
         onSelectMood={handleMoodSelect}
       />
       
-      {currentMood && <MoodSpecificContent currentMood={currentMood} />}
+      {selectedMood && <MoodSpecificContent currentMood={selectedMood} />}
     </>
   );
 };

@@ -17,6 +17,8 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import MobileNavigation from "./MobileNavigation";
 import { getFeatures } from "./utils/FeatureManager";
 import MoodLogButton from "@/components/dashboard/student/MoodLogButton";
+import { Button } from "@/components/ui/button";
+import { Heart } from "lucide-react";
 
 interface DashboardLayoutProps {
   userProfile: UserProfileType;
@@ -66,7 +68,8 @@ const DashboardLayout = ({
   const formattedDate = formatDate(currentTime);
   const isMobile = useIsMobile();
   const [influenceMeterCollapsed, setInfluenceMeterCollapsed] = useState(true);
-  const [userMood, setUserMood] = useState<MoodType>(currentMood);
+  const [userMood, setUserMood] = useState<MoodType | undefined>(currentMood);
+  const [showFeelGoodCorner, setShowFeelGoodCorner] = useState(false);
   
   const features = getFeatures();
 
@@ -87,14 +90,25 @@ const DashboardLayout = ({
         />
         
         <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
-          <DashboardHeader 
-            userProfile={userProfile}
-            formattedTime={formattedTime}
-            formattedDate={formattedDate}
-            onViewStudyPlan={onViewStudyPlan}
-          />
+          <div className="flex-grow">
+            <DashboardHeader 
+              userProfile={userProfile}
+              formattedTime={formattedTime}
+              formattedDate={formattedDate}
+              onViewStudyPlan={onViewStudyPlan}
+            />
+          </div>
           
-          <div className="flex-shrink-0">
+          <div className="flex-shrink-0 flex items-center gap-3">
+            <Button 
+              onClick={() => setShowFeelGoodCorner(true)}
+              variant="outline" 
+              className="flex items-center gap-2 bg-pink-50 text-pink-600 border-pink-200 hover:bg-pink-100"
+            >
+              <Heart size={18} className="text-pink-500" />
+              <span>Feel Good Corner</span>
+            </Button>
+            
             <MoodLogButton 
               currentMood={userMood} 
               onMoodChange={handleMoodChange} 
@@ -156,6 +170,8 @@ const DashboardLayout = ({
           onClose={onCloseStudyPlan} 
         />
       )}
+      
+      {/* Feel Good Corner Dialog will be implemented in a separate component */}
     </div>
   );
 };

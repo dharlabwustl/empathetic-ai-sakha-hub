@@ -127,3 +127,31 @@ export const getMoodBackgroundClass = (mood?: MoodType): string => {
   
   return moodClassMap[mood] || '';
 };
+
+// Get button variant based on mood
+export const getMoodButtonVariant = (mood?: MoodType): string => {
+  if (!mood) return 'outline';
+  
+  const moodVariantMap: Record<MoodType, string> = {
+    motivated: 'orange',
+    curious: 'blue',
+    neutral: 'ghost',
+    tired: 'amber',
+    stressed: 'destructive',
+    focused: 'emerald',
+    happy: 'green',
+    okay: 'sky',
+    overwhelmed: 'purple',
+    sad: 'indigo'
+  };
+  
+  return moodVariantMap[mood] || 'outline';
+};
+
+// Get mood display text
+export const getMoodDisplayText = (mood?: MoodType): string => {
+  if (!mood) return "Log Today's Mood";
+  
+  const moodDisplay = mood.charAt(0).toUpperCase() + mood.slice(1);
+  return `I'm Feeling ${moodDisplay}`;
+};
