@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { UserRole } from "@/types/user/base";
+import { UserRole, UserRoleEnum } from "@/types/user/base";
 
 interface RoleStepProps {
   onRoleSelect: (role: UserRole) => void;

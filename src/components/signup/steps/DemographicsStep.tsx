@@ -9,7 +9,7 @@ import {
   SelectTrigger, 
   SelectValue 
 } from "@/components/ui/select";
-import { UserRole } from "../OnboardingContext";
+import { UserRole } from "@/types/user/base";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 
@@ -138,7 +138,7 @@ const DemographicsStep: React.FC<DemographicsStepProps> = ({ role, goal, onSubmi
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      {role === UserRole.Student && (
+      {role === "student" && (
         <>
           {goal && (
             <div className="mb-4 p-2 bg-blue-50 dark:bg-blue-900/30 rounded-lg border border-blue-200 dark:border-blue-800">
@@ -337,7 +337,7 @@ const DemographicsStep: React.FC<DemographicsStepProps> = ({ role, goal, onSubmi
         </>
       )}
       
-      {role === UserRole.Employee && (
+      {role === "employee" && (
         <>
           <div>
             <Label htmlFor="jobRole">Job Role</Label>
@@ -354,7 +354,7 @@ const DemographicsStep: React.FC<DemographicsStepProps> = ({ role, goal, onSubmi
         </>
       )}
       
-      {role === UserRole.Doctor && (
+      {role === "doctor" && (
         <>
           <div>
             <Label htmlFor="specialization">Specialization</Label>
@@ -371,7 +371,7 @@ const DemographicsStep: React.FC<DemographicsStepProps> = ({ role, goal, onSubmi
         </>
       )}
       
-      {role === UserRole.Founder && (
+      {role === "founder" && (
         <>
           <div>
             <Label htmlFor="startupStage">Startup Stage</Label>

@@ -3,9 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { MoodType, PersonalityType, UserRole } from "@/types/user/base";
 
-// Use the existing UserRole type from base.ts
-export type UserRole = UserRole;
-
 // Define types for the step management
 export type OnboardingStep = 
   | "role"
