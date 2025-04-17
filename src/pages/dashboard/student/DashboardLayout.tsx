@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import SidebarNav from "@/components/dashboard/SidebarNav";
@@ -20,6 +19,7 @@ import { getFeatures } from "./utils/FeatureManager";
 import MoodLogButton from "@/components/dashboard/student/MoodLogButton";
 import { Button } from "@/components/ui/button";
 import { BookOpen, MessageSquareText, Sparkles, Brain } from "lucide-react";
+import ProfileCard from "@/components/dashboard/ProfileCard";
 
 interface DashboardLayoutProps {
   userProfile: UserProfileType;
