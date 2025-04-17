@@ -1,301 +1,130 @@
-import React from "react";
-import { 
-  Smile, 
-  Sun, 
-  Cloud, 
-  Wind, 
-  Battery, 
-  Target, 
-  Heart, 
-  Clock, 
-  AlertCircle, 
-  ThumbsUp 
-} from "lucide-react";
+
 import { MoodType } from "@/types/user/base";
-import { toast } from "@/hooks/use-toast";
+import { Smile, Sun, BookOpen, Brain, Coffee, Moon, BatteryCharging, Frown, AlertTriangle, Zap } from "lucide-react";
+import React from "react";
 
-// Get human-readable display name for each mood
-export const getMoodDisplayName = (mood?: MoodType): string => {
-  switch (mood) {
-    case "motivated":
-      return "Motivated";
-    case "curious":
-      return "Curious";
-    case "neutral":
-      return "Neutral";
-    case "tired":
-      return "Tired";
-    case "stressed":
-      return "Stressed";
-    case "focused":
-      return "Focused";
-    case "happy":
-      return "Happy";
-    case "okay":
-      return "Okay";
-    case "overwhelmed":
-      return "Overwhelmed";
-    case "sad":
-      return "Sad";
-    default:
-      return "How are you feeling?";
-  }
-};
-
-// Get color classes for each mood
-export const getMoodColor = (mood?: MoodType): string => {
-  switch (mood) {
-    case "happy":
-      return "bg-yellow-100 hover:bg-yellow-200 text-yellow-700 border-yellow-200";
-    case "motivated":
-      return "bg-purple-100 hover:bg-purple-200 text-purple-700 border-purple-200";
-    case "focused":
-      return "bg-blue-100 hover:bg-blue-200 text-blue-700 border-blue-200";
-    case "curious":
-      return "bg-teal-100 hover:bg-teal-200 text-teal-700 border-teal-200";
-    case "neutral":
-      return "bg-gray-100 hover:bg-gray-200 text-gray-700 border-gray-200";
-    case "tired":
-      return "bg-orange-100 hover:bg-orange-200 text-orange-700 border-orange-200";
-    case "stressed":
-      return "bg-red-100 hover:bg-red-200 text-red-700 border-red-200";
-    case "sad":
-      return "bg-indigo-100 hover:bg-indigo-200 text-indigo-700 border-indigo-200";
-    case "overwhelmed":
-      return "bg-pink-100 hover:bg-pink-200 text-pink-700 border-pink-200";
-    case "okay":
-      return "bg-sky-100 hover:bg-sky-200 text-sky-700 border-sky-200";
-    default:
-      return "bg-gray-100 hover:bg-gray-200 text-gray-600 border-gray-200";
-  }
-};
-
-// Get icon for each mood
-export const getMoodIcon = (mood?: MoodType) => {
-  switch (mood) {
-    case "happy":
-      return React.createElement(Heart, { className: "h-4 w-4 mr-2 text-yellow-500" });
-    case "motivated":
-      return React.createElement(Smile, { className: "h-4 w-4 mr-2 text-purple-500" });
-    case "focused":
-      return React.createElement(Target, { className: "h-4 w-4 mr-2 text-blue-500" });
-    case "curious":
-      return React.createElement(Sun, { className: "h-4 w-4 mr-2 text-teal-500" });
-    case "neutral":
-      return React.createElement(ThumbsUp, { className: "h-4 w-4 mr-2 text-gray-500" });
-    case "tired":
-      return React.createElement(Battery, { className: "h-4 w-4 mr-2 text-orange-500" });
-    case "stressed":
-      return React.createElement(Wind, { className: "h-4 w-4 mr-2 text-red-500" });
-    case "sad":
-      return React.createElement(Cloud, { className: "h-4 w-4 mr-2 text-indigo-500" });
-    case "overwhelmed":
-      return React.createElement(AlertCircle, { className: "h-4 w-4 mr-2 text-pink-500" });
-    case "okay":
-      return React.createElement(Clock, { className: "h-4 w-4 mr-2 text-sky-500" });
-    default:
-      return React.createElement(Smile, { className: "h-4 w-4 mr-2" });
-  }
-};
-
-// Get toast content for each mood
-export const getMoodToastContent = (mood: MoodType) => {
-  switch (mood) {
-    case "happy":
-      return {
-        title: "Feeling Happy!",
-        description: "Great time to tackle challenging topics with enthusiasm."
-      };
-    case "motivated":
-      return {
-        title: "Feeling Motivated!",
-        description: "Perfect time to set goals and make progress on difficult tasks."
-      };
-    case "focused":
-      return {
-        title: "Feeling Focused!",
-        description: "Your concentration is high—ideal for deep work sessions."
-      };
-    case "curious":
-      return {
-        title: "Feeling Curious!",
-        description: "Great mood for exploring new topics and concepts."
-      };
-    case "neutral":
-      return {
-        title: "Feeling Neutral",
-        description: "A balanced state good for routine study tasks."
-      };
-    case "tired":
-      return {
-        title: "Feeling Tired",
-        description: "Consider shorter study sessions with more breaks today."
-      };
-    case "stressed":
-      return {
-        title: "Feeling Stressed",
-        description: "Try a quick breathing exercise before starting your study session."
-      };
-    case "sad":
-      return {
-        title: "Feeling Sad",
-        description: "Start with easier topics today and be kind to yourself."
-      };
-    case "overwhelmed":
-      return {
-        title: "Feeling Overwhelmed",
-        description: "Break tasks into smaller chunks and focus on one thing at a time."
-      };
-    case "okay":
-      return {
-        title: "Feeling Okay",
-        description: "A good state for steady progress on your studies."
-      };
-    default:
-      return {
-        title: "Mood Updated",
-        description: "Your learning experience has been adjusted accordingly."
-      };
-  }
-};
-
-export const getMoodMotivationalQuote = (mood: MoodType): string => {
-  const quotes = {
-    happy: [
-      "Your positive energy is contagious! Perfect time to tackle challenging topics.",
-      "A happy mind learns better. Make the most of this great mood!",
-      "Happiness boosts memory retention. Let's use this to our advantage!"
-    ],
-    motivated: [
-      "Motivation is the fuel for achievement. Keep your momentum going!",
-      "When motivation strikes, the impossible becomes possible. Aim high today!",
-      "Use this drive to push past your usual limits. You've got this!"
-    ],
-    focused: [
-      "Your focus determines your reality. Make the most of this clarity!",
-      "Deep focus is a superpower. Use it wisely on your most important tasks.",
-      "In this state of concentration, you can achieve exceptional results."
-    ],
-    curious: [
-      "Curiosity is the path to new knowledge. Explore widely today!",
-      "Questions lead to understanding. Keep asking and discovering!",
-      "A curious mind is always growing. Let your questions guide your learning."
-    ],
-    neutral: [
-      "A neutral state provides balance. Good time for consistent progress.",
-      "Sometimes steady and stable is exactly what you need for consistent results.",
-      "Neutrality can be clarity. Use this balanced state for methodical work."
-    ],
-    tired: [
-      "Rest when you need to. Short, focused sessions work best when tired.",
-      "Energy management is key. Try the Pomodoro technique: 25 minutes work, 5 minutes rest.",
-      "Quality trumps quantity when energy is low. Focus on understanding, not volume."
-    ],
-    stressed: [
-      "Take a deep breath. Stress narrows focus—use it for single-task concentration.",
-      "Remember: you've overcome challenges before. Take one step at a time.",
-      "Convert stress to focused energy by organizing tasks from smallest to largest."
-    ],
-    sad: [
-      "Be gentle with yourself. Start with topics that bring you joy or confidence.",
-      "Learning can be a positive distraction. Find a subject that sparks interest.",
-      "Small wins build momentum. Set easily achievable goals today."
-    ],
-    overwhelmed: [
-      "Break it down. The biggest tasks become manageable in small pieces.",
-      "Focus on just the next step. Progress comes one action at a time.",
-      "It's okay to ask for help. Reaching out is a sign of strength, not weakness."
-    ],
-    okay: [
-      "Steady progress adds up. Consistency beats intensity in the long run.",
-      "This balanced state is perfect for reviewing material and filling knowledge gaps.",
-      "Sometimes 'okay' is the perfect space for learning—not too high, not too low."
-    ]
+export function getMoodDisplayName(mood: MoodType): string {
+  const moodNames: Record<MoodType, string> = {
+    happy: "Happy",
+    motivated: "Motivated",
+    focused: "Focused",
+    curious: "Curious",
+    neutral: "Neutral",
+    tired: "Tired",
+    stressed: "Stressed",
+    sad: "Sad",
+    overwhelmed: "Overwhelmed",
+    okay: "Okay"
   };
   
-  const moodQuotes = quotes[mood] || quotes.neutral;
-  return moodQuotes[Math.floor(Math.random() * moodQuotes.length)];
-};
+  return moodNames[mood] || "Unknown";
+}
 
-// Apply mood-based theme to the UI
-export const applyMoodTheme = (mood: MoodType) => {
-  document.body.classList.remove(
-    "mood-happy", "mood-motivated", "mood-focused", "mood-curious",
-    "mood-neutral", "mood-tired", "mood-stressed", "mood-sad",
-    "mood-overwhelmed", "mood-okay"
-  );
-  
-  document.body.classList.add(`mood-${mood}`);
-  
-  const toastContent = getMoodToastContent(mood);
-  toast({
-    title: toastContent.title,
-    description: toastContent.description,
-  });
-};
-
-// Save mood to localStorage
-export const saveMoodToLocalStorage = (mood: MoodType) => {
-  const userData = localStorage.getItem("userData");
-  if (userData) {
-    const parsedData = JSON.parse(userData);
-    parsedData.mood = mood;
-    localStorage.setItem("userData", JSON.stringify(parsedData));
-  } else {
-    localStorage.setItem("userData", JSON.stringify({ mood }));
-  }
-};
-
-// Get mood history data for the chart
-export const getMoodHistoryData = () => {
-  const userData = localStorage.getItem("userData");
-  if (!userData) return [];
-  
-  const { moodHistory = [] } = JSON.parse(userData);
-  return moodHistory.map((entry: { mood: MoodType; timestamp: string }) => ({
-    mood: entry.mood,
-    time: new Date(entry.timestamp).toLocaleDateString(),
-  }));
-};
-
-// Get study suggestions based on current mood
-export const getStudySuggestions = (mood: MoodType): string[] => {
+export function getMoodIcon(mood: MoodType) {
   switch (mood) {
     case "happy":
-      return [
-        "Great time to tackle challenging topics!",
-        "Try group study sessions",
-        "Work on complex problem-solving"
-      ];
+      return <Sun className="text-amber-500" size={24} />;
     case "motivated":
-      return [
-        "Set ambitious goals for today",
-        "Take on difficult assignments",
-        "Help peers with their studies"
-      ];
+      return <Zap className="text-amber-500" size={24} />;
     case "focused":
-      return [
-        "Deep dive into complex subjects",
-        "Work on detailed analysis",
-        "Perfect for exam preparation"
-      ];
+      return <Brain className="text-blue-500" size={24} />;
+    case "curious":
+      return <BookOpen className="text-emerald-500" size={24} />;
+    case "neutral":
+      return <Coffee className="text-gray-500" size={24} />;
     case "tired":
-      return [
-        "Review familiar material",
-        "Take short study breaks",
-        "Focus on light reading"
-      ];
+      return <Moon className="text-indigo-500" size={24} />;
     case "stressed":
-      return [
-        "Break tasks into smaller chunks",
-        "Start with easier topics",
-        "Practice mindful studying"
-      ];
+      return <AlertTriangle className="text-red-500" size={24} />;
+    case "sad":
+      return <Frown className="text-blue-500" size={24} />;
+    case "overwhelmed":
+      return <AlertTriangle className="text-purple-500" size={24} />;
+    case "okay":
+      return <Smile className="text-green-500" size={24} />;
     default:
-      return [
-        "Focus on steady progress",
-        "Review your study plan",
-        "Take it one step at a time"
-      ];
+      return <Smile className="text-gray-500" size={24} />;
   }
-};
+}
+
+export function getMoodMotivationalQuote(mood: MoodType): string {
+  const quotes: Record<MoodType, string[]> = {
+    happy: [
+      "Happiness opens your mind to possibilities. What will you explore today?",
+      "Your positive energy is contagious. Share it with someone who needs it!",
+    ],
+    motivated: [
+      "You're in your power zone! Set ambitious goals for today.",
+      "This motivation is your superpower. Use it wisely to achieve something meaningful.",
+    ],
+    focused: [
+      "Deep work happens in this state. Pick your most challenging task.",
+      "When focused, your mind processes information more efficiently. Make the most of it!",
+    ],
+    curious: [
+      "Curiosity leads to discoveries. Follow your questions today.",
+      "The curious mind expands possibilities. What will you learn today?",
+    ],
+    neutral: [
+      "A balanced state is perfect for making rational decisions.",
+      "From neutral ground, you can choose any direction. Where will you go?",
+    ],
+    tired: [
+      "Rest is as important as work. Take short breaks to restore your energy.",
+      "Even brief moments of relaxation can reset your focus. Try a 5-minute break.",
+    ],
+    stressed: [
+      "Stress signals something needs attention. What small step can address it?",
+      "Break down what's overwhelming you into small, manageable tasks.",
+    ],
+    sad: [
+      "It's okay to feel down sometimes. Be gentle with yourself today.",
+      "Emotions come and go like clouds. This feeling will pass too.",
+    ],
+    overwhelmed: [
+      "Focus on just one small task. Progress happens one step at a time.",
+      "When everything feels like too much, pause and take three deep breaths.",
+    ],
+    okay: [
+      "You're in a good place to make steady progress today.",
+      "Stable energy is perfect for consistent work. What will you accomplish?",
+    ]
+  };
+
+  const moodQuotes = quotes[mood] || quotes.neutral;
+  return moodQuotes[Math.floor(Math.random() * moodQuotes.length)];
+}
+
+export function getMoodToastContent(mood: MoodType) {
+  return {
+    title: `You're feeling ${getMoodDisplayName(mood.toLowerCase() as MoodType)}`,
+    description: "We'll personalize your experience based on your mood"
+  };
+}
+
+export function applyMoodTheme(mood: MoodType) {
+  // Remove all existing mood classes
+  document.body.classList.forEach(className => {
+    if (className.startsWith('mood-')) {
+      document.body.classList.remove(className);
+    }
+  });
+    
+  // Add the new mood class
+  document.body.classList.add(`mood-${mood}`);
+}
+
+export function saveMoodToLocalStorage(mood: MoodType) {
+  try {
+    const userData = localStorage.getItem("userData");
+    if (userData) {
+      const parsedData = JSON.parse(userData);
+      parsedData.mood = mood;
+      localStorage.setItem("userData", JSON.stringify(parsedData));
+    } else {
+      localStorage.setItem("userData", JSON.stringify({ mood }));
+    }
+  } catch (error) {
+    console.error("Error saving mood to localStorage", error);
+  }
+}

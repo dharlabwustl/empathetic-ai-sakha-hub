@@ -1,45 +1,25 @@
 
-import React, { ReactNode } from 'react';
-import TutorCard from '@/components/dashboard/student/TutorCard';
-import StudyPlannerCard from '@/components/dashboard/student/StudyPlannerCard';
-import AcademicAdvisorCard from '@/components/dashboard/student/AcademicAdvisorCard';
-import MotivationCard from '@/components/dashboard/student/MotivationCard';
-import ProgressCard from '@/components/dashboard/student/ProgressCard';
-import ProjectsCard from '@/components/dashboard/student/ProjectsCard';
-import { LiveTutorSection } from '@/components/dashboard/student/LiveTutorSection';
-import { CollaborativeForumSection } from '@/components/dashboard/student/CollaborativeForumSection';
-import { VideoLibrarySection } from '@/components/dashboard/student/VideoLibrarySection';
-import { SmartNotificationSection } from '@/components/dashboard/student/SmartNotificationSection';
-import TodayStudyPlan from '@/components/dashboard/student/TodayStudyPlan';
-import DashboardOverview from '@/components/dashboard/student/DashboardOverview';
-import WelcomeTour from '@/components/dashboard/student/WelcomeTour';
-import { UserProfileType } from '@/types/user';
-import { KpiData, NudgeData } from '@/hooks/useKpiTracking';
-import { MicroConceptView, FlashcardsView, PracticeExamsView } from '@/pages/dashboard/student/TabContentViews';
-import FlashcardsFeature from '@/components/dashboard/student/FlashcardsFeature';
-import PracticeExamFeature from '@/components/dashboard/student/PracticeExamFeature';
-import FeelGoodCorner from '@/components/dashboard/student/FeelGoodCorner';
+import React from "react";
+import { UserProfileType, MoodType } from "@/types/user/base";
+import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
+import DashboardOverview from "./DashboardOverview";
+import { BookOpen, Brain, MessageSquare, Users, BookMarked, ChartLine, Settings } from "lucide-react";
 
-interface TabContentManagerProps {
+interface TabContentGeneratorProps {
   userProfile: UserProfileType;
   kpis: KpiData[];
   nudges: NudgeData[];
   markNudgeAsRead: (id: string) => void;
-  features: {
-    icon: ReactNode;
-    title: string;
-    description: string;
-    path: string;
-    isPremium: boolean;
-  }[];
+  features: any[];
   showWelcomeTour: boolean;
   handleSkipTour: () => void;
   handleCompleteTour: () => void;
   lastActivity?: { type: string; description: string } | null;
   suggestedNextAction?: string | null;
+  currentMood?: MoodType;
 }
 
-export const generateTabContents = ({
+export function generateTabContents({
   userProfile,
   kpis,
   nudges,
@@ -49,47 +29,87 @@ export const generateTabContents = ({
   handleSkipTour,
   handleCompleteTour,
   lastActivity,
-  suggestedNextAction
-}: TabContentManagerProps): Record<string, ReactNode> => {
-  // Check if user is a first time user based on profile data
-  // Using optional chaining to safely access potentially undefined properties
-  const isFirstTimeUser = ((userProfile as any)?.loginCount ?? 0) < 3 || !((userProfile as any)?.completedOnboarding ?? false);
-  const loginCount = (userProfile as any)?.loginCount ?? 0;
+  suggestedNextAction,
+  currentMood
+}: TabContentGeneratorProps): Record<string, React.ReactNode> {
+  const dashboardFeatures = [
+    {
+      title: "24/7 AI Tutor",
+      description: "Get instant help on any topic from your AI learning assistant.",
+      icon: <MessageSquare className="h-4 w-4" />,
+      path: "/dashboard/student/tutor",
+      isPremium: false,
+    },
+    {
+      title: "Subject Explorer",
+      description: "Dive deep into your subjects with interactive learning materials.",
+      icon: <BookOpen className="h-4 w-4" />,
+      path: "/dashboard/student/subjects",
+      isPremium: false,
+    },
+    {
+      title: "Community",
+      description: "Connect with peers, ask questions, and share knowledge.",
+      icon: <Users className="h-4 w-4" />,
+      path: "/dashboard/student/community",
+      isPremium: false,
+    },
+    {
+      title: "Academic Advisor",
+      description: "Get personalized guidance on your academic journey.",
+      icon: <Brain className="h-4 w-4" />,
+      path: "/dashboard/student/advisor",
+      isPremium: true,
+    },
+  ];
 
+  // Create and return the tab content map
   return {
     overview: (
-      <>
-        {showWelcomeTour && (
-          <WelcomeTour 
-            onSkipTour={handleSkipTour} 
-            onCompleteTour={handleCompleteTour}
-            isFirstTimeUser={isFirstTimeUser}
-            lastActivity={lastActivity}
-            suggestedNextAction={suggestedNextAction}
-            loginCount={loginCount}
-          />
-        )}
-        <DashboardOverview
-          userProfile={userProfile}
-          kpis={kpis}
-          nudges={nudges}
-          markNudgeAsRead={markNudgeAsRead}
-          features={features}
-        />
-      </>
+      <DashboardOverview
+        userProfile={userProfile}
+        kpis={kpis}
+        nudges={nudges}
+        markNudgeAsRead={markNudgeAsRead}
+        features={dashboardFeatures}
+        currentMood={currentMood}
+      />
     ),
-    today: (
-      <div className="space-y-8">
-        <TodayStudyPlan />
-        <MicroConceptView />
+    subjects: (
+      <div className="p-4">
+        <h2 className="text-2xl font-semibold mb-6">Your Subjects</h2>
+        <p className="text-gray-600">View and explore your subjects here.</p>
       </div>
     ),
-    academic: <AcademicAdvisorCard />,
-    concepts: <MicroConceptView />,
-    flashcards: <FlashcardsFeature />,
-    'practice-exam': <PracticeExamFeature />,
-    'influence-meter': <div className="mt-4"><h2 className="text-lg font-medium text-gray-800 mb-4">Surrounding Influences Dashboard</h2></div>,
-    'feel-good': <FeelGoodCorner />,
-    notifications: <SmartNotificationSection />
+    quizzes: (
+      <div className="p-4">
+        <h2 className="text-2xl font-semibold mb-6">Quizzes & Tests</h2>
+        <p className="text-gray-600">Take quizzes and tests to assess your understanding.</p>
+      </div>
+    ),
+    resources: (
+      <div className="p-4">
+        <h2 className="text-2xl font-semibold mb-6">Learning Resources</h2>
+        <p className="text-gray-600">Access learning materials curated for your goals.</p>
+      </div>
+    ),
+    community: (
+      <div className="p-4">
+        <h2 className="text-2xl font-semibold mb-6">Student Community</h2>
+        <p className="text-gray-600">Connect with peers and collaborate on projects.</p>
+      </div>
+    ),
+    progress: (
+      <div className="p-4">
+        <h2 className="text-2xl font-semibold mb-6">Study Progress</h2>
+        <p className="text-gray-600">Track your learning journey and achievements.</p>
+      </div>
+    ),
+    settings: (
+      <div className="p-4">
+        <h2 className="text-2xl font-semibold mb-6">Account Settings</h2>
+        <p className="text-gray-600">Manage your profile and preferences.</p>
+      </div>
+    ),
   };
-};
+}

@@ -1,7 +1,8 @@
 
 import { UserProfileType, MoodType } from './base';
 
-export interface StudentProfile extends UserProfileType {
+export interface StudentProfile extends Omit<UserProfileType, 'role'> {
+  role: "student";
   educationLevel: string;
   subjects: Array<{id: string; name: string; progress: number; lastStudied?: Date}>; // Changed from string[] to match UserProfileType
   studyStreak: number;

@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { UserProfileType } from "@/types/user";
+import { UserProfileType, MoodType } from "@/types/user/base";
 import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
 import { generateTabContents } from "@/components/dashboard/student/TabContentManager";
 import DashboardTabs from "@/components/dashboard/student/DashboardTabs";
@@ -26,6 +26,7 @@ interface DashboardContentProps {
   hideTabsNav: boolean;
   lastActivity?: { type: string; description: string } | null;
   suggestedNextAction?: string | null;
+  currentMood?: MoodType;
 }
 
 const DashboardContent = ({
@@ -41,7 +42,8 @@ const DashboardContent = ({
   handleCompleteTour,
   hideTabsNav,
   lastActivity,
-  suggestedNextAction
+  suggestedNextAction,
+  currentMood
 }: DashboardContentProps) => {
   // State to track whether the returning user recap has been closed
   const [showReturnRecap, setShowReturnRecap] = React.useState(
@@ -59,7 +61,8 @@ const DashboardContent = ({
     handleSkipTour,
     handleCompleteTour,
     lastActivity,
-    suggestedNextAction
+    suggestedNextAction,
+    currentMood
   });
   
   // Handle closing the recap
@@ -95,7 +98,7 @@ const DashboardContent = ({
           <div className="text-center py-8">
             <h3 className="text-lg font-medium text-gray-900 dark:text-white">Coming Soon</h3>
             <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-              This tab is not yet available. Check back later.
+              This tab is not yet available
             </p>
           </div>
         )}
@@ -105,4 +108,3 @@ const DashboardContent = ({
 };
 
 export default DashboardContent;
-export type { DashboardTabsProps };

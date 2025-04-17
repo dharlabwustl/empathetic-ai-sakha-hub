@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useStudentDashboard } from "@/hooks/useStudentDashboard";
 import OnboardingFlow from "@/components/dashboard/student/OnboardingFlow";
@@ -5,7 +6,7 @@ import DashboardLoading from "@/pages/dashboard/student/DashboardLoading";
 import DashboardLayout from "@/pages/dashboard/student/DashboardLayout";
 import SplashScreen from "@/components/dashboard/student/SplashScreen";
 import { useLocation } from "react-router-dom";
-import { MoodType, UserRoleEnum } from "@/types/user/base";
+import { MoodType } from "@/types/user/base";
 
 // Import our mood theme CSS
 import "@/mood-themes.css";
