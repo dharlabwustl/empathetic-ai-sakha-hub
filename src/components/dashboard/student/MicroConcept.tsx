@@ -65,10 +65,11 @@ export default function MicroConcept({
   resourceType,
   resourceUrl,
   onComplete,
-  onNeedHelp
+  onNeedHelp,
+  isCompleted: initialIsCompleted = false
 }: MicroConceptProps) => {
   const [activeExplanation, setActiveExplanation] = useState<string>("Simple Explanation");
-  const [isCompleted, setIsCompleted] = useState<boolean>(false);
+  const [isCompleted, setIsCompleted] = useState<boolean>(initialIsCompleted);
   const [timeSpent, setTimeSpent] = useState<number>(0);
   const { toast } = useToast();
   
