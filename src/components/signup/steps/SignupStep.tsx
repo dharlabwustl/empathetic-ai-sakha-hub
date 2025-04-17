@@ -62,6 +62,17 @@ const SignupStep: React.FC<SignupStepProps> = ({ onSubmit, isLoading }) => {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
+        <Label htmlFor="name">Full Name</Label>
+        <Input 
+          id="name" 
+          name="name" 
+          value={formValues.name} 
+          onChange={handleFormChange} 
+          required 
+          className="border-purple-200 focus:border-purple-500 focus:ring-purple-500"
+        />
+      </div>
+      <div>
         <Label htmlFor="mobile">Mobile Number</Label>
         <Input 
           id="mobile" 

@@ -38,7 +38,8 @@ export interface OnboardingData {
   stressManagement?: string;
   focusDuration?: string;
   studyPreference?: string;
-  interests?: string[] | string; // Updated to accept both string[] and string
+  interests?: string[] | string; // This can be either a string array or a string
+  name?: string; // Added name field
   completedOnboarding?: boolean;
 }
 
@@ -87,7 +88,7 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         cleanData.interests = Array.from(new Set(cleanData.interests.map(item => item.trim())));
       } else if (typeof cleanData.interests === 'string') {
         // Convert string to array of strings if needed
-        cleanData.interests = [cleanData.interests.trim()];
+        cleanData.interests = cleanData.interests.trim().split(',').map(item => item.trim()).filter(Boolean);
       }
     }
     
