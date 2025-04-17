@@ -8,7 +8,7 @@ import {
   CardDescription
 } from "@/components/ui/card";
 import ChatMessage from "@/components/signup/ChatMessage";
-import { useOnboarding } from "@/components/signup/OnboardingContext";
+import { useOnboarding, OnboardingStep } from "@/components/signup/OnboardingContext";
 import StepHandler from "@/components/signup/StepHandler";
 import StepRenderer from "@/components/signup/StepRenderer";
 import { motion, AnimatePresence } from "framer-motion";

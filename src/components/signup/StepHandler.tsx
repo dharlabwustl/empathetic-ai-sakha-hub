@@ -2,7 +2,7 @@
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
-import { UserRole, UserGoal, OnboardingStep } from "./OnboardingContext";
+import { OnboardingStep, UserRole, UserGoal } from "./OnboardingContext";
 import { getDemographicsQuestion } from "./utils/stepUtils";
 import authService from "@/services/auth/authService"; 
 import { getSubjectsForGoal } from "@/components/dashboard/student/onboarding/SubjectData";
@@ -13,7 +13,7 @@ interface StepHandlerProps {
   setOnboardingData: (data: any) => void;
   messages: { content: string; isBot: boolean }[];
   setMessages: (messages: { content: string; isBot: boolean }[]) => void;
-  setStep: React.Dispatch<React.SetStateAction<OnboardingStep>>;
+  setStep: (step: OnboardingStep) => void;
 }
 
 const StepHandler = ({ 

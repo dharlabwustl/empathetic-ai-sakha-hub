@@ -2,7 +2,16 @@
 import React, { createContext, useState, useContext, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { UserRole, MoodType, PersonalityType } from "@/types/user/base";
+import { MoodType, PersonalityType } from "@/types/user/base";
+
+// Export UserRole enum for use in other components
+export enum UserRole {
+  Student = "student",
+  Employee = "employee",
+  Doctor = "doctor",
+  Founder = "founder",
+  Admin = "admin"
+}
 
 // Define types for the step management
 export type OnboardingStep = 
@@ -31,7 +40,7 @@ export interface OnboardingFormData {
 
 // Define the context state type
 export interface OnboardingContextState {
-  step: number;
+  step: OnboardingStep; // Changed from number to OnboardingStep
   totalSteps: number;
   formData: OnboardingFormData;
   // Additional properties needed by components
@@ -39,7 +48,7 @@ export interface OnboardingContextState {
   setOnboardingData: (data: any) => void;
   messages: { content: string; isBot: boolean }[];
   setMessages: (messages: { content: string; isBot: boolean }[]) => void;
-  setStep: (step: number) => void;
+  setStep: (step: OnboardingStep) => void; // Changed from number to OnboardingStep
   nextStep: () => void;
   prevStep: () => void;
   updateFormData: (data: Partial<OnboardingFormData>) => void;
@@ -63,12 +72,38 @@ export const useOnboarding = () => {
   return context;
 };
 
+// Map numeric step to OnboardingStep type
+const stepMap: Record<number, OnboardingStep> = {
+  1: "role",
+  2: "goal",
+  3: "demographics",
+  4: "personality",
+  5: "sentiment",
+  6: "habits",
+  7: "interests",
+  8: "signup"
+};
+
+// Map OnboardingStep type to numeric value
+const stepNumberMap: Record<OnboardingStep, number> = {
+  role: 1,
+  goal: 2,
+  demographics: 3,
+  personality: 4,
+  sentiment: 5,
+  habits: 6,
+  interests: 7,
+  signup: 8
+};
+
 // Create the context provider component
 export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [step, setStep] = useState(1);
+  const [currentStep, setCurrentStep] = useState<number>(1);
+  const step = stepMap[currentStep] as OnboardingStep;
   const totalSteps = 7;
+  
   const [formData, setFormData] = useState<OnboardingFormData>({
     examType: "",
     examDate: undefined,
@@ -78,6 +113,7 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({
     subjects: [],
     interests: [],
   });
+  
   // Add additional state for onboarding data and messages
   const [onboardingData, setOnboardingData] = useState<any>({});
   const [messages, setMessages] = useState<{ content: string; isBot: boolean }[]>([
@@ -87,14 +123,19 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  // Function to set step by OnboardingStep type
+  const setStep = useCallback((newStep: OnboardingStep) => {
+    setCurrentStep(stepNumberMap[newStep]);
+  }, []);
+
   // Function to go to the next step
   const nextStep = useCallback(() => {
-    setStep((prev) => Math.min(prev + 1, totalSteps));
+    setCurrentStep((prev) => Math.min(prev + 1, totalSteps));
   }, [totalSteps]);
 
   // Function to go to the previous step
   const prevStep = useCallback(() => {
-    setStep((prev) => Math.max(prev - 1, 1));
+    setCurrentStep((prev) => Math.max(prev - 1, 1));
   }, []);
 
   // Function to update the form data
