@@ -1,6 +1,16 @@
-
 import React from "react";
-import { Smile, Sun, Cloud, Wind, Battery, Target, Heart, Clock, AlertCircle, ThumbsUp } from "lucide-react";
+import { 
+  Smile, 
+  Sun, 
+  Cloud, 
+  Wind, 
+  Battery, 
+  Target, 
+  Heart, 
+  Clock, 
+  AlertCircle, 
+  ThumbsUp 
+} from "lucide-react";
 import { MoodType } from "@/types/user/base";
 import { toast } from "@/hooks/use-toast";
 
@@ -64,27 +74,27 @@ export const getMoodColor = (mood?: MoodType): string => {
 export const getMoodIcon = (mood?: MoodType) => {
   switch (mood) {
     case "happy":
-      return <Heart className="h-4 w-4 mr-2 text-yellow-500" />;
+      return React.createElement(Heart, { className: "h-4 w-4 mr-2 text-yellow-500" });
     case "motivated":
-      return <Smile className="h-4 w-4 mr-2 text-purple-500" />;
+      return React.createElement(Smile, { className: "h-4 w-4 mr-2 text-purple-500" });
     case "focused":
-      return <Target className="h-4 w-4 mr-2 text-blue-500" />;
+      return React.createElement(Target, { className: "h-4 w-4 mr-2 text-blue-500" });
     case "curious":
-      return <Sun className="h-4 w-4 mr-2 text-teal-500" />;
+      return React.createElement(Sun, { className: "h-4 w-4 mr-2 text-teal-500" });
     case "neutral":
-      return <ThumbsUp className="h-4 w-4 mr-2 text-gray-500" />;
+      return React.createElement(ThumbsUp, { className: "h-4 w-4 mr-2 text-gray-500" });
     case "tired":
-      return <Battery className="h-4 w-4 mr-2 text-orange-500" />;
+      return React.createElement(Battery, { className: "h-4 w-4 mr-2 text-orange-500" });
     case "stressed":
-      return <Wind className="h-4 w-4 mr-2 text-red-500" />;
+      return React.createElement(Wind, { className: "h-4 w-4 mr-2 text-red-500" });
     case "sad":
-      return <Cloud className="h-4 w-4 mr-2 text-indigo-500" />;
+      return React.createElement(Cloud, { className: "h-4 w-4 mr-2 text-indigo-500" });
     case "overwhelmed":
-      return <AlertCircle className="h-4 w-4 mr-2 text-pink-500" />;
+      return React.createElement(AlertCircle, { className: "h-4 w-4 mr-2 text-pink-500" });
     case "okay":
-      return <Clock className="h-4 w-4 mr-2 text-sky-500" />;
+      return React.createElement(Clock, { className: "h-4 w-4 mr-2 text-sky-500" });
     default:
-      return <Smile className="h-4 w-4 mr-2" />;
+      return React.createElement(Smile, { className: "h-4 w-4 mr-2" });
   }
 };
 
