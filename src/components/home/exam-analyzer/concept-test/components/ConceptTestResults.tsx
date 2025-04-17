@@ -1,83 +1,102 @@
 
 import React from 'react';
-import { CustomProgress } from '@/components/ui/custom-progress';
 import { TestResults, UserAnswer } from '../../types';
-import { Button } from '@/components/ui/button';
-import { ArrowRight } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { CheckCircle2, AlertTriangle, Brain } from 'lucide-react';
+import { CustomProgress } from '@/components/ui/custom-progress';
 
 interface ConceptTestResultsProps {
   results: TestResults;
-  onContinue?: () => void;
-  subject?: string; // Added this prop
-  userAnswers?: UserAnswer[]; // Added this prop
+  userAnswers?: UserAnswer[];
+  subject?: string;
 }
 
 const ConceptTestResults: React.FC<ConceptTestResultsProps> = ({ 
-  results, 
-  onContinue,
-  subject,
-  userAnswers = []
+  results,
+  userAnswers = [],
+  subject = ''
 }) => {
-  const subjectText = subject ? ` for ${subject}` : '';
+  const correctAnswers = userAnswers.filter(a => a.isCorrect).length;
+  const totalAnswers = userAnswers.length;
+  const percentCorrect = totalAnswers > 0 ? Math.round((correctAnswers / totalAnswers) * 100) : 0;
+  
+  const getScoreColorClass = (score: number) => {
+    if (score >= 80) return "from-green-500 to-green-600";
+    if (score >= 60) return "from-blue-500 to-blue-600";
+    if (score >= 40) return "from-amber-500 to-amber-600";
+    return "from-red-500 to-red-600";
+  };
 
   return (
-    <div className="space-y-4">
-      <motion.div 
-        className="bg-pink-50 dark:bg-pink-900/20 p-5 rounded-lg border-2 border-pink-100 dark:border-pink-800 shadow-md"
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
-      >
-        <div className="flex justify-between items-center mb-2">
-          <h4 className="font-medium text-pink-700 dark:text-pink-300">
-            Your Concept Mastery Score{subjectText}:
-          </h4>
-          <span className="text-lg font-bold bg-gradient-to-r from-pink-500 to-purple-500 bg-clip-text text-transparent">{results.score}%</span>
+    <div className="space-y-6">
+      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg border-2 border-pink-100 dark:border-pink-800 shadow-sm">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center">
+            <Brain className="mr-2 text-pink-500" size={24} />
+            <h3 className="text-lg font-medium">
+              Concept Test Results
+              {subject && <span className="text-sm ml-2 text-gray-500">({subject})</span>}
+            </h3>
+          </div>
+          <span className="text-2xl font-bold bg-gradient-to-r from-pink-500 to-purple-500 bg-clip-text text-transparent">
+            {percentCorrect}%
+          </span>
         </div>
         
         <CustomProgress 
-          value={results.score} 
-          className="h-2 my-2" 
-          indicatorClassName={`bg-gradient-to-r from-pink-400 to-pink-600`} 
+          value={percentCorrect} 
+          className="h-2 mb-4" 
+          indicatorClassName={`bg-gradient-to-r ${getScoreColorClass(percentCorrect)}`} 
         />
         
-        <div className="bg-white/80 dark:bg-gray-800/50 p-4 rounded-lg mt-3">
-          <p className="text-sm">{results.analysis}</p>
+        <div className="flex items-center justify-between text-sm mb-6">
+          <span>
+            <span className="font-medium">{correctAnswers}</span> correct out of {totalAnswers} questions
+          </span>
+          <span className={`font-medium ${
+            results.level === 'Excellent' || results.level === 'Good' 
+              ? 'text-green-600 dark:text-green-400' 
+              : 'text-amber-600 dark:text-amber-400'
+          }`}>
+            {results.level || 'Average'} level
+          </span>
         </div>
         
-        <div className="flex flex-wrap gap-2 mt-4">
-          {results.strengths.length > 0 && (
-            <div className="bg-green-50 dark:bg-green-900/20 p-2 rounded text-xs text-green-700 dark:text-green-300 border border-green-100 dark:border-green-900/50">
-              <span className="font-medium">Strengths:</span> {results.strengths[0]}
-            </div>
-          )}
-          
-          {results.improvements.length > 0 && (
-            <div className="bg-amber-50 dark:bg-amber-900/20 p-2 rounded text-xs text-amber-700 dark:text-amber-300 border border-amber-100 dark:border-amber-900/50">
-              <span className="font-medium">To improve:</span> {results.improvements[0]}
-            </div>
-          )}
-        </div>
-        
-        {userAnswers.length > 0 && (
-          <div className="mt-4 pt-4 border-t border-pink-100 dark:border-pink-800">
-            <p className="text-sm font-medium mb-2">Question Summary:</p>
-            <div className="grid grid-cols-2 gap-2 text-xs">
-              <div>Correct: {userAnswers.filter(a => a.isCorrect).length}</div>
-              <div>Incorrect: {userAnswers.filter(a => !a.isCorrect).length}</div>
-            </div>
+        <div className="space-y-4">
+          <div className="bg-pink-50 dark:bg-pink-900/20 p-4 rounded-lg">
+            <p className="text-sm">{results.analysis || 'Analysis not available.'}</p>
           </div>
-        )}
-      </motion.div>
-      
-      {onContinue && (
-        <div className="flex justify-end">
-          <Button onClick={onContinue} className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white">
-            Continue <ArrowRight size={16} className="ml-1" />
-          </Button>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {results.strengths && results.strengths.length > 0 && (
+              <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
+                <h4 className="font-medium text-green-700 dark:text-green-400 flex items-center mb-2">
+                  <CheckCircle2 className="mr-2" size={16} />
+                  Strengths
+                </h4>
+                <ul className="list-disc list-inside space-y-1">
+                  {results.strengths.map((strength, index) => (
+                    <li key={index} className="text-sm">{strength}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            
+            {results.improvements && results.improvements.length > 0 && (
+              <div className="bg-amber-50 dark:bg-amber-900/20 p-4 rounded-lg">
+                <h4 className="font-medium text-amber-700 dark:text-amber-400 flex items-center mb-2">
+                  <AlertTriangle className="mr-2" size={16} />
+                  Areas to Improve
+                </h4>
+                <ul className="list-disc list-inside space-y-1">
+                  {results.improvements.map((improvement, index) => (
+                    <li key={index} className="text-sm">{improvement}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
         </div>
-      )}
+      </div>
     </div>
   );
 };

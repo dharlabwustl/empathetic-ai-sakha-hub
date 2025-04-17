@@ -1,107 +1,76 @@
 
-import React from 'react';
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { CheckCircle2, XCircle } from 'lucide-react';
-import { CustomProgress } from '@/components/ui/custom-progress';
-import { TestQuestion, UserAnswer } from '../../types';
+import React, { useState } from 'react';
+import { TestQuestion } from '../../types';
+import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Label } from '@/components/ui/label';
+import { Brain } from 'lucide-react';
 
 interface ConceptTestQuestionProps {
   question: TestQuestion;
   onAnswer: (answer: string, confidenceLevel?: number) => void;
-  currentQuestionIndex?: number;
-  questions?: TestQuestion[];
-  selectedSubjects?: string[];
-  getCurrentSubject?: (questionId: string) => string;
-  showExplanation?: boolean;
-  userAnswers?: UserAnswer[];
 }
 
-const ConceptTestQuestion: React.FC<ConceptTestQuestionProps> = ({
-  question,
-  onAnswer,
-  currentQuestionIndex = 0,
-  questions = [],
-  selectedSubjects = [],
-  getCurrentSubject = () => "Subject",
-  showExplanation = false,
-  userAnswers = []
-}) => {
-  const totalQuestions = questions.length || 1;
+const ConceptTestQuestion: React.FC<ConceptTestQuestionProps> = ({ question, onAnswer }) => {
+  const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   
-  // If questions array is provided, use it, otherwise just use the single question
-  const currentQuestion = questions.length > 0 ? questions[currentQuestionIndex] : question;
-  const progress = ((currentQuestionIndex + 1) / totalQuestions) * 100;
+  const handleSubmit = () => {
+    if (selectedAnswer) {
+      onAnswer(selectedAnswer, 3); // Default confidence level of 3
+    }
+  };
   
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <Badge variant="outline" className="bg-pink-50 dark:bg-pink-900/30 border-pink-200 dark:border-pink-700">
-          Question {currentQuestionIndex + 1}/{totalQuestions}
-        </Badge>
-        {questions.length > 0 && selectedSubjects.length > 0 && (
-          <Badge variant="outline" className="bg-pink-50 dark:bg-pink-900/30 border-pink-200 dark:border-pink-700">
-            {getCurrentSubject(currentQuestion.id)}
-          </Badge>
+    <div className="bg-white dark:bg-gray-800 p-6 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
+      <div className="mb-6">
+        <h3 className="text-lg font-medium flex items-center">
+          <Brain className="mr-2 text-pink-500" size={20} />
+          <span>{question.question}</span>
+        </h3>
+        
+        {question.imageUrl && (
+          <div className="mt-4 rounded-lg overflow-hidden">
+            <img 
+              src={question.imageUrl} 
+              alt="Question visual" 
+              className="w-full object-contain max-h-64" 
+            />
+          </div>
         )}
       </div>
       
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg border-2 border-pink-100 dark:border-pink-800 shadow-md">
-        <h3 className="text-lg font-medium mb-4">{currentQuestion.question}</h3>
-        
-        <div className="space-y-3">
-          {currentQuestion.options.map((option, index) => (
-            <motion.div 
-              key={index}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+      <RadioGroup className="space-y-3 mb-6">
+        {question.options.map((option, index) => (
+          <div key={index} className="flex items-center space-x-2 p-3 rounded-md border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+            <RadioGroupItem 
+              value={option} 
+              id={`option-${index}`} 
+              checked={selectedAnswer === option}
+              onClick={() => setSelectedAnswer(option)}
+            />
+            <Label 
+              htmlFor={`option-${index}`}
+              className="flex-1 cursor-pointer"
             >
-              <Button 
-                variant="outline" 
-                className="w-full text-left justify-start p-4 h-auto"
-                onClick={() => onAnswer(option)}
-                disabled={showExplanation}
-              >
-                <span className="mr-2">{String.fromCharCode(65 + index)}.</span>
-                {option}
-              </Button>
-            </motion.div>
-          ))}
-        </div>
-      </div>
-      
-      {showExplanation && userAnswers.length > 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className={`p-4 rounded-lg ${
-            userAnswers[userAnswers.length - 1].isCorrect 
-              ? 'bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800' 
-              : 'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800'
-          }`}
-        >
-          <div className="flex items-start">
-            {userAnswers[userAnswers.length - 1].isCorrect ? (
-              <CheckCircle2 className="text-green-500 mr-2 mt-1 flex-shrink-0" size={18} />
-            ) : (
-              <XCircle className="text-red-500 mr-2 mt-1 flex-shrink-0" size={18} />
-            )}
-            <div>
-              <p className="font-medium">
-                {userAnswers[userAnswers.length - 1].isCorrect ? 'Correct!' : 'Incorrect'}
-              </p>
-              <p className="text-sm mt-1">{currentQuestion.explanation}</p>
-            </div>
+              {option}
+            </Label>
           </div>
-        </motion.div>
-      )}
+        ))}
+      </RadioGroup>
       
-      <CustomProgress 
-        value={progress} 
-        className="h-2" 
-        indicatorClassName="bg-gradient-to-r from-pink-400 to-pink-600" 
-      />
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+      >
+        <Button
+          className="w-full bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700"
+          onClick={handleSubmit}
+          disabled={!selectedAnswer}
+        >
+          Submit Answer
+        </Button>
+      </motion.div>
     </div>
   );
 };

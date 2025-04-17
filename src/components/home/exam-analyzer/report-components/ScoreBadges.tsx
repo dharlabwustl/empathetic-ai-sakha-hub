@@ -24,7 +24,7 @@ const ScoreBadges: React.FC<ScoreBadgesProps> = ({
   const stress = results?.stress?.score ?? stressScore;
   const concept = results?.concept?.score ?? conceptCompletionScore;
   const mock = results?.readiness?.score ?? mockAccuracyScore;
-  const confidence = results?.confidence?.score ?? confidenceAlignmentScore;
+  const confidence = results?.confidence?.score ?? confidenceAlignmentScore ?? 0;
 
   return (
     <div className="flex flex-wrap gap-2 mt-2">

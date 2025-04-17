@@ -17,6 +17,19 @@ export interface ExamResults {
   readiness: TestResults;
   concept: TestResults;
   overall: TestResults;
+  confidence?: {
+    score: number;
+    level: string;
+    analysis: string;
+    strengths: string[];
+    improvements: string[];
+  };
+  confidenceMappings?: ConfidenceMapping[];
+  recommendations?: Array<{
+    topic: string;
+    recommendation: string;
+    priority: 'high' | 'medium' | 'low';
+  }>;
 }
 
 export type TestType = 'intro' | 'stress' | 'readiness' | 'concept' | 'report';

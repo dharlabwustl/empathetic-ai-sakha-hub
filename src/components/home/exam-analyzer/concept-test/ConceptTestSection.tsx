@@ -49,7 +49,7 @@ const ConceptTestSection: React.FC<ConceptTestSectionProps> = ({
     setUserAnswers([]);
   };
   
-  const handleAnswer = (answer: string, confidenceLevel: number) => {
+  const handleAnswer = (answer: string, confidenceLevel: number = 3) => {
     const currentQuestion = questions[currentQuestionIndex];
     const isCorrect = answer === currentQuestion.correctAnswer;
     
@@ -70,6 +70,12 @@ const ConceptTestSection: React.FC<ConceptTestSectionProps> = ({
       onCompleteTest(userAnswers.concat(newAnswer));
     }
   };
+
+  // Dummy function for estimated time - could be replaced with real logic
+  const getEstimatedTestTime = () => 300; // 5 minutes default
+  
+  // Dummy array for topics
+  const dummyTopics = [];
 
   return (
     <div className="space-y-4">
@@ -127,6 +133,11 @@ const ConceptTestSection: React.FC<ConceptTestSectionProps> = ({
                 selectedSubject={selectedSubject}
                 onStart={startTest} 
                 disabled={!selectedSubject}
+                topics={dummyTopics}
+                selectedSubjects={[selectedSubject].filter(Boolean)}
+                toggleSubjectSelection={() => {}}
+                getEstimatedTestTime={getEstimatedTestTime}
+                startTest={startTest}
               />
             </div>
           ) : (

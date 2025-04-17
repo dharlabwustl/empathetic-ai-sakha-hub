@@ -7,23 +7,23 @@ import { SubjectTopic } from '../../types';
 import { Checkbox } from "@/components/ui/checkbox";
 
 interface ConceptTestIntroProps {
-  topics: SubjectTopic[];
-  selectedSubjects: string[];
-  toggleSubjectSelection: (subject: string) => void;
-  getEstimatedTestTime: () => number;
-  startTest: () => void;
-  selectedExam?: string; // Added this prop
-  selectedSubject?: string; // Added this prop
-  onStart?: () => void; // Added this prop
-  disabled?: boolean; // Added this prop
+  topics?: SubjectTopic[];
+  selectedSubjects?: string[];
+  toggleSubjectSelection?: (subject: string) => void;
+  getEstimatedTestTime?: () => number;
+  startTest?: () => void;
+  selectedExam?: string;
+  selectedSubject?: string;
+  onStart?: () => void;
+  disabled?: boolean;
 }
 
 const ConceptTestIntro: React.FC<ConceptTestIntroProps> = ({
-  topics,
-  selectedSubjects,
-  toggleSubjectSelection,
-  getEstimatedTestTime,
-  startTest,
+  topics = [],
+  selectedSubjects = [],
+  toggleSubjectSelection = () => {},
+  getEstimatedTestTime = () => 300, // Default 5 minutes
+  startTest = () => {},
   selectedExam,
   selectedSubject,
   onStart,
@@ -67,7 +67,7 @@ const ConceptTestIntro: React.FC<ConceptTestIntroProps> = ({
           
           <div className="mt-3 flex items-center text-sm text-pink-700 dark:text-pink-300">
             <Clock size={16} className="mr-1" />
-            <span>Total test time: {formatTime(getEstimatedTestTime ? getEstimatedTestTime() : 300)}</span>
+            <span>Total test time: {formatTime(getEstimatedTestTime())}</span>
           </div>
         </div>
         
