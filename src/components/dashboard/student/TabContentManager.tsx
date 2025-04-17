@@ -53,8 +53,8 @@ export const generateTabContents = ({
 }: TabContentManagerProps): Record<string, ReactNode> => {
   // Check if user is a first time user based on profile data
   // Using optional chaining to safely access potentially undefined properties
-  const isFirstTimeUser = (userProfile?.loginCount ?? 0) < 3 || !(userProfile?.completedOnboarding ?? false);
-  const loginCount = userProfile?.loginCount ?? 0;
+  const isFirstTimeUser = ((userProfile as any)?.loginCount ?? 0) < 3 || !((userProfile as any)?.completedOnboarding ?? false);
+  const loginCount = (userProfile as any)?.loginCount ?? 0;
 
   return {
     overview: (

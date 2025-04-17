@@ -1,10 +1,9 @@
-
 import React from 'react';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Lock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { SubscriptionType } from '@/types/user/base';
+import { SubscriptionType, SubscriptionTypeEnum } from '@/types/user/base';
 
 interface FeatureCardProps {
   title: string;
@@ -21,10 +20,10 @@ export default function FeatureCard({
   icon,
   path,
   isPremium,
-  userSubscription = SubscriptionType.Basic
+  userSubscription = "basic"
 }: FeatureCardProps) {
   const navigate = useNavigate();
-  const hasPremiumAccess = userSubscription === SubscriptionType.Premium;
+  const hasPremiumAccess = userSubscription === "premium";
   
   const handleClick = () => {
     if (isPremium && !hasPremiumAccess) {

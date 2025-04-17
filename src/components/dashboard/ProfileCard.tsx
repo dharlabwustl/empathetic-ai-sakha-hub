@@ -1,5 +1,5 @@
 
-import { UserProfileType, UserRole } from "@/types/user";
+import { UserProfileType, UserRoleEnum } from "@/types/user";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CalendarIcon, GraduationCap, Briefcase, Stethoscope, Rocket } from "lucide-react";
@@ -12,13 +12,13 @@ interface ProfileCardProps {
 export default function ProfileCard({ profile }: ProfileCardProps) {
   const getRoleIcon = () => {
     switch (profile.role) {
-      case UserRole.Student:
+      case "student":
         return <GraduationCap className="text-sakha-blue" size={18} />;
-      case UserRole.Employee:
+      case "employee":
         return <Briefcase className="text-sakha-blue" size={18} />;
-      case UserRole.Doctor:
+      case "doctor":
         return <Stethoscope className="text-sakha-blue" size={18} />;
-      case UserRole.Founder:
+      case "founder":
         return <Rocket className="text-sakha-blue" size={18} />;
       default:
         return <GraduationCap className="text-sakha-blue" size={18} />;
@@ -30,7 +30,7 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
 
   const getRoleSpecificDetails = () => {
     switch (profile.role) {
-      case UserRole.Student:
+      case "student":
         const studentProfile = profile as any;
         return (
           <>
@@ -44,7 +44,7 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
             )}
           </>
         );
-      case UserRole.Employee:
+      case "employee":
         const employeeProfile = profile as any;
         return (
           <>
@@ -56,7 +56,7 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
             </p>
           </>
         );
-      case UserRole.Doctor:
+      case "doctor":
         const doctorProfile = profile as any;
         return (
           <>
@@ -68,7 +68,7 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
             </p>
           </>
         );
-      case UserRole.Founder:
+      case "founder":
         const founderProfile = profile as any;
         return (
           <>
@@ -140,27 +140,29 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
             </div>
           )}
           
-          <div>
-            <h4 className="text-sm font-medium mb-2">Goals</h4>
-            <div className="space-y-2">
-              {profile.goals.slice(0, 2).map((goal) => (
-                <div key={goal.id} className="bg-gray-50 p-2 rounded-md">
-                  <div className="flex justify-between items-center mb-1">
-                    <p className="text-sm font-medium">{goal.title}</p>
-                    <span className="text-xs text-gray-500">
-                      {goal.progress}%
-                    </span>
+          {'goals' in profile && profile.goals && profile.goals.length > 0 && (
+            <div>
+              <h4 className="text-sm font-medium mb-2">Goals</h4>
+              <div className="space-y-2">
+                {profile.goals.slice(0, 2).map((goal) => (
+                  <div key={goal.id} className="bg-gray-50 p-2 rounded-md">
+                    <div className="flex justify-between items-center mb-1">
+                      <p className="text-sm font-medium">{goal.title}</p>
+                      <span className="text-xs text-gray-500">
+                        {goal.progress}%
+                      </span>
+                    </div>
+                    <div className="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-sakha-blue rounded-full"
+                        style={{ width: `${goal.progress}%` }}
+                      ></div>
+                    </div>
                   </div>
-                  <div className="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-sakha-blue rounded-full"
-                      style={{ width: `${goal.progress}%` }}
-                    ></div>
-                  </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </CardContent>
     </Card>

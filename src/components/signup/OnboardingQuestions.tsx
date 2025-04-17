@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { X } from "lucide-react";
 import { motion } from "framer-motion";
 
-import { UserRole } from "./OnboardingContext";
+import { UserRole } from "@/types/user/base";
 import QuestionStep from "./onboarding/QuestionStep";
 import ProgressBar from "./onboarding/ProgressBar";
 import QuestionNavigation from "./onboarding/QuestionNavigation";

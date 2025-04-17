@@ -8,8 +8,8 @@ import SentimentStep from "@/components/signup/steps/SentimentStep";
 import HabitsStep from "@/components/signup/steps/HabitsStep";
 import InterestsStep from "@/components/signup/steps/InterestsStep";
 import SignupStep from "@/components/signup/steps/SignupStep";
-import { OnboardingStep, UserRole } from "./OnboardingContext";
-import { PersonalityType, MoodType } from "@/types/user/base";
+import { OnboardingStep } from "./OnboardingContext";
+import { PersonalityType, MoodType, UserRole } from "@/types/user/base";
 
 interface StepRendererProps {
   step: OnboardingStep;
