@@ -1,75 +1,71 @@
 
-// Create or update the base.ts file with additional properties
-
+/**
+ * Enum for user roles in the system
+ */
 export enum UserRole {
-  Student = "Student",
-  Employee = "Employee",
-  Doctor = "Doctor",
-  Founder = "Founder",
-  Admin = "Admin"
+  Student = "student",
+  Employee = "employee",
+  Doctor = "doctor",
+  Founder = "founder",
+  Admin = "admin"
 }
 
-export enum MoodType {
-  Energetic = "Energetic",
-  Balanced = "Balanced",
-  Distracted = "Distracted",
-  Tired = "Tired",
-  Anxious = "Anxious",
-  // Adding additional mood types that are used in components
-  Happy = "happy",
-  Okay = "okay",
-  Focused = "focused",
-  Overwhelmed = "overwhelmed",
-  Sad = "sad",
-  Motivated = "motivated",
-  Curious = "curious",
-  Neutral = "neutral",
-  Stressed = "stressed"
-}
+/**
+ * Types of moods a user can select
+ */
+export type MoodType = 
+  | "motivated"
+  | "curious" 
+  | "neutral" 
+  | "tired" 
+  | "stressed" 
+  | "focused" 
+  | "happy" 
+  | "okay" 
+  | "overwhelmed" 
+  | "sad";
 
-export enum PersonalityType {
-  Analytical = "Analytical",
-  Creative = "Creative",
-  Practical = "Practical",
-  Social = "Social",
-  Independent = "Independent",
-  // Add these personality types that are used in the profiles
-  StrategicThinker = "Strategic Thinker",
-  AnalyticalProblemSolver = "Analytical Problem Solver",
-  CreativeBuilder = "Creative Builder"
-}
+/**
+ * Types of personalities a user can have
+ */
+export type PersonalityType = 
+  | "analytical" 
+  | "creative" 
+  | "practical" 
+  | "social" 
+  | "independent";
 
+/**
+ * Subscription type
+ */
 export enum SubscriptionType {
+  Free = "free",
   Basic = "basic",
   Premium = "premium",
-  Pro = "pro"
+  Enterprise = "enterprise"
 }
 
+/**
+ * Base user profile type
+ */
 export interface UserProfileType {
   id: string;
   name: string;
   email: string;
-  phoneNumber: string;
-  avatar?: string;
   role: UserRole;
-  personalityType?: PersonalityType;
-  goals: Array<{id: string; title: string; progress: number; description?: string; status?: string; dueDate?: string; targetDate?: Date}>;
+  createdAt?: string;
+  updatedAt?: string;
+  // Additional properties
+  personalityType?: string;
+  subscription?: SubscriptionType;
   joinDate?: string;
   lastActive?: string;
-  bio?: string;
-  subscription?: SubscriptionType;
-  areasOfInterest?: Array<{id: string; name: string; level: string}>;
-  
-  // Extended properties for student profile
-  location?: string;
-  educationLevel?: string;
-  schoolName?: string;
-  dateOfBirth?: string;
-  studyStreak?: number;
-  quizzesTaken?: number;
-  quizPerformance?: number;
-  syllabusCoverage?: number;
-  examPreparation?: string;
+  phoneNumber?: string;
+  areasOfInterest?: Array<{id: string, name: string, level: string}>;
+  goals: Array<{id: string, title: string, description?: string, progress: number, status?: string, dueDate?: string, targetDate?: Date}>;
   loginCount?: number;
   completedOnboarding?: boolean;
+  examPreparation?: string;
+  bio?: string;
+  avatar?: string;
 }

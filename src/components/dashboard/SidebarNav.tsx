@@ -13,62 +13,13 @@ import {
 import { cn } from "@/lib/utils";
 import { SidebarNavProps } from "./types/sidebar";
 import { SidebarAvatar } from "./SidebarAvatar";
-import { adminNavItems, studentNavItems, employeeNavItems, founderNavItems, doctorNavItems, NavItem } from "./SidebarNavRoutes";
+import { SidebarNavRoutes } from "./SidebarNavRoutes";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 const SidebarNav = ({ userType, userName = "User" }: SidebarNavProps) => {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const isMobile = useIsMobile();
-
-  // Create a component for the SidebarNavRoutes
-  const SidebarNavRoutes = ({ userType, collapsed, onMobileClose }: { 
-    userType: string; 
-    collapsed: boolean;
-    onMobileClose: () => void;
-  }) => {
-    // Get the appropriate navigation items based on user type
-    const getNavItems = (): NavItem[] => {
-      switch (userType.toLowerCase()) {
-        case "student":
-          return studentNavItems;
-        case "employee":
-          return employeeNavItems;
-        case "founder":
-          return founderNavItems;
-        case "doctor":
-          return doctorNavItems;
-        case "admin":
-          return adminNavItems;
-        default:
-          return studentNavItems;
-      }
-    };
-    
-    const navItems = getNavItems();
-    
-    return (
-      <div className="px-3 py-2">
-        <div className="space-y-1">
-          {navItems.map((item) => (
-            <Link
-              key={item.title}
-              to={item.href}
-              onClick={onMobileClose}
-              className={`flex items-center py-2 px-3 text-sm rounded-md transition-colors ${
-                window.location.pathname === item.href
-                  ? "bg-accent text-accent-foreground"
-                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
-              }`}
-            >
-              <span className="mr-3">{item.icon}</span>
-              {!collapsed && <span>{item.title}</span>}
-            </Link>
-          ))}
-        </div>
-      </div>
-    );
-  };
 
   return (
     <>

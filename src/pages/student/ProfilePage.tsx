@@ -1,13 +1,11 @@
 
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React from "react";
 import MainLayout from "@/components/layouts/MainLayout";
 import StudentProfile from "@/pages/dashboard/student/StudentProfile";
 import { useUserProfile } from "@/hooks/useUserProfile";
-import { UserRole } from "@/types/user/base";
 
 const ProfilePage = () => {
-  const { userProfile, loading } = useUserProfile(UserRole.Student);
+  const { userProfile, loading } = useUserProfile();
 
   return (
     <MainLayout>

@@ -40,7 +40,7 @@ const SignUpContent = () => {
     console.log("Current onboarding data:", onboardingData);
     
     // Check if we've completed signup and should move to dashboard/onboarding
-    if (step === "signup" && onboardingData.role) { // Changed from "completed" to "signup"
+    if (step === "completed" && onboardingData.name && onboardingData.phoneNumber) {
       console.log("Signup completed, navigating to dashboard/student");
       
       // Make sure we set the completedOnboarding flag to false to ensure the onboarding flow shows up

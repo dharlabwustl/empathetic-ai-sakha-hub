@@ -2,24 +2,25 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './App.css';
 import SignIn from './pages/SignIn';
 import SignUp from './pages/SignUp';
-import Index from './pages/Index'; // Changed from LandingPage to Index
-import ProtectedRoute from './components/common/ProtectedRoute';
-import { Toaster } from '@/components/ui/toaster';
-import AdminRouteGuard from './components/admin/AdminRouteGuard';
+import LandingPage from './pages/LandingPage';
+import AdminDashboard from './pages/dashboard/AdminDashboard';
 import StudentDashboard from './pages/dashboard/StudentDashboard';
 import EmployeeDashboard from './pages/dashboard/EmployeeDashboard';
 import DoctorDashboard from './pages/dashboard/DoctorDashboard';
 import FounderDashboard from './pages/dashboard/FounderDashboard';
-import ProfilePage from './pages/student/ProfilePage'; // Fixed path
+import ProfilePage from './pages/dashboard/student/ProfilePage';
 import StudyProgress from './pages/dashboard/StudyProgress';
 import NotFound from './pages/NotFound';
+import { Toaster } from '@/components/ui/toaster';
+import ProtectedRoute from './components/common/ProtectedRoute';
+import AdminRouteGuard from './components/admin/AdminRouteGuard';
 
 function App() {
   return (
     <Router>
       <div className="min-h-screen">
         <Routes>
-          <Route path="/" element={<Index />} />
+          <Route path="/" element={<LandingPage />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/signin" element={<SignIn />} />
           
@@ -28,8 +29,7 @@ function App() {
             path="/dashboard/admin/*" 
             element={
               <AdminRouteGuard>
-                {/* Placeholder for admin dashboard until it's implemented */}
-                <div>Admin Dashboard</div>
+                <AdminDashboard />
               </AdminRouteGuard>
             } 
           />

@@ -4,7 +4,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { handleNewUser } from "@/pages/dashboard/student/utils/UserSessionManager";
 import { useKpiTracking } from "@/hooks/useKpiTracking";
-import { UserRole, UserProfileType } from "@/types/user/base";
+import { UserRole } from "@/types/user/base";
 
 export const useStudentDashboard = () => {
   const [loading, setLoading] = useState(true);
@@ -89,12 +89,12 @@ export const useStudentDashboard = () => {
         }
         
         if (userProfile && !shouldShowOnboarding) {
-          const currentLoginCount = userProfile.loginCount ?? 0;
+          const currentLoginCount = userProfile.loginCount || 0;
           
           if (!sessionStorage.getItem('session_active')) {
             updateUserProfile({
               loginCount: currentLoginCount + 1
-            } as Partial<UserProfileType>);
+            } as Partial<typeof userProfile>);
             
             sessionStorage.setItem('session_active', 'true');
           }

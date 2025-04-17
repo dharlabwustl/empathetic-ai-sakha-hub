@@ -1,7 +1,7 @@
 
 // Correcting the mock data for founder profile
 import { FounderProfile } from "@/types/user";
-import { UserRole, SubscriptionType, PersonalityType } from "@/types/user/base";
+import { UserRole, SubscriptionType } from "@/types/user/base";
 import { v4 as uuidv4 } from "uuid";
 
 export const mockFounderProfile: FounderProfile = {
@@ -10,7 +10,7 @@ export const mockFounderProfile: FounderProfile = {
   email: "priya.mehta@edumatch.com",
   phoneNumber: "+919876543212",
   role: UserRole.Founder,
-  personalityType: PersonalityType.CreativeBuilder,
+  personalityType: "Creative Builder",
   subscription: SubscriptionType.Premium,
   joinDate: "2024-12-05",
   lastActive: "2025-04-07",
@@ -33,7 +33,8 @@ export const mockFounderProfile: FounderProfile = {
       description: "Raise $1.5M in Series A funding",
       progress: 35,
       status: "in-progress",
-      dueDate: "2025-09-30"
+      dueDate: "2025-09-30",
+      targetDate: new Date("2025-09-30")
     },
     {
       id: uuidv4(),
@@ -41,7 +42,8 @@ export const mockFounderProfile: FounderProfile = {
       description: "Reach 50,000 active users",
       progress: 60,
       status: "in-progress",
-      dueDate: "2025-06-15"
+      dueDate: "2025-06-15",
+      targetDate: new Date("2025-06-15")
     }
   ],
   areasOfInterest: [

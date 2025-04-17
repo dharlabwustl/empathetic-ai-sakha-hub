@@ -1,112 +1,64 @@
 
 import { MoodType } from "@/types/user/base";
 
+// Utility function to get a CSS class name from a mood
+export const getMoodClassName = (mood?: MoodType): string => {
+  if (!mood) return '';
+  
+  // Make sure we only use valid CSS class names (no spaces, no emojis)
+  return `mood-${mood}`;
+};
+
+// Get display name for mood
 export const getMoodDisplayName = (mood?: MoodType): string => {
-  if (!mood) return "Log Mood";
+  if (!mood) return "Log Today's Mood";
   
-  // Convert from enum to display name
-  switch (mood) {
-    case MoodType.Energetic:
-      return "Energetic";
-    case MoodType.Balanced:
-      return "Balanced";
-    case MoodType.Distracted:
-      return "Distracted";
-    case MoodType.Tired:
-      return "Tired";
-    case MoodType.Anxious:
-      return "Anxious";
-    case MoodType.Happy:
-      return "Happy";
-    case MoodType.Okay:
-      return "Okay";
-    case MoodType.Focused:
-      return "Focused";
-    case MoodType.Overwhelmed:
-      return "Overwhelmed";
-    case MoodType.Sad:
-      return "Sad";
-    case MoodType.Motivated:
-      return "Motivated";
-    case MoodType.Curious:
-      return "Curious";
-    case MoodType.Neutral:
-      return "Neutral";
-    case MoodType.Stressed:
-      return "Stressed";
-    default:
-      return "Unknown";
-  }
+  const moodMap: Record<string, string> = {
+    motivated: "Motivated",
+    curious: "Curious",
+    neutral: "Neutral",
+    tired: "Tired",
+    stressed: "Stressed",
+    focused: "Focused",
+    happy: "Happy",
+    okay: "Okay",
+    overwhelmed: "Overwhelmed",
+    sad: "Sad"
+  };
+  
+  return moodMap[mood] || "Log Today's Mood";
 };
 
+// Get mood color based on mood type
 export const getMoodColor = (mood?: MoodType): string => {
-  if (!mood) return "bg-gray-50 text-gray-500";
+  if (!mood) return "bg-purple-100 text-purple-700 hover:bg-purple-200 dark:bg-purple-900/30 dark:text-purple-300";
   
-  switch (mood) {
-    case MoodType.Energetic:
-    case MoodType.Happy:
-    case MoodType.Motivated:
-      return "bg-green-50 text-green-600";
-    case MoodType.Balanced:
-    case MoodType.Focused:
-    case MoodType.Okay:
-      return "bg-blue-50 text-blue-600";
-    case MoodType.Distracted:
-    case MoodType.Neutral:
-      return "bg-yellow-50 text-yellow-600";
-    case MoodType.Tired:
-    case MoodType.Anxious:
-    case MoodType.Stressed:
-      return "bg-orange-50 text-orange-600";
-    case MoodType.Overwhelmed:
-    case MoodType.Sad:
-      return "bg-red-50 text-red-600";
-    default:
-      return "bg-gray-50 text-gray-500";
-  }
+  const moodColorMap: Record<string, string> = {
+    motivated: "bg-orange-100 text-orange-700 hover:bg-orange-200 dark:bg-orange-900/30 dark:text-orange-300",
+    curious: "bg-blue-100 text-blue-700 hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-300",
+    neutral: "bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300",
+    tired: "bg-amber-100 text-amber-700 hover:bg-amber-200 dark:bg-amber-900/30 dark:text-amber-300",
+    stressed: "bg-red-100 text-red-700 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-300",
+    focused: "bg-emerald-100 text-emerald-700 hover:bg-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-300",
+    happy: "bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-300",
+    okay: "bg-blue-100 text-blue-700 hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-300",
+    overwhelmed: "bg-purple-100 text-purple-700 hover:bg-purple-200 dark:bg-purple-900/30 dark:text-purple-300",
+    sad: "bg-indigo-100 text-indigo-700 hover:bg-indigo-200 dark:bg-indigo-900/30 dark:text-indigo-300"
+  };
+  
+  return moodColorMap[mood] || "bg-purple-100 text-purple-700 hover:bg-purple-200 dark:bg-purple-900/30 dark:text-purple-300";
 };
 
-export const getMoodToastContent = (mood: MoodType): string => {
-  switch (mood) {
-    case MoodType.Energetic:
-    case MoodType.Happy:
-    case MoodType.Motivated:
-      return "Great mood! This is a perfect time to tackle challenging topics.";
-    case MoodType.Balanced:
-    case MoodType.Focused:
-      return "You're in a balanced state. Good time for steady progress on your tasks.";
-    case MoodType.Okay:
-    case MoodType.Neutral:
-      return "You're feeling neutral. Consider starting with something interesting to boost your mood.";
-    case MoodType.Distracted:
-      return "Feeling distracted? Try the Pomodoro technique - 25 minutes of focus followed by a 5-minute break.";
-    case MoodType.Tired:
-      return "You seem tired. Consider a short 15-minute power nap or a brief walk outside.";
-    case MoodType.Anxious:
-    case MoodType.Stressed:
-    case MoodType.Overwhelmed:
-      return "Take a few deep breaths. Start with something simple to build momentum.";
-    case MoodType.Sad:
-      return "It's okay to not feel your best. Take care of yourself first - maybe try a mood-boosting activity.";
-    default:
-      return "Mood logged! We'll personalize your experience based on how you're feeling.";
-  }
+// Additional mood utility functions that might be imported elsewhere
+export const applyMoodTheme = (mood?: MoodType): void => {
+  // Implementation goes here
+  console.log(`Applying mood theme for: ${mood}`);
 };
 
-export const applyMoodTheme = (mood: MoodType): void => {
-  // This function would apply CSS variables or theme changes based on user mood
-  console.log(`Applying theme for mood: ${mood}`);
-  // Implementation would depend on your theming system
+export const getMoodToastContent = (mood?: MoodType): string => {
+  return `Your mood has been set to ${getMoodDisplayName(mood)}`;
 };
 
 export const saveMoodToLocalStorage = (mood: MoodType): void => {
   localStorage.setItem('currentMood', mood);
-  
-  // Also save to userData if it exists
-  const userData = localStorage.getItem('userData');
-  if (userData) {
-    const parsedData = JSON.parse(userData);
-    parsedData.mood = mood;
-    localStorage.setItem('userData', JSON.stringify(parsedData));
-  }
 };

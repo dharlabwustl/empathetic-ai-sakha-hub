@@ -1,11 +1,15 @@
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useStudentDashboard } from "@/hooks/useStudentDashboard";
 import OnboardingFlow from "@/components/dashboard/student/OnboardingFlow";
-import DashboardLoading from "./DashboardLoading";
-import DashboardLayout from "./DashboardLayout";
+import DashboardLoading from "@/pages/dashboard/student/DashboardLoading";
+import DashboardLayout from "@/pages/dashboard/student/DashboardLayout";
+import SplashScreen from "@/components/dashboard/student/SplashScreen";
 
 const StudentDashboard = () => {
+  const [showSplash, setShowSplash] = useState(true);
+  const [currentMood, setCurrentMood] = useState<'sad' | 'neutral' | 'happy' | 'motivated' | undefined>(undefined);
+  
   const {
     loading,
     userProfile,
@@ -19,6 +23,8 @@ const StudentDashboard = () => {
     kpis,
     nudges,
     features,
+    lastActivity,
+    suggestedNextAction,
     markNudgeAsRead,
     handleTabChange,
     handleSkipTour,
@@ -30,11 +36,51 @@ const StudentDashboard = () => {
     toggleTabsNav
   } = useStudentDashboard();
 
+  useEffect(() => {
+    // Check if the user has seen the splash screen in this session
+    const hasSeen = sessionStorage.getItem("hasSeenSplash");
+    
+    // Try to get saved mood from local storage
+    const savedUserData = localStorage.getItem("userData");
+    if (savedUserData) {
+      const parsedData = JSON.parse(savedUserData);
+      if (parsedData.mood) {
+        setCurrentMood(parsedData.mood);
+      }
+    }
+    
+    if (hasSeen) {
+      setShowSplash(false);
+    }
+  }, []);
+  
+  const handleSplashComplete = () => {
+    setShowSplash(false);
+    // Mark that the user has seen the splash screen in this session
+    sessionStorage.setItem("hasSeenSplash", "true");
+    
+    // Save a default optimistic mood if none is set
+    if (!currentMood) {
+      setCurrentMood('motivated');
+      const userData = localStorage.getItem("userData");
+      if (userData) {
+        const parsedData = JSON.parse(userData);
+        parsedData.mood = 'motivated';
+        localStorage.setItem("userData", JSON.stringify(parsedData));
+      }
+    }
+  };
+
+  // Show splash screen if needed
+  if (showSplash) {
+    return <SplashScreen onComplete={handleSplashComplete} mood={currentMood} />;
+  }
+
   if (loading || !userProfile) {
     return <DashboardLoading />;
   }
 
-  // Show onboarding flow for first-time users
+  // Show onboarding flow only for users who haven't completed it
   if (showOnboarding) {
     // Make sure we have a goal to work with
     const defaultGoal = "IIT-JEE";
@@ -49,7 +95,6 @@ const StudentDashboard = () => {
     );
   }
 
-  // Using string literals for currentMood to fix type error
   return (
     <DashboardLayout
       userProfile={userProfile}
@@ -68,6 +113,9 @@ const StudentDashboard = () => {
       onCompleteTour={handleCompleteTour}
       showStudyPlan={showStudyPlan}
       onCloseStudyPlan={handleCloseStudyPlan}
+      lastActivity={lastActivity}
+      suggestedNextAction={suggestedNextAction}
+      currentMood={currentMood}
     />
   );
 };

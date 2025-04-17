@@ -22,16 +22,16 @@ const MoodSelectionDialog: React.FC<MoodSelectionDialogProps> = ({
   onSelectMood,
 }) => {
   const moods: Array<{ type: MoodType; icon: React.ReactNode; label: string }> = [
-    { type: MoodType.Motivated, icon: <Sparkles className="h-6 w-6" />, label: "Motivated" },
-    { type: MoodType.Curious, icon: <Smile className="h-6 w-6" />, label: "Curious" },
-    { type: MoodType.Neutral, icon: <ThumbsUp className="h-6 w-6" />, label: "Neutral" },
-    { type: MoodType.Tired, icon: <Battery className="h-6 w-6" />, label: "Tired" },
-    { type: MoodType.Stressed, icon: <Wind className="h-6 w-6" />, label: "Stressed" },
-    { type: MoodType.Focused, icon: <Target className="h-6 w-6" />, label: "Focused" },
-    { type: MoodType.Happy, icon: <Heart className="h-6 w-6" />, label: "Happy" },
-    { type: MoodType.Okay, icon: <Clock className="h-6 w-6" />, label: "Okay" },
-    { type: MoodType.Overwhelmed, icon: <AlertCircle className="h-6 w-6" />, label: "Overwhelmed" },
-    { type: MoodType.Sad, icon: <Cloud className="h-6 w-6" />, label: "Sad" },
+    { type: "motivated", icon: <Sparkles className="h-6 w-6" />, label: "Motivated" },
+    { type: "curious", icon: <Smile className="h-6 w-6" />, label: "Curious" },
+    { type: "neutral", icon: <ThumbsUp className="h-6 w-6" />, label: "Neutral" },
+    { type: "tired", icon: <Battery className="h-6 w-6" />, label: "Tired" },
+    { type: "stressed", icon: <Wind className="h-6 w-6" />, label: "Stressed" },
+    { type: "focused", icon: <Target className="h-6 w-6" />, label: "Focused" },
+    { type: "happy", icon: <Heart className="h-6 w-6" />, label: "Happy" },
+    { type: "okay", icon: <Clock className="h-6 w-6" />, label: "Okay" },
+    { type: "overwhelmed", icon: <AlertCircle className="h-6 w-6" />, label: "Overwhelmed" },
+    { type: "sad", icon: <Cloud className="h-6 w-6" />, label: "Sad" },
   ];
 
   // Animation variants
