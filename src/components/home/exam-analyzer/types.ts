@@ -12,6 +12,12 @@ export interface TestResults {
   improvements: string[];
 }
 
+export interface Recommendation {
+  topic: string;
+  recommendation: string;
+  priority: 'high' | 'medium' | 'low';
+}
+
 export interface ExamResults {
   stress: TestResults;
   readiness: TestResults;
@@ -25,11 +31,7 @@ export interface ExamResults {
     improvements: string[];
   };
   confidenceMappings?: ConfidenceMapping[];
-  recommendations?: Array<{
-    topic: string;
-    recommendation: string;
-    priority: 'high' | 'medium' | 'low';
-  }>;
+  recommendations?: Recommendation[];
 }
 
 export type TestType = 'intro' | 'stress' | 'readiness' | 'concept' | 'report';

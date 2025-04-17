@@ -7,10 +7,16 @@ import { Separator } from '@/components/ui/separator';
 import { Link } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 
+interface Recommendation {
+  topic: string;
+  recommendation: string;
+  priority: 'high' | 'medium' | 'low';
+}
+
 interface StudyPlanSectionProps {
-  recommendations: string[];
+  recommendations?: Recommendation[] | string[];
   onStartOver: () => void;
-  examType?: string; // Added this prop
+  examType?: string;
 }
 
 const StudyPlanSection: React.FC<StudyPlanSectionProps> = ({ 
@@ -18,6 +24,24 @@ const StudyPlanSection: React.FC<StudyPlanSectionProps> = ({
   onStartOver = () => {},
   examType 
 }) => {
+  // Function to render a recommendation (handling both string and object types)
+  const renderRecommendation = (rec: string | Recommendation, index: number) => {
+    const text = typeof rec === 'string' ? rec : rec.recommendation;
+    
+    return (
+      <motion.li 
+        key={index} 
+        className="flex items-start"
+        initial={{ opacity: 0, x: -5 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 0.1 * index, duration: 0.3 }}
+      >
+        <CheckCircle className="h-5 w-5 text-blue-500 mr-2 flex-shrink-0" />
+        <span className="text-sm">{text}</span>
+      </motion.li>
+    );
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -37,18 +61,11 @@ const StudyPlanSection: React.FC<StudyPlanSectionProps> = ({
       </div>
       
       <ul className="space-y-3 mb-6">
-        {(recommendations.length > 0 ? recommendations : ['Study more consistently', 'Focus on weak areas', 'Practice with mock exams', 'Review core concepts', 'Use flashcards for quick revision']).slice(0, 5).map((recommendation, i) => (
-          <motion.li 
-            key={i} 
-            className="flex items-start"
-            initial={{ opacity: 0, x: -5 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.1 * i, duration: 0.3 }}
-          >
-            <CheckCircle className="h-5 w-5 text-blue-500 mr-2 flex-shrink-0" />
-            <span className="text-sm">{recommendation}</span>
-          </motion.li>
-        ))}
+        {recommendations.length > 0 
+          ? recommendations.slice(0, 5).map((rec, i) => renderRecommendation(rec, i))
+          : ['Study more consistently', 'Focus on weak areas', 'Practice with mock exams', 'Review core concepts', 'Use flashcards for quick revision']
+              .map((rec, i) => renderRecommendation(rec, i))
+        }
       </ul>
 
       <Card className="mt-6 p-6 bg-gradient-to-br from-violet-500/10 to-blue-500/10 dark:from-violet-900/20 dark:to-blue-900/20 rounded-xl border border-violet-100 dark:border-violet-800/50 shadow-lg">
