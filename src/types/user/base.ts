@@ -36,6 +36,16 @@ export type PersonalityType =
   | "independent";
 
 /**
+ * Subscription type
+ */
+export enum SubscriptionType {
+  Free = "free",
+  Basic = "basic",
+  Premium = "premium",
+  Enterprise = "enterprise"
+}
+
+/**
  * Base user profile type
  */
 export interface UserProfileType {
@@ -59,12 +69,3 @@ export interface UserProfileType {
   bio?: string;
   avatar?: string;
 }
-
-/**
- * Subscription type
- */
-export type SubscriptionType = 
-  | "free" 
-  | "basic" 
-  | "premium" 
-  | "enterprise";
