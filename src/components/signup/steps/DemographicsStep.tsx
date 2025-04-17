@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,19 +11,6 @@ import {
 } from "@/components/ui/select";
 import { UserRole } from "../OnboardingContext";
 import { Checkbox } from "@/components/ui/checkbox";
-import { 
-  Form, 
-  FormControl, 
-  FormField, 
-  FormItem, 
-  FormLabel 
-} from "@/components/ui/form";
-import { useForm } from "react-hook-form";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Button as ShadcnButton } from "@/components/ui/button";
-import { Check, ChevronsUpDown } from "lucide-react";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
-import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 
 // Data arrays
@@ -85,24 +71,19 @@ const routines = [
   "Study before exams only"
 ];
 
-const scienceSubjects = ["Physics", "Chemistry", "Biology", "Mathematics"];
-const commerceSubjects = ["Accountancy", "Business Studies", "Economics", "Mathematics"];
-const artsSubjects = ["History", "Geography", "Political Science", "Psychology", "Sociology", "Economics"];
-
 interface DemographicsStepProps {
   role?: UserRole;
+  goal?: string;
   onSubmit: (formData: Record<string, string>) => void;
 }
 
-const DemographicsStep: React.FC<DemographicsStepProps> = ({ role, onSubmit }) => {
+const DemographicsStep: React.FC<DemographicsStepProps> = ({ role, goal, onSubmit }) => {
   const [selectedRoutines, setSelectedRoutines] = useState<string[]>([]);
-  const [selectedSubjects, setSelectedSubjects] = useState<string[]>([]);
   const [selectedGrade, setSelectedGrade] = useState<string>("");
   const [customCity, setCustomCity] = useState<string>("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordMatch, setPasswordMatch] = useState(true);
-  const form = useForm();
   
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPassword(e.target.value);
@@ -124,22 +105,6 @@ const DemographicsStep: React.FC<DemographicsStepProps> = ({ role, onSubmit }) =
     );
   };
 
-  const toggleSubject = (subject: string) => {
-    setSelectedSubjects(prev => 
-      prev.includes(subject) 
-        ? prev.filter(item => item !== subject) 
-        : [...prev, subject]
-    );
-  };
-
-  // Get subjects based on selected grade
-  const getSubjectsForGrade = useCallback(() => {
-    if (selectedGrade.includes("Science")) return scienceSubjects;
-    if (selectedGrade.includes("Commerce")) return commerceSubjects;
-    if (selectedGrade.includes("Arts")) return artsSubjects;
-    return [...scienceSubjects, ...commerceSubjects, ...artsSubjects];
-  }, [selectedGrade]);
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -153,13 +118,9 @@ const DemographicsStep: React.FC<DemographicsStepProps> = ({ role, onSubmit }) =
       data[key] = value as string;
     });
 
-    // Add the selected routines and subjects as comma-separated values
+    // Add the selected routines as comma-separated values
     if (selectedRoutines.length > 0) {
       data.dailyRoutine = selectedRoutines.join(", ");
-    }
-    
-    if (selectedSubjects.length > 0) {
-      data.preferredSubjects = selectedSubjects.join(", ");
     }
 
     // If using custom city, add it to the data
@@ -167,13 +128,24 @@ const DemographicsStep: React.FC<DemographicsStepProps> = ({ role, onSubmit }) =
       data.location = customCity;
     }
     
+    // Add goal if it was previously selected
+    if (goal) {
+      data.examGoal = goal;
+    }
+    
     onSubmit(data);
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      {role === "Student" && (
+      {role === UserRole.Student && (
         <>
+          {goal && (
+            <div className="mb-4 p-2 bg-blue-50 dark:bg-blue-900/30 rounded-lg border border-blue-200 dark:border-blue-800">
+              <p className="text-sm text-blue-700 dark:text-blue-300 font-medium">Selected Goal: {goal}</p>
+            </div>
+          )}
+          
           <div>
             <Label htmlFor="name">Full Name</Label>
             <Input 
@@ -221,26 +193,24 @@ const DemographicsStep: React.FC<DemographicsStepProps> = ({ role, onSubmit }) =
           
           <div>
             <Label htmlFor="location">Location</Label>
-            <div className="relative">
-              <Select name="location" onValueChange={setCustomCity}>
-                <SelectTrigger className="bg-white dark:bg-gray-800">
-                  <SelectValue placeholder="Select your city" />
-                </SelectTrigger>
-                <SelectContent className="bg-white dark:bg-gray-800 max-h-60">
-                  {indianCities.map((city) => (
-                    <SelectItem key={city} value={city}>
-                      {city}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Input
-                className="mt-2"
-                placeholder="Or type your city if not listed"
-                value={customCity}
-                onChange={(e) => setCustomCity(e.target.value)}
-              />
-            </div>
+            <Select name="location" onValueChange={setCustomCity}>
+              <SelectTrigger className="bg-white dark:bg-gray-800">
+                <SelectValue placeholder="Select your city" />
+              </SelectTrigger>
+              <SelectContent className="bg-white dark:bg-gray-800 max-h-60">
+                {indianCities.map((city) => (
+                  <SelectItem key={city} value={city}>
+                    {city}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Input
+              className="mt-2"
+              placeholder="Or type your city if not listed"
+              value={customCity}
+              onChange={(e) => setCustomCity(e.target.value)}
+            />
           </div>
           
           <div>
@@ -332,47 +302,6 @@ const DemographicsStep: React.FC<DemographicsStepProps> = ({ role, onSubmit }) =
             </Select>
           </div>
 
-          <div>
-            <Label>Preferred Subjects</Label>
-            <div className="grid grid-cols-2 gap-2 mt-2">
-              {getSubjectsForGrade().map((subject) => (
-                <div key={subject} className="flex items-start space-x-2">
-                  <Checkbox 
-                    id={`subject-${subject}`} 
-                    checked={selectedSubjects.includes(subject)}
-                    onCheckedChange={() => toggleSubject(subject)}
-                  />
-                  <label 
-                    htmlFor={`subject-${subject}`} 
-                    className="text-sm leading-tight cursor-pointer"
-                  >
-                    {subject}
-                  </label>
-                </div>
-              ))}
-            </div>
-            {selectedSubjects.length > 0 && (
-              <div className="mt-2 flex flex-wrap gap-1">
-                {selectedSubjects.map(subject => (
-                  <Badge 
-                    key={subject} 
-                    variant="secondary" 
-                    className="flex items-center gap-1"
-                  >
-                    {subject}
-                    <button
-                      type="button" 
-                      className="rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 h-4 w-4 inline-flex items-center justify-center text-xs"
-                      onClick={() => toggleSubject(subject)}
-                    >
-                      ×
-                    </button>
-                  </Badge>
-                ))}
-              </div>
-            )}
-          </div>
-
           {/* Password fields moved to the end */}
           <div className="space-y-1">
             <Label htmlFor="password">Password</Label>
@@ -408,7 +337,7 @@ const DemographicsStep: React.FC<DemographicsStepProps> = ({ role, onSubmit }) =
         </>
       )}
       
-      {role === "Employee" && (
+      {role === UserRole.Employee && (
         <>
           <div>
             <Label htmlFor="jobRole">Job Role</Label>
@@ -425,7 +354,7 @@ const DemographicsStep: React.FC<DemographicsStepProps> = ({ role, onSubmit }) =
         </>
       )}
       
-      {role === "Doctor" && (
+      {role === UserRole.Doctor && (
         <>
           <div>
             <Label htmlFor="specialization">Specialization</Label>
@@ -442,7 +371,7 @@ const DemographicsStep: React.FC<DemographicsStepProps> = ({ role, onSubmit }) =
         </>
       )}
       
-      {role === "Founder" && (
+      {role === UserRole.Founder && (
         <>
           <div>
             <Label htmlFor="startupStage">Startup Stage</Label>

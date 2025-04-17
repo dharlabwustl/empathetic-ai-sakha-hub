@@ -4,7 +4,9 @@ import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import { UserRole, UserGoal, OnboardingStep } from "./OnboardingContext";
 import { getDemographicsQuestion } from "./utils/stepUtils";
-import authService from "@/services/auth/authService"; // Import auth service
+import authService from "@/services/auth/authService"; 
+import { getSubjectsForGoal } from "@/components/dashboard/student/onboarding/SubjectData";
+import { PersonalityType, MoodType } from "@/types/user/base";
 
 interface StepHandlerProps {
   onboardingData: any;
@@ -30,9 +32,9 @@ const StepHandler = ({
     setMessages([
       ...messages, 
       { content: role, isBot: false },
-      { content: getDemographicsQuestion(role), isBot: true }
+      { content: "Which exam are you preparing for?", isBot: true }
     ]);
-    setStep("demographics");
+    setStep("goal");
   };
   
   const handleSignupSubmit = async (formValues: { name: string; mobile: string; otp: string }) => {
@@ -45,7 +47,7 @@ const StepHandler = ({
         email: `${formValues.mobile}@sakha.ai`, // Use consistent email format based on mobile
         phoneNumber: formValues.mobile,
         password: formValues.otp, // Simplified password for easier login
-        role: (onboardingData.role || 'student').toLowerCase(), // Make sure role is lowercase
+        role: (onboardingData.role || 'Student').toLowerCase(), // Make sure role is lowercase
       };
       
       console.log("Registering user:", userData);
@@ -110,29 +112,24 @@ const StepHandler = ({
         
         setOnboardingData({ ...onboardingData, ...data });
         
-        let nextQuestion = "What's your primary goal?";
-        if (onboardingData.role === "Student") {
-          nextQuestion = "Which exam are you preparing for?";
-        }
-        
         setMessages([
           ...messages, 
           { content: userMessage, isBot: false },
-          { content: nextQuestion, isBot: true }
-        ]);
-        setStep("goal");
-      },
-      handleGoalSelect: (goal: UserGoal) => {
-        setOnboardingData({ ...onboardingData, goals: [goal] });
-        setMessages([
-          ...messages, 
-          { content: goal, isBot: false },
           { content: "Let's understand your personality type with a short quiz. Which of these best describes your approach to learning?", isBot: true }
         ]);
         setStep("personality");
       },
-      handlePersonalitySelect: (personality: string) => {
-        setOnboardingData({ ...onboardingData, personality });
+      handleGoalSelect: (goal: UserGoal) => {
+        setOnboardingData({ ...onboardingData, goal });
+        setMessages([
+          ...messages, 
+          { content: goal, isBot: false },
+          { content: "Tell us more about yourself to personalize your learning experience.", isBot: true }
+        ]);
+        setStep("demographics");
+      },
+      handlePersonalitySelect: (personality: PersonalityType) => {
+        setOnboardingData({ ...onboardingData, personalityType: personality });
         setMessages([
           ...messages,
           { content: personality, isBot: false },
@@ -140,7 +137,7 @@ const StepHandler = ({
         ]);
         setStep("sentiment");
       },
-      handleMoodSelect: (mood: string) => {
+      handleMoodSelect: (mood: MoodType) => {
         setOnboardingData({ ...onboardingData, mood });
         setMessages([
           ...messages,
@@ -165,10 +162,16 @@ const StepHandler = ({
         userMessage = userMessage.slice(0, -2); // Remove trailing comma
         
         setOnboardingData({ ...onboardingData, ...cleanedHabits });
+        
+        // Get subjects based on selected exam goal
+        const suggestedSubjects = onboardingData.goal 
+          ? getSubjectsForGoal(onboardingData.goal)
+          : [];
+        
         setMessages([
           ...messages,
           { content: userMessage, isBot: false },
-          { content: "What are your main areas of interest? (e.g. Science, Math, Programming, Writing)", isBot: true }
+          { content: "Select your preferred subjects to study:", isBot: true }
         ]);
         setStep("interests");
       },

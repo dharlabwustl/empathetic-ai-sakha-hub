@@ -3,31 +3,32 @@ import React from "react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { motion } from "framer-motion";
+import { PersonalityType } from "@/types/user/base";
 
 interface PersonalityStepProps {
-  onPersonalitySelect: (personality: string) => void;
+  onPersonalitySelect: (personality: PersonalityType) => void;
 }
 
 const PersonalityStep: React.FC<PersonalityStepProps> = ({ onPersonalitySelect }) => {
   const personalityTypes = [
     {
-      type: "Strategic Thinker",
+      type: "analytical" as PersonalityType,
       description: "You approach problems methodically and enjoy planning ahead"
     },
     {
-      type: "Curious Creator",
+      type: "creative" as PersonalityType,
       description: "You love exploring new ideas and thinking outside the box"
     },
     {
-      type: "Focused Performer",
+      type: "practical" as PersonalityType,
       description: "You prefer to dive deep into a subject and master it completely"
     },
     {
-      type: "Analytical Planner",
-      description: "You enjoy breaking down complex problems into manageable parts"
+      type: "social" as PersonalityType,
+      description: "You enjoy breaking down complex problems and discussing with others"
     },
     {
-      type: "Intuitive Explorer",
+      type: "independent" as PersonalityType,
       description: "You rely on your instincts and adapt quickly to new situations"
     }
   ];

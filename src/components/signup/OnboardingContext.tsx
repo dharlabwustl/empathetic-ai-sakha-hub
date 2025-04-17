@@ -1,12 +1,13 @@
 
 import React, { createContext, useContext, useState } from "react";
+import { PersonalityType, MoodType, UserRole } from "@/types/user/base";
 
-export type UserRole = "Student" | "Employee" | "Doctor" | "Founder";
+export { UserRole };
 export type UserGoal = string;
 export type OnboardingStep = 
   | "role"
-  | "demographics"
   | "goal"
+  | "demographics"
   | "personality"
   | "sentiment"
   | "habits"
@@ -15,6 +16,7 @@ export type OnboardingStep =
 
 export interface OnboardingData {
   role?: UserRole;
+  goal?: string;
   age?: string;
   grade?: string;
   location?: string;
@@ -27,9 +29,8 @@ export interface OnboardingData {
   startupStage?: string;
   teamSize?: string;
   industry?: string;
-  goals?: UserGoal[];
-  personality?: string;
-  mood?: string;
+  personalityType?: PersonalityType;
+  mood?: MoodType;
   sleepPattern?: string;
   dailyRoutine?: string;
   stressManagement?: string;

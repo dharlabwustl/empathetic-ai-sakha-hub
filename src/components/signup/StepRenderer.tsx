@@ -9,6 +9,7 @@ import HabitsStep from "@/components/signup/steps/HabitsStep";
 import InterestsStep from "@/components/signup/steps/InterestsStep";
 import SignupStep from "@/components/signup/steps/SignupStep";
 import { OnboardingStep, UserRole } from "./OnboardingContext";
+import { PersonalityType, MoodType } from "@/types/user/base";
 
 interface StepRendererProps {
   step: OnboardingStep;
@@ -17,8 +18,8 @@ interface StepRendererProps {
     handleRoleSelect: (role: UserRole) => void;
     handleDemographicsSubmit: (data: Record<string, string>) => void;
     handleGoalSelect: (goal: string) => void;
-    handlePersonalitySelect: (personality: string) => void;
-    handleMoodSelect: (mood: string) => void;
+    handlePersonalitySelect: (personality: PersonalityType) => void;
+    handleMoodSelect: (mood: MoodType) => void;
     handleHabitsSubmit: (habits: Record<string, string>) => void;
     handleInterestsSubmit: (interests: string) => void;
     handleSignupSubmit: (formValues: { name: string; mobile: string; otp: string }) => void;
@@ -35,15 +36,16 @@ const StepRenderer: React.FC<StepRendererProps> = ({
   switch (step) {
     case "role":
       return <RoleStep onRoleSelect={handlers.handleRoleSelect} />;
-    case "demographics":
-      return <DemographicsStep 
-        role={onboardingData.role} 
-        onSubmit={handlers.handleDemographicsSubmit} 
-      />;
     case "goal":
       return <GoalStep 
         role={onboardingData.role} 
         onGoalSelect={handlers.handleGoalSelect} 
+      />;
+    case "demographics":
+      return <DemographicsStep 
+        role={onboardingData.role}
+        goal={onboardingData.goal}
+        onSubmit={handlers.handleDemographicsSubmit} 
       />;
     case "personality":
       return <PersonalityStep 
@@ -59,6 +61,7 @@ const StepRenderer: React.FC<StepRendererProps> = ({
       />;
     case "interests":
       return <InterestsStep 
+        examGoal={onboardingData.goal}
         onSubmit={handlers.handleInterestsSubmit} 
       />;
     case "signup":
