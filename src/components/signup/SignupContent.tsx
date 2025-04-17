@@ -5,13 +5,15 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
-  CardDescription
+  CardDescription,
+  CardFooter
 } from "@/components/ui/card";
 import ChatMessage from "@/components/signup/ChatMessage";
 import { useOnboarding } from "@/components/signup/OnboardingContext";
 import StepHandler from "@/components/signup/StepHandler";
 import StepRenderer from "@/components/signup/StepRenderer";
 import { motion, AnimatePresence } from "framer-motion";
+import { Sparkles } from "lucide-react";
 
 const SignUpContent = () => {
   const { 
@@ -83,21 +85,29 @@ const SignUpContent = () => {
         className="w-full max-w-3xl"
       >
         <Card className="w-full shadow-xl border-gray-200 overflow-hidden bg-white dark:bg-gray-900">
-          <CardHeader className="bg-gradient-to-r from-purple-600 to-violet-700 text-white">
-            <CardTitle className="text-2xl flex items-center">
-              <motion.img 
-                src="/lovable-uploads/6bd65589-a748-4b63-a28b-12521c233a7e.png" 
-                alt="Sakha AI Logo" 
-                className="w-10 h-10 mr-3" 
-                variants={logoVariants}
-                initial="hidden"
-                animate="visible"
-              />
-              Sakha AI Onboarding
-            </CardTitle>
-            <CardDescription className="text-purple-100">
-              Let's personalize your learning experience
-            </CardDescription>
+          <CardHeader className="bg-gradient-to-r from-purple-600 to-violet-700 text-white pb-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <motion.img 
+                  src="/lovable-uploads/6bd65589-a748-4b63-a28b-12521c233a7e.png" 
+                  alt="Sakha AI Logo" 
+                  className="w-12 h-12 mr-3" 
+                  variants={logoVariants}
+                  initial="hidden"
+                  animate="visible"
+                />
+                <div>
+                  <CardTitle className="text-2xl font-bold">Sakha AI Onboarding</CardTitle>
+                  <CardDescription className="text-purple-100 mt-1">
+                    Let's personalize your learning experience
+                  </CardDescription>
+                </div>
+              </div>
+              <div className="bg-white/10 text-white px-3 py-1 rounded-full text-sm flex items-center">
+                <Sparkles size={14} className="mr-1 text-yellow-300" />
+                AI-powered
+              </div>
+            </div>
           </CardHeader>
           <CardContent className="p-0">
             <div className="grid md:grid-cols-2">
@@ -129,6 +139,9 @@ const SignUpContent = () => {
               </div>
             </div>
           </CardContent>
+          <CardFooter className="bg-gray-50 dark:bg-gray-800/30 p-4 text-center text-sm text-gray-500">
+            Your data is secure and will only be used to personalize your learning experience
+          </CardFooter>
         </Card>
       </motion.div>
     </AnimatePresence>
