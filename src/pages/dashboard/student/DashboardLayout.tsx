@@ -187,7 +187,7 @@ const DashboardLayout = ({
           </motion.div>
         </motion.div>
 
-        {/* Surrounding Influences Section - Enhanced with new design */}
+        {/* Surrounding Influences Section - Enhanced with our redesigned component */}
         <SurroundingInfluencesSection 
           influenceMeterCollapsed={influenceMeterCollapsed}
           setInfluenceMeterCollapsed={setInfluenceMeterCollapsed}

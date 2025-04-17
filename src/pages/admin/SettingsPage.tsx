@@ -96,7 +96,7 @@ const SettingsPage = () => {
       console.error("Error downloading schema:", error);
       toast({
         title: "Error",
-        description: "Failed to generate database schema file.",
+        description: "Failed to download database schema.",
         variant: "destructive"
       });
     }

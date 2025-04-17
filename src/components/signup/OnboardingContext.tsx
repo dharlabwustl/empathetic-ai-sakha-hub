@@ -1,144 +1,151 @@
+import React, { createContext, useState, useContext, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 
-import React, { createContext, useContext, useState } from "react";
-import { PersonalityType, MoodType, UserRole } from "@/types/user/base";
-
-// Re-export UserRole from base.ts
-export { UserRole };
-export type UserGoal = string;
-export type OnboardingStep = 
-  | "role"
-  | "goal"
-  | "demographics"
-  | "personality"
-  | "sentiment"
-  | "habits"
-  | "interests"
-  | "signup"
-  | "complete";
-
-export interface OnboardingData {
-  role?: UserRole;
-  goal?: string;
-  age?: string;
-  grade?: string;
-  location?: string;
-  jobRole?: string;
-  seniorityLevel?: string;
-  domain?: string;
-  specialization?: string;
-  institution?: string;
-  research?: string;
-  startupStage?: string;
-  teamSize?: string;
-  industry?: string;
-  personalityType?: PersonalityType;
-  mood?: MoodType;
-  sleepPattern?: string;
-  dailyRoutine?: string;
-  stressManagement?: string;
-  focusDuration?: string;
-  studyPreference?: string;
-  interests?: string[] | string; // This can be either a string array or a string
-  name?: string; // Added name field
-  completedOnboarding?: boolean;
+// Define the types for the form data
+export interface OnboardingFormData {
+  examType: string;
+  examDate: Date | undefined;
+  studyHours: number;
+  studyTime: string;
+  studyPace: string;
+  subjects: string[];
+  interests: string[];
 }
 
-interface OnboardingContextType {
-  step: OnboardingStep;
-  setStep: React.Dispatch<React.SetStateAction<OnboardingStep>>;
-  onboardingData: OnboardingData;
-  setOnboardingData: React.Dispatch<React.SetStateAction<OnboardingData>>;
-  messages: { content: string; isBot: boolean }[];
-  setMessages: React.Dispatch<React.SetStateAction<{ content: string; isBot: boolean }[]>>;
-  validateFieldNotEmpty: (field: keyof OnboardingData) => boolean;
-  clearDuplicateEntries: () => void;
+// Define the context state type
+export interface OnboardingContextState {
+  step: number;
+  totalSteps: number;
+  formData: OnboardingFormData;
+  setStep: (step: number) => void;
+  nextStep: () => void;
+  prevStep: () => void;
+  updateFormData: (data: Partial<OnboardingFormData>) => void;
   completeOnboarding: () => void;
+  loading: boolean;
 }
 
-export const OnboardingContext = createContext<OnboardingContextType | undefined>(undefined);
+// Create the context with a default value
+const OnboardingContext = createContext<OnboardingContextState | undefined>(
+  undefined
+);
 
-export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [step, setStep] = useState<OnboardingStep>("role");
-  const [onboardingData, setOnboardingData] = useState<OnboardingData>({});
-  const [messages, setMessages] = useState([
-    { content: "Hi, I'm Sakha – your personal AI companion for learning, growth, and well-being. What best describes you?", isBot: true }
-  ]);
+// Custom hook to use the onboarding context
+export const useOnboarding = () => {
+  const context = useContext(OnboardingContext);
+  if (!context) {
+    throw new Error(
+      "useOnboarding must be used within a OnboardingContextProvider"
+    );
+  }
+  return context;
+};
 
-  // Helper function to validate if a field is empty
-  const validateFieldNotEmpty = (field: keyof OnboardingData) => {
-    const value = onboardingData[field];
-    return value !== undefined && value !== null && value !== "";
-  };
+// Create the context provider component
+export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
+  const [step, setStep] = useState(1);
+  const totalSteps = 7;
+  const [formData, setFormData] = useState<OnboardingFormData>({
+    examType: "",
+    examDate: undefined,
+    studyHours: 4,
+    studyTime: "morning",
+    studyPace: "balanced",
+    subjects: [],
+    interests: [],
+  });
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const { toast } = useToast();
 
-  // Helper function to clear duplicate entries by removing whitespace and normalizing
-  const clearDuplicateEntries = () => {
-    const cleanData = { ...onboardingData };
-    
-    // Clean text fields (trim whitespace)
-    Object.keys(cleanData).forEach(key => {
-      const fieldKey = key as keyof OnboardingData;
-      if (typeof cleanData[fieldKey] === 'string') {
-        cleanData[fieldKey] = (cleanData[fieldKey] as string).trim();
-      }
-    });
-    
-    // Clean arrays (remove duplicates)
-    if (cleanData.interests) {
-      if (Array.isArray(cleanData.interests)) {
-        cleanData.interests = Array.from(new Set(cleanData.interests.map(item => item.trim())));
-      } else if (typeof cleanData.interests === 'string') {
-        // Convert string to array of strings if needed
-        cleanData.interests = cleanData.interests.trim().split(',').map(item => item.trim()).filter(Boolean);
-      }
+  // Function to go to the next step
+  const nextStep = useCallback(() => {
+    setStep((prev) => Math.min(prev + 1, totalSteps));
+  }, [totalSteps]);
+
+  // Function to go to the previous step
+  const prevStep = useCallback(() => {
+    setStep((prev) => Math.max(prev - 1, 1));
+  }, []);
+
+  // Function to update the form data
+  const updateFormData = useCallback(
+    (data: Partial<OnboardingFormData>) => {
+      setFormData((prev) => ({ ...prev, ...data }));
+    },
+    []
+  );
+
+  // Function to complete the onboarding process
+  const completeOnboarding = useCallback(async () => {
+    setLoading(true);
+    try {
+      // Simulate API call
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      // Store data in local storage
+      localStorage.setItem("onboardingData", JSON.stringify(formData));
+
+      // Show success message
+      toast({
+        title: "Onboarding Complete!",
+        description: "Your preferences have been saved.",
+      });
+
+      // Redirect to dashboard
+      navigate("/dashboard/student");
+    } catch (error) {
+      console.error("Onboarding failed:", error);
+      toast({
+        title: "Error",
+        description: "Failed to complete onboarding.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
     }
-    
-    setOnboardingData(cleanData);
-  };
-  
-  // Function to mark onboarding as complete
-  const completeOnboarding = () => {
-    clearDuplicateEntries();
-    setOnboardingData({...onboardingData, completedOnboarding: true});
-    setStep("complete");
-    
-    // Store in localStorage for persistence
-    const userData = localStorage.getItem("userData");
-    if (userData) {
-      const parsedData = JSON.parse(userData);
-      localStorage.setItem("userData", JSON.stringify({
-        ...parsedData,
-        ...onboardingData,
-        completedOnboarding: true
-      }));
-    } else {
-      localStorage.setItem("userData", JSON.stringify({
-        ...onboardingData,
-        completedOnboarding: true
-      }));
-    }
+  }, [formData, navigate, toast]);
+
+  // Initial state for the context
+  const initialState: OnboardingContextState = {
+    step: 1,
+    totalSteps: 7,
+    formData: {
+      examType: "",
+      examDate: undefined,
+      studyHours: 4,
+      studyTime: "morning",
+      studyPace: "balanced",
+      subjects: [],
+      interests: [] as string[], // Fix the type error by explicitly typing as string[]
+    },
+    setStep: () => {},
+    nextStep: () => {},
+    prevStep: () => {},
+    updateFormData: () => {},
+    completeOnboarding: () => {},
+    loading: false,
   };
 
+  // Provide the context value
   return (
-    <OnboardingContext.Provider value={{
-      step,
-      setStep,
-      onboardingData,
-      setOnboardingData,
-      messages,
-      setMessages,
-      validateFieldNotEmpty,
-      clearDuplicateEntries,
-      completeOnboarding
-    }}>
+    <OnboardingContext.Provider
+      value={{
+        step,
+        totalSteps,
+        formData,
+        setStep,
+        nextStep,
+        prevStep,
+        updateFormData,
+        completeOnboarding,
+        loading,
+      }}
+    >
       {children}
     </OnboardingContext.Provider>
   );
-};
-
-export const useOnboarding = () => {
-  const context = useContext(OnboardingContext);
-  if (context === undefined) {
-    throw new Error("useOnboarding must be used within an OnboardingProvider");
-  }
-  return context;
 };
