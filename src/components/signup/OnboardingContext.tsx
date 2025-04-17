@@ -84,6 +84,9 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     // Clean arrays (remove duplicates)
     if (cleanData.interests && Array.isArray(cleanData.interests)) {
       cleanData.interests = Array.from(new Set(cleanData.interests.map(item => item.trim())));
+    } else if (cleanData.interests && typeof cleanData.interests === 'string') {
+      // Convert string to array of strings if needed
+      cleanData.interests = Array.from(new Set([(cleanData.interests as unknown as string).trim()]));
     }
     
     setOnboardingData(cleanData);
