@@ -19,8 +19,6 @@ const StudentDashboard = () => {
     kpis,
     nudges,
     features,
-    lastActivity,
-    suggestedNextAction,
     markNudgeAsRead,
     handleTabChange,
     handleSkipTour,
@@ -31,13 +29,6 @@ const StudentDashboard = () => {
     toggleSidebar,
     toggleTabsNav
   } = useStudentDashboard();
-
-  // Mock peer comparison data - in a real app this would come from an API
-  const peerComparisonData = {
-    position: 42,
-    totalPeers: 350,
-    percentile: 88
-  };
 
   if (loading || !userProfile) {
     return <DashboardLoading />;
@@ -66,7 +57,6 @@ const StudentDashboard = () => {
       activeTab={activeTab}
       kpis={kpis}
       nudges={nudges}
-      features={features}
       markNudgeAsRead={markNudgeAsRead}
       showWelcomeTour={showWelcomeTour}
       onTabChange={handleTabChange}
@@ -77,9 +67,6 @@ const StudentDashboard = () => {
       onCompleteTour={handleCompleteTour}
       showStudyPlan={showStudyPlan}
       onCloseStudyPlan={handleCloseStudyPlan}
-      peerComparisonData={peerComparisonData}
-      lastActivity={lastActivity}
-      suggestedNextAction={suggestedNextAction}
     />
   );
 };

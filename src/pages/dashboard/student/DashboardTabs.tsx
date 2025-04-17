@@ -1,14 +1,9 @@
 
-import React from 'react';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { cn } from "@/lib/utils";
-import { Brain, Calendar, ChartBar, Target, BookOpen, LucideIcon } from "lucide-react";
-
-export interface DashboardTabsProps {
-  activeTab: string;
-  onTabChange: (tab: string) => void;
-  tabContents?: Record<string, React.ReactNode>;
-}
+import { Brain, Calendar, ChartBar, Sparkles, Target, BookOpen, LucideIcon } from "lucide-react";
+import { DashboardTabsProps } from "@/pages/dashboard/student/DashboardContent";
 
 interface Tab {
   id: string;
@@ -16,13 +11,14 @@ interface Tab {
   icon: LucideIcon;
 }
 
-const DashboardTabs: React.FC<DashboardTabsProps> = ({ activeTab, onTabChange, tabContents }) => {
+const DashboardTabs = ({ activeTab, onTabChange, tabContents }: DashboardTabsProps) => {
   const tabs: Tab[] = [
     { id: "overview", label: "Overview", icon: Target },
     { id: "today", label: "Today's Plan", icon: Calendar },
     { id: "academic", label: "Academic Advisor", icon: BookOpen },
     { id: "concepts", label: "Concepts", icon: Brain },
     { id: "progress", label: "Progress", icon: ChartBar },
+    // Removed "feel-good" and "surrounding influences" tabs as requested
   ];
 
   return (

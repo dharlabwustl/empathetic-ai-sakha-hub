@@ -5,8 +5,6 @@ import { useUserProfile } from "@/hooks/useUserProfile";
 import { handleNewUser } from "@/pages/dashboard/student/utils/UserSessionManager";
 import { useKpiTracking } from "@/hooks/useKpiTracking";
 import { UserRole } from "@/types/user/base";
-import { getFeatures } from "@/pages/dashboard/student/utils/FeatureManager";
-import { FeatureData } from "@/components/dashboard/types/sidebar";
 
 export const useStudentDashboard = () => {
   const [loading, setLoading] = useState(true);
@@ -34,17 +32,15 @@ export const useStudentDashboard = () => {
   else if (hour < 17) currentTime = "Good Afternoon";
   else currentTime = "Good Evening";
   
-  // Convert features to the correct format
-  const features: FeatureData[] = getFeatures().map((feature, index) => ({
-    id: `feature-${index}`,
-    title: feature.title,
-    description: feature.description,
-    icon: feature.icon,
-    url: feature.path,
-    enabled: true,
-    path: feature.path,
-    isPremium: feature.isPremium
-  }));
+  const features = {
+    overview: true,
+    subjects: true,
+    quizzes: true,
+    resources: true,
+    community: true,
+    progress: true,
+    settings: true,
+  };
   
   useEffect(() => {
     if (tab) {

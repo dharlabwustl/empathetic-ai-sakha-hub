@@ -1,10 +1,9 @@
 
-import { ReactNode } from "react";
 
 export interface NavigationRoute {
   name: string;
   path: string;
-  icon: ReactNode;
+  icon: React.ReactNode;
 }
 
 export interface UserRouteMap {
@@ -20,34 +19,3 @@ export interface SidebarNavProps {
   userName?: string;
 }
 
-export interface KpiData {
-  id: string;
-  label: string;
-  value: number;
-  unit: string;
-  change: number; // percentage change
-  trend: 'up' | 'down' | 'neutral';
-  icon: string;
-}
-
-export interface NudgeData {
-  id: string;
-  type: 'motivation' | 'reminder' | 'celebration' | 'suggestion' | 'warning';
-  title: string;
-  message: string;
-  actionLabel?: string;
-  actionUrl?: string;
-  timestamp: string;
-  read: boolean;
-}
-
-export interface FeatureData {
-  id: string;
-  title: string;
-  description: string;
-  icon: ReactNode;
-  url: string;
-  enabled: boolean;
-  path?: string;      // Added for compatibility
-  isPremium?: boolean; // Added for compatibility
-}

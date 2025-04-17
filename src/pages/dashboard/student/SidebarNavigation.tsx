@@ -8,11 +8,9 @@ import { Home, Calendar, BookMarked, MessageSquare, Brain, BookOpen, LineChart,
 interface SidebarNavigationProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
-  isHidden?: boolean;
-  onToggle?: () => void;
 }
 
-const SidebarNavigation = ({ activeTab, onTabChange, isHidden = false, onToggle }: SidebarNavigationProps) => {
+const SidebarNavigation = ({ activeTab, onTabChange }: SidebarNavigationProps) => {
   const navigate = useNavigate();
 
   const navItems = [
@@ -35,10 +33,6 @@ const SidebarNavigation = ({ activeTab, onTabChange, isHidden = false, onToggle 
     onTabChange(tab);
     navigate(`/dashboard/student/${tab}`);
   };
-  
-  if (isHidden) {
-    return null;
-  }
   
   return (
     <div className="hidden lg:block lg:col-span-3 xl:col-span-2">

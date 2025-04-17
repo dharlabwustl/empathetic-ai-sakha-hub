@@ -1,6 +1,6 @@
 
 import React, { useRef } from "react";
-import { motion, useInView, Variants } from "framer-motion";
+import { motion, useInView } from "framer-motion";
 import { 
   Brain, 
   Sparkles, 
@@ -9,7 +9,7 @@ import {
   FileStack, 
   Star 
 } from "lucide-react";
-import { containerVariants, itemVariants, fadeInStagger, pulseAnimation } from "../home/hero/feature-highlights/animationVariants";
+import { containerVariants, itemVariants, floatAnimation, fadeInStagger, pulseAnimation } from "../home/hero/feature-highlights/animationVariants";
 
 const strengths = [
   {
@@ -43,18 +43,6 @@ const PlatformStrengths: React.FC = () => {
   const isInView = useInView(ref, { once: false, amount: 0.3 });
   
   const staggerDelay = 0.1;
-
-  const iconPulseAnimation: Variants = {
-    initial: { scale: 1 },
-    animate: { 
-      scale: [1, 1.1, 1],
-      transition: {
-        duration: 2,
-        repeat: Infinity,
-        repeatType: "reverse" as const
-      }
-    }
-  };
 
   return (
     <section ref={ref} className="py-12 bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20">
@@ -103,9 +91,9 @@ const PlatformStrengths: React.FC = () => {
             >
               <motion.div 
                 className="rounded-full bg-indigo-100 p-3 dark:bg-indigo-900/30 group-hover:bg-gradient-to-r group-hover:from-indigo-100 group-hover:to-purple-100 dark:group-hover:from-indigo-900/30 dark:group-hover:to-purple-900/30 transition-all duration-300"
-                variants={iconPulseAnimation}
-                initial="initial"
+                variants={floatAnimation}
                 animate="animate"
+                initial="initial"
               >
                 {strength.icon}
               </motion.div>
