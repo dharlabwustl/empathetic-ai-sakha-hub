@@ -1,5 +1,6 @@
 
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import SidebarNav from "@/components/dashboard/SidebarNav";
 import ChatAssistant from "@/components/dashboard/ChatAssistant";
 import DashboardHeader from "./DashboardHeader";
@@ -17,6 +18,8 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import MobileNavigation from "./MobileNavigation";
 import { getFeatures } from "./utils/FeatureManager";
 import MoodLogButton from "@/components/dashboard/student/MoodLogButton";
+import { Button } from "@/components/ui/button";
+import { MessageSquareText, Sparkles } from "lucide-react";
 
 interface DashboardLayoutProps {
   userProfile: UserProfileType;
@@ -74,6 +77,24 @@ const DashboardLayout = ({
     setUserMood(mood);
   };
   
+  // Custom navigation buttons
+  const navigationButtons = [
+    { 
+      name: "24x7 AI Tutor", 
+      icon: <MessageSquareText className="h-4 w-4 mr-1" />, 
+      path: "/dashboard/student/tutor", 
+      variant: "ghost" as const,
+      className: "hover:bg-indigo-100 hover:text-indigo-700 text-sm"
+    },
+    { 
+      name: "Feel Good Corner", 
+      icon: <Sparkles className="h-4 w-4 mr-1" />, 
+      path: "/dashboard/student/feel-good", 
+      variant: "ghost" as const,
+      className: "hover:bg-pink-100 hover:text-pink-700 text-sm"
+    }
+  ];
+  
   return (
     <div className={`min-h-screen bg-gradient-to-br from-sky-100/10 via-white to-violet-100/10 dark:from-sky-900/10 dark:via-gray-900 dark:to-violet-900/10 ${userMood ? `mood-${userMood}` : ''}`}>
       <SidebarNav userType="student" userName={userProfile.name} />
@@ -100,6 +121,22 @@ const DashboardLayout = ({
               onMoodChange={handleMoodChange} 
             />
           </div>
+        </div>
+
+        {/* Enhanced Top Navigation Buttons - Quick Access */}
+        <div className="flex flex-wrap items-center gap-2 mb-4">
+          {navigationButtons.map((button) => (
+            <Link to={button.path} key={button.name}>
+              <Button 
+                variant={button.variant} 
+                size="sm" 
+                className={`flex items-center ${button.className}`}
+              >
+                {button.icon}
+                {button.name}
+              </Button>
+            </Link>
+          ))}
         </div>
 
         <SurroundingInfluencesSection 

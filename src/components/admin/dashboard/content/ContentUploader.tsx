@@ -1,7 +1,7 @@
 
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Loader2, Upload, Tag, X, Download, FileType, Book, BookOpen, TestTube, FilePlus } from "lucide-react";
+import { Loader2, Upload, Tag, X, Download, FileType, Book, BookOpen, TestTube, FilePlus, FileText } from "lucide-react";
 import { ContentUploaderProps } from "@/types/content";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { CustomProgress } from "@/components/ui/custom-progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { subjectsByGoal, defaultSubjects } from "@/components/dashboard/student/onboarding/SubjectData";
 
 const ContentUploader = ({ 
   handleFileSelect, 
@@ -31,6 +32,24 @@ const ContentUploader = ({
   const [currentTab, setCurrentTab] = useState("upload");
   const [generatingContent, setGeneratingContent] = useState(false);
   const [generatedContentType, setGeneratedContentType] = useState("concept_card");
+  
+  // Subjects based on exam goal
+  const [availableSubjects, setAvailableSubjects] = useState<string[]>(defaultSubjects);
+
+  // Update subjects when exam type changes
+  React.useEffect(() => {
+    if (examType) {
+      const subjectsForExam = Object.entries(subjectsByGoal).find(
+        ([key]) => key.toLowerCase().includes(examType.toLowerCase())
+      );
+      
+      if (subjectsForExam) {
+        setAvailableSubjects(subjectsForExam[1]);
+      } else {
+        setAvailableSubjects(defaultSubjects);
+      }
+    }
+  }, [examType]);
 
   const addTag = () => {
     if (currentTag && !tags.includes(currentTag)) {
@@ -94,7 +113,41 @@ const ContentUploader = ({
         description: "Documentation has been successfully generated and is ready for download",
         variant: "default"
       });
+      
+      // Create and download a dummy Word document
+      const blob = new Blob(["Student Journey Documentation"], { type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "StudentJourneyDocumentation.docx";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     }, 1800);
+  };
+  
+  const handleDownloadDBSchema = () => {
+    toast({
+      title: "Downloading Database Schema",
+      description: "Preparing database schema documentation for download",
+      variant: "default"
+    });
+    
+    setTimeout(() => {
+      toast({
+        title: "Schema Downloaded",
+        description: "Database schema documentation has been downloaded",
+        variant: "default"
+      });
+      
+      // Create and download a dummy schema document
+      const blob = new Blob(["Sakha AI Database Schema"], { type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "DatabaseSchema.docx";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }, 1000);
   };
   
   const handleGenerateContent = () => {
@@ -122,6 +175,52 @@ const ContentUploader = ({
         variant: "default"
       });
     }, 3000);
+  };
+  
+  const handleDownloadStudentJourney = () => {
+    toast({
+      title: "Downloading Student Journey Documentation",
+      description: "Preparing comprehensive student journey documentation",
+      variant: "default"
+    });
+    
+    setTimeout(() => {
+      // Create and download a sample document
+      const blob = new Blob([
+        "# Student Journey Documentation\n\n" +
+        "## Overview\n" +
+        "This document outlines the complete student journey through the Sakha AI platform, including data flows and relationships.\n\n" +
+        "## Data Points and Relationships\n" +
+        "1. User Registration\n" +
+        "2. Onboarding & Goal Setting\n" +
+        "3. Subject Selection\n" +
+        "4. Study Plan Generation\n" +
+        "5. Content Recommendation\n" +
+        "6. Progress Tracking\n" +
+        "7. Mood & Performance Analysis\n\n" +
+        "## Tables and Relationships\n" +
+        "- users\n" +
+        "- user_goals\n" +
+        "- subjects\n" +
+        "- study_plans\n" +
+        "- content_items\n" +
+        "- user_progress\n" +
+        "- mood_tracking\n"
+      ], { type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" });
+      
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "StudentJourneyDocumentation.docx";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      toast({
+        title: "Download Complete",
+        description: "Student journey documentation has been downloaded",
+        variant: "default"
+      });
+    }, 2000);
   };
 
   return (
@@ -214,35 +313,14 @@ const ContentUploader = ({
                         <SelectValue placeholder="Select content type" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="study_material">Study Material</SelectItem>
+                        <SelectItem value="concept_cards">Concept Cards</SelectItem>
+                        <SelectItem value="flashcards">Flashcards</SelectItem>
                         <SelectItem value="practice_exam">Practice Exam</SelectItem>
                         <SelectItem value="syllabus">Syllabus</SelectItem>
                         <SelectItem value="question_bank">Question Bank</SelectItem>
                         <SelectItem value="notes">Notes</SelectItem>
                         <SelectItem value="reference">Reference Material</SelectItem>
                         <SelectItem value="previous_papers">Previous Year Papers</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label className="mb-1 block">Subject *</Label>
-                    <Select value={subject} onValueChange={setSubject}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select subject" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="physics">Physics</SelectItem>
-                        <SelectItem value="chemistry">Chemistry</SelectItem>
-                        <SelectItem value="biology">Biology</SelectItem>
-                        <SelectItem value="mathematics">Mathematics</SelectItem>
-                        <SelectItem value="english">English</SelectItem>
-                        <SelectItem value="computer_science">Computer Science</SelectItem>
-                        <SelectItem value="general_knowledge">General Knowledge</SelectItem>
-                        <SelectItem value="social_sciences">Social Sciences</SelectItem>
-                        <SelectItem value="history">History</SelectItem>
-                        <SelectItem value="geography">Geography</SelectItem>
-                        <SelectItem value="polity">Polity</SelectItem>
-                        <SelectItem value="economics">Economics</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -268,6 +346,21 @@ const ContentUploader = ({
                         <SelectItem value="ssc">SSC</SelectItem>
                         <SelectItem value="state_psc">State PSCs</SelectItem>
                         <SelectItem value="defense">Defense Exams</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label className="mb-1 block">Subject *</Label>
+                    <Select value={subject} onValueChange={setSubject}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select subject" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {availableSubjects.map((subj) => (
+                          <SelectItem key={subj} value={subj.toLowerCase()}>
+                            {subj}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   </div>
@@ -328,7 +421,7 @@ const ContentUploader = ({
               </div>
             )}
             
-            <div className="flex flex-col sm:flex-row gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
               <Button 
                 onClick={simulateHandleUpload} 
                 className="w-full bg-gradient-to-r from-purple-500 to-blue-600 text-white hover:from-purple-600 hover:to-blue-700" 
@@ -346,16 +439,34 @@ const ContentUploader = ({
                   </>
                 )}
               </Button>
-            </div>
-            
-            <div className="mt-4">
+              
               <Button 
                 variant="outline" 
                 className="w-full flex items-center gap-2"
                 onClick={handleGenerateDocumentation}
               >
+                <FileText size={16} />
+                Generate Documentation
+              </Button>
+            </div>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <Button 
+                variant="outline" 
+                className="w-full flex items-center gap-2"
+                onClick={handleDownloadDBSchema}
+              >
                 <Download size={16} />
-                Generate & Download Documentation
+                Download DB Schema
+              </Button>
+              
+              <Button 
+                variant="outline" 
+                className="w-full flex items-center gap-2"
+                onClick={handleDownloadStudentJourney}
+              >
+                <Download size={16} />
+                Download Student Journey Doc
               </Button>
             </div>
           </div>
@@ -408,29 +519,6 @@ const ContentUploader = ({
               </div>
               
               <div>
-                <Label className="mb-1 block">Subject *</Label>
-                <Select value={subject} onValueChange={setSubject}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select subject" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="physics">Physics</SelectItem>
-                    <SelectItem value="chemistry">Chemistry</SelectItem>
-                    <SelectItem value="biology">Biology</SelectItem>
-                    <SelectItem value="mathematics">Mathematics</SelectItem>
-                    <SelectItem value="english">English</SelectItem>
-                    <SelectItem value="computer_science">Computer Science</SelectItem>
-                    <SelectItem value="general_knowledge">General Knowledge</SelectItem>
-                    <SelectItem value="social_sciences">Social Sciences</SelectItem>
-                    <SelectItem value="history">History</SelectItem>
-                    <SelectItem value="geography">Geography</SelectItem>
-                    <SelectItem value="polity">Polity</SelectItem>
-                    <SelectItem value="economics">Economics</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div>
                 <Label className="mb-1 block">For Exam Type *</Label>
                 <Select value={examType} onValueChange={setExamType}>
                   <SelectTrigger>
@@ -452,6 +540,22 @@ const ContentUploader = ({
                     <SelectItem value="ssc">SSC</SelectItem>
                     <SelectItem value="state_psc">State PSCs</SelectItem>
                     <SelectItem value="defense">Defense Exams</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div>
+                <Label className="mb-1 block">Subject *</Label>
+                <Select value={subject} onValueChange={setSubject}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select subject" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableSubjects.map((subj) => (
+                      <SelectItem key={subj} value={subj.toLowerCase()}>
+                        {subj}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
