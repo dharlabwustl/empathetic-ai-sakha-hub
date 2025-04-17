@@ -1,6 +1,22 @@
+
 import React, { createContext, useState, useContext, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { UserRole, MoodType, PersonalityType } from "@/types/user/base";
+
+// Define types for the step management
+export type OnboardingStep = 
+  | "role"
+  | "goal"
+  | "demographics" 
+  | "personality" 
+  | "sentiment" 
+  | "habits" 
+  | "interests" 
+  | "signup";
+
+// Define the type for user goals
+export type UserGoal = string;
 
 // Define the types for the form data
 export interface OnboardingFormData {
@@ -18,6 +34,11 @@ export interface OnboardingContextState {
   step: number;
   totalSteps: number;
   formData: OnboardingFormData;
+  // Additional properties needed by components
+  onboardingData: any;
+  setOnboardingData: (data: any) => void;
+  messages: { content: string; isBot: boolean }[];
+  setMessages: (messages: { content: string; isBot: boolean }[]) => void;
   setStep: (step: number) => void;
   nextStep: () => void;
   prevStep: () => void;
@@ -57,6 +78,11 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({
     subjects: [],
     interests: [],
   });
+  // Add additional state for onboarding data and messages
+  const [onboardingData, setOnboardingData] = useState<any>({});
+  const [messages, setMessages] = useState<{ content: string; isBot: boolean }[]>([
+    { content: "Hi! I'm Sakha AI. Let's set up your personalized learning experience. What best describes you?", isBot: true }
+  ]);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -109,27 +135,6 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, [formData, navigate, toast]);
 
-  // Initial state for the context
-  const initialState: OnboardingContextState = {
-    step: 1,
-    totalSteps: 7,
-    formData: {
-      examType: "",
-      examDate: undefined,
-      studyHours: 4,
-      studyTime: "morning",
-      studyPace: "balanced",
-      subjects: [],
-      interests: [] as string[], // Fix the type error by explicitly typing as string[]
-    },
-    setStep: () => {},
-    nextStep: () => {},
-    prevStep: () => {},
-    updateFormData: () => {},
-    completeOnboarding: () => {},
-    loading: false,
-  };
-
   // Provide the context value
   return (
     <OnboardingContext.Provider
@@ -137,6 +142,10 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({
         step,
         totalSteps,
         formData,
+        onboardingData,
+        setOnboardingData,
+        messages,
+        setMessages,
         setStep,
         nextStep,
         prevStep,
