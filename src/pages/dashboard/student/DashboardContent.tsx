@@ -20,7 +20,15 @@ interface DashboardContentProps {
   kpis: KpiData[];
   nudges: NudgeData[];
   markNudgeAsRead: (id: string) => void;
-  features: any[];
+  features: {
+    overview?: boolean;
+    subjects?: boolean;
+    quizzes?: boolean;
+    resources?: boolean;
+    community?: boolean;
+    progress?: boolean;
+    settings?: boolean;
+  };
   showWelcomeTour: boolean;
   handleSkipTour?: () => void;
   handleCompleteTour?: () => void;
