@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import {
   Tabs,
@@ -124,6 +123,7 @@ export default function MicroConcept({
     }
   };
 
+  
   return (
     <motion.div 
       className="mb-6"
