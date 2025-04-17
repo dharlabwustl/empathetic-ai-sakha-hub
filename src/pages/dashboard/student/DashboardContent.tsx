@@ -1,7 +1,9 @@
+
 import React, { ReactNode } from 'react';
 import { UserProfileType } from '@/types/user/base';
 import { KpiData, NudgeData } from '@/hooks/useKpiTracking';
 import { MoodType } from '@/types/user/base';
+import { generateTabContents } from '@/components/dashboard/student/TabContentManager';
 
 export interface DashboardTabsProps {
   activeTab: string;
