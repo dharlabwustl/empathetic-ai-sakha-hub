@@ -7,17 +7,17 @@ import SidebarNav from "@/components/dashboard/SidebarNav";
 import ChatAssistant from "@/components/dashboard/ChatAssistant";
 import KpiCard from "@/components/dashboard/KpiCard";
 import NudgePanel from "@/components/dashboard/NudgePanel";
-import ProfileCard from "@/components/dashboard/ProfileCard";
+import { ProfileCard } from "@/components/dashboard/ProfileCard";
 import FeatureCard from "@/components/dashboard/FeatureCard";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { useKpiTracking } from "@/hooks/useKpiTracking";
-import { UserRole, SubscriptionType } from "@/types/user/base";
+import { UserRoleEnum, SubscriptionTypeEnum } from "@/types/user/base";
 
 const DoctorDashboard = () => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
-  const { userProfile } = useUserProfile(UserRole.Doctor);
-  const { kpis, nudges, markNudgeAsRead } = useKpiTracking(UserRole.Doctor);
+  const { userProfile } = useUserProfile(UserRoleEnum.Doctor);
+  const { kpis, nudges, markNudgeAsRead } = useKpiTracking(UserRoleEnum.Doctor);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -60,21 +60,21 @@ const DoctorDashboard = () => {
       description: "Plan, organize, and track your research project with AI-powered guidance.",
       icon: <Calendar size={20} />,
       path: "/dashboard/doctor/thesis",
-      isPremium: userProfile.subscription !== SubscriptionType.Premium,
+      isPremium: userProfile.subscription !== SubscriptionTypeEnum.Premium,
     },
     {
       title: "Literature Assistant",
       description: "Organize and analyze research papers, find key insights, and manage citations.",
       icon: <BookOpen size={20} />,
       path: "/dashboard/doctor/literature",
-      isPremium: userProfile.subscription !== SubscriptionType.Premium,
+      isPremium: userProfile.subscription !== SubscriptionTypeEnum.Premium,
     },
     {
       title: "Publications Tracker",
       description: "Track your publications, citations, and research impact metrics.",
       icon: <BookText size={20} />,
       path: "/dashboard/doctor/publications",
-      isPremium: userProfile.subscription !== SubscriptionType.Premium,
+      isPremium: userProfile.subscription !== SubscriptionTypeEnum.Premium,
     }
   ];
 

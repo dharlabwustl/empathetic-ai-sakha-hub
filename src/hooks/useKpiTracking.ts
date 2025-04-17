@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { UserRoleEnum } from '@/types/user';
+import { UserRoleEnum } from '@/types/user/base';
 
 export interface KpiData {
   id: string;
@@ -28,16 +28,13 @@ export function useKpiTracking(role: UserRoleEnum) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Simulate API call to fetch KPIs and nudges
     const fetchKpisAndNudges = () => {
       setLoading(true);
       
       setTimeout(() => {
-        // Set role-specific KPIs
         const roleSpecificKpis = getRoleSpecificKpis(role);
         setKpis(roleSpecificKpis);
         
-        // Set role-specific nudges
         const roleSpecificNudges = getRoleSpecificNudges(role);
         setNudges(roleSpecificNudges);
         
@@ -59,7 +56,6 @@ export function useKpiTracking(role: UserRoleEnum) {
   return { kpis, nudges, loading, markNudgeAsRead };
 }
 
-// Helper functions to get role-specific data
 function getRoleSpecificKpis(role: UserRoleEnum): KpiData[] {
   switch (role) {
     case UserRoleEnum.Student:

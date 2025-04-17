@@ -8,13 +8,15 @@ import { WeeklyProgressChart } from "@/components/dashboard/student/study-progre
 import { StudyStreakCard } from "@/components/dashboard/student/study-progress/StudyStreakCard";
 import { PerformanceTabs } from "@/components/dashboard/student/study-progress/PerformanceTabs";
 import { UserRoleEnum } from "@/types/user/base";
+import { StudentProfile } from '@/types/user/base';
 
 const StudyProgress = () => {
   const { subjects, studyStreak, loading, selectedSubject, selectSubject } = useStudyProgress();
   const { userProfile } = useUserProfile(UserRoleEnum.Student);
   
-  // Check if userProfile isn't null before accessing examPreparation
-  const examGoal = userProfile?.examPreparation || "General Study";
+  // Check if userProfile is StudentProfile before accessing examPreparation
+  const studentProfile = userProfile as StudentProfile;
+  const examGoal = studentProfile?.examPreparation || "General Study";
   
   if (loading) {
     return (

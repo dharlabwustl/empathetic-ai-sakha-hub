@@ -19,6 +19,7 @@ import { getFeatures } from "./utils/FeatureManager";
 import MoodLogButton from "@/components/dashboard/student/MoodLogButton";
 import { Button } from "@/components/ui/button";
 import { BookOpen, MessageSquareText, Sparkles, Brain } from "lucide-react";
+import { getMoodMotivationalQuote, applyMoodTheme, saveMoodToLocalStorage, getMoodIcon } from "@/components/dashboard/student/mood-tracking/moodUtils";
 
 interface DashboardLayoutProps {
   userProfile: UserProfileType;

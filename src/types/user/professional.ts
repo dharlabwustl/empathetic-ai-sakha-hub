@@ -1,46 +1,36 @@
 
-import { UserProfileType } from './base';
+import { UserBasicInfo, UserRole } from "./base";
 
-export interface EmployeeProfile extends UserProfileType {
-  jobTitle: string;
-  workExperience: number;
-  skills: string[];
-  company?: string;
-  industry?: string;
-  careerGoal: string;
-  projectsCompleted: number;
-  trainingCompleted: number;
-  experienceLevel?: string;
-  skillsToGrow?: string[];
-  productivityScore?: number;
-}
-
-export interface DoctorProfile extends UserProfileType {
-  specialization: string;
-  qualifications: string[];
-  researchInterests: string[];
-  publications: number;
+// Define professional user profiles with specific roles
+export interface DoctorProfile extends UserBasicInfo {
+  role: "doctor";
+  specialization?: string;
   institution?: string;
-  yearsOfPractice: number;
-  certifications: string[];
-  researchTopic?: string;
-  thesisTitle?: string;
-  clinicalInterest?: string;
-  researchPhase?: string;
-  publicationsCount?: number;
+  research?: string;
+  subscription?: string;
+  goals?: any[];
+  examPreparation?: string;
 }
 
-export interface FounderProfile extends UserProfileType {
-  startupName: string;
-  industry: string;
-  foundingYear: string;
-  teamSize: number;
-  funding: string;
-  stage: string;
-  mvpStatus: number;
-  pitchDeckReady: boolean;
+export interface EmployeeProfile extends UserBasicInfo {
+  role: "employee";
+  jobRole?: string;
+  seniorityLevel?: string;
+  domain?: string;
+  subscription?: string;
+  goals?: any[];
+  jobTitle?: string;
+  industry?: string;
+  examPreparation?: string;
+}
+
+export interface FounderProfile extends UserBasicInfo {
+  role: "founder";
   startupStage?: string;
-  startupGoal?: string;
-  mvpCompletion?: number;
-  pitchDeckStatus?: number;
+  teamSize?: number;
+  industry?: string;
+  subscription?: string;
+  goals?: any[];
+  startupName?: string;
+  examPreparation?: string;
 }
