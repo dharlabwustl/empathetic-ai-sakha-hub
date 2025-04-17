@@ -38,6 +38,9 @@ const StressTestQuestion: React.FC<StressTestQuestionProps> = ({
     ? 'border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/10'
     : '';
 
+  // Get the latest answer for the current question (if any)
+  const latestAnswer = userAnswers.length > 0 ? userAnswers[userAnswers.length - 1] : null;
+
   return (
     <div className={`space-y-3 sm:space-y-6 ${questionTypeClass} rounded-lg p-1`}>
       <QuestionHeader
@@ -55,9 +58,9 @@ const StressTestQuestion: React.FC<StressTestQuestionProps> = ({
         onAnswer={onAnswer}
       />
       
-      {showExplanation && userAnswers.length > 0 && (
+      {showExplanation && latestAnswer && (
         <AnswerExplanation
-          userAnswer={userAnswers[userAnswers.length - 1]} 
+          userAnswer={latestAnswer} 
           explanation={currentQuestion.explanation || ""}
         />
       )}

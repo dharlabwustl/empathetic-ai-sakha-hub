@@ -98,7 +98,14 @@ const StressTestSection: React.FC<StressTestSectionProps> = ({
           };
           
           setUserAnswers(prev => [...prev, timeoutAnswer]);
-          handleNextQuestion();
+          setShowExplanation(true);
+          
+          // Instead of immediately moving to the next question, show the explanation first
+          setTimeout(() => {
+            setShowExplanation(false);
+            handleNextQuestion();
+          }, 2000);
+          
           return 0;
         }
         return prev - 1;
