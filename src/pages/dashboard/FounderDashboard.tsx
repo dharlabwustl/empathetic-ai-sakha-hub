@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -11,7 +10,7 @@ import ProfileCard from "@/components/dashboard/ProfileCard";
 import FeatureCard from "@/components/dashboard/FeatureCard";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { useKpiTracking } from "@/hooks/useKpiTracking";
-import { UserRole, SubscriptionType } from "@/types/user/base";
+import { UserRole, SubscriptionType } from "@/types/user";
 
 const FounderDashboard = () => {
   const { toast } = useToast();

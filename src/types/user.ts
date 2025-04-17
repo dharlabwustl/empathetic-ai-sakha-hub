@@ -5,4 +5,6 @@
 export * from './user/index';
 
 // Direct exports for backward compatibility to ensure critical types are available
-export { UserRole, UserRoleEnum, SubscriptionType, SubscriptionTypeEnum, MoodType } from './user/base';
+export type { UserRole, SubscriptionType, MoodType } from './user/base';
+export { UserRoleEnum as UserRole, SubscriptionTypeEnum as SubscriptionType } from './user/base';
+

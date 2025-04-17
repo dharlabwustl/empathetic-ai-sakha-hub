@@ -4,7 +4,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { handleNewUser } from "@/pages/dashboard/student/utils/UserSessionManager";
 import { useKpiTracking } from "@/hooks/useKpiTracking";
-import { UserRole } from "@/types/user/base";
+import { UserRole } from "@/types/user";
 
 export const useStudentDashboard = () => {
   const [loading, setLoading] = useState(true);

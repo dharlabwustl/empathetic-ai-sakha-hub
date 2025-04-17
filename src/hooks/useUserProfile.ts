@@ -1,6 +1,7 @@
 
 import { useState, useEffect } from "react";
-import { UserProfileType, UserRole } from "@/types/user";
+import { UserProfileType } from "@/types/user";
+import { UserRole } from "@/types/user";
 import { getMockProfileByRole } from "@/data/mockProfiles";
 
 export function useUserProfile(role: UserRole = UserRole.Student): {
@@ -29,7 +30,7 @@ export function useUserProfile(role: UserRole = UserRole.Student): {
   const updateUserProfile = (updates: Partial<UserProfileType>) => {
     setUserProfile(prev => {
       if (!prev) return prev;
-      return { ...prev, ...updates };
+      return { ...prev, ...updates } as UserProfileType;
     });
   };
 
