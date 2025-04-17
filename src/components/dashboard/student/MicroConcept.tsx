@@ -17,34 +17,11 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { BookOpen, AlertTriangle, Award, Lightbulb, BrainCog } from "lucide-react";
 import { motion } from "framer-motion";
-
-interface ExplanationType {
-  title: string;
-  content: string;
-}
-
-interface CommonMistakeType {
-  mistake: string;
-  correction: string;
-}
-
-interface MicroConceptProps {
-  title?: string;
-  subject?: string;
-  explanation?: ExplanationType[];
-  example?: string;
-  commonMistakes?: CommonMistakeType[];
-  examRelevance?: string;
-  difficulty?: "easy" | "medium" | "hard";
-  id?: string;
-  chapter?: string;
-  estimatedTime?: number;
-  content?: string;
-  resourceType?: "Video" | "Text" | "PDF";
-  resourceUrl?: string;
-  onComplete?: (id: string) => void;
-  onNeedHelp?: (id: string) => void;
-}
+import { ExplanationTab } from "./micro-concept/ExplanationTab";
+import { ExampleTab } from "./micro-concept/ExampleTab";
+import { MistakesTab } from "./micro-concept/MistakesTab";
+import { RelevanceTab } from "./micro-concept/RelevanceTab";
+import { MicroConceptProps } from "./micro-concept/types";
 
 export default function MicroConcept({
   title = "Newton's Third Law of Motion",
@@ -105,11 +82,6 @@ export default function MicroConcept({
     }
   };
 
-  const contentVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
-  };
-
   return (
     <motion.div 
       className="mb-6"
@@ -160,90 +132,29 @@ export default function MicroConcept({
 
           <TabsContent value="explanation" className="p-0 mt-0">
             <CardContent className="p-6">
-              <div className="mb-4">
-                <div className="flex flex-wrap gap-2 mb-3">
-                  {explanation.map((exp) => (
-                    <Button 
-                      key={exp.title}
-                      variant={activeExplanation === exp.title ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => setActiveExplanation(exp.title)}
-                      className={activeExplanation === exp.title ? "bg-violet-600" : ""}
-                    >
-                      {exp.title}
-                    </Button>
-                  ))}
-                </div>
-                
-                <motion.div
-                  key={activeExplanation}
-                  variants={contentVariants}
-                  initial="hidden"
-                  animate="visible"
-                  className="bg-slate-50 p-4 rounded-lg"
-                >
-                  {explanation.find(exp => exp.title === activeExplanation)?.content.split('\n').map((paragraph, i) => (
-                    <p key={i} className={i > 0 ? "mt-2" : ""}>
-                      {paragraph}
-                    </p>
-                  ))}
-                </motion.div>
-              </div>
+              <ExplanationTab 
+                explanation={explanation}
+                activeExplanation={activeExplanation}
+                setActiveExplanation={setActiveExplanation}
+              />
             </CardContent>
           </TabsContent>
 
           <TabsContent value="example" className="p-0 mt-0">
             <CardContent className="p-6">
-              <div className="bg-green-50 p-4 rounded-lg">
-                <h3 className="text-lg font-medium text-green-800 mb-2">Real-world Example</h3>
-                <p>{example}</p>
-              </div>
-              <div className="bg-green-50 p-4 rounded-lg mt-4">
-                <h3 className="text-lg font-medium text-green-800 mb-2">Interactive Example</h3>
-                <p>Imagine two skaters standing face to face on frictionless ice. If one skater pushes the other:</p>
-                <ul className="list-disc ml-5 mt-2 space-y-1">
-                  <li>The pushed skater moves backward</li>
-                  <li>The pushing skater also moves backward (in the opposite direction)</li>
-                  <li>The forces experienced by both skaters are equal in magnitude</li>
-                </ul>
-              </div>
+              <ExampleTab example={example} />
             </CardContent>
           </TabsContent>
 
           <TabsContent value="mistakes" className="p-0 mt-0">
             <CardContent className="p-6">
-              <div className="space-y-4">
-                {commonMistakes.map((mistake, index) => (
-                  <div key={index} className="bg-amber-50 p-4 rounded-lg">
-                    <h3 className="text-md font-medium text-amber-800 mb-2">Common Mistake #{index + 1}</h3>
-                    <div className="border-l-4 border-amber-400 pl-3 mb-3">
-                      <p className="text-amber-900 italic">{mistake.mistake}</p>
-                    </div>
-                    <div className="border-l-4 border-green-400 pl-3">
-                      <p className="text-green-900">{mistake.correction}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <MistakesTab commonMistakes={commonMistakes} />
             </CardContent>
           </TabsContent>
 
           <TabsContent value="relevance" className="p-0 mt-0">
             <CardContent className="p-6">
-              <div className="bg-blue-50 p-4 rounded-lg">
-                <h3 className="text-lg font-medium text-blue-800 mb-2">Exam Relevance</h3>
-                <p>{examRelevance}</p>
-                
-                <div className="mt-4">
-                  <h4 className="font-medium text-blue-800 mb-1">Exam Question Types:</h4>
-                  <ul className="list-disc ml-5 space-y-1">
-                    <li>Numerical problems on rocket propulsion</li>
-                    <li>Conceptual questions on force pairs</li>
-                    <li>Application problems in everyday scenarios</li>
-                    <li>Multiple-choice questions testing common misconceptions</li>
-                  </ul>
-                </div>
-              </div>
+              <RelevanceTab examRelevance={examRelevance} />
             </CardContent>
           </TabsContent>
         </Tabs>
