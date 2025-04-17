@@ -68,6 +68,10 @@ export interface UserProfileType {
     email?: string;
   };
   profileImage?: string | null;
+  bio?: string;
+  personalityType?: string;
+  areasOfInterest?: Array<{id: string, name: string, level: string}>;
+  joinDate?: string;
 }
 
 export interface TeacherProfileType extends UserProfileType {
