@@ -1,6 +1,6 @@
 
 import { MoodType } from "@/types/user/base";
-import { Smile, Sun, BookOpen, Brain, Coffee, Moon, BatteryCharging, Frown, AlertTriangle, Zap } from "lucide-react";
+import { Smile, Sun, BookOpen, Brain, Coffee, Moon, Frown, AlertTriangle, Zap } from "lucide-react";
 import React from "react";
 
 export function getMoodDisplayName(mood: MoodType): string {
@@ -20,7 +20,26 @@ export function getMoodDisplayName(mood: MoodType): string {
   return moodNames[mood] || "Unknown";
 }
 
-export function getMoodIcon(mood: MoodType) {
+export function getMoodColor(mood?: MoodType): string {
+  if (!mood) return "";
+  
+  const moodColors: Record<MoodType, string> = {
+    happy: "bg-yellow-100 text-yellow-700",
+    motivated: "bg-purple-100 text-purple-700",
+    focused: "bg-blue-100 text-blue-700",
+    curious: "bg-teal-100 text-teal-700",
+    neutral: "bg-gray-100 text-gray-700",
+    tired: "bg-orange-100 text-orange-700",
+    stressed: "bg-red-100 text-red-700",
+    sad: "bg-indigo-100 text-indigo-700",
+    overwhelmed: "bg-purple-100 text-purple-700",
+    okay: "bg-green-100 text-green-700"
+  };
+  
+  return moodColors[mood] || "bg-gray-100 text-gray-700";
+}
+
+export function getMoodIcon(mood: MoodType): React.ReactNode {
   switch (mood) {
     case "happy":
       return <Sun className="text-amber-500" size={24} />;
