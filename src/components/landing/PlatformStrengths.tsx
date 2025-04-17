@@ -91,14 +91,12 @@ const PlatformStrengths: React.FC = () => {
             >
               <motion.div 
                 className="rounded-full bg-indigo-100 p-3 dark:bg-indigo-900/30 group-hover:bg-gradient-to-r group-hover:from-indigo-100 group-hover:to-purple-100 dark:group-hover:from-indigo-900/30 dark:group-hover:to-purple-900/30 transition-all duration-300"
-                // Fix: Use animate and transition separately with correct typings
-                animate={{ 
-                  scale: [1, 1.1, 1]
-                }}
-                transition={{ 
-                  duration: 2, 
-                  repeat: Infinity, 
-                  repeatType: "reverse" as const // Explicitly specify as const to match expected type
+                initial={{ scale: 1 }}
+                animate={{ scale: [1, 1.1, 1] }}
+                transition={{
+                  duration: 2,
+                  repeat: Infinity,
+                  repeatType: "reverse" as const
                 }}
               >
                 {strength.icon}
