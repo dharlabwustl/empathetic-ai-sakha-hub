@@ -1,18 +1,17 @@
 
-import React, { useRef } from "react";
-import HeroSection from "@/components/home/HeroSection";
-import WhatIsSection from "@/components/home/WhatIsSection";
-import ExamPreparationSection from "@/components/home/ExamPreparationSection";
-import ForWhomSection from "@/components/home/ForWhomSection";
-import FeaturesSection from "@/components/home/FeaturesSection";
-import OnboardingSection from "@/components/home/OnboardingSection";
-import VideoSection from "@/components/home/VideoSection";
-import CallToAction from "@/components/home/CallToAction";
-import FounderSection from "@/components/home/FounderSection";
-import Footer from "@/components/layout/Footer";
-import HeaderWithAdmin from "@/components/layout/HeaderWithAdmin";
-import { useState } from "react";
-import { ExamReadinessAnalyzer } from "@/components/home/ExamReadinessAnalyzer";
+import React, { useRef, useState } from 'react';
+import Header from '@/components/layout/HeaderWithAdmin';
+import Footer from '@/components/layout/Footer';
+import HeroSection from '@/components/home/HeroSection';
+import WhatIsSection from '@/components/home/WhatIsSection';
+import ForWhomSection from '@/components/home/ForWhomSection';
+import FeaturesSection from '@/components/home/FeaturesSection';
+import ExamPreparationSection from '@/components/home/ExamPreparationSection';
+import StudentBenefitsSection from '@/components/home/StudentBenefitsSection';
+import CallToAction from '@/components/home/CallToAction';
+import FounderSection from '@/components/home/FounderSection';
+import VideoSection from '@/components/home/VideoSection';
+import { ExamReadinessAnalyzer } from '@/components/home/ExamReadinessAnalyzer';
 
 const Index = () => {
   const featuresRef = useRef<HTMLDivElement>(null);
@@ -20,46 +19,62 @@ const Index = () => {
   const [showExamAnalyzer, setShowExamAnalyzer] = useState(false);
   
   const scrollToFeatures = () => {
-    featuresRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (featuresRef.current) {
+      featuresRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
   };
   
   const scrollToForWhom = () => {
-    forWhomRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (forWhomRef.current) {
+      forWhomRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
   };
   
-  const openExamAnalyzer = () => {
+  const handleOpenExamAnalyzer = () => {
     setShowExamAnalyzer(true);
+  };
+  
+  const handleCloseExamAnalyzer = () => {
+    setShowExamAnalyzer(false);
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-sky-50 via-white to-violet-50 dark:from-gray-950 dark:via-gray-900 dark:to-slate-950">
-      <HeaderWithAdmin />
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-background overflow-hidden">
+      <Header />
+      
       <main>
         <HeroSection 
-          scrollToFeatures={scrollToFeatures}
+          scrollToFeatures={scrollToFeatures} 
           scrollToForWhom={scrollToForWhom}
-          openExamAnalyzer={openExamAnalyzer}
+          openExamAnalyzer={handleOpenExamAnalyzer}
         />
+        
         <WhatIsSection />
-        <ExamPreparationSection />
-        <div ref={forWhomRef}>
-          <ForWhomSection />
-        </div>
+        
         <div ref={featuresRef}>
           <FeaturesSection />
         </div>
-        <OnboardingSection />
+        
+        <div ref={forWhomRef}>
+          <ForWhomSection />
+        </div>
+        
+        <ExamPreparationSection />
+        
+        {showExamAnalyzer && <ExamReadinessAnalyzer onClose={handleCloseExamAnalyzer} />}
+        
+        <StudentBenefitsSection />
+        
+        {/* Both EcosystemAnimation and OnboardingSection are now in HeroSection */}
+        
         <VideoSection />
+        
         <FounderSection />
+        
         <CallToAction />
       </main>
-      <Footer />
       
-      {showExamAnalyzer && (
-        <ExamReadinessAnalyzer
-          onClose={() => setShowExamAnalyzer(false)}
-        />
-      )}
+      <Footer />
     </div>
   );
 };

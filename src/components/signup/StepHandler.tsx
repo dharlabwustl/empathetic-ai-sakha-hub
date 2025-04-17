@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import { UserRole, UserGoal, OnboardingStep } from "./OnboardingContext";
+import { getDemographicsQuestion } from "./utils/stepUtils";
 import authService from "@/services/auth/authService"; 
 import { getSubjectsForGoal } from "@/components/dashboard/student/onboarding/SubjectData";
 import { PersonalityType, MoodType } from "@/types/user/base";
@@ -36,7 +37,7 @@ const StepHandler = ({
     setStep("goal");
   };
   
-  const handleSignupSubmit = async (formValues: { name: string; mobile: string; otp: string; comments?: string }) => {
+  const handleSignupSubmit = async (formValues: { name: string; mobile: string; otp: string }) => {
     setIsLoading(true);
     
     try {
@@ -47,7 +48,6 @@ const StepHandler = ({
         phoneNumber: formValues.mobile,
         password: formValues.otp, // Simplified password for easier login
         role: (onboardingData.role || 'Student').toLowerCase(), // Make sure role is lowercase
-        comments: formValues.comments || '' // Add comments field
       };
       
       console.log("Registering user:", userData);
@@ -69,7 +69,6 @@ const StepHandler = ({
           ...onboardingData,
           name: formValues.name,
           phoneNumber: formValues.mobile,
-          comments: formValues.comments,
           completedOnboarding: false, // This will trigger the onboarding flow
           isNewUser: true,
           sawWelcomeTour: false
@@ -143,19 +142,26 @@ const StepHandler = ({
         setMessages([
           ...messages,
           { content: mood, isBot: false },
-          { content: "Do you have any specific comments about your learning needs?", isBot: true }
+          { content: "Let's understand your study habits better. How would you describe your sleep pattern and daily routine?", isBot: true }
         ]);
         setStep("habits");
       },
-      // Simplified habits submit with just a comment field
       handleHabitsSubmit: (habits: Record<string, string>) => {
-        // Extract just the comments
-        const comments = habits.comments || '';
+        // Clean up habits data
+        const cleanedHabits = {...habits};
         
-        setOnboardingData({ 
-          ...onboardingData, 
-          comments: comments
+        // Create a readable message for chat from the habits
+        let userMessage = "";
+        Object.entries(habits).forEach(([key, value]) => {
+          // Skip custom fields in the message if they've already been included
+          if (key === "stressManagementCustom" || key === "studyPreferenceCustom") {
+            return;
+          }
+          userMessage += `${key}: ${value}, `;
         });
+        userMessage = userMessage.slice(0, -2); // Remove trailing comma
+        
+        setOnboardingData({ ...onboardingData, ...cleanedHabits });
         
         // Get subjects based on selected exam goal
         const suggestedSubjects = onboardingData.goal 
@@ -164,7 +170,7 @@ const StepHandler = ({
         
         setMessages([
           ...messages,
-          { content: comments, isBot: false },
+          { content: userMessage, isBot: false },
           { content: "Select your preferred subjects to study:", isBot: true }
         ]);
         setStep("interests");

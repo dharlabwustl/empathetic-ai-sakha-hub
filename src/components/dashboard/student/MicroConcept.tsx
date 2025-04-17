@@ -1,110 +1,156 @@
 
-import React from "react";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-} from "@/components/ui/card";
-import { motion } from "framer-motion";
-import { MicroConceptHeader } from "./micro-concept/MicroConceptHeader";
-import { MicroConceptTabs } from "./micro-concept/MicroConceptTabs";
-import { MicroConceptFooter } from "./micro-concept/MicroConceptFooter";
-import { useMicroConcept } from "./micro-concept/useMicroConcept";
-import { MicroConceptProps } from "./micro-concept/types";
+import { useState } from "react";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { 
+  Check, 
+  BookOpen, 
+  Award, 
+  HelpCircle, 
+  ThumbsUp, 
+  Book, 
+  Video, 
+  FileText 
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+
+interface MicroConceptProps {
+  id: string;
+  title: string;
+  subject: string;
+  chapter: string;
+  difficulty: "Easy" | "Medium" | "Hard";
+  estimatedTime: number; // in minutes
+  content: string;
+  resourceType: "Video" | "Text" | "PDF";
+  resourceUrl: string;
+  onComplete: (id: string) => void;
+  onNeedHelp: (id: string) => void;
+}
 
 export default function MicroConcept({
-  title = "Newton's Third Law of Motion",
-  subject = "Physics",
-  explanation = [
-    {
-      title: "Simple Explanation",
-      content: "For every action, there is an equal and opposite reaction. When you push against a wall, the wall pushes back against you with the same force."
-    },
-    {
-      title: "Detailed Explanation",
-      content: "Newton's Third Law states that for every action force, there is an equal and opposite reaction force. These forces always occur in pairs and act on different objects. The mathematical form is F₁₂ = -F₂₁, where F₁₂ is the force exerted by object 1 on object 2, and F₂₁ is the force exerted by object 2 on object 1."
-    },
-    {
-      title: "Visual Explanation",
-      content: "Imagine a rocket: the rocket expels gas downward (action force), and the gas exerts an equal force upward on the rocket (reaction force). This propels the rocket upward. Similarly, when you swim, you push water backward, and the water pushes you forward."
-    },
-    {
-      title: "Mathematical Explanation",
-      content: "The mathematical expression is F₁₂ = -F₂₁, where:\n- F₁₂ is the force exerted by object 1 on object 2\n- F₂₁ is the force exerted by object 2 on object 1\n- The negative sign indicates that the forces are in opposite directions\n\nThis law applies to all forces and is fundamental to understanding momentum conservation."
-    }
-  ],
-  example = "When a book rests on a table, the book exerts a downward force on the table due to gravity, and the table exerts an equal upward force on the book. This is why the book doesn't fall through the table.",
-  commonMistakes = [
-    {
-      mistake: "Thinking that action and reaction forces cancel each other out",
-      correction: "Action and reaction forces act on different objects, so they don't cancel each other. The gravitational force on you and your equal but opposite force on Earth don't cancel because they act on different bodies."
-    },
-    {
-      mistake: "Confusing Newton's Third Law pairs with balanced forces",
-      correction: "Balanced forces act on the same object and may cause it to remain at rest. Newton's Third Law pairs always act on different objects."
-    }
-  ],
-  examRelevance = "This concept frequently appears in numerical problems involving rocket propulsion, collisions, and force analysis. Expect 2-3 questions directly testing this concept in competitive exams like JEE.",
-  difficulty = "medium",
   id,
+  title,
+  subject,
   chapter,
+  difficulty,
   estimatedTime,
   content,
   resourceType,
   resourceUrl,
   onComplete,
-  onNeedHelp,
-  isCompleted: initialIsCompleted = false
+  onNeedHelp
 }: MicroConceptProps) {
-  const {
-    activeExplanation,
-    setActiveExplanation,
-    isCompleted,
-    handleComplete,
-    handleNeedHelp
-  } = useMicroConcept({
-    id,
-    title,
-    isCompleted: initialIsCompleted,
-    onComplete,
-    onNeedHelp
-  });
+  const [expanded, setExpanded] = useState(false);
+  const [understood, setUnderstood] = useState(false);
+  
+  const handleMarkUnderstood = () => {
+    setUnderstood(true);
+    onComplete(id);
+  };
+  
+  const handleNeedHelp = () => {
+    onNeedHelp(id);
+  };
   
   return (
-    <motion.div 
-      className="mb-6"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-    >
-      <Card className={`overflow-hidden border-t-4 ${isCompleted ? 'border-t-green-500' : 'border-t-violet-500'}`}>
-        <CardHeader className={`${isCompleted ? 'bg-gradient-to-r from-green-500/10 to-emerald-500/10' : 'bg-gradient-to-r from-violet-500/10 to-indigo-500/10'} pb-4`}>
-          <MicroConceptHeader 
-            title={title}
-            subject={subject}
-            difficulty={difficulty}
-            isCompleted={isCompleted}
-          />
-        </CardHeader>
-
-        <MicroConceptTabs
-          explanation={explanation}
-          example={example}
-          commonMistakes={commonMistakes}
-          examRelevance={examRelevance}
-          activeExplanation={activeExplanation}
-          setActiveExplanation={setActiveExplanation}
-        />
-
-        <CardFooter className={`${isCompleted ? 'bg-gradient-to-r from-green-50 to-emerald-50' : 'bg-gradient-to-r from-violet-50 to-indigo-50'} border-t p-3`}>
-          <MicroConceptFooter 
-            isCompleted={isCompleted}
-            handleComplete={handleComplete}
-            handleNeedHelp={handleNeedHelp}
-          />
-        </CardFooter>
-      </Card>
-    </motion.div>
+    <Card className={cn(
+      "shadow-md transition-all duration-300 overflow-hidden", 
+      expanded ? "border-l-4" : "",
+      understood ? "border-l-green-500" : expanded ? "border-l-sky-500" : ""
+    )}>
+      <CardContent className="p-0">
+        <div className="p-4">
+          <div className="flex items-start justify-between">
+            <div>
+              <div className="font-medium text-lg">{title}</div>
+              <div className="text-muted-foreground text-sm">{subject} · {chapter}</div>
+            </div>
+            
+            <div className="flex gap-2">
+              <Badge variant={
+                difficulty === "Easy" ? "outline" : 
+                difficulty === "Medium" ? "secondary" : 
+                "destructive"
+              }>
+                {difficulty}
+              </Badge>
+              <Badge variant="outline" className="flex gap-1 items-center">
+                <BookOpen size={14} />
+                <span>{estimatedTime} min</span>
+              </Badge>
+            </div>
+          </div>
+          
+          {expanded && (
+            <div className="mt-4 space-y-4 animate-fade-in">
+              <div className="text-sm prose max-w-none">
+                {content}
+              </div>
+              
+              {resourceUrl && (
+                <a 
+                  href={resourceUrl} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 text-sky-600 hover:text-sky-800"
+                >
+                  {resourceType === "Video" && <Video size={16} />}
+                  {resourceType === "Text" && <FileText size={16} />}
+                  {resourceType === "PDF" && <Book size={16} />}
+                  <span>Open {resourceType} Resource</span>
+                </a>
+              )}
+            </div>
+          )}
+        </div>
+      </CardContent>
+      
+      <CardFooter className={cn(
+        "p-3 bg-gray-50 flex justify-between", 
+        understood && "bg-green-50"
+      )}>
+        {understood ? (
+          <div className="flex items-center gap-2 text-green-600 text-sm">
+            <Check size={16} />
+            <span>Concept Understood</span>
+          </div>
+        ) : (
+          <div className="flex gap-2">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => setExpanded(!expanded)}
+            >
+              {expanded ? "Collapse" : "Expand"}
+            </Button>
+            
+            {expanded && (
+              <>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                  onClick={handleNeedHelp}
+                >
+                  <HelpCircle size={16} className="mr-1" />
+                  Need Help
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                  onClick={handleMarkUnderstood}
+                >
+                  <ThumbsUp size={16} className="mr-1" />
+                  Got It!
+                </Button>
+              </>
+            )}
+          </div>
+        )}
+      </CardFooter>
+    </Card>
   );
 }

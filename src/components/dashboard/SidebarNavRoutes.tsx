@@ -1,227 +1,123 @@
-import {
-  Book,
+
+import { Link, useLocation } from "react-router-dom";
+import { cn } from "@/lib/utils";
+import { 
+  LayoutDashboard, 
+  MessageSquare, 
+  Calendar, 
+  LineChart, 
+  User, 
+  Settings, 
   BookOpen,
-  Crown,
-  FileText,
-  Layers,
-  LayoutDashboard,
-  LineChart,
-  MessageSquare,
-  Settings,
-  User,
+  Brain,
+  Heart,
+  Target,
+  Video,
   Users,
+  Bell
 } from "lucide-react";
+import { NavigationRoute, UserRouteMap } from "./types/sidebar";
 
-export type NavItem = {
-  title: string;
-  href: string;
-  icon: JSX.Element;
-  submenu?: boolean;
-  subItems?: NavItem[];
-  onClick?: () => void;
+interface SidebarNavRoutesProps {
+  userType: string;
+  collapsed: boolean;
+  onMobileClose?: () => void;
+}
+
+export const SidebarNavRoutes = ({ 
+  userType, 
+  collapsed, 
+  onMobileClose 
+}: SidebarNavRoutesProps) => {
+  const location = useLocation();
+  
+  const userTypeRoutes: UserRouteMap = {
+    student: [
+      { name: "Dashboard", path: "/dashboard/student", icon: <LayoutDashboard size={20} /> },
+      { name: "24/7 Tutor", path: "/dashboard/student/tutor", icon: <MessageSquare size={20} /> },
+      { name: "Academic Advisor", path: "/dashboard/student/academic", icon: <Calendar size={20} /> },
+      { name: "Progress", path: "/dashboard/student/progress", icon: <LineChart size={20} /> },
+      { name: "Flashcards", path: "/dashboard/student/flashcards", icon: <Brain size={20} /> },
+      { name: "Materials Vault", path: "/dashboard/student/materials", icon: <BookOpen size={20} /> },
+      { name: "Live Tutors", path: "/dashboard/student/live-tutors", icon: <Video size={20} /> },
+      { name: "Forum", path: "/dashboard/student/forum", icon: <Users size={20} /> },
+      { name: "Video Library", path: "/dashboard/student/videos", icon: <Video size={20} /> },
+      { name: "Notifications", path: "/dashboard/student/notifications", icon: <Bell size={20} /> },
+      { name: "Wellness", path: "/dashboard/student/wellness", icon: <Heart size={20} /> }
+    ],
+    employee: [
+      { name: "Dashboard", path: "/dashboard/employee", icon: <LayoutDashboard size={20} /> },
+      { name: "Job Advisor", path: "/dashboard/employee/advisor", icon: <MessageSquare size={20} /> },
+      { name: "Productivity", path: "/dashboard/employee/productivity", icon: <LineChart size={20} /> },
+      { name: "Training", path: "/dashboard/employee/training", icon: <Calendar size={20} /> },
+      { name: "Career Guide", path: "/dashboard/employee/career", icon: <Target size={20} /> },
+      { name: "Motivation", path: "/dashboard/employee/motivation", icon: <Heart size={20} /> }
+    ],
+    doctor: [
+      { name: "Dashboard", path: "/dashboard/doctor", icon: <LayoutDashboard size={20} /> },
+      { name: "Research Hub", path: "/dashboard/doctor/research", icon: <MessageSquare size={20} /> },
+      { name: "Thesis Planner", path: "/dashboard/doctor/thesis", icon: <Calendar size={20} /> },
+      { name: "Publications", path: "/dashboard/doctor/publications", icon: <LineChart size={20} /> }
+    ],
+    founder: [
+      { name: "Dashboard", path: "/dashboard/founder", icon: <LayoutDashboard size={20} /> },
+      { name: "Startup Advisor", path: "/dashboard/founder/advisor", icon: <MessageSquare size={20} /> },
+      { name: "MVP Builder", path: "/dashboard/founder/mvp", icon: <Calendar size={20} /> },
+      { name: "Metrics", path: "/dashboard/founder/metrics", icon: <LineChart size={20} /> }
+    ]
+  };
+  
+  const routes = userTypeRoutes[userType] || userTypeRoutes.student;
+  
+  const commonRoutes: NavigationRoute[] = [
+    { name: "Profile", path: "/dashboard/profile", icon: <User size={20} /> },
+    { name: "Settings", path: "/dashboard/settings", icon: <Settings size={20} /> }
+  ];
+
+  return (
+    <div className="space-y-6">
+      <nav className="space-y-1 px-2">
+        {routes.map((route) => (
+          <Link
+            key={route.path}
+            to={route.path}
+            className={cn(
+              "flex items-center gap-3 px-3 py-2 rounded-md transition-colors",
+              location.pathname === route.path
+                ? "bg-gradient-to-r from-sky-500 to-violet-500 text-white shadow-lg"
+                : "hover:bg-accent",
+              collapsed && "justify-center"
+            )}
+            onClick={onMobileClose}
+          >
+            <span>{route.icon}</span>
+            {!collapsed && <span>{route.name}</span>}
+          </Link>
+        ))}
+      </nav>
+      
+      <div className="px-2 pt-4 border-t border-sidebar-border">
+        <nav className="space-y-1">
+          {commonRoutes.map((route) => (
+            <Link
+              key={route.path}
+              to={route.path === "/dashboard/profile" ? "/dashboard/student/profile" : route.path}
+              className={cn(
+                "flex items-center gap-3 px-3 py-2 rounded-md transition-colors",
+                (location.pathname === route.path || 
+                 (route.path === "/dashboard/profile" && location.pathname === "/dashboard/student/profile"))
+                  ? "bg-gradient-to-r from-sky-500 to-violet-500 text-white"
+                  : "hover:bg-accent",
+                collapsed && "justify-center"
+              )}
+              onClick={onMobileClose}
+            >
+              <span>{route.icon}</span>
+              {!collapsed && <span>{route.name}</span>}
+            </Link>
+          ))}
+        </nav>
+      </div>
+    </div>
+  );
 };
-
-export const studentNavItems: NavItem[] = [
-  {
-    title: "Dashboard",
-    href: "/dashboard/student",
-    icon: <LayoutDashboard size={18} />,
-  },
-  {
-    title: "Profile",
-    href: "/dashboard/student/profile",
-    icon: <User size={18} />,
-  },
-  {
-    title: "Resources",
-    href: "/dashboard/student/resources",
-    icon: <BookOpen size={18} />,
-  },
-  {
-    title: "Practice",
-    href: "/dashboard/student/practice",
-    icon: <FileText size={18} />,
-  },
-  {
-    title: "Progress",
-    href: "/dashboard/student/progress",
-    icon: <LineChart size={18} />,
-  },
-  {
-    title: "Concepts",
-    href: "/dashboard/student/concepts",
-    icon: <Layers size={18} />,
-  },
-  {
-    title: "Study Groups",
-    href: "/dashboard/student/study-groups",
-    icon: <Users size={18} />,
-  },
-  {
-    title: "AI Tutor",
-    href: "/dashboard/student/tutor",
-    icon: <MessageSquare size={18} />,
-  },
-  {
-    title: "Settings",
-    href: "/dashboard/student/settings",
-    icon: <Settings size={18} />,
-  },
-];
-
-export const employeeNavItems: NavItem[] = [
-  {
-    title: "Dashboard",
-    href: "/dashboard/employee",
-    icon: <LayoutDashboard size={18} />,
-  },
-  {
-    title: "Profile",
-    href: "/dashboard/employee/profile",
-    icon: <User size={18} />,
-  },
-  {
-    title: "Learning Paths",
-    href: "/dashboard/employee/learning-paths",
-    icon: <Book size={18} />,
-  },
-  {
-    title: "Skills Assessment",
-    href: "/dashboard/employee/skills",
-    icon: <FileText size={18} />,
-  },
-  {
-    title: "Progress",
-    href: "/dashboard/employee/progress",
-    icon: <LineChart size={18} />,
-  },
-  {
-    title: "Career Development",
-    href: "/dashboard/employee/career",
-    icon: <Layers size={18} />,
-  },
-  {
-    title: "Mentorship",
-    href: "/dashboard/employee/mentorship",
-    icon: <Users size={18} />,
-  },
-  {
-    title: "Settings",
-    href: "/dashboard/employee/settings",
-    icon: <Settings size={18} />,
-  },
-];
-
-export const founderNavItems: NavItem[] = [
-  {
-    title: "Dashboard",
-    href: "/dashboard/founder",
-    icon: <LayoutDashboard size={18} />,
-  },
-  {
-    title: "Profile",
-    href: "/dashboard/founder/profile",
-    icon: <User size={18} />,
-  },
-  {
-    title: "Startup Roadmap",
-    href: "/dashboard/founder/roadmap",
-    icon: <Book size={18} />,
-  },
-  {
-    title: "Pitch Deck",
-    href: "/dashboard/founder/pitch-deck",
-    icon: <FileText size={18} />,
-  },
-  {
-    title: "Metrics",
-    href: "/dashboard/founder/metrics",
-    icon: <LineChart size={18} />,
-  },
-  {
-    title: "Fundraising",
-    href: "/dashboard/founder/fundraising",
-    icon: <Crown size={18} />,
-  },
-  {
-    title: "Mentorship",
-    href: "/dashboard/founder/mentorship",
-    icon: <Users size={18} />,
-  },
-  {
-    title: "Settings",
-    href: "/dashboard/founder/settings",
-    icon: <Settings size={18} />,
-  },
-];
-
-export const doctorNavItems: NavItem[] = [
-  {
-    title: "Dashboard",
-    href: "/dashboard/doctor",
-    icon: <LayoutDashboard size={18} />,
-  },
-  {
-    title: "Profile",
-    href: "/dashboard/doctor/profile",
-    icon: <User size={18} />,
-  },
-  {
-    title: "Medical Resources",
-    href: "/dashboard/doctor/resources",
-    icon: <Book size={18} />,
-  },
-  {
-    title: "CME Courses",
-    href: "/dashboard/doctor/cme",
-    icon: <FileText size={18} />,
-  },
-  {
-    title: "Clinical Updates",
-    href: "/dashboard/doctor/updates",
-    icon: <LineChart size={18} />,
-  },
-  {
-    title: "Research",
-    href: "/dashboard/doctor/research",
-    icon: <Layers size={18} />,
-  },
-  {
-    title: "Peer Network",
-    href: "/dashboard/doctor/network",
-    icon: <Users size={18} />,
-  },
-  {
-    title: "Settings",
-    href: "/dashboard/doctor/settings",
-    icon: <Settings size={18} />,
-  },
-];
-
-export const adminNavItems: NavItem[] = [
-  {
-    title: "Dashboard",
-    href: "/dashboard/admin",
-    icon: <LayoutDashboard size={18} />,
-  },
-  {
-    title: "User Management",
-    href: "/dashboard/admin/users",
-    icon: <Users size={18} />,
-  },
-  {
-    title: "Content Management",
-    href: "/dashboard/admin/content",
-    icon: <Book size={18} />,
-  },
-  {
-    title: "Analytics",
-    href: "/dashboard/admin/analytics",
-    icon: <LineChart size={18} />,
-  },
-  {
-    title: "Settings",
-    href: "/dashboard/admin/settings",
-    icon: <Settings size={18} />,
-  },
-];

@@ -13,39 +13,13 @@ import {
 import { cn } from "@/lib/utils";
 import { SidebarNavProps } from "./types/sidebar";
 import { SidebarAvatar } from "./SidebarAvatar";
-import { 
-  studentNavItems,
-  employeeNavItems,
-  founderNavItems,
-  doctorNavItems,
-  adminNavItems
-} from "./SidebarNavRoutes"; // Import the named exports instead of SidebarNavRoutes
+import { SidebarNavRoutes } from "./SidebarNavRoutes";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 const SidebarNav = ({ userType, userName = "User" }: SidebarNavProps) => {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const isMobile = useIsMobile();
-
-  // Function to get nav items based on user type
-  const getNavItems = () => {
-    switch (userType) {
-      case "student":
-        return studentNavItems;
-      case "employee":
-        return employeeNavItems;
-      case "founder":
-        return founderNavItems;
-      case "doctor":
-        return doctorNavItems;
-      case "admin":
-        return adminNavItems;
-      default:
-        return studentNavItems;
-    }
-  };
-
-  const navItems = getNavItems();
 
   return (
     <>
@@ -112,24 +86,11 @@ const SidebarNav = ({ userType, userName = "User" }: SidebarNavProps) => {
             collapsed={collapsed} 
           />
           
-          {/* Navigation Links */}
-          <div className="px-3 py-2">
-            {navItems.map((item, index) => (
-              <Link
-                key={index}
-                to={item.href}
-                className={cn(
-                  "flex items-center px-3 py-2 my-1 rounded-md transition-colors",
-                  "text-muted-foreground hover:text-foreground hover:bg-accent",
-                  "active:bg-accent/80 focus:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                )}
-                onClick={() => item.onClick?.()}
-              >
-                <span className="mr-3">{item.icon}</span>
-                {!collapsed && <span>{item.title}</span>}
-              </Link>
-            ))}
-          </div>
+          <SidebarNavRoutes 
+            userType={userType} 
+            collapsed={collapsed}
+            onMobileClose={() => setMobileOpen(false)} 
+          />
         </div>
         
         <div className="p-4 border-t border-sidebar-border">

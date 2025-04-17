@@ -13,8 +13,7 @@ export type OnboardingStep =
   | "sentiment"
   | "habits"
   | "interests"
-  | "signup"
-  | "completed";  // Added "completed" step
+  | "signup";
 
 export interface OnboardingData {
   role?: UserRole;
@@ -40,10 +39,6 @@ export interface OnboardingData {
   studyPreference?: string;
   interests?: string[];
   completedOnboarding?: boolean;
-  
-  // Added missing properties
-  name?: string;
-  phoneNumber?: string;
 }
 
 interface OnboardingContextType {
