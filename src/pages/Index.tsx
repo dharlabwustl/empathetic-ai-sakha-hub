@@ -1,3 +1,4 @@
+
 import React, { useRef } from "react";
 import HeroSection from "@/components/home/HeroSection";
 import WhatIsSection from "@/components/home/WhatIsSection";
@@ -56,7 +57,6 @@ const Index = () => {
       
       {showExamAnalyzer && (
         <ExamReadinessAnalyzer
-          isOpen={showExamAnalyzer}
           onClose={() => setShowExamAnalyzer(false)}
         />
       )}
