@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import { 
   Card, 
   CardContent,
@@ -12,6 +12,7 @@ import { useOnboarding } from "@/components/signup/OnboardingContext";
 import StepHandler from "@/components/signup/StepHandler";
 import StepRenderer from "@/components/signup/StepRenderer";
 import { motion, AnimatePresence } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 
 const SignUpContent = () => {
   const { 
@@ -22,6 +23,8 @@ const SignUpContent = () => {
     messages, 
     setMessages 
   } = useOnboarding();
+  
+  const navigate = useNavigate();
 
   const { isLoading, handlers } = StepHandler({
     onboardingData,
@@ -30,6 +33,29 @@ const SignUpContent = () => {
     setMessages,
     setStep
   });
+  
+  // Debug flag to verify signup and onboarding flow
+  useEffect(() => {
+    console.log("Current step:", step);
+    console.log("Current onboarding data:", onboardingData);
+    
+    // Check if we've completed signup and should move to dashboard/onboarding
+    if (step === "completed" && onboardingData.name && onboardingData.phoneNumber) {
+      console.log("Signup completed, navigating to dashboard/student");
+      
+      // Make sure we set the completedOnboarding flag to false to ensure the onboarding flow shows up
+      const userData = localStorage.getItem("userData");
+      if (userData) {
+        const parsedData = JSON.parse(userData);
+        parsedData.completedOnboarding = false;
+        parsedData.isNewUser = true;
+        localStorage.setItem("userData", JSON.stringify(parsedData));
+      }
+      
+      // Navigate to dashboard with URL parameters to trigger onboarding
+      navigate("/dashboard/student?completedOnboarding=false&new=true");
+    }
+  }, [step, onboardingData, navigate]);
 
   // Animation variants
   const cardVariants = {

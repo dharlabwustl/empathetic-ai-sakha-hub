@@ -1,10 +1,10 @@
 
 import { Button } from "@/components/ui/button";
 import { UserProfileType } from "@/types/user";
-import { Eye } from "lucide-react";
-import MoodLogButton from "@/components/dashboard/student/MoodLogButton";
+import { Eye, MessageSquareText, Sparkles } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 
 interface DashboardHeaderProps {
   userProfile: UserProfileType;
@@ -106,10 +106,31 @@ const DashboardHeader = ({
         </motion.div>
         
         <motion.div 
-          className="flex gap-2 items-start justify-start md:justify-end w-full sm:w-auto"
+          className="flex flex-wrap gap-2 items-center justify-start w-full sm:w-auto"
           variants={itemVariants}
         >
-          <MoodLogButton className={`${isMobile ? 'text-xs px-3 py-1' : ''} whitespace-nowrap`} />
+          {/* Quick Access Buttons */}
+          <Link to="/dashboard/student/tutor">
+            <Button
+              variant="outline"
+              className="bg-white/90 hover:bg-violet-100 hover:text-violet-700 text-sm flex items-center gap-1 shadow-sm border-violet-200"
+              size={isMobile ? "sm" : "default"}
+            >
+              <MessageSquareText className="h-4 w-4 mr-1" />
+              24x7 AI Tutor
+            </Button>
+          </Link>
+          
+          <Link to="/dashboard/student/feel-good">
+            <Button
+              variant="outline"
+              className="bg-white/90 hover:bg-pink-100 hover:text-pink-700 text-sm flex items-center gap-1 shadow-sm border-pink-200"
+              size={isMobile ? "sm" : "default"}
+            >
+              <Sparkles className="h-4 w-4 mr-1" />
+              Feel Good Corner
+            </Button>
+          </Link>
           
           <motion.div
             whileHover={{ scale: 1.05 }}
@@ -117,11 +138,8 @@ const DashboardHeader = ({
           >
             <Button 
               onClick={onViewStudyPlan}
-              className={`
-                flex items-center gap-2 shadow-md whitespace-nowrap
-                bg-gradient-to-r from-violet-500 to-sky-500 hover:from-violet-600 hover:to-sky-600
-                ${isMobile ? 'text-xs px-3 py-1 h-8' : ''}
-              `}
+              size={isMobile ? "sm" : "default"}
+              className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white shadow-md flex items-center gap-2"
             >
               <Eye size={isMobile ? 14 : 18} />
               <span>View Study Plan</span>
@@ -138,17 +156,26 @@ const DashboardHeader = ({
           transition={{ delay: 0.8, duration: 0.5 }}
         >
           <div className="flex">
-            {[...Array(Math.min(extendedProfile.studyStreak, 5))].map((_, i) => (
-              <motion.div 
-                key={i}
-                className="w-6 h-6 bg-amber-100 rounded-full border-2 border-amber-300 flex items-center justify-center -ml-1 first:ml-0"
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ delay: 0.9 + i * 0.1 }}
-              >
-                <span className="text-xs">🔥</span>
-              </motion.div>
-            ))}
+            {/* Dynamically display streak icons based on the actual streak */}
+            {[...Array(Math.min(extendedProfile.studyStreak, 5))].map((_, i) => {
+              // Calculate color intensity based on streak position
+              const intensity = 100 - (i * 5); // Decreasing intensity
+              return (
+                <motion.div 
+                  key={i}
+                  className={`w-6 h-6 rounded-full border-2 flex items-center justify-center -ml-1 first:ml-0`}
+                  style={{
+                    backgroundColor: `rgba(251, 191, 36, ${0.1 + (i * 0.1)})`,
+                    borderColor: `rgba(251, 191, 36, ${0.3 + (i * 0.1)})`,
+                  }}
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: 0.9 + i * 0.1 }}
+                >
+                  <span className="text-xs">🔥</span>
+                </motion.div>
+              );
+            })}
           </div>
           <span className="text-xs font-medium text-amber-700">
             {extendedProfile.studyStreak} day{extendedProfile.studyStreak > 1 ? 's' : ''} streak! Keep it up!
