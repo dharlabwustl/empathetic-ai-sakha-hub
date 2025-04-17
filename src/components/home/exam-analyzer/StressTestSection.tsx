@@ -36,17 +36,20 @@ const StressTestSection: React.FC<StressTestSectionProps> = ({
   const [selectedCognitiveSet, setSelectedCognitiveSet] = useState<number>(1); // Default to the first set
   const [totalTestTime, setTotalTestTime] = useState<number>(0);
   const [testTimeLeft, setTestTimeLeft] = useState<number>(0);
+  const [processingNextQuestion, setProcessingNextQuestion] = useState(false);
   
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const testTimerRef = useRef<NodeJS.Timeout | null>(null);
   const startTimeRef = useRef<number>(0);
   const distractionTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const explanationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
   useEffect(() => {
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
       if (testTimerRef.current) clearInterval(testTimerRef.current);
       if (distractionTimerRef.current) clearTimeout(distractionTimerRef.current);
+      if (explanationTimeoutRef.current) clearTimeout(explanationTimeoutRef.current);
     };
   }, []);
   
@@ -99,12 +102,19 @@ const StressTestSection: React.FC<StressTestSectionProps> = ({
           
           setUserAnswers(prev => [...prev, timeoutAnswer]);
           setShowExplanation(true);
+          setProcessingNextQuestion(true);
           
-          // Instead of immediately moving to the next question, show the explanation first
-          setTimeout(() => {
+          // Clear any previous explanation timeout
+          if (explanationTimeoutRef.current) {
+            clearTimeout(explanationTimeoutRef.current);
+          }
+          
+          // Schedule moving to the next question after showing explanation
+          explanationTimeoutRef.current = setTimeout(() => {
             setShowExplanation(false);
+            setProcessingNextQuestion(false);
             handleNextQuestion();
-          }, 2000);
+          }, 3000); // Show explanation for 3 seconds
           
           return 0;
         }
@@ -135,6 +145,7 @@ const StressTestSection: React.FC<StressTestSectionProps> = ({
     if (timerRef.current) clearInterval(timerRef.current);
     if (testTimerRef.current) clearInterval(testTimerRef.current);
     if (distractionTimerRef.current) clearTimeout(distractionTimerRef.current);
+    if (explanationTimeoutRef.current) clearTimeout(explanationTimeoutRef.current);
     
     setIsTestActive(false);
     onCompleteTest(userAnswers);
@@ -167,6 +178,11 @@ const StressTestSection: React.FC<StressTestSectionProps> = ({
       setShowDistraction(false);
     }
     
+    // Clear any previous explanation timeout
+    if (explanationTimeoutRef.current) {
+      clearTimeout(explanationTimeoutRef.current);
+    }
+    
     const currentQuestion = questions[currentQuestionIndex];
     const isCorrect = answer === currentQuestion.correctAnswer;
     
@@ -181,11 +197,13 @@ const StressTestSection: React.FC<StressTestSectionProps> = ({
     
     setUserAnswers(prev => [...prev, newAnswer]);
     setShowExplanation(true);
+    setProcessingNextQuestion(true);
     
-    setTimeout(() => {
+    explanationTimeoutRef.current = setTimeout(() => {
       setShowExplanation(false);
+      setProcessingNextQuestion(false);
       handleNextQuestion();
-    }, 2000);
+    }, 3000); // Show for 3 seconds
   };
   
   const handleNextQuestion = () => {
@@ -263,7 +281,7 @@ const StressTestSection: React.FC<StressTestSectionProps> = ({
             showDistraction={showDistraction}
             currentComplexity={currentComplexity}
             userAnswers={userAnswers}
-            onAnswer={handleAnswer}
+            onAnswer={!processingNextQuestion ? handleAnswer : () => {}}
           />
         </div>
       ) : (
