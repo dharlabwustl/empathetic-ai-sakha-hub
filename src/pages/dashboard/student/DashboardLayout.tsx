@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import SidebarNav from "@/components/dashboard/SidebarNav";
 import ChatAssistant from "@/components/dashboard/ChatAssistant";
@@ -19,12 +20,6 @@ import { getFeatures } from "./utils/FeatureManager";
 import MoodLogButton from "@/components/dashboard/student/MoodLogButton";
 import { Button } from "@/components/ui/button";
 import { BookOpen, MessageSquareText, Sparkles, Brain } from "lucide-react";
-import {
-  getMoodMotivationalQuote,
-  getMoodIcon,
-  applyMoodTheme,
-  saveMoodToLocalStorage
-} from "@/components/dashboard/student/mood-tracking/moodUtils";
 
 interface DashboardLayoutProps {
   userProfile: UserProfileType;
@@ -46,7 +41,6 @@ interface DashboardLayoutProps {
   lastActivity?: { type: string; description: string } | null;
   suggestedNextAction?: string | null;
   currentMood?: MoodType;
-  onMoodChange?: (mood: MoodType) => void;
 }
 
 const DashboardLayout = ({
@@ -68,8 +62,7 @@ const DashboardLayout = ({
   onCloseStudyPlan,
   lastActivity,
   suggestedNextAction,
-  currentMood,
-  onMoodChange
+  currentMood
 }: DashboardLayoutProps) => {
   const currentTime = new Date();
   const formattedTime = formatTime(currentTime);
@@ -77,32 +70,22 @@ const DashboardLayout = ({
   const isMobile = useIsMobile();
   const [influenceMeterCollapsed, setInfluenceMeterCollapsed] = useState(true);
   const [userMood, setUserMood] = useState<MoodType | undefined>(currentMood);
-  const [motivationalQuote, setMotivationalQuote] = useState<string>("");
-
+  
   const features = getFeatures();
-
-  useEffect(() => {
-    setUserMood(currentMood);
-  }, [currentMood]);
-
-  useEffect(() => {
-    if (userMood) {
-      const quote = getMoodMotivationalQuote(userMood);
-      setMotivationalQuote(quote);
-    }
-  }, [userMood]);
 
   const handleMoodChange = (mood: MoodType) => {
     setUserMood(mood);
     
-    if (onMoodChange) {
-      onMoodChange(mood);
-    } else {
-      applyMoodTheme(mood);
-      saveMoodToLocalStorage(mood);
+    // Save mood to localStorage
+    const userData = localStorage.getItem("userData");
+    if (userData) {
+      const parsedData = JSON.parse(userData);
+      parsedData.mood = mood;
+      localStorage.setItem("userData", JSON.stringify(parsedData));
     }
   };
-
+  
+  // Navigation buttons for quick access
   const navigationButtons = [
     { 
       name: "24/7 AI Tutor", 
@@ -126,7 +109,7 @@ const DashboardLayout = ({
       className: "hover:bg-purple-100 hover:text-purple-700 text-sm"
     }
   ];
-
+  
   return (
     <div className={`min-h-screen bg-gradient-to-br from-sky-100/10 via-white to-violet-100/10 dark:from-sky-900/10 dark:via-gray-900 dark:to-violet-900/10 ${userMood ? `mood-${userMood}` : ''}`}>
       <SidebarNav userType="student" userName={userProfile.name} />
@@ -145,7 +128,6 @@ const DashboardLayout = ({
             formattedTime={formattedTime}
             formattedDate={formattedDate}
             onViewStudyPlan={onViewStudyPlan}
-            currentMood={userMood}
           />
           
           <div className="flex-shrink-0">
@@ -156,20 +138,7 @@ const DashboardLayout = ({
           </div>
         </div>
 
-        {motivationalQuote && (
-          <motion.div 
-            className="mb-6 p-4 bg-white/80 dark:bg-gray-800/50 backdrop-blur-sm rounded-lg shadow-sm border border-gray-100 dark:border-gray-700"
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-          >
-            <div className="flex items-center gap-3">
-              {userMood && getMoodIcon(userMood)}
-              <p className="text-sm italic">{motivationalQuote}</p>
-            </div>
-          </motion.div>
-        )}
-
+        {/* Enhanced Quick Access Navigation Bar */}
         <motion.div 
           className="flex flex-wrap items-center gap-2 mb-4 p-2 bg-white/80 dark:bg-gray-800/50 backdrop-blur-sm rounded-lg shadow-sm border border-gray-100 dark:border-gray-700"
           initial={{ opacity: 0, y: -10 }}
@@ -218,6 +187,7 @@ const DashboardLayout = ({
           </motion.div>
         </motion.div>
 
+        {/* Surrounding Influences Section - Enhanced with our redesigned component */}
         <SurroundingInfluencesSection 
           influenceMeterCollapsed={influenceMeterCollapsed}
           setInfluenceMeterCollapsed={setInfluenceMeterCollapsed}

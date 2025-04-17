@@ -4,13 +4,13 @@ import { UserRole } from "@/types/user/base";
 
 export const getQuestionsByRole = (role: UserRole): Question[] => {
   switch (role) {
-    case "student":
+    case UserRole.Student:
       return studentQuestions;
-    case "employee" as UserRole:
+    case UserRole.Employee:
       return employeeQuestions;
-    case "doctor" as UserRole:
+    case UserRole.Doctor:
       return doctorQuestions;
-    case "founder" as UserRole:
+    case UserRole.Founder:
       return founderQuestions;
     default:
       return studentQuestions;

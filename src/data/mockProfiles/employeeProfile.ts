@@ -1,44 +1,66 @@
 
+// Correcting the mock data for employee profile
 import { EmployeeProfile } from "@/types/user";
-import { MoodType } from "@/types/user/base";
+import { UserRole, SubscriptionType } from "@/types/user/base";
 import { v4 as uuidv4 } from "uuid";
 
 export const mockEmployeeProfile: EmployeeProfile = {
-  id: "2",
-  name: "Priyanka Sharma",
-  email: "priyanka.sharma@example.com",
-  phoneNumber: "8765432109",
-  role: "employee",
-  personalityType: "analytical",
-  subscription: "premium",
-  joinDate: "2025-02-15",
-  lastActive: "2025-05-12",
-  areasOfInterest: [
-    { id: "i1", name: "Project Management", level: "Advanced" },
-    { id: "i2", name: "Data Analysis", level: "Intermediate" },
-    { id: "i3", name: "Team Leadership", level: "Advanced" }
+  id: uuidv4(),
+  name: "Rajesh Kumar",
+  email: "rajesh.kumar@techsolutions.com",
+  phoneNumber: "+919876543211",
+  role: UserRole.Employee,
+  personalityType: "Strategic Thinker",
+  subscription: SubscriptionType.Basic,
+  joinDate: "2025-01-15",
+  lastActive: "2025-04-06",
+  jobTitle: "Product Manager",
+  workExperience: 6,
+  skills: [
+    "Product Strategy",
+    "User Research",
+    "Agile Methodologies",
+    "Roadmapping",
+    "Team Leadership"
   ],
-  jobTitle: "Senior Product Manager",
-  industry: "Technology",
-  seniorityLevel: "Mid-level",
-  domain: "Software",
+  company: "TechSolutions India",
+  industry: "SaaS",
+  careerGoal: "Director of Product",
+  projectsCompleted: 12,
+  trainingCompleted: 8,
+  experienceLevel: "Mid-Senior",
+  skillsToGrow: ["Data Analytics", "Machine Learning Basics", "Product Marketing"],
+  productivityScore: 85,
   goals: [
     {
-      id: "g1",
+      id: uuidv4(),
       title: "Complete PMP Certification",
-      description: "Study for and pass the PMP exam",
-      progress: 65,
+      description: "Pass the Project Management Professional exam",
+      progress: 75,
       status: "in-progress",
-      dueDate: "2025-07-30"
+      dueDate: "2025-05-30",
+      targetDate: new Date("2025-05-30")
     },
     {
-      id: "g2",
-      title: "Learn Advanced SQL",
-      description: "Master data analysis with complex queries",
-      progress: 40,
-      status: "in-progress",
-      dueDate: "2025-06-15"
+      id: uuidv4(),
+      title: "Learn SQL",
+      description: "Complete advanced SQL course for data analysis",
+      progress: 45,
+      status: "not-started",
+      dueDate: "2025-07-15",
+      targetDate: new Date("2025-07-15")
     }
   ],
-  currentMood: "focused" as MoodType
+  areasOfInterest: [
+    {
+      id: uuidv4(),
+      name: "Product Analytics",
+      level: "Intermediate"
+    },
+    {
+      id: uuidv4(),
+      name: "UX Design",
+      level: "Beginner"
+    }
+  ]
 };

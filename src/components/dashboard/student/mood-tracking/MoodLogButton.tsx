@@ -1,11 +1,11 @@
 
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Smile, Sun, Cloud, Wind, Battery, Target, Heart, Clock, AlertCircle, ThumbsUp } from "lucide-react";
+import { Smile } from "lucide-react";
 import { MoodType } from "@/types/user/base";
 import MoodSelectionDialog from "./MoodSelectionDialog";
 import { motion } from "framer-motion";
-import { getMoodDisplayName, getMoodColor, getMoodIcon } from "./moodUtils";
+import { getMoodDisplayName, getMoodColor } from "./moodUtils";
 
 interface MoodLogButtonProps {
   currentMood?: MoodType;
@@ -14,6 +14,11 @@ interface MoodLogButtonProps {
 
 const MoodLogButton: React.FC<MoodLogButtonProps> = ({ currentMood, onMoodChange }) => {
   const [showMoodDialog, setShowMoodDialog] = useState(false);
+
+  const getMoodIcon = (mood?: MoodType) => {
+    // You can customize this to return different icons based on mood
+    return <Smile className="h-4 w-4 mr-2" />;
+  };
 
   const handleClose = () => {
     setShowMoodDialog(false);

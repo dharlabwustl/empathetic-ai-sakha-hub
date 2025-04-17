@@ -2,7 +2,16 @@
 import React, { createContext, useState, useContext, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { MoodType, PersonalityType, UserRole } from "@/types/user/base";
+import { MoodType, PersonalityType } from "@/types/user/base";
+
+// Export UserRole enum for use in other components
+export enum UserRole {
+  Student = "student",
+  Employee = "employee",
+  Doctor = "doctor",
+  Founder = "founder",
+  Admin = "admin"
+}
 
 // Define types for the step management
 export type OnboardingStep = 

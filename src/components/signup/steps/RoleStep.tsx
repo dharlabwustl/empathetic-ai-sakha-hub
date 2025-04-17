@@ -11,7 +11,7 @@ const RoleStep: React.FC<RoleStepProps> = ({ onRoleSelect }) => {
   return (
     <div className="grid grid-cols-2 gap-4">
       <Button
-        onClick={() => onRoleSelect("student")}
+        onClick={() => onRoleSelect(UserRole.Student)}
         className="bg-white hover:bg-blue-50 text-blue-700 border border-blue-200 h-auto py-6 flex flex-col items-center"
         variant="outline"
       >
@@ -19,7 +19,7 @@ const RoleStep: React.FC<RoleStepProps> = ({ onRoleSelect }) => {
         <span>Student</span>
       </Button>
       <Button
-        onClick={() => onRoleSelect("employee")}
+        onClick={() => onRoleSelect(UserRole.Employee)}
         className="bg-white hover:bg-blue-50 text-blue-700 border border-blue-200 h-auto py-6 flex flex-col items-center"
         variant="outline"
       >
@@ -27,7 +27,7 @@ const RoleStep: React.FC<RoleStepProps> = ({ onRoleSelect }) => {
         <span>Employee</span>
       </Button>
       <Button
-        onClick={() => onRoleSelect("doctor")}
+        onClick={() => onRoleSelect(UserRole.Doctor)}
         className="bg-white hover:bg-blue-50 text-blue-700 border border-blue-200 h-auto py-6 flex flex-col items-center"
         variant="outline"
       >
@@ -35,7 +35,7 @@ const RoleStep: React.FC<RoleStepProps> = ({ onRoleSelect }) => {
         <span>Doctor</span>
       </Button>
       <Button
-        onClick={() => onRoleSelect("founder")}
+        onClick={() => onRoleSelect(UserRole.Founder)}
         className="bg-white hover:bg-blue-50 text-blue-700 border border-blue-200 h-auto py-6 flex flex-col items-center"
         variant="outline"
       >

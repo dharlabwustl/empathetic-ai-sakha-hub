@@ -3,8 +3,7 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { UserGoal } from "../OnboardingContext";
-import { UserRole } from "@/types/user/base";
+import { UserGoal, UserRole } from "../OnboardingContext";
 
 interface GoalStepProps {
   role?: UserRole;
@@ -31,7 +30,7 @@ const GoalStep: React.FC<GoalStepProps> = ({ role, onGoalSelect }) => {
 
   return (
     <div className="space-y-4">
-      {role === "student" && (
+      {role === UserRole.Student && (
         <div className="grid grid-cols-1 gap-3">
           {studentGoals.map((goal) => (
             <Button
@@ -46,7 +45,7 @@ const GoalStep: React.FC<GoalStepProps> = ({ role, onGoalSelect }) => {
         </div>
       )}
       
-      {role !== "student" && (
+      {role !== UserRole.Student && (
         <form onSubmit={handleCustomGoalSubmit} className="space-y-4">
           <div>
             <Label htmlFor="goal">Your Primary Goal</Label>

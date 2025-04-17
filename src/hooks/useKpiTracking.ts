@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { UserRoleEnum } from '@/types/user/base';
+import { UserRole } from '@/types/user';
 
 export interface KpiData {
   id: string;
@@ -22,7 +22,7 @@ export interface NudgeData {
   read: boolean;
 }
 
-export function useKpiTracking(role: UserRoleEnum) {
+export function useKpiTracking(role: UserRole) {
   const [kpis, setKpis] = useState<KpiData[]>([]);
   const [nudges, setNudges] = useState<NudgeData[]>([]);
   const [loading, setLoading] = useState(true);
@@ -60,9 +60,9 @@ export function useKpiTracking(role: UserRoleEnum) {
 }
 
 // Helper functions to get role-specific data
-function getRoleSpecificKpis(role: UserRoleEnum): KpiData[] {
+function getRoleSpecificKpis(role: UserRole): KpiData[] {
   switch (role) {
-    case UserRoleEnum.Student:
+    case UserRole.Student:
       return [
         {
           id: "study-time",
@@ -101,7 +101,7 @@ function getRoleSpecificKpis(role: UserRoleEnum): KpiData[] {
           icon: "Smile",
         },
       ];
-    case UserRoleEnum.Employee:
+    case UserRole.Employee:
       return [
         {
           id: "productivity-score",
@@ -140,7 +140,7 @@ function getRoleSpecificKpis(role: UserRoleEnum): KpiData[] {
           icon: "Heart",
         },
       ];
-    case UserRoleEnum.Doctor:
+    case UserRole.Doctor:
       return [
         {
           id: "research-hours",
@@ -179,7 +179,7 @@ function getRoleSpecificKpis(role: UserRoleEnum): KpiData[] {
           icon: "Heart",
         },
       ];
-    case UserRoleEnum.Founder:
+    case UserRole.Founder:
       return [
         {
           id: "mvp-completion",
@@ -223,11 +223,11 @@ function getRoleSpecificKpis(role: UserRoleEnum): KpiData[] {
   }
 }
 
-function getRoleSpecificNudges(role: UserRoleEnum): NudgeData[] {
+function getRoleSpecificNudges(role: UserRole): NudgeData[] {
   const now = new Date().toISOString();
   
   switch (role) {
-    case UserRoleEnum.Student:
+    case UserRole.Student:
       return [
         {
           id: "n1",
@@ -267,7 +267,7 @@ function getRoleSpecificNudges(role: UserRoleEnum): NudgeData[] {
           read: false,
         },
       ];
-    case UserRoleEnum.Employee:
+    case UserRole.Employee:
       return [
         {
           id: "n1",
@@ -297,7 +297,7 @@ function getRoleSpecificNudges(role: UserRoleEnum): NudgeData[] {
           read: false,
         },
       ];
-    case UserRoleEnum.Doctor:
+    case UserRole.Doctor:
       return [
         {
           id: "n1",
@@ -327,7 +327,7 @@ function getRoleSpecificNudges(role: UserRoleEnum): NudgeData[] {
           read: false,
         },
       ];
-    case UserRoleEnum.Founder:
+    case UserRole.Founder:
       return [
         {
           id: "n1",

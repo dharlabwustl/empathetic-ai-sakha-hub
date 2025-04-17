@@ -1,10 +1,9 @@
 
 import { useState, useEffect } from "react";
-import { UserProfileType } from "@/types/user";
-import { UserRoleEnum } from "@/types/user/base";
+import { UserProfileType, UserRole } from "@/types/user";
 import { getMockProfileByRole } from "@/data/mockProfiles";
 
-export function useUserProfile(role: UserRoleEnum = UserRoleEnum.Student): {
+export function useUserProfile(role: UserRole = UserRole.Student): {
   userProfile: UserProfileType | null;
   loading: boolean;
   updateUserProfile: (updates: Partial<UserProfileType>) => void;
@@ -30,7 +29,7 @@ export function useUserProfile(role: UserRoleEnum = UserRoleEnum.Student): {
   const updateUserProfile = (updates: Partial<UserProfileType>) => {
     setUserProfile(prev => {
       if (!prev) return prev;
-      return { ...prev, ...updates } as UserProfileType;
+      return { ...prev, ...updates };
     });
   };
 
