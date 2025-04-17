@@ -1,6 +1,7 @@
 
 import { UserProfileType } from "@/types/user";
 import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
+import { SubscriptionType } from "@/types/user/base";
 import KpiCard from "@/components/dashboard/KpiCard";
 import NudgePanel from "@/components/dashboard/NudgePanel";
 import ProfileCard from "@/components/dashboard/ProfileCard";
@@ -163,7 +164,7 @@ export default function DashboardOverview({
               icon={feature.icon}
               path={feature.path}
               isPremium={feature.isPremium}
-              userSubscription={userProfile.subscription || "basic"}
+              userSubscription={userProfile.subscription || SubscriptionType.Basic}
             />
           </motion.div>
         ))}

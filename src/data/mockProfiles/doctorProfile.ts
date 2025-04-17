@@ -1,7 +1,7 @@
 
 // Correcting the mock data for doctor profile
 import { DoctorProfile } from "@/types/user";
-import { UserRole } from "@/types/user/base";
+import { UserRole, SubscriptionType } from "@/types/user/base";
 import { v4 as uuidv4 } from "uuid";
 
 export const mockDoctorProfile: DoctorProfile = {
@@ -11,7 +11,7 @@ export const mockDoctorProfile: DoctorProfile = {
   phoneNumber: "+919876543210",
   role: UserRole.Doctor,
   personalityType: "Analytical Problem Solver",
-  subscription: "premium",
+  subscription: SubscriptionType.Premium,
   joinDate: "2025-02-10",
   lastActive: "2025-04-07",
   specialization: "Neurology",

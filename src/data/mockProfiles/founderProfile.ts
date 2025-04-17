@@ -1,7 +1,7 @@
 
 // Correcting the mock data for founder profile
 import { FounderProfile } from "@/types/user";
-import { UserRole } from "@/types/user/base";
+import { UserRole, SubscriptionType } from "@/types/user/base";
 import { v4 as uuidv4 } from "uuid";
 
 export const mockFounderProfile: FounderProfile = {
@@ -11,7 +11,7 @@ export const mockFounderProfile: FounderProfile = {
   phoneNumber: "+919876543212",
   role: UserRole.Founder,
   personalityType: "Creative Builder",
-  subscription: "premium",
+  subscription: SubscriptionType.Premium,
   joinDate: "2024-12-05",
   lastActive: "2025-04-07",
   startupName: "EduMatch",

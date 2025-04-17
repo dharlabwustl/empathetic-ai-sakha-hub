@@ -1,7 +1,7 @@
 
 // Correcting the mock data for employee profile
 import { EmployeeProfile } from "@/types/user";
-import { UserRole } from "@/types/user/base";
+import { UserRole, SubscriptionType } from "@/types/user/base";
 import { v4 as uuidv4 } from "uuid";
 
 export const mockEmployeeProfile: EmployeeProfile = {
@@ -11,7 +11,7 @@ export const mockEmployeeProfile: EmployeeProfile = {
   phoneNumber: "+919876543211",
   role: UserRole.Employee,
   personalityType: "Strategic Thinker",
-  subscription: "basic",
+  subscription: SubscriptionType.Basic,
   joinDate: "2025-01-15",
   lastActive: "2025-04-06",
   jobTitle: "Product Manager",
