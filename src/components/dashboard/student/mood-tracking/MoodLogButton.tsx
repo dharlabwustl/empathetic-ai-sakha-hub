@@ -18,7 +18,7 @@ const MoodLogButton: React.FC<MoodLogButtonProps> = ({ currentMood, onMoodChange
   const getMoodDisplayName = (mood?: MoodType): string => {
     if (!mood) return "Log Today's Mood";
     
-    const moodMap: Record<MoodType, string> = {
+    const moodMap: Record<string, string> = {
       motivated: "Motivated",
       curious: "Curious",
       neutral: "Neutral",
@@ -28,8 +28,7 @@ const MoodLogButton: React.FC<MoodLogButtonProps> = ({ currentMood, onMoodChange
       happy: "Happy",
       okay: "Okay",
       overwhelmed: "Overwhelmed",
-      sad: "Sad",
-      undefined: "Log Today's Mood"
+      sad: "Sad"
     };
     
     return moodMap[mood] || "Log Today's Mood";
@@ -38,7 +37,7 @@ const MoodLogButton: React.FC<MoodLogButtonProps> = ({ currentMood, onMoodChange
   const getMoodColor = (mood?: MoodType): string => {
     if (!mood) return "bg-purple-100 text-purple-700 hover:bg-purple-200 dark:bg-purple-900/30 dark:text-purple-300";
     
-    const moodColorMap: Record<MoodType, string> = {
+    const moodColorMap: Record<string, string> = {
       motivated: "bg-orange-100 text-orange-700 hover:bg-orange-200 dark:bg-orange-900/30 dark:text-orange-300",
       curious: "bg-blue-100 text-blue-700 hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-300",
       neutral: "bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300",
@@ -48,8 +47,7 @@ const MoodLogButton: React.FC<MoodLogButtonProps> = ({ currentMood, onMoodChange
       happy: "bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-300",
       okay: "bg-blue-100 text-blue-700 hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-300",
       overwhelmed: "bg-purple-100 text-purple-700 hover:bg-purple-200 dark:bg-purple-900/30 dark:text-purple-300",
-      sad: "bg-indigo-100 text-indigo-700 hover:bg-indigo-200 dark:bg-indigo-900/30 dark:text-indigo-300",
-      undefined: "bg-purple-100 text-purple-700 hover:bg-purple-200 dark:bg-purple-900/30 dark:text-purple-300"
+      sad: "bg-indigo-100 text-indigo-700 hover:bg-indigo-200 dark:bg-indigo-900/30 dark:text-indigo-300"
     };
     
     return moodColorMap[mood] || "bg-purple-100 text-purple-700 hover:bg-purple-200 dark:bg-purple-900/30 dark:text-purple-300";
@@ -58,6 +56,10 @@ const MoodLogButton: React.FC<MoodLogButtonProps> = ({ currentMood, onMoodChange
   const getMoodIcon = (mood?: MoodType) => {
     // You can customize this to return different icons based on mood
     return <Smile className="h-4 w-4 mr-2" />;
+  };
+
+  const handleClose = () => {
+    setShowMoodDialog(false);
   };
 
   return (
@@ -79,7 +81,7 @@ const MoodLogButton: React.FC<MoodLogButtonProps> = ({ currentMood, onMoodChange
       
       <MoodSelectionDialog 
         isOpen={showMoodDialog}
-        onClose={() => setShowMoodDialog(false)}
+        onClose={handleClose}
         selectedMood={currentMood}
         onSelectMood={(mood) => {
           onMoodChange(mood);

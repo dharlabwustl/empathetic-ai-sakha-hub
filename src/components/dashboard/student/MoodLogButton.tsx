@@ -25,6 +25,10 @@ const MoodLogButton: React.FC<MoodLogButtonProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   
+  const handleClose = () => {
+    setIsOpen(false);
+  };
+
   const handleMoodSelect = (mood: MoodType) => {
     if (onMoodChange) {
       onMoodChange(mood);
@@ -62,9 +66,9 @@ const MoodLogButton: React.FC<MoodLogButtonProps> = ({
           <div className="py-4">
             <MoodSelectionDialog
               isOpen={true}
-              onOpenChange={() => {}}
+              onClose={handleClose}
               selectedMood={currentMood}
-              onMoodSelect={handleMoodSelect}
+              onSelectMood={handleMoodSelect}
             />
           </div>
         </DialogContent>

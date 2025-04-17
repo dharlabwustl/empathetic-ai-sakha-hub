@@ -6,7 +6,6 @@ import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 import { MoodType } from "@/types/user/base";
 import MoodSelectionDialog from "./mood-tracking/MoodSelectionDialog";
-import MoodSpecificContent from "./mood-tracking/MoodSpecificContent";
 import { applyMoodTheme, getMoodToastContent, saveMoodToLocalStorage } from "./mood-tracking/moodUtils";
 
 interface MoodTrackingProps {
@@ -16,7 +15,7 @@ interface MoodTrackingProps {
 
 const MoodTracking: React.FC<MoodTrackingProps> = ({ currentMood, onMoodChange }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedMood, setSelectedMood] = useState<MoodType>(currentMood);
+  const [selectedMood, setSelectedMood] = useState<MoodType | undefined>(currentMood);
   const { toast } = useToast();
 
   // Apply theme changes based on mood
@@ -29,6 +28,10 @@ const MoodTracking: React.FC<MoodTrackingProps> = ({ currentMood, onMoodChange }
     // Store mood in localStorage for persistence
     saveMoodToLocalStorage(currentMood);
   }, [currentMood]);
+
+  const handleClose = () => {
+    setIsOpen(false);
+  };
 
   const handleMoodSelect = (mood: MoodType) => {
     setSelectedMood(mood);
@@ -61,12 +64,10 @@ const MoodTracking: React.FC<MoodTrackingProps> = ({ currentMood, onMoodChange }
       
       <MoodSelectionDialog
         isOpen={isOpen}
-        onOpenChange={setIsOpen}
+        onClose={handleClose}
         selectedMood={selectedMood}
-        onMoodSelect={handleMoodSelect}
+        onSelectMood={handleMoodSelect}
       />
-      
-      {currentMood && <MoodSpecificContent currentMood={currentMood} />}
     </>
   );
 };

@@ -1,6 +1,5 @@
 
 import { MoodType } from "@/types/user/base";
-import { ToastAction } from "@/components/ui/toast";
 
 // Sanitize mood for CSS class names
 export const sanitizeMoodClass = (mood?: MoodType): string => {
@@ -40,6 +39,26 @@ export const getMoodToastContent = (mood: MoodType): { message: string; descript
       return {
         message: "Your concentration is impressive!",
         description: "Let's make the most of this clarity."
+      };
+    case 'happy':
+      return {
+        message: "That smile looks great on you!",
+        description: "Let's make this energy count."
+      };
+    case 'okay':
+      return {
+        message: "You're doing fine.",
+        description: "One step at a time."
+      };
+    case 'overwhelmed':
+      return {
+        message: "It's okay to feel overwhelmed.",
+        description: "We can break things down into smaller steps."
+      };
+    case 'sad':
+      return {
+        message: "It's okay to not be okay.",
+        description: "Let's find something to brighten your day."
       };
     default:
       return {
