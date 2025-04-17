@@ -1,4 +1,3 @@
-
 import { 
   AdminUser,
   StudentProfile,
@@ -554,3 +553,5 @@ export const downloadDatabaseSchema = (): void => {
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
 };
+
+export { downloadDatabaseSchemaCSV } from './database-schema-export';
