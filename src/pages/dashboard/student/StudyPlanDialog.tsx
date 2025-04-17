@@ -1,10 +1,33 @@
 
-import React from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from "@/components/ui/dialog";
+// Update the StudyPlanDialog to fix the "subtle" button variant issue
+import React, { useState } from "react";
+import { UserProfileType } from "@/types/user";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { 
+  Tabs, 
+  TabsContent, 
+  TabsList, 
+  TabsTrigger 
+} from "@/components/ui/tabs";
+import { 
+  BarChart, 
+  BookMarked, 
+  CalendarDays, 
+  ChevronRight, 
+  Clock, 
+  Compass, 
+  ListChecks,
+  Pencil
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { CheckCircle, Clock, X } from "lucide-react";
-import { UserProfileType } from "@/types/user/base";
+import { Progress } from "@/components/ui/progress";
 
 interface StudyPlanDialogProps {
   userProfile: UserProfileType;
@@ -12,136 +35,201 @@ interface StudyPlanDialogProps {
 }
 
 const StudyPlanDialog: React.FC<StudyPlanDialogProps> = ({ userProfile, onClose }) => {
-  // Get current day and format date
-  const today = new Date();
-  const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-  const dayOfWeek = daysOfWeek[today.getDay()];
-  const formattedDate = today.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+  const [activeTab, setActiveTab] = useState("today");
   
-  // Sample study plan data
-  const studyPlanItems = [
-    { 
-      id: 1, 
-      subject: "Physics", 
-      topic: "Kinematics", 
-      duration: 45, 
-      priority: "high",
-      completed: false,
-      time: "09:00 AM - 09:45 AM" 
-    },
-    { 
-      id: 2, 
-      subject: "Mathematics", 
-      topic: "Integration", 
-      duration: 60, 
-      priority: "medium",
-      completed: true,
-      time: "10:00 AM - 11:00 AM" 
-    },
-    { 
-      id: 3, 
-      subject: "Chemistry", 
-      topic: "Organic Chemistry: Alcohols", 
-      duration: 45, 
-      priority: "high",
-      completed: false,
-      time: "11:15 AM - 12:00 PM" 
-    },
-    { 
-      id: 4, 
-      subject: "Physics", 
-      topic: "Practice Problems: Forces", 
-      duration: 30, 
-      priority: "medium",
-      completed: false,
-      time: "02:00 PM - 02:30 PM" 
-    },
-    { 
-      id: 5, 
-      subject: "Mathematics", 
-      topic: "Quiz: Differentiation", 
-      duration: 15, 
-      priority: "low",
-      completed: false,
-      time: "03:00 PM - 03:15 PM" 
-    }
+  // Mock data
+  const examGoal = userProfile?.examPreparation || "IIT-JEE";
+  const remainingDays = 120; // Days remaining for exam
+  const completedTopics = 24;
+  const totalTopics = 56;
+  const completionPercentage = Math.round((completedTopics / totalTopics) * 100);
+  
+  const todayPlan = [
+    { id: 1, subject: "Physics", topic: "Rigid Body Dynamics", duration: 60, completed: true },
+    { id: 2, subject: "Chemistry", topic: "Chemical Equilibrium", duration: 45, completed: false },
+    { id: 3, subject: "Mathematics", topic: "Differential Equations", duration: 60, completed: false },
+  ];
+  
+  const weekPlan = [
+    { day: "Monday", topics: ["Physics: Mechanics", "Chemistry: Periodic Table"] },
+    { day: "Tuesday", topics: ["Mathematics: Calculus", "Chemistry: Organic Chemistry"] },
+    { day: "Wednesday", topics: ["Physics: Thermodynamics", "Mathematics: Algebra"] },
+    { day: "Thursday", topics: ["Chemistry: Physical Chemistry", "Physics: Optics"] },
+    { day: "Friday", topics: ["Mathematics: Trigonometry", "Physics: Modern Physics"] },
+    { day: "Saturday", topics: ["Full-length Practice Test", "Revision"] },
+    { day: "Sunday", topics: ["Weak Areas Review", "Rest and Recharge"] },
   ];
 
-  const totalDuration = studyPlanItems.reduce((acc, item) => acc + item.duration, 0);
-  const completedItems = studyPlanItems.filter(item => item.completed).length;
-  const examGoal = userProfile?.examPreparation || "General Studies";
-
   return (
-    <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-3xl">
+    <Dialog open onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-[90%] md:max-w-[80%] lg:max-w-[70%] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="flex items-center justify-between">
-            <div className="flex items-center">
-              <span className="text-xl font-semibold">Today's Study Plan</span>
-              <span className="ml-2 py-1 px-2 bg-blue-100 text-blue-800 text-xs rounded-md">
-                For {examGoal}
-              </span>
-            </div>
-            <DialogClose asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8">
-                <X size={16} />
-              </Button>
-            </DialogClose>
+          <DialogTitle className="text-2xl flex items-center gap-2">
+            <BookMarked className="h-6 w-6 text-indigo-500" />
+            Study Plan for {examGoal}
           </DialogTitle>
+          <DialogDescription>
+            <div className="flex flex-wrap gap-3 mt-2">
+              <div className="flex items-center gap-1 text-sm bg-sky-100 dark:bg-sky-900/30 px-3 py-1 rounded-full">
+                <CalendarDays className="h-4 w-4 text-sky-600 dark:text-sky-400" />
+                <span>{remainingDays} days remaining</span>
+              </div>
+              <div className="flex items-center gap-1 text-sm bg-amber-100 dark:bg-amber-900/30 px-3 py-1 rounded-full">
+                <ListChecks className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                <span>{completedTopics} of {totalTopics} topics completed</span>
+              </div>
+            </div>
+          </DialogDescription>
         </DialogHeader>
         
-        <div className="mb-4">
-          <h3 className="text-lg font-medium">{dayOfWeek}, {formattedDate}</h3>
-          <div className="flex items-center gap-4 mt-2">
-            <div className="flex items-center text-sm text-gray-600">
-              <Clock size={16} className="mr-1" />
-              <span>{totalDuration} minutes of study</span>
-            </div>
-            <div className="flex items-center text-sm text-gray-600">
-              <CheckCircle size={16} className="mr-1" />
-              <span>{completedItems}/{studyPlanItems.length} tasks completed</span>
-            </div>
+        <div className="mt-2">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm font-medium">Overall Progress</span>
+            <span className="text-sm font-medium">{completionPercentage}%</span>
           </div>
+          <Progress value={completionPercentage} />
         </div>
         
-        <div className="space-y-3">
-          {studyPlanItems.map(item => (
-            <Card key={item.id} className={`p-3 ${item.completed ? 'bg-gray-50 dark:bg-gray-800/50' : ''}`}>
-              <div className="flex items-center gap-3">
-                <div className={`w-1 self-stretch rounded-full ${
-                  item.priority === 'high' ? 'bg-red-500' : 
-                  item.priority === 'medium' ? 'bg-amber-500' : 'bg-green-500'
-                }`}></div>
-                <div className="flex-grow">
-                  <div className="flex items-center gap-2">
-                    <h4 className={`font-medium ${item.completed ? 'text-gray-400 line-through' : ''}`}>
-                      {item.subject}: {item.topic}
-                    </h4>
-                    {item.completed && (
-                      <span className="bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded">
-                        Completed
-                      </span>
-                    )}
+        <Tabs defaultValue="today" value={activeTab} onValueChange={setActiveTab} className="mt-4">
+          <TabsList className="w-full grid grid-cols-3">
+            <TabsTrigger value="today">Today's Plan</TabsTrigger>
+            <TabsTrigger value="week">Weekly Overview</TabsTrigger>
+            <TabsTrigger value="topics">All Topics</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="today" className="mt-4">
+            <h3 className="text-lg font-medium mb-4">Today's Study Schedule</h3>
+            
+            <div className="space-y-4">
+              {todayPlan.map(item => (
+                <div 
+                  key={item.id}
+                  className={`flex flex-col md:flex-row md:items-center justify-between p-4 rounded-lg border ${
+                    item.completed 
+                      ? "bg-green-50 dark:bg-green-900/10 border-green-200 dark:border-green-800"
+                      : "bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700"
+                  }`}
+                >
+                  <div className="flex-1">
+                    <h4 className="font-medium">{item.subject}: {item.topic}</h4>
+                    <div className="flex items-center mt-1 gap-3">
+                      <div className="flex items-center text-gray-500 dark:text-gray-400 text-sm">
+                        <Clock className="h-4 w-4 mr-1" />
+                        {item.duration} minutes
+                      </div>
+                      {item.completed && (
+                        <span className="px-2 py-0.5 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded text-xs font-medium">
+                          Completed
+                        </span>
+                      )}
+                    </div>
                   </div>
-                  <div className="flex items-center mt-1 text-sm text-gray-500">
-                    <Clock size={14} className="mr-1" />
-                    <span>{item.duration} mins • {item.time}</span>
+                  <div className="flex gap-2 mt-3 md:mt-0">
+                    {!item.completed && (
+                      <Button variant="ghost" size="sm" className="flex items-center gap-1">
+                        <Compass className="h-4 w-4" />
+                        Start
+                      </Button>
+                    )}
+                    <Button variant="ghost" size="sm" className="flex items-center gap-1">
+                      <Pencil className="h-4 w-4" />
+                      Edit
+                    </Button>
                   </div>
                 </div>
-                <Button variant={item.completed ? "outline" : "default"} size="sm">
-                  {item.completed ? 'Mark Incomplete' : 'Start Now'}
-                </Button>
+              ))}
+              
+              <Button 
+                variant="outline" 
+                className="w-full mt-2 flex items-center justify-center gap-2"
+              >
+                <span>View Detailed Study Resources</span>
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="week" className="mt-4">
+            <h3 className="text-lg font-medium mb-4">Weekly Overview</h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {weekPlan.map((day, index) => (
+                <div key={index} className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                  <h4 className="font-medium mb-2">{day.day}</h4>
+                  <ul className="space-y-2">
+                    {day.topics.map((topic, tIndex) => (
+                      <li key={tIndex} className="flex items-center gap-2">
+                        <span className="h-1.5 w-1.5 bg-indigo-500 rounded-full"></span>
+                        <span className="text-sm">{topic}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="topics" className="mt-4">
+            <h3 className="text-lg font-medium mb-4">All Topics</h3>
+            
+            <div className="flex flex-col gap-4">
+              <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                <h4 className="font-medium mb-2 flex items-center">
+                  <span className="h-3 w-3 bg-red-500 rounded-full mr-2"></span>
+                  Physics
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+                  <Button variant="ghost" size="sm" className="justify-start">Mechanics</Button>
+                  <Button variant="ghost" size="sm" className="justify-start">Thermodynamics</Button>
+                  <Button variant="ghost" size="sm" className="justify-start">Optics</Button>
+                  <Button variant="ghost" size="sm" className="justify-start">Electromagnetism</Button>
+                  <Button variant="ghost" size="sm" className="justify-start">Modern Physics</Button>
+                </div>
               </div>
-            </Card>
-          ))}
-        </div>
+              
+              <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                <h4 className="font-medium mb-2 flex items-center">
+                  <span className="h-3 w-3 bg-blue-500 rounded-full mr-2"></span>
+                  Chemistry
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+                  <Button variant="ghost" size="sm" className="justify-start">Physical Chemistry</Button>
+                  <Button variant="ghost" size="sm" className="justify-start">Organic Chemistry</Button>
+                  <Button variant="ghost" size="sm" className="justify-start">Inorganic Chemistry</Button>
+                  <Button variant="ghost" size="sm" className="justify-start">Periodicity</Button>
+                  <Button variant="ghost" size="sm" className="justify-start">Chemical Bonding</Button>
+                </div>
+              </div>
+              
+              <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                <h4 className="font-medium mb-2 flex items-center">
+                  <span className="h-3 w-3 bg-green-500 rounded-full mr-2"></span>
+                  Mathematics
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+                  <Button variant="ghost" size="sm" className="justify-start">Algebra</Button>
+                  <Button variant="ghost" size="sm" className="justify-start">Calculus</Button>
+                  <Button variant="ghost" size="sm" className="justify-start">Trigonometry</Button>
+                  <Button variant="ghost" size="sm" className="justify-start">Coordinate Geometry</Button>
+                  <Button variant="ghost" size="sm" className="justify-start">Probability</Button>
+                </div>
+              </div>
+            </div>
+          </TabsContent>
+        </Tabs>
         
-        <div className="mt-4 flex justify-between">
-          <Button variant="outline" onClick={onClose}>
+        <DialogFooter className="flex flex-col sm:flex-row gap-2 mt-6">
+          <Button variant="outline" onClick={onClose} className="flex-1">
             Close
           </Button>
-          <Button>Customize Study Plan</Button>
-        </div>
+          <Button 
+            variant="default" 
+            className="flex-1 bg-gradient-to-r from-indigo-500 to-purple-600"
+          >
+            <BarChart className="mr-2 h-4 w-4" />
+            Update Progress
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

@@ -1,8 +1,7 @@
 
 import { UserProfileType } from './base';
 
-export interface EmployeeProfile extends Omit<UserProfileType, 'role'> {
-  role: "employee";
+export interface EmployeeProfile extends UserProfileType {
   jobTitle: string;
   workExperience: number;
   skills: string[];
@@ -16,8 +15,7 @@ export interface EmployeeProfile extends Omit<UserProfileType, 'role'> {
   productivityScore?: number;
 }
 
-export interface DoctorProfile extends Omit<UserProfileType, 'role'> {
-  role: "doctor";
+export interface DoctorProfile extends UserProfileType {
   specialization: string;
   qualifications: string[];
   researchInterests: string[];
@@ -32,8 +30,7 @@ export interface DoctorProfile extends Omit<UserProfileType, 'role'> {
   publicationsCount?: number;
 }
 
-export interface FounderProfile extends Omit<UserProfileType, 'role'> {
-  role: "founder";
+export interface FounderProfile extends UserProfileType {
   startupName: string;
   industry: string;
   foundingYear: string;

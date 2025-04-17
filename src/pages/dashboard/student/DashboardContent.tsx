@@ -1,15 +1,15 @@
 
 import React from 'react';
-import { UserProfileType, MoodType } from "@/types/user/base";
+import { UserProfileType } from "@/types/user";
 import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
 import { generateTabContents } from "@/components/dashboard/student/TabContentManager";
 import DashboardTabs from "@/components/dashboard/student/DashboardTabs";
 import ReturnUserRecap from "@/components/dashboard/student/ReturnUserRecap";
 
-export interface DashboardTabsProps {
+interface DashboardTabsProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
-  tabContents?: Record<string, React.ReactNode>;
+  tabContents?: Record<string, React.ReactNode>; // Added tabContents field
 }
 
 interface DashboardContentProps {
@@ -26,7 +26,6 @@ interface DashboardContentProps {
   hideTabsNav: boolean;
   lastActivity?: { type: string; description: string } | null;
   suggestedNextAction?: string | null;
-  currentMood?: MoodType;
 }
 
 const DashboardContent = ({
@@ -42,8 +41,7 @@ const DashboardContent = ({
   handleCompleteTour,
   hideTabsNav,
   lastActivity,
-  suggestedNextAction,
-  currentMood
+  suggestedNextAction
 }: DashboardContentProps) => {
   // State to track whether the returning user recap has been closed
   const [showReturnRecap, setShowReturnRecap] = React.useState(
@@ -61,8 +59,7 @@ const DashboardContent = ({
     handleSkipTour,
     handleCompleteTour,
     lastActivity,
-    suggestedNextAction,
-    currentMood
+    suggestedNextAction
   });
   
   // Handle closing the recap
@@ -88,7 +85,7 @@ const DashboardContent = ({
         <DashboardTabs 
           activeTab={activeTab} 
           onTabChange={onTabChange} 
-          tabContents={tabContents} 
+          tabContents={tabContents} // Pass tabContents to avoid regenerating
         />
       )}
 
@@ -98,7 +95,7 @@ const DashboardContent = ({
           <div className="text-center py-8">
             <h3 className="text-lg font-medium text-gray-900 dark:text-white">Coming Soon</h3>
             <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-              This tab is not yet available
+              This tab is not yet available. Check back later.
             </p>
           </div>
         )}
@@ -108,3 +105,4 @@ const DashboardContent = ({
 };
 
 export default DashboardContent;
+export type { DashboardTabsProps };

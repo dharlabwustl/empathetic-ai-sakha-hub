@@ -7,16 +7,17 @@ import SidebarNav from "@/components/dashboard/SidebarNav";
 import ChatAssistant from "@/components/dashboard/ChatAssistant";
 import KpiCard from "@/components/dashboard/KpiCard";
 import NudgePanel from "@/components/dashboard/NudgePanel";
-import { ProfileCard } from "@/components/dashboard/ProfileCard";
+import ProfileCard from "@/components/dashboard/ProfileCard";
 import FeatureCard from "@/components/dashboard/FeatureCard";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { useKpiTracking } from "@/hooks/useKpiTracking";
+import { UserRole, SubscriptionType } from "@/types/user/base";
 
 const EmployeeDashboard = () => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
-  const { userProfile } = useUserProfile("employee");
-  const { kpis, nudges, markNudgeAsRead } = useKpiTracking("employee");
+  const { userProfile } = useUserProfile(UserRole.Employee);
+  const { kpis, nudges, markNudgeAsRead } = useKpiTracking(UserRole.Employee);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -59,21 +60,21 @@ const EmployeeDashboard = () => {
       description: "Monitor your productivity patterns and get AI-powered insights to optimize your workflow.",
       icon: <LineChart size={20} />,
       path: "/dashboard/employee/productivity",
-      isPremium: userProfile.subscription !== "premium",
+      isPremium: userProfile.subscription !== SubscriptionType.Premium,
     },
     {
       title: "Career Guide",
       description: "Build your resume, practice interviews, and plan your career growth path.",
       icon: <Briefcase size={20} />,
       path: "/dashboard/employee/career",
-      isPremium: userProfile.subscription !== "premium",
+      isPremium: userProfile.subscription !== SubscriptionType.Premium,
     },
     {
       title: "Training Modules",
       description: "Access personalized learning paths to build skills relevant to your career goals.",
       icon: <Calendar size={20} />,
       path: "/dashboard/employee/training",
-      isPremium: userProfile.subscription !== "premium",
+      isPremium: userProfile.subscription !== SubscriptionType.Premium,
     }
   ];
 
@@ -162,7 +163,7 @@ const EmployeeDashboard = () => {
                 Track your work habits, analyze focus patterns, and get AI recommendations
                 to optimize your productivity and work-life balance.
               </p>
-              {userProfile.subscription === "premium" ? (
+              {userProfile.subscription === SubscriptionType.Premium ? (
                 <button className="bg-gradient-to-r from-sakha-blue to-sakha-purple text-white px-6 py-3 rounded-lg font-medium">
                   View Productivity Dashboard
                 </button>
@@ -182,7 +183,7 @@ const EmployeeDashboard = () => {
                 Build your professional profile, practice interviews, and chart your 
                 career growth path with AI-powered guidance.
               </p>
-              {userProfile.subscription === "premium" ? (
+              {userProfile.subscription === SubscriptionType.Premium ? (
                 <button className="bg-gradient-to-r from-sakha-blue to-sakha-purple text-white px-6 py-3 rounded-lg font-medium">
                   Explore Career Tools
                 </button>
@@ -202,7 +203,7 @@ const EmployeeDashboard = () => {
                 Access personalized learning paths based on your interests and career goals,
                 with bite-sized modules and hands-on projects.
               </p>
-              {userProfile.subscription === "premium" ? (
+              {userProfile.subscription === SubscriptionType.Premium ? (
                 <button className="bg-gradient-to-r from-sakha-blue to-sakha-purple text-white px-6 py-3 rounded-lg font-medium">
                   Browse Training Modules
                 </button>

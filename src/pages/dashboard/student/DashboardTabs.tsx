@@ -5,8 +5,14 @@ import { cn } from "@/lib/utils";
 import { Brain, Calendar, ChartBar, Sparkles, Target, BookOpen, LucideIcon } from "lucide-react";
 import { DashboardTabsProps } from "@/pages/dashboard/student/DashboardContent";
 
+interface Tab {
+  id: string;
+  label: string;
+  icon: LucideIcon;
+}
+
 const DashboardTabs = ({ activeTab, onTabChange, tabContents }: DashboardTabsProps) => {
-  const tabs: { id: string; label: string; icon: LucideIcon }[] = [
+  const tabs: Tab[] = [
     { id: "overview", label: "Overview", icon: Target },
     { id: "today", label: "Today's Plan", icon: Calendar },
     { id: "academic", label: "Academic Advisor", icon: BookOpen },

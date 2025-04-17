@@ -1,14 +1,14 @@
 
-import { StudentProfile, MoodType, SubscriptionType } from "@/types/user";
+import { StudentProfile, UserRole, MoodType, SubscriptionType } from "@/types/user";
 
 export const mockStudentProfile: StudentProfile = {
   id: "1",
   name: "Rahul Singh",
   phoneNumber: "9876543210",
   email: "rahul.singh@example.com", // Added missing required field
-  role: "student",
+  role: UserRole.Student,
   personalityType: "Strategic Thinker",
-  subscription: "basic", // Updated to use string literal
+  subscription: SubscriptionType.Basic, // Updated to use enum
   joinDate: "2025-03-01",
   lastActive: "2025-05-12",
   areasOfInterest: [

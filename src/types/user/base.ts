@@ -13,19 +13,7 @@ export enum UserRoleEnum {
   Founder = "founder"
 }
 
-export type MoodType = 
-  | "happy" 
-  | "motivated" 
-  | "focused" 
-  | "curious" 
-  | "neutral" 
-  | "tired" 
-  | "stressed" 
-  | "sad" 
-  | "overwhelmed" 
-  | "okay";
-
-export type PersonalityType = "visual" | "auditory" | "kinesthetic" | "reading" | "analytical" | "creative" | "practical" | "social" | "independent" | "Strategic Thinker" | "Analytical Problem Solver" | "Creative Builder";
+export type MoodType = "happy" | "motivated" | "focused" | "curious" | "neutral" | "tired" | "stressed" | "sad" | "overwhelmed" | "okay";
 
 export interface UserBasicInfo {
   id: string;
@@ -41,6 +29,7 @@ export interface UserBasicInfo {
     mood: MoodType;
     timestamp: string;
   }>;
+  // Add missing properties referenced in components
   joinDate?: string;
   personalityType?: PersonalityType;
   areasOfInterest?: Array<{ id: string; name: string; level: string }>;
@@ -49,12 +38,12 @@ export interface UserBasicInfo {
   bio?: string;
   phoneNumber?: string;
   lastActive?: string;
-  gender?: "male" | "female";
-  subscription?: SubscriptionType;
 }
 
+// Define as both type and enum for SubscriptionType
 export type SubscriptionType = "free" | "basic" | "premium" | "enterprise";
 
+// Create an enum that can be used as values
 export enum SubscriptionTypeEnum {
   Free = "free",
   Basic = "basic",
@@ -62,7 +51,10 @@ export enum SubscriptionTypeEnum {
   Enterprise = "enterprise"
 }
 
-export type Goal = {
+export type PersonalityType = "visual" | "auditory" | "kinesthetic" | "reading" | "analytical" | "creative" | "practical" | "social" | "independent" | "Strategic Thinker" | "Analytical Problem Solver" | "Creative Builder";
+
+// Define common goal structure
+export interface Goal {
   id: string;
   title: string;
   progress: number;
@@ -70,32 +62,17 @@ export type Goal = {
   status?: string;
   dueDate?: string;
   targetDate?: Date;
-};
-
-export interface UserProfileType {
-  id: string;
-  name: string;
-  email: string;
-  role: UserRole;
-  personalityType?: PersonalityType;
-  subscription?: SubscriptionType;
-  joinDate?: string;
-  lastActive?: string;
-  phoneNumber?: string;
-  areasOfInterest?: Array<{ id: string; name: string; level: string }>;
-  goals?: Goal[];
-  currentMood?: MoodType;
-  gender?: "male" | "female";
-  loginCount?: number;
-  examPreparation?: string;
-  avatar?: string;
-  bio?: string;
 }
 
-export interface StudentProfile extends UserProfileType {
+// Role-specific types
+export type StudentProfile = UserBasicInfo & {
   role: "student";
   grade?: string;
   subjects?: Array<string | { id: string; name: string; progress: number }>;
+  goals?: Goal[];
+  subscription?: SubscriptionType;
+  personality?: PersonalityType;
+  achievements?: Array<string | { id: string; name: string; progress: number }>;
   educationLevel?: string;
   studyStreak?: number;
   quizzesTaken?: number;
@@ -108,48 +85,62 @@ export interface StudentProfile extends UserProfileType {
   syllabusCoverage?: number;
   strongSubjects?: string[];
   weakSubjects?: string[];
-}
+};
 
-export interface ParentProfile extends UserProfileType {
+export type ParentProfile = UserBasicInfo & {
   role: "parent";
   children?: string[];
-}
+  subscription?: SubscriptionType;
+  goals?: Goal[];
+};
 
-export interface TeacherProfile extends UserProfileType {
+export type TeacherProfile = UserBasicInfo & {
   role: "teacher";
   subjects?: string[];
   classes?: string[];
+  subscription?: SubscriptionType;
   specializations?: string[];
-}
+  goals?: Goal[];
+};
 
-export interface AdminProfile extends UserProfileType {
+export type AdminProfile = UserBasicInfo & {
   role: "admin";
   permissions?: string[];
   department?: string;
-}
+  subscription?: SubscriptionType;
+  goals?: Goal[];
+};
 
-export interface EmployeeProfile extends UserProfileType {
+// Define additional profile types
+export type EmployeeProfile = UserBasicInfo & {
   role: "employee";
   jobRole?: string;
   seniorityLevel?: string;
   domain?: string;
+  subscription?: SubscriptionType;
+  goals?: Goal[];
   jobTitle?: string;
   industry?: string;
-}
+};
 
-export interface DoctorProfile extends UserProfileType {
+export type DoctorProfile = UserBasicInfo & {
   role: "doctor";
   specialization?: string;
   institution?: string;
   research?: string;
-}
+  subscription?: SubscriptionType;
+  goals?: Goal[];
+};
 
-export interface FounderProfile extends UserProfileType {
+export type FounderProfile = UserBasicInfo & {
   role: "founder";
   startupStage?: string;
   teamSize?: number;
   industry?: string;
+  subscription?: SubscriptionType;
+  goals?: Goal[];
   startupName?: string;
-}
+};
 
 export type UserProfile = StudentProfile | ParentProfile | TeacherProfile | AdminProfile | EmployeeProfile | DoctorProfile | FounderProfile;
+export type UserProfileType = StudentProfile | ParentProfile | TeacherProfile | AdminProfile | EmployeeProfile | DoctorProfile | FounderProfile;

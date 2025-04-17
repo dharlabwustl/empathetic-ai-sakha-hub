@@ -1,8 +1,9 @@
+
 import { UserProfileType } from "@/types/user";
 import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
 import KpiCard from "@/components/dashboard/KpiCard";
 import NudgePanel from "@/components/dashboard/NudgePanel";
-import { ProfileCard } from "@/components/dashboard/ProfileCard";
+import ProfileCard from "@/components/dashboard/ProfileCard";
 import FeatureCard from "@/components/dashboard/FeatureCard";
 import TodayStudyPlan from "@/components/dashboard/student/TodayStudyPlan";
 import FeelGoodCorner from "@/components/dashboard/student/FeelGoodCorner";
@@ -10,7 +11,6 @@ import { ReactNode } from "react";
 import { motion } from "framer-motion";
 import { AlertCircle, BookOpen, Coffee } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { MoodType } from "@/types/user/base";
 
 interface DashboardOverviewProps {
   userProfile: UserProfileType;
@@ -24,7 +24,6 @@ interface DashboardOverviewProps {
     path: string;
     isPremium: boolean;
   }[];
-  currentMood?: MoodType;
 }
 
 export default function DashboardOverview({
@@ -32,11 +31,11 @@ export default function DashboardOverview({
   kpis,
   nudges,
   markNudgeAsRead,
-  features,
-  currentMood
+  features
 }: DashboardOverviewProps) {
   const isMobile = useIsMobile();
   
+  // Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: { 
@@ -61,6 +60,7 @@ export default function DashboardOverview({
     }
   };
 
+  // Current time for personalized tip
   const currentHour = new Date().getHours();
   let studyTip = "";
   let tipIcon = <Coffee className="text-amber-500" />;
@@ -82,6 +82,7 @@ export default function DashboardOverview({
       initial="hidden"
       animate="visible"
     >
+      {/* Study Tip Banner */}
       <motion.div
         variants={itemVariants}
         className="mb-6 bg-gradient-to-r from-amber-50 to-violet-50 dark:from-amber-900/20 dark:to-violet-900/20 p-4 rounded-xl border border-amber-100 dark:border-amber-700/30 shadow-sm"
@@ -97,6 +98,7 @@ export default function DashboardOverview({
         </div>
       </motion.div>
 
+      {/* KPI Cards - Only show here, not duplicated */}
       <motion.div 
         className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8"
         variants={itemVariants}
@@ -106,6 +108,7 @@ export default function DashboardOverview({
         ))}
       </motion.div>
       
+      {/* Study Plan and Profile - Only show study plan here, not duplicated */}
       <motion.div 
         className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8"
         variants={itemVariants}
@@ -125,6 +128,7 @@ export default function DashboardOverview({
         </motion.div>
       </motion.div>
       
+      {/* Feel Good Corner and Nudges */}
       <motion.div 
         className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8"
         variants={itemVariants}
@@ -137,6 +141,7 @@ export default function DashboardOverview({
         </motion.div>
       </motion.div>
       
+      {/* Feature Cards */}
       <motion.div 
         className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6"
         variants={itemVariants}
