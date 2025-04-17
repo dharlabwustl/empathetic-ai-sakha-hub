@@ -1,12 +1,12 @@
 
-import { UserProfileType } from "@/types/user";
+import { UserProfileType, UserRole } from "@/types/user";
 import { mockStudentProfile } from "./studentProfile";
 import { mockEmployeeProfile } from "./employeeProfile";
 import { mockDoctorProfile } from "./doctorProfile";
 import { mockFounderProfile } from "./founderProfile";
 
 // Helper function to get profile by role
-export function getProfileByRole(role: string): UserProfileType {
+export function getMockProfileByRole(role: UserRole): UserProfileType {
   switch (role) {
     case "student":
       return mockStudentProfile;
