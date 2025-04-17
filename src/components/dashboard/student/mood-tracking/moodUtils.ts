@@ -161,24 +161,27 @@ export const getMoodToastContent = (mood: MoodType) => {
 
 // Apply mood-based theme to the UI
 export const applyMoodTheme = (mood: MoodType) => {
-  // Remove all existing mood classes
   document.body.classList.remove(
-    "mood-happy",
-    "mood-motivated",
-    "mood-focused",
-    "mood-curious",
-    "mood-neutral",
-    "mood-tired",
-    "mood-stressed",
-    "mood-sad",
-    "mood-overwhelmed",
-    "mood-okay"
+    "mood-happy", "mood-motivated", "mood-focused", "mood-curious",
+    "mood-neutral", "mood-tired", "mood-stressed", "mood-sad",
+    "mood-overwhelmed", "mood-okay"
   );
   
-  // Add the new mood class
   document.body.classList.add(`mood-${mood}`);
   
-  // Show toast notification
+  // Track mood in history
+  const timestamp = new Date().toISOString();
+  const userData = localStorage.getItem("userData");
+  if (userData) {
+    const parsedData = JSON.parse(userData);
+    parsedData.mood = mood;
+    parsedData.moodHistory = parsedData.moodHistory || [];
+    parsedData.moodHistory.push({ mood, timestamp });
+    // Keep only last 7 days of mood history
+    parsedData.moodHistory = parsedData.moodHistory.slice(-7);
+    localStorage.setItem("userData", JSON.stringify(parsedData));
+  }
+  
   const toastContent = getMoodToastContent(mood);
   toast({
     title: toastContent.title,
@@ -258,4 +261,58 @@ export const getMoodMotivationalQuote = (mood: MoodType): string => {
   
   // Return a random quote from the array
   return moodQuotes[Math.floor(Math.random() * moodQuotes.length)];
+};
+
+// Get mood history data for the chart
+export const getMoodHistoryData = () => {
+  const userData = localStorage.getItem("userData");
+  if (!userData) return [];
+  
+  const { moodHistory = [] } = JSON.parse(userData);
+  return moodHistory.map((entry: { mood: MoodType; timestamp: string }) => ({
+    mood: entry.mood,
+    time: new Date(entry.timestamp).toLocaleDateString(),
+  }));
+};
+
+// Get study suggestions based on current mood
+export const getStudySuggestions = (mood: MoodType): string[] => {
+  switch (mood) {
+    case "happy":
+      return [
+        "Great time to tackle challenging topics!",
+        "Try group study sessions",
+        "Work on complex problem-solving"
+      ];
+    case "motivated":
+      return [
+        "Set ambitious goals for today",
+        "Take on difficult assignments",
+        "Help peers with their studies"
+      ];
+    case "focused":
+      return [
+        "Deep dive into complex subjects",
+        "Work on detailed analysis",
+        "Perfect for exam preparation"
+      ];
+    case "tired":
+      return [
+        "Review familiar material",
+        "Take short study breaks",
+        "Focus on light reading"
+      ];
+    case "stressed":
+      return [
+        "Break tasks into smaller chunks",
+        "Start with easier topics",
+        "Practice mindful studying"
+      ];
+    default:
+      return [
+        "Focus on steady progress",
+        "Review your study plan",
+        "Take it one step at a time"
+      ];
+  }
 };
