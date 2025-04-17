@@ -28,8 +28,7 @@ const MoodLogButton: React.FC<MoodLogButtonProps> = ({ currentMood, onMoodChange
       happy: "Happy",
       okay: "Okay",
       overwhelmed: "Overwhelmed",
-      sad: "Sad",
-      undefined: "Log Today's Mood"
+      sad: "Sad"
     };
     
     return moodMap[mood] || "Log Today's Mood";
@@ -48,8 +47,7 @@ const MoodLogButton: React.FC<MoodLogButtonProps> = ({ currentMood, onMoodChange
       happy: "bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-300",
       okay: "bg-blue-100 text-blue-700 hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-300",
       overwhelmed: "bg-purple-100 text-purple-700 hover:bg-purple-200 dark:bg-purple-900/30 dark:text-purple-300",
-      sad: "bg-indigo-100 text-indigo-700 hover:bg-indigo-200 dark:bg-indigo-900/30 dark:text-indigo-300",
-      undefined: "bg-purple-100 text-purple-700 hover:bg-purple-200 dark:bg-purple-900/30 dark:text-purple-300"
+      sad: "bg-indigo-100 text-indigo-700 hover:bg-indigo-200 dark:bg-indigo-900/30 dark:text-indigo-300"
     };
     
     return moodColorMap[mood] || "bg-purple-100 text-purple-700 hover:bg-purple-200 dark:bg-purple-900/30 dark:text-purple-300";
@@ -79,7 +77,7 @@ const MoodLogButton: React.FC<MoodLogButtonProps> = ({ currentMood, onMoodChange
       
       <MoodSelectionDialog 
         isOpen={showMoodDialog}
-        onClose={() => setShowMoodDialog(false)}
+        onOpenChange={setShowMoodDialog}
         selectedMood={currentMood}
         onSelectMood={(mood) => {
           onMoodChange(mood);

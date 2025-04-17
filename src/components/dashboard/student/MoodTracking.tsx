@@ -63,7 +63,7 @@ const MoodTracking: React.FC<MoodTrackingProps> = ({ currentMood, onMoodChange }
         isOpen={isOpen}
         onOpenChange={setIsOpen}
         selectedMood={selectedMood}
-        onMoodSelect={handleMoodSelect}
+        onSelectMood={handleMoodSelect}
       />
       
       {currentMood && <MoodSpecificContent currentMood={currentMood} />}

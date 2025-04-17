@@ -8,14 +8,14 @@ import { Smile, Sparkles, Clock, Battery, Wind, Target, Heart, ThumbsUp, AlertCi
 
 interface MoodSelectionDialogProps {
   isOpen: boolean;
-  onClose: () => void;
+  onOpenChange: (isOpen: boolean) => void;
   selectedMood?: MoodType;
   onSelectMood: (mood: MoodType) => void;
 }
 
 const MoodSelectionDialog: React.FC<MoodSelectionDialogProps> = ({
   isOpen,
-  onClose,
+  onOpenChange,
   selectedMood,
   onSelectMood,
 }) => {
@@ -49,7 +49,7 @@ const MoodSelectionDialog: React.FC<MoodSelectionDialogProps> = ({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="dialog-content sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="text-center text-xl">How are you feeling today?</DialogTitle>

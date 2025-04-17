@@ -64,7 +64,7 @@ const MoodLogButton: React.FC<MoodLogButtonProps> = ({
               isOpen={true}
               onOpenChange={() => {}}
               selectedMood={currentMood}
-              onMoodSelect={handleMoodSelect}
+              onSelectMood={handleMoodSelect}
             />
           </div>
         </DialogContent>
