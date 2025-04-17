@@ -1,4 +1,3 @@
-
 // Define as both type and enum for UserRole
 export type UserRole = "student" | "parent" | "teacher" | "admin" | "employee" | "doctor" | "founder";
 
@@ -38,6 +37,7 @@ export interface UserBasicInfo {
   bio?: string;
   phoneNumber?: string;
   lastActive?: string;
+  gender?: "male" | "female";
 }
 
 // Define as both type and enum for SubscriptionType

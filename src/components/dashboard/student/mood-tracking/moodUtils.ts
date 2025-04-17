@@ -159,55 +159,12 @@ export const getMoodToastContent = (mood: MoodType) => {
   }
 };
 
-// Apply mood-based theme to the UI
-export const applyMoodTheme = (mood: MoodType) => {
-  document.body.classList.remove(
-    "mood-happy", "mood-motivated", "mood-focused", "mood-curious",
-    "mood-neutral", "mood-tired", "mood-stressed", "mood-sad",
-    "mood-overwhelmed", "mood-okay"
-  );
-  
-  document.body.classList.add(`mood-${mood}`);
-  
-  // Track mood in history
-  const timestamp = new Date().toISOString();
-  const userData = localStorage.getItem("userData");
-  if (userData) {
-    const parsedData = JSON.parse(userData);
-    parsedData.mood = mood;
-    parsedData.moodHistory = parsedData.moodHistory || [];
-    parsedData.moodHistory.push({ mood, timestamp });
-    // Keep only last 7 days of mood history
-    parsedData.moodHistory = parsedData.moodHistory.slice(-7);
-    localStorage.setItem("userData", JSON.stringify(parsedData));
-  }
-  
-  const toastContent = getMoodToastContent(mood);
-  toast({
-    title: toastContent.title,
-    description: toastContent.description,
-  });
-};
-
-// Save mood to localStorage
-export const saveMoodToLocalStorage = (mood: MoodType) => {
-  const userData = localStorage.getItem("userData");
-  if (userData) {
-    const parsedData = JSON.parse(userData);
-    parsedData.mood = mood;
-    localStorage.setItem("userData", JSON.stringify(parsedData));
-  } else {
-    localStorage.setItem("userData", JSON.stringify({ mood }));
-  }
-};
-
-// Get mood-specific motivational quotes
 export const getMoodMotivationalQuote = (mood: MoodType): string => {
   const quotes = {
     happy: [
-      "Happiness is a great motivator. Use this positive energy to tackle difficult topics!",
-      "A happy mind is an effective learning machine. Make the most of it!",
-      "Joy improves memory retention. Perfect time for challenging material!"
+      "Your positive energy is contagious! Perfect time to tackle challenging topics.",
+      "A happy mind learns better. Make the most of this great mood!",
+      "Happiness boosts memory retention. Let's use this to our advantage!"
     ],
     motivated: [
       "Motivation is the fuel for achievement. Keep your momentum going!",
@@ -256,11 +213,37 @@ export const getMoodMotivationalQuote = (mood: MoodType): string => {
     ]
   };
   
-  // Get quotes for the current mood or default to neutral if none exist
   const moodQuotes = quotes[mood] || quotes.neutral;
-  
-  // Return a random quote from the array
   return moodQuotes[Math.floor(Math.random() * moodQuotes.length)];
+};
+
+// Apply mood-based theme to the UI
+export const applyMoodTheme = (mood: MoodType) => {
+  document.body.classList.remove(
+    "mood-happy", "mood-motivated", "mood-focused", "mood-curious",
+    "mood-neutral", "mood-tired", "mood-stressed", "mood-sad",
+    "mood-overwhelmed", "mood-okay"
+  );
+  
+  document.body.classList.add(`mood-${mood}`);
+  
+  const toastContent = getMoodToastContent(mood);
+  toast({
+    title: toastContent.title,
+    description: toastContent.description,
+  });
+};
+
+// Save mood to localStorage
+export const saveMoodToLocalStorage = (mood: MoodType) => {
+  const userData = localStorage.getItem("userData");
+  if (userData) {
+    const parsedData = JSON.parse(userData);
+    parsedData.mood = mood;
+    localStorage.setItem("userData", JSON.stringify(parsedData));
+  } else {
+    localStorage.setItem("userData", JSON.stringify({ mood }));
+  }
 };
 
 // Get mood history data for the chart

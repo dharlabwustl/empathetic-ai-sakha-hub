@@ -1,7 +1,5 @@
-
 import { StudentProfile } from "@/types/user";
-import { UserRoleEnum, SubscriptionTypeEnum, MoodType } from "@/types/user/base";
-import { v4 as uuidv4 } from "uuid";
+import { MoodType } from "@/types/user/base";
 
 export const mockStudentProfile: StudentProfile = {
   id: "1",
@@ -55,5 +53,6 @@ export const mockStudentProfile: StudentProfile = {
   mood: "focused" as MoodType,
   syllabusCoverage: 65,
   strongSubjects: ["Physics", "Mathematics"],
-  weakSubjects: ["Chemistry", "Biology"]
+  weakSubjects: ["Chemistry", "Biology"],
+  gender: "male"
 };
