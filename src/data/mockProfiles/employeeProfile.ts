@@ -1,7 +1,7 @@
 
 // Correcting the mock data for employee profile
 import { EmployeeProfile } from "@/types/user";
-import { UserRole, SubscriptionType } from "@/types/user/base";
+import { UserRole, SubscriptionType, PersonalityType } from "@/types/user/base";
 import { v4 as uuidv4 } from "uuid";
 
 export const mockEmployeeProfile: EmployeeProfile = {
@@ -10,7 +10,7 @@ export const mockEmployeeProfile: EmployeeProfile = {
   email: "rajesh.kumar@techsolutions.com",
   phoneNumber: "+919876543211",
   role: UserRole.Employee,
-  personalityType: "Strategic Thinker",
+  personalityType: PersonalityType.StrategicThinker,
   subscription: SubscriptionType.Basic,
   joinDate: "2025-01-15",
   lastActive: "2025-04-06",
@@ -38,8 +38,7 @@ export const mockEmployeeProfile: EmployeeProfile = {
       description: "Pass the Project Management Professional exam",
       progress: 75,
       status: "in-progress",
-      dueDate: "2025-05-30",
-      targetDate: new Date("2025-05-30")
+      dueDate: "2025-05-30"
     },
     {
       id: uuidv4(),
@@ -47,8 +46,7 @@ export const mockEmployeeProfile: EmployeeProfile = {
       description: "Complete advanced SQL course for data analysis",
       progress: 45,
       status: "not-started",
-      dueDate: "2025-07-15",
-      targetDate: new Date("2025-07-15")
+      dueDate: "2025-07-15"
     }
   ],
   areasOfInterest: [

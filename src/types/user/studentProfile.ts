@@ -17,6 +17,7 @@ export interface StudentProfile extends UserProfileType {
   age?: number;
   location?: string;
   grade?: string;
+  lastActive?: string;
 }
 
 export interface SubjectProgress {

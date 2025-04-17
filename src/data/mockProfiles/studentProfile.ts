@@ -1,6 +1,6 @@
 
 import { StudentProfile } from "@/types/user";
-import { UserRole, SubscriptionType, MoodType } from "@/types/user/base";
+import { UserRole, SubscriptionType, MoodType, PersonalityType } from "@/types/user/base";
 import { v4 as uuidv4 } from "uuid";
 
 export const mockStudentProfile: StudentProfile = {
@@ -9,7 +9,7 @@ export const mockStudentProfile: StudentProfile = {
   phoneNumber: "9876543210",
   email: "rahul.singh@example.com",
   role: UserRole.Student,
-  personalityType: "Strategic Thinker",
+  personalityType: PersonalityType.StrategicThinker,
   subscription: SubscriptionType.Basic,
   joinDate: "2025-03-01",
   lastActive: "2025-05-12",
@@ -25,8 +25,7 @@ export const mockStudentProfile: StudentProfile = {
       description: "Finish all chapters in NCERT Physics",
       progress: 75,
       status: "in-progress",
-      dueDate: "2025-05-30",
-      targetDate: new Date("2025-05-30")
+      dueDate: "2025-05-30"
     },
     {
       id: "g2",
@@ -34,8 +33,7 @@ export const mockStudentProfile: StudentProfile = {
       description: "Practice integration problems",
       progress: 60,
       status: "not-started",
-      dueDate: "2025-05-15",
-      targetDate: new Date("2025-05-15")
+      dueDate: "2025-05-15"
     },
   ],
   educationLevel: "11th Grade",
@@ -52,7 +50,7 @@ export const mockStudentProfile: StudentProfile = {
   studyHoursToday: 2.5,
   subjectsCovered: 3,
   quizPerformance: 82,
-  mood: "focused" as MoodType,
+  mood: MoodType.Focused,
   syllabusCoverage: 65,
   strongSubjects: ["Physics", "Mathematics"],
   weakSubjects: ["Chemistry", "Biology"]

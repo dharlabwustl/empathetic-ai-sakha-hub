@@ -53,8 +53,9 @@ export interface UserProfileType {
   avatar?: string;
   role: UserRole;
   personalityType?: PersonalityType;
-  goals: Array<{id: string; title: string; progress: number; description?: string; status?: string; dueDate?: string}>;
+  goals: Array<{id: string; title: string; progress: number; description?: string; status?: string; dueDate?: string; targetDate?: Date}>;
   joinDate?: string;
+  lastActive?: string;
   bio?: string;
   subscription?: SubscriptionType;
   areasOfInterest?: Array<{id: string; name: string; level: string}>;
