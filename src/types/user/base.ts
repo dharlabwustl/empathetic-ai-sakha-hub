@@ -68,4 +68,14 @@ export interface UserProfileType {
   examPreparation?: string;
   bio?: string;
   avatar?: string;
+  
+  // Added properties that were missing
+  location?: string;
+  educationLevel?: string;
+  schoolName?: string;
+  dateOfBirth?: string;
+  studyStreak?: number;
+  quizzesTaken?: number;
+  quizPerformance?: number;
+  syllabusCoverage?: number;
 }
