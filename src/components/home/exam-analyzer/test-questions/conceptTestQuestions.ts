@@ -18,32 +18,28 @@ export const getConceptTestQuestions = (examType: string, subject: string): Test
     // Add more default questions here
   ];
 
-  // In a real implementation, we'd have specific questions per exam and subject
-  // For now, we'll generate unique questions based on the exam and subject
-  const specificQuestions: TestQuestion[] = [
-    {
-      id: `${examType}-${subject}-q1`,
-      question: `${subject} concept question 1 for ${examType} exam`,
-      options: [`${subject} Option A`, `${subject} Option B`, `${subject} Option C`, `${subject} Option D`],
-      correctAnswer: `${subject} Option A`,
+  // Generate subject-specific questions (5 per subject)
+  const specificQuestions: TestQuestion[] = [];
+  
+  // Create 5 questions per subject with unique content
+  for (let i = 1; i <= 5; i++) {
+    specificQuestions.push({
+      id: `${examType}-${subject}-q${i}`,
+      question: `${subject} concept question ${i} for ${examType} exam: What is the correct approach to solve this problem?`,
+      options: [
+        `${subject} Answer Option A for Q${i}`, 
+        `${subject} Answer Option B for Q${i}`, 
+        `${subject} Answer Option C for Q${i}`, 
+        `${subject} Answer Option D for Q${i}`
+      ],
+      correctAnswer: `${subject} Answer Option ${i % 2 === 0 ? 'A' : 'B'} for Q${i}`,
       timeLimit: 60,
-      explanation: `Explanation for ${subject} question in ${examType}`,
-      difficulty: 'medium',
-      complexityLevel: 2,
-      imageUrl: subject === 'Biology' || subject === 'Geography' ? '/placeholder.svg' : undefined
-    },
-    {
-      id: `${examType}-${subject}-q2`,
-      question: `${subject} concept question 2 for ${examType} exam`,
-      options: [`${subject} Option W`, `${subject} Option X`, `${subject} Option Y`, `${subject} Option Z`],
-      correctAnswer: `${subject} Option X`,
-      timeLimit: 60,
-      explanation: `Explanation for second ${subject} question in ${examType}`,
-      difficulty: 'hard',
-      complexityLevel: 3,
-      imageUrl: subject === 'Biology' || subject === 'Chemistry' ? '/placeholder.svg' : undefined
-    }
-  ];
+      explanation: `Explanation for ${subject} question ${i} in ${examType}: This is the correct approach because...`,
+      difficulty: i > 3 ? 'hard' : 'medium',
+      complexityLevel: i > 3 ? 3 : 2,
+      imageUrl: (subject === 'Biology' || subject === 'Chemistry' || subject === 'Physics') && i % 2 === 0 ? '/placeholder.svg' : undefined
+    });
+  }
 
   return specificQuestions.length > 0 ? specificQuestions : defaultQuestions;
 };
@@ -62,24 +58,24 @@ export const getConceptTestQuestionsByExam = (
     return baseQuestions.map(q => ({
       ...q,
       id: `${q.id}-set1`,
-      question: `Set 1: ${q.question}`
+      question: `${q.question}`
     }));
   } else if (setNumber === 2) {
     return baseQuestions.map(q => ({
       ...q,
       id: `${q.id}-set2`,
-      question: `Set 2: ${q.question}`,
-      options: q.options.map(opt => `Alt: ${opt}`),
-      correctAnswer: `Alt: ${q.correctAnswer}`,
+      question: `Intermediate: ${q.question}`,
+      options: q.options.map(opt => `${opt.split(' for ')[0]} alt for Q${q.id.slice(-1)}`),
+      correctAnswer: q.correctAnswer.replace(/for Q\d+/g, `alt for Q${q.id.slice(-1)}`),
       difficulty: q.difficulty === 'medium' ? 'hard' : 'medium'
     }));
   } else {
     return baseQuestions.map(q => ({
       ...q,
       id: `${q.id}-set3`,
-      question: `Set 3: ${q.question}`,
-      options: q.options.map(opt => `Adv: ${opt}`),
-      correctAnswer: `Adv: ${q.correctAnswer}`,
+      question: `Advanced: ${q.question}`,
+      options: q.options.map(opt => `${opt.split(' for ')[0]} adv for Q${q.id.slice(-1)}`),
+      correctAnswer: q.correctAnswer.replace(/for Q\d+/g, `adv for Q${q.id.slice(-1)}`),
       complexityLevel: Math.min(5, (q.complexityLevel || 1) + 1)
     }));
   }

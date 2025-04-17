@@ -10,14 +10,19 @@ import { Brain } from 'lucide-react';
 interface ConceptTestQuestionProps {
   question: TestQuestion;
   onAnswer: (answer: string, confidenceLevel?: number) => void;
+  disabled?: boolean;
 }
 
-const ConceptTestQuestion: React.FC<ConceptTestQuestionProps> = ({ question, onAnswer }) => {
+const ConceptTestQuestion: React.FC<ConceptTestQuestionProps> = ({ 
+  question, 
+  onAnswer,
+  disabled = false
+}) => {
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   
   const handleSubmit = () => {
-    if (selectedAnswer) {
-      onAnswer(selectedAnswer, 3); // Default confidence level of 3
+    if (selectedAnswer && !disabled) {
+      onAnswer(selectedAnswer);
     }
   };
   
@@ -42,12 +47,18 @@ const ConceptTestQuestion: React.FC<ConceptTestQuestionProps> = ({ question, onA
       
       <RadioGroup className="space-y-3 mb-6">
         {question.options.map((option, index) => (
-          <div key={index} className="flex items-center space-x-2 p-3 rounded-md border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+          <div 
+            key={index} 
+            className={`flex items-center space-x-2 p-3 rounded-md border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 ${
+              selectedAnswer === option ? 'bg-pink-50 dark:bg-pink-900/20 border-pink-200 dark:border-pink-800' : ''
+            }`}
+            onClick={() => !disabled && setSelectedAnswer(option)}
+          >
             <RadioGroupItem 
               value={option} 
               id={`option-${index}`} 
               checked={selectedAnswer === option}
-              onClick={() => setSelectedAnswer(option)}
+              disabled={disabled}
             />
             <Label 
               htmlFor={`option-${index}`}
@@ -66,7 +77,7 @@ const ConceptTestQuestion: React.FC<ConceptTestQuestionProps> = ({ question, onA
         <Button
           className="w-full bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700"
           onClick={handleSubmit}
-          disabled={!selectedAnswer}
+          disabled={!selectedAnswer || disabled}
         >
           Submit Answer
         </Button>

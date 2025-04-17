@@ -29,6 +29,7 @@ export const useStressTest = ({ selectedExam, onCompleteTest }: UseStressTestPro
     setShowExplanation,
     setProcessingNextQuestion,
     handleNextQuestion: baseHandleNextQuestion,
+    endTest
   } = useTestProgress({ onCompleteTest });
 
   const { showDistraction, scheduleDistraction, clearDistraction } = useStressDistraction();
@@ -48,19 +49,29 @@ export const useStressTest = ({ selectedExam, onCompleteTest }: UseStressTestPro
   });
 
   const startTest = (setNumber: number = 1) => {
-    const testQuestions = getStressTestQuestions(selectedExam, setNumber);
-    setQuestions(testQuestions);
-    setIsTestActive(true);
-    setCurrentQuestionIndex(0);
-    setTimeLeft(testQuestions[0]?.timeLimit || 15);
-    setCurrentComplexity(testQuestions[0]?.complexityLevel || 1);
-    setUserAnswers([]);
-    setProcessingNextQuestion(false);
-    setShowExplanation(false);
-    
-    const totalTime = testQuestions.reduce((total, q) => total + q.timeLimit, 0) + 10;
-    setTestTimeLeft(totalTime);
-    startTestTimer(totalTime);
+    try {
+      const testQuestions = getStressTestQuestions(selectedExam, setNumber);
+      
+      if (!testQuestions || testQuestions.length === 0) {
+        console.error("No questions returned for", selectedExam, "set", setNumber);
+        return;
+      }
+      
+      setQuestions(testQuestions);
+      setIsTestActive(true);
+      setCurrentQuestionIndex(0);
+      setTimeLeft(testQuestions[0]?.timeLimit || 15);
+      setCurrentComplexity(testQuestions[0]?.complexityLevel || 1);
+      setUserAnswers([]);
+      setProcessingNextQuestion(false);
+      setShowExplanation(false);
+      
+      const totalTime = testQuestions.reduce((total, q) => total + q.timeLimit, 0) + 10;
+      setTestTimeLeft(totalTime);
+      startTestTimer(totalTime);
+    } catch (error) {
+      console.error("Error starting stress test:", error);
+    }
   };
 
   const startTestTimer = (totalTime: number) => {
@@ -97,7 +108,12 @@ export const useStressTest = ({ selectedExam, onCompleteTest }: UseStressTestPro
     setTimeout(() => {
       setShowExplanation(false);
       setProcessingNextQuestion(false);
-      baseHandleNextQuestion(questions);
+      
+      if (currentQuestionIndex < questions.length - 1) {
+        baseHandleNextQuestion(questions);
+      } else {
+        endTest();
+      }
     }, 3000);
   };
 
