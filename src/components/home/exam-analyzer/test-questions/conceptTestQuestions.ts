@@ -18,8 +18,34 @@ export const getConceptTestQuestions = (examType: string, subject: string): Test
     // Add more default questions here
   ];
 
-  // Return default questions - in a real implementation, you'd return specific questions
-  return defaultQuestions;
+  // In a real implementation, we'd have specific questions per exam and subject
+  // For now, we'll generate unique questions based on the exam and subject
+  const specificQuestions: TestQuestion[] = [
+    {
+      id: `${examType}-${subject}-q1`,
+      question: `${subject} concept question 1 for ${examType} exam`,
+      options: [`${subject} Option A`, `${subject} Option B`, `${subject} Option C`, `${subject} Option D`],
+      correctAnswer: `${subject} Option A`,
+      timeLimit: 60,
+      explanation: `Explanation for ${subject} question in ${examType}`,
+      difficulty: 'medium',
+      complexityLevel: 2,
+      imageUrl: subject === 'Biology' || subject === 'Geography' ? '/placeholder.svg' : undefined
+    },
+    {
+      id: `${examType}-${subject}-q2`,
+      question: `${subject} concept question 2 for ${examType} exam`,
+      options: [`${subject} Option W`, `${subject} Option X`, `${subject} Option Y`, `${subject} Option Z`],
+      correctAnswer: `${subject} Option X`,
+      timeLimit: 60,
+      explanation: `Explanation for second ${subject} question in ${examType}`,
+      difficulty: 'hard',
+      complexityLevel: 3,
+      imageUrl: subject === 'Biology' || subject === 'Chemistry' ? '/placeholder.svg' : undefined
+    }
+  ];
+
+  return specificQuestions.length > 0 ? specificQuestions : defaultQuestions;
 };
 
 // Function to get concept test questions with specific set number
@@ -28,15 +54,35 @@ export const getConceptTestQuestionsByExam = (
   subject: string,
   setNumber: number = 1
 ): TestQuestion[] => {
-  // Add logic here to return different question sets based on the setNumber
-  const defaultQuestions = getConceptTestQuestions(examType, subject);
+  // Get base questions
+  const baseQuestions = getConceptTestQuestions(examType, subject);
   
-  // Just return the default questions for now, but in a real implementation
-  // you'd have different sets of questions for each set number
-  return defaultQuestions.map(q => ({
-    ...q,
-    id: `${q.id}-set${setNumber}`
-  }));
+  // Create different question sets based on the set number
+  if (setNumber === 1) {
+    return baseQuestions.map(q => ({
+      ...q,
+      id: `${q.id}-set1`,
+      question: `Set 1: ${q.question}`
+    }));
+  } else if (setNumber === 2) {
+    return baseQuestions.map(q => ({
+      ...q,
+      id: `${q.id}-set2`,
+      question: `Set 2: ${q.question}`,
+      options: q.options.map(opt => `Alt: ${opt}`),
+      correctAnswer: `Alt: ${q.correctAnswer}`,
+      difficulty: q.difficulty === 'medium' ? 'hard' : 'medium'
+    }));
+  } else {
+    return baseQuestions.map(q => ({
+      ...q,
+      id: `${q.id}-set3`,
+      question: `Set 3: ${q.question}`,
+      options: q.options.map(opt => `Adv: ${opt}`),
+      correctAnswer: `Adv: ${q.correctAnswer}`,
+      complexityLevel: Math.min(5, (q.complexityLevel || 1) + 1)
+    }));
+  }
 };
 
 // Function to get available subjects for a specific exam
@@ -49,6 +95,9 @@ export const getAvailableSubjects = (examType: string): string[] => {
     'CAT': ['Quantitative Aptitude', 'Verbal Ability', 'Data Interpretation', 'Logical Reasoning'],
     'Bank Exams': ['Reasoning', 'Quantitative Aptitude', 'English', 'General Awareness', 'Computer Knowledge'],
     'GATE': ['Engineering Mathematics', 'General Aptitude', 'Subject Specific'],
+    'CLAT': ['Legal Reasoning', 'Logical Reasoning', 'English', 'General Knowledge', 'Mathematics'],
+    'MBA': ['Quantitative Analysis', 'Data Interpretation', 'Logical Reasoning', 'Verbal Ability'],
+    'CUET': ['Domain Subject', 'General Test', 'Language Proficiency']
   };
   
   return examSubjects[examType] || ['General Knowledge', 'Aptitude'];

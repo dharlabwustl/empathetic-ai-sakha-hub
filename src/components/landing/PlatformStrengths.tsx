@@ -9,6 +9,7 @@ import {
   FileStack, 
   Star 
 } from "lucide-react";
+import { containerVariants, itemVariants, floatAnimation } from "../home/hero/feature-highlights/animationVariants";
 
 const strengths = [
   {
@@ -38,21 +39,6 @@ const strengths = [
 ];
 
 const PlatformStrengths: React.FC = () => {
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1
-      }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { x: -10, opacity: 0 },
-    visible: { x: 0, opacity: 1, transition: { duration: 0.4 } }
-  };
-
   return (
     <section className="py-8 bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20">
       <div className="container mx-auto px-4">
@@ -69,18 +55,28 @@ const PlatformStrengths: React.FC = () => {
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
           variants={containerVariants}
           initial="hidden"
-          animate="visible"
+          whileInView="show"
+          viewport={{ once: true, amount: 0.3 }}
         >
           {strengths.map((strength, index) => (
             <motion.div
               key={index}
               variants={itemVariants}
-              className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md flex items-center gap-3"
-              whileHover={{ scale: 1.03, transition: { duration: 0.2 } }}
+              className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md flex items-center gap-3 overflow-hidden"
+              whileHover={{ 
+                scale: 1.05, 
+                boxShadow: "0 10px 25px rgba(0, 0, 0, 0.08)",
+                transition: { duration: 0.2 } 
+              }}
             >
-              <div className="rounded-full bg-indigo-100 p-2 dark:bg-indigo-900/30">
+              <motion.div 
+                className="rounded-full bg-indigo-100 p-2 dark:bg-indigo-900/30"
+                variants={floatAnimation}
+                animate="animate"
+                initial="initial"
+              >
                 {strength.icon}
-              </div>
+              </motion.div>
               <p className="font-medium">{strength.title}</p>
             </motion.div>
           ))}

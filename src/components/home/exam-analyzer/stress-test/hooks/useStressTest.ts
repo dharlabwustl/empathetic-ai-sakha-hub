@@ -33,7 +33,9 @@ export const useStressTest = ({ selectedExam, onCompleteTest }: UseStressTestPro
 
   const { showDistraction, scheduleDistraction, clearDistraction } = useStressDistraction();
 
-  const currentQuestion = questions[currentQuestionIndex];
+  const currentQuestion = questions.length > 0 && currentQuestionIndex < questions.length 
+    ? questions[currentQuestionIndex] 
+    : undefined;
 
   const { startTimer, startTimeRef } = useStressTimer({
     timeLeft,
@@ -75,11 +77,9 @@ export const useStressTest = ({ selectedExam, onCompleteTest }: UseStressTestPro
   };
 
   const handleAnswer = (answer: string) => {
-    if (processingNextQuestion) return;
+    if (processingNextQuestion || !currentQuestion) return;
     
     clearDistraction();
-    
-    if (!currentQuestion) return;
     
     const timeToAnswer = (Date.now() - startTimeRef.current) / 1000;
     
@@ -109,7 +109,7 @@ export const useStressTest = ({ selectedExam, onCompleteTest }: UseStressTestPro
       }
       scheduleDistraction(currentQuestion);
     }
-  }, [currentQuestion]);
+  }, [currentQuestion, scheduleDistraction]);
 
   return {
     isTestActive,
