@@ -6,11 +6,13 @@ import { UserProfileType, MoodType, SubscriptionType } from "@/types/user/base";
 import { getMoodTheme } from "./student/mood-tracking/moodThemes";
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
-import { Phone, Award, Star, User, Brain, Calendar, Camera, Lock, Upload } from "lucide-react";
+import { Phone, Award, Star, User, Brain, Calendar, Camera, Lock, Upload, CreditCard, ArrowUpRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useToast } from "@/hooks/use-toast";
+import { PlanType } from "@/services/featureService";
+import { Link } from "react-router-dom";
 
 interface ProfileCardProps {
   profile: UserProfileType;
@@ -107,6 +109,30 @@ const ProfileCard = ({
     
     return showPeerRanking && hasBeenMemberLongEnough && isPremiumUser;
   };
+
+  // Get subscription plan details
+  const getSubscriptionDetails = () => {
+    const planTypeMap: Record<SubscriptionType, string> = {
+      [SubscriptionType.Free]: 'Free Trial',
+      [SubscriptionType.Basic]: 'Basic Plan',
+      [SubscriptionType.Premium]: 'Premium Plan',
+      [SubscriptionType.Enterprise]: 'Enterprise Plan'
+    };
+
+    const planTypeColorMap: Record<SubscriptionType, string> = {
+      [SubscriptionType.Free]: 'bg-gray-100 text-gray-800',
+      [SubscriptionType.Basic]: 'bg-blue-100 text-blue-800',
+      [SubscriptionType.Premium]: 'bg-violet-100 text-violet-800',
+      [SubscriptionType.Enterprise]: 'bg-amber-100 text-amber-800'
+    };
+
+    return {
+      planName: planTypeMap[profile.subscription || SubscriptionType.Free] || 'Free Trial',
+      planClass: planTypeColorMap[profile.subscription || SubscriptionType.Free] || 'bg-gray-100 text-gray-800'
+    };
+  };
+
+  const { planName, planClass } = getSubscriptionDetails();
   
   return (
     <motion.div
@@ -203,6 +229,22 @@ const ProfileCard = ({
           </div>
           
           <div className="mt-4 space-y-3">
+            {/* Subscription Plan - New Addition */}
+            <div className="flex items-center justify-between text-sm">
+              <div className="flex items-center">
+                <CreditCard className="h-3.5 w-3.5 mr-1.5 text-violet-500" />
+                <span className="text-gray-600">Subscription</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Badge className={planClass}>
+                  {planName}
+                </Badge>
+                <Link to="/pricing" className="text-xs text-blue-500 flex items-center hover:underline">
+                  Upgrade <ArrowUpRight className="h-3 w-3 ml-0.5" />
+                </Link>
+              </div>
+            </div>
+            
             {/* User Type */}
             <div className="flex items-center justify-between text-sm">
               <div className="flex items-center">

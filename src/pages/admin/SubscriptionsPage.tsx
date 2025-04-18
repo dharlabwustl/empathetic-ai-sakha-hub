@@ -3,7 +3,7 @@ import React from "react";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { CreditCard, TrendingUp, Users, DollarSign } from "lucide-react";
+import { CreditCard, TrendingUp, Users, DollarSign, Edit } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 
@@ -11,16 +11,16 @@ const SubscriptionsPage = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  const showToast = () => {
-    toast({
-      title: "Subscription Management",
-      description: "This feature is currently under development.",
-      variant: "default"
-    });
-  };
-  
   const navigateToPlanManagement = () => {
     navigate("/admin/dashboard", { state: { activeTab: "subscriptions" } });
+  };
+
+  const handleEditPlan = (planName: string) => {
+    toast({
+      title: "Editing Plan",
+      description: `Navigating to edit ${planName}...`,
+    });
+    navigateToPlanManagement();
   };
 
   return (
@@ -140,12 +140,14 @@ const SubscriptionsPage = () => {
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <button 
-                        className="text-indigo-600 hover:text-indigo-900"
-                        onClick={navigateToPlanManagement}
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={() => handleEditPlan("Basic Plan")}
+                        className="flex items-center gap-1"
                       >
-                        Edit
-                      </button>
+                        <Edit size={16} /> Edit
+                      </Button>
                     </td>
                   </tr>
                   <tr>
@@ -162,12 +164,14 @@ const SubscriptionsPage = () => {
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <button 
-                        className="text-indigo-600 hover:text-indigo-900"
-                        onClick={navigateToPlanManagement}
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={() => handleEditPlan("Pro Plan")}
+                        className="flex items-center gap-1"
                       >
-                        Edit
-                      </button>
+                        <Edit size={16} /> Edit
+                      </Button>
                     </td>
                   </tr>
                   <tr>
@@ -184,12 +188,14 @@ const SubscriptionsPage = () => {
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <button 
-                        className="text-indigo-600 hover:text-indigo-900"
-                        onClick={navigateToPlanManagement}
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={() => handleEditPlan("Enterprise")}
+                        className="flex items-center gap-1"
                       >
-                        Edit
-                      </button>
+                        <Edit size={16} /> Edit
+                      </Button>
                     </td>
                   </tr>
                 </tbody>

@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ProfileCard from "@/components/dashboard/ProfileCard";
 import { UserRole } from "@/types/user";
 import { useToast } from "@/hooks/use-toast";
+import SettingsTabContent from "@/components/dashboard/student/SettingsTabContent";
 
 const ProfilePage = () => {
   const { userProfile, loading, updateUserProfile } = useUserProfile();
@@ -77,13 +78,7 @@ const ProfilePage = () => {
                   </TabsContent>
                   
                   <TabsContent value="settings" className="p-4">
-                    <h2 className="text-xl font-medium mb-4">Account Settings</h2>
-                    <p className="text-muted-foreground">
-                      Manage your account settings and preferences here. 
-                      This section will allow you to update your personal information, 
-                      notification preferences, and privacy settings.
-                    </p>
-                    {/* Settings content will be implemented in the future */}
+                    <SettingsTabContent />
                   </TabsContent>
                   
                   <TabsContent value="achievements" className="p-4">

@@ -3,7 +3,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Separator } from "@/components/ui/separator";
 import { Home, Calendar, BookMarked, MessageSquare, Brain, BookOpen, LineChart, 
-  Activity, Heart, Folder, Video, Users, Bell, Settings, LogOut, ChevronRight } from "lucide-react";
+  Activity, Heart, Folder, Video, Users, Bell, LogOut, ChevronRight } from "lucide-react";
 
 interface SidebarNavigationProps {
   activeTab: string;
@@ -62,12 +62,10 @@ const SidebarNavigation = ({ activeTab, onTabChange }: SidebarNavigationProps) =
           
           <Separator className="my-3" />
           
-          <button className="w-full flex items-center gap-3 rounded-md px-3 py-2.5 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-all">
-            <Settings size={20} />
-            <span>Settings</span>
-          </button>
-          
-          <button className="w-full flex items-center gap-3 rounded-md px-3 py-2.5 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-red-500 dark:hover:text-red-400 transition-all">
+          <button 
+            className="w-full flex items-center gap-3 rounded-md px-3 py-2.5 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-red-500 dark:hover:text-red-400 transition-all"
+            onClick={() => navigate('/login')}
+          >
             <LogOut size={20} />
             <span>Logout</span>
           </button>

@@ -7,7 +7,6 @@ import {
   Calendar, 
   LineChart, 
   User, 
-  Settings, 
   BookOpen,
   Brain,
   Heart,
@@ -70,8 +69,7 @@ export const SidebarNavRoutes = ({
   const routes = userTypeRoutes[userType] || userTypeRoutes.student;
   
   const commonRoutes: NavigationRoute[] = [
-    { name: "Profile", path: "/dashboard/student/profile", icon: <User size={20} /> },
-    { name: "Settings", path: "/dashboard/settings", icon: <Settings size={20} /> }
+    { name: "Profile", path: "/dashboard/student/profile", icon: <User size={20} /> }
   ];
 
   return (
