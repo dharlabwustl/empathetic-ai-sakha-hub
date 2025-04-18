@@ -9,61 +9,7 @@ import {
   FileStack, 
   Star 
 } from "lucide-react";
-
-const containerVariants = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.1
-    }
-  }
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  show: { 
-    opacity: 1, 
-    y: 0,
-    transition: {
-      duration: 0.5
-    }
-  }
-};
-
-const floatAnimation = {
-  initial: { scale: 1 },
-  animate: {
-    scale: [1, 1.05, 1],
-    transition: { 
-      duration: 2,
-      repeat: Infinity,
-      repeatType: "loop" as const
-    }
-  }
-};
-
-const fadeInStagger = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.2
-    }
-  }
-};
-
-const pulseAnimation = {
-  initial: { opacity: 0.8 },
-  animate: { 
-    opacity: [0.8, 1, 0.8],
-    transition: {
-      duration: 2,
-      repeat: Infinity,
-      ease: "easeInOut"
-    }
-  }
-};
+import { containerVariants, itemVariants, floatAnimation, fadeInStagger, pulseAnimation } from "../home/hero/feature-highlights/animationVariants";
 
 const strengths = [
   {

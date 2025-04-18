@@ -5,8 +5,6 @@ import { useUserProfile } from "@/hooks/useUserProfile";
 import { handleNewUser } from "@/pages/dashboard/student/utils/UserSessionManager";
 import { useKpiTracking } from "@/hooks/useKpiTracking";
 import { UserRole } from "@/types/user/base";
-import { BookOpen, Calendar, ChartBar, Brain, MessageSquareText } from "lucide-react";
-import React from "react";
 
 export const useStudentDashboard = () => {
   const [loading, setLoading] = useState(true);
@@ -34,56 +32,15 @@ export const useStudentDashboard = () => {
   else if (hour < 17) currentTime = "Good Afternoon";
   else currentTime = "Good Evening";
   
-  const features = [
-    {
-      id: "overview",
-      title: "Dashboard Overview",
-      description: "View your progress and recommendations",
-      icon: React.createElement(Calendar, { className: "h-5 w-5" }),
-      path: "/dashboard/student/overview",
-      isPremium: false
-    },
-    {
-      id: "today",
-      title: "Today's Plan",
-      description: "Your study schedule for today",
-      icon: React.createElement(BookOpen, { className: "h-5 w-5" }),
-      path: "/dashboard/student/today",
-      isPremium: false
-    },
-    {
-      id: "concepts",
-      title: "Concept Cards",
-      description: "Study key exam concepts",
-      icon: React.createElement(Brain, { className: "h-5 w-5" }),
-      path: "/dashboard/student/concepts",
-      isPremium: false
-    },
-    {
-      id: "tutor",
-      title: "24/7 AI Tutor",
-      description: "Get help with tough problems",
-      icon: React.createElement(MessageSquareText, { className: "h-5 w-5" }),
-      path: "/dashboard/student/tutor",
-      isPremium: false
-    },
-    {
-      id: "advisor",
-      title: "Academic Advisor",
-      description: "Personalized study plans",
-      icon: React.createElement(Brain, { className: "h-5 w-5" }),
-      path: "/dashboard/student/advisor",
-      isPremium: false
-    },
-    {
-      id: "progress",
-      title: "Progress Tracking",
-      description: "Monitor your improvement",
-      icon: React.createElement(ChartBar, { className: "h-5 w-5" }),
-      path: "/dashboard/student/progress",
-      isPremium: false
-    }
-  ];
+  const features = {
+    overview: true,
+    subjects: true,
+    quizzes: true,
+    resources: true,
+    community: true,
+    progress: true,
+    settings: true,
+  };
   
   useEffect(() => {
     if (tab) {
@@ -157,7 +114,7 @@ export const useStudentDashboard = () => {
     };
     
     initDashboard();
-  }, [location, navigate, profileLoading, userProfile, updateUserProfile, toast]);
+  }, [location, navigate, profileLoading, userProfile, updateUserProfile]);
   
   useEffect(() => {
     if (!profileLoading) {

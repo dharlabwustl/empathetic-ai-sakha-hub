@@ -2,6 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { UserProfileType } from "@/types/user";
 import { Eye } from "lucide-react";
+import MoodLogButton from "@/components/dashboard/student/MoodLogButton";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { motion } from "framer-motion";
 
@@ -15,11 +16,6 @@ interface DashboardHeaderProps {
 // Extend the userProfile type locally to handle the streak property
 interface ExtendedUserProfile extends UserProfileType {
   studyStreak?: number;
-  studyProgress?: {
-    current: number;
-    total: number;
-    percentage: number;
-  };
 }
 
 const DashboardHeader = ({
@@ -31,17 +27,6 @@ const DashboardHeader = ({
   const isMobile = useIsMobile();
   // Cast to our extended type
   const extendedProfile = userProfile as ExtendedUserProfile;
-  
-  // Calculate streak display elements based on progress
-  const progressStreak = extendedProfile.studyProgress?.percentage || 0;
-  const streakLevel = progressStreak > 80 ? 'high' : progressStreak > 50 ? 'medium' : 'low';
-  const streakEmoji = streakLevel === 'high' ? '🔥' : streakLevel === 'medium' ? '✨' : '📚';
-  const streakMessage = streakLevel === 'high' 
-    ? 'Amazing streak!' 
-    : streakLevel === 'medium' 
-      ? 'Good progress!' 
-      : 'Keep going!';
-  const streakCount = extendedProfile.studyStreak || 0;
 
   // Animation variants
   const containerVariants = {
@@ -124,6 +109,8 @@ const DashboardHeader = ({
           className="flex gap-2 items-start justify-start md:justify-end w-full sm:w-auto"
           variants={itemVariants}
         >
+          <MoodLogButton className={`${isMobile ? 'text-xs px-3 py-1' : ''} whitespace-nowrap`} />
+          
           <motion.div
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
@@ -143,56 +130,29 @@ const DashboardHeader = ({
         </motion.div>
       </div>
       
-      {streakCount > 0 && (
+      {extendedProfile.studyStreak && extendedProfile.studyStreak > 0 && (
         <motion.div 
-          className="mt-3 sm:mt-4"
+          className="mt-3 sm:mt-4 flex items-center gap-2"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.8, duration: 0.5 }}
         >
-          <div className="flex items-center gap-2">
-            <div className="flex">
-              {[...Array(Math.min(streakCount, 5))].map((_, i) => (
-                <motion.div 
-                  key={i}
-                  className={`
-                    w-6 h-6 rounded-full flex items-center justify-center -ml-1 first:ml-0
-                    ${streakLevel === 'high' ? 'bg-amber-100 border-2 border-amber-300' : 
-                      streakLevel === 'medium' ? 'bg-emerald-100 border-2 border-emerald-300' : 
-                      'bg-blue-100 border-2 border-blue-300'}
-                  `}
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ delay: 0.9 + i * 0.1 }}
-                >
-                  <span className="text-xs">{streakEmoji}</span>
-                </motion.div>
-              ))}
-            </div>
-            <div className="flex flex-col">
-              <span className={`
-                text-xs font-medium
-                ${streakLevel === 'high' ? 'text-amber-700' : 
-                  streakLevel === 'medium' ? 'text-emerald-700' : 
-                  'text-blue-700'}
-              `}>
-                {streakCount} day{streakCount > 1 ? 's' : ''} streak! {streakMessage}
-              </span>
-              
-              {extendedProfile.studyProgress && (
-                <div className="w-full mt-1 h-1.5 bg-gray-200 rounded-full overflow-hidden">
-                  <div 
-                    className={`h-full rounded-full ${
-                      streakLevel === 'high' ? 'bg-amber-500' : 
-                      streakLevel === 'medium' ? 'bg-emerald-500' : 
-                      'bg-blue-500'
-                    }`} 
-                    style={{ width: `${extendedProfile.studyProgress.percentage}%` }}
-                  ></div>
-                </div>
-              )}
-            </div>
+          <div className="flex">
+            {[...Array(Math.min(extendedProfile.studyStreak, 5))].map((_, i) => (
+              <motion.div 
+                key={i}
+                className="w-6 h-6 bg-amber-100 rounded-full border-2 border-amber-300 flex items-center justify-center -ml-1 first:ml-0"
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.9 + i * 0.1 }}
+              >
+                <span className="text-xs">🔥</span>
+              </motion.div>
+            ))}
           </div>
+          <span className="text-xs font-medium text-amber-700">
+            {extendedProfile.studyStreak} day{extendedProfile.studyStreak > 1 ? 's' : ''} streak! Keep it up!
+          </span>
         </motion.div>
       )}
     </motion.div>
