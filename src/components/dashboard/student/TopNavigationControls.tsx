@@ -1,49 +1,65 @@
-
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { ChevronRight, PanelLeft } from "lucide-react";
-import { motion } from "framer-motion";
+import { HelpCircle } from "lucide-react";
 
 interface TopNavigationControlsProps {
   hideSidebar: boolean;
   onToggleSidebar: () => void;
   formattedDate: string;
   formattedTime: string;
+  onOpenTour?: () => void;
 }
 
 const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
   hideSidebar,
   onToggleSidebar,
   formattedDate,
-  formattedTime
+  formattedTime,
+  onOpenTour
 }) => {
   return (
-    <div className="flex items-center justify-between mb-4 sm:mb-6">
-      {/* Toggle sidebar button - improved position */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.3 }}
-        className="flex items-center space-x-2"
-      >
+    <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center gap-4">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="md:hidden"
+          onClick={onToggleSidebar}
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="h-6 w-6"
+          >
+            <line x1="3" y1="12" x2="21" y2="12" />
+            <line x1="3" y1="6" x2="21" y2="6" />
+            <line x1="3" y1="18" x2="21" y2="18" />
+          </svg>
+          <span className="sr-only">Toggle Menu</span>
+        </Button>
+        <div>
+          <h2 className="text-lg font-semibold">{formattedTime}</h2>
+          <p className="text-muted-foreground text-sm">{formattedDate}</p>
+        </div>
+      </div>
+      
+      <div className="flex items-center gap-2">
         <Button
           variant="outline"
           size="sm"
-          className="hidden md:flex items-center gap-1 bg-white shadow-sm hover:bg-purple-50 border-purple-200 text-purple-700"
-          onClick={onToggleSidebar}
+          onClick={onOpenTour}
+          className="hidden sm:flex items-center gap-2 text-indigo-600 hover:text-indigo-700 border-indigo-200"
         >
-          {hideSidebar ? 
-            <><ChevronRight width={15} height={15} /> Show Sidebar</> : 
-            <><PanelLeft width={15} height={15} /> Hide Sidebar</>
-          }
+          <HelpCircle className="h-4 w-4" />
+          Tour Guide
         </Button>
-      </motion.div>
-      
-      {/* Date/time display */}
-      <div className="text-sm text-gray-600 dark:text-gray-300 hidden sm:block">
-        <span>{formattedDate}</span>
-        <span className="mx-2">•</span>
-        <span>{formattedTime}</span>
       </div>
     </div>
   );

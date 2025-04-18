@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -86,8 +85,8 @@ const WelcomeTour: React.FC<WelcomeTourProps> = ({
       icon: <Globe className="h-8 w-8 text-amber-500" />,
       emoji: "5️⃣",
       title: "Surrounding Influence Check",
-      description: "Understand how your environment affects your performance—sleep, noise, routine, and more.",
-      highlight: "📈 Get feedback and tips on how to build a high-performance study zone."
+      description: "Understand your peers' progress, your confidence levels, engagement patterns, and how they impact your exam preparation journey.",
+      highlight: "📈 Get insights on how your learning environment and interactions affect your improvement."
     },
     {
       icon: <Smile className="h-8 w-8 text-pink-500" />,
@@ -160,7 +159,7 @@ const WelcomeTour: React.FC<WelcomeTourProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] p-0 bg-white">
+      <DialogContent className="sm:max-w-[600px] p-0 bg-white shadow-xl">
         <div className="relative">
           <Button
             variant="ghost"
@@ -201,9 +200,9 @@ const WelcomeTour: React.FC<WelcomeTourProps> = ({
                 Previous
               </Button>
             ) : (
-              <div /> /* Spacer */
+              <div></div>
             )}
-
+            
             <div className="flex items-center gap-2">
               <span className="text-sm text-gray-500">
                 Step {currentStep + 1} of {steps.length}

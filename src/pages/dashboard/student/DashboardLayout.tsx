@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import SidebarNav from "@/components/dashboard/SidebarNav";
@@ -20,6 +19,7 @@ import { getFeatures } from "./utils/FeatureManager";
 import { Button } from "@/components/ui/button";
 import { BookOpen, MessageSquareText, Brain } from "lucide-react";
 import ProfileCard from "@/components/dashboard/ProfileCard";
+import WelcomeTour from "@/components/dashboard/student/WelcomeTour";
 
 interface DashboardLayoutProps {
   userProfile: UserProfileType;
@@ -97,6 +97,22 @@ const DashboardLayout = ({
     }
   ];
   
+  const [showTour, setShowTour] = useState(showWelcomeTour);
+  
+  const handleOpenTour = () => {
+    setShowTour(true);
+  };
+  
+  const handleCloseTour = () => {
+    setShowTour(false);
+    onSkipTour();
+  };
+  
+  const handleCompleteTourAndClose = () => {
+    setShowTour(false);
+    onCompleteTour();
+  };
+
   return (
     <div className={`min-h-screen bg-gradient-to-br from-sky-100/10 via-white to-violet-100/10 dark:from-sky-900/10 dark:via-gray-900 dark:to-violet-900/10 ${currentMood ? `mood-${currentMood}` : ''}`}>
       <SidebarNav userType="student" userName={userProfile.name} />
@@ -107,6 +123,7 @@ const DashboardLayout = ({
           onToggleSidebar={onToggleSidebar}
           formattedDate={formattedDate}
           formattedTime={formattedTime}
+          onOpenTour={handleOpenTour}
         />
         
         <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
@@ -222,6 +239,17 @@ const DashboardLayout = ({
           onClose={onCloseStudyPlan} 
         />
       )}
+      
+      <WelcomeTour
+        onSkipTour={handleCloseTour}
+        onCompleteTour={handleCompleteTourAndClose}
+        isFirstTimeUser={!userProfile.loginCount || userProfile.loginCount <= 1}
+        lastActivity={lastActivity}
+        suggestedNextAction={suggestedNextAction}
+        loginCount={userProfile.loginCount}
+        open={showTour}
+        onOpenChange={setShowTour}
+      />
     </div>
   );
 };
