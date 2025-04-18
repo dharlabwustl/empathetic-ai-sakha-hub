@@ -1,9 +1,8 @@
-
 import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CircleCheck, AlertTriangle, Lightbulb, Trophy } from "lucide-react";
+import { CircleCheck, AlertTriangle, Lightbulb, Trophy, Check, Circle } from "lucide-react";
 import ConceptExplanationContent from './ConceptExplanationContent';
 import { motion } from "framer-motion";
 
@@ -11,20 +10,33 @@ interface ConceptCardViewProps {
   title: string;
   subject: string;
   chapter: string;
+  difficulty?: "Beginner" | "Intermediate" | "Advanced";
+  isCompleted?: boolean;
+  onToggleComplete?: () => void;
 }
 
 const ConceptCardView: React.FC<ConceptCardViewProps> = ({
   title,
   subject,
-  chapter
+  chapter,
+  difficulty = "Intermediate",
+  isCompleted = false,
+  onToggleComplete
 }) => {
-  // Define tab content
   const tabs = [
     { id: "explanation", label: "Explanation", icon: <Lightbulb className="h-4 w-4" /> },
     { id: "examples", label: "Real-world Examples", icon: <CircleCheck className="h-4 w-4" /> },
     { id: "mistakes", label: "Common Mistakes", icon: <AlertTriangle className="h-4 w-4" /> },
     { id: "exam", label: "Exam Relevance", icon: <Trophy className="h-4 w-4" /> },
   ];
+
+  const getDifficultyColor = () => {
+    switch (difficulty) {
+      case "Beginner": return "bg-green-100 text-green-700 border-green-200";
+      case "Advanced": return "bg-red-100 text-red-700 border-red-200";
+      default: return "bg-yellow-100 text-yellow-700 border-yellow-200";
+    }
+  };
 
   return (
     <motion.div
@@ -34,10 +46,23 @@ const ConceptCardView: React.FC<ConceptCardViewProps> = ({
     >
       <Card className="overflow-hidden border-0 shadow-md bg-white">
         <CardHeader className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white pb-4 relative">
-          <div className="absolute top-0 right-0 mt-4 mr-4">
+          <div className="flex items-center justify-between mb-2">
             <Badge variant="outline" className="bg-blue-500/20 text-white border-blue-300/30">
               {subject}
             </Badge>
+            <div className="flex items-center gap-2">
+              <Badge className={getDifficultyColor()}>
+                {difficulty}
+              </Badge>
+              <Button
+                variant="outline"
+                size="sm"
+                className={`${isCompleted ? 'bg-green-500 text-white hover:bg-green-600' : 'bg-white/20'}`}
+                onClick={onToggleComplete}
+              >
+                {isCompleted ? <Check className="h-4 w-4" /> : <Circle className="h-4 w-4" />}
+              </Button>
+            </div>
           </div>
           <CardTitle className="text-xl font-bold">{title}</CardTitle>
           <p className="text-blue-100 text-sm mt-1">From {chapter}</p>
