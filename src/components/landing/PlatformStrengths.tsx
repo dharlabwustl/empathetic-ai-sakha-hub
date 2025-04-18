@@ -1,6 +1,5 @@
-
 import React, { useRef } from "react";
-import { motion, useInView, Variants } from "framer-motion";
+import { motion, useInView, Variants, Variant } from "framer-motion";
 import { 
   Brain, 
   Sparkles, 
@@ -24,7 +23,7 @@ const floatAnimation: Variants = {
       repeat: Infinity, 
       repeatType: "loop" 
     }
-  }
+  } as Variant
 };
 
 const strengths = [
