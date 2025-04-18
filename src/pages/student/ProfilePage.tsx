@@ -1,12 +1,11 @@
 
 import React from "react";
 import MainLayout from "@/components/layouts/MainLayout";
+import StudentProfile from "@/pages/dashboard/student/StudentProfile";
 import { useUserProfile } from "@/hooks/useUserProfile";
-// Import the actual ProfilePage component we're using
-import ProfilePageComponent from "@/pages/dashboard/student/ProfilePage";
 
 const ProfilePage = () => {
-  const { userProfile, loading, error, updateProfile, uploadAvatar } = useUserProfile();
+  const { userProfile, loading } = useUserProfile();
 
   return (
     <MainLayout>
@@ -18,16 +17,8 @@ const ProfilePage = () => {
               <p className="mt-4 text-gray-500 dark:text-gray-400">Loading profile...</p>
             </div>
           </div>
-        ) : error ? (
-          <div className="text-center text-red-500">
-            <p>Error loading profile: {error}</p>
-          </div>
         ) : (
-          <ProfilePageComponent 
-            userProfile={userProfile} 
-            onUpdateProfile={updateProfile} 
-            onUploadAvatar={uploadAvatar}
-          />
+          <StudentProfile userProfile={userProfile} />
         )}
       </div>
     </MainLayout>
