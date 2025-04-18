@@ -1,6 +1,6 @@
 
 import React, { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,6 +22,28 @@ interface ProfilePageProps {
   userProfile: UserProfileType;
   onUpdateProfile?: (updatedProfile: Partial<UserProfileType>) => void;
   onUploadAvatar?: (file: File) => void;
+}
+
+interface FormDataType {
+  name: string;
+  email: string;
+  phoneNumber: string;
+  school: string;
+  grade: string;
+  examTarget: string;
+  bio: string;
+  address: {
+    city: string;
+    state: string;
+    country: string;
+  };
+  parentName: string;
+  parentEmail: string;
+  parentPhone: string;
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+  [key: string]: any; // Add index signature
 }
 
 const ProfilePage: React.FC<ProfilePageProps> = ({ 
@@ -51,7 +73,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
   };
   
   // Form state
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormDataType>({
     name: userProfile?.name || "",
     email: userProfile?.email || "",
     phoneNumber: userProfile?.phoneNumber || "",
