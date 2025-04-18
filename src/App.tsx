@@ -1,8 +1,9 @@
+
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import HomePage from "./pages/HomePage";
-import LoginPage from "./pages/LoginPage";
-import SignupPage from "./pages/SignupPage";
+import Index from "./pages/Index";
+import Login from "./pages/Login";
+import SignUp from "./pages/SignUp";
 import { UserRole } from "./types/user/base";
 import StudentDashboard from "./pages/dashboard/StudentDashboard";
 import ProfilePage from "./pages/student/ProfilePage";
@@ -13,9 +14,9 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/signup" element={<SignupPage />} />
+        <Route path="/" element={<Index />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<SignUp />} />
         <Route path="/dashboard/student" element={<StudentDashboard />} />
         <Route path="/dashboard/student/profile" element={<ProfilePage />} />
         <Route path="/dashboard/student/academic" element={<AcademicAdvisorPage />} />

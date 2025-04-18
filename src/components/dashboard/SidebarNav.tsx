@@ -1,19 +1,15 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { ThemeToggle } from "@/components/ui/theme-toggle";
-import { 
-  LogOut,
-  ChevronLeft,
-  ChevronRight,
-  Menu,
-  X
-} from "lucide-react";
-import { cn } from "@/lib/utils";
-import { SidebarNavProps } from "./types/sidebar";
-import { SidebarAvatar } from "./SidebarAvatar";
-import SidebarNavRoutes from "./SidebarNavRoutes";
-import { useIsMobile } from "@/hooks/use-mobile";
+import React, { useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Button } from '../ui/button';
+import { SheetTrigger } from '../ui/sheet';
+import { Separator } from '../ui/separator';
+import {
+  ChevronLeft, ChevronRight, LayoutDashboard, Settings, User, BookOpen,
+  BarChart, Users, FileText, Laptop, Home, LogOut, Menu
+} from 'lucide-react';
+import SidebarAvatar from './SidebarAvatar';
+import SidebarNavRoutes from './SidebarNavRoutes';
+import { useIsMobile } from '../hooks/use-mobile';
 
 const SidebarNav = ({ userType, userName = "User" }: SidebarNavProps) => {
   const [collapsed, setCollapsed] = useState(false);
