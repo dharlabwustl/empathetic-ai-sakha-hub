@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -87,7 +86,7 @@ const FeatureEditDialog: React.FC<FeatureEditDialogProps> = ({ isOpen, onClose, 
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[600px] bg-background border shadow-lg">
+      <DialogContent className="sm:max-w-[600px] bg-background border shadow-lg dark:bg-gray-900 dark:border-gray-700">
         <DialogHeader>
           <DialogTitle>Edit Feature</DialogTitle>
         </DialogHeader>
