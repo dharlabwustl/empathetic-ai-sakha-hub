@@ -1,28 +1,38 @@
 
 import React from 'react';
 import { motion } from "framer-motion";
-import { Brain, Target, Sparkles, Shield } from "lucide-react";
+import { Brain, Sparkles, Layers, PlaySquare, FlashCard, CheckSquare } from "lucide-react";
 
 const strengthsData = [
   {
     icon: Brain,
-    title: "AI-Powered Learning",
-    description: "Adaptive learning paths customized to your unique needs and pace"
-  },
-  {
-    icon: Target,
-    title: "Exam-Focused",
-    description: "Targeted preparation for competitive exams with proven strategies"
+    title: "Cognitive-layered Exam Content",
+    description: "Content structured according to cognitive complexity levels for each exam"
   },
   {
     icon: Sparkles,
-    title: "Emotional Intelligence",
-    description: "First-of-its-kind emotional support system for students"
+    title: "Personalized AI Journey",
+    description: "Adaptive learning paths customized to your unique needs and pace"
   },
   {
-    icon: Shield,
-    title: "Reliable Support",
-    description: "24/7 assistance with doubts and comprehensive study materials"
+    icon: Layers,
+    title: "Mood-aligned Delivery",
+    description: "Content delivery that adapts to your emotional state for optimal learning"
+  },
+  {
+    icon: PlaySquare,
+    title: "Multimodal Smart Content",
+    description: "Comprehensive learning through Text, Audio, Image, and Video formats"
+  },
+  {
+    icon: FlashCard,
+    title: "Instant Learning Tools",
+    description: "On-demand generation of flashcards and tests for rapid revision"
+  },
+  {
+    icon: CheckSquare,
+    title: "Scientific Quality Scoring",
+    description: "Built-in scoring system for content quality, relevance, and difficulty"
   }
 ];
 
@@ -51,7 +61,7 @@ const PlatformStrengths = () => {
           </p>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {strengthsData.map((strength, index) => (
             <motion.div
               key={index}
