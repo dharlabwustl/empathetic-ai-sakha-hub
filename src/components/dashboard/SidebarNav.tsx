@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '../ui/button';
@@ -5,11 +6,18 @@ import { SheetTrigger } from '../ui/sheet';
 import { Separator } from '../ui/separator';
 import {
   ChevronLeft, ChevronRight, LayoutDashboard, Settings, User, BookOpen,
-  BarChart, Users, FileText, Laptop, Home, LogOut, Menu
+  BarChart, Users, FileText, Laptop, Home, LogOut, Menu, X
 } from 'lucide-react';
-import SidebarAvatar from './SidebarAvatar';
+import { SidebarAvatar } from './SidebarAvatar';
+import { cn } from '@/lib/utils';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { ThemeToggle } from '@/components/ui/theme-toggle';
 import SidebarNavRoutes from './SidebarNavRoutes';
-import { useIsMobile } from '../hooks/use-mobile';
+
+interface SidebarNavProps {
+  userType: string;
+  userName?: string;
+}
 
 const SidebarNav = ({ userType, userName = "User" }: SidebarNavProps) => {
   const [collapsed, setCollapsed] = useState(false);
@@ -81,10 +89,10 @@ const SidebarNav = ({ userType, userName = "User" }: SidebarNavProps) => {
             collapsed={collapsed} 
           />
           
-          <SidebarNavRoutes 
-            userType={userType} 
+          <SidebarNavRoutes
+            userType={userType}
             collapsed={collapsed}
-            onMobileClose={() => setMobileOpen(false)} 
+            onMobileClose={() => setMobileOpen(false)}
           />
         </div>
         
