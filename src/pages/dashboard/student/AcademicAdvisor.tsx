@@ -5,14 +5,16 @@ import StudyPlanSection from '@/components/dashboard/student/academic/StudyPlanS
 import { useToast } from '@/hooks/use-toast';
 
 interface AcademicAdvisorProps {
-  userProfile: any;
+  userProfile: {
+    examPreparation?: string;
+  };
 }
 
 const AcademicAdvisor: React.FC<AcademicAdvisorProps> = ({ userProfile }) => {
   const { toast } = useToast();
   const [showCreateDialog, setShowCreateDialog] = useState(false);
 
-  // Sample data - in real app, this would come from an API
+  // Sample active study plan data
   const activePlans = [{
     id: "plan-1",
     examGoal: userProfile?.examPreparation || "IIT-JEE",
@@ -53,6 +55,7 @@ const AcademicAdvisor: React.FC<AcademicAdvisorProps> = ({ userProfile }) => {
     ]
   }];
 
+  // Sample completed plans
   const completedPlans = [{
     id: "plan-old-1",
     examGoal: "IIT-JEE",

@@ -4,10 +4,29 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import StudyPlanCard from './StudyPlanCard';
 
+interface StudyPlan {
+  id: string;
+  examGoal: string;
+  examDate: string;
+  daysLeft: number;
+  createdAt: string;
+  status: 'active' | 'completed' | 'expired';
+  progressPercentage: number;
+  subjects: Array<{
+    name: string;
+    progress: number;
+    proficiency: 'weak' | 'moderate' | 'strong';
+    topics: Array<{
+      name: string;
+      status: 'pending' | 'in-progress' | 'completed';
+    }>;
+  }>;
+}
+
 interface StudyPlanSectionProps {
   title: string;
   description?: string;
-  plans: Array<any>;
+  plans: StudyPlan[];
   onCreatePlan: () => void;
   onViewPlanDetails: (planId: string) => void;
 }

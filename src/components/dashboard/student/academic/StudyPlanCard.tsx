@@ -7,25 +7,29 @@ import { Check, Clock, ChevronRight } from 'lucide-react';
 import { Badge } from "@/components/ui/badge";
 import { formatDate } from "@/utils/dateUtils";
 
+interface Subject {
+  name: string;
+  progress: number;
+  proficiency: 'weak' | 'moderate' | 'strong';
+  topics: Array<{
+    name: string;
+    status: 'pending' | 'in-progress' | 'completed';
+  }>;
+}
+
+interface StudyPlan {
+  id: string;
+  examGoal: string;
+  examDate: string;
+  daysLeft: number;
+  createdAt: string;
+  status: 'active' | 'completed' | 'expired';
+  progressPercentage: number;
+  subjects: Subject[];
+}
+
 interface StudyPlanCardProps {
-  plan: {
-    id: string;
-    examGoal: string;
-    examDate: string;
-    daysLeft: number;
-    createdAt: string;
-    status: 'active' | 'completed' | 'expired';
-    progressPercentage: number;
-    subjects: Array<{
-      name: string;
-      progress: number;
-      proficiency: 'weak' | 'moderate' | 'strong';
-      topics: Array<{
-        name: string;
-        status: 'pending' | 'in-progress' | 'completed';
-      }>;
-    }>;
-  };
+  plan: StudyPlan;
   onViewDetails: (planId: string) => void;
 }
 
