@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, ArrowLeft, X, CheckCircle, LayoutDashboard, BookOpen, MessageSquareText, Brain, LineChart, Calendar, Smile, Music, Globe } from "lucide-react";
+import { ArrowRight, ArrowLeft, X, CheckCircle, LayoutDashboard, BookOpen, MessageSquareText, LineChart, Calendar, Smile, Music, Globe } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
@@ -201,7 +201,7 @@ const WelcomeTour: React.FC<WelcomeTourProps> = ({
                 Previous
               </Button>
             ) : (
-              <div /> {/* Spacer */}
+              <div /> /* Spacer */
             )}
 
             <div className="flex items-center gap-2">
