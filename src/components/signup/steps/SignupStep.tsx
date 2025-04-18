@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -6,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useOnboarding } from "../OnboardingContext";
 import { motion } from "framer-motion";
+import { Star } from "lucide-react";
 
 interface SignupStepProps {
   onSubmit: (formValues: { name: string; mobile: string; otp: string }) => void;
