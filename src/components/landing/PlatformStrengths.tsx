@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import { containerVariants, itemVariants, fadeInStagger, pulseAnimation } from "../home/hero/feature-highlights/animationVariants";
 
-// Define the floatAnimation with correct types
+// Define the floatAnimation with correct types for framer-motion
 const floatAnimation = {
   initial: { scale: 1 },
   animate: { 
@@ -19,7 +19,7 @@ const floatAnimation = {
     transition: { 
       duration: 2, 
       repeat: Infinity, 
-      repeatType: "loop" as const // Explicitly type this as "loop"
+      repeatType: "loop" as "loop" // Using "as" with literal type
     }
   }
 };
