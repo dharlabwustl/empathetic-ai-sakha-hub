@@ -46,6 +46,15 @@ export const API_ENDPOINTS = {
     QUESTIONS: '/content/questions',
     EXAMS: '/content/exams',
     FEEL_GOOD: '/content/feel-good'
+  },
+  AI: {
+    PERSONALIZE: '/ai/personalize',
+    LEARNING_STYLE: '/ai/learning-style',
+    GENERATE_PLAN: '/ai/generate-plan',
+    DOUBT_RESPONSE: '/ai/doubt-response',
+    TUTOR_CHAT: '/ai/tutor-chat',
+    MOOD_SUGGESTIONS: '/ai/mood-suggestions',
+    TIME_SAVED_ANALYSIS: '/ai/time-saved-analysis'
   }
 };
 

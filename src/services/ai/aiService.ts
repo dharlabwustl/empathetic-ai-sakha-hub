@@ -87,6 +87,27 @@ const aiService = {
       data: response.data,
       error: null
     };
+  },
+  
+  // Analyze time saved by personalized study plans
+  async analyzeTimeSaved(userId: string, timeRange?: { start: Date, end: Date }): Promise<ApiResponse<{ hoursSaved: number, efficiencyGain: number }>> {
+    let endpoint = API_ENDPOINTS.AI.TIME_SAVED_ANALYSIS;
+    
+    if (timeRange) {
+      const startDate = timeRange.start.toISOString();
+      const endDate = timeRange.end.toISOString();
+      endpoint += `?userId=${userId}&start=${startDate}&end=${endDate}`;
+    } else {
+      endpoint += `?userId=${userId}`;
+    }
+    
+    const response = await apiClient.get(endpoint);
+    
+    return {
+      success: true,
+      data: response.data,
+      error: null
+    };
   }
 };
 
