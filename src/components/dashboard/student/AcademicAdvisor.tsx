@@ -29,36 +29,33 @@ const AcademicAdvisor: React.FC<AcademicAdvisorProps> = ({ userProfile }) => {
     subjects: [
       {
         name: "Physics",
-        topics: [
-          { name: "Mechanics", duration: 120, status: 'in-progress', priority: 'high' },
-          { name: "Thermodynamics", duration: 90, status: 'pending', priority: 'medium' },
-          { name: "Electrostatics", duration: 60, status: 'completed', priority: 'high' }
-        ],
-        allocatedHours: 40,
+        progress: 45,
         proficiency: 'moderate',
-        progress: 45
+        topics: [
+          { name: "Mechanics", status: 'in-progress', priority: 'high' },
+          { name: "Thermodynamics", status: 'pending', priority: 'medium' },
+          { name: "Electrostatics", status: 'completed', priority: 'high' }
+        ]
       },
       {
         name: "Chemistry",
-        topics: [
-          { name: "Organic Chemistry", duration: 120, status: 'pending', priority: 'high' },
-          { name: "Chemical Bonding", duration: 60, status: 'in-progress', priority: 'medium' },
-          { name: "Equilibrium", duration: 90, status: 'pending', priority: 'low' }
-        ],
-        allocatedHours: 30,
+        progress: 25,
         proficiency: 'weak',
-        progress: 25
+        topics: [
+          { name: "Organic Chemistry", status: 'pending', priority: 'high' },
+          { name: "Chemical Bonding", status: 'in-progress', priority: 'medium' },
+          { name: "Equilibrium", status: 'pending', priority: 'low' }
+        ]
       },
       {
         name: "Mathematics",
-        topics: [
-          { name: "Calculus", duration: 120, status: 'completed', priority: 'high' },
-          { name: "Coordinate Geometry", duration: 90, status: 'completed', priority: 'high' },
-          { name: "Probability", duration: 60, status: 'in-progress', priority: 'medium' }
-        ],
-        allocatedHours: 45,
+        progress: 72,
         proficiency: 'strong',
-        progress: 72
+        topics: [
+          { name: "Calculus", status: 'completed', priority: 'high' },
+          { name: "Coordinate Geometry", status: 'completed', priority: 'high' },
+          { name: "Probability", status: 'in-progress', priority: 'medium' }
+        ]
       }
     ],
     studyHoursPerDay: 6,
@@ -78,31 +75,28 @@ const AcademicAdvisor: React.FC<AcademicAdvisorProps> = ({ userProfile }) => {
     subjects: [
       {
         name: "Physics",
-        topics: [
-          { name: "Mechanics", duration: 120, status: 'completed', priority: 'high' },
-          { name: "Waves", duration: 90, status: 'completed', priority: 'medium' }
-        ],
-        allocatedHours: 30,
+        progress: 65,
         proficiency: 'weak',
-        progress: 65
+        topics: [
+          { name: "Mechanics", status: 'completed', priority: 'high' },
+          { name: "Waves", status: 'completed', priority: 'medium' }
+        ]
       },
       {
         name: "Chemistry",
-        topics: [
-          { name: "Periodic Table", duration: 60, status: 'completed', priority: 'medium' }
-        ],
-        allocatedHours: 25,
+        progress: 60,
         proficiency: 'weak',
-        progress: 60
+        topics: [
+          { name: "Periodic Table", status: 'completed', priority: 'medium' }
+        ]
       },
       {
         name: "Mathematics",
-        topics: [
-          { name: "Algebra", duration: 120, status: 'completed', priority: 'high' }
-        ],
-        allocatedHours: 35,
+        progress: 70,
         proficiency: 'moderate',
-        progress: 70
+        topics: [
+          { name: "Algebra", status: 'completed', priority: 'high' }
+        ]
       }
     ],
     studyHoursPerDay: 5,
@@ -141,7 +135,6 @@ const AcademicAdvisor: React.FC<AcademicAdvisorProps> = ({ userProfile }) => {
         onViewPlanDetails={handleViewPlanDetails}
       />
 
-      {/* Study Plan Creation Dialog */}
       <CreateStudyPlanWizard
         isOpen={showCreateDialog}
         onClose={() => setShowCreateDialog(false)}
@@ -149,7 +142,6 @@ const AcademicAdvisor: React.FC<AcademicAdvisorProps> = ({ userProfile }) => {
         onCreatePlan={handleNewPlanCreated}
       />
 
-      {/* Study Plan Detail Dialog */}
       {selectedPlan && (
         <StudyPlanDetail
           plan={selectedPlan}
