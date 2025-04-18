@@ -6,7 +6,8 @@ import {
   Sunrise, 
   Sun, 
   Sunset, 
-  Moon
+  Moon,
+  Check
 } from "lucide-react";
 
 interface StudyTimeStepProps {
