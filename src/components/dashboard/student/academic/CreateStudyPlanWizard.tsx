@@ -9,7 +9,7 @@ import StudyHoursStep from "../../student/onboarding/StudyHoursStep";
 import StudyTimeStep from "../../student/onboarding/StudyTimeStep";
 import StudyPaceStep from "../../student/onboarding/StudyPaceStep";
 import SubjectsStep from "../../student/onboarding/SubjectsStep";
-import type { NewStudyPlan } from "@/types/user/studyPlan";
+import type { NewStudyPlan, NewStudyPlanSubject } from "@/types/user/studyPlan";
 
 interface CreateStudyPlanWizardProps {
   isOpen: boolean;
@@ -51,6 +51,13 @@ const CreateStudyPlanWizard: React.FC<CreateStudyPlanWizardProps> = ({
         learningPace = 'moderate';
     }
     setFormData(prev => ({ ...prev, learningPace }));
+  };
+
+  // Convert the StudyTime from component format to the format needed in formData
+  const handleStudyTimeChange = (time: "Morning" | "Afternoon" | "Evening" | "Night") => {
+    // Convert to lowercase for our data model
+    const preferredStudyTime = time.toLowerCase() as 'morning' | 'afternoon' | 'evening' | 'night';
+    setFormData(prev => ({ ...prev, preferredStudyTime }));
   };
 
   const handleNext = () => {
@@ -120,19 +127,15 @@ const CreateStudyPlanWizard: React.FC<CreateStudyPlanWizardProps> = ({
             {step === 3 && (
               <SubjectsStep
                 subjects={formData.subjects}
-                setSubjects={(subjects) => setFormData(prev => ({ ...prev, subjects }))}
+                setSubjects={(subjects: NewStudyPlanSubject[]) => setFormData(prev => ({ ...prev, subjects }))}
                 examType={formData.examGoal}
               />
             )}
 
             {step === 4 && (
               <StudyTimeStep
-                studyTime={formData.preferredStudyTime}
-                setStudyTime={(time) => {
-                  // Convert the time string to lowercase to match our type
-                  const preferredStudyTime = time.toLowerCase() as 'morning' | 'afternoon' | 'evening' | 'night';
-                  setFormData(prev => ({ ...prev, preferredStudyTime }));
-                }}
+                studyTime={formData.preferredStudyTime.charAt(0).toUpperCase() + formData.preferredStudyTime.slice(1) as "Morning" | "Afternoon" | "Evening" | "Night"}
+                setStudyTime={handleStudyTimeChange}
               />
             )}
 

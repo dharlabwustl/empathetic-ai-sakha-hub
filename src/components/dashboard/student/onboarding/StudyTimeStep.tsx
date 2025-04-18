@@ -1,94 +1,85 @@
 
-import React from "react";
-import { motion } from "framer-motion";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import { Clock, Sun, Moon, AlertCircle } from "lucide-react";
+import React from 'react';
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
+import { 
+  Sunrise, 
+  Sun, 
+  Sunset, 
+  Moon
+} from "lucide-react";
 
 interface StudyTimeStepProps {
-  studyTime: "Morning" | "Afternoon" | "Evening" | "Night";
+  studyTime: string; 
   setStudyTime: (time: "Morning" | "Afternoon" | "Evening" | "Night") => void;
 }
 
-export default function StudyTimeStep({ studyTime, setStudyTime }: StudyTimeStepProps) {
+const StudyTimeStep: React.FC<StudyTimeStepProps> = ({ studyTime, setStudyTime }) => {
+  const timeOptions = [
+    {
+      value: "Morning",
+      label: "Morning",
+      description: "Early hours, 6 AM - 11 AM",
+      icon: <Sunrise className="h-6 w-6 text-amber-500" />
+    },
+    {
+      value: "Afternoon",
+      label: "Afternoon",
+      description: "Midday hours, 12 PM - 4 PM",
+      icon: <Sun className="h-6 w-6 text-orange-500" />
+    },
+    {
+      value: "Evening",
+      label: "Evening",
+      description: "After sunset, 5 PM - 8 PM",
+      icon: <Sunset className="h-6 w-6 text-indigo-500" />
+    },
+    {
+      value: "Night",
+      label: "Night",
+      description: "Late hours, 9 PM - 12 AM",
+      icon: <Moon className="h-6 w-6 text-blue-500" />
+    }
+  ];
+
   return (
-    <motion.div
-      key="step5"
-      initial={{ opacity: 0, x: 20 }}
-      animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: -20 }}
-      transition={{ duration: 0.3 }}
-    >
-      <div className="space-y-6">
-        <div>
-          <h3 className="text-xl font-semibold mb-2 flex items-center gap-2">
-            <Clock className="text-sky-500" size={20} />
-            Preferred Study Time
-          </h3>
-          <p className="text-muted-foreground mb-4">When do you feel most productive for studying?</p>
-          
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <Button 
-              variant={studyTime === "Morning" ? "default" : "outline"}
-              onClick={() => setStudyTime("Morning")}
-              className={cn(
-                "h-24 flex flex-col items-center justify-center space-y-2",
-                studyTime === "Morning" && "bg-amber-500 hover:bg-amber-600"
-              )}
-            >
-              <Sun size={24} />
-              <span>Morning</span>
-              <span className="text-xs">5 AM - 12 PM</span>
-            </Button>
-            
-            <Button 
-              variant={studyTime === "Afternoon" ? "default" : "outline"}
-              onClick={() => setStudyTime("Afternoon")}
-              className={cn(
-                "h-24 flex flex-col items-center justify-center space-y-2",
-                studyTime === "Afternoon" && "bg-sky-500 hover:bg-sky-600"
-              )}
-            >
-              <Sun size={24} />
-              <span>Afternoon</span>
-              <span className="text-xs">12 PM - 5 PM</span>
-            </Button>
-            
-            <Button 
-              variant={studyTime === "Evening" ? "default" : "outline"}
-              onClick={() => setStudyTime("Evening")}
-              className={cn(
-                "h-24 flex flex-col items-center justify-center space-y-2",
-                studyTime === "Evening" && "bg-indigo-500 hover:bg-indigo-600"
-              )}
-            >
-              <Sun size={24} />
-              <span>Evening</span>
-              <span className="text-xs">5 PM - 9 PM</span>
-            </Button>
-            
-            <Button 
-              variant={studyTime === "Night" ? "default" : "outline"}
-              onClick={() => setStudyTime("Night")}
-              className={cn(
-                "h-24 flex flex-col items-center justify-center space-y-2",
-                studyTime === "Night" && "bg-violet-500 hover:bg-violet-600"
-              )}
-            >
-              <Moon size={24} />
-              <span>Night</span>
-              <span className="text-xs">9 PM - 5 AM</span>
-            </Button>
-          </div>
-          
-          <div className="mt-4 p-4 rounded-md bg-gradient-to-r from-sky-50 to-indigo-50">
-            <p className="text-sm flex items-center gap-2">
-              <AlertCircle size={16} className="text-sky-500" />
-              <span>We'll schedule your most challenging topics during your preferred time when your focus is at its peak.</span>
-            </p>
-          </div>
-        </div>
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-xl font-semibold mb-2">When do you prefer to study?</h2>
+        <p className="text-muted-foreground">
+          We'll optimize your study plan for your most productive hours
+        </p>
       </div>
-    </motion.div>
+
+      <RadioGroup 
+        value={studyTime} 
+        className="grid grid-cols-1 md:grid-cols-2 gap-4"
+        onValueChange={value => setStudyTime(value as "Morning" | "Afternoon" | "Evening" | "Night")}
+      >
+        {timeOptions.map((option) => (
+          <div key={option.value} className="relative">
+            <RadioGroupItem
+              value={option.value}
+              id={option.value}
+              className="peer sr-only"
+            />
+            <Label
+              htmlFor={option.value}
+              className="flex flex-col items-start space-y-3 rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer"
+            >
+              <div className="flex items-center space-x-3">
+                {option.icon}
+                <span className="font-medium">{option.label}</span>
+              </div>
+              <span className="text-sm text-muted-foreground">
+                {option.description}
+              </span>
+            </Label>
+          </div>
+        ))}
+      </RadioGroup>
+    </div>
   );
-}
+};
+
+export default StudyTimeStep;
