@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -13,7 +12,7 @@ import {
 import { cn } from "@/lib/utils";
 import { SidebarNavProps } from "./types/sidebar";
 import { SidebarAvatar } from "./SidebarAvatar";
-import { SidebarNavRoutes } from "./SidebarNavRoutes";
+import SidebarNavRoutes from "./SidebarNavRoutes";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 const SidebarNav = ({ userType, userName = "User" }: SidebarNavProps) => {

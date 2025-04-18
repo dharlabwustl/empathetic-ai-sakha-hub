@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { containerVariants, itemVariants, fadeInStagger, pulseAnimation } from "../home/hero/feature-highlights/animationVariants";
 
-// Correctly type the floatAnimation as Variants
+// Correctly type the floatAnimation as Variants with proper repeatType
 const floatAnimation: Variants = {
   initial: { 
     scale: 1,
@@ -21,7 +21,7 @@ const floatAnimation: Variants = {
     transition: { 
       duration: 2, 
       repeat: Infinity, 
-      repeatType: "loop" as const
+      repeatType: "loop" // Fixed: Using a valid repeatType value ("loop" | "mirror" | "reverse")
     }
   }
 };

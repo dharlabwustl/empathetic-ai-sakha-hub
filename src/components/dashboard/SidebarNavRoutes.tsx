@@ -1,4 +1,6 @@
 import React from 'react';
+import { NavLink, useLocation } from 'react-router-dom';
+import { cn } from "@/lib/utils";
 import { UserRole } from '@/types/user/base';
 import { 
   LayoutDashboard, 
@@ -268,3 +270,55 @@ export const getNavigationRoutes = (role: UserRole): NavigationItem[] => {
       return [];
   }
 };
+
+interface SidebarNavRoutesProps {
+  userType: string;
+  collapsed: boolean;
+  onMobileClose?: () => void;
+}
+
+export const SidebarNavRoutes = ({ userType, collapsed, onMobileClose }: SidebarNavRoutesProps) => {
+  const location = useLocation();
+  const currentPath = location.pathname;
+  
+  // Convert string userType to UserRole enum
+  const userRole = userType as UserRole;
+  
+  // Get navigation routes based on user type
+  const routes = getNavigationRoutes(userRole);
+  
+  return (
+    <div className="flex-grow overflow-y-auto py-2">
+      <nav>
+        <ul className="space-y-1 px-2">
+          {routes.map((route) => {
+            const isActive = route.isActive 
+              ? route.isActive(currentPath)
+              : currentPath === route.href || currentPath.startsWith(`${route.href}/`);
+            
+            return (
+              <li key={route.href}>
+                <NavLink
+                  to={route.href}
+                  onClick={onMobileClose}
+                  className={({ isActive: linkActive }) => cn(
+                    "flex items-center gap-3 rounded-lg px-3 py-2 transition-colors",
+                    linkActive || isActive
+                      ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                      : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                  )}
+                >
+                  <span className="flex-shrink-0">{route.icon}</span>
+                  {!collapsed && <span>{route.title}</span>}
+                </NavLink>
+              </li>
+            );
+          })}
+        </ul>
+      </nav>
+    </div>
+  );
+};
+
+// We need to fix the import issue in SidebarNav.tsx so we're now explicitly exporting the component as default
+export default SidebarNavRoutes;
