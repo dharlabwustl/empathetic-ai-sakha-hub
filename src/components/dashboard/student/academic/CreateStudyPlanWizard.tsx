@@ -7,7 +7,6 @@ import type { NewStudyPlan, NewStudyPlanSubject } from "@/types/user/studyPlan";
 import WizardHeader from './components/WizardHeader';
 import WizardProgress from './components/WizardProgress';
 import { useStudyPlanWizard } from './hooks/useStudyPlanWizard';
-import GoalStep from "@/components/signup/steps/GoalStep";
 import OnboardingStepContent from "../../student/onboarding/components/OnboardingStepContent";
 import { UserRole } from "@/components/signup/OnboardingContext";
 
@@ -47,6 +46,17 @@ const CreateStudyPlanWizard: React.FC<CreateStudyPlanWizardProps> = ({
     subject => ({ name: subject, proficiency: 'weak' })
   );
 
+  // These are the same exam goals as defined in GoalStep.tsx
+  const studentGoals = [
+    "IIT JEE (Engineering Entrance)",
+    "NEET (Medical Entrance)",
+    "MBA (CAT, XAT, SNAP, CMAT, etc.)",
+    "CUET UG (Undergraduate Common Entrance Test)",
+    "UPSC (Civil Services – Prelims & Mains)",
+    "CLAT (Law Entrance)",
+    "BANK PO (Bank Probationary Officer Exams)"
+  ];
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-xl max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 shadow-lg">
@@ -59,10 +69,22 @@ const CreateStudyPlanWizard: React.FC<CreateStudyPlanWizardProps> = ({
             {step === 1 && (
               <div className="px-1 py-4">
                 <h2 className="text-xl font-semibold mb-4">Select Exam Goal</h2>
-                <GoalStep 
-                  role={UserRole.Student}
-                  onGoalSelect={handleExamGoalSelect}
-                />
+                <div className="grid grid-cols-1 gap-3">
+                  {studentGoals.map((goal) => (
+                    <Button
+                      key={goal}
+                      onClick={() => handleExamGoalSelect(goal)}
+                      className={`bg-white hover:bg-blue-50 text-blue-700 border h-auto py-3 justify-start ${
+                        formData.examGoal === goal 
+                          ? "border-blue-500 bg-blue-50 shadow-sm" 
+                          : "border-blue-200"
+                      }`}
+                      variant="outline"
+                    >
+                      {goal}
+                    </Button>
+                  ))}
+                </div>
               </div>
             )}
 

@@ -1,6 +1,5 @@
 
 import React from 'react';
-import { Check } from 'lucide-react'; // Import Check icon for StudyTimeStep
 import ExamDateStep from "../ExamDateStep";
 import StudyHoursStep from "../StudyHoursStep";
 import SubjectsStep from "../SubjectsStep";

@@ -1,7 +1,5 @@
 
 import React from 'react';
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Check } from "lucide-react";
@@ -131,74 +129,72 @@ const SubjectsStep: React.FC<SubjectsStepProps> = ({
         </p>
       </div>
 
-      <div className="space-y-8">
+      <div className="space-y-6">
         {availableSubjects.map((subject, idx) => (
-          <div key={idx} className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-lg font-medium">{subject.name}</h3>
-                <div className="flex flex-wrap gap-2 mt-1">
-                  {subject.topics.map((topic, i) => (
-                    <Badge key={i} variant="outline" className="text-xs">
-                      {topic}
-                    </Badge>
-                  ))}
-                </div>
+          <div key={idx} className="border rounded-lg p-4 shadow-sm bg-white dark:bg-gray-800">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-lg font-medium">{subject.name}</h3>
+              <div className="flex flex-wrap gap-2">
+                {subject.topics.map((topic, i) => (
+                  <Badge key={i} variant="outline" className="text-xs">
+                    {topic}
+                  </Badge>
+                ))}
               </div>
             </div>
 
-            {/* Improved button design for better selection UX */}
-            <div className="flex gap-4">
-              <button 
-                type="button"
-                className={`flex-1 flex flex-col items-center gap-2 border rounded-lg p-4 transition-all ${
-                  isProficiencySelected(subject.name, 'weak') 
-                    ? 'bg-red-100 border-red-400 dark:bg-red-900/30 dark:border-red-700 shadow-md' 
-                    : 'hover:bg-red-50 hover:border-red-200 dark:hover:bg-red-900/10 dark:hover:border-red-800'
-                }`}
-                onClick={() => handleSubjectSelect(subject.name, 'weak')}
-              >
-                <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center border-2 border-red-400">
-                  {isProficiencySelected(subject.name, 'weak') && <Check className="h-4 w-4 text-red-600" />}
+            {/* Simplified proficiency selection UI - Single row with visual proficiency scale */}
+            <div className="flex items-center gap-1 mt-3">
+              <div className="flex flex-1 bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
+                {/* Weak option */}
+                <div 
+                  onClick={() => handleSubjectSelect(subject.name, 'weak')}
+                  className={`flex-1 flex items-center justify-center rounded-lg py-2 cursor-pointer transition-all
+                    ${isProficiencySelected(subject.name, 'weak') 
+                      ? 'bg-red-500 text-white shadow-sm' 
+                      : 'hover:bg-red-100 dark:hover:bg-red-900/20'}`}
+                >
+                  <div className="flex flex-col items-center">
+                    {isProficiencySelected(subject.name, 'weak') && (
+                      <Check className="h-4 w-4 mb-1" />
+                    )}
+                    <span className="font-medium">Weak</span>
+                  </div>
                 </div>
-                <span className="font-medium">Weak</span>
-                <span className="text-xs text-center">Focus area for study plan</span>
-              </button>
-              
-              <button 
-                type="button"
-                className={`flex-1 flex flex-col items-center gap-2 border rounded-lg p-4 transition-all ${
-                  isProficiencySelected(subject.name, 'moderate') 
-                    ? 'bg-yellow-100 border-yellow-400 dark:bg-yellow-900/30 dark:border-yellow-700 shadow-md' 
-                    : 'hover:bg-yellow-50 hover:border-yellow-200 dark:hover:bg-yellow-900/10 dark:hover:border-yellow-800'
-                }`}
-                onClick={() => handleSubjectSelect(subject.name, 'moderate')}
-              >
-                <div className="w-8 h-8 rounded-full bg-yellow-100 flex items-center justify-center border-2 border-yellow-400">
-                  {isProficiencySelected(subject.name, 'moderate') && <Check className="h-4 w-4 text-yellow-600" />}
+                
+                {/* Moderate option */}
+                <div 
+                  onClick={() => handleSubjectSelect(subject.name, 'moderate')}
+                  className={`flex-1 flex items-center justify-center rounded-lg py-2 cursor-pointer transition-all mx-1
+                    ${isProficiencySelected(subject.name, 'moderate') 
+                      ? 'bg-yellow-500 text-white shadow-sm' 
+                      : 'hover:bg-yellow-100 dark:hover:bg-yellow-900/20'}`}
+                >
+                  <div className="flex flex-col items-center">
+                    {isProficiencySelected(subject.name, 'moderate') && (
+                      <Check className="h-4 w-4 mb-1" />
+                    )}
+                    <span className="font-medium">Moderate</span>
+                  </div>
                 </div>
-                <span className="font-medium">Moderate</span>
-                <span className="text-xs text-center">Regular review needed</span>
-              </button>
-              
-              <button 
-                type="button"
-                className={`flex-1 flex flex-col items-center gap-2 border rounded-lg p-4 transition-all ${
-                  isProficiencySelected(subject.name, 'strong') 
-                    ? 'bg-green-100 border-green-400 dark:bg-green-900/30 dark:border-green-700 shadow-md' 
-                    : 'hover:bg-green-50 hover:border-green-200 dark:hover:bg-green-900/10 dark:hover:border-green-800'
-                }`}
-                onClick={() => handleSubjectSelect(subject.name, 'strong')}
-              >
-                <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center border-2 border-green-400">
-                  {isProficiencySelected(subject.name, 'strong') && <Check className="h-4 w-4 text-green-600" />}
+                
+                {/* Strong option */}
+                <div 
+                  onClick={() => handleSubjectSelect(subject.name, 'strong')}
+                  className={`flex-1 flex items-center justify-center rounded-lg py-2 cursor-pointer transition-all
+                    ${isProficiencySelected(subject.name, 'strong') 
+                      ? 'bg-green-500 text-white shadow-sm' 
+                      : 'hover:bg-green-100 dark:hover:bg-green-900/20'}`}
+                >
+                  <div className="flex flex-col items-center">
+                    {isProficiencySelected(subject.name, 'strong') && (
+                      <Check className="h-4 w-4 mb-1" />
+                    )}
+                    <span className="font-medium">Strong</span>
+                  </div>
                 </div>
-                <span className="font-medium">Strong</span>
-                <span className="text-xs text-center">Already comfortable</span>
-              </button>
+              </div>
             </div>
-            
-            {idx < availableSubjects.length - 1 && <Separator />}
           </div>
         ))}
       </div>

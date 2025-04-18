@@ -17,7 +17,7 @@ export const useStudyPlanWizard = ({ examGoal, onCreatePlan, onClose }: UseStudy
     examDate: new Date(),
     subjects: [],
     studyHoursPerDay: 6,
-    preferredStudyTime: 'morning',
+    preferredStudyTime: 'evening',
     learningPace: 'moderate'
   });
 
