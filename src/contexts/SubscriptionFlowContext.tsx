@@ -1,6 +1,6 @@
 
 import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/auth/AuthContext';
 
@@ -24,10 +24,29 @@ export const useSubscriptionFlow = (): SubscriptionFlowContextProps => {
   return context;
 };
 
+// This is a wrapper component that only renders children when inside a Router
 export const SubscriptionFlowProvider = ({ children }: { children: ReactNode }) => {
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [isUpgrading, setIsUpgrading] = useState(false);
-  const navigate = useNavigate();
+  
+  // Safe navigation function to avoid Router context errors
+  const safeNavigate = (path: string) => {
+    if (window) {
+      window.location.href = path;
+    }
+  };
+  
+  // Try to use React Router hooks safely
+  let navigate: ReturnType<typeof useNavigate> | null = null;
+  let routerAvailable = true;
+  
+  try {
+    navigate = useNavigate();
+  } catch (e) {
+    routerAvailable = false;
+    console.warn('Router context not available, using fallback navigation');
+  }
+
   const { toast } = useToast();
   const { user, isAuthenticated } = useAuth();
 
@@ -47,10 +66,18 @@ export const SubscriptionFlowProvider = ({ children }: { children: ReactNode }) 
     if (!isAuthenticated) {
       if (plan === 'free') {
         // For free plan, redirect directly to signup with plan parameter
-        navigate('/signup?plan=free');
+        if (navigate && routerAvailable) {
+          navigate('/signup?plan=free');
+        } else {
+          safeNavigate('/signup?plan=free');
+        }
       } else {
         // For paid plans, redirect to signup with plan parameter
-        navigate(`/signup?plan=${plan}`);
+        if (navigate && routerAvailable) {
+          navigate(`/signup?plan=${plan}`);
+        } else {
+          safeNavigate(`/signup?plan=${plan}`);
+        }
       }
     } else {
       // User is already logged in, mark as upgrading
@@ -58,14 +85,23 @@ export const SubscriptionFlowProvider = ({ children }: { children: ReactNode }) 
       
       // For existing users, redirect to checkout immediately
       if (plan !== 'free') {
-        navigate('/checkout');
+        if (navigate && routerAvailable) {
+          navigate('/checkout');
+        } else {
+          safeNavigate('/checkout');
+        }
       } else {
         // If switching to free plan, just update their account
         toast({
           title: "Plan Updated",
           description: "Your account has been switched to the Free plan.",
         });
-        navigate('/dashboard/student/profile');
+        
+        if (navigate && routerAvailable) {
+          navigate('/dashboard/student/profile');
+        } else {
+          safeNavigate('/dashboard/student/profile');
+        }
       }
     }
   };
@@ -73,10 +109,18 @@ export const SubscriptionFlowProvider = ({ children }: { children: ReactNode }) 
   const handleAfterOnboarding = () => {
     if (!selectedPlan || selectedPlan === 'free') {
       // For free plans, go straight to dashboard
-      navigate('/dashboard/student?completedOnboarding=true');
+      if (navigate && routerAvailable) {
+        navigate('/dashboard/student?completedOnboarding=true');
+      } else {
+        safeNavigate('/dashboard/student?completedOnboarding=true');
+      }
     } else {
       // For paid plans, go to checkout
-      navigate('/checkout');
+      if (navigate && routerAvailable) {
+        navigate('/checkout');
+      } else {
+        safeNavigate('/checkout');
+      }
     }
   };
 
@@ -87,7 +131,12 @@ export const SubscriptionFlowProvider = ({ children }: { children: ReactNode }) 
       description: "Your subscription has been activated.",
     });
     resetFlow();
-    navigate('/dashboard/student/profile');
+    
+    if (navigate && routerAvailable) {
+      navigate('/dashboard/student/profile');
+    } else {
+      safeNavigate('/dashboard/student/profile');
+    }
   };
 
   return (
