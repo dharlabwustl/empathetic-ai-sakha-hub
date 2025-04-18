@@ -201,7 +201,7 @@ const WelcomeTour: React.FC<WelcomeTourProps> = ({
                 Previous
               </Button>
             ) : (
-              <div /> {/* Spacer */}
+              <div /> /* Spacer */
             )}
 
             <div className="flex items-center gap-2">
