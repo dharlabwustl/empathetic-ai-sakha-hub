@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import SidebarNav from "@/components/dashboard/SidebarNav";
@@ -7,7 +8,6 @@ import SidebarNavigation from "./SidebarNavigation";
 import DashboardContent from "./DashboardContent";
 import StudyPlanDialog from "./StudyPlanDialog";
 import TopNavigationControls from "@/components/dashboard/student/TopNavigationControls";
-import SurroundingInfluencesSection from "@/components/dashboard/student/SurroundingInfluencesSection";
 import NavigationToggleButton from "@/components/dashboard/student/NavigationToggleButton";
 import { UserProfileType, MoodType } from "@/types/user/base";
 import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
@@ -18,7 +18,7 @@ import MobileNavigation from "./MobileNavigation";
 import { getFeatures } from "./utils/FeatureManager";
 import MoodLogButton from "@/components/dashboard/student/MoodLogButton";
 import { Button } from "@/components/ui/button";
-import { BookOpen, MessageSquareText, Sparkles, Brain } from "lucide-react";
+import { BookOpen, MessageSquareText, Brain } from "lucide-react";
 import ProfileCard from "@/components/dashboard/ProfileCard";
 
 interface DashboardLayoutProps {
@@ -85,7 +85,7 @@ const DashboardLayout = ({
     }
   };
   
-  // Navigation buttons for quick access
+  // Navigation buttons for quick access - Removed Feel Good Corner button as requested
   const navigationButtons = [
     { 
       name: "24/7 AI Tutor", 
@@ -93,13 +93,6 @@ const DashboardLayout = ({
       path: "/dashboard/student/tutor", 
       variant: "ghost" as const,
       className: "hover:bg-indigo-100 hover:text-indigo-700 text-sm"
-    },
-    { 
-      name: "Feel Good Corner", 
-      icon: <Sparkles className="h-4 w-4 mr-1" />, 
-      path: "/dashboard/student/feel-good", 
-      variant: "ghost" as const,
-      className: "hover:bg-pink-100 hover:text-pink-700 text-sm"
     },
     { 
       name: "Academic Advisor", 
@@ -129,16 +122,9 @@ const DashboardLayout = ({
             formattedDate={formattedDate}
             onViewStudyPlan={onViewStudyPlan}
           />
-          
-          <div className="flex-shrink-0">
-            <MoodLogButton 
-              currentMood={userMood} 
-              onMoodChange={handleMoodChange} 
-            />
-          </div>
         </div>
 
-        {/* Enhanced Quick Access Navigation Bar */}
+        {/* Enhanced Quick Access Navigation Bar - Made more dynamic with animations */}
         <motion.div 
           className="flex flex-wrap items-center gap-2 mb-4 p-2 bg-white/80 dark:bg-gray-800/50 backdrop-blur-sm rounded-lg shadow-sm border border-gray-100 dark:border-gray-700"
           initial={{ opacity: 0, y: -10 }}
@@ -186,12 +172,6 @@ const DashboardLayout = ({
             </Button>
           </motion.div>
         </motion.div>
-
-        {/* Surrounding Influences Section - Enhanced with our redesigned component */}
-        <SurroundingInfluencesSection 
-          influenceMeterCollapsed={influenceMeterCollapsed}
-          setInfluenceMeterCollapsed={setInfluenceMeterCollapsed}
-        />
         
         {isMobile && (
           <div className="mb-6">

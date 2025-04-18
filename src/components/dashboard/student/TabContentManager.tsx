@@ -15,10 +15,19 @@ import DashboardOverview from '@/components/dashboard/student/DashboardOverview'
 import WelcomeTour from '@/components/dashboard/student/WelcomeTour';
 import { UserProfileType } from '@/types/user';
 import { KpiData, NudgeData } from '@/hooks/useKpiTracking';
-import { MicroConceptView, FlashcardsView, PracticeExamsView } from '@/pages/dashboard/student/TabContentViews';
+import TabContentViews from '@/pages/dashboard/student/TabContentViews';
 import FlashcardsFeature from '@/components/dashboard/student/FlashcardsFeature';
 import PracticeExamFeature from '@/components/dashboard/student/PracticeExamFeature';
 import FeelGoodCorner from '@/components/dashboard/student/FeelGoodCorner';
+
+// Import the individual views
+import { 
+  MicroConceptView, 
+  FlashcardsView, 
+  PracticeExamsView, 
+  TwentyFourSevenTutorView,
+  AcademicAdvisorView 
+} from '@/pages/dashboard/student/TabContentViews';
 
 interface TabContentManagerProps {
   userProfile: UserProfileType;
@@ -35,7 +44,7 @@ interface TabContentManagerProps {
   showWelcomeTour: boolean;
   handleSkipTour: () => void;
   handleCompleteTour: () => void;
-  lastActivity?: { type: string; description: string } | null;
+  lastActivity?: { type: string; description: string; } | null;
   suggestedNextAction?: string | null;
 }
 
@@ -90,6 +99,8 @@ export const generateTabContents = ({
     'practice-exam': <PracticeExamFeature />,
     'influence-meter': <div className="mt-4"><h2 className="text-lg font-medium text-gray-800 mb-4">Surrounding Influences Dashboard</h2></div>,
     'feel-good': <FeelGoodCorner />,
-    notifications: <SmartNotificationSection />
+    notifications: <SmartNotificationSection />,
+    tutor: <TwentyFourSevenTutorView />,
+    advisor: <AcademicAdvisorView />
   };
 };

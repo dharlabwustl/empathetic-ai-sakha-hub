@@ -3,7 +3,21 @@ import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { BookText, Image, Play, FileAudio2, AlertCircle, Target, Lightbulb } from 'lucide-react';
+import { 
+  BookText, 
+  Image, 
+  Play, 
+  FileAudio2, 
+  AlertCircle, 
+  Target, 
+  Lightbulb,
+  BookOpen,
+  PenLine,
+  Zap,
+  Icons,
+  Tablet
+} from 'lucide-react';
+import { motion } from 'framer-motion';
 
 interface ConceptCardProps {
   title: string;
@@ -13,9 +27,10 @@ interface ConceptCardProps {
 
 const ConceptCardView = ({ title = "Newton's Laws of Motion", subject = "Physics", chapter = "Laws of Motion" }: ConceptCardProps) => {
   const [activeTab, setActiveTab] = useState("explanation");
+  const [activeExplanationSubTab, setActiveExplanationSubTab] = useState("text");
   
   return (
-    <Card className="w-full shadow-sm">
+    <Card className="w-full shadow-sm border-indigo-100">
       <CardHeader className="bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20">
         <CardTitle className="text-xl font-bold">{title}</CardTitle>
         <CardDescription>{subject} • {chapter}</CardDescription>
@@ -44,64 +59,161 @@ const ConceptCardView = ({ title = "Newton's Laws of Motion", subject = "Physics
         
         <CardContent className="pt-6">
           <TabsContent value="explanation" className="space-y-4">
-            <div>
-              <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-2">Text</h3>
-              <div className="prose dark:prose-invert max-w-none">
-                <p>Newton's laws of motion are three physical laws that describe the relationship between a body and the forces acting upon it, and its motion in response to those forces.</p>
-                <ul>
-                  <li><strong>First Law (Law of Inertia):</strong> An object at rest stays at rest, and an object in motion stays in motion with the same speed and in the same direction unless acted upon by an unbalanced force.</li>
-                  <li><strong>Second Law:</strong> The acceleration of an object depends on the mass of the object and the amount of force applied. (F = ma)</li>
-                  <li><strong>Third Law:</strong> For every action, there is an equal and opposite reaction.</li>
-                </ul>
-              </div>
-            </div>
+            {/* Sub-tabs for different explanation types */}
+            <Tabs value={activeExplanationSubTab} onValueChange={setActiveExplanationSubTab}>
+              <TabsList className="mb-4 bg-gray-50">
+                <TabsTrigger value="text" className="text-sm">
+                  <PenLine className="mr-1 h-3 w-3" /> Text
+                </TabsTrigger>
+                <TabsTrigger value="visual" className="text-sm">
+                  <Image className="mr-1 h-3 w-3" /> Visual
+                </TabsTrigger>
+                <TabsTrigger value="audio" className="text-sm">
+                  <FileAudio2 className="mr-1 h-3 w-3" /> Audio
+                </TabsTrigger>
+                <TabsTrigger value="video" className="text-sm">
+                  <Play className="mr-1 h-3 w-3" /> Video
+                </TabsTrigger>
+              </TabsList>
 
-            <div>
-              <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-2">Image/Diagram</h3>
-              <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-4 text-center">
-                <div className="flex items-center justify-center h-48 border border-dashed border-gray-300 dark:border-gray-700 rounded bg-white dark:bg-gray-900">
-                  <Image className="h-8 w-8 text-gray-400" />
-                  <span className="ml-2 text-gray-500">Newton's Laws Diagram</span>
-                </div>
-                <Button variant="outline" size="sm" className="mt-2">
-                  <Image className="mr-2 h-4 w-4" />
-                  View Fullscreen
-                </Button>
-              </div>
-            </div>
-
-            <div>
-              <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-2">Audio</h3>
-              <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center">
-                    <Button size="sm" variant="outline" className="rounded-full h-8 w-8 p-0">
-                      <Play className="h-4 w-4" />
-                    </Button>
-                    <span className="ml-2 text-sm">Newton's Laws Explanation</span>
+              <TabsContent value="text" className="mt-0">
+                <motion.div 
+                  initial={{ opacity: 0, y: 5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="bg-white rounded-lg p-4 border border-gray-100 shadow-sm"
+                >
+                  <h3 className="text-sm font-medium text-indigo-600 uppercase tracking-wide mb-2">Text Explanation</h3>
+                  <div className="prose dark:prose-invert max-w-none">
+                    <p>Newton's laws of motion are three physical laws that describe the relationship between a body and the forces acting upon it, and its motion in response to those forces.</p>
+                    <ul>
+                      <li><strong>First Law (Law of Inertia):</strong> An object at rest stays at rest, and an object in motion stays in motion with the same speed and in the same direction unless acted upon by an unbalanced force.</li>
+                      <li><strong>Second Law:</strong> The acceleration of an object depends on the mass of the object and the amount of force applied. (F = ma)</li>
+                      <li><strong>Third Law:</strong> For every action, there is an equal and opposite reaction.</li>
+                    </ul>
+                    <p className="mt-4 text-sm text-gray-600 italic">Tip: Try creating your own examples to understand these principles in everyday situations.</p>
                   </div>
-                  <Button variant="ghost" size="sm">
-                    <FileAudio2 className="mr-2 h-4 w-4" />
-                    Download Audio
-                  </Button>
-                </div>
-              </div>
-            </div>
+                </motion.div>
+              </TabsContent>
 
-            <div>
-              <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-2">Video</h3>
-              <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-4">
-                <div className="flex items-center justify-center h-48 border border-dashed border-gray-300 dark:border-gray-700 rounded bg-black">
-                  <Play className="h-12 w-12 text-white opacity-80" />
-                </div>
-                <div className="mt-2 flex justify-end">
-                  <Button variant="outline" size="sm">
-                    <Play className="mr-2 h-4 w-4" />
-                    Play Video
-                  </Button>
-                </div>
-              </div>
-            </div>
+              <TabsContent value="visual" className="mt-0">
+                <motion.div 
+                  initial={{ opacity: 0, y: 5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="bg-white rounded-lg p-4 border border-gray-100 shadow-sm"
+                >
+                  <h3 className="text-sm font-medium text-indigo-600 uppercase tracking-wide mb-2">Visual Explanation</h3>
+                  <div className="bg-gray-50 rounded-lg p-4 text-center">
+                    <div className="flex flex-col items-center justify-center h-48 border border-dashed border-gray-300 dark:border-gray-700 rounded bg-white dark:bg-gray-900">
+                      <Image className="h-8 w-8 text-gray-400 mb-2" />
+                      <span className="text-gray-500">Newton's Laws Diagram</span>
+                      <p className="text-sm text-gray-400 mt-2 px-4">Interactive visual representation of Newton's three laws with examples</p>
+                    </div>
+                    <div className="mt-4 flex justify-center gap-2">
+                      <Button variant="outline" size="sm">
+                        <Image className="mr-2 h-4 w-4" />
+                        View Fullscreen
+                      </Button>
+                      <Button variant="outline" size="sm">
+                        <Zap className="mr-2 h-4 w-4" />
+                        Interactive Mode
+                      </Button>
+                    </div>
+                  </div>
+                </motion.div>
+              </TabsContent>
+
+              <TabsContent value="audio" className="mt-0">
+                <motion.div 
+                  initial={{ opacity: 0, y: 5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="bg-white rounded-lg p-4 border border-gray-100 shadow-sm"
+                >
+                  <h3 className="text-sm font-medium text-indigo-600 uppercase tracking-wide mb-2">Audio Explanation</h3>
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center">
+                        <Button size="sm" variant="outline" className="rounded-full h-8 w-8 p-0">
+                          <Play className="h-4 w-4" />
+                        </Button>
+                        <div className="ml-3">
+                          <span className="text-sm font-medium block">Newton's Laws Explanation</span>
+                          <span className="text-xs text-gray-500">5:23 • Narrated by Dr. Roberts</span>
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button variant="ghost" size="sm">
+                          <FileAudio2 className="mr-2 h-4 w-4" />
+                          Download
+                        </Button>
+                      </div>
+                    </div>
+                    
+                    {/* Audio player control */}
+                    <div className="mt-4">
+                      <div className="h-1 w-full bg-gray-200 rounded-full overflow-hidden">
+                        <div className="h-full bg-indigo-500 rounded-full" style={{ width: '35%' }}></div>
+                      </div>
+                      <div className="flex justify-between text-xs text-gray-500 mt-1">
+                        <span>1:50</span>
+                        <span>5:23</span>
+                      </div>
+                    </div>
+                    
+                    <div className="mt-4">
+                      <h4 className="text-sm font-medium mb-2">Audio Transcript</h4>
+                      <div className="bg-white p-3 border border-gray-200 rounded-md max-h-24 overflow-y-auto text-sm text-gray-600">
+                        <p>In this audio lesson, we'll explore Newton's three laws of motion, which form the foundation of classical mechanics. First proposed by Sir Isaac Newton in his work "Principia Mathematica" in 1687, these laws explain...</p>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              </TabsContent>
+
+              <TabsContent value="video" className="mt-0">
+                <motion.div 
+                  initial={{ opacity: 0, y: 5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="bg-white rounded-lg p-4 border border-gray-100 shadow-sm"
+                >
+                  <h3 className="text-sm font-medium text-indigo-600 uppercase tracking-wide mb-2">Video Explanation</h3>
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <div className="relative">
+                      <div className="flex items-center justify-center h-48 border border-dashed border-gray-300 dark:border-gray-700 rounded bg-black">
+                        <Play className="h-12 w-12 text-white opacity-80" />
+                      </div>
+                      <div className="absolute bottom-2 right-2 bg-black/70 px-2 py-1 rounded text-xs text-white">
+                        4:32
+                      </div>
+                    </div>
+                    <div className="mt-3">
+                      <h4 className="font-medium text-sm">Understanding Newton's Laws of Motion</h4>
+                      <p className="text-xs text-gray-500">by Prof. Sarah Johnson • 23K views</p>
+                    </div>
+                    <div className="mt-3 flex justify-between">
+                      <Button variant="outline" size="sm">
+                        <Tablet className="mr-2 h-4 w-4" />
+                        Notes
+                      </Button>
+                      <Button variant="outline" size="sm">
+                        <Play className="mr-2 h-4 w-4" />
+                        Full Video
+                      </Button>
+                    </div>
+                    
+                    <div className="mt-4">
+                      <h4 className="text-sm font-medium mb-2">Video Description</h4>
+                      <div className="bg-white p-3 border border-gray-200 rounded-md max-h-24 overflow-y-auto text-sm text-gray-600">
+                        <p>This video provides a comprehensive explanation of Newton's three laws of motion with visual demonstrations and real-world examples to help you understand and remember these fundamental principles of physics.</p>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              </TabsContent>
+            </Tabs>
           </TabsContent>
           
           <TabsContent value="real-world-example">
