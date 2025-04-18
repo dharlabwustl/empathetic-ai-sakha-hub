@@ -1,4 +1,3 @@
-
 import { getFeatures } from "@/pages/dashboard/student/utils/FeatureManager";
 import { ReactNode } from "react";
 
@@ -38,38 +37,33 @@ export interface SubscriptionPlan {
   features: string[]; // Feature titles
   maxUsers?: number; // For group, institute, corporate plans
   description: string;
+  trialDays?: number; // Adding trial period
 }
 
 export const featureService = {
   getAllFeatures: async (): Promise<Feature[]> => {
-    // In a real application, this would be fetched from an API
-    // For now, we'll use our local utility function
     return getFeatures();
   },
   
   updateFeature: async (updatedFeature: Feature): Promise<Feature> => {
-    // In a real application, this would update the feature in a database
-    // For now, we'll just return the updated feature
     return updatedFeature;
   },
   
   toggleFeaturePremium: async (featureTitle: string, isPremium: boolean): Promise<boolean> => {
-    // In a real application, this would update the feature's premium status in a database
-    // For now, we'll just return success
     return true;
   },
 
   getSubscriptionPlans: async (): Promise<SubscriptionPlan[]> => {
-    // In a real application, this would be fetched from an API
     return [
       {
         id: "free-plan",
-        name: "Free Plan",
+        name: "Free Trial",
         type: PlanType.Free,
         price: 0,
         interval: SubscriptionInterval.Monthly,
         features: ["24/7 Tutor", "Academic Advisor", "Flashcards & Revision"],
-        description: "Limited access to essential features"
+        description: "7-day trial access to essential features",
+        trialDays: 7
       },
       {
         id: "basic-plan",
@@ -123,7 +117,6 @@ export const featureService = {
   },
 
   updateSubscriptionPlan: async (updatedPlan: SubscriptionPlan): Promise<SubscriptionPlan> => {
-    // In a real application, this would update the plan in a database
     return updatedPlan;
   }
 };

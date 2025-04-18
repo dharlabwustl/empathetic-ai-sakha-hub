@@ -1,4 +1,3 @@
-
 import React from "react";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
@@ -13,11 +12,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 const Pricing = () => {
   const individualPlans = [
     {
-      title: "Free",
+      title: "Free Trial",
       price: "₹0",
-      period: "forever",
-      subtitle: "Limited essentials",
-      description: "Perfect for trying out Sakha AI",
+      period: "for 7 days",
+      subtitle: "Try essential features",
+      description: "Experience Sakha AI for 7 days",
       features: [
         { name: "Limited AI conversation (5 queries/day)", included: true },
         { name: "Basic personalized dashboard", included: true },
@@ -31,7 +30,8 @@ const Pricing = () => {
         { name: "Weekly insights report", included: false },
       ],
       recommended: false,
-      color: "gray"
+      color: "gray",
+      trial: true
     },
     {
       title: "Basic",
@@ -158,7 +158,6 @@ const Pricing = () => {
     <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-grow pt-24">
-        {/* Hero */}
         <section className="py-12 bg-gradient-to-br from-sakha-light-blue/10 via-white to-sakha-lavender/10">
           <div className="container mx-auto px-6">
             <div className="max-w-3xl mx-auto text-center">
@@ -172,7 +171,6 @@ const Pricing = () => {
           </div>
         </section>
 
-        {/* Pricing Table */}
         <section className="py-16 bg-white">
           <div className="container mx-auto px-6">
             <Tabs defaultValue="individual" className="max-w-6xl mx-auto mb-8">
@@ -201,6 +199,12 @@ const Pricing = () => {
                       {plan.recommended && (
                         <div className="bg-gradient-to-r from-sakha-blue to-sakha-purple text-white text-center py-2">
                           <span className="text-sm font-semibold">MOST POPULAR</span>
+                        </div>
+                      )}
+                      
+                      {plan.trial && (
+                        <div className="bg-gradient-to-r from-orange-500 to-orange-600 text-white text-center py-2">
+                          <span className="text-sm font-semibold">7-DAY FREE TRIAL</span>
                         </div>
                       )}
                       
@@ -380,7 +384,6 @@ const Pricing = () => {
           </div>
         </section>
         
-        {/* FAQ Section */}
         <section className="py-16 bg-gradient-to-br from-sakha-light-blue/10 via-white to-sakha-lavender/10">
           <div className="container mx-auto px-6">
             <div className="max-w-3xl mx-auto">
