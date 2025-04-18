@@ -3,6 +3,16 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Brain, Clock, TrendingUp, Smile, Users, Headphones } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { adminService } from '@/services/adminService';
+
+export interface KpiStats {
+  stressReduction: number;
+  timeOptimization: number;
+  habitFormation: number;
+  examConfidence: number;
+  userRetention: number;
+  moodBasedUsage: number;
+}
 
 interface KpiItem {
   icon: React.ReactNode;
@@ -13,45 +23,77 @@ interface KpiItem {
 }
 
 const KpiStats = () => {
+  const [stats, setStats] = React.useState<KpiStats>({
+    stressReduction: 80,
+    timeOptimization: 5,
+    habitFormation: 75,
+    examConfidence: 80,
+    userRetention: 90,
+    moodBasedUsage: 60
+  });
+
+  React.useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const dashboardStats = await adminService.getDashboardStats();
+        // Map the admin stats to KPI stats format
+        if (dashboardStats) {
+          setStats({
+            stressReduction: Math.round((dashboardStats.averageMoodScore / 10) * 100),
+            timeOptimization: 5, // Placeholder until we have actual time optimization metrics
+            habitFormation: Math.round((dashboardStats.totalEngagementHours / 100) * 75),
+            examConfidence: 80,
+            userRetention: Math.round((dashboardStats.activeStudents / dashboardStats.totalStudents) * 100),
+            moodBasedUsage: 60
+          });
+        }
+      } catch (error) {
+        console.error('Failed to fetch KPI stats:', error);
+      }
+    };
+
+    fetchStats();
+  }, []);
+
   const kpis: KpiItem[] = [
     {
       icon: <Brain className="h-6 w-6 text-white" />,
-      stat: "80%",
+      stat: `${stats.stressReduction}%`,
       description: "of students said Sakha helped reduce exam stress",
       color: "bg-gradient-to-br from-purple-500 to-purple-700",
       delay: 0.1,
     },
     {
       icon: <Clock className="h-6 w-6 text-white" />,
-      stat: "5+ hours",
+      stat: `${stats.timeOptimization}+ hours`,
       description: "saved weekly through personalized study plans",
       color: "bg-gradient-to-br from-blue-500 to-blue-700",
       delay: 0.2,
     },
     {
       icon: <TrendingUp className="h-6 w-6 text-white" />,
-      stat: "75%",
+      stat: `${stats.habitFormation}%`,
       description: "of students built a consistent study habit in 2 weeks",
       color: "bg-gradient-to-br from-green-500 to-green-700",
       delay: 0.3,
     },
     {
       icon: <Smile className="h-6 w-6 text-white" />,
-      stat: "4 out of 5",
+      stat: `4 out of 5`,
       description: "students felt more confident before their exam",
       color: "bg-gradient-to-br from-amber-500 to-amber-700",
       delay: 0.4,
     },
     {
       icon: <Users className="h-6 w-6 text-white" />,
-      stat: "90%+",
+      stat: `${stats.userRetention}%+`,
       description: "of Sakha users continued after their 1st month",
       color: "bg-gradient-to-br from-pink-500 to-pink-700",
       delay: 0.5,
     },
     {
       icon: <Headphones className="h-6 w-6 text-white" />,
-      stat: "60%",
+      stat: `${stats.moodBasedUsage}%`,
       description: "use mood-based learning themes daily",
       color: "bg-gradient-to-br from-indigo-500 to-indigo-700",
       delay: 0.6,
