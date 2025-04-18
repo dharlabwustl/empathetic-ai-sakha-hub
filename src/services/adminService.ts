@@ -1,4 +1,3 @@
-
 import { 
   AdminDashboardStats, 
   StudentData, 
@@ -65,7 +64,11 @@ const mockStats: AdminDashboardStats = {
   totalConcepts: 1289,
   totalFlashcards: 3456,
   totalEngagementHours: 4532,
-  averageMoodScore: 7.8
+  averageMoodScore: 7.8,
+  studentsWithConsistentHabits: 876,
+  averageConfidenceScore: 8.2,
+  totalSessions: 12487,
+  moodBasedSessionsCount: 7832
 };
 
 const mockStudents: StudentData[] = Array(20).fill(0).map((_, i) => ({
