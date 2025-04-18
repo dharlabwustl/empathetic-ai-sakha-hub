@@ -2,11 +2,6 @@
 import React from 'react';
 import { Dialog, DialogContent, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import ExamDateStep from "../../student/onboarding/ExamDateStep";
-import StudyHoursStep from "../../student/onboarding/StudyHoursStep";
-import StudyTimeStep from "../../student/onboarding/StudyTimeStep";
-import StudyPaceStep from "../../student/onboarding/StudyPaceStep";
-import SubjectsStep from "../../student/onboarding/SubjectsStep";
 import { getSubjectsForGoal } from "../../student/onboarding/SubjectData";
 import type { NewStudyPlan, NewStudyPlanSubject } from "@/types/user/studyPlan";
 import WizardHeader from './components/WizardHeader';
@@ -64,7 +59,7 @@ const CreateStudyPlanWizard: React.FC<CreateStudyPlanWizardProps> = ({
               <div className="px-1 py-4">
                 <h2 className="text-xl font-semibold mb-4">Select Exam Goal</h2>
                 <GoalStep 
-                  role={undefined}
+                  role="Student"
                   onGoalSelect={handleExamGoalSelect}
                 />
               </div>
@@ -99,6 +94,7 @@ const CreateStudyPlanWizard: React.FC<CreateStudyPlanWizardProps> = ({
             <Button 
               className="bg-indigo-600 hover:bg-indigo-700 text-white min-w-[100px]" 
               onClick={handleNext}
+              disabled={step === 1 && !formData.examGoal}
             >
               {step === 6 ? 'Generate Plan' : 'Next'}
             </Button>

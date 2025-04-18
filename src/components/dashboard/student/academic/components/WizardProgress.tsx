@@ -35,6 +35,15 @@ const WizardProgress: React.FC<WizardProgressProps> = ({ currentStep, totalSteps
               ) : (
                 <span className="text-sm">{step}</span>
               )}
+
+              {/* Pulse animation for current step */}
+              {step === currentStep && (
+                <motion.span
+                  className="absolute -inset-1 rounded-full border-2 border-indigo-400"
+                  animate={{ scale: [1, 1.15, 1], opacity: [0.7, 0.5, 0] }}
+                  transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                />
+              )}
             </motion.div>
             
             {/* Connecting line between steps */}

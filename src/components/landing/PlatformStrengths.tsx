@@ -15,3 +15,5 @@ const pulseAnimation = {
     }
   }
 };
+
+export { pulseAnimation };

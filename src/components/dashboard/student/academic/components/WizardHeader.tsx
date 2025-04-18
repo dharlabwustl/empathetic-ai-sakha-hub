@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { GraduationCap } from 'lucide-react';
+import { GraduationCap, BookOpen } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const WizardHeader: React.FC<{ examGoal?: string }> = ({ examGoal }) => {
@@ -13,7 +13,7 @@ const WizardHeader: React.FC<{ examGoal?: string }> = ({ examGoal }) => {
     >
       <div className="flex items-center gap-3">
         <div className="p-2 bg-white/20 rounded-lg">
-          <GraduationCap size={24} className="text-white" />
+          {examGoal ? <BookOpen size={24} className="text-white" /> : <GraduationCap size={24} className="text-white" />}
         </div>
         <div>
           <h2 className="text-xl font-bold">Create Study Plan</h2>

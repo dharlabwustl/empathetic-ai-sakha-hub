@@ -11,7 +11,7 @@ interface UseStudyPlanWizardProps {
 
 export const useStudyPlanWizard = ({ examGoal, onCreatePlan, onClose }: UseStudyPlanWizardProps) => {
   const { toast } = useToast();
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(examGoal ? 2 : 1); // Skip goal selection if examGoal is provided
   const [formData, setFormData] = useState<NewStudyPlan>({
     examGoal,
     examDate: new Date(),

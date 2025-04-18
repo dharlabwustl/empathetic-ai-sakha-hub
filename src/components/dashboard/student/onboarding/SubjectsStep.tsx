@@ -47,7 +47,39 @@ const SubjectsStep: React.FC<SubjectsStepProps> = ({
           { name: "Current Affairs", topics: ["National", "International"] },
           { name: "Optional Subject", topics: ["Subject 1", "Subject 2"] },
         ];
+      case 'cat':
+        return [
+          { name: "Quantitative Ability", topics: ["Algebra", "Arithmetic"] },
+          { name: "Data Interpretation", topics: ["Charts", "Graphs"] },
+          { name: "Verbal Ability", topics: ["Reading Comprehension", "Grammar"] },
+          { name: "Logical Reasoning", topics: ["Syllogisms", "Puzzles"] },
+        ];
+      case 'bank po':
+      case 'banking':
+        return [
+          { name: "English Language", topics: ["Grammar", "Comprehension"] },
+          { name: "Quantitative Aptitude", topics: ["Arithmetic", "Data Interpretation"] },
+          { name: "Reasoning", topics: ["Logical", "Verbal"] },
+          { name: "General Awareness", topics: ["Banking", "Current Affairs"] },
+        ];
+      case 'gate':
+        return [
+          { name: "Engineering Mathematics", topics: ["Calculus", "Linear Algebra"] },
+          { name: "Subject Specific", topics: ["Core Concepts", "Advanced Topics"] },
+          { name: "General Aptitude", topics: ["Verbal", "Numerical"] },
+        ];
+      case 'clat':
+        return [
+          { name: "English", topics: ["Grammar", "Comprehension"] },
+          { name: "Legal Reasoning", topics: ["Case Laws", "Legal Knowledge"] },
+          { name: "Logical Reasoning", topics: ["Arguments", "Deductions"] },
+          { name: "Current Affairs", topics: ["National", "International"] },
+        ];
       default:
+        // Search for partial matches in the exam type
+        if (exam.toLowerCase().includes('iit') || exam.toLowerCase().includes('jee')) {
+          return defaultSubjects;
+        }
         return defaultSubjects;
     }
   };
@@ -105,7 +137,7 @@ const SubjectsStep: React.FC<SubjectsStepProps> = ({
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-lg font-medium">{subject.name}</h3>
-                <div className="flex gap-2 mt-1">
+                <div className="flex flex-wrap gap-2 mt-1">
                   {subject.topics.map((topic, i) => (
                     <Badge key={i} variant="outline" className="text-xs">
                       {topic}
@@ -116,30 +148,54 @@ const SubjectsStep: React.FC<SubjectsStepProps> = ({
             </div>
 
             <RadioGroup className="flex gap-4">
-              <div className={`flex flex-col items-center space-y-1 border rounded-lg p-3 cursor-pointer ${
-                isProficiencySelected(subject.name, 'weak') ? 'bg-red-50 border-red-200 dark:bg-red-950/20 dark:border-red-800' : 'hover:bg-muted'
-              }`} onClick={() => handleSubjectSelect(subject.name, 'weak')}>
-                <RadioGroupItem value={`${subject.name}-weak`} id={`${subject.name}-weak`} className="sr-only" checked={isProficiencySelected(subject.name, 'weak')} />
+              <div 
+                className={`flex flex-col items-center space-y-1 border rounded-lg p-3 cursor-pointer ${
+                  isProficiencySelected(subject.name, 'weak') ? 'bg-red-50 border-red-200 dark:bg-red-950/20 dark:border-red-800' : 'hover:bg-muted'
+                }`} 
+                onClick={() => handleSubjectSelect(subject.name, 'weak')}
+              >
+                <RadioGroupItem 
+                  value={`${subject.name}-weak`} 
+                  id={`${subject.name}-weak`} 
+                  className="sr-only" 
+                  checked={isProficiencySelected(subject.name, 'weak')} 
+                />
                 <div className="w-6 h-6 rounded-full bg-red-200 flex items-center justify-center">
                   {isProficiencySelected(subject.name, 'weak') && <Check className="h-3 w-3 text-red-700" />}
                 </div>
                 <Label htmlFor={`${subject.name}-weak`} className="text-sm font-medium">Weak</Label>
               </div>
               
-              <div className={`flex flex-col items-center space-y-1 border rounded-lg p-3 cursor-pointer ${
-                isProficiencySelected(subject.name, 'moderate') ? 'bg-yellow-50 border-yellow-200 dark:bg-yellow-950/20 dark:border-yellow-800' : 'hover:bg-muted'
-              }`} onClick={() => handleSubjectSelect(subject.name, 'moderate')}>
-                <RadioGroupItem value={`${subject.name}-moderate`} id={`${subject.name}-moderate`} className="sr-only" checked={isProficiencySelected(subject.name, 'moderate')} />
+              <div 
+                className={`flex flex-col items-center space-y-1 border rounded-lg p-3 cursor-pointer ${
+                  isProficiencySelected(subject.name, 'moderate') ? 'bg-yellow-50 border-yellow-200 dark:bg-yellow-950/20 dark:border-yellow-800' : 'hover:bg-muted'
+                }`} 
+                onClick={() => handleSubjectSelect(subject.name, 'moderate')}
+              >
+                <RadioGroupItem 
+                  value={`${subject.name}-moderate`} 
+                  id={`${subject.name}-moderate`} 
+                  className="sr-only" 
+                  checked={isProficiencySelected(subject.name, 'moderate')} 
+                />
                 <div className="w-6 h-6 rounded-full bg-yellow-200 flex items-center justify-center">
                   {isProficiencySelected(subject.name, 'moderate') && <Check className="h-3 w-3 text-yellow-700" />}
                 </div>
                 <Label htmlFor={`${subject.name}-moderate`} className="text-sm font-medium">Moderate</Label>
               </div>
               
-              <div className={`flex flex-col items-center space-y-1 border rounded-lg p-3 cursor-pointer ${
-                isProficiencySelected(subject.name, 'strong') ? 'bg-green-50 border-green-200 dark:bg-green-950/20 dark:border-green-800' : 'hover:bg-muted'
-              }`} onClick={() => handleSubjectSelect(subject.name, 'strong')}>
-                <RadioGroupItem value={`${subject.name}-strong`} id={`${subject.name}-strong`} className="sr-only" checked={isProficiencySelected(subject.name, 'strong')} />
+              <div 
+                className={`flex flex-col items-center space-y-1 border rounded-lg p-3 cursor-pointer ${
+                  isProficiencySelected(subject.name, 'strong') ? 'bg-green-50 border-green-200 dark:bg-green-950/20 dark:border-green-800' : 'hover:bg-muted'
+                }`} 
+                onClick={() => handleSubjectSelect(subject.name, 'strong')}
+              >
+                <RadioGroupItem 
+                  value={`${subject.name}-strong`} 
+                  id={`${subject.name}-strong`} 
+                  className="sr-only" 
+                  checked={isProficiencySelected(subject.name, 'strong')} 
+                />
                 <div className="w-6 h-6 rounded-full bg-green-200 flex items-center justify-center">
                   {isProficiencySelected(subject.name, 'strong') && <Check className="h-3 w-3 text-green-700" />}
                 </div>
