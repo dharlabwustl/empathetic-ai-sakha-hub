@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -306,6 +305,67 @@ const FlashcardsPage = () => {
     "History"
   ];
 
+  // Add new state for written answers and feedback
+  const [userAnswer, setUserAnswer] = useState('');
+  const [answerFeedback, setAnswerFeedback] = useState<{
+    accuracy: number;
+    message: string;
+    type: 'success' | 'warning' | 'error';
+  } | null>(null);
+
+  // Add function to calculate answer similarity/accuracy
+  const calculateAnswerAccuracy = (userAnswer: string, correctAnswer: string): number => {
+    const userWords = userAnswer.toLowerCase().trim().split(/\s+/);
+    const correctWords = correctAnswer.toLowerCase().trim().split(/\s+/);
+    
+    let matchCount = 0;
+    for (const word of userWords) {
+      if (word.length > 2 && correctWords.includes(word)) {
+        matchCount++;
+      }
+    }
+    
+    const accuracy = Math.round((matchCount / correctWords.length) * 100);
+    return Math.min(accuracy, 100);
+  };
+
+  // Add function to check answer
+  const checkAnswer = () => {
+    if (!currentCard) return;
+    
+    const accuracy = calculateAnswerAccuracy(userAnswer, currentCard.back);
+    
+    let feedbackMessage = '';
+    let feedbackType: 'success' | 'warning' | 'error';
+    
+    if (accuracy >= 90) {
+      feedbackMessage = "Excellent! Your answer is spot on!";
+      feedbackType = 'success';
+    } else if (accuracy >= 70) {
+      feedbackMessage = "Good job! You've got the main points.";
+      feedbackType = 'success';
+    } else if (accuracy >= 50) {
+      feedbackMessage = "You're on the right track, but there's room for improvement.";
+      feedbackType = 'warning';
+    } else {
+      feedbackMessage = "Try again. Focus on key concepts in your answer.";
+      feedbackType = 'error';
+    }
+
+    setAnswerFeedback({
+      accuracy,
+      message: feedbackMessage,
+      type: feedbackType
+    });
+  };
+
+  // Add function to reset for try again
+  const handleTryAgain = () => {
+    setUserAnswer('');
+    setAnswerFeedback(null);
+  };
+
+  // Modify the return JSX to include the answer input and feedback UI
   return (
     <div className="space-y-6 pb-8">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -634,72 +694,87 @@ const FlashcardsPage = () => {
                 </div>
               </div>
               
-              <div 
-                className="relative min-h-[20rem] w-full max-w-xl"
-                onClick={() => setIsFlipped(!isFlipped)}
-              >
-                <AnimatePresence initial={false} mode="wait">
-                  <motion.div
-                    key={isFlipped ? "back" : "front"}
-                    initial={{ opacity: 0, rotateY: isFlipped ? -90 : 90, scale: 0.9 }}
-                    animate={{ opacity: 1, rotateY: 0, scale: 1 }}
-                    exit={{ opacity: 0, rotateY: isFlipped ? 90 : -90, scale: 0.9 }}
-                    transition={{ duration: 0.4 }}
-                    className={`absolute inset-0 backface-hidden cursor-pointer ${
-                      isFlipped ? 'bg-indigo-50 dark:bg-indigo-950/30' : 'bg-white dark:bg-gray-800'
-                    } rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 flex flex-col`}
-                  >
-                    <div className="flex justify-between p-4 border-b border-gray-100 dark:border-gray-700">
-                      {/* Topic badge and confidence level */}
-                      <div className="flex items-center gap-2">
-                        {currentCard?.topic && (
-                          <Badge variant="outline">{currentCard.topic}</Badge>
-                        )}
-                        
-                        {isFlipped && (
-                          <Badge variant="outline" className={getConfidenceColor(currentCard?.confidence || 'medium')}>
-                            {currentCard?.confidence?.charAt(0).toUpperCase() + currentCard?.confidence?.slice(1) || 'Medium'} Confidence
-                          </Badge>
+              <div className="relative min-h-[20rem] w-full max-w-xl mb-6">
+                <motion.div
+                  key={currentCardIndex}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="bg-white rounded-xl shadow-lg border border-gray-200 p-6"
+                >
+                  <div className="space-y-4">
+                    <h3 className="text-xl font-medium text-center">Question</h3>
+                    <p className="text-center text-lg mb-6">{currentCard?.front}</p>
+
+                    <div className="space-y-4">
+                      <Textarea
+                        placeholder="Write your answer here..."
+                        value={userAnswer}
+                        onChange={(e) => setUserAnswer(e.target.value)}
+                        className="min-h-[120px] w-full resize-none"
+                      />
+
+                      {answerFeedback && (
+                        <div className={`p-4 rounded-lg space-y-2 ${
+                          answerFeedback.type === 'success' ? 'bg-green-50 border border-green-200' :
+                          answerFeedback.type === 'warning' ? 'bg-yellow-50 border border-yellow-200' :
+                          'bg-red-50 border border-red-200'
+                        }`}>
+                          <p className={`font-medium ${
+                            answerFeedback.type === 'success' ? 'text-green-700' :
+                            answerFeedback.type === 'warning' ? 'text-yellow-700' :
+                            'text-red-700'
+                          }`}>
+                            {answerFeedback.message}
+                          </p>
+                          <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                            <div 
+                              className={`h-full rounded-full ${
+                                answerFeedback.accuracy >= 90 ? 'bg-green-500' :
+                                answerFeedback.accuracy >= 70 ? 'bg-yellow-500' :
+                                'bg-red-500'
+                              }`}
+                              style={{ width: `${answerFeedback.accuracy}%` }}
+                            />
+                          </div>
+                          <p className="text-sm text-gray-600">
+                            Accuracy: {answerFeedback.accuracy}%
+                          </p>
+                        </div>
+                      )}
+
+                      <div className="flex justify-end gap-2">
+                        {answerFeedback ? (
+                          <>
+                            <Button variant="outline" onClick={handleTryAgain}>
+                              Try Again
+                            </Button>
+                            <Button onClick={() => setIsFlipped(true)}>
+                              View Answer
+                            </Button>
+                          </>
+                        ) : (
+                          <Button 
+                            onClick={checkAnswer}
+                            disabled={!userAnswer.trim()}
+                          >
+                            Check Answer
+                          </Button>
                         )}
                       </div>
-                      
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className={currentCard?.starred ? 'text-yellow-500' : 'text-gray-400'}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if (currentCard) toggleStarCard(currentCard.id);
-                        }}
-                      >
-                        {currentCard?.starred ? <Star className="fill-yellow-500" /> : <StarOff />}
-                      </Button>
                     </div>
-                    
-                    <div className="flex-grow flex flex-col items-center justify-center p-8 text-center">
-                      <h3 className="text-xl font-medium mb-2">
-                        {isFlipped ? 'Answer' : 'Question'}
-                      </h3>
-                      <p className="text-lg">
-                        {isFlipped ? currentCard?.back : currentCard?.front}
-                      </p>
-                    </div>
-                    
-                    <div className="p-4 border-t border-gray-100 dark:border-gray-700 text-center text-sm text-gray-500">
-                      {isFlipped ? 'Click to see question' : 'Click to reveal answer'}
-                    </div>
-                  </motion.div>
-                </AnimatePresence>
+                  </div>
+                </motion.div>
               </div>
-              
+
               <div className="flex items-center gap-4 mt-6">
                 <Button variant="outline" onClick={goToPrevCard}>
                   <ChevronLeft className="h-4 w-4 mr-1" />
                   Previous
                 </Button>
                 
-                <Button variant="outline" onClick={() => setIsFlipped(!isFlipped)}>
-                  Flip Card
+                <Button variant="outline" onClick={() => setIsFlipped(true)}>
+                  View Answer
                 </Button>
                 
                 <Button variant="outline" onClick={goToNextCard}>
@@ -756,11 +831,4 @@ const FlashcardsPage = () => {
                 </div>
               </CardContent>
             </Card>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-};
-
-export default FlashcardsPage;
+          </motion.div
