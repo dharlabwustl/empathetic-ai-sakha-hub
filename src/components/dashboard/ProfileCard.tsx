@@ -1,161 +1,156 @@
 
-import React, { useState } from "react";
-import { Card } from "@/components/ui/card";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
+import React from "react";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Edit, ChevronRight } from "lucide-react";
-import { UserProfileType } from "@/types/user";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useNavigate } from "react-router-dom";
+import { UserProfileType } from "@/types/user/base";
+import { formatDistanceToNow } from "date-fns";
 import { capitalizeFirstLetter } from "@/lib/utils";
-import { useSubscriptionFlow } from "@/contexts/SubscriptionFlowContext";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import PricingSection from "@/components/pricing/PricingSection";
 
 interface ProfileCardProps {
-  profile: UserProfileType;
-  onUploadImage?: (file: File) => void;
-  showPeerRanking?: boolean;
-  currentMood?: string;
+  userProfile: UserProfileType | null;
+  loading: boolean;
 }
 
-const ProfileCard: React.FC<ProfileCardProps> = ({ 
-  profile, 
-  onUploadImage, 
-  showPeerRanking = false, 
-  currentMood 
-}) => {
-  const [isHovering, setIsHovering] = useState(false);
-  const [isUpgradeOpen, setIsUpgradeOpen] = useState(false);
-  const { startSubscriptionFlow } = useSubscriptionFlow();
-  
-  // Get subscription information from user profile
-  const subscriptionPlan = profile.subscriptionPlan || 'free';
-  const subscriptionTier = capitalizeFirstLetter(subscriptionPlan);
-  const expiryDate = profile.subscriptionEndDate 
-    ? new Date(profile.subscriptionEndDate).toLocaleDateString() 
-    : null;
-  
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0] && onUploadImage) {
-      onUploadImage(e.target.files[0]);
-    }
+const ProfileCard: React.FC<ProfileCardProps> = ({ userProfile, loading }) => {
+  const navigate = useNavigate();
+
+  if (loading) {
+    return (
+      <Card className="mb-6">
+        <CardContent className="pt-6">
+          <div className="animate-pulse flex flex-col items-center">
+            <div className="h-24 w-24 bg-gray-200 rounded-full mb-4"></div>
+            <div className="h-6 bg-gray-200 rounded w-1/2 mb-2"></div>
+            <div className="h-4 bg-gray-200 rounded w-1/3 mb-6"></div>
+            <div className="space-y-2 w-full">
+              <div className="h-4 bg-gray-200 rounded w-full"></div>
+              <div className="h-4 bg-gray-200 rounded w-full"></div>
+              <div className="h-4 bg-gray-200 rounded w-5/6"></div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (!userProfile) {
+    return (
+      <Card className="mb-6">
+        <CardContent className="pt-6">
+          <div className="text-center p-4">
+            <p className="text-red-500">Failed to load profile</p>
+            <Button variant="outline" className="mt-2" onClick={() => window.location.reload()}>
+              Retry
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Handle subscription display
+  const subscriptionPlan = userProfile.subscriptionPlan || userProfile.subscription || "Free";
+  const hasActiveSubscription = subscriptionPlan !== "Free" && subscriptionPlan !== "free";
+  const subscriptionEndDate = userProfile.subscriptionEndDate ? new Date(userProfile.subscriptionEndDate) : null;
+  const formattedEndDate = subscriptionEndDate ? formatDistanceToNow(subscriptionEndDate, { addSuffix: true }) : null;
+
+  const handleUpgradeClick = () => {
+    navigate("/pricing");
   };
 
-  const handleOpenUpgrade = () => {
-    setIsUpgradeOpen(true);
-  };
-
-  const getPlanColorClass = () => {
-    switch(subscriptionPlan) {
-      case 'premium':
-        return 'bg-gradient-to-r from-purple-600 to-violet-700 text-white';
-      case 'basic':
-        return 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white';
-      case 'free':
-      default:
-        return 'bg-gray-100 text-gray-700';
-    }
+  const getInitials = (name: string) => {
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .substring(0, 2);
   };
 
   return (
-    <Card className="overflow-hidden">
-      <div className="bg-gradient-to-br from-purple-600 to-violet-700 h-24"></div>
-      <div className="px-5 pt-0 pb-5">
-        <div className="flex justify-center -mt-12 mb-3 relative" 
-          onMouseEnter={() => onUploadImage && setIsHovering(true)}
-          onMouseLeave={() => onUploadImage && setIsHovering(false)}>
-          <Avatar className="h-24 w-24 border-4 border-white relative">
-            <AvatarImage src={profile.avatar} alt={profile.name} />
-            <AvatarFallback className="text-2xl bg-gray-200">
-              {profile.name?.charAt(0).toUpperCase()}
-            </AvatarFallback>
-            {onUploadImage && isHovering && (
-              <div className="absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center">
-                <label htmlFor="avatar-upload" className="cursor-pointer text-white text-sm flex flex-col items-center">
-                  <Edit size={16} />
-                  <span>Change</span>
-                </label>
-                <input 
-                  id="avatar-upload" 
-                  type="file" 
-                  className="hidden" 
-                  accept="image/*" 
-                  onChange={handleImageUpload} 
-                />
-              </div>
+    <Card className="relative mb-6 overflow-hidden">
+      {hasActiveSubscription && (
+        <div className="absolute top-0 right-0 bg-green-500 text-white px-3 py-1 text-xs rounded-bl-lg">
+          {capitalizeFirstLetter(String(subscriptionPlan))} Plan
+        </div>
+      )}
+      <CardContent className="pt-6">
+        <div className="flex flex-col items-center text-center">
+          <Avatar className="h-24 w-24 mb-4 border-4 border-white shadow-lg">
+            {userProfile.avatar ? (
+              <AvatarImage src={userProfile.avatar} alt={userProfile.name} />
+            ) : (
+              <AvatarFallback className="bg-gradient-to-br from-purple-500 to-indigo-600 text-white text-xl">
+                {getInitials(userProfile.name)}
+              </AvatarFallback>
             )}
           </Avatar>
-        </div>
-        <div className="text-center mb-4">
-          <h3 className="font-semibold text-lg">{profile.name}</h3>
-          <p className="text-sm text-gray-500">{profile.email}</p>
-          
-          <div className="flex items-center justify-center mt-2 space-x-2">
-            {currentMood && (
-              <Badge variant="outline" className="font-normal">
-                Feeling {currentMood}
-              </Badge>
-            )}
-            {showPeerRanking && (
-              <Badge variant="outline" className="bg-yellow-50 text-yellow-700 hover:bg-yellow-50 border-yellow-200 font-normal">
-                Top 10% in Physics
-              </Badge>
+          <h2 className="text-xl font-bold mb-1">{userProfile.name}</h2>
+          <p className="text-muted-foreground mb-1">{userProfile.email}</p>
+          <div className="text-sm text-muted-foreground flex items-center space-x-2 mb-4">
+            <span className="px-2 py-1 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100 rounded-full text-xs font-semibold">
+              {capitalizeFirstLetter(userProfile.role)}
+            </span>
+            {userProfile.completedOnboarding && (
+              <span className="px-2 py-1 bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100 rounded-full text-xs font-semibold">
+                Onboarded
+              </span>
             )}
           </div>
-        </div>
-        
-        {/* Subscription Information */}
-        <div className="mt-4 pt-4 border-t border-gray-100">
-          <div className="flex items-center justify-between mb-2">
-            <h4 className="text-sm font-medium text-gray-700">Subscription</h4>
-            <Dialog open={isUpgradeOpen} onOpenChange={setIsUpgradeOpen}>
-              <DialogTrigger asChild>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className="h-8 px-2 text-blue-600"
-                >
-                  Upgrade <ChevronRight size={14} />
+          
+          {/* Subscription Section */}
+          <div className="w-full px-2 py-3 mb-4 bg-gray-50 dark:bg-gray-800 rounded-md">
+            <h3 className="font-medium text-sm mb-2">Subscription</h3>
+            <div className="flex justify-between items-center">
+              <div className="text-sm">
+                <span className={`font-semibold ${hasActiveSubscription ? "text-green-600" : ""}`}>
+                  {capitalizeFirstLetter(String(subscriptionPlan))} Plan
+                </span>
+                {formattedEndDate && <p className="text-xs text-muted-foreground">Renews {formattedEndDate}</p>}
+              </div>
+              {!hasActiveSubscription && (
+                <Button size="sm" onClick={handleUpgradeClick} className="text-xs bg-gradient-to-r from-blue-600 to-indigo-700">
+                  Upgrade
                 </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-[800px] p-0">
-                <div className="p-6">
-                  <h2 className="text-xl font-semibold text-center mb-4">Upgrade Your Plan</h2>
-                  <PricingSection currentPlan={subscriptionPlan} />
-                </div>
-              </DialogContent>
-            </Dialog>
-          </div>
-          
-          <div className={`flex items-center justify-between p-3 rounded-md ${getPlanColorClass()}`}>
-            <div>
-              <span className="text-xs opacity-80">Current Plan</span>
-              <h5 className="font-medium">{subscriptionTier} Plan</h5>
+              )}
+              {hasActiveSubscription && (
+                <Button size="sm" variant="outline" onClick={handleUpgradeClick} className="text-xs">
+                  Manage
+                </Button>
+              )}
             </div>
-            {expiryDate && (
-              <div className="text-right">
-                <span className="text-xs opacity-80">Renews</span>
-                <p className="text-sm">{expiryDate}</p>
-              </div>
-            )}
           </div>
-        </div>
 
-        <div className="mt-4 pt-4 border-t border-gray-100">
-          <div className="flex flex-col gap-2">
-            <div className="text-sm text-gray-600">
-              <span className="text-gray-500">Institute: </span>
-              {profile.institute || "Not specified"}
-            </div>
-            {profile.goals?.[0] && (
-              <div className="text-sm text-gray-600">
-                <span className="text-gray-500">Preparing for: </span>
-                {profile.goals[0].title}
+          <div className="w-full space-y-2 text-sm">
+            {userProfile.joinDate && (
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Joined</span>
+                <span>{userProfile.joinDate}</span>
+              </div>
+            )}
+            {userProfile.lastActive && (
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Last active</span>
+                <span>{userProfile.lastActive}</span>
+              </div>
+            )}
+            {userProfile.institute && (
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Institute</span>
+                <span>{userProfile.institute}</span>
+              </div>
+            )}
+            {userProfile.examPreparation && (
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Exam</span>
+                <span>{userProfile.examPreparation}</span>
               </div>
             )}
           </div>
         </div>
-      </div>
+      </CardContent>
     </Card>
   );
 };

@@ -63,6 +63,8 @@ export interface UserProfileType {
   // Additional properties
   personalityType?: string;
   subscription?: SubscriptionType;
+  subscriptionPlan?: string; // Added for subscription plan name
+  subscriptionEndDate?: string; // Added for subscription end date
   joinDate?: string;
   lastActive?: string;
   phoneNumber?: string;
@@ -74,4 +76,5 @@ export interface UserProfileType {
   examPreparation?: string;
   bio?: string;
   avatar?: string;
+  institute?: string; // Added for institute
 }
