@@ -19,7 +19,8 @@ const UsersTab = ({ stats, recentStudents }: UsersTabProps) => {
   const [selectedStudent, setSelectedStudent] = useState<StudentData | null>(null);
   const [showProfileModal, setShowProfileModal] = useState(false);
 
-  const formatDate = (date: Date) => {
+  const formatDate = (date: Date | string) => {
+    if (!date) return "N/A";
     return new Date(date).toLocaleDateString('en-US', {
       month: 'short',
       day: 'numeric',
