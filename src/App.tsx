@@ -36,7 +36,9 @@ import StudentDashboard from "./pages/dashboard/student/StudentDashboard";
 import EmployeeDashboard from "./pages/dashboard/EmployeeDashboard";
 import DoctorDashboard from "./pages/dashboard/DoctorDashboard";
 import FounderDashboard from "./pages/dashboard/FounderDashboard";
-import StudyProgress from "./pages/dashboard/StudyProgress"; 
+import StudyProgress from "./pages/dashboard/StudyProgress";
+import AIChatTutor from "./pages/dashboard/student/AIChatTutor";
+import AcademicAdvisor from "./pages/dashboard/student/AcademicAdvisor";
 import NotFound from "./pages/NotFound";
 import "./styles/animations.css";
 
@@ -141,6 +143,32 @@ const App = () => {
                   <Route path="/dashboard/student/:tab" element={
                     <ProtectedRoute>
                       <StudentDashboard />
+                    </ProtectedRoute>
+                  } />
+                  
+                  {/* AI Tutor Route */}
+                  <Route path="/dashboard/student/tutor" element={
+                    <ProtectedRoute>
+                      <AIChatTutor userProfile={{
+                        id: "1",
+                        name: "Student",
+                        email: "student@example.com",
+                        role: "student",
+                        goals: [{ id: "1", title: "JEE", description: "Joint Entrance Examination", progress: 65 }]
+                      }} />
+                    </ProtectedRoute>
+                  } />
+                  
+                  {/* Academic Advisor Route */}
+                  <Route path="/dashboard/student/academic" element={
+                    <ProtectedRoute>
+                      <AcademicAdvisor userProfile={{
+                        id: "1",
+                        name: "Student",
+                        email: "student@example.com",
+                        role: "student",
+                        goals: [{ id: "1", title: "JEE", description: "Joint Entrance Examination", progress: 65 }]
+                      }} />
                     </ProtectedRoute>
                   } />
                   

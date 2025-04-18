@@ -36,6 +36,11 @@ export type PersonalityType =
   | "independent";
 
 /**
+ * User gender types
+ */
+export type GenderType = "male" | "female" | "other" | "prefer-not-to-say";
+
+/**
  * Subscription type
  */
 export enum SubscriptionType {
@@ -61,6 +66,7 @@ export interface UserProfileType {
   joinDate?: string;
   lastActive?: string;
   phoneNumber?: string;
+  gender?: GenderType;
   areasOfInterest?: Array<{id: string, name: string, level: string}>;
   goals: Array<{id: string, title: string, description?: string, progress: number, status?: string, dueDate?: string, targetDate?: Date}>;
   loginCount?: number;

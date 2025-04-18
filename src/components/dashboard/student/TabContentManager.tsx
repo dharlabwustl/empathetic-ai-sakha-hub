@@ -13,6 +13,8 @@ import { SmartNotificationSection } from '@/components/dashboard/student/SmartNo
 import TodayStudyPlan from '@/components/dashboard/student/TodayStudyPlan';
 import DashboardOverview from '@/components/dashboard/student/DashboardOverview';
 import WelcomeTour from '@/components/dashboard/student/WelcomeTour';
+import AIChatTutor from '@/pages/dashboard/student/AIChatTutor';
+import AcademicAdvisor from '@/pages/dashboard/student/AcademicAdvisor';
 import { UserProfileType } from '@/types/user';
 import { KpiData, NudgeData } from '@/hooks/useKpiTracking';
 import { MicroConceptView, FlashcardsView, PracticeExamsView } from '@/pages/dashboard/student/TabContentViews';
@@ -25,13 +27,7 @@ interface TabContentManagerProps {
   kpis: KpiData[];
   nudges: NudgeData[];
   markNudgeAsRead: (id: string) => void;
-  features: {
-    icon: ReactNode;
-    title: string;
-    description: string;
-    path: string;
-    isPremium: boolean;
-  }[];
+  features: any[];
   showWelcomeTour: boolean;
   handleSkipTour: () => void;
   handleCompleteTour: () => void;
@@ -84,12 +80,12 @@ export const generateTabContents = ({
         <MicroConceptView />
       </div>
     ),
-    academic: <AcademicAdvisorCard />,
+    academic: <AcademicAdvisor userProfile={userProfile} />,
     concepts: <MicroConceptView />,
     flashcards: <FlashcardsFeature />,
     'practice-exam': <PracticeExamFeature />,
-    'influence-meter': <div className="mt-4"><h2 className="text-lg font-medium text-gray-800 mb-4">Surrounding Influences Dashboard</h2></div>,
     'feel-good': <FeelGoodCorner />,
-    notifications: <SmartNotificationSection />
+    notifications: <SmartNotificationSection />,
+    tutor: <AIChatTutor userProfile={userProfile} />
   };
 };

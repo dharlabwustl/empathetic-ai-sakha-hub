@@ -8,9 +8,7 @@ import {
   GraduationCap, 
   BookOpen, 
   Brain, 
-  FileText, 
-  Smile,
-  CloudSun,
+  FileText,
   Bell
 } from "lucide-react";
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -38,8 +36,6 @@ export default function DashboardTabs({
     { id: "concepts", label: "Concept Cards", icon: <BookOpen size={16} /> },
     { id: "flashcards", label: "Flashcards", icon: <Brain size={16} /> },
     { id: "practice-exam", label: "Practice Exams", icon: <FileText size={16} /> },
-    { id: "feel-good", label: "Feel Good Corner", icon: <Smile size={16} /> },
-    { id: "influence-meter", label: "Surrounding Influences", icon: <CloudSun size={16} /> },
     { id: "notifications", label: "Notifications", icon: <Bell size={16} /> }
   ];
 

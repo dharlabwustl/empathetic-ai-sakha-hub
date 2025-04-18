@@ -5,6 +5,7 @@ import { Eye } from "lucide-react";
 import MoodLogButton from "@/components/dashboard/student/MoodLogButton";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
 
 interface DashboardHeaderProps {
   userProfile: UserProfileType;
@@ -27,6 +28,24 @@ const DashboardHeader = ({
   const isMobile = useIsMobile();
   // Cast to our extended type
   const extendedProfile = userProfile as ExtendedUserProfile;
+  
+  // Calculate study streak based on the progress of user goals
+  const [studyStreak, setStudyStreak] = useState<number>(extendedProfile.studyStreak || 0);
+  
+  useEffect(() => {
+    if (userProfile.goals && userProfile.goals.length > 0) {
+      // Calculate streak based on the average progress of all goals
+      const totalProgress = userProfile.goals.reduce((sum, goal) => sum + goal.progress, 0);
+      const avgProgress = totalProgress / userProfile.goals.length;
+      
+      // For demo purposes: convert progress percentage to streak days (max 30 days)
+      const calculatedStreak = Math.max(1, Math.min(30, Math.floor(avgProgress / 3.33)));
+      setStudyStreak(calculatedStreak);
+    } else {
+      // Default streak if no goals are available
+      setStudyStreak(5);
+    }
+  }, [userProfile]);
 
   // Animation variants
   const containerVariants = {
@@ -51,7 +70,7 @@ const DashboardHeader = ({
 
   return (
     <motion.div 
-      className="mb-6 p-4 sm:p-6 rounded-xl bg-gradient-to-r from-violet-500/10 via-sky-100/20 to-purple-100/20 border border-violet-200/50 shadow-sm"
+      className="w-full p-4 sm:p-6 rounded-xl bg-gradient-to-r from-violet-500/10 via-sky-100/20 to-purple-100/20 border border-violet-200/50 shadow-sm"
       variants={containerVariants}
       initial="hidden"
       animate="visible"
@@ -110,27 +129,10 @@ const DashboardHeader = ({
           variants={itemVariants}
         >
           <MoodLogButton className={`${isMobile ? 'text-xs px-3 py-1' : ''} whitespace-nowrap`} />
-          
-          <motion.div
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <Button 
-              onClick={onViewStudyPlan}
-              className={`
-                flex items-center gap-2 shadow-md whitespace-nowrap
-                bg-gradient-to-r from-violet-500 to-sky-500 hover:from-violet-600 hover:to-sky-600
-                ${isMobile ? 'text-xs px-3 py-1 h-8' : ''}
-              `}
-            >
-              <Eye size={isMobile ? 14 : 18} />
-              <span>View Study Plan</span>
-            </Button>
-          </motion.div>
         </motion.div>
       </div>
       
-      {extendedProfile.studyStreak && extendedProfile.studyStreak > 0 && (
+      {studyStreak > 0 && (
         <motion.div 
           className="mt-3 sm:mt-4 flex items-center gap-2"
           initial={{ opacity: 0, y: 20 }}
@@ -138,7 +140,7 @@ const DashboardHeader = ({
           transition={{ delay: 0.8, duration: 0.5 }}
         >
           <div className="flex">
-            {[...Array(Math.min(extendedProfile.studyStreak, 5))].map((_, i) => (
+            {[...Array(Math.min(studyStreak, 5))].map((_, i) => (
               <motion.div 
                 key={i}
                 className="w-6 h-6 bg-amber-100 rounded-full border-2 border-amber-300 flex items-center justify-center -ml-1 first:ml-0"
@@ -151,8 +153,19 @@ const DashboardHeader = ({
             ))}
           </div>
           <span className="text-xs font-medium text-amber-700">
-            {extendedProfile.studyStreak} day{extendedProfile.studyStreak > 1 ? 's' : ''} streak! Keep it up!
+            {studyStreak} day{studyStreak > 1 ? 's' : ''} streak! Keep it up!
           </span>
+          
+          {studyStreak >= 7 && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 1.2, duration: 0.5 }}
+              className="ml-2 px-2 py-0.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-bold rounded-full"
+            >
+              Weekly Goal Achieved!
+            </motion.div>
+          )}
         </motion.div>
       )}
     </motion.div>

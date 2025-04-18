@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import SidebarNav from "@/components/dashboard/SidebarNav";
@@ -16,9 +17,8 @@ import { motion } from "framer-motion";
 import { useIsMobile } from "@/hooks/use-mobile";
 import MobileNavigation from "./MobileNavigation";
 import { getFeatures } from "./utils/FeatureManager";
-import MoodLogButton from "@/components/dashboard/student/MoodLogButton";
 import { Button } from "@/components/ui/button";
-import { BookOpen, MessageSquareText, Sparkles, Brain } from "lucide-react";
+import { BookOpen, MessageSquareText, Brain } from "lucide-react";
 import ProfileCard from "@/components/dashboard/ProfileCard";
 
 interface DashboardLayoutProps {
@@ -69,49 +69,36 @@ const DashboardLayout = ({
   const formattedDate = formatDate(currentTime);
   const isMobile = useIsMobile();
   const [influenceMeterCollapsed, setInfluenceMeterCollapsed] = useState(true);
-  const [userMood, setUserMood] = useState<MoodType | undefined>(currentMood);
   
   const features = getFeatures();
 
-  const handleMoodChange = (mood: MoodType) => {
-    setUserMood(mood);
-    
-    // Save mood to localStorage
-    const userData = localStorage.getItem("userData");
-    if (userData) {
-      const parsedData = JSON.parse(userData);
-      parsedData.mood = mood;
-      localStorage.setItem("userData", JSON.stringify(parsedData));
-    }
-  };
-  
-  // Navigation buttons for quick access
+  // Navigation buttons for quick access - moved from inside the render
   const navigationButtons = [
     { 
       name: "24/7 AI Tutor", 
       icon: <MessageSquareText className="h-4 w-4 mr-1" />, 
       path: "/dashboard/student/tutor", 
-      variant: "ghost" as const,
-      className: "hover:bg-indigo-100 hover:text-indigo-700 text-sm"
-    },
-    { 
-      name: "Feel Good Corner", 
-      icon: <Sparkles className="h-4 w-4 mr-1" />, 
-      path: "/dashboard/student/feel-good", 
-      variant: "ghost" as const,
-      className: "hover:bg-pink-100 hover:text-pink-700 text-sm"
+      variant: "default" as const,
+      className: "bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white shadow-md"
     },
     { 
       name: "Academic Advisor", 
       icon: <Brain className="h-4 w-4 mr-1" />, 
-      path: "/dashboard/student/advisor", 
-      variant: "ghost" as const,
-      className: "hover:bg-purple-100 hover:text-purple-700 text-sm"
+      path: "/dashboard/student/academic", 
+      variant: "default" as const,
+      className: "bg-gradient-to-r from-purple-500 to-violet-600 hover:from-purple-600 hover:to-violet-700 text-white shadow-md"
+    },
+    { 
+      name: "Feel Good Corner", 
+      icon: <BookOpen className="h-4 w-4 mr-1" />, 
+      path: "/dashboard/student/feel-good", 
+      variant: "default" as const,
+      className: "bg-gradient-to-r from-pink-500 to-rose-600 hover:from-pink-600 hover:to-rose-700 text-white shadow-md"
     }
   ];
   
   return (
-    <div className={`min-h-screen bg-gradient-to-br from-sky-100/10 via-white to-violet-100/10 dark:from-sky-900/10 dark:via-gray-900 dark:to-violet-900/10 ${userMood ? `mood-${userMood}` : ''}`}>
+    <div className={`min-h-screen bg-gradient-to-br from-sky-100/10 via-white to-violet-100/10 dark:from-sky-900/10 dark:via-gray-900 dark:to-violet-900/10 ${currentMood ? `mood-${currentMood}` : ''}`}>
       <SidebarNav userType="student" userName={userProfile.name} />
       
       <main className={`transition-all duration-300 ${hideSidebar ? 'md:ml-0' : 'md:ml-64'} p-4 sm:p-6 pb-20 md:pb-6`}>
@@ -129,18 +116,11 @@ const DashboardLayout = ({
             formattedDate={formattedDate}
             onViewStudyPlan={onViewStudyPlan}
           />
-          
-          <div className="flex-shrink-0">
-            <MoodLogButton 
-              currentMood={userMood} 
-              onMoodChange={handleMoodChange} 
-            />
-          </div>
         </div>
 
         {/* Enhanced Quick Access Navigation Bar */}
         <motion.div 
-          className="flex flex-wrap items-center gap-2 mb-4 p-2 bg-white/80 dark:bg-gray-800/50 backdrop-blur-sm rounded-lg shadow-sm border border-gray-100 dark:border-gray-700"
+          className="flex flex-wrap items-center gap-2 mb-4 p-2 bg-white/80 dark:bg-gray-800/50 backdrop-blur-sm rounded-lg shadow-md border border-gray-100 dark:border-gray-700"
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
