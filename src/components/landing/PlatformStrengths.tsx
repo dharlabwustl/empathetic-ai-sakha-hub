@@ -20,8 +20,8 @@ const floatAnimation: Variants = {
     scale: [1, 1.05, 1],
     transition: { 
       duration: 2, 
-      repeat: Infinity,
-      repeatType: "loop" as const 
+      repeat: Infinity, 
+      repeatType: "loop" as const
     }
   }
 };

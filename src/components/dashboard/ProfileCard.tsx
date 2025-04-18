@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -53,7 +54,7 @@ const ProfileCard = ({
   
   // Get ring color for avatar based on mood
   const getRingColorClass = () => {
-    return currentMood && moodTheme ? `ring-[${moodTheme?.colors.text}]` : "ring-primary";
+    return currentMood && moodTheme ? `ring-[${moodTheme.colors.text}]` : "ring-primary";
   };
 
   // Format join date if available
