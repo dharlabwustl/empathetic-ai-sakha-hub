@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { apiEndpointChecker, getDatabaseSchema } from '@/services/api/apiEndpointChecker';
@@ -44,24 +43,12 @@ export const DatabaseSchemaDownloader = () => {
       const schemaData = await getDatabaseSchema();
       setSchema(schemaData);
       
-      // Create a downloadable JSON file
-      const blob = new Blob([JSON.stringify(schemaData, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      
-      // Create an anchor element and trigger download
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'database-schema.json';
-      document.body.appendChild(a);
-      a.click();
-      
-      // Clean up
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+      // Use the new CSV download function
+      downloadDatabaseSchemaCSV();
       
       toast({
         title: "Download Complete",
-        description: "Database schema has been downloaded",
+        description: "Database schema CSV has been downloaded",
       });
     } catch (error) {
       console.error("Error downloading schema:", error);

@@ -24,7 +24,32 @@ export const exportDatabaseSchemaToCSV = (): void => {
     'student_goals': 'Individual learning goals and progress tracking',
     'concept_cards': 'Educational concept cards for various subjects',
     'mood_logs': 'User mood tracking and emotional analysis',
-    'system_logs': 'Application and system event logging'
+    'system_logs': 'Application and system event logging',
+    'admin_users': 'Administrative user accounts with special privileges',
+    'login_history': 'User login and authentication history',
+    'user_settings': 'User preferences and configuration settings',
+    'subscriptions': 'User subscription plans and payment information',
+    'onboarding_data': 'Data collected during the onboarding process',
+    'student_subjects': 'Subjects that students are studying',
+    'subject_topics': 'Topics within each subject',
+    'quiz_scores': 'Student performance in quizzes',
+    'study_hours': 'Time spent studying by students',
+    'study_streaks': 'Consecutive days of study activity',
+    'flashcards': 'Study flashcards for memorization',
+    'questions': 'Practice and assessment questions',
+    'exam_papers': 'Mock and practice exam papers',
+    'study_plans': 'Structured learning plans for students',
+    'study_sessions': 'Individual study session records',
+    'content_item_references': 'References to content items across the platform',
+    'feel_good_content': 'Positive content to improve student mood',
+    'surrounding_influences': 'Environmental factors affecting student learning',
+    'user_doubts': 'Questions and uncertainties raised by students',
+    'tutor_chats': 'Conversations between students and tutors',
+    'ai_model_settings': 'Configuration for AI models used in the system',
+    'notifications': 'User notification preferences and history',
+    'employees': 'Employee user profiles',
+    'founders': 'Founder user profiles',
+    'doctors': 'Doctor user profiles'
   };
 
   Object.entries(moduleDescriptions).forEach(([moduleName, moduleDescription]) => {
@@ -51,7 +76,7 @@ export const exportDatabaseSchemaToCSV = (): void => {
     
     moduleTables.forEach(table => {
       table.fields.forEach(field => {
-        csvContent += `"${moduleName}","${moduleDescription}","${table.tableName}","${tableDescriptions[table.tableName] || 'General purpose table'}","${field.name}","${field.type}",${field.isRequired},${field.isPrimaryKey},${field.isForeignKey},"${field.references || ''}","Field description here"\n`;
+        csvContent += `"${moduleName}","${moduleDescription}","${table.tableName}","${tableDescriptions[table.tableName] || 'General purpose table'}","${field.name}","${field.type}",${field.isRequired},${field.isPrimaryKey},${field.isForeignKey},"${field.references || ''}","${field.description || 'Field description here'}"\n`;
       });
     });
   });
@@ -68,7 +93,7 @@ export const exportDatabaseSchemaToCSV = (): void => {
   document.body.removeChild(link);
 };
 
-// Optionally expose a function to generate Excel via CSV
+// Expose a function to generate Excel via CSV
 export const downloadDatabaseSchemaCSV = () => {
   exportDatabaseSchemaToCSV();
 };
