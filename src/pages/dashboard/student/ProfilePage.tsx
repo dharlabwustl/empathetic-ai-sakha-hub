@@ -24,28 +24,6 @@ interface ProfilePageProps {
   onUploadAvatar?: (file: File) => void;
 }
 
-interface FormDataType {
-  name: string;
-  email: string;
-  phoneNumber: string;
-  school: string;
-  grade: string;
-  examTarget: string;
-  bio: string;
-  address: {
-    city: string;
-    state: string;
-    country: string;
-  };
-  parentName: string;
-  parentEmail: string;
-  parentPhone: string;
-  currentPassword: string;
-  newPassword: string;
-  confirmPassword: string;
-  [key: string]: any; // Add index signature
-}
-
 const ProfilePage: React.FC<ProfilePageProps> = ({ 
   userProfile, 
   onUpdateProfile,
@@ -73,7 +51,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
   };
   
   // Form state
-  const [formData, setFormData] = useState<FormDataType>({
+  const [formData, setFormData] = useState({
     name: userProfile?.name || "",
     email: userProfile?.email || "",
     phoneNumber: userProfile?.phoneNumber || "",

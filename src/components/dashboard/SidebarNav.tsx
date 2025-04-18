@@ -13,36 +13,13 @@ import {
 import { cn } from "@/lib/utils";
 import { SidebarNavProps } from "./types/sidebar";
 import { SidebarAvatar } from "./SidebarAvatar";
-import { getNavigationRoutes } from "./SidebarNavRoutes";
+import { SidebarNavRoutes } from "./SidebarNavRoutes";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { NavLink } from "react-router-dom";
-import { UserRole } from "@/types/user/base";
 
 const SidebarNav = ({ userType, userName = "User" }: SidebarNavProps) => {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const isMobile = useIsMobile();
-  
-  // Convert userType string to UserRole enum
-  const getUserRole = (type: string): UserRole => {
-    switch (type.toLowerCase()) {
-      case "student":
-        return UserRole.Student;
-      case "employee":
-        return UserRole.Employee;
-      case "doctor":
-        return UserRole.Doctor;
-      case "founder":
-        return UserRole.Founder;
-      case "admin":
-        return UserRole.Admin;
-      default:
-        return UserRole.Student; // Default to student if role not recognized
-    }
-  };
-  
-  // Get navigation routes based on user type
-  const navRoutes = getNavigationRoutes(getUserRole(userType));
 
   return (
     <>
@@ -109,30 +86,11 @@ const SidebarNav = ({ userType, userName = "User" }: SidebarNavProps) => {
             collapsed={collapsed} 
           />
           
-          {/* Navigation Routes */}
-          <div className="px-3 py-2">
-            <nav className="space-y-1">
-              {navRoutes.map((item) => (
-                <NavLink
-                  key={item.title}
-                  to={item.href}
-                  className={({ isActive }) =>
-                    cn(
-                      "flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors",
-                      isActive
-                        ? "bg-primary/10 text-primary font-medium"
-                        : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
-                      collapsed && "justify-center px-0"
-                    )
-                  }
-                  onClick={() => isMobile && setMobileOpen(false)}
-                >
-                  {item.icon}
-                  {!collapsed && <span>{item.title}</span>}
-                </NavLink>
-              ))}
-            </nav>
-          </div>
+          <SidebarNavRoutes 
+            userType={userType} 
+            collapsed={collapsed}
+            onMobileClose={() => setMobileOpen(false)} 
+          />
         </div>
         
         <div className="p-4 border-t border-sidebar-border">

@@ -48,7 +48,6 @@ import StudentProfilePage from "./pages/dashboard/student/ProfilePage";
 import StudentSettingsPage from "./pages/dashboard/student/SettingsPage";
 import FlashcardsPage from "./pages/dashboard/student/FlashcardsPage";
 import ExamPreparationPage from "./pages/dashboard/student/ExamPreparationPage";
-import ProfilePage from "./pages/student/ProfilePage";
 
 // Create a new QueryClient instance properly
 const queryClient = new QueryClient({
@@ -157,7 +156,7 @@ const App = () => {
                   {/* New Routes for Profile and Settings */}
                   <Route path="/dashboard/student/profile" element={
                     <ProtectedRoute>
-                      <ProfilePage />
+                      <StudentProfilePage />
                     </ProtectedRoute>
                   } />
                   <Route path="/dashboard/student/settings" element={
