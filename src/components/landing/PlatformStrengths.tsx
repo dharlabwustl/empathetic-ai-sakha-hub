@@ -1,4 +1,3 @@
-
 import React, { useRef } from "react";
 import { motion, useInView, Variants } from "framer-motion";
 import { 
@@ -11,18 +10,17 @@ import {
 } from "lucide-react";
 import { containerVariants, itemVariants, fadeInStagger, pulseAnimation } from "../home/hero/feature-highlights/animationVariants";
 
-// Fixed the floatAnimation type to properly conform to the Variants type
 const floatAnimation: Variants = {
   initial: { 
     scale: 1,
     transition: { duration: 0.3 } 
   },
   animate: { 
-    scale: [1, 1.05, 1],
+    scale: 1.05,
     transition: { 
       duration: 2, 
-      repeat: Infinity, 
-      repeatType: "loop" as const // Using "as const" to ensure it's the correct literal type
+      repeat: Infinity,
+      repeatType: "loop" as const
     }
   }
 };
