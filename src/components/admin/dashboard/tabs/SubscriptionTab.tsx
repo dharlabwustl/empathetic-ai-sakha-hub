@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -226,7 +227,11 @@ const SubscriptionTab = () => {
                         <div className="h-8 w-8 flex items-center justify-center rounded-md bg-gray-100 dark:bg-gray-800">
                           <Users size={16} />
                         </div>
-                        <span>{plan.trial ? "Trial" : plan.title.includes("Group") ? "Group" : "Individual"}</span>
+                        <span>
+                          {("trial" in plan && plan.trial) ? "Trial" : 
+                            plan.title.includes("Group") || plan.title.includes("Institute") || plan.title.includes("Corporate") 
+                            ? "Group" : "Individual"}
+                        </span>
                       </div>
                     </TableCell>
                     <TableCell className="font-medium">{plan.title}</TableCell>
@@ -234,8 +239,12 @@ const SubscriptionTab = () => {
                     <TableCell className="max-w-xs truncate">{plan.description}</TableCell>
                     <TableCell>{plan.features.length} features</TableCell>
                     <TableCell>
-                      <Badge className={`${plan.recommended ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"}`}>
-                        {plan.recommended ? "Recommended" : "Active"}
+                      <Badge className={
+                        "recommended" in plan && plan.recommended 
+                        ? "bg-green-100 text-green-800" 
+                        : "bg-gray-100 text-gray-800"
+                      }>
+                        {"recommended" in plan && plan.recommended ? "Recommended" : "Active"}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right">

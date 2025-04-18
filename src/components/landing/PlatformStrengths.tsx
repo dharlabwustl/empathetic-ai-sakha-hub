@@ -1,7 +1,6 @@
-
 import React from 'react';
 import { motion } from "framer-motion";
-import { Brain, Sparkles, Layers, PlaySquare, Card, CheckSquare } from "lucide-react";
+import { Brain, Sparkles, Layers, PlaySquare, CreditCard, CheckSquare } from "lucide-react";
 
 const strengthsData = [
   {
@@ -25,7 +24,7 @@ const strengthsData = [
     description: "Comprehensive learning through Text, Audio, Image, and Video formats"
   },
   {
-    icon: Card,
+    icon: CreditCard,
     title: "Instant Learning Tools",
     description: "On-demand generation of flashcards and tests for rapid revision"
   },
