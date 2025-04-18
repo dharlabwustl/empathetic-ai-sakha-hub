@@ -1,73 +1,270 @@
-
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { UserRole } from '@/types/user/base';
 import { 
-  Home, User, BookOpen, MessageSquare, Brain, LineChart, 
-  Activity, Heart, Folder, Video, Users, Bell, Settings
+  LayoutDashboard, 
+  BookOpen, 
+  BarChart2, 
+  Calendar, 
+  Settings, 
+  MessageSquare, 
+  Brain, 
+  User,
+  Book,
+  BookMarked,
+  FileText,
+  Users,
+  Bell,
+  Shield,
+  LucideIcon
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
 
-export interface SidebarNavRoute {
-  name: string;
-  path: string;
-  icon: React.ComponentType<{ size?: number }>;
-  active?: boolean;
-  children?: SidebarNavRoute[];
+export interface NavigationItem {
+  title: string;
+  href: string;
+  icon: React.ReactNode;
+  isActive?: (path: string) => boolean;
 }
 
-interface SidebarNavRoutesProps {
-  userType: string;
-  collapsed: boolean;
-  onMobileClose: () => void;
+interface NavigationRoutesByRole {
+  student: NavigationItem[];
+  employee: NavigationItem[];
+  doctor: NavigationItem[];
+  founder: NavigationItem[];
+  admin: NavigationItem[];
 }
 
-const SidebarNavRoutes = ({ userType, collapsed, onMobileClose }: SidebarNavRoutesProps) => {
-  const location = useLocation();
-  const currentPath = location.pathname;
+const createIcon = (Icon: LucideIcon) => <Icon className="h-5 w-5" />;
 
-  const studentRoutes: SidebarNavRoute[] = [
-    { name: "Dashboard", path: "/dashboard/student", icon: Home },
-    { name: "Profile", path: "/dashboard/student/profile", icon: User },
-    { name: "Academic Advisor", path: "/dashboard/student/academic", icon: BookOpen },
-    { name: "AI Tutor", path: "/dashboard/student/tutor", icon: MessageSquare },
-    { name: "Flashcards", path: "/dashboard/student/flashcards", icon: Brain },
-    { name: "Progress", path: "/dashboard/student/progress", icon: LineChart },
-    { name: "Study Plan", path: "/dashboard/student/study-plan", icon: Activity },
-    { name: "Mental Health", path: "/dashboard/student/mental-health", icon: Heart },
-    { name: "Materials", path: "/dashboard/student/materials", icon: Folder },
-    { name: "Videos", path: "/dashboard/student/videos", icon: Video },
-    { name: "Study Groups", path: "/dashboard/student/groups", icon: Users },
-    { name: "Notifications", path: "/dashboard/student/notifications", icon: Bell },
-    { name: "Settings", path: "/dashboard/student/settings", icon: Settings },
-  ];
-
-  const routes = userType === 'student' ? studentRoutes : [];
-
-  return (
-    <div className="mt-2 px-3 space-y-1">
-      {routes.map((route) => {
-        const isActive = currentPath === route.path;
-        return (
-          <Link
-            key={route.path}
-            to={route.path}
-            className={cn(
-              "flex items-center gap-2 p-2 rounded-md transition-colors",
-              isActive 
-                ? "bg-sky-100 dark:bg-sky-900/20 text-sky-600 dark:text-sky-400" 
-                : "hover:bg-gray-100 dark:hover:bg-gray-800",
-              collapsed && "justify-center"
-            )}
-            onClick={onMobileClose}
-          >
-            <route.icon size={20} />
-            {!collapsed && <span>{route.name}</span>}
-            {isActive && !collapsed && <div className="ml-auto w-1.5 h-1.5 rounded-full bg-sky-500" />}
-          </Link>
-        );
-      })}
-    </div>
-  );
+export const navigationRoutes: NavigationRoutesByRole = {
+  student: [
+    {
+      title: 'Dashboard',
+      href: '/dashboard/student',
+      icon: createIcon(LayoutDashboard),
+      isActive: (path) => path === '/dashboard/student' || path === '/dashboard/student/overview',
+    },
+    {
+      title: 'AI Tutor',
+      href: '/dashboard/student/tutor',
+      icon: createIcon(MessageSquare),
+    },
+    {
+      title: 'Academic Advisor',
+      href: '/dashboard/student/academic',
+      icon: createIcon(Brain),
+    },
+    {
+      title: 'Study Materials',
+      href: '/dashboard/student/materials',
+      icon: createIcon(BookOpen),
+    },
+    {
+      title: 'Progress',
+      href: '/dashboard/student/progress',
+      icon: createIcon(BarChart2),
+    },
+    {
+      title: 'Flashcards',
+      href: '/dashboard/student/flashcards',
+      icon: createIcon(BookMarked),
+    },
+    {
+      title: 'Exams',
+      href: '/dashboard/student/exams',
+      icon: createIcon(FileText),
+    },
+    {
+      title: 'Schedule',
+      href: '/dashboard/student/schedule',
+      icon: createIcon(Calendar),
+    },
+    {
+      title: 'Profile',
+      href: '/dashboard/student/profile',
+      icon: createIcon(User),
+    },
+    {
+      title: 'Settings',
+      href: '/dashboard/student/settings',
+      icon: createIcon(Settings),
+    },
+  ],
+  employee: [
+    {
+      title: 'Dashboard',
+      href: '/dashboard/employee',
+      icon: createIcon(LayoutDashboard),
+      isActive: (path) => path === '/dashboard/employee' || path === '/dashboard/employee/overview',
+    },
+    {
+      title: 'Tasks',
+      href: '/dashboard/employee/tasks',
+      icon: createIcon(BookOpen),
+    },
+    {
+      title: 'Analytics',
+      href: '/dashboard/employee/analytics',
+      icon: createIcon(BarChart2),
+    },
+    {
+      title: 'Schedule',
+      href: '/dashboard/employee/schedule',
+      icon: createIcon(Calendar),
+    },
+    {
+      title: 'Profile',
+      href: '/dashboard/employee/profile',
+      icon: createIcon(User),
+    },
+    {
+      title: 'Settings',
+      href: '/dashboard/employee/settings',
+      icon: createIcon(Settings),
+    },
+  ],
+  doctor: [
+    {
+      title: 'Dashboard',
+      href: '/dashboard/doctor',
+      icon: createIcon(LayoutDashboard),
+      isActive: (path) => path === '/dashboard/doctor' || path === '/dashboard/doctor/overview',
+    },
+    {
+      title: 'Patients',
+      href: '/dashboard/doctor/patients',
+      icon: createIcon(Users),
+    },
+    {
+      title: 'Appointments',
+      href: '/dashboard/doctor/appointments',
+      icon: createIcon(Calendar),
+    },
+    {
+      title: 'Notifications',
+      href: '/dashboard/doctor/notifications',
+      icon: createIcon(Bell),
+    },
+    {
+      title: 'Profile',
+      href: '/dashboard/doctor/profile',
+      icon: createIcon(User),
+    },
+    {
+      title: 'Settings',
+      href: '/dashboard/doctor/settings',
+      icon: createIcon(Settings),
+    },
+  ],
+  founder: [
+    {
+      title: 'Dashboard',
+      href: '/dashboard/founder',
+      icon: createIcon(LayoutDashboard),
+      isActive: (path) => path === '/dashboard/founder' || path === '/dashboard/founder/overview',
+    },
+    {
+      title: 'Analytics',
+      href: '/dashboard/founder/analytics',
+      icon: createIcon(BarChart2),
+    },
+    {
+      title: 'Team',
+      href: '/dashboard/founder/team',
+      icon: createIcon(Users),
+    },
+    {
+      title: 'Security',
+      href: '/dashboard/founder/security',
+      icon: createIcon(Shield),
+    },
+    {
+      title: 'Profile',
+      href: '/dashboard/founder/profile',
+      icon: createIcon(User),
+    },
+    {
+      title: 'Settings',
+      href: '/dashboard/founder/settings',
+      icon: createIcon(Settings),
+    },
+  ],
+  admin: [
+    {
+      title: 'Dashboard',
+      href: '/admin/dashboard',
+      icon: createIcon(LayoutDashboard),
+    },
+    {
+      title: 'Students',
+      href: '/admin/students',
+      icon: createIcon(Users),
+    },
+    {
+      title: 'AI',
+      href: '/admin/ai',
+      icon: createIcon(Brain),
+    },
+    {
+      title: 'Content',
+      href: '/admin/content',
+      icon: createIcon(Book),
+    },
+    {
+      title: 'Engagement',
+      href: '/admin/engagement',
+      icon: createIcon(BarChart2),
+    },
+    {
+      title: 'Subscriptions',
+      href: '/admin/subscriptions',
+      icon: createIcon(BookMarked),
+    },
+    {
+      title: 'System',
+      href: '/admin/system',
+      icon: createIcon(Settings),
+    },
+    {
+      title: 'Analytics',
+      href: '/admin/analytics',
+      icon: createIcon(BarChart2),
+    },
+    {
+      title: 'Issues',
+      href: '/admin/issues',
+      icon: createIcon(FileText),
+    },
+    {
+      title: 'Notifications',
+      href: '/admin/notifications',
+      icon: createIcon(Bell),
+    },
+    {
+      title: 'Documentation',
+      href: '/admin/documentation',
+      icon: createIcon(FileText),
+    },
+    {
+      title: 'Settings',
+      href: '/admin/settings',
+      icon: createIcon(Settings),
+    },
+  ],
 };
 
-export default SidebarNavRoutes;
+export const getNavigationRoutes = (role: UserRole): NavigationItem[] => {
+  switch (role) {
+    case UserRole.Student:
+      return navigationRoutes.student;
+    case UserRole.Employee:
+      return navigationRoutes.employee;
+    case UserRole.Doctor:
+      return navigationRoutes.doctor;
+    case UserRole.Founder:
+      return navigationRoutes.founder;
+    case UserRole.Admin:
+      return navigationRoutes.admin;
+    default:
+      return [];
+  }
+};
