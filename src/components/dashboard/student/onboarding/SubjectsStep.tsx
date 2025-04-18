@@ -1,37 +1,31 @@
-
 import React from 'react';
-import { Separator } from "@/components/ui/separator";
-import { Badge } from "@/components/ui/badge";
-import { Check } from "lucide-react";
-import { NewStudyPlanSubject } from "@/types/user/studyPlan";
+import SubjectItem from './subject-step/SubjectItem';
+import type { NewStudyPlanSubject } from '@/types/user/studyPlan';
 
 interface SubjectsStepProps {
   subjects: NewStudyPlanSubject[];
   setSubjects: (subjects: NewStudyPlanSubject[]) => void;
   examType: string;
-  // Support for the legacy code pattern with strongSubjects/weakSubjects as string arrays
   strongSubjects?: string[];
   weakSubjects?: string[];
   handleToggleSubject?: (subject: string, type: 'strong' | 'weak') => void;
 }
 
 const SubjectsStep: React.FC<SubjectsStepProps> = ({ 
-  subjects, 
-  setSubjects, 
+  subjects,
+  setSubjects,
   examType,
   strongSubjects = [],
   weakSubjects = [],
   handleToggleSubject
 }) => {
   const getSubjectsForExam = (exam: string): {name: string, topics: string[]}[] => {
-    // Default subjects for IIT-JEE
     const defaultSubjects = [
       { name: "Physics", topics: ["Mechanics", "Thermodynamics", "Electrostatics"] },
       { name: "Chemistry", topics: ["Organic", "Inorganic", "Physical"] },
       { name: "Mathematics", topics: ["Calculus", "Algebra", "Geometry"] },
     ];
     
-    // Return subjects based on exam type
     switch (exam.toLowerCase()) {
       case 'neet':
         return [
@@ -74,7 +68,6 @@ const SubjectsStep: React.FC<SubjectsStepProps> = ({
           { name: "Current Affairs", topics: ["National", "International"] },
         ];
       default:
-        // Search for partial matches in the exam type
         if (exam.toLowerCase().includes('iit') || exam.toLowerCase().includes('jee')) {
           return defaultSubjects;
         }
@@ -82,31 +75,24 @@ const SubjectsStep: React.FC<SubjectsStepProps> = ({
     }
   };
 
-  const availableSubjects = getSubjectsForExam(examType);
-
   const handleSubjectSelect = (subjectName: string, proficiency: 'weak' | 'moderate' | 'strong') => {
-    // Support both API patterns
     if (handleToggleSubject && (proficiency === 'weak' || proficiency === 'strong')) {
       handleToggleSubject(subjectName, proficiency);
       return;
     }
     
-    // Original implementation
     const existingIndex = subjects.findIndex(s => s.name === subjectName);
     
     if (existingIndex >= 0) {
-      // Update existing subject
       const updatedSubjects = [...subjects];
       updatedSubjects[existingIndex] = { name: subjectName, proficiency };
       setSubjects(updatedSubjects);
     } else {
-      // Add new subject
       setSubjects([...subjects, { name: subjectName, proficiency }]);
     }
   };
 
   const isProficiencySelected = (subjectName: string, proficiency: 'weak' | 'moderate' | 'strong') => {
-    // Support for legacy code pattern
     if (proficiency === 'weak' && weakSubjects && weakSubjects.includes(subjectName)) {
       return true;
     }
@@ -115,10 +101,11 @@ const SubjectsStep: React.FC<SubjectsStepProps> = ({
       return true;
     }
     
-    // Original implementation
     const subject = subjects.find(s => s.name === subjectName);
     return subject && subject.proficiency === proficiency;
   };
+
+  const availableSubjects = getSubjectsForExam(examType);
 
   return (
     <div className="space-y-6">
@@ -131,71 +118,13 @@ const SubjectsStep: React.FC<SubjectsStepProps> = ({
 
       <div className="space-y-6">
         {availableSubjects.map((subject, idx) => (
-          <div key={idx} className="border rounded-lg p-4 shadow-sm bg-white dark:bg-gray-800">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-lg font-medium">{subject.name}</h3>
-              <div className="flex flex-wrap gap-2">
-                {subject.topics.map((topic, i) => (
-                  <Badge key={i} variant="outline" className="text-xs">
-                    {topic}
-                  </Badge>
-                ))}
-              </div>
-            </div>
-
-            {/* Simplified proficiency selection UI - Single row with visual proficiency scale */}
-            <div className="flex items-center gap-1 mt-3">
-              <div className="flex flex-1 bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
-                {/* Weak option */}
-                <div 
-                  onClick={() => handleSubjectSelect(subject.name, 'weak')}
-                  className={`flex-1 flex items-center justify-center rounded-lg py-2 cursor-pointer transition-all
-                    ${isProficiencySelected(subject.name, 'weak') 
-                      ? 'bg-red-500 text-white shadow-sm' 
-                      : 'hover:bg-red-100 dark:hover:bg-red-900/20'}`}
-                >
-                  <div className="flex flex-col items-center">
-                    {isProficiencySelected(subject.name, 'weak') && (
-                      <Check className="h-4 w-4 mb-1" />
-                    )}
-                    <span className="font-medium">Weak</span>
-                  </div>
-                </div>
-                
-                {/* Moderate option */}
-                <div 
-                  onClick={() => handleSubjectSelect(subject.name, 'moderate')}
-                  className={`flex-1 flex items-center justify-center rounded-lg py-2 cursor-pointer transition-all mx-1
-                    ${isProficiencySelected(subject.name, 'moderate') 
-                      ? 'bg-yellow-500 text-white shadow-sm' 
-                      : 'hover:bg-yellow-100 dark:hover:bg-yellow-900/20'}`}
-                >
-                  <div className="flex flex-col items-center">
-                    {isProficiencySelected(subject.name, 'moderate') && (
-                      <Check className="h-4 w-4 mb-1" />
-                    )}
-                    <span className="font-medium">Moderate</span>
-                  </div>
-                </div>
-                
-                {/* Strong option */}
-                <div 
-                  onClick={() => handleSubjectSelect(subject.name, 'strong')}
-                  className={`flex-1 flex items-center justify-center rounded-lg py-2 cursor-pointer transition-all
-                    ${isProficiencySelected(subject.name, 'strong') 
-                      ? 'bg-green-500 text-white shadow-sm' 
-                      : 'hover:bg-green-100 dark:hover:bg-green-900/20'}`}
-                >
-                  <div className="flex flex-col items-center">
-                    {isProficiencySelected(subject.name, 'strong') && (
-                      <Check className="h-4 w-4 mb-1" />
-                    )}
-                    <span className="font-medium">Strong</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <SubjectItem
+            key={idx}
+            name={subject.name}
+            topics={subject.topics}
+            isProficiencySelected={(proficiency) => isProficiencySelected(subject.name, proficiency)}
+            onProficiencySelect={(proficiency) => handleSubjectSelect(subject.name, proficiency)}
+          />
         ))}
       </div>
     </div>
