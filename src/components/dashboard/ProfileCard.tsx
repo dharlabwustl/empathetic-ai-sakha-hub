@@ -9,11 +9,20 @@ import { formatDistanceToNow } from "date-fns";
 import { capitalizeFirstLetter } from "@/lib/utils";
 
 interface ProfileCardProps {
-  userProfile: UserProfileType | null;
-  loading: boolean;
+  profile: UserProfileType;
+  loading?: boolean;
+  onUploadImage?: (file: File) => void;
+  showPeerRanking?: boolean;
+  currentMood?: string;
 }
 
-const ProfileCard: React.FC<ProfileCardProps> = ({ userProfile, loading }) => {
+const ProfileCard: React.FC<ProfileCardProps> = ({ 
+  profile, 
+  loading = false,
+  onUploadImage,
+  showPeerRanking,
+  currentMood
+}) => {
   const navigate = useNavigate();
 
   if (loading) {
@@ -35,7 +44,7 @@ const ProfileCard: React.FC<ProfileCardProps> = ({ userProfile, loading }) => {
     );
   }
 
-  if (!userProfile) {
+  if (!profile) {
     return (
       <Card className="mb-6">
         <CardContent className="pt-6">
@@ -51,9 +60,9 @@ const ProfileCard: React.FC<ProfileCardProps> = ({ userProfile, loading }) => {
   }
 
   // Handle subscription display
-  const subscriptionPlan = userProfile.subscriptionPlan || userProfile.subscription || "Free";
+  const subscriptionPlan = profile.subscriptionPlan || profile.subscription || "Free";
   const hasActiveSubscription = subscriptionPlan !== "Free" && subscriptionPlan !== "free";
-  const subscriptionEndDate = userProfile.subscriptionEndDate ? new Date(userProfile.subscriptionEndDate) : null;
+  const subscriptionEndDate = profile.subscriptionEndDate ? new Date(profile.subscriptionEndDate) : null;
   const formattedEndDate = subscriptionEndDate ? formatDistanceToNow(subscriptionEndDate, { addSuffix: true }) : null;
 
   const handleUpgradeClick = () => {
@@ -69,6 +78,22 @@ const ProfileCard: React.FC<ProfileCardProps> = ({ userProfile, loading }) => {
       .substring(0, 2);
   };
 
+  // Handle avatar upload if that functionality is provided
+  const handleAvatarClick = () => {
+    if (onUploadImage) {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'image/*';
+      input.onchange = (e) => {
+        const file = (e.target as HTMLInputElement).files?.[0];
+        if (file && onUploadImage) {
+          onUploadImage(file);
+        }
+      };
+      input.click();
+    }
+  };
+
   return (
     <Card className="relative mb-6 overflow-hidden">
       {hasActiveSubscription && (
@@ -78,22 +103,25 @@ const ProfileCard: React.FC<ProfileCardProps> = ({ userProfile, loading }) => {
       )}
       <CardContent className="pt-6">
         <div className="flex flex-col items-center text-center">
-          <Avatar className="h-24 w-24 mb-4 border-4 border-white shadow-lg">
-            {userProfile.avatar ? (
-              <AvatarImage src={userProfile.avatar} alt={userProfile.name} />
+          <Avatar 
+            className={`h-24 w-24 mb-4 border-4 border-white shadow-lg ${onUploadImage ? 'cursor-pointer hover:opacity-90' : ''}`}
+            onClick={onUploadImage ? handleAvatarClick : undefined}
+          >
+            {profile.avatar ? (
+              <AvatarImage src={profile.avatar} alt={profile.name} />
             ) : (
               <AvatarFallback className="bg-gradient-to-br from-purple-500 to-indigo-600 text-white text-xl">
-                {getInitials(userProfile.name)}
+                {getInitials(profile.name)}
               </AvatarFallback>
             )}
           </Avatar>
-          <h2 className="text-xl font-bold mb-1">{userProfile.name}</h2>
-          <p className="text-muted-foreground mb-1">{userProfile.email}</p>
+          <h2 className="text-xl font-bold mb-1">{profile.name}</h2>
+          <p className="text-muted-foreground mb-1">{profile.email}</p>
           <div className="text-sm text-muted-foreground flex items-center space-x-2 mb-4">
             <span className="px-2 py-1 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100 rounded-full text-xs font-semibold">
-              {capitalizeFirstLetter(userProfile.role)}
+              {capitalizeFirstLetter(profile.role)}
             </span>
-            {userProfile.completedOnboarding && (
+            {profile.completedOnboarding && (
               <span className="px-2 py-1 bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100 rounded-full text-xs font-semibold">
                 Onboarded
               </span>
@@ -124,28 +152,28 @@ const ProfileCard: React.FC<ProfileCardProps> = ({ userProfile, loading }) => {
           </div>
 
           <div className="w-full space-y-2 text-sm">
-            {userProfile.joinDate && (
+            {profile.joinDate && (
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Joined</span>
-                <span>{userProfile.joinDate}</span>
+                <span>{profile.joinDate}</span>
               </div>
             )}
-            {userProfile.lastActive && (
+            {profile.lastActive && (
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Last active</span>
-                <span>{userProfile.lastActive}</span>
+                <span>{profile.lastActive}</span>
               </div>
             )}
-            {userProfile.institute && (
+            {profile.institute && (
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Institute</span>
-                <span>{userProfile.institute}</span>
+                <span>{profile.institute}</span>
               </div>
             )}
-            {userProfile.examPreparation && (
+            {profile.examPreparation && (
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Exam</span>
-                <span>{userProfile.examPreparation}</span>
+                <span>{profile.examPreparation}</span>
               </div>
             )}
           </div>
