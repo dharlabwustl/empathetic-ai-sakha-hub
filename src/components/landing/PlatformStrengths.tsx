@@ -22,7 +22,7 @@ const floatAnimation: Variants = {
     transition: { 
       duration: 2, 
       repeat: Infinity, 
-      repeatType: "loop"
+      repeatType: "loop" as "loop" // Explicitly type as "loop"
     }
   }
 };

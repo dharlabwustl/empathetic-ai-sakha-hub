@@ -1,4 +1,3 @@
-
 "use client";
 
 import * as React from "react";
@@ -194,11 +193,7 @@ const App = () => {
                   <Route path="/dashboard/student/academic" element={
                     <ProtectedRoute>
                       <AcademicAdvisor userProfile={{
-                        id: "1",
-                        name: "Student",
-                        email: "student@example.com",
-                        role: UserRole.Student,
-                        goals: [{ id: "1", title: "JEE", description: "Joint Entrance Examination", progress: 65 }]
+                        examPreparation: "IIT-JEE"
                       }} />
                     </ProtectedRoute>
                   } />

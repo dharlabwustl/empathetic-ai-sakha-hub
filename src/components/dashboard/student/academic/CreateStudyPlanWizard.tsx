@@ -129,6 +129,7 @@ const CreateStudyPlanWizard: React.FC<CreateStudyPlanWizardProps> = ({
               <StudyTimeStep
                 studyTime={formData.preferredStudyTime}
                 setStudyTime={(time) => {
+                  // Convert the time string to lowercase to match our type
                   const preferredStudyTime = time.toLowerCase() as 'morning' | 'afternoon' | 'evening' | 'night';
                   setFormData(prev => ({ ...prev, preferredStudyTime }));
                 }}
