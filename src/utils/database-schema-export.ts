@@ -52,6 +52,42 @@ export const exportDatabaseSchemaToCSV = (): void => {
     'doctors': 'Doctor user profiles'
   };
 
+  // Dictionary to store field descriptions based on field name patterns
+  const fieldDescriptions: Record<string, string> = {
+    'id': 'Unique identifier for the record',
+    'name': 'Name or title of the entity',
+    'email': 'Email address for contact or authentication',
+    'user_id': 'Reference to the associated user account',
+    'created_at': 'Timestamp when the record was created',
+    'updated_at': 'Timestamp when the record was last updated',
+    'description': 'Detailed information about the entity',
+    'status': 'Current state or condition of the entity',
+    'type': 'Classification or category of the entity'
+    // You can add more common field descriptions here
+  };
+
+  // Function to get description for a field based on name or provide a default
+  const getFieldDescription = (fieldName: string, tableName: string): string => {
+    // Check for exact match in dictionary
+    if (fieldDescriptions[fieldName]) {
+      return fieldDescriptions[fieldName];
+    }
+    
+    // Check for partial matches based on common patterns
+    if (fieldName.endsWith('_id')) {
+      return `Reference to a ${fieldName.replace('_id', '')} record`;
+    }
+    if (fieldName.endsWith('_count')) {
+      return `Count of ${fieldName.replace('_count', '')} items`;
+    }
+    if (fieldName.endsWith('_date')) {
+      return `Date when ${fieldName.replace('_date', '')} occurred`;
+    }
+    
+    // Default description
+    return `Field for ${fieldName.replace(/_/g, ' ')}`;
+  };
+
   Object.entries(moduleDescriptions).forEach(([moduleName, moduleDescription]) => {
     const moduleTableNames = Object.keys(generateDatabaseSchema().reduce((acc, table) => {
       // Group tables by module based on naming convention
@@ -76,7 +112,10 @@ export const exportDatabaseSchemaToCSV = (): void => {
     
     moduleTables.forEach(table => {
       table.fields.forEach(field => {
-        csvContent += `"${moduleName}","${moduleDescription}","${table.tableName}","${tableDescriptions[table.tableName] || 'General purpose table'}","${field.name}","${field.type}",${field.isRequired},${field.isPrimaryKey},${field.isForeignKey},"${field.references || ''}","${field.description || 'Field description here'}"\n`;
+        // Use the getFieldDescription function to get field description
+        const fieldDescription = getFieldDescription(field.name, table.tableName);
+        
+        csvContent += `"${moduleName}","${moduleDescription}","${table.tableName}","${tableDescriptions[table.tableName] || 'General purpose table'}","${field.name}","${field.type}",${field.isRequired},${field.isPrimaryKey},${field.isForeignKey},"${field.references || ''}","${fieldDescription}"\n`;
       });
     });
   });

@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { apiEndpointChecker, getDatabaseSchema } from '@/services/api/apiEndpointChecker';
@@ -7,6 +8,7 @@ import { Download, RefreshCw, Database, Server, MessageSquare, Laptop } from 'lu
 import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import { downloadDatabaseSchemaCSV } from '@/utils/database-schema-export'; // Properly import the function
 
 export const DatabaseSchemaDownloader = () => {
   const [isChecking, setIsChecking] = useState(false);
@@ -43,7 +45,7 @@ export const DatabaseSchemaDownloader = () => {
       const schemaData = await getDatabaseSchema();
       setSchema(schemaData);
       
-      // Use the new CSV download function
+      // Use the imported CSV download function
       downloadDatabaseSchemaCSV();
       
       toast({
