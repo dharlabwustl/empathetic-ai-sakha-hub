@@ -12,6 +12,7 @@ import type { NewStudyPlan, NewStudyPlanSubject } from "@/types/user/studyPlan";
 import WizardHeader from './components/WizardHeader';
 import WizardProgress from './components/WizardProgress';
 import { useStudyPlanWizard } from './hooks/useStudyPlanWizard';
+import GoalStep from "@/components/signup/steps/GoalStep";
 
 interface CreateStudyPlanWizardProps {
   isOpen: boolean;
@@ -36,10 +37,11 @@ const CreateStudyPlanWizard: React.FC<CreateStudyPlanWizardProps> = ({
     handlePaceChange,
     handleStudyTimeChange,
     handleNext,
-    handleBack
+    handleBack,
+    handleExamGoalSelect
   } = useStudyPlanWizard({ examGoal, onCreatePlan, onClose });
 
-  const subjects = getSubjectsForGoal(examGoal);
+  const subjects = getSubjectsForGoal(formData.examGoal);
   
   // Convert string arrays to NewStudyPlanSubject arrays for type compatibility
   const strongSubjectsTyped: NewStudyPlanSubject[] = strongSubjects.map(
@@ -60,39 +62,49 @@ const CreateStudyPlanWizard: React.FC<CreateStudyPlanWizardProps> = ({
             <WizardProgress currentStep={step} />
 
             {step === 1 && (
+              <div className="px-1 py-4">
+                <h2 className="text-xl font-semibold mb-4">Select Exam Goal</h2>
+                <GoalStep 
+                  role={undefined}
+                  onGoalSelect={handleExamGoalSelect}
+                />
+              </div>
+            )}
+
+            {step === 2 && (
               <ExamDateStep 
                 examDate={formData.examDate}
                 setExamDate={(date) => setFormData(prev => ({ ...prev, examDate: date || new Date() }))}
               />
             )}
 
-            {step === 2 && (
+            {step === 3 && (
               <StudyHoursStep
                 studyHours={formData.studyHoursPerDay}
                 setStudyHours={(hours) => setFormData(prev => ({ ...prev, studyHoursPerDay: hours }))}
-                normalizedGoalTitle={examGoal}
+                normalizedGoalTitle={formData.examGoal}
               />
             )}
 
-            {step === 3 && (
+            {step === 4 && (
               <SubjectsStep
                 subjects={[...strongSubjectsTyped, ...weakSubjectsTyped]}
                 setSubjects={() => {}}
-                examType={examGoal}
+                examType={formData.examGoal}
                 strongSubjects={strongSubjects}
                 weakSubjects={weakSubjects}
                 handleToggleSubject={handleToggleSubject}
               />
             )}
 
-            {step === 4 && (
+            {step === 5 && (
               <StudyTimeStep
                 studyTime={formData.preferredStudyTime.charAt(0).toUpperCase() + formData.preferredStudyTime.slice(1) as "Morning" | "Afternoon" | "Evening" | "Night"}
                 setStudyTime={handleStudyTimeChange}
               />
             )}
 
-            {step === 5 && (
+            {step === 6 && (
               <StudyPaceStep
                 studyPace={formData.learningPace === 'slow' ? 'Relaxed' : 
                           formData.learningPace === 'moderate' ? 'Balanced' : 'Aggressive'}
@@ -108,7 +120,7 @@ const CreateStudyPlanWizard: React.FC<CreateStudyPlanWizardProps> = ({
               {step === 1 ? 'Cancel' : 'Back'}
             </Button>
             <Button className="bg-indigo-600 hover:bg-indigo-700 text-white" onClick={handleNext}>
-              {step === 5 ? 'Generate Plan' : 'Next'}
+              {step === 6 ? 'Generate Plan' : 'Next'}
             </Button>
           </div>
         </DialogFooter>

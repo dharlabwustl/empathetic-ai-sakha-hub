@@ -38,6 +38,10 @@ const OnboardingStepContent: React.FC<OnboardingStepContentProps> = ({
   setStudyPace,
   setStudyTime
 }) => {
+  // Extract subject names for the legacy SubjectsStep interface
+  const strongSubjectNames = strongSubjects.map(s => s.name);
+  const weakSubjectNames = weakSubjects.map(s => s.name);
+
   switch (currentStep) {
     case 1:
       return <ExamDateStep examDate={examDate} setExamDate={setExamDate} />;
@@ -58,6 +62,9 @@ const OnboardingStepContent: React.FC<OnboardingStepContentProps> = ({
             // while preserving our strongSubjects/weakSubjects separation
           }}
           examType={examGoal}
+          strongSubjects={strongSubjectNames}
+          weakSubjects={weakSubjectNames}
+          handleToggleSubject={handleToggleSubject}
         />
       );
     case 4:

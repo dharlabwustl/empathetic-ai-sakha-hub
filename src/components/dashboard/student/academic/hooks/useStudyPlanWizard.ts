@@ -66,8 +66,16 @@ export const useStudyPlanWizard = ({ examGoal, onCreatePlan, onClose }: UseStudy
     setFormData(prev => ({ ...prev, preferredStudyTime }));
   };
 
+  const handleExamGoalSelect = (goal: string) => {
+    setFormData(prev => ({ ...prev, examGoal: goal }));
+    // Clear subjects when changing exam goal
+    setStrongSubjects([]);
+    setWeakSubjects([]);
+    setStep(2); // Move to next step after goal selection
+  };
+
   const handleNext = () => {
-    if (step < 5) {
+    if (step < 6) {
       setStep(step + 1);
     } else {
       const updatedFormData = {
@@ -111,6 +119,7 @@ export const useStudyPlanWizard = ({ examGoal, onCreatePlan, onClose }: UseStudy
     handleToggleSubject,
     handlePaceChange,
     handleStudyTimeChange,
+    handleExamGoalSelect,
     handleNext,
     handleBack
   };
