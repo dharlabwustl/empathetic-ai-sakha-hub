@@ -9,7 +9,20 @@ import {
   FileStack, 
   Star 
 } from "lucide-react";
-import { containerVariants, itemVariants, floatAnimation, fadeInStagger, pulseAnimation } from "../home/hero/feature-highlights/animationVariants";
+import { containerVariants, itemVariants, fadeInStagger, pulseAnimation } from "../home/hero/feature-highlights/animationVariants";
+
+// Define the floatAnimation with correct types
+const floatAnimation = {
+  initial: { scale: 1 },
+  animate: { 
+    scale: [1, 1.05, 1],
+    transition: { 
+      duration: 2, 
+      repeat: Infinity, 
+      repeatType: "loop" as const // Explicitly type this as "loop"
+    }
+  }
+};
 
 const strengths = [
   {

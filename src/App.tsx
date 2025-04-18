@@ -41,6 +41,7 @@ import AIChatTutor from "./pages/dashboard/student/AIChatTutor";
 import AcademicAdvisor from "./pages/dashboard/student/AcademicAdvisor";
 import NotFound from "./pages/NotFound";
 import "./styles/animations.css";
+import { UserRole } from "./types/user/base";
 
 // Create a new QueryClient instance properly
 const queryClient = new QueryClient({
@@ -153,7 +154,7 @@ const App = () => {
                         id: "1",
                         name: "Student",
                         email: "student@example.com",
-                        role: "student",
+                        role: UserRole.Student,
                         goals: [{ id: "1", title: "JEE", description: "Joint Entrance Examination", progress: 65 }]
                       }} />
                     </ProtectedRoute>
@@ -166,7 +167,7 @@ const App = () => {
                         id: "1",
                         name: "Student",
                         email: "student@example.com",
-                        role: "student",
+                        role: UserRole.Student,
                         goals: [{ id: "1", title: "JEE", description: "Joint Entrance Examination", progress: 65 }]
                       }} />
                     </ProtectedRoute>

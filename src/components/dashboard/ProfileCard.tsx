@@ -36,6 +36,11 @@ const ProfileCard = ({ profile, currentMood, peerRanking = { rank: 35, total: 50
   // Calculate progress bar width based on percentile
   const progressWidth = peerRanking ? `${peerRanking.percentile}%` : "50%";
   
+  // Get ring color for avatar
+  const getRingColor = () => {
+    return currentMood && moodTheme ? moodTheme.colors.text : "ring-primary";
+  };
+  
   return (
     <motion.div
       whileHover={{ scale: 1.02 }}
@@ -58,10 +63,9 @@ const ProfileCard = ({ profile, currentMood, peerRanking = { rank: 35, total: 50
               whileHover={{ scale: 1.1, rotate: [0, 5, -5, 0] }}
               transition={{ duration: 0.5 }}
             >
-              <Avatar className="h-16 w-16 ring-2 ring-offset-2 transition-all duration-300"
-                style={{
-                  ringColor: currentMood && moodTheme?.colors.text
-                }}>
+              <Avatar 
+                className={`h-16 w-16 ring-2 ring-offset-2 transition-all duration-300 ${getRingColor()}`}
+              >
                 <AvatarImage src={getAvatarSrc()} alt={profile.name} className="object-cover" />
                 <AvatarFallback>{profile.name.charAt(0)}</AvatarFallback>
               </Avatar>
