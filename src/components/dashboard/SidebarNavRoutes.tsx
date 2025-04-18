@@ -70,7 +70,7 @@ export const SidebarNavRoutes = ({
   const routes = userTypeRoutes[userType] || userTypeRoutes.student;
   
   const commonRoutes: NavigationRoute[] = [
-    { name: "Profile", path: "/dashboard/profile", icon: <User size={20} /> },
+    { name: "Profile", path: "/dashboard/student/profile", icon: <User size={20} /> },
     { name: "Settings", path: "/dashboard/settings", icon: <Settings size={20} /> }
   ];
 
@@ -101,11 +101,11 @@ export const SidebarNavRoutes = ({
           {commonRoutes.map((route) => (
             <Link
               key={route.path}
-              to={route.path === "/dashboard/profile" ? "/dashboard/student/profile" : route.path}
+              to={route.path}
               className={cn(
                 "flex items-center gap-3 px-3 py-2 rounded-md transition-colors",
                 (location.pathname === route.path || 
-                 (route.path === "/dashboard/profile" && location.pathname === "/dashboard/student/profile"))
+                 (route.path === "/dashboard/student/profile" && location.pathname === "/dashboard/student/profile"))
                   ? "bg-gradient-to-r from-sky-500 to-violet-500 text-white"
                   : "hover:bg-accent",
                 collapsed && "justify-center"
