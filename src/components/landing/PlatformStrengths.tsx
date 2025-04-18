@@ -1,5 +1,6 @@
+
 import React, { useRef } from "react";
-import { motion, useInView, Variants, Variant } from "framer-motion";
+import { motion, useInView, Variants } from "framer-motion";
 import { 
   Brain, 
   Sparkles, 
@@ -21,7 +22,7 @@ const floatAnimation: Variants = {
     transition: { 
       duration: 2, 
       repeat: Infinity, 
-      repeatType: "loop" // Fixed: Using a valid repeatType value ("loop" | "mirror" | "reverse")
+      repeatType: "loop" 
     }
   }
 };

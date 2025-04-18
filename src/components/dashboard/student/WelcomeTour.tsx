@@ -2,7 +2,8 @@
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, X, CheckCircle, LayoutDashboard, BookOpen, MessageSquareText, Brain, LineChart } from "lucide-react";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { ArrowRight, X, CheckCircle, LayoutDashboard, BookOpen, MessageSquareText, Brain, LineChart, CalendarCheck, Smile, Music } from "lucide-react";
 import { motion } from "framer-motion";
 
 interface WelcomeTourProps {
@@ -22,31 +23,54 @@ const WelcomeTour: React.FC<WelcomeTourProps> = ({
   suggestedNextAction,
   loginCount = 1
 }) => {
-  const tourFeatures = [
+  const tourSteps = [
     {
       icon: <LayoutDashboard className="h-6 w-6 text-blue-500" />,
       title: "Dashboard Overview",
-      description: "Access your study plans, progress tracking, and personalized recommendations all in one place."
+      description: "Your complete learning journey in one place—track your goals, progress, and personalized recommendations.",
+      actionText: "Start here to stay organized and focused every day."
+    },
+    {
+      icon: <Brain className="h-6 w-6 text-purple-600" />,
+      title: "Study Plan & Academic Advisor",
+      description: "Smart study plans and tailored strategies based on your chosen exam.",
+      actionText: "Your AI Academic Advisor helps you plan better, study smarter, and reach your goals faster."
     },
     {
       icon: <BookOpen className="h-6 w-6 text-emerald-500" />,
-      title: "Concept Cards",
-      description: "Break down complex topics into easy-to-understand cards with visual explanations and examples."
+      title: "Concept Cards & Practice Decks",
+      description: "Bite-sized flashcards, visual breakdowns, and mini quizzes for every topic.",
+      actionText: "Perfect for revising, reinforcing, and retaining important concepts easily."
     },
     {
       icon: <MessageSquareText className="h-6 w-6 text-indigo-500" />,
       title: "24/7 AI Tutor",
-      description: "Get instant help with your questions and doubts from our AI tutor anytime you need it."
-    },
-    {
-      icon: <Brain className="h-6 w-6 text-violet-500" />,
-      title: "Academic Advisor",
-      description: "Receive personalized guidance on your study plan and course selection based on your goals."
+      description: "Stuck on a question or concept? Ask your AI tutor anytime, anywhere.",
+      actionText: "Available 24/7 to resolve doubts instantly—like a study buddy who never sleeps."
     },
     {
       icon: <LineChart className="h-6 w-6 text-amber-500" />,
+      title: "Surrounding Influence Check",
+      description: "Understand how your environment affects your performance—sleep, noise, routine, and more.",
+      actionText: "Get feedback and tips on how to build a high-performance study zone."
+    },
+    {
+      icon: <Smile className="h-6 w-6 text-rose-500" />,
+      title: "Log Today's Mood",
+      description: "Track your daily mood and emotions with one tap.",
+      actionText: "Receive wellness suggestions and tailored support based on how you feel today."
+    },
+    {
+      icon: <Music className="h-6 w-6 text-pink-500" />,
+      title: "Feel-Good Corner",
+      description: "Take a break. Relax with music, videos, or motivation boosters to recharge.",
+      actionText: "Your safe space to unwind, refresh, and get back to studying stronger."
+    },
+    {
+      icon: <CalendarCheck className="h-6 w-6 text-teal-500" />,
       title: "Progress Tracking",
-      description: "Monitor your performance and improvement over time with detailed analytics."
+      description: "Detailed insights into your strengths, improvement areas, and learning pace.",
+      actionText: "Know where you stand and how to level up, every single week."
     }
   ];
 
@@ -63,9 +87,7 @@ const WelcomeTour: React.FC<WelcomeTourProps> = ({
             <div className="text-white">
               <h2 className="text-2xl font-bold">Welcome to Sakha AI!</h2>
               <p className="text-blue-100 mt-1">
-                {isFirstTimeUser 
-                  ? "Let's take a quick tour to help you get started." 
-                  : `Welcome back! This is login #${loginCount}.`}
+                Your personalized learning companion is here. Let's take a quick tour of your dashboard.
               </p>
             </div>
             <Button 
@@ -80,10 +102,26 @@ const WelcomeTour: React.FC<WelcomeTourProps> = ({
         </div>
         
         <CardContent className="p-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-            {tourFeatures.map((feature, index) => (
+          {/* Founder's message */}
+          <div className="mb-6 p-4 bg-blue-50 rounded-lg flex items-center gap-4">
+            <Avatar className="h-16 w-16 border-2 border-blue-200">
+              <AvatarImage src="/lovable-uploads/30e8bd24-2d17-453e-b6f3-0a4fa2b9120d.png" alt="Amit Singh" />
+              <AvatarFallback>AS</AvatarFallback>
+            </Avatar>
+            <div className="space-y-1">
+              <h3 className="font-semibold text-blue-900">Founder's Message - Amit Singh</h3>
+              <p className="text-sm text-blue-700">
+                Welcome! We built Sakha AI to transform how you prepare for exams. 
+                Our platform adapts to your unique learning style and needs. 
+                I'm excited to have you join us on this learning journey!
+              </p>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            {tourSteps.map((step, index) => (
               <motion.div
-                key={feature.title}
+                key={step.title}
                 className="p-4 rounded-lg border border-gray-200 bg-gray-50"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -91,23 +129,22 @@ const WelcomeTour: React.FC<WelcomeTourProps> = ({
                 whileHover={{ scale: 1.02, boxShadow: "0 4px 12px rgba(0,0,0,0.05)" }}
               >
                 <div className="flex items-center gap-3 mb-2">
-                  <div className="p-2 rounded-full bg-white shadow-sm">
-                    {feature.icon}
+                  <div className="flex items-center justify-center p-2 rounded-full bg-white shadow-sm">
+                    {step.icon}
+                    <span className="ml-1 font-medium text-gray-500">{index + 1}️⃣</span>
                   </div>
-                  <h3 className="font-medium">{feature.title}</h3>
+                  <h3 className="font-medium">{step.title}</h3>
                 </div>
-                <p className="text-gray-600 text-sm">{feature.description}</p>
-                
-                {index === 0 && (
-                  <div className="mt-2 flex items-start gap-2 p-2 bg-blue-50 rounded-md">
-                    <div className="mt-0.5">
-                      <CheckCircle className="h-4 w-4 text-blue-500" />
-                    </div>
-                    <p className="text-xs text-blue-700">
-                      Start here to get an overview of your personalized learning journey
-                    </p>
+                <p className="text-gray-600 text-sm mb-2">🔍 What you get:</p>
+                <p className="text-gray-600 text-sm ml-4">{step.description}</p>
+                <div className="mt-2 flex items-start gap-2 p-2 bg-blue-50 rounded-md">
+                  <div className="mt-0.5">
+                    <CheckCircle className="h-4 w-4 text-blue-500" />
                   </div>
-                )}
+                  <p className="text-xs text-blue-700">
+                    ✨ {step.actionText}
+                  </p>
+                </div>
               </motion.div>
             ))}
           </div>
