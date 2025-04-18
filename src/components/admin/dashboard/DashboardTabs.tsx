@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { 
@@ -14,7 +15,7 @@ import {
   Layers
 } from "lucide-react";
 import { AdminDashboardStats, SystemLog } from "@/types/admin";
-import { StudentData } from "@/types/admin/studentData";
+import { StudentData } from "@/types/admin";
 
 import UserManagementTab from "./tabs/UserManagementTab";
 import AIPersonalizationTab from "./tabs/AIPersonalizationTab";
