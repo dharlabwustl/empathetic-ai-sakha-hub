@@ -34,13 +34,13 @@ const WelcomeTour: React.FC<WelcomeTourProps> = ({
       type: "founder",
       content: (
         <div className="space-y-4">
-          <div className="flex items-center gap-4 p-4 bg-gradient-to-br from-indigo-50 to-blue-50 rounded-lg border border-indigo-100 shadow-sm">
-            <Avatar className="h-20 w-20 border-2 border-indigo-200">
+          <div className="flex items-center gap-4 p-6 bg-white rounded-lg border border-indigo-100 shadow-sm">
+            <Avatar className="h-28 w-28 border-2 border-indigo-200">
               <AvatarImage src="/lovable-uploads/622fa3cd-0a65-49dc-89a3-0987c4462bdd.png" alt="Amit Singh" />
               <AvatarFallback>AS</AvatarFallback>
             </Avatar>
             <div className="space-y-2">
-              <h3 className="text-lg font-semibold text-indigo-900">A Message from Our Founder – Amit Singh</h3>
+              <h3 className="text-xl font-semibold text-indigo-900">A Message from Our Founder – Amit Singh</h3>
               <div className="space-y-2 text-indigo-700">
                 <p>"Welcome to Sakha AI – your trusted learning companion.</p>
                 <p>We built Sakha with one goal: to make exam preparation fair, human, and truly supportive.</p>
@@ -134,7 +134,7 @@ const WelcomeTour: React.FC<WelcomeTourProps> = ({
     return (
       <div className="space-y-6">
         <div className="flex items-center gap-4">
-          <div className="flex items-center justify-center h-16 w-16 rounded-full bg-gradient-to-br from-indigo-50 to-blue-50 border border-indigo-100">
+          <div className="flex items-center justify-center h-16 w-16 rounded-full bg-white border border-indigo-100">
             {step.icon}
           </div>
           <div>
@@ -145,12 +145,12 @@ const WelcomeTour: React.FC<WelcomeTourProps> = ({
           </div>
         </div>
         
-        <div className="space-y-4 p-4 rounded-lg bg-gradient-to-br from-gray-50 to-indigo-50 border border-indigo-100">
+        <div className="space-y-4 p-4 rounded-lg bg-white border border-indigo-100">
           <div>
             <p className="font-medium text-gray-900 mb-1">What you get:</p>
             <p className="text-gray-700">{step.description}</p>
           </div>
-          <div className="p-3 bg-white rounded border border-indigo-100 shadow-sm">
+          <div className="p-3 bg-indigo-50 rounded border border-indigo-100 shadow-sm">
             <p className="text-indigo-700">{step.highlight}</p>
           </div>
         </div>
@@ -160,7 +160,7 @@ const WelcomeTour: React.FC<WelcomeTourProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] p-0">
+      <DialogContent className="sm:max-w-[600px] p-0 bg-white">
         <div className="relative">
           <Button
             variant="ghost"
@@ -171,7 +171,7 @@ const WelcomeTour: React.FC<WelcomeTourProps> = ({
             <X className="h-4 w-4" />
           </Button>
           
-          <div className="p-6 bg-gradient-to-r from-blue-600 to-indigo-700">
+          <div className="p-6 bg-indigo-700">
             <h2 className="text-2xl font-bold text-white">Welcome to Sakha AI!</h2>
             <p className="text-blue-100 mt-1">
               {isFirstTimeUser 
@@ -180,7 +180,7 @@ const WelcomeTour: React.FC<WelcomeTourProps> = ({
             </p>
           </div>
 
-          <div className="p-6">
+          <div className="p-6 bg-white">
             <AnimatePresence mode="wait">
               <motion.div
                 key={currentStep}
@@ -194,14 +194,14 @@ const WelcomeTour: React.FC<WelcomeTourProps> = ({
             </AnimatePresence>
           </div>
 
-          <div className="p-4 border-t bg-gray-50/80 backdrop-blur-sm flex items-center justify-between gap-4">
+          <div className="p-4 border-t bg-gray-50 backdrop-blur-sm flex items-center justify-between gap-4">
             {currentStep > 0 ? (
               <Button variant="outline" onClick={handlePrevious}>
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Previous
               </Button>
             ) : (
-              <div /> /* Spacer */
+              <div /> {/* Spacer */}
             )}
 
             <div className="flex items-center gap-2">
