@@ -4,7 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useAdminAuth } from "@/contexts/AdminAuthContext";
 import { adminService } from "@/services/adminService";
-import { AdminDashboardStats, SystemLog, StudentData } from "@/types/admin"; // Import unified StudentData
+import { AdminDashboardStats, SystemLog } from "@/types/admin"; 
+import { StudentData } from "@/types/admin/studentData"; // Import from correct path
 
 import AdminLayout from "@/components/admin/AdminLayout";
 import DashboardStats from "@/components/admin/dashboard/DashboardStats";
@@ -51,7 +52,7 @@ const AdminDashboard = () => {
       
       const studentsRes = await adminService.getStudents(1, 5);
       
-      // Convert to unified StudentData format
+      // Convert to unified StudentData format with all required properties
       const convertedStudents: StudentData[] = studentsRes.data.map(student => ({
         id: student.id,
         name: student.name,
@@ -62,14 +63,16 @@ const AdminDashboard = () => {
         status: "active",
         examType: student.examType,
         subjects: student.subjectsSelected,
+        subjectsSelected: student.subjectsSelected,
         examPrep: student.examType,
         lastActive: student.lastActive,
         progress: student.engagementScore || 0,
-        // Add other required fields with default values if needed
         phoneNumber: student.phoneNumber || '',
         completedOnboarding: student.completedOnboarding || false,
         goals: student.goals || [],
         studyHours: student.studyHours || 0,
+        moodScore: student.moodScore || 0,
+        engagementScore: student.engagementScore || 0,
         targetScore: student.targetScore || 0,
         avatarUrl: student.avatarUrl || ''
       }));
