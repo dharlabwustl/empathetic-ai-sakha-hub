@@ -6,10 +6,11 @@ import { UserProfileType, MoodType, SubscriptionType } from "@/types/user/base";
 import { getMoodTheme } from "./student/mood-tracking/moodThemes";
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
-import { Phone, Award, Star, User, Brain, Calendar, Camera, Lock } from "lucide-react";
+import { Phone, Award, Star, User, Brain, Calendar, Camera, Lock, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { useToast } from "@/hooks/use-toast";
 
 interface ProfileCardProps {
   profile: UserProfileType;
@@ -32,6 +33,7 @@ const ProfileCard = ({
 }: ProfileCardProps) => {
   const [isHoveringAvatar, setIsHoveringAvatar] = useState(false);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
   
   const moodTheme = currentMood ? getMoodTheme(currentMood) : null;
   
@@ -68,15 +70,27 @@ const ProfileCard = ({
   
   // Handle image upload
   const handleImageClick = () => {
-    if (onUploadImage && fileInputRef.current) {
+    if (fileInputRef.current) {
       fileInputRef.current.click();
     }
   };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
-    if (files && files.length > 0 && onUploadImage) {
-      onUploadImage(files[0]);
+    if (files && files.length > 0) {
+      if (onUploadImage) {
+        onUploadImage(files[0]);
+        toast({
+          title: "Image uploaded",
+          description: "Your profile image has been updated successfully."
+        });
+      } else {
+        toast({
+          title: "Image upload not supported",
+          description: "Image upload functionality is not available at this time.",
+          variant: "destructive"
+        });
+      }
     }
   };
 
@@ -112,7 +126,7 @@ const ProfileCard = ({
         <div className="p-4">
           <div className="flex items-center space-x-4">
             <motion.div
-              className="relative"
+              className="relative cursor-pointer group"
               whileHover={{ scale: 1.1, rotate: [0, 5, -5, 0] }}
               transition={{ duration: 0.5 }}
               onHoverStart={() => setIsHoveringAvatar(true)}
@@ -126,11 +140,9 @@ const ProfileCard = ({
                 <AvatarFallback>{profile.name.charAt(0)}</AvatarFallback>
               </Avatar>
               
-              {onUploadImage && (
-                <div className={`absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center transition-opacity duration-200 ${isHoveringAvatar ? 'opacity-100' : 'opacity-0'}`}>
-                  <Camera className="h-6 w-6 text-white" />
-                </div>
-              )}
+              <div className={`absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center transition-opacity duration-200 ${isHoveringAvatar ? 'opacity-100' : 'opacity-0'}`}>
+                <Upload className="h-6 w-6 text-white" />
+              </div>
               
               {currentMood && (
                 <motion.div 

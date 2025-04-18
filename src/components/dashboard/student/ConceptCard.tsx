@@ -125,7 +125,7 @@ const ConceptCard: React.FC<ConceptCardProps> = ({
           
           <CardHeader className="space-y-1 pb-2">
             <div className="flex justify-between items-start">
-              <div className="flex gap-1">
+              <div className="flex gap-1 flex-wrap">
                 <Badge variant="outline" className={getSubjectColor()}>
                   {subject}
                 </Badge>
@@ -136,30 +136,34 @@ const ConceptCard: React.FC<ConceptCardProps> = ({
               </div>
               
               {/* Completion Status */}
-              {!isLocked && (
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className={`h-6 w-6 rounded-full ${completed ? 'text-green-600' : 'text-gray-400'}`}
-                      onClick={handleMarkComplete}
-                    >
-                      {completed ? (
-                        <CheckCircle className="h-5 w-5 fill-green-100" />
-                      ) : (
-                        <CheckCircle2 className="h-5 w-5" />
-                      )}
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>{completed ? 'Mark as incomplete' : 'Mark as complete'}</p>
-                  </TooltipContent>
-                </Tooltip>
-              )}
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className={`h-6 w-6 rounded-full ${completed ? 'text-green-600' : 'text-gray-400'}`}
+                    onClick={handleMarkComplete}
+                    disabled={isLocked}
+                  >
+                    {completed ? (
+                      <CheckCircle className="h-5 w-5 fill-green-100" />
+                    ) : (
+                      <CheckCircle2 className="h-5 w-5" />
+                    )}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{completed ? 'Mark as incomplete' : 'Mark as complete'}</p>
+                </TooltipContent>
+              </Tooltip>
             </div>
             
-            <h3 className="font-semibold truncate">{title}</h3>
+            <div className="flex items-center gap-2">
+              <h3 className="font-semibold truncate">{title}</h3>
+              <Badge variant="outline" className="text-xs">
+                {difficulty.toUpperCase()}
+              </Badge>
+            </div>
           </CardHeader>
           
           <CardContent className="pb-2">
@@ -168,7 +172,7 @@ const ConceptCard: React.FC<ConceptCardProps> = ({
             </p>
           </CardContent>
           
-          <CardFooter className="pt-1">
+          <CardFooter className="pt-1 flex flex-col space-y-2">
             <div className="w-full flex items-center justify-between">
               <div className="flex items-center text-xs text-muted-foreground">
                 <Brain className="h-3.5 w-3.5 mr-1" />
@@ -189,6 +193,26 @@ const ConceptCard: React.FC<ConceptCardProps> = ({
                 View
               </Button>
             </div>
+            
+            <Button
+              variant={completed ? "outline" : "default"}
+              size="sm"
+              className={`w-full text-xs ${completed ? 'text-green-600 border-green-200 hover:bg-green-50' : 'bg-indigo-600 hover:bg-indigo-700 text-white'}`}
+              onClick={handleMarkComplete}
+              disabled={isLocked}
+            >
+              {completed ? (
+                <>
+                  <CheckCircle className="h-3.5 w-3.5 mr-1" />
+                  Completed
+                </>
+              ) : (
+                <>
+                  <CheckCircle2 className="h-3.5 w-3.5 mr-1" />
+                  Mark as Complete
+                </>
+              )}
+            </Button>
           </CardFooter>
         </Card>
         

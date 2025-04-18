@@ -22,7 +22,7 @@ const floatAnimation: Variants = {
     transition: { 
       duration: 2, 
       repeat: Infinity, 
-      repeatType: "loop" as "loop" | "reverse" | "mirror"
+      repeatType: "loop"
     }
   }
 };
