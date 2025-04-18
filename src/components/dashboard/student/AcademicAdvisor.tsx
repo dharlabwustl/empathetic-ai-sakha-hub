@@ -1,9 +1,12 @@
+
 import React, { useState } from 'react';
 import AcademicHeader from '@/components/dashboard/student/academic/AcademicHeader';
 import StudyPlansList from '@/components/dashboard/student/academic/StudyPlansList';
 import CreateStudyPlanWizard from '@/components/dashboard/student/academic/CreateStudyPlanWizard';
 import StudyPlanDetail from '@/components/dashboard/student/academic/StudyPlanDetail';
 import { useToast } from '@/hooks/use-toast';
+import { v4 as uuidv4 } from 'uuid';
+import { format, differenceInCalendarDays } from 'date-fns';
 import type { StudyPlan, NewStudyPlan } from '@/types/user/studyPlan';
 
 interface AcademicAdvisorProps {
@@ -17,8 +20,8 @@ const AcademicAdvisor: React.FC<AcademicAdvisorProps> = ({ userProfile }) => {
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<StudyPlan | null>(null);
 
-  // Sample active study plan data
-  const activePlans: StudyPlan[] = [{
+  // State for plans
+  const [activePlans, setActivePlans] = useState<StudyPlan[]>([{
     id: "plan-1",
     examGoal: userProfile?.examPreparation || "IIT-JEE",
     examDate: "2024-12-15",
@@ -61,10 +64,10 @@ const AcademicAdvisor: React.FC<AcademicAdvisorProps> = ({ userProfile }) => {
     studyHoursPerDay: 6,
     preferredStudyTime: 'evening',
     learningPace: 'moderate'
-  }];
+  }]);
 
-  // Sample completed plans
-  const completedPlans: StudyPlan[] = [{
+  // State for completed plans
+  const [completedPlans, setCompletedPlans] = useState<StudyPlan[]>([{
     id: "plan-old-1",
     examGoal: "IIT-JEE",
     examDate: "2024-03-15",
@@ -102,7 +105,7 @@ const AcademicAdvisor: React.FC<AcademicAdvisorProps> = ({ userProfile }) => {
     studyHoursPerDay: 5,
     preferredStudyTime: 'morning',
     learningPace: 'slow'
-  }];
+  }]);
 
   const handleCreatePlan = () => {
     setShowCreateDialog(true);
@@ -115,12 +118,86 @@ const AcademicAdvisor: React.FC<AcademicAdvisorProps> = ({ userProfile }) => {
     }
   };
 
+  // Function to generate topics based on subject
+  const generateTopicsForSubject = (subject: string, proficiency: 'weak' | 'moderate' | 'strong') => {
+    let topics = [];
+    const priorities = ['high', 'medium', 'low'];
+    const statuses = ['pending', 'in-progress'];
+    
+    // Generate topics based on subject
+    switch(subject.toLowerCase()) {
+      case 'physics':
+        topics = [
+          { name: "Mechanics", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low' },
+          { name: "Thermodynamics", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low' },
+          { name: "Electrostatics", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low' }
+        ];
+        break;
+      case 'chemistry':
+        topics = [
+          { name: "Organic Chemistry", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low' },
+          { name: "Inorganic Chemistry", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low' },
+          { name: "Physical Chemistry", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low' }
+        ];
+        break;
+      case 'mathematics':
+        topics = [
+          { name: "Calculus", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low' },
+          { name: "Algebra", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low' },
+          { name: "Geometry", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low' }
+        ];
+        break;
+      default:
+        topics = [
+          { name: "Fundamentals", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low' },
+          { name: "Advanced Topics", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low' }
+        ];
+    }
+    
+    return topics;
+  };
+
   const handleNewPlanCreated = (plan: NewStudyPlan) => {
-    console.log('New plan created:', plan);
+    // Create a new plan object
+    const newPlan: StudyPlan = {
+      id: uuidv4(),
+      examGoal: plan.examGoal,
+      examDate: format(plan.examDate, 'yyyy-MM-dd'),
+      daysLeft: differenceInCalendarDays(plan.examDate, new Date()),
+      createdAt: new Date().toISOString(),
+      status: 'active',
+      progressPercentage: 0,
+      subjects: plan.subjects.map(subject => ({
+        name: subject.name,
+        progress: 0,
+        proficiency: subject.proficiency,
+        topics: generateTopicsForSubject(subject.name, subject.proficiency)
+      })),
+      studyHoursPerDay: plan.studyHoursPerDay,
+      preferredStudyTime: plan.preferredStudyTime,
+      learningPace: plan.learningPace
+    };
+    
+    // Move previous active plans to completed
+    const updatedCompletedPlans = [...completedPlans];
+    if (activePlans.length > 0) {
+      const oldActivePlans = activePlans.map(plan => ({
+        ...plan,
+        status: 'completed' as 'completed'
+      }));
+      updatedCompletedPlans.push(...oldActivePlans);
+    }
+    
+    // Add the new plan as the active one
+    setActivePlans([newPlan]);
+    setCompletedPlans(updatedCompletedPlans);
+    
+    // Show toast
     toast({
       title: "Success",
-      description: "Your new study plan has been created.",
+      description: "Your new study plan has been created and is now active!",
     });
+    
     setShowCreateDialog(false);
   };
 

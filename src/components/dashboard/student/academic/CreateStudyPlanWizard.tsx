@@ -4,12 +4,15 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { Button } from "@/components/ui/button";
 import { Check } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { v4 as uuidv4 } from "uuid";
 import ExamDateStep from "../../student/onboarding/ExamDateStep";
 import StudyHoursStep from "../../student/onboarding/StudyHoursStep";
 import StudyTimeStep from "../../student/onboarding/StudyTimeStep";
 import StudyPaceStep from "../../student/onboarding/StudyPaceStep";
 import SubjectsStep from "../../student/onboarding/SubjectsStep";
-import type { NewStudyPlan, NewStudyPlanSubject } from "@/types/user/studyPlan";
+import { format, differenceInDays } from "date-fns";
+import type { NewStudyPlan, NewStudyPlanSubject, StudyPlan } from "@/types/user/studyPlan";
+import { getSubjectsForGoal } from "../../student/onboarding/SubjectData";
 
 interface CreateStudyPlanWizardProps {
   isOpen: boolean;
@@ -35,7 +38,53 @@ const CreateStudyPlanWizard: React.FC<CreateStudyPlanWizardProps> = ({
     learningPace: 'moderate'
   });
 
-  const handlePaceChange = (pace: string) => {
+  // Maintain state for subjects
+  const [strongSubjects, setStrongSubjects] = useState<string[]>([]);
+  const [weakSubjects, setWeakSubjects] = useState<string[]>([]);
+  const subjects = getSubjectsForGoal(examGoal);
+
+  const handleToggleSubject = (subject: string, type: 'strong' | 'weak') => {
+    if (type === 'strong') {
+      if (strongSubjects.includes(subject)) {
+        setStrongSubjects(strongSubjects.filter(s => s !== subject));
+      } else {
+        // Remove from weak subjects if it's there
+        if (weakSubjects.includes(subject)) {
+          setWeakSubjects(weakSubjects.filter(s => s !== subject));
+        }
+        setStrongSubjects([...strongSubjects, subject]);
+      }
+    } else {
+      if (weakSubjects.includes(subject)) {
+        setWeakSubjects(weakSubjects.filter(s => s !== subject));
+      } else {
+        // Remove from strong subjects if it's there
+        if (strongSubjects.includes(subject)) {
+          setStrongSubjects(strongSubjects.filter(s => s !== subject));
+        }
+        setWeakSubjects([...weakSubjects, subject]);
+      }
+    }
+  };
+
+  // Convert string arrays to NewStudyPlanSubject arrays
+  const getSubjectsProficiencyList = (): NewStudyPlanSubject[] => {
+    const subjectsList: NewStudyPlanSubject[] = [];
+    
+    // Add strong subjects
+    strongSubjects.forEach(subject => {
+      subjectsList.push({ name: subject, proficiency: 'strong' });
+    });
+    
+    // Add weak subjects
+    weakSubjects.forEach(subject => {
+      subjectsList.push({ name: subject, proficiency: 'weak' });
+    });
+    
+    return subjectsList;
+  };
+
+  const handlePaceChange = (pace: "Aggressive" | "Balanced" | "Relaxed") => {
     let learningPace: 'slow' | 'moderate' | 'fast';
     switch (pace) {
       case 'Relaxed':
@@ -64,8 +113,29 @@ const CreateStudyPlanWizard: React.FC<CreateStudyPlanWizardProps> = ({
     if (step < 5) {
       setStep(step + 1);
     } else {
-      onCreatePlan(formData);
+      // Update subjects before submitting
+      const updatedFormData = {
+        ...formData,
+        subjects: getSubjectsProficiencyList()
+      };
+      onCreatePlan(updatedFormData);
+      
+      // Reset form
+      setStep(1);
+      setStrongSubjects([]);
+      setWeakSubjects([]);
+      setFormData({
+        examGoal,
+        examDate: new Date(),
+        subjects: [],
+        studyHoursPerDay: 6,
+        preferredStudyTime: 'morning',
+        learningPace: 'moderate'
+      });
+      
+      // Close dialog
       onClose();
+      
       toast({
         title: "Study Plan Created",
         description: "Your personalized study plan has been generated successfully.",
@@ -83,12 +153,12 @@ const CreateStudyPlanWizard: React.FC<CreateStudyPlanWizardProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-xl">
-        <DialogHeader>
-          <DialogTitle>Create New Study Plan</DialogTitle>
+      <DialogContent className="sm:max-w-xl max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 shadow-lg">
+        <DialogHeader className="bg-gradient-to-r from-purple-600 to-indigo-700 -m-6 mb-6 p-6 text-white rounded-t-lg">
+          <DialogTitle className="text-xl font-bold text-white">Create New Study Plan</DialogTitle>
         </DialogHeader>
 
-        <div className="py-4">
+        <div className="py-4 text-gray-900 dark:text-gray-100">
           <div className="mb-6">
             <div className="flex items-center justify-center mb-4">
               {[1, 2, 3, 4, 5].map((stepNumber) => (
@@ -126,9 +196,10 @@ const CreateStudyPlanWizard: React.FC<CreateStudyPlanWizardProps> = ({
 
             {step === 3 && (
               <SubjectsStep
-                subjects={formData.subjects}
-                setSubjects={(subjects: NewStudyPlanSubject[]) => setFormData(prev => ({ ...prev, subjects }))}
-                examType={formData.examGoal}
+                subjects={subjects}
+                strongSubjects={strongSubjects}
+                weakSubjects={weakSubjects}
+                handleToggleSubject={handleToggleSubject}
               />
             )}
 
@@ -149,12 +220,12 @@ const CreateStudyPlanWizard: React.FC<CreateStudyPlanWizardProps> = ({
           </div>
         </div>
 
-        <DialogFooter>
+        <DialogFooter className="border-t border-gray-200 dark:border-gray-700 pt-4">
           <div className="w-full flex justify-between">
             <Button variant="outline" onClick={handleBack}>
               {step === 1 ? 'Cancel' : 'Back'}
             </Button>
-            <Button onClick={handleNext}>
+            <Button className="bg-indigo-600 hover:bg-indigo-700 text-white" onClick={handleNext}>
               {step === 5 ? 'Generate Plan' : 'Next'}
             </Button>
           </div>

@@ -149,7 +149,12 @@ export default function OnboardingFlow({ userProfile, goalTitle, onComplete }: O
 
   // Show loading or success screens
   if (loading) {
-    return <LoadingScreen goalTitle={goalTitle} weakSubjects={getSubjectsProficiencyList().filter(s => s.proficiency === 'weak').map(s => s.name)} />;
+    // Get weak subjects as an array of strings for the LoadingScreen component
+    const weakSubjectsNames = getSubjectsProficiencyList()
+      .filter(s => s.proficiency === 'weak')
+      .map(s => s.name);
+      
+    return <LoadingScreen goalTitle={goalTitle} weakSubjects={weakSubjectsNames} />;
   }
   
   if (showSuccessCard) {
