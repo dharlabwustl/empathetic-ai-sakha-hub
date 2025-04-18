@@ -19,8 +19,7 @@ const SubjectItem: React.FC<SubjectItemProps> = ({
 }) => {
   const [showTopics, setShowTopics] = React.useState(false);
 
-  const handleProficiencySelect = (proficiency: 'weak' | 'moderate' | 'strong') => (e: React.MouseEvent) => {
-    e.preventDefault();
+  const handleProficiencySelect = (proficiency: 'weak' | 'moderate' | 'strong') => {
     onProficiencySelect(proficiency);
   };
 
@@ -49,7 +48,7 @@ const SubjectItem: React.FC<SubjectItemProps> = ({
                   ? 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300 font-medium'
                   : 'hover:bg-gray-100 dark:hover:bg-gray-800'
               }`}
-              onClick={handleProficiencySelect('weak')}
+              onClick={() => handleProficiencySelect('weak')}
             >
               Needs Work
             </button>
@@ -59,7 +58,7 @@ const SubjectItem: React.FC<SubjectItemProps> = ({
                   ? 'bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300 font-medium'
                   : 'hover:bg-gray-100 dark:hover:bg-gray-800'
               }`}
-              onClick={handleProficiencySelect('moderate')}
+              onClick={() => handleProficiencySelect('moderate')}
             >
               Moderate
             </button>
@@ -69,7 +68,7 @@ const SubjectItem: React.FC<SubjectItemProps> = ({
                   ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300 font-medium'
                   : 'hover:bg-gray-100 dark:hover:bg-gray-800'
               }`}
-              onClick={handleProficiencySelect('strong')}
+              onClick={() => handleProficiencySelect('strong')}
             >
               Strong
             </button>

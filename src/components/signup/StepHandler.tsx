@@ -1,4 +1,3 @@
-
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
@@ -7,6 +6,7 @@ import { getDemographicsQuestion } from "./utils/stepUtils";
 import authService from "@/services/auth/authService"; 
 import { getSubjectsForGoal } from "@/components/dashboard/student/onboarding/SubjectData";
 import { PersonalityType, MoodType } from "@/types/user/base";
+import { useSubscriptionFlow } from "@/contexts/SubscriptionFlowContext";
 
 interface StepHandlerProps {
   onboardingData: any;
@@ -26,6 +26,7 @@ const StepHandler = ({
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const { selectedPlan, handleAfterOnboarding } = useSubscriptionFlow();
 
   const handleRoleSelect = (role: UserRole) => {
     setOnboardingData({ ...onboardingData, role });
@@ -52,6 +53,7 @@ const StepHandler = ({
         phoneNumber: cleanMobile,
         password: formValues.otp, // Simplified password for easier login
         role: (onboardingData.role || 'Student').toLowerCase(), // Make sure role is lowercase
+        subscriptionPlan: selectedPlan || 'free', // Add subscription plan
       };
       
       console.log("Registering user:", userData);
@@ -75,7 +77,9 @@ const StepHandler = ({
           phoneNumber: cleanMobile,
           completedOnboarding: false, // Mark as not completed to trigger onboarding flow
           isNewUser: true,
-          sawWelcomeTour: false
+          sawWelcomeTour: false,
+          subscriptionPlan: selectedPlan || 'free',
+          subscriptionEndDate: selectedPlan !== 'free' ? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() : null,
         };
         
         localStorage.setItem("userData", JSON.stringify(extendedUserData));
@@ -85,8 +89,8 @@ const StepHandler = ({
           description: "Let's create your personalized study plan.",
         });
         
-        // Go directly to the dashboard with parameters to show onboarding
-        navigate("/dashboard/student?completedOnboarding=false&new=true");
+        // Use the subscription flow handler to determine the next step
+        handleAfterOnboarding();
       } else {
         throw new Error("Registration failed");
       }
@@ -102,107 +106,119 @@ const StepHandler = ({
     }
   };
 
+  const handleDemographicsSubmit = (data: Record<string, string>) => {
+    // Create a readable message for chat
+    let userMessage = "";
+    Object.entries(data).forEach(([key, value]) => {
+      userMessage += `${key}: ${value.trim()}, `;
+    });
+    userMessage = userMessage.slice(0, -2); // Remove trailing comma
+    
+    // Clean the data by trimming all string values
+    const cleanData: Record<string, string> = {};
+    Object.entries(data).forEach(([key, value]) => {
+      cleanData[key] = value.trim();
+    });
+    
+    setOnboardingData({ ...onboardingData, ...cleanData });
+    
+    setMessages([
+      ...messages, 
+      { content: userMessage, isBot: false },
+      { content: "Let's understand your personality type with a short quiz. Which of these best describes your approach to learning?", isBot: true }
+    ]);
+    setStep("personality");
+  };
+
+  const handleGoalSelect = (goal: UserGoal) => {
+    setOnboardingData({ ...onboardingData, goal });
+    setMessages([
+      ...messages, 
+      { content: goal, isBot: false },
+      { content: "Tell us more about yourself to personalize your learning experience.", isBot: true }
+    ]);
+    setStep("demographics");
+  };
+
+  const handlePersonalitySelect = (personality: PersonalityType) => {
+    setOnboardingData({ ...onboardingData, personalityType: personality });
+    setMessages([
+      ...messages,
+      { content: personality, isBot: false },
+      { content: "How are you feeling about your studies/work today?", isBot: true }
+    ]);
+    setStep("sentiment");
+  };
+
+  const handleMoodSelect = (mood: MoodType) => {
+    setOnboardingData({ ...onboardingData, mood });
+    setMessages([
+      ...messages,
+      { content: mood, isBot: false },
+      { content: "Let's understand your study preferences for a personalized experience.", isBot: true }
+    ]);
+    setStep("habits");
+  };
+
+  const handleHabitsSubmit = (habits: Record<string, string>) => {
+    // Clean up habits data - remove whitespace and normalize
+    const cleanedHabits: Record<string, string> = {};
+    
+    Object.entries(habits).forEach(([key, value]) => {
+      // Skip custom fields in the cleaned data if they've already been included
+      if (key === "stressManagementCustom" || key === "studyPreferenceCustom") {
+        return;
+      }
+      cleanedHabits[key] = value.trim();
+    });
+    
+    // Create a readable message for chat from the habits
+    let userMessage = "";
+    Object.entries(cleanedHabits).forEach(([key, value]) => {
+      userMessage += `${key}: ${value}, `;
+    });
+    userMessage = userMessage.slice(0, -2); // Remove trailing comma
+    
+    setOnboardingData({ ...onboardingData, ...cleanedHabits });
+    
+    // Get subjects based on selected exam goal
+    const suggestedSubjects = onboardingData.goal 
+      ? getSubjectsForGoal(onboardingData.goal)
+      : [];
+    
+    setMessages([
+      ...messages,
+      { content: userMessage, isBot: false },
+      { content: "Select your preferred subjects to study:", isBot: true }
+    ]);
+    setStep("interests");
+  };
+
+  const handleInterestsSubmit = (interests: string) => {
+    // Clean and deduplicate interests
+    const interestsList = Array.from(new Set(
+      interests.split(",").map(i => i.trim()).filter(i => i.length > 0)
+    ));
+    
+    setOnboardingData({ ...onboardingData, interests: interestsList });
+    setMessages([
+      ...messages,
+      { content: interests, isBot: false },
+      { content: "Your personalized Sakha dashboard is ready. Please sign up to access it.", isBot: true }
+    ]);
+    setStep("signup");
+  };
+
   return {
     isLoading,
     handlers: {
       handleRoleSelect,
-      handleDemographicsSubmit: (data: Record<string, string>) => {
-        // Create a readable message for chat
-        let userMessage = "";
-        Object.entries(data).forEach(([key, value]) => {
-          userMessage += `${key}: ${value.trim()}, `;
-        });
-        userMessage = userMessage.slice(0, -2); // Remove trailing comma
-        
-        // Clean the data by trimming all string values
-        const cleanData: Record<string, string> = {};
-        Object.entries(data).forEach(([key, value]) => {
-          cleanData[key] = value.trim();
-        });
-        
-        setOnboardingData({ ...onboardingData, ...cleanData });
-        
-        setMessages([
-          ...messages, 
-          { content: userMessage, isBot: false },
-          { content: "Let's understand your personality type with a short quiz. Which of these best describes your approach to learning?", isBot: true }
-        ]);
-        setStep("personality");
-      },
-      handleGoalSelect: (goal: UserGoal) => {
-        setOnboardingData({ ...onboardingData, goal });
-        setMessages([
-          ...messages, 
-          { content: goal, isBot: false },
-          { content: "Tell us more about yourself to personalize your learning experience.", isBot: true }
-        ]);
-        setStep("demographics");
-      },
-      handlePersonalitySelect: (personality: PersonalityType) => {
-        setOnboardingData({ ...onboardingData, personalityType: personality });
-        setMessages([
-          ...messages,
-          { content: personality, isBot: false },
-          { content: "How are you feeling about your studies/work today?", isBot: true }
-        ]);
-        setStep("sentiment");
-      },
-      handleMoodSelect: (mood: MoodType) => {
-        setOnboardingData({ ...onboardingData, mood });
-        setMessages([
-          ...messages,
-          { content: mood, isBot: false },
-          { content: "Let's understand your study preferences for a personalized experience.", isBot: true }
-        ]);
-        setStep("habits");
-      },
-      handleHabitsSubmit: (habits: Record<string, string>) => {
-        // Clean up habits data - remove whitespace and normalize
-        const cleanedHabits: Record<string, string> = {};
-        
-        Object.entries(habits).forEach(([key, value]) => {
-          // Skip custom fields in the cleaned data if they've already been included
-          if (key === "stressManagementCustom" || key === "studyPreferenceCustom") {
-            return;
-          }
-          cleanedHabits[key] = value.trim();
-        });
-        
-        // Create a readable message for chat from the habits
-        let userMessage = "";
-        Object.entries(cleanedHabits).forEach(([key, value]) => {
-          userMessage += `${key}: ${value}, `;
-        });
-        userMessage = userMessage.slice(0, -2); // Remove trailing comma
-        
-        setOnboardingData({ ...onboardingData, ...cleanedHabits });
-        
-        // Get subjects based on selected exam goal
-        const suggestedSubjects = onboardingData.goal 
-          ? getSubjectsForGoal(onboardingData.goal)
-          : [];
-        
-        setMessages([
-          ...messages,
-          { content: userMessage, isBot: false },
-          { content: "Select your preferred subjects to study:", isBot: true }
-        ]);
-        setStep("interests");
-      },
-      handleInterestsSubmit: (interests: string) => {
-        // Clean and deduplicate interests
-        const interestsList = Array.from(new Set(
-          interests.split(",").map(i => i.trim()).filter(i => i.length > 0)
-        ));
-        
-        setOnboardingData({ ...onboardingData, interests: interestsList });
-        setMessages([
-          ...messages,
-          { content: interests, isBot: false },
-          { content: "Your personalized Sakha dashboard is ready. Please sign up to access it.", isBot: true }
-        ]);
-        setStep("signup");
-      },
+      handleDemographicsSubmit,
+      handleGoalSelect,
+      handlePersonalitySelect,
+      handleMoodSelect,
+      handleHabitsSubmit,
+      handleInterestsSubmit,
       handleSignupSubmit
     }
   };
