@@ -11,7 +11,7 @@ import StudyTimeStep from "../../student/onboarding/StudyTimeStep";
 import StudyPaceStep from "../../student/onboarding/StudyPaceStep";
 import SubjectsStep from "../../student/onboarding/SubjectsStep";
 import { format, differenceInDays } from "date-fns";
-import type { NewStudyPlan, NewStudyPlanSubject, StudyPlan } from "@/types/user/studyPlan";
+import type { NewStudyPlan, NewStudyPlanSubject } from "@/types/user/studyPlan";
 import { getSubjectsForGoal } from "../../student/onboarding/SubjectData";
 
 interface CreateStudyPlanWizardProps {

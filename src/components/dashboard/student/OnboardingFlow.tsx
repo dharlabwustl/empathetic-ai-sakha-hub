@@ -132,29 +132,29 @@ export default function OnboardingFlow({ userProfile, goalTitle, onComplete }: O
 
   // Convert string arrays to NewStudyPlanSubject arrays
   const getSubjectsProficiencyList = (): NewStudyPlanSubject[] => {
-    const subjects: NewStudyPlanSubject[] = [];
+    const subjectsList: NewStudyPlanSubject[] = [];
     
     // Add strong subjects
     strongSubjects.forEach(subject => {
-      subjects.push({ name: subject, proficiency: 'strong' });
+      subjectsList.push({ name: subject, proficiency: 'strong' });
     });
     
     // Add weak subjects
     weakSubjects.forEach(subject => {
-      subjects.push({ name: subject, proficiency: 'weak' });
+      subjectsList.push({ name: subject, proficiency: 'weak' });
     });
     
-    return subjects;
+    return subjectsList;
   };
 
   // Show loading or success screens
   if (loading) {
-    // Get weak subjects as an array of strings for the LoadingScreen component
-    const weakSubjectsNames = getSubjectsProficiencyList()
+    // Convert weak subjects to the required format for LoadingScreen
+    const weakSubjectsForLoading = getSubjectsProficiencyList()
       .filter(s => s.proficiency === 'weak')
       .map(s => s.name);
       
-    return <LoadingScreen goalTitle={goalTitle} weakSubjects={weakSubjectsNames} />;
+    return <LoadingScreen goalTitle={goalTitle} weakSubjects={weakSubjectsForLoading} />;
   }
   
   if (showSuccessCard) {
