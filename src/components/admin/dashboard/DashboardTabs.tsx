@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { 
@@ -11,7 +10,8 @@ import {
   AlertCircle, 
   Bell,
   FileText,
-  Settings
+  Settings,
+  Layers
 } from "lucide-react";
 import { AdminDashboardStats, SystemLog } from "@/types/admin";
 import { StudentData } from "@/types/admin/studentData";
@@ -26,6 +26,7 @@ import IssueResolutionTab from "./tabs/IssueResolutionTab";
 import NotificationsTab from "./tabs/NotificationsTab";
 import DocumentationTab from "./tabs/DocumentationTab";
 import SettingsTab from "./tabs/SettingsTab";
+import FeaturesTab from "./tabs/FeaturesTab";
 
 interface DashboardTabsProps {
   stats: AdminDashboardStats | null;
@@ -36,7 +37,7 @@ interface DashboardTabsProps {
 const DashboardTabs = ({ stats, recentStudents, recentLogs }: DashboardTabsProps) => {
   return (
     <Tabs defaultValue="overview" className="space-y-6">
-      <TabsList className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-2 p-1 bg-gray-100 dark:bg-gray-800 rounded-lg">
+      <TabsList className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-2 p-1 bg-gray-100 dark:bg-gray-800 rounded-lg">
         <TabsTrigger value="overview" className="flex items-center gap-2 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:shadow-sm">
           <BarChart2 size={16} className="text-blue-500" />
           <span>Overview</span>
@@ -53,8 +54,12 @@ const DashboardTabs = ({ stats, recentStudents, recentLogs }: DashboardTabsProps
           <BookOpen size={16} className="text-amber-500" />
           <span>Content</span>
         </TabsTrigger>
+        <TabsTrigger value="features" className="flex items-center gap-2 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:shadow-sm">
+          <Layers size={16} className="text-green-500" />
+          <span>Features</span>
+        </TabsTrigger>
         <TabsTrigger value="engagement" className="flex items-center gap-2 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:shadow-sm">
-          <MessageSquare size={16} className="text-green-500" />
+          <MessageSquare size={16} className="text-orange-500" />
           <span>Engagement</span>
         </TabsTrigger>
         <TabsTrigger value="subscriptions" className="flex items-center gap-2 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:shadow-sm">
@@ -96,6 +101,10 @@ const DashboardTabs = ({ stats, recentStudents, recentLogs }: DashboardTabsProps
       
       <TabsContent value="content">
         <ContentManagementTab />
+      </TabsContent>
+      
+      <TabsContent value="features">
+        <FeaturesTab />
       </TabsContent>
       
       <TabsContent value="engagement">
