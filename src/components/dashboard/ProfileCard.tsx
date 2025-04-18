@@ -18,8 +18,8 @@ const ProfileCard = ({ profile, currentMood }: ProfileCardProps) => {
   const userType = profile.role || "Student";
   const examGoal = profile.goals && profile.goals.length > 0 ? profile.goals[0].title : "Not set";
   const personalityType = profile.personalityType || "Analytical";
-  const subjectProgress = profile.subjectsProgress ? 
-    `${Math.round((profile.subjectsProgress.completed / profile.subjectsProgress.total) * 100)}%` : 
+  const progressPercentage = profile.goals && profile.goals.length > 0 ? 
+    `${Math.round(profile.goals[0].progress)}%` : 
     "0%";
   
   return (
@@ -27,7 +27,7 @@ const ProfileCard = ({ profile, currentMood }: ProfileCardProps) => {
       <div className="flex items-center space-x-4">
         <Avatar className="h-12 w-12 ring-2 ring-offset-2 transition-all duration-300"
                 style={{
-                  ringColor: currentMood && moodTheme?.colors.text
+                  borderColor: currentMood && moodTheme?.colors.text 
                 }}>
           {currentMood && moodTheme ? (
             <AvatarImage src={moodTheme.avatarUrl} alt="Mood Avatar" />
@@ -49,7 +49,7 @@ const ProfileCard = ({ profile, currentMood }: ProfileCardProps) => {
               {examGoal}
             </Badge>
             <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">
-              Progress: {subjectProgress}
+              Progress: {progressPercentage}
             </Badge>
           </div>
           

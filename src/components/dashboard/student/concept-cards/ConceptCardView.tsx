@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,7 +13,6 @@ import {
   BookOpen,
   PenLine,
   Zap,
-  Icons,
   Tablet
 } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -59,7 +57,6 @@ const ConceptCardView = ({ title = "Newton's Laws of Motion", subject = "Physics
         
         <CardContent className="pt-6">
           <TabsContent value="explanation" className="space-y-4">
-            {/* Sub-tabs for different explanation types */}
             <Tabs value={activeExplanationSubTab} onValueChange={setActiveExplanationSubTab}>
               <TabsList className="mb-4 bg-gray-50">
                 <TabsTrigger value="text" className="text-sm">
@@ -151,7 +148,6 @@ const ConceptCardView = ({ title = "Newton's Laws of Motion", subject = "Physics
                       </div>
                     </div>
                     
-                    {/* Audio player control */}
                     <div className="mt-4">
                       <div className="h-1 w-full bg-gray-200 rounded-full overflow-hidden">
                         <div className="h-full bg-indigo-500 rounded-full" style={{ width: '35%' }}></div>
