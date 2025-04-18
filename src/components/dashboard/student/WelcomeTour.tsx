@@ -114,7 +114,7 @@ const WelcomeTour: React.FC<WelcomeTourProps> = ({
         <CardContent className="p-6">
           <div className="flex items-center gap-4 mb-6 p-4 bg-indigo-50 rounded-lg border border-indigo-100">
             <Avatar className="h-16 w-16 border-2 border-indigo-200">
-              <AvatarImage src="/lovable-uploads/ffd1ed0a-7a25-477e-bc91-1da9aca3497f.png" alt="Founder" />
+              <AvatarImage src="/lovable-uploads/622fa3cd-0a65-49dc-89a3-0987c4462bdd.png" alt="Founder" />
               <AvatarFallback>AS</AvatarFallback>
             </Avatar>
             <div>
