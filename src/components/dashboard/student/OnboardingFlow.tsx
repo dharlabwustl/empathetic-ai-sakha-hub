@@ -17,6 +17,7 @@ import OnboardingProgress from "./onboarding/OnboardingProgress";
 import LoadingScreen from "./onboarding/LoadingScreen";
 import SuccessScreen from "./onboarding/SuccessScreen";
 import { getSubjectsForGoal } from "./onboarding/SubjectData";
+import { NewStudyPlanSubject } from "@/types/user/studyPlan";
 
 interface OnboardingFlowProps {
   userProfile: UserProfileType;
@@ -127,6 +128,23 @@ export default function OnboardingFlow({ userProfile, goalTitle, onComplete }: O
         setWeakSubjects([...weakSubjects, subject]);
       }
     }
+  };
+
+  // Convert string arrays to NewStudyPlanSubject arrays
+  const getSubjectsProficiencyList = (): NewStudyPlanSubject[] => {
+    const subjects: NewStudyPlanSubject[] = [];
+    
+    // Add strong subjects
+    strongSubjects.forEach(subject => {
+      subjects.push({ name: subject, proficiency: 'strong' });
+    });
+    
+    // Add weak subjects
+    weakSubjects.forEach(subject => {
+      subjects.push({ name: subject, proficiency: 'weak' });
+    });
+    
+    return subjects;
   };
 
   // Show loading or success screens

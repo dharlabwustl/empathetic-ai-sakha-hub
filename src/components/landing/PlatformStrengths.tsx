@@ -23,7 +23,7 @@ const floatAnimation: Variants = {
       duration: 2, 
       repeat: Infinity, 
       // Explicitly use a literal type instead of a string
-      repeatType: "loop"
+      repeatType: "loop" as "loop"
     }
   }
 };
