@@ -20,6 +20,15 @@ export interface AdminDashboardStats {
   averageConfidenceScore: number;
   totalSessions: number;
   moodBasedSessionsCount: number;
+  
+  verifiedMoodImprovement?: number;
+  averageTimeSavedPerWeek?: number;
+  studyPlanEfficiencyImprovement?: number;
+  studentsWithVerifiedConsistentHabits?: number;
+  verifiedExamConfidenceImprovement?: number;
+  verifiedRetentionRate?: number;
+  verifiedMoodFeatureUsage?: number;
+  completedSurveys?: number;
 }
 
 export interface StudentData {
@@ -88,7 +97,6 @@ export interface AdminSettings {
   apiKey: string;
 }
 
-// Database schemas for the application
 export interface StudentProfile {
   id: string;
   userId: string;
@@ -108,9 +116,9 @@ export interface StudentProfile {
 export interface StudentGoal {
   id: string;
   studentId: string;
-  title: string; // e.g., "IIT-JEE", "NEET"
+  title: string;
   targetDate: Date;
-  currentProgress: number; // 0-100%
+  currentProgress: number;
   status: 'active' | 'completed' | 'abandoned';
   createdAt: Date;
 }
@@ -144,7 +152,7 @@ export interface StudySession {
   planId: string;
   date: Date;
   startTime: string;
-  duration: number; // in minutes
+  duration: number;
   subject: string;
   topics: string[];
   status: 'pending' | 'completed' | 'missed';
@@ -157,8 +165,8 @@ export interface ContentItemReference {
   contentType: 'concept' | 'flashcard' | 'question' | 'exam';
   contentId: string;
   status: 'pending' | 'completed';
-  score?: number; // if applicable
-  timeSpent?: number; // in seconds
+  score?: number;
+  timeSpent?: number;
 }
 
 export interface ConceptCard {
@@ -197,7 +205,7 @@ export interface Question {
   topic: string;
   questionText: string;
   options: string[];
-  correctAnswer: number; // index of correct option
+  correctAnswer: number;
   explanation: string;
   difficulty: 'easy' | 'medium' | 'hard';
   tags: string[];
@@ -213,7 +221,7 @@ export interface ExamPaper {
   title: string;
   subject: string;
   description: string;
-  duration: number; // in minutes
+  duration: number;
   totalMarks: number;
   difficulty: 'easy' | 'medium' | 'hard';
   questionIds: string[];
@@ -226,7 +234,7 @@ export interface ExamPaper {
 export interface MoodLog {
   id: string;
   studentId: string;
-  score: number; // 1-10
+  score: number;
   notes?: string;
   timestamp: Date;
 }
@@ -238,7 +246,7 @@ export interface FeelGoodContent {
   imageUrl?: string;
   videoUrl?: string;
   tags: string[];
-  moodTags: string[]; // e.g., "stress", "anxiety", "motivation"
+  moodTags: string[];
   usageCount: number;
   approved: boolean;
   createdAt: Date;
@@ -248,14 +256,14 @@ export interface SurroundingInfluence {
   id: string;
   studentId: string;
   timestamp: Date;
-  confidenceLevel: number; // 1-10
-  peerInfluence: number; // -5 to 5 (negative to positive)
+  confidenceLevel: number;
+  peerInfluence: number;
   environmentalFactors: {
-    noise: number; // 1-10
-    comfort: number; // 1-10
-    distractions: number; // 1-10
+    noise: number;
+    comfort: number;
+    distractions: number;
   };
-  overallScore: number; // calculated score
+  overallScore: number;
 }
 
 export interface UserDoubts {
@@ -274,7 +282,7 @@ export interface UserDoubts {
 export interface TutorChat {
   id: string;
   studentId: string;
-  tutorId: string; // can be 'ai' for AI tutor
+  tutorId: string;
   messages: {
     sender: 'student' | 'tutor' | 'system';
     content: string;
@@ -283,7 +291,7 @@ export interface TutorChat {
   subject?: string;
   topic?: string;
   status: 'active' | 'closed';
-  rating?: number; // 1-5
+  rating?: number;
   startedAt: Date;
   endedAt?: Date;
 }

@@ -28,6 +28,14 @@ export const API_ENDPOINTS = {
       SESSIONS: (studentId: string) => `/admin/study-habits/${studentId}/sessions`,
       HABITS: (studentId: string) => `/admin/study-habits/${studentId}/habits`,
       CALCULATE_CONSISTENCY: (studentId: string) => `/admin/study-habits/${studentId}/calculate-consistency`
+    },
+    VERIFIED_METRICS: {
+      MOOD_IMPROVEMENT: '/admin/verified-metrics/mood-improvement',
+      TIME_SAVED: '/admin/verified-metrics/time-saved',
+      CONSISTENT_HABITS: '/admin/verified-metrics/consistent-habits',
+      EXAM_CONFIDENCE: '/admin/verified-metrics/exam-confidence',
+      RETENTION_RATE: '/admin/verified-metrics/retention-rate',
+      MOOD_FEATURE_USAGE: '/admin/verified-metrics/mood-feature-usage'
     }
   },
   STUDENTS: {
