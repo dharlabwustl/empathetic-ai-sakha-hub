@@ -1,8 +1,9 @@
-
 import React, { useState } from 'react';
 import { GraduationCap } from 'lucide-react';
 import StudyPlanSection from '@/components/dashboard/student/academic/StudyPlanSection';
+import CreateStudyPlanWizard from '@/components/dashboard/student/academic/CreateStudyPlanWizard';
 import { useToast } from '@/hooks/use-toast';
+import type { StudyPlan, NewStudyPlan } from '@/types/user/studyPlan';
 
 interface AcademicAdvisorProps {
   userProfile: {
@@ -15,7 +16,7 @@ const AcademicAdvisor: React.FC<AcademicAdvisorProps> = ({ userProfile }) => {
   const [showCreateDialog, setShowCreateDialog] = useState(false);
 
   // Sample active study plan data
-  const activePlans = [{
+  const activePlans: StudyPlan[] = [{
     id: "plan-1",
     examGoal: userProfile?.examPreparation || "IIT-JEE",
     examDate: "2024-12-15",
@@ -52,11 +53,14 @@ const AcademicAdvisor: React.FC<AcademicAdvisorProps> = ({ userProfile }) => {
           { name: "Coordinate Geometry", status: 'completed' }
         ]
       }
-    ]
+    ],
+    studyHoursPerDay: 6,
+    preferredStudyTime: 'evening',
+    learningPace: 'moderate'
   }];
 
   // Sample completed plans
-  const completedPlans = [{
+  const completedPlans: StudyPlan[] = [{
     id: "plan-old-1",
     examGoal: "IIT-JEE",
     examDate: "2024-03-15",
@@ -83,15 +87,14 @@ const AcademicAdvisor: React.FC<AcademicAdvisorProps> = ({ userProfile }) => {
         proficiency: 'strong',
         topics: []
       }
-    ]
+    ],
+    studyHoursPerDay: 5,
+    preferredStudyTime: 'morning',
+    learningPace: 'slow'
   }];
 
   const handleCreatePlan = () => {
     setShowCreateDialog(true);
-    toast({
-      title: "Create New Study Plan",
-      description: "Opening study plan creation wizard...",
-    });
   };
 
   const handleViewPlanDetails = (planId: string) => {
@@ -99,6 +102,15 @@ const AcademicAdvisor: React.FC<AcademicAdvisorProps> = ({ userProfile }) => {
       title: "View Plan Details",
       description: `Opening details for plan ${planId}...`,
     });
+  };
+
+  const handleNewPlanCreated = (plan: NewStudyPlan) => {
+    console.log('New plan created:', plan);
+    toast({
+      title: "Success",
+      description: "Your new study plan has been created.",
+    });
+    // Here you would typically send this to an API
   };
 
   return (
@@ -130,6 +142,13 @@ const AcademicAdvisor: React.FC<AcademicAdvisorProps> = ({ userProfile }) => {
         plans={completedPlans}
         onCreatePlan={handleCreatePlan}
         onViewPlanDetails={handleViewPlanDetails}
+      />
+
+      <CreateStudyPlanWizard
+        isOpen={showCreateDialog}
+        onClose={() => setShowCreateDialog(false)}
+        examGoal={userProfile?.examPreparation}
+        onCreatePlan={handleNewPlanCreated}
       />
     </div>
   );
