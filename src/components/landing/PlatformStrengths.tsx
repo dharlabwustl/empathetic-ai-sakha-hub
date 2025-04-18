@@ -1,4 +1,3 @@
-
 import React, { useRef } from "react";
 import { motion, useInView, Variants } from "framer-motion";
 import { 
@@ -22,8 +21,7 @@ const floatAnimation: Variants = {
     transition: { 
       duration: 2, 
       repeat: Infinity, 
-      // Explicitly use a literal type instead of a string
-      repeatType: "loop" as "loop"
+      repeatType: "loop" as const
     }
   }
 };
