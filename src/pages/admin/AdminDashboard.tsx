@@ -1,10 +1,11 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useAdminAuth } from "@/contexts/AdminAuthContext";
 import { adminService } from "@/services/adminService";
 import { AdminDashboardStats, SystemLog } from "@/types/admin"; 
-import { StudentData } from "@/types/admin/studentData"; // Import explicitly from studentData.ts
+import { StudentData } from "@/types/admin/studentData";
 
 import AdminLayout from "@/components/admin/AdminLayout";
 import DashboardStats from "@/components/admin/dashboard/DashboardStats";
