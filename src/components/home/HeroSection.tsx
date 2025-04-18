@@ -1,4 +1,3 @@
-
 import React from 'react';
 import PainPoints from './hero/PainPoints';
 import ChatInterface from './hero/ChatInterface';
@@ -71,6 +70,16 @@ const HeroSection: React.FC<HeroSectionProps> = ({
         >
           <ExamNamesBadge />
         </motion.div>
+
+        {/* KPI Stats Section - Moved right after ExamNamesBadge */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.8, delay: 0.8 }}
+          className="mb-12"
+        >
+          <KpiStats />
+        </motion.div>
         
         {/* Key Features Section */}
         <motion.div
@@ -93,14 +102,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
         </motion.div>
         
         {/* KPI Stats Section - New addition */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.8, delay: 1.2 }}
-          className="mb-12"
-        >
-          <KpiStats />
-        </motion.div>
+        
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center mt-12">
           <motion.div
