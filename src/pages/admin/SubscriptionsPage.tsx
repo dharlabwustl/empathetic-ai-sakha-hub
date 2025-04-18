@@ -4,9 +4,12 @@ import AdminLayout from "@/components/admin/AdminLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { CreditCard, TrendingUp, Users, DollarSign } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 const SubscriptionsPage = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const showToast = () => {
     toast({
@@ -14,6 +17,10 @@ const SubscriptionsPage = () => {
       description: "This feature is currently under development.",
       variant: "default"
     });
+  };
+  
+  const navigateToPlanManagement = () => {
+    navigate("/admin/dashboard", { state: { activeTab: "subscriptions" } });
   };
 
   return (
@@ -25,6 +32,9 @@ const SubscriptionsPage = () => {
             Monitor and manage subscription plans and payments
           </p>
         </div>
+        <Button onClick={navigateToPlanManagement}>
+          Manage Plans
+        </Button>
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
@@ -132,7 +142,7 @@ const SubscriptionsPage = () => {
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <button 
                         className="text-indigo-600 hover:text-indigo-900"
-                        onClick={showToast}
+                        onClick={navigateToPlanManagement}
                       >
                         Edit
                       </button>
@@ -154,7 +164,7 @@ const SubscriptionsPage = () => {
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <button 
                         className="text-indigo-600 hover:text-indigo-900"
-                        onClick={showToast}
+                        onClick={navigateToPlanManagement}
                       >
                         Edit
                       </button>
@@ -176,7 +186,7 @@ const SubscriptionsPage = () => {
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <button 
                         className="text-indigo-600 hover:text-indigo-900"
-                        onClick={showToast}
+                        onClick={navigateToPlanManagement}
                       >
                         Edit
                       </button>

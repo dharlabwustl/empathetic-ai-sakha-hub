@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import PlansOverview from "./subscription/PlansOverview";
@@ -7,9 +8,19 @@ import { Button } from "@/components/ui/button";
 import { Plus, Edit } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/hooks/use-toast";
 
 const SubscriptionTab = () => {
   const [activeTab, setActiveTab] = React.useState<"overview" | "plans" | "coupons">("overview");
+  const { toast } = useToast();
+
+  const handleCouponAction = () => {
+    toast({
+      title: "Coming Soon",
+      description: "Coupon management will be available in a future update.",
+      variant: "default"
+    });
+  };
 
   return (
     <div className="space-y-6">
@@ -36,7 +47,7 @@ const SubscriptionTab = () => {
           <div className="space-y-6">
             <div className="flex justify-between mb-4">
               <h3 className="text-xl font-bold">Coupon Management</h3>
-              <Button className="flex items-center gap-2">
+              <Button className="flex items-center gap-2" onClick={handleCouponAction}>
                 <Plus size={16} />
                 <span>Create Coupon</span>
               </Button>
@@ -64,7 +75,7 @@ const SubscriptionTab = () => {
                     <TableCell>31/12/2023</TableCell>
                     <TableCell><Badge className="bg-green-100 text-green-800">Active</Badge></TableCell>
                     <TableCell className="text-right">
-                      <Button variant="ghost" size="sm"><Edit size={16} /></Button>
+                      <Button variant="ghost" size="sm" onClick={handleCouponAction}><Edit size={16} /></Button>
                     </TableCell>
                   </TableRow>
                   <TableRow>
@@ -75,7 +86,7 @@ const SubscriptionTab = () => {
                     <TableCell>31/12/2023</TableCell>
                     <TableCell><Badge className="bg-green-100 text-green-800">Active</Badge></TableCell>
                     <TableCell className="text-right">
-                      <Button variant="ghost" size="sm"><Edit size={16} /></Button>
+                      <Button variant="ghost" size="sm" onClick={handleCouponAction}><Edit size={16} /></Button>
                     </TableCell>
                   </TableRow>
                   <TableRow>
@@ -86,7 +97,7 @@ const SubscriptionTab = () => {
                     <TableCell>31/12/2023</TableCell>
                     <TableCell><Badge className="bg-green-100 text-green-800">Active</Badge></TableCell>
                     <TableCell className="text-right">
-                      <Button variant="ghost" size="sm"><Edit size={16} /></Button>
+                      <Button variant="ghost" size="sm" onClick={handleCouponAction}><Edit size={16} /></Button>
                     </TableCell>
                   </TableRow>
                   <TableRow>
@@ -97,7 +108,7 @@ const SubscriptionTab = () => {
                     <TableCell>31/08/2022</TableCell>
                     <TableCell><Badge className="bg-red-100 text-red-800">Expired</Badge></TableCell>
                     <TableCell className="text-right">
-                      <Button variant="ghost" size="sm"><Edit size={16} /></Button>
+                      <Button variant="ghost" size="sm" onClick={handleCouponAction}><Edit size={16} /></Button>
                     </TableCell>
                   </TableRow>
                 </TableBody>
