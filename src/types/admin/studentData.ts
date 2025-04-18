@@ -21,6 +21,6 @@ export interface StudentData {
   subjectsSelected?: string[];
   moodScore?: number;
   engagementScore?: number;
-  targetScore?: number;
-  avatarUrl?: string;
+  targetScore?: number;  // Added missing property
+  avatarUrl?: string;    // Added missing property
 }
