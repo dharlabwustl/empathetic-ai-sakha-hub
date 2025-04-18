@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { adminService } from "@/services/adminService";
@@ -22,12 +21,12 @@ const SystemAnalyticsTab = () => {
       const dashboardStats = await adminService.getDashboardStats();
       if (dashboardStats) {
         setStats({
-          stressReduction: Math.round((dashboardStats.averageMoodScore / 10) * 100),
+          stressReduction: Math.min(Math.round((dashboardStats.averageMoodScore - 5) / 5 * 100), 100),
           timeOptimization: 5,
-          habitFormation: Math.round((dashboardStats.totalEngagementHours / 100) * 75),
-          examConfidence: 80,
+          habitFormation: Math.round((dashboardStats.studentsWithConsistentHabits / dashboardStats.totalStudents) * 100),
+          examConfidence: Math.round((dashboardStats.averageConfidenceScore / 10) * 100),
           userRetention: Math.round((dashboardStats.activeStudents / dashboardStats.totalStudents) * 100),
-          moodBasedUsage: 60
+          moodBasedUsage: Math.round((dashboardStats.moodBasedSessionsCount / dashboardStats.totalSessions) * 100)
         });
       }
     };

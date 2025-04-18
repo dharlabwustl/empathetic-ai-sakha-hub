@@ -1,4 +1,3 @@
-
 export interface AdminUser {
   id: string;
   name: string;
@@ -17,6 +16,10 @@ export interface AdminDashboardStats {
   totalFlashcards: number;
   totalEngagementHours: number;
   averageMoodScore: number;
+  studentsWithConsistentHabits: number;
+  averageConfidenceScore: number;
+  totalSessions: number;
+  moodBasedSessionsCount: number;
 }
 
 export interface StudentData {
