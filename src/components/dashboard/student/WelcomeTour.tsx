@@ -33,20 +33,24 @@ const WelcomeTour: React.FC<WelcomeTourProps> = ({
       type: "founder",
       content: (
         <div className="space-y-4">
-          <div className="flex items-center gap-4 p-6 bg-white rounded-lg border border-indigo-100 shadow-sm">
-            <Avatar className="h-28 w-28 border-2 border-indigo-200">
-              <AvatarImage src="/lovable-uploads/622fa3cd-0a65-49dc-89a3-0987c4462bdd.png" alt="Amit Singh" />
-              <AvatarFallback>AS</AvatarFallback>
-            </Avatar>
-            <div className="space-y-2">
-              <h3 className="text-xl font-semibold text-indigo-900">A Message from Our Founder – Amit Singh</h3>
-              <div className="space-y-2 text-indigo-700">
-                <p>"Welcome to Sakha AI – your trusted learning companion.</p>
+          <div className="flex flex-col md:flex-row items-center gap-6 p-8 bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 rounded-lg border border-indigo-100 dark:border-indigo-800 shadow-lg">
+            <div className="relative group">
+              <div className="absolute inset-0 bg-gradient-to-r from-purple-400 to-indigo-400 rounded-full blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <Avatar className="h-40 w-40 border-4 border-white dark:border-gray-800 shadow-xl relative">
+                <AvatarImage src="/lovable-uploads/622fa3cd-0a65-49dc-89a3-0987c4462bdd.png" alt="Amit Singh" className="object-cover" />
+                <AvatarFallback>AS</AvatarFallback>
+              </Avatar>
+            </div>
+            <div className="space-y-4 text-center md:text-left">
+              <h3 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
+                A Message from Our Founder – Amit Singh
+              </h3>
+              <div className="space-y-3 text-gray-700 dark:text-gray-300">
+                <p className="text-lg">"Welcome to Sakha AI ��� your trusted learning companion. 🌟</p>
                 <p>We built Sakha with one goal: to make exam preparation fair, human, and truly supportive.</p>
-                <p>No student should feel left out or alone in their journey.</p>
-                <p>Here, you're seen, heard, and guided – every step of the way.</p>
-                <p>Let's crack it together!"</p>
-                <p className="text-sm italic mt-2">– Amit Singh, Founder, Sakha AI</p>
+                <p>No student should feel left out or alone in their journey. Here, you're seen, heard, and guided – every step of the way.</p>
+                <p className="font-semibold text-indigo-600 dark:text-indigo-400">Let's crack it together!"</p>
+                <p className="text-sm italic mt-2 text-gray-600 dark:text-gray-400">– Amit Singh, Founder, Sakha AI</p>
               </div>
             </div>
           </div>
