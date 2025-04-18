@@ -26,13 +26,15 @@ export interface StudyPlan {
   learningPace: 'slow' | 'moderate' | 'fast';
 }
 
+export interface NewStudyPlanSubject {
+  name: string;
+  proficiency: 'weak' | 'moderate' | 'strong';
+}
+
 export interface NewStudyPlan {
   examGoal: string;
   examDate: Date;
-  subjects: {
-    name: string;
-    proficiency: 'weak' | 'moderate' | 'strong';
-  }[];
+  subjects: NewStudyPlanSubject[];
   studyHoursPerDay: number;
   preferredStudyTime: 'morning' | 'afternoon' | 'evening' | 'night';
   learningPace: 'slow' | 'moderate' | 'fast';

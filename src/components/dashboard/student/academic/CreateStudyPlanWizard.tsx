@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Check, ChevronRight, Brain } from "lucide-react";
+import { Check } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import ExamDateStep from "../../student/onboarding/ExamDateStep";
 import StudyHoursStep from "../../student/onboarding/StudyHoursStep";
@@ -34,6 +34,24 @@ const CreateStudyPlanWizard: React.FC<CreateStudyPlanWizardProps> = ({
     preferredStudyTime: 'morning',
     learningPace: 'moderate'
   });
+
+  const handlePaceChange = (pace: string) => {
+    let learningPace: 'slow' | 'moderate' | 'fast';
+    switch (pace) {
+      case 'Relaxed':
+        learningPace = 'slow';
+        break;
+      case 'Balanced':
+        learningPace = 'moderate';
+        break;
+      case 'Aggressive':
+        learningPace = 'fast';
+        break;
+      default:
+        learningPace = 'moderate';
+    }
+    setFormData(prev => ({ ...prev, learningPace }));
+  };
 
   const handleNext = () => {
     if (step < 5) {
@@ -110,14 +128,18 @@ const CreateStudyPlanWizard: React.FC<CreateStudyPlanWizardProps> = ({
             {step === 4 && (
               <StudyTimeStep
                 studyTime={formData.preferredStudyTime}
-                setStudyTime={(time) => setFormData(prev => ({ ...prev, preferredStudyTime: time }))}
+                setStudyTime={(time) => {
+                  const preferredStudyTime = time.toLowerCase() as 'morning' | 'afternoon' | 'evening' | 'night';
+                  setFormData(prev => ({ ...prev, preferredStudyTime }));
+                }}
               />
             )}
 
             {step === 5 && (
               <StudyPaceStep
-                studyPace={formData.learningPace}
-                setStudyPace={(pace) => setFormData(prev => ({ ...prev, learningPace: pace === 'Relaxed' ? 'slow' : pace === 'Balanced' ? 'moderate' : 'fast' }))}
+                studyPace={formData.learningPace === 'slow' ? 'Relaxed' : 
+                          formData.learningPace === 'moderate' ? 'Balanced' : 'Aggressive'}
+                setStudyPace={handlePaceChange}
               />
             )}
           </div>
@@ -129,11 +151,7 @@ const CreateStudyPlanWizard: React.FC<CreateStudyPlanWizardProps> = ({
               {step === 1 ? 'Cancel' : 'Back'}
             </Button>
             <Button onClick={handleNext}>
-              {step === 5 ? (
-                <>Generate Plan</>
-              ) : (
-                <>Next</>
-              )}
+              {step === 5 ? 'Generate Plan' : 'Next'}
             </Button>
           </div>
         </DialogFooter>
