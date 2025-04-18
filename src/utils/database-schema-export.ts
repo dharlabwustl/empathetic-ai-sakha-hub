@@ -14,12 +14,15 @@ export const exportDatabaseSchemaToCSV = (): void => {
     'Learning Content': 'Stores educational content like concept cards, flashcards, questions, and study materials.',
     'Personalization': 'Captures user mood, interactions, and personalization data to enhance learning experience.',
     'System Management': 'Manages system-level configurations, logs, and AI model settings.',
-    'Employee Management': 'Handles professional user profiles including employees, doctors, and founders.'
+    'Employee Management': 'Handles professional user profiles including employees, doctors, and founders.',
+    'Subscription Management': 'Manages subscription plans, billing, and payment information.',
+    'Analytics': 'Tracks user engagement, performance metrics, and system analytics.',
+    'Communication': 'Handles messaging, notifications, and user interactions.'
   };
 
   // Detailed table descriptions
   const tableDescriptions = {
-    'users': 'Core user account information for all user types',
+    'users': 'Core user account information and authentication details',
     'students': 'Detailed student profile and academic information',
     'student_goals': 'Individual learning goals and progress tracking',
     'concept_cards': 'Educational concept cards for various subjects',
@@ -29,6 +32,9 @@ export const exportDatabaseSchemaToCSV = (): void => {
     'login_history': 'User login and authentication history',
     'user_settings': 'User preferences and configuration settings',
     'subscriptions': 'User subscription plans and payment information',
+    'subscription_plans': 'Available subscription plan definitions',
+    'payment_history': 'Record of subscription payments and transactions',
+    'billing_info': 'User billing and payment method information',
     'onboarding_data': 'Data collected during the onboarding process',
     'student_subjects': 'Subjects that students are studying',
     'subject_topics': 'Topics within each subject',
@@ -62,8 +68,25 @@ export const exportDatabaseSchemaToCSV = (): void => {
     'updated_at': 'Timestamp when the record was last updated',
     'description': 'Detailed information about the entity',
     'status': 'Current state or condition of the entity',
-    'type': 'Classification or category of the entity'
-    // You can add more common field descriptions here
+    'type': 'Classification or category of the entity',
+    'subscription_id': 'Reference to the associated subscription',
+    'plan_id': 'Reference to the subscription plan',
+    'amount': 'Payment or cost amount',
+    'currency': 'Currency code for monetary values',
+    'payment_status': 'Status of the payment transaction',
+    'start_date': 'Start date of subscription or event',
+    'end_date': 'End date of subscription or event',
+    'phone': 'Contact phone number',
+    'address': 'Physical or mailing address',
+    'city': 'City location',
+    'state': 'State or province',
+    'country': 'Country location',
+    'postal_code': 'Postal or ZIP code',
+    'grade': 'Academic grade or level',
+    'target_exam': 'Target examination being prepared for',
+    'parent_name': 'Name of parent or guardian',
+    'parent_contact': 'Contact information for parent/guardian',
+    'profile_image': 'URL or path to profile image'
   };
 
   // Function to get description for a field based on name or provide a default
@@ -92,12 +115,15 @@ export const exportDatabaseSchemaToCSV = (): void => {
     const moduleTableNames = Object.keys(generateDatabaseSchema().reduce((acc, table) => {
       // Group tables by module based on naming convention
       const tableToModuleMap = {
-        'User Management': ['users', 'admin_users', 'login_history', 'user_settings', 'subscriptions', 'onboarding_data'],
+        'User Management': ['users', 'admin_users', 'login_history', 'user_settings'],
         'Student Management': ['students', 'student_goals', 'student_subjects', 'subject_topics', 'quiz_scores', 'study_hours', 'study_streaks'],
         'Learning Content': ['concept_cards', 'flashcards', 'questions', 'exam_papers', 'study_plans', 'study_sessions', 'content_item_references'],
         'Personalization': ['mood_logs', 'feel_good_content', 'surrounding_influences', 'user_doubts', 'tutor_chats'],
         'System Management': ['ai_model_settings', 'system_logs', 'notifications'],
-        'Employee Management': ['employees', 'founders', 'doctors']
+        'Employee Management': ['employees', 'founders', 'doctors'],
+        'Subscription Management': ['subscriptions', 'subscription_plans', 'payment_history', 'billing_info'],
+        'Analytics': ['study_analytics', 'user_engagement', 'system_metrics'],
+        'Communication': ['notifications', 'messages', 'chat_history']
       }[moduleName] || [];
       
       tableToModuleMap.forEach(tableName => {
@@ -112,7 +138,6 @@ export const exportDatabaseSchemaToCSV = (): void => {
     
     moduleTables.forEach(table => {
       table.fields.forEach(field => {
-        // Use the getFieldDescription function to get field description
         const fieldDescription = getFieldDescription(field.name, table.tableName);
         
         csvContent += `"${moduleName}","${moduleDescription}","${table.tableName}","${tableDescriptions[table.tableName] || 'General purpose table'}","${field.name}","${field.type}",${field.isRequired},${field.isPrimaryKey},${field.isForeignKey},"${field.references || ''}","${fieldDescription}"\n`;
@@ -136,3 +161,4 @@ export const exportDatabaseSchemaToCSV = (): void => {
 export const downloadDatabaseSchemaCSV = () => {
   exportDatabaseSchemaToCSV();
 };
+
