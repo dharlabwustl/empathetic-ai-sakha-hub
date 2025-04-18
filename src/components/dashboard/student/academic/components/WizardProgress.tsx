@@ -23,7 +23,7 @@ const WizardProgress: React.FC<WizardProgressProps> = ({ currentStep, totalSteps
                 scale: step <= currentStep ? 1 : 0.8,
                 opacity: step <= currentStep ? 1 : 0.5
               }}
-              className={`relative flex items-center justify-center w-8 h-8 rounded-full 
+              className={`relative flex items-center justify-center w-10 h-10 rounded-full 
                 ${step < currentStep 
                   ? 'bg-indigo-600 text-white' 
                   : step === currentStep 
@@ -31,9 +31,9 @@ const WizardProgress: React.FC<WizardProgressProps> = ({ currentStep, totalSteps
                     : 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400'}`}
             >
               {step < currentStep ? (
-                <Check size={16} className="text-white" />
+                <Check size={18} className="text-white" />
               ) : (
-                <span className="text-sm">{step}</span>
+                <span className="text-sm font-medium">{step}</span>
               )}
 
               {/* Pulse animation for current step */}
@@ -49,7 +49,7 @@ const WizardProgress: React.FC<WizardProgressProps> = ({ currentStep, totalSteps
             {/* Connecting line between steps */}
             {step < totalSteps && (
               <motion.div 
-                className="flex-1 h-0.5 mx-1"
+                className="flex-1 h-1 mx-1"
                 initial={{ backgroundColor: "#e5e7eb" }}
                 animate={{ 
                   backgroundColor: step < currentStep ? "#4f46e5" : "#e5e7eb"
@@ -62,12 +62,12 @@ const WizardProgress: React.FC<WizardProgressProps> = ({ currentStep, totalSteps
       
       {/* Step labels */}
       <div className="flex items-center justify-between mt-2 text-xs text-gray-500">
-        <span className={`${currentStep >= 1 ? "text-indigo-600 font-medium" : ""}`}>Goal</span>
-        <span className={`${currentStep >= 2 ? "text-indigo-600 font-medium" : ""}`}>Date</span>
-        <span className={`${currentStep >= 3 ? "text-indigo-600 font-medium" : ""}`}>Hours</span>
-        <span className={`${currentStep >= 4 ? "text-indigo-600 font-medium" : ""}`}>Subjects</span>
-        <span className={`${currentStep >= 5 ? "text-indigo-600 font-medium" : ""}`}>Time</span>
-        <span className={`${currentStep >= 6 ? "text-indigo-600 font-medium" : ""}`}>Pace</span>
+        <span className={`${currentStep >= 1 ? "text-indigo-600 font-medium" : ""} w-10 text-center`}>Goal</span>
+        <span className={`${currentStep >= 2 ? "text-indigo-600 font-medium" : ""} w-10 text-center`}>Date</span>
+        <span className={`${currentStep >= 3 ? "text-indigo-600 font-medium" : ""} w-10 text-center`}>Hours</span>
+        <span className={`${currentStep >= 4 ? "text-indigo-600 font-medium" : ""} w-10 text-center`}>Subjects</span>
+        <span className={`${currentStep >= 5 ? "text-indigo-600 font-medium" : ""} w-10 text-center`}>Time</span>
+        <span className={`${currentStep >= 6 ? "text-indigo-600 font-medium" : ""} w-10 text-center`}>Pace</span>
       </div>
     </div>
   );

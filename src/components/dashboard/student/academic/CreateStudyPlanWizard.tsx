@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { getSubjectsForGoal } from "../../student/onboarding/SubjectData";
@@ -9,6 +9,7 @@ import WizardProgress from './components/WizardProgress';
 import { useStudyPlanWizard } from './hooks/useStudyPlanWizard';
 import GoalStep from "@/components/signup/steps/GoalStep";
 import OnboardingStepContent from "../../student/onboarding/components/OnboardingStepContent";
+import { UserRole } from "@/components/signup/OnboardingContext";
 
 interface CreateStudyPlanWizardProps {
   isOpen: boolean;
@@ -59,7 +60,7 @@ const CreateStudyPlanWizard: React.FC<CreateStudyPlanWizardProps> = ({
               <div className="px-1 py-4">
                 <h2 className="text-xl font-semibold mb-4">Select Exam Goal</h2>
                 <GoalStep 
-                  role="Student"
+                  role={UserRole.Student}
                   onGoalSelect={handleExamGoalSelect}
                 />
               </div>

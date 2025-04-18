@@ -87,7 +87,7 @@ export const useStudyPlanWizard = ({ examGoal, onCreatePlan, onClose }: UseStudy
       setStrongSubjects([]);
       setWeakSubjects([]);
       setFormData({
-        examGoal,
+        examGoal: '',
         examDate: new Date(),
         subjects: [],
         studyHoursPerDay: 6,

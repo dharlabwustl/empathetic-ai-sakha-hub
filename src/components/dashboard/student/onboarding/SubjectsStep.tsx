@@ -147,61 +147,56 @@ const SubjectsStep: React.FC<SubjectsStepProps> = ({
               </div>
             </div>
 
-            <RadioGroup className="flex gap-4">
-              <div 
-                className={`flex flex-col items-center space-y-1 border rounded-lg p-3 cursor-pointer ${
-                  isProficiencySelected(subject.name, 'weak') ? 'bg-red-50 border-red-200 dark:bg-red-950/20 dark:border-red-800' : 'hover:bg-muted'
-                }`} 
+            {/* Improved button design for better selection UX */}
+            <div className="flex gap-4">
+              <button 
+                type="button"
+                className={`flex-1 flex flex-col items-center gap-2 border rounded-lg p-4 transition-all ${
+                  isProficiencySelected(subject.name, 'weak') 
+                    ? 'bg-red-100 border-red-400 dark:bg-red-900/30 dark:border-red-700 shadow-md' 
+                    : 'hover:bg-red-50 hover:border-red-200 dark:hover:bg-red-900/10 dark:hover:border-red-800'
+                }`}
                 onClick={() => handleSubjectSelect(subject.name, 'weak')}
               >
-                <RadioGroupItem 
-                  value={`${subject.name}-weak`} 
-                  id={`${subject.name}-weak`} 
-                  className="sr-only" 
-                  checked={isProficiencySelected(subject.name, 'weak')} 
-                />
-                <div className="w-6 h-6 rounded-full bg-red-200 flex items-center justify-center">
-                  {isProficiencySelected(subject.name, 'weak') && <Check className="h-3 w-3 text-red-700" />}
+                <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center border-2 border-red-400">
+                  {isProficiencySelected(subject.name, 'weak') && <Check className="h-4 w-4 text-red-600" />}
                 </div>
-                <Label htmlFor={`${subject.name}-weak`} className="text-sm font-medium">Weak</Label>
-              </div>
+                <span className="font-medium">Weak</span>
+                <span className="text-xs text-center">Focus area for study plan</span>
+              </button>
               
-              <div 
-                className={`flex flex-col items-center space-y-1 border rounded-lg p-3 cursor-pointer ${
-                  isProficiencySelected(subject.name, 'moderate') ? 'bg-yellow-50 border-yellow-200 dark:bg-yellow-950/20 dark:border-yellow-800' : 'hover:bg-muted'
-                }`} 
+              <button 
+                type="button"
+                className={`flex-1 flex flex-col items-center gap-2 border rounded-lg p-4 transition-all ${
+                  isProficiencySelected(subject.name, 'moderate') 
+                    ? 'bg-yellow-100 border-yellow-400 dark:bg-yellow-900/30 dark:border-yellow-700 shadow-md' 
+                    : 'hover:bg-yellow-50 hover:border-yellow-200 dark:hover:bg-yellow-900/10 dark:hover:border-yellow-800'
+                }`}
                 onClick={() => handleSubjectSelect(subject.name, 'moderate')}
               >
-                <RadioGroupItem 
-                  value={`${subject.name}-moderate`} 
-                  id={`${subject.name}-moderate`} 
-                  className="sr-only" 
-                  checked={isProficiencySelected(subject.name, 'moderate')} 
-                />
-                <div className="w-6 h-6 rounded-full bg-yellow-200 flex items-center justify-center">
-                  {isProficiencySelected(subject.name, 'moderate') && <Check className="h-3 w-3 text-yellow-700" />}
+                <div className="w-8 h-8 rounded-full bg-yellow-100 flex items-center justify-center border-2 border-yellow-400">
+                  {isProficiencySelected(subject.name, 'moderate') && <Check className="h-4 w-4 text-yellow-600" />}
                 </div>
-                <Label htmlFor={`${subject.name}-moderate`} className="text-sm font-medium">Moderate</Label>
-              </div>
+                <span className="font-medium">Moderate</span>
+                <span className="text-xs text-center">Regular review needed</span>
+              </button>
               
-              <div 
-                className={`flex flex-col items-center space-y-1 border rounded-lg p-3 cursor-pointer ${
-                  isProficiencySelected(subject.name, 'strong') ? 'bg-green-50 border-green-200 dark:bg-green-950/20 dark:border-green-800' : 'hover:bg-muted'
-                }`} 
+              <button 
+                type="button"
+                className={`flex-1 flex flex-col items-center gap-2 border rounded-lg p-4 transition-all ${
+                  isProficiencySelected(subject.name, 'strong') 
+                    ? 'bg-green-100 border-green-400 dark:bg-green-900/30 dark:border-green-700 shadow-md' 
+                    : 'hover:bg-green-50 hover:border-green-200 dark:hover:bg-green-900/10 dark:hover:border-green-800'
+                }`}
                 onClick={() => handleSubjectSelect(subject.name, 'strong')}
               >
-                <RadioGroupItem 
-                  value={`${subject.name}-strong`} 
-                  id={`${subject.name}-strong`} 
-                  className="sr-only" 
-                  checked={isProficiencySelected(subject.name, 'strong')} 
-                />
-                <div className="w-6 h-6 rounded-full bg-green-200 flex items-center justify-center">
-                  {isProficiencySelected(subject.name, 'strong') && <Check className="h-3 w-3 text-green-700" />}
+                <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center border-2 border-green-400">
+                  {isProficiencySelected(subject.name, 'strong') && <Check className="h-4 w-4 text-green-600" />}
                 </div>
-                <Label htmlFor={`${subject.name}-strong`} className="text-sm font-medium">Strong</Label>
-              </div>
-            </RadioGroup>
+                <span className="font-medium">Strong</span>
+                <span className="text-xs text-center">Already comfortable</span>
+              </button>
+            </div>
             
             {idx < availableSubjects.length - 1 && <Separator />}
           </div>

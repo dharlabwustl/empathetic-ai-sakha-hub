@@ -51,33 +51,34 @@ const StudyTimeStep: React.FC<StudyTimeStepProps> = ({ studyTime, setStudyTime }
         </p>
       </div>
 
-      <RadioGroup 
-        value={studyTime} 
-        className="grid grid-cols-1 md:grid-cols-2 gap-4"
-        onValueChange={value => setStudyTime(value as "Morning" | "Afternoon" | "Evening" | "Night")}
-      >
+      {/* Improved button-style time selection */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {timeOptions.map((option) => (
-          <div key={option.value} className="relative">
-            <RadioGroupItem
-              value={option.value}
-              id={option.value}
-              className="peer sr-only"
-            />
-            <Label
-              htmlFor={option.value}
-              className="flex flex-col items-start space-y-3 rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer"
-            >
-              <div className="flex items-center space-x-3">
-                {option.icon}
-                <span className="font-medium">{option.label}</span>
+          <button
+            key={option.value}
+            type="button"
+            className={`flex items-center gap-4 p-4 border-2 rounded-lg transition-all ${
+              studyTime === option.value
+                ? 'bg-indigo-50 border-indigo-400 dark:bg-indigo-900/30 dark:border-indigo-700 shadow-md'
+                : 'border-gray-200 hover:bg-indigo-50/50 hover:border-indigo-200 dark:border-gray-700 dark:hover:bg-indigo-900/10 dark:hover:border-indigo-800'
+            }`}
+            onClick={() => setStudyTime(option.value as "Morning" | "Afternoon" | "Evening" | "Night")}
+          >
+            <div className="p-3 rounded-full bg-white dark:bg-gray-800 shadow-sm">
+              {option.icon}
+            </div>
+            <div className="text-left">
+              <div className="font-medium text-lg">{option.label}</div>
+              <div className="text-sm text-gray-500 dark:text-gray-400">{option.description}</div>
+            </div>
+            {studyTime === option.value && (
+              <div className="ml-auto">
+                <Check className="h-5 w-5 text-indigo-600" />
               </div>
-              <span className="text-sm text-muted-foreground">
-                {option.description}
-              </span>
-            </Label>
-          </div>
+            )}
+          </button>
         ))}
-      </RadioGroup>
+      </div>
     </div>
   );
 };
