@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -46,7 +47,7 @@ const WelcomeTour: React.FC<WelcomeTourProps> = ({
                 A Message from Our Founder – Amit Singh
               </h3>
               <div className="space-y-3 text-gray-700 dark:text-gray-300">
-                <p className="text-lg">"Welcome to Sakha AI ��� your trusted learning companion. 🌟</p>
+                <p className="text-lg">"Welcome to Sakha AI - your trusted learning companion. 🌟</p>
                 <p>We built Sakha with one goal: to make exam preparation fair, human, and truly supportive.</p>
                 <p>No student should feel left out or alone in their journey. Here, you're seen, heard, and guided – every step of the way.</p>
                 <p className="font-semibold text-indigo-600 dark:text-indigo-400">Let's crack it together!"</p>
