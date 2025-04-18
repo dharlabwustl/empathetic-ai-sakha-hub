@@ -88,13 +88,6 @@ export default function DashboardTabs({
           </TabsList>
         </motion.div>
       )}
-
-      {/* Map through tabContents and render each tab content inside its own TabsContent */}
-      {Object.entries(tabContents).map(([key, content]) => (
-        <TabsContent key={key} value={key}>
-          {content}
-        </TabsContent>
-      ))}
     </Tabs>
   );
 }

@@ -1,8 +1,8 @@
-
 import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { CircleCheck, AlertTriangle, Lightbulb, Trophy } from "lucide-react";
 import ConceptExplanationContent from './ConceptExplanationContent';
 import { motion } from "framer-motion";

@@ -1,211 +1,117 @@
 
 import React, { useState } from "react";
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Tag, CheckCircle, Clock, ArrowRight, BookOpen } from "lucide-react";
 import { motion } from "framer-motion";
-import { CheckCircle2, BookOpen, Tag, Brain, Star, Lock, CheckCircle } from "lucide-react";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Progress } from "@/components/ui/progress";
+import { useToast } from "@/hooks/use-toast";
 
-export interface ConceptCardProps {
-  id: string;
+interface ConceptCardProps {
   title: string;
   description: string;
-  subject: string;
-  difficulty: 'easy' | 'medium' | 'hard' | 'advanced';
-  completed: boolean;
-  progress: number;
-  isLocked?: boolean;
-  isPremium?: boolean;
-  onToggleComplete?: (id: string, completed: boolean) => void;
-  onView?: (id: string) => void;
+  difficultyLevel: "Easy" | "Medium" | "Hard" | "Expert";
+  estimatedTime: string;
+  onMarkComplete: () => void;
+  onView: () => void;
+  isCompleted?: boolean;
+  progress?: number;
 }
 
 const ConceptCard: React.FC<ConceptCardProps> = ({
-  id,
   title,
   description,
-  subject,
-  difficulty,
-  completed,
-  progress,
-  isLocked = false,
-  isPremium = false,
-  onToggleComplete,
-  onView
+  difficultyLevel,
+  estimatedTime,
+  onMarkComplete,
+  onView,
+  isCompleted = false,
+  progress = 0,
 }) => {
-  const [isHovered, setIsHovered] = useState(false);
-  
-  // Get color based on difficulty
-  const getDifficultyColor = () => {
-    switch (difficulty) {
-      case 'easy':
-        return 'bg-green-100 text-green-700 border-green-200';
-      case 'medium':
-        return 'bg-blue-100 text-blue-700 border-blue-200';
-      case 'hard':
-        return 'bg-orange-100 text-orange-700 border-orange-200';
-      case 'advanced':
-        return 'bg-red-100 text-red-700 border-red-200';
-      default:
-        return 'bg-gray-100 text-gray-700 border-gray-200';
-    }
-  };
-  
-  // Get color based on subject
-  const getSubjectColor = () => {
-    const colors: Record<string, string> = {
-      'Physics': 'bg-indigo-100 text-indigo-700 border-indigo-200',
-      'Chemistry': 'bg-emerald-100 text-emerald-700 border-emerald-200',
-      'Mathematics': 'bg-violet-100 text-violet-700 border-violet-200',
-      'Biology': 'bg-rose-100 text-rose-700 border-rose-200',
-      'English': 'bg-cyan-100 text-cyan-700 border-cyan-200',
-      'History': 'bg-amber-100 text-amber-700 border-amber-200',
-      'Geography': 'bg-lime-100 text-lime-700 border-lime-200'
-    };
-    
-    return colors[subject] || 'bg-gray-100 text-gray-700 border-gray-200';
-  };
-  
+  const [completed, setCompleted] = useState(isCompleted);
+  const { toast } = useToast();
+
   const handleMarkComplete = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (onToggleComplete && !isLocked) {
-      onToggleComplete(id, !completed);
+    setCompleted(!completed);
+    onMarkComplete();
+    
+    toast({
+      title: completed ? "Concept marked as incomplete" : "Concept marked as complete",
+      description: `"${title}" has been updated in your progress.`,
+    });
+  };
+
+  const getDifficultyColor = (difficulty: string) => {
+    switch (difficulty) {
+      case "Easy":
+        return "bg-green-100 text-green-700 border-green-200";
+      case "Medium":
+        return "bg-blue-100 text-blue-700 border-blue-200";
+      case "Hard":
+        return "bg-orange-100 text-orange-700 border-orange-200";
+      case "Expert":
+        return "bg-red-100 text-red-700 border-red-200";
+      default:
+        return "bg-gray-100 text-gray-700 border-gray-200";
     }
   };
-  
-  const handleView = () => {
-    if (onView && !isLocked) {
-      onView(id);
-    }
-  };
-  
-  // Card animations
-  const cardVariants = {
-    initial: { opacity: 0, y: 20 },
-    animate: { opacity: 1, y: 0, transition: { duration: 0.3 } },
-    hover: { y: -5, boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)', transition: { duration: 0.2 } }
-  };
-  
+
   return (
-    <TooltipProvider>
-      <motion.div
-        variants={cardVariants}
-        initial="initial"
-        animate="animate"
-        whileHover={!isLocked ? "hover" : undefined}
-        onHoverStart={() => setIsHovered(true)}
-        onHoverEnd={() => setIsHovered(false)}
-        className={`relative ${completed ? 'border-l-4 border-green-500' : ''} ${isLocked ? 'opacity-80' : ''}`}
-      >
-        <Card className={`overflow-hidden h-full ${isLocked ? 'bg-gray-50 dark:bg-gray-800/50' : ''}`}>
-          {/* Premium Tag */}
-          {isPremium && (
-            <div className="absolute top-2 right-2 z-10">
-              <Badge variant="outline" className="bg-gradient-to-r from-amber-100 to-amber-200 text-amber-700 border-amber-300">
-                Premium
-              </Badge>
-            </div>
-          )}
+    <motion.div
+      whileHover={{ scale: 1.02, y: -5 }}
+      transition={{ duration: 0.2 }}
+    >
+      <Card className={`cursor-pointer hover:shadow-md transition-all ${completed ? 'bg-gray-50 border-green-200 dark:bg-gray-800/50' : ''}`}>
+        <CardHeader className="pb-2">
+          <div className="flex justify-between items-start">
+            <CardTitle className="text-lg font-semibold">{title}</CardTitle>
+            <Badge variant="outline" className={`${getDifficultyColor(difficultyLevel)}`}>
+              <Tag className="h-3 w-3 mr-1" />
+              {difficultyLevel}
+            </Badge>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2">{description}</p>
           
-          {/* Lock Overlay */}
-          {isLocked && (
-            <div className="absolute inset-0 bg-gray-200/60 dark:bg-gray-700/60 backdrop-blur-[1px] flex items-center justify-center z-20">
-              <div className="text-center">
-                <Lock className="h-10 w-10 text-gray-400 dark:text-gray-500 mx-auto mb-2" />
-                <p className="text-gray-600 dark:text-gray-400 font-medium">Locked</p>
-              </div>
-            </div>
-          )}
-          
-          <div className="absolute top-0 left-0 w-full h-1">
-            <div className="h-full bg-gradient-to-r from-indigo-300 to-violet-300" style={{ width: `${progress}%` }}></div>
+          <div className="flex items-center mt-3 text-xs text-gray-500">
+            <Clock className="h-3 w-3 mr-1" />
+            <span>{estimatedTime}</span>
           </div>
           
-          <CardHeader className="space-y-1 pb-2">
-            <div className="flex justify-between items-start">
-              <div className="flex gap-1">
-                <Badge variant="outline" className={getSubjectColor()}>
-                  {subject}
-                </Badge>
-                <Badge variant="outline" className={getDifficultyColor()}>
-                  <Tag className="h-3 w-3 mr-1" />
-                  {difficulty}
-                </Badge>
+          {progress > 0 && !completed && (
+            <div className="mt-3">
+              <div className="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-gradient-to-r from-blue-500 to-indigo-600" 
+                  style={{ width: `${progress}%` }} 
+                />
               </div>
-              
-              {/* Completion Status */}
-              {!isLocked && (
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className={`h-6 w-6 rounded-full ${completed ? 'text-green-600' : 'text-gray-400'}`}
-                      onClick={handleMarkComplete}
-                    >
-                      {completed ? (
-                        <CheckCircle className="h-5 w-5 fill-green-100" />
-                      ) : (
-                        <CheckCircle2 className="h-5 w-5" />
-                      )}
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>{completed ? 'Mark as incomplete' : 'Mark as complete'}</p>
-                  </TooltipContent>
-                </Tooltip>
-              )}
-            </div>
-            
-            <h3 className="font-semibold truncate">{title}</h3>
-          </CardHeader>
-          
-          <CardContent className="pb-2">
-            <p className="text-sm text-muted-foreground line-clamp-2">
-              {description}
-            </p>
-          </CardContent>
-          
-          <CardFooter className="pt-1">
-            <div className="w-full flex items-center justify-between">
-              <div className="flex items-center text-xs text-muted-foreground">
-                <Brain className="h-3.5 w-3.5 mr-1" />
-                <div className="flex items-center">
-                  Progress: 
-                  <span className="font-medium ml-1">{progress}%</span>
-                </div>
+              <div className="text-xs text-right mt-1 text-gray-500">
+                {progress}% complete
               </div>
-              
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-xs group"
-                onClick={handleView}
-                disabled={isLocked}
-              >
-                <BookOpen className="h-3.5 w-3.5 mr-1 group-hover:text-primary" />
-                View
-              </Button>
             </div>
-          </CardFooter>
-        </Card>
-        
-        {completed && !isLocked && (
-          <motion.div
-            className="absolute -top-2 -right-2 z-10"
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ duration: 0.3 }}
+          )}
+        </CardContent>
+        <CardFooter className="flex justify-between pt-1">
+          <Button 
+            variant={completed ? "outline" : "ghost"} 
+            size="sm"
+            className={`${completed ? 'text-green-600 border-green-200' : ''}`}
+            onClick={handleMarkComplete}
           >
-            <Badge className="bg-green-500 rounded-full w-6 h-6 flex items-center justify-center p-0">
-              <CheckCircle className="h-4 w-4 text-white" />
-            </Badge>
-          </motion.div>
-        )}
-      </motion.div>
-    </TooltipProvider>
+            <CheckCircle className={`h-4 w-4 mr-1 ${completed ? 'fill-green-600' : ''}`} />
+            {completed ? "Completed" : "Mark Complete"}
+          </Button>
+          <Button variant="outline" size="sm" onClick={onView}>
+            <BookOpen className="h-4 w-4 mr-1" />
+            View
+            <ArrowRight className="h-3 w-3 ml-1" />
+          </Button>
+        </CardFooter>
+      </Card>
+    </motion.div>
   );
 };
 

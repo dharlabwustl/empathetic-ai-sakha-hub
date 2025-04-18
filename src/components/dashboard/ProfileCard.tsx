@@ -6,10 +6,11 @@ import { UserProfileType, MoodType, SubscriptionType } from "@/types/user/base";
 import { getMoodTheme } from "./student/mood-tracking/moodThemes";
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
-import { Phone, Award, Star, User, Brain, Calendar, Camera, Lock } from "lucide-react";
+import { Phone, Award, Star, User, Brain, Calendar, Camera, Lock, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { useToast } from "@/hooks/use-toast";
 
 interface ProfileCardProps {
   profile: UserProfileType;
@@ -32,6 +33,7 @@ const ProfileCard = ({
 }: ProfileCardProps) => {
   const [isHoveringAvatar, setIsHoveringAvatar] = useState(false);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
   
   const moodTheme = currentMood ? getMoodTheme(currentMood) : null;
   
@@ -77,6 +79,10 @@ const ProfileCard = ({
     const files = event.target.files;
     if (files && files.length > 0 && onUploadImage) {
       onUploadImage(files[0]);
+      toast({
+        title: "Image uploaded",
+        description: "Your profile picture has been updated successfully"
+      });
     }
   };
 
@@ -126,11 +132,9 @@ const ProfileCard = ({
                 <AvatarFallback>{profile.name.charAt(0)}</AvatarFallback>
               </Avatar>
               
-              {onUploadImage && (
-                <div className={`absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center transition-opacity duration-200 ${isHoveringAvatar ? 'opacity-100' : 'opacity-0'}`}>
-                  <Camera className="h-6 w-6 text-white" />
-                </div>
-              )}
+              <div className={`absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center transition-opacity duration-200 ${isHoveringAvatar ? 'opacity-100' : 'opacity-0'}`}>
+                <Camera className="h-6 w-6 text-white" />
+              </div>
               
               {currentMood && (
                 <motion.div 
@@ -167,7 +171,7 @@ const ProfileCard = ({
                     {profile.phoneNumber || "+91 98765 43210"}
                   </div>
                   <div className="flex items-center text-sm text-muted-foreground mt-1">
-                    <Calendar className="h-3 w-3 mr-1" />
+                    <Clock className="h-3 w-3 mr-1" />
                     {formatJoinDate()}
                   </div>
                 </motion.div>
