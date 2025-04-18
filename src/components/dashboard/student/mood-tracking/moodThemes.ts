@@ -47,17 +47,6 @@ export const moodThemes: Record<MoodType, MoodTheme> = {
     message: "Rest is part of the learning journey 🌙",
     suggestion: "Consider a short power nap or light review session"
   },
-  excited: {
-    colors: {
-      primary: "from-coral-200 to-violet-100",
-      secondary: "from-coral-100 to-violet-50",
-      background: "bg-gradient-to-br from-red-50/30 to-purple-50/30",
-      text: "text-red-700"
-    },
-    avatarUrl: "/avatars/excited-avatar.png",
-    message: "Your enthusiasm is amazing! Let's channel it! ⚡",
-    suggestion: "Ready for some challenging problem-solving?"
-  },
   neutral: {
     colors: {
       primary: "from-gray-100 to-blue-50",
