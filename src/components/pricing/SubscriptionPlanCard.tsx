@@ -4,7 +4,6 @@ import { Card } from "@/components/ui/card";
 import { Check, X, Star, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useSubscriptionFlow } from "@/contexts/SubscriptionFlowContext";
-import { cn } from "@/lib/utils"; // Add the import for the cn utility
 
 interface PricingCardProps {
   title: string;

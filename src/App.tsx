@@ -1,4 +1,3 @@
-
 "use client";
 
 import * as React from "react";
@@ -66,12 +65,12 @@ const App = () => {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <TooltipProvider>
-          <BrowserRouter>
-            <AuthProvider>
-              <SubscriptionFlowProvider>
-                <AdminAuthProvider>
-                  <Toaster />
-                  <Sonner />
+          <AuthProvider>
+            <SubscriptionFlowProvider>
+              <AdminAuthProvider>
+                <Toaster />
+                <Sonner />
+                <BrowserRouter>
                   <Routes>
                     <Route path="/" element={<Index />} />
                     <Route path="/about" element={<About />} />
@@ -244,10 +243,10 @@ const App = () => {
                     
                     <Route path="*" element={<NotFound />} />
                   </Routes>
-                </AdminAuthProvider>
-              </SubscriptionFlowProvider>
-            </AuthProvider>
-          </BrowserRouter>
+                </BrowserRouter>
+              </AdminAuthProvider>
+            </SubscriptionFlowProvider>
+          </AuthProvider>
         </TooltipProvider>
       </ThemeProvider>
     </QueryClientProvider>
