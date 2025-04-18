@@ -1,6 +1,6 @@
 
 import React, { useRef } from "react";
-import { motion, useInView } from "framer-motion";
+import { motion, useInView, Variants } from "framer-motion";
 import { 
   Brain, 
   Sparkles, 
@@ -11,15 +11,18 @@ import {
 } from "lucide-react";
 import { containerVariants, itemVariants, fadeInStagger, pulseAnimation } from "../home/hero/feature-highlights/animationVariants";
 
-// Define the floatAnimation with correct types for framer-motion
-const floatAnimation = {
-  initial: { scale: 1 },
+// Correctly type the floatAnimation as Variants
+const floatAnimation: Variants = {
+  initial: { 
+    scale: 1,
+    transition: { duration: 0.3 } 
+  },
   animate: { 
     scale: [1, 1.05, 1],
     transition: { 
       duration: 2, 
       repeat: Infinity, 
-      repeatType: "loop" as "loop" // Using "as" with literal type
+      repeatType: "loop"
     }
   }
 };
