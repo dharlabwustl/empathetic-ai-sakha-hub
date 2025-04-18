@@ -8,7 +8,7 @@ import StudyTimeStep from "../../student/onboarding/StudyTimeStep";
 import StudyPaceStep from "../../student/onboarding/StudyPaceStep";
 import SubjectsStep from "../../student/onboarding/SubjectsStep";
 import { getSubjectsForGoal } from "../../student/onboarding/SubjectData";
-import type { NewStudyPlan } from "@/types/user/studyPlan";
+import type { NewStudyPlan, NewStudyPlanSubject } from "@/types/user/studyPlan";
 import WizardHeader from './components/WizardHeader';
 import WizardProgress from './components/WizardProgress';
 import { useStudyPlanWizard } from './hooks/useStudyPlanWizard';
@@ -40,6 +40,15 @@ const CreateStudyPlanWizard: React.FC<CreateStudyPlanWizardProps> = ({
   } = useStudyPlanWizard({ examGoal, onCreatePlan, onClose });
 
   const subjects = getSubjectsForGoal(examGoal);
+  
+  // Convert string arrays to NewStudyPlanSubject arrays for type compatibility
+  const strongSubjectsTyped: NewStudyPlanSubject[] = strongSubjects.map(
+    subject => ({ name: subject, proficiency: 'strong' })
+  );
+  
+  const weakSubjectsTyped: NewStudyPlanSubject[] = weakSubjects.map(
+    subject => ({ name: subject, proficiency: 'weak' })
+  );
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -67,7 +76,9 @@ const CreateStudyPlanWizard: React.FC<CreateStudyPlanWizardProps> = ({
 
             {step === 3 && (
               <SubjectsStep
-                subjects={subjects}
+                subjects={[...strongSubjectsTyped, ...weakSubjectsTyped]}
+                setSubjects={() => {}}
+                examType={examGoal}
                 strongSubjects={strongSubjects}
                 weakSubjects={weakSubjects}
                 handleToggleSubject={handleToggleSubject}

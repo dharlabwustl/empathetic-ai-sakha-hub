@@ -21,7 +21,7 @@ const floatAnimation: Variants = {
     transition: { 
       duration: 2, 
       repeat: Infinity,
-      repeatType: "loop"
+      repeatType: "loop" as const  // Explicitly type as const to ensure TypeScript compatibility
     }
   }
 };

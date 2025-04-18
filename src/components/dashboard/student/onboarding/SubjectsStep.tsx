@@ -11,9 +11,20 @@ interface SubjectsStepProps {
   subjects: NewStudyPlanSubject[];
   setSubjects: (subjects: NewStudyPlanSubject[]) => void;
   examType: string;
+  // Support for the legacy code pattern with strongSubjects/weakSubjects as string arrays
+  strongSubjects?: string[];
+  weakSubjects?: string[];
+  handleToggleSubject?: (subject: string, type: 'strong' | 'weak') => void;
 }
 
-const SubjectsStep: React.FC<SubjectsStepProps> = ({ subjects, setSubjects, examType }) => {
+const SubjectsStep: React.FC<SubjectsStepProps> = ({ 
+  subjects, 
+  setSubjects, 
+  examType,
+  strongSubjects = [],
+  weakSubjects = [],
+  handleToggleSubject
+}) => {
   const getSubjectsForExam = (exam: string): {name: string, topics: string[]}[] => {
     // Default subjects for IIT-JEE
     const defaultSubjects = [
@@ -44,7 +55,13 @@ const SubjectsStep: React.FC<SubjectsStepProps> = ({ subjects, setSubjects, exam
   const availableSubjects = getSubjectsForExam(examType);
 
   const handleSubjectSelect = (subjectName: string, proficiency: 'weak' | 'moderate' | 'strong') => {
-    // Check if subject already exists
+    // Support both API patterns
+    if (handleToggleSubject && (proficiency === 'weak' || proficiency === 'strong')) {
+      handleToggleSubject(subjectName, proficiency);
+      return;
+    }
+    
+    // Original implementation
     const existingIndex = subjects.findIndex(s => s.name === subjectName);
     
     if (existingIndex >= 0) {
@@ -59,6 +76,16 @@ const SubjectsStep: React.FC<SubjectsStepProps> = ({ subjects, setSubjects, exam
   };
 
   const isProficiencySelected = (subjectName: string, proficiency: 'weak' | 'moderate' | 'strong') => {
+    // Support for legacy code pattern
+    if (proficiency === 'weak' && weakSubjects && weakSubjects.includes(subjectName)) {
+      return true;
+    }
+    
+    if (proficiency === 'strong' && strongSubjects && strongSubjects.includes(subjectName)) {
+      return true;
+    }
+    
+    // Original implementation
     const subject = subjects.find(s => s.name === subjectName);
     return subject && subject.proficiency === proficiency;
   };

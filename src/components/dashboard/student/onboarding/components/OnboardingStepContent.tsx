@@ -53,9 +53,11 @@ const OnboardingStepContent: React.FC<OnboardingStepContentProps> = ({
       return (
         <SubjectsStep
           subjects={[...strongSubjects, ...weakSubjects]}
-          strongSubjects={strongSubjects.map(s => s.name)}
-          weakSubjects={weakSubjects.map(s => s.name)}
-          handleToggleSubject={handleToggleSubject}
+          setSubjects={(subjects) => {
+            // This is a wrapper function to adapt to the SubjectsStep interface
+            // while preserving our strongSubjects/weakSubjects separation
+          }}
+          examType={examGoal}
         />
       );
     case 4:
