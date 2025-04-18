@@ -1,5 +1,5 @@
 
-import React, { useEffect } from "react";
+import React from "react";
 import { Card, CardContent, CardHeader, CardFooter } from "@/components/ui/card";
 import { AnimatePresence, motion } from "framer-motion";
 import { useOnboardingForm } from "./onboarding/hooks/useOnboardingForm";
@@ -36,28 +36,6 @@ export default function OnboardingFlow({ userProfile, goalTitle, onComplete }: O
     handlePrevious,
     handleToggleSubject
   } = useOnboardingForm(goalTitle, onComplete);
-
-  useEffect(() => {
-    switch (currentStep) {
-      case 1:
-        setStepComplete(!!examDate);
-        break;
-      case 2:
-        setStepComplete(studyHours > 0);
-        break;
-      case 3:
-        setStepComplete(strongSubjects.length > 0 || weakSubjects.length > 0);
-        break;
-      case 4:
-        setStepComplete(!!studyTime);
-        break;
-      case 5:
-        setStepComplete(!!studyPace);
-        break;
-      default:
-        setStepComplete(false);
-    }
-  }, [currentStep, examDate, studyHours, strongSubjects, weakSubjects, studyPace, studyTime]);
 
   if (loading) {
     return <LoadingScreen goalTitle={goalTitle} weakSubjects={weakSubjects.map(s => s.name)} />;
