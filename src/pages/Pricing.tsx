@@ -1,3 +1,4 @@
+
 import React from "react";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
@@ -7,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import PricingHero from "@/components/pricing/PricingHero";
 import PricingCard from "@/components/pricing/PricingCard";
 import FAQSection from "@/components/pricing/FAQSection";
+import FeatureComparison from "@/components/pricing/FeatureComparison";
 import { individualPlans, groupPlans } from "@/components/pricing/pricingData";
 
 const Pricing = () => {
@@ -47,67 +49,7 @@ const Pricing = () => {
               </TabsContent>
             </Tabs>
 
-            <div className="max-w-4xl mx-auto mt-16">
-              <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-6">
-                <h3 className="text-xl font-display font-bold mb-4">Feature Access by Plan</h3>
-                <div className="overflow-x-auto">
-                  <table className="min-w-full">
-                    <thead>
-                      <tr className="border-b border-gray-200 dark:border-gray-700">
-                        <th className="py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Feature</th>
-                        <th className="py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Free</th>
-                        <th className="py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Basic</th>
-                        <th className="py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Premium</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                      <tr>
-                        <td className="py-3 text-sm font-medium">24/7 AI Tutor</td>
-                        <td className="py-3 text-sm">5 questions/day</td>
-                        <td className="py-3 text-sm">Unlimited</td>
-                        <td className="py-3 text-sm">Unlimited + Priority</td>
-                      </tr>
-                      <tr>
-                        <td className="py-3 text-sm font-medium">Flashcards & Revision</td>
-                        <td className="py-3 text-sm">50% content</td>
-                        <td className="py-3 text-sm">Full access</td>
-                        <td className="py-3 text-sm">Full access + Advanced</td>
-                      </tr>
-                      <tr>
-                        <td className="py-3 text-sm font-medium">Video Library</td>
-                        <td className="py-3 text-sm">20% content</td>
-                        <td className="py-3 text-sm">Full access</td>
-                        <td className="py-3 text-sm">Full access</td>
-                      </tr>
-                      <tr>
-                        <td className="py-3 text-sm font-medium">Concept Cards</td>
-                        <td className="py-3 text-sm">40% content</td>
-                        <td className="py-3 text-sm">Full access</td>
-                        <td className="py-3 text-sm">Full access</td>
-                      </tr>
-                      <tr>
-                        <td className="py-3 text-sm font-medium">Mood Tracker</td>
-                        <td className="py-3 text-sm"><X className="text-red-500" size={16} /></td>
-                        <td className="py-3 text-sm"><X className="text-red-500" size={16} /></td>
-                        <td className="py-3 text-sm"><Check className="text-green-500" size={16} /></td>
-                      </tr>
-                      <tr>
-                        <td className="py-3 text-sm font-medium">Surrounding Influence</td>
-                        <td className="py-3 text-sm"><X className="text-red-500" size={16} /></td>
-                        <td className="py-3 text-sm"><X className="text-red-500" size={16} /></td>
-                        <td className="py-3 text-sm"><Check className="text-green-500" size={16} /></td>
-                      </tr>
-                      <tr>
-                        <td className="py-3 text-sm font-medium">Profile Analytics</td>
-                        <td className="py-3 text-sm">Basic</td>
-                        <td className="py-3 text-sm">Standard</td>
-                        <td className="py-3 text-sm">Advanced</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
+            <FeatureComparison />
           </div>
         </section>
         
@@ -120,3 +62,4 @@ const Pricing = () => {
 };
 
 export default Pricing;
+
