@@ -1,7 +1,9 @@
+
 import React, { useState } from 'react';
 import { GraduationCap } from 'lucide-react';
 import StudyPlanSection from '@/components/dashboard/student/academic/StudyPlanSection';
 import CreateStudyPlanWizard from '@/components/dashboard/student/academic/CreateStudyPlanWizard';
+import StudyPlanDetail from '@/components/dashboard/student/academic/StudyPlanDetail';
 import { useToast } from '@/hooks/use-toast';
 import type { StudyPlan, NewStudyPlan } from '@/types/user/studyPlan';
 
@@ -14,6 +16,7 @@ interface AcademicAdvisorProps {
 const AcademicAdvisor: React.FC<AcademicAdvisorProps> = ({ userProfile }) => {
   const { toast } = useToast();
   const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<StudyPlan | null>(null);
 
   // Sample active study plan data
   const activePlans: StudyPlan[] = [{
@@ -30,9 +33,9 @@ const AcademicAdvisor: React.FC<AcademicAdvisorProps> = ({ userProfile }) => {
         progress: 45,
         proficiency: 'moderate',
         topics: [
-          { name: "Mechanics", status: 'in-progress' },
-          { name: "Thermodynamics", status: 'pending' },
-          { name: "Electrostatics", status: 'completed' }
+          { name: "Mechanics", status: 'in-progress', priority: 'high' },
+          { name: "Thermodynamics", status: 'pending', priority: 'medium' },
+          { name: "Electrostatics", status: 'completed', priority: 'high' }
         ]
       },
       {
@@ -40,8 +43,8 @@ const AcademicAdvisor: React.FC<AcademicAdvisorProps> = ({ userProfile }) => {
         progress: 25,
         proficiency: 'weak',
         topics: [
-          { name: "Organic Chemistry", status: 'pending' },
-          { name: "Chemical Bonding", status: 'in-progress' }
+          { name: "Organic Chemistry", status: 'pending', priority: 'high' },
+          { name: "Chemical Bonding", status: 'in-progress', priority: 'medium' }
         ]
       },
       {
@@ -49,8 +52,8 @@ const AcademicAdvisor: React.FC<AcademicAdvisorProps> = ({ userProfile }) => {
         progress: 72,
         proficiency: 'strong',
         topics: [
-          { name: "Calculus", status: 'completed' },
-          { name: "Coordinate Geometry", status: 'completed' }
+          { name: "Calculus", status: 'completed', priority: 'high' },
+          { name: "Coordinate Geometry", status: 'completed', priority: 'high' }
         ]
       }
     ],
@@ -73,19 +76,25 @@ const AcademicAdvisor: React.FC<AcademicAdvisorProps> = ({ userProfile }) => {
         name: "Physics",
         progress: 100,
         proficiency: 'strong',
-        topics: []
+        topics: [
+          { name: "All topics", status: 'completed', priority: 'high' }
+        ]
       },
       {
         name: "Chemistry",
         progress: 100,
         proficiency: 'strong',
-        topics: []
+        topics: [
+          { name: "All topics", status: 'completed', priority: 'high' }
+        ]
       },
       {
         name: "Mathematics",
         progress: 100,
         proficiency: 'strong',
-        topics: []
+        topics: [
+          { name: "All topics", status: 'completed', priority: 'high' }
+        ]
       }
     ],
     studyHoursPerDay: 5,
@@ -98,10 +107,10 @@ const AcademicAdvisor: React.FC<AcademicAdvisorProps> = ({ userProfile }) => {
   };
 
   const handleViewPlanDetails = (planId: string) => {
-    toast({
-      title: "View Plan Details",
-      description: `Opening details for plan ${planId}...`,
-    });
+    const plan = [...activePlans, ...completedPlans].find(p => p.id === planId);
+    if (plan) {
+      setSelectedPlan(plan);
+    }
   };
 
   const handleNewPlanCreated = (plan: NewStudyPlan) => {
@@ -110,12 +119,12 @@ const AcademicAdvisor: React.FC<AcademicAdvisorProps> = ({ userProfile }) => {
       title: "Success",
       description: "Your new study plan has been created.",
     });
-    // Here you would typically send this to an API
+    setShowCreateDialog(false);
   };
 
   return (
     <div className="space-y-12">
-      {/* Header */}
+      {/* Header section */}
       <div>
         <h1 className="text-3xl font-bold flex items-center gap-2">
           <GraduationCap className="h-8 w-8 text-indigo-600" />
@@ -144,12 +153,22 @@ const AcademicAdvisor: React.FC<AcademicAdvisorProps> = ({ userProfile }) => {
         onViewPlanDetails={handleViewPlanDetails}
       />
 
+      {/* Study Plan Creation Dialog */}
       <CreateStudyPlanWizard
         isOpen={showCreateDialog}
         onClose={() => setShowCreateDialog(false)}
         examGoal={userProfile?.examPreparation}
         onCreatePlan={handleNewPlanCreated}
       />
+
+      {/* Study Plan Detail Dialog */}
+      {selectedPlan && (
+        <StudyPlanDetail
+          plan={selectedPlan}
+          isOpen={!!selectedPlan}
+          onClose={() => setSelectedPlan(null)}
+        />
+      )}
     </div>
   );
 };
