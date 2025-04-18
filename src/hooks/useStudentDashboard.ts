@@ -6,6 +6,7 @@ import { handleNewUser } from "@/pages/dashboard/student/utils/UserSessionManage
 import { useKpiTracking } from "@/hooks/useKpiTracking";
 import { UserRole } from "@/types/user/base";
 import { BookOpen, Calendar, ChartBar, Brain, MessageSquareText } from "lucide-react";
+import React from "react";
 
 export const useStudentDashboard = () => {
   const [loading, setLoading] = useState(true);
@@ -156,7 +157,7 @@ export const useStudentDashboard = () => {
     };
     
     initDashboard();
-  }, [location, navigate, profileLoading, userProfile, updateUserProfile]);
+  }, [location, navigate, profileLoading, userProfile, updateUserProfile, toast]);
   
   useEffect(() => {
     if (!profileLoading) {
