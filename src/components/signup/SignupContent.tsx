@@ -72,6 +72,13 @@ const SignUpContent = () => {
     }
   };
 
+  // Stats that will show up in the header to build trust
+  const trustStats = [
+    "80% reduced exam stress",
+    "5+ hours saved weekly",
+    "75% built study habits"
+  ];
+
   return (
     <AnimatePresence mode="wait">
       <motion.div 
@@ -98,6 +105,19 @@ const SignUpContent = () => {
             <CardDescription className="text-purple-100">
               Let's personalize your learning experience
             </CardDescription>
+            <div className="flex flex-wrap gap-2 mt-2">
+              {trustStats.map((stat, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.5 + (index * 0.1) }}
+                  className="px-3 py-1 bg-white/10 rounded-full text-xs font-medium"
+                >
+                  {stat}
+                </motion.div>
+              ))}
+            </div>
           </CardHeader>
           <CardContent className="p-0">
             <div className="grid md:grid-cols-2">

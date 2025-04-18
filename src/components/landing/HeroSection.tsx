@@ -2,6 +2,7 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
+import KpiStats from "../home/hero/feature-highlights/KpiStats";
 
 const HeroSection: React.FC = () => {
   return (
@@ -22,6 +23,11 @@ const HeroSection: React.FC = () => {
             Take a Tour
           </Button>
         </div>
+      </div>
+      
+      {/* KPI Stats */}
+      <div className="mt-8 mb-16">
+        <KpiStats />
       </div>
 
       {/* Animated elements */}

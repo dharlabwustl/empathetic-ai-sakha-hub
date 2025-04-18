@@ -10,6 +10,7 @@ import KeyFeatures from '../landing/KeyFeatures';
 import PlatformStrengths from '../landing/PlatformStrengths';
 import EcosystemAnimation from './EcosystemAnimation';
 import OnboardingSection from './OnboardingSection';
+import KpiStats from './hero/feature-highlights/KpiStats';
 
 export interface HeroSectionProps {
   scrollToFeatures: () => void;
@@ -89,6 +90,16 @@ const HeroSection: React.FC<HeroSectionProps> = ({
           className="mb-12"
         >
           <PlatformStrengths />
+        </motion.div>
+        
+        {/* KPI Stats Section - New addition */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.8, delay: 1.2 }}
+          className="mb-12"
+        >
+          <KpiStats />
         </motion.div>
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center mt-12">
