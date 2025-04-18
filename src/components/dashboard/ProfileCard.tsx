@@ -1,12 +1,15 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { UserProfileType, MoodType } from "@/types/user/base";
+import { UserProfileType, MoodType, SubscriptionType } from "@/types/user/base";
 import { getMoodTheme } from "./student/mood-tracking/moodThemes";
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
-import { Phone, Award, Star, User, Brain } from "lucide-react";
+import { Phone, Award, Star, User, Brain, Calendar, Camera, Lock } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { format } from "date-fns";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface ProfileCardProps {
   profile: UserProfileType;
@@ -16,9 +19,20 @@ interface ProfileCardProps {
     total: number;
     percentile: number;
   };
+  onUploadImage?: (file: File) => void;
+  showPeerRanking?: boolean;
 }
 
-const ProfileCard = ({ profile, currentMood, peerRanking = { rank: 35, total: 500, percentile: 93 } }: ProfileCardProps) => {
+const ProfileCard = ({ 
+  profile, 
+  currentMood, 
+  peerRanking = { rank: 35, total: 500, percentile: 93 },
+  onUploadImage,
+  showPeerRanking = false
+}: ProfileCardProps) => {
+  const [isHoveringAvatar, setIsHoveringAvatar] = useState(false);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+  
   const moodTheme = currentMood ? getMoodTheme(currentMood) : null;
   
   // Determine which avatar to display based on gender and mood
@@ -36,9 +50,48 @@ const ProfileCard = ({ profile, currentMood, peerRanking = { rank: 35, total: 50
   // Calculate progress bar width based on percentile
   const progressWidth = peerRanking ? `${peerRanking.percentile}%` : "50%";
   
-  // Get ring color for avatar
-  const getRingColor = () => {
-    return currentMood && moodTheme ? moodTheme.colors.text : "ring-primary";
+  // Get ring color for avatar based on mood
+  const getRingColorClass = () => {
+    return currentMood && moodTheme ? `ring-[${moodTheme.colors.text}]` : "ring-primary";
+  };
+
+  // Format join date if available
+  const formatJoinDate = () => {
+    if (!profile.joinDate) return "Recently joined";
+    
+    try {
+      return `Joined ${format(new Date(profile.joinDate), 'MMM yyyy')}`;
+    } catch (e) {
+      return "Recently joined";
+    }
+  };
+  
+  // Handle image upload
+  const handleImageClick = () => {
+    if (onUploadImage && fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (files && files.length > 0 && onUploadImage) {
+      onUploadImage(files[0]);
+    }
+  };
+
+  // Check if user can view peer ranking
+  const canViewPeerRanking = () => {
+    // Only premium users who opted in can view ranking, and only after 1 month of joining
+    const joinDate = profile.joinDate ? new Date(profile.joinDate) : new Date();
+    const oneMonthAgo = new Date();
+    oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+    
+    const hasBeenMemberLongEnough = joinDate < oneMonthAgo;
+    const isPremiumUser = profile.subscription === SubscriptionType.Premium || 
+                         profile.subscription === SubscriptionType.Enterprise;
+    
+    return showPeerRanking && hasBeenMemberLongEnough && isPremiumUser;
   };
   
   return (
@@ -62,13 +115,23 @@ const ProfileCard = ({ profile, currentMood, peerRanking = { rank: 35, total: 50
               className="relative"
               whileHover={{ scale: 1.1, rotate: [0, 5, -5, 0] }}
               transition={{ duration: 0.5 }}
+              onHoverStart={() => setIsHoveringAvatar(true)}
+              onHoverEnd={() => setIsHoveringAvatar(false)}
+              onClick={handleImageClick}
             >
               <Avatar 
-                className={`h-16 w-16 ring-2 ring-offset-2 transition-all duration-300 ${getRingColor()}`}
+                className={`h-16 w-16 ring-2 ring-offset-2 transition-all duration-300 ${getRingColorClass()}`}
               >
                 <AvatarImage src={getAvatarSrc()} alt={profile.name} className="object-cover" />
                 <AvatarFallback>{profile.name.charAt(0)}</AvatarFallback>
               </Avatar>
+              
+              {onUploadImage && (
+                <div className={`absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center transition-opacity duration-200 ${isHoveringAvatar ? 'opacity-100' : 'opacity-0'}`}>
+                  <Camera className="h-6 w-6 text-white" />
+                </div>
+              )}
+              
               {currentMood && (
                 <motion.div 
                   className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-white p-0.5 shadow-md"
@@ -81,6 +144,14 @@ const ProfileCard = ({ profile, currentMood, peerRanking = { rank: 35, total: 50
                   </div>
                 </motion.div>
               )}
+              
+              <input
+                type="file"
+                ref={fileInputRef}
+                className="hidden"
+                accept="image/*"
+                onChange={handleFileChange}
+              />
             </motion.div>
             
             <div className="flex-1 space-y-1">
@@ -94,6 +165,10 @@ const ProfileCard = ({ profile, currentMood, peerRanking = { rank: 35, total: 50
                   <div className="flex items-center text-sm text-muted-foreground">
                     <Phone className="h-3 w-3 mr-1" />
                     {profile.phoneNumber || "+91 98765 43210"}
+                  </div>
+                  <div className="flex items-center text-sm text-muted-foreground mt-1">
+                    <Calendar className="h-3 w-3 mr-1" />
+                    {formatJoinDate()}
                   </div>
                 </motion.div>
                 
@@ -138,31 +213,55 @@ const ProfileCard = ({ profile, currentMood, peerRanking = { rank: 35, total: 50
               </Badge>
             </div>
             
-            {/* Peer Ranking */}
+            {/* Peer Ranking - Only visible for premium users who have been members for 1+ month */}
             <div className="space-y-1">
               <div className="flex items-center justify-between text-sm">
                 <div className="flex items-center">
                   <Brain className="h-3.5 w-3.5 mr-1.5 text-violet-500" />
                   <span className="text-gray-600">Peer Ranking</span>
                 </div>
-                <div className="flex items-center">
-                  <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white">
-                    {`Top ${100 - peerRanking.percentile}%`}
-                  </Badge>
-                </div>
+                
+                {canViewPeerRanking() ? (
+                  <div className="flex items-center">
+                    <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white">
+                      {`Top ${100 - peerRanking.percentile}%`}
+                    </Badge>
+                  </div>
+                ) : (
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="flex items-center">
+                          <Badge variant="outline" className="flex items-center gap-1">
+                            <Lock className="h-3 w-3" />
+                            Premium Feature
+                          </Badge>
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Available for premium users after 1 month of joining</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                )}
               </div>
-              <div className="relative h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
-                <motion.div 
-                  className="absolute left-0 top-0 h-full bg-gradient-to-r from-blue-500 to-violet-500"
-                  initial={{ width: 0 }}
-                  animate={{ width: progressWidth }}
-                  transition={{ duration: 0.8 }}
-                />
-              </div>
-              <div className="flex justify-between text-xs text-gray-500">
-                <span>Rank #{peerRanking.rank}</span>
-                <span>Out of {peerRanking.total} students</span>
-              </div>
+              
+              {canViewPeerRanking() && (
+                <>
+                  <div className="relative h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
+                    <motion.div 
+                      className="absolute left-0 top-0 h-full bg-gradient-to-r from-blue-500 to-violet-500"
+                      initial={{ width: 0 }}
+                      animate={{ width: progressWidth }}
+                      transition={{ duration: 0.8 }}
+                    />
+                  </div>
+                  <div className="flex justify-between text-xs text-gray-500">
+                    <span>Rank #{peerRanking.rank}</span>
+                    <span>Out of {peerRanking.total} students</span>
+                  </div>
+                </>
+              )}
             </div>
             
             {/* Subject Progress */}

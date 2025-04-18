@@ -43,6 +43,12 @@ import NotFound from "./pages/NotFound";
 import "./styles/animations.css";
 import { UserRole } from "./types/user/base";
 
+// New imports for the requested features
+import StudentProfilePage from "./pages/dashboard/student/ProfilePage";
+import StudentSettingsPage from "./pages/dashboard/student/SettingsPage";
+import FlashcardsPage from "./pages/dashboard/student/FlashcardsPage";
+import ExamPreparationPage from "./pages/dashboard/student/ExamPreparationPage";
+
 // Create a new QueryClient instance properly
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -144,6 +150,30 @@ const App = () => {
                   <Route path="/dashboard/student/:tab" element={
                     <ProtectedRoute>
                       <StudentDashboard />
+                    </ProtectedRoute>
+                  } />
+                  
+                  {/* New Routes for Profile and Settings */}
+                  <Route path="/dashboard/student/profile" element={
+                    <ProtectedRoute>
+                      <StudentProfilePage />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/dashboard/student/settings" element={
+                    <ProtectedRoute>
+                      <StudentSettingsPage />
+                    </ProtectedRoute>
+                  } />
+                  
+                  {/* New Routes for Flashcards and Exams */}
+                  <Route path="/dashboard/student/flashcards" element={
+                    <ProtectedRoute>
+                      <FlashcardsPage />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/dashboard/student/exams" element={
+                    <ProtectedRoute>
+                      <ExamPreparationPage />
                     </ProtectedRoute>
                   } />
                   
