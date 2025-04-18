@@ -13,6 +13,7 @@ import WizardHeader from './components/WizardHeader';
 import WizardProgress from './components/WizardProgress';
 import { useStudyPlanWizard } from './hooks/useStudyPlanWizard';
 import GoalStep from "@/components/signup/steps/GoalStep";
+import OnboardingStepContent from "../../student/onboarding/components/OnboardingStepContent";
 
 interface CreateStudyPlanWizardProps {
   isOpen: boolean;
@@ -24,7 +25,7 @@ interface CreateStudyPlanWizardProps {
 const CreateStudyPlanWizard: React.FC<CreateStudyPlanWizardProps> = ({
   isOpen,
   onClose,
-  examGoal = "IIT-JEE",
+  examGoal = "",
   onCreatePlan
 }) => {
   const {
@@ -41,8 +42,6 @@ const CreateStudyPlanWizard: React.FC<CreateStudyPlanWizardProps> = ({
     handleExamGoalSelect
   } = useStudyPlanWizard({ examGoal, onCreatePlan, onClose });
 
-  const subjects = getSubjectsForGoal(formData.examGoal);
-  
   // Convert string arrays to NewStudyPlanSubject arrays for type compatibility
   const strongSubjectsTyped: NewStudyPlanSubject[] = strongSubjects.map(
     subject => ({ name: subject, proficiency: 'strong' })
@@ -55,7 +54,7 @@ const CreateStudyPlanWizard: React.FC<CreateStudyPlanWizardProps> = ({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-xl max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 shadow-lg">
-        <WizardHeader />
+        <WizardHeader examGoal={formData.examGoal} />
 
         <div className="py-4 text-gray-900 dark:text-gray-100">
           <div className="mb-6">
@@ -71,44 +70,22 @@ const CreateStudyPlanWizard: React.FC<CreateStudyPlanWizardProps> = ({
               </div>
             )}
 
-            {step === 2 && (
-              <ExamDateStep 
+            {step > 1 && (
+              <OnboardingStepContent
+                currentStep={step - 1}
                 examDate={formData.examDate}
-                setExamDate={(date) => setFormData(prev => ({ ...prev, examDate: date || new Date() }))}
-              />
-            )}
-
-            {step === 3 && (
-              <StudyHoursStep
                 studyHours={formData.studyHoursPerDay}
-                setStudyHours={(hours) => setFormData(prev => ({ ...prev, studyHoursPerDay: hours }))}
-                normalizedGoalTitle={formData.examGoal}
-              />
-            )}
-
-            {step === 4 && (
-              <SubjectsStep
-                subjects={[...strongSubjectsTyped, ...weakSubjectsTyped]}
-                setSubjects={() => {}}
-                examType={formData.examGoal}
-                strongSubjects={strongSubjects}
-                weakSubjects={weakSubjects}
-                handleToggleSubject={handleToggleSubject}
-              />
-            )}
-
-            {step === 5 && (
-              <StudyTimeStep
-                studyTime={formData.preferredStudyTime.charAt(0).toUpperCase() + formData.preferredStudyTime.slice(1) as "Morning" | "Afternoon" | "Evening" | "Night"}
-                setStudyTime={handleStudyTimeChange}
-              />
-            )}
-
-            {step === 6 && (
-              <StudyPaceStep
+                strongSubjects={strongSubjectsTyped}
+                weakSubjects={weakSubjectsTyped}
                 studyPace={formData.learningPace === 'slow' ? 'Relaxed' : 
                           formData.learningPace === 'moderate' ? 'Balanced' : 'Aggressive'}
+                studyTime={formData.preferredStudyTime.charAt(0).toUpperCase() + formData.preferredStudyTime.slice(1) as "Morning" | "Afternoon" | "Evening" | "Night"}
+                examGoal={formData.examGoal}
+                setExamDate={(date) => setFormData(prev => ({ ...prev, examDate: date || new Date() }))}
+                setStudyHours={(hours) => setFormData(prev => ({ ...prev, studyHoursPerDay: hours }))}
+                handleToggleSubject={handleToggleSubject}
                 setStudyPace={handlePaceChange}
+                setStudyTime={handleStudyTimeChange}
               />
             )}
           </div>
@@ -116,10 +93,13 @@ const CreateStudyPlanWizard: React.FC<CreateStudyPlanWizardProps> = ({
 
         <DialogFooter className="border-t border-gray-200 dark:border-gray-700 pt-4">
           <div className="w-full flex justify-between">
-            <Button variant="outline" onClick={handleBack}>
+            <Button variant="outline" onClick={handleBack} className="min-w-[100px]">
               {step === 1 ? 'Cancel' : 'Back'}
             </Button>
-            <Button className="bg-indigo-600 hover:bg-indigo-700 text-white" onClick={handleNext}>
+            <Button 
+              className="bg-indigo-600 hover:bg-indigo-700 text-white min-w-[100px]" 
+              onClick={handleNext}
+            >
               {step === 6 ? 'Generate Plan' : 'Next'}
             </Button>
           </div>

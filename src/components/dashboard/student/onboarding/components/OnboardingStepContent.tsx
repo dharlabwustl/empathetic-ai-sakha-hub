@@ -42,6 +42,9 @@ const OnboardingStepContent: React.FC<OnboardingStepContentProps> = ({
   const strongSubjectNames = strongSubjects.map(s => s.name);
   const weakSubjectNames = weakSubjects.map(s => s.name);
 
+  // Combine subjects for the SubjectsStep component
+  const allSubjects = [...strongSubjects, ...weakSubjects];
+
   switch (currentStep) {
     case 1:
       return <ExamDateStep examDate={examDate} setExamDate={setExamDate} />;
@@ -56,11 +59,8 @@ const OnboardingStepContent: React.FC<OnboardingStepContentProps> = ({
     case 3:
       return (
         <SubjectsStep
-          subjects={[...strongSubjects, ...weakSubjects]}
-          setSubjects={(subjects) => {
-            // This is a wrapper function to adapt to the SubjectsStep interface
-            // while preserving our strongSubjects/weakSubjects separation
-          }}
+          subjects={allSubjects}
+          setSubjects={() => {/* This is handled by handleToggleSubject */}}
           examType={examGoal}
           strongSubjects={strongSubjectNames}
           weakSubjects={weakSubjectNames}

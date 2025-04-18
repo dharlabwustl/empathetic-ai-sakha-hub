@@ -3,7 +3,7 @@ import React from 'react';
 import { GraduationCap } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-const WizardHeader: React.FC = () => {
+const WizardHeader: React.FC<{ examGoal?: string }> = ({ examGoal }) => {
   return (
     <motion.div 
       className="bg-gradient-to-br from-indigo-600 to-violet-700 text-white p-6 rounded-t-lg"
@@ -17,7 +17,11 @@ const WizardHeader: React.FC = () => {
         </div>
         <div>
           <h2 className="text-xl font-bold">Create Study Plan</h2>
-          <p className="text-indigo-100 text-sm">Design your personalized learning journey</p>
+          <p className="text-indigo-100 text-sm">
+            {examGoal 
+              ? `Customize your ${examGoal} preparation journey` 
+              : "Design your personalized learning journey"}
+          </p>
         </div>
       </div>
     </motion.div>
