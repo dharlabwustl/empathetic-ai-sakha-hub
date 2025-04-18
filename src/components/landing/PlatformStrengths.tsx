@@ -21,8 +21,8 @@ const floatAnimation: Variants = {
     scale: [1, 1.05, 1],
     transition: { 
       duration: 2, 
-      repeat: Infinity, 
-      repeatType: "loop" 
+      repeat: Infinity,
+      repeatType: "loop"  // Changed from string to the specific allowed value
     }
   }
 };

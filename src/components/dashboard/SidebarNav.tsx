@@ -16,14 +16,33 @@ import { SidebarAvatar } from "./SidebarAvatar";
 import { getNavigationRoutes } from "./SidebarNavRoutes";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { NavLink } from "react-router-dom";
+import { UserRole } from "@/types/user/base";
 
 const SidebarNav = ({ userType, userName = "User" }: SidebarNavProps) => {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const isMobile = useIsMobile();
   
+  // Convert userType string to UserRole enum
+  const getUserRole = (type: string): UserRole => {
+    switch (type.toLowerCase()) {
+      case "student":
+        return UserRole.Student;
+      case "employee":
+        return UserRole.Employee;
+      case "doctor":
+        return UserRole.Doctor;
+      case "founder":
+        return UserRole.Founder;
+      case "admin":
+        return UserRole.Admin;
+      default:
+        return UserRole.Student; // Default to student if role not recognized
+    }
+  };
+  
   // Get navigation routes based on user type
-  const navRoutes = getNavigationRoutes(userType);
+  const navRoutes = getNavigationRoutes(getUserRole(userType));
 
   return (
     <>

@@ -2,11 +2,13 @@
 import React from "react";
 import MainLayout from "@/components/layouts/MainLayout";
 import { useUserProfile } from "@/hooks/useUserProfile";
+import { UserRole } from "@/types/user/base";
 // Import the actual ProfilePage component we're using
 import ProfilePageComponent from "@/pages/dashboard/student/ProfilePage";
 
 const ProfilePage = () => {
-  const { userProfile, loading, updateUserProfile } = useUserProfile();
+  // Pass UserRole.Student enum value instead of string
+  const { userProfile, loading, error, updateUserProfile, uploadAvatar } = useUserProfile(UserRole.Student);
 
   return (
     <MainLayout>
@@ -21,11 +23,12 @@ const ProfilePage = () => {
         ) : userProfile ? (
           <ProfilePageComponent 
             userProfile={userProfile} 
-            onUpdateProfile={updateUserProfile} 
+            onUpdateProfile={updateUserProfile}
+            onUploadAvatar={uploadAvatar}
           />
         ) : (
           <div className="text-center text-red-500">
-            <p>Error loading profile: No profile data available</p>
+            <p>Error loading profile: {error || "No profile data available"}</p>
           </div>
         )}
       </div>
