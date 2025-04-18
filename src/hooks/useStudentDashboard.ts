@@ -39,7 +39,7 @@ export const useStudentDashboard = () => {
       id: "overview",
       title: "Dashboard Overview",
       description: "View your progress and recommendations",
-      icon: <Calendar className="h-5 w-5" />,
+      icon: React.createElement(Calendar, { className: "h-5 w-5" }),
       path: "/dashboard/student/overview",
       isPremium: false
     },
@@ -47,7 +47,7 @@ export const useStudentDashboard = () => {
       id: "today",
       title: "Today's Plan",
       description: "Your study schedule for today",
-      icon: <BookOpen className="h-5 w-5" />,
+      icon: React.createElement(BookOpen, { className: "h-5 w-5" }),
       path: "/dashboard/student/today",
       isPremium: false
     },
@@ -55,7 +55,7 @@ export const useStudentDashboard = () => {
       id: "concepts",
       title: "Concept Cards",
       description: "Study key exam concepts",
-      icon: <Brain className="h-5 w-5" />,
+      icon: React.createElement(Brain, { className: "h-5 w-5" }),
       path: "/dashboard/student/concepts",
       isPremium: false
     },
@@ -63,7 +63,7 @@ export const useStudentDashboard = () => {
       id: "tutor",
       title: "24/7 AI Tutor",
       description: "Get help with tough problems",
-      icon: <MessageSquareText className="h-5 w-5" />,
+      icon: React.createElement(MessageSquareText, { className: "h-5 w-5" }),
       path: "/dashboard/student/tutor",
       isPremium: false
     },
@@ -71,7 +71,7 @@ export const useStudentDashboard = () => {
       id: "advisor",
       title: "Academic Advisor",
       description: "Personalized study plans",
-      icon: <Brain className="h-5 w-5" />,
+      icon: React.createElement(Brain, { className: "h-5 w-5" }),
       path: "/dashboard/student/advisor",
       isPremium: false
     },
@@ -79,7 +79,7 @@ export const useStudentDashboard = () => {
       id: "progress",
       title: "Progress Tracking",
       description: "Monitor your improvement",
-      icon: <ChartBar className="h-5 w-5" />,
+      icon: React.createElement(ChartBar, { className: "h-5 w-5" }),
       path: "/dashboard/student/progress",
       isPremium: false
     }
