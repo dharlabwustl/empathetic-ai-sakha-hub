@@ -1,4 +1,3 @@
-
 /**
  * Enum for user roles in the system
  */
@@ -53,6 +52,7 @@ export interface UserProfileType {
   name: string;
   email: string;
   role: UserRole;
+  gender?: "male" | "female";
   createdAt?: string;
   updatedAt?: string;
   // Additional properties

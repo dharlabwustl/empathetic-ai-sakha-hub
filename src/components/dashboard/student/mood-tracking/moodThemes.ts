@@ -1,4 +1,3 @@
-
 import { MoodType } from "@/types/user/base";
 
 export type MoodTheme = {
@@ -8,9 +7,13 @@ export type MoodTheme = {
     background: string;
     text: string;
   };
-  avatarUrl: string; // Mood-specific avatar URL
+  avatarUrl: {
+    male: string;
+    female: string;
+  };
   message: string;
   suggestion: string;
+  animation?: string;
 };
 
 export const moodThemes: Record<MoodType, MoodTheme> = {
@@ -21,9 +24,13 @@ export const moodThemes: Record<MoodType, MoodTheme> = {
       background: "bg-gradient-to-br from-yellow-50/50 to-green-50/50",
       text: "text-yellow-700"
     },
-    avatarUrl: "/avatars/happy-avatar.png",
+    avatarUrl: {
+      male: "/lovable-uploads/8c44a220-2bb8-468b-91f2-1c73d2c26753.png",
+      female: "/lovable-uploads/b191f3ed-f62c-45af-9c05-11585c79a3f9.png"
+    },
     message: "Your positive energy is contagious! Let's make the most of it! 🌟",
-    suggestion: "Perfect time to tackle challenging topics or help peers!"
+    suggestion: "Perfect time to tackle challenging topics or help peers!",
+    animation: "animate-bounce"
   },
   sad: {
     colors: {
@@ -32,7 +39,10 @@ export const moodThemes: Record<MoodType, MoodTheme> = {
       background: "bg-gradient-to-br from-blue-50/30 to-gray-50/30",
       text: "text-blue-700"
     },
-    avatarUrl: "/avatars/sad-avatar.png",
+    avatarUrl: {
+      male: "/avatars/sad-avatar.png",
+      female: "/avatars/sad-avatar.png"
+    },
     message: "It's okay to have down moments. Take it easy today 💙",
     suggestion: "How about some light reading or review sessions?"
   },
@@ -43,7 +53,10 @@ export const moodThemes: Record<MoodType, MoodTheme> = {
       background: "bg-gradient-to-br from-amber-50/30 to-orange-50/30",
       text: "text-amber-700"
     },
-    avatarUrl: "/avatars/tired-avatar.png",
+    avatarUrl: {
+      male: "/avatars/tired-avatar.png",
+      female: "/avatars/tired-avatar.png"
+    },
     message: "Rest is part of the learning journey 🌙",
     suggestion: "Consider a short power nap or light review session"
   },
@@ -54,7 +67,10 @@ export const moodThemes: Record<MoodType, MoodTheme> = {
       background: "bg-gradient-to-br from-gray-50/30 to-blue-50/30",
       text: "text-gray-700"
     },
-    avatarUrl: "/avatars/neutral-avatar.png",
+    avatarUrl: {
+      male: "/avatars/neutral-avatar.png",
+      female: "/avatars/neutral-avatar.png"
+    },
     message: "Steady and focused - that's the way! 🎯",
     suggestion: "A balanced mix of study and breaks might work well today"
   },
@@ -65,7 +81,10 @@ export const moodThemes: Record<MoodType, MoodTheme> = {
       background: "bg-gradient-to-br from-purple-50/30 to-blue-50/30",
       text: "text-purple-700"
     },
-    avatarUrl: "/avatars/curious-avatar.png",
+    avatarUrl: {
+      male: "/avatars/curious-avatar.png",
+      female: "/avatars/curious-avatar.png"
+    },
     message: "Your curiosity will lead to discovery! 🔍",
     suggestion: "Great time to explore new concepts or deep dive into topics"
   },
@@ -76,7 +95,10 @@ export const moodThemes: Record<MoodType, MoodTheme> = {
       background: "bg-gradient-to-br from-indigo-50/30 to-slate-50/30",
       text: "text-indigo-700"
     },
-    avatarUrl: "/avatars/focused-avatar.png",
+    avatarUrl: {
+      male: "/avatars/focused-avatar.png",
+      female: "/avatars/focused-avatar.png"
+    },
     message: "Your focus is powerful! Make the most of it! 🧠",
     suggestion: "Perfect for tackling difficult concepts or practice problems"
   },
@@ -87,7 +109,10 @@ export const moodThemes: Record<MoodType, MoodTheme> = {
       background: "bg-gradient-to-br from-green-50/30 to-teal-50/30",
       text: "text-green-700"
     },
-    avatarUrl: "/avatars/motivated-avatar.png",
+    avatarUrl: {
+      male: "/avatars/motivated-avatar.png",
+      female: "/avatars/motivated-avatar.png"
+    },
     message: "Your motivation is inspiring! Let's achieve your goals! 🚀",
     suggestion: "Set ambitious targets today and track your progress"
   },
@@ -98,7 +123,10 @@ export const moodThemes: Record<MoodType, MoodTheme> = {
       background: "bg-gradient-to-br from-sky-50/30 to-gray-50/30",
       text: "text-sky-700"
     },
-    avatarUrl: "/avatars/okay-avatar.png",
+    avatarUrl: {
+      male: "/avatars/okay-avatar.png",
+      female: "/avatars/okay-avatar.png"
+    },
     message: "You're doing alright! One step at a time. 👣",
     suggestion: "Focus on consistency rather than intensity today"
   },
@@ -109,7 +137,10 @@ export const moodThemes: Record<MoodType, MoodTheme> = {
       background: "bg-gradient-to-br from-orange-50/30 to-rose-50/30",
       text: "text-orange-700"
     },
-    avatarUrl: "/avatars/overwhelmed-avatar.png",
+    avatarUrl: {
+      male: "/avatars/overwhelmed-avatar.png",
+      female: "/avatars/overwhelmed-avatar.png"
+    },
     message: "It's okay to feel overwhelmed. Let's break things down. 🧩",
     suggestion: "Try focusing on just one small task at a time today"
   },
@@ -120,7 +151,10 @@ export const moodThemes: Record<MoodType, MoodTheme> = {
       background: "bg-gradient-to-br from-red-50/30 to-amber-50/30",
       text: "text-red-700"
     },
-    avatarUrl: "/avatars/stressed-avatar.png",
+    avatarUrl: {
+      male: "/avatars/stressed-avatar.png",
+      female: "/avatars/stressed-avatar.png"
+    },
     message: "Acknowledging stress is the first step. Let's manage it. 🌱",
     suggestion: "Consider a short breathing exercise before continuing"
   }

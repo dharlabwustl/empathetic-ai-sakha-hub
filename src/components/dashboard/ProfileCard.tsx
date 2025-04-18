@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -11,12 +10,13 @@ import { motion } from "framer-motion";
 interface ProfileCardProps {
   profile: UserProfileType;
   currentMood?: MoodType;
-  peerRanking?: number; // Add peer ranking prop
+  peerRanking?: number;
 }
 
 const ProfileCard = ({ profile, currentMood, peerRanking = 0 }: ProfileCardProps) => {
   const moodTheme = currentMood ? getMoodTheme(currentMood) : null;
-  
+  const gender = profile.gender || "male";
+
   // Extract additional profile information
   const userType = profile.role || "Student";
   const examGoal = profile.goals && profile.goals.length > 0 ? profile.goals[0].title : "Not set";
@@ -34,7 +34,19 @@ const ProfileCard = ({ profile, currentMood, peerRanking = 0 }: ProfileCardProps
 
   const rankingInfo = getRankingDisplay(peerRanking);
   const RankIcon = rankingInfo.icon;
-  
+
+  const avatarVariants = {
+    initial: { scale: 1 },
+    animate: { 
+      scale: moodTheme?.animation?.includes("bounce") ? [1, 1.1, 1] : 1,
+      transition: {
+        duration: 2,
+        repeat: Infinity,
+        ease: "easeInOut"
+      }
+    }
+  };
+
   return (
     <motion.div
       initial={{ scale: 0.95, opacity: 0 }}
@@ -47,15 +59,24 @@ const ProfileCard = ({ profile, currentMood, peerRanking = 0 }: ProfileCardProps
         <div className="absolute inset-0 opacity-10 bg-gradient-to-br from-primary to-secondary pointer-events-none" />
         <div className="relative z-10">
           <div className="flex items-center space-x-4">
-            <Avatar className={`h-16 w-16 ring-2 ring-offset-2 transition-all duration-300 ${moodTheme?.colors.text}`}>
-              {currentMood && moodTheme ? (
-                <AvatarImage src={moodTheme.avatarUrl} alt="Mood Avatar" />
-              ) : (
-                <AvatarImage src={profile.avatar} alt={profile.name} />
-              )}
-              <AvatarFallback>{profile.name.charAt(0)}</AvatarFallback>
-            </Avatar>
-            
+            <motion.div
+              variants={avatarVariants}
+              initial="initial"
+              animate="animate"
+            >
+              <Avatar className={`h-16 w-16 ring-2 ring-offset-2 transition-all duration-300 ${moodTheme?.colors.text}`}>
+                {currentMood && moodTheme ? (
+                  <AvatarImage 
+                    src={gender === "female" ? moodTheme.avatarUrl.female : moodTheme.avatarUrl.male} 
+                    alt={`${currentMood} mood avatar`} 
+                  />
+                ) : (
+                  <AvatarImage src={profile.avatar} alt={profile.name} />
+                )}
+                <AvatarFallback>{profile.name.charAt(0)}</AvatarFallback>
+              </Avatar>
+            </motion.div>
+
             <div className="space-y-1 flex-1">
               <div className="flex items-center justify-between">
                 <h3 className="font-medium text-lg">{profile.name}</h3>
