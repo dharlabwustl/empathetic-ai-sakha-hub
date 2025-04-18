@@ -15,7 +15,7 @@ import {
   Layers
 } from "lucide-react";
 import { AdminDashboardStats, SystemLog } from "@/types/admin";
-import { StudentData } from "@/types/admin";
+import { StudentData } from "@/types/admin"; // Import StudentData from the re-export
 
 import UserManagementTab from "./tabs/UserManagementTab";
 import AIPersonalizationTab from "./tabs/AIPersonalizationTab";

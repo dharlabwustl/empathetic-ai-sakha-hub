@@ -1,14 +1,14 @@
 
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { apiEndpointChecker, getDatabaseSchema } from '@/services/api/apiEndpointChecker';
+import { apiEndpointChecker, getDatabaseSchema, getDatabaseSchemaSql, exportDatabaseSchemaAsJson } from '@/services/api/apiEndpointChecker';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Download, RefreshCw, Database, Server, MessageSquare, Laptop } from 'lucide-react';
+import { Download, RefreshCw, Database, Server, MessageSquare, Laptop, FileJson, FileSpreadsheet, FileCode } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { downloadDatabaseSchemaCSV } from '@/utils/database-schema-export'; // Properly import the function
+import { downloadDatabaseSchemaCSV } from '@/utils/database-schema-export';
 
 export const DatabaseSchemaDownloader = () => {
   const [isChecking, setIsChecking] = useState(false);
@@ -16,6 +16,7 @@ export const DatabaseSchemaDownloader = () => {
   const [activeTab, setActiveTab] = useState<string>("endpoints");
   const [apiStatus, setApiStatus] = useState<Record<string, { exists: boolean; status?: number; message: string }> | null>(null);
   const [schema, setSchema] = useState<any>(null);
+  const [sqlSchema, setSqlSchema] = useState<string>("");
   const { toast } = useToast();
 
   const handleCheckEndpoints = async () => {
@@ -39,19 +40,51 @@ export const DatabaseSchemaDownloader = () => {
     }
   };
 
-  const handleDownloadSchema = async () => {
+  const handleDownloadSchema = async (format: 'csv' | 'json' | 'sql') => {
     setIsDownloading(true);
     try {
       const schemaData = await getDatabaseSchema();
       setSchema(schemaData);
       
-      // Use the imported CSV download function
-      downloadDatabaseSchemaCSV();
-      
-      toast({
-        title: "Download Complete",
-        description: "Database schema CSV has been downloaded",
-      });
+      if (format === 'csv') {
+        downloadDatabaseSchemaCSV();
+        toast({
+          title: "Download Complete",
+          description: "Database schema CSV has been downloaded",
+        });
+      } else if (format === 'json') {
+        const jsonData = exportDatabaseSchemaAsJson();
+        const blob = new Blob([jsonData], { type: 'application/json;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.setAttribute('href', url);
+        link.setAttribute('download', 'sakha_ai_database_schema.json');
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        toast({
+          title: "Download Complete",
+          description: "Database schema JSON has been downloaded",
+        });
+      } else if (format === 'sql') {
+        const sqlData = getDatabaseSchemaSql();
+        setSqlSchema(sqlData);
+        
+        const blob = new Blob([sqlData], { type: 'text/plain;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.setAttribute('href', url);
+        link.setAttribute('download', 'sakha_ai_database_schema.sql');
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        toast({
+          title: "Download Complete",
+          description: "Database schema SQL has been downloaded",
+        });
+      }
     } catch (error) {
       console.error("Error downloading schema:", error);
       toast({
@@ -146,14 +179,33 @@ export const DatabaseSchemaDownloader = () => {
           
           <TabsContent value="schema">
             <div className="mb-4">
-              <div className="flex justify-end">
+              <div className="flex justify-end gap-2">
                 <Button 
-                  onClick={handleDownloadSchema} 
+                  onClick={() => handleDownloadSchema('csv')} 
                   disabled={isDownloading}
+                  variant="outline"
                   className="gap-2"
                 >
-                  <Download className="h-4 w-4" />
-                  {isDownloading ? "Downloading..." : "Download Schema"}
+                  <FileSpreadsheet className="h-4 w-4" />
+                  CSV
+                </Button>
+                <Button 
+                  onClick={() => handleDownloadSchema('json')} 
+                  disabled={isDownloading}
+                  variant="outline"
+                  className="gap-2"
+                >
+                  <FileJson className="h-4 w-4" />
+                  JSON
+                </Button>
+                <Button 
+                  onClick={() => handleDownloadSchema('sql')} 
+                  disabled={isDownloading}
+                  variant="outline"
+                  className="gap-2"
+                >
+                  <FileCode className="h-4 w-4" />
+                  SQL
                 </Button>
               </div>
               
@@ -167,7 +219,16 @@ export const DatabaseSchemaDownloader = () => {
               ) : (
                 <div className="text-center py-8 text-gray-500">
                   <Database className="mx-auto mb-2 opacity-50" size={32} />
-                  <p>Click "Download Schema" to view current database structure</p>
+                  <p>Click one of the buttons above to download the database schema</p>
+                </div>
+              )}
+              
+              {sqlSchema && (
+                <div className="mt-4">
+                  <h3 className="text-sm font-medium mb-2">SQL Schema</h3>
+                  <pre className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg text-xs font-mono overflow-x-auto max-h-96 overflow-y-auto">
+                    {sqlSchema}
+                  </pre>
                 </div>
               )}
             </div>
@@ -190,9 +251,10 @@ export const DatabaseSchemaDownloader = () => {
                 type="text" 
                 className="bg-transparent border-none focus:outline-none flex-1 text-sm"
                 placeholder="Type a command..."
-                disabled
               />
-              <MessageSquare className="text-gray-500" size={16} />
+              <Button variant="ghost" size="sm">
+                <MessageSquare className="text-gray-500" size={16} />
+              </Button>
             </div>
           </TabsContent>
         </CardContent>

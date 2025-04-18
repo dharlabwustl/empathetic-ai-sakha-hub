@@ -1,90 +1,149 @@
 
-import apiClient from './apiClient';
-import { API_ENDPOINTS, ApiResponse } from './apiConfig';
+import axios from 'axios';
+import { API_BASE_URL } from './apiConfig';
+import { generateDatabaseSchema } from '../../utils/schemaExport';
 
 /**
- * API Endpoint Checker - Used to verify API endpoints are correctly configured
- * This utility can be used from the admin dashboard to verify the API endpoints
+ * Utility to check API endpoints availability and status
  */
 export const apiEndpointChecker = {
   /**
-   * Check if the API endpoint exists and is accessible
-   * @param endpoint The endpoint to check
-   * @returns Promise resolving to a check result
+   * Check a specific endpoint availability
    */
-  async checkEndpoint(endpoint: string): Promise<{
-    exists: boolean;
-    status?: number;
-    message: string;
-  }> {
+  async checkEndpoint(endpoint: string): Promise<{ exists: boolean; status?: number; message: string }> {
     try {
-      const response = await apiClient.head(endpoint);
-      return {
-        exists: true,
-        status: response.status || 200,
-        message: `Endpoint exists and returned successfully`,
-      };
-    } catch (error: any) {
-      // If we got a 404, the endpoint doesn't exist
-      if (error.response?.status === 404) {
-        return {
-          exists: false,
-          status: 404,
-          message: 'Endpoint not found',
-        };
-      }
+      const response = await axios.get(endpoint, {
+        timeout: 5000,
+        validateStatus: () => true // Accept any status code
+      });
       
-      // If we got another error status, the endpoint exists but there might be an auth issue
-      if (error.response?.status) {
+      if (response.status >= 200 && response.status < 300) {
         return {
           exists: true,
-          status: error.response.status,
-          message: `Endpoint exists but returned status ${error.response.status}`,
+          status: response.status,
+          message: `Endpoint available (${response.status})`
+        };
+      } else {
+        return {
+          exists: false,
+          status: response.status,
+          message: `Endpoint returned status code ${response.status}`
         };
       }
-      
-      // Network error or other issue
+    } catch (error) {
+      console.error("Error checking endpoint:", error);
       return {
         exists: false,
-        message: `Error checking endpoint: ${error.message || 'Unknown error'}`,
+        message: "Failed to connect to endpoint"
       };
     }
   },
   
   /**
-   * Check all API endpoints 
-   * @returns Promise resolving to a map of endpoint check results
+   * Check all API endpoints defined in the system
    */
   async checkAllEndpoints(): Promise<Record<string, { exists: boolean; status?: number; message: string }>> {
+    const endpointsToCheck = [
+      // Core API endpoints
+      `${API_BASE_URL}/auth/login`,
+      `${API_BASE_URL}/auth/register`,
+      `${API_BASE_URL}/admin/dashboard`,
+      `${API_BASE_URL}/admin/students`,
+      `${API_BASE_URL}/admin/content`,
+      `${API_BASE_URL}/admin/logs`,
+      
+      // Study habits endpoints
+      `${API_BASE_URL}/admin/study-habits/settings`,
+      `${API_BASE_URL}/admin/study-habits/analytics`,
+      
+      // Verification metrics endpoints
+      `${API_BASE_URL}/admin/verified-metrics/mood-improvement`,
+      `${API_BASE_URL}/admin/verified-metrics/time-saved`,
+      `${API_BASE_URL}/admin/verified-metrics/consistent-habits`,
+      `${API_BASE_URL}/admin/verified-metrics/exam-confidence`,
+      `${API_BASE_URL}/admin/verified-metrics/retention-rate`,
+      
+      // Flask ML API endpoints
+      `${API_BASE_URL}/ai/personalize`,
+      `${API_BASE_URL}/ai/learning-style`,
+      `${API_BASE_URL}/ai/generate-plan`,
+      `${API_BASE_URL}/ai/doubt-response`,
+      `${API_BASE_URL}/ai/tutor-chat`,
+      `${API_BASE_URL}/ai/mood-suggestions`,
+      `${API_BASE_URL}/ai/time-saved-analysis`,
+      
+      // Database management endpoints
+      `${API_BASE_URL}/admin/database/schema`,
+      `${API_BASE_URL}/admin/database/backup`,
+      `${API_BASE_URL}/admin/database/restore`,
+      `${API_BASE_URL}/admin/database/export`
+    ];
+    
     const results: Record<string, { exists: boolean; status?: number; message: string }> = {};
     
-    // Flatten API endpoints into a list
-    const endpointsList: string[] = [];
-    
-    // Add endpoints for students
-    endpointsList.push(API_ENDPOINTS.STUDENTS.PROFILE('test'));
-    endpointsList.push(API_ENDPOINTS.STUDENTS.GOALS('test'));
-    endpointsList.push(API_ENDPOINTS.STUDENTS.ONBOARDING('test'));
-    endpointsList.push(API_ENDPOINTS.STUDENTS.STUDY_PLAN('test'));
-    endpointsList.push(API_ENDPOINTS.STUDENTS.MOOD_LOGS('test'));
-    endpointsList.push(API_ENDPOINTS.STUDENTS.DOUBTS('test'));
-    
-    // Check each endpoint
-    for (const endpoint of endpointsList) {
+    // Check each endpoint in parallel
+    await Promise.all(endpointsToCheck.map(async (endpoint) => {
       results[endpoint] = await this.checkEndpoint(endpoint);
-    }
+    }));
     
     return results;
   }
 };
 
-// Export a helper function to get the database schema
+/**
+ * Get database schema information
+ */
 export const getDatabaseSchema = async () => {
   try {
-    const response = await apiClient.get('/admin/database-schema');
-    return response.data;
+    // In a real app, this would fetch from the backend
+    // For now, generate mock schema data
+    return generateDatabaseSchema();
   } catch (error) {
-    console.error('Error fetching database schema:', error);
-    throw error;
+    console.error("Error fetching database schema:", error);
+    throw new Error("Failed to fetch database schema");
   }
 };
+
+/**
+ * Generate SQL schema for the database
+ */
+export const getDatabaseSchemaSql = () => {
+  const schema = generateDatabaseSchema();
+  let sqlContent = '';
+  
+  schema.forEach(table => {
+    sqlContent += `CREATE TABLE ${table.tableName} (\n`;
+    
+    const columns = table.fields.map(field => {
+      let columnDef = `  ${field.name} ${field.type}`;
+      
+      if (field.isPrimaryKey) {
+        columnDef += ' PRIMARY KEY';
+      }
+      
+      if (field.isRequired) {
+        columnDef += ' NOT NULL';
+      }
+      
+      if (field.references) {
+        columnDef += ` REFERENCES ${field.references}`;
+      }
+      
+      return columnDef;
+    });
+    
+    sqlContent += columns.join(',\n');
+    sqlContent += '\n);\n\n';
+  });
+  
+  return sqlContent;
+};
+
+/**
+ * Export database schema as JSON
+ */
+export const exportDatabaseSchemaAsJson = () => {
+  const schema = generateDatabaseSchema();
+  return JSON.stringify(schema, null, 2);
+};
+

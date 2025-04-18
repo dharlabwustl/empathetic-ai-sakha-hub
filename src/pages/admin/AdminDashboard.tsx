@@ -4,15 +4,14 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useAdminAuth } from "@/contexts/AdminAuthContext";
 import { adminService } from "@/services/adminService";
-import { AdminDashboardStats, SystemLog } from "@/types/admin";
-import { StudentData } from "@/types/admin/studentData";
-import { Sparkles, RefreshCcw, Download, FileText } from "lucide-react";
+import { AdminDashboardStats, SystemLog, StudentData } from "@/types/admin"; // Import unified StudentData
 
 import AdminLayout from "@/components/admin/AdminLayout";
 import DashboardStats from "@/components/admin/dashboard/DashboardStats";
 import DashboardTabs from "@/components/admin/dashboard/DashboardTabs";
 import LoadingState from "@/components/admin/dashboard/LoadingState";
 import { Button } from "@/components/ui/button";
+import { Sparkles, RefreshCcw, Download, FileText } from "lucide-react";
 
 const AdminDashboard = () => {
   const { adminUser, isAuthenticated, loading: authLoading } = useAdminAuth();
@@ -52,20 +51,27 @@ const AdminDashboard = () => {
       
       const studentsRes = await adminService.getStudents(1, 5);
       
-      // Convert admin StudentData to admin/studentData StudentData format
+      // Convert to unified StudentData format
       const convertedStudents: StudentData[] = studentsRes.data.map(student => ({
         id: student.id,
         name: student.name,
         email: student.email,
+        registrationDate: student.registrationDate || new Date(),
         joinedDate: student.registrationDate || new Date(),
         role: "student",
         status: "active",
         examType: student.examType,
-        registrationDate: student.registrationDate,
         subjects: student.subjectsSelected,
         examPrep: student.examType,
         lastActive: student.lastActive,
-        progress: student.engagementScore || 0
+        progress: student.engagementScore || 0,
+        // Add other required fields with default values if needed
+        phoneNumber: student.phoneNumber || '',
+        completedOnboarding: student.completedOnboarding || false,
+        goals: student.goals || [],
+        studyHours: student.studyHours || 0,
+        targetScore: student.targetScore || 0,
+        avatarUrl: student.avatarUrl || ''
       }));
       
       setRecentStudents(convertedStudents);
