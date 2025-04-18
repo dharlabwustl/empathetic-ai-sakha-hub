@@ -87,7 +87,7 @@ const FeatureEditDialog: React.FC<FeatureEditDialogProps> = ({ isOpen, onClose, 
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="sm:max-w-[600px] bg-background border shadow-lg">
         <DialogHeader>
           <DialogTitle>Edit Feature</DialogTitle>
         </DialogHeader>
