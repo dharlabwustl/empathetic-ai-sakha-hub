@@ -16,7 +16,6 @@ import WelcomeTour from '@/components/dashboard/student/WelcomeTour';
 import AIChatTutor from '@/pages/dashboard/student/AIChatTutor';
 import AcademicAdvisor from '@/pages/dashboard/student/AcademicAdvisor';
 import { UserProfileType } from '@/types/user';
-import { MoodType } from '@/types/user/base';
 import { KpiData, NudgeData } from '@/hooks/useKpiTracking';
 import { MicroConceptView, FlashcardsView, PracticeExamsView } from '@/pages/dashboard/student/TabContentViews';
 import FlashcardsFeature from '@/components/dashboard/student/FlashcardsFeature';
@@ -34,28 +33,7 @@ interface TabContentManagerProps {
   handleCompleteTour: () => void;
   lastActivity?: { type: string; description: string } | null;
   suggestedNextAction?: string | null;
-  currentMood?: MoodType;
 }
-
-// Helper function to adapt content difficulty based on mood
-const getAdaptiveContent = (mood?: MoodType, contentType: string = 'default') => {
-  if (!mood) return 'default';
-  
-  // Group moods by energy/focus levels
-  const highEnergyMoods: MoodType[] = ['motivated', 'focused', 'happy'];
-  const mediumEnergyMoods: MoodType[] = ['curious', 'okay', 'neutral'];
-  const lowEnergyMoods: MoodType[] = ['tired', 'stressed', 'overwhelmed', 'sad'];
-  
-  if (highEnergyMoods.includes(mood)) {
-    return 'challenging';
-  } else if (mediumEnergyMoods.includes(mood)) {
-    return 'normal';
-  } else if (lowEnergyMoods.includes(mood)) {
-    return 'supportive';
-  }
-  
-  return 'default';
-};
 
 export const generateTabContents = ({
   userProfile,
@@ -67,24 +45,12 @@ export const generateTabContents = ({
   handleSkipTour,
   handleCompleteTour,
   lastActivity,
-  suggestedNextAction,
-  currentMood
+  suggestedNextAction
 }: TabContentManagerProps): Record<string, ReactNode> => {
   // Check if user is a first time user based on profile data
   // Using optional chaining to safely access potentially undefined properties
   const isFirstTimeUser = (userProfile?.loginCount ?? 0) < 3 || !(userProfile?.completedOnboarding ?? false);
   const loginCount = userProfile?.loginCount ?? 0;
-  
-  // Determine content adaptation level based on mood
-  const adaptiveLevel = getAdaptiveContent(currentMood);
-  
-  // Check if we should show mood-based progress dashboard elements
-  const showMoodProgress = currentMood && lastActivity;
-  
-  // Check if mood has been low multiple days
-  const needsEncouragement = userProfile?.moodHistory?.filter(
-    entry => ['sad', 'tired', 'stressed', 'overwhelmed'].includes(entry.mood)
-  ).length >= 3;
 
   return {
     overview: (
@@ -105,54 +71,21 @@ export const generateTabContents = ({
           nudges={nudges}
           markNudgeAsRead={markNudgeAsRead}
           features={features}
-          currentMood={currentMood}
-          adaptiveLevel={adaptiveLevel}
-          showMoodProgress={showMoodProgress}
-          needsEncouragement={needsEncouragement}
         />
       </>
     ),
     today: (
       <div className="space-y-8">
-        <TodayStudyPlan 
-          adaptiveLevel={adaptiveLevel}
-          currentMood={currentMood}
-        />
-        <MicroConceptView 
-          difficulty={adaptiveLevel === 'challenging' ? 'advanced' : 
-                      adaptiveLevel === 'supportive' ? 'beginner' : 'intermediate'}
-          currentMood={currentMood}
-        />
+        <TodayStudyPlan />
+        <MicroConceptView />
       </div>
     ),
-    academic: <AcademicAdvisor 
-                userProfile={userProfile} 
-                currentMood={currentMood}
-                adaptiveLevel={adaptiveLevel}
-              />,
-    concepts: <MicroConceptView 
-                difficulty={adaptiveLevel === 'challenging' ? 'advanced' : 
-                            adaptiveLevel === 'supportive' ? 'beginner' : 'intermediate'}
-                currentMood={currentMood}
-              />,
-    flashcards: <FlashcardsFeature 
-                  adaptiveLevel={adaptiveLevel}
-                  sessionLength={adaptiveLevel === 'challenging' ? 20 : 
-                                adaptiveLevel === 'supportive' ? 5 : 10}
-                  currentMood={currentMood}
-                />,
-    'practice-exam': <PracticeExamFeature 
-                      difficulty={adaptiveLevel === 'challenging' ? 'hard' : 
-                                adaptiveLevel === 'supportive' ? 'easy' : 'medium'}
-                      timeLimit={adaptiveLevel === 'challenging' ? 60 : 
-                                adaptiveLevel === 'supportive' ? 30 : 45}
-                      currentMood={currentMood}
-                    />,
-    'feel-good': <FeelGoodCorner currentMood={currentMood} />,
-    notifications: <SmartNotificationSection currentMood={currentMood} />,
-    tutor: <AIChatTutor 
-            userProfile={userProfile}
-            currentMood={currentMood}
-          />
+    academic: <AcademicAdvisor userProfile={userProfile} />,
+    concepts: <MicroConceptView />,
+    flashcards: <FlashcardsFeature />,
+    'practice-exam': <PracticeExamFeature />,
+    'feel-good': <FeelGoodCorner />,
+    notifications: <SmartNotificationSection />,
+    tutor: <AIChatTutor userProfile={userProfile} />
   };
 };
