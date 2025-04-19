@@ -78,7 +78,7 @@ const BatchManagementPage = () => {
         id: '1',
         name: 'You',
         email: userProfile?.email || 'user@example.com',
-        avatarUrl: userProfile?.avatarUrl,
+        avatarUrl: userProfile?.avatar, // Changed from avatarUrl to avatar
         role: 'leader',
         status: 'active',
         progressPercent: 76,
