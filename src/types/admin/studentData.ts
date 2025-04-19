@@ -1,4 +1,3 @@
-
 export interface StudentData {
   id: string;
   name: string;
@@ -13,7 +12,7 @@ export interface StudentData {
   lastActive?: Date | string;
   progress?: number;
   
-  // Additional fields needed from admin.ts StudentData
+  // Existing additional fields
   phoneNumber?: string;
   completedOnboarding?: boolean;
   goals?: string[];
@@ -21,6 +20,8 @@ export interface StudentData {
   subjectsSelected?: string[];
   moodScore?: number;
   engagementScore?: number;
+  
+  // Adding the missing properties
   targetScore?: number;
   avatarUrl?: string;
 }
