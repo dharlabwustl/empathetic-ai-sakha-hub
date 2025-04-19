@@ -1,28 +1,12 @@
-
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
 import { 
-  LayoutDashboard, 
-  MessageSquare, 
-  Calendar, 
-  LineChart, 
-  User, 
-  BookOpen,
-  Brain,
-  Heart,
-  Target,
-  Video,
-  Users,
-  Bell
-} from "lucide-react";
-import { NavigationRoute, UserRouteMap } from "./types/sidebar";
-import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { motion } from "framer-motion";
 
 interface SidebarNavRoutesProps {
   userType: string;
@@ -95,15 +79,18 @@ export const SidebarNavRoutes = ({
   ];
 
   return (
-    <TooltipProvider delayDuration={0}>
+    <TooltipProvider delayDuration={50}>
       <div className="space-y-6">
         <nav className="space-y-1 px-2">
           {routes.map((route) => (
             <Tooltip key={route.path}>
               <TooltipTrigger asChild>
                 <motion.div
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
+                  whileHover={{ 
+                    scale: 1.05,
+                    boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)"
+                  }}
+                  whileTap={{ scale: 0.95 }}
                 >
                   <Link
                     to={route.path}
@@ -139,8 +126,11 @@ export const SidebarNavRoutes = ({
               <Tooltip key={route.path}>
                 <TooltipTrigger asChild>
                   <motion.div
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
+                    whileHover={{ 
+                      scale: 1.05,
+                      boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)"
+                    }}
+                    whileTap={{ scale: 0.95 }}
                   >
                     <Link
                       to={route.path}
