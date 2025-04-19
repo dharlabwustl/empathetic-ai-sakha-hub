@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { UserProfileType } from "@/types/user";
@@ -34,6 +35,7 @@ interface DashboardLayoutProps {
   lastActivity?: { type: string; description: string } | null;
   suggestedNextAction?: string | null;
   currentMood?: 'sad' | 'neutral' | 'happy' | 'motivated' | undefined;
+  children?: React.ReactNode;
 }
 
 const DashboardLayout = ({
@@ -57,7 +59,8 @@ const DashboardLayout = ({
   onCloseStudyPlan,
   lastActivity,
   suggestedNextAction,
-  currentMood
+  currentMood,
+  children
 }) => {
   const isMobile = useIsMobile();
   const formattedTime = formatTime(currentTime);
@@ -102,6 +105,9 @@ const DashboardLayout = ({
           <section>
             <MoodDashboard />
           </section>
+          
+          {/* Child Content */}
+          {children}
         </div>
       </div>
     </div>
