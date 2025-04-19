@@ -1,109 +1,189 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useStudentDashboard } from "@/hooks/useStudentDashboard";
-import DashboardLoading from "@/pages/dashboard/student/DashboardLoading";
-import DashboardLayout from "@/pages/dashboard/student/DashboardLayout";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { CheckCircle, CheckCircle2 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { useToast } from "@/hooks/use-toast";
-import { motion } from "framer-motion";
-import { useMoodContext } from "@/contexts/MoodContext";
 
-const plans = [
-  {
-    id: "basic",
-    name: "Basic",
-    price: "499",
-    duration: "month",
-    isMostPopular: false,
-    description: "Perfect for starters",
-    features: [
-      "All subject access",
-      "Basic doubt solving",
-      "Limited daily questions",
-      "Weekly mock tests"
-    ],
-    buttonLabel: "Get Started"
-  },
-  {
-    id: "pro",
-    name: "Pro",
-    price: "999",
-    duration: "month",
-    isMostPopular: true,
-    description: "Best for serious students",
-    features: [
-      "All subject access",
-      "Priority doubt solving",
-      "Unlimited daily questions",
-      "Daily mock tests",
-      "Performance analytics",
-      "Peer group access"
-    ],
-    buttonLabel: "Upgrade Now"
-  },
-  {
-    id: "ultimate",
-    name: "Ultimate",
-    price: "1499",
-    duration: "month",
-    isMostPopular: false,
-    description: "For maximum results",
-    features: [
-      "All Pro features",
-      "1-on-1 mentoring",
-      "Personalized study plan",
-      "Unlimited mock tests",
-      "Advanced analytics",
-      "Parent dashboard",
-      "Result guarantee"
-    ],
-    buttonLabel: "Go Ultimate"
-  }
-];
+import React, { useState, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import SubscriptionPlans from '@/components/subscription/SubscriptionPlans';
+import DashboardLayout from './DashboardLayout';
+import { useStudentDashboard } from '@/hooks/useStudentDashboard';
+import DashboardLoading from './DashboardLoading';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { AlertCircle, CheckCircle, Clock, Users, Copy, Check, Crown, UserPlus } from 'lucide-react';
+import { formatDate } from '@/utils/dateUtils';
+import { useToast } from '@/hooks/use-toast';
+import { Input } from '@/components/ui/input';
 
-const SubscriptionPage: React.FC = () => {
+const SubscriptionPage = () => {
+  const location = useLocation();
   const navigate = useNavigate();
-  const [selectedPlan, setSelectedPlan] = useState<string>("pro");
-  const { toast } = useToast();
-  const { currentMood } = useMoodContext();
-  
-  // Use the student dashboard hook for shared functionality
   const {
     loading,
     userProfile,
     activeTab,
     showWelcomeTour,
+    showOnboarding,
+    currentTime,
     showStudyPlan,
     hideTabsNav,
     hideSidebar,
     kpis,
     nudges,
-    features,
     markNudgeAsRead,
     handleTabChange,
     handleSkipTour,
     handleCompleteTour,
+    handleCompleteOnboarding,
     handleViewStudyPlan,
     handleCloseStudyPlan,
     toggleSidebar,
     toggleTabsNav
   } = useStudentDashboard();
+  
+  const [currentPlan, setCurrentPlan] = useState({
+    id: 'free',
+    name: 'Free Trial',
+    expiryDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
+    isActive: true,
+    isGroup: false
+  });
 
-  const handleSelectPlan = (planId: string) => {
-    setSelectedPlan(planId);
+  // For invited users to enter invitation code
+  const [inviteCode, setInviteCode] = useState('');
+  const [activationSuccess, setActivationSuccess] = useState(false);
+  
+  // For group leaders to manage invitations
+  const [groupInvites, setGroupInvites] = useState<{code: string, email: string, used: boolean}[]>([]);
+  const [copiedCodeIndex, setCopiedCodeIndex] = useState<number | null>(null);
+  
+  const { toast } = useToast();
+  
+  useEffect(() => {
+    // Check if there's any plan update from the checkout process
+    if (location.state?.planUpdated && location.state?.newPlan) {
+      const plan = location.state.newPlan;
+      setCurrentPlan({
+        id: plan.id,
+        name: plan.name,
+        expiryDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
+        isActive: true,
+        isGroup: plan.isGroup
+      });
+      
+      // If it's a group plan and the user is the leader
+      if (location.state.isGroupLeader && location.state.invitedEmails && location.state.inviteCodes) {
+        // Create invitation records
+        const invites = location.state.invitedEmails.map((email: string, index: number) => ({
+          code: location.state.inviteCodes[index],
+          email: email,
+          used: false
+        }));
+        
+        setGroupInvites(invites);
+        
+        toast({
+          title: "Group Plan Activated",
+          description: "You are now a batch leader. Manage your group in this section.",
+          variant: "default",
+        });
+      }
+    }
+    
+    // In a real application, this would fetch the user's subscription status
+    const urlParams = new URLSearchParams(window.location.search);
+    
+    if (urlParams.get('plan') === 'updated') {
+      toast({
+        title: "Subscription Updated",
+        description: "Your plan has been updated successfully.",
+        variant: "default",
+      });
+    } else if (urlParams.get('plan') === 'group-activated') {
+      toast({
+        title: "Group Plan Activated",
+        description: "You are now a batch leader. Manage your group in this section.",
+        variant: "default",
+      });
+      
+      setCurrentPlan({
+        id: 'group-pro',
+        name: 'Group Pro',
+        expiryDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
+        isActive: true,
+        isGroup: true
+      });
+      
+      // Extract invitation codes and emails from URL params
+      const codes = urlParams.get('codes')?.split(',') || [];
+      const emails = urlParams.get('emails')?.split(',') || [];
+      
+      // Create invitation records
+      const invites = codes.map((code, index) => ({
+        code,
+        email: emails[index] || `user${index + 1}@example.com`,
+        used: false
+      }));
+      
+      setGroupInvites(invites);
+    }
+  }, [location]);
+  
+  const handleActivateCode = () => {
+    if (inviteCode.trim() === '') {
+      toast({
+        title: "Error",
+        description: "Please enter a valid invitation code",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    // Simulate code validation
+    // In a real app, this would check against a database of valid codes
+    setTimeout(() => {
+      // Simulate successful activation
+      if (inviteCode.startsWith('SAKHA-')) {
+        toast({
+          title: "Success!",
+          description: "Your premium access has been activated. Welcome to the group!",
+          variant: "default",
+        });
+        
+        setActivationSuccess(true);
+        setCurrentPlan({
+          id: 'group-pro-member',
+          name: 'Group Pro (Member)',
+          expiryDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
+          isActive: true,
+          isGroup: true
+        });
+      } else {
+        toast({
+          title: "Invalid Code",
+          description: "The invitation code you entered is not valid",
+          variant: "destructive",
+        });
+      }
+    }, 1000);
+  };
+  
+  const copyInviteCode = (code: string, index: number) => {
+    navigator.clipboard.writeText(code);
+    setCopiedCodeIndex(index);
+    
+    setTimeout(() => {
+      setCopiedCodeIndex(null);
+    }, 2000);
+    
     toast({
-      title: "Plan Selected",
-      description: `You've selected the ${planId.charAt(0).toUpperCase() + planId.slice(1)} plan.`,
+      title: "Code Copied!",
+      description: "Invitation code copied to clipboard",
     });
   };
-
-  const handleSubscribe = (planId: string) => {
-    navigate(`/subscription/checkout?plan=${planId}`);
+  
+  const handleManageBatch = () => {
+    navigate('/dashboard/student/batch');
   };
-
+  
   if (loading || !userProfile) {
     return <DashboardLoading />;
   }
@@ -117,9 +197,7 @@ const SubscriptionPage: React.FC = () => {
       kpis={kpis}
       nudges={nudges}
       markNudgeAsRead={markNudgeAsRead}
-      features={features}
       showWelcomeTour={showWelcomeTour}
-      currentTime={new Date()}
       onTabChange={handleTabChange}
       onViewStudyPlan={handleViewStudyPlan}
       onToggleSidebar={toggleSidebar}
@@ -128,79 +206,228 @@ const SubscriptionPage: React.FC = () => {
       onCompleteTour={handleCompleteTour}
       showStudyPlan={showStudyPlan}
       onCloseStudyPlan={handleCloseStudyPlan}
-      lastActivity={null}
-      suggestedNextAction={null}
-      currentMood={currentMood}
     >
-      <Card className="shadow-md">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-2xl text-center">Choose Your Study Plan</CardTitle>
-          <p className="text-center text-muted-foreground">
-            Select the plan that works best for your exam preparation needs.
+      <div className="container max-w-5xl mx-auto">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold mb-2">Your Subscription</h1>
+          <p className="text-gray-500 dark:text-gray-400">
+            Manage your subscription and see available plans
           </p>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-6">
-            {plans.map((plan) => (
-              <motion.div
-                key={plan.id}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="flex"
-              >
-                <Card
-                  className={`flex flex-col h-full shadow-sm cursor-pointer border-2 ${
-                    selectedPlan === plan.id
-                      ? "border-blue-500 dark:border-blue-600"
-                      : "border-transparent"
-                  }`}
-                  onClick={() => handleSelectPlan(plan.id)}
-                >
-                  <CardHeader className="pb-2">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <CardTitle className="text-xl">{plan.name}</CardTitle>
-                        <p className="text-muted-foreground text-sm mt-1">
-                          {plan.description}
-                        </p>
-                      </div>
-                      {plan.isMostPopular && (
-                        <Badge className="bg-blue-600">Popular</Badge>
-                      )}
-                    </div>
-                  </CardHeader>
-                  <CardContent className="flex-grow">
-                    <div className="mb-6">
-                      <span className="text-3xl font-bold">₹{plan.price}</span>
-                      <span className="text-muted-foreground">/{plan.duration}</span>
-                    </div>
-                    <ul className="space-y-2">
-                      {plan.features.map((feature, idx) => (
-                        <li key={idx} className="flex items-start gap-2">
-                          <CheckCircle2 className="h-5 w-5 text-green-600 shrink-0 mt-0.5" />
-                          <span>{feature}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </CardContent>
-                  <CardFooter>
-                    <Button
-                      className={`w-full ${
-                        plan.isMostPopular
-                          ? "bg-blue-600 hover:bg-blue-700"
-                          : ""
-                      }`}
-                      onClick={() => handleSubscribe(plan.id)}
-                    >
-                      {plan.buttonLabel}
+        </div>
+        
+        {/* Current Plan Section */}
+        <Card className="mb-8 bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800 overflow-hidden">
+          <div className={`h-2 ${
+            currentPlan.isActive ? 
+              'bg-green-500' : 
+              'bg-amber-500'
+          }`} />
+          <CardHeader className="pb-3">
+            <div className="flex justify-between items-center">
+              <CardTitle>Current Plan</CardTitle>
+              <Badge className={`${
+                currentPlan.isActive ? 
+                  'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 
+                  'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200'
+              }`}>
+                {currentPlan.isActive ? 'Active' : 'Expiring Soon'}
+              </Badge>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+              <div>
+                <h2 className="text-2xl font-bold">{currentPlan.name}</h2>
+                <div className="flex items-center mt-1 text-gray-500 dark:text-gray-400">
+                  {currentPlan.isGroup ? (
+                    <span className="flex items-center">
+                      <Users size={16} className="mr-1" /> 
+                      {currentPlan.name.includes('Member') ? 'Group Plan Member' : 'Group Plan (5 Users)'}
+                    </span>
+                  ) : (
+                    <span>Individual Plan</span>
+                  )}
+                </div>
+                <div className="flex items-center mt-2 text-sm">
+                  <Clock size={14} className="mr-1" />
+                  <span>
+                    {currentPlan.isActive ? 'Renews' : 'Expires'} on {formatDate(currentPlan.expiryDate.toISOString())}
+                  </span>
+                </div>
+              </div>
+              
+              <div className="mt-4 md:mt-0">
+                {currentPlan.isGroup && !currentPlan.name.includes('Member') ? (
+                  <div className="flex flex-wrap gap-2">
+                    <Button variant="outline" className="mr-2">
+                      Manage Subscription
                     </Button>
-                  </CardFooter>
-                </Card>
-              </motion.div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+                    <Button variant="default" onClick={handleManageBatch}>
+                      <Crown size={16} className="mr-2" />
+                      Manage Batch
+                    </Button>
+                  </div>
+                ) : (
+                  <Button variant={currentPlan.isGroup ? "outline" : "default"} className="mr-2">
+                    {currentPlan.isGroup ? 'View Batch Details' : 'Manage Subscription'}
+                  </Button>
+                )}
+              </div>
+            </div>
+            
+            {currentPlan.isGroup && !currentPlan.name.includes('Member') && (
+              <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-md">
+                <div className="flex items-start">
+                  <CheckCircle size={18} className="text-blue-500 mr-2 mt-0.5" />
+                  <div>
+                    <h4 className="font-medium text-blue-800 dark:text-blue-300">You are a Batch Leader</h4>
+                    <p className="text-sm text-blue-700 dark:text-blue-200">
+                      You can manage your group members, track their progress, and add or remove users from your batch.
+                    </p>
+                    <Button 
+                      variant="link" 
+                      className="text-sm p-0 h-auto text-blue-600 dark:text-blue-400"
+                      onClick={handleManageBatch}
+                    >
+                      Go to Batch Management
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
+            
+            {currentPlan.isGroup && currentPlan.name.includes('Member') && (
+              <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-md">
+                <div className="flex items-start">
+                  <CheckCircle size={18} className="text-blue-500 mr-2 mt-0.5" />
+                  <div>
+                    <h4 className="font-medium text-blue-800 dark:text-blue-300">Group Plan Member</h4>
+                    <p className="text-sm text-blue-700 dark:text-blue-200">
+                      You're part of a study group. All premium features have been unlocked.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+        
+        {/* Group Invitation Management for Batch Leader */}
+        {currentPlan.isGroup && !currentPlan.name.includes('Member') && groupInvites.length > 0 && (
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle className="text-xl flex items-center justify-between">
+                <span>Manage Group Invitations</span>
+                <Button size="sm" onClick={handleManageBatch}>
+                  <UserPlus size={16} className="mr-1" />
+                  Batch Management
+                </Button>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <p className="text-sm text-gray-600 dark:text-gray-300">
+                  Share these invitation codes with your group members. They can enter these codes during signup or in their subscription page.
+                </p>
+                
+                <div className="space-y-3">
+                  {groupInvites.map((invite, index) => (
+                    <div key={index} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 border rounded-md border-gray-200 dark:border-gray-700">
+                      <div className="flex flex-col">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-medium">{invite.email}</span>
+                          <Badge className={invite.used ? 
+                            "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300" : 
+                            "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300"
+                          }>
+                            {invite.used ? "Activated" : "Pending"}
+                          </Badge>
+                        </div>
+                        <div className="mt-1 font-mono text-xs text-gray-600 dark:text-gray-400">
+                          Code: {invite.code}
+                        </div>
+                      </div>
+                      <div className="mt-2 sm:mt-0">
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          className="text-xs h-8 flex items-center gap-1"
+                          onClick={() => copyInviteCode(invite.code, index)}
+                        >
+                          {copiedCodeIndex === index ? <Check size={14} /> : <Copy size={14} />}
+                          {copiedCodeIndex === index ? "Copied" : "Copy Code"}
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                
+                <div className="flex justify-end">
+                  <Button onClick={handleManageBatch}>
+                    Go to Full Batch Management
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+        
+        {/* Activation Code Section for Group Members */}
+        {!currentPlan.isGroup && !activationSuccess && (
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle className="text-xl">Have an Invitation Code?</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <p className="text-sm text-gray-600 dark:text-gray-300">
+                  If you were invited to join a group plan, enter your invitation code below to activate your premium access.
+                </p>
+                
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <Input 
+                    placeholder="Enter your invitation code (e.g. SAKHA-ABC123)"
+                    value={inviteCode}
+                    onChange={(e) => setInviteCode(e.target.value)}
+                    className="flex-grow"
+                  />
+                  <Button onClick={handleActivateCode}>
+                    Activate
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+        
+        {/* Successful Activation Message */}
+        {activationSuccess && (
+          <Card className="mb-8 border-green-200 dark:border-green-800">
+            <CardContent className="pt-6">
+              <div className="flex items-start">
+                <div className="mr-4 bg-green-100 dark:bg-green-900 p-2 rounded-full">
+                  <CheckCircle className="h-6 w-6 text-green-600 dark:text-green-400" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-medium text-green-800 dark:text-green-300">
+                    Group Plan Activated Successfully!
+                  </h3>
+                  <p className="mt-1 text-sm text-green-700 dark:text-green-400">
+                    You now have access to all premium features as part of the group plan.
+                    Enjoy your enhanced learning experience!
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+        
+        {/* Available Plans Section */}
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold mb-4">Available Plans</h2>
+          <SubscriptionPlans currentPlanId={currentPlan.id} />
+        </div>
+      </div>
     </DashboardLayout>
   );
 };

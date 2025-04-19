@@ -6,12 +6,11 @@ import DashboardLoading from "@/pages/dashboard/student/DashboardLoading";
 import DashboardLayout from "@/pages/dashboard/student/DashboardLayout";
 import SplashScreen from "@/components/dashboard/student/SplashScreen";
 import { useLocation } from "react-router-dom";
-import { useMoodContext } from "@/contexts/MoodContext";
 
 const StudentDashboard = () => {
   const [showSplash, setShowSplash] = useState(true);
+  const [currentMood, setCurrentMood] = useState<'sad' | 'neutral' | 'happy' | 'motivated' | undefined>(undefined);
   const location = useLocation();
-  const { currentMood } = useMoodContext();
   
   const {
     loading,
@@ -55,12 +54,32 @@ const StudentDashboard = () => {
       const hasSeen = sessionStorage.getItem("hasSeenSplash");
       setShowSplash(!hasSeen);
     }
+    
+    // Try to get saved mood from local storage
+    const savedUserData = localStorage.getItem("userData");
+    if (savedUserData) {
+      const parsedData = JSON.parse(savedUserData);
+      if (parsedData.mood) {
+        setCurrentMood(parsedData.mood);
+      }
+    }
   }, [location]);
   
   const handleSplashComplete = () => {
     setShowSplash(false);
     // Mark that the user has seen the splash screen in this session
     sessionStorage.setItem("hasSeenSplash", "true");
+    
+    // Save a default optimistic mood if none is set
+    if (!currentMood) {
+      setCurrentMood('motivated');
+      const userData = localStorage.getItem("userData");
+      if (userData) {
+        const parsedData = JSON.parse(userData);
+        parsedData.mood = 'motivated';
+        localStorage.setItem("userData", JSON.stringify(parsedData));
+      }
+    }
   };
 
   // Show splash screen if needed
@@ -96,9 +115,7 @@ const StudentDashboard = () => {
       kpis={kpis}
       nudges={nudges}
       markNudgeAsRead={markNudgeAsRead}
-      features={features}
       showWelcomeTour={showWelcomeTour}
-      currentTime={new Date()}
       onTabChange={handleTabChange}
       onViewStudyPlan={handleViewStudyPlan}
       onToggleSidebar={toggleSidebar}
@@ -110,9 +127,7 @@ const StudentDashboard = () => {
       lastActivity={lastActivity}
       suggestedNextAction={suggestedNextAction}
       currentMood={currentMood}
-    >
-      {/* Main dashboard content can go here if needed */}
-    </DashboardLayout>
+    />
   );
 };
 
