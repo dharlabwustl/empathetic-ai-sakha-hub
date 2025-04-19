@@ -100,10 +100,7 @@ const MoodLogButton: React.FC<MoodLogButtonProps> = ({
     onMoodChange?.(mood);
     setIsOpen(false);
     
-    toast({
-      title: "Mood updated",
-      description: `Your mood has been set to ${getMoodLabel(mood)}`,
-    });
+    // Toast notification will now be handled by the parent component
   };
   
   const getMoodLabel = (mood?: MoodType): string => {

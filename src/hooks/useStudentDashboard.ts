@@ -1,10 +1,11 @@
+
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { handleNewUser } from "@/pages/dashboard/student/utils/UserSessionManager";
 import { useKpiTracking } from "@/hooks/useKpiTracking";
-import { UserRole } from "@/types/user/base";
+import { UserRole, MoodType } from "@/types/user/base";
 
 export const useStudentDashboard = () => {
   const [loading, setLoading] = useState(true);
@@ -15,6 +16,7 @@ export const useStudentDashboard = () => {
   const [hideTabsNav, setHideTabsNav] = useState(false);
   const [lastActivity, setLastActivity] = useState<{ type: string, description: string } | null>(null);
   const [suggestedNextAction, setSuggestedNextAction] = useState<string | null>(null);
+  const [currentMood, setCurrentMood] = useState<MoodType | undefined>(undefined);
   const { userProfile, loading: profileLoading, updateUserProfile } = useUserProfile(UserRole.Student);
   const { kpis, nudges, markNudgeAsRead } = useKpiTracking(UserRole.Student);
   const navigate = useNavigate();
@@ -26,21 +28,39 @@ export const useStudentDashboard = () => {
   
   const now = new Date();
   const hour = now.getHours();
-  let currentTime = "";
+  let currentTime = now;
   
-  if (hour < 12) currentTime = "Good Morning";
-  else if (hour < 17) currentTime = "Good Afternoon";
-  else currentTime = "Good Evening";
-  
-  const features = {
-    overview: true,
-    subjects: true,
-    quizzes: true,
-    resources: true,
-    community: true,
-    progress: true,
-    settings: true,
-  };
+  // Demo features array for dashboard - properly defined as an array
+  const features = [
+    {
+      title: "Mock Tests",
+      description: "Practice with full-length exams",
+      path: "/dashboard/student/practice-exam",
+      icon: null,
+      isPremium: false,
+    },
+    {
+      title: "Concept Library",
+      description: "Master key concepts",
+      path: "/dashboard/student/concepts",
+      icon: null,
+      isPremium: false,
+    },
+    {
+      title: "AI Tutor",
+      description: "Get personalized help 24/7",
+      path: "/dashboard/student/tutor",
+      icon: null,
+      isPremium: false,
+    },
+    {
+      title: "Notes & Flashcards",
+      description: "Create and manage study materials",
+      path: "/dashboard/student/flashcards",
+      icon: null, 
+      isPremium: true,
+    }
+  ];
   
   useEffect(() => {
     if (tab) {
@@ -85,7 +105,18 @@ export const useStudentDashboard = () => {
             } else {
               setSuggestedNextAction("Start today's recommended study plan");
             }
+            
+            // Load saved mood if available
+            if (parsedData.mood) {
+              setCurrentMood(parsedData.mood as MoodType);
+            }
           }
+        }
+        
+        // Check for saved mood in localStorage (preferred over userData)
+        const savedMood = localStorage.getItem('currentMood') as MoodType | null;
+        if (savedMood) {
+          setCurrentMood(savedMood);
         }
         
         if (userProfile && !shouldShowOnboarding) {
@@ -201,6 +232,7 @@ export const useStudentDashboard = () => {
     features,
     lastActivity,
     suggestedNextAction,
+    currentMood,
     markNudgeAsRead,
     handleTabChange,
     handleSkipTour,

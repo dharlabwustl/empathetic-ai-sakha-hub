@@ -6,10 +6,11 @@ import DashboardLoading from "@/pages/dashboard/student/DashboardLoading";
 import DashboardLayout from "@/pages/dashboard/student/DashboardLayout";
 import SplashScreen from "@/components/dashboard/student/SplashScreen";
 import { useLocation } from "react-router-dom";
+import { MoodType } from "@/types/user/base";
 
 const StudentDashboard = () => {
   const [showSplash, setShowSplash] = useState(true);
-  const [currentMood, setCurrentMood] = useState<'sad' | 'neutral' | 'happy' | 'motivated' | undefined>(undefined);
+  const [currentMood, setCurrentMood] = useState<MoodType | undefined>(undefined);
   const location = useLocation();
   
   const {
@@ -38,7 +39,7 @@ const StudentDashboard = () => {
     toggleTabsNav
   } = useStudentDashboard();
 
-  // Check URL parameters for onboarding status
+  // Check URL parameters for onboarding status and load saved mood data
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const isNewUser = params.get('new') === 'true';
@@ -56,11 +57,17 @@ const StudentDashboard = () => {
     }
     
     // Try to get saved mood from local storage
-    const savedUserData = localStorage.getItem("userData");
-    if (savedUserData) {
-      const parsedData = JSON.parse(savedUserData);
-      if (parsedData.mood) {
-        setCurrentMood(parsedData.mood);
+    const savedMood = localStorage.getItem("currentMood") as MoodType | null;
+    if (savedMood) {
+      setCurrentMood(savedMood);
+    } else {
+      // Look in userData as well for backward compatibility
+      const savedUserData = localStorage.getItem("userData");
+      if (savedUserData) {
+        const parsedData = JSON.parse(savedUserData);
+        if (parsedData.mood) {
+          setCurrentMood(parsedData.mood as MoodType);
+        }
       }
     }
   }, [location]);
@@ -73,6 +80,10 @@ const StudentDashboard = () => {
     // Save a default optimistic mood if none is set
     if (!currentMood) {
       setCurrentMood('motivated');
+      // Save mood to localStorage
+      localStorage.setItem("currentMood", 'motivated');
+      
+      // Update userData for backward compatibility
       const userData = localStorage.getItem("userData");
       if (userData) {
         const parsedData = JSON.parse(userData);
@@ -127,6 +138,8 @@ const StudentDashboard = () => {
       lastActivity={lastActivity}
       suggestedNextAction={suggestedNextAction}
       currentMood={currentMood}
+      features={Array.isArray(features) ? features : []}
+      currentTime={currentTime}
     />
   );
 };

@@ -1,3 +1,4 @@
+
 export interface StudentData {
   id: string;
   name: string;
@@ -24,4 +25,19 @@ export interface StudentData {
   // Adding the missing properties
   targetScore?: number;
   avatarUrl?: string;
+  
+  // Mood-related properties
+  currentMood?: MoodType;
+  moodHistory?: MoodHistoryEntry[];
+  energyLevel?: number; // 1-10 scale for energy level
+  consecutiveLowMoodDays?: number; // Track consecutive low mood days
 }
+
+// New types for mood tracking
+export interface MoodHistoryEntry {
+  mood: MoodType;
+  timestamp: string;
+  note?: string;
+}
+
+export type MoodType = 'motivated' | 'curious' | 'neutral' | 'tired' | 'stressed' | 'focused' | 'happy' | 'okay' | 'overwhelmed' | 'sad';

@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import SidebarNav from "@/components/dashboard/SidebarNav";
 import ChatAssistant from "@/components/dashboard/ChatAssistant";
@@ -16,11 +16,10 @@ import { formatTime, formatDate } from "./utils/DateTimeFormatter";
 import { motion } from "framer-motion";
 import { useIsMobile } from "@/hooks/use-mobile";
 import MobileNavigation from "./MobileNavigation";
-import { getFeatures } from "./utils/FeatureManager";
 import { Button } from "@/components/ui/button";
-import { BookOpen, MessageSquareText, Brain } from "lucide-react";
-import ProfileCard from "@/components/dashboard/ProfileCard";
+import { BookOpen, MessageSquareText, Brain, Sun, Moon } from "lucide-react";
 import WelcomeTour from "@/components/dashboard/student/WelcomeTour";
+import { applyMoodTheme } from "@/components/dashboard/student/mood-tracking/moodUtils";
 
 interface DashboardLayoutProps {
   userProfile: UserProfileType;
@@ -42,6 +41,8 @@ interface DashboardLayoutProps {
   lastActivity?: { type: string; description: string } | null;
   suggestedNextAction?: string | null;
   currentMood?: MoodType;
+  features?: any[];
+  currentTime?: Date;
   children?: React.ReactNode; // Add support for children
 }
 
@@ -65,15 +66,27 @@ const DashboardLayout = ({
   lastActivity,
   suggestedNextAction,
   currentMood,
+  features = [],
+  currentTime = new Date(),
   children // Now we use children
 }: DashboardLayoutProps) => {
-  const currentTime = new Date();
   const formattedTime = formatTime(currentTime);
   const formattedDate = formatDate(currentTime);
   const isMobile = useIsMobile();
   const [influenceMeterCollapsed, setInfluenceMeterCollapsed] = useState(true);
+  const [isChillMode, setIsChillMode] = useState(false);
   
-  const features = getFeatures();
+  // Check for conditions that would trigger chill mode
+  useEffect(() => {
+    const lowMoods: MoodType[] = ['tired', 'stressed', 'overwhelmed', 'sad'];
+    const shouldEnableChillMode = currentMood && lowMoods.includes(currentMood);
+    
+    setIsChillMode(shouldEnableChillMode || false);
+    
+    if (currentMood) {
+      applyMoodTheme(currentMood);
+    }
+  }, [currentMood]);
 
   // Navigation buttons for quick access - moved from inside the render
   const navigationButtons = [
@@ -115,9 +128,30 @@ const DashboardLayout = ({
     setShowTour(false);
     onCompleteTour();
   };
+  
+  const toggleChillMode = () => {
+    const newChillMode = !isChillMode;
+    setIsChillMode(newChillMode);
+    
+    // Apply visual changes for chill mode
+    const root = document.documentElement;
+    if (newChillMode) {
+      root.style.setProperty('--background', 'hsl(210, 40%, 98%)');
+      root.style.setProperty('--primary', 'hsl(199, 89%, 48%)');
+      root.style.setProperty('--primary-foreground', 'hsl(0, 0%, 98%)');
+      root.style.setProperty('--secondary', 'hsl(196, 100%, 94%)');
+      document.body.classList.add('chill-mode');
+    } else {
+      root.style.removeProperty('--background');
+      root.style.removeProperty('--primary');
+      root.style.removeProperty('--primary-foreground');
+      root.style.removeProperty('--secondary');
+      document.body.classList.remove('chill-mode');
+    }
+  };
 
   return (
-    <div className={`min-h-screen bg-gradient-to-br from-sky-100/10 via-white to-violet-100/10 dark:from-sky-900/10 dark:via-gray-900 dark:to-violet-900/10 ${currentMood ? `mood-${currentMood}` : ''}`}>
+    <div className={`min-h-screen bg-gradient-to-br from-sky-100/10 via-white to-violet-100/10 dark:from-sky-900/10 dark:via-gray-900 dark:to-violet-900/10 ${isChillMode ? 'chill-mode' : ''} ${currentMood ? `mood-${currentMood}` : ''}`}>
       <SidebarNav userType="student" userName={userProfile.name} />
       
       <main className={`transition-all duration-300 ${hideSidebar ? 'md:ml-0' : 'md:ml-64'} p-4 sm:p-6 pb-20 md:pb-6`}>
@@ -136,11 +170,39 @@ const DashboardLayout = ({
             formattedDate={formattedDate}
             onViewStudyPlan={onViewStudyPlan}
           />
+          
+          {/* Chill Mode Toggle Button */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={toggleChillMode}
+            className={`ml-auto flex items-center gap-1 ${
+              isChillMode 
+                ? 'bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100' 
+                : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'
+            }`}
+          >
+            {isChillMode ? (
+              <>
+                <Moon className="h-4 w-4 mr-1" />
+                Exit Chill Mode
+              </>
+            ) : (
+              <>
+                <Sun className="h-4 w-4 mr-1" />
+                Enter Chill Mode
+              </>
+            )}
+          </Button>
         </div>
 
         {/* Enhanced Quick Access Navigation Bar */}
         <motion.div 
-          className="flex flex-wrap items-center gap-2 mb-4 p-2 bg-white/80 dark:bg-gray-800/50 backdrop-blur-sm rounded-lg shadow-md border border-gray-100 dark:border-gray-700"
+          className={`flex flex-wrap items-center gap-2 mb-4 p-2 ${
+            isChillMode 
+              ? 'bg-blue-50/80 dark:bg-blue-900/20 backdrop-blur-sm rounded-lg shadow-md border border-blue-100 dark:border-blue-800/50' 
+              : 'bg-white/80 dark:bg-gray-800/50 backdrop-blur-sm rounded-lg shadow-md border border-gray-100 dark:border-gray-700'
+          }`}
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
@@ -178,7 +240,10 @@ const DashboardLayout = ({
             <Button 
               variant="outline"
               size="sm"
-              className="bg-gradient-to-r hover:from-violet-500 hover:to-indigo-500 hover:text-white border-violet-200"
+              className={`${isChillMode 
+                ? 'bg-blue-50 border-blue-200 hover:bg-blue-100 hover:text-blue-700' 
+                : 'bg-gradient-to-r hover:from-violet-500 hover:to-indigo-500 hover:text-white border-violet-200'
+              }`}
               onClick={onViewStudyPlan}
             >
               <BookOpen className="h-4 w-4 mr-1" />
@@ -233,6 +298,7 @@ const DashboardLayout = ({
                 hideTabsNav={hideTabsNav || isMobile}
                 lastActivity={lastActivity}
                 suggestedNextAction={suggestedNextAction}
+                currentMood={currentMood}
               />
             </div>
           </div>

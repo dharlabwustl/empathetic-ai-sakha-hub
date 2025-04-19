@@ -5,6 +5,7 @@ import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
 import { generateTabContents } from "@/components/dashboard/student/TabContentManager";
 import DashboardTabs from "@/components/dashboard/student/DashboardTabs";
 import ReturnUserRecap from "@/components/dashboard/student/ReturnUserRecap";
+import { MoodType } from "@/types/user/base";
 
 interface DashboardTabsProps {
   activeTab: string;
@@ -26,6 +27,7 @@ interface DashboardContentProps {
   hideTabsNav: boolean;
   lastActivity?: { type: string; description: string } | null;
   suggestedNextAction?: string | null;
+  currentMood?: MoodType;
 }
 
 const DashboardContent = ({
@@ -41,7 +43,8 @@ const DashboardContent = ({
   handleCompleteTour,
   hideTabsNav,
   lastActivity,
-  suggestedNextAction
+  suggestedNextAction,
+  currentMood
 }: DashboardContentProps) => {
   // State to track whether the returning user recap has been closed
   const [showReturnRecap, setShowReturnRecap] = React.useState(
@@ -59,7 +62,8 @@ const DashboardContent = ({
     handleSkipTour,
     handleCompleteTour,
     lastActivity,
-    suggestedNextAction
+    suggestedNextAction,
+    currentMood
   });
   
   // Handle closing the recap
@@ -77,6 +81,7 @@ const DashboardContent = ({
           suggestedNextTasks={suggestedNextAction ? [suggestedNextAction] : undefined}
           onClose={handleCloseRecap}
           loginCount={userProfile.loginCount}
+          currentMood={currentMood}
         />
       )}
 
@@ -90,7 +95,7 @@ const DashboardContent = ({
       )}
 
       {/* Tab content */}
-      <div className="mt-6 bg-white dark:bg-gray-800 rounded-lg shadow p-4 sm:p-6 flex-grow">
+      <div className={`mt-6 bg-white dark:bg-gray-800 rounded-lg shadow p-4 sm:p-6 flex-grow ${currentMood && ['tired', 'stressed', 'overwhelmed', 'sad'].includes(currentMood) ? 'bg-blue-50 border-blue-200 dark:bg-gray-800/90 dark:border-blue-900/50' : ''}`}>
         {tabContents[activeTab] || (
           <div className="text-center py-8">
             <h3 className="text-lg font-medium text-gray-900 dark:text-white">Coming Soon</h3>
