@@ -110,7 +110,9 @@ const StudentDashboard = () => {
       lastActivity={lastActivity}
       suggestedNextAction={suggestedNextAction}
       currentMood={currentMood}
-    />
+    >
+      {/* Main dashboard content can go here if needed */}
+    </DashboardLayout>
   );
 };
 

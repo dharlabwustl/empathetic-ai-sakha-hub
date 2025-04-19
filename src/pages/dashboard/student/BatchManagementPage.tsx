@@ -9,12 +9,14 @@ import DashboardLayout from "@/pages/dashboard/student/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Plus, Trash, PenLine, Users, CalendarDays, Clock } from 'lucide-react';
+import { useMoodContext } from "@/contexts/MoodContext";
 
 const BatchManagementPage: React.FC = () => {
   const [batches, setBatches] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const { userProfile: userData, loading: profileLoading } = useUserProfile(UserRole.Student);
   const { toast } = useToast();
+  const { currentMood } = useMoodContext();
   
   // Use the student dashboard hook for shared functionality
   const {
@@ -149,6 +151,7 @@ const BatchManagementPage: React.FC = () => {
       onCloseStudyPlan={handleCloseStudyPlan}
       lastActivity={null}
       suggestedNextAction={null}
+      currentMood={currentMood}
     >
       <Card className="shadow-md">
         <CardHeader className="pb-3">

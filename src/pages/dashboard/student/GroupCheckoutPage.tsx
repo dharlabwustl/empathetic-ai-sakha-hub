@@ -10,12 +10,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Plus, Trash } from "lucide-react";
 import { motion } from "framer-motion";
+import { useMoodContext } from "@/contexts/MoodContext";
 
 const GroupCheckoutPage: React.FC = () => {
   const [emails, setEmails] = useState<string[]>(['']);
   const [couponCode, setCouponCode] = useState('');
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+  const { currentMood } = useMoodContext();
   
   // Use the student dashboard hook for shared functionality
   const {
@@ -108,6 +110,7 @@ const GroupCheckoutPage: React.FC = () => {
       onCloseStudyPlan={handleCloseStudyPlan}
       lastActivity={null}
       suggestedNextAction={null}
+      currentMood={currentMood}
     >
       <Card className="mx-auto max-w-3xl shadow-md">
         <CardHeader>

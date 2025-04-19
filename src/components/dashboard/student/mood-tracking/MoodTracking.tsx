@@ -76,7 +76,7 @@ const MoodTracking: React.FC = () => {
 
 // Helper functions
 const getMoodDisplayName = (mood?: MoodType): string => {
-  const moodDisplayNames: Record<MoodType, string> = {
+  const moodDisplayNames: Record<string, string> = {
     motivated: "Motivated",
     curious: "Curious",
     neutral: "Neutral",
@@ -93,7 +93,7 @@ const getMoodDisplayName = (mood?: MoodType): string => {
 };
 
 const getMoodMessage = (mood: MoodType): string => {
-  const moodMessages: Record<MoodType, string> = {
+  const moodMessages: Record<string, string> = {
     motivated: "Great! Your motivation can help you tackle challenging topics today.",
     curious: "Curiosity drives learning! Great time to explore new concepts.",
     neutral: "A balanced state is good for consistent study progress.",

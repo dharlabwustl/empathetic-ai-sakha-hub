@@ -12,6 +12,7 @@ import SurroundingInfluencesSection from '@/components/dashboard/student/Surroun
 import MainContent from '@/components/dashboard/student/MainContent';
 import { useIsMobile } from "@/hooks/use-mobile";
 import MoodDashboard from "@/components/dashboard/student/mood-tracking/MoodDashboard";
+import { MoodType } from "@/types/user/base";
 
 interface DashboardLayoutProps {
   userProfile: UserProfileType;
@@ -34,7 +35,7 @@ interface DashboardLayoutProps {
   onCloseStudyPlan: () => void;
   lastActivity?: { type: string; description: string } | null;
   suggestedNextAction?: string | null;
-  currentMood?: 'sad' | 'neutral' | 'happy' | 'motivated' | undefined;
+  currentMood?: MoodType;
   children?: React.ReactNode;
 }
 

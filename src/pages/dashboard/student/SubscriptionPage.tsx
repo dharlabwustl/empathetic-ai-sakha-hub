@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useStudentDashboard } from "@/hooks/useStudentDashboard";
@@ -10,6 +9,7 @@ import { CheckCircle, CheckCircle2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
+import { useMoodContext } from "@/contexts/MoodContext";
 
 const plans = [
   {
@@ -68,6 +68,7 @@ const SubscriptionPage: React.FC = () => {
   const navigate = useNavigate();
   const [selectedPlan, setSelectedPlan] = useState<string>("pro");
   const { toast } = useToast();
+  const { currentMood } = useMoodContext();
   
   // Use the student dashboard hook for shared functionality
   const {
@@ -129,6 +130,7 @@ const SubscriptionPage: React.FC = () => {
       onCloseStudyPlan={handleCloseStudyPlan}
       lastActivity={null}
       suggestedNextAction={null}
+      currentMood={currentMood}
     >
       <Card className="shadow-md">
         <CardHeader className="pb-3">
