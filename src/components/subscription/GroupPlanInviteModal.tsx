@@ -9,6 +9,7 @@ import { Loader2, Mail, Share2, UserPlus, X, Copy, Check } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
+import { useNavigate } from 'react-router-dom';
 
 interface Plan {
   id: string;
@@ -29,10 +30,11 @@ export default function GroupPlanInviteModal({ plan, onClose, onComplete }: Grou
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [inviteMethod, setInviteMethod] = useState<'email' | 'code'>('email');
   const { toast } = useToast();
+  const navigate = useNavigate();
   
   // Generate unique invite codes for each potential user in the group
   const [inviteCodes, setInviteCodes] = useState<string[]>(
-    Array(5).fill(0).map(() => 'SAKHA-' + Math.random().toString(36).substring(2, 8).toUpperCase())
+    Array(4).fill(0).map(() => 'SAKHA-' + Math.random().toString(36).substring(2, 8).toUpperCase())
   );
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
   
@@ -59,6 +61,16 @@ export default function GroupPlanInviteModal({ plan, onClose, onComplete }: Grou
       return;
     }
     
+    // Check maximum number of emails (4 for a 5-person group, with the owner being the 5th)
+    if (emails.length >= 4) {
+      toast({
+        title: "Maximum Reached",
+        description: "You can only invite up to 4 members for this plan",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     setEmails([...emails, currentEmail]);
     setCurrentEmail('');
   };
@@ -79,11 +91,19 @@ export default function GroupPlanInviteModal({ plan, onClose, onComplete }: Grou
     
     setIsSubmitting(true);
     
-    // For the actual implementation, we'll pass the emails and invite codes
-    // to the parent component to continue the checkout process
+    // Store the plan data for the checkout page
+    const checkoutData = {
+      ...plan,
+      emails: emails,
+      inviteCodes: inviteCodes.slice(0, emails.length)
+    };
+    
+    localStorage.setItem('groupPlanCheckoutData', JSON.stringify(checkoutData));
+    
+    // Navigate to checkout page
     setTimeout(() => {
-      onComplete(emails, inviteCodes.slice(0, Math.max(emails.length, 1)));
-      setIsSubmitting(false);
+      navigate('/subscription/checkout');
+      onClose();
     }, 500);
   };
   
