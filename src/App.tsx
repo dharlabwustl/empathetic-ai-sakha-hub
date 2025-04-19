@@ -39,6 +39,7 @@ import FounderDashboard from "./pages/dashboard/FounderDashboard";
 import StudyProgress from "./pages/dashboard/StudyProgress";
 import AIChatTutor from "./pages/dashboard/student/AIChatTutor";
 import AcademicAdvisor from "./pages/dashboard/student/AcademicAdvisor";
+import SubscriptionPage from "./pages/dashboard/student/SubscriptionPage";
 import NotFound from "./pages/NotFound";
 import "./styles/animations.css";
 import { UserRole } from "./types/user/base";
@@ -159,6 +160,12 @@ const App = () => {
                   <Route path="/dashboard/student/settings" element={
                     <ProtectedRoute>
                       <StudentSettingsPage />
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/dashboard/student/subscription" element={
+                    <ProtectedRoute>
+                      <SubscriptionPage />
                     </ProtectedRoute>
                   } />
                   

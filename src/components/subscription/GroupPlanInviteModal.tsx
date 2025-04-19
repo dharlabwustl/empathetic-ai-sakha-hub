@@ -1,0 +1,248 @@
+
+import React, { useState } from 'react';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Loader2, Mail, Share2, UserPlus, X } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Badge } from '@/components/ui/badge';
+
+interface Plan {
+  id: string;
+  name: string;
+  price: number;
+  userCount?: number;
+}
+
+interface GroupPlanInviteModalProps {
+  plan: Plan;
+  onClose: () => void;
+  onComplete: (emails: string[]) => void;
+}
+
+export default function GroupPlanInviteModal({ plan, onClose, onComplete }: GroupPlanInviteModalProps) {
+  const [emails, setEmails] = useState<string[]>([]);
+  const [currentEmail, setCurrentEmail] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [inviteMethod, setInviteMethod] = useState<'email' | 'code'>('email');
+  const { toast } = useToast();
+  const referralCode = 'SAKHA-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+  
+  const addEmail = () => {
+    if (!currentEmail.trim()) return;
+    
+    // Simple email validation
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailPattern.test(currentEmail)) {
+      toast({
+        title: "Invalid Email",
+        description: "Please enter a valid email address",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (emails.includes(currentEmail)) {
+      toast({
+        title: "Duplicate Email",
+        description: "This email has already been added",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setEmails([...emails, currentEmail]);
+    setCurrentEmail('');
+  };
+  
+  const removeEmail = (email: string) => {
+    setEmails(emails.filter(e => e !== email));
+  };
+  
+  const handleSubmit = () => {
+    if (inviteMethod === 'email' && emails.length === 0) {
+      toast({
+        title: "No Emails Added",
+        description: "Please add at least one email address",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setIsSubmitting(true);
+    
+    // Simulate API call
+    setTimeout(() => {
+      if (inviteMethod === 'email') {
+        onComplete(emails);
+      } else {
+        // For code-based invites, we'd just create the code and notify
+        onComplete([]);
+      }
+      setIsSubmitting(false);
+    }, 1500);
+  };
+  
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      addEmail();
+    }
+  };
+
+  const copyReferralCode = () => {
+    navigator.clipboard.writeText(referralCode);
+    toast({
+      title: "Code Copied!",
+      description: "Referral code copied to clipboard",
+    });
+  };
+
+  return (
+    <Dialog open onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle className="text-xl">
+            Set Up Your {plan.name}
+          </DialogTitle>
+        </DialogHeader>
+        
+        <div className="space-y-4 py-2">
+          <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-md text-sm text-blue-700 dark:text-blue-200">
+            <p>You're setting up a group plan for {plan.userCount} users.</p>
+            <p className="mt-1">
+              <strong>Total price: ₹{plan.price}/month</strong> 
+              <span className="text-blue-600 dark:text-blue-300"> (₹{Math.round(plan.price / (plan.userCount || 5))}/user)</span>
+            </p>
+          </div>
+          
+          <Tabs defaultValue="email" onValueChange={(v) => setInviteMethod(v as 'email' | 'code')}>
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="email" className="flex items-center gap-1">
+                <Mail size={14} /> Invite by Email
+              </TabsTrigger>
+              <TabsTrigger value="code" className="flex items-center gap-1">
+                <Share2 size={14} /> Share Invite Code
+              </TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="email" className="mt-4 space-y-4">
+              <div className="space-y-2">
+                <Label>Invite Friends (Up to {(plan.userCount || 5) - 1})</Label>
+                
+                <div className="flex space-x-2">
+                  <Input
+                    placeholder="friend@example.com"
+                    value={currentEmail}
+                    onChange={(e) => setCurrentEmail(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    disabled={emails.length >= (plan.userCount || 5) - 1}
+                  />
+                  <Button 
+                    type="button" 
+                    size="sm" 
+                    onClick={addEmail}
+                    disabled={emails.length >= (plan.userCount || 5) - 1 || !currentEmail.trim()}
+                  >
+                    <UserPlus size={16} />
+                  </Button>
+                </div>
+                
+                {emails.length >= (plan.userCount || 5) - 1 && (
+                  <p className="text-amber-600 dark:text-amber-400 text-xs">
+                    You've reached the maximum number of invitations for this plan.
+                  </p>
+                )}
+                
+                <div className="mt-2">
+                  <AnimatePresence>
+                    {emails.map((email) => (
+                      <motion.div
+                        key={email}
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="flex items-center justify-between bg-gray-100 dark:bg-gray-800 rounded-md px-3 py-2 mb-2"
+                      >
+                        <span className="text-sm truncate">{email}</span>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="h-6 w-6 p-0" 
+                          onClick={() => removeEmail(email)}
+                        >
+                          <X size={14} />
+                        </Button>
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
+                </div>
+                
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  You'll be charged the full amount now, and your friends will receive an email invitation to join your group.
+                </p>
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="code" className="mt-4 space-y-4">
+              <div className="space-y-2">
+                <Label>Share this code with your friends</Label>
+                <div className="flex items-center space-x-2">
+                  <div className="flex-1 bg-gray-100 dark:bg-gray-800 rounded-md px-3 py-2 font-mono">
+                    {referralCode}
+                  </div>
+                  <Button 
+                    type="button" 
+                    size="sm" 
+                    variant="outline"
+                    onClick={copyReferralCode}
+                  >
+                    Copy
+                  </Button>
+                </div>
+                
+                <div className="bg-amber-50 dark:bg-amber-900/20 p-3 rounded-md text-sm text-amber-700 dark:text-amber-200">
+                  <p className="flex items-start">
+                    <span className="mr-2">⚠️</span>
+                    <span>
+                      You'll be charged the full amount now. Your friends can use this code during signup to join your group.
+                    </span>
+                  </p>
+                </div>
+                
+                <div className="mt-4">
+                  <h4 className="text-sm font-medium mb-2">How it works:</h4>
+                  <ol className="list-decimal list-inside text-sm space-y-1 text-gray-700 dark:text-gray-300">
+                    <li>Share this code with up to {(plan.userCount || 5) - 1} friends</li>
+                    <li>They enter this code during sign up</li>
+                    <li>They'll be automatically added to your group</li>
+                    <li>You can manage your group members in your profile</li>
+                  </ol>
+                </div>
+              </div>
+            </TabsContent>
+          </Tabs>
+        </div>
+        
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose} disabled={isSubmitting}>
+            Cancel
+          </Button>
+          <Button onClick={handleSubmit} disabled={isSubmitting}>
+            {isSubmitting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Processing
+              </>
+            ) : (
+              'Continue to Payment'
+            )}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
