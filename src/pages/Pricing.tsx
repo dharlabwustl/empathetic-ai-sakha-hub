@@ -3,13 +3,10 @@ import React from "react";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import FloatingAvatar from "@/components/shared/FloatingAvatar";
-import { Users, Building2, Building } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import PricingHero from "@/components/pricing/PricingHero";
-import PricingCard from "@/components/pricing/PricingCard";
 import FAQSection from "@/components/pricing/FAQSection";
 import FeatureComparison from "@/components/pricing/FeatureComparison";
-import { individualPlans, groupPlans } from "@/components/pricing/pricingData";
 import SubscriptionPlans from "@/components/subscription/SubscriptionPlans";
 
 const Pricing = () => {

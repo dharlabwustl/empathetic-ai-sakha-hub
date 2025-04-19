@@ -147,21 +147,29 @@ export default function SubscriptionPlans({ currentPlanId }: SubscriptionPlansPr
     }
   };
 
-  const handleInviteComplete = (emails: string[]) => {
+  const handleInviteComplete = (emails: string[], inviteCodes: string[]) => {
     setShowInviteModal(false);
     
+    // Proceed to payment gateway
     toast({
-      title: "Group Plan Processing",
-      description: `Invites sent to ${emails.length} users. You'll be notified when they join.`,
+      title: "Proceeding to Payment",
+      description: "Please complete the payment process to activate your group plan.",
     });
     
+    // Simulate payment process and redirect
     setTimeout(() => {
       toast({
-        title: "Group Plan Activated!",
-        description: "You are now the batch leader. Manage your group in the profile section.",
+        title: "Payment Successful!",
+        description: "Your group plan is now active. You can manage invitations in your profile.",
         variant: "default",
       });
-      navigate('/dashboard/student/profile?plan=group-activated'); 
+      
+      // Pass invite codes to profile page via query params
+      // In a real app, these would be stored in a database
+      const codesParam = inviteCodes.join(',');
+      const emailsParam = emails.join(',');
+      
+      navigate(`/dashboard/student/subscription?plan=group-activated&codes=${codesParam}&emails=${emailsParam}`);
     }, 2000);
   };
 
@@ -243,6 +251,10 @@ export default function SubscriptionPlans({ currentPlanId }: SubscriptionPlansPr
               <ul className="mt-2 text-sm text-blue-700 dark:text-blue-200 space-y-1">
                 <li className="flex items-start">
                   <Check size={16} className="mr-2 mt-0.5 flex-shrink-0" />
+                  <span>Choose your group members first - they'll each receive an invitation code</span>
+                </li>
+                <li className="flex items-start">
+                  <Check size={16} className="mr-2 mt-0.5 flex-shrink-0" />
                   <span>Pay once for all 5 users (significantly cheaper per user)</span>
                 </li>
                 <li className="flex items-start">
@@ -251,11 +263,7 @@ export default function SubscriptionPlans({ currentPlanId }: SubscriptionPlansPr
                 </li>
                 <li className="flex items-start">
                   <Check size={16} className="mr-2 mt-0.5 flex-shrink-0" />
-                  <span>Invite 4 friends via email or referral code</span>
-                </li>
-                <li className="flex items-start">
-                  <Check size={16} className="mr-2 mt-0.5 flex-shrink-0" />
-                  <span>Track everyone's progress from your batch leader dashboard</span>
+                  <span>Your friends can use their invitation codes during signup or in their profile</span>
                 </li>
               </ul>
             </motion.div>

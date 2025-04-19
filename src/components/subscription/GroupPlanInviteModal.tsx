@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Loader2, Mail, Share2, UserPlus, X } from 'lucide-react';
+import { Loader2, Mail, Share2, UserPlus, X, Copy, Check } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
@@ -20,7 +20,7 @@ interface Plan {
 interface GroupPlanInviteModalProps {
   plan: Plan;
   onClose: () => void;
-  onComplete: (emails: string[]) => void;
+  onComplete: (emails: string[], inviteCodes: string[]) => void;
 }
 
 export default function GroupPlanInviteModal({ plan, onClose, onComplete }: GroupPlanInviteModalProps) {
@@ -29,7 +29,12 @@ export default function GroupPlanInviteModal({ plan, onClose, onComplete }: Grou
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [inviteMethod, setInviteMethod] = useState<'email' | 'code'>('email');
   const { toast } = useToast();
-  const referralCode = 'SAKHA-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+  
+  // Generate unique invite codes for each user
+  const [inviteCodes, setInviteCodes] = useState<string[]>(
+    Array(4).fill(0).map(() => 'SAKHA-' + Math.random().toString(36).substring(2, 8).toUpperCase())
+  );
+  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
   
   const addEmail = () => {
     if (!currentEmail.trim()) return;
@@ -76,12 +81,8 @@ export default function GroupPlanInviteModal({ plan, onClose, onComplete }: Grou
     
     // Simulate API call
     setTimeout(() => {
-      if (inviteMethod === 'email') {
-        onComplete(emails);
-      } else {
-        // For code-based invites, we'd just create the code and notify
-        onComplete([]);
-      }
+      // For both methods, we'll pass the invite codes
+      onComplete(emails, inviteCodes);
       setIsSubmitting(false);
     }, 1500);
   };
@@ -93,11 +94,14 @@ export default function GroupPlanInviteModal({ plan, onClose, onComplete }: Grou
     }
   };
 
-  const copyReferralCode = () => {
-    navigator.clipboard.writeText(referralCode);
+  const copyInviteCode = (code: string, index: number) => {
+    navigator.clipboard.writeText(code);
+    setCopiedIndex(index);
+    setTimeout(() => setCopiedIndex(null), 2000);
+    
     toast({
       title: "Code Copied!",
-      description: "Referral code copied to clipboard",
+      description: "Invitation code copied to clipboard",
     });
   };
 
@@ -117,6 +121,7 @@ export default function GroupPlanInviteModal({ plan, onClose, onComplete }: Grou
               <strong>Total price: ₹{plan.price}/month</strong> 
               <span className="text-blue-600 dark:text-blue-300"> (₹{Math.round(plan.price / (plan.userCount || 5))}/user)</span>
             </p>
+            <p className="mt-1 text-xs">You'll be charged only after selecting your group members.</p>
           </div>
           
           <Tabs defaultValue="email" onValueChange={(v) => setInviteMethod(v as 'email' | 'code')}>
@@ -125,7 +130,7 @@ export default function GroupPlanInviteModal({ plan, onClose, onComplete }: Grou
                 <Mail size={14} /> Invite by Email
               </TabsTrigger>
               <TabsTrigger value="code" className="flex items-center gap-1">
-                <Share2 size={14} /> Share Invite Code
+                <Share2 size={14} /> Manage Invite Codes
               </TabsTrigger>
             </TabsList>
             
@@ -159,7 +164,7 @@ export default function GroupPlanInviteModal({ plan, onClose, onComplete }: Grou
                 
                 <div className="mt-2">
                   <AnimatePresence>
-                    {emails.map((email) => (
+                    {emails.map((email, index) => (
                       <motion.div
                         key={email}
                         initial={{ opacity: 0, height: 0 }}
@@ -168,59 +173,66 @@ export default function GroupPlanInviteModal({ plan, onClose, onComplete }: Grou
                         className="flex items-center justify-between bg-gray-100 dark:bg-gray-800 rounded-md px-3 py-2 mb-2"
                       >
                         <span className="text-sm truncate">{email}</span>
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
-                          className="h-6 w-6 p-0" 
-                          onClick={() => removeEmail(email)}
-                        >
-                          <X size={14} />
-                        </Button>
+                        <div className="flex items-center gap-2">
+                          <div className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 px-2 py-0.5 rounded">
+                            {inviteCodes[index] || "Code pending"}
+                          </div>
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="h-6 w-6 p-0" 
+                            onClick={() => removeEmail(email)}
+                          >
+                            <X size={14} />
+                          </Button>
+                        </div>
                       </motion.div>
                     ))}
                   </AnimatePresence>
                 </div>
                 
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  You'll be charged the full amount now, and your friends will receive an email invitation to join your group.
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-4">
+                  You'll proceed to payment after selecting your group members. Each person will receive
+                  a unique activation code to access premium features.
                 </p>
               </div>
             </TabsContent>
             
             <TabsContent value="code" className="mt-4 space-y-4">
               <div className="space-y-2">
-                <Label>Share this code with your friends</Label>
-                <div className="flex items-center space-x-2">
-                  <div className="flex-1 bg-gray-100 dark:bg-gray-800 rounded-md px-3 py-2 font-mono">
-                    {referralCode}
-                  </div>
-                  <Button 
-                    type="button" 
-                    size="sm" 
-                    variant="outline"
-                    onClick={copyReferralCode}
-                  >
-                    Copy
-                  </Button>
+                <Label>Invitation Codes for Your Group Members</Label>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                  Share these codes with your group members. They can use them during signup or activate from their profile page.
+                </p>
+                
+                <div className="space-y-2">
+                  {inviteCodes.map((code, index) => (
+                    <div key={index} className="flex items-center space-x-2">
+                      <div className="flex-1 bg-gray-100 dark:bg-gray-800 rounded-md px-3 py-2 font-mono text-sm">
+                        {code}
+                      </div>
+                      <Button 
+                        type="button" 
+                        size="sm" 
+                        variant="outline"
+                        className="flex items-center gap-1"
+                        onClick={() => copyInviteCode(code, index)}
+                      >
+                        {copiedIndex === index ? <Check size={14} /> : <Copy size={14} />}
+                        {copiedIndex === index ? "Copied" : "Copy"}
+                      </Button>
+                    </div>
+                  ))}
                 </div>
                 
-                <div className="bg-amber-50 dark:bg-amber-900/20 p-3 rounded-md text-sm text-amber-700 dark:text-amber-200">
+                <div className="bg-amber-50 dark:bg-amber-900/20 p-3 rounded-md text-sm text-amber-700 dark:text-amber-200 mt-4">
                   <p className="flex items-start">
-                    <span className="mr-2">⚠️</span>
+                    <span className="mr-2">ℹ️</span>
                     <span>
-                      You'll be charged the full amount now. Your friends can use this code during signup to join your group.
+                      You'll be able to manage and view these codes in your profile after payment. 
+                      These codes will only activate after you complete the payment.
                     </span>
                   </p>
-                </div>
-                
-                <div className="mt-4">
-                  <h4 className="text-sm font-medium mb-2">How it works:</h4>
-                  <ol className="list-decimal list-inside text-sm space-y-1 text-gray-700 dark:text-gray-300">
-                    <li>Share this code with up to {(plan.userCount || 5) - 1} friends</li>
-                    <li>They enter this code during sign up</li>
-                    <li>They'll be automatically added to your group</li>
-                    <li>You can manage your group members in your profile</li>
-                  </ol>
                 </div>
               </div>
             </TabsContent>

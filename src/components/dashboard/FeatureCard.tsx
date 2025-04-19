@@ -51,15 +51,6 @@ export default function FeatureCard({
     rest: { 
       scale: 1,
       rotate: 0
-    },
-    float: {
-      y: [0, -6, 0],
-      transition: {
-        duration: 3,
-        repeat: Infinity,
-        repeatType: "reverse",
-        ease: "easeInOut"
-      }
     }
   };
 
@@ -95,16 +86,22 @@ export default function FeatureCard({
         animate="rest"
         className="h-full"
       >
-        <Card 
-          className="h-full flex flex-col overflow-hidden transition-all duration-200 bg-gradient-to-br from-white to-gray-50 dark:from-gray-950 dark:to-gray-900"
-          as={motion.div}
+        <motion.div
           variants={cardAnimation}
+          className="h-full flex flex-col overflow-hidden transition-all duration-200 bg-gradient-to-br from-white to-gray-50 dark:from-gray-950 dark:to-gray-900 border rounded-lg shadow-sm"
         >
           <div className="bg-gradient-to-r from-sakha-light-blue/10 to-sakha-lavender/10 dark:from-sakha-light-blue/5 dark:to-sakha-lavender/5 p-4">
             <motion.div 
               className="w-12 h-12 rounded-full bg-white dark:bg-gray-800 flex items-center justify-center shadow-sm mx-auto"
               variants={iconAnimation}
-              animate="float"
+              animate={{ 
+                y: [0, -5, 0],
+                transition: { 
+                  duration: 2,
+                  repeat: Infinity,
+                  repeatType: "reverse"
+                }
+              }}
             >
               <motion.div className="text-sakha-blue">
                 {icon}
@@ -188,7 +185,7 @@ export default function FeatureCard({
               </Button>
             </motion.div>
           </CardFooter>
-        </Card>
+        </motion.div>
       </motion.div>
     </TooltipProvider>
   );
