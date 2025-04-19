@@ -41,7 +41,6 @@ interface DashboardLayoutProps {
   lastActivity?: { type: string; description: string } | null;
   suggestedNextAction?: string | null;
   currentMood?: MoodType;
-  children?: React.ReactNode;
 }
 
 const DashboardLayout = ({
@@ -63,8 +62,7 @@ const DashboardLayout = ({
   onCloseStudyPlan,
   lastActivity,
   suggestedNextAction,
-  currentMood,
-  children
+  currentMood
 }: DashboardLayoutProps) => {
   const currentTime = new Date();
   const formattedTime = formatTime(currentTime);
@@ -74,6 +72,7 @@ const DashboardLayout = ({
   
   const features = getFeatures();
 
+  // Navigation buttons for quick access - moved from inside the render
   const navigationButtons = [
     { 
       name: "24/7 AI Tutor", 
@@ -136,6 +135,7 @@ const DashboardLayout = ({
           />
         </div>
 
+        {/* Enhanced Quick Access Navigation Bar */}
         <motion.div 
           className="flex flex-wrap items-center gap-2 mb-4 p-2 bg-white/80 dark:bg-gray-800/50 backdrop-blur-sm rounded-lg shadow-md border border-gray-100 dark:border-gray-700"
           initial={{ opacity: 0, y: -10 }}
@@ -184,6 +184,7 @@ const DashboardLayout = ({
           </motion.div>
         </motion.div>
 
+        {/* Surrounding Influences Section - Enhanced with our redesigned component */}
         <SurroundingInfluencesSection 
           influenceMeterCollapsed={influenceMeterCollapsed}
           setInfluenceMeterCollapsed={setInfluenceMeterCollapsed}
@@ -211,25 +212,21 @@ const DashboardLayout = ({
               />
             )}
             
-            {children ? (
-              children
-            ) : (
-              <DashboardContent
-                activeTab={activeTab}
-                onTabChange={onTabChange}
-                userProfile={userProfile}
-                kpis={kpis}
-                nudges={nudges}
-                markNudgeAsRead={markNudgeAsRead}
-                features={features}
-                showWelcomeTour={showWelcomeTour}
-                handleSkipTour={onSkipTour}
-                handleCompleteTour={onCompleteTour}
-                hideTabsNav={hideTabsNav || isMobile}
-                lastActivity={lastActivity}
-                suggestedNextAction={suggestedNextAction}
-              />
-            )}
+            <DashboardContent
+              activeTab={activeTab}
+              onTabChange={onTabChange}
+              userProfile={userProfile}
+              kpis={kpis}
+              nudges={nudges}
+              markNudgeAsRead={markNudgeAsRead}
+              features={features}
+              showWelcomeTour={showWelcomeTour}
+              handleSkipTour={onSkipTour}
+              handleCompleteTour={onCompleteTour}
+              hideTabsNav={hideTabsNav || isMobile}
+              lastActivity={lastActivity}
+              suggestedNextAction={suggestedNextAction}
+            />
           </div>
         </div>
       </main>
