@@ -7,6 +7,21 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { 
+  LayoutDashboard, 
+  MessageSquare, 
+  Calendar, 
+  LineChart, 
+  Brain, 
+  BookOpen, 
+  Video, 
+  Users, 
+  Bell, 
+  Heart, 
+  Target, 
+  User 
+} from "lucide-react";
+import { NavigationRoute, UserRouteMap } from "./types/sidebar";
 
 interface SidebarNavRoutesProps {
   userType: string;
