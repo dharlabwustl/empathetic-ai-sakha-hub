@@ -21,6 +21,8 @@ import { Button } from "@/components/ui/button";
 import { BookOpen, MessageSquareText, Brain } from "lucide-react";
 import ProfileCard from "@/components/dashboard/ProfileCard";
 import WelcomeTour from "@/components/dashboard/student/WelcomeTour";
+import MoodLogButton from "@/components/dashboard/student/MoodLogButton";
+import MoodSpecificContent from "@/components/dashboard/student/mood-tracking/MoodSpecificContent";
 
 interface DashboardLayoutProps {
   userProfile: UserProfileType;
@@ -42,6 +44,8 @@ interface DashboardLayoutProps {
   lastActivity?: { type: string; description: string } | null;
   suggestedNextAction?: string | null;
   currentMood?: MoodType;
+  features: any[];
+  currentTime: string;
   children?: React.ReactNode; // Add support for children
 }
 
@@ -65,16 +69,16 @@ const DashboardLayout = ({
   lastActivity,
   suggestedNextAction,
   currentMood,
+  features,
+  currentTime,
   children // Now we use children
 }: DashboardLayoutProps) => {
-  const currentTime = new Date();
-  const formattedTime = formatTime(currentTime);
-  const formattedDate = formatDate(currentTime);
+  const currentDateTime = new Date();
+  const formattedTime = formatTime(currentDateTime);
+  const formattedDate = formatDate(currentDateTime);
   const isMobile = useIsMobile();
   const [influenceMeterCollapsed, setInfluenceMeterCollapsed] = useState(true);
   
-  const features = getFeatures();
-
   // Navigation buttons for quick access - moved from inside the render
   const navigationButtons = [
     { 
@@ -138,7 +142,7 @@ const DashboardLayout = ({
           />
         </div>
 
-        {/* Enhanced Quick Access Navigation Bar */}
+        {/* Enhanced Quick Access Navigation Bar with Mood Button */}
         <motion.div 
           className="flex flex-wrap items-center gap-2 mb-4 p-2 bg-white/80 dark:bg-gray-800/50 backdrop-blur-sm rounded-lg shadow-md border border-gray-100 dark:border-gray-700"
           initial={{ opacity: 0, y: -10 }}
@@ -167,13 +171,22 @@ const DashboardLayout = ({
             </motion.div>
           ))}
           
+          {/* Add MoodLogButton in the navigation bar */}
           <motion.div
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.3, duration: 0.3 }}
+            className="ml-auto"
+          >
+            <MoodLogButton currentMood={currentMood} />
+          </motion.div>
+          
+          <motion.div
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.4, duration: 0.3 }}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="ml-auto"
           >
             <Button 
               variant="outline"
@@ -186,8 +199,13 @@ const DashboardLayout = ({
             </Button>
           </motion.div>
         </motion.div>
+        
+        {/* Show mood-specific content if mood is selected */}
+        {currentMood && (
+          <MoodSpecificContent currentMood={currentMood} />
+        )}
 
-        {/* Surrounding Influences Section - Enhanced with our redesigned component */}
+        {/* Surrounding Influences Section */}
         <SurroundingInfluencesSection 
           influenceMeterCollapsed={influenceMeterCollapsed}
           setInfluenceMeterCollapsed={setInfluenceMeterCollapsed}

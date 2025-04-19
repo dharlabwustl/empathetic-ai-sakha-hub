@@ -1,3 +1,4 @@
+
 export interface StudentData {
   id: string;
   name: string;
@@ -21,7 +22,7 @@ export interface StudentData {
   moodScore?: number;
   engagementScore?: number;
   
-  // Adding the missing properties
+  // Adding the properties needed by AdminDashboard
   targetScore?: number;
   avatarUrl?: string;
 }

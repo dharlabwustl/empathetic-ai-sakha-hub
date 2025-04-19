@@ -1,10 +1,11 @@
+
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { handleNewUser } from "@/pages/dashboard/student/utils/UserSessionManager";
 import { useKpiTracking } from "@/hooks/useKpiTracking";
-import { UserRole } from "@/types/user/base";
+import { UserRole, MoodType } from "@/types/user/base";
 
 export const useStudentDashboard = () => {
   const [loading, setLoading] = useState(true);
@@ -15,6 +16,7 @@ export const useStudentDashboard = () => {
   const [hideTabsNav, setHideTabsNav] = useState(false);
   const [lastActivity, setLastActivity] = useState<{ type: string, description: string } | null>(null);
   const [suggestedNextAction, setSuggestedNextAction] = useState<string | null>(null);
+  const [currentMood, setCurrentMood] = useState<MoodType | undefined>(undefined);
   const { userProfile, loading: profileLoading, updateUserProfile } = useUserProfile(UserRole.Student);
   const { kpis, nudges, markNudgeAsRead } = useKpiTracking(UserRole.Student);
   const navigate = useNavigate();
@@ -41,6 +43,17 @@ export const useStudentDashboard = () => {
     progress: true,
     settings: true,
   };
+  
+  // Get current mood from local storage
+  useEffect(() => {
+    const savedUserData = localStorage.getItem("userData");
+    if (savedUserData) {
+      const parsedData = JSON.parse(savedUserData);
+      if (parsedData.mood) {
+        setCurrentMood(parsedData.mood);
+      }
+    }
+  }, []);
   
   useEffect(() => {
     if (tab) {
@@ -84,6 +97,11 @@ export const useStudentDashboard = () => {
               setSuggestedNextAction(`Continue with ${lastModule.nextModule || "Practice Exercises"}`);
             } else {
               setSuggestedNextAction("Start today's recommended study plan");
+            }
+            
+            // Set current mood if it exists
+            if (parsedData.mood) {
+              setCurrentMood(parsedData.mood as MoodType);
             }
           }
         }
@@ -186,6 +204,18 @@ export const useStudentDashboard = () => {
     setShowStudyPlan(false);
   };
   
+  const updateMood = (mood: MoodType) => {
+    setCurrentMood(mood);
+    const userData = localStorage.getItem("userData");
+    if (userData) {
+      const parsedData = JSON.parse(userData);
+      parsedData.mood = mood;
+      localStorage.setItem("userData", JSON.stringify(parsedData));
+    } else {
+      localStorage.setItem("userData", JSON.stringify({ mood }));
+    }
+  };
+  
   return {
     loading,
     userProfile,
@@ -201,6 +231,7 @@ export const useStudentDashboard = () => {
     features,
     lastActivity,
     suggestedNextAction,
+    currentMood,
     markNudgeAsRead,
     handleTabChange,
     handleSkipTour,
@@ -209,6 +240,7 @@ export const useStudentDashboard = () => {
     handleViewStudyPlan,
     handleCloseStudyPlan,
     toggleSidebar,
-    toggleTabsNav
+    toggleTabsNav,
+    updateMood
   };
 };
