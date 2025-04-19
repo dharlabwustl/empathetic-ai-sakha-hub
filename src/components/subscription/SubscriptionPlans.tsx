@@ -1,372 +1,317 @@
 
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { Check, CheckCircle, User, Users } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import { Check, Users } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useNavigate } from 'react-router-dom';
+import { useToast } from '@/hooks/use-toast';
 import GroupPlanInviteModal from './GroupPlanInviteModal';
-
-interface PlanFeature {
-  name: string;
-  included: boolean;
-}
 
 interface Plan {
   id: string;
   name: string;
   price: number;
-  billing: 'monthly' | 'yearly';
   description: string;
-  features: PlanFeature[];
-  recommended?: boolean;
-  isGroup?: boolean;
+  popular?: boolean;
+  features: string[];
+  includedFeatures: string[];
+  buttonText: string;
+  highlighted?: boolean;
   userCount?: number;
 }
 
-interface SubscriptionPlansProps {
+interface Props {
   currentPlanId?: string;
 }
 
-const individualPlans: Plan[] = [
-  {
-    id: 'free',
-    name: 'Free Trial',
-    price: 0,
-    billing: 'monthly',
-    description: '7-day trial with limited features',
-    features: [
-      { name: 'Basic AI Tutor Access', included: true },
-      { name: 'Limited Study Materials', included: true },
-      { name: 'Progress Tracking', included: true },
-      { name: 'Personalized Study Plan', included: false },
-      { name: 'Advanced Practice Exams', included: false },
-      { name: 'Unlimited AI Conversations', included: false },
-    ]
-  },
-  {
-    id: 'basic',
-    name: 'Basic',
-    price: 499,
-    billing: 'monthly',
-    description: 'Perfect for individual exam preparation',
-    features: [
-      { name: 'Everything in Free Trial', included: true },
-      { name: 'Full AI Tutor Access', included: true },
-      { name: 'Complete Study Materials', included: true },
-      { name: 'Personalized Study Plan', included: true },
-      { name: 'Standard Practice Exams', included: true },
-      { name: 'Limited AI Conversations', included: true },
-    ]
-  },
-  {
-    id: 'pro',
-    name: 'Pro',
-    price: 999,
-    billing: 'monthly',
-    description: 'Complete preparation experience',
-    recommended: true,
-    features: [
-      { name: 'Everything in Basic', included: true },
-      { name: 'Advanced AI Tutor with Specializations', included: true },
-      { name: 'Premium Study Materials', included: true },
-      { name: 'Dynamic Study Plan Optimization', included: true },
-      { name: 'Advanced Practice Exams', included: true },
-      { name: 'Unlimited AI Conversations', included: true },
-    ]
-  }
-];
-
-const groupPlans: Plan[] = [
-  {
-    id: 'group-basic',
-    name: 'Group Basic',
-    price: 1999, // This is total price, per user is 1999/5 = ~400
-    billing: 'monthly',
-    description: 'Perfect for study groups (5 users)',
-    isGroup: true,
-    userCount: 5,
-    features: [
-      { name: 'Everything in Basic Plan for 5 Users', included: true },
-      { name: 'Group Study Sessions', included: true },
-      { name: 'Shared Study Materials', included: true },
-      { name: 'Group Progress Tracking', included: true },
-      { name: 'Batch Leader Management', included: true },
-    ]
-  },
-  {
-    id: 'group-pro',
-    name: 'Group Pro',
-    price: 3999, // This is total price, per user is 3999/5 = ~800
-    billing: 'monthly',
-    description: 'Complete group learning experience (5 users)',
-    recommended: true,
-    isGroup: true,
-    userCount: 5,
-    features: [
-      { name: 'Everything in Pro Plan for 5 Users', included: true },
-      { name: 'Advanced Group Study Sessions', included: true },
-      { name: 'Premium Shared Resources', included: true },
-      { name: 'Competitive Progress Tracking', included: true },
-      { name: 'Advanced Batch Management', included: true },
-      { name: 'Group Analysis Dashboard', included: true },
-    ]
-  }
-];
-
-export default function SubscriptionPlans({ currentPlanId }: SubscriptionPlansProps) {
-  const [planType, setPlanType] = useState<'individual' | 'group'>('individual');
-  const [showInviteModal, setShowInviteModal] = useState(false);
-  const [selectedGroupPlan, setSelectedGroupPlan] = useState<Plan | null>(null);
-  const { toast } = useToast();
+export default function SubscriptionPlans({ currentPlanId }: Props) {
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const [showGroupModal, setShowGroupModal] = useState(false);
+  const [selectedGroupPlan, setSelectedGroupPlan] = useState<Plan | null>(null);
 
-  const handleSelectPlan = (plan: Plan) => {
-    if (plan.isGroup) {
-      setSelectedGroupPlan(plan);
-      setShowInviteModal(true);
-    } else {
-      // Individual plan checkout
+  const monthlyPlans: Plan[] = [
+    {
+      id: 'free',
+      name: 'Free Trial',
+      price: 0,
+      description: 'Basic access to AI tutoring and study resources',
+      features: [
+        'Limited AI questions per day',
+        'Basic study materials',
+        'Concept explorer tool',
+        'Progress tracking',
+      ],
+      includedFeatures: [
+        'Limited AI questions per day',
+        'Basic study materials',
+        'Concept explorer tool',
+        'Progress tracking',
+      ],
+      buttonText: 'Current Plan',
+    },
+    {
+      id: 'basic',
+      name: 'Basic Plan',
+      price: 499,
+      description: 'Enhanced individual learning experience',
+      features: [
+        'Unlimited AI tutoring',
+        'Personalized study plan',
+        'Practice questions',
+        'Mock exams',
+        'Progress reports',
+      ],
+      includedFeatures: [
+        'Unlimited AI tutoring',
+        'Personalized study plan',
+        'Practice questions',
+        'Mock exams',
+        'Progress reports',
+      ],
+      buttonText: 'Get Started',
+    },
+    {
+      id: 'pro',
+      name: 'Pro Plan',
+      price: 999,
+      description: 'Complete premium learning package',
+      features: [
+        'Everything in Basic',
+        'Advanced personalization',
+        'Priority support',
+        'Exam simulations',
+        'Performance analytics',
+        'Advanced AI features',
+        'Priority updates',
+      ],
+      includedFeatures: [
+        'Everything in Basic',
+        'Advanced personalization',
+        'Priority support',
+        'Exam simulations',
+        'Performance analytics',
+        'Advanced AI features',
+        'Priority updates',
+      ],
+      popular: true,
+      highlighted: true,
+      buttonText: 'Get Started',
+    },
+    {
+      id: 'group-pro',
+      name: 'Group Pro Plan',
+      price: 4499,
+      description: 'Premium package for groups of 5 students',
+      features: [
+        'Everything in Pro Plan',
+        '5 user accounts',
+        'Group learning dashboard',
+        'Collaborative features',
+        'Group analytics',
+        '10% discount per user',
+        'Batch leader tools',
+      ],
+      includedFeatures: [
+        'Everything in Pro Plan',
+        '5 user accounts',
+        'Group learning dashboard',
+        'Collaborative features',
+        'Group analytics',
+        '10% discount per user',
+        'Batch leader tools',
+      ],
+      buttonText: 'Get Started',
+      userCount: 5,
+    },
+  ];
+
+  const yearlyPlans = monthlyPlans.map(plan => ({
+    ...plan,
+    id: `${plan.id}-yearly`,
+    price: Math.round(plan.price * 10), // 10 months price for yearly (2 months free)
+  }));
+
+  const handleSubscribe = (plan: Plan) => {
+    if (plan.id === currentPlanId) {
       toast({
-        title: "Processing",
-        description: `Setting up your ${plan.name} plan. Please wait...`,
+        title: "Already Subscribed",
+        description: `You're already on the ${plan.name}.`,
       });
-      
-      // In real implementation, this would redirect to Stripe or other payment gateway
-      setTimeout(() => {
-        toast({
-          title: "Success!",
-          description: `Your ${plan.name} plan is now active.`,
-          variant: "default",
-        });
-        navigate('/dashboard/student/profile?plan=updated'); 
-      }, 1500);
+      return;
+    }
+
+    if (plan.id === 'group-pro' || plan.id === 'group-pro-yearly') {
+      setSelectedGroupPlan(plan);
+      setShowGroupModal(true);
+    } else {
+      // For individual plans - direct to checkout
+      toast({
+        title: "Upgrading Plan",
+        description: `You're being redirected to upgrade to the ${plan.name}.`,
+      });
+      // Navigate to checkout page (for demo purposes we'll just redirect to subscription page with param)
+      navigate(`/dashboard/student/subscription?plan=updated`);
     }
   };
 
-  const handleInviteComplete = (emails: string[], inviteCodes: string[]) => {
-    setShowInviteModal(false);
+  const handleGroupPlanComplete = (emails: string[], inviteCodes: string[]) => {
+    setShowGroupModal(false);
     
-    // Proceed to payment gateway
+    // Navigate to checkout page with group info
+    const queryParams = new URLSearchParams({
+      emails: emails.join(','),
+      codes: inviteCodes.join(',')
+    }).toString();
+    
+    navigate(`/dashboard/student/group-checkout?${queryParams}`);
+    
     toast({
-      title: "Proceeding to Payment",
-      description: "Please complete the payment process to activate your group plan.",
+      title: "Group Plan Setup",
+      description: "Please complete your payment to activate the group plan.",
     });
-    
-    // Simulate payment process and redirect
-    setTimeout(() => {
-      toast({
-        title: "Payment Successful!",
-        description: "Your group plan is now active. You can manage invitations in your profile.",
-        variant: "default",
-      });
-      
-      // Pass invite codes to profile page via query params
-      // In a real app, these would be stored in a database
-      const codesParam = inviteCodes.join(',');
-      const emailsParam = emails.join(',');
-      
-      navigate(`/dashboard/student/subscription?plan=group-activated&codes=${codesParam}&emails=${emailsParam}`);
-    }, 2000);
   };
 
   return (
     <>
-      <div className="w-full max-w-5xl mx-auto px-4">
-        <div className="text-center mb-8">
-          <motion.h2 
-            className="text-3xl font-bold mb-2"
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-          >
-            Choose Your Plan
-          </motion.h2>
-          <motion.p 
-            className="text-gray-600 dark:text-gray-300"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-          >
-            Select the plan that best fits your study needs
-          </motion.p>
+      <Tabs defaultValue="monthly" className="w-full">
+        <div className="flex justify-center mb-6">
+          <TabsList>
+            <TabsTrigger value="monthly">Monthly</TabsTrigger>
+            <TabsTrigger value="yearly">Yearly (Save 16%)</TabsTrigger>
+          </TabsList>
         </div>
-
-        <Tabs 
-          defaultValue={planType} 
-          onValueChange={(value) => setPlanType(value as 'individual' | 'group')}
-          className="mb-8"
-        >
-          <div className="flex justify-center mb-6">
-            <TabsList className="grid w-full max-w-md grid-cols-2">
-              <TabsTrigger value="individual" className="flex items-center gap-2">
-                <User size={16} />
-                <span>Individual</span>
-              </TabsTrigger>
-              <TabsTrigger value="group" className="flex items-center gap-2">
-                <Users size={16} />
-                <span>Group Plans (5 Users)</span>
-              </TabsTrigger>
-            </TabsList>
+        
+        <TabsContent value="monthly">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {monthlyPlans.map((plan) => (
+              <Card 
+                key={plan.id} 
+                className={`overflow-hidden ${plan.highlighted ? 
+                  'border-blue-400 dark:border-blue-500 shadow-lg shadow-blue-100 dark:shadow-blue-900/20' : 
+                  ''
+                }`}
+              >
+                {plan.popular && (
+                  <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white text-xs font-medium px-3 py-1 text-center">
+                    Most Popular
+                  </div>
+                )}
+                {plan.userCount && (
+                  <div className="bg-green-600 text-white text-xs font-medium px-3 py-1 text-center flex items-center justify-center">
+                    <Users size={14} className="mr-1" /> Group Plan
+                  </div>
+                )}
+                <CardHeader className="pb-1">
+                  <CardTitle>{plan.name}</CardTitle>
+                  <CardDescription>{plan.description}</CardDescription>
+                </CardHeader>
+                <CardContent className="pb-2">
+                  <div className="mb-4">
+                    <span className="text-4xl font-bold">₹{plan.price}</span>
+                    <span className="text-gray-600 dark:text-gray-400">/month</span>
+                  </div>
+                  <div className="space-y-2">
+                    {plan.features.map((feature) => (
+                      <div key={feature} className="flex items-start">
+                        <div className="bg-green-100 dark:bg-green-900/30 rounded-full p-1 mr-2 mt-0.5">
+                          <Check className="h-3 w-3 text-green-600 dark:text-green-400" />
+                        </div>
+                        <span className="text-sm">{feature}</span>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+                <CardFooter>
+                  <Button 
+                    className={`w-full ${plan.id === currentPlanId ? 
+                      'bg-gray-200 text-gray-800 dark:bg-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-700' : 
+                      plan.highlighted ? 'bg-gradient-to-r from-blue-600 to-indigo-600' : ''
+                    }`}
+                    onClick={() => handleSubscribe(plan)}
+                    disabled={plan.id === currentPlanId}
+                  >
+                    {plan.id === currentPlanId ? "Current Plan" : plan.buttonText}
+                  </Button>
+                </CardFooter>
+              </Card>
+            ))}
           </div>
+        </TabsContent>
+        
+        <TabsContent value="yearly">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {yearlyPlans.map((plan) => (
+              <Card 
+                key={plan.id} 
+                className={`overflow-hidden ${plan.highlighted ? 
+                  'border-blue-400 dark:border-blue-500 shadow-lg shadow-blue-100 dark:shadow-blue-900/20' : 
+                  ''
+                }`}
+              >
+                {plan.popular && (
+                  <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white text-xs font-medium px-3 py-1 text-center">
+                    Most Popular
+                  </div>
+                )}
+                {plan.userCount && (
+                  <div className="bg-green-600 text-white text-xs font-medium px-3 py-1 text-center flex items-center justify-center">
+                    <Users size={14} className="mr-1" /> Group Plan
+                  </div>
+                )}
+                <CardHeader className="pb-1">
+                  <CardTitle>{plan.name}</CardTitle>
+                  <CardDescription>{plan.description}</CardDescription>
+                </CardHeader>
+                <CardContent className="pb-2">
+                  <div className="mb-4">
+                    <span className="text-4xl font-bold">₹{plan.price}</span>
+                    <span className="text-gray-600 dark:text-gray-400">/year</span>
+                    
+                    <div className="mt-1">
+                      <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                        Save ₹{Math.round(plan.price * 0.16)}
+                      </Badge>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    {plan.features.map((feature) => (
+                      <div key={feature} className="flex items-start">
+                        <div className="bg-green-100 dark:bg-green-900/30 rounded-full p-1 mr-2 mt-0.5">
+                          <Check className="h-3 w-3 text-green-600 dark:text-green-400" />
+                        </div>
+                        <span className="text-sm">{feature}</span>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+                <CardFooter>
+                  <Button 
+                    className={`w-full ${plan.id === currentPlanId ? 
+                      'bg-gray-200 text-gray-800 dark:bg-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-700' : 
+                      plan.highlighted ? 'bg-gradient-to-r from-blue-600 to-indigo-600' : ''
+                    }`}
+                    onClick={() => handleSubscribe(plan)}
+                    disabled={plan.id === currentPlanId}
+                  >
+                    {plan.id === currentPlanId ? "Current Plan" : plan.buttonText}
+                  </Button>
+                </CardFooter>
+              </Card>
+            ))}
+          </div>
+        </TabsContent>
+      </Tabs>
 
-          <TabsContent value="individual" className="mt-0 space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {individualPlans.map((plan) => (
-                <PlanCard 
-                  key={plan.id} 
-                  plan={plan} 
-                  isCurrentPlan={plan.id === currentPlanId}
-                  onSelectPlan={handleSelectPlan} 
-                />
-              ))}
-            </div>
-          </TabsContent>
-
-          <TabsContent value="group" className="mt-0 space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
-              {groupPlans.map((plan) => (
-                <PlanCard 
-                  key={plan.id} 
-                  plan={plan} 
-                  isCurrentPlan={plan.id === currentPlanId}
-                  onSelectPlan={handleSelectPlan} 
-                />
-              ))}
-            </div>
-            
-            <motion.div 
-              className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg mt-6 max-w-3xl mx-auto"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-            >
-              <h3 className="font-medium text-blue-800 dark:text-blue-300 flex items-center">
-                <CheckCircle size={18} className="mr-2" />
-                How Group Plans Work
-              </h3>
-              <ul className="mt-2 text-sm text-blue-700 dark:text-blue-200 space-y-1">
-                <li className="flex items-start">
-                  <Check size={16} className="mr-2 mt-0.5 flex-shrink-0" />
-                  <span>Choose your group members first - they'll each receive an invitation code</span>
-                </li>
-                <li className="flex items-start">
-                  <Check size={16} className="mr-2 mt-0.5 flex-shrink-0" />
-                  <span>Pay once for all 5 users (significantly cheaper per user)</span>
-                </li>
-                <li className="flex items-start">
-                  <Check size={16} className="mr-2 mt-0.5 flex-shrink-0" />
-                  <span>You become the batch leader with admin privileges</span>
-                </li>
-                <li className="flex items-start">
-                  <Check size={16} className="mr-2 mt-0.5 flex-shrink-0" />
-                  <span>Your friends can use their invitation codes during signup or in their profile</span>
-                </li>
-              </ul>
-            </motion.div>
-          </TabsContent>
-        </Tabs>
-      </div>
-
-      {showInviteModal && selectedGroupPlan && (
-        <GroupPlanInviteModal 
+      {showGroupModal && selectedGroupPlan && (
+        <GroupPlanInviteModal
           plan={selectedGroupPlan}
-          onClose={() => setShowInviteModal(false)}
-          onComplete={handleInviteComplete}
+          onClose={() => setShowGroupModal(false)}
+          onComplete={handleGroupPlanComplete}
         />
       )}
     </>
   );
 }
-
-const PlanCard = ({ 
-  plan, 
-  isCurrentPlan, 
-  onSelectPlan 
-}: { 
-  plan: Plan, 
-  isCurrentPlan?: boolean, 
-  onSelectPlan: (plan: Plan) => void 
-}) => {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
-      whileHover={{ y: -5 }}
-      className="h-full"
-    >
-      <Card className={`relative h-full flex flex-col ${
-        plan.recommended ? 
-        'border-2 border-blue-500 dark:border-blue-400 shadow-lg' : 
-        'border border-gray-200 dark:border-gray-800'
-      }`}>
-        {plan.recommended && (
-          <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-blue-500 text-white text-xs font-bold px-3 py-1 rounded-full">
-            Recommended
-          </div>
-        )}
-        
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-xl">{plan.name}</CardTitle>
-            {plan.isGroup && (
-              <Badge variant="outline" className="bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200">
-                {plan.userCount} Users
-              </Badge>
-            )}
-          </div>
-          <div className="flex items-end mt-2">
-            <span className="text-3xl font-bold">₹{plan.price}</span>
-            <span className="text-gray-500 dark:text-gray-400 ml-1 mb-0.5">/{plan.billing}</span>
-          </div>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-            {plan.description}
-          </p>
-        </CardHeader>
-        
-        <CardContent className="flex-grow">
-          <ul className="space-y-2">
-            {plan.features.map((feature, index) => (
-              <motion.li 
-                key={index}
-                className="flex items-start"
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.1 * index }}
-              >
-                <Check 
-                  size={18} 
-                  className={`mr-2 mt-0.5 ${
-                    feature.included ? 
-                    'text-green-500 dark:text-green-400' : 
-                    'text-gray-300 dark:text-gray-600'
-                  }`} 
-                />
-                <span className={!feature.included ? 'text-gray-400 dark:text-gray-500 line-through' : ''}>
-                  {feature.name}
-                </span>
-              </motion.li>
-            ))}
-          </ul>
-        </CardContent>
-        
-        <CardFooter className="pt-2">
-          <Button 
-            onClick={() => onSelectPlan(plan)}
-            disabled={isCurrentPlan}
-            variant={plan.recommended ? "default" : "outline"}
-            className={`w-full ${plan.recommended ? 'bg-gradient-to-r from-blue-600 to-indigo-600' : ''} ${
-              isCurrentPlan ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 border-green-300 dark:border-green-700' : ''
-            }`}
-          >
-            {isCurrentPlan ? 'Current Plan' : `Get ${plan.name}`}
-          </Button>
-        </CardFooter>
-      </Card>
-    </motion.div>
-  );
-};

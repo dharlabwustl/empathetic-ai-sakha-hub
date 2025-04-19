@@ -7,10 +7,11 @@ import DashboardLoading from './DashboardLoading';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { AlertCircle, CheckCircle, Clock, Users, Copy, Check } from 'lucide-react';
+import { AlertCircle, CheckCircle, Clock, Users, Copy, Check, Star } from 'lucide-react';
 import { formatDate } from '@/utils/dateUtils';
 import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
+import { useNavigate } from 'react-router-dom';
 
 const SubscriptionPage = () => {
   const {
@@ -35,6 +36,8 @@ const SubscriptionPage = () => {
     toggleSidebar,
     toggleTabsNav
   } = useStudentDashboard();
+  
+  const navigate = useNavigate();
   
   const [currentPlan, setCurrentPlan] = useState({
     id: 'free',
@@ -147,6 +150,10 @@ const SubscriptionPage = () => {
     });
   };
   
+  const handleManageBatch = () => {
+    navigate('/dashboard/student/batch-management');
+  };
+  
   if (loading || !userProfile) {
     return <DashboardLoading />;
   }
@@ -220,11 +227,15 @@ const SubscriptionPage = () => {
               </div>
               
               <div className="mt-4 md:mt-0">
-                <Button variant={currentPlan.isGroup ? "outline" : "default"} className="mr-2">
+                <Button 
+                  variant={currentPlan.isGroup ? "outline" : "default"} 
+                  className="mr-2"
+                  onClick={() => currentPlan.isGroup ? handleManageBatch() : {}}
+                >
                   {currentPlan.isGroup ? 'Manage Group' : 'Manage Subscription'}
                 </Button>
                 {currentPlan.isGroup && !currentPlan.name.includes('Member') && (
-                  <Button variant="default">
+                  <Button variant="default" onClick={handleManageBatch}>
                     View Group Dashboard
                   </Button>
                 )}

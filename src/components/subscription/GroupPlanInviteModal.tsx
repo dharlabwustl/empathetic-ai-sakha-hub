@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -31,10 +31,15 @@ export default function GroupPlanInviteModal({ plan, onClose, onComplete }: Grou
   const { toast } = useToast();
   
   // Generate unique invite codes for each user
-  const [inviteCodes, setInviteCodes] = useState<string[]>(
-    Array(4).fill(0).map(() => 'SAKHA-' + Math.random().toString(36).substring(2, 8).toUpperCase())
-  );
+  const [inviteCodes, setInviteCodes] = useState<string[]>([]);
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+  
+  useEffect(() => {
+    // Generate 5 invite codes (4 for invitees + 1 for user)
+    setInviteCodes(
+      Array(5).fill(0).map(() => 'SAKHA-' + Math.random().toString(36).substring(2, 8).toUpperCase())
+    );
+  }, []);
   
   const addEmail = () => {
     if (!currentEmail.trim()) return;
@@ -54,6 +59,15 @@ export default function GroupPlanInviteModal({ plan, onClose, onComplete }: Grou
       toast({
         title: "Duplicate Email",
         description: "This email has already been added",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (emails.length >= 4) {
+      toast({
+        title: "Maximum Invitees Reached",
+        description: "You can only invite up to 4 people (5 total including you)",
         variant: "destructive",
       });
       return;
@@ -79,9 +93,9 @@ export default function GroupPlanInviteModal({ plan, onClose, onComplete }: Grou
     
     setIsSubmitting(true);
     
-    // Simulate API call
+    // For demo purposes, we'll continue after a slight delay
     setTimeout(() => {
-      // For both methods, we'll pass the invite codes
+      // Pass all emails and their corresponding invite codes 
       onComplete(emails, inviteCodes);
       setIsSubmitting(false);
     }, 1500);
@@ -144,19 +158,19 @@ export default function GroupPlanInviteModal({ plan, onClose, onComplete }: Grou
                     value={currentEmail}
                     onChange={(e) => setCurrentEmail(e.target.value)}
                     onKeyDown={handleKeyDown}
-                    disabled={emails.length >= (plan.userCount || 5) - 1}
+                    disabled={emails.length >= 4} // Maximum of 4 invites (5 total including the user)
                   />
                   <Button 
                     type="button" 
                     size="sm" 
                     onClick={addEmail}
-                    disabled={emails.length >= (plan.userCount || 5) - 1 || !currentEmail.trim()}
+                    disabled={emails.length >= 4 || !currentEmail.trim()}
                   >
                     <UserPlus size={16} />
                   </Button>
                 </div>
                 
-                {emails.length >= (plan.userCount || 5) - 1 && (
+                {emails.length >= 4 && (
                   <p className="text-amber-600 dark:text-amber-400 text-xs">
                     You've reached the maximum number of invitations for this plan.
                   </p>
@@ -189,6 +203,15 @@ export default function GroupPlanInviteModal({ plan, onClose, onComplete }: Grou
                       </motion.div>
                     ))}
                   </AnimatePresence>
+                </div>
+                
+                <div className="mt-4 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                  <h4 className="text-sm font-medium">Invited emails ({emails.length}/4)</h4>
+                  {emails.length === 0 ? (
+                    <p className="text-xs text-gray-500 mt-1">No emails added yet. Add up to 4 people to join your group.</p>
+                  ) : (
+                    <p className="text-xs text-gray-500 mt-1">{4 - emails.length} more invitation{4 - emails.length !== 1 ? 's' : ''} available.</p>
+                  )}
                 </div>
                 
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-4">
