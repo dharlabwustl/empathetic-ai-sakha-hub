@@ -1,26 +1,16 @@
-
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import SidebarNav from "@/components/dashboard/SidebarNav";
-import ChatAssistant from "@/components/dashboard/ChatAssistant";
-import DashboardHeader from "./DashboardHeader";
-import SidebarNavigation from "./SidebarNavigation";
-import DashboardContent from "./DashboardContent";
-import StudyPlanDialog from "./StudyPlanDialog";
-import TopNavigationControls from "@/components/dashboard/student/TopNavigationControls";
-import SurroundingInfluencesSection from "@/components/dashboard/student/SurroundingInfluencesSection";
-import NavigationToggleButton from "@/components/dashboard/student/NavigationToggleButton";
-import { UserProfileType, MoodType } from "@/types/user/base";
-import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
-import { formatTime, formatDate } from "./utils/DateTimeFormatter";
-import { motion } from "framer-motion";
-import { useIsMobile } from "@/hooks/use-mobile";
-import MobileNavigation from "./MobileNavigation";
-import { getFeatures } from "./utils/FeatureManager";
+import React from 'react';
 import { Button } from "@/components/ui/button";
-import { BookOpen, MessageSquareText, Brain } from "lucide-react";
-import ProfileCard from "@/components/dashboard/ProfileCard";
-import WelcomeTour from "@/components/dashboard/student/WelcomeTour";
+import { UserProfileType } from "@/types/user";
+import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
+import DashboardHeader from "@/pages/dashboard/student/DashboardHeader";
+import SidebarNavigation from "@/pages/dashboard/student/SidebarNavigation";
+import MobileNavigation from "@/pages/dashboard/student/MobileNavigation";
+import SidebarToggleButton from '@/components/dashboard/student/SidebarToggleButton';
+import TopNavigationControls from '@/components/dashboard/student/TopNavigationControls';
+import SurroundingInfluencesSection from '@/components/dashboard/student/SurroundingInfluencesSection';
+import MainContent from '@/components/dashboard/student/MainContent';
+import { useIsMobile } from "@/hooks/use-mobile";
+import MoodDashboard from "@/components/dashboard/student/mood-tracking/MoodDashboard";
 
 interface DashboardLayoutProps {
   userProfile: UserProfileType;
@@ -30,7 +20,9 @@ interface DashboardLayoutProps {
   kpis: KpiData[];
   nudges: NudgeData[];
   markNudgeAsRead: (id: string) => void;
+  features: any[];
   showWelcomeTour: boolean;
+  currentTime: Date;
   onTabChange: (tab: string) => void;
   onViewStudyPlan: () => void;
   onToggleSidebar: () => void;
@@ -41,8 +33,7 @@ interface DashboardLayoutProps {
   onCloseStudyPlan: () => void;
   lastActivity?: { type: string; description: string } | null;
   suggestedNextAction?: string | null;
-  currentMood?: MoodType;
-  children?: React.ReactNode; // Add support for children
+  currentMood?: 'sad' | 'neutral' | 'happy' | 'motivated' | undefined;
 }
 
 const DashboardLayout = ({
@@ -53,7 +44,9 @@ const DashboardLayout = ({
   kpis,
   nudges,
   markNudgeAsRead,
+  features,
   showWelcomeTour,
+  currentTime,
   onTabChange,
   onViewStudyPlan,
   onToggleSidebar,
@@ -64,202 +57,58 @@ const DashboardLayout = ({
   onCloseStudyPlan,
   lastActivity,
   suggestedNextAction,
-  currentMood,
-  children // Now we use children
-}: DashboardLayoutProps) => {
-  const currentTime = new Date();
+  currentMood
+}) => {
+  const isMobile = useIsMobile();
   const formattedTime = formatTime(currentTime);
   const formattedDate = formatDate(currentTime);
-  const isMobile = useIsMobile();
-  const [influenceMeterCollapsed, setInfluenceMeterCollapsed] = useState(true);
-  
-  const features = getFeatures();
-
-  // Navigation buttons for quick access - moved from inside the render
-  const navigationButtons = [
-    { 
-      name: "24/7 AI Tutor", 
-      icon: <MessageSquareText className="h-4 w-4 mr-1" />, 
-      path: "/dashboard/student/tutor", 
-      variant: "default" as const,
-      className: "bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white shadow-md"
-    },
-    { 
-      name: "Academic Advisor", 
-      icon: <Brain className="h-4 w-4 mr-1" />, 
-      path: "/dashboard/student/academic", 
-      variant: "default" as const,
-      className: "bg-gradient-to-r from-purple-500 to-violet-600 hover:from-purple-600 hover:to-violet-700 text-white shadow-md"
-    },
-    { 
-      name: "Feel Good Corner", 
-      icon: <BookOpen className="h-4 w-4 mr-1" />, 
-      path: "/dashboard/student/feel-good", 
-      variant: "default" as const,
-      className: "bg-gradient-to-r from-pink-500 to-rose-600 hover:from-pink-600 hover:to-rose-700 text-white shadow-md"
-    }
-  ];
-  
-  const [showTour, setShowTour] = useState(showWelcomeTour);
-  
-  const handleOpenTour = () => {
-    setShowTour(true);
-  };
-  
-  const handleCloseTour = () => {
-    setShowTour(false);
-    onSkipTour();
-  };
-  
-  const handleCompleteTourAndClose = () => {
-    setShowTour(false);
-    onCompleteTour();
-  };
+  const [influenceMeterCollapsed, setInfluenceMeterCollapsed] = React.useState(true);
 
   return (
-    <div className={`min-h-screen bg-gradient-to-br from-sky-100/10 via-white to-violet-100/10 dark:from-sky-900/10 dark:via-gray-900 dark:to-violet-900/10 ${currentMood ? `mood-${currentMood}` : ''}`}>
-      <SidebarNav userType="student" userName={userProfile.name} />
+    <div className="flex flex-col min-h-screen">
+      {/* Sidebar toggle button */}
+      <SidebarToggleButton hideSidebar={hideSidebar} onToggle={onToggleSidebar} />
       
-      <main className={`transition-all duration-300 ${hideSidebar ? 'md:ml-0' : 'md:ml-64'} p-4 sm:p-6 pb-20 md:pb-6`}>
-        <TopNavigationControls 
-          hideSidebar={hideSidebar}
-          onToggleSidebar={onToggleSidebar}
-          formattedDate={formattedDate}
-          formattedTime={formattedTime}
-          onOpenTour={handleOpenTour}
-        />
-        
-        <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
-          <DashboardHeader 
-            userProfile={userProfile}
-            formattedTime={formattedTime}
-            formattedDate={formattedDate}
-            onViewStudyPlan={onViewStudyPlan}
-          />
-        </div>
+      {/* Top navigation controls */}
+      <TopNavigationControls 
+        hideSidebar={hideSidebar}
+        onToggleSidebar={onToggleSidebar}
+        formattedDate={formattedDate}
+        formattedTime={formattedTime}
+      />
+      
+      {/* Dashboard header */}
+      <DashboardHeader 
+        userProfile={userProfile}
+        formattedTime={formattedTime}
+        formattedDate={formattedDate}
+        onViewStudyPlan={onViewStudyPlan}
+      />
 
-        {/* Enhanced Quick Access Navigation Bar */}
-        <motion.div 
-          className="flex flex-wrap items-center gap-2 mb-4 p-2 bg-white/80 dark:bg-gray-800/50 backdrop-blur-sm rounded-lg shadow-md border border-gray-100 dark:border-gray-700"
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-        >
-          {navigationButtons.map((button, index) => (
-            <motion.div
-              key={button.name}
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: index * 0.1, duration: 0.3 }}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <Link to={button.path}>
-                <Button 
-                  variant={button.variant} 
-                  size="sm" 
-                  className={`flex items-center ${button.className}`}
-                >
-                  {button.icon}
-                  {button.name}
-                </Button>
-              </Link>
-            </motion.div>
-          ))}
-          
-          <motion.div
-            initial={{ opacity: 0, x: -10 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.3, duration: 0.3 }}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="ml-auto"
-          >
-            <Button 
-              variant="outline"
-              size="sm"
-              className="bg-gradient-to-r hover:from-violet-500 hover:to-indigo-500 hover:text-white border-violet-200"
-              onClick={onViewStudyPlan}
-            >
-              <BookOpen className="h-4 w-4 mr-1" />
-              View Study Plan
-            </Button>
-          </motion.div>
-        </motion.div>
-
-        {/* Surrounding Influences Section - Enhanced with our redesigned component */}
-        <SurroundingInfluencesSection 
-          influenceMeterCollapsed={influenceMeterCollapsed}
-          setInfluenceMeterCollapsed={setInfluenceMeterCollapsed}
-        />
-        
-        {isMobile && (
-          <div className="mb-6">
-            <MobileNavigation activeTab={activeTab} onTabChange={onTabChange} />
-          </div>
-        )}
-        
-        {/* Either render children or the default dashboard content */}
-        {children ? (
-          <div>{children}</div>
-        ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 mt-4 sm:mt-6">
-            {!hideSidebar && !isMobile && (
-              <SidebarNavigation 
-                activeTab={activeTab} 
-                onTabChange={onTabChange} 
-              />
-            )}
-            
-            <div className="lg:col-span-9 xl:col-span-10">
-              {!isMobile && (
-                <NavigationToggleButton 
-                  hideTabsNav={hideTabsNav} 
-                  onToggleTabsNav={onToggleTabsNav}
-                />
-              )}
-              
-              <DashboardContent
-                activeTab={activeTab}
-                onTabChange={onTabChange}
-                userProfile={userProfile}
-                kpis={kpis}
-                nudges={nudges}
-                markNudgeAsRead={markNudgeAsRead}
-                features={features}
-                showWelcomeTour={showWelcomeTour}
-                handleSkipTour={onSkipTour}
-                handleCompleteTour={onCompleteTour}
-                hideTabsNav={hideTabsNav || isMobile}
-                lastActivity={lastActivity}
-                suggestedNextAction={suggestedNextAction}
-              />
-            </div>
-          </div>
-        )}
-      </main>
+      {/* Surrounding Influences Meter */}
+      <SurroundingInfluencesSection 
+        influenceMeterCollapsed={influenceMeterCollapsed}
+        setInfluenceMeterCollapsed={setInfluenceMeterCollapsed}
+      />
       
-      <ChatAssistant userType="student" />
-      
-      {showStudyPlan && (
-        <StudyPlanDialog 
-          userProfile={userProfile} 
-          onClose={onCloseStudyPlan} 
-        />
+      {/* Mobile Navigation */}
+      {isMobile && (
+        <MobileNavigation activeTab={activeTab} onTabChange={onTabChange} />
       )}
       
-      <WelcomeTour
-        onSkipTour={handleCloseTour}
-        onCompleteTour={handleCompleteTourAndClose}
-        isFirstTimeUser={!userProfile.loginCount || userProfile.loginCount <= 1}
-        lastActivity={lastActivity}
-        suggestedNextAction={suggestedNextAction}
-        loginCount={userProfile.loginCount}
-        open={showTour}
-        onOpenChange={setShowTour}
-      />
+      <div className="container mx-auto px-4 py-8">
+        <div className="grid gap-6">
+          {/* New Mood Dashboard Section */}
+          <section>
+            <MoodDashboard />
+          </section>
+        </div>
+      </div>
     </div>
   );
 };
 
 export default DashboardLayout;
+
+// Import formatting utilities
+import { formatTime, formatDate } from "@/pages/dashboard/student/utils/DateTimeFormatter";
