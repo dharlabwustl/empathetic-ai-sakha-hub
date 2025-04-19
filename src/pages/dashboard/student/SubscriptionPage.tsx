@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import SubscriptionPlans from '@/components/subscription/SubscriptionPlans';
 import DashboardLayout from './DashboardLayout';
 import { useStudentDashboard } from '@/hooks/useStudentDashboard';
@@ -7,12 +8,14 @@ import DashboardLoading from './DashboardLoading';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { AlertCircle, CheckCircle, Clock, Users, Copy, Check } from 'lucide-react';
+import { AlertCircle, CheckCircle, Clock, Users, Copy, Check, Crown, UserPlus } from 'lucide-react';
 import { formatDate } from '@/utils/dateUtils';
 import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
 
 const SubscriptionPage = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
   const {
     loading,
     userProfile,
@@ -55,6 +58,36 @@ const SubscriptionPage = () => {
   const { toast } = useToast();
   
   useEffect(() => {
+    // Check if there's any plan update from the checkout process
+    if (location.state?.planUpdated && location.state?.newPlan) {
+      const plan = location.state.newPlan;
+      setCurrentPlan({
+        id: plan.id,
+        name: plan.name,
+        expiryDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
+        isActive: true,
+        isGroup: plan.isGroup
+      });
+      
+      // If it's a group plan and the user is the leader
+      if (location.state.isGroupLeader && location.state.invitedEmails && location.state.inviteCodes) {
+        // Create invitation records
+        const invites = location.state.invitedEmails.map((email: string, index: number) => ({
+          code: location.state.inviteCodes[index],
+          email: email,
+          used: false
+        }));
+        
+        setGroupInvites(invites);
+        
+        toast({
+          title: "Group Plan Activated",
+          description: "You are now a batch leader. Manage your group in this section.",
+          variant: "default",
+        });
+      }
+    }
+    
     // In a real application, this would fetch the user's subscription status
     const urlParams = new URLSearchParams(window.location.search);
     
@@ -92,7 +125,7 @@ const SubscriptionPage = () => {
       
       setGroupInvites(invites);
     }
-  }, []);
+  }, [location]);
   
   const handleActivateCode = () => {
     if (inviteCode.trim() === '') {
@@ -145,6 +178,10 @@ const SubscriptionPage = () => {
       title: "Code Copied!",
       description: "Invitation code copied to clipboard",
     });
+  };
+  
+  const handleManageBatch = () => {
+    navigate('/dashboard/student/batch');
   };
   
   if (loading || !userProfile) {
@@ -220,12 +257,19 @@ const SubscriptionPage = () => {
               </div>
               
               <div className="mt-4 md:mt-0">
-                <Button variant={currentPlan.isGroup ? "outline" : "default"} className="mr-2">
-                  {currentPlan.isGroup ? 'Manage Group' : 'Manage Subscription'}
-                </Button>
-                {currentPlan.isGroup && !currentPlan.name.includes('Member') && (
-                  <Button variant="default">
-                    View Group Dashboard
+                {currentPlan.isGroup && !currentPlan.name.includes('Member') ? (
+                  <div className="flex flex-wrap gap-2">
+                    <Button variant="outline" className="mr-2">
+                      Manage Subscription
+                    </Button>
+                    <Button variant="default" onClick={handleManageBatch}>
+                      <Crown size={16} className="mr-2" />
+                      Manage Batch
+                    </Button>
+                  </div>
+                ) : (
+                  <Button variant={currentPlan.isGroup ? "outline" : "default"} className="mr-2">
+                    {currentPlan.isGroup ? 'View Batch Details' : 'Manage Subscription'}
                   </Button>
                 )}
               </div>
@@ -240,6 +284,27 @@ const SubscriptionPage = () => {
                     <p className="text-sm text-blue-700 dark:text-blue-200">
                       You can manage your group members, track their progress, and add or remove users from your batch.
                     </p>
+                    <Button 
+                      variant="link" 
+                      className="text-sm p-0 h-auto text-blue-600 dark:text-blue-400"
+                      onClick={handleManageBatch}
+                    >
+                      Go to Batch Management
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
+            
+            {currentPlan.isGroup && currentPlan.name.includes('Member') && (
+              <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-md">
+                <div className="flex items-start">
+                  <CheckCircle size={18} className="text-blue-500 mr-2 mt-0.5" />
+                  <div>
+                    <h4 className="font-medium text-blue-800 dark:text-blue-300">Group Plan Member</h4>
+                    <p className="text-sm text-blue-700 dark:text-blue-200">
+                      You're part of a study group. All premium features have been unlocked.
+                    </p>
                   </div>
                 </div>
               </div>
@@ -251,7 +316,13 @@ const SubscriptionPage = () => {
         {currentPlan.isGroup && !currentPlan.name.includes('Member') && groupInvites.length > 0 && (
           <Card className="mb-8">
             <CardHeader>
-              <CardTitle className="text-xl">Manage Group Invitations</CardTitle>
+              <CardTitle className="text-xl flex items-center justify-between">
+                <span>Manage Group Invitations</span>
+                <Button size="sm" onClick={handleManageBatch}>
+                  <UserPlus size={16} className="mr-1" />
+                  Batch Management
+                </Button>
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -289,6 +360,12 @@ const SubscriptionPage = () => {
                       </div>
                     </div>
                   ))}
+                </div>
+                
+                <div className="flex justify-end">
+                  <Button onClick={handleManageBatch}>
+                    Go to Full Batch Management
+                  </Button>
                 </div>
               </div>
             </CardContent>

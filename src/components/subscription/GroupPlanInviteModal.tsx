@@ -30,9 +30,9 @@ export default function GroupPlanInviteModal({ plan, onClose, onComplete }: Grou
   const [inviteMethod, setInviteMethod] = useState<'email' | 'code'>('email');
   const { toast } = useToast();
   
-  // Generate unique invite codes for each user
+  // Generate unique invite codes for each potential user in the group
   const [inviteCodes, setInviteCodes] = useState<string[]>(
-    Array(4).fill(0).map(() => 'SAKHA-' + Math.random().toString(36).substring(2, 8).toUpperCase())
+    Array(5).fill(0).map(() => 'SAKHA-' + Math.random().toString(36).substring(2, 8).toUpperCase())
   );
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
   
@@ -79,12 +79,12 @@ export default function GroupPlanInviteModal({ plan, onClose, onComplete }: Grou
     
     setIsSubmitting(true);
     
-    // Simulate API call
+    // For the actual implementation, we'll pass the emails and invite codes
+    // to the parent component to continue the checkout process
     setTimeout(() => {
-      // For both methods, we'll pass the invite codes
-      onComplete(emails, inviteCodes);
+      onComplete(emails, inviteCodes.slice(0, Math.max(emails.length, 1)));
       setIsSubmitting(false);
-    }, 1500);
+    }, 500);
   };
   
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -105,6 +105,10 @@ export default function GroupPlanInviteModal({ plan, onClose, onComplete }: Grou
     });
   };
 
+  // Calculate how many more invites can be added
+  const maxInvites = (plan.userCount || 5) - 1; // -1 for the plan owner
+  const remainingInvites = maxInvites - emails.length;
+
   return (
     <Dialog open onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
@@ -121,7 +125,7 @@ export default function GroupPlanInviteModal({ plan, onClose, onComplete }: Grou
               <strong>Total price: ₹{plan.price}/month</strong> 
               <span className="text-blue-600 dark:text-blue-300"> (₹{Math.round(plan.price / (plan.userCount || 5))}/user)</span>
             </p>
-            <p className="mt-1 text-xs">You'll be charged only after selecting your group members.</p>
+            <p className="mt-1 text-xs">You can invite up to {maxInvites} users to join your group. You'll be charged only after proceeding to payment.</p>
           </div>
           
           <Tabs defaultValue="email" onValueChange={(v) => setInviteMethod(v as 'email' | 'code')}>
@@ -136,7 +140,12 @@ export default function GroupPlanInviteModal({ plan, onClose, onComplete }: Grou
             
             <TabsContent value="email" className="mt-4 space-y-4">
               <div className="space-y-2">
-                <Label>Invite Friends (Up to {(plan.userCount || 5) - 1})</Label>
+                <Label>Invite Friends (Up to {maxInvites})</Label>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-blue-600 dark:text-blue-400">
+                    {remainingInvites} invite{remainingInvites !== 1 ? 's' : ''} remaining
+                  </span>
+                </div>
                 
                 <div className="flex space-x-2">
                   <Input
@@ -144,19 +153,19 @@ export default function GroupPlanInviteModal({ plan, onClose, onComplete }: Grou
                     value={currentEmail}
                     onChange={(e) => setCurrentEmail(e.target.value)}
                     onKeyDown={handleKeyDown}
-                    disabled={emails.length >= (plan.userCount || 5) - 1}
+                    disabled={emails.length >= maxInvites}
                   />
                   <Button 
                     type="button" 
                     size="sm" 
                     onClick={addEmail}
-                    disabled={emails.length >= (plan.userCount || 5) - 1 || !currentEmail.trim()}
+                    disabled={emails.length >= maxInvites || !currentEmail.trim()}
                   >
                     <UserPlus size={16} />
                   </Button>
                 </div>
                 
-                {emails.length >= (plan.userCount || 5) - 1 && (
+                {emails.length >= maxInvites && (
                   <p className="text-amber-600 dark:text-amber-400 text-xs">
                     You've reached the maximum number of invitations for this plan.
                   </p>

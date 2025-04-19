@@ -137,40 +137,35 @@ export default function SubscriptionPlans({ currentPlanId }: SubscriptionPlansPr
       
       // In real implementation, this would redirect to Stripe or other payment gateway
       setTimeout(() => {
-        toast({
-          title: "Success!",
-          description: `Your ${plan.name} plan is now active.`,
-          variant: "default",
-        });
-        navigate('/dashboard/student/profile?plan=updated'); 
-      }, 1500);
+        navigate('/dashboard/student/checkout', { 
+          state: { 
+            plan,
+            isGroup: false
+          } 
+        }); 
+      }, 500);
     }
   };
 
   const handleInviteComplete = (emails: string[], inviteCodes: string[]) => {
     setShowInviteModal(false);
     
-    // Proceed to payment gateway
+    if (!selectedGroupPlan) return;
+
+    // Navigate to the checkout page with group plan details
     toast({
       title: "Proceeding to Payment",
       description: "Please complete the payment process to activate your group plan.",
     });
     
-    // Simulate payment process and redirect
-    setTimeout(() => {
-      toast({
-        title: "Payment Successful!",
-        description: "Your group plan is now active. You can manage invitations in your profile.",
-        variant: "default",
-      });
-      
-      // Pass invite codes to profile page via query params
-      // In a real app, these would be stored in a database
-      const codesParam = inviteCodes.join(',');
-      const emailsParam = emails.join(',');
-      
-      navigate(`/dashboard/student/subscription?plan=group-activated&codes=${codesParam}&emails=${emailsParam}`);
-    }, 2000);
+    navigate('/dashboard/student/group-checkout', {
+      state: {
+        plan: selectedGroupPlan,
+        emails,
+        inviteCodes,
+        isGroup: true
+      }
+    });
   };
 
   return (

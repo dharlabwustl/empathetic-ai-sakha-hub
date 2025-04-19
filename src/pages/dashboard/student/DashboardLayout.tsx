@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import SidebarNav from "@/components/dashboard/SidebarNav";
@@ -41,6 +42,7 @@ interface DashboardLayoutProps {
   lastActivity?: { type: string; description: string } | null;
   suggestedNextAction?: string | null;
   currentMood?: MoodType;
+  children?: React.ReactNode; // Add support for children
 }
 
 const DashboardLayout = ({
@@ -62,7 +64,8 @@ const DashboardLayout = ({
   onCloseStudyPlan,
   lastActivity,
   suggestedNextAction,
-  currentMood
+  currentMood,
+  children // Now we use children
 }: DashboardLayoutProps) => {
   const currentTime = new Date();
   const formattedTime = formatTime(currentTime);
@@ -196,39 +199,44 @@ const DashboardLayout = ({
           </div>
         )}
         
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 mt-4 sm:mt-6">
-          {!hideSidebar && !isMobile && (
-            <SidebarNavigation 
-              activeTab={activeTab} 
-              onTabChange={onTabChange} 
-            />
-          )}
-          
-          <div className="lg:col-span-9 xl:col-span-10">
-            {!isMobile && (
-              <NavigationToggleButton 
-                hideTabsNav={hideTabsNav} 
-                onToggleTabsNav={onToggleTabsNav}
+        {/* Either render children or the default dashboard content */}
+        {children ? (
+          <div>{children}</div>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 mt-4 sm:mt-6">
+            {!hideSidebar && !isMobile && (
+              <SidebarNavigation 
+                activeTab={activeTab} 
+                onTabChange={onTabChange} 
               />
             )}
             
-            <DashboardContent
-              activeTab={activeTab}
-              onTabChange={onTabChange}
-              userProfile={userProfile}
-              kpis={kpis}
-              nudges={nudges}
-              markNudgeAsRead={markNudgeAsRead}
-              features={features}
-              showWelcomeTour={showWelcomeTour}
-              handleSkipTour={onSkipTour}
-              handleCompleteTour={onCompleteTour}
-              hideTabsNav={hideTabsNav || isMobile}
-              lastActivity={lastActivity}
-              suggestedNextAction={suggestedNextAction}
-            />
+            <div className="lg:col-span-9 xl:col-span-10">
+              {!isMobile && (
+                <NavigationToggleButton 
+                  hideTabsNav={hideTabsNav} 
+                  onToggleTabsNav={onToggleTabsNav}
+                />
+              )}
+              
+              <DashboardContent
+                activeTab={activeTab}
+                onTabChange={onTabChange}
+                userProfile={userProfile}
+                kpis={kpis}
+                nudges={nudges}
+                markNudgeAsRead={markNudgeAsRead}
+                features={features}
+                showWelcomeTour={showWelcomeTour}
+                handleSkipTour={onSkipTour}
+                handleCompleteTour={onCompleteTour}
+                hideTabsNav={hideTabsNav || isMobile}
+                lastActivity={lastActivity}
+                suggestedNextAction={suggestedNextAction}
+              />
+            </div>
           </div>
-        </div>
+        )}
       </main>
       
       <ChatAssistant userType="student" />
