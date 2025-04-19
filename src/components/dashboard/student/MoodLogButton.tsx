@@ -1,7 +1,7 @@
 
-import React, { useState } from "react";
+import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import {
+import { 
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -9,15 +9,20 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { MoodType } from "@/types/user/base";
 import { useToast } from "@/hooks/use-toast";
-import {
-  Smile,
-  ChevronDown,
-  Frown,
-  Meh,
-  Sun,
-  Moon
+import { 
+  SmilePlus, 
+  ChevronDown, 
+  Frown, 
+  Smile, 
+  Meh, 
+  ThumbsUp, 
+  Zap,
+  Coffee,
+  Lightbulb,
+  BatteryLow,
+  AlertCircle
 } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion } from 'framer-motion';
 
 interface MoodLogButtonProps {
   currentMood?: MoodType;
@@ -33,29 +38,53 @@ type MoodOption = {
 };
 
 const moodOptions: MoodOption[] = [
-  {
-    value: "happy",
-    label: "Happy",
-    icon: <Smile className="mr-2 h-4 w-4" />,
+  { 
+    value: "happy", 
+    label: "Happy", 
+    icon: <Smile className="mr-2 h-4 w-4" />, 
     color: "bg-yellow-100 text-yellow-700 hover:bg-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400"
   },
-  {
-    value: "motivated",
-    label: "Motivated",
-    icon: <Sun className="mr-2 h-4 w-4" />,
-    color: "bg-purple-100 text-purple-700 hover:bg-purple-200 dark:bg-purple-900/30 dark:text-purple-400"
+  { 
+    value: "motivated", 
+    label: "Motivated", 
+    icon: <Zap className="mr-2 h-4 w-4" />, 
+    color: "bg-purple-100 text-purple-700 hover:bg-purple-200 dark:bg-purple-900/30 dark:text-purple-400" 
   },
-  {
-    value: "neutral",
-    label: "Neutral",
-    icon: <Meh className="mr-2 h-4 w-4" />,
-    color: "bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-900/30 dark:text-gray-400"
+  { 
+    value: "focused", 
+    label: "Focused", 
+    icon: <Lightbulb className="mr-2 h-4 w-4" />, 
+    color: "bg-blue-100 text-blue-700 hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-400" 
   },
-  {
-    value: "sad",
-    label: "Sad",
-    icon: <Frown className="mr-2 h-4 w-4" />,
-    color: "bg-indigo-100 text-indigo-700 hover:bg-indigo-200 dark:bg-indigo-900/30 dark:text-indigo-400"
+  { 
+    value: "curious", 
+    label: "Curious", 
+    icon: <ThumbsUp className="mr-2 h-4 w-4" />, 
+    color: "bg-teal-100 text-teal-700 hover:bg-teal-200 dark:bg-teal-900/30 dark:text-teal-400" 
+  },
+  { 
+    value: "neutral", 
+    label: "Okay", 
+    icon: <Meh className="mr-2 h-4 w-4" />, 
+    color: "bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-900/30 dark:text-gray-400" 
+  },
+  { 
+    value: "tired", 
+    label: "Tired", 
+    icon: <BatteryLow className="mr-2 h-4 w-4" />, 
+    color: "bg-orange-100 text-orange-700 hover:bg-orange-200 dark:bg-orange-900/30 dark:text-orange-400" 
+  },
+  { 
+    value: "stressed", 
+    label: "Stressed", 
+    icon: <AlertCircle className="mr-2 h-4 w-4" />, 
+    color: "bg-red-100 text-red-700 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400" 
+  },
+  { 
+    value: "sad", 
+    label: "Sad", 
+    icon: <Frown className="mr-2 h-4 w-4" />, 
+    color: "bg-indigo-100 text-indigo-700 hover:bg-indigo-200 dark:bg-indigo-900/30 dark:text-indigo-400" 
   },
 ];
 
@@ -68,23 +97,7 @@ const MoodLogButton: React.FC<MoodLogButtonProps> = ({
   const { toast } = useToast();
   
   const handleMoodSelect = (mood: MoodType) => {
-    if (onMoodChange) {
-      onMoodChange(mood);
-    } else {
-      // If no handler is provided, save to localStorage
-      const userData = localStorage.getItem("userData");
-      if (userData) {
-        const parsedData = JSON.parse(userData);
-        parsedData.mood = mood;
-        localStorage.setItem("userData", JSON.stringify(parsedData));
-      } else {
-        localStorage.setItem("userData", JSON.stringify({ mood }));
-      }
-      
-      // Force reload to apply mood changes
-      window.location.reload();
-    }
-    
+    onMoodChange?.(mood);
     setIsOpen(false);
     
     toast({
@@ -99,8 +112,8 @@ const MoodLogButton: React.FC<MoodLogButtonProps> = ({
   };
   
   const getMoodIcon = (mood?: MoodType) => {
-    if (!mood) return <Smile className="h-4 w-4 mr-1" />;
-    return moodOptions.find(option => option.value === mood)?.icon || <Smile className="h-4 w-4 mr-1" />;
+    if (!mood) return <SmilePlus className="h-4 w-4 mr-1" />;
+    return moodOptions.find(option => option.value === mood)?.icon || <SmilePlus className="h-4 w-4 mr-1" />;
   };
   
   const currentMoodOption = currentMood ? moodOptions.find(option => option.value === currentMood) : null;
