@@ -16,12 +16,34 @@ import {
   Bell
 } from "lucide-react";
 import { NavigationRoute, UserRouteMap } from "./types/sidebar";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { motion } from "framer-motion";
 
 interface SidebarNavRoutesProps {
   userType: string;
   collapsed: boolean;
   onMobileClose?: () => void;
 }
+
+const tooltipDescriptions: Record<string, string> = {
+  Dashboard: "Overview of your study progress and daily tasks",
+  "24/7 Tutor": "Get instant help from our AI tutor anytime",
+  "Academic Advisor": "Plan and track your academic journey",
+  Progress: "View detailed analytics of your performance",
+  Flashcards: "Practice with smart flashcards",
+  "Materials Vault": "Access your study materials and resources",
+  "Live Tutors": "Connect with expert tutors in real-time",
+  Forum: "Discuss and learn with your peers",
+  "Video Library": "Watch educational content and lectures",
+  Notifications: "Stay updated with important alerts",
+  Wellness: "Track and maintain your study-life balance",
+  Profile: "Manage your account settings and preferences"
+};
 
 export const SidebarNavRoutes = ({ 
   userType, 
@@ -73,49 +95,83 @@ export const SidebarNavRoutes = ({
   ];
 
   return (
-    <div className="space-y-6">
-      <nav className="space-y-1 px-2">
-        {routes.map((route) => (
-          <Link
-            key={route.path}
-            to={route.path}
-            className={cn(
-              "flex items-center gap-3 px-3 py-2 rounded-md transition-colors",
-              location.pathname === route.path
-                ? "bg-gradient-to-r from-sky-500 to-violet-500 text-white shadow-lg"
-                : "hover:bg-accent",
-              collapsed && "justify-center"
-            )}
-            onClick={onMobileClose}
-          >
-            <span>{route.icon}</span>
-            {!collapsed && <span>{route.name}</span>}
-          </Link>
-        ))}
-      </nav>
-      
-      <div className="px-2 pt-4 border-t border-sidebar-border">
-        <nav className="space-y-1">
-          {commonRoutes.map((route) => (
-            <Link
-              key={route.path}
-              to={route.path}
-              className={cn(
-                "flex items-center gap-3 px-3 py-2 rounded-md transition-colors",
-                (location.pathname === route.path || 
-                 (route.path === "/dashboard/student/profile" && location.pathname === "/dashboard/student/profile"))
-                  ? "bg-gradient-to-r from-sky-500 to-violet-500 text-white"
-                  : "hover:bg-accent",
-                collapsed && "justify-center"
-              )}
-              onClick={onMobileClose}
-            >
-              <span>{route.icon}</span>
-              {!collapsed && <span>{route.name}</span>}
-            </Link>
+    <TooltipProvider delayDuration={0}>
+      <div className="space-y-6">
+        <nav className="space-y-1 px-2">
+          {routes.map((route) => (
+            <Tooltip key={route.path}>
+              <TooltipTrigger asChild>
+                <motion.div
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <Link
+                    to={route.path}
+                    className={cn(
+                      "flex items-center gap-3 px-3 py-2 rounded-md transition-all duration-200",
+                      location.pathname === route.path
+                        ? "bg-gradient-to-r from-sky-500 to-violet-500 text-white shadow-lg"
+                        : "hover:bg-accent hover:shadow-md",
+                      collapsed && "justify-center"
+                    )}
+                    onClick={onMobileClose}
+                  >
+                    <span className="transition-transform duration-200 group-hover:scale-110">
+                      {route.icon}
+                    </span>
+                    {!collapsed && <span>{route.name}</span>}
+                  </Link>
+                </motion.div>
+              </TooltipTrigger>
+              <TooltipContent 
+                side="right" 
+                className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm border-gray-200 dark:border-gray-700 shadow-lg"
+              >
+                <p className="text-sm">{tooltipDescriptions[route.name] || route.name}</p>
+              </TooltipContent>
+            </Tooltip>
           ))}
         </nav>
+        
+        <div className="px-2 pt-4 border-t border-sidebar-border">
+          <nav className="space-y-1">
+            {commonRoutes.map((route) => (
+              <Tooltip key={route.path}>
+                <TooltipTrigger asChild>
+                  <motion.div
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <Link
+                      to={route.path}
+                      className={cn(
+                        "flex items-center gap-3 px-3 py-2 rounded-md transition-all duration-200",
+                        (location.pathname === route.path || 
+                         (route.path === "/dashboard/student/profile" && location.pathname === "/dashboard/student/profile"))
+                          ? "bg-gradient-to-r from-sky-500 to-violet-500 text-white"
+                          : "hover:bg-accent hover:shadow-md",
+                        collapsed && "justify-center"
+                      )}
+                      onClick={onMobileClose}
+                    >
+                      <span className="transition-transform duration-200 group-hover:scale-110">
+                        {route.icon}
+                      </span>
+                      {!collapsed && <span>{route.name}</span>}
+                    </Link>
+                  </motion.div>
+                </TooltipTrigger>
+                <TooltipContent 
+                  side="right"
+                  className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm border-gray-200 dark:border-gray-700 shadow-lg"
+                >
+                  <p className="text-sm">{tooltipDescriptions[route.name] || route.name}</p>
+                </TooltipContent>
+              </Tooltip>
+            ))}
+          </nav>
+        </div>
       </div>
-    </div>
+    </TooltipProvider>
   );
 };
