@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Users, MessageSquare, Book, LineChart, ArrowUp, Activity, Bell, Heart, Percent, ChartBar, Clock, UserCheck, UserPlus } from "lucide-react";
+import { Users, MessageSquare, Book, LineChart, ArrowUp, Activity, Bell, Heart, Percent, ChartBar, Clock, UserCheck, UserPlus, Wallet, Users as UsersIcon, IndianRupee } from "lucide-react";
 import { AdminDashboardStats } from "@/types/admin";
 import { useNavigate } from "react-router-dom";
 
@@ -116,6 +116,26 @@ const DashboardStats = ({ stats }: DashboardStatsProps) => {
         trend="+18% from last month"
         iconColor="text-purple-600"
         bgColor="bg-purple-100 dark:bg-purple-900/20"
+      />
+      {/* New KPI: User Types */}
+      <StatCard 
+        title="Free vs Paid Users" 
+        value={`${stats.paidUsers || 261}/${stats.totalStudents || 1245}`} 
+        icon={<UsersIcon size={24} className="text-blue-600" />}
+        trend="+10% paid users this month"
+        route="/admin/subscriptions"
+        iconColor="text-blue-600"
+        bgColor="bg-blue-100 dark:bg-blue-900/20"
+      />
+      {/* New KPI: Total Revenue */}
+      <StatCard 
+        title="Total Revenue" 
+        value={`₹${stats.totalRevenue?.toLocaleString() || "127,840"}`} 
+        icon={<IndianRupee size={24} className="text-green-600" />}
+        trend="+8% from last month"
+        route="/admin/subscriptions"
+        iconColor="text-green-600"
+        bgColor="bg-green-100 dark:bg-green-900/20"
       />
     </div>
   );

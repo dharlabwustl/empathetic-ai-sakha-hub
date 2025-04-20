@@ -83,7 +83,8 @@ const mockStats: AdminDashboardStats = {
   practiceAttemptsPerUser: 18,
   weakAreaIdentificationRate: 68,
   userSatisfactionScore: 87,
-  referralRate: 28
+  referralRate: 28,
+  totalRevenue: 127840
 };
 
 const mockStudents: StudentData[] = Array(20).fill(0).map((_, i) => ({

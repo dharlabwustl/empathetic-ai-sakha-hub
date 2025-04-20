@@ -29,6 +29,7 @@ export interface AdminDashboardStats {
   weakAreaIdentificationRate?: number;
   userSatisfactionScore?: number;
   referralRate?: number;
+  totalRevenue?: number;
 
   // Verified metrics
   verifiedMoodImprovement?: number;

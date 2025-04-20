@@ -13,6 +13,7 @@ import { UserCheck, ChartBar, Settings } from 'lucide-react';
 export default function BatchManagementPage() {
   const {
     userProfile,
+    loading,
     activeTab,
     showWelcomeTour,
     hideTabsNav,
@@ -82,7 +83,7 @@ export default function BatchManagementPage() {
         }
       ];
       
-      setBatchMembers(mockMembers);
+      setBatchMembers(mockMembers as BatchMember[]);
       setIsLoading(false);
     }, 1000);
   }, [userProfile]);
