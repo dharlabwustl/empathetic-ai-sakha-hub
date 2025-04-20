@@ -1,4 +1,3 @@
-
 export interface BatchMember {
   id: string;
   name: string;
@@ -34,4 +33,11 @@ export interface BatchProgress {
   activeMembers: number;
   totalMembers: number;
   lastUpdateDate: string;
+}
+
+export interface GroupSetupFormData {
+  batchName: string;
+  roleType: string;
+  inviteMethod: 'email' | 'code';
+  emails: string[];
 }
