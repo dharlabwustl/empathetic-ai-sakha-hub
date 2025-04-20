@@ -1,12 +1,13 @@
-
 import { UserProfileType } from "@/types/user";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Camera, Trophy, Users, Star } from "lucide-react";
+import { Camera, Trophy, Mail, Phone, User } from "lucide-react";
 import { SubscriptionType, UserSubscription } from "@/types/user/base";
 import { useState } from "react";
+import { Link } from "react-router-dom";
+import { format, addDays } from "date-fns";
 
 interface ProfileCardProps {
   profile: UserProfileType;
@@ -31,14 +32,12 @@ export default function ProfileCard({
     }
   };
 
-  // Helper function to determine if subscription is an object or enum
   const isSubscriptionObject = (
     sub: SubscriptionType | UserSubscription | undefined
   ): sub is UserSubscription => {
     return typeof sub === "object" && sub !== null;
   };
 
-  // Get the subscription type, whether it's a direct enum or from an object
   const getSubscriptionType = (
     sub: SubscriptionType | UserSubscription | undefined
   ): SubscriptionType => {
@@ -49,11 +48,9 @@ export default function ProfileCard({
     return sub;
   };
 
-  // Get the subscription plan name
   const getSubscriptionPlanName = (): string => {
     const subscriptionType = getSubscriptionType(profile.subscription);
     
-    // Map subscription types to display names
     const subscriptionDisplayNames: Record<SubscriptionType, string> = {
       [SubscriptionType.Free]: "Free Plan",
       [SubscriptionType.Basic]: "Basic Plan",
@@ -63,15 +60,12 @@ export default function ProfileCard({
       [SubscriptionType.Corporate]: "Corporate Plan"
     };
     
-    // Use plan name from the map or fallback to subscription type
     return subscriptionDisplayNames[subscriptionType] || String(subscriptionType);
   };
-  
-  // Get badge color based on subscription
+
   const getSubscriptionBadgeColor = (): string => {
     const subscriptionType = getSubscriptionType(profile.subscription);
     
-    // Map subscription types to badge colors
     const badgeColors: Record<SubscriptionType, string> = {
       [SubscriptionType.Free]: "bg-gray-500 hover:bg-gray-600",
       [SubscriptionType.Basic]: "bg-blue-500 hover:bg-blue-600",
@@ -81,11 +75,9 @@ export default function ProfileCard({
       [SubscriptionType.Corporate]: "bg-indigo-500 hover:bg-indigo-600"
     };
     
-    // Use color from the map or fallback to gray
     return badgeColors[subscriptionType] || "bg-gray-500 hover:bg-gray-600";
   };
 
-  // Get formatted join date
   const getJoinDate = (): string => {
     return profile.joinDate
       ? new Date(profile.joinDate).toLocaleDateString('en-US', {
@@ -96,13 +88,29 @@ export default function ProfileCard({
       : 'N/A';
   };
 
+  const getFreeTrialStatus = () => {
+    if (getSubscriptionType(profile.subscription) === SubscriptionType.Free) {
+      const joinDate = profile.joinDate ? new Date(profile.joinDate) : new Date();
+      const trialEnd = addDays(joinDate, 7);
+      const daysLeft = Math.max(0, Math.ceil((trialEnd.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)));
+      return {
+        isTrialActive: daysLeft > 0,
+        daysLeft,
+        expiryDate: format(trialEnd, 'MMM dd, yyyy')
+      };
+    }
+    return null;
+  };
+
+  const trialStatus = getFreeTrialStatus();
+
   return (
     <Card className="h-full">
       <CardHeader className="pb-2">
         <CardTitle className="text-xl font-semibold flex justify-between items-center">
           <span>Profile</span>
           <Badge className={`${getSubscriptionBadgeColor()} text-white`}>
-            {getSubscriptionPlanName()}
+            {trialStatus ? `Free Trial (${trialStatus.daysLeft} days left)` : getSubscriptionPlanName()}
           </Badge>
         </CardTitle>
       </CardHeader>
@@ -152,7 +160,21 @@ export default function ProfileCard({
           </div>
 
           <h3 className="font-medium text-lg mt-2">{profile.name}</h3>
-          <p className="text-muted-foreground text-sm">{profile.email}</p>
+          
+          <div className="flex flex-col items-center gap-1 mt-1">
+            {profile.email && (
+              <div className="flex items-center text-sm text-muted-foreground">
+                <Mail size={14} className="mr-1" />
+                {profile.email}
+              </div>
+            )}
+            {profile.phoneNumber && (
+              <div className="flex items-center text-sm text-muted-foreground">
+                <Phone size={14} className="mr-1" />
+                {profile.phoneNumber}
+              </div>
+            )}
+          </div>
           
           {currentMood && (
             <Badge variant="outline" className="mt-2">
@@ -163,9 +185,7 @@ export default function ProfileCard({
           {showPeerRanking && (
             <div className="flex items-center mt-2 text-amber-500">
               <Trophy size={16} className="mr-1" />
-              <span className="text-sm">
-                Top 15% in your peer group
-              </span>
+              <span className="text-sm">Top 15% in your peer group</span>
             </div>
           )}
         </div>
@@ -181,10 +201,10 @@ export default function ProfileCard({
             <span>{getJoinDate()}</span>
           </div>
 
-          {profile.personalityType && (
+          {trialStatus && trialStatus.isTrialActive && (
             <div className="flex justify-between items-center">
-              <span className="text-muted-foreground text-sm">Personality</span>
-              <span>{profile.personalityType}</span>
+              <span className="text-muted-foreground text-sm">Trial Expires</span>
+              <span className="text-amber-600">{trialStatus.expiryDate}</span>
             </div>
           )}
           
@@ -195,11 +215,21 @@ export default function ProfileCard({
             </div>
           )}
           
-          <div className="flex justify-between items-center pt-1">
-            <Button variant="outline" size="sm" className="w-full">
-              <Users size={16} className="mr-2" /> View Full Profile
-            </Button>
+          <div className="flex justify-between items-center pt-2">
+            <Link to="/dashboard/student/profile" className="w-full">
+              <Button variant="outline" size="sm" className="w-full">
+                <User size={16} className="mr-2" /> View Full Profile
+              </Button>
+            </Link>
           </div>
+
+          {trialStatus && trialStatus.isTrialActive && (
+            <Link to="/dashboard/student/subscription" className="w-full">
+              <Button variant="default" size="sm" className="w-full bg-gradient-to-r from-purple-600 to-violet-600">
+                Upgrade Plan
+              </Button>
+            </Link>
+          )}
         </div>
       </CardContent>
     </Card>

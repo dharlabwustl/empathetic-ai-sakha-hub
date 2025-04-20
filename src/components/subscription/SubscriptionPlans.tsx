@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -113,6 +112,41 @@ const groupPlans: Plan[] = [
       { name: 'Competitive Progress Tracking', included: true },
       { name: 'Advanced Batch Management', included: true },
       { name: 'Group Analysis Dashboard', included: true },
+    ]
+  }
+];
+
+const institutionalPlans: Plan[] = [
+  {
+    id: 'school',
+    name: 'School Plan',
+    price: 3999,
+    billing: 'monthly',
+    description: 'Perfect for educational institutions (25 users)',
+    isGroup: true,
+    userCount: 25,
+    features: [
+      { name: 'Everything in Pro Plan for 25 Users', included: true },
+      { name: 'School Admin Dashboard', included: true },
+      { name: 'Performance Analytics', included: true },
+      { name: 'Faculty Management', included: true },
+      { name: 'Multiple Batch Support', included: true },
+    ]
+  },
+  {
+    id: 'institution',
+    name: 'Institution Plan',
+    price: 9999,
+    billing: 'monthly',
+    description: 'For larger educational institutions (100+ users)',
+    isGroup: true,
+    userCount: 100,
+    features: [
+      { name: 'Everything in School Plan', included: true },
+      { name: 'Custom Branding', included: true },
+      { name: 'API Access', included: true },
+      { name: 'Priority Support', included: true },
+      { name: 'Advanced Analytics', included: true },
     ]
   }
 ];
@@ -233,35 +267,19 @@ export default function SubscriptionPlans({ currentPlanId }: SubscriptionPlansPr
               ))}
             </div>
             
-            <motion.div 
-              className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg mt-6 max-w-3xl mx-auto"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-            >
-              <h3 className="font-medium text-blue-800 dark:text-blue-300 flex items-center">
-                <CheckCircle size={18} className="mr-2" />
-                How Group Plans Work
-              </h3>
-              <ul className="mt-2 text-sm text-blue-700 dark:text-blue-200 space-y-1">
-                <li className="flex items-start">
-                  <Check size={16} className="mr-2 mt-0.5 flex-shrink-0" />
-                  <span>Choose your group members first - they'll each receive an invitation code</span>
-                </li>
-                <li className="flex items-start">
-                  <Check size={16} className="mr-2 mt-0.5 flex-shrink-0" />
-                  <span>Pay once for all 5 users (significantly cheaper per user)</span>
-                </li>
-                <li className="flex items-start">
-                  <Check size={16} className="mr-2 mt-0.5 flex-shrink-0" />
-                  <span>You become the batch leader with admin privileges</span>
-                </li>
-                <li className="flex items-start">
-                  <Check size={16} className="mr-2 mt-0.5 flex-shrink-0" />
-                  <span>Your friends can use their invitation codes during signup or in their profile</span>
-                </li>
-              </ul>
-            </motion.div>
+            <div className="mt-8">
+              <h3 className="text-xl font-semibold mb-4 text-center">Institutional Plans</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+                {institutionalPlans.map((plan) => (
+                  <PlanCard 
+                    key={plan.id} 
+                    plan={plan} 
+                    isCurrentPlan={plan.id === currentPlanId}
+                    onSelectPlan={handleSelectPlan} 
+                  />
+                ))}
+              </div>
+            </div>
           </TabsContent>
         </Tabs>
       </div>

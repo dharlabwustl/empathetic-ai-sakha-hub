@@ -1,4 +1,3 @@
-
 import * as React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -241,6 +240,12 @@ const App = () => {
                     <AdminRouteGuard>
                       <FeaturesManagementPage />
                     </AdminRouteGuard>
+                  } />
+                  
+                  <Route path="/dashboard/student/checkout" element={
+                    <ProtectedRoute>
+                      <CheckoutPage />
+                    </ProtectedRoute>
                   } />
                   
                   <Route path="*" element={<NotFound />} />
