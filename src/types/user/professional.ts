@@ -1,44 +1,48 @@
 
-import { UserProfileType } from './base';
+import { UserProfileType, UserRole } from "./base";
 
-export interface EmployeeProfile extends UserProfileType {
-  jobTitle: string;
-  workExperience: number;
-  skills: string[];
+export interface ProfessionalProfile extends UserProfileType {
+  lastActive?: string;
+}
+
+export interface EmployeeProfile extends ProfessionalProfile {
+  role: UserRole.Employee;
+  jobTitle?: string;
+  workExperience?: number;
+  skills?: string[];
   company?: string;
   industry?: string;
-  careerGoal: string;
-  projectsCompleted: number;
-  trainingCompleted: number;
+  careerGoal?: string;
+  projectsCompleted?: number;
+  trainingCompleted?: number;
   experienceLevel?: string;
   skillsToGrow?: string[];
   productivityScore?: number;
 }
 
-export interface DoctorProfile extends UserProfileType {
-  specialization: string;
-  qualifications: string[];
-  researchInterests: string[];
-  publications: number;
-  institution?: string;
-  yearsOfPractice: number;
-  certifications: string[];
-  researchTopic?: string;
-  thesisTitle?: string;
-  clinicalInterest?: string;
-  researchPhase?: string;
-  publicationsCount?: number;
+export interface DoctorProfile extends ProfessionalProfile {
+  role: UserRole.Doctor;
+  specialty?: string;
+  hospital?: string;
+  licenseNumber?: string;
+  patientsServed?: number;
+  yearsOfPractice?: number;
+  consultationHours?: string;
+  researchPublications?: number;
+  certifications?: string[];
+  educationalInterests?: string[];
 }
 
-export interface FounderProfile extends UserProfileType {
-  startupName: string;
-  industry: string;
-  foundingYear: string;
-  teamSize: number;
-  funding: string;
-  stage: string;
-  mvpStatus: number;
-  pitchDeckReady: boolean;
+export interface FounderProfile extends ProfessionalProfile {
+  role: UserRole.Founder;
+  startupName?: string;
+  industry?: string;
+  foundingYear?: string;
+  teamSize?: number;
+  funding?: string;
+  stage?: string;
+  mvpStatus?: number;
+  pitchDeckReady?: boolean;
   startupStage?: string;
   startupGoal?: string;
   mvpCompletion?: number;

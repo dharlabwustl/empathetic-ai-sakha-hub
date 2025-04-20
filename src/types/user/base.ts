@@ -33,11 +33,25 @@ export interface UserProfileType {
   }[];
   subscription?: SubscriptionType | UserSubscription;
   joinDate?: string;
+  lastActive?: string;
   gender?: "male" | "female" | "other";
   phoneNumber?: string;
   examPreparation?: string;
   loginCount?: number;
   completedOnboarding?: boolean;
+  address?: {
+    street?: string;
+    city?: string;
+    state?: string;
+    zipCode?: string;
+    country?: string;
+  };
+  education?: {
+    level?: string;
+    institution?: string;
+    fieldOfStudy?: string;
+    graduationYear?: number;
+  };
 }
 
 export enum UserRole {
@@ -84,4 +98,3 @@ export interface SubscriptionPlan {
 
 // Changed from interface to type alias - making it a string type
 export type PersonalityType = string;
-

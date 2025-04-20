@@ -1,16 +1,16 @@
+
 import React, { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { UserProfileType, MoodType, SubscriptionType } from "@/types/user/base";
+import { UserProfileType, MoodType, SubscriptionType, UserSubscription } from "@/types/user/base";
 import { getMoodTheme } from "./student/mood-tracking/moodThemes";
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
-import { Phone, Award, Star, User, Brain, Calendar, Camera, Lock, Upload, CreditCard, ArrowUpRight } from "lucide-react";
+import { Phone, Award, Star, User, Brain, Calendar, Upload, Lock, CreditCard, ArrowUpRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useToast } from "@/hooks/use-toast";
-import { PlanType } from "@/services/featureService";
 import { Link } from "react-router-dom";
 
 interface ProfileCardProps {
@@ -118,11 +118,17 @@ const ProfileCard = ({
   // Get subscription plan details
   const getSubscriptionDetails = () => {
     // Get subscription type for comparison
-    const subscriptionType = typeof profile.subscription === 'object' 
-      ? profile.subscription?.planType 
-      : profile.subscription || SubscriptionType.Free;
+    let planType: SubscriptionType;
+    
+    if (!profile.subscription) {
+      planType = SubscriptionType.Free;
+    } else if (typeof profile.subscription === 'object') {
+      planType = profile.subscription.planType;
+    } else {
+      planType = profile.subscription;
+    }
 
-    const planTypeMap: Record<string, string> = {
+    const planTypeMap: Record<SubscriptionType, string> = {
       [SubscriptionType.Free]: 'Free Trial',
       [SubscriptionType.Basic]: 'Basic Plan',
       [SubscriptionType.Premium]: 'Premium Plan',
@@ -131,7 +137,7 @@ const ProfileCard = ({
       [SubscriptionType.Corporate]: 'Corporate Plan'
     };
 
-    const planTypeColorMap: Record<string, string> = {
+    const planTypeColorMap: Record<SubscriptionType, string> = {
       [SubscriptionType.Free]: 'bg-gray-100 text-gray-800',
       [SubscriptionType.Basic]: 'bg-blue-100 text-blue-800',
       [SubscriptionType.Premium]: 'bg-violet-100 text-violet-800',
@@ -141,8 +147,8 @@ const ProfileCard = ({
     };
 
     return {
-      planName: planTypeMap[subscriptionType] || 'Free Trial',
-      planClass: planTypeColorMap[subscriptionType] || 'bg-gray-100 text-gray-800'
+      planName: planTypeMap[planType] || 'Free Trial',
+      planClass: planTypeColorMap[planType] || 'bg-gray-100 text-gray-800'
     };
   };
 

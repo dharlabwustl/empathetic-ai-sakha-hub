@@ -41,7 +41,7 @@ export default function BatchManagementPage() {
     name: 'My Study Group',
     planType: 'group' as const,
     maxMembers: 5,
-    currentUserRole: 'leader' as const,
+    currentUserRole: 'leader' as "leader" | "member" | "school_admin" | "corporate_admin",
   });
   
   const { toast } = useToast();
@@ -102,11 +102,11 @@ export default function BatchManagementPage() {
     });
   };
   
-  const handleRemoveMember = async (id: string): Promise<boolean> => {
+  const handleRemoveMember = async (id: string): Promise<void> => {
     return new Promise((resolve) => {
       setTimeout(() => {
         setBatchMembers(batchMembers.filter(member => member.id !== id));
-        resolve(true);
+        resolve();
       }, 500);
     });
   };
@@ -120,7 +120,7 @@ export default function BatchManagementPage() {
     });
   };
   
-  const handleTransferLeadership = async (memberId: string): Promise<boolean> => {
+  const handleTransferLeadership = async (memberId: string): Promise<void> => {
     return new Promise((resolve) => {
       setTimeout(() => {
         const updatedMembers = batchMembers.map(member => {
@@ -144,7 +144,7 @@ export default function BatchManagementPage() {
           navigate('/dashboard/student/subscription');
         }, 3000);
         
-        resolve(true);
+        resolve();
       }, 1500);
     });
   };
@@ -249,7 +249,7 @@ export default function BatchManagementPage() {
                 description: "You've joined the batch successfully",
               });
               
-              return true;
+              return;
             }}
           />
         </div>

@@ -1,6 +1,6 @@
 
 import { EmployeeProfile } from "@/types/user";
-import { UserRole, SubscriptionType } from "@/types/user/base";
+import { UserRole, SubscriptionType, UserSubscription } from "@/types/user/base";
 import { v4 as uuidv4 } from "uuid";
 
 export const mockEmployeeProfile: EmployeeProfile = {
@@ -10,7 +10,12 @@ export const mockEmployeeProfile: EmployeeProfile = {
   phoneNumber: "+919876543211",
   role: UserRole.Employee,
   personalityType: "Strategic Thinker",
-  subscription: SubscriptionType.Basic,
+  subscription: {
+    planId: "basic-001",
+    planType: SubscriptionType.Basic,
+    startDate: "2025-01-15",
+    endDate: "2025-07-15"
+  } as UserSubscription,
   joinDate: "2025-01-15",
   lastActive: "2025-04-06",
   jobTitle: "Product Manager",

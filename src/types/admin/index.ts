@@ -12,6 +12,17 @@ export interface AdminUser {
   permissions: string[];
 }
 
+// Admin Settings Interface
+export interface AdminSettings {
+  id: string;
+  userId: string;
+  theme: 'light' | 'dark' | 'system';
+  notifications: boolean;
+  emailAlerts: boolean;
+  defaultView: string;
+  preferences: Record<string, any>;
+}
+
 // Admin Dashboard Stats Interface
 export interface AdminDashboardStats {
   totalStudents: number;
