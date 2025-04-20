@@ -39,7 +39,7 @@ interface DashboardTabsProps {
 const DashboardTabs = ({ stats, recentStudents, recentLogs }: DashboardTabsProps) => {
   return (
     <Tabs defaultValue="overview" className="space-y-6">
-      <TabsList className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-2 p-1 bg-gray-100 dark:bg-gray-800 rounded-lg">
+      <TabsList className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 xl:grid-cols-11 gap-2 p-1 bg-gray-100 dark:bg-gray-800 rounded-lg">
         <TabsTrigger value="overview" className="flex items-center gap-2 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:shadow-sm">
           <BarChart2 size={16} className="text-blue-500" />
           <span>Overview</span>
@@ -67,6 +67,18 @@ const DashboardTabs = ({ stats, recentStudents, recentLogs }: DashboardTabsProps
         <TabsTrigger value="subscriptions" className="flex items-center gap-2 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:shadow-sm">
           <CreditCard size={16} className="text-pink-500" />
           <span>Subscriptions</span>
+        </TabsTrigger>
+        <TabsTrigger value="issues" className="flex items-center gap-2 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:shadow-sm">
+          <AlertCircle size={16} className="text-red-500" />
+          <span>Issues</span>
+        </TabsTrigger>
+        <TabsTrigger value="notifications" className="flex items-center gap-2 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:shadow-sm">
+          <Bell size={16} className="text-yellow-500" />
+          <span>Notifications</span>
+        </TabsTrigger>
+        <TabsTrigger value="documentation" className="flex items-center gap-2 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:shadow-sm">
+          <FileText size={16} className="text-teal-500" />
+          <span>Documentation</span>
         </TabsTrigger>
         <TabsTrigger value="system" className="flex items-center gap-2 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:shadow-sm">
           <Settings size={16} className="text-gray-500" />

@@ -1,38 +1,40 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { 
-  Copy, 
-  Check, 
-  User, 
-  Users, 
   UserPlus, 
+  Settings, 
+  Mail, 
+  Check, 
   X, 
-  AlertCircle, 
-  Send, 
-  Shield, 
-  UserCog, 
-  Award,
-  Loader2
+  UserRound,
+  ChevronDown,
+  ChevronUp,
+  Shield,
+  AlertTriangle,
+  Copy
 } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 export interface BatchMember {
   id: string;
   name: string;
   email: string;
   role: 'member' | 'leader' | 'school_admin' | 'corporate_admin';
-  avatar?: string;
   status: 'active' | 'inactive' | 'pending';
   invitationCode?: string;
   joinedDate?: string;
+  avatar?: string;
 }
 
 interface BatchManagementProps {
@@ -40,7 +42,7 @@ interface BatchManagementProps {
   batchName: string;
   planType: 'group' | 'school' | 'corporate';
   maxMembers: number;
-  currentUserRole: 'leader' | 'school_admin' | 'corporate_admin';
+  currentUserRole: 'member' | 'leader' | 'school_admin' | 'corporate_admin';
   onAddMember: (email: string) => Promise<{ success: boolean; inviteCode?: string }>;
   onRemoveMember: (id: string) => Promise<boolean>;
   onChangeBatchName: (name: string) => Promise<boolean>;

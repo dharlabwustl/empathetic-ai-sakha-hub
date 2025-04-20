@@ -15,6 +15,21 @@ export interface AdminDashboardStats {
   moodBasedSessionsCount: number;
   studentsWithMoodTracking: number;
   
+  // New KPIs for admin dashboard
+  dailyActiveUsers?: number;
+  weeklyActiveUsers?: number;
+  monthlyActiveUsers?: number;
+  freeUsers?: number;
+  paidUsers?: number;
+  groupUsers?: number;
+  subscriptionConversionRate?: number;
+  churnRate?: number;
+  averageStudyTimePerUser?: number;
+  practiceAttemptsPerUser?: number;
+  weakAreaIdentificationRate?: number;
+  userSatisfactionScore?: number;
+  referralRate?: number;
+
   // Verified metrics
   verifiedMoodImprovement?: number;
   averageTimeSavedPerWeek?: number;

@@ -68,7 +68,22 @@ const mockStats: AdminDashboardStats = {
   studentsWithConsistentHabits: 876,
   averageConfidenceScore: 8.2,
   totalSessions: 12487,
-  moodBasedSessionsCount: 7832
+  moodBasedSessionsCount: 7832,
+  
+  // New KPIs added
+  dailyActiveUsers: 347,
+  weeklyActiveUsers: 762,
+  monthlyActiveUsers: 1042,
+  freeUsers: 984,
+  paidUsers: 261,
+  groupUsers: 128,
+  subscriptionConversionRate: 24.6,
+  churnRate: 3.2,
+  averageStudyTimePerUser: 42,
+  practiceAttemptsPerUser: 18,
+  weakAreaIdentificationRate: 68,
+  userSatisfactionScore: 87,
+  referralRate: 28
 };
 
 const mockStudents: StudentData[] = Array(20).fill(0).map((_, i) => ({

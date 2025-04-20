@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Users, MessageSquare, Book, LineChart, ArrowUp, Activity, Bell, Heart } from "lucide-react";
+import { Users, MessageSquare, Book, LineChart, ArrowUp, Activity, Bell, Heart, Percent, ChartBar, Clock, UserCheck, UserPlus } from "lucide-react";
 import { AdminDashboardStats } from "@/types/admin";
 import { useNavigate } from "react-router-dom";
 
@@ -61,27 +61,59 @@ const DashboardStats = ({ stats }: DashboardStatsProps) => {
         bgColor="bg-blue-100 dark:bg-blue-900/20"
       />
       <StatCard 
-        title="Active Sessions" 
-        value={stats.totalSessions || "186"} 
+        title="Monthly Active Users" 
+        value={stats.monthlyActiveUsers || "1,840"} 
         icon={<Activity size={24} className="text-green-600" />}
-        trend="+3% from yesterday"
+        trend="+5% from last month"
         iconColor="text-green-600"
         bgColor="bg-green-100 dark:bg-green-900/20"
       />
       <StatCard 
-        title="Avg. Mood Score" 
-        value={`${stats.averageMoodScore || 76}%`} 
+        title="Conversion Rate" 
+        value={`${stats.subscriptionConversionRate || 24}%`} 
+        icon={<Percent size={24} className="text-amber-600" />}
+        trend="+2% from last month"
+        iconColor="text-amber-600"
+        bgColor="bg-amber-100 dark:bg-amber-900/20"
+      />
+      <StatCard 
+        title="Churn Rate" 
+        value={`${stats.churnRate || 3.2}%`} 
+        icon={<UserPlus size={24} className="text-red-600" />}
+        trend="-0.5% from last month"
+        iconColor="text-red-600"
+        bgColor="bg-red-100 dark:bg-red-900/20"
+      />
+      <StatCard 
+        title="Avg. Study Time" 
+        value={`${stats.averageStudyTimePerUser || 42} min`} 
+        icon={<Clock size={24} className="text-indigo-600" />}
+        trend="+8% from last month"
+        iconColor="text-indigo-600"
+        bgColor="bg-indigo-100 dark:bg-indigo-900/20"
+      />
+      <StatCard 
+        title="Practice Attempts" 
+        value={stats.practiceAttemptsPerUser || "18"} 
+        icon={<ChartBar size={24} className="text-orange-600" />}
+        trend="+15% from last month"
+        iconColor="text-orange-600"
+        bgColor="bg-orange-100 dark:bg-orange-900/20"
+      />
+      <StatCard 
+        title="User Satisfaction" 
+        value={`${stats.userSatisfactionScore || 87}%`} 
         icon={<Heart size={24} className="text-pink-600" />}
         trend="+5% from last week"
-        route="/admin/ai"
+        route="/admin/feedback"
         iconColor="text-pink-600"
         bgColor="bg-pink-100 dark:bg-pink-900/20"
       />
       <StatCard 
-        title="AI Interactions" 
-        value={stats.moodBasedSessionsCount || "32,842"} 
-        icon={<MessageSquare size={24} className="text-purple-600" />}
-        trend="+24% from last month"
+        title="Referral Rate" 
+        value={`${stats.referralRate || 28}%`} 
+        icon={<UserCheck size={24} className="text-purple-600" />}
+        trend="+18% from last month"
         iconColor="text-purple-600"
         bgColor="bg-purple-100 dark:bg-purple-900/20"
       />

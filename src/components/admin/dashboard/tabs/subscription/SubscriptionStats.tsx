@@ -3,9 +3,32 @@ import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Users, PieChart } from "lucide-react";
+import { Users, PieChart, ChartBar, Percent } from "lucide-react";
+import {
+  ChartContainer,
+  ChartLegend,
+  ChartLegendContent,
+  ChartTooltip,
+  ChartTooltipContent
+} from "@/components/ui/chart";
+import { PieChart as ReChartPieChart, Pie, Cell } from "recharts";
 
 const SubscriptionStats = () => {
+  // Sample data
+  const planDistributionData = [
+    { name: "Free", value: 70, color: "#E5E7EB" },
+    { name: "Basic", value: 15, color: "#93C5FD" },
+    { name: "Pro", value: 10, color: "#4F46E5" },
+    { name: "Group", value: 5, color: "#10B981" },
+  ];
+
+  const config = {
+    free: { label: "Free", color: "#E5E7EB" },
+    basic: { label: "Basic", color: "#93C5FD" },
+    pro: { label: "Pro", color: "#4F46E5" },
+    group: { label: "Group", color: "#10B981" },
+  };
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
       <Card>
@@ -65,6 +88,46 @@ const SubscriptionStats = () => {
               <span>Analytics</span>
             </Button>
           </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardContent className="pt-6">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-medium">Subscription Types</h3>
+          </div>
+          <div className="h-40">
+            <ChartContainer config={config}>
+              <ReChartPieChart>
+                <Pie
+                  data={planDistributionData}
+                  innerRadius={40}
+                  outerRadius={70}
+                  paddingAngle={2}
+                  dataKey="value"
+                  nameKey="name"
+                >
+                  {planDistributionData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <ChartTooltip
+                  content={
+                    <ChartTooltipContent
+                      labelFormatter={(label) => `${label} Plan`}
+                    />
+                  }
+                />
+              </ReChartPieChart>
+            </ChartContainer>
+          </div>
+          <ChartLegend className="mt-2">
+            <ChartLegendContent payload={planDistributionData.map(item => ({ 
+              value: item.name, 
+              color: item.color,
+              dataKey: item.name.toLowerCase()
+            }))} />
+          </ChartLegend>
         </CardContent>
       </Card>
     </div>
