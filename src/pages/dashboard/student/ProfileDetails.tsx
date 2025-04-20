@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { UserProfileType, UserSubscription, SubscriptionType, SubscriptionPlan } from "@/types/user";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -709,7 +709,11 @@ const ProfileDetails: React.FC<ProfileDetailsProps> = ({ userProfile, onUpdatePr
   };
 
   // Initialize userBatches with dummy batch if none exist
-  const [userBatches, setUserBatches] = useState([dummyBatch]);
+  useEffect(() => {
+    if (userBatches.length === 0) {
+      setUserBatches([dummyBatch]);
+    }
+  }, []);
 
   const currentSubscription = getCurrentSubscription();
   const hasBatchManagement = 
@@ -899,4 +903,22 @@ const ProfileDetails: React.FC<ProfileDetailsProps> = ({ userProfile, onUpdatePr
               </>
             ) : (
               <>
-                <Building className="h-5 w-5 text-amber
+                <Building className="h-5 w-5 text-amber-600" />
+                Corporate Plan Setup
+              </>
+            )}
+          </CardTitle>
+          <div className="py-4">
+            <BatchMemberUploader 
+              onUploadComplete={handleMemberUploadComplete}
+              maxMembers={institutionType === "school" ? 100 : 50}
+              title={`Add ${institutionType === "school" ? "Students" : "Employees"}`}
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+};
+
+export default ProfileDetails;
