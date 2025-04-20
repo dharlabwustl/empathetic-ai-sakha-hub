@@ -2,7 +2,7 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { svg } from 'lucide-react';
+import { CreditCard } from 'lucide-react';
 
 interface GroupPaymentSectionProps {
   paymentMethod: 'card' | 'upi';
@@ -30,10 +30,7 @@ export const GroupPaymentSection: React.FC<GroupPaymentSectionProps> = ({
             onClick={() => onPaymentMethodChange('card')}
             disabled={loading}
           >
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M14 4H2V12H14V4Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M2 7H14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
+            <CreditCard className="h-4 w-4" />
             <span>Card</span>
           </Button>
           <Button
@@ -43,10 +40,7 @@ export const GroupPaymentSection: React.FC<GroupPaymentSectionProps> = ({
             onClick={() => onPaymentMethodChange('upi')}
             disabled={loading}
           >
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M8 2V14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M2 8H14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
+            <CreditCard className="h-4 w-4" />
             <span>UPI</span>
           </Button>
         </div>

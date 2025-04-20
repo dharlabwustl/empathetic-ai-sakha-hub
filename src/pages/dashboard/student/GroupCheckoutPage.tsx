@@ -1,6 +1,5 @@
 
 import React from 'react';
-import DashboardLayout from './DashboardLayout';
 import { useStudentDashboard } from '@/hooks/useStudentDashboard';
 import DashboardLoading from './DashboardLoading';
 import { Button } from '@/components/ui/button';
@@ -8,12 +7,12 @@ import { ArrowLeft } from 'lucide-react';
 import { GroupPaymentSection } from '@/components/checkout/GroupPaymentSection';
 import { GroupOrderSummary } from '@/components/checkout/GroupOrderSummary';
 import { useGroupCheckout } from '@/hooks/useGroupCheckout';
+import { DashboardLayoutWrapper } from '@/components/dashboard/student/DashboardLayoutWrapper';
 
 export default function GroupCheckoutPage() {
   const {
     userProfile,
     loading: dashboardLoading,
-    ...dashboardProps
   } = useStudentDashboard();
   
   const {
@@ -26,10 +25,7 @@ export default function GroupCheckoutPage() {
   }
 
   return (
-    <DashboardLayout
-      userProfile={userProfile}
-      {...dashboardProps}
-    >
+    <DashboardLayoutWrapper userProfile={userProfile}>
       <div className="container max-w-4xl mx-auto">
         <Button 
           variant="ghost" 
@@ -68,6 +64,6 @@ export default function GroupCheckoutPage() {
           </div>
         </div>
       </div>
-    </DashboardLayout>
+    </DashboardLayoutWrapper>
   );
 }
