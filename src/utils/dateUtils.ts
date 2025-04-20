@@ -68,4 +68,3 @@ export const getRelativeTimeString = (date: Date): string => {
   
   return format(date, 'MMM d, yyyy');
 };
-

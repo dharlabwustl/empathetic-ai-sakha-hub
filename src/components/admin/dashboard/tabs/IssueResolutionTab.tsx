@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -16,7 +15,8 @@ import {
   Clock
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { SystemLog } from "@/types/admin";
+import { SystemLog } from "@/types/admin/systemLog";
+import { formatDateTime } from "@/utils/dateUtils";
 
 interface IssueResolutionTabProps {
   recentLogs: SystemLog[];
@@ -269,7 +269,7 @@ const IssueResolutionTab = ({ recentLogs }: IssueResolutionTabProps) => {
                 {recentLogs.map((log, i) => (
                   <TableRow key={i}>
                     <TableCell className="font-mono text-xs">
-                      {new Date(log.timestamp).toLocaleString()}
+                      {formatDateTime(log.timestamp)}
                     </TableCell>
                     <TableCell>
                       {log.level === 'error' && (

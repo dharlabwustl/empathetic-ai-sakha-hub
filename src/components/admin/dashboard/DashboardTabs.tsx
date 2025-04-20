@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -22,7 +23,7 @@ import SubscriptionTab from './tabs/SubscriptionTab';
 import FeaturesTab from './tabs/FeaturesTab';
 import { StudentData } from '@/types/admin';
 import { SystemLog } from '@/types/admin/systemLog';
-import { calculateDaysAgo } from '@/utils/dateUtils';
+import { formatDateTime } from '@/utils/dateUtils';
 
 interface DashboardTabsProps {
   students: StudentData[];
@@ -41,7 +42,11 @@ const getNewUsersCount = (students: StudentData[]): number => {
   const thirtyDaysAgo = new Date();
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-  return students.filter(student => new Date(student.createdAt) >= thirtyDaysAgo).length;
+  // Use registrationDate or joinedDate instead of createdAt
+  return students.filter(student => {
+    const registrationDate = student.registrationDate || student.joinedDate;
+    return registrationDate && new Date(registrationDate) >= thirtyDaysAgo;
+  }).length;
 };
 
 export default function DashboardTabs({ students, systemLogs }: DashboardTabsProps) {
@@ -206,16 +211,16 @@ export default function DashboardTabs({ students, systemLogs }: DashboardTabsPro
                 {systemLogs.map((log) => (
                   <div key={log.id} className="flex items-start space-x-2">
                     <Avatar className="h-8 w-8">
-                      <AvatarImage src={`https://avatar.vercel.sh/${log.userEmail}.png`} />
-                      <AvatarFallback>{log.userEmail.substring(0, 2).toUpperCase()}</AvatarFallback>
+                      <AvatarImage src={`https://avatar.vercel.sh/${log.source}.png`} />
+                      <AvatarFallback>{log.source.substring(0, 2).toUpperCase()}</AvatarFallback>
                     </Avatar>
                     <div className="space-y-1">
-                      <p className="text-sm font-medium leading-none">{log.userEmail}</p>
+                      <p className="text-sm font-medium leading-none">{log.source}</p>
                       <p className="text-sm text-muted-foreground">
-                        {log.activity}
+                        {log.message}
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        {calculateDaysAgo(log.timestamp)} ago
+                        {formatDateTime(log.timestamp)}
                       </p>
                     </div>
                   </div>
@@ -259,7 +264,7 @@ export default function DashboardTabs({ students, systemLogs }: DashboardTabsPro
       </TabsContent>
 
       <TabsContent value="issues" className="space-y-4">
-        <IssueResolutionTab />
+        <IssueResolutionTab recentLogs={systemLogs} />
       </TabsContent>
       
       <TabsContent value="docs" className="space-y-4">
