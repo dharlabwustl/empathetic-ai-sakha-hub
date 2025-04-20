@@ -1,21 +1,17 @@
 
-
-export interface NavigationRoute {
-  name: string;
-  path: string;
-  icon: React.ReactNode;
-}
-
-export interface UserRouteMap {
-  student: NavigationRoute[];
-  employee: NavigationRoute[];
-  doctor: NavigationRoute[];
-  founder: NavigationRoute[];
-  [key: string]: NavigationRoute[];
-}
+import { ReactNode } from "react";
 
 export interface SidebarNavProps {
   userType: string;
   userName?: string;
 }
 
+export interface NavigationRoute {
+  name: string;
+  path: string;
+  icon: ReactNode;
+}
+
+export interface UserRouteMap {
+  [key: string]: NavigationRoute[];
+}

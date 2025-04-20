@@ -45,9 +45,13 @@ const KpiStats = () => {
     userRetention: false,
     moodBasedUsage: false
   });
+  
+  // Add loading state
+  const [isLoading, setIsLoading] = React.useState(true);
 
   React.useEffect(() => {
     const fetchStats = async () => {
+      setIsLoading(true);
       try {
         const dashboardStats = await adminService.getDashboardStats();
         
@@ -106,10 +110,18 @@ const KpiStats = () => {
         }
       } catch (error) {
         console.error('Failed to fetch KPI stats:', error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
     fetchStats();
+    
+    // Set up an interval to refresh data every 5 minutes
+    const intervalId = setInterval(fetchStats, 5 * 60 * 1000);
+    
+    // Clean up interval on component unmount
+    return () => clearInterval(intervalId);
   }, []);
 
   const getDescription = (key: keyof KpiStats, description: string) => {
@@ -120,42 +132,42 @@ const KpiStats = () => {
   const kpis: KpiItem[] = [
     {
       icon: <Brain className="h-6 w-6 text-white" />,
-      stat: `${stats.stressReduction}%`,
+      stat: isLoading ? "Loading..." : `${stats.stressReduction}%`,
       description: getDescription('stressReduction', "of students said Sakha helped reduce exam stress"),
       color: "bg-gradient-to-br from-purple-500 to-purple-700",
       delay: 0.1,
     },
     {
       icon: <Clock className="h-6 w-6 text-white" />,
-      stat: `${stats.timeOptimization}+ hours`,
+      stat: isLoading ? "Loading..." : `${stats.timeOptimization}+ hours`,
       description: getDescription('timeOptimization', "saved weekly through personalized study plans"),
       color: "bg-gradient-to-br from-blue-500 to-blue-700",
       delay: 0.2,
     },
     {
       icon: <TrendingUp className="h-6 w-6 text-white" />,
-      stat: `${stats.habitFormation}%`,
+      stat: isLoading ? "Loading..." : `${stats.habitFormation}%`,
       description: getDescription('habitFormation', "of students built a consistent study habit in 2 weeks"),
       color: "bg-gradient-to-br from-green-500 to-green-700",
       delay: 0.3,
     },
     {
       icon: <Smile className="h-6 w-6 text-white" />,
-      stat: `4 out of 5`,
+      stat: isLoading ? "Loading..." : `4 out of 5`,
       description: getDescription('examConfidence', "students felt more confident before their exam"),
       color: "bg-gradient-to-br from-amber-500 to-amber-700",
       delay: 0.4,
     },
     {
       icon: <Users className="h-6 w-6 text-white" />,
-      stat: `${stats.userRetention}%+`,
+      stat: isLoading ? "Loading..." : `${stats.userRetention}%+`,
       description: getDescription('userRetention', "of Sakha users continued after their 1st month"),
       color: "bg-gradient-to-br from-pink-500 to-pink-700",
       delay: 0.5,
     },
     {
       icon: <Headphones className="h-6 w-6 text-white" />,
-      stat: `${stats.moodBasedUsage}%`,
+      stat: isLoading ? "Loading..." : `${stats.moodBasedUsage}%`,
       description: getDescription('moodBasedUsage', "use mood-based learning themes daily"),
       color: "bg-gradient-to-br from-indigo-500 to-indigo-700",
       delay: 0.6,
@@ -205,7 +217,7 @@ const KpiCard: React.FC<{ kpi: KpiItem }> = ({ kpi }) => {
       whileHover={{
         y: -5,
         boxShadow: "0 10px 25px rgba(0, 0, 0, 0.1)",
-        transition: { duration: 0.2 }
+        transition: { duration: 0.2, type: "spring", stiffness: 300, damping: 20 }
       }}
       className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md border border-gray-100 dark:border-gray-700"
     >
