@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Camera, Trophy, Mail, Phone, User, Crown, CalendarDays, Users, Package } from "lucide-react";
-import { SubscriptionType, UserSubscription } from "@/types/user/base";
+import { SubscriptionType, UserSubscription } from "@/types/user";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { format, addDays } from "date-fns";
@@ -51,12 +51,12 @@ export default function ProfileCard({
   const getSubscriptionPlanName = (): string => {
     const subscriptionType = getSubscriptionType(profile.subscription);
     
-    const subscriptionDisplayNames: Record<SubscriptionType, string> = {
+    const subscriptionDisplayNames: Record<string, string> = {
       [SubscriptionType.Free]: "Free Plan",
       [SubscriptionType.Basic]: "Basic Plan",
       [SubscriptionType.Premium]: "Premium Plan",
-      [SubscriptionType.Enterprise]: "Enterprise Plan",
-      [SubscriptionType.School]: "School Plan",
+      [SubscriptionType.Group]: "Group Plan",
+      [SubscriptionType.Institute]: "Institute Plan",
       [SubscriptionType.Corporate]: "Corporate Plan"
     };
     
@@ -66,12 +66,12 @@ export default function ProfileCard({
   const getSubscriptionBadgeColor = (): string => {
     const subscriptionType = getSubscriptionType(profile.subscription);
     
-    const badgeColors: Record<SubscriptionType, string> = {
+    const badgeColors: Record<string, string> = {
       [SubscriptionType.Free]: "bg-gray-500 hover:bg-gray-600",
       [SubscriptionType.Basic]: "bg-blue-500 hover:bg-blue-600",
       [SubscriptionType.Premium]: "bg-purple-500 hover:bg-purple-600",
-      [SubscriptionType.Enterprise]: "bg-amber-500 hover:bg-amber-600",
-      [SubscriptionType.School]: "bg-green-500 hover:bg-green-600",
+      [SubscriptionType.Group]: "bg-amber-500 hover:bg-amber-600",
+      [SubscriptionType.Institute]: "bg-green-500 hover:bg-green-600",
       [SubscriptionType.Corporate]: "bg-indigo-500 hover:bg-indigo-600"
     };
     
@@ -105,11 +105,11 @@ export default function ProfileCard({
   const hasBatchManagement = () => {
     const subscriptionType = getSubscriptionType(profile.subscription);
     return (
-      subscriptionType === SubscriptionType.School ||
-      subscriptionType === SubscriptionType.Corporate ||
+      subscriptionType === SubscriptionType.Group ||
+      subscriptionType === SubscriptionType.Institute ||
       isSubscriptionObject(profile.subscription) && (
-        profile.subscription.planType === SubscriptionType.School ||
-        profile.subscription.planType === SubscriptionType.Corporate
+        profile.subscription.planType === SubscriptionType.Group ||
+        profile.subscription.planType === SubscriptionType.Institute
       )
     );
   };

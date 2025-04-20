@@ -1,9 +1,3 @@
 
-export enum SubscriptionType {
-  Free = "free",
-  Basic = "basic",
-  Premium = "premium", 
-  Group = "group",
-  Institute = "institute",
-  Corporate = "corporate"
-}
+// Re-export all types from base
+export * from './base';

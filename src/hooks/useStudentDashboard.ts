@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useUserProfile } from './useUserProfile';
 import { UserRole } from '@/types/user';
@@ -12,7 +13,7 @@ export const useStudentDashboard = () => {
   const [hideTabsNav, setHideTabsNav] = useState(false);
   const [hideSidebar, setHideSidebar] = useState(false);
   const currentTime = new Date();
-  const [lastActivity, setLastActivity] = useState<string | null>(null);
+  const [lastActivity, setLastActivity] = useState<{ type: string; description: string } | null>(null);
   const [suggestedNextAction, setSuggestedNextAction] = useState<string | null>(null);
   
   const kpis: KpiData[] = [
@@ -22,7 +23,10 @@ export const useStudentDashboard = () => {
       value: '12h', 
       changePercent: 5,
       label: 'Hours',
-      trend: 'up'
+      trend: 'up',
+      unit: 'h',
+      change: '+2h',
+      icon: 'clock'
     },
     { 
       id: 'k2', 
@@ -30,7 +34,10 @@ export const useStudentDashboard = () => {
       value: '245', 
       changePercent: 12,
       label: 'Questions',
-      trend: 'up'
+      trend: 'up',
+      unit: '',
+      change: '+28',
+      icon: 'check-circle'
     },
     { 
       id: 'k3', 
@@ -38,7 +45,10 @@ export const useStudentDashboard = () => {
       value: '32', 
       changePercent: 8,
       label: 'Concepts',
-      trend: 'up'
+      trend: 'up',
+      unit: '',
+      change: '+3',
+      icon: 'lightbulb'
     }
   ];
   
@@ -71,7 +81,10 @@ export const useStudentDashboard = () => {
       setShowOnboarding(true);
     }
     
-    setLastActivity('Completed Physics practice quiz 2 hours ago');
+    setLastActivity({
+      type: 'quiz',
+      description: 'Completed Physics practice quiz 2 hours ago'
+    });
     setSuggestedNextAction('Take a Chemistry practice quiz next');
   }, [userProfile]);
 

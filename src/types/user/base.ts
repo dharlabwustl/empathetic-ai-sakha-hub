@@ -1,6 +1,4 @@
 
-import { SubscriptionType } from "./index";
-
 export interface UserSubscription {
   planId?: string;
   planType: SubscriptionType;
@@ -57,6 +55,7 @@ export interface UserProfileType {
   // Add firstName and lastName fallbacks for backward compatibility
   firstName?: string;
   lastName?: string;
+  studyStreak?: number;
 }
 
 export enum UserRole {
@@ -84,5 +83,40 @@ export type MoodType =
 // Changed to type string
 export type PersonalityType = string;
 
-// Export SubscriptionType from here as well for backward compatibility
-export { SubscriptionType } from './index';
+export enum SubscriptionType {
+  Free = "free",
+  Basic = "basic",
+  Premium = "premium", 
+  Group = "group",
+  Institute = "institute",
+  Corporate = "corporate"
+}
+
+// Study progress related types
+export interface SubjectProgress {
+  id: string;
+  name: string;
+  progress: number;
+  totalTopics: number;
+  completedTopics: number;
+  lastActive?: string;
+  topics?: {
+    id: string;
+    name: string;
+    progress: number;
+  }[];
+  quizzes?: {
+    id: string;
+    title: string;
+    score: number;
+    maxScore: number;
+    completedOn: string;
+  }[];
+}
+
+export interface StudyStreak {
+  currentStreak: number;
+  longestStreak: number;
+  lastStudyDate: string;
+  studyDays: string[];
+}

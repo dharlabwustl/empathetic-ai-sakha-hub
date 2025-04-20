@@ -1,62 +1,31 @@
 
-/**
- * Format a date string to a localized date time format
- * 
- * @param dateString ISO date string to format
- * @returns Formatted date string
- */
-export const formatDateTime = (dateString: string): string => {
-  const date = new Date(dateString);
-  return date.toLocaleString();
-};
+import { format, formatDistanceToNow, isToday, isYesterday } from 'date-fns';
 
-/**
- * Format a date string to a localized date format
- * 
- * @param dateString ISO date string to format
- * @returns Formatted date string
- */
-export const formatDate = (dateString: string): string => {
-  const date = new Date(dateString);
-  return date.toLocaleDateString();
-};
+export function formatDate(date: Date | string): string {
+  const dateObj = typeof date === 'string' ? new Date(date) : date;
+  return format(dateObj, 'MMM dd, yyyy');
+}
 
-/**
- * Format a date string to a localized time format
- * 
- * @param dateString ISO date string to format
- * @returns Formatted time string
- */
-export const formatTime = (dateString: string): string => {
-  const date = new Date(dateString);
-  return date.toLocaleTimeString();
-};
+export function formatTime(date: Date | string): string {
+  const dateObj = typeof date === 'string' ? new Date(date) : date;
+  return format(dateObj, 'h:mm a');
+}
 
-/**
- * Get the relative time from now (e.g., "5 minutes ago", "2 days ago")
- * 
- * @param dateString ISO date string to compare
- * @returns Relative time string
- */
-export const getRelativeTime = (dateString: string): string => {
-  const date = new Date(dateString);
-  const now = new Date();
-  const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+export function formatDateTime(date: Date | string): string {
+  const dateObj = typeof date === 'string' ? new Date(date) : date;
+  return format(dateObj, 'MMM dd, yyyy h:mm a');
+}
+
+export function getRelativeTime(date: Date | string): string {
+  const dateObj = typeof date === 'string' ? new Date(date) : date;
   
-  if (seconds < 60) {
-    return `${seconds} seconds ago`;
+  if (isToday(dateObj)) {
+    return `Today at ${format(dateObj, 'h:mm a')}`;
   }
   
-  const minutes = Math.floor(seconds / 60);
-  if (minutes < 60) {
-    return `${minutes} minute${minutes !== 1 ? 's' : ''} ago`;
+  if (isYesterday(dateObj)) {
+    return `Yesterday at ${format(dateObj, 'h:mm a')}`;
   }
   
-  const hours = Math.floor(minutes / 60);
-  if (hours < 24) {
-    return `${hours} hour${hours !== 1 ? 's' : ''} ago`;
-  }
-  
-  const days = Math.floor(hours / 24);
-  return `${days} day${days !== 1 ? 's' : ''} ago`;
-};
+  return formatDistanceToNow(dateObj, { addSuffix: true });
+}
