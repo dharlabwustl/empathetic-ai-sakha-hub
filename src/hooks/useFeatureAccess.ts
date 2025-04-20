@@ -18,11 +18,14 @@ export const useFeatureAccess = (feature: Feature) => {
         // Use safe type checking for subscription
         let userPlanType: PlanType = PlanType.Free;
         
-        if (user && user.subscription) {
-          if (typeof user.subscription === 'object' && 'planType' in user.subscription) {
-            userPlanType = user.subscription.planType as unknown as PlanType;
-          } else if (typeof user.subscription === 'string') {
-            userPlanType = user.subscription as unknown as PlanType;
+        // Safely check if user has a subscription property
+        if (user && 'subscription' in user) {
+          const userSubscription = (user as any).subscription;
+          
+          if (typeof userSubscription === 'object' && 'planType' in userSubscription) {
+            userPlanType = userSubscription.planType as unknown as PlanType;
+          } else if (typeof userSubscription === 'string') {
+            userPlanType = userSubscription as unknown as PlanType;
           }
         }
         

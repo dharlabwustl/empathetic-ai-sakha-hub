@@ -37,7 +37,7 @@ const studentsData: StudentData[] = [
     id: "std-001",
     name: "Aryan Sharma",
     email: "aryan.s@example.com",
-    joinedDate: "2023-09-15",
+    joinDate: "2023-09-15",
     role: "Student",
     status: "active",
     subjects: ["Physics", "Mathematics", "Chemistry"],
@@ -46,13 +46,26 @@ const studentsData: StudentData[] = [
     progress: {
       completedTopics: 68,
       totalTopics: 100
-    }
+    },
+    registrationDate: "2023-09-15",
+    examType: "IIT-JEE",
+    subjectsSelected: ["Physics", "Mathematics", "Chemistry"],
+    engagementScore: 68,
+    phoneNumber: "+91-9876543210",
+    completedOnboarding: true,
+    goals: ["Score 90+ percentile", "Master calculus"],
+    studyHours: 4,
+    moodScore: 8,
+    subscriptionTier: "Premium",
+    studyTime: 120,
+    completedLessons: 45,
+    targetScore: 95
   },
   {
     id: "std-002",
     name: "Priya Patel",
     email: "priya.p@example.com",
-    joinedDate: "2023-08-22",
+    joinDate: "2023-08-22",
     role: "Student",
     status: "active",
     subjects: ["Biology", "Chemistry", "Physics"],
@@ -61,13 +74,26 @@ const studentsData: StudentData[] = [
     progress: {
       completedTopics: 75,
       totalTopics: 100
-    }
+    },
+    registrationDate: "2023-08-22",
+    examType: "NEET",
+    subjectsSelected: ["Biology", "Chemistry", "Physics"],
+    engagementScore: 75,
+    phoneNumber: "+91-8765432109",
+    completedOnboarding: true,
+    goals: ["Get into top medical college"],
+    studyHours: 5,
+    moodScore: 7,
+    subscriptionTier: "Premium",
+    studyTime: 150,
+    completedLessons: 60,
+    targetScore: 90
   },
   {
     id: "std-003",
     name: "Vikram Singh",
     email: "vikram.s@example.com",
-    joinedDate: "2023-07-12",
+    joinDate: "2023-07-12",
     role: "Student",
     status: "inactive",
     subjects: ["Economics", "Political Science", "History"],
@@ -76,13 +102,26 @@ const studentsData: StudentData[] = [
     progress: {
       completedTopics: 42,
       totalTopics: 100
-    }
+    },
+    registrationDate: "2023-07-12",
+    examType: "UPSC",
+    subjectsSelected: ["Economics", "Political Science", "History"],
+    engagementScore: 42,
+    phoneNumber: "+91-7654321098",
+    completedOnboarding: false,
+    goals: ["Pass UPSC"],
+    studyHours: 3,
+    moodScore: 6,
+    subscriptionTier: "Basic",
+    studyTime: 90,
+    completedLessons: 30,
+    targetScore: 80
   },
   {
     id: "std-004",
     name: "Ananya Desai",
     email: "ananya.d@example.com",
-    joinedDate: "2023-09-30",
+    joinDate: "2023-09-30",
     role: "Student",
     status: "pending",
     subjects: ["Mathematics", "Computer Science"],
@@ -91,13 +130,26 @@ const studentsData: StudentData[] = [
     progress: {
       completedTopics: 20,
       totalTopics: 100
-    }
+    },
+    registrationDate: "2023-09-30",
+    examType: "CAT",
+    subjectsSelected: ["Mathematics", "Computer Science"],
+    engagementScore: 20,
+    phoneNumber: "+91-6543210987",
+    completedOnboarding: false,
+    goals: ["Score 90+ percentile"],
+    studyHours: 2,
+    moodScore: 5,
+    subscriptionTier: "Basic",
+    studyTime: 60,
+    completedLessons: 20,
+    targetScore: 85
   },
   {
     id: "std-005",
     name: "Rahul Kumar",
     email: "rahul.k@example.com",
-    joinedDate: "2023-06-18",
+    joinDate: "2023-06-18",
     role: "Student",
     status: "active",
     subjects: ["Physics", "Mathematics"],
@@ -106,7 +158,20 @@ const studentsData: StudentData[] = [
     progress: {
       completedTopics: 90,
       totalTopics: 100
-    }
+    },
+    registrationDate: "2023-06-18",
+    examType: "IIT-JEE",
+    subjectsSelected: ["Physics", "Mathematics"],
+    engagementScore: 90,
+    phoneNumber: "+91-5432109876",
+    completedOnboarding: true,
+    goals: ["Master calculus"],
+    studyHours: 6,
+    moodScore: 9,
+    subscriptionTier: "Premium",
+    studyTime: 180,
+    completedLessons: 75,
+    targetScore: 95
   },
 ];
 
@@ -191,7 +256,7 @@ const UserManagementTab = ({ recentStudents = studentsData }: UserManagementTabP
                 <TableCell className="font-medium">{student.name}</TableCell>
                 <TableCell>{student.email}</TableCell>
                 <TableCell>{student.examPrep}</TableCell>
-                <TableCell>{formatDate(student.joinedDate || '')}</TableCell>
+                <TableCell>{formatDate(student.joinDate || '')}</TableCell>
                 <TableCell>
                   {student.status === "active" && (
                     <Badge variant="outline" className="bg-green-100 text-green-800 border-green-200">

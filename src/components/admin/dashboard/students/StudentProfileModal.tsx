@@ -66,7 +66,7 @@ const StudentProfileModal: React.FC<StudentProfileModalProps> = ({
                   studentInfo.status === "active" ? "default" : 
                   studentInfo.status === "inactive" ? "secondary" : "outline"
                 }>
-                  {studentInfo.status.charAt(0).toUpperCase() + studentInfo.status.slice(1)}
+                  {studentInfo.status ? studentInfo.status.charAt(0).toUpperCase() + studentInfo.status.slice(1) : "N/A"}
                 </Badge>
               </div>
             </div>
@@ -75,42 +75,54 @@ const StudentProfileModal: React.FC<StudentProfileModalProps> = ({
           <div className="grid gap-2">
             <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
               <div>
-                <span className="font-medium">Joined Date:</span> {formatDate(studentInfo.joinedDate)}
+                <span className="font-medium">Joined Date:</span> {formatDate(studentInfo.joinedDate || studentInfo.joinDate)}
               </div>
               <div>
                 <span className="font-medium">Last Active:</span> {formatDate(studentInfo.lastActive || "")}
               </div>
               <div>
-                <span className="font-medium">Exam Prep:</span> {studentInfo.examPrep || "N/A"}
+                <span className="font-medium">Exam Prep:</span> {studentInfo.examPrep || studentInfo.examType || "N/A"}
               </div>
               <div>
-                <span className="font-medium">Role:</span> {studentInfo.role}
+                <span className="font-medium">Role:</span> {studentInfo.role || "Student"}
               </div>
             </div>
           </div>
 
-          {studentInfo.subjects && studentInfo.subjects.length > 0 && (
+          {(studentInfo.subjects && studentInfo.subjects.length > 0) || (studentInfo.subjectsSelected && studentInfo.subjectsSelected.length > 0) ? (
             <div>
               <h4 className="font-semibold mb-2">Subjects</h4>
               <div className="flex flex-wrap gap-2">
-                {studentInfo.subjects.map((subject, index) => (
+                {(studentInfo.subjects || studentInfo.subjectsSelected || []).map((subject, index) => (
                   <Badge key={index} variant="outline">
                     {subject}
                   </Badge>
                 ))}
               </div>
             </div>
-          )}
+          ) : null}
 
-          {typeof studentInfo.progress === "number" && (
+          {(typeof studentInfo.progress === "object" || typeof studentInfo.engagementScore === "number") && (
             <div>
               <h4 className="font-semibold mb-2">Overall Progress</h4>
               <div className="space-y-1">
                 <div className="flex justify-between text-sm">
                   <span>Progress</span>
-                  <span>{studentInfo.progress}%</span>
+                  <span>
+                    {typeof studentInfo.progress === "object" 
+                      ? `${Math.round((studentInfo.progress.completedTopics / studentInfo.progress.totalTopics) * 100)}%` 
+                      : typeof studentInfo.engagementScore === "number" 
+                        ? `${studentInfo.engagementScore}%` 
+                        : "0%"}
+                  </span>
                 </div>
-                <Progress value={studentInfo.progress || 0} />
+                <Progress value={
+                  typeof studentInfo.progress === "object" 
+                    ? (studentInfo.progress.completedTopics / studentInfo.progress.totalTopics) * 100 
+                    : typeof studentInfo.engagementScore === "number" 
+                      ? studentInfo.engagementScore 
+                      : 0
+                } />
               </div>
             </div>
           )}

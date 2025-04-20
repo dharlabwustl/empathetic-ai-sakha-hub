@@ -1,3 +1,4 @@
+
 export interface StudentData {
   id: string;
   name: string;
@@ -20,4 +21,16 @@ export interface StudentData {
   goals: string[];
   studyHours: number;
   moodScore: number;
+
+  // Additional properties that are being used
+  status?: "active" | "inactive" | "pending";
+  joinedDate?: string; // Alternative to joinDate used in some components
+  role?: string;
+  examPrep?: string;
+  subjects?: string[];
+  progress?: {
+    completedTopics: number;
+    totalTopics: number;
+    lastActiveDate?: string;
+  };
 }
