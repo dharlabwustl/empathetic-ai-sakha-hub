@@ -17,8 +17,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { featureService } from "@/services/featureService";
-import { PlanType, SubscriptionPlan, SubscriptionInterval } from "@/types/features";
+import { featureService, PlanType, SubscriptionInterval } from "@/services/featureService";
+import type { SubscriptionPlan } from "@/types/features";
 
 const PlansManagement = () => {
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);

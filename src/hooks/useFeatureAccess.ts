@@ -1,7 +1,7 @@
 
 import { useAuth } from '@/contexts/auth/AuthContext';
 import { Feature } from '@/types/features';
-import { featureService } from '@/services/featureService';
+import { featureService, PlanType } from '@/services/featureService';
 import { useQuery } from '@tanstack/react-query';
 import { useToast } from './use-toast';
 
@@ -15,9 +15,14 @@ export const useFeatureAccess = (feature: Feature) => {
       if (!user) return false;
       
       try {
+        // Convert user's subscription to PlanType enum value
+        const userSubscription = (user.subscription && typeof user.subscription === 'object')
+          ? user.subscription.planType as unknown as PlanType 
+          : (user.subscription as unknown as PlanType) || PlanType.Free;
+        
         return await featureService.isFeatureAccessible(
           feature,
-          user.subscription,
+          userSubscription,
           user.id
         );
       } catch (error) {

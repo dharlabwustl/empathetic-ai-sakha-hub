@@ -62,7 +62,7 @@ export interface AdminDashboardStats {
   completedSurveys?: number;
 }
 
-// Re-export SystemLog type
+// Now we'll fix the SystemLog interface by using a proper type for details
 export interface SystemLog {
   id: string;
   level: "info" | "warning" | "error" | "critical";

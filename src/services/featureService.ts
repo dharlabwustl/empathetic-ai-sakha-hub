@@ -1,6 +1,21 @@
 
-import { Feature, FeatureAccess, FeatureAccessLevel, SubscriptionPlan, PlanType, SubscriptionInterval } from '@/types/features';
+import { Feature, FeatureAccess, FeatureAccessLevel, SubscriptionPlan } from '@/types/features';
 import { createClient } from '@supabase/supabase-js';
+
+// Define and export enums so they can be used as both types and values
+export enum PlanType {
+  Free = "free",
+  Basic = "basic",
+  Premium = "premium",
+  Group = "group",
+  Institute = "institute",
+  Corporate = "corporate"
+}
+
+export enum SubscriptionInterval {
+  Monthly = "monthly",
+  Yearly = "yearly"
+}
 
 class FeatureService {
   private supabase;
@@ -132,5 +147,4 @@ class FeatureService {
 }
 
 export const featureService = new FeatureService();
-export { PlanType, SubscriptionInterval };
 export type { SubscriptionPlan, Feature };
