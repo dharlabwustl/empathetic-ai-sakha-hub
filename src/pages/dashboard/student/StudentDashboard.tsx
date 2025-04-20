@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useStudentDashboard } from "@/hooks/useStudentDashboard";
 import OnboardingFlow from "@/components/dashboard/student/OnboardingFlow";
@@ -38,30 +37,27 @@ const StudentDashboard = () => {
     toggleTabsNav
   } = useStudentDashboard();
 
+  // Get the exam goal from localStorage if available
+  const storedData = localStorage.getItem("userData");
+  const parsedData = storedData ? JSON.parse(storedData) : null;
+  const examGoal = parsedData?.goal || userProfile?.goals?.[0]?.title || "IIT-JEE";
+
   // Check URL parameters for onboarding status
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const isNewUser = params.get('new') === 'true';
     const completedOnboarding = params.get('completedOnboarding') === 'true';
     
-    console.log("URL params:", { isNewUser, completedOnboarding });
-    
-    // Don't show splash screen for new users coming from signup flow
     if (isNewUser) {
       setShowSplash(false);
     } else {
-      // Check if the user has seen the splash screen in this session
       const hasSeen = sessionStorage.getItem("hasSeenSplash");
       setShowSplash(!hasSeen);
     }
     
-    // Try to get saved mood from local storage
-    const savedUserData = localStorage.getItem("userData");
-    if (savedUserData) {
-      const parsedData = JSON.parse(savedUserData);
-      if (parsedData.mood) {
-        setCurrentMood(parsedData.mood);
-      }
+    const savedMood = parsedData?.mood;
+    if (savedMood) {
+      setCurrentMood(savedMood);
     }
   }, [location]);
   
@@ -93,14 +89,10 @@ const StudentDashboard = () => {
 
   // Show onboarding flow only for users who haven't completed it
   if (showOnboarding) {
-    // Make sure we have a goal to work with
-    const defaultGoal = "IIT-JEE";
-    const goalTitle = userProfile?.goals?.[0]?.title || defaultGoal;
-    
     return (
       <OnboardingFlow 
         userProfile={userProfile} 
-        goalTitle={goalTitle}
+        goalTitle={examGoal}
         onComplete={handleCompleteOnboarding}
       />
     );

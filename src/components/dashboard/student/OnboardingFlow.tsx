@@ -17,6 +17,10 @@ interface OnboardingFlowProps {
 }
 
 export default function OnboardingFlow({ userProfile, goalTitle, onComplete }: OnboardingFlowProps) {
+  // Get stored onboarding data from localStorage
+  const storedData = localStorage.getItem("userData");
+  const parsedData = storedData ? JSON.parse(storedData) : null;
+  
   const {
     currentStep,
     stepComplete,
@@ -35,7 +39,7 @@ export default function OnboardingFlow({ userProfile, goalTitle, onComplete }: O
     handleNext,
     handlePrevious,
     handleToggleSubject
-  } = useOnboardingForm(goalTitle, onComplete);
+  } = useOnboardingForm(goalTitle || parsedData?.goal || "IIT-JEE", onComplete);
 
   if (loading) {
     return <LoadingScreen goalTitle={goalTitle} weakSubjects={weakSubjects.map(s => s.name)} />;
@@ -67,8 +71,8 @@ export default function OnboardingFlow({ userProfile, goalTitle, onComplete }: O
           <CardHeader className="bg-gradient-to-br from-purple-600 to-violet-700 text-white p-6">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between">
               <div>
-                <h2 className="text-2xl font-bold">Let's create your personalized study plan</h2>
-                <p className="text-purple-100">For {goalTitle}</p>
+                <h2 className="text-2xl font-bold">Creating your smart study plan for {goalTitle}</h2>
+                <p className="text-purple-100">Let's personalize your learning experience</p>
               </div>
               <OnboardingProgress currentStep={currentStep} loading={loading} />
             </div>

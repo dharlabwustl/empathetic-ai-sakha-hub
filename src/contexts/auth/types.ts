@@ -1,4 +1,3 @@
-
 import { AuthUser } from '@/services/auth/authService';
 
 // Auth context types
@@ -26,3 +25,12 @@ export interface AdminAuthContextProps {
   login: (email: string, password: string) => Promise<boolean>;
   logout: () => Promise<void>;
 }
+
+// Add exam goal type
+export type ExamGoal = {
+  title: string;
+  description?: string;
+  targetDate?: Date;
+  progress?: number;
+  status?: 'not-started' | 'in-progress' | 'completed';
+};

@@ -1,4 +1,3 @@
-
 export interface Topic {
   name: string;
   status: 'pending' | 'in-progress' | 'completed';
@@ -38,4 +37,5 @@ export interface NewStudyPlan {
   studyHoursPerDay: number;
   preferredStudyTime: 'morning' | 'afternoon' | 'evening' | 'night';
   learningPace: 'slow' | 'moderate' | 'fast';
+  goalTitle?: string;
 }
