@@ -20,7 +20,7 @@ export const useFeatureManagement = () => {
 
   const loadFeatures = async () => {
     try {
-      const data = await featureService.getAllFeatures();
+      const data = await featureService.getFeatures();
       setFeatures(data);
     } catch (error) {
       console.error("Failed to load features:", error);
@@ -40,7 +40,7 @@ export const useFeatureManagement = () => {
       
       const featureToUpdate = features.find(f => f.id === id);
       if (featureToUpdate) {
-        await featureService.toggleFeaturePremium(featureToUpdate.title, isPremium);
+        await featureService.toggleFeature(featureToUpdate.id || "", isPremium);
         setFeatures(updatedFeatures);
         
         toast({

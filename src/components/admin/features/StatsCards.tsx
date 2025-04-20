@@ -1,77 +1,71 @@
 
-import React from 'react';
+import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Box, LayoutGrid, Lock, Star, Users } from "lucide-react";
+import { FeatureStats } from "./types";
+import { Package, PackagePlus, PackageMinus, Filter } from "lucide-react";
 
 export interface StatsCardsProps {
-  stats: {
-    totalFeatures: number;
-    premiumFeatures: number;
-    freeFeatures: number;
-    mostUsedFeature: {
-      id: string;
-      title: string;
-      usageCount: number;
-    };
-  };
-  activeTab?: string;
-  setActiveTab?: (tab: string) => void;
+  stats: FeatureStats;
+  activeTab: string;
+  setActiveTab: (tab: string) => void;
 }
 
 const StatsCards: React.FC<StatsCardsProps> = ({ stats, activeTab, setActiveTab }) => {
   return (
-    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-      <Card className={activeTab === 'all' ? 'border-primary' : ''} 
-            onClick={() => setActiveTab?.('all')}>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">
-            Total Features
-          </CardTitle>
-          <Box className="h-4 w-4 text-muted-foreground" />
+    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <Card 
+        className={`cursor-pointer ${activeTab === "all" ? "border-primary" : ""}`} 
+        onClick={() => setActiveTab("all")}
+      >
+        <CardHeader className="flex flex-row items-center justify-between pb-2">
+          <CardTitle className="text-sm font-medium">Total Features</CardTitle>
+          <Package className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{stats.totalFeatures}</div>
+          <div className="text-2xl font-bold">{stats.total}</div>
+          <p className="text-xs text-muted-foreground">All platform features</p>
         </CardContent>
       </Card>
       
-      <Card className={activeTab === 'premium' ? 'border-primary' : ''}
-            onClick={() => setActiveTab?.('premium')}>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">
-            Premium Features
-          </CardTitle>
-          <Star className="h-4 w-4 text-muted-foreground" />
+      <Card 
+        className={`cursor-pointer ${activeTab === "premium" ? "border-primary" : ""}`} 
+        onClick={() => setActiveTab("premium")}
+      >
+        <CardHeader className="flex flex-row items-center justify-between pb-2">
+          <CardTitle className="text-sm font-medium">Premium Features</CardTitle>
+          <PackagePlus className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{stats.premiumFeatures}</div>
+          <div className="text-2xl font-bold">{stats.premium}</div>
+          <p className="text-xs text-muted-foreground">Requires premium access</p>
         </CardContent>
       </Card>
       
-      <Card className={activeTab === 'free' ? 'border-primary' : ''}
-            onClick={() => setActiveTab?.('free')}>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">
-            Free Features
-          </CardTitle>
-          <Lock className="h-4 w-4 text-muted-foreground" />
+      <Card 
+        className={`cursor-pointer ${activeTab === "free" ? "border-primary" : ""}`} 
+        onClick={() => setActiveTab("free")}
+      >
+        <CardHeader className="flex flex-row items-center justify-between pb-2">
+          <CardTitle className="text-sm font-medium">Free Features</CardTitle>
+          <PackageMinus className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{stats.freeFeatures}</div>
+          <div className="text-2xl font-bold">{stats.free}</div>
+          <p className="text-xs text-muted-foreground">Available without subscription</p>
         </CardContent>
       </Card>
       
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">
-            Most Used
-          </CardTitle>
-          <Users className="h-4 w-4 text-muted-foreground" />
+      <Card 
+        className={`cursor-pointer ${activeTab === "limited" ? "border-primary" : ""}`} 
+        onClick={() => setActiveTab("limited")}
+      >
+        <CardHeader className="flex flex-row items-center justify-between pb-2">
+          <CardTitle className="text-sm font-medium">Access Limited</CardTitle>
+          <Filter className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{stats.mostUsedFeature.title}</div>
-          <p className="text-xs text-muted-foreground">
-            {stats.mostUsedFeature.usageCount.toLocaleString()} uses
-          </p>
+          <div className="text-2xl font-bold">{stats.limited}</div>
+          <p className="text-xs text-muted-foreground">Features with usage limits</p>
         </CardContent>
       </Card>
     </div>

@@ -42,7 +42,8 @@ export const adminApiService = {
       aiModels: [],
       flaskApiUrl: '',
       apiKey: '',
-      notificationSettings: {}
+      notificationSettings: {},
+      contentApprovalRequired: true
     };
   },
   

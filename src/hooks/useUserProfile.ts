@@ -29,8 +29,8 @@ export const useUserProfile = (role: UserRole = UserRole.Student) => {
 
   const updateUserProfile = (updates: Partial<UserProfileType>) => {
     if (userProfile) {
-      // Create a proper merged object to update
-      const updatedProfile = {
+      // Ensure we have id and role which are required
+      const updatedProfile: UserProfileType = {
         ...userProfile,
         ...updates
       };

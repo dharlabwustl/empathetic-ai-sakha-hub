@@ -83,3 +83,6 @@ export type MoodType =
 
 // Changed to type string
 export type PersonalityType = string;
+
+// Export SubscriptionType from here as well for backward compatibility
+export { SubscriptionType } from './index';

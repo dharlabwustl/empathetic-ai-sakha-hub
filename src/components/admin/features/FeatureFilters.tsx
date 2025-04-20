@@ -25,6 +25,9 @@ const FeatureFilters: React.FC<FeatureFiltersProps> = ({
   onPremiumFilterChange,
   onExport
 }) => {
+  // Create an array of plan types for the select dropdown
+  const planTypes: PlanType[] = ["free", "basic", "premium", "enterprise", "group", "institute", "corporate"];
+
   return (
     <div className="mb-6 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
       <div className="relative w-full sm:w-96">
@@ -54,8 +57,8 @@ const FeatureFilters: React.FC<FeatureFiltersProps> = ({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Plans</SelectItem>
-            {Object.keys(PlanType).map((key) => (
-              <SelectItem key={key} value={PlanType[key as keyof typeof PlanType]}>{key}</SelectItem>
+            {planTypes.map((planType) => (
+              <SelectItem key={planType} value={planType}>{planType.charAt(0).toUpperCase() + planType.slice(1)}</SelectItem>
             ))}
           </SelectContent>
         </Select>

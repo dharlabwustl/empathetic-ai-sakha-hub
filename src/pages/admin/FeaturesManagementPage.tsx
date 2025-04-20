@@ -10,9 +10,6 @@ import { useFeatureManagement } from "@/components/admin/features/hooks/useFeatu
 import { PlanType, featureService } from "@/services/featureService";
 import { useToast } from "@/hooks/use-toast";
 
-// Add type casting to fix the issue
-type PremiumFilterType = "all" | "premium" | "free";
-
 const FeaturesManagementPage = () => {
   const {
     features,
@@ -127,15 +124,19 @@ const FeaturesManagementPage = () => {
           <p className="text-muted-foreground">Manage platform features and access control</p>
         </div>
 
-        <StatsCards stats={stats} activeTab={activeTab} setActiveTab={(tab) => setActiveTab(tab)} />
+        <StatsCards 
+          stats={stats} 
+          activeTab={activeTab} 
+          setActiveTab={(tab: string) => setActiveTab(tab as "all" | "premium" | "free" | "limited")} 
+        />
         
         <FeatureFilters
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
           planFilter={planFilter}
-          onPlanFilterChange={(value: string) => setPlanFilter(value as PlanType)}
+          onPlanFilterChange={(value: string) => setPlanFilter(value as PlanType | "all")}
           premiumFilter={premiumFilter}
-          onPremiumFilterChange={(value: PremiumFilterType) => setPremiumFilter(value)}
+          onPremiumFilterChange={(value: string) => setPremiumFilter(value as "all" | "premium" | "free")}
           onExport={handleExport}
         />
         

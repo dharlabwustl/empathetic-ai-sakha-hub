@@ -13,6 +13,9 @@ export const AllowedPlansTab: React.FC<TabProps> = ({ editedFeature, onChange })
     return editedFeature.allowedPlans.includes(plan);
   };
 
+  // Create an array of plan types for the loop
+  const planTypes: PlanType[] = ["free", "basic", "premium", "enterprise", "group", "institute", "corporate"];
+
   return (
     <div className="space-y-4">
       <Alert className="bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
@@ -23,8 +26,8 @@ export const AllowedPlansTab: React.FC<TabProps> = ({ editedFeature, onChange })
       </Alert>
 
       <div className="grid grid-cols-2 gap-3">
-        {Object.entries(PlanType).map(([key, plan]) => (
-          <div key={key} className="flex items-center space-x-2">
+        {planTypes.map((plan) => (
+          <div key={plan} className="flex items-center space-x-2">
             <Switch 
               id={`plan-${plan}`}
               checked={isPlanAllowed(plan)}
@@ -41,7 +44,7 @@ export const AllowedPlansTab: React.FC<TabProps> = ({ editedFeature, onChange })
                 }
               }}
             />
-            <Label htmlFor={`plan-${plan}`} className="capitalize">{key} Plan</Label>
+            <Label htmlFor={`plan-${plan}`} className="capitalize">{plan} Plan</Label>
           </div>
         ))}
       </div>

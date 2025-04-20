@@ -1,90 +1,80 @@
 
-import { AdminSettings, StudentData, SystemLog } from "@/types/admin";
+import { AdminSettings, AdminUser } from "@/types/admin";
+import { StudentProfile } from "@/types/student";
 
-// Create a mock admin service
+// Mock admin users
+const mockAdmins: AdminUser[] = [
+  {
+    id: "admin-1",
+    name: "Admin User",
+    email: "admin@example.com",
+    role: "admin",
+    avatar: "/avatar.png",
+    lastLogin: new Date().toISOString(),
+    permissions: ["view_dashboard", "manage_users", "manage_content"]
+  },
+  {
+    id: "admin-2",
+    name: "Super Admin",
+    email: "superadmin@example.com",
+    role: "super_admin",
+    avatar: "/avatar2.png",
+    lastLogin: new Date().toISOString(),
+    permissions: ["view_dashboard", "manage_users", "manage_content", "manage_settings", "manage_admins"]
+  }
+];
+
+// Mock student data
+const mockStudents: StudentProfile[] = [
+  {
+    id: "student-1",
+    name: "Student One",
+    email: "student1@example.com",
+    role: "student",
+    grade: "11th",
+    schoolName: "Delhi Public School",
+    avatar: "/student1.png",
+    attendance: {
+      total: 90,
+      present: 85,
+      percentage: 94
+    }
+  },
+  {
+    id: "student-2",
+    name: "Student Two",
+    email: "student2@example.com",
+    role: "student",
+    grade: "12th",
+    schoolName: "Ryan International School",
+    avatar: "/student2.png",
+    attendance: {
+      total: 90,
+      present: 78,
+      percentage: 87
+    }
+  }
+];
+
+// Mock admin service
 export const adminService = {
-  // Admin users management
-  getAdminUsers: () => Promise.resolve([]),
-  
-  // Student management
-  getStudents: async (): Promise<StudentData[]> => {
-    return [
-      {
-        id: "1",
-        name: "Rahul Sharma",
-        email: "rahul.s@example.com",
-        role: "student",
-        status: "active",
-        joinedDate: "2023-01-15T00:00:00Z",
-        lastActive: "2023-08-10T14:30:00Z",
-        examType: "IIT-JEE",
-        studyHours: 25,
-        progress: {
-          completedTopics: 45,
-          totalTopics: 100,
-          lastActiveDate: "2023-08-10T14:30:00Z"
-        }
-      },
-      {
-        id: "2",
-        name: "Priya Patel",
-        email: "priya.p@example.com",
-        role: "student",
-        status: "inactive",
-        joinedDate: "2023-02-20T00:00:00Z",
-        lastActive: "2023-07-25T09:15:00Z",
-        examType: "NEET",
-        studyHours: 18,
-        progress: {
-          completedTopics: 30,
-          totalTopics: 100,
-          lastActiveDate: "2023-07-25T09:15:00Z"
-        }
-      },
-      {
-        id: "3",
-        name: "Amit Kumar",
-        email: "amit.k@example.com",
-        role: "student",
-        status: "pending",
-        joinedDate: "2023-07-10T00:00:00Z",
-        lastActive: "2023-08-12T16:45:00Z",
-        examType: "CAT",
-        studyHours: 12,
-        progress: {
-          completedTopics: 15,
-          totalTopics: 100,
-          lastActiveDate: "2023-08-12T16:45:00Z"
-        }
-      }
-    ];
+  // Admin user management
+  getCurrentAdmin: async (): Promise<AdminUser> => {
+    return mockAdmins[0];
   },
   
-  // System logs
-  getSystemLogs: async (): Promise<SystemLog[]> => {
-    return [
-      {
-        id: "log1",
-        timestamp: new Date().toISOString(),
-        level: "info",
-        source: "Authentication Service",
-        message: "User login successful"
-      },
-      {
-        id: "log2",
-        timestamp: new Date().toISOString(),
-        level: "warning",
-        source: "Content Delivery Network",
-        message: "Increased latency detected"
-      },
-      {
-        id: "log3",
-        timestamp: new Date().toISOString(),
-        level: "error",
-        source: "Payment Gateway",
-        message: "Transaction failed"
-      }
-    ];
+  getAllAdmins: async (): Promise<AdminUser[]> => {
+    return mockAdmins;
+  },
+  
+  // Student management
+  getStudents: async (): Promise<StudentProfile[]> => {
+    return mockStudents;
+  },
+  
+  getStudentById: async (id: string): Promise<StudentProfile | null> => {
+    const student = mockStudents.find(s => s.id === id);
+    return student || null;
   },
   
   // Settings management
@@ -96,21 +86,91 @@ export const adminService = {
       theme: 'light',
       analyticsEnabled: true,
       autoLogout: false,
+      contentApprovalRequired: true,
       logoutTimeoutMinutes: 30,
-      aiModels: ['gpt-3.5-turbo', 'gpt-4'],
+      aiModels: [
+        {
+          modelName: "gpt-3.5-turbo",
+          apiKey: "sk-....",
+          temperature: 0.7,
+          maxTokens: 100,
+          active: true
+        },
+        {
+          modelName: "gpt-4",
+          apiKey: "sk-....",
+          temperature: 0.5,
+          maxTokens: 200,
+          active: false
+        }
+      ],
       flaskApiUrl: 'https://api.example.com',
-      apiKey: '***************',
+      apiKey: '',
       notificationSettings: {
-        userSignup: true,
-        paymentSuccess: true,
-        systemErrors: true
-      },
-      contentApprovalRequired: false
+        email: true,
+        push: true,
+        sms: false
+      }
     };
   },
   
-  updateSettings: async (settings: AdminSettings): Promise<AdminSettings> => {
-    console.log('Settings updated', settings);
-    return settings;
+  updateSettings: async (settings: Partial<AdminSettings>): Promise<AdminSettings> => {
+    console.log('Updating settings:', settings);
+    return {
+      ...(await adminService.getSettings()),
+      ...settings
+    };
+  },
+  
+  // Stats
+  getAdminStats: async () => {
+    return {
+      totalStudents: 1245,
+      activeStudents: 876,
+      totalContent: 324,
+      totalQuizzes: 98,
+      totalRevenue: "₹345,600",
+      monthlyActiveUsers: 567,
+      averageSessionTime: "23m",
+      completionRate: 76
+    };
+  },
+  
+  // KPI data
+  getKpiData: async () => {
+    return [
+      {
+        id: "kpi-1",
+        title: "New Users",
+        value: "128",
+        changePercent: 12.5,
+        label: "Last 7 days",
+        trend: "up"
+      },
+      {
+        id: "kpi-2",
+        title: "Engagement",
+        value: "85%",
+        changePercent: 3.2,
+        label: "Last 7 days",
+        trend: "up"
+      },
+      {
+        id: "kpi-3",
+        title: "Study Time",
+        value: "42h",
+        changePercent: -5.1,
+        label: "Last 7 days",
+        trend: "down"
+      },
+      {
+        id: "kpi-4",
+        title: "Questions",
+        value: "1,204",
+        changePercent: 8.3,
+        label: "Last 7 days",
+        trend: "up"
+      }
+    ];
   }
 };
