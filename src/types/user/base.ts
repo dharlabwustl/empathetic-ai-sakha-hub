@@ -1,4 +1,3 @@
-
 export interface UserSubscription {
   planId?: string;
   planType: SubscriptionType;
@@ -89,10 +88,23 @@ export enum SubscriptionType {
   Premium = "premium", 
   Group = "group",
   Institute = "institute",
-  Corporate = "corporate"
+  Corporate = "corporate",
+  Enterprise = "enterprise", 
+  School = "school"
 }
 
-// Study progress related types
+// Define SubscriptionPlan interface
+export interface SubscriptionPlan {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  features: string[];
+  isPopular: boolean;
+  type: SubscriptionType;
+  maxMembers?: number;
+}
+
 export interface SubjectProgress {
   id: string;
   name: string;

@@ -1,10 +1,11 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Check, CreditCard, Users } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { SubscriptionPlan, SubscriptionType } from '@/types/user';
+import { SubscriptionPlan, SubscriptionType } from '@/types/user/base';
 import { useNavigate } from 'react-router-dom';
 import { formatDateTime } from '@/utils/dateUtils';
 

@@ -16,8 +16,19 @@ import {
   AlertDialogTitle 
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
-import { UserCheck, UserMinus, Users, Mail, Edit } from "lucide-react";
+import { 
+  Check, 
+  X, 
+  UserPlus, 
+  UserMinus, 
+  Users, 
+  Mail, 
+  Edit, 
+  UserCheck 
+} from "lucide-react";
 import { getRelativeTime } from "@/utils/dateUtils";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Separator } from "@/components/ui/separator";
 
 export interface BatchMember {
   id: string;

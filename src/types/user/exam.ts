@@ -10,7 +10,7 @@ export interface SubjectProgress {
   strongAreas: string[];
   lastStudied?: string;
   averageScore?: number;
-  color?: string; // Added missing property
+  color?: string;
   topics?: {
     id: string;
     name: string;
@@ -18,8 +18,8 @@ export interface SubjectProgress {
     status: 'completed' | 'in-progress' | 'not-started';
     lastPracticed?: string;
     score?: number;
-    completed?: boolean; // Added missing property
-    masteryLevel?: number; // Added missing property
+    completed?: boolean;
+    masteryLevel?: number;
   }[];
   quizzes?: {
     id: string;
@@ -30,7 +30,7 @@ export interface SubjectProgress {
     totalQuestions: number;
     correctAnswers: number;
   }[];
-  quizScores?: { // Added missing property
+  quizScores?: {
     id: string;
     title: string;
     score: number;
@@ -38,7 +38,7 @@ export interface SubjectProgress {
     date: string;
     timeTaken: string;
   }[];
-  studyHours?: { // Added missing property
+  studyHours?: {
     date: string;
     hours: number;
   }[];
@@ -56,5 +56,5 @@ export interface StudyStreak {
     date: string;
     minutes: number;
   }[];
-  thisWeek: number[]; // Added missing property
+  thisWeek: number[];
 }
