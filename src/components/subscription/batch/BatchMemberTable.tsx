@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -11,7 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { BatchMember } from "../types";
+import { BatchMember } from "./types";
 
 interface BatchMemberTableProps {
   batchMembers: BatchMember[];

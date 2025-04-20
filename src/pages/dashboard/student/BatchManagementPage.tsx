@@ -7,7 +7,7 @@ import DashboardLoading from './DashboardLoading';
 import BatchManagement from '@/components/subscription/BatchManagement';
 import BatchDetails from '@/components/subscription/batch/BatchDetails';
 import BatchInvitationInput from '@/components/subscription/BatchInvitationInput';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { UserCheck, ChartBar, Settings } from 'lucide-react';
