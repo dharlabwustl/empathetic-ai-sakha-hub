@@ -28,6 +28,7 @@ import { formatDateTime } from '@/utils/dateUtils';
 interface DashboardTabsProps {
   students: StudentData[];
   systemLogs: SystemLog[];
+  stats?: any; // Adding this prop to prevent errors with AdminDashboard.tsx
 }
 
 interface KPI {

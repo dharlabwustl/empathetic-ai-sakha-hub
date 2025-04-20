@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -54,28 +53,29 @@ const AdminDashboard = () => {
       
       const studentsRes = await adminService.getStudents(1, 5);
       
-      // Convert to unified StudentData format with all required properties
       const convertedStudents: StudentData[] = studentsRes.data.map(student => ({
         id: student.id,
         name: student.name,
         email: student.email,
-        registrationDate: student.registrationDate || new Date(),
-        joinedDate: student.registrationDate || new Date(),
+        registrationDate: student.registrationDate ? student.registrationDate.toString() : new Date().toISOString(),
+        joinedDate: student.registrationDate ? student.registrationDate.toString() : new Date().toISOString(),
         role: "student",
         status: "active",
         examType: student.examType,
         subjects: student.subjectsSelected,
         subjectsSelected: student.subjectsSelected,
         examPrep: student.examType,
-        lastActive: student.lastActive,
-        progress: student.engagementScore || 0,
+        lastActive: student.lastActive ? student.lastActive.toString() : new Date().toISOString(),
+        progress: {
+          completedTopics: Math.floor(Math.random() * 50) + 10,
+          totalTopics: 100
+        },
         phoneNumber: student.phoneNumber || '',
         completedOnboarding: student.completedOnboarding || false,
         goals: student.goals || [],
         studyHours: student.studyHours || 0,
         moodScore: student.moodScore || 0,
         engagementScore: student.engagementScore || 0,
-        targetScore: student.targetScore || 0,
         avatarUrl: student.avatarUrl || ''
       }));
       
@@ -84,7 +84,6 @@ const AdminDashboard = () => {
       const logsRes = await adminService.getSystemLogs('', 1, 5);
       setRecentLogs(logsRes.data);
       
-      // Fetch exam results (mock data for now)
       const mockExamResults = [
         {
           id: "exam1",
@@ -186,9 +185,8 @@ const AdminDashboard = () => {
         
         {stats && <DashboardStats stats={stats} />}
         
-        {/* Make sure the DashboardTabs component is included and prominently displayed */}
         <div className="mb-6">
-          <DashboardTabs stats={stats} recentStudents={recentStudents} recentLogs={recentLogs} />
+          <DashboardTabs students={recentStudents} systemLogs={recentLogs} />
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
@@ -201,7 +199,6 @@ const AdminDashboard = () => {
                 isLoading={loading}
               />
             </div>
-            {/* Student table content */}
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                 <thead>
@@ -241,7 +238,6 @@ const AdminDashboard = () => {
                 isLoading={loading}
               />
             </div>
-            {/* Logs content */}
             <div className="space-y-3">
               {recentLogs.map((log) => (
                 <div key={log.id} className="p-2 border-b border-gray-100 dark:border-gray-700">
@@ -271,7 +267,6 @@ const AdminDashboard = () => {
                 isLoading={loading}
               />
             </div>
-            {/* Exam results table */}
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                 <thead>

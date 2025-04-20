@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import {
   Table,
@@ -111,17 +112,21 @@ const studentsData: StudentData[] = [
 ];
 
 interface UserManagementTabProps {
+  students?: StudentData[];
   recentStudents?: StudentData[];
 }
 
-const UserManagementTab = ({ recentStudents = studentsData }: UserManagementTabProps) => {
+const UserManagementTab = ({ students = studentsData, recentStudents = studentsData }: UserManagementTabProps) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedStudent, setSelectedStudent] = useState<StudentData | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showAddStudentDialog, setShowAddStudentDialog] = useState(false);
   const [profileModalOpen, setProfileModalOpen] = useState(false);
 
-  const filteredStudents = recentStudents.filter(student => {
+  // Use the passed students prop or fall back to the static data
+  const studentList = students || recentStudents || studentsData;
+
+  const filteredStudents = studentList.filter(student => {
     const query = searchQuery.toLowerCase();
     return (
       student.name.toLowerCase().includes(query) ||

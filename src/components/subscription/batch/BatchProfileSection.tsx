@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -18,7 +19,34 @@ import {
   CalendarDays, 
   Clock
 } from "lucide-react";
-import { BatchDetails, BatchMember } from './types';
+
+// Define the BatchMember interface to fix type issues
+interface BatchMember {
+  id: string;
+  name: string;
+  email: string;
+  role: "member" | "leader" | "school_admin" | "corporate_admin"; // Fixed to use specific string literals
+  status: "active" | "inactive" | "pending";
+  joinedDate?: string;
+  invitationCode?: string;
+  avatar?: string;
+  progress?: {
+    completedTopics: number;
+    totalTopics: number;
+    lastActiveDate?: string;
+  };
+}
+
+// Define the BatchDetails interface
+interface BatchDetails {
+  id: string;
+  name: string;
+  planType: string;
+  members: BatchMember[];
+  maxMembers: number;
+  createdAt: string;
+  expiryDate?: string;
+}
 
 interface BatchProfileSectionProps {
   userBatches?: BatchDetails[];
@@ -50,7 +78,17 @@ const BatchProfileSection: React.FC<BatchProfileSectionProps> = ({
   useEffect(() => {
     if (userBatches.length > 0 && !activeBatchId) {
       setActiveBatchId(userBatches[0].id);
-      setBatchMembers(userBatches[0].members || []);
+      
+      // Convert members to BatchMember type to ensure compatibility
+      const typedMembers: BatchMember[] = userBatches[0].members.map(member => ({
+        ...member,
+        // Ensure role is one of the allowed values
+        role: (["member", "leader", "school_admin", "corporate_admin"].includes(member.role as string)) 
+          ? member.role as "member" | "leader" | "school_admin" | "corporate_admin"
+          : "member"
+      }));
+      
+      setBatchMembers(typedMembers);
       
       setBatchProgress({
         completed: Math.floor(Math.random() * 50) + 10,
