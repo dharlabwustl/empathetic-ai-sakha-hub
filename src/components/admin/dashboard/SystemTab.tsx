@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { SystemLog } from '@/types/admin/systemLog';
+import { SystemLog } from '@/types/admin';
 import { Button } from '@/components/ui/button';
 import { format } from 'date-fns';
 
@@ -13,7 +13,7 @@ const SystemTab = () => {
       level: 'error',
       message: 'Database connection failed',
       source: 'backend',
-      timestamp: new Date('2025-04-15T12:30:00'),
+      timestamp: '2025-04-15T12:30:00',
       resolved: false
     },
     {
@@ -21,7 +21,7 @@ const SystemTab = () => {
       level: 'info',
       message: 'User authentication successful',
       source: 'auth',
-      timestamp: new Date('2025-04-15T13:45:00'),
+      timestamp: '2025-04-15T13:45:00',
       resolved: true
     },
     {
@@ -29,13 +29,11 @@ const SystemTab = () => {
       level: 'warning',
       message: 'Rate limit approaching',
       source: 'api',
-      timestamp: new Date('2025-04-15T14:20:00'),
+      timestamp: '2025-04-15T14:20:00',
       resolved: false
     }
   ]);
 
-  // Rest of the component logic...
-  
   const resolveLog = (id: string) => {
     setSystemLogs(prev => 
       prev.map(log => 
@@ -44,15 +42,9 @@ const SystemTab = () => {
     );
   };
 
-  // Convert string timestamp to Date if necessary
-  const formatTimestamp = (timestamp: Date | string) => {
-    // If timestamp is already a Date object, use it directly
-    // Otherwise parse it as a Date
-    const date = timestamp instanceof Date ? timestamp : new Date(timestamp);
-    return format(date, 'MMM dd, yyyy HH:mm:ss');
+  const formatTimestamp = (timestamp: string) => {
+    return format(new Date(timestamp), 'MMM dd, yyyy HH:mm:ss');
   };
-
-  // ... rest of the component
 
   return (
     <div className="space-y-6">
@@ -70,7 +62,6 @@ const SystemTab = () => {
               <CardDescription>Current system status and health metrics</CardDescription>
             </CardHeader>
             <CardContent>
-              {/* Content for system health overview */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {/* System health content... */}
               </div>
@@ -129,7 +120,6 @@ const SystemTab = () => {
               <CardDescription>Performance metrics and analytics</CardDescription>
             </CardHeader>
             <CardContent>
-              {/* Performance metrics content */}
               <div className="space-y-6">
                 {/* Performance metrics... */}
               </div>

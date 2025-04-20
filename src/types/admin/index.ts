@@ -8,6 +8,7 @@ export interface AdminUser {
   id: string;
   username: string;
   email: string;
+  name?: string;
   role: 'admin' | 'super_admin' | 'support';
   permissions: string[];
 }
@@ -35,7 +36,7 @@ export interface AdminDashboardStats {
   moodBasedSessionsCount: number;
   studentsWithMoodTracking: number;
   
-  // New KPIs for admin dashboard
+  // Additional KPIs for admin dashboard
   dailyActiveUsers?: number;
   weeklyActiveUsers?: number;
   monthlyActiveUsers?: number;
@@ -59,4 +60,16 @@ export interface AdminDashboardStats {
   verifiedRetentionRate?: number;
   verifiedMoodFeatureUsage?: number;
   completedSurveys?: number;
+}
+
+// Re-export SystemLog type
+export interface SystemLog {
+  id: string;
+  level: "info" | "warning" | "error" | "critical";
+  message: string;
+  source: string;
+  timestamp: string;
+  details?: string;
+  resolved?: boolean;
+  assignedTo?: string;
 }

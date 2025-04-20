@@ -9,16 +9,16 @@ interface AdminRouteGuardProps {
 }
 
 const AdminRouteGuard = ({ children, requiredPermission }: AdminRouteGuardProps) => {
-  const { adminUser, isAuthenticated, loading } = useAdminAuth();
+  const { adminUser, isAuthenticated, isLoading } = useAdminAuth();
   const location = useLocation();
 
   // For debugging
   useEffect(() => {
-    console.log("AdminRouteGuard - Auth state:", { isAuthenticated, loading, user: adminUser?.name });
-  }, [isAuthenticated, loading, adminUser]);
+    console.log("AdminRouteGuard - Auth state:", { isAuthenticated, isLoading, user: adminUser?.name });
+  }, [isAuthenticated, isLoading, adminUser]);
 
   // Check if user is loading
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-50">
         <div className="text-center">

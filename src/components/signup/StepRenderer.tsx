@@ -33,6 +33,12 @@ const StepRenderer: React.FC<StepRendererProps> = ({
   handlers,
   isLoading
 }) => {
+  // Helper function to go to next step (for components that require it)
+  const handleNextStep = () => {
+    // This would be handled by the parent component which controls steps
+    console.log("Next step requested");
+  };
+
   switch (step) {
     case "role":
       return <RoleStep onRoleSelect={handlers.handleRoleSelect} />;
@@ -49,7 +55,8 @@ const StepRenderer: React.FC<StepRendererProps> = ({
       />;
     case "personality":
       return <PersonalityStep 
-        onPersonalitySelect={handlers.handlePersonalitySelect} 
+        onPersonalitySelect={handlers.handlePersonalitySelect}
+        onNext={handleNextStep}
       />;
     case "sentiment":
       return <SentimentStep 

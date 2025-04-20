@@ -1,4 +1,5 @@
-import { Feature, FeatureAccess, FeatureAccessLevel, SubscriptionPlan, PlanType } from '@/types/features';
+
+import { Feature, FeatureAccess, FeatureAccessLevel, SubscriptionPlan, PlanType, SubscriptionInterval } from '@/types/features';
 import { createClient } from '@supabase/supabase-js';
 
 class FeatureService {
@@ -68,6 +69,33 @@ class FeatureService {
     if (error) throw error;
     return data;
   }
+  
+  async toggleFeaturePremium(title: string, isPremium: boolean): Promise<void> {
+    const { error } = await this.supabase
+      .from('features')
+      .update({ is_premium: isPremium })
+      .eq('title', title);
+    
+    if (error) throw error;
+  }
+  
+  async updateFeature(feature: Feature): Promise<void> {
+    const { error } = await this.supabase
+      .from('features')
+      .update({
+        title: feature.title,
+        description: feature.description,
+        path: feature.path,
+        is_premium: feature.isPremium,
+        access_level: feature.accessLevel,
+        allowed_plans: feature.allowedPlans,
+        free_access_limit_type: feature.freeAccessLimit?.type,
+        free_access_limit_value: feature.freeAccessLimit?.limit
+      })
+      .eq('id', feature.id);
+    
+    if (error) throw error;
+  }
 
   async isFeatureAccessible(
     feature: Feature,
@@ -104,4 +132,5 @@ class FeatureService {
 }
 
 export const featureService = new FeatureService();
-export { PlanType, type SubscriptionPlan, type Feature };
+export { PlanType, SubscriptionInterval };
+export type { SubscriptionPlan, Feature };

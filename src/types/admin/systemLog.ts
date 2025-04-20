@@ -1,10 +1,11 @@
 
 export interface SystemLog {
   id: string;
-  level: 'info' | 'warning' | 'error';
-  message: string;
+  timestamp: string;
+  level: "info" | "warning" | "error" | "critical";
   source: string;
-  timestamp: string; // Changed from Date to string for consistency
-  resolved: boolean;
-  details?: Record<string, any>;
+  message: string;
+  details?: string;
+  resolved?: boolean;
+  assignedTo?: string;
 }
