@@ -12,7 +12,26 @@ import PaymentMethodSelector from "./payment/PaymentMethodSelector";
 import CreditCardForm from "./payment/CreditCardForm";
 import UPIPayment from "./payment/UPIPayment";
 import NetBankingPayment from "./payment/NetBankingPayment";
-import { SubscriptionPlan, SubscriptionType } from "@/types/user/base";
+
+// Add the necessary types for CheckoutPage
+interface SubscriptionPlan {
+  id: string;
+  name: string;
+  price: number;
+  features: string[];
+  isPopular?: boolean;
+  type: string;
+  planType?: string;
+}
+
+enum SubscriptionType {
+  Free = "free",
+  Basic = "basic",
+  Premium = "premium",
+  Enterprise = "enterprise",
+  School = "school",
+  Corporate = "corporate",
+}
 
 type PaymentMethod = "credit_card" | "upi" | "net_banking" | "wallet";
 
@@ -59,7 +78,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
   
   // Calculate subscription details
   const basePrice = selectedPlan.price;
-  const memberCount = isGroupPlan ? invitedEmails.length + 1 : 1;
+  const memberCount = isGroupPlan ? Math.max(invitedEmails.length + 1, 1) : 1;
   const subtotal = basePrice * memberCount;
   const gst = subtotal * 0.18; // 18% GST
   const total = subtotal + gst;
@@ -73,17 +92,16 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
   };
   
   const getPlanIcon = () => {
-    switch (selectedPlan.type) {
-      case SubscriptionType.School:
-        return <School className="h-5 w-5 text-green-600" />;
-      case SubscriptionType.Corporate:
-        return <Building className="h-5 w-5 text-blue-600" />;
-      case SubscriptionType.Premium:
-      case SubscriptionType.Enterprise:
-        if (isGroupPlan) return <Users className="h-5 w-5 text-violet-600" />;
-        return <CreditCard className="h-5 w-5 text-violet-600" />;
-      default:
-        return <CreditCard className="h-5 w-5 text-primary" />;
+    const planType = selectedPlan.type;
+    if (planType === SubscriptionType.School) {
+      return <School className="h-5 w-5 text-green-600" />;
+    } else if (planType === SubscriptionType.Corporate) {
+      return <Building className="h-5 w-5 text-blue-600" />;
+    } else if (planType === SubscriptionType.Premium || planType === SubscriptionType.Enterprise) {
+      if (isGroupPlan) return <Users className="h-5 w-5 text-violet-600" />;
+      return <CreditCard className="h-5 w-5 text-violet-600" />;
+    } else {
+      return <CreditCard className="h-5 w-5 text-primary" />;
     }
   };
 

@@ -21,13 +21,15 @@ export const useFeatureAccess = (feature: Feature) => {
         // Safely check if user has a subscription property
         const userObj = user as any; // Type assertion for safe property access
         
-        if (userObj && typeof userObj === 'object' && 'subscription' in userObj) {
-          const userSubscription = userObj.subscription;
-          
-          if (typeof userSubscription === 'object' && userSubscription && 'planType' in userSubscription) {
-            userPlanType = userSubscription.planType as PlanType;
-          } else if (typeof userSubscription === 'string') {
-            userPlanType = userSubscription as PlanType;
+        if (userObj && typeof userObj === 'object') {
+          if (userObj.subscription) {
+            const userSubscription = userObj.subscription;
+            
+            if (typeof userSubscription === 'object' && userSubscription && 'planType' in userSubscription) {
+              userPlanType = userSubscription.planType as PlanType;
+            } else if (typeof userSubscription === 'string') {
+              userPlanType = userSubscription as PlanType;
+            }
           }
         }
         

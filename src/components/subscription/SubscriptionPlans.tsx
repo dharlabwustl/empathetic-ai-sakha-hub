@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -171,9 +170,9 @@ const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
       description: "Please complete the payment process to activate your group plan.",
     });
     
-    navigate('/dashboard/student/group-checkout', {
+    navigate('/dashboard/student/checkout', {
       state: {
-        plan: {
+        selectedPlan: {
           id: selectedGroupPlan.id,
           name: selectedGroupPlan.name,
           price: selectedGroupPlan.price,

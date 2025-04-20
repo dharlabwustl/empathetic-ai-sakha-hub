@@ -16,6 +16,6 @@ export interface StudentProfile extends UserProfileType {
   weaknesses?: string[];
   preferredLearningStyle?: string;
   lastActive?: string;
-  educationLevel?: string; // Added for mock profile
-  subjects?: string[]; // Added for mock profile
+  educationLevel?: string;
+  subjects?: string[];
 }
