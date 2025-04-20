@@ -1,171 +1,90 @@
 
-export interface SubjectProgress {
+interface SubjectProgress {
   id: string;
   name: string;
   progress: number;
-  topics: TopicProgress[];
-  recentActivity?: {
-    date: string;
-    minutesStudied: number;
-    topicsCompleted: number;
-  };
-  timeSpent: {
-    total: number; // in minutes
-    byDay: { [key: string]: number }; // date: minutes
-  };
+  recentActivity: string;
+  topics: {
+    id: string;
+    name: string;
+    progress: number;
+    lastStudied?: string;
+  }[];
 }
 
-export interface TopicProgress {
-  id: string;
-  name: string;
-  progress: number;
-  lastStudied?: string;
-  timeSpent: number; // in minutes
+interface StudyStreak {
+  current: number;
+  longest: number;
 }
 
-export interface StudyStreak {
-  currentStreak: number;
-  longestStreak: number;
-  lastActiveDate: string;
-  streakByDate: {
-    [date: string]: {
-      isActive: boolean;
-      minutesStudied: number;
-    }
-  };
-}
+// Mock data for study progress
+const mockSubjects: SubjectProgress[] = [
+  {
+    id: '1',
+    name: 'Physics',
+    progress: 65,
+    recentActivity: '2023-08-14T09:30:00Z',
+    topics: [
+      { id: 'p1', name: 'Mechanics', progress: 80, lastStudied: '2023-08-14T09:30:00Z' },
+      { id: 'p2', name: 'Electromagnetism', progress: 60, lastStudied: '2023-08-12T14:15:00Z' },
+      { id: 'p3', name: 'Thermodynamics', progress: 45, lastStudied: '2023-08-10T11:00:00Z' },
+      { id: 'p4', name: 'Modern Physics', progress: 30, lastStudied: '2023-08-08T16:45:00Z' }
+    ]
+  },
+  {
+    id: '2',
+    name: 'Chemistry',
+    progress: 72,
+    recentActivity: '2023-08-13T15:45:00Z',
+    topics: [
+      { id: 'c1', name: 'Organic Chemistry', progress: 75, lastStudied: '2023-08-13T15:45:00Z' },
+      { id: 'c2', name: 'Inorganic Chemistry', progress: 70, lastStudied: '2023-08-11T10:30:00Z' },
+      { id: 'c3', name: 'Physical Chemistry', progress: 65, lastStudied: '2023-08-09T13:20:00Z' },
+      { id: 'c4', name: 'Analytical Chemistry', progress: 50, lastStudied: '2023-08-07T09:15:00Z' }
+    ]
+  },
+  {
+    id: '3',
+    name: 'Biology',
+    progress: 58,
+    recentActivity: '2023-08-12T11:20:00Z',
+    topics: [
+      { id: 'b1', name: 'Cell Biology', progress: 85, lastStudied: '2023-08-12T11:20:00Z' },
+      { id: 'b2', name: 'Human Physiology', progress: 70, lastStudied: '2023-08-10T14:30:00Z' },
+      { id: 'b3', name: 'Genetics', progress: 55, lastStudied: '2023-08-08T10:15:00Z' },
+      { id: 'b4', name: 'Ecology', progress: 40, lastStudied: '2023-08-06T15:45:00Z' }
+    ]
+  },
+  {
+    id: '4',
+    name: 'Mathematics',
+    progress: 81,
+    recentActivity: '2023-08-15T10:00:00Z',
+    topics: [
+      { id: 'm1', name: 'Calculus', progress: 90, lastStudied: '2023-08-15T10:00:00Z' },
+      { id: 'm2', name: 'Algebra', progress: 85, lastStudied: '2023-08-13T13:45:00Z' },
+      { id: 'm3', name: 'Geometry', progress: 75, lastStudied: '2023-08-11T09:30:00Z' },
+      { id: 'm4', name: 'Statistics', progress: 60, lastStudied: '2023-08-09T16:20:00Z' }
+    ]
+  }
+];
 
-const getAllSubjectsProgress = (): SubjectProgress[] => {
-  return [
-    {
-      id: "physics",
-      name: "Physics",
-      progress: 65,
-      topics: [
-        { id: "mechanics", name: "Mechanics", progress: 80, timeSpent: 320 },
-        { id: "thermodynamics", name: "Thermodynamics", progress: 60, timeSpent: 240 },
-        { id: "optics", name: "Optics", progress: 75, timeSpent: 180 },
-        { id: "electromagnetism", name: "Electromagnetism", progress: 40, timeSpent: 120 }
-      ],
-      recentActivity: {
-        date: new Date().toISOString(),
-        minutesStudied: 45,
-        topicsCompleted: 1
-      },
-      timeSpent: {
-        total: 860,
-        byDay: {
-          "2023-08-01": 30,
-          "2023-08-02": 45,
-          "2023-08-03": 0,
-          "2023-08-04": 60,
-          "2023-08-05": 30,
-          "2023-08-06": 50,
-          "2023-08-07": 40
-        }
-      }
-    },
-    {
-      id: "chemistry",
-      name: "Chemistry",
-      progress: 45,
-      topics: [
-        { id: "organic", name: "Organic Chemistry", progress: 50, timeSpent: 220 },
-        { id: "inorganic", name: "Inorganic Chemistry", progress: 40, timeSpent: 180 },
-        { id: "physical", name: "Physical Chemistry", progress: 45, timeSpent: 200 }
-      ],
-      recentActivity: {
-        date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-        minutesStudied: 30,
-        topicsCompleted: 0
-      },
-      timeSpent: {
-        total: 600,
-        byDay: {
-          "2023-08-01": 30,
-          "2023-08-02": 0,
-          "2023-08-03": 45,
-          "2023-08-04": 0,
-          "2023-08-05": 30,
-          "2023-08-06": 20,
-          "2023-08-07": 0
-        }
-      }
-    },
-    {
-      id: "biology",
-      name: "Biology",
-      progress: 75,
-      topics: [
-        { id: "cell-biology", name: "Cell Biology", progress: 90, timeSpent: 280 },
-        { id: "genetics", name: "Genetics", progress: 85, timeSpent: 260 },
-        { id: "human-physiology", name: "Human Physiology", progress: 70, timeSpent: 320 },
-        { id: "ecology", name: "Ecology", progress: 60, timeSpent: 180 }
-      ],
-      recentActivity: {
-        date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-        minutesStudied: 60,
-        topicsCompleted: 1
-      },
-      timeSpent: {
-        total: 1040,
-        byDay: {
-          "2023-08-01": 60,
-          "2023-08-02": 45,
-          "2023-08-03": 30,
-          "2023-08-04": 60,
-          "2023-08-05": 30,
-          "2023-08-06": 40,
-          "2023-08-07": 60
-        }
-      }
-    },
-    {
-      id: "mathematics",
-      name: "Mathematics",
-      progress: 55,
-      topics: [
-        { id: "algebra", name: "Algebra", progress: 65, timeSpent: 240 },
-        { id: "calculus", name: "Calculus", progress: 50, timeSpent: 280 },
-        { id: "trigonometry", name: "Trigonometry", progress: 70, timeSpent: 200 },
-        { id: "statistics", name: "Statistics", progress: 40, timeSpent: 160 }
-      ],
-      recentActivity: {
-        date: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-        minutesStudied: 40,
-        topicsCompleted: 0
-      },
-      timeSpent: {
-        total: 880,
-        byDay: {
-          "2023-08-01": 40,
-          "2023-08-02": 30,
-          "2023-08-03": 45,
-          "2023-08-04": 0,
-          "2023-08-05": 30,
-          "2023-08-06": 0,
-          "2023-08-07": 30
-        }
-      }
-    }
-  ];
+const mockStreak: StudyStreak = {
+  current: 7,
+  longest: 14
 };
 
-const getStudyStreak = (): StudyStreak => {
-  const today = new Date();
-  const yesterday = new Date(today);
-  yesterday.setDate(today.getDate() - 1);
-  
-  return {
-    currentStreak: 5,
-    longestStreak: 14,
-    lastActiveDate: today.toISOString(),
-    streakByDate: {
-      [today.toISOString().split('T')[0]]: { isActive: true, minutesStudied: 45 },
-      [yesterday.toISOString().split('T')[0]]: { isActive: true, minutesStudied: 60 },
-      // Add more historical data here
-    }
-  };
+const getAllSubjectsProgress = () => {
+  return mockSubjects;
 };
 
-export default { getAllSubjectsProgress, getStudyStreak };
+const getStudyStreak = () => {
+  return mockStreak;
+};
+
+const mockProgressData = {
+  getAllSubjectsProgress,
+  getStudyStreak
+};
+
+export default mockProgressData;

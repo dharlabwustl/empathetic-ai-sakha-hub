@@ -1,8 +1,7 @@
-
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import DashboardLayout from './DashboardLayout';
 import { useStudentDashboard } from '@/hooks/useStudentDashboard';
+import DashboardLayout from './DashboardLayout';
 import DashboardLoading from './DashboardLoading';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -11,7 +10,6 @@ import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { Separator } from '@/components/ui/separator';
-import BatchInvitationInput from '@/components/subscription/BatchInvitationInput';
 import SubscriptionPlans from '@/components/subscription/SubscriptionPlans';
 import { CreditCard, CalendarClock, Clock, AlertCircle, CheckCircle, Users } from 'lucide-react';
 import { SubscriptionPlan } from '@/types/user';
@@ -31,6 +29,72 @@ interface UserSubscription {
   memberCount?: number;
   isGroupLeader?: boolean;
 }
+
+// Define BatchInvitationInput component inline
+const BatchInvitationInput = ({ 
+  onActivate, 
+  activationSuccess 
+}: { 
+  onActivate: (code: string) => Promise<boolean>;
+  activationSuccess: boolean;
+}) => {
+  const [code, setCode] = useState('');
+  const [isActivating, setIsActivating] = useState(false);
+  
+  const handleActivate = async () => {
+    if (!code) return;
+    
+    setIsActivating(true);
+    const success = await onActivate(code);
+    setIsActivating(false);
+    
+    if (success) {
+      setCode('');
+    }
+  };
+  
+  return (
+    <div className="space-y-4">
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-xl">Activate Invitation Code</CardTitle>
+          <CardDescription>
+            Enter the invitation code shared by your group leader
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {activationSuccess ? (
+            <div className="flex items-center space-x-2 p-4 bg-green-50 border border-green-200 rounded-md">
+              <CheckCircle className="h-5 w-5 text-green-500" />
+              <p className="text-green-700">Code successfully activated! Your subscription is now active.</p>
+            </div>
+          ) : (
+            <>
+              <div className="flex space-x-2">
+                <Input
+                  placeholder="Enter invitation code (e.g., SAKHA-ABC123)"
+                  value={code}
+                  onChange={(e) => setCode(e.target.value)}
+                  className="flex-1"
+                  disabled={isActivating}
+                />
+                <Button 
+                  onClick={handleActivate} 
+                  disabled={!code || isActivating}
+                >
+                  {isActivating ? "Activating..." : "Activate"}
+                </Button>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                The invitation code is case-sensitive and follows the format SAKHA-XXXXXX
+              </p>
+            </>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
 
 export default function SubscriptionPage() {
   const {
@@ -364,96 +428,1166 @@ export default function SubscriptionPage() {
             )}
           </TabsContent>
           
-          <TabsContent value="plans">
-            <SubscriptionPlans
-              currentPlanId={subscription?.id || ''}
-              onSelectPlan={handleSelectPlan}
-              activePlan={subscription ? {
-                id: subscription.id,
-                name: subscription.planName,
-                nextBillingDate: subscription.nextBillingDate,
-                status: subscription.status
-              } : undefined}
-            />
-          </TabsContent>
           
-          <TabsContent value="group">
-            <SubscriptionPlans
-              currentPlanId={subscription?.id || ''}
-              onSelectPlan={handleSelectPlan}
-              showGroupOption={true}
-              activePlan={subscription?.isGroupPlan ? {
-                id: subscription.id,
-                name: subscription.planName,
-                nextBillingDate: subscription.nextBillingDate,
-                status: subscription.status
-              } : undefined}
-            />
-          </TabsContent>
           
-          <TabsContent value="activate">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Activate Subscription Code</CardTitle>
-                  <CardDescription>Have a subscription activation code? Enter it below.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex flex-col space-y-4">
-                    <div className="flex space-x-2">
-                      <Input
-                        placeholder="Enter activation code"
-                        value={activationCode}
-                        onChange={(e) => setActivationCode(e.target.value)}
-                        className="flex-1"
-                        disabled={isActivating || activationSuccess}
-                      />
-                      <Button 
-                        onClick={() => handleActivateCode(activationCode)} 
-                        disabled={isActivating || activationSuccess || !activationCode.trim()}
-                      >
-                        {isActivating ? 'Activating...' : 'Activate'}
-                      </Button>
-                    </div>
-                    
-                    {activationSuccess && (
-                      <div className="p-3 bg-green-50 text-green-800 rounded-md flex items-start space-x-2">
-                        <CheckCircle className="h-5 w-5 text-green-600 mt-0.5" />
-                        <div>
-                          <p className="font-medium">Subscription Activated!</p>
-                          <p className="text-sm">Your subscription has been successfully activated.</p>
-                        </div>
-                      </div>
-                    )}
-                    
-                    <p className="text-sm text-muted-foreground">
-                      Activation codes can be redeemed only once. After activation, your subscription will be immediately available.
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <BatchInvitationInput 
-                onJoinBatch={async (code) => {
-                  toast({
-                    title: "Processing",
-                    description: "Verifying invitation code...",
-                  });
-                  
-                  await new Promise(resolve => setTimeout(resolve, 1500));
-                  
-                  toast({
-                    title: "Success!",
-                    description: "You've joined the batch successfully",
-                  });
-                }}
-                onActivate={handleActivateCode}
-                activationSuccess={activationSuccess}
-              />
-            </div>
-          </TabsContent>
-        </Tabs>
-      </div>
-    </DashboardLayout>
-  );
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+        
+      
+    
+  
 }
+

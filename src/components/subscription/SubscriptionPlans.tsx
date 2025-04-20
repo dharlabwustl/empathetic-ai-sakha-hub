@@ -1,11 +1,10 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Check, CreditCard, Users } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { SubscriptionPlan } from '@/types/user';
+import { SubscriptionPlan, SubscriptionType } from '@/types/user';
 import { useNavigate } from 'react-router-dom';
 import { formatDateTime } from '@/utils/dateUtils';
 
@@ -21,7 +20,7 @@ interface SubscriptionPlansProps {
   };
 }
 
-// Sample plans data
+// Sample plans data with added type property
 const individualPlans: SubscriptionPlan[] = [
   {
     id: 'basic',
@@ -34,7 +33,8 @@ const individualPlans: SubscriptionPlan[] = [
       'Progress tracking',
       'Mobile access'
     ],
-    isPopular: false
+    isPopular: false,
+    type: SubscriptionType.Basic
   },
   {
     id: 'premium',
@@ -49,7 +49,8 @@ const individualPlans: SubscriptionPlan[] = [
       'Downloadable resources',
       'Priority support'
     ],
-    isPopular: true
+    isPopular: true,
+    type: SubscriptionType.Premium
   },
   {
     id: 'enterprise',
@@ -64,7 +65,8 @@ const individualPlans: SubscriptionPlan[] = [
       'Career guidance',
       'Dedicated support manager'
     ],
-    isPopular: false
+    isPopular: false,
+    type: SubscriptionType.Enterprise
   }
 ];
 
@@ -81,7 +83,8 @@ const groupPlans: SubscriptionPlan[] = [
       'Group progress tracking'
     ],
     isPopular: false,
-    maxMembers: 5
+    maxMembers: 5,
+    type: SubscriptionType.School
   },
   {
     id: 'group-premium',
@@ -97,7 +100,8 @@ const groupPlans: SubscriptionPlan[] = [
       'Priority support'
     ],
     isPopular: true,
-    maxMembers: 10
+    maxMembers: 10,
+    type: SubscriptionType.Corporate
   },
   {
     id: 'group-enterprise',
@@ -113,7 +117,8 @@ const groupPlans: SubscriptionPlan[] = [
       'Admin controls'
     ],
     isPopular: false,
-    maxMembers: 25
+    maxMembers: 25,
+    type: SubscriptionType.Enterprise
   }
 ];
 

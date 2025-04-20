@@ -5,4 +5,6 @@ export interface SystemLog {
   source: string;
   level: "info" | "warning" | "error" | "critical";
   message: string;
+  resolved?: boolean;
+  details?: string;
 }

@@ -1,276 +1,195 @@
-
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import DashboardLayout from './DashboardLayout';
 import { useStudentDashboard } from '@/hooks/useStudentDashboard';
 import DashboardLoading from './DashboardLoading';
-import BatchManagement from '@/components/subscription/BatchManagement';
-import BatchDetails from '@/components/subscription/batch/BatchDetails';
-import BatchInvitationInput from '@/components/subscription/BatchInvitationInput';
-import { Card, CardContent } from '@/components/ui/card';
-import { useToast } from '@/hooks/use-toast';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { UserCheck, ChartBar, Settings } from 'lucide-react';
-
-// Define the BatchMember interface outside of components
-interface BatchMember {
-  id: string;
-  name: string;
-  email: string;
-  role: "member" | "leader" | "school_admin" | "corporate_admin";
-  status: "active" | "inactive" | "pending";
-  joinedDate?: string;
-  invitationCode?: string;
-  avatar?: string;
-  progress?: {
-    completedTopics: number;
-    totalTopics: number;
-    lastActiveDate?: string;
-  };
-}
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
+import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Mail, UserPlus, CheckCircle, AlertCircle } from 'lucide-react';
+import { Separator } from '@/components/ui/separator';
+import { BatchMember, BatchMemberRole } from '@/types/batch';
+import { DashboardLayoutWrapper } from '@/components/dashboard/student/DashboardLayoutWrapper';
 
 export default function BatchManagementPage() {
   const {
     userProfile,
-    loading,
-    activeTab,
-    showWelcomeTour,
-    hideTabsNav,
-    hideSidebar,
-    kpis,
-    nudges,
-    markNudgeAsRead,
-    handleTabChange,
-    handleSkipTour,
-    handleCompleteTour,
-    showStudyPlan,
-    handleViewStudyPlan,
-    handleCloseStudyPlan,
-    toggleSidebar,
-    toggleTabsNav
+    loading: dashboardLoading,
   } = useStudentDashboard();
   
-  const [currentTab, setCurrentTab] = useState<'members' | 'analytics' | 'settings'>('members');
-  const [batchMembers, setBatchMembers] = useState<BatchMember[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [batchInfo, setBatchInfo] = useState({
-    name: 'My Study Group',
-    planType: 'group' as const,
-    maxMembers: 5,
-    currentUserRole: 'leader' as "leader" | "member" | "school_admin" | "corporate_admin",
-  });
-  
-  const { toast } = useToast();
-  const navigate = useNavigate();
+  const [members, setMembers] = useState<BatchMember[]>([]);
+  const [newMemberEmail, setNewMemberEmail] = useState('');
+  const [isAddingMember, setIsAddingMember] = useState(false);
   
   useEffect(() => {
-    // Mock data initialization
-    setTimeout(() => {
-      // Create properly typed BatchMember objects with explicit role types
-      const mockMembers: BatchMember[] = [
-        {
-          id: 'current-user-id',
-          name: userProfile?.name || 'Current User',
-          email: userProfile?.email || 'user@example.com',
-          role: 'leader',
-          status: 'active',
-          joinedDate: new Date().toISOString()
-        },
-        {
-          id: '2',
-          name: 'Raj Patel',
-          email: 'raj.patel@example.com',
-          role: 'member',
-          status: 'active',
-          joinedDate: new Date().toISOString()
-        },
-        {
-          id: '3',
-          name: 'Priya Sharma',
-          email: 'priya.sharma@example.com',
-          role: 'member',
-          status: 'pending',
-          invitationCode: 'SAKHA-123456'
+    updateMembers();
+  }, []);
+  
+  const updateMembers = () => {
+    const mockMembers: BatchMember[] = [
+      {
+        id: "1",
+        name: "Rahul Sharma",
+        email: "rahul.sharma@example.com",
+        role: "leader" as BatchMemberRole,
+        status: "active",
+        joinedDate: "2023-05-15",
+        avatar: "https://i.pravatar.cc/150?img=11",
+        progress: {
+          completedTopics: 45,
+          totalTopics: 100,
+          lastActiveDate: "2023-08-15T10:30:00Z"
         }
-      ];
-      
-      setBatchMembers(mockMembers);
-      setIsLoading(false);
-    }, 1000);
-  }, [userProfile]);
-  
-  const handleAddMember = async (email: string): Promise<{ success: boolean; inviteCode?: string }> => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const inviteCode = 'SAKHA-' + Math.random().toString(36).substring(2, 8).toUpperCase();
-        
-        const newMember: BatchMember = {
-          id: Date.now().toString(),
-          name: email.split('@')[0],
-          email,
-          role: 'member',
-          status: 'pending',
-          invitationCode: inviteCode
-        };
-        
-        setBatchMembers([...batchMembers, newMember]);
-        resolve({ success: true, inviteCode });
-      }, 1000);
-    });
+      },
+      {
+        id: "2", 
+        name: "Priya Patel",
+        email: "priya.patel@example.com",
+        role: "member" as BatchMemberRole,
+        status: "active",
+        joinedDate: "2023-05-16",
+        avatar: "https://i.pravatar.cc/150?img=5",
+        progress: {
+          completedTopics: 38,
+          totalTopics: 100,
+          lastActiveDate: "2023-08-14T15:45:00Z"
+        }
+      },
+      {
+        id: "3",
+        name: "Aditya Singh",
+        email: "aditya.singh@example.com",
+        role: "member" as BatchMemberRole,
+        status: "active",
+        joinedDate: "2023-05-18",
+        avatar: "https://i.pravatar.cc/150?img=12",
+        progress: {
+          completedTopics: 52,
+          totalTopics: 100,
+          lastActiveDate: "2023-08-13T09:30:00Z"
+        }
+      },
+      {
+        id: "4",
+        name: "Sneha Gupta",
+        email: "sneha.gupta@example.com",
+        role: "member" as BatchMemberRole,
+        status: "pending",
+        invitationCode: "SAKHA-XYZ789"
+      }
+    ];
+    
+    setMembers(mockMembers);
   };
   
-  const handleRemoveMember = async (id: string): Promise<void> => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        setBatchMembers(batchMembers.filter(member => member.id !== id));
-        resolve();
-      }, 500);
-    });
+  const handleAddMember = async () => {
+    setIsAddingMember(true);
+    
+    // Simulate adding a member
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    // In a real app, you'd send an invitation to the new member
+    const newMember: BatchMember = {
+      id: Math.random().toString(36).substring(7),
+      name: '', // Name will be updated when the user joins
+      email: newMemberEmail,
+      role: "member",
+      status: "pending",
+      invitationCode: `SAKHA-${Math.random().toString(36).substring(2, 8).toUpperCase()}`
+    };
+    
+    setMembers([...members, newMember]);
+    setNewMemberEmail('');
+    setIsAddingMember(false);
   };
   
-  const handleChangeBatchName = async (name: string): Promise<boolean> => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        setBatchInfo({...batchInfo, name});
-        resolve(true);
-      }, 500);
-    });
-  };
-  
-  const handleTransferLeadership = async (memberId: string): Promise<void> => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const updatedMembers = batchMembers.map(member => {
-          if (member.id === memberId) {
-            return {...member, role: 'leader' as const};
-          }
-          if (member.id === 'current-user-id') {
-            return {...member, role: 'member' as const};
-          }
-          return member;
-        });
-        
-        setBatchMembers(updatedMembers);
-        
-        toast({
-          title: "Leadership Transferred",
-          description: "You are no longer the batch leader",
-        });
-        
-        setTimeout(() => {
-          navigate('/dashboard/student/subscription');
-        }, 3000);
-        
-        resolve();
-      }, 1500);
-    });
-  };
-
-  if (isLoading || !userProfile) {
+  if (dashboardLoading || !userProfile) {
     return <DashboardLoading />;
   }
 
   return (
-    <DashboardLayout
-      userProfile={userProfile}
-      hideSidebar={hideSidebar}
-      hideTabsNav={hideTabsNav}
-      activeTab={activeTab}
-      kpis={kpis}
-      nudges={nudges}
-      markNudgeAsRead={markNudgeAsRead}
-      showWelcomeTour={showWelcomeTour}
-      onTabChange={handleTabChange}
-      onViewStudyPlan={handleViewStudyPlan}
-      onToggleSidebar={toggleSidebar}
-      onToggleTabsNav={toggleTabsNav}
-      onSkipTour={handleSkipTour}
-      onCompleteTour={handleCompleteTour}
-      showStudyPlan={showStudyPlan}
-      onCloseStudyPlan={handleCloseStudyPlan}
-    >
-      <div className="container max-w-6xl mx-auto">
-        <h1 className="text-3xl font-bold mb-2">Batch Management</h1>
+    <DashboardLayoutWrapper userProfile={userProfile}>
+      <div className="container max-w-4xl mx-auto">
+        <h1 className="text-3xl font-bold mb-2">Manage Your Batch</h1>
         <p className="text-gray-500 dark:text-gray-400 mb-6">
-          Manage your batch members and settings
+          Add and manage members of your learning batch
         </p>
         
-        <Tabs value={currentTab} onValueChange={(value) => setCurrentTab(value as any)}>
-          <TabsList className="mb-6">
-            <TabsTrigger value="members" className="flex items-center gap-2">
-              <UserCheck size={16} />
-              Members
-            </TabsTrigger>
-            <TabsTrigger value="analytics" className="flex items-center gap-2">
-              <ChartBar size={16} />
-              Analytics
-            </TabsTrigger>
-            <TabsTrigger value="settings" className="flex items-center gap-2">
-              <Settings size={16} />
-              Settings
-            </TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="members">
-            <BatchManagement
-              batchMembers={batchMembers}
-              batchName={batchInfo.name}
-              planType={batchInfo.planType}
-              maxMembers={batchInfo.maxMembers}
-              currentUserRole={batchInfo.currentUserRole}
-              onAddMember={handleAddMember}
-              onRemoveMember={handleRemoveMember}
-              onChangeBatchName={handleChangeBatchName}
-              onTransferLeadership={handleTransferLeadership}
-            />
-          </TabsContent>
-          
-          <TabsContent value="analytics">
-            <Card>
-              <CardContent>
-                <p className="text-gray-600 dark:text-gray-300">
-                  This feature will be available soon. Track your batch's progress and engagement metrics.
-                </p>
-              </CardContent>
-            </Card>
-          </TabsContent>
-          
-          <TabsContent value="settings">
-            <Card>
-              <CardContent>
-                <p className="text-gray-600 dark:text-gray-300">
-                  Additional settings for managing your batch will be available in a future update.
-                </p>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-          <BatchDetails
-            planType={batchInfo.planType}
-            currentUserRole={batchInfo.currentUserRole}
-          />
-          
-          <BatchInvitationInput
-            onJoinBatch={async (code) => {
-              toast({
-                title: "Processing",
-                description: "Verifying invitation code...",
-              });
-              
-              await new Promise(resolve => setTimeout(resolve, 1500));
-              
-              toast({
-                title: "Success!",
-                description: "You've joined the batch successfully",
-              });
-              
-              return;
-            }}
-          />
-        </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>Batch Members</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Member</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Role</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {members.map((member) => (
+                  <TableRow key={member.id}>
+                    <TableCell>
+                      <div className="flex items-center space-x-2">
+                        <Avatar>
+                          <AvatarImage src={member.avatar} alt={member.name} />
+                          <AvatarFallback>{member.name?.substring(0, 2).toUpperCase()}</AvatarFallback>
+                        </Avatar>
+                        <span>{member.name || 'N/A'}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell>{member.email}</TableCell>
+                    <TableCell>
+                      <Badge variant="secondary">{member.role}</Badge>
+                    </TableCell>
+                    <TableCell>
+                      {member.status === 'active' && (
+                        <div className="flex items-center space-x-1">
+                          <CheckCircle className="h-4 w-4 text-green-500" />
+                          <span>Active</span>
+                        </div>
+                      )}
+                      {member.status === 'pending' && (
+                        <div className="flex items-center space-x-1">
+                          <AlertCircle className="h-4 w-4 text-amber-500" />
+                          <span>Pending</span>
+                        </div>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {member.status === 'pending' && (
+                        <Button variant="ghost" size="sm">
+                          Resend Invite
+                        </Button>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+            
+            <Separator className="my-4" />
+            
+            <div className="flex items-center space-x-2">
+              <Input 
+                type="email"
+                placeholder="Enter member's email"
+                value={newMemberEmail}
+                onChange={(e) => setNewMemberEmail(e.target.value)}
+              />
+              <Button onClick={handleAddMember} disabled={isAddingMember}>
+                {isAddingMember ? 'Adding...' : 'Add Member'}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
-    </DashboardLayout>
+    </DashboardLayoutWrapper>
   );
 }
