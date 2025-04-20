@@ -1,7 +1,7 @@
-
 import { useState, useEffect } from 'react';
 import { useUserProfile } from './useUserProfile';
 import { UserRole } from '@/types/user';
+import { KpiData, NudgeData } from '@/types/dashboard';
 
 export const useStudentDashboard = () => {
   const { userProfile, loading, updateUserProfile } = useUserProfile(UserRole.Student);
@@ -12,16 +12,53 @@ export const useStudentDashboard = () => {
   const [hideTabsNav, setHideTabsNav] = useState(false);
   const [hideSidebar, setHideSidebar] = useState(false);
   const currentTime = new Date();
+  const [lastActivity, setLastActivity] = useState<string | null>(null);
+  const [suggestedNextAction, setSuggestedNextAction] = useState<string | null>(null);
   
-  const kpis = [
-    { id: 'k1', title: 'Study Time', value: '12h', changePercent: 5 },
-    { id: 'k2', title: 'Questions Solved', value: '245', changePercent: 12 },
-    { id: 'k3', title: 'Concepts Learned', value: '32', changePercent: 8 },
+  const kpis: KpiData[] = [
+    { 
+      id: 'k1', 
+      title: 'Study Time', 
+      value: '12h', 
+      changePercent: 5,
+      label: 'Hours',
+      trend: 'up'
+    },
+    { 
+      id: 'k2', 
+      title: 'Questions Solved', 
+      value: '245', 
+      changePercent: 12,
+      label: 'Questions',
+      trend: 'up'
+    },
+    { 
+      id: 'k3', 
+      title: 'Concepts Learned', 
+      value: '32', 
+      changePercent: 8,
+      label: 'Concepts',
+      trend: 'up'
+    }
   ];
   
-  const nudges = [
-    { id: 'n1', title: 'Complete your profile', read: false },
-    { id: 'n2', title: 'Take practice test', read: true },
+  const nudges: NudgeData[] = [
+    { 
+      id: 'n1', 
+      title: 'Complete your profile', 
+      read: false,
+      type: 'info',
+      message: 'Fill out your profile to get personalized recommendations',
+      timestamp: new Date().toISOString()
+    },
+    { 
+      id: 'n2', 
+      title: 'Take practice test', 
+      read: true,
+      type: 'info',
+      message: 'We recommend taking a practice test to assess your current knowledge',
+      timestamp: new Date(Date.now() - 86400000).toISOString()
+    }
   ];
   
   const features = [
@@ -30,10 +67,12 @@ export const useStudentDashboard = () => {
   ];
 
   useEffect(() => {
-    // Check if user needs onboarding
     if (userProfile && !userProfile.completedOnboarding) {
       setShowOnboarding(true);
     }
+    
+    setLastActivity('Completed Physics practice quiz 2 hours ago');
+    setSuggestedNextAction('Take a Chemistry practice quiz next');
   }, [userProfile]);
 
   const handleTabChange = (tab: string) => {
@@ -46,7 +85,6 @@ export const useStudentDashboard = () => {
 
   const handleCompleteTour = () => {
     setShowWelcomeTour(false);
-    // Mark tour as completed in user profile
   };
 
   const handleCompleteOnboarding = () => {
@@ -89,6 +127,8 @@ export const useStudentDashboard = () => {
     kpis,
     nudges,
     features,
+    lastActivity,
+    suggestedNextAction,
     markNudgeAsRead,
     handleTabChange,
     handleSkipTour,

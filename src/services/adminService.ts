@@ -1,99 +1,116 @@
 
-import { StudentData } from "@/types/admin/studentData";
-import { SystemLog } from "@/types/admin/systemLog";
+import { AdminSettings, StudentData, SystemLog } from "@/types/admin";
 
-// Mock student data
-const mockStudents: StudentData[] = [
-  {
-    id: "1",
-    name: "Rahul Sharma",
-    email: "rahul.sharma@example.com",
-    registrationDate: "2023-01-15",
-    role: "student",
-    status: "active",
-    examType: "NEET",
-    subjects: ["Physics", "Chemistry", "Biology"],
-    progress: 65,
-    lastActive: "2023-08-15T10:30:00Z",
-    avatarUrl: "https://i.pravatar.cc/150?img=11"
+// Create a mock admin service
+export const adminService = {
+  // Admin users management
+  getAdminUsers: () => Promise.resolve([]),
+  
+  // Student management
+  getStudents: async (): Promise<StudentData[]> => {
+    return [
+      {
+        id: "1",
+        name: "Rahul Sharma",
+        email: "rahul.s@example.com",
+        role: "student",
+        status: "active",
+        joinedDate: "2023-01-15T00:00:00Z",
+        lastActive: "2023-08-10T14:30:00Z",
+        examType: "IIT-JEE",
+        studyHours: 25,
+        progress: {
+          completedTopics: 45,
+          totalTopics: 100,
+          lastActiveDate: "2023-08-10T14:30:00Z"
+        }
+      },
+      {
+        id: "2",
+        name: "Priya Patel",
+        email: "priya.p@example.com",
+        role: "student",
+        status: "inactive",
+        joinedDate: "2023-02-20T00:00:00Z",
+        lastActive: "2023-07-25T09:15:00Z",
+        examType: "NEET",
+        studyHours: 18,
+        progress: {
+          completedTopics: 30,
+          totalTopics: 100,
+          lastActiveDate: "2023-07-25T09:15:00Z"
+        }
+      },
+      {
+        id: "3",
+        name: "Amit Kumar",
+        email: "amit.k@example.com",
+        role: "student",
+        status: "pending",
+        joinedDate: "2023-07-10T00:00:00Z",
+        lastActive: "2023-08-12T16:45:00Z",
+        examType: "CAT",
+        studyHours: 12,
+        progress: {
+          completedTopics: 15,
+          totalTopics: 100,
+          lastActiveDate: "2023-08-12T16:45:00Z"
+        }
+      }
+    ];
   },
-  {
-    id: "2",
-    name: "Priya Patel",
-    email: "priya.patel@example.com",
-    registrationDate: "2023-02-20",
-    role: "student",
-    status: "active",
-    examType: "JEE",
-    subjects: ["Physics", "Chemistry", "Mathematics"],
-    progress: 78,
-    lastActive: "2023-08-14T15:45:00Z",
-    avatarUrl: "https://i.pravatar.cc/150?img=5"
+  
+  // System logs
+  getSystemLogs: async (): Promise<SystemLog[]> => {
+    return [
+      {
+        id: "log1",
+        timestamp: new Date().toISOString(),
+        level: "info",
+        source: "Authentication Service",
+        message: "User login successful"
+      },
+      {
+        id: "log2",
+        timestamp: new Date().toISOString(),
+        level: "warning",
+        source: "Content Delivery Network",
+        message: "Increased latency detected"
+      },
+      {
+        id: "log3",
+        timestamp: new Date().toISOString(),
+        level: "error",
+        source: "Payment Gateway",
+        message: "Transaction failed"
+      }
+    ];
   },
-  {
-    id: "3",
-    name: "Aditya Singh",
-    email: "aditya.singh@example.com",
-    registrationDate: "2023-03-10",
-    role: "student",
-    status: "active",
-    examType: "UPSC",
-    subjects: ["History", "Geography", "Political Science", "Economics"],
-    progress: 42,
-    lastActive: "2023-08-12T09:15:00Z",
-    avatarUrl: "https://i.pravatar.cc/150?img=12"
+  
+  // Settings management
+  getSettings: async (): Promise<AdminSettings> => {
+    return {
+      notificationsEnabled: true,
+      emailAlerts: true,
+      dashboardRefreshInterval: 5,
+      theme: 'light',
+      analyticsEnabled: true,
+      autoLogout: false,
+      logoutTimeoutMinutes: 30,
+      aiModels: ['gpt-3.5-turbo', 'gpt-4'],
+      flaskApiUrl: 'https://api.example.com',
+      apiKey: '***************',
+      notificationSettings: {
+        userSignup: true,
+        paymentSuccess: true,
+        systemErrors: true
+      },
+      contentApprovalRequired: false
+    };
+  },
+  
+  updateSettings: async (settings: AdminSettings): Promise<AdminSettings> => {
+    console.log('Settings updated', settings);
+    return settings;
   }
-];
-
-// Mock system logs
-const mockLogs: SystemLog[] = [
-  {
-    id: "1",
-    timestamp: "2023-08-15T15:30:00Z",
-    source: "Authentication Service",
-    level: "info",
-    message: "User login successful",
-    resolved: true
-  },
-  {
-    id: "2",
-    timestamp: "2023-08-15T14:45:00Z",
-    source: "Content Delivery Network",
-    level: "warning",
-    message: "Slow response times detected",
-    resolved: true
-  },
-  {
-    id: "3",
-    timestamp: "2023-08-15T12:15:00Z",
-    source: "Database Service",
-    level: "error",
-    message: "Connection timeout error",
-    resolved: false,
-    details: "Connection to the primary database timed out after 30 seconds. Failover to secondary database was successful."
-  },
-  {
-    id: "4",
-    timestamp: "2023-08-14T23:10:00Z",
-    source: "Payment Gateway",
-    level: "critical",
-    message: "Payment processing failure",
-    resolved: false,
-    details: "Multiple payment attempts failed due to API timeout. Affected user IDs: 1042, 1055, 1060. Technical team has been notified."
-  }
-];
-
-// Admin service functions
-export const getAllStudents = async (): Promise<StudentData[]> => {
-  // In a real app, this would fetch from an API
-  return new Promise((resolve) => {
-    setTimeout(() => resolve(mockStudents), 500);
-  });
-};
-
-export const getSystemLogs = async (): Promise<SystemLog[]> => {
-  // In a real app, this would fetch from an API
-  return new Promise((resolve) => {
-    setTimeout(() => resolve(mockLogs), 500);
-  });
 };

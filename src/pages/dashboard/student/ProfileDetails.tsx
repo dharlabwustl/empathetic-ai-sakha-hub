@@ -1,385 +1,205 @@
-
 import React, { useState } from "react";
-import { UserProfileType } from "@/types/user";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { UserProfileType } from "@/types/user";
 import { useToast } from "@/hooks/use-toast";
-import { 
-  User, 
-  Mail, 
-  Phone, 
-  MapPin, 
-  Book, 
-  CalendarDays, 
-  GraduationCap 
-} from "lucide-react";
+import { Pencil, Save, XCircle } from "lucide-react";
 
 interface ProfileDetailsProps {
   userProfile: UserProfileType;
-  onUpdateProfile: (updates: Partial<UserProfileType>) => void;
+  onUpdateProfile?: (newProfile: Partial<UserProfileType>) => void;
 }
 
 const ProfileDetails: React.FC<ProfileDetailsProps> = ({ userProfile, onUpdateProfile }) => {
   const [isEditing, setIsEditing] = useState(false);
-  const { toast } = useToast();
-
-  const handleSave = (updatedProfile: Partial<UserProfileType>) => {
-    onUpdateProfile(updatedProfile);
-    setIsEditing(false);
-    
-    toast({
-      title: "Profile updated",
-      description: "Your profile details have been updated successfully.",
-    });
-  };
-
-  return (
-    <div className="space-y-6">
-      <Card className="p-6">
-        <div className="space-y-8">
-          {isEditing ? (
-            <EditForm 
-              userProfile={userProfile}
-              onSave={handleSave}
-              onCancel={() => setIsEditing(false)}
-            />
-          ) : (
-            <ViewProfile 
-              userProfile={userProfile}
-              onEdit={() => setIsEditing(true)}
-            />
-          )}
-        </div>
-      </Card>
-    </div>
-  );
-};
-
-const EditForm: React.FC<{
-  userProfile: UserProfileType;
-  onSave: (updates: Partial<UserProfileType>) => void;
-  onCancel: () => void;
-}> = ({ userProfile, onSave, onCancel }) => {
   const [formData, setFormData] = useState({
     name: userProfile.name || "",
-    bio: userProfile.bio || "",
     email: userProfile.email || "",
     phoneNumber: userProfile.phoneNumber || "",
-    examPreparation: userProfile.examPreparation || "",
-    education: {
-      level: userProfile.education?.level || "",
-      institution: userProfile.education?.institution || "",
-      graduationYear: userProfile.education?.graduationYear || undefined
-    },
-    address: {
-      street: userProfile.address?.street || "",
-      city: userProfile.address?.city || "",
-      state: userProfile.address?.state || "",
-      zipCode: userProfile.address?.zipCode || ""
-    }
+    bio: userProfile.bio || "",
+    examType: userProfile.examPreparation || "",
+    institution: userProfile.education?.institution || "",
+    graduationYear: userProfile.education?.graduationYear?.toString() || "",
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const { toast } = useToast();
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    if (name.includes('.')) {
-      const [section, field] = name.split('.');
-      setFormData(prev => ({
-        ...prev,
-        [section]: {
-          ...prev[section as keyof typeof prev],
-          [field]: value
+    setFormData({ ...formData, [name]: value });
+  };
+
+  const handleSave = () => {
+    if (onUpdateProfile) {
+      // Fix the spread issue by creating a proper object
+      const updatedProfile = {
+        name: formData.name,
+        email: formData.email,
+        phoneNumber: formData.phoneNumber,
+        bio: formData.bio,
+        examPreparation: formData.examType,
+        education: {
+          ...(userProfile.education || {}),
+          institution: formData.institution,
+          graduationYear: formData.graduationYear ? parseInt(formData.graduationYear, 10) : undefined,
         }
-      }));
-    } else {
-      setFormData(prev => ({ ...prev, [name]: value }));
+      };
+      
+      onUpdateProfile(updatedProfile);
+      
+      toast({
+        title: "Profile Updated",
+        description: "Your profile information has been saved successfully.",
+      });
     }
+    
+    setIsEditing(false);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSave(formData);
+  const handleCancel = () => {
+    setFormData({
+      name: userProfile.name || "",
+      email: userProfile.email || "",
+      phoneNumber: userProfile.phoneNumber || "",
+      bio: userProfile.bio || "",
+      examType: userProfile.examPreparation || "",
+      institution: userProfile.education?.institution || "",
+      graduationYear: userProfile.education?.graduationYear?.toString() || "",
+    });
+    setIsEditing(false);
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="space-y-2">
-          <Label htmlFor="name">Full Name</Label>
-          <Input
-            id="name"
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
-          <Input
-            id="email"
-            name="email"
-            type="email"
-            value={formData.email}
-            onChange={handleChange}
-            disabled
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="phoneNumber">Phone Number</Label>
-          <Input
-            id="phoneNumber"
-            name="phoneNumber"
-            value={formData.phoneNumber}
-            onChange={handleChange}
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="examPreparation">Exam Preparation</Label>
-          <Input
-            id="examPreparation"
-            name="examPreparation"
-            value={formData.examPreparation}
-            onChange={handleChange}
-          />
-        </div>
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="bio">Bio</Label>
-        <Textarea
-          id="bio"
-          name="bio"
-          value={formData.bio}
-          onChange={handleChange}
-          placeholder="Tell us about yourself..."
-          className="min-h-[100px]"
-        />
-      </div>
-
-      <div className="space-y-4">
-        <h3 className="text-lg font-medium">Education</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="education.level">Education Level</Label>
-            <Input
-              id="education.level"
-              name="education.level"
-              value={formData.education.level}
-              onChange={handleChange}
-            />
+    <Card className="w-full">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardTitle className="text-sm font-medium">Profile Details</CardTitle>
+        {isEditing ? (
+          <div className="space-x-2">
+            <Button variant="ghost" onClick={handleCancel}>
+              <XCircle className="w-4 h-4 mr-2" />
+              Cancel
+            </Button>
+            <Button onClick={handleSave}>
+              <Save className="w-4 h-4 mr-2" />
+              Save
+            </Button>
+          </div>
+        ) : (
+          <Button variant="outline" onClick={() => setIsEditing(true)}>
+            <Pencil className="w-4 h-4 mr-2" />
+            Edit Profile
+          </Button>
+        )}
+      </CardHeader>
+      <CardContent>
+        <div className="grid gap-4">
+          <div className="flex items-center space-x-4">
+            <Avatar>
+              <AvatarImage src={userProfile.avatar} alt={userProfile.name} />
+              <AvatarFallback>{userProfile.name?.slice(0, 2).toUpperCase()}</AvatarFallback>
+            </Avatar>
+            <div>
+              <h2 className="text-lg font-semibold">{userProfile.name}</h2>
+              <p className="text-sm text-muted-foreground">{userProfile.email}</p>
+            </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="education.institution">Institution</Label>
-            <Input
-              id="education.institution"
-              name="education.institution"
-              value={formData.education.institution}
-              onChange={handleChange}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="education.graduationYear">Graduation Year</Label>
-            <Input
-              id="education.graduationYear"
-              name="education.graduationYear"
-              type="number"
-              value={formData.education.graduationYear || ""}
-              onChange={handleChange}
-            />
-          </div>
-        </div>
-      </div>
-
-      <div className="space-y-4">
-        <h3 className="text-lg font-medium">Address</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-2 md:col-span-2">
-            <Label htmlFor="address.street">Street Address</Label>
-            <Input
-              id="address.street"
-              name="address.street"
-              value={formData.address.street}
-              onChange={handleChange}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="address.city">City</Label>
-            <Input
-              id="address.city"
-              name="address.city"
-              value={formData.address.city}
-              onChange={handleChange}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="address.state">State</Label>
-            <Input
-              id="address.state"
-              name="address.state"
-              value={formData.address.state}
-              onChange={handleChange}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="address.zipCode">ZIP Code</Label>
-            <Input
-              id="address.zipCode"
-              name="address.zipCode"
-              value={formData.address.zipCode}
-              onChange={handleChange}
-            />
-          </div>
-        </div>
-      </div>
-
-      <div className="flex justify-end gap-4">
-        <Button variant="outline" onClick={onCancel} type="button">
-          Cancel
-        </Button>
-        <Button type="submit">
-          Save Changes
-        </Button>
-      </div>
-    </form>
-  );
-};
-
-const ViewProfile: React.FC<{
-  userProfile: UserProfileType;
-  onEdit: () => void;
-}> = ({ userProfile, onEdit }) => {
-  return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">Profile Details</h2>
-        <Button onClick={onEdit}>
-          Edit Profile
-        </Button>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <InfoSection 
-          icon={<User className="h-5 w-5" />}
-          label="Full Name"
-          value={userProfile.name}
-        />
-        
-        <InfoSection 
-          icon={<Mail className="h-5 w-5" />}
-          label="Email"
-          value={userProfile.email}
-        />
-        
-        <InfoSection 
-          icon={<Phone className="h-5 w-5" />}
-          label="Phone"
-          value={userProfile.phoneNumber}
-        />
-        
-        <InfoSection 
-          icon={<Book className="h-5 w-5" />}
-          label="Exam Preparation"
-          value={userProfile.examPreparation}
-        />
-        
-        <InfoSection 
-          icon={<CalendarDays className="h-5 w-5" />}
-          label="Member Since"
-          value={userProfile.joinDate ? new Date(userProfile.joinDate).toLocaleDateString() : "N/A"}
-        />
-      </div>
-
-      {userProfile.bio && (
-        <div className="space-y-2">
-          <h3 className="text-lg font-medium">Bio</h3>
-          <p className="text-gray-700 dark:text-gray-300">{userProfile.bio}</p>
-        </div>
-      )}
-
-      {userProfile.education && (
-        <div className="space-y-4">
-          <h3 className="text-lg font-medium">Education</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <InfoSection 
-              icon={<GraduationCap className="h-5 w-5" />}
-              label="Level"
-              value={userProfile.education.level}
-            />
-            
-            <InfoSection 
-              icon={<Book className="h-5 w-5" />}
-              label="Institution"
-              value={userProfile.education.institution}
-            />
-            
-            <InfoSection 
-              icon={<CalendarDays className="h-5 w-5" />}
-              label="Graduation Year"
-              value={userProfile.education.graduationYear?.toString()}
-            />
-          </div>
-        </div>
-      )}
-
-      {userProfile.address && (
-        <div className="space-y-4">
-          <h3 className="text-lg font-medium">Address</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="md:col-span-2">
-              <InfoSection 
-                icon={<MapPin className="h-5 w-5" />}
-                label="Street Address"
-                value={userProfile.address.street}
+            <div>
+              <Label htmlFor="name">Name</Label>
+              <Input
+                id="name"
+                name="name"
+                value={formData.name}
+                onChange={handleInputChange}
+                disabled={!isEditing}
               />
             </div>
-            
-            <InfoSection 
-              icon={<MapPin className="h-5 w-5" />}
-              label="City"
-              value={userProfile.address.city}
-            />
-            
-            <InfoSection 
-              icon={<MapPin className="h-5 w-5" />}
-              label="State"
-              value={userProfile.address.state}
-            />
-            
-            <InfoSection 
-              icon={<MapPin className="h-5 w-5" />}
-              label="ZIP Code"
-              value={userProfile.address.zipCode}
+            <div>
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                value={formData.email}
+                onChange={handleInputChange}
+                disabled={!isEditing}
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="phoneNumber">Phone Number</Label>
+              <Input
+                id="phoneNumber"
+                name="phoneNumber"
+                value={formData.phoneNumber}
+                onChange={handleInputChange}
+                disabled={!isEditing}
+              />
+            </div>
+            <div>
+              <Label htmlFor="examType">Exam Type</Label>
+              <Select disabled={!isEditing} onValueChange={(value) => setFormData({ ...formData, examType: value })}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder={formData.examType || "Select Exam"} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="IIT-JEE">IIT-JEE</SelectItem>
+                  <SelectItem value="NEET">NEET</SelectItem>
+                  <SelectItem value="CAT">CAT</SelectItem>
+                  <SelectItem value="Civil Services">Civil Services</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div>
+            <Label htmlFor="bio">Bio</Label>
+            <Textarea
+              id="bio"
+              name="bio"
+              placeholder="Tell us a little about yourself"
+              value={formData.bio}
+              onChange={handleInputChange}
+              disabled={!isEditing}
             />
           </div>
-        </div>
-      )}
-    </div>
-  );
-};
 
-const InfoSection: React.FC<{
-  icon: React.ReactNode;
-  label: string;
-  value?: string | null;
-}> = ({ icon, label, value }) => {
-  return (
-    <div className="flex items-start space-x-3">
-      <div className="mt-1 text-gray-500">{icon}</div>
-      <div>
-        <p className="text-sm text-gray-500">{label}</p>
-        <p className="font-medium">{value || "Not provided"}</p>
-      </div>
-    </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="institution">Institution</Label>
+              <Input
+                id="institution"
+                name="institution"
+                value={formData.institution}
+                onChange={handleInputChange}
+                disabled={!isEditing}
+              />
+            </div>
+            <div>
+              <Label htmlFor="graduationYear">Graduation Year</Label>
+              <Input
+                id="graduationYear"
+                name="graduationYear"
+                type="number"
+                min="1900"
+                max={new Date().getFullYear() + 5}
+                value={formData.graduationYear}
+                onChange={handleInputChange}
+                disabled={!isEditing}
+              />
+            </div>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 

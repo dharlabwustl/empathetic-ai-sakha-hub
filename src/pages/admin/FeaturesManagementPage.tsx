@@ -1,13 +1,17 @@
+
 import React, { useState, useEffect } from "react";
 import AdminLayout from "@/components/admin/AdminLayout";
 import FeatureFilters from "@/components/admin/features/FeatureFilters";
 import StatsCards from "@/components/admin/features/StatsCards";
-import { Feature } from "@/components/admin/features/types";
+import { Feature } from "@/services/featureService";
 import FeatureManagementCard from "@/components/admin/features/FeatureManagementCard";
 import FeatureEditDialog from "@/components/admin/features/FeatureEditDialog";
 import { useFeatureManagement } from "@/components/admin/features/hooks/useFeatureManagement";
 import { PlanType, featureService } from "@/services/featureService";
 import { useToast } from "@/hooks/use-toast";
+
+// Add type casting to fix the issue
+type PremiumFilterType = "all" | "premium" | "free";
 
 const FeaturesManagementPage = () => {
   const {
@@ -123,15 +127,15 @@ const FeaturesManagementPage = () => {
           <p className="text-muted-foreground">Manage platform features and access control</p>
         </div>
 
-        <StatsCards stats={stats} setActiveTab={setActiveTab} activeTab={activeTab} />
+        <StatsCards stats={stats} activeTab={activeTab} setActiveTab={(tab) => setActiveTab(tab)} />
         
         <FeatureFilters
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
           planFilter={planFilter}
-          onPlanFilterChange={setPlanFilter as any}
+          onPlanFilterChange={(value: string) => setPlanFilter(value as PlanType)}
           premiumFilter={premiumFilter}
-          onPremiumFilterChange={setPremiumFilter}
+          onPremiumFilterChange={(value: PremiumFilterType) => setPremiumFilter(value)}
           onExport={handleExport}
         />
         

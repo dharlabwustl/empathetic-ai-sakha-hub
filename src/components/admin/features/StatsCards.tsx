@@ -1,60 +1,77 @@
 
-import React from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { FeatureStats } from "./types";
+import React from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Box, LayoutGrid, Lock, Star, Users } from "lucide-react";
 
-interface StatsCardsProps {
-  stats: FeatureStats;
+export interface StatsCardsProps {
+  stats: {
+    totalFeatures: number;
+    premiumFeatures: number;
+    freeFeatures: number;
+    mostUsedFeature: {
+      id: string;
+      title: string;
+      usageCount: number;
+    };
+  };
+  activeTab?: string;
+  setActiveTab?: (tab: string) => void;
 }
 
-const StatsCards: React.FC<StatsCardsProps> = ({ stats }) => {
+const StatsCards: React.FC<StatsCardsProps> = ({ stats, activeTab, setActiveTab }) => {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-      <Card className="bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 shadow-md">
-        <CardContent className="p-4 flex items-center justify-between">
-          <div>
-            <p className="text-sm font-medium text-muted-foreground">Total Features</p>
-            <p className="text-2xl font-bold">{stats.total}</p>
-          </div>
-          <div className="h-12 w-12 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center">
-            <span className="text-xl">🧩</span>
-          </div>
+    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <Card className={activeTab === 'all' ? 'border-primary' : ''} 
+            onClick={() => setActiveTab?.('all')}>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">
+            Total Features
+          </CardTitle>
+          <Box className="h-4 w-4 text-muted-foreground" />
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold">{stats.totalFeatures}</div>
         </CardContent>
       </Card>
       
-      <Card className="bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 shadow-md">
-        <CardContent className="p-4 flex items-center justify-between">
-          <div>
-            <p className="text-sm font-medium text-muted-foreground">Premium Features</p>
-            <p className="text-2xl font-bold">{stats.premium}</p>
-          </div>
-          <div className="h-12 w-12 rounded-full bg-amber-100 dark:bg-amber-900 flex items-center justify-center">
-            <span className="text-xl">✨</span>
-          </div>
+      <Card className={activeTab === 'premium' ? 'border-primary' : ''}
+            onClick={() => setActiveTab?.('premium')}>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">
+            Premium Features
+          </CardTitle>
+          <Star className="h-4 w-4 text-muted-foreground" />
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold">{stats.premiumFeatures}</div>
         </CardContent>
       </Card>
       
-      <Card className="bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 shadow-md">
-        <CardContent className="p-4 flex items-center justify-between">
-          <div>
-            <p className="text-sm font-medium text-muted-foreground">Free Features</p>
-            <p className="text-2xl font-bold">{stats.free}</p>
-          </div>
-          <div className="h-12 w-12 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center">
-            <span className="text-xl">🎁</span>
-          </div>
+      <Card className={activeTab === 'free' ? 'border-primary' : ''}
+            onClick={() => setActiveTab?.('free')}>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">
+            Free Features
+          </CardTitle>
+          <Lock className="h-4 w-4 text-muted-foreground" />
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold">{stats.freeFeatures}</div>
         </CardContent>
       </Card>
       
-      <Card className="bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 shadow-md">
-        <CardContent className="p-4 flex items-center justify-between">
-          <div>
-            <p className="text-sm font-medium text-muted-foreground">Limited Access</p>
-            <p className="text-2xl font-bold">{stats.limited}</p>
-          </div>
-          <div className="h-12 w-12 rounded-full bg-purple-100 dark:bg-purple-900 flex items-center justify-center">
-            <span className="text-xl">⏱️</span>
-          </div>
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">
+            Most Used
+          </CardTitle>
+          <Users className="h-4 w-4 text-muted-foreground" />
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold">{stats.mostUsedFeature.title}</div>
+          <p className="text-xs text-muted-foreground">
+            {stats.mostUsedFeature.usageCount.toLocaleString()} uses
+          </p>
         </CardContent>
       </Card>
     </div>

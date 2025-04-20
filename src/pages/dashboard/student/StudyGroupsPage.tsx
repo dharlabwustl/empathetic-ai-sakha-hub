@@ -1,19 +1,13 @@
-
-import React, { useState, useEffect } from "react";
-import DashboardLayout from "./DashboardLayout";
-import { useStudentDashboard } from "@/hooks/useStudentDashboard";
-import DashboardLoading from "./DashboardLoading";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Input } from "@/components/ui/input";
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { Users, MessageSquare, User, Plus, Search, CheckCheck, Send } from "lucide-react";
-import { BatchMember } from "@/components/subscription/batch/types";
+import { UserProfileType } from '@/types/user';
+import { KpiData, NudgeData } from '@/types/dashboard';
 
 interface StudyGroup {
   id: string;
@@ -58,27 +52,13 @@ interface StudyGroup {
   createdAt: string;
 }
 
-export default function StudyGroupsPage() {
+interface StudyGroupsPageProps {
+  userProfile: UserProfileType;
+}
+
+const StudyGroupsPage: React.FC<StudyGroupsPageProps> = ({ userProfile }) => {
   const { toast } = useToast();
-  const {
-    userProfile,
-    activeTab,
-    showWelcomeTour,
-    showOnboarding,
-    hideTabsNav,
-    hideSidebar,
-    kpis,
-    nudges,
-    markNudgeAsRead,
-    handleTabChange,
-    handleSkipTour,
-    handleCompleteTour,
-    handleCompleteOnboarding,
-    handleViewStudyPlan,
-    handleCloseStudyPlan,
-    toggleSidebar,
-    toggleTabsNav
-  } = useStudentDashboard();
+  const navigate = useNavigate();
 
   const [activeGroup, setActiveGroup] = useState<StudyGroup | null>(null);
   const [activeTopicId, setActiveTopicId] = useState<string | null>(null);
@@ -90,9 +70,60 @@ export default function StudyGroupsPage() {
   const [newTopicDescription, setNewTopicDescription] = useState("");
   const [currentTab, setCurrentTab] = useState("all-groups");
 
-  // Mock data for study groups
+  const kpis: KpiData[] = [
+    { 
+      id: 'k1', 
+      title: 'Active Groups', 
+      value: '3', 
+      changePercent: 0,
+      label: 'Groups',
+      unit: '',
+      trend: 'neutral'
+    },
+    { 
+      id: 'k2', 
+      title: 'Study Sessions', 
+      value: '12', 
+      changePercent: 20,
+      label: 'Sessions',
+      unit: '',
+      trend: 'up'
+    },
+    { 
+      id: 'k3', 
+      title: 'Collaboration Score', 
+      value: '8.5', 
+      changePercent: 5,
+      label: 'Score',
+      unit: '/10',
+      trend: 'up'
+    }
+  ];
+
+  const nudges: NudgeData[] = [
+    { 
+      id: 'n1', 
+      title: 'Join Physics Group', 
+      read: false,
+      type: 'info',
+      message: 'There\'s a new Physics study group you might be interested in.',
+      timestamp: new Date().toISOString()
+    },
+    { 
+      id: 'n2', 
+      title: 'Group Session Today', 
+      read: true,
+      type: 'info',
+      message: 'You have a scheduled group study session today at 5 PM.',
+      timestamp: new Date().toISOString()
+    }
+  ];
+
+  const getDisplayName = (member: UserProfileType) => {
+    return member.name || 'Anonymous User';
+  };
+
   useEffect(() => {
-    // This would be an API call in a real application
     const mockGroups: StudyGroup[] = [
       {
         id: "group-1",
@@ -187,7 +218,6 @@ export default function StudyGroupsPage() {
       }
     ];
 
-    // Add mock messages to the first topic of the first group
     mockGroups[0].messages = [
       {
         id: "msg-1",
@@ -224,7 +254,6 @@ export default function StudyGroupsPage() {
     ];
 
     setStudyGroups(mockGroups);
-    // Set the first group as active by default
     setActiveGroup(mockGroups[0]);
     setActiveTopicId(mockGroups[0].topics[0].id);
   }, []);
@@ -253,7 +282,6 @@ export default function StudyGroupsPage() {
       read: false
     };
 
-    // Clone and update the active group with the new message
     const updatedGroups = studyGroups.map(group => {
       if (group.id === activeGroup.id) {
         const updatedGroup = {...group};
@@ -267,7 +295,6 @@ export default function StudyGroupsPage() {
     setActiveGroup(updatedGroups.find(g => g.id === activeGroup.id) || null);
     setMessage("");
 
-    // Simulate sending to backend
     toast({
       title: "Message sent",
       description: "Your message has been sent to the group",
@@ -285,7 +312,6 @@ export default function StudyGroupsPage() {
       lastActivity: "Just now"
     };
 
-    // Clone and update the active group with the new topic
     const updatedGroups = studyGroups.map(group => {
       if (group.id === activeGroup.id) {
         const updatedGroup = {...group};
@@ -367,7 +393,6 @@ export default function StudyGroupsPage() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Left Sidebar - Groups List */}
             <div className="lg:col-span-1">
               <Card className="h-[calc(100vh-240px)]">
                 <CardHeader className="pb-3">
@@ -420,7 +445,6 @@ export default function StudyGroupsPage() {
               </Card>
             </div>
 
-            {/* Main Content - Group Chat */}
             {activeGroup ? (
               <div className="lg:col-span-2 space-y-4">
                 <Card className="h-[calc(100vh-240px)] flex flex-col">
@@ -610,4 +634,6 @@ export default function StudyGroupsPage() {
       </div>
     </DashboardLayout>
   );
-}
+};
+
+export default StudyGroupsPage;

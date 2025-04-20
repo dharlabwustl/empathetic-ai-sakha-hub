@@ -1,8 +1,19 @@
 
 import { ReactNode } from "react";
 import { MessageSquare, Calendar, Activity, Brain, BookOpen, Heart, Target, 
-  Code, Video, Users, Bell, CreditCard, GraduationCap, Smile, Globe, UserCircle } from "lucide-react";
-import { Feature } from "@/services/featureService";
+  Code, Video, Users, Bell, GraduationCap, Smile, Globe, UserCircle } from "lucide-react";
+
+export interface Feature {
+  icon: ReactNode;
+  title: string;
+  description: string;
+  path: string;
+  isPremium: boolean;
+  freeAccessLimit?: {
+    type: "usage" | "content";
+    limit: number;
+  };
+}
 
 export const getFeatures = (): Feature[] => {
   return [

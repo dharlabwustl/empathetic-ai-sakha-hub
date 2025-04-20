@@ -1,37 +1,48 @@
 
-import { useState, useEffect } from "react";
-import { UserProfileType, UserRole } from "@/types/user";
-import { getMockProfileByRole } from "@/data/mockProfiles";
+import { useState, useEffect } from 'react';
+import { UserProfileType, UserRole } from '@/types/user';
+import { getMockProfileByRole } from '@/data/mockProfiles';
 
-export function useUserProfile(role: UserRole = UserRole.Student): {
-  userProfile: UserProfileType | null;
-  loading: boolean;
-  updateUserProfile: (updates: Partial<UserProfileType>) => void;
-} {
+export const useUserProfile = (role: UserRole = UserRole.Student) => {
   const [userProfile, setUserProfile] = useState<UserProfileType | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Simulate API call to fetch user profile
-    const fetchUserProfile = () => {
-      setLoading(true);
-      
-      setTimeout(() => {
-        const profile = getMockProfileByRole(role);
-        setUserProfile(profile);
-        setLoading(false);
-      }, 800);
-    };
-
-    fetchUserProfile();
+    loadUserProfile();
   }, [role]);
 
-  const updateUserProfile = (updates: Partial<UserProfileType>) => {
-    setUserProfile(prev => {
-      if (!prev) return prev;
-      return { ...prev, ...updates };
-    });
+  const loadUserProfile = () => {
+    setLoading(true);
+    try {
+      // For demo, we'll use the mock profile data
+      const profile = getMockProfileByRole(role);
+      setUserProfile(profile);
+      setError(null);
+    } catch (err) {
+      console.error('Error loading user profile:', err);
+      setError('Failed to load user profile');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  return { userProfile, loading, updateUserProfile };
-}
+  const updateUserProfile = (updates: Partial<UserProfileType>) => {
+    if (userProfile) {
+      // Create a proper merged object to update
+      const updatedProfile = {
+        ...userProfile,
+        ...updates
+      };
+      setUserProfile(updatedProfile);
+    }
+  };
+
+  return {
+    userProfile,
+    loading,
+    error,
+    updateUserProfile,
+    reloadProfile: loadUserProfile
+  };
+};

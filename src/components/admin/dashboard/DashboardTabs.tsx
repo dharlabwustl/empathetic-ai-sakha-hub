@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -28,7 +27,7 @@ import { formatDateTime } from '@/utils/dateUtils';
 interface DashboardTabsProps {
   students: StudentData[];
   systemLogs: SystemLog[];
-  stats?: any; // Adding this prop to prevent errors with AdminDashboard.tsx
+  stats?: any;
 }
 
 interface KPI {
@@ -43,7 +42,6 @@ const getNewUsersCount = (students: StudentData[]): number => {
   const thirtyDaysAgo = new Date();
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-  // Use registrationDate or joinedDate instead of createdAt
   return students.filter(student => {
     const registrationDate = student.registrationDate || student.joinedDate;
     return registrationDate && new Date(registrationDate) >= thirtyDaysAgo;

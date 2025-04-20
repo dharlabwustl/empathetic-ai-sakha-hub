@@ -1,146 +1,101 @@
 
-import { Feature } from "@/components/admin/features/types";
+export type PlanType = 'free' | 'basic' | 'premium' | 'enterprise';
 
-export enum PlanType {
-  Free = "free",
-  Basic = "basic",
-  Premium = "premium",
-  Group = "group",
-  Institute = "institute",
-  Corporate = "corporate"
-}
-
-export enum SubscriptionInterval {
-  Monthly = "monthly",
-  Yearly = "yearly"
-}
-
-export interface SubscriptionPlan {
-  id: string;
-  name: string;
-  type: PlanType;
-  price: number;
-  interval: SubscriptionInterval;
-  features: string[];
+export interface Feature {
+  id?: string;
+  title: string;
   description: string;
-  maxUsers?: number;
-  trialDays?: number;
-  isPopular?: boolean;
+  path: string;
+  icon: string;
+  isPremium: boolean;
+  allowedPlans?: PlanType[];
+  freeAccessLimit?: {
+    type: 'usage' | 'content';
+    limit: number;
+  };
 }
 
-// Mock feature service for the admin panel
-class FeatureService {
-  async getFeatures(): Promise<Feature[]> {
-    // Mock implementation
+export interface FeatureSettings {
+  enableBetaFeatures: boolean;
+  defaultPremiumAccess: boolean;
+  freePlanAccess: string[];
+}
+
+export interface FeatureStats {
+  totalFeatures: number;
+  premiumFeatures: number;
+  freeFeatures: number;
+  mostUsedFeature: {
+    id: string;
+    title: string;
+    usageCount: number;
+  };
+}
+
+// Mock feature service
+export const featureService = {
+  getFeatures: async (): Promise<Feature[]> => {
     return [
       {
-        id: "1",
-        title: "AI Personalized Study Plan",
-        description: "Customized study plans based on user performance and goals",
-        path: "/dashboard/study-plan",
-        icon: "📊",
-        isPremium: true,
-        allowedPlans: [PlanType.Premium, PlanType.Corporate]
-      },
-      {
-        id: "2",
-        title: "Mock Tests",
-        description: "Practice tests with real exam-like questions",
-        path: "/dashboard/mock-tests",
-        icon: "📝",
+        id: "feature1",
+        title: "AI Tutor",
+        description: "Get instant help with any subject",
+        path: "/dashboard/student/tutor",
+        icon: "message-square",
         isPremium: false
+      },
+      {
+        id: "feature2",
+        title: "Study Plan Generator",
+        description: "Create personalized study plans",
+        path: "/dashboard/student/study-plan",
+        icon: "calendar",
+        isPremium: false
+      },
+      {
+        id: "feature3",
+        title: "Mock Tests",
+        description: "Practice with realistic exam simulations",
+        path: "/dashboard/student/mock-tests",
+        icon: "file-text",
+        isPremium: true
       }
     ];
-  }
+  },
   
-  // Alias for getFeatures to maintain compatibility
-  async getAllFeatures(): Promise<Feature[]> {
-    return this.getFeatures();
-  }
-
-  async updateFeature(feature: Feature): Promise<Feature> {
-    console.log("Feature updated:", feature);
+  getFeatureSettings: async (): Promise<FeatureSettings> => {
+    return {
+      enableBetaFeatures: false,
+      defaultPremiumAccess: false,
+      freePlanAccess: ["AI Tutor", "Basic Analytics"]
+    };
+  },
+  
+  getFeatureStats: async (): Promise<FeatureStats> => {
+    return {
+      totalFeatures: 15,
+      premiumFeatures: 8,
+      freeFeatures: 7,
+      mostUsedFeature: {
+        id: "feature1",
+        title: "AI Tutor",
+        usageCount: 1245
+      }
+    };
+  },
+  
+  updateFeature: async (feature: Feature): Promise<Feature> => {
+    console.log('Feature updated', feature);
     return feature;
-  }
-
-  async createFeature(feature: Partial<Feature>): Promise<Feature> {
-    const newFeature = {
-      ...feature,
-      id: Math.random().toString(36).substring(7)
-    } as Feature;
-    
-    console.log("Feature created:", newFeature);
+  },
+  
+  createFeature: async (feature: Feature): Promise<Feature> => {
+    const newFeature = { ...feature, id: `feature-${Date.now()}` };
+    console.log('Feature created', newFeature);
     return newFeature;
-  }
-
-  async deleteFeature(id: string): Promise<void> {
-    console.log("Feature deleted:", id);
-    return;
-  }
-
-  async toggleFeature(id: string, enabled: boolean): Promise<void> {
-    console.log("Feature toggled:", id, enabled);
-    return;
-  }
+  },
   
-  async toggleFeaturePremium(title: string, isPremium: boolean): Promise<void> {
-    console.log("Feature premium status toggled:", title, isPremium);
-    return;
+  toggleFeature: async (featureId: string, enabled: boolean): Promise<void> => {
+    console.log(`Feature ${featureId} toggled to ${enabled}`);
   }
-  
-  // Subscription plan methods
-  async getSubscriptionPlans(): Promise<SubscriptionPlan[]> {
-    return [
-      {
-        id: "free",
-        name: "Free",
-        type: PlanType.Free,
-        price: 0,
-        interval: SubscriptionInterval.Monthly,
-        features: ["Limited access to content", "Basic features", "Community support"],
-        description: "Start exploring with basic features"
-      },
-      {
-        id: "basic",
-        name: "Basic",
-        type: PlanType.Basic,
-        price: 499,
-        interval: SubscriptionInterval.Monthly,
-        features: ["Full access to content", "All basic features", "Email support", "Ad-free experience"],
-        description: "Perfect for casual learners",
-        trialDays: 7
-      },
-      {
-        id: "premium",
-        name: "Premium",
-        type: PlanType.Premium,
-        price: 999,
-        interval: SubscriptionInterval.Monthly,
-        features: ["Everything in Basic", "AI study assistant", "Personalized study plan", "24/7 priority support"],
-        description: "Ideal for serious students",
-        isPopular: true,
-        trialDays: 14
-      },
-      {
-        id: "group",
-        name: "Group Plan",
-        type: PlanType.Group,
-        price: 1999,
-        interval: SubscriptionInterval.Monthly,
-        features: ["Everything in Premium", "Up to 5 members", "Group analytics", "Shared resources"],
-        description: "Perfect for study groups",
-        maxUsers: 5
-      }
-    ];
-  }
-  
-  async updateSubscriptionPlan(plan: SubscriptionPlan): Promise<SubscriptionPlan> {
-    console.log("Plan updated:", plan);
-    return plan;
-  }
-}
-
-// Create and export singleton instance
-export const featureService = new FeatureService();
-
-export default featureService;
+};

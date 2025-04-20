@@ -1,26 +1,18 @@
-
-import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import React, { useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { useToast } from "@/hooks/use-toast";
-import { Badge } from "@/components/ui/badge";
-import { 
-  Users, Mail, UserCheck, UserMinus, UserPlus, Edit, Check, X, CreditCard
-} from "lucide-react";
-import { Separator } from "@/components/ui/separator";
-import { formatDateTime, getRelativeTimeString } from "@/utils/dateUtils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { 
-  AlertDialog, 
-  AlertDialogAction, 
-  AlertDialogCancel, 
-  AlertDialogContent, 
-  AlertDialogDescription, 
-  AlertDialogFooter, 
-  AlertDialogHeader, 
-  AlertDialogTitle 
-} from "@/components/ui/alert-dialog";
+import { Badge } from "@/components/ui/badge";
+import { getRelativeTime } from "@/utils/dateUtils";
+import { Check, UserPlus, X } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
 
 export interface BatchMember {
   id: string;
@@ -344,7 +336,7 @@ const BatchManagement: React.FC<BatchManagementProps> = ({
                       </div>
                     ) : (
                       <p className="text-xs text-muted-foreground mt-1">
-                        Joined {member.joinedDate ? getRelativeTimeString(member.joinedDate) : ""}
+                        Joined {member.joinedDate ? getRelativeTime(member.joinedDate) : ""}
                       </p>
                     )}
                   </div>

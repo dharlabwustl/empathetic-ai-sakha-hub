@@ -53,8 +53,6 @@ const IssueResolutionTab = ({ systemLogs = defaultSystemLogs }: IssueResolutionT
   const [logs, setLogs] = useState<SystemLog[]>(systemLogs);
   const [filter, setFilter] = useState<'all' | 'resolved' | 'unresolved'>('unresolved');
 
-  // ... keep existing code (handleResolveIssue and other functions)
-
   const getFilteredLogs = () => {
     switch (filter) {
       case 'resolved':
@@ -93,8 +91,6 @@ const IssueResolutionTab = ({ systemLogs = defaultSystemLogs }: IssueResolutionT
   };
 
   const filteredLogs = getFilteredLogs();
-
-  // ... keep existing code (return JSX)
 
   return (
     <div className="space-y-6">

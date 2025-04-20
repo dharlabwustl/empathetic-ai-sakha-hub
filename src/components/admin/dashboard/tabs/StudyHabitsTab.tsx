@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -9,7 +8,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import { StudyHabitSettings, StudyHabitAnalytics } from "@/types/admin/studyHabits";
-import { adminService } from "@/services/adminService";
 import { Calendar, Clock, Settings, Users, BarChart, Save, RefreshCcw } from "lucide-react";
 
 const StudyHabitsTab = () => {
@@ -33,7 +31,7 @@ const StudyHabitsTab = () => {
   const fetchData = async () => {
     setLoading(true);
     try {
-      // In a real implementation, this would use the studyHabitsService
+      // In a real implementation, this would use a proper service
       // For now, we'll simulate with mock data
       const mockAnalytics: StudyHabitAnalytics = {
         totalStudents: 1245,

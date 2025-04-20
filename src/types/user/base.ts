@@ -1,6 +1,8 @@
 
+import { SubscriptionType } from "./index";
+
 export interface UserSubscription {
-  planId?: string; // Making planId optional to fix the error
+  planId?: string;
   planType: SubscriptionType;
   batchCode?: string;
   batchName?: string;
@@ -52,6 +54,9 @@ export interface UserProfileType {
     fieldOfStudy?: string;
     graduationYear?: number;
   };
+  // Add firstName and lastName fallbacks for backward compatibility
+  firstName?: string;
+  lastName?: string;
 }
 
 export enum UserRole {
@@ -75,26 +80,6 @@ export type MoodType =
   | "curious"
   | "neutral"
   | "okay";
-
-export enum SubscriptionType {
-  Free = "free",
-  Basic = "basic",
-  Premium = "premium",
-  Enterprise = "enterprise",
-  School = "school",
-  Corporate = "corporate"
-}
-
-export interface SubscriptionPlan {
-  id: string;
-  name: string;
-  price: number;
-  features: string[];
-  isPopular?: boolean;
-  description?: string;
-  type: SubscriptionType;
-  maxMembers?: number;
-}
 
 // Changed to type string
 export type PersonalityType = string;

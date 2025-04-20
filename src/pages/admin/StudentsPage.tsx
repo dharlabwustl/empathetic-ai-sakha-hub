@@ -1,247 +1,383 @@
-
-import { useState, useEffect } from "react";
-import { useToast } from "@/hooks/use-toast";
+import React, { useState, useEffect } from "react";
 import AdminLayout from "@/components/admin/AdminLayout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { 
-  Search, 
-  ChevronLeft, 
-  ChevronRight, 
-  Download, 
-  Filter 
-} from "lucide-react";
-import { adminService } from "@/services/adminService";
-import { StudentData } from "@/types/admin";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useToast } from "@/hooks/use-toast";
+import { StudentData } from "@/types/admin/studentData";
+import { formatDateTime } from "@/utils/dateUtils";
+import { MoreHorizontal, Search, Plus, Filter, Download } from "lucide-react";
+
+// Mock data instead of using adminService
+const mockStudents: StudentData[] = [
+  {
+    id: "1",
+    name: "Rahul Sharma",
+    email: "rahul.s@example.com",
+    role: "student",
+    status: "active",
+    joinedDate: "2023-01-15T00:00:00Z", 
+    lastActive: "2023-08-10T14:30:00Z",
+    examType: "IIT-JEE",
+    studyHours: 25,
+    progress: {
+      completedTopics: 45,
+      totalTopics: 100,
+      lastActiveDate: "2023-08-10T14:30:00Z"
+    }
+  },
+  {
+    id: "2",
+    name: "Priya Patel",
+    email: "priya.p@example.com",
+    role: "student",
+    status: "inactive",
+    joinedDate: "2023-02-20T00:00:00Z",
+    lastActive: "2023-07-25T09:15:00Z",
+    examType: "NEET",
+    studyHours: 18,
+    progress: {
+      completedTopics: 30,
+      totalTopics: 100,
+      lastActiveDate: "2023-07-25T09:15:00Z"
+    }
+  },
+  {
+    id: "3",
+    name: "Amit Kumar",
+    email: "amit.k@example.com",
+    role: "student",
+    status: "pending",
+    joinedDate: "2023-07-10T00:00:00Z",
+    lastActive: "2023-08-12T16:45:00Z",
+    examType: "CAT",
+    studyHours: 12,
+    progress: {
+      completedTopics: 15,
+      totalTopics: 100,
+      lastActiveDate: "2023-08-12T16:45:00Z"
+    }
+  }
+];
 
 const StudentsPage = () => {
+  const [students, setStudents] = useState<StudentData[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string | null>(null);
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
-  const [students, setStudents] = useState<StudentData[]>([]);
-  const [totalStudents, setTotalStudents] = useState(0);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filter, setFilter] = useState("all");
-  const studentsPerPage = 10;
+  const [isAddStudentOpen, setIsAddStudentOpen] = useState(false);
+  const [newStudent, setNewStudent] = useState({
+    name: "",
+    email: "",
+    examType: "",
+  });
 
   useEffect(() => {
     fetchStudents();
-  }, [currentPage, filter]);
+  }, []);
 
   const fetchStudents = async () => {
-    setLoading(true);
     try {
-      const response = await adminService.getStudents(currentPage, studentsPerPage);
-      setStudents(response.data);
-      setTotalStudents(response.total);
+      // Using mock data directly instead of service
+      setStudents(mockStudents);
+      setLoading(false);
     } catch (error) {
       console.error("Error fetching students:", error);
       toast({
         title: "Error",
-        description: "Failed to load students data. Please try again.",
-        variant: "destructive"
+        description: "Failed to load student data",
+        variant: "destructive",
       });
-    } finally {
       setLoading(false);
     }
   };
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    fetchStudents();
-  };
+  const filteredStudents = students.filter((student) => {
+    const searchRegex = new RegExp(searchQuery, "i");
+    const nameMatch = searchRegex.test(student.name);
+    const emailMatch = searchRegex.test(student.email);
 
-  const handleFilterChange = (newFilter: string) => {
-    setFilter(newFilter);
-    setCurrentPage(1);
+    let statusMatch = true;
+    if (statusFilter) {
+      statusMatch = student.status === statusFilter;
+    }
+
+    return (nameMatch || emailMatch) && statusMatch;
+  });
+
+  const handleAddStudent = () => {
+    // Fix the date issue - use ISO string instead of Date object
+    const now = new Date().toISOString();
+    
+    const student: StudentData = {
+      id: `student-${Date.now()}`,
+      name: newStudent.name,
+      email: newStudent.email,
+      role: "student",
+      status: "pending",
+      joinedDate: now,
+      lastActive: now,
+      examType: newStudent.examType,
+      progress: {
+        completedTopics: 0,
+        totalTopics: 100
+      }
+    };
+
+    setStudents([...students, student]);
+    setIsAddStudentOpen(false);
+    setNewStudent({ name: "", email: "", examType: "" });
+
+    toast({
+      title: "Student Added",
+      description: `${newStudent.name} has been added successfully.`,
+    });
   };
 
   const handleExport = () => {
+    const csvData = students.map(student => ({
+      id: student.id,
+      name: student.name,
+      email: student.email,
+      role: student.role,
+      status: student.status,
+      joinedDate: student.joinedDate,
+      lastActive: student.lastActive,
+      examType: student.examType,
+      studyHours: student.studyHours,
+      completedTopics: student.progress?.completedTopics,
+      totalTopics: student.progress?.totalTopics
+    }));
+
+    const csvHeaders = Object.keys(csvData[0]).join(",");
+    const csvRows = csvData.map(student => Object.values(student).join(",")).join("\n");
+    const csvContent = `${csvHeaders}\n${csvRows}`;
+
+    const blob = new Blob([csvContent], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "students.csv";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
     toast({
-      title: "Export Started",
-      description: "Exporting students data to CSV...",
-    });
-    // In a real implementation, this would trigger an API call to export data
-    setTimeout(() => {
-      toast({
-        title: "Export Complete",
-        description: "Students data has been exported successfully.",
-      });
-    }, 1500);
-  };
-
-  const totalPages = Math.ceil(totalStudents / studentsPerPage);
-
-  const formatDate = (date: Date) => {
-    return new Date(date).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
+      title: "Export Complete",
+      description: "Student data exported to CSV",
     });
   };
+
+  if (loading) {
+    return (
+      <AdminLayout>
+        <div className="p-8 text-center">
+          <p>Loading student data...</p>
+        </div>
+      </AdminLayout>
+    );
+  }
 
   return (
     <AdminLayout>
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold">Students Management</h1>
-        <p className="text-gray-500">View and manage all student accounts</p>
-      </div>
-      
-      <Card className="mb-6">
-        <CardHeader>
-          <CardTitle className="flex items-center justify-between">
-            <span>Students Directory</span>
-            <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" onClick={handleExport}>
-                <Download size={16} className="mr-2" />
-                Export
-              </Button>
-            </div>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
-            <form onSubmit={handleSearch} className="relative w-full sm:max-w-md">
-              <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
-              <Input
-                type="text"
-                placeholder="Search by name or email..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </form>
-            
-            <div className="flex items-center gap-2">
-              <span className="text-sm whitespace-nowrap">Filter by:</span>
-              <div className="flex items-center">
-                <Button
-                  variant={filter === 'all' ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => handleFilterChange('all')}
-                >
-                  All
-                </Button>
-                <Button
-                  variant={filter === 'active' ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => handleFilterChange('active')}
-                >
-                  Active
-                </Button>
-                <Button
-                  variant={filter === 'new' ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => handleFilterChange('new')}
-                >
-                  New
-                </Button>
-                <Button
-                  variant={filter === 'inactive' ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => handleFilterChange('inactive')}
-                >
-                  Inactive
-                </Button>
-              </div>
-            </div>
+      <div className="container mx-auto py-6 space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold mb-2">Students Management</h1>
+          <p className="text-muted-foreground">Manage student accounts and profiles</p>
+        </div>
+
+        <div className="flex justify-between items-center">
+          <div className="flex items-center space-x-2">
+            <Input
+              type="search"
+              placeholder="Search students..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            <Button variant="outline">
+              <Search className="w-4 h-4 mr-2" />
+              Search
+            </Button>
           </div>
-          
-          {loading ? (
-            <div className="text-center py-8">
-              <div className="w-10 h-10 border-4 border-t-indigo-500 border-indigo-200 rounded-full animate-spin mx-auto mb-4"></div>
-              <p>Loading students data...</p>
-            </div>
-          ) : (
-            <>
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b bg-gray-50 dark:bg-gray-800/50">
-                      <th className="text-left p-4 font-medium">Name</th>
-                      <th className="text-left p-4 font-medium">Email</th>
-                      <th className="text-left p-4 font-medium">Phone</th>
-                      <th className="text-left p-4 font-medium">Registration Date</th>
-                      <th className="text-left p-4 font-medium">Exam Type</th>
-                      <th className="text-left p-4 font-medium">Status</th>
-                      <th className="text-left p-4 font-medium">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {students.map((student) => (
-                      <tr key={student.id} className="border-b hover:bg-gray-50 dark:hover:bg-gray-800/50">
-                        <td className="p-4">{student.name}</td>
-                        <td className="p-4">{student.email}</td>
-                        <td className="p-4">{student.phoneNumber}</td>
-                        <td className="p-4">{formatDate(student.registrationDate)}</td>
-                        <td className="p-4">{student.examType}</td>
-                        <td className="p-4">
-                          {student.completedOnboarding ? (
-                            <Badge variant="outline" className="bg-green-100 text-green-800 hover:bg-green-100">
-                              Active
-                            </Badge>
-                          ) : (
-                            <Badge variant="outline" className="bg-amber-100 text-amber-800 hover:bg-amber-100">
-                              Onboarding
-                            </Badge>
-                          )}
-                        </td>
-                        <td className="p-4">
-                          <div className="flex items-center gap-2">
-                            <Button size="sm" variant="outline">View</Button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-              
-              <div className="flex items-center justify-between mt-6">
-                <p className="text-sm text-gray-500">
-                  Showing {(currentPage - 1) * studentsPerPage + 1} to {Math.min(currentPage * studentsPerPage, totalStudents)} of {totalStudents} students
-                </p>
-                
-                <div className="flex items-center gap-1">
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    disabled={currentPage === 1}
-                    onClick={() => setCurrentPage(currentPage - 1)}
-                  >
-                    <ChevronLeft size={16} />
-                  </Button>
-                  
-                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                    const pageNumber = i + 1;
-                    return (
-                      <Button
-                        key={i}
-                        variant={pageNumber === currentPage ? "default" : "outline"}
-                        size="icon"
-                        onClick={() => setCurrentPage(pageNumber)}
+
+          <div className="flex items-center space-x-4">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline">
+                  <Filter className="w-4 h-4 mr-2" />
+                  Filter by Status
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => setStatusFilter(null)}>
+                  All
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setStatusFilter("active")}>
+                  Active
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setStatusFilter("inactive")}>
+                  Inactive
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setStatusFilter("pending")}>
+                  Pending
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            <Button onClick={handleExport} variant="outline">
+              <Download className="w-4 h-4 mr-2" />
+              Export
+            </Button>
+
+            <Button onClick={() => setIsAddStudentOpen(true)}>
+              <Plus className="w-4 h-4 mr-2" />
+              Add Student
+            </Button>
+          </div>
+        </div>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Students List</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Joined Date</TableHead>
+                  <TableHead>Last Active</TableHead>
+                  <TableHead>Exam Type</TableHead>
+                  <TableHead>Study Hours</TableHead>
+                  <TableHead>Progress</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredStudents.map((student) => (
+                  <TableRow key={student.id}>
+                    <TableCell>{student.name}</TableCell>
+                    <TableCell>{student.email}</TableCell>
+                    <TableCell>
+                      <Badge
+                        variant={
+                          student.status === "active"
+                            ? "secondary"
+                            : student.status === "inactive"
+                            ? "destructive"
+                            : "outline"
+                        }
                       >
-                        {pageNumber}
-                      </Button>
-                    );
-                  })}
-                  
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    disabled={currentPage === totalPages}
-                    onClick={() => setCurrentPage(currentPage + 1)}
-                  >
-                    <ChevronRight size={16} />
-                  </Button>
-                </div>
+                        {student.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>{formatDateTime(student.joinedDate)}</TableCell>
+                    <TableCell>{formatDateTime(student.lastActive)}</TableCell>
+                    <TableCell>{student.examType}</TableCell>
+                    <TableCell>{student.studyHours}</TableCell>
+                    <TableCell>
+                      {student.progress?.completedTopics}/{student.progress?.totalTopics}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" className="h-8 w-8 p-0">
+                            <span className="sr-only">Open menu</span>
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem>View Profile</DropdownMenuItem>
+                          <DropdownMenuItem>Edit</DropdownMenuItem>
+                          <DropdownMenuItem>Deactivate</DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+
+        <Dialog open={isAddStudentOpen} onOpenChange={setIsAddStudentOpen}>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>Add Student</DialogTitle>
+              <DialogDescription>
+                Create a new student account
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-4 items-center gap-4">
+                <label htmlFor="name" className="text-right">
+                  Name
+                </label>
+                <Input
+                  id="name"
+                  value={newStudent.name}
+                  onChange={(e) =>
+                    setNewStudent({ ...newStudent, name: e.target.value })
+                  }
+                  className="col-span-3"
+                />
               </div>
-            </>
-          )}
-        </CardContent>
-      </Card>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <label htmlFor="email" className="text-right">
+                  Email
+                </label>
+                <Input
+                  type="email"
+                  id="email"
+                  value={newStudent.email}
+                  onChange={(e) =>
+                    setNewStudent({ ...newStudent, email: e.target.value })
+                  }
+                  className="col-span-3"
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <label htmlFor="examType" className="text-right">
+                  Exam Type
+                </label>
+                <Input
+                  type="text"
+                  id="examType"
+                  value={newStudent.examType}
+                  onChange={(e) =>
+                    setNewStudent({ ...newStudent, examType: e.target.value })
+                  }
+                  className="col-span-3"
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button type="submit" onClick={handleAddStudent}>
+                Create Student
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
     </AdminLayout>
   );
 };
