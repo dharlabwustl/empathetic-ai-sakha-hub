@@ -1,61 +1,46 @@
 
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { AlertCircle } from 'lucide-react';
 
 interface BatchInvitationInputProps {
   onJoinBatch: (code: string) => Promise<void>;
-  onActivate?: (code: string) => Promise<boolean>;
-  activationSuccess?: boolean;
 }
 
-const BatchInvitationInput: React.FC<BatchInvitationInputProps> = ({ 
-  onJoinBatch,
-  onActivate,
-  activationSuccess 
-}) => {
-  const [invitationCode, setInvitationCode] = useState('');
-  const [isProcessing, setIsProcessing] = useState(false);
+const BatchInvitationInput: React.FC<BatchInvitationInputProps> = ({ onJoinBatch }) => {
+  const [inviteCode, setInviteCode] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
-  const handleJoinBatch = async () => {
-    if (!invitationCode.trim()) {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!inviteCode.trim()) {
       toast({
-        title: 'Error',
-        description: 'Please enter an invitation code',
-        variant: 'destructive',
+        title: "Error",
+        description: "Please enter a valid invitation code.",
+        variant: "destructive",
       });
       return;
     }
-
-    setIsProcessing(true);
+    
+    setIsLoading(true);
+    
     try {
-      if (onActivate) {
-        const success = await onActivate(invitationCode);
-        if (!success) {
-          toast({
-            title: 'Error',
-            description: 'Invalid invitation code. Please check and try again.',
-            variant: 'destructive',
-          });
-          setIsProcessing(false);
-          return;
-        }
-      } else {
-        await onJoinBatch(invitationCode);
-      }
-      setInvitationCode('');
+      await onJoinBatch(inviteCode.trim());
+      setInviteCode('');
     } catch (error) {
       toast({
-        title: 'Error',
-        description: 'An error occurred. Please try again later.',
-        variant: 'destructive',
+        title: "Error",
+        description: "Failed to join batch. Please check your code and try again.",
+        variant: "destructive",
       });
+      console.error("Error joining batch:", error);
     } finally {
-      setIsProcessing(false);
+      setIsLoading(false);
     }
   };
 
@@ -63,42 +48,31 @@ const BatchInvitationInput: React.FC<BatchInvitationInputProps> = ({
     <Card>
       <CardHeader>
         <CardTitle>Join a Batch</CardTitle>
-        <CardDescription>
-          Have an invitation code? Enter it below to join a batch.
-        </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="flex flex-col space-y-4">
-          <div className="flex space-x-2">
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="invite-code">Enter Invitation Code</Label>
             <Input
-              placeholder="Enter invitation code"
-              value={invitationCode}
-              onChange={(e) => setInvitationCode(e.target.value)}
-              className="flex-1"
-              disabled={isProcessing || activationSuccess}
+              id="invite-code"
+              placeholder="e.g., SAKHA-123456"
+              value={inviteCode}
+              onChange={(e) => setInviteCode(e.target.value)}
+              disabled={isLoading}
             />
-            <Button 
-              onClick={handleJoinBatch} 
-              disabled={isProcessing || activationSuccess}
-            >
-              {isProcessing ? 'Processing...' : 'Join'}
-            </Button>
           </div>
           
-          {activationSuccess && (
-            <div className="p-3 bg-green-50 text-green-800 rounded-md flex items-start space-x-2">
-              <AlertCircle className="h-5 w-5 text-green-600 mt-0.5" />
-              <div>
-                <p className="font-medium">Success!</p>
-                <p className="text-sm">You have successfully joined the batch.</p>
-              </div>
-            </div>
-          )}
-          
-          <p className="text-sm text-muted-foreground">
-            You'll need a valid invitation code from a batch leader to join their batch.
-          </p>
-        </div>
+          <Button type="submit" className="w-full" disabled={isLoading}>
+            {isLoading ? (
+              <>
+                <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-b-transparent"></span>
+                Joining...
+              </>
+            ) : (
+              'Join Batch'
+            )}
+          </Button>
+        </form>
       </CardContent>
     </Card>
   );

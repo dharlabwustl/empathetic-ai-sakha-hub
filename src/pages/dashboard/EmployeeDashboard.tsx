@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -77,15 +78,6 @@ const EmployeeDashboard = () => {
     }
   ];
 
-  const subscriptionDisplay = (): SubscriptionType => {
-    if (userProfile?.subscription) {
-      return typeof userProfile.subscription === 'object' 
-        ? userProfile.subscription.planType
-        : userProfile.subscription;
-    }
-    return SubscriptionType.Free;
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-sakha-light-blue/5 via-white to-sakha-lavender/5">
       <SidebarNav userType="employee" userName={userProfile.name} />
@@ -124,7 +116,7 @@ const EmployeeDashboard = () => {
               icon={feature.icon}
               path={feature.path}
               isPremium={feature.isPremium}
-              userSubscription={subscriptionDisplay()}
+              userSubscription={userProfile.subscription}
             />
           ))}
         </div>

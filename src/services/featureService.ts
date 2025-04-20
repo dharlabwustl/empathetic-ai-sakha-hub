@@ -1,9 +1,32 @@
 
-export type PlanType = 'free' | 'basic' | 'premium' | 'enterprise' | 'group' | 'institute' | 'corporate';
+import { getFeatures } from "@/pages/dashboard/student/utils/FeatureManager";
+import { ReactNode } from "react";
+
+export enum PlanType {
+  Free = "free",
+  Basic = "basic",
+  Premium = "premium",
+  Group = "group", 
+  Institute = "institute",
+  Corporate = "corporate"
+}
 
 export enum SubscriptionInterval {
   Monthly = "monthly",
   Yearly = "yearly"
+}
+
+export interface Feature {
+  title: string;
+  description: string;
+  path: string;
+  isPremium: boolean;
+  icon: ReactNode;
+  freeAccessLimit?: {
+    type: "time" | "usage" | "content",
+    limit: number // days, count, or percentage
+  };
+  allowedPlans?: PlanType[];
 }
 
 export interface SubscriptionPlan {
@@ -12,197 +35,89 @@ export interface SubscriptionPlan {
   type: PlanType;
   price: number;
   interval: SubscriptionInterval;
-  features: string[];
+  features: string[]; // Feature titles
+  maxUsers?: number; // For group, institute, corporate plans
   description: string;
-  maxUsers?: number;
-  trialDays?: number;
+  trialDays?: number; // Adding trial period
 }
 
-export interface Feature {
-  id?: string;
-  title: string;
-  description: string;
-  path: string;
-  icon: string;
-  isPremium: boolean;
-  allowedPlans?: PlanType[];
-  freeAccessLimit?: {
-    type: 'usage' | 'content';
-    limit: number;
-  };
-}
-
-export interface FeatureSettings {
-  enableBetaFeatures: boolean;
-  defaultPremiumAccess: boolean;
-  freePlanAccess: string[];
-}
-
-export interface FeatureStats {
-  totalFeatures: number;
-  premiumFeatures: number;
-  freeFeatures: number;
-  mostUsedFeature: {
-    id: string;
-    title: string;
-    usageCount: number;
-  };
-}
-
-// Mock subscription plans
-const MOCK_SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
-  {
-    id: "free-plan",
-    name: "Free Plan",
-    type: "free",
-    price: 0,
-    interval: SubscriptionInterval.Monthly,
-    features: ["Basic chat support", "Limited study materials", "Progress tracking"],
-    description: "Basic features to get you started"
-  },
-  {
-    id: "basic-plan",
-    name: "Basic Plan",
-    type: "basic",
-    price: 499,
-    interval: SubscriptionInterval.Monthly,
-    features: ["Unlimited chat support", "Full study materials", "Progress tracking", "Personalized study plans"],
-    description: "Essential features for serious students",
-    trialDays: 7
-  },
-  {
-    id: "premium-plan",
-    name: "Premium Plan",
-    type: "premium",
-    price: 999,
-    interval: SubscriptionInterval.Monthly,
-    features: [
-      "All Basic Plan features",
-      "Mock tests with analysis",
-      "Personalized feedback",
-      "Live doubt clearing sessions",
-      "Premium study materials"
-    ],
-    description: "Comprehensive package for dedicated students",
-    trialDays: 7
-  },
-  {
-    id: "group-plan",
-    name: "Group Plan",
-    type: "group",
-    price: 1999,
-    interval: SubscriptionInterval.Monthly,
-    features: [
-      "All Premium Plan features",
-      "Group study sessions",
-      "Collaborative learning tools",
-      "Shared resources",
-      "Group analytics"
-    ],
-    description: "Perfect for study groups",
-    maxUsers: 5
-  },
-  {
-    id: "institute-plan",
-    name: "Institute Plan",
-    type: "institute",
-    price: 9999,
-    interval: SubscriptionInterval.Monthly,
-    features: [
-      "All Premium Plan features",
-      "Customized institute branding",
-      "Centralized administration",
-      "Batch management",
-      "Performance analytics",
-      "Content customization"
-    ],
-    description: "Complete solution for educational institutes",
-    maxUsers: 100
-  }
-];
-
-// Mock feature service
 export const featureService = {
-  getFeatures: async (): Promise<Feature[]> => {
+  getAllFeatures: async (): Promise<Feature[]> => {
+    return getFeatures();
+  },
+  
+  updateFeature: async (updatedFeature: Feature): Promise<Feature> => {
+    return updatedFeature;
+  },
+  
+  toggleFeaturePremium: async (featureTitle: string, isPremium: boolean): Promise<boolean> => {
+    return true;
+  },
+
+  getSubscriptionPlans: async (): Promise<SubscriptionPlan[]> => {
     return [
       {
-        id: "feature1",
-        title: "AI Tutor",
-        description: "Get instant help with any subject",
-        path: "/dashboard/student/tutor",
-        icon: "message-square",
-        isPremium: false
+        id: "free-plan",
+        name: "Free Trial",
+        type: PlanType.Free,
+        price: 0,
+        interval: SubscriptionInterval.Monthly,
+        features: ["24/7 Tutor", "Academic Advisor", "Flashcards & Revision"],
+        description: "7-day trial access to essential features",
+        trialDays: 7
       },
       {
-        id: "feature2",
-        title: "Study Plan Generator",
-        description: "Create personalized study plans",
-        path: "/dashboard/student/study-plan",
-        icon: "calendar",
-        isPremium: false
+        id: "basic-plan",
+        name: "Basic Plan",
+        type: PlanType.Basic,
+        price: 499,
+        interval: SubscriptionInterval.Monthly,
+        features: ["24/7 Tutor", "Academic Advisor", "Flashcards & Revision", "Practice Exams", "Goal Tracking", "Video Library", "Smart Notifications"],
+        description: "Full access to standard features"
       },
       {
-        id: "feature3",
-        title: "Mock Tests",
-        description: "Practice with realistic exam simulations",
-        path: "/dashboard/student/mock-tests",
-        icon: "file-text",
-        isPremium: true
+        id: "premium-plan",
+        name: "Premium Plan",
+        type: PlanType.Premium,
+        price: 999,
+        interval: SubscriptionInterval.Monthly,
+        features: ["24/7 Tutor", "Academic Advisor", "Flashcards & Revision", "Practice Exams", "Goal Tracking", "Video Library", "Smart Notifications", "Motivation Coach", "Mental Health Zone", "My Materials Vault", "Live Tutors", "Collaborative Forum"],
+        description: "Complete access to all features including premium content"
+      },
+      {
+        id: "group-plan",
+        name: "Group Plan",
+        type: PlanType.Group,
+        price: 3999,
+        interval: SubscriptionInterval.Monthly,
+        maxUsers: 5,
+        features: ["24/7 Tutor", "Academic Advisor", "Flashcards & Revision", "Practice Exams", "Goal Tracking", "Video Library", "Smart Notifications", "Motivation Coach"],
+        description: "Shared access for 5 users with premium features"
+      },
+      {
+        id: "institute-plan",
+        name: "Institute Plan",
+        type: PlanType.Institute,
+        price: 19999,
+        interval: SubscriptionInterval.Monthly,
+        maxUsers: 50,
+        features: ["24/7 Tutor", "Academic Advisor", "Flashcards & Revision", "Practice Exams", "Goal Tracking", "Video Library", "Smart Notifications", "Motivation Coach", "Mental Health Zone", "My Materials Vault", "Live Tutors"],
+        description: "Institutional access for up to 50 students with admin dashboard"
+      },
+      {
+        id: "corporate-plan",
+        name: "Corporate Plan",
+        type: PlanType.Corporate,
+        price: 49999,
+        interval: SubscriptionInterval.Monthly,
+        maxUsers: 100,
+        features: ["24/7 Tutor", "Academic Advisor", "Flashcards & Revision", "Practice Exams", "Goal Tracking", "Video Library", "Smart Notifications", "Motivation Coach", "Mental Health Zone", "My Materials Vault", "Live Tutors", "Collaborative Forum"],
+        description: "Enterprise access for employees and their families with complete features"
       }
     ];
   },
-  
-  getAllFeatures: async (): Promise<Feature[]> => {
-    // This is the same as getFeatures but added for compatibility
-    return await featureService.getFeatures();
-  },
-  
-  getFeatureSettings: async (): Promise<FeatureSettings> => {
-    return {
-      enableBetaFeatures: false,
-      defaultPremiumAccess: false,
-      freePlanAccess: ["AI Tutor", "Basic Analytics"]
-    };
-  },
-  
-  getFeatureStats: async (): Promise<FeatureStats> => {
-    return {
-      totalFeatures: 15,
-      premiumFeatures: 8,
-      freeFeatures: 7,
-      mostUsedFeature: {
-        id: "feature1",
-        title: "AI Tutor",
-        usageCount: 1245
-      }
-    };
-  },
-  
-  updateFeature: async (feature: Feature): Promise<Feature> => {
-    console.log('Feature updated', feature);
-    return feature;
-  },
-  
-  createFeature: async (feature: Feature): Promise<Feature> => {
-    const newFeature = { ...feature, id: `feature-${Date.now()}` };
-    console.log('Feature created', newFeature);
-    return newFeature;
-  },
-  
-  toggleFeature: async (featureId: string, enabled: boolean): Promise<void> => {
-    console.log(`Feature ${featureId} toggled to ${enabled}`);
-  },
-  
-  toggleFeaturePremium: async (featureId: string, isPremium: boolean): Promise<void> => {
-    console.log(`Feature ${featureId} premium status set to ${isPremium}`);
-  },
-  
-  getSubscriptionPlans: async (): Promise<SubscriptionPlan[]> => {
-    return MOCK_SUBSCRIPTION_PLANS;
-  },
-  
-  updateSubscriptionPlan: async (plan: SubscriptionPlan): Promise<SubscriptionPlan> => {
-    console.log('Plan updated:', plan);
-    return plan;
+
+  updateSubscriptionPlan: async (updatedPlan: SubscriptionPlan): Promise<SubscriptionPlan> => {
+    return updatedPlan;
   }
 };

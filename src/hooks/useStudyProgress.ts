@@ -1,53 +1,50 @@
 
-import { useState, useEffect } from 'react';
-import mockProgressData from '@/data/mockProgressData';
+import React, { useState, useEffect } from "react";
+import { SubjectProgress, StudyStreak } from "@/types/user";
+import { getAllSubjectsProgress, getStudyStreak } from "@/data/mockProgressData";
 
-export const useStudyProgress = () => {
-  const [subjectsProgress, setSubjectsProgress] = useState([]);
-  const [studyStreak, setStudyStreak] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [selectedSubject, setSelectedSubject] = useState(null);
+export function useStudyProgress() {
+  const [subjects, setSubjects] = useState<SubjectProgress[]>([]);
+  const [studyStreak, setStudyStreak] = useState<StudyStreak | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [selectedSubject, setSelectedSubject] = useState<SubjectProgress | null>(null);
 
   useEffect(() => {
-    // In a real app, this would be an API call
-    const loadData = async () => {
-      try {
-        // Mock data for subjects progress
-        const subjects = mockProgressData?.getAllSubjectsProgress ? 
-          mockProgressData.getAllSubjectsProgress() : 
-          [];
+    // Simulate API fetch
+    const fetchData = () => {
+      setLoading(true);
+
+      setTimeout(() => {
+        const subjectsData = getAllSubjectsProgress();
+        const streakData = getStudyStreak();
         
-        // Mock data for streak
-        const streak = mockProgressData?.getStudyStreak ? 
-          mockProgressData.getStudyStreak() : 
-          { current: 7, longest: 14 };
+        setSubjects(subjectsData);
+        setStudyStreak(streakData);
         
-        setSubjectsProgress(subjects);
-        setStudyStreak(streak);
-        
-        if (subjects.length > 0 && !selectedSubject) {
-          setSelectedSubject(subjects[0]);
+        // Set first subject as default selected
+        if (subjectsData.length > 0) {
+          setSelectedSubject(subjectsData[0]);
         }
-      } catch (error) {
-        console.error("Failed to load progress data:", error);
-      } finally {
+        
         setLoading(false);
-      }
+      }, 800);
     };
 
-    loadData();
-  }, [selectedSubject]);
+    fetchData();
+  }, []);
 
-  const selectSubject = (subject) => {
-    setSelectedSubject(subject);
+  const selectSubject = (subjectId: string) => {
+    const subject = subjects.find(s => s.id === subjectId);
+    if (subject) {
+      setSelectedSubject(subject);
+    }
   };
 
   return {
-    subjectsProgress,
+    subjects,
     studyStreak,
     loading,
-    subjects: subjectsProgress,
     selectedSubject,
     selectSubject
   };
-};
+}

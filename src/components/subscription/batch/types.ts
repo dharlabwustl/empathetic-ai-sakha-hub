@@ -4,7 +4,7 @@ export interface BatchMember {
   name: string;
   email: string;
   role: "member" | "leader" | "school_admin" | "corporate_admin";
-  status: "active" | "inactive" | "pending";
+  status: "active" | "pending" | "inactive";
   joinedDate?: string;
   invitationCode?: string;
   avatar?: string;
@@ -18,32 +18,20 @@ export interface BatchMember {
 export interface BatchDetails {
   id: string;
   name: string;
-  description?: string;
-  leaderName?: string;
-  leaderEmail?: string;
   createdAt: string;
+  owner: BatchMember;
   members: BatchMember[];
-  memberCount?: number;
   maxMembers: number;
-  invitationCode?: string;
+  planType: "group" | "school" | "corporate";
+  institutionName?: string;
   expiryDate?: string;
-  plan?: string;
-  planType: "school" | "corporate" | "group";
-  institution?: string;
-  owner?: {
-    id: string;
-    name: string;
-    email: string;
-    role?: "leader" | "member" | "school_admin" | "corporate_admin";
-    status?: "active" | "inactive" | "pending";
-  };
 }
 
-export interface BatchManagementProps {
-  batchDetails: BatchDetails;
-  onInviteMembers: (emails: string[]) => void;
-  batchMembers?: BatchMember[];
-  batchName?: string;
-  maxMembers?: number;
-  currentUserRole?: "leader" | "member" | "school_admin" | "corporate_admin";
+export interface BatchProgress {
+  id: string;
+  batchId: string;
+  averageCompletion: number;
+  activeMembers: number;
+  totalMembers: number;
+  lastUpdateDate: string;
 }

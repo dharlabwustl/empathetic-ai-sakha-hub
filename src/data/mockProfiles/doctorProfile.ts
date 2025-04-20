@@ -1,49 +1,71 @@
 
-import { UserProfileType, UserRole, SubscriptionType } from '@/types/user/base';
+import { DoctorProfile } from "@/types/user";
+import { UserRole, SubscriptionType } from "@/types/user/base";
+import { v4 as uuidv4 } from "uuid";
 
-export const mockDoctorProfile: UserProfileType = {
-  id: "d12345",
-  name: "Dr. Priya Patel",
-  email: "dr.priya@example.com",
+export const mockDoctorProfile: DoctorProfile = {
+  id: uuidv4(),
+  name: "Dr. Aisha Sharma",
+  email: "dr.aisha.sharma@maxhealthcare.com",
+  phoneNumber: "+919876543210",
   role: UserRole.Doctor,
-  avatar: "/lovable-uploads/e43342b1-bdb8-4aa4-ab51-f2ff046cebfc.png",
-  bio: "Cardiologist with 8 years of experience. Passionate about preventive cardiology.",
-  phoneNumber: "+91 9876543211",
-  personalityType: "practical_applier",
-  gender: "female",
-  joinDate: "2022-10-05",
-  lastActive: "2023-04-19",
-  loginCount: 32,
-  completedOnboarding: true,
+  personalityType: "Analytical Problem Solver",
+  subscription: SubscriptionType.Premium,
+  joinDate: "2025-02-10",
+  lastActive: "2025-04-07",
+  specialization: "Neurology",
+  qualifications: [
+    "MBBS - AIIMS",
+    "MD - Neurology",
+    "Fellowship - Cognitive Neuroscience"
+  ],
+  researchInterests: [
+    "Alzheimer's Disease",
+    "Neuroplasticity",
+    "Cognitive Enhancement"
+  ],
+  publications: 14,
+  institution: "Max Healthcare Institute",
+  yearsOfPractice: 8,
+  certifications: [
+    "Advanced Neurology",
+    "Clinical Research",
+    "Medical Education"
+  ],
+  researchTopic: "Neural Biomarkers for Early Alzheimer's Detection",
+  thesisTitle: "Cognitive Reserve and Neurodegenerative Progression",
+  clinicalInterest: "Memory Disorders",
+  researchPhase: "Clinical Trials",
   goals: [
     {
-      id: "g1",
-      title: "NEET-PG",
-      description: "Prepare for super specialization",
-      progress: 75,
+      id: uuidv4(),
+      title: "Complete Research Paper",
+      description: "Finish and submit paper on neural biomarkers",
+      progress: 65,
       status: "in-progress",
-      targetDate: new Date("2023-11-30")
+      dueDate: "2025-06-15",
+      targetDate: new Date("2025-06-15")
+    },
+    {
+      id: uuidv4(),
+      title: "Conference Presentation",
+      description: "Present findings at International Neurology Conference",
+      progress: 40,
+      status: "not-started",
+      dueDate: "2025-08-20",
+      targetDate: new Date("2025-08-20")
     }
   ],
   areasOfInterest: [
-    { id: "i1", name: "Cardiology", level: "Expert" },
-    { id: "i2", name: "Preventive Medicine", level: "Advanced" },
-    { id: "i3", name: "Medical Research", level: "Intermediate" }
-  ],
-  subscription: SubscriptionType.Premium,
-  address: {
-    street: "456 Hospital Road",
-    city: "Mumbai",
-    state: "Maharashtra",
-    zipCode: "400001",
-    country: "India"
-  },
-  education: {
-    level: "Post Graduate",
-    institution: "All India Institute of Medical Sciences",
-    fieldOfStudy: "Medicine",
-    graduationYear: 2015
-  }
+    {
+      id: uuidv4(),
+      name: "Machine Learning in Diagnostics",
+      level: "Intermediate"
+    },
+    {
+      id: uuidv4(),
+      name: "Clinical Research",
+      level: "Advanced"
+    }
+  ]
 };
-
-export default mockDoctorProfile;

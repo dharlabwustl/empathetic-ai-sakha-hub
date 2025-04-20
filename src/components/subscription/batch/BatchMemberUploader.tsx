@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,13 +12,11 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 interface BatchMemberUploaderProps {
   onUploadComplete: (emails: string[]) => void;
   maxMembers: number;
-  title?: string;
 }
 
 const BatchMemberUploader: React.FC<BatchMemberUploaderProps> = ({
   onUploadComplete,
-  maxMembers,
-  title = "Invite Members"
+  maxMembers
 }) => {
   const [activeTab, setActiveTab] = useState("manual");
   const [emailTextarea, setEmailTextarea] = useState("");
@@ -34,7 +33,7 @@ const BatchMemberUploader: React.FC<BatchMemberUploaderProps> = ({
     emails.forEach(email => {
       if (emailRegex.test(email.trim())) {
         valid.push(email.trim());
-      } else if (email.trim()) {
+      } else if (email.trim()) { // only add non-empty strings to invalid list
         invalid.push(email.trim());
       }
     });
@@ -43,6 +42,7 @@ const BatchMemberUploader: React.FC<BatchMemberUploaderProps> = ({
   };
 
   const handleManualSubmit = () => {
+    // Split by comma, newline or both
     const emails = emailTextarea.split(/[\s,]+/).filter(email => email.trim() !== "");
     
     if (emails.length === 0) {
@@ -95,13 +95,17 @@ const BatchMemberUploader: React.FC<BatchMemberUploaderProps> = ({
       return;
     }
 
+    // In a real app, we would parse the CSV/Excel file
+    // For this demo, we'll just simulate processing
     toast({
       title: "Processing file",
       description: "Your file is being processed...",
     });
 
+    // Simulate file processing delay
     await new Promise(resolve => setTimeout(resolve, 1500));
 
+    // Generate some fake emails
     const mockEmails = Array.from({ length: 5 }, (_, i) => 
       `student${i+1}@example.com`
     );
@@ -125,8 +129,6 @@ const BatchMemberUploader: React.FC<BatchMemberUploaderProps> = ({
 
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-medium">{title}</h3>
-      
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="manual" className="flex items-center gap-2">
@@ -179,6 +181,7 @@ const BatchMemberUploader: React.FC<BatchMemberUploaderProps> = ({
         </TabsContent>
       </Tabs>
 
+      {/* Results display */}
       {validEmails.length > 0 && (
         <div className="mt-4 p-4 bg-green-50 border border-green-100 rounded-md">
           <h3 className="text-sm font-medium text-green-800 mb-2">

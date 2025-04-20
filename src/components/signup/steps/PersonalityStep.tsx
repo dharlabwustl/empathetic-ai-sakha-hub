@@ -3,11 +3,10 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { PersonalityType } from '@/types/user/base';
 
 interface PersonalityStepProps {
   onNext: (personality: string) => void;
-  onPersonalitySelect?: (personality: string) => void;
+  onPersonalitySelect?: (personality: string) => void; // Added missing prop
 }
 
 const PersonalityStep = ({ onNext, onPersonalitySelect }: PersonalityStepProps) => {

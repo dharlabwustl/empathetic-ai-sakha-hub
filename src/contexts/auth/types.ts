@@ -1,6 +1,5 @@
 
 import { AuthUser } from '@/services/auth/authService';
-import { AdminUser } from '@/types/admin';
 
 // Auth context types
 export interface AuthContextProps {
@@ -15,19 +14,15 @@ export interface AuthContextProps {
 
 // Admin auth context types
 export interface AdminAuthContextProps {
-  adminUser: AdminUser | null;
+  adminUser: {
+    id: string;
+    name: string;
+    email: string;
+    role: string;
+    permissions?: string[];
+  } | null;
   isAuthenticated: boolean;
   loading: boolean;
-  isLoading?: boolean; // Adding this for backward compatibility
   login: (email: string, password: string) => Promise<boolean>;
   logout: () => Promise<void>;
 }
-
-// Add exam goal type
-export type ExamGoal = {
-  title: string;
-  description?: string;
-  targetDate?: Date;
-  progress?: number;
-  status?: 'not-started' | 'in-progress' | 'completed';
-};

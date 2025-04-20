@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -9,7 +10,6 @@ import { useToast } from '@/hooks/use-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface Plan {
   id: string;
@@ -190,168 +190,183 @@ export default function GroupPlanInviteModal({ plan, onClose, onComplete }: Grou
 
   return (
     <Dialog open onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md h-[90vh] flex flex-col">
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Set Up Your {getPlanTypeTitle()}</DialogTitle>
+          <DialogTitle className="text-xl">
+            Set Up Your {getPlanTypeTitle()}
+          </DialogTitle>
         </DialogHeader>
-
-        <ScrollArea className="flex-grow">
-          <div className="space-y-4 py-2 pr-4">
-            {/* Info Box */}
-            <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-md text-sm text-blue-700 dark:text-blue-200">
-              <p>You're setting up a {plan.planType || 'group'} plan for up to {getMaxUsers()} users.</p>
-              <p className="mt-1">
-                <strong>Total price: ₹{plan.price}/month</strong>
-                <span className="text-blue-600 dark:text-blue-300"> (₹{Math.round(plan.price / getMaxUsers())}/user)</span>
-              </p>
-              <p className="mt-1 text-xs">You can invite up to {maxInvites} users to join your group. You'll be charged after proceeding to payment.</p>
+        
+        <div className="space-y-4 py-2">
+          <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-md text-sm text-blue-700 dark:text-blue-200">
+            <p>You're setting up a {plan.planType || 'group'} plan for up to {getMaxUsers()} users.</p>
+            <p className="mt-1">
+              <strong>Total price: ₹{plan.price}/month</strong> 
+              <span className="text-blue-600 dark:text-blue-300"> (₹{Math.round(plan.price / getMaxUsers())}/user)</span>
+            </p>
+            <p className="mt-1 text-xs">You can invite up to {maxInvites} users to join your group. You'll be charged after proceeding to payment.</p>
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="batch-name">Batch Name</Label>
+            <Input 
+              id="batch-name" 
+              placeholder="Enter a name for your batch"
+              value={batchName}
+              onChange={(e) => setBatchName(e.target.value)}
+            />
+          </div>
+          
+          <div className="space-y-2">
+            <Label>Your Role</Label>
+            <div className="flex items-center gap-2">
+              <Shield size={16} className="text-blue-500" />
+              {getRoleOptions()}
             </div>
-
-            {/* Batch Name Input */}
-            <div className="space-y-2">
-              <Label htmlFor="batch-name">Batch Name</Label>
-              <Input
-                id="batch-name"
-                placeholder="Enter a name for your batch"
-                value={batchName}
-                onChange={(e) => setBatchName(e.target.value)}
-              />
-            </div>
-
-            {/* Role Selection */}
-            <div className="space-y-2">
-              <Label>Your Role</Label>
-              <div className="flex items-center gap-2">
-                <Shield size={16} className="text-blue-500" />
-                {getRoleOptions()}
-              </div>
-            </div>
-
-            {/* Invite Method Tabs */}
-            <Tabs defaultValue="email" onValueChange={(v) => setInviteMethod(v as 'email' | 'code')}>
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="email" className="flex items-center gap-1">
-                  <Mail size={14} /> Invite by Email
-                </TabsTrigger>
-                <TabsTrigger value="code" className="flex items-center gap-1">
-                  <Share2 size={14} /> Manage Invite Codes
-                </TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="email" className="mt-4">
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <div className="flex justify-between items-center">
-                      <Label>Invite Members (Up to {maxInvites})</Label>
-                      <span className="text-sm text-blue-600 dark:text-blue-400">
-                        {remainingInvites} invite{remainingInvites !== 1 ? 's' : ''} remaining
-                      </span>
-                    </div>
-
-                    <div className="flex space-x-2">
-                      <Input
-                        placeholder="friend@example.com"
-                        value={currentEmail}
-                        onChange={(e) => setCurrentEmail(e.target.value)}
-                        onKeyDown={handleKeyDown}
-                        disabled={emails.length >= maxInvites}
-                      />
-                      <Button
-                        type="button"
-                        size="sm"
-                        onClick={addEmail}
-                        disabled={emails.length >= maxInvites || !currentEmail.trim()}
+          </div>
+          
+          <Tabs defaultValue="email" onValueChange={(v) => setInviteMethod(v as 'email' | 'code')}>
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="email" className="flex items-center gap-1">
+                <Mail size={14} /> Invite by Email
+              </TabsTrigger>
+              <TabsTrigger value="code" className="flex items-center gap-1">
+                <Share2 size={14} /> Manage Invite Codes
+              </TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="email" className="mt-4 space-y-4">
+              <div className="space-y-2">
+                <Label>Invite Members (Up to {maxInvites})</Label>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-blue-600 dark:text-blue-400">
+                    {remainingInvites} invite{remainingInvites !== 1 ? 's' : ''} remaining
+                  </span>
+                </div>
+                
+                <div className="flex space-x-2">
+                  <Input
+                    placeholder="friend@example.com"
+                    value={currentEmail}
+                    onChange={(e) => setCurrentEmail(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    disabled={emails.length >= maxInvites}
+                  />
+                  <Button 
+                    type="button" 
+                    size="sm" 
+                    onClick={addEmail}
+                    disabled={emails.length >= maxInvites || !currentEmail.trim()}
+                  >
+                    <UserPlus size={16} />
+                  </Button>
+                </div>
+                
+                {emails.length >= maxInvites && (
+                  <p className="text-amber-600 dark:text-amber-400 text-xs">
+                    You've reached the maximum number of invitations for this plan.
+                  </p>
+                )}
+                
+                <div className="mt-2">
+                  <AnimatePresence>
+                    {emails.map((email, index) => (
+                      <motion.div
+                        key={email}
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="flex items-center justify-between bg-gray-100 dark:bg-gray-800 rounded-md px-3 py-2 mb-2"
                       >
-                        <UserPlus size={16} />
-                      </Button>
-                    </div>
-                  </div>
-
-                  <div className="max-h-48 overflow-y-auto space-y-2">
-                    <AnimatePresence>
-                      {emails.map((email, index) => (
-                        <motion.div
-                          key={email}
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: 'auto' }}
-                          exit={{ opacity: 0, height: 0 }}
-                          className="flex items-center justify-between bg-gray-100 dark:bg-gray-800 rounded-md px-3 py-2"
-                        >
-                          <span className="text-sm truncate">{email}</span>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-6 w-6 p-0"
+                        <span className="text-sm truncate">{email}</span>
+                        <div className="flex items-center gap-2">
+                          <div className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 px-2 py-0.5 rounded">
+                            {inviteCodes[index] || "Code pending"}
+                          </div>
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="h-6 w-6 p-0" 
                             onClick={() => removeEmail(email)}
                           >
                             <X size={14} />
                           </Button>
-                        </motion.div>
-                      ))}
-                    </AnimatePresence>
-                  </div>
-
-                  {emails.length === 0 && (
-                    <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400 text-sm">
-                      <AlertCircle size={16} />
-                      <span>No members added yet. You can proceed with just yourself as the batch leader.</span>
-                    </div>
-                  )}
-                </div>
-              </TabsContent>
-
-              <TabsContent value="code" className="mt-4">
-                <div className="space-y-4">
-                  <Label>Invitation Codes for Your Members</Label>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    Share these codes with your group members. They can use them during signup or activate from their profile.
-                  </p>
-
-                  <div className="space-y-2 max-h-48 overflow-y-auto">
-                    {inviteCodes.slice(0, Math.max(5, emails.length)).map((code, index) => (
-                      <div key={index} className="flex items-center space-x-2">
-                        <div className="flex-1 bg-gray-100 dark:bg-gray-800 rounded-md px-3 py-2 font-mono text-sm">
-                          {code}
                         </div>
-                        <Button
-                          type="button"
-                          size="sm"
-                          variant="outline"
-                          onClick={() => copyInviteCode(code, index)}
-                        >
-                          {copiedIndex === index ? <Check size={14} /> : <Copy size={14} />}
-                          {copiedIndex === index ? "Copied" : "Copy"}
-                        </Button>
-                      </div>
+                      </motion.div>
                     ))}
-                  </div>
+                  </AnimatePresence>
                 </div>
-              </TabsContent>
-            </Tabs>
-          </div>
-        </ScrollArea>
-
-        <div className="pt-4 border-t border-gray-200 dark:border-gray-700 mt-4">
-          <div className="flex justify-between gap-2">
-            <Button variant="outline" onClick={onClose} disabled={isSubmitting}>
-              Cancel
-            </Button>
-            <Button 
-              onClick={handleSubmit}
-              disabled={isSubmitting || !batchName.trim()}
-              className="min-w-[140px]"
-            >
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Processing
-                </>
-              ) : (
-                'Continue to Payment'
-              )}
-            </Button>
-          </div>
+                
+                {emails.length === 0 && (
+                  <div className="flex items-center gap-2 mt-2 text-amber-600 dark:text-amber-400 text-sm">
+                    <AlertCircle size={16} />
+                    <span>No members added yet. You can proceed with just yourself as the {roleType === 'batch_leader' ? 'batch leader' : 'administrator'}.</span>
+                  </div>
+                )}
+                
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-4">
+                  You'll proceed to payment after selecting your group members. Each person will receive
+                  a unique activation code to access premium features.
+                </p>
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="code" className="mt-4 space-y-4">
+              <div className="space-y-2">
+                <Label>Invitation Codes for Your Members</Label>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                  Share these codes with your group members. They can use them during signup or activate from their profile page.
+                </p>
+                
+                <div className="space-y-2">
+                  {inviteCodes.slice(0, Math.max(5, emails.length)).map((code, index) => (
+                    <div key={index} className="flex items-center space-x-2">
+                      <div className="flex-1 bg-gray-100 dark:bg-gray-800 rounded-md px-3 py-2 font-mono text-sm">
+                        {code}
+                      </div>
+                      <Button 
+                        type="button" 
+                        size="sm" 
+                        variant="outline"
+                        className="flex items-center gap-1"
+                        onClick={() => copyInviteCode(code, index)}
+                      >
+                        {copiedIndex === index ? <Check size={14} /> : <Copy size={14} />}
+                        {copiedIndex === index ? "Copied" : "Copy"}
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+                
+                <div className="bg-amber-50 dark:bg-amber-900/20 p-3 rounded-md text-sm text-amber-700 dark:text-amber-200 mt-4">
+                  <p className="flex items-start">
+                    <span className="mr-2">ℹ️</span>
+                    <span>
+                      You'll be able to manage and view these codes in your profile after payment. 
+                      These codes will only activate after you complete the payment.
+                    </span>
+                  </p>
+                </div>
+              </div>
+            </TabsContent>
+          </Tabs>
         </div>
+        
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose} disabled={isSubmitting}>
+            Cancel
+          </Button>
+          <Button onClick={handleSubmit} disabled={isSubmitting || !batchName.trim()}>
+            {isSubmitting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Processing
+              </>
+            ) : (
+              'Continue to Payment'
+            )}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

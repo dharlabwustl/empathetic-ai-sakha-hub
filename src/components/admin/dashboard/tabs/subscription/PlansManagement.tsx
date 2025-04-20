@@ -18,7 +18,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { PlanType, SubscriptionPlan, SubscriptionInterval, featureService } from "@/services/featureService";
+import { featureService, PlanType, SubscriptionPlan, SubscriptionInterval } from "@/services/featureService";
 
 const PlansManagement = () => {
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
@@ -31,7 +31,7 @@ const PlansManagement = () => {
   // Form state for editing or creating a plan
   const [formData, setFormData] = useState<Partial<SubscriptionPlan>>({
     name: "",
-    type: "basic" as PlanType,
+    type: PlanType.Basic,
     price: 0,
     interval: SubscriptionInterval.Monthly,
     features: [],
@@ -155,21 +155,21 @@ const PlansManagement = () => {
           {plans.map((plan) => (
             <Card key={plan.id} className="overflow-hidden border border-gray-100 hover:shadow-md transition-shadow">
               <CardHeader className={`
-                ${plan.type === "premium" ? "bg-gradient-to-r from-purple-500 to-violet-600 text-white" : 
-                  plan.type === "free" ? "bg-gray-100" : 
-                  plan.type === "group" ? "bg-blue-50" : 
-                  plan.type === "institute" || plan.type === "corporate" ? "bg-amber-50" : "bg-gray-50"}
+                ${plan.type === PlanType.Premium ? "bg-gradient-to-r from-purple-500 to-violet-600 text-white" : 
+                  plan.type === PlanType.Free ? "bg-gray-100" : 
+                  plan.type === PlanType.Group ? "bg-blue-50" : 
+                  plan.type === PlanType.Institute || plan.type === PlanType.Corporate ? "bg-amber-50" : "bg-gray-50"}
               `}>
                 <div className="flex justify-between items-start">
                   <div>
-                    <CardTitle className={plan.type === "premium" ? "text-white" : ""}>{plan.name}</CardTitle>
-                    <CardDescription className={plan.type === "premium" ? "text-white/80" : ""}>
+                    <CardTitle className={plan.type === PlanType.Premium ? "text-white" : ""}>{plan.name}</CardTitle>
+                    <CardDescription className={plan.type === PlanType.Premium ? "text-white/80" : ""}>
                       {plan.type} • {plan.interval}
                     </CardDescription>
                   </div>
                   <div className="flex gap-2">
                     <Button variant="ghost" size="icon" onClick={() => handleEditPlan(plan)}>
-                      <Pencil size={16} className={plan.type === "premium" ? "text-white" : ""} />
+                      <Pencil size={16} className={plan.type === PlanType.Premium ? "text-white" : ""} />
                     </Button>
                   </div>
                 </div>
@@ -246,12 +246,12 @@ const PlansManagement = () => {
                     <SelectValue placeholder="Select type" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="free">Free</SelectItem>
-                    <SelectItem value="basic">Basic</SelectItem>
-                    <SelectItem value="premium">Premium</SelectItem>
-                    <SelectItem value="group">Group</SelectItem>
-                    <SelectItem value="institute">Institute</SelectItem>
-                    <SelectItem value="corporate">Corporate</SelectItem>
+                    <SelectItem value={PlanType.Free}>Free</SelectItem>
+                    <SelectItem value={PlanType.Basic}>Basic</SelectItem>
+                    <SelectItem value={PlanType.Premium}>Premium</SelectItem>
+                    <SelectItem value={PlanType.Group}>Group</SelectItem>
+                    <SelectItem value={PlanType.Institute}>Institute</SelectItem>
+                    <SelectItem value={PlanType.Corporate}>Corporate</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -297,9 +297,9 @@ const PlansManagement = () => {
               />
             </div>
             
-            {(formData.type === "group" || 
-              formData.type === "institute" || 
-              formData.type === "corporate") && (
+            {(formData.type === PlanType.Group || 
+              formData.type === PlanType.Institute || 
+              formData.type === PlanType.Corporate) && (
               <div className="space-y-2">
                 <Label htmlFor="maxUsers">Maximum Users</Label>
                 <Input
