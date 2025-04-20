@@ -1,1593 +1,390 @@
-import React, { useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { useStudentDashboard } from '@/hooks/useStudentDashboard';
-import DashboardLayout from './DashboardLayout';
-import DashboardLoading from './DashboardLoading';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useToast } from '@/hooks/use-toast';
-import { Separator } from '@/components/ui/separator';
-import SubscriptionPlans from '@/components/subscription/SubscriptionPlans';
-import { CreditCard, CalendarClock, Clock, AlertCircle, CheckCircle, Users } from 'lucide-react';
-import { SubscriptionPlan } from '@/types/user';
-import { formatDateTime } from '@/utils/dateUtils';
 
-interface UserSubscription {
-  id: string;
-  planName: string;
-  startDate: string;
-  endDate: string;
-  nextBillingDate?: string;
-  status: 'active' | 'inactive' | 'pending' | 'cancelled' | 'expired';
-  price: number;
-  isGroupPlan: boolean;
-  groupId?: string;
-  maxMembers?: number;
-  memberCount?: number;
-  isGroupLeader?: boolean;
-}
+import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import DashboardLayout from "@/components/dashboard/student/DashboardLayout";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/hooks/use-toast";
+import { Check, CreditCard, Users, Calendar, ArrowRight } from "lucide-react";
+import SubscriptionPlans from "@/components/subscription/SubscriptionPlans";
+import { SubscriptionPlan } from "@/types/user";
+import { useStudentDashboard } from "@/hooks/useStudentDashboard";
+import DashboardLoading from "./DashboardLoading";
 
-// Define BatchInvitationInput component inline
-const BatchInvitationInput = ({ 
-  onActivate, 
-  activationSuccess 
-}: { 
-  onActivate: (code: string) => Promise<boolean>;
-  activationSuccess: boolean;
-}) => {
-  const [code, setCode] = useState('');
-  const [isActivating, setIsActivating] = useState(false);
+const SubscriptionPage = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { toast } = useToast();
+  const { userProfile, loading } = useStudentDashboard();
+  const [activePlan, setActivePlan] = useState<SubscriptionPlan | null>(null);
+  const [activeTab, setActiveTab] = useState("current");
+  const [showUpgradeOptions, setShowUpgradeOptions] = useState(false);
   
-  const handleActivate = async () => {
-    if (!code) return;
-    
-    setIsActivating(true);
-    const success = await onActivate(code);
-    setIsActivating(false);
-    
-    if (success) {
-      setCode('');
-    }
+  // Get information from location state (if redirected from checkout/payment)
+  const planUpdated = location.state?.planUpdated;
+  const newPlan = location.state?.newPlan;
+  const isGroup = location.state?.isGroup;
+  const isGroupLeader = location.state?.isGroupLeader;
+  const inviteCodes = location.state?.inviteCodes;
+  const invitedEmails = location.state?.invitedEmails;
+  
+  // Format date for display
+  const formatDate = (date: string) => {
+    return new Date(date).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
   };
   
-  return (
-    <div className="space-y-4">
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-xl">Activate Invitation Code</CardTitle>
-          <CardDescription>
-            Enter the invitation code shared by your group leader
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {activationSuccess ? (
-            <div className="flex items-center space-x-2 p-4 bg-green-50 border border-green-200 rounded-md">
-              <CheckCircle className="h-5 w-5 text-green-500" />
-              <p className="text-green-700">Code successfully activated! Your subscription is now active.</p>
-            </div>
-          ) : (
-            <>
-              <div className="flex space-x-2">
-                <Input
-                  placeholder="Enter invitation code (e.g., SAKHA-ABC123)"
-                  value={code}
-                  onChange={(e) => setCode(e.target.value)}
-                  className="flex-1"
-                  disabled={isActivating}
-                />
-                <Button 
-                  onClick={handleActivate} 
-                  disabled={!code || isActivating}
-                >
-                  {isActivating ? "Activating..." : "Activate"}
-                </Button>
-              </div>
-              <p className="text-sm text-muted-foreground">
-                The invitation code is case-sensitive and follows the format SAKHA-XXXXXX
-              </p>
-            </>
-          )}
-        </CardContent>
-      </Card>
-    </div>
-  );
-};
-
-export default function SubscriptionPage() {
-  const {
-    userProfile,
-    loading,
-    activeTab,
-    showWelcomeTour,
-    hideTabsNav,
-    hideSidebar,
-    kpis,
-    nudges,
-    markNudgeAsRead,
-    handleTabChange,
-    handleSkipTour,
-    handleCompleteTour,
-    showStudyPlan,
-    handleViewStudyPlan,
-    handleCloseStudyPlan,
-    toggleSidebar,
-    toggleTabsNav
-  } = useStudentDashboard();
-  
-  const [currentTab, setCurrentTab] = useState('current');
-  const [subscription, setSubscription] = useState<UserSubscription | null>(null);
-  const [activationCode, setActivationCode] = useState('');
-  const [isActivating, setIsActivating] = useState(false);
-  const [activationSuccess, setActivationSuccess] = useState(false);
-  const [inviteCodes, setInviteCodes] = useState<string[]>([]);
-  const [invitedEmails, setInvitedEmails] = useState<string[]>([]);
-  
-  const location = useLocation();
-  const navigate = useNavigate();
-  const { toast } = useToast();
+  // Calculate next billing date (1 month from now)
+  const getNextBillingDate = () => {
+    const date = new Date();
+    date.setMonth(date.getMonth() + 1);
+    return formatDate(date.toISOString());
+  };
   
   useEffect(() => {
-    // Check for state passed from checkout page
-    const state = location.state as any;
-    if (state?.planUpdated) {
+    // If we have plan update information in location state, update the active plan
+    if (planUpdated && newPlan) {
+      setActivePlan(newPlan);
+      
+      // Show success toast
       toast({
-        title: "Subscription Updated",
-        description: `You are now subscribed to ${state.newPlan.name}`,
+        title: "Subscription Activated",
+        description: `Your ${newPlan.name} plan has been successfully activated.`,
       });
       
-      if (state.isGroupLeader) {
-        setInviteCodes(state.inviteCodes || []);
-        setInvitedEmails(state.invitedEmails || []);
-      }
-      
-      // Remove the state to prevent showing the message on refresh
-      window.history.replaceState({}, document.title);
-    }
-    
-    // Load mock subscription data
-    const mockSubscription = {
-      id: '123',
-      planName: 'Premium Plan',
-      startDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days ago
-      endDate: new Date(Date.now() + 335 * 24 * 60 * 60 * 1000).toISOString(), // 335 days in future
-      nextBillingDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days in future
-      status: 'active' as const,
-      price: 999,
-      isGroupPlan: false,
-    };
-    
-    setSubscription(mockSubscription);
-    
-    // If we have a groupId in the state, switch to the group tab
-    if (state?.isGroupLeader) {
-      setCurrentTab('group');
-      setSubscription({
-        ...mockSubscription,
-        isGroupPlan: true,
-        groupId: '456',
-        maxMembers: 5,
-        memberCount: state.invitedEmails?.length + 1 || 1,
-        isGroupLeader: true,
-        planName: 'Group Plan'
-      });
-    }
-  }, [location.state]);
-  
-  const handleActivateCode = async (code: string): Promise<boolean> => {
-    setIsActivating(true);
-    
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const success = code.startsWith('SAKHA-');
-        
-        if (success) {
-          setActivationSuccess(true);
-          
-          toast({
-            title: "Activation Successful",
-            description: "Your subscription has been activated.",
-          });
-          
-          setSubscription({
-            id: '789',
-            planName: 'Premium Plan',
-            startDate: new Date().toISOString(),
-            endDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
-            nextBillingDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-            status: 'active',
-            price: 999,
-            isGroupPlan: false,
-          });
-        } else {
-          toast({
-            title: "Activation Failed",
-            description: "Invalid activation code. Please try again.",
-            variant: "destructive"
-          });
-        }
-        
-        setIsActivating(false);
-        resolve(success);
-      }, 1500);
-    });
-  };
-  
-  const handleSelectPlan = (plan: SubscriptionPlan, isGroup?: boolean) => {
-    toast({
-      title: "Plan Selected",
-      description: `You selected the ${plan.name}. Proceeding to checkout.`,
-    });
-    
-    if (isGroup) {
-      navigate('/dashboard/student/group-checkout', { 
-        state: { 
-          plan: {
-            ...plan,
-            planType: 'group'
-          }
-        } 
-      });
+      // Clear the location state to prevent showing the toast again on refresh
+      window.history.replaceState({}, document.title, window.location.pathname);
     } else {
-      navigate('/checkout', { 
-        state: { 
-          selectedPlan: plan,
-          isGroup: false
-        } 
+      // In a real app, fetch the active plan from the backend
+      // For now, simulate having an active plan with the Basic plan
+      // This would normally be fetched from the user profile data
+      setActivePlan({
+        id: "basic",
+        name: "Basic Plan",
+        description: "Access to core learning materials",
+        price: 499,
+        features: [
+          "Access to core learning materials",
+          "Practice question banks",
+          "Basic progress tracking",
+          "Community forum access",
+        ],
+        isPopular: false,
+        maxMembers: isGroup ? 5 : undefined,
       });
     }
-  };
-  
-  const handleManageBatch = () => {
-    navigate('/dashboard/student/batch');
-  };
-  
-  const handleManageSubscription = () => {
-    toast({
-      title: "Subscription Management",
-      description: "Redirecting to billing portal...",
-    });
-    
-    // Mock redirection to billing portal
-    setTimeout(() => {
-      window.open('https://billing.stripe.com/p/session/test_portal', '_blank');
-    }, 1000);
-  };
-  
-  const handleCancelSubscription = () => {
-    toast({
-      title: "Cancel Subscription",
-      description: "Redirecting to billing portal to cancel your subscription...",
-    });
-    
-    // Mock redirection to billing portal for cancellation
-    setTimeout(() => {
-      window.open('https://billing.stripe.com/p/session/test_portal', '_blank');
-    }, 1000);
-  };
-  
+  }, [planUpdated, newPlan]);
+
   if (loading || !userProfile) {
     return <DashboardLoading />;
   }
 
-  // Format price for display
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      maximumFractionDigits: 0
-    }).format(price);
+  const handleUpgrade = (plan: SubscriptionPlan, isGroupPlan?: boolean) => {
+    navigate("/checkout", {
+      state: {
+        selectedPlan: plan, 
+        isGroup: isGroupPlan,
+        userInfo: {
+          name: userProfile.name,
+          email: userProfile.email,
+        }
+      }
+    });
+  };
+
+  const handleManageGroupMembers = () => {
+    navigate("/dashboard/student/manage-group");
   };
 
   return (
-    <DashboardLayout
-      userProfile={userProfile}
-      hideSidebar={hideSidebar}
-      hideTabsNav={hideTabsNav}
-      activeTab={activeTab}
-      kpis={kpis}
-      nudges={nudges}
-      markNudgeAsRead={markNudgeAsRead}
-      showWelcomeTour={showWelcomeTour}
-      onTabChange={handleTabChange}
-      onViewStudyPlan={handleViewStudyPlan}
-      onToggleSidebar={toggleSidebar}
-      onToggleTabsNav={toggleTabsNav}
-      onSkipTour={handleSkipTour}
-      onCompleteTour={handleCompleteTour}
-      showStudyPlan={showStudyPlan}
-      onCloseStudyPlan={handleCloseStudyPlan}
-    >
-      <div className="container max-w-6xl mx-auto">
-        <h1 className="text-3xl font-bold mb-2">Subscription</h1>
-        <p className="text-gray-500 dark:text-gray-400 mb-6">
-          Manage your subscription and plan details
-        </p>
+    <DashboardLayout userProfile={userProfile}>
+      <div className="py-6">
+        <h1 className="text-3xl font-bold mb-6">Subscription</h1>
         
-        <Tabs value={currentTab} onValueChange={setCurrentTab} className="space-y-6">
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="mb-6">
             <TabsTrigger value="current">Current Plan</TabsTrigger>
-            <TabsTrigger value="plans">Available Plans</TabsTrigger>
-            <TabsTrigger value="group">Group Plans</TabsTrigger>
-            <TabsTrigger value="activate">Activate Code</TabsTrigger>
+            <TabsTrigger value="billing">Billing</TabsTrigger>
+            <TabsTrigger value="upgrade">Upgrade</TabsTrigger>
           </TabsList>
           
           <TabsContent value="current">
-            {subscription ? (
+            {activePlan ? (
               <div className="space-y-6">
                 <Card>
                   <CardHeader>
-                    <div className="flex justify-between items-start">
+                    <div className="flex justify-between items-center">
                       <div>
-                        <CardTitle>Current Subscription</CardTitle>
-                        <CardDescription>Your active subscription details</CardDescription>
+                        <CardTitle>Your Current Plan</CardTitle>
+                        {isGroup && (
+                          <p className="text-sm text-muted-foreground mt-1">Group Plan</p>
+                        )}
                       </div>
-                      <Badge className={`${subscription.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-800'}`}>
-                        {subscription.status === 'active' ? 'Active' : subscription.status}
+                      <Badge variant="outline" className="bg-primary/10 text-primary">
+                        Active
                       </Badge>
                     </div>
                   </CardHeader>
-                  
-                  <CardContent className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                      <div className="border rounded-lg p-4 flex flex-col">
-                        <p className="text-sm text-muted-foreground mb-1">Plan</p>
-                        <p className="text-lg font-semibold">{subscription.planName}</p>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          {subscription.isGroupPlan ? 'Group Plan' : 'Individual Plan'}
-                        </p>
-                      </div>
-                      
-                      <div className="border rounded-lg p-4 flex flex-col">
-                        <p className="text-sm text-muted-foreground mb-1">Price</p>
-                        <p className="text-lg font-semibold">{formatPrice(subscription.price)}</p>
-                        <p className="text-sm text-muted-foreground mt-1">per month</p>
-                      </div>
-                      
-                      <div className="border rounded-lg p-4 flex flex-col">
-                        <p className="text-sm text-muted-foreground mb-1">Renewal Date</p>
-                        <p className="text-lg font-semibold">
-                          {subscription.nextBillingDate ? formatDateTime(subscription.nextBillingDate) : 'N/A'}
-                        </p>
-                        <p className="text-sm text-muted-foreground mt-1 flex items-center">
-                          <CalendarClock className="h-3 w-3 mr-1" /> 
-                          Auto-renewal {subscription.status === 'active' ? 'enabled' : 'disabled'}
-                        </p>
-                      </div>
-                    </div>
-                    
-                    {subscription.isGroupPlan && (
-                      <div className="border rounded-lg p-4">
-                        <div className="flex justify-between items-center mb-4">
-                          <div>
-                            <h3 className="font-medium">Group Details</h3>
+                  <CardContent>
+                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                      <div>
+                        <h2 className="text-2xl font-bold">{activePlan.name}</h2>
+                        <p className="text-muted-foreground">{activePlan.description}</p>
+                        
+                        <div className="mt-4 flex items-center">
+                          <Calendar className="mr-2 h-4 w-4 text-muted-foreground" />
+                          <span className="text-sm">Next billing: {getNextBillingDate()}</span>
+                        </div>
+                        
+                        {isGroup && isGroupLeader && (
+                          <div className="mt-4">
+                            <p className="text-sm font-medium mb-1">Group Members</p>
                             <p className="text-sm text-muted-foreground">
-                              {subscription.memberCount} of {subscription.maxMembers} members
+                              {invitedEmails ? invitedEmails.length + 1 : 1} of {activePlan.maxMembers} members
                             </p>
                           </div>
-                          
-                          {subscription.isGroupLeader && (
-                            <Button onClick={handleManageBatch} variant="outline">
+                        )}
+                      </div>
+                      
+                      <div className="space-y-3">
+                        <div className="text-right">
+                          <span className="text-2xl font-bold">₹{activePlan.price}</span>
+                          <span className="text-muted-foreground">/month</span>
+                        </div>
+                        
+                        <div className="flex gap-2">
+                          <Button onClick={() => setActiveTab("upgrade")} variant="outline">
+                            Upgrade Plan
+                          </Button>
+                          {isGroup && isGroupLeader && (
+                            <Button onClick={handleManageGroupMembers}>
                               Manage Group
                             </Button>
                           )}
                         </div>
-                        
-                        {inviteCodes.length > 0 && (
-                          <div className="mt-4 space-y-2">
-                            <h4 className="text-sm font-medium">Invitation Codes</h4>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                              {inviteCodes.map((code, index) => (
-                                <div key={index} className="flex items-center justify-between bg-muted p-2 rounded text-sm">
-                                  <div className="flex items-center">
-                                    <Users className="h-3.5 w-3.5 mr-2 text-muted-foreground" />
-                                    <span>{invitedEmails[index]}</span>
-                                  </div>
-                                  <span className="font-mono text-muted-foreground">{code}</span>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        )}
                       </div>
-                    )}
-                  </CardContent>
-                  
-                  <CardFooter className="flex justify-between">
-                    <div className="text-sm text-muted-foreground flex items-center">
-                      <Clock className="h-4 w-4 mr-1" />
-                      Subscribed since {formatDateTime(subscription.startDate)}
                     </div>
                     
-                    <div className="flex gap-2">
-                      <Button variant="outline" onClick={handleCancelSubscription}>
-                        Cancel Subscription
-                      </Button>
-                      <Button onClick={handleManageSubscription}>
-                        Manage Billing
-                      </Button>
+                    <div className="mt-8 border-t pt-4">
+                      <p className="font-medium mb-2">Plan Features:</p>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                        {activePlan.features.map((feature, i) => (
+                          <div key={i} className="flex items-start gap-2">
+                            <Check className="h-4 w-4 text-green-600 mt-1" />
+                            <span>{feature}</span>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                  </CardFooter>
+                  </CardContent>
                 </Card>
+                
+                {isGroup && isGroupLeader && inviteCodes && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Invitation Codes</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-muted-foreground mb-4">
+                        Share these codes with your team members to join your group plan.
+                      </p>
+                      <div className="space-y-3">
+                        {inviteCodes.map((code, index) => (
+                          <div key={index} className="flex justify-between items-center bg-muted/30 p-3 rounded-md">
+                            <div>
+                              <p className="font-mono font-medium">{code}</p>
+                              <p className="text-sm text-muted-foreground">{invitedEmails?.[index]}</p>
+                            </div>
+                            <Button variant="outline" size="sm" onClick={() => {
+                              navigator.clipboard.writeText(code);
+                              toast({
+                                title: "Code copied",
+                                description: "Invitation code copied to clipboard",
+                              });
+                            }}>
+                              Copy Code
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
               </div>
             ) : (
               <Card>
                 <CardHeader>
-                  <CardTitle>No Active Subscription</CardTitle>
-                  <CardDescription>You don't have an active subscription</CardDescription>
+                  <CardTitle>No Active Plan</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-muted-foreground">Explore our different plans to enhance your learning experience.</p>
+                  <p className="text-muted-foreground mb-4">
+                    You don't have an active subscription plan. Choose a plan to get started.
+                  </p>
+                  <Button onClick={() => setActiveTab("upgrade")}>
+                    Choose a Plan
+                  </Button>
                 </CardContent>
-                <CardFooter>
-                  <Button onClick={() => setCurrentTab('plans')}>View Plans</Button>
-                </CardFooter>
               </Card>
             )}
           </TabsContent>
           
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-        
-      
-    
-  
-}
+          <TabsContent value="billing">
+            <Card>
+              <CardHeader>
+                <CardTitle>Billing History</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {activePlan ? (
+                  <div className="space-y-6">
+                    <div className="space-y-2">
+                      <h3 className="font-medium">Billing Information</h3>
+                      <div className="bg-muted/50 p-4 rounded-md space-y-2">
+                        <div className="flex justify-between">
+                          <span>Current Plan</span>
+                          <span className="font-medium">{activePlan.name}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Monthly Cost</span>
+                          <span className="font-medium">₹{activePlan.price}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Next Billing Date</span>
+                          <span className="font-medium">{getNextBillingDate()}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Payment Method</span>
+                          <span className="font-medium">•••• 4242</span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <h3 className="font-medium mb-2">Recent Transactions</h3>
+                      <div className="border rounded-md overflow-hidden">
+                        <table className="min-w-full divide-y divide-border">
+                          <thead className="bg-muted/50">
+                            <tr>
+                              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                                Date
+                              </th>
+                              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                                Description
+                              </th>
+                              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                                Amount
+                              </th>
+                              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                                Status
+                              </th>
+                            </tr>
+                          </thead>
+                          <tbody className="bg-background divide-y divide-border">
+                            <tr>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm">
+                                {formatDate(new Date().toISOString())}
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm">
+                                {activePlan.name} Subscription
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm">
+                                ₹{activePlan.price}
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm">
+                                <span className="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">
+                                  Paid
+                                </span>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                    
+                    <div className="flex gap-3">
+                      <Button variant="outline">
+                        <CreditCard className="mr-2 h-4 w-4" />
+                        Update Payment Method
+                      </Button>
+                      <Button variant="outline">
+                        Download Invoices
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <p className="text-muted-foreground mb-4">
+                      No billing history available. Subscribe to a plan to view your billing information.
+                    </p>
+                    <Button onClick={() => setActiveTab("upgrade")}>
+                      Choose a Plan
+                    </Button>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+          
+          <TabsContent value="upgrade">
+            <div className="space-y-6">
+              {activePlan && (
+                <Card className="bg-primary/5 border-primary/20">
+                  <CardContent className="pt-6">
+                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                      <div>
+                        <h3 className="text-lg font-medium">Current Plan: {activePlan.name}</h3>
+                        <p className="text-muted-foreground">
+                          You're currently on the {activePlan.name} (₹{activePlan.price}/month)
+                        </p>
+                      </div>
+                      <Button variant="outline" onClick={() => setActiveTab("current")}>
+                        View Plan Details
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+              
+              <div>
+                <h2 className="text-2xl font-bold mb-2">Choose a Plan</h2>
+                <p className="text-muted-foreground mb-6">
+                  Select the plan that works best for your learning goals.
+                </p>
+                
+                <Tabs defaultValue="individual">
+                  <TabsList className="mb-6">
+                    <TabsTrigger value="individual">Individual Plans</TabsTrigger>
+                    <TabsTrigger value="group">Group Plans</TabsTrigger>
+                  </TabsList>
+                  
+                  <TabsContent value="individual">
+                    <SubscriptionPlans 
+                      currentPlanId={activePlan?.id} 
+                      onSelectPlan={(plan) => handleUpgrade(plan)}
+                      showGroupOption={false}
+                    />
+                  </TabsContent>
+                  
+                  <TabsContent value="group">
+                    <SubscriptionPlans 
+                      currentPlanId={activePlan?.id}
+                      onSelectPlan={(plan) => handleUpgrade(plan, true)}
+                      showGroupOption={true}
+                      forceGroupPlans={true}
+                    />
+                  </TabsContent>
+                </Tabs>
+              </div>
+            </div>
+          </TabsContent>
+        </Tabs>
+      </div>
+    </DashboardLayout>
+  );
+};
 
+export default SubscriptionPage;

@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import UPIPayment from "@/components/subscription/payment/UPIPayment";
 import NetBankingPayment from "@/components/subscription/payment/NetBankingPayment";
+import { GroupPaymentSection } from "@/components/checkout/GroupPaymentSection";
 
 const PaymentPage = () => {
   const location = useLocation();
@@ -113,93 +114,112 @@ const PaymentPage = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Payment Methods */}
           <div className="md:col-span-2 space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Payment Method</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Tabs defaultValue={paymentMethod} onValueChange={(value) => setPaymentMethod(value as "card" | "upi" | "netbanking")}>
-                  <TabsList className="grid grid-cols-3 mb-6">
-                    <TabsTrigger value="card" disabled={isProcessing}>Credit/Debit Card</TabsTrigger>
-                    <TabsTrigger value="upi" disabled={isProcessing}>UPI</TabsTrigger>
-                    <TabsTrigger value="netbanking" disabled={isProcessing}>Net Banking</TabsTrigger>
-                  </TabsList>
-                  
-                  <TabsContent value="card">
-                    <div className="space-y-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="card-number">Card Number</Label>
-                        <Input
-                          id="card-number"
-                          placeholder="1234 5678 9012 3456"
-                          value={cardDetails.number}
-                          onChange={(e) => setCardDetails({...cardDetails, number: e.target.value})}
-                          disabled={isProcessing}
-                        />
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <Label htmlFor="card-name">Name on Card</Label>
-                        <Input
-                          id="card-name"
-                          placeholder="John Doe"
-                          value={cardDetails.name}
-                          onChange={(e) => setCardDetails({...cardDetails, name: e.target.value})}
-                          disabled={isProcessing}
-                        />
-                      </div>
-                      
-                      <div className="grid grid-cols-2 gap-4">
+            {isGroup ? (
+              <GroupPaymentSection
+                paymentMethod={paymentMethod}
+                onPaymentMethodChange={setPaymentMethod}
+                loading={isProcessing}
+              />
+            ) : (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Payment Method</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Tabs defaultValue={paymentMethod} onValueChange={(value) => setPaymentMethod(value as "card" | "upi" | "netbanking")}>
+                    <TabsList className="grid grid-cols-3 mb-6">
+                      <TabsTrigger value="card" disabled={isProcessing}>Credit/Debit Card</TabsTrigger>
+                      <TabsTrigger value="upi" disabled={isProcessing}>UPI</TabsTrigger>
+                      <TabsTrigger value="netbanking" disabled={isProcessing}>Net Banking</TabsTrigger>
+                    </TabsList>
+                    
+                    <TabsContent value="card">
+                      <div className="space-y-4">
                         <div className="space-y-2">
-                          <Label htmlFor="expiry">Expiry Date</Label>
+                          <Label htmlFor="card-number">Card Number</Label>
                           <Input
-                            id="expiry"
-                            placeholder="MM/YY"
-                            value={cardDetails.expiry}
-                            onChange={(e) => setCardDetails({...cardDetails, expiry: e.target.value})}
+                            id="card-number"
+                            placeholder="1234 5678 9012 3456"
+                            value={cardDetails.number}
+                            onChange={(e) => setCardDetails({...cardDetails, number: e.target.value})}
                             disabled={isProcessing}
                           />
                         </div>
                         
                         <div className="space-y-2">
-                          <Label htmlFor="cvv">CVV</Label>
+                          <Label htmlFor="card-name">Name on Card</Label>
                           <Input
-                            id="cvv"
-                            placeholder="123"
-                            type="password"
-                            maxLength={4}
-                            value={cardDetails.cvv}
-                            onChange={(e) => setCardDetails({...cardDetails, cvv: e.target.value})}
+                            id="card-name"
+                            placeholder="John Doe"
+                            value={cardDetails.name}
+                            onChange={(e) => setCardDetails({...cardDetails, name: e.target.value})}
                             disabled={isProcessing}
                           />
                         </div>
+                        
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="expiry">Expiry Date</Label>
+                            <Input
+                              id="expiry"
+                              placeholder="MM/YY"
+                              value={cardDetails.expiry}
+                              onChange={(e) => setCardDetails({...cardDetails, expiry: e.target.value})}
+                              disabled={isProcessing}
+                            />
+                          </div>
+                          
+                          <div className="space-y-2">
+                            <Label htmlFor="cvv">CVV</Label>
+                            <Input
+                              id="cvv"
+                              placeholder="123"
+                              type="password"
+                              maxLength={4}
+                              value={cardDetails.cvv}
+                              onChange={(e) => setCardDetails({...cardDetails, cvv: e.target.value})}
+                              disabled={isProcessing}
+                            />
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  </TabsContent>
-                  
-                  <TabsContent value="upi">
-                    <UPIPayment 
-                      amount={selectedPlan.price * 1.18}
-                      onSubmit={handlePaymentProcess} 
-                      isProcessing={isProcessing}
-                    />
-                  </TabsContent>
-                  
-                  <TabsContent value="netbanking">
-                    <NetBankingPayment 
-                      amount={selectedPlan.price * 1.18}
-                      onSubmit={handlePaymentProcess}
-                      isProcessing={isProcessing} 
-                    />
-                  </TabsContent>
-                </Tabs>
-              </CardContent>
-            </Card>
+                    </TabsContent>
+                    
+                    <TabsContent value="upi">
+                      <UPIPayment 
+                        amount={selectedPlan.price * 1.18}
+                        onSubmit={handlePaymentProcess} 
+                        isProcessing={isProcessing}
+                      />
+                    </TabsContent>
+                    
+                    <TabsContent value="netbanking">
+                      <NetBankingPayment 
+                        amount={selectedPlan.price * 1.18}
+                        onSubmit={handlePaymentProcess}
+                        isProcessing={isProcessing} 
+                      />
+                    </TabsContent>
+                  </Tabs>
+                </CardContent>
+              </Card>
+            )}
             
-            {paymentMethod === "card" && (
+            {paymentMethod === "card" && !isGroup && (
               <Button 
                 className="w-full" 
                 size="lg" 
+                onClick={handlePaymentProcess}
+                disabled={isProcessing}
+              >
+                {isProcessing ? "Processing..." : `Pay ${formatPrice(selectedPlan.price * 1.18)}`}
+              </Button>
+            )}
+            
+            {isGroup && (
+              <Button
+                className="w-full"
+                size="lg"
                 onClick={handlePaymentProcess}
                 disabled={isProcessing}
               >
@@ -256,6 +276,10 @@ const PaymentPage = () => {
                     <span>Total</span>
                     <span className="text-lg">{formatPrice(selectedPlan.price * 1.18)}</span>
                   </div>
+
+                  <p className="text-xs text-muted-foreground text-center mt-2">
+                    Billed monthly. You can cancel anytime.
+                  </p>
                 </div>
               </CardContent>
             </Card>
