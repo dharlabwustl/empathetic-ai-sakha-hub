@@ -19,10 +19,17 @@ const Pricing = () => {
   const handleSelectPlan = (plan: SubscriptionPlan, isGroup?: boolean) => {
     toast({
       title: "Plan Selected",
-      description: `You selected the ${plan.name}. Please sign up to continue.`,
+      description: `You selected the ${plan.name}. Proceeding to checkout.`,
     });
     
-    navigate("/signup", { state: { selectedPlan: plan, isGroup } });
+    // Navigate to checkout with plan details
+    navigate("/checkout", { 
+      state: { 
+        selectedPlan: plan, 
+        isGroup,
+        fromPage: "pricing"
+      } 
+    });
   };
 
   return (

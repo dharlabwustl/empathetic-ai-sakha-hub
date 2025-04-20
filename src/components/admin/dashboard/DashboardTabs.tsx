@@ -1,155 +1,270 @@
-
-import React from "react";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { 
-  BarChart2, 
-  Users, 
-  Brain, 
-  BookOpen, 
-  MessageSquare, 
-  CreditCard, 
-  AlertCircle, 
-  Bell,
-  FileText,
-  Settings,
-  Layers
-} from "lucide-react";
-import { AdminDashboardStats } from "@/types/admin";
-import { SystemLog } from "@/types/admin/systemLog";
-import { StudentData } from "@/types/admin/studentData";
-
-import UserManagementTab from "./tabs/UserManagementTab";
-import AIPersonalizationTab from "./tabs/AIPersonalizationTab";
-import ContentManagementTab from "./tabs/ContentManagementTab";
-import EngagementTab from "./tabs/EngagementTab";
-import SubscriptionTab from "./tabs/SubscriptionTab";
-import SystemAnalyticsTab from "./tabs/SystemAnalyticsTab";
-import IssueResolutionTab from "./tabs/IssueResolutionTab";
-import NotificationsTab from "./tabs/NotificationsTab";
-import DocumentationTab from "./tabs/DocumentationTab";
-import SettingsTab from "./tabs/SettingsTab";
-import FeaturesTab from "./tabs/FeaturesTab";
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { BarChart3, BookOpen, Cog, CreditCard, FileBarChart, FileText, Layers, MessageSquare, PieChart, Users } from "lucide-react";
+import UserManagementTab from './tabs/UserManagementTab';
+import StudyHabitsTab from './tabs/StudyHabitsTab';
+import EngagementTab from './tabs/EngagementTab';
+import AIPersonalizationTab from './tabs/AIPersonalizationTab';
+import ContentManagementTab from './tabs/ContentManagementTab';
+import SystemAnalyticsTab from './tabs/SystemAnalyticsTab';
+import SettingsTab from './tabs/SettingsTab';
+import IssueResolutionTab from './tabs/IssueResolutionTab';
+import NotificationsTab from './tabs/NotificationsTab';
+import DocumentationTab from './tabs/DocumentationTab';
+import SubscriptionTab from './tabs/SubscriptionTab';
+import FeaturesTab from './tabs/FeaturesTab';
+import { StudentData } from '@/types/admin';
+import { SystemLog } from '@/types/admin/systemLog';
+import { calculateDaysAgo } from '@/utils/dateUtils';
 
 interface DashboardTabsProps {
-  stats: AdminDashboardStats | null;
-  recentStudents: StudentData[];
-  recentLogs: SystemLog[];
+  students: StudentData[];
+  systemLogs: SystemLog[];
 }
 
-const DashboardTabs = ({ stats, recentStudents, recentLogs }: DashboardTabsProps) => {
+interface KPI {
+  title: string;
+  value: number;
+  description?: string;
+  trend?: "up" | "down" | "neutral";
+  trendValue?: number;
+}
+
+const getNewUsersCount = (students: StudentData[]): number => {
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+  return students.filter(student => new Date(student.createdAt) >= thirtyDaysAgo).length;
+};
+
+export default function DashboardTabs({ students, systemLogs }: DashboardTabsProps) {
+  const [activeTab, setActiveTab] = React.useState("overview");
+
   return (
-    <Tabs defaultValue="overview" className="space-y-6">
-      <TabsList className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 xl:grid-cols-11 gap-2 p-1 bg-gray-100 dark:bg-gray-800 rounded-lg">
-        <TabsTrigger value="overview" className="flex items-center gap-2 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:shadow-sm">
-          <BarChart2 size={16} className="text-blue-500" />
-          <span>Overview</span>
-        </TabsTrigger>
-        <TabsTrigger value="users" className="flex items-center gap-2 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:shadow-sm">
-          <Users size={16} className="text-indigo-500" />
-          <span>Users</span>
-        </TabsTrigger>
-        <TabsTrigger value="ai" className="flex items-center gap-2 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:shadow-sm">
-          <Brain size={16} className="text-purple-500" />
-          <span>AI</span>
-        </TabsTrigger>
-        <TabsTrigger value="content" className="flex items-center gap-2 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:shadow-sm">
-          <BookOpen size={16} className="text-amber-500" />
-          <span>Content</span>
-        </TabsTrigger>
-        <TabsTrigger value="features" className="flex items-center gap-2 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:shadow-sm">
-          <Layers size={16} className="text-green-500" />
-          <span>Features</span>
-        </TabsTrigger>
-        <TabsTrigger value="engagement" className="flex items-center gap-2 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:shadow-sm">
-          <MessageSquare size={16} className="text-orange-500" />
-          <span>Engagement</span>
-        </TabsTrigger>
-        <TabsTrigger value="subscriptions" className="flex items-center gap-2 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:shadow-sm">
-          <CreditCard size={16} className="text-pink-500" />
-          <span>Subscriptions</span>
-        </TabsTrigger>
-        <TabsTrigger value="issues" className="flex items-center gap-2 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:shadow-sm">
-          <AlertCircle size={16} className="text-red-500" />
-          <span>Issues</span>
-        </TabsTrigger>
-        <TabsTrigger value="notifications" className="flex items-center gap-2 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:shadow-sm">
-          <Bell size={16} className="text-yellow-500" />
-          <span>Notifications</span>
-        </TabsTrigger>
-        <TabsTrigger value="documentation" className="flex items-center gap-2 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:shadow-sm">
-          <FileText size={16} className="text-teal-500" />
-          <span>Documentation</span>
-        </TabsTrigger>
-        <TabsTrigger value="system" className="flex items-center gap-2 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:shadow-sm">
-          <Settings size={16} className="text-gray-500" />
-          <span>System</span>
-        </TabsTrigger>
-      </TabsList>
-      
-      <TabsContent value="overview" className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="border rounded-lg p-6">
-            <h3 className="text-lg font-medium mb-4">Student Engagement</h3>
-            <p className="text-sm text-gray-500 mb-2">Time spent on platform over the last 30 days</p>
-            <div className="h-64 bg-gray-100 dark:bg-gray-800 rounded-md flex items-center justify-center">
-              <span className="text-gray-500">Chart Placeholder</span>
-            </div>
-          </div>
-          <div className="border rounded-lg p-6">
-            <h3 className="text-lg font-medium mb-4">Emotional Trends</h3>
-            <p className="text-sm text-gray-500 mb-2">Learner mood distribution</p>
-            <div className="h-64 bg-gray-100 dark:bg-gray-800 rounded-md flex items-center justify-center">
-              <span className="text-gray-500">Chart Placeholder</span>
-            </div>
-          </div>
+    <Tabs defaultValue="overview" className="space-y-4" value={activeTab} onValueChange={setActiveTab}>
+      <div className="flex justify-between">
+        <TabsList className="grid grid-cols-11 h-auto">
+          <TabsTrigger value="overview" className="text-xs py-2">
+            Overview
+          </TabsTrigger>
+          <TabsTrigger value="users" className="text-xs py-2">
+            Users
+          </TabsTrigger>
+          <TabsTrigger value="study-habits" className="text-xs py-2">
+            Study Habits
+          </TabsTrigger>
+          <TabsTrigger value="engagement" className="text-xs py-2">
+            Engagement
+          </TabsTrigger>
+          <TabsTrigger value="ai" className="text-xs py-2">
+            AI
+          </TabsTrigger>
+          <TabsTrigger value="content" className="text-xs py-2">
+            Content
+          </TabsTrigger>
+          <TabsTrigger value="subscriptions" className="text-xs py-2">
+            Subscriptions
+          </TabsTrigger>
+          <TabsTrigger value="features" className="text-xs py-2">
+            Features
+          </TabsTrigger>
+          <TabsTrigger value="system" className="text-xs py-2">
+            System
+          </TabsTrigger>
+          <TabsTrigger value="issues" className="text-xs py-2">
+            Issues
+          </TabsTrigger>
+          <TabsTrigger value="docs" className="text-xs py-2">
+            Docs
+          </TabsTrigger>
+        </TabsList>
+      </div>
+
+      <TabsContent value="overview" className="space-y-4">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                Total Students
+              </CardTitle>
+              <Users className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{students.length}</div>
+              <p className="text-xs text-muted-foreground">
+                {getNewUsersCount(students)} new users in the last 30 days
+              </p>
+            </CardContent>
+            <CardFooter>
+              <Link to="/admin/students">
+                <Button variant="ghost" size="sm">View all users</Button>
+              </Link>
+            </CardFooter>
+          </Card>
+          
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                Active Subscriptions
+              </CardTitle>
+              <CreditCard className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">65</div>
+              <p className="text-xs text-muted-foreground">
+                +12 from last month
+              </p>
+            </CardContent>
+            <CardFooter className="flex justify-between">
+              <Link to="/admin/subscriptions">
+                <Button variant="ghost" size="sm">View subscriptions</Button>
+              </Link>
+              <Link to="/admin/payment-gateway">
+                <Button variant="outline" size="sm">Payment Gateway</Button>
+              </Link>
+            </CardFooter>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                Avg. Study Time
+              </CardTitle>
+              <BookOpen className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">32h</div>
+              <p className="text-xs text-muted-foreground">
+                +7% from last month
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                AI Interactions
+              </CardTitle>
+              <MessageSquare className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">122</div>
+              <p className="text-xs text-muted-foreground">
+                +23% from last month
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                Content Views
+              </CardTitle>
+              <FileText className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">721</div>
+              <p className="text-xs text-muted-foreground">
+                +52 since last month
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                System Uptime
+              </CardTitle>
+              <Layers className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">99.9%</div>
+              <p className="text-xs text-muted-foreground">
+                No downtime in the last 30 days
+              </p>
+            </CardContent>
+          </Card>
         </div>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Recent Activity</CardTitle>
+            <CardDescription>
+              Recent system logs and user activity
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="pl-0">
+            <ScrollArea className="h-[300px] w-full pr-6">
+              <div className="space-y-2">
+                {systemLogs.map((log) => (
+                  <div key={log.id} className="flex items-start space-x-2">
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage src={`https://avatar.vercel.sh/${log.userEmail}.png`} />
+                      <AvatarFallback>{log.userEmail.substring(0, 2).toUpperCase()}</AvatarFallback>
+                    </Avatar>
+                    <div className="space-y-1">
+                      <p className="text-sm font-medium leading-none">{log.userEmail}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {log.activity}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {calculateDaysAgo(log.timestamp)} ago
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </ScrollArea>
+          </CardContent>
+        </Card>
       </TabsContent>
-      
-      <TabsContent value="users">
-        <UserManagementTab recentStudents={recentStudents} />
+
+      <TabsContent value="users" className="space-y-4">
+        <UserManagementTab students={students} />
       </TabsContent>
-      
-      <TabsContent value="ai">
-        <AIPersonalizationTab />
+
+      <TabsContent value="study-habits" className="space-y-4">
+        <StudyHabitsTab />
       </TabsContent>
-      
-      <TabsContent value="content">
-        <ContentManagementTab />
-      </TabsContent>
-      
-      <TabsContent value="features">
-        <FeaturesTab />
-      </TabsContent>
-      
-      <TabsContent value="engagement">
+
+      <TabsContent value="engagement" className="space-y-4">
         <EngagementTab />
       </TabsContent>
-      
-      <TabsContent value="subscriptions">
+
+      <TabsContent value="ai" className="space-y-4">
+        <AIPersonalizationTab />
+      </TabsContent>
+
+      <TabsContent value="content" className="space-y-4">
+        <ContentManagementTab />
+      </TabsContent>
+
+      <TabsContent value="subscriptions" className="space-y-4">
         <SubscriptionTab />
       </TabsContent>
       
-      <TabsContent value="system">
-        <SystemAnalyticsTab />
+      <TabsContent value="features" className="space-y-4">
+        <FeaturesTab />
       </TabsContent>
       
-      <TabsContent value="issues">
-        <IssueResolutionTab recentLogs={recentLogs} />
+      <TabsContent value="system" className="space-y-4">
+        <SystemAnalyticsTab systemLogs={systemLogs} />
+      </TabsContent>
+
+      <TabsContent value="issues" className="space-y-4">
+        <IssueResolutionTab />
       </TabsContent>
       
-      <TabsContent value="notifications">
-        <NotificationsTab />
-      </TabsContent>
-      
-      <TabsContent value="documentation">
+      <TabsContent value="docs" className="space-y-4">
         <DocumentationTab />
-      </TabsContent>
-      
-      <TabsContent value="settings">
-        <SettingsTab />
       </TabsContent>
     </Tabs>
   );
-};
-
-export default DashboardTabs;
+}

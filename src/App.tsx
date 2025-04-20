@@ -48,9 +48,10 @@ import FlashcardsPage from "./pages/dashboard/student/FlashcardsPage";
 import ExamPreparationPage from "./pages/dashboard/student/ExamPreparationPage";
 import BatchManagementPage from "./pages/dashboard/student/BatchManagementPage";
 import StudyGroupsPage from "./pages/dashboard/student/StudyGroupsPage";
-
 import FeaturesManagementPage from "./pages/admin/FeaturesManagementPage";
-import CheckoutPage from "./components/subscription/payment/CheckoutPage";
+import CheckoutPage from "./pages/CheckoutPage";
+import PaymentPage from "./pages/PaymentPage";
+import PaymentGatewaySettings from "./pages/admin/PaymentGatewaySettings";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -79,6 +80,10 @@ const App = () => {
                   <Route path="/signup" element={<SignUp />} />
                   <Route path="/login" element={<LoginPage />} />
                   <Route path="/login/old" element={<Login />} />
+                  
+                  {/* New checkout and payment routes */}
+                  <Route path="/checkout" element={<CheckoutPage />} />
+                  <Route path="/payment" element={<PaymentPage />} />
                   
                   <Route path="/admin/login" element={<AdminLogin />} />
                   <Route path="/admin/dashboard" element={
@@ -109,6 +114,11 @@ const App = () => {
                   <Route path="/admin/subscriptions" element={
                     <AdminRouteGuard>
                       <SubscriptionsPage />
+                    </AdminRouteGuard>
+                  } />
+                  <Route path="/admin/payment-gateway" element={
+                    <AdminRouteGuard>
+                      <PaymentGatewaySettings />
                     </AdminRouteGuard>
                   } />
                   <Route path="/admin/system" element={
@@ -256,12 +266,6 @@ const App = () => {
                     <AdminRouteGuard>
                       <FeaturesManagementPage />
                     </AdminRouteGuard>
-                  } />
-                  
-                  <Route path="/dashboard/student/checkout" element={
-                    <ProtectedRoute>
-                      <CheckoutPage />
-                    </ProtectedRoute>
                   } />
                   
                   <Route path="*" element={<NotFound />} />

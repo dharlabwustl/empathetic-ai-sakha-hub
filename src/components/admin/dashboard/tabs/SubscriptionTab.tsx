@@ -5,10 +5,11 @@ import PlansOverview from "./subscription/PlansOverview";
 import SubscriptionStats from "./subscription/SubscriptionStats";
 import PlansManagement from "./subscription/PlansManagement";
 import { Button } from "@/components/ui/button";
-import { Plus, Edit } from "lucide-react";
+import { Plus, Edit, CreditCard, Settings } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
+import { Link } from "react-router-dom";
 
 const SubscriptionTab = () => {
   const [activeTab, setActiveTab] = React.useState<"overview" | "plans" | "coupons">("overview");
@@ -27,14 +28,30 @@ const SubscriptionTab = () => {
       <Tabs value={activeTab} onValueChange={(value: "overview" | "plans" | "coupons") => setActiveTab(value)}>
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold">Subscription & Monetization</h2>
-          <TabsList>
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="plans">Plans</TabsTrigger>
-            <TabsTrigger value="coupons">Coupons</TabsTrigger>
-          </TabsList>
+          <div className="flex items-center gap-4">
+            <Link to="/admin/payment-gateway">
+              <Button variant="outline" className="flex items-center gap-2">
+                <Settings size={16} />
+                <span>Payment Gateway</span>
+              </Button>
+            </Link>
+            <TabsList>
+              <TabsTrigger value="overview">Overview</TabsTrigger>
+              <TabsTrigger value="plans">Plans</TabsTrigger>
+              <TabsTrigger value="coupons">Coupons</TabsTrigger>
+            </TabsList>
+          </div>
         </div>
         
         <TabsContent value="overview" className="space-y-6">
+          <div className="flex justify-end mb-4">
+            <Link to="/admin/payment-gateway">
+              <Button variant="outline" className="flex items-center gap-2">
+                <CreditCard size={16} />
+                <span>Payment Gateway Settings</span>
+              </Button>
+            </Link>
+          </div>
           <SubscriptionStats />
           <PlansOverview />
         </TabsContent>
