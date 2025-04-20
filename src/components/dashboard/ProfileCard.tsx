@@ -1,3 +1,4 @@
+
 import { UserProfileType } from "@/types/user";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -101,6 +102,25 @@ export default function ProfileCard({
     }
     return null;
   };
+  
+  const hasBatchManagement = () => {
+    const subscriptionType = getSubscriptionType(profile.subscription);
+    return (
+      subscriptionType === SubscriptionType.School ||
+      subscriptionType === SubscriptionType.Corporate ||
+      isSubscriptionObject(profile.subscription) && (
+        profile.subscription.planType === SubscriptionType.School ||
+        profile.subscription.planType === SubscriptionType.Corporate
+      )
+    );
+  };
+  
+  const isGroupLeader = () => {
+    if (isSubscriptionObject(profile.subscription)) {
+      return profile.subscription.role === 'leader';
+    }
+    return false;
+  };
 
   const trialStatus = getFreeTrialStatus();
 
@@ -165,13 +185,23 @@ export default function ProfileCard({
             {profile.email && (
               <div className="flex items-center text-sm text-muted-foreground">
                 <Mail size={14} className="mr-1" />
-                {profile.email}
+                <a 
+                  href={`mailto:${profile.email}`} 
+                  className="hover:underline hover:text-primary"
+                >
+                  {profile.email}
+                </a>
               </div>
             )}
             {profile.phoneNumber && (
               <div className="flex items-center text-sm text-muted-foreground">
                 <Phone size={14} className="mr-1" />
-                {profile.phoneNumber}
+                <a 
+                  href={`tel:${profile.phoneNumber}`}
+                  className="hover:underline hover:text-primary"
+                >
+                  {profile.phoneNumber}
+                </a>
               </div>
             )}
           </div>
@@ -223,13 +253,27 @@ export default function ProfileCard({
             </Link>
           </div>
 
-          {trialStatus && trialStatus.isTrialActive && (
+          {hasBatchManagement() && (
+            <Link to="/dashboard/student/batch" className="w-full">
+              <Button variant="default" size="sm" className="w-full bg-gradient-to-r from-blue-600 to-indigo-600">
+                Manage {isGroupLeader() ? 'Your Batch' : 'Batch'}
+              </Button>
+            </Link>
+          )}
+          
+          {(!hasBatchManagement() || trialStatus?.isTrialActive) && (
             <Link to="/dashboard/student/subscription" className="w-full">
               <Button variant="default" size="sm" className="w-full bg-gradient-to-r from-purple-600 to-violet-600">
                 Upgrade Plan
               </Button>
             </Link>
           )}
+          
+          <Link to="/dashboard/student/groups" className="w-full">
+            <Button variant="outline" size="sm" className="w-full mt-2">
+              Study Groups
+            </Button>
+          </Link>
         </div>
       </CardContent>
     </Card>

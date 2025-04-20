@@ -1,71 +1,93 @@
 
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface NetBankingPaymentProps {
-  onSubmit: () => void;
-  isProcessing: boolean;
+  amount: number;
+  onSuccess: (response: any) => void;
+  onError: (error: any) => void;
 }
 
-const NetBankingPayment: React.FC<NetBankingPaymentProps> = ({ onSubmit, isProcessing }) => {
-  const [selectedBank, setSelectedBank] = useState<string>('');
+const NetBankingPayment: React.FC<NetBankingPaymentProps> = ({
+  amount,
+  onSuccess,
+  onError
+}) => {
+  const [bank, setBank] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit();
+    if (!bank) {
+      onError(new Error("Please select your bank"));
+      return;
+    }
+
+    setLoading(true);
+    // In a real implementation, this would redirect to the bank's login page
+    setTimeout(() => {
+      setLoading(false);
+      onSuccess({
+        paymentId: "pay_" + Math.random().toString(36).substring(2, 15),
+        method: "NetBanking",
+        bank: bank
+      });
+    }, 1500);
   };
 
-  const bankOptions = [
-    { id: 'sbi', name: 'State Bank of India', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/cc/State_Bank_of_India_logo.svg/1200px-State_Bank_of_India_logo.svg.png' },
-    { id: 'hdfc', name: 'HDFC Bank', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/HDFC_Bank_Logo.svg/1200px-HDFC_Bank_Logo.svg.png' },
-    { id: 'icici', name: 'ICICI Bank', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/ICICI_Bank_Logo.svg/1200px-ICICI_Bank_Logo.svg.png' },
-    { id: 'axis', name: 'Axis Bank', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Axis_Bank_logo.svg/1200px-Axis_Bank_logo.svg.png' },
-    { id: 'kotak', name: 'Kotak Mahindra Bank', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0d/Kotak_Mahindra_Bank_logo.svg/1200px-Kotak_Mahindra_Bank_logo.svg.png' },
-    { id: 'pnb', name: 'Punjab National Bank', logo: 'https://upload.wikimedia.org/wikipedia/en/thumb/6/6c/Punjab_National_Bank_logo.svg/1200px-Punjab_National_Bank_logo.svg.png' },
+  const popularBanks = [
+    { id: "sbi", name: "State Bank of India" },
+    { id: "hdfc", name: "HDFC Bank" },
+    { id: "icici", name: "ICICI Bank" },
+    { id: "axis", name: "Axis Bank" },
+    { id: "kotak", name: "Kotak Mahindra Bank" },
+    { id: "yes", name: "Yes Bank" },
+  ];
+
+  const otherBanks = [
+    { id: "pnb", name: "Punjab National Bank" },
+    { id: "bob", name: "Bank of Baroda" },
+    { id: "idfc", name: "IDFC First Bank" },
+    { id: "federal", name: "Federal Bank" },
+    { id: "indian", name: "Indian Bank" },
   ];
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-6 mt-4">
       <div className="space-y-2">
-        <Label>Select Your Bank</Label>
-        <RadioGroup 
-          value={selectedBank}
-          onValueChange={setSelectedBank}
-          className="grid grid-cols-2 gap-2"
-        >
-          {bankOptions.map((bank) => (
-            <Label
-              key={bank.id}
-              htmlFor={bank.id}
-              className={`flex items-center gap-2 p-3 border rounded-md cursor-pointer hover:bg-gray-50 transition-colors ${
-                selectedBank === bank.id ? "border-primary bg-primary/5" : "border-gray-200"
-              }`}
-            >
-              <RadioGroupItem value={bank.id} id={bank.id} className="sr-only" />
-              <img src={bank.logo} alt={bank.name} className="h-6 w-auto object-contain" />
-              <div className="text-sm">{bank.name}</div>
-              {selectedBank === bank.id && (
-                <div className="ml-auto h-4 w-4 rounded-full bg-primary flex items-center justify-center">
-                  <div className="h-2 w-2 rounded-full bg-white"></div>
-                </div>
-              )}
-            </Label>
-          ))}
-        </RadioGroup>
+        <Label htmlFor="bank">Select your bank</Label>
+        <Select value={bank} onValueChange={setBank}>
+          <SelectTrigger>
+            <SelectValue placeholder="Select your bank" />
+          </SelectTrigger>
+          <SelectContent>
+            <div className="p-2 text-sm font-medium text-muted-foreground">Popular Banks</div>
+            {popularBanks.map((bank) => (
+              <SelectItem key={bank.id} value={bank.id}>{bank.name}</SelectItem>
+            ))}
+            <div className="p-2 text-sm font-medium text-muted-foreground">Other Banks</div>
+            {otherBanks.map((bank) => (
+              <SelectItem key={bank.id} value={bank.id}>{bank.name}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
-      
-      <div className="text-xs text-muted-foreground">
-        Note: You will be redirected to your bank's secure payment gateway to complete the transaction.
+
+      <div className="text-sm text-muted-foreground">
+        <p>You will be redirected to your bank's website to complete the payment.</p>
+        <p>After successful payment, you will be redirected back to this page.</p>
       </div>
-      
-      <Button 
-        type="submit" 
-        className="w-full"
-        disabled={isProcessing || !selectedBank}
-      >
-        {isProcessing ? "Processing..." : "Continue to Bank Payment Gateway"}
+
+      <Button type="submit" className="w-full" disabled={loading}>
+        {loading ? "Redirecting to bank..." : `Pay ₹${amount.toFixed(2)} with Net Banking`}
       </Button>
     </form>
   );

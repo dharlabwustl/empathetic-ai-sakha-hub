@@ -1,88 +1,76 @@
 
-import React, { useState } from 'react';
-import { Input } from "@/components/ui/input";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useToast } from "@/hooks/use-toast";
+import { QrCode } from "lucide-react";
 
 interface UPIPaymentProps {
-  onSubmit: () => void;
-  isProcessing: boolean;
+  amount: number;
+  onSuccess: (response: any) => void;
+  onError: (error: any) => void;
 }
 
-const UPIPayment: React.FC<UPIPaymentProps> = ({ onSubmit, isProcessing }) => {
-  const [upiId, setUpiId] = useState('');
-  const { toast } = useToast();
+const UPIPayment: React.FC<UPIPaymentProps> = ({
+  amount,
+  onSuccess,
+  onError
+}) => {
+  const [upiId, setUpiId] = useState("");
+  const [loading, setLoading] = useState(false);
+  const qrCodeUrl = "https://placeholder-qr.com/200"; // In a real app, this would be generated
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    const upiPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z]+$/;
-    
-    if (!upiPattern.test(upiId)) {
-      toast({
-        title: "Invalid UPI ID",
-        description: "Please enter a valid UPI ID (e.g., username@bankname).",
-        variant: "destructive",
-      });
+    if (!upiId) {
+      onError(new Error("Please enter your UPI ID"));
       return;
     }
 
-    onSubmit();
+    setLoading(true);
+    // In a real implementation, this would integrate with a UPI payment gateway
+    setTimeout(() => {
+      setLoading(false);
+      onSuccess({
+        paymentId: "pay_" + Math.random().toString(36).substring(2, 15),
+        method: "UPI",
+        vpa: upiId
+      });
+    }, 1500);
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="space-y-2">
-        <Label htmlFor="upi-id">UPI ID</Label>
-        <Input
-          id="upi-id"
-          placeholder="username@bankname"
-          value={upiId}
-          onChange={(e) => setUpiId(e.target.value)}
-          required
-        />
-      </div>
-      
-      <div className="grid grid-cols-4 gap-4 my-4">
-        <div className="p-3 border rounded-md flex flex-col items-center">
-          <img 
-            src="https://1000logos.net/wp-content/uploads/2021/03/Google-Pay-logo.png" 
-            alt="Google Pay" 
-            className="h-8 w-auto mb-1 object-contain" 
-          />
-          <span className="text-xs">Google Pay</span>
+    <div className="space-y-6 mt-4">
+      <div className="flex flex-col items-center">
+        <div className="h-48 w-48 bg-gray-100 border rounded-md flex items-center justify-center mb-2">
+          <QrCode size={120} className="text-primary" />
         </div>
-        <div className="p-3 border rounded-md flex flex-col items-center">
-          <img 
-            src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/PhonePe_Logo.svg/2560px-PhonePe_Logo.svg.png" 
-            alt="PhonePe" 
-            className="h-8 w-auto mb-1 object-contain" 
-          />
-          <span className="text-xs">PhonePe</span>
-        </div>
-        <div className="p-3 border rounded-md flex flex-col items-center">
-          <img 
-            src="https://static.vecteezy.com/system/resources/previews/019/766/099/original/amazon-pay-logo-editorial-free-vector.jpg" 
-            alt="Amazon Pay" 
-            className="h-8 w-auto mb-1 object-contain" 
-          />
-          <span className="text-xs">Amazon Pay</span>
-        </div>
-        <div className="p-3 border rounded-md flex flex-col items-center">
-          <img 
-            src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Paytm_Logo_%28standalone%29.svg/2560px-Paytm_Logo_%28standalone%29.svg.png" 
-            alt="Paytm" 
-            className="h-8 w-auto mb-1 object-contain" 
-          />
-          <span className="text-xs">Paytm</span>
-        </div>
+        <p className="text-sm text-center text-muted-foreground">
+          Scan this QR code with your UPI app to pay ₹{amount.toFixed(2)}
+        </p>
       </div>
 
-      <Button type="submit" className="w-full" disabled={isProcessing}>
-        {isProcessing ? "Processing..." : "Pay with UPI"}
-      </Button>
-    </form>
+      <div className="text-center text-sm font-medium">OR</div>
+
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="space-y-2">
+          <Label htmlFor="upiId">Enter UPI ID</Label>
+          <Input
+            id="upiId"
+            placeholder="yourname@upi"
+            value={upiId}
+            onChange={(e) => setUpiId(e.target.value)}
+          />
+          <p className="text-xs text-muted-foreground">
+            Example: yourname@okicici, yourname@ybl, yourname@paytm
+          </p>
+        </div>
+
+        <Button type="submit" className="w-full" disabled={loading}>
+          {loading ? "Processing..." : `Pay ₹${amount.toFixed(2)} with UPI`}
+        </Button>
+      </form>
+    </div>
   );
 };
 

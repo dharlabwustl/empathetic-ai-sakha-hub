@@ -1,3 +1,4 @@
+
 import * as React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -45,8 +46,11 @@ import StudentProfilePage from "./pages/dashboard/student/ProfilePage";
 import StudentSettingsPage from "./pages/dashboard/student/SettingsPage";
 import FlashcardsPage from "./pages/dashboard/student/FlashcardsPage";
 import ExamPreparationPage from "./pages/dashboard/student/ExamPreparationPage";
+import BatchManagementPage from "./pages/dashboard/student/BatchManagementPage";
+import StudyGroupsPage from "./pages/dashboard/student/StudyGroupsPage";
 
 import FeaturesManagementPage from "./pages/admin/FeaturesManagementPage";
+import CheckoutPage from "./components/subscription/payment/CheckoutPage";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -200,6 +204,18 @@ const App = () => {
                   <Route path="/dashboard/student/progress" element={
                     <ProtectedRoute>
                       <StudyProgress />
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/dashboard/student/batch" element={
+                    <ProtectedRoute>
+                      <BatchManagementPage />
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/dashboard/student/groups" element={
+                    <ProtectedRoute>
+                      <StudyGroupsPage />
                     </ProtectedRoute>
                   } />
                   

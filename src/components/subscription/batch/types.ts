@@ -22,10 +22,17 @@ export interface BatchDetails {
   leaderName: string;
   leaderEmail: string;
   createdAt: string;
+  members: BatchMember[];
   memberCount: number;
   maxMembers: number;
   invitationCode: string;
   expiryDate?: string;
   plan: string;
+  planType: "school" | "corporate" | "group";
   institution?: string;
+  owner?: {
+    id: string;
+    name: string;
+    email: string;
+  };
 }
