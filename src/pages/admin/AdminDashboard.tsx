@@ -186,6 +186,11 @@ const AdminDashboard = () => {
         
         {stats && <DashboardStats stats={stats} />}
         
+        {/* Make sure the DashboardTabs component is included and prominently displayed */}
+        <div className="mb-6">
+          <DashboardTabs stats={stats} recentStudents={recentStudents} recentLogs={recentLogs} />
+        </div>
+        
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
           <div className="md:col-span-2 bg-white dark:bg-gray-800 rounded-xl shadow p-4">
             <div className="flex justify-between items-center mb-4">

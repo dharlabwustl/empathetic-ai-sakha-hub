@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Users, MessageSquare, Book, LineChart, ArrowUp } from "lucide-react";
+import { Users, MessageSquare, Book, LineChart, ArrowUp, Activity, Bell, Heart } from "lucide-react";
 import { AdminDashboardStats } from "@/types/admin";
 import { useNavigate } from "react-router-dom";
 
@@ -53,7 +53,7 @@ const DashboardStats = ({ stats }: DashboardStatsProps) => {
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
       <StatCard 
         title="Total Users" 
-        value="2,350" 
+        value={stats.totalStudents || "2,350"} 
         icon={<Users size={24} className="text-blue-600" />}
         trend="+12% from last month"
         route="/admin/users"
@@ -62,24 +62,24 @@ const DashboardStats = ({ stats }: DashboardStatsProps) => {
       />
       <StatCard 
         title="Active Sessions" 
-        value="186" 
-        icon={<LineChart size={24} className="text-green-600" />}
+        value={stats.totalSessions || "186"} 
+        icon={<Activity size={24} className="text-green-600" />}
         trend="+3% from yesterday"
         iconColor="text-green-600"
         bgColor="bg-green-100 dark:bg-green-900/20"
       />
       <StatCard 
-        title="Content Items" 
-        value="12,543" 
-        icon={<Book size={24} className="text-amber-600" />}
-        trend="+8% from last week"
-        route="/admin/content"
-        iconColor="text-amber-600"
-        bgColor="bg-amber-100 dark:bg-amber-900/20"
+        title="Avg. Mood Score" 
+        value={`${stats.averageMoodScore || 76}%`} 
+        icon={<Heart size={24} className="text-pink-600" />}
+        trend="+5% from last week"
+        route="/admin/ai"
+        iconColor="text-pink-600"
+        bgColor="bg-pink-100 dark:bg-pink-900/20"
       />
       <StatCard 
         title="AI Interactions" 
-        value="32,842" 
+        value={stats.moodBasedSessionsCount || "32,842"} 
         icon={<MessageSquare size={24} className="text-purple-600" />}
         trend="+24% from last month"
         iconColor="text-purple-600"
