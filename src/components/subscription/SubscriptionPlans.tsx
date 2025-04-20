@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Check, CheckCircle, User, Users } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import GroupPlanInviteModal from './GroupPlanInviteModal';
 import { SubscriptionPlansProps } from './batch/types';
+import { SubscriptionFlowModal } from './SubscriptionFlowModal';
 
 interface PlanFeature {
   name: string;
@@ -119,76 +120,26 @@ const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
   showGroupOption = true 
 }) => {
   const [planType, setPlanType] = useState<'individual' | 'group'>('individual');
-  const [showInviteModal, setShowInviteModal] = useState(false);
-  const [selectedGroupPlan, setSelectedGroupPlan] = useState<Plan | null>(null);
+  const [selectedPlan, setSelectedPlan] = useState<any>(null);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [showGroupInviteModal, setShowGroupInviteModal] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  const handleSelectPlan = (plan: Plan) => {
-    if (onSelectPlan) {
-      onSelectPlan(plan, plan.isGroup);
-      return;
-    }
-    
+  const handleSelectPlan = (plan: any) => {
+    setSelectedPlan(plan);
     if (plan.isGroup) {
-      setSelectedGroupPlan(plan);
-      setShowInviteModal(true);
+      setShowGroupInviteModal(true);
     } else {
-      // Individual plan checkout
-      toast({
-        title: "Processing",
-        description: `Setting up your ${plan.name} plan. Please wait...`,
-      });
-      
-      // Navigate to checkout page
-      setTimeout(() => {
-        navigate('/dashboard/student/checkout', { 
-          state: { 
-            selectedPlan: {
-              id: plan.id,
-              name: plan.name,
-              price: plan.price,
-              features: plan.features.filter(f => f.included).map(f => f.name),
-              isPopular: plan.recommended,
-              type: plan.id === 'free' ? 'free' : plan.id === 'basic' ? 'basic' : 'premium'
-            },
-            isGroupPlan: false
-          } 
-        }); 
-      }, 500);
+      setShowPaymentModal(true);
     }
   };
 
-  const handleInviteComplete = (emails: string[], inviteCodes: string[], batchName: string, roleType: string) => {
-    setShowInviteModal(false);
-    
-    if (!selectedGroupPlan) return;
-
-    // Navigate to the checkout page with group plan details
-    toast({
-      title: "Proceeding to Payment",
-      description: "Please complete the payment process to activate your group plan.",
-    });
-    
-    navigate('/dashboard/student/checkout', {
-      state: {
-        selectedPlan: {
-          id: selectedGroupPlan.id,
-          name: selectedGroupPlan.name,
-          price: selectedGroupPlan.price,
-          features: selectedGroupPlan.features.filter(f => f.included).map(f => f.name),
-          isPopular: selectedGroupPlan.recommended,
-          userCount: selectedGroupPlan.userCount,
-          type: selectedGroupPlan.id.includes('basic') ? 'group_basic' : 'group_premium',
-          planType: 'group'
-        },
-        emails,
-        inviteCodes,
-        batchName,
-        roleType,
-        isGroup: true
-      }
-    });
+  const handlePaymentSuccess = (plan: any, inviteCodes?: string[], invitedEmails?: string[]) => {
+    // Handle successful payment logic here
+    setShowPaymentModal(false);
+    setShowGroupInviteModal(false);
+    // You can implement success handling here
   };
 
   return (
@@ -291,11 +242,24 @@ const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
         </Tabs>
       </div>
 
-      {showInviteModal && selectedGroupPlan && (
-        <GroupPlanInviteModal 
-          plan={selectedGroupPlan}
-          onClose={() => setShowInviteModal(false)}
-          onComplete={handleInviteComplete}
+      {selectedPlan && (
+        <SubscriptionFlowModal
+          isOpen={showPaymentModal}
+          onClose={() => setShowPaymentModal(false)}
+          selectedPlan={selectedPlan}
+          isGroup={false}
+          onSuccess={handlePaymentSuccess}
+        />
+      )}
+
+      {selectedPlan && showGroupInviteModal && (
+        <GroupPlanInviteModal
+          plan={selectedPlan}
+          onClose={() => setShowGroupInviteModal(false)}
+          onComplete={(emails, codes, batchName, roleType) => {
+            setShowGroupInviteModal(false);
+            setShowPaymentModal(true);
+          }}
         />
       )}
     </>
