@@ -1,4 +1,3 @@
-
 import { mockStudentProfile } from './studentProfile';
 import { mockEmployeeProfile } from './employeeProfile';
 import { mockDoctorProfile } from './doctorProfile';

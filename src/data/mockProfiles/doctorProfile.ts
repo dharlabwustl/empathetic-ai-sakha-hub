@@ -1,6 +1,7 @@
+
 import { UserProfileType, UserRole, SubscriptionType } from '@/types/user/base';
 
-const doctorProfile: UserProfileType = {
+export const mockDoctorProfile: UserProfileType = {
   id: "d12345",
   name: "Dr. Priya Patel",
   email: "dr.priya@example.com",
@@ -43,8 +44,6 @@ const doctorProfile: UserProfileType = {
     fieldOfStudy: "Medicine",
     graduationYear: 2015
   }
-  // Don't include specialization directly as it's not in UserProfileType
-  // Instead, it's captured in areasOfInterest
 };
 
-export default doctorProfile;
+export default mockDoctorProfile;
