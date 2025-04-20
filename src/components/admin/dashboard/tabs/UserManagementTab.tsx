@@ -37,61 +37,76 @@ const studentsData: StudentData[] = [
     id: "std-001",
     name: "Aryan Sharma",
     email: "aryan.s@example.com",
-    joinedDate: new Date("2023-09-15"),
+    joinedDate: "2023-09-15",
     role: "Student",
     status: "active",
     subjects: ["Physics", "Mathematics", "Chemistry"],
     examPrep: "IIT-JEE",
-    lastActive: new Date("2023-10-01"),
-    progress: 68
+    lastActive: "2023-10-01",
+    progress: {
+      completedTopics: 68,
+      totalTopics: 100
+    }
   },
   {
     id: "std-002",
     name: "Priya Patel",
     email: "priya.p@example.com",
-    joinedDate: new Date("2023-08-22"),
+    joinedDate: "2023-08-22",
     role: "Student",
     status: "active",
     subjects: ["Biology", "Chemistry", "Physics"],
     examPrep: "NEET",
-    lastActive: new Date("2023-10-02"),
-    progress: 75
+    lastActive: "2023-10-02",
+    progress: {
+      completedTopics: 75,
+      totalTopics: 100
+    }
   },
   {
     id: "std-003",
     name: "Vikram Singh",
     email: "vikram.s@example.com",
-    joinedDate: new Date("2023-07-12"),
+    joinedDate: "2023-07-12",
     role: "Student",
     status: "inactive",
     subjects: ["Economics", "Political Science", "History"],
     examPrep: "UPSC",
-    lastActive: new Date("2023-09-15"),
-    progress: 42
+    lastActive: "2023-09-15",
+    progress: {
+      completedTopics: 42,
+      totalTopics: 100
+    }
   },
   {
     id: "std-004",
     name: "Ananya Desai",
     email: "ananya.d@example.com",
-    joinedDate: new Date("2023-09-30"),
+    joinedDate: "2023-09-30",
     role: "Student",
     status: "pending",
     subjects: ["Mathematics", "Computer Science"],
     examPrep: "CAT",
-    lastActive: new Date("2023-10-01"),
-    progress: 20
+    lastActive: "2023-10-01",
+    progress: {
+      completedTopics: 20,
+      totalTopics: 100
+    }
   },
   {
     id: "std-005",
     name: "Rahul Kumar",
     email: "rahul.k@example.com",
-    joinedDate: new Date("2023-06-18"),
+    joinedDate: "2023-06-18",
     role: "Student",
     status: "active",
     subjects: ["Physics", "Mathematics"],
     examPrep: "IIT-JEE",
-    lastActive: new Date("2023-09-28"),
-    progress: 90
+    lastActive: "2023-09-28",
+    progress: {
+      completedTopics: 90,
+      totalTopics: 100
+    }
   },
 ];
 
@@ -121,7 +136,7 @@ const UserManagementTab = ({ recentStudents = studentsData }: UserManagementTabP
     setProfileModalOpen(true);
   };
 
-  const formatDate = (date: Date | string) => {
+  const formatDate = (date: string) => {
     if (!date) return "N/A";
     const d = new Date(date);
     return `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}`;
@@ -176,7 +191,7 @@ const UserManagementTab = ({ recentStudents = studentsData }: UserManagementTabP
                 <TableCell className="font-medium">{student.name}</TableCell>
                 <TableCell>{student.email}</TableCell>
                 <TableCell>{student.examPrep}</TableCell>
-                <TableCell>{formatDate(student.joinedDate)}</TableCell>
+                <TableCell>{formatDate(student.joinedDate || '')}</TableCell>
                 <TableCell>
                   {student.status === "active" && (
                     <Badge variant="outline" className="bg-green-100 text-green-800 border-green-200">
@@ -200,10 +215,12 @@ const UserManagementTab = ({ recentStudents = studentsData }: UserManagementTabP
                     <div className="w-full bg-gray-200 rounded-full h-2.5 mr-2 dark:bg-gray-700">
                       <div
                         className="bg-blue-600 h-2.5 rounded-full"
-                        style={{ width: `${student.progress || 0}%` }}
+                        style={{ width: `${student.progress ? (student.progress.completedTopics / student.progress.totalTopics) * 100 : 0}%` }}
                       ></div>
                     </div>
-                    <span className="text-xs font-medium">{student.progress}%</span>
+                    <span className="text-xs font-medium">
+                      {student.progress ? Math.round((student.progress.completedTopics / student.progress.totalTopics) * 100) : 0}%
+                    </span>
                   </div>
                 </TableCell>
                 <TableCell className="text-right">

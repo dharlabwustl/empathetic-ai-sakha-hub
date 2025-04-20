@@ -4,7 +4,7 @@ export interface SystemLog {
   level: 'info' | 'warning' | 'error';
   message: string;
   source: string;
-  timestamp: Date;
+  timestamp: string; // Changed from Date to string for consistency
   resolved: boolean;
   details?: Record<string, any>;
 }

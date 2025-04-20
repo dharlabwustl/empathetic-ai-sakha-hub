@@ -18,10 +18,10 @@ export interface StudentData {
     score: number;
     date: string;
   }[];
-  // Add missing properties needed by admin components
+  // Properties needed by admin components
   status?: "active" | "inactive" | "pending";
-  joinedDate?: string;
-  lastActive?: string;
+  joinedDate?: string; // Changed from Date to string
+  lastActive?: string; // Changed from Date to string
   examPrep?: string;
   subjects?: string[];
   progress?: {

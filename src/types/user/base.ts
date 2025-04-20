@@ -96,5 +96,5 @@ export interface SubscriptionPlan {
   maxMembers?: number;
 }
 
-// Changed from interface to type alias - making it a string type
+// Changed to type string
 export type PersonalityType = string;

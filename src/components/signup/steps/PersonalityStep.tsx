@@ -6,13 +6,17 @@ import { Button } from '@/components/ui/button';
 
 interface PersonalityStepProps {
   onNext: (personality: string) => void;
+  onPersonalitySelect?: (personality: string) => void; // Added missing prop
 }
 
-const PersonalityStep = ({ onNext }: PersonalityStepProps) => {
+const PersonalityStep = ({ onNext, onPersonalitySelect }: PersonalityStepProps) => {
   const [selectedPersonality, setSelectedPersonality] = useState<string | null>(null);
 
   const handleSelectPersonality = (personality: string) => {
     setSelectedPersonality(personality);
+    if (onPersonalitySelect) {
+      onPersonalitySelect(personality);
+    }
   };
 
   const handleContinue = () => {

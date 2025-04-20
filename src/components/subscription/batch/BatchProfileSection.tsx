@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -7,6 +6,8 @@ import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import { 
   User, 
   Users, 
@@ -46,13 +47,11 @@ const BatchProfileSection: React.FC<BatchProfileSectionProps> = ({
     averageProgress: 0
   });
   
-  // Select the first batch by default
   useEffect(() => {
     if (userBatches.length > 0 && !activeBatchId) {
       setActiveBatchId(userBatches[0].id);
       setBatchMembers(userBatches[0].members || []);
       
-      // Generate mock progress data
       setBatchProgress({
         completed: Math.floor(Math.random() * 50) + 10,
         total: 100,
@@ -77,7 +76,6 @@ const BatchProfileSection: React.FC<BatchProfileSectionProps> = ({
     if (selectedBatch) {
       setBatchMembers(selectedBatch.members || []);
       
-      // Generate new mock progress data
       setBatchProgress({
         completed: Math.floor(Math.random() * 50) + 10,
         total: 100,
@@ -96,16 +94,13 @@ const BatchProfileSection: React.FC<BatchProfileSectionProps> = ({
   };
   
   const handleAssignAdmin = (memberId: string) => {
-    // Find the current batch
     if (!activeBatchId) return;
     
-    // In a real app this would make an API call
     toast({
       title: "Admin Assigned",
       description: "Member has been promoted to batch admin."
     });
     
-    // Update the local state to reflect the change
     const updatedMembers = batchMembers.map(member => 
       member.id === memberId ? {...member, role: "school_admin"} : member
     );
@@ -116,7 +111,6 @@ const BatchProfileSection: React.FC<BatchProfileSectionProps> = ({
   const activeBatch = userBatches.find(batch => batch.id === activeBatchId);
   const progressPercent = (batchProgress.completed / batchProgress.total) * 100;
   
-  // If there are no batches yet, show a message
   if (userBatches.length === 0) {
     return (
       <Card>
@@ -138,7 +132,6 @@ const BatchProfileSection: React.FC<BatchProfileSectionProps> = ({
 
   return (
     <div className="space-y-6">
-      {/* Batch Selector */}
       {userBatches.length > 1 && (
         <Card>
           <CardHeader>
@@ -163,7 +156,6 @@ const BatchProfileSection: React.FC<BatchProfileSectionProps> = ({
         </Card>
       )}
       
-      {/* Batch Management Tabs */}
       <Card>
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="grid w-full grid-cols-3">
@@ -181,7 +173,6 @@ const BatchProfileSection: React.FC<BatchProfileSectionProps> = ({
             </TabsTrigger>
           </TabsList>
           
-          {/* Members Tab */}
           <TabsContent value="manage" className="p-4">
             <div className="space-y-4">
               <div className="flex justify-between items-center">
@@ -196,7 +187,6 @@ const BatchProfileSection: React.FC<BatchProfileSectionProps> = ({
                 </Button>
               </div>
               
-              {/* Members List */}
               <div className="border rounded-md overflow-hidden">
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50 dark:bg-gray-800">
@@ -213,7 +203,7 @@ const BatchProfileSection: React.FC<BatchProfileSectionProps> = ({
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                         Progress
                       </th>
-                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                      <th className="px-6 py-4 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                         Actions
                       </th>
                     </tr>
@@ -253,8 +243,11 @@ const BatchProfileSection: React.FC<BatchProfileSectionProps> = ({
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <Badge 
-                            variant={member.status === "active" ? "success" : 
-                                   member.status === "pending" ? "warning" : "destructive"}
+                            variant={member.status === "active" ? "default" : 
+                                   member.status === "pending" ? "outline" : "destructive"}
+                            className={member.status === "active" ? "bg-green-100 text-green-800 border-green-200" : 
+                                     member.status === "pending" ? "bg-yellow-100 text-yellow-800 border-yellow-200" : 
+                                     "bg-red-100 text-red-800 border-red-200"}
                           >
                             {member.status === "active" ? "Active" : 
                              member.status === "pending" ? "Pending" : "Inactive"}
@@ -308,7 +301,6 @@ const BatchProfileSection: React.FC<BatchProfileSectionProps> = ({
             </div>
           </TabsContent>
           
-          {/* Analytics Tab */}
           <TabsContent value="analytics" className="p-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
               <Card>
@@ -369,7 +361,6 @@ const BatchProfileSection: React.FC<BatchProfileSectionProps> = ({
                   <div className="pt-2">
                     <h4 className="font-medium text-sm mb-2">Member Engagement</h4>
                     <div className="flex gap-2 flex-wrap">
-                      {/* Mock engagement data */}
                       <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
                         {Math.round(batchMembers.length * 0.7)} Daily Active
                       </Badge>
@@ -390,7 +381,6 @@ const BatchProfileSection: React.FC<BatchProfileSectionProps> = ({
             </p>
           </TabsContent>
           
-          {/* Settings Tab */}
           <TabsContent value="settings" className="p-4">
             <div className="space-y-4">
               <Card>
@@ -452,7 +442,6 @@ const BatchProfileSection: React.FC<BatchProfileSectionProps> = ({
                     Configure batch notifications and reminder settings
                   </p>
                   
-                  {/* Mock notification settings */}
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
                       <div>
@@ -483,7 +472,6 @@ const BatchProfileSection: React.FC<BatchProfileSectionProps> = ({
             </div>
           </TabsContent>
           
-          {/* Invite Tab */}
           <TabsContent value="invite">
             <BatchMemberUploader
               onUploadComplete={handleUploadComplete}
