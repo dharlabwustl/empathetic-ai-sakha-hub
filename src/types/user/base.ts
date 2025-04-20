@@ -1,3 +1,4 @@
+
 export interface UserSubscription {
   planId?: string;
   planType: SubscriptionType;
@@ -105,6 +106,7 @@ export interface SubscriptionPlan {
   maxMembers?: number;
 }
 
+// Update SubjectProgress to match what's used in the components
 export interface SubjectProgress {
   id: string;
   name: string;
@@ -112,10 +114,15 @@ export interface SubjectProgress {
   totalTopics: number;
   completedTopics: number;
   lastActive?: string;
+  color?: string;
   topics?: {
     id: string;
     name: string;
     progress: number;
+    status?: 'completed' | 'in-progress' | 'not-started';
+    lastPracticed?: string;
+    completed?: boolean;
+    masteryLevel?: number;
   }[];
   quizzes?: {
     id: string;
@@ -124,11 +131,37 @@ export interface SubjectProgress {
     maxScore: number;
     completedOn: string;
   }[];
+  quizScores?: {
+    id: string;
+    title: string;
+    score: number;
+    maxScore: number;
+    date: string;
+    timeTaken: string;
+  }[];
+  studyHours?: {
+    date: string;
+    hours: number;
+  }[];
+  weakAreas?: string[];
+  strongAreas?: string[];
 }
 
+// Update StudyStreak to include current property
 export interface StudyStreak {
   currentStreak: number;
   longestStreak: number;
   lastStudyDate: string;
   studyDays: string[];
+  current?: number;
+  longest?: number;
+  thisWeek?: number[];
+  weeklyData?: {
+    date: string;
+    minutes: number;
+  }[];
+  monthlyData?: {
+    date: string;
+    minutes: number;
+  }[];
 }

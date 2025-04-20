@@ -21,7 +21,7 @@ export const StudyProgressHeader: React.FC<StudyProgressHeaderProps> = ({
       <div className="flex items-center gap-2">
         <div className="bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 px-3 py-1 rounded-full flex items-center">
           <CheckCircle2 size={16} className="mr-1" />
-          <span>{studyStreak?.current || 0} Day Streak</span>
+          <span>{studyStreak?.current || studyStreak?.currentStreak || 0} Day Streak</span>
         </div>
         
         <Button variant="outline">

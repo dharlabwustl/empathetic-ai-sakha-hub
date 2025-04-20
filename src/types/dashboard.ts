@@ -1,21 +1,7 @@
 
-export interface KpiData {
-  id: string;
-  title: string;
-  value: string;
-  changePercent: number;
-  label: string;
-  trend: 'up' | 'down' | 'neutral';
-  unit: string;
-  change: string;
-  icon: string;
-}
+// Import the types from useKpiTracking to ensure consistency
+import { KpiData as KpiDataType, NudgeData as NudgeDataType } from '@/hooks/useKpiTracking';
 
-export interface NudgeData {
-  id: string;
-  title: string;
-  read: boolean;
-  type: 'info' | 'warning' | 'success' | 'error';
-  message: string;
-  timestamp: string;
-}
+// Re-export the types
+export type KpiData = KpiDataType;
+export type NudgeData = NudgeDataType;

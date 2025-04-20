@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -77,6 +76,15 @@ const DoctorDashboard = () => {
       isPremium: userProfile.subscription !== SubscriptionType.Premium,
     }
   ];
+
+  const subscriptionDisplay = (): SubscriptionType => {
+    if (userProfile?.subscription) {
+      return typeof userProfile.subscription === 'object' 
+        ? userProfile.subscription.planType
+        : userProfile.subscription;
+    }
+    return SubscriptionType.Free;
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-sakha-light-blue/5 via-white to-sakha-lavender/5">
