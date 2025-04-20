@@ -16,9 +16,11 @@ export const useFeatureAccess = (feature: Feature) => {
       
       try {
         // Convert user's subscription to PlanType enum value
-        const userSubscription = (user.subscription && typeof user.subscription === 'object')
-          ? user.subscription.planType as unknown as PlanType 
-          : (user.subscription as unknown as PlanType) || PlanType.Free;
+        const userSubscription = user && 'subscription' in user && user.subscription
+          ? (typeof user.subscription === 'object' 
+            ? user.subscription.planType as unknown as PlanType 
+            : user.subscription as unknown as PlanType)
+          : PlanType.Free;
         
         return await featureService.isFeatureAccessible(
           feature,

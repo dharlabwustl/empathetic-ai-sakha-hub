@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import DashboardLayout from './DashboardLayout';
@@ -55,7 +54,7 @@ export default function BatchManagementPage() {
           id: 'current-user-id',
           name: userProfile?.name || 'Current User',
           email: userProfile?.email || 'user@example.com',
-          role: 'leader',
+          role: 'leader' as const,
           status: 'active',
           joinedDate: new Date().toISOString()
         },
@@ -63,7 +62,7 @@ export default function BatchManagementPage() {
           id: '2',
           name: 'Raj Patel',
           email: 'raj.patel@example.com',
-          role: 'member',
+          role: 'member' as const,
           status: 'active',
           joinedDate: new Date().toISOString()
         },
@@ -71,7 +70,7 @@ export default function BatchManagementPage() {
           id: '3',
           name: 'Priya Sharma',
           email: 'priya.sharma@example.com',
-          role: 'member',
+          role: 'member' as const,
           status: 'pending',
           invitationCode: 'SAKHA-123456'
         }
@@ -91,7 +90,7 @@ export default function BatchManagementPage() {
           id: Date.now().toString(),
           name: email.split('@')[0],
           email,
-          role: 'member',
+          role: 'member' as const,
           status: 'pending',
           invitationCode: inviteCode
         };
@@ -125,10 +124,10 @@ export default function BatchManagementPage() {
       setTimeout(() => {
         const updatedMembers = batchMembers.map(member => {
           if (member.id === memberId) {
-            return {...member, role: 'leader'};
+            return {...member, role: 'leader' as const};
           }
           if (member.id === 'current-user-id') {
-            return {...member, role: 'member'};
+            return {...member, role: 'member' as const};
           }
           return member;
         });

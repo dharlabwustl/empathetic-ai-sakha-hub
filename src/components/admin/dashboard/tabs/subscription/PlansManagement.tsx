@@ -32,7 +32,7 @@ const PlansManagement = () => {
     name: "",
     type: PlanType.Basic,
     price: 0,
-    interval: SubscriptionInterval.Monthly,
+    interval: "monthly",
     features: [],
     description: "",
     trialDays: 0
@@ -266,8 +266,8 @@ const PlansManagement = () => {
                     <SelectValue placeholder="Select interval" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value={SubscriptionInterval.Monthly}>Monthly</SelectItem>
-                    <SelectItem value={SubscriptionInterval.Yearly}>Yearly</SelectItem>
+                    <SelectItem value="monthly">Monthly</SelectItem>
+                    <SelectItem value="yearly">Yearly</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
