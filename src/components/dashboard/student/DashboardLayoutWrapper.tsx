@@ -1,8 +1,11 @@
 
 import React from 'react';
-import DashboardLayout from './DashboardLayout';
 import { useStudentDashboard } from '@/hooks/useStudentDashboard';
 import { UserProfileType } from '@/types/user/base';
+
+// Import the component from the correct path or create a stub if needed
+// Note: You'll need to create this file or import from the correct path
+import DashboardLayout from '@/components/dashboard/DashboardLayout';
 
 interface DashboardLayoutWrapperProps {
   userProfile: UserProfileType;

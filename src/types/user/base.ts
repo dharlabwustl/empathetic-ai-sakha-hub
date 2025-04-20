@@ -1,6 +1,6 @@
 
 export interface UserSubscription {
-  planId: string;
+  planId?: string; // Making planId optional to fix the error
   planType: SubscriptionType;
   batchCode?: string;
   batchName?: string;

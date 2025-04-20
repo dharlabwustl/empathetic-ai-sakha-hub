@@ -6,8 +6,8 @@ import { AdminUser } from '@/types/admin';
 interface AdminAuthContextProps {
   adminUser: AdminUser | null;
   isAuthenticated: boolean;
-  isLoading: boolean;
-  login: (username: string, password: string) => Promise<boolean>;
+  loading: boolean;
+  login: (email: string, password: string) => Promise<boolean>;
   logout: () => void;
 }
 
@@ -15,7 +15,7 @@ const AdminAuthContext = createContext<AdminAuthContextProps | undefined>(undefi
 
 export const AdminAuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [adminUser, setAdminUser] = useState<AdminUser | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -31,14 +31,14 @@ export const AdminAuthProvider: React.FC<{ children: ReactNode }> = ({ children 
           localStorage.removeItem('adminUser');
         }
       }
-      setIsLoading(false);
+      setLoading(false);
     };
 
     checkAdminAuth();
   }, []);
 
   const login = async (username: string, password: string): Promise<boolean> => {
-    setIsLoading(true);
+    setLoading(true);
     
     try {
       // In a real app, this would be an API call
@@ -49,6 +49,7 @@ export const AdminAuthProvider: React.FC<{ children: ReactNode }> = ({ children 
         const admin: AdminUser = {
           id: '1',
           username: 'admin',
+          name: 'Admin User',
           email: username,
           role: 'admin',
           permissions: ['read', 'write', 'delete']
@@ -83,7 +84,7 @@ export const AdminAuthProvider: React.FC<{ children: ReactNode }> = ({ children 
       
       return false;
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
@@ -101,7 +102,7 @@ export const AdminAuthProvider: React.FC<{ children: ReactNode }> = ({ children 
     <AdminAuthContext.Provider value={{ 
       adminUser, 
       isAuthenticated: !!adminUser, 
-      isLoading, 
+      loading, 
       login, 
       logout 
     }}>

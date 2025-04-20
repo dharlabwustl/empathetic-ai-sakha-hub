@@ -1,4 +1,6 @@
+
 import { AuthUser } from '@/services/auth/authService';
+import { AdminUser } from '@/types/admin';
 
 // Auth context types
 export interface AuthContextProps {
@@ -13,15 +15,10 @@ export interface AuthContextProps {
 
 // Admin auth context types
 export interface AdminAuthContextProps {
-  adminUser: {
-    id: string;
-    name: string;
-    email: string;
-    role: string;
-    permissions?: string[];
-  } | null;
+  adminUser: AdminUser | null;
   isAuthenticated: boolean;
-  loading: boolean; // This property was missing
+  loading: boolean;
+  isLoading?: boolean; // Adding this for backward compatibility
   login: (email: string, password: string) => Promise<boolean>;
   logout: () => Promise<void>;
 }
