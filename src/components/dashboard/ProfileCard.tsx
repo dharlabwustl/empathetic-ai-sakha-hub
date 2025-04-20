@@ -1,10 +1,9 @@
-
 import { UserProfileType } from "@/types/user";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Camera, Trophy, Mail, Phone, User } from "lucide-react";
+import { Camera, Trophy, Mail, Phone, User, Crown, CalendarDays, Users, Package } from "lucide-react";
 import { SubscriptionType, UserSubscription } from "@/types/user/base";
 import { useState } from "react";
 import { Link } from "react-router-dom";
@@ -124,6 +123,32 @@ export default function ProfileCard({
 
   const trialStatus = getFreeTrialStatus();
 
+  const getBillingCycleInfo = () => {
+    if (!profile.subscription || typeof profile.subscription !== 'object') {
+      return 'Monthly';
+    }
+    
+    const startDate = profile.subscription.startDate 
+      ? new Date(profile.subscription.startDate) 
+      : new Date();
+    const endDate = profile.subscription.endDate 
+      ? new Date(profile.subscription.endDate) 
+      : addDays(startDate, 30);
+    
+    return {
+      cycle: 'Monthly',
+      nextBilling: format(endDate, 'MMM dd, yyyy')
+    };
+  };
+
+  const billingInfo = getBillingCycleInfo();
+
+  const showUpgradeButton = () => {
+    const subscriptionType = getSubscriptionType(profile.subscription);
+    return subscriptionType === SubscriptionType.Free || 
+           subscriptionType === SubscriptionType.Basic;
+  };
+
   return (
     <Card className="h-full">
       <CardHeader className="pb-2">
@@ -222,6 +247,42 @@ export default function ProfileCard({
         
         <div className="border-t pt-3 space-y-2">
           <div className="flex justify-between items-center">
+            <span className="text-muted-foreground text-sm">Current Plan</span>
+            <Badge className={`${getSubscriptionBadgeColor()} text-white flex items-center gap-1`}>
+              <Crown className="h-3 w-3" />
+              {getSubscriptionPlanName()}
+            </Badge>
+          </div>
+
+          <div className="flex justify-between items-center">
+            <span className="text-muted-foreground text-sm">Billing Cycle</span>
+            <div className="flex items-center gap-1 text-sm">
+              <CalendarDays className="h-3 w-3 text-muted-foreground" />
+              {typeof billingInfo === 'string' ? billingInfo : billingInfo.cycle}
+            </div>
+          </div>
+
+          {typeof billingInfo !== 'string' && (
+            <div className="flex justify-between items-center">
+              <span className="text-muted-foreground text-sm">Next Billing</span>
+              <span className="text-sm">{billingInfo.nextBilling}</span>
+            </div>
+          )}
+
+          {/* Only show batch info for group/institutional plans */}
+          {typeof profile.subscription === 'object' && profile.subscription.batchName && (
+            <div className="flex justify-between items-center">
+              <span className="text-muted-foreground text-sm">Batch</span>
+              <div className="flex items-center gap-2">
+                <Badge variant="outline" className="text-xs">
+                  {profile.subscription.batchName}
+                </Badge>
+                <Users className="h-3 w-3 text-muted-foreground" />
+              </div>
+            </div>
+          )}
+
+          <div className="flex justify-between items-center">
             <span className="text-muted-foreground text-sm">Role</span>
             <span className="font-medium">{profile.role}</span>
           </div>
@@ -274,6 +335,19 @@ export default function ProfileCard({
               Study Groups
             </Button>
           </Link>
+
+          {showUpgradeButton() && (
+            <Link to="/dashboard/student/subscription" className="block mt-2">
+              <Button 
+                variant="default" 
+                size="sm" 
+                className="w-full bg-gradient-to-r from-purple-600 to-violet-600 flex items-center justify-center gap-2"
+              >
+                <Package className="h-4 w-4" />
+                Upgrade Plan
+              </Button>
+            </Link>
+          )}
         </div>
       </CardContent>
     </Card>

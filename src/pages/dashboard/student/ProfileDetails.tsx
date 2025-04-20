@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { UserProfileType, UserSubscription, SubscriptionType, SubscriptionPlan } from "@/types/user";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
@@ -673,6 +672,45 @@ const ProfileDetails: React.FC<ProfileDetailsProps> = ({ userProfile, onUpdatePr
     }
   ];
 
+  // Add dummy batch data for demonstration
+  const dummyBatch = {
+    id: "demo-batch-1",
+    name: "Demo Study Group",
+    members: [
+      {
+        id: "1",
+        name: "John Doe",
+        email: "john@example.com",
+        role: "leader" as "leader",
+        status: "active" as "active",
+        progress: {
+          completedTopics: 45,
+          totalTopics: 60,
+          lastActiveDate: new Date().toISOString()
+        }
+      },
+      {
+        id: "2",
+        name: "Jane Smith",
+        email: "jane@example.com",
+        role: "member" as "member",
+        status: "active" as "active",
+        progress: {
+          completedTopics: 30,
+          totalTopics: 60,
+          lastActiveDate: new Date().toISOString()
+        }
+      }
+    ],
+    maxMembers: 5,
+    activeMembersCount: 2,
+    batchCode: "DEMO123",
+    planType: "group" as "group"
+  };
+
+  // Initialize userBatches with dummy batch if none exist
+  const [userBatches, setUserBatches] = useState([dummyBatch]);
+
   const currentSubscription = getCurrentSubscription();
   const hasBatchManagement = 
     (typeof userProfile.subscription === 'object' && 
@@ -680,6 +718,7 @@ const ProfileDetails: React.FC<ProfileDetailsProps> = ({ userProfile, onUpdatePr
      userProfile.subscription.role === 'school_admin' || 
      userProfile.subscription.role === 'corporate_admin'));
 
+  // Show dummy batch data in the batch tab
   return (
     <div className="space-y-6">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -815,60 +854,25 @@ const ProfileDetails: React.FC<ProfileDetailsProps> = ({ userProfile, onUpdatePr
               <div className="flex justify-between items-center">
                 <div>
                   <CardTitle className="flex items-center gap-2">
-                    <Crown className="h-5 w-5 text-amber-500" />
+                    <Users className="h-5 w-5 text-amber-500" />
                     Study Batch
                   </CardTitle>
                   <CardDescription>
-                    Join or create a study batch with friends or classmates
+                    Manage your study batch and track member progress
                   </CardDescription>
                 </div>
               </div>
             </CardHeader>
             <CardContent>
-              {typeof userProfile.subscription === 'object' && userProfile.subscription.batchName ? (
-                hasBatchManagement ? (
-                  <BatchProfileSection 
-                    userBatches={userBatches}
-                    onInviteMembers={handleInviteMembers}
-                  />
-                ) : (
-                  <div className="rounded-lg border p-4">
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <p className="font-medium text-lg">{userProfile.subscription.batchName}</p>
-                        <p className="text-sm text-muted-foreground">
-                          You're currently part of this study batch
-                        </p>
-                        <div className="mt-2 flex items-center">
-                          <Badge className="mr-2">{userProfile.subscription.role}</Badge>
-                          {userProfile.subscription.batchCode && (
-                            <Badge variant="outline">Code: {userProfile.subscription.batchCode}</Badge>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )
-              ) : (
-                <div className="space-y-6">
-                  <BatchInvitationInput onJoinBatch={handleJoinBatch} />
-                  <div className="text-center">
-                    <p className="text-sm text-muted-foreground mb-4">- OR -</p>
-                    <Button
-                      variant="outline"
-                      className="w-full sm:w-auto"
-                      onClick={() => setActiveTab("subscription")}
-                    >
-                      Create Your Own Batch
-                    </Button>
-                  </div>
-                </div>
-              )}
+              <BatchProfileSection
+                userBatches={userBatches}
+                onInviteMembers={handleInviteMembers}
+              />
             </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
-      
+
       {/* Checkout Dialog */}
       {isCheckoutOpen && selectedPlan && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
@@ -895,27 +899,4 @@ const ProfileDetails: React.FC<ProfileDetailsProps> = ({ userProfile, onUpdatePr
               </>
             ) : (
               <>
-                <Building className="h-5 w-5 text-amber-600" />
-                Corporate Plan Setup
-              </>
-            )}
-          </CardTitle>
-          
-          <div className="mb-4">
-            <p className="text-muted-foreground mb-4">
-              {institutionType === "school" 
-                ? "Add student emails to create a school batch. You can add up to 100 students."
-                : "Add employee emails to create a corporate training batch. You can add up to 50 employees."}
-            </p>
-            <BatchMemberUploader 
-              onUploadComplete={handleMemberUploadComplete}
-              maxMembers={institutionType === "school" ? 100 : 50}
-            />
-          </div>
-        </DialogContent>
-      </Dialog>
-    </div>
-  );
-};
-
-export default ProfileDetails;
+                <Building className="h-5 w-5 text-amber
