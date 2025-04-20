@@ -41,8 +41,17 @@ export interface AdminDashboardStats {
   weeklyActiveUsers?: number;
   monthlyActiveUsers?: number;
   freeUsers?: number;
-  paidUsers?: number;
-  groupUsers?: number;
+  paidUsers?: {
+    total: number;
+    breakdown: {
+      free: number;
+      basic: number;
+      premium: number;
+      enterprise: number;
+      school: number;
+      corporate: number;
+    };
+  };
   subscriptionConversionRate?: number;
   churnRate?: number;
   averageStudyTimePerUser?: number;
@@ -60,4 +69,126 @@ export interface AdminDashboardStats {
   verifiedRetentionRate?: number;
   verifiedMoodFeatureUsage?: number;
   completedSurveys?: number;
+  totalUsers?: number;
+}
+
+// Additional interfaces needed by admin services
+export interface ContentItem {
+  id: string;
+  title: string;
+  type: string;
+  subject: string;
+  topic: string;
+  createdAt: string;
+  updatedAt: string;
+  author: string;
+  status: 'draft' | 'published' | 'archived';
+  content: any;
+}
+
+export interface NotificationTemplate {
+  id: string;
+  name: string;
+  subject: string;
+  body: string;
+  type: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface FeelGoodContent {
+  id: string;
+  title: string;
+  content: string;
+  type: string;
+  tags: string[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Flashcard {
+  id: string;
+  front: string;
+  back: string;
+  subject: string;
+  topic: string;
+}
+
+export interface ConceptCard {
+  id: string;
+  title: string;
+  content: string;
+  subject: string;
+  topic: string;
+}
+
+export interface ExamPaper {
+  id: string;
+  title: string;
+  subject: string;
+  questions: Question[];
+  duration: number;
+  totalMarks: number;
+}
+
+export interface Question {
+  id: string;
+  text: string;
+  options?: string[];
+  correctAnswer: string | string[];
+  marks: number;
+}
+
+export interface SurroundingInfluence {
+  id: string;
+  title: string;
+  description: string;
+  impactLevel: number;
+  tips: string[];
+}
+
+export interface StudyPlan {
+  id: string;
+  userId: string;
+  title: string;
+  subjects: string[];
+  startDate: string;
+  endDate: string;
+  sessions: any[];
+}
+
+export interface MoodLog {
+  id: string;
+  userId: string;
+  mood: string;
+  timestamp: string;
+  notes?: string;
+  factors?: string[];
+}
+
+export interface UserDoubts {
+  id: string;
+  userId: string;
+  question: string;
+  subject: string;
+  topic: string;
+  status: 'pending' | 'answered';
+  timestamp: string;
+}
+
+export interface TutorChat {
+  id: string;
+  userId: string;
+  conversationHistory: any[];
+  lastActive: string;
+}
+
+export interface Notification {
+  id: string;
+  userId: string;
+  title: string;
+  message: string;
+  type: string;
+  read: boolean;
+  createdAt: string;
 }

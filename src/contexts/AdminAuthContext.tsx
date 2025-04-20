@@ -6,7 +6,7 @@ import { AdminUser } from '@/types/admin/index';
 interface AdminAuthContextProps {
   adminUser: AdminUser | null;
   isAuthenticated: boolean;
-  isLoading: boolean;
+  isLoading: boolean;  // This was missing
   login: (email: string, password: string) => Promise<boolean>;
   logout: () => void;
 }

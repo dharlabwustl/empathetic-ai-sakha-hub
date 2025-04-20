@@ -21,8 +21,8 @@ export interface StudentData {
   goals: string[];
   studyHours: number;
   moodScore: number;
-
-  // Additional properties that are being used
+  
+  // Optional properties that are being used
   status?: "active" | "inactive" | "pending";
   joinedDate?: string; // Alternative to joinDate used in some components
   role?: string;
