@@ -9,33 +9,43 @@ const SystemTab = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [systemLogs, setSystemLogs] = useState<SystemLog[]>([
     {
-      id: '1',
-      level: 'error',
-      message: 'Database connection failed',
-      source: 'backend',
-      timestamp: new Date('2025-04-15T12:30:00'),
-      resolved: false
+      id: "1",
+      level: "error",
+      message: "Database connection failed",
+      source: "API Server",
+      timestamp: "2023-04-15T10:30:00Z",
+      resolved: false,
+      details: {
+        error: "Connection timeout",
+        server: "db-primary-1"
+      }
     },
     {
-      id: '2',
-      level: 'info',
-      message: 'User authentication successful',
-      source: 'auth',
-      timestamp: new Date('2025-04-15T13:45:00'),
-      resolved: true
+      id: "2",
+      level: "warning",
+      message: "High memory usage detected",
+      source: "Application Server",
+      timestamp: "2023-04-15T09:15:00Z",
+      resolved: true,
+      details: {
+        memoryUsed: "85%",
+        threshold: "80%"
+      }
     },
     {
-      id: '3',
-      level: 'warning',
-      message: 'Rate limit approaching',
-      source: 'api',
-      timestamp: new Date('2025-04-15T14:20:00'),
-      resolved: false
+      id: "3",
+      level: "info",
+      message: "Daily backup completed",
+      source: "Backup Service",
+      timestamp: "2023-04-15T08:00:00Z",
+      resolved: true,
+      details: {
+        size: "1.2GB",
+        duration: "15 minutes"
+      }
     }
   ]);
 
-  // Rest of the component logic...
-  
   const resolveLog = (id: string) => {
     setSystemLogs(prev => 
       prev.map(log => 
@@ -44,15 +54,10 @@ const SystemTab = () => {
     );
   };
 
-  // Convert string timestamp to Date if necessary
   const formatTimestamp = (timestamp: Date | string) => {
-    // If timestamp is already a Date object, use it directly
-    // Otherwise parse it as a Date
     const date = timestamp instanceof Date ? timestamp : new Date(timestamp);
     return format(date, 'MMM dd, yyyy HH:mm:ss');
   };
-
-  // ... rest of the component
 
   return (
     <div className="space-y-6">
@@ -70,7 +75,6 @@ const SystemTab = () => {
               <CardDescription>Current system status and health metrics</CardDescription>
             </CardHeader>
             <CardContent>
-              {/* Content for system health overview */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {/* System health content... */}
               </div>
@@ -129,7 +133,6 @@ const SystemTab = () => {
               <CardDescription>Performance metrics and analytics</CardDescription>
             </CardHeader>
             <CardContent>
-              {/* Performance metrics content */}
               <div className="space-y-6">
                 {/* Performance metrics... */}
               </div>

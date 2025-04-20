@@ -22,7 +22,7 @@ export interface AdminAuthContextProps {
     permissions?: string[];
   } | null;
   isAuthenticated: boolean;
-  loading: boolean;
+  loading: boolean; // This property was missing
   login: (email: string, password: string) => Promise<boolean>;
   logout: () => Promise<void>;
 }

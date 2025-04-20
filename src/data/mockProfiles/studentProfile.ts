@@ -1,59 +1,58 @@
 
-import { StudentProfile } from "@/types/user";
-import { UserRole, SubscriptionType, MoodType } from "@/types/user/base";
-import { v4 as uuidv4 } from "uuid";
+import { UserProfileType, UserRole, SubscriptionType } from '@/types/user/base';
 
-export const mockStudentProfile: StudentProfile = {
-  id: "1",
-  name: "Rahul Singh",
-  phoneNumber: "9876543210",
-  email: "rahul.singh@example.com",
+const studentProfile: UserProfileType = {
+  id: "s12345",
+  name: "Rahul Sharma",
+  email: "rahul.sharma@example.com",
   role: UserRole.Student,
-  personalityType: "Strategic Thinker",
-  subscription: SubscriptionType.Basic,
-  joinDate: "2025-03-01",
-  lastActive: "2025-05-12",
-  areasOfInterest: [
-    { id: "i1", name: "Physics", level: "Advanced" },
-    { id: "i2", name: "Mathematics", level: "Intermediate" },
-    { id: "i3", name: "Chemistry", level: "Intermediate" }
-  ],
+  avatar: "/lovable-uploads/ffd1ed0a-7a25-477e-bc91-1da9aca3497f.png",
+  bio: "Preparing for JEE. Love physics and math.",
+  phoneNumber: "+91 9876543210",
+  personalityType: "systematic_learner",
+  gender: "male",
+  examPreparation: "IIT-JEE",
+  joinDate: "2023-01-15",
+  lastActive: "2023-04-19",
+  loginCount: 45,
+  completedOnboarding: true,
   goals: [
     {
       id: "g1",
-      title: "Complete Physics Syllabus",
-      description: "Finish all chapters in NCERT Physics",
-      progress: 75,
+      title: "IIT-JEE",
+      description: "Score 250+ in JEE Mains",
+      progress: 65,
       status: "in-progress",
-      dueDate: "2025-05-30",
-      targetDate: new Date("2025-05-30")
+      targetDate: new Date("2023-12-31")
     },
     {
       id: "g2",
-      title: "Score 90% in Math Test",
-      description: "Practice integration problems",
-      progress: 60,
-      status: "not-started",
-      dueDate: "2025-05-15",
-      targetDate: new Date("2025-05-15")
-    },
+      title: "Physics Olympiad",
+      description: "Qualify for national level",
+      progress: 40,
+      status: "in-progress",
+      targetDate: new Date("2023-09-30")
+    }
   ],
-  educationLevel: "11th Grade",
-  subjects: [
-    { id: "s1", name: "Physics", progress: 75 },
-    { id: "s2", name: "Chemistry", progress: 60 },
-    { id: "s3", name: "Mathematics", progress: 80 },
-    { id: "s4", name: "Biology", progress: 45 }
+  areasOfInterest: [
+    { id: "i1", name: "Physics", level: "Advanced" },
+    { id: "i2", name: "Mathematics", level: "Advanced" },
+    { id: "i3", name: "Computer Science", level: "Intermediate" }
   ],
-  studyStreak: 5,
-  quizzesTaken: 12,
-  flashcardsCreated: 35,
-  examPreparation: "IIT-JEE",
-  studyHoursToday: 2.5,
-  subjectsCovered: 3,
-  quizPerformance: 82,
-  mood: "focused" as MoodType,
-  syllabusCoverage: 65,
-  strongSubjects: ["Physics", "Mathematics"],
-  weakSubjects: ["Chemistry", "Biology"]
+  subscription: SubscriptionType.Premium,
+  address: {
+    street: "123 Main Road",
+    city: "New Delhi",
+    state: "Delhi",
+    zipCode: "110001",
+    country: "India"
+  },
+  education: {
+    level: "High School", // Changed from educationLevel to level
+    institution: "Delhi Public School",
+    fieldOfStudy: "Science",
+    graduationYear: 2023
+  }
 };
+
+export default studentProfile;
