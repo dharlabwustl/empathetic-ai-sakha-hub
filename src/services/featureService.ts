@@ -1,123 +1,87 @@
 
-import { getFeatures } from "@/pages/dashboard/student/utils/FeatureManager";
-import { ReactNode } from "react";
+import { Feature, FeatureAccess, FeatureAccessLevel } from '@/types/features';
+import { PlanType } from '@/types/subscription';
+import { createClient } from '@supabase/supabase-js';
 
-export enum PlanType {
-  Free = "free",
-  Basic = "basic",
-  Premium = "premium",
-  Group = "group", 
-  Institute = "institute",
-  Corporate = "corporate"
-}
+class FeatureService {
+  private supabase;
 
-export enum SubscriptionInterval {
-  Monthly = "monthly",
-  Yearly = "yearly"
-}
-
-export interface Feature {
-  title: string;
-  description: string;
-  path: string;
-  isPremium: boolean;
-  icon: ReactNode;
-  freeAccessLimit?: {
-    type: "time" | "usage" | "content",
-    limit: number // days, count, or percentage
-  };
-  allowedPlans?: PlanType[];
-}
-
-export interface SubscriptionPlan {
-  id: string;
-  name: string;
-  type: PlanType;
-  price: number;
-  interval: SubscriptionInterval;
-  features: string[]; // Feature titles
-  maxUsers?: number; // For group, institute, corporate plans
-  description: string;
-  trialDays?: number; // Adding trial period
-}
-
-export const featureService = {
-  getAllFeatures: async (): Promise<Feature[]> => {
-    return getFeatures();
-  },
-  
-  updateFeature: async (updatedFeature: Feature): Promise<Feature> => {
-    return updatedFeature;
-  },
-  
-  toggleFeaturePremium: async (featureTitle: string, isPremium: boolean): Promise<boolean> => {
-    return true;
-  },
-
-  getSubscriptionPlans: async (): Promise<SubscriptionPlan[]> => {
-    return [
-      {
-        id: "free-plan",
-        name: "Free Trial",
-        type: PlanType.Free,
-        price: 0,
-        interval: SubscriptionInterval.Monthly,
-        features: ["24/7 Tutor", "Academic Advisor", "Flashcards & Revision"],
-        description: "7-day trial access to essential features",
-        trialDays: 7
-      },
-      {
-        id: "basic-plan",
-        name: "Basic Plan",
-        type: PlanType.Basic,
-        price: 499,
-        interval: SubscriptionInterval.Monthly,
-        features: ["24/7 Tutor", "Academic Advisor", "Flashcards & Revision", "Practice Exams", "Goal Tracking", "Video Library", "Smart Notifications"],
-        description: "Full access to standard features"
-      },
-      {
-        id: "premium-plan",
-        name: "Premium Plan",
-        type: PlanType.Premium,
-        price: 999,
-        interval: SubscriptionInterval.Monthly,
-        features: ["24/7 Tutor", "Academic Advisor", "Flashcards & Revision", "Practice Exams", "Goal Tracking", "Video Library", "Smart Notifications", "Motivation Coach", "Mental Health Zone", "My Materials Vault", "Live Tutors", "Collaborative Forum"],
-        description: "Complete access to all features including premium content"
-      },
-      {
-        id: "group-plan",
-        name: "Group Plan",
-        type: PlanType.Group,
-        price: 3999,
-        interval: SubscriptionInterval.Monthly,
-        maxUsers: 5,
-        features: ["24/7 Tutor", "Academic Advisor", "Flashcards & Revision", "Practice Exams", "Goal Tracking", "Video Library", "Smart Notifications", "Motivation Coach"],
-        description: "Shared access for 5 users with premium features"
-      },
-      {
-        id: "institute-plan",
-        name: "Institute Plan",
-        type: PlanType.Institute,
-        price: 19999,
-        interval: SubscriptionInterval.Monthly,
-        maxUsers: 50,
-        features: ["24/7 Tutor", "Academic Advisor", "Flashcards & Revision", "Practice Exams", "Goal Tracking", "Video Library", "Smart Notifications", "Motivation Coach", "Mental Health Zone", "My Materials Vault", "Live Tutors"],
-        description: "Institutional access for up to 50 students with admin dashboard"
-      },
-      {
-        id: "corporate-plan",
-        name: "Corporate Plan",
-        type: PlanType.Corporate,
-        price: 49999,
-        interval: SubscriptionInterval.Monthly,
-        maxUsers: 100,
-        features: ["24/7 Tutor", "Academic Advisor", "Flashcards & Revision", "Practice Exams", "Goal Tracking", "Video Library", "Smart Notifications", "Motivation Coach", "Mental Health Zone", "My Materials Vault", "Live Tutors", "Collaborative Forum"],
-        description: "Enterprise access for employees and their families with complete features"
-      }
-    ];
-  },
-
-  updateSubscriptionPlan: async (updatedPlan: SubscriptionPlan): Promise<SubscriptionPlan> => {
-    return updatedPlan;
+  constructor() {
+    this.supabase = createClient(
+      process.env.SUPABASE_URL || '',
+      process.env.SUPABASE_ANON_KEY || ''
+    );
   }
-};
+
+  async getAllFeatures(): Promise<Feature[]> {
+    const { data, error } = await this.supabase
+      .from('features')
+      .select('*');
+    
+    if (error) throw error;
+    return data;
+  }
+
+  async getFeatureAccess(featureId: string, userId: string): Promise<FeatureAccess | null> {
+    const { data, error } = await this.supabase
+      .from('feature_access')
+      .select('*')
+      .eq('feature_id', featureId)
+      .eq('user_id', userId)
+      .single();
+    
+    if (error) throw error;
+    return data;
+  }
+
+  async updateFeatureAccess(
+    featureId: string, 
+    userId: string, 
+    accessLevel: FeatureAccessLevel
+  ): Promise<void> {
+    const { error } = await this.supabase
+      .from('feature_access')
+      .upsert({
+        feature_id: featureId,
+        user_id: userId,
+        access_level: accessLevel,
+        last_accessed: new Date().toISOString()
+      });
+    
+    if (error) throw error;
+  }
+
+  async isFeatureAccessible(
+    feature: Feature,
+    userSubscription: PlanType,
+    userId: string
+  ): Promise<boolean> {
+    // Free features are always accessible
+    if (!feature.isPremium) return true;
+
+    // Check if feature is allowed for user's subscription plan
+    if (feature.allowedPlans && !feature.allowedPlans.includes(userSubscription)) {
+      return false;
+    }
+
+    // Check feature access level against subscription
+    const subscriptionLevels: Record<PlanType, FeatureAccessLevel> = {
+      [PlanType.Free]: 'free',
+      [PlanType.Basic]: 'basic',
+      [PlanType.Premium]: 'premium',
+      [PlanType.Enterprise]: 'enterprise'
+    };
+
+    const userAccessLevel = subscriptionLevels[userSubscription];
+    const requiredLevel = feature.accessLevel;
+
+    const accessLevelOrder: FeatureAccessLevel[] = ['free', 'basic', 'premium', 'enterprise'];
+    const userLevelIndex = accessLevelOrder.indexOf(userAccessLevel);
+    const requiredLevelIndex = accessLevelOrder.indexOf(requiredLevel);
+
+    // User's subscription level must be equal or higher than feature's required level
+    return userLevelIndex >= requiredLevelIndex;
+  }
+}
+
+export const featureService = new FeatureService();
