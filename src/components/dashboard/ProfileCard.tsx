@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -104,31 +103,46 @@ const ProfileCard = ({
     oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
     
     const hasBeenMemberLongEnough = joinDate < oneMonthAgo;
-    const isPremiumUser = profile.subscription === SubscriptionType.Premium || 
-                         profile.subscription === SubscriptionType.Enterprise;
+    
+    // Get subscription type for comparison
+    const subscriptionType = typeof profile.subscription === 'object' 
+      ? profile.subscription?.planType 
+      : profile.subscription;
+      
+    const isPremiumUser = subscriptionType === SubscriptionType.Premium || 
+                         subscriptionType === SubscriptionType.Enterprise;
     
     return showPeerRanking && hasBeenMemberLongEnough && isPremiumUser;
   };
 
   // Get subscription plan details
   const getSubscriptionDetails = () => {
-    const planTypeMap: Record<SubscriptionType, string> = {
+    // Get subscription type for comparison
+    const subscriptionType = typeof profile.subscription === 'object' 
+      ? profile.subscription?.planType 
+      : profile.subscription || SubscriptionType.Free;
+
+    const planTypeMap: Record<string, string> = {
       [SubscriptionType.Free]: 'Free Trial',
       [SubscriptionType.Basic]: 'Basic Plan',
       [SubscriptionType.Premium]: 'Premium Plan',
-      [SubscriptionType.Enterprise]: 'Enterprise Plan'
+      [SubscriptionType.Enterprise]: 'Enterprise Plan',
+      [SubscriptionType.School]: 'School Plan',
+      [SubscriptionType.Corporate]: 'Corporate Plan'
     };
 
-    const planTypeColorMap: Record<SubscriptionType, string> = {
+    const planTypeColorMap: Record<string, string> = {
       [SubscriptionType.Free]: 'bg-gray-100 text-gray-800',
       [SubscriptionType.Basic]: 'bg-blue-100 text-blue-800',
       [SubscriptionType.Premium]: 'bg-violet-100 text-violet-800',
-      [SubscriptionType.Enterprise]: 'bg-amber-100 text-amber-800'
+      [SubscriptionType.Enterprise]: 'bg-amber-100 text-amber-800',
+      [SubscriptionType.School]: 'bg-green-100 text-green-800',
+      [SubscriptionType.Corporate]: 'bg-cyan-100 text-cyan-800'
     };
 
     return {
-      planName: planTypeMap[profile.subscription || SubscriptionType.Free] || 'Free Trial',
-      planClass: planTypeColorMap[profile.subscription || SubscriptionType.Free] || 'bg-gray-100 text-gray-800'
+      planName: planTypeMap[subscriptionType] || 'Free Trial',
+      planClass: planTypeColorMap[subscriptionType] || 'bg-gray-100 text-gray-800'
     };
   };
 

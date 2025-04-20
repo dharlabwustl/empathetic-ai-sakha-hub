@@ -20,12 +20,18 @@ export interface UserProfileType {
   goals?: {
     id: string;
     title: string;
+    description?: string;
+    progress?: number;
+    status?: "completed" | "in-progress" | "not-started";
+    dueDate?: string;
+    targetDate?: Date;
   }[];
   areasOfInterest?: {
     id: string;
     name: string;
+    level?: string;
   }[];
-  subscription?: UserSubscription;
+  subscription?: SubscriptionType | UserSubscription;
   joinDate?: string;
   gender?: "male" | "female" | "other";
   phoneNumber?: string;
@@ -76,8 +82,6 @@ export interface SubscriptionPlan {
   maxMembers?: number;
 }
 
-export interface PersonalityType {
-  id: string;
-  name: string;
-  description: string;
-}
+// Changed from interface to type alias - making it a string type
+export type PersonalityType = string;
+

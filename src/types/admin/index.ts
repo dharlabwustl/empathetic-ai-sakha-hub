@@ -3,6 +3,15 @@
 export * from './studentData';
 export * from './systemLog';
 
+// Admin User Interface
+export interface AdminUser {
+  id: string;
+  username: string;
+  email: string;
+  role: 'admin' | 'super_admin' | 'support';
+  permissions: string[];
+}
+
 // Admin Dashboard Stats Interface
 export interface AdminDashboardStats {
   totalStudents: number;

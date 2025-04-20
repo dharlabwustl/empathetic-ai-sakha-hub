@@ -6,7 +6,7 @@ import { OnboardingStep, UserRole, UserGoal } from "./OnboardingContext";
 import { getDemographicsQuestion } from "./utils/stepUtils";
 import authService from "@/services/auth/authService"; 
 import { getSubjectsForGoal } from "@/components/dashboard/student/onboarding/SubjectData";
-import { PersonalityType, MoodType } from "@/types/user/base";
+import { MoodType } from "@/types/user/base";
 
 interface StepHandlerProps {
   onboardingData: any;
@@ -138,7 +138,7 @@ const StepHandler = ({
         ]);
         setStep("demographics");
       },
-      handlePersonalitySelect: (personality: PersonalityType) => {
+      handlePersonalitySelect: (personality: string) => {
         setOnboardingData({ ...onboardingData, personalityType: personality });
         setMessages([
           ...messages,

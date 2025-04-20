@@ -164,7 +164,11 @@ export default function DashboardOverview({
               icon={feature.icon}
               path={feature.path}
               isPremium={feature.isPremium}
-              userSubscription={userProfile.subscription || SubscriptionType.Basic}
+              userSubscription={
+                typeof userProfile.subscription === 'object' 
+                  ? userProfile.subscription?.planType 
+                  : userProfile.subscription || SubscriptionType.Basic
+              }
             />
           </motion.div>
         ))}

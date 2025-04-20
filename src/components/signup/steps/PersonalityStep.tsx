@@ -6,29 +6,29 @@ import { motion } from "framer-motion";
 import { PersonalityType } from "@/types/user/base";
 
 interface PersonalityStepProps {
-  onPersonalitySelect: (personality: PersonalityType) => void;
+  onPersonalitySelect: (personality: string) => void;
 }
 
 const PersonalityStep: React.FC<PersonalityStepProps> = ({ onPersonalitySelect }) => {
   const personalityTypes = [
     {
-      type: "analytical" as PersonalityType,
+      type: "analytical" as string,
       description: "You approach problems methodically and enjoy planning ahead"
     },
     {
-      type: "creative" as PersonalityType,
+      type: "creative" as string,
       description: "You love exploring new ideas and thinking outside the box"
     },
     {
-      type: "practical" as PersonalityType,
+      type: "practical" as string,
       description: "You prefer to dive deep into a subject and master it completely"
     },
     {
-      type: "social" as PersonalityType,
+      type: "social" as string,
       description: "You enjoy breaking down complex problems and discussing with others"
     },
     {
-      type: "independent" as PersonalityType,
+      type: "independent" as string,
       description: "You rely on your instincts and adapt quickly to new situations"
     }
   ];

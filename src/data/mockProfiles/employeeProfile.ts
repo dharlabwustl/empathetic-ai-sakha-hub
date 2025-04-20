@@ -1,5 +1,4 @@
 
-// Correcting the mock data for employee profile
 import { EmployeeProfile } from "@/types/user";
 import { UserRole, SubscriptionType } from "@/types/user/base";
 import { v4 as uuidv4 } from "uuid";
