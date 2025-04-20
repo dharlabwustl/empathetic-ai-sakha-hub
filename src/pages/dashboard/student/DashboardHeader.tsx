@@ -5,18 +5,12 @@ import { Eye } from "lucide-react";
 import MoodLogButton from "@/components/dashboard/student/MoodLogButton";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
 
 interface DashboardHeaderProps {
   userProfile: UserProfileType;
   formattedTime: string;
   formattedDate: string;
   onViewStudyPlan: () => void;
-}
-
-// Extend the userProfile type locally to handle the streak property
-interface ExtendedUserProfile extends UserProfileType {
-  studyStreak?: number;
 }
 
 const DashboardHeader = ({
@@ -26,27 +20,7 @@ const DashboardHeader = ({
   onViewStudyPlan
 }: DashboardHeaderProps) => {
   const isMobile = useIsMobile();
-  // Cast to our extended type
-  const extendedProfile = userProfile as ExtendedUserProfile;
   
-  // Calculate study streak based on the progress of user goals
-  const [studyStreak, setStudyStreak] = useState<number>(extendedProfile.studyStreak || 0);
-  
-  useEffect(() => {
-    if (userProfile.goals && userProfile.goals.length > 0) {
-      // Calculate streak based on the average progress of all goals
-      const totalProgress = userProfile.goals.reduce((sum, goal) => sum + goal.progress, 0);
-      const avgProgress = totalProgress / userProfile.goals.length;
-      
-      // For demo purposes: convert progress percentage to streak days (max 30 days)
-      const calculatedStreak = Math.max(1, Math.min(30, Math.floor(avgProgress / 3.33)));
-      setStudyStreak(calculatedStreak);
-    } else {
-      // Default streak if no goals are available
-      setStudyStreak(5);
-    }
-  }, [userProfile]);
-
   // Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -132,7 +106,7 @@ const DashboardHeader = ({
         </motion.div>
       </div>
       
-      {studyStreak > 0 && (
+      {userProfile.studyStreak && userProfile.studyStreak > 0 && (
         <motion.div 
           className="mt-3 sm:mt-4 flex items-center gap-2"
           initial={{ opacity: 0, y: 20 }}
@@ -140,7 +114,7 @@ const DashboardHeader = ({
           transition={{ delay: 0.8, duration: 0.5 }}
         >
           <div className="flex">
-            {[...Array(Math.min(studyStreak, 5))].map((_, i) => (
+            {[...Array(Math.min(userProfile.studyStreak, 5))].map((_, i) => (
               <motion.div 
                 key={i}
                 className="w-6 h-6 bg-amber-100 rounded-full border-2 border-amber-300 flex items-center justify-center -ml-1 first:ml-0"
@@ -153,10 +127,10 @@ const DashboardHeader = ({
             ))}
           </div>
           <span className="text-xs font-medium text-amber-700">
-            {studyStreak} day{studyStreak > 1 ? 's' : ''} streak! Keep it up!
+            {userProfile.studyStreak} day{userProfile.studyStreak > 1 ? 's' : ''} streak! Keep it up!
           </span>
           
-          {studyStreak >= 7 && (
+          {userProfile.studyStreak >= 7 && (
             <motion.div
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
