@@ -265,7 +265,7 @@ export default function DashboardTabs({ students, systemLogs }: DashboardTabsPro
       </TabsContent>
 
       <TabsContent value="issues" className="space-y-4">
-        <IssueResolutionTab recentLogs={systemLogs} />
+        <IssueResolutionTab systemLogs={systemLogs} />
       </TabsContent>
       
       <TabsContent value="docs" className="space-y-4">

@@ -1,28 +1,96 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import DashboardLayout from "@/components/dashboard/student/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { Check, CreditCard, Users, Calendar, ArrowRight } from "lucide-react";
-import SubscriptionPlans from "@/components/subscription/SubscriptionPlans";
-import { SubscriptionPlan } from "@/types/user";
+import { SubscriptionPlan, SubscriptionType } from "@/types/user";
 import { useStudentDashboard } from "@/hooks/useStudentDashboard";
 import DashboardLoading from "./DashboardLoading";
+
+const DashboardLayout = ({ children, userProfile }) => {
+  return (
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto py-8 px-4">
+        <h1 className="text-2xl font-bold mb-6">{userProfile.name}'s Dashboard</h1>
+        {children}
+      </div>
+    </div>
+  );
+};
+
+const SubscriptionPlans = ({ currentPlanId, onSelectPlan, showGroupOption = false, forceGroupPlans = false }) => {
+  const plans: SubscriptionPlan[] = [
+    {
+      id: "basic",
+      name: "Basic Plan",
+      price: 499,
+      features: ["Feature 1", "Feature 2", "Feature 3"],
+      isPopular: false,
+      description: "Access to core learning materials",
+      type: SubscriptionType.Basic,
+      maxMembers: 1
+    },
+    {
+      id: "premium",
+      name: "Premium Plan",
+      price: 999,
+      features: ["All Basic Features", "Premium Feature 1", "Premium Feature 2"],
+      isPopular: true,
+      description: "Complete learning experience",
+      type: SubscriptionType.Premium,
+      maxMembers: showGroupOption ? 3 : 1
+    }
+  ];
+
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {plans.map(plan => (
+        <Card key={plan.id} className={plan.isPopular ? "border-primary" : ""}>
+          <CardHeader>
+            <CardTitle>{plan.name}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-2xl font-bold">₹{plan.price}<span className="text-sm font-normal">/month</span></p>
+            <ul className="mt-4 space-y-2">
+              {plan.features.map((feature, i) => (
+                <li key={i} className="flex items-start gap-2">
+                  <Check className="h-4 w-4 text-green-600 mt-1" />
+                  <span>{feature}</span>
+                </li>
+              ))}
+            </ul>
+            <Button 
+              className="w-full mt-6" 
+              variant={plan.isPopular ? "default" : "outline"}
+              onClick={() => onSelectPlan(plan)}
+            >
+              {currentPlanId === plan.id ? "Current Plan" : "Select Plan"}
+            </Button>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  );
+};
 
 const SubscriptionPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
-  const { userProfile, loading } = useStudentDashboard();
+  const [userProfile, setUserProfile] = useState({
+    name: "User",
+    email: "user@example.com",
+    id: "1",
+    role: "student"
+  });
+  const [loading, setLoading] = useState(false);
   const [activePlan, setActivePlan] = useState<SubscriptionPlan | null>(null);
   const [activeTab, setActiveTab] = useState("current");
   const [showUpgradeOptions, setShowUpgradeOptions] = useState(false);
   
-  // Get information from location state (if redirected from checkout/payment)
   const planUpdated = location.state?.planUpdated;
   const newPlan = location.state?.newPlan;
   const isGroup = location.state?.isGroup;
@@ -30,7 +98,6 @@ const SubscriptionPage = () => {
   const inviteCodes = location.state?.inviteCodes;
   const invitedEmails = location.state?.invitedEmails;
   
-  // Format date for display
   const formatDate = (date: string) => {
     return new Date(date).toLocaleDateString("en-US", {
       year: "numeric",
@@ -39,7 +106,6 @@ const SubscriptionPage = () => {
     });
   };
   
-  // Calculate next billing date (1 month from now)
   const getNextBillingDate = () => {
     const date = new Date();
     date.setMonth(date.getMonth() + 1);
@@ -47,22 +113,16 @@ const SubscriptionPage = () => {
   };
   
   useEffect(() => {
-    // If we have plan update information in location state, update the active plan
     if (planUpdated && newPlan) {
       setActivePlan(newPlan);
       
-      // Show success toast
       toast({
         title: "Subscription Activated",
         description: `Your ${newPlan.name} plan has been successfully activated.`,
       });
       
-      // Clear the location state to prevent showing the toast again on refresh
       window.history.replaceState({}, document.title, window.location.pathname);
     } else {
-      // In a real app, fetch the active plan from the backend
-      // For now, simulate having an active plan with the Basic plan
-      // This would normally be fetched from the user profile data
       setActivePlan({
         id: "basic",
         name: "Basic Plan",
@@ -75,13 +135,14 @@ const SubscriptionPage = () => {
           "Community forum access",
         ],
         isPopular: false,
+        type: SubscriptionType.Basic,
         maxMembers: isGroup ? 5 : undefined,
       });
     }
-  }, [planUpdated, newPlan]);
+  }, [planUpdated, newPlan, toast]);
 
-  if (loading || !userProfile) {
-    return <DashboardLoading />;
+  if (loading) {
+    return <div>Loading...</div>;
   }
 
   const handleUpgrade = (plan: SubscriptionPlan, isGroupPlan?: boolean) => {

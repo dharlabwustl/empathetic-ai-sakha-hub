@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { SystemLog } from '@/types/admin/systemLog';
 import { Button } from "@/components/ui/button";
@@ -54,11 +53,7 @@ const IssueResolutionTab = ({ systemLogs = defaultSystemLogs }: IssueResolutionT
   const [logs, setLogs] = useState<SystemLog[]>(systemLogs);
   const [filter, setFilter] = useState<'all' | 'resolved' | 'unresolved'>('unresolved');
 
-  const handleResolveIssue = (id: string) => {
-    setLogs(prev => prev.map(log => 
-      log.id === id ? { ...log, resolved: true } : log
-    ));
-  };
+  // ... keep existing code (handleResolveIssue and other functions)
 
   const getFilteredLogs = () => {
     switch (filter) {
@@ -91,7 +86,15 @@ const IssueResolutionTab = ({ systemLogs = defaultSystemLogs }: IssueResolutionT
     return `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
   };
 
+  const handleResolveIssue = (id: string) => {
+    setLogs(prev => prev.map(log => 
+      log.id === id ? { ...log, resolved: true } : log
+    ));
+  };
+
   const filteredLogs = getFilteredLogs();
+
+  // ... keep existing code (return JSX)
 
   return (
     <div className="space-y-6">
