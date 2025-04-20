@@ -1,69 +1,100 @@
 
-import React from "react";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
-import { motion } from "framer-motion";
-import { PersonalityType } from "@/types/user/base";
+import { useState } from 'react';
+import { motion } from 'framer-motion';
+import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
 
 interface PersonalityStepProps {
-  onPersonalitySelect: (personality: string) => void;
+  onNext: (personality: string) => void;
 }
 
-const PersonalityStep: React.FC<PersonalityStepProps> = ({ onPersonalitySelect }) => {
-  const personalityTypes = [
+const PersonalityStep = ({ onNext }: PersonalityStepProps) => {
+  const [selectedPersonality, setSelectedPersonality] = useState<string | null>(null);
+
+  const handleSelectPersonality = (personality: string) => {
+    setSelectedPersonality(personality);
+  };
+
+  const handleContinue = () => {
+    if (selectedPersonality) {
+      onNext(selectedPersonality);
+    }
+  };
+
+  const personalities = [
     {
-      type: "analytical" as string,
-      description: "You approach problems methodically and enjoy planning ahead"
+      id: "systematic_learner",
+      name: "Systematic Learner",
+      description: "You prefer structured learning with clear guidelines and milestones.",
+      icon: "📚"
     },
     {
-      type: "creative" as string,
-      description: "You love exploring new ideas and thinking outside the box"
+      id: "curious_explorer",
+      name: "Curious Explorer",
+      description: "You enjoy discovering new concepts and making connections between ideas.",
+      icon: "🔍"
     },
     {
-      type: "practical" as string,
-      description: "You prefer to dive deep into a subject and master it completely"
+      id: "practical_applier",
+      name: "Practical Applier",
+      description: "You learn best by doing and applying knowledge to real-world problems.",
+      icon: "🛠️"
     },
     {
-      type: "social" as string,
-      description: "You enjoy breaking down complex problems and discussing with others"
+      id: "social_collaborator",
+      name: "Social Collaborator",
+      description: "You thrive in group settings and enjoy learning through discussion.",
+      icon: "👥"
     },
     {
-      type: "independent" as string,
-      description: "You rely on your instincts and adapt quickly to new situations"
+      id: "creative_thinker",
+      name: "Creative Thinker",
+      description: "You approach problems from unique angles with innovative solutions.",
+      icon: "💡"
     }
   ];
 
   return (
-    <div className="space-y-6">
-      <div className="mb-4">
-        <h3 className="text-lg font-medium">Your Learning Personality</h3>
-        <p className="text-sm text-gray-500 dark:text-gray-400">
-          Select the option that best describes your approach to learning
-        </p>
-      </div>
-      
-      <RadioGroup defaultValue="">
-        {personalityTypes.map((item, index) => (
+    <div className="w-full max-w-2xl mx-auto">
+      <h2 className="text-2xl font-bold text-center mb-6">What's Your Learning Style?</h2>
+      <p className="text-center text-gray-600 dark:text-gray-300 mb-8">
+        Choose the learning personality that best describes you. This helps us personalize your experience.
+      </p>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+        {personalities.map((personality) => (
           <motion.div
-            key={item.type}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.1 }}
-            className="mb-3"
+            key={personality.id}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className={cn(
+              "border p-4 rounded-lg cursor-pointer transition-all",
+              selectedPersonality === personality.id 
+                ? "border-primary bg-primary/10" 
+                : "border-gray-200 hover:border-gray-300 dark:border-gray-700 dark:hover:border-gray-600"
+            )}
+            onClick={() => handleSelectPersonality(personality.id)}
           >
-            <div 
-              className="flex items-center space-x-2 border rounded-lg p-3 cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/30" 
-              onClick={() => onPersonalitySelect(item.type)}
-            >
-              <RadioGroupItem value={item.type} id={item.type} className="mt-1" />
-              <div className="flex-1">
-                <Label htmlFor={item.type} className="font-medium cursor-pointer">{item.type}</Label>
-                <p className="text-sm text-gray-500 dark:text-gray-400">{item.description}</p>
+            <div className="flex items-start gap-4">
+              <div className="text-3xl">{personality.icon}</div>
+              <div>
+                <h3 className="font-medium text-lg">{personality.name}</h3>
+                <p className="text-gray-600 dark:text-gray-300 text-sm">{personality.description}</p>
               </div>
             </div>
           </motion.div>
         ))}
-      </RadioGroup>
+      </div>
+
+      <div className="flex justify-end">
+        <Button
+          onClick={handleContinue}
+          disabled={!selectedPersonality}
+          className="w-full md:w-auto"
+        >
+          Continue
+        </Button>
+      </div>
     </div>
   );
 };

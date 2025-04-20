@@ -1,28 +1,44 @@
-// Use string type for ExamGoal to resolve type issues
-export type ExamGoal = 
-  | "IIT JEE"
-  | "NEET"
-  | "MBA"
-  | "CUET UG"
-  | "UPSC"
-  | "CLAT"
-  | "BANK PO";
 
-// Keep the detailed exam goal type as a separate interface
-export interface ExamGoalDetails {
+// Study progress types
+export interface SubjectProgress {
   id: string;
   name: string;
-  description: string;
-  commonExamDate: string;
-  recommendedHours: number;
-  subjects?: string[];
+  progress: number;
+  totalTopics: number;
+  completedTopics: number;
+  weakAreas: string[];
+  strongAreas: string[];
+  lastStudied?: string;
+  averageScore?: number;
+  topics?: {
+    id: string;
+    name: string;
+    progress: number;
+    status: 'completed' | 'in-progress' | 'not-started';
+    lastPracticed?: string;
+    score?: number;
+  }[];
+  quizzes?: {
+    id: string;
+    name: string;
+    score: number;
+    date: string;
+    timeSpent: number;
+    totalQuestions: number;
+    correctAnswers: number;
+  }[];
 }
 
-export interface StudyPlanSettings {
-  examDate: string;
-  dailyStudyHours: number;
-  strongSubjects: string[];
-  weakSubjects: string[];
-  studyPace: "Aggressive" | "Balanced" | "Relaxed";
-  preferredStudyTime: "Morning" | "Afternoon" | "Evening" | "Night";
+export interface StudyStreak {
+  current: number;
+  longest: number;
+  lastStudyDate: string;
+  weeklyData: {
+    date: string;
+    minutes: number;
+  }[];
+  monthlyData: {
+    date: string;
+    minutes: number;
+  }[];
 }

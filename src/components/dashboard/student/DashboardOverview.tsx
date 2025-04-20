@@ -77,6 +77,17 @@ export default function DashboardOverview({
     tipIcon = <AlertCircle className="text-violet-500" />;
   }
 
+  // Helper function to determine user's subscription type
+  const getUserSubscriptionType = (): SubscriptionType => {
+    if (!userProfile.subscription) return SubscriptionType.Basic;
+    
+    if (typeof userProfile.subscription === 'object') {
+      return userProfile.subscription.planType;
+    }
+    
+    return userProfile.subscription;
+  };
+
   return (
     <motion.div
       variants={containerVariants}
@@ -164,11 +175,7 @@ export default function DashboardOverview({
               icon={feature.icon}
               path={feature.path}
               isPremium={feature.isPremium}
-              userSubscription={
-                typeof userProfile.subscription === 'object' 
-                  ? userProfile.subscription?.planType 
-                  : userProfile.subscription || SubscriptionType.Basic
-              }
+              userSubscription={getUserSubscriptionType()}
             />
           </motion.div>
         ))}

@@ -1,115 +1,121 @@
 
-import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
-import { useToast } from "@/hooks/use-toast";
-import { useNavigate } from "react-router-dom";
-import { AdminUser } from "@/types/admin";
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { useToast } from '@/hooks/use-toast';
+import { AdminUser } from '@/types/admin';
 
 interface AdminAuthContextProps {
+  adminUser: AdminUser | null;
   isAuthenticated: boolean;
-  user: AdminUser | null;
-  loading: boolean;
+  isLoading: boolean;
   login: (username: string, password: string) => Promise<boolean>;
   logout: () => void;
 }
 
 const AdminAuthContext = createContext<AdminAuthContextProps | undefined>(undefined);
 
-export const AdminAuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<AdminUser | null>(null);
-  const [loading, setLoading] = useState(true);
+export const AdminAuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const [adminUser, setAdminUser] = useState<AdminUser | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
-  const navigate = useNavigate();
 
-  // Check for existing session on mount
   useEffect(() => {
-    const checkAuth = async () => {
+    // Check if admin is logged in
+    const checkAdminAuth = () => {
       const adminData = localStorage.getItem('adminUser');
       if (adminData) {
         try {
-          const parsedData = JSON.parse(adminData);
-          setUser(parsedData);
+          const admin = JSON.parse(adminData);
+          setAdminUser(admin);
         } catch (error) {
-          console.error("Failed to parse admin user data", error);
+          console.error('Error parsing admin user data:', error);
           localStorage.removeItem('adminUser');
         }
       }
-      setLoading(false);
+      setIsLoading(false);
     };
-    
-    checkAuth();
+
+    checkAdminAuth();
   }, []);
 
   const login = async (username: string, password: string): Promise<boolean> => {
-    setLoading(true);
+    setIsLoading(true);
+    
     try {
-      // In a real application, this would make an API call
-      // For demo, we're checking hardcoded values
-      if (username === "admin" && password === "admin123") {
-        const adminUser: AdminUser = {
-          id: "admin-1",
-          username: "admin",
-          email: "admin@sakha.ai",
-          role: "admin",
-          permissions: ["view_all", "edit_all", "manage_users"]
+      // In a real app, this would be an API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Mock authentication logic
+      if (username === 'admin@example.com' && password === 'admin123') {
+        const admin: AdminUser = {
+          id: '1',
+          username: 'admin',
+          email: username,
+          role: 'admin',
+          permissions: ['read', 'write', 'delete']
         };
         
-        setUser(adminUser);
-        localStorage.setItem('adminUser', JSON.stringify(adminUser));
+        setAdminUser(admin);
+        localStorage.setItem('adminUser', JSON.stringify(admin));
         
         toast({
-          title: "Login Successful",
-          description: "Welcome to Sakha AI Admin Dashboard"
+          title: 'Login Successful',
+          description: 'Welcome to the admin dashboard',
         });
         
         return true;
       } else {
         toast({
-          title: "Login Failed",
-          description: "Invalid username or password",
-          variant: "destructive"
+          variant: 'destructive',
+          title: 'Login Failed',
+          description: 'Invalid credentials',
         });
+        
         return false;
       }
     } catch (error) {
-      console.error("Login error:", error);
+      console.error('Admin login error:', error);
+      
       toast({
-        title: "Login Error",
-        description: "An error occurred during login",
-        variant: "destructive"
+        variant: 'destructive',
+        title: 'Login Failed',
+        description: 'An error occurred during login',
       });
+      
       return false;
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
   const logout = () => {
-    setUser(null);
+    setAdminUser(null);
     localStorage.removeItem('adminUser');
-    navigate('/admin/login');
+    
     toast({
-      title: "Logged Out",
-      description: "You have been logged out successfully"
+      title: 'Logged Out',
+      description: 'You have been logged out of the admin panel',
     });
   };
 
   return (
     <AdminAuthContext.Provider value={{ 
-      isAuthenticated: !!user, 
-      user,
-      loading,
-      login,
-      logout
+      adminUser, 
+      isAuthenticated: !!adminUser, 
+      isLoading, 
+      login, 
+      logout 
     }}>
       {children}
     </AdminAuthContext.Provider>
   );
 };
 
-export const useAdminAuth = () => {
+export const useAdminAuth = (): AdminAuthContextProps => {
   const context = useContext(AdminAuthContext);
+  
   if (context === undefined) {
     throw new Error('useAdminAuth must be used within an AdminAuthProvider');
   }
+  
   return context;
 };

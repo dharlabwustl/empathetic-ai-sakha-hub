@@ -1,6 +1,6 @@
 
 import { FounderProfile } from "@/types/user";
-import { UserRole, SubscriptionType, UserSubscription } from "@/types/user/base";
+import { UserRole, SubscriptionType } from "@/types/user/base";
 import { v4 as uuidv4 } from "uuid";
 
 export const mockFounderProfile: FounderProfile = {
@@ -15,7 +15,7 @@ export const mockFounderProfile: FounderProfile = {
     planType: SubscriptionType.Premium,
     startDate: "2024-12-05",
     endDate: "2025-12-05"
-  } as UserSubscription,
+  },
   joinDate: "2024-12-05",
   lastActive: "2025-04-07",
   startupName: "EduMatch",
