@@ -1,9 +1,11 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useAdminAuth } from "@/contexts/AdminAuthContext";
 import { adminService } from "@/services/adminService";
-import { AdminDashboardStats, SystemLog } from "@/types/admin"; 
+import { AdminDashboardStats } from "@/types/admin"; 
+import { SystemLog } from "@/types/admin/systemLog";
 import { StudentData } from "@/types/admin/studentData";
 
 import AdminLayout from "@/components/admin/AdminLayout";
@@ -76,7 +78,6 @@ const AdminDashboard = () => {
         studyHours: student.studyHours || 0,
         moodScore: student.moodScore || 0,
         engagementScore: student.engagementScore || 0,
-        avatarUrl: student.avatarUrl || ''
       }));
       
       setRecentStudents(convertedStudents);

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -20,12 +19,11 @@ import {
   Clock
 } from "lucide-react";
 
-// Define the BatchMember interface to fix type issues
 interface BatchMember {
   id: string;
   name: string;
   email: string;
-  role: "member" | "leader" | "school_admin" | "corporate_admin"; // Fixed to use specific string literals
+  role: "member" | "leader" | "school_admin" | "corporate_admin";
   status: "active" | "inactive" | "pending";
   joinedDate?: string;
   invitationCode?: string;
@@ -37,7 +35,6 @@ interface BatchMember {
   };
 }
 
-// Define the BatchDetails interface
 interface BatchDetails {
   id: string;
   name: string;
@@ -79,14 +76,17 @@ const BatchProfileSection: React.FC<BatchProfileSectionProps> = ({
     if (userBatches.length > 0 && !activeBatchId) {
       setActiveBatchId(userBatches[0].id);
       
-      // Convert members to BatchMember type to ensure compatibility
-      const typedMembers: BatchMember[] = userBatches[0].members.map(member => ({
-        ...member,
-        // Ensure role is one of the allowed values
-        role: (["member", "leader", "school_admin", "corporate_admin"].includes(member.role as string)) 
-          ? member.role as "member" | "leader" | "school_admin" | "corporate_admin"
-          : "member"
-      }));
+      const typedMembers: BatchMember[] = userBatches[0].members.map(member => {
+        let typedRole: "member" | "leader" | "school_admin" | "corporate_admin" = "member";
+        if (member.role === "leader" || member.role === "school_admin" || member.role === "corporate_admin") {
+          typedRole = member.role;
+        }
+        
+        return {
+          ...member,
+          role: typedRole
+        };
+      });
       
       setBatchMembers(typedMembers);
       
@@ -112,7 +112,19 @@ const BatchProfileSection: React.FC<BatchProfileSectionProps> = ({
     setActiveBatchId(batchId);
     const selectedBatch = userBatches.find(batch => batch.id === batchId);
     if (selectedBatch) {
-      setBatchMembers(selectedBatch.members || []);
+      const typedMembers: BatchMember[] = selectedBatch.members.map(member => {
+        let typedRole: "member" | "leader" | "school_admin" | "corporate_admin" = "member";
+        if (member.role === "leader" || member.role === "school_admin" || member.role === "corporate_admin") {
+          typedRole = member.role;
+        }
+        
+        return {
+          ...member,
+          role: typedRole
+        };
+      });
+      
+      setBatchMembers(typedMembers);
       
       setBatchProgress({
         completed: Math.floor(Math.random() * 50) + 10,
@@ -140,7 +152,7 @@ const BatchProfileSection: React.FC<BatchProfileSectionProps> = ({
     });
     
     const updatedMembers = batchMembers.map(member => 
-      member.id === memberId ? {...member, role: "school_admin"} : member
+      member.id === memberId ? {...member, role: "school_admin" as const} : member
     );
     
     setBatchMembers(updatedMembers);

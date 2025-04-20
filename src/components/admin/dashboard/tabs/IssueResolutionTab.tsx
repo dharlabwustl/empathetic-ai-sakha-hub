@@ -1,367 +1,205 @@
-import React from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+
+import React from 'react';
 import { Badge } from "@/components/ui/badge";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import {
-  AlertTriangle,
-  CheckCircle2,
-  AlertOctagon,
-  Search,
-  Filter,
-  MessageSquare,
-  UserCheck,
-  ShieldAlert,
-  Clock
-} from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { SystemLog } from "@/types/admin/systemLog";
-import { formatDateTime } from "@/utils/dateUtils";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { SystemLog } from '@/types/admin/systemLog';
+import { formatDateTime } from '@/utils/dateUtils';
+import { AlertCircle, CheckCircle, Clock, MessageSquare, Plus, Search } from 'lucide-react';
 
 interface IssueResolutionTabProps {
   recentLogs: SystemLog[];
 }
 
-const IssueResolutionTab = ({ recentLogs }: IssueResolutionTabProps) => {
+const IssueResolutionTab: React.FC<IssueResolutionTabProps> = ({ recentLogs }) => {
+  const [selectedIssue, setSelectedIssue] = React.useState<SystemLog | null>(null);
+  const [searchTerm, setSearchTerm] = React.useState("");
+
+  // Filter logs by error level and search term
+  const errorLogs = recentLogs.filter(
+    log => 
+      log.level === "error" || 
+      log.level === "warning" && 
+      (searchTerm === "" || log.message.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
+  
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold">Issue Resolution & System Health</h2>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" className="flex items-center gap-2">
-            <Filter size={16} />
-            <span>Filter</span>
-          </Button>
-          <Button className="flex items-center gap-2">
-            <AlertOctagon size={16} />
-            <span>System Checkup</span>
+        <h2 className="text-2xl font-bold">Issue Resolution Center</h2>
+        <div className="flex space-x-2">
+          <div className="relative">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
+            <input
+              type="text"
+              placeholder="Search issues..."
+              className="pl-8 h-9 rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+          <Button>
+            <Plus className="h-4 w-4 mr-2" />
+            Create Issue
           </Button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="font-medium">Open Issues</h3>
-              <Badge className="bg-amber-100 text-amber-800">15 Open</Badge>
-            </div>
-            <div className="flex items-center justify-between">
-              <div className="space-y-1">
-                <div className="flex items-center gap-2">
-                  <Badge className="bg-red-100 text-red-800">4</Badge>
-                  <span className="text-sm">Critical</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Badge className="bg-amber-100 text-amber-800">7</Badge>
-                  <span className="text-sm">High</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Badge className="bg-blue-100 text-blue-800">4</Badge>
-                  <span className="text-sm">Normal</span>
-                </div>
-              </div>
-              <div className="h-24 w-24 rounded-full border-8 border-blue-200 dark:border-blue-900/30 relative">
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-xl font-bold">15</span>
-                </div>
-                <div className="absolute top-0 right-0 left-0 bottom-0 border-8 border-amber-400 rounded-full" style={{ clip: 'rect(0, 48px, 96px, 0)' }}></div>
-                <div className="absolute top-0 right-0 left-0 bottom-0 border-8 border-red-400 rounded-full" style={{ clip: 'rect(0, 24px, 48px, 0)' }}></div>
-              </div>
-            </div>
-            <Button variant="outline" size="sm" className="w-full mt-4">View All Issues</Button>
-          </CardContent>
-        </Card>
+      <Alert className="bg-amber-50 border-amber-100 dark:bg-amber-900/20 dark:border-amber-800/30">
+        <AlertCircle className="h-4 w-4 text-amber-600 dark:text-amber-500" />
+        <AlertTitle className="text-amber-800 dark:text-amber-500">
+          Active Issues
+        </AlertTitle>
+        <AlertDescription className="text-amber-700 dark:text-amber-400">
+          There are currently {errorLogs.length} active issues requiring attention.
+        </AlertDescription>
+      </Alert>
 
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="font-medium">Resolution Time</h3>
-              <Badge className="bg-green-100 text-green-800">Improving</Badge>
-            </div>
-            <div className="flex items-end gap-2 mb-2">
-              <span className="text-3xl font-bold">3.2</span>
-              <span className="text-sm text-gray-500">hours avg</span>
-            </div>
-            <div className="h-10 bg-green-50 dark:bg-green-900/20 rounded-md flex items-end">
-              <div className="bg-green-500 h-10 w-8 rounded-sm"></div>
-              <div className="bg-green-500 h-8 w-8 rounded-sm"></div>
-              <div className="bg-green-500 h-7 w-8 rounded-sm"></div>
-              <div className="bg-green-500 h-6 w-8 rounded-sm"></div>
-              <div className="bg-green-500 h-5 w-8 rounded-sm"></div>
-              <div className="bg-green-500 h-4 w-8 rounded-sm"></div>
-              <div className="bg-green-500 h-3 w-8 rounded-sm"></div>
-            </div>
-            <div className="flex items-center justify-between mt-1">
-              <span className="text-xs text-gray-500">Last Week: 5.8 hrs</span>
-              <span className="text-xs text-green-600">-44%</span>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="font-medium">System Status</h3>
-              <Badge className="bg-green-100 text-green-800">Healthy</Badge>
-            </div>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-sm">API Services</span>
-                <div className="flex items-center gap-1">
-                  <div className="h-2 w-2 rounded-full bg-green-500"></div>
-                  <span className="text-xs text-gray-600">Online</span>
-                </div>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm">Database</span>
-                <div className="flex items-center gap-1">
-                  <div className="h-2 w-2 rounded-full bg-green-500"></div>
-                  <span className="text-xs text-gray-600">Online</span>
-                </div>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm">AI Services</span>
-                <div className="flex items-center gap-1">
-                  <div className="h-2 w-2 rounded-full bg-green-500"></div>
-                  <span className="text-xs text-gray-600">Online</span>
-                </div>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm">Storage</span>
-                <div className="flex items-center gap-1">
-                  <div className="h-2 w-2 rounded-full bg-amber-500"></div>
-                  <span className="text-xs text-gray-600">82% Used</span>
-                </div>
-              </div>
-            </div>
-            <Button variant="outline" size="sm" className="w-full mt-4">System Logs</Button>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-lg">Recent Support Tickets</CardTitle>
-          <div className="flex items-center gap-2">
-            <div className="relative w-64">
-              <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-500" />
-              <Input placeholder="Search tickets..." className="pl-8" />
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent className="p-0">
-          <div className="rounded-md overflow-hidden">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>ID</TableHead>
-                  <TableHead>User</TableHead>
-                  <TableHead>Issue</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Priority</TableHead>
-                  <TableHead>Created</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {[
-                  { 
-                    id: 'TICKET-124', 
-                    user: 'Rahul Sharma', 
-                    issue: 'Cannot submit quiz answers',
-                    status: 'open',
-                    priority: 'high',
-                    created: new Date(2023, 5, 15, 14, 32) 
-                  },
-                  { 
-                    id: 'TICKET-123', 
-                    user: 'Priya Patel', 
-                    issue: 'Payment failed but account charged',
-                    status: 'in-progress',
-                    priority: 'critical',
-                    created: new Date(2023, 5, 15, 10, 24) 
-                  },
-                  { 
-                    id: 'TICKET-122', 
-                    user: 'Amit Kumar', 
-                    issue: 'Unable to view flashcards',
-                    status: 'resolved',
-                    priority: 'normal',
-                    created: new Date(2023, 5, 14, 16, 45) 
-                  },
-                  { 
-                    id: 'TICKET-121', 
-                    user: 'Sneha Gupta', 
-                    issue: 'Wrong score displayed for test',
-                    status: 'open',
-                    priority: 'high',
-                    created: new Date(2023, 5, 14, 9, 18) 
-                  },
-                ].map((ticket, i) => (
-                  <TableRow key={i}>
-                    <TableCell className="font-mono">{ticket.id}</TableCell>
-                    <TableCell>{ticket.user}</TableCell>
-                    <TableCell>{ticket.issue}</TableCell>
-                    <TableCell>
-                      {ticket.status === 'open' && (
-                        <Badge className="bg-amber-100 text-amber-800">Open</Badge>
-                      )}
-                      {ticket.status === 'in-progress' && (
-                        <Badge className="bg-blue-100 text-blue-800">In Progress</Badge>
-                      )}
-                      {ticket.status === 'resolved' && (
-                        <Badge className="bg-green-100 text-green-800">Resolved</Badge>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      {ticket.priority === 'critical' && (
-                        <Badge className="bg-red-100 text-red-800">Critical</Badge>
-                      )}
-                      {ticket.priority === 'high' && (
-                        <Badge className="bg-amber-100 text-amber-800">High</Badge>
-                      )}
-                      {ticket.priority === 'normal' && (
-                        <Badge className="bg-blue-100 text-blue-800">Normal</Badge>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      {ticket.created.toLocaleDateString()} {ticket.created.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <Button variant="ghost" size="sm" className="flex items-center gap-1 h-8">
-                          <MessageSquare size={14} />
-                          <span>Reply</span>
-                        </Button>
-                        {ticket.status !== 'resolved' && (
-                          <Button variant="ghost" size="sm" className="flex items-center gap-1 h-8 text-green-600">
-                            <CheckCircle2 size={14} />
-                            <span>Resolve</span>
-                          </Button>
+      <div className="grid gap-6 md:grid-cols-2">
+        <Card className="md:col-span-1">
+          <CardHeader>
+            <CardTitle>Open Issues</CardTitle>
+            <CardDescription>Issues requiring attention</CardDescription>
+          </CardHeader>
+          <CardContent className="p-0">
+            <div className="divide-y">
+              {errorLogs.length > 0 ? (
+                errorLogs.map((log) => (
+                  <div 
+                    key={log.id}
+                    className={`p-4 cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-gray-800 ${
+                      selectedIssue?.id === log.id ? "bg-blue-50 dark:bg-blue-900/20" : ""
+                    }`}
+                    onClick={() => setSelectedIssue(log)}
+                  >
+                    <div className="flex justify-between items-start">
+                      <div className="flex items-start space-x-2">
+                        {log.level === "error" ? (
+                          <Badge variant="destructive">Error</Badge>
+                        ) : (
+                          <Badge variant="outline" className="bg-yellow-100 text-yellow-800 border-yellow-200">Warning</Badge>
                         )}
+                        <div>
+                          <p className="font-medium">{log.source}</p>
+                          <p className="text-sm text-gray-500 line-clamp-1">{log.message}</p>
+                        </div>
                       </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        </CardContent>
-      </Card>
+                      <div className="text-xs text-gray-500">{formatDateTime(log.timestamp)}</div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="p-4 text-center text-gray-500">
+                  No issues found matching your search criteria.
+                </div>
+              )}
+            </div>
+          </CardContent>
+          <CardFooter className="flex justify-between border-t p-4">
+            <Button variant="outline" size="sm">View All</Button>
+            <Button variant="outline" size="sm">Export</Button>
+          </CardFooter>
+        </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">System Logs</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="overflow-x-auto rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[180px]">Timestamp</TableHead>
-                  <TableHead className="w-[100px]">Level</TableHead>
-                  <TableHead>Message</TableHead>
-                  <TableHead>Source</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {recentLogs.map((log, i) => (
-                  <TableRow key={i}>
-                    <TableCell className="font-mono text-xs">
-                      {formatDateTime(log.timestamp)}
-                    </TableCell>
-                    <TableCell>
-                      {log.level === 'error' && (
-                        <Badge className="bg-red-100 text-red-800">Error</Badge>
-                      )}
-                      {log.level === 'warning' && (
-                        <Badge className="bg-amber-100 text-amber-800">Warning</Badge>
-                      )}
-                      {log.level === 'info' && (
-                        <Badge className="bg-blue-100 text-blue-800">Info</Badge>
-                      )}
-                    </TableCell>
-                    <TableCell className="font-medium">{log.message}</TableCell>
-                    <TableCell>{log.source}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-          <div className="flex justify-end mt-4">
-            <Button variant="outline">View All Logs</Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Security Alerts</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              <div className="flex items-start gap-3 bg-amber-50 dark:bg-amber-900/10 p-3 rounded-md">
-                <ShieldAlert className="h-5 w-5 text-amber-600 mt-0.5" />
+        {selectedIssue ? (
+          <Card className="md:col-span-1">
+            <CardHeader>
+              <CardTitle className="flex justify-between items-center">
+                <div className="flex items-center space-x-2">
+                  <span>Issue Details</span>
+                  {selectedIssue.level === "error" ? (
+                    <Badge variant="destructive">Error</Badge>
+                  ) : (
+                    <Badge variant="outline" className="bg-yellow-100 text-yellow-800 border-yellow-200">Warning</Badge>
+                  )}
+                </div>
+                <Button variant="outline" size="sm">
+                  {selectedIssue.resolved ? "Reopen Issue" : "Mark Resolved"}
+                </Button>
+              </CardTitle>
+              <CardDescription>{selectedIssue.message}</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <h4 className="font-medium">Multiple Failed Login Attempts</h4>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">5 failed attempts from IP 103.54.244.12</p>
-                  <div className="flex items-center gap-2 mt-2">
-                    <span className="text-xs text-gray-500">Today, 10:24 AM</span>
-                    <Button variant="outline" size="sm" className="h-7 text-xs">Block IP</Button>
+                  <h4 className="text-sm font-medium text-gray-500">Source</h4>
+                  <p>{selectedIssue.source}</p>
+                </div>
+                <div>
+                  <h4 className="text-sm font-medium text-gray-500">Timestamp</h4>
+                  <p>{formatDateTime(selectedIssue.timestamp)}</p>
+                </div>
+                <div>
+                  <h4 className="text-sm font-medium text-gray-500">Status</h4>
+                  <div className="flex items-center space-x-1">
+                    {selectedIssue.resolved ? (
+                      <>
+                        <CheckCircle className="h-4 w-4 text-green-500" />
+                        <span>Resolved</span>
+                      </>
+                    ) : (
+                      <>
+                        <Clock className="h-4 w-4 text-amber-500" />
+                        <span>Open</span>
+                      </>
+                    )}
                   </div>
                 </div>
               </div>
-              <div className="flex items-start gap-3 bg-green-50 dark:bg-green-900/10 p-3 rounded-md">
-                <CheckCircle2 className="h-5 w-5 text-green-600 mt-0.5" />
-                <div>
-                  <h4 className="font-medium">Security Scan Complete</h4>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">No vulnerabilities detected in system</p>
-                  <div className="flex items-center gap-2 mt-2">
-                    <span className="text-xs text-gray-500">Yesterday, 11:30 PM</span>
-                    <Button variant="outline" size="sm" className="h-7 text-xs">View Report</Button>
+
+              <div>
+                <h4 className="text-sm font-medium text-gray-500 mb-2">Details</h4>
+                <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-md text-sm font-mono">
+                  {selectedIssue.details ? (
+                    <pre>{JSON.stringify(selectedIssue.details, null, 2)}</pre>
+                  ) : (
+                    "No additional details available"
+                  )}
+                </div>
+              </div>
+
+              <div>
+                <h4 className="text-sm font-medium text-gray-500 mb-2">Comments</h4>
+                <div className="space-y-3">
+                  <div className="flex items-start space-x-2">
+                    <Avatar className="h-8 w-8">
+                      <AvatarFallback>AD</AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <p className="text-sm font-medium">Admin</p>
+                      <p className="text-xs text-gray-500">Yesterday</p>
+                      <p className="text-sm mt-1">Investigating this issue...</p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Admin Activity</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              <div className="flex items-start gap-3">
-                <UserCheck className="h-5 w-5 text-blue-600 mt-0.5" />
-                <div>
-                  <h4 className="font-medium">Vikram Singh</h4>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Updated AI model parameters for learning style detection</p>
-                  <span className="text-xs text-gray-500">Today, 2:14 PM</span>
+                <div className="flex items-center space-x-2 mt-3">
+                  <input 
+                    type="text" 
+                    placeholder="Add a comment..."
+                    className="flex-1 h-9 rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors" 
+                  />
+                  <Button size="sm">
+                    <MessageSquare className="h-4 w-4 mr-2" />
+                    Comment
+                  </Button>
                 </div>
               </div>
-              <div className="flex items-start gap-3">
-                <Clock className="h-5 w-5 text-blue-600 mt-0.5" />
-                <div>
-                  <h4 className="font-medium">Ananya Sharma</h4>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Approved 24 new concept cards for Physics</p>
-                  <span className="text-xs text-gray-500">Today, 11:32 AM</span>
-                </div>
+            </CardContent>
+          </Card>
+        ) : (
+          <Card className="md:col-span-1">
+            <CardContent className="flex items-center justify-center h-full min-h-[300px]">
+              <div className="text-center text-gray-500">
+                <AlertCircle className="h-12 w-12 mx-auto mb-4 text-gray-400" />
+                <p className="font-medium">Select an issue to view details</p>
+                <p className="text-sm mt-1">Issue information will appear here</p>
               </div>
-              <div className="flex items-start gap-3">
-                <AlertOctagon className="h-5 w-5 text-blue-600 mt-0.5" />
-                <div>
-                  <h4 className="font-medium">Raj Patel</h4>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Resolved system issue with doubt responder API</p>
-                  <span className="text-xs text-gray-500">Yesterday, 5:47 PM</span>
-                </div>
-              </div>
-            </div>
-            <Button variant="outline" size="sm" className="w-full mt-4">View All Activity</Button>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   );

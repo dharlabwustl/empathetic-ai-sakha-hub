@@ -11,7 +11,23 @@ import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { UserCheck, ChartBar, Settings } from 'lucide-react';
-import { BatchMember } from '@/components/subscription/batch/types';
+
+// Define the BatchMember interface outside of components
+interface BatchMember {
+  id: string;
+  name: string;
+  email: string;
+  role: "member" | "leader" | "school_admin" | "corporate_admin"; // Fixed to use specific string literals
+  status: "active" | "inactive" | "pending";
+  joinedDate?: string;
+  invitationCode?: string;
+  avatar?: string;
+  progress?: {
+    completedTopics: number;
+    totalTopics: number;
+    lastActiveDate?: string;
+  };
+}
 
 export default function BatchManagementPage() {
   const {
@@ -50,6 +66,7 @@ export default function BatchManagementPage() {
   useEffect(() => {
     // Mock data initialization
     setTimeout(() => {
+      // Create properly typed BatchMember objects
       const mockMembers: BatchMember[] = [
         {
           id: 'current-user-id',
@@ -125,10 +142,10 @@ export default function BatchManagementPage() {
       setTimeout(() => {
         const updatedMembers = batchMembers.map(member => {
           if (member.id === memberId) {
-            return {...member, role: 'leader'};
+            return {...member, role: 'leader' as const};
           }
           if (member.id === 'current-user-id') {
-            return {...member, role: 'member'};
+            return {...member, role: 'member' as const};
           }
           return member;
         });

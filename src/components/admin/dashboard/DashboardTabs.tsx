@@ -21,7 +21,7 @@ import NotificationsTab from './tabs/NotificationsTab';
 import DocumentationTab from './tabs/DocumentationTab';
 import SubscriptionTab from './tabs/SubscriptionTab';
 import FeaturesTab from './tabs/FeaturesTab';
-import { StudentData } from '@/types/admin';
+import { StudentData } from '@/types/admin/studentData';
 import { SystemLog } from '@/types/admin/systemLog';
 import { formatDateTime } from '@/utils/dateUtils';
 

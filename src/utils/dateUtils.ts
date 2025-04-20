@@ -1,70 +1,100 @@
 
-import { format, differenceInDays, isToday, isYesterday, isThisWeek, isThisMonth } from 'date-fns';
-
-// Format Utilities
-export const formatDate = (dateString: string): string => {
-  const date = new Date(dateString);
-  return format(date, 'MMM d, yyyy');
-};
-
+/**
+ * Format a date string to a more readable format
+ * @param dateString ISO string or any valid date string
+ * @returns Formatted date and time string
+ */
 export const formatDateTime = (dateString: string): string => {
-  const date = new Date(dateString);
-  return format(date, 'MMM d, yyyy h:mm a');
-};
-
-export const formatTime = (dateString: string): string => {
-  const date = new Date(dateString);
-  return format(date, 'h:mm a');
-};
-
-// Time Difference Utilities
-export const calculateDaysAgo = (timestamp: string | Date): string => {
-  const date = typeof timestamp === 'string' ? new Date(timestamp) : timestamp;
+  if (!dateString) return 'N/A';
   
-  if (isToday(date)) return 'Today';
-  if (isYesterday(date)) return 'Yesterday';
-  
-  const days = differenceInDays(new Date(), date);
-  if (isThisWeek(date)) return `${days} days ago`;
-  if (isThisMonth(date)) return format(date, 'MMM d');
-  
-  return format(date, 'MMM d, yyyy');
-};
-
-// Date Validation Utilities
-export const isValidDate = (dateString: string): boolean => {
-  const date = new Date(dateString);
-  return date instanceof Date && !isNaN(date.getTime());
-};
-
-// Date Calculation Utilities
-export const addDays = (date: Date, days: number): Date => {
-  const newDate = new Date(date);
-  newDate.setDate(date.getDate() + days);
-  return newDate;
-};
-
-export const getDateRange = (startDate: Date, endDate: Date): Date[] => {
-  const dates: Date[] = [];
-  let currentDate = new Date(startDate);
-
-  while (currentDate <= endDate) {
-    dates.push(new Date(currentDate));
-    currentDate.setDate(currentDate.getDate() + 1);
+  try {
+    const date = new Date(dateString);
+    
+    if (isNaN(date.getTime())) {
+      return 'Invalid date';
+    }
+    
+    // Format: DD/MM/YYYY HH:MM
+    return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+  } catch (error) {
+    console.error('Error formatting date:', error);
+    return 'Error';
   }
-
-  return dates;
 };
 
-// Relative Time Utilities
-export const getRelativeTimeString = (date: Date): string => {
-  const now = new Date();
-  const diffInDays = differenceInDays(now, date);
-
-  if (isToday(date)) return 'Today';
-  if (isYesterday(date)) return 'Yesterday';
-  if (diffInDays < 7) return `${diffInDays} days ago`;
-  if (isThisMonth(date)) return format(date, 'MMM d');
+/**
+ * Format a date string to a simple date format
+ * @param dateString ISO string or any valid date string
+ * @returns Formatted date string
+ */
+export const formatDate = (dateString: string): string => {
+  if (!dateString) return 'N/A';
   
-  return format(date, 'MMM d, yyyy');
+  try {
+    const date = new Date(dateString);
+    
+    if (isNaN(date.getTime())) {
+      return 'Invalid date';
+    }
+    
+    // Format: DD/MM/YYYY
+    return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
+  } catch (error) {
+    console.error('Error formatting date:', error);
+    return 'Error';
+  }
+};
+
+/**
+ * Calculate days ago from now
+ * @param dateString ISO string or any valid date string
+ * @returns Number of days since the provided date
+ */
+export const calculateDaysAgo = (dateString: string): number => {
+  if (!dateString) return 0;
+  
+  try {
+    const date = new Date(dateString);
+    const now = new Date();
+    
+    const diffTime = Math.abs(now.getTime() - date.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    return diffDays;
+  } catch (error) {
+    console.error('Error calculating days ago:', error);
+    return 0;
+  }
+};
+
+/**
+ * Format a date to a relative time string like "2 days ago"
+ * @param dateString ISO string or any valid date string
+ * @returns A human-readable relative time string
+ */
+export const getRelativeTimeString = (dateString: string): string => {
+  if (!dateString) return 'N/A';
+  
+  try {
+    const date = new Date(dateString);
+    const now = new Date();
+    
+    const diffTime = now.getTime() - date.getTime();
+    const diffMinutes = Math.floor(diffTime / (1000 * 60));
+    const diffHours = Math.floor(diffTime / (1000 * 60 * 60));
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffMinutes < 60) {
+      return diffMinutes <= 1 ? 'just now' : `${diffMinutes} minutes ago`;
+    } else if (diffHours < 24) {
+      return diffHours === 1 ? '1 hour ago' : `${diffHours} hours ago`;
+    } else if (diffDays < 30) {
+      return diffDays === 1 ? 'yesterday' : `${diffDays} days ago`;
+    } else {
+      return formatDate(dateString);
+    }
+  } catch (error) {
+    console.error('Error getting relative time:', error);
+    return 'Error';
+  }
 };
