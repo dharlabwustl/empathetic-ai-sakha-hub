@@ -14,20 +14,29 @@ interface NetBankingPaymentProps {
   amount: number;
   onSuccess: (response: any) => void;
   onError: (error: any) => void;
+  onSubmit?: () => Promise<void>;
+  isProcessing?: boolean;
 }
 
 const NetBankingPayment: React.FC<NetBankingPaymentProps> = ({
   amount,
   onSuccess,
-  onError
+  onError,
+  onSubmit,
+  isProcessing = false
 }) => {
   const [bank, setBank] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!bank) {
       onError(new Error("Please select your bank"));
+      return;
+    }
+
+    if (onSubmit) {
+      await onSubmit();
       return;
     }
 
@@ -86,8 +95,8 @@ const NetBankingPayment: React.FC<NetBankingPaymentProps> = ({
         <p>After successful payment, you will be redirected back to this page.</p>
       </div>
 
-      <Button type="submit" className="w-full" disabled={loading}>
-        {loading ? "Redirecting to bank..." : `Pay ₹${amount.toFixed(2)} with Net Banking`}
+      <Button type="submit" className="w-full" disabled={isProcessing || loading}>
+        {isProcessing || loading ? "Redirecting to bank..." : `Pay ₹${amount.toFixed(2)} with Net Banking`}
       </Button>
     </form>
   );

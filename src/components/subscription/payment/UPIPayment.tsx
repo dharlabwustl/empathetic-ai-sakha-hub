@@ -9,21 +9,30 @@ interface UPIPaymentProps {
   amount: number;
   onSuccess: (response: any) => void;
   onError: (error: any) => void;
+  onSubmit?: () => Promise<void>;
+  isProcessing?: boolean;
 }
 
 const UPIPayment: React.FC<UPIPaymentProps> = ({
   amount,
   onSuccess,
-  onError
+  onError,
+  onSubmit,
+  isProcessing = false
 }) => {
   const [upiId, setUpiId] = useState("");
   const [loading, setLoading] = useState(false);
   const qrCodeUrl = "https://placeholder-qr.com/200"; // In a real app, this would be generated
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!upiId) {
       onError(new Error("Please enter your UPI ID"));
+      return;
+    }
+
+    if (onSubmit) {
+      await onSubmit();
       return;
     }
 
@@ -66,8 +75,8 @@ const UPIPayment: React.FC<UPIPaymentProps> = ({
           </p>
         </div>
 
-        <Button type="submit" className="w-full" disabled={loading}>
-          {loading ? "Processing..." : `Pay ₹${amount.toFixed(2)} with UPI`}
+        <Button type="submit" className="w-full" disabled={isProcessing || loading}>
+          {isProcessing || loading ? "Processing..." : `Pay ₹${amount.toFixed(2)} with UPI`}
         </Button>
       </form>
     </div>

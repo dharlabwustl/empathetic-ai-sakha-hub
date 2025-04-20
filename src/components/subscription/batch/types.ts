@@ -36,3 +36,8 @@ export interface BatchDetails {
     email: string;
   };
 }
+
+export interface BatchManagementProps {
+  batchDetails: BatchDetails;
+  onInviteMembers: (emails: string[]) => void;
+}
