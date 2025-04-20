@@ -1,3 +1,4 @@
+
 import React from 'react';
 import PainPoints from './hero/PainPoints';
 import ChatInterface from './hero/ChatInterface';
@@ -9,7 +10,6 @@ import KeyFeatures from '../landing/KeyFeatures';
 import PlatformStrengths from '../landing/PlatformStrengths';
 import EcosystemAnimation from './EcosystemAnimation';
 import OnboardingSection from './OnboardingSection';
-import KpiStats from './hero/feature-highlights/KpiStats';
 
 export interface HeroSectionProps {
   scrollToFeatures: () => void;
@@ -71,16 +71,6 @@ const HeroSection: React.FC<HeroSectionProps> = ({
           <ExamNamesBadge />
         </motion.div>
 
-        {/* KPI Stats Section - Moved right after ExamNamesBadge */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.8, delay: 0.8 }}
-          className="mb-12"
-        >
-          <KpiStats />
-        </motion.div>
-        
         {/* Key Features Section */}
         <motion.div
           initial={{ opacity: 0 }}
@@ -100,9 +90,6 @@ const HeroSection: React.FC<HeroSectionProps> = ({
         >
           <PlatformStrengths />
         </motion.div>
-        
-        {/* KPI Stats Section - New addition */}
-        
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center mt-12">
           <motion.div
