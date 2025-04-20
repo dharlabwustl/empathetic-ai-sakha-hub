@@ -1,3 +1,4 @@
+
 import { MoodType } from "@/types/user/base";
 
 export const getMoodDisplayName = (mood?: MoodType): string => {
@@ -35,4 +36,57 @@ export const getMoodColor = (mood?: MoodType): string => {
 export const getMoodIcon = (mood?: MoodType) => {
   // You can return different icons based on mood if needed
   return mood;
+};
+
+// Adding the missing functions that were causing errors
+export const getMoodToastContent = (mood: MoodType): string => {
+  switch (mood) {
+    case 'happy': return 'Feeling happy! We\'ll show you content to maintain your positive energy.';
+    case 'sad': return 'Sorry you\'re feeling down. We\'ll show some mood-lifting content.';
+    case 'neutral': return 'Feeling neutral today. We\'ll keep things balanced for you.';
+    case 'motivated': return 'Great to see you motivated! Let\'s make the most of this energy.';
+    case 'tired': return 'Feeling tired? We\'ll suggest shorter, focused study activities.';
+    case 'stressed': return 'Noticing you\'re stressed. Let\'s take things one step at a time.';
+    case 'focused': return 'You\'re in the zone! We\'ll help maintain your focus.';
+    case 'curious': return 'Curiosity leads to discovery! We\'ll feed your inquisitive mind.';
+    case 'overwhelmed': return 'Feeling overwhelmed? We\'ll break things down into manageable parts.';
+    case 'okay': return 'Feeling okay today. Let\'s work on making progress steadily.';
+    default: return 'Thanks for sharing how you feel. We\'ll adjust your experience accordingly.';
+  }
+};
+
+export const applyMoodTheme = (mood: MoodType): void => {
+  // Remove all existing mood classes
+  document.body.classList.remove(
+    'mood-happy', 'mood-sad', 'mood-neutral', 'mood-motivated', 
+    'mood-tired', 'mood-stressed', 'mood-focused', 'mood-curious', 
+    'mood-overwhelmed', 'mood-okay'
+  );
+  
+  // Apply the new mood class
+  document.body.classList.add(`mood-${mood}`);
+};
+
+export const saveMoodToLocalStorage = (mood: MoodType): void => {
+  // Save mood to localStorage
+  const userData = localStorage.getItem("userData");
+  if (userData) {
+    try {
+      const parsedData = JSON.parse(userData);
+      parsedData.mood = mood;
+      parsedData.moodTimestamp = new Date().toISOString();
+      localStorage.setItem("userData", JSON.stringify(parsedData));
+    } catch (e) {
+      console.error("Error updating mood:", e);
+      localStorage.setItem("userData", JSON.stringify({ 
+        mood, 
+        moodTimestamp: new Date().toISOString() 
+      }));
+    }
+  } else {
+    localStorage.setItem("userData", JSON.stringify({ 
+      mood, 
+      moodTimestamp: new Date().toISOString() 
+    }));
+  }
 };

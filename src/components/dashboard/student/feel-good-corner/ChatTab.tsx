@@ -1,251 +1,200 @@
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Brain, Clock, MessageSquare, Send } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
-
-type MessageType = {
-  id: string;
-  content: string;
-  sender: 'user' | 'ai';
-  timestamp: Date;
-};
-
-const predefinedResponses: Record<string, string[]> = {
-  default: [
-    "I'm here to help! What's on your mind today?",
-    "You're doing great! How can I support you with your studies?",
-    "Taking breaks is important. What would you like to talk about?",
-    "I'm your Sakha, here whenever you need a chat. How are you feeling?",
-  ],
-  stress: [
-    "It sounds like you're feeling stressed. Remember to take deep breaths and break down your tasks into smaller steps.",
-    "Stress is normal before exams. Try the 5-5-5 technique: breathe in for 5 seconds, hold for 5, exhale for 5.",
-    "When you're feeling overwhelmed, take a moment to list 3 things you've accomplished today, no matter how small.",
-    "It's okay to feel stressed. Would it help to talk about what's specifically causing you concern?",
-  ],
-  motivation: [
-    "Remember why you started this journey. Your future self will thank you for pushing through today.",
-    "Each minute you spend studying is bringing you closer to your goals. You've got this!",
-    "Even small progress is still progress. Be proud of every step forward!",
-    "You've overcome challenges before, and you'll overcome this one too. I believe in you!",
-  ],
-  tired: [
-    "It sounds like you might need a break. Even a 10-minute walk can refresh your mind.",
-    "Studying when tired isn't effective. Consider a short power nap (20 minutes) to recharge.",
-    "Have you tried the Pomodoro technique? 25 minutes of focused study followed by a 5-minute break.",
-    "Remember that rest is part of the learning process. Your brain needs time to consolidate information.",
-  ],
-  gratitude: [
-    "Practicing gratitude is powerful! What's something small that brought you joy today?",
-    "That's a wonderful perspective. Finding moments of gratitude can really shift our mindset.",
-    "I appreciate you sharing that positive thought with me!",
-    "Focusing on what we're thankful for can make challenging days feel more manageable.",
-  ],
-};
+import { Input } from "@/components/ui/input";
+import { Card } from "@/components/ui/card";
+import { Avatar } from "@/components/ui/avatar";
+import { Send, Smile, Bot } from "lucide-react";
+import { motion } from "framer-motion";
+import { useToast } from "@/hooks/use-toast";
 
 const ChatTab: React.FC = () => {
-  const [messages, setMessages] = useState<MessageType[]>([
+  const [message, setMessage] = useState('');
+  const [messages, setMessages] = useState<{ sender: 'user' | 'ai'; text: string; timestamp: Date }[]>([
     {
-      id: '1',
-      content: "Hi there! I'm your Sakha companion. How can I support you today?",
       sender: 'ai',
-      timestamp: new Date(),
+      text: "Hi there! I'm Sakha, your friendly AI companion. How are you feeling today?",
+      timestamp: new Date()
     }
   ]);
-  const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  
+  const { toast } = useToast();
+  const messagesEndRef = React.useRef<HTMLDivElement>(null);
+
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
-  
-  useEffect(() => {
+
+  React.useEffect(() => {
     scrollToBottom();
   }, [messages]);
-  
-  const handleSend = () => {
-    if (!input.trim()) return;
+
+  const handleSendMessage = () => {
+    if (!message.trim()) return;
     
     // Add user message
-    const newMessage: MessageType = {
-      id: Date.now().toString(),
-      content: input,
-      sender: 'user',
-      timestamp: new Date(),
+    const userMessage = {
+      sender: 'user' as const,
+      text: message,
+      timestamp: new Date()
     };
     
-    setMessages(prev => [...prev, newMessage]);
-    setInput('');
+    setMessages(prev => [...prev, userMessage]);
+    setMessage('');
     setIsTyping(true);
     
-    // Simulate AI thinking and typing
+    // Simulate AI thinking and then responding
     setTimeout(() => {
-      // Determine response type based on content
-      let responseType = 'default';
-      const lowerInput = input.toLowerCase();
+      const aiResponse = getAIResponse(message);
       
-      if (lowerInput.includes('stress') || lowerInput.includes('anxious') || lowerInput.includes('worried') || lowerInput.includes('overwhelm')) {
-        responseType = 'stress';
-      } else if (lowerInput.includes('motivat') || lowerInput.includes('inspire') || lowerInput.includes('encourage')) {
-        responseType = 'motivation';
-      } else if (lowerInput.includes('tired') || lowerInput.includes('exhaust') || lowerInput.includes('sleep') || lowerInput.includes('rest')) {
-        responseType = 'tired';
-      } else if (lowerInput.includes('thank') || lowerInput.includes('grateful') || lowerInput.includes('appreciate')) {
-        responseType = 'gratitude';
-      }
+      setMessages(prev => [
+        ...prev, 
+        {
+          sender: 'ai',
+          text: aiResponse,
+          timestamp: new Date()
+        }
+      ]);
       
-      // Get random response from appropriate category
-      const responses = predefinedResponses[responseType];
-      const randomResponse = responses[Math.floor(Math.random() * responses.length)];
-      
-      // Add AI response
-      const aiResponse: MessageType = {
-        id: (Date.now() + 1).toString(),
-        content: randomResponse,
-        sender: 'ai',
-        timestamp: new Date(),
-      };
-      
-      setMessages(prev => [...prev, aiResponse]);
       setIsTyping(false);
     }, 1500);
   };
-  
+
+  const getAIResponse = (userMessage: string): string => {
+    const normalizedMessage = userMessage.toLowerCase();
+    
+    if (normalizedMessage.includes('joke') || normalizedMessage.includes('funny')) {
+      return "Why don't scientists trust atoms? Because they make up everything! 😄";
+    }
+    
+    if (normalizedMessage.includes('sad') || normalizedMessage.includes('depressed') || normalizedMessage.includes('unhappy')) {
+      return "I'm sorry to hear you're feeling down. Remember that it's okay to have ups and downs. Would you like me to suggest some mood-lifting activities?";
+    }
+    
+    if (normalizedMessage.includes('stress') || normalizedMessage.includes('worried') || normalizedMessage.includes('anxiety')) {
+      return "It sounds like you might be feeling stressed. Deep breathing can help: try inhaling for 4 counts, holding for 4, and exhaling for 6. Would you like more stress management tips?";
+    }
+    
+    if (normalizedMessage.includes('happy') || normalizedMessage.includes('good') || normalizedMessage.includes('great')) {
+      return "I'm glad to hear you're feeling positive! That's wonderful. Would you like to discuss what's making you feel good today?";
+    }
+    
+    if (normalizedMessage.includes('tired') || normalizedMessage.includes('exhausted') || normalizedMessage.includes('sleepy')) {
+      return "Feeling tired is natural, especially during intense study periods. Have you considered taking a short 20-minute power nap? It can help refresh your mind!";
+    }
+    
+    const genericResponses = [
+      "That's interesting! Would you like to tell me more?",
+      "I'm here to listen and help. How can I support you today?",
+      "Thank you for sharing. How does that make you feel?",
+      "I understand. Is there something specific you'd like to talk about?",
+      "I appreciate you opening up. Would you like some suggestions or just someone to listen?"
+    ];
+    
+    return genericResponses[Math.floor(Math.random() * genericResponses.length)];
+  };
+
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      handleSend();
+      handleSendMessage();
     }
   };
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1, transition: { duration: 0.3 } }
+  };
+
   return (
-    <div className="flex flex-col h-[400px]">
-      <div className="flex-1 overflow-y-auto pr-2 mb-2">
-        {messages.map((message) => (
-          <div
-            key={message.id}
-            className={`mb-3 flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+    <motion.div 
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+      className="flex flex-col h-96"
+    >
+      <div className="flex flex-col space-y-2 overflow-y-auto mb-4 flex-grow pr-2">
+        {messages.map((msg, idx) => (
+          <motion.div
+            key={idx}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+            className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
           >
-            {message.sender === 'ai' && (
-              <div className="w-8 h-8 rounded-full bg-gradient-to-r from-violet-500 to-purple-600 flex items-center justify-center mr-2 flex-shrink-0">
-                <Brain className="text-white w-4 h-4" />
-              </div>
-            )}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-              className={`max-w-[85%] p-3 rounded-lg ${
-                message.sender === 'user'
-                  ? 'bg-gradient-to-r from-violet-500 to-purple-600 text-white rounded-tr-none'
-                  : 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 rounded-tl-none'
-              }`}
-            >
-              <p className="text-sm">{message.content}</p>
-              <div className="text-xs opacity-70 flex items-center justify-end mt-1">
-                <Clock className="w-3 h-3 inline mr-1" />
-                {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-              </div>
-            </motion.div>
-            {message.sender === 'user' && (
-              <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-cyan-600 flex items-center justify-center ml-2 flex-shrink-0">
-                <MessageSquare className="text-white w-4 h-4" />
-              </div>
-            )}
-          </div>
+            <div className="flex items-start gap-2 max-w-[80%]">
+              {msg.sender === 'ai' && (
+                <Avatar className="w-8 h-8 bg-violet-100 border-violet-200">
+                  <Bot className="h-4 w-4 text-violet-600" />
+                </Avatar>
+              )}
+              
+              <Card className={`p-3 text-sm ${
+                msg.sender === 'user' 
+                  ? 'bg-gradient-to-br from-violet-100 to-indigo-100 text-violet-800' 
+                  : 'bg-white border border-gray-100'
+              }`}>
+                {msg.text}
+                <div className="text-[10px] text-gray-400 mt-1 text-right">
+                  {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                </div>
+              </Card>
+              
+              {msg.sender === 'user' && (
+                <Avatar className="w-8 h-8 bg-violet-500">
+                  <Smile className="h-4 w-4 text-white" />
+                </Avatar>
+              )}
+            </div>
+          </motion.div>
         ))}
-        <AnimatePresence>
-          {isTyping && (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              className="flex items-center mt-2"
-            >
-              <div className="w-8 h-8 rounded-full bg-gradient-to-r from-violet-500 to-purple-600 flex items-center justify-center mr-2">
-                <Brain className="text-white w-4 h-4" />
-              </div>
-              <div className="bg-gray-100 dark:bg-gray-800 p-3 rounded-lg flex items-center">
-                <span className="typing-indicator">
-                  <span className="dot"></span>
-                  <span className="dot"></span>
-                  <span className="dot"></span>
-                </span>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-        {/* This div is for scrolling to the bottom */}
+        
+        {isTyping && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex items-center space-x-1 text-xs text-gray-500 ml-10"
+          >
+            <div className="flex space-x-1">
+              <span className="animate-bounce delay-0">•</span>
+              <span className="animate-bounce delay-100">•</span>
+              <span className="animate-bounce delay-200">•</span>
+            </div>
+            <span>Sakha is typing</span>
+          </motion.div>
+        )}
         <div ref={messagesEndRef} />
       </div>
       
-      <div className="mt-auto">
-        <div className="flex gap-2">
-          <Textarea
-            placeholder="Type a message..."
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={handleKeyPress}
-            className="resize-none"
-            rows={2}
-          />
-          <Button 
-            onClick={handleSend} 
-            className="bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 flex-shrink-0 h-auto"
-            disabled={!input.trim() || isTyping}
-          >
-            <Send className="h-4 w-4" />
-          </Button>
-        </div>
-        <p className="text-xs text-center text-gray-500 mt-2">
-          Sakha is here to listen and provide support. For professional help, please reach out to a counselor.
-        </p>
+      <div className="flex space-x-2 mt-auto">
+        <Input
+          value={message}
+          onChange={e => setMessage(e.target.value)}
+          onKeyDown={handleKeyPress}
+          placeholder="Type a message..."
+          className="flex-grow"
+        />
+        <Button 
+          onClick={handleSendMessage} 
+          size="sm" 
+          className="bg-violet-600 hover:bg-violet-700"
+          disabled={!message.trim()}
+        >
+          <Send className="h-4 w-4" />
+        </Button>
       </div>
       
-      <style jsx>{`
-        .typing-indicator {
-          display: flex;
-          align-items: center;
-        }
-        
-        .dot {
-          display: inline-block;
-          width: 6px;
-          height: 6px;
-          border-radius: 50%;
-          background-color: rgba(107, 70, 193, 0.8);
-          margin: 0 2px;
-          animation: dot-pulse 1.5s infinite ease-in-out;
-        }
-        
-        .dot:nth-child(1) {
-          animation-delay: 0s;
-        }
-        
-        .dot:nth-child(2) {
-          animation-delay: 0.2s;
-        }
-        
-        .dot:nth-child(3) {
-          animation-delay: 0.4s;
-        }
-        
-        @keyframes dot-pulse {
-          0%, 60%, 100% {
-            transform: scale(1);
-            opacity: 0.4;
+      <style>
+        {`
+          .delay-100 {
+            animation-delay: 0.1s;
           }
-          30% {
-            transform: scale(1.5);
-            opacity: 1;
+          .delay-200 {
+            animation-delay: 0.2s;
           }
-        }
-      `}</style>
-    </div>
+        `}
+      </style>
+    </motion.div>
   );
 };
 

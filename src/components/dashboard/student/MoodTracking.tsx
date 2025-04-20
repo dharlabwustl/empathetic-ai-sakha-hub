@@ -9,12 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { MoodType } from "@/types/user/base";
 import MoodLogButton from "./MoodLogButton";
 import MoodSpecificContent from "./mood-tracking/MoodSpecificContent";
-import { 
-  getMoodDisplayName, 
-  getMoodToastContent,
-  applyMoodTheme,
-  saveMoodToLocalStorage
-} from "./mood-tracking/moodUtils";
+import { getMoodDisplayName } from "./mood-tracking/moodUtils";
 
 interface MoodTrackingProps {
   className?: string;
@@ -27,24 +22,18 @@ const MoodTracking: React.FC<MoodTrackingProps> = ({ className = "" }) => {
 
   // Check localStorage on component mount
   useEffect(() => {
-    const savedMood = localStorage.getItem('currentMood') as MoodType | null;
-    if (savedMood) {
-      setCurrentMood(savedMood);
-      applyMoodTheme(savedMood);
+    const userData = localStorage.getItem('userData');
+    if (userData) {
+      try {
+        const parsedData = JSON.parse(userData);
+        if (parsedData.mood) {
+          setCurrentMood(parsedData.mood as MoodType);
+        }
+      } catch (e) {
+        console.error("Error parsing user data:", e);
+      }
     }
   }, []);
-
-  const handleMoodChange = (mood: MoodType) => {
-    setCurrentMood(mood);
-    saveMoodToLocalStorage(mood);
-    applyMoodTheme(mood);
-    
-    // Show toast notification
-    toast({
-      title: `Mood updated`,
-      description: `Your mood is now set to ${getMoodDisplayName(mood)}`,
-    });
-  };
 
   const handleViewFullReport = () => {
     navigate("/dashboard/student/mood");
@@ -55,10 +44,7 @@ const MoodTracking: React.FC<MoodTrackingProps> = ({ className = "" }) => {
       <CardContent className="p-4">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-medium">How are you feeling today?</h3>
-          <MoodLogButton 
-            currentMood={currentMood}
-            onMoodChange={handleMoodChange}
-          />
+          <MoodLogButton />
         </div>
 
         {currentMood && (
@@ -67,7 +53,7 @@ const MoodTracking: React.FC<MoodTrackingProps> = ({ className = "" }) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <MoodSpecificContent currentMood={currentMood} />
+            <MoodSpecificContent mood={currentMood} />
             
             <div className="mt-4">
               <Button 
