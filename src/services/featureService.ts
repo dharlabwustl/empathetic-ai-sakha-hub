@@ -1,6 +1,4 @@
-
-import { Feature, FeatureAccess, FeatureAccessLevel } from '@/types/features';
-import { PlanType } from '@/types/subscription';
+import { Feature, FeatureAccess, FeatureAccessLevel, SubscriptionPlan, PlanType } from '@/types/features';
 import { createClient } from '@supabase/supabase-js';
 
 class FeatureService {
@@ -51,6 +49,26 @@ class FeatureService {
     if (error) throw error;
   }
 
+  async getSubscriptionPlans(): Promise<SubscriptionPlan[]> {
+    const { data, error } = await this.supabase
+      .from('subscription_plans')
+      .select('*');
+    
+    if (error) throw error;
+    return data;
+  }
+
+  async updateSubscriptionPlan(plan: SubscriptionPlan): Promise<SubscriptionPlan> {
+    const { data, error } = await this.supabase
+      .from('subscription_plans')
+      .upsert(plan)
+      .select()
+      .single();
+    
+    if (error) throw error;
+    return data;
+  }
+
   async isFeatureAccessible(
     feature: Feature,
     userSubscription: PlanType,
@@ -69,7 +87,9 @@ class FeatureService {
       [PlanType.Free]: 'free',
       [PlanType.Basic]: 'basic',
       [PlanType.Premium]: 'premium',
-      [PlanType.Enterprise]: 'enterprise'
+      [PlanType.Group]: 'premium',
+      [PlanType.Institute]: 'enterprise',
+      [PlanType.Corporate]: 'enterprise'
     };
 
     const userAccessLevel = subscriptionLevels[userSubscription];
@@ -79,9 +99,9 @@ class FeatureService {
     const userLevelIndex = accessLevelOrder.indexOf(userAccessLevel);
     const requiredLevelIndex = accessLevelOrder.indexOf(requiredLevel);
 
-    // User's subscription level must be equal or higher than feature's required level
     return userLevelIndex >= requiredLevelIndex;
   }
 }
 
 export const featureService = new FeatureService();
+export { PlanType, type SubscriptionPlan, type Feature };

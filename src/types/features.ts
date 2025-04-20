@@ -1,6 +1,29 @@
 
 export type FeatureAccessLevel = 'free' | 'basic' | 'premium' | 'enterprise';
 
+export type SubscriptionInterval = 'monthly' | 'yearly';
+
+export enum PlanType {
+  Free = 'free',
+  Basic = 'basic',
+  Premium = 'premium',
+  Group = 'group',
+  Institute = 'institute',
+  Corporate = 'corporate'
+}
+
+export interface SubscriptionPlan {
+  id: string;
+  name: string;
+  type: PlanType;
+  price: number;
+  interval: SubscriptionInterval;
+  description: string;
+  features: string[];
+  maxUsers?: number;
+  trialDays?: number;
+}
+
 export interface Feature {
   id: string;
   title: string;
@@ -30,3 +53,4 @@ export interface FeatureAccess {
   lastAccessed?: string;
   trialEndsAt?: string;
 }
+
