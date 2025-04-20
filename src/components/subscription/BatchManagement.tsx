@@ -1,71 +1,15 @@
 
 import React, { useState } from "react";
-import { 
-  Card, 
-  CardContent, 
-  CardHeader, 
-  CardTitle, 
-  CardDescription 
-} from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow
-} from "@/components/ui/table";
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle
-} from "@/components/ui/dialog";
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
-} from "@/components/ui/select";
-import { 
-  Form,
-  FormField,
-  FormItem,
-  FormLabel, 
-  FormControl,
-  FormMessage
-} from "@/components/ui/form";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Users, AlertCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { Label } from "@/components/ui/label";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import * as z from "zod";
-import { 
-  User, 
-  Users, 
-  UserCog, 
-  Send, 
-  AlertCircle,
-  Award,
-  Loader2
-} from "lucide-react";
-import BatchInvitationInput from "./BatchInvitationInput";
-
-export interface BatchMember {
-  id: string;
-  name: string;
-  email: string;
-  role: "member" | "leader" | "school_admin" | "corporate_admin";
-  status: "active" | "pending" | "inactive";
-  joinedDate?: string;
-  invitationCode?: string;
-  avatar?: string;
-}
+import BatchMemberTable from "./batch/BatchMemberTable";
+import BatchDetails from "./batch/BatchDetails";
+import AddMemberDialog from "./batch/AddMemberDialog";
+import TransferLeadershipDialog from "./batch/TransferLeadershipDialog";
+import { BatchMember } from "./batch/types";
 
 interface BatchManagementProps {
   batchMembers: BatchMember[];
@@ -79,16 +23,6 @@ interface BatchManagementProps {
   onTransferLeadership: (memberId: string) => Promise<boolean>;
 }
 
-// Form schema for adding new member
-const addMemberSchema = z.object({
-  email: z.string().email({ message: "Please enter a valid email address" }),
-});
-
-// Form schema for changing batch name
-const batchNameSchema = z.object({
-  name: z.string().min(3, { message: "Batch name must be at least 3 characters long" }),
-});
-
 const BatchManagement: React.FC<BatchManagementProps> = ({
   batchMembers,
   batchName,
@@ -97,11 +31,9 @@ const BatchManagement: React.FC<BatchManagementProps> = ({
   currentUserRole,
   onAddMember,
   onRemoveMember,
-  onChangeBatchName,
   onTransferLeadership,
 }) => {
   const [isAddingMember, setIsAddingMember] = useState(false);
-  const [isChangingName, setIsChangingName] = useState(false);
   const [isConfirmingTransfer, setIsConfirmingTransfer] = useState(false);
   const [selectedMemberId, setSelectedMemberId] = useState<string>("");
   const [inviteCode, setInviteCode] = useState<string | null>(null);
@@ -114,23 +46,7 @@ const BatchManagement: React.FC<BatchManagementProps> = ({
   const activeMembers = batchMembers.filter(member => member.status === "active" || member.status === "pending");
   const isBatchFull = activeMembers.length >= maxMembers;
 
-  // Form for adding member
-  const addMemberForm = useForm<z.infer<typeof addMemberSchema>>({
-    resolver: zodResolver(addMemberSchema),
-    defaultValues: {
-      email: "",
-    },
-  });
-
-  // Form for changing batch name
-  const batchNameForm = useForm<z.infer<typeof batchNameSchema>>({
-    resolver: zodResolver(batchNameSchema),
-    defaultValues: {
-      name: batchName,
-    },
-  });
-
-  const handleAddMember = async (values: z.infer<typeof addMemberSchema>) => {
+  const handleAddMember = async (values: { email: string }) => {
     try {
       const result = await onAddMember(values.email);
       
@@ -140,7 +56,6 @@ const BatchManagement: React.FC<BatchManagementProps> = ({
           title: "Member invited",
           description: "An invitation has been sent to the email address",
         });
-        addMemberForm.reset();
       } else {
         toast({
           title: "Error",
@@ -184,34 +99,7 @@ const BatchManagement: React.FC<BatchManagementProps> = ({
     }
   };
 
-  const handleChangeBatchName = async (values: z.infer<typeof batchNameSchema>) => {
-    try {
-      const success = await onChangeBatchName(values.name);
-      
-      if (success) {
-        toast({
-          title: "Batch name updated",
-          description: "Your batch name has been updated successfully",
-        });
-      } else {
-        toast({
-          title: "Error",
-          description: "Failed to update batch name. Please try again.",
-          variant: "destructive",
-        });
-      }
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "An unexpected error occurred. Please try again later.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsChangingName(false);
-    }
-  };
-
-  const handleConfirmTransfer = async () => {
+  const handleTransferLeadership = async () => {
     if (!selectedMemberId) return;
     
     try {
@@ -239,16 +127,6 @@ const BatchManagement: React.FC<BatchManagementProps> = ({
     }
   };
 
-  const renderPlanTypeBadge = () => {
-    if (planType === "group") {
-      return <Badge variant="secondary">Group Plan</Badge>;
-    } else if (planType === "school") {
-      return <Badge variant="secondary">School Plan</Badge>;
-    } else {
-      return <Badge variant="secondary">Corporate Plan</Badge>;
-    }
-  };
-
   return (
     <div className="space-y-6">
       <Card>
@@ -260,21 +138,11 @@ const BatchManagement: React.FC<BatchManagementProps> = ({
               <span>
                 {activeMembers.length} of {maxMembers} members
               </span>
-              {renderPlanTypeBadge()}
+              <Badge variant="secondary">
+                {planType.charAt(0).toUpperCase() + planType.slice(1)} Plan
+              </Badge>
             </CardDescription>
           </div>
-
-          {isLeader && (
-            <div className="flex gap-2">
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => setIsChangingName(true)}
-              >
-                Rename
-              </Button>
-            </div>
-          )}
         </CardHeader>
 
         <CardContent>
@@ -287,103 +155,15 @@ const BatchManagement: React.FC<BatchManagementProps> = ({
               </p>
             </div>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Member</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Role</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Joined</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {batchMembers.map((member) => (
-                  <TableRow key={member.id}>
-                    <TableCell className="font-medium flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
-                        {member.avatar ? (
-                          <img 
-                            src={member.avatar} 
-                            alt={member.name} 
-                            className="w-8 h-8 rounded-full" 
-                          />
-                        ) : (
-                          <User size={16} className="text-gray-500" />
-                        )}
-                      </div>
-                      {member.name}
-                    </TableCell>
-                    <TableCell>{member.email}</TableCell>
-                    <TableCell>
-                      {member.role === "leader" ? (
-                        <Badge variant="secondary">Leader</Badge>
-                      ) : member.role === "school_admin" ? (
-                        <Badge variant="secondary">School Admin</Badge>
-                      ) : member.role === "corporate_admin" ? (
-                        <Badge variant="secondary">Corporate Admin</Badge>
-                      ) : (
-                        <Badge variant="outline">Member</Badge>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      {member.status === "active" ? (
-                        <Badge variant="success" className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">
-                          Active
-                        </Badge>
-                      ) : member.status === "pending" ? (
-                        <Badge variant="default" className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300">
-                          Pending
-                        </Badge>
-                      ) : (
-                        <Badge variant="destructive" className="bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300">
-                          Inactive
-                        </Badge>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      {member.joinedDate ? new Date(member.joinedDate).toLocaleDateString() : "-"}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {isLeader && member.id !== "current-user-id" && (
-                        <div className="flex justify-end gap-2">
-                          {member.status === "pending" && (
-                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                              <span className="sr-only">Send invitation again</span>
-                              <Send size={14} />
-                            </Button>
-                          )}
-                          
-                          {member.role === "member" && (
-                            <Button 
-                              variant="ghost" 
-                              size="sm"
-                              className="h-8"
-                              onClick={() => {
-                                setSelectedMemberId(member.id);
-                                setIsConfirmingTransfer(true);
-                              }}
-                            >
-                              Transfer Leader
-                            </Button>
-                          )}
-                          
-                          <Button 
-                            variant="ghost" 
-                            size="sm"
-                            className="h-8 text-red-600 hover:text-red-700 hover:bg-red-50"
-                            onClick={() => handleRemoveMember(member.id)}
-                          >
-                            Remove
-                          </Button>
-                        </div>
-                      )}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+            <BatchMemberTable
+              batchMembers={batchMembers}
+              isLeader={isLeader}
+              onRemoveMember={handleRemoveMember}
+              onTransferLeadership={(id) => {
+                setSelectedMemberId(id);
+                setIsConfirmingTransfer(true);
+              }}
+            />
           )}
           
           {isLeader && !isBatchFull && (
@@ -398,7 +178,9 @@ const BatchManagement: React.FC<BatchManagementProps> = ({
           )}
           
           {isBatchFull && (
-            <div className="mt-4 rounded-md bg-amber-50 dark:bg-amber-900/20 p-3">
+            <div className="mt-4 rounded-md bg-amber
+
+-50 dark:bg-amber-900/20 p-3">
               <p className="text-sm text-amber-700 dark:text-amber-400">
                 Your batch has reached the maximum size of {maxMembers} members.
                 Consider upgrading your plan to add more members.
@@ -434,205 +216,18 @@ const BatchManagement: React.FC<BatchManagementProps> = ({
           )}
         </CardContent>
       </Card>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Batch Details</CardTitle>
-              <CardDescription>
-                Information about your study batch
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div>
-                  <Label className="text-sm font-medium">Plan Type</Label>
-                  <Select defaultValue={planType} disabled>
-                    <SelectTrigger>
-                      <SelectValue placeholder={planType} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="group">Group Plan (Up to 5 members)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
 
-                <div>
-                  <Label className="text-sm font-medium">Your Role</Label>
-                  <div className="flex items-center gap-2 mt-1.5">
-                    {currentUserRole === "leader" || 
-                     currentUserRole === "school_admin" || 
-                     currentUserRole === "corporate_admin" ? (
-                      <>
-                        <Award size={16} className="text-amber-500" />
-                        <span>{currentUserRole === "leader" ? "Batch Leader" : 
-                              currentUserRole === "school_admin" ? "School Admin" : 
-                              "Corporate Admin"}</span>
-                      </>
-                    ) : (
-                      <>
-                        <User size={16} className="text-gray-500" />
-                        <span>Member</span>
-                      </>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        <BatchInvitationInput
-          onJoinBatch={async (code) => {
-            // Simulate API call to join batch via code
-            toast({
-              title: "Processing",
-              description: "Verifying invitation code...",
-            });
-            
-            try {
-              // In a real app, this would make an API call
-              await new Promise(resolve => setTimeout(resolve, 1500));
-              
-              toast({
-                title: "Success!",
-                description: "You've joined the batch successfully",
-              });
-              
-              return true;
-            } catch (error) {
-              return false;
-            }
-          }}
-        />
-      </div>
-
-      {/* Add Member Dialog */}
-      <Dialog open={isAddingMember} onOpenChange={setIsAddingMember}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Add Member</DialogTitle>
-          </DialogHeader>
-          
-          <Form {...addMemberForm}>
-            <form onSubmit={addMemberForm.handleSubmit(handleAddMember)} className="space-y-4">
-              <FormField
-                control={addMemberForm.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email address</FormLabel>
-                    <FormControl>
-                      <Input placeholder="member@example.com" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <DialogFooter>
-                <Button 
-                  variant="outline" 
-                  type="button" 
-                  onClick={() => setIsAddingMember(false)}
-                >
-                  Cancel
-                </Button>
-                <Button 
-                  type="submit" 
-                  disabled={addMemberForm.formState.isSubmitting}
-                >
-                  {addMemberForm.formState.isSubmitting ? (
-                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                  ) : null}
-                  Add Member
-                </Button>
-              </DialogFooter>
-            </form>
-          </Form>
-        </DialogContent>
-      </Dialog>
+      <AddMemberDialog
+        isOpen={isAddingMember}
+        onClose={() => setIsAddingMember(false)}
+        onSubmit={handleAddMember}
+      />
       
-      {/* Change Batch Name Dialog */}
-      <Dialog open={isChangingName} onOpenChange={setIsChangingName}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Rename Batch</DialogTitle>
-          </DialogHeader>
-          
-          <Form {...batchNameForm}>
-            <form onSubmit={batchNameForm.handleSubmit(handleChangeBatchName)} className="space-y-4">
-              <FormField
-                control={batchNameForm.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Batch Name</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <DialogFooter>
-                <Button 
-                  variant="outline" 
-                  type="button" 
-                  onClick={() => setIsChangingName(false)}
-                >
-                  Cancel
-                </Button>
-                <Button 
-                  type="submit" 
-                  disabled={batchNameForm.formState.isSubmitting}
-                >
-                  {batchNameForm.formState.isSubmitting ? (
-                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                  ) : null}
-                  Save
-                </Button>
-              </DialogFooter>
-            </form>
-          </Form>
-        </DialogContent>
-      </Dialog>
-      
-      {/* Confirm Leadership Transfer Dialog */}
-      <Dialog open={isConfirmingTransfer} onOpenChange={setIsConfirmingTransfer}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Transfer Leadership</DialogTitle>
-          </DialogHeader>
-          
-          <div className="py-4">
-            <p className="text-muted-foreground">
-              Are you sure you want to transfer batch leadership? This action cannot be undone.
-            </p>
-            <p className="mt-4 font-medium">
-              You will lose administrative privileges over this batch.
-            </p>
-          </div>
-          
-          <DialogFooter>
-            <Button 
-              variant="outline" 
-              onClick={() => setIsConfirmingTransfer(false)}
-            >
-              Cancel
-            </Button>
-            <Button 
-              variant="default" 
-              onClick={handleConfirmTransfer}
-              className="bg-amber-600 hover:bg-amber-700"
-            >
-              Confirm Transfer
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <TransferLeadershipDialog
+        isOpen={isConfirmingTransfer}
+        onClose={() => setIsConfirmingTransfer(false)}
+        onConfirm={handleTransferLeadership}
+      />
     </div>
   );
 };

@@ -4,11 +4,14 @@ import { useNavigate } from 'react-router-dom';
 import DashboardLayout from './DashboardLayout';
 import { useStudentDashboard } from '@/hooks/useStudentDashboard';
 import DashboardLoading from './DashboardLoading';
-import BatchManagement, { BatchMember } from '@/components/subscription/BatchManagement';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import BatchManagement from '@/components/subscription/BatchManagement';
+import BatchDetails from '@/components/subscription/batch/BatchDetails';
+import BatchInvitationInput from '@/components/subscription/BatchInvitationInput';
+import { Card } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { UserCheck, ChartBar, Settings } from 'lucide-react';
+import { BatchMember } from '@/components/subscription/batch/types';
 
 export default function BatchManagementPage() {
   const {
@@ -45,8 +48,7 @@ export default function BatchManagementPage() {
   const navigate = useNavigate();
   
   useEffect(() => {
-    // In a real application, this would fetch batch data from an API
-    // For now, we'll just simulate with mock data
+    // Mock data initialization
     setTimeout(() => {
       const mockMembers: BatchMember[] = [
         {
@@ -72,31 +74,22 @@ export default function BatchManagementPage() {
           role: 'member',
           status: 'pending',
           invitationCode: 'SAKHA-123456'
-        },
-        {
-          id: '4',
-          name: 'Amit Kumar',
-          email: 'amit.kumar@example.com',
-          role: 'member',
-          status: 'inactive',
-          joinedDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
         }
       ];
       
-      setBatchMembers(mockMembers as BatchMember[]);
+      setBatchMembers(mockMembers);
       setIsLoading(false);
     }, 1000);
   }, [userProfile]);
   
   const handleAddMember = async (email: string): Promise<{ success: boolean; inviteCode?: string }> => {
-    // In a real application, this would call an API to add a member
     return new Promise((resolve) => {
       setTimeout(() => {
         const inviteCode = 'SAKHA-' + Math.random().toString(36).substring(2, 8).toUpperCase();
         
         const newMember: BatchMember = {
           id: Date.now().toString(),
-          name: email.split('@')[0], // Use part of email as temporary name
+          name: email.split('@')[0],
           email,
           role: 'member',
           status: 'pending',
@@ -110,7 +103,6 @@ export default function BatchManagementPage() {
   };
   
   const handleRemoveMember = async (id: string): Promise<boolean> => {
-    // In a real application, this would call an API to remove a member
     return new Promise((resolve) => {
       setTimeout(() => {
         setBatchMembers(batchMembers.filter(member => member.id !== id));
@@ -120,7 +112,6 @@ export default function BatchManagementPage() {
   };
   
   const handleChangeBatchName = async (name: string): Promise<boolean> => {
-    // In a real application, this would call an API to update the batch name
     return new Promise((resolve) => {
       setTimeout(() => {
         setBatchInfo({...batchInfo, name});
@@ -130,7 +121,6 @@ export default function BatchManagementPage() {
   };
   
   const handleTransferLeadership = async (memberId: string): Promise<boolean> => {
-    // In a real application, this would call an API to transfer leadership
     return new Promise((resolve) => {
       setTimeout(() => {
         const updatedMembers = batchMembers.map(member => {
@@ -145,13 +135,11 @@ export default function BatchManagementPage() {
         
         setBatchMembers(updatedMembers);
         
-        // In a real application, we might redirect the user after leadership transfer
         toast({
           title: "Leadership Transferred",
           description: "You are no longer the batch leader",
         });
         
-        // Navigate after a short delay to let the user see the toast
         setTimeout(() => {
           navigate('/dashboard/student/subscription');
         }, 3000);
@@ -222,9 +210,6 @@ export default function BatchManagementPage() {
           
           <TabsContent value="analytics">
             <Card>
-              <CardHeader>
-                <CardTitle>Batch Analytics</CardTitle>
-              </CardHeader>
               <CardContent>
                 <p className="text-gray-600 dark:text-gray-300">
                   This feature will be available soon. Track your batch's progress and engagement metrics.
@@ -235,9 +220,6 @@ export default function BatchManagementPage() {
           
           <TabsContent value="settings">
             <Card>
-              <CardHeader>
-                <CardTitle>Batch Settings</CardTitle>
-              </CardHeader>
               <CardContent>
                 <p className="text-gray-600 dark:text-gray-300">
                   Additional settings for managing your batch will be available in a future update.
@@ -246,6 +228,31 @@ export default function BatchManagementPage() {
             </Card>
           </TabsContent>
         </Tabs>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+          <BatchDetails
+            planType={batchInfo.planType}
+            currentUserRole={batchInfo.currentUserRole}
+          />
+          
+          <BatchInvitationInput
+            onJoinBatch={async (code) => {
+              toast({
+                title: "Processing",
+                description: "Verifying invitation code...",
+              });
+              
+              await new Promise(resolve => setTimeout(resolve, 1500));
+              
+              toast({
+                title: "Success!",
+                description: "You've joined the batch successfully",
+              });
+              
+              return true;
+            }}
+          />
+        </div>
       </div>
     </DashboardLayout>
   );
