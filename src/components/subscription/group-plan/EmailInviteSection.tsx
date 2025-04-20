@@ -47,9 +47,14 @@ const EmailInviteSection = ({ emails, maxInvites, onAddEmail, onRemoveEmail }: E
   };
 
   return (
-    <div className="space-y-4">
+    <motion.div 
+      className="space-y-4"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+    >
       <div className="flex items-center justify-between">
-        <Label>Invite Members ({emails.length}/{maxInvites})</Label>
+        <Label className="text-base font-medium">Invite Members ({emails.length}/{maxInvites})</Label>
         <span className="text-sm text-purple-600 dark:text-purple-400">
           {remainingInvites} invite{remainingInvites !== 1 ? 's' : ''} remaining
         </span>
@@ -62,12 +67,12 @@ const EmailInviteSection = ({ emails, maxInvites, onAddEmail, onRemoveEmail }: E
           onChange={(e) => setCurrentEmail(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleAddEmail()}
           disabled={emails.length >= maxInvites}
-          className="border-purple-200 dark:border-purple-900"
+          className="border-purple-200 dark:border-purple-900 focus:border-purple-300 dark:focus:border-purple-700"
         />
         <Button
           onClick={handleAddEmail}
           disabled={emails.length >= maxInvites || !currentEmail.trim()}
-          className="bg-purple-600 hover:bg-purple-700"
+          className="bg-purple-600 hover:bg-purple-700 transition-colors"
         >
           Add
         </Button>
@@ -81,7 +86,8 @@ const EmailInviteSection = ({ emails, maxInvites, onAddEmail, onRemoveEmail }: E
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              className="flex items-center justify-between bg-purple-50 dark:bg-purple-900/20 rounded-lg px-4 py-2 mb-2"
+              transition={{ duration: 0.2 }}
+              className="flex items-center justify-between bg-purple-50 dark:bg-purple-900/20 rounded-lg px-4 py-2 mb-2 hover:bg-purple-100 dark:hover:bg-purple-900/30 transition-colors"
             >
               <div className="flex items-center space-x-2">
                 <Mail className="h-4 w-4 text-purple-600 dark:text-purple-400" />
@@ -91,7 +97,7 @@ const EmailInviteSection = ({ emails, maxInvites, onAddEmail, onRemoveEmail }: E
                 variant="ghost"
                 size="sm"
                 onClick={() => onRemoveEmail(email)}
-                className="h-8 w-8 p-0 hover:bg-purple-100 dark:hover:bg-purple-900"
+                className="h-8 w-8 p-0 hover:bg-purple-100 dark:hover:bg-purple-900 transition-colors"
               >
                 <X className="h-4 w-4" />
               </Button>
@@ -99,7 +105,7 @@ const EmailInviteSection = ({ emails, maxInvites, onAddEmail, onRemoveEmail }: E
           ))}
         </AnimatePresence>
       </ScrollArea>
-    </div>
+    </motion.div>
   );
 };
 
