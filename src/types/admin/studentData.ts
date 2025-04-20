@@ -25,4 +25,12 @@ export interface StudentData {
   // Adding the previously missing properties
   targetScore?: number;
   avatarUrl?: string;
+
+  // Adding group plan related fields
+  batchCode?: string;
+  batchName?: string;
+  batchRole?: 'member' | 'leader' | 'school_admin' | 'corporate_admin';
+  batchId?: string;
+  groupPlanType?: 'group' | 'school' | 'corporate';
+  invitationCodes?: string[];
 }

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import SubscriptionPlans from '@/components/subscription/SubscriptionPlans';
@@ -11,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { AlertCircle, CheckCircle, Clock, Users, Copy, Check, Crown, UserPlus } from 'lucide-react';
 import { formatDate } from '@/utils/dateUtils';
 import { useToast } from '@/hooks/use-toast';
-import { Input } from '@/components/ui/input';
+import BatchInvitationInput from '@/components/subscription/BatchInvitationInput';
 
 const SubscriptionPage = () => {
   const location = useLocation();
@@ -48,7 +47,7 @@ const SubscriptionPage = () => {
   });
 
   // For invited users to enter invitation code
-  const [inviteCode, setInviteCode] = useState('');
+  const [activateInviteCode, setActivateInviteCode] = useState(false);
   const [activationSuccess, setActivationSuccess] = useState(false);
   
   // For group leaders to manage invitations
@@ -127,43 +126,32 @@ const SubscriptionPage = () => {
     }
   }, [location]);
   
-  const handleActivateCode = () => {
-    if (inviteCode.trim() === '') {
-      toast({
-        title: "Error",
-        description: "Please enter a valid invitation code",
-        variant: "destructive",
-      });
-      return;
-    }
+  const handleActivateBatchCode = async (code: string): Promise<boolean> => {
+    // In a real application, this would call an API to verify the code
+    // and update the user's membership in the batch
     
-    // Simulate code validation
-    // In a real app, this would check against a database of valid codes
-    setTimeout(() => {
-      // Simulate successful activation
-      if (inviteCode.startsWith('SAKHA-')) {
-        toast({
-          title: "Success!",
-          description: "Your premium access has been activated. Welcome to the group!",
-          variant: "default",
-        });
-        
-        setActivationSuccess(true);
-        setCurrentPlan({
-          id: 'group-pro-member',
-          name: 'Group Pro (Member)',
-          expiryDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
-          isActive: true,
-          isGroup: true
-        });
-      } else {
-        toast({
-          title: "Invalid Code",
-          description: "The invitation code you entered is not valid",
-          variant: "destructive",
-        });
-      }
-    }, 1000);
+    // Mock implementation for now
+    if (code.startsWith('SAKHA-')) {
+      toast({
+        title: "Success!",
+        description: "You have successfully joined the batch. Welcome!",
+        variant: "default",
+      });
+      
+      setActivationSuccess(true);
+      // You would typically update the currentPlan state here based on the batch's plan
+      setCurrentPlan({
+        id: 'group-pro-member',
+        name: 'Group Pro (Member)',
+        expiryDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+        isActive: true,
+        isGroup: true
+      });
+      
+      return true;
+    } else {
+      return false;
+    }
   };
   
   const copyInviteCode = (code: string, index: number) => {
@@ -268,7 +256,11 @@ const SubscriptionPage = () => {
                     </Button>
                   </div>
                 ) : (
-                  <Button variant={currentPlan.isGroup ? "outline" : "default"} className="mr-2">
+                  <Button 
+                    variant={currentPlan.isGroup ? "outline" : "default"} 
+                    className="mr-2"
+                    onClick={() => currentPlan.isGroup ? handleManageBatch() : {}}
+                  >
                     {currentPlan.isGroup ? 'View Batch Details' : 'Manage Subscription'}
                   </Button>
                 )}
@@ -372,32 +364,27 @@ const SubscriptionPage = () => {
           </Card>
         )}
         
-        {/* Activation Code Section for Group Members */}
-        {!currentPlan.isGroup && !activationSuccess && (
+        {/* Activation Code Button for Non-Group Members */}
+        {!currentPlan.isGroup && !activationSuccess && !activateInviteCode && (
           <Card className="mb-8">
-            <CardHeader>
-              <CardTitle className="text-xl">Have an Invitation Code?</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <p className="text-sm text-gray-600 dark:text-gray-300">
-                  If you were invited to join a group plan, enter your invitation code below to activate your premium access.
-                </p>
-                
-                <div className="flex flex-col sm:flex-row gap-3">
-                  <Input 
-                    placeholder="Enter your invitation code (e.g. SAKHA-ABC123)"
-                    value={inviteCode}
-                    onChange={(e) => setInviteCode(e.target.value)}
-                    className="flex-grow"
-                  />
-                  <Button onClick={handleActivateCode}>
-                    Activate
-                  </Button>
+            <CardContent className="pt-6">
+              <div className="flex justify-between items-center">
+                <div className="flex items-center">
+                  <Users size={20} className="text-blue-500 mr-2" />
+                  <h3 className="text-lg font-medium">Have a batch invitation code?</h3>
                 </div>
+                <Button onClick={() => setActivateInviteCode(true)}>Enter Code</Button>
               </div>
             </CardContent>
           </Card>
+        )}
+        
+        {/* Activation Code Form */}
+        {!currentPlan.isGroup && !activationSuccess && activateInviteCode && (
+          <BatchInvitationInput 
+            onActivate={handleActivateBatchCode} 
+            activationSuccess={activationSuccess}
+          />
         )}
         
         {/* Successful Activation Message */}

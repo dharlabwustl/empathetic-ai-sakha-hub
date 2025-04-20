@@ -5,22 +5,24 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Loader2, Mail, Share2, UserPlus, X, Copy, Check } from 'lucide-react';
+import { Loader2, Mail, Share2, UserPlus, X, Copy, Check, AlertCircle, Shield } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface Plan {
   id: string;
   name: string;
   price: number;
   userCount?: number;
+  planType?: 'group' | 'school' | 'corporate';
 }
 
 interface GroupPlanInviteModalProps {
   plan: Plan;
   onClose: () => void;
-  onComplete: (emails: string[], inviteCodes: string[]) => void;
+  onComplete: (emails: string[], inviteCodes: string[], batchName: string, roleType: string) => void;
 }
 
 export default function GroupPlanInviteModal({ plan, onClose, onComplete }: GroupPlanInviteModalProps) {
@@ -28,11 +30,20 @@ export default function GroupPlanInviteModal({ plan, onClose, onComplete }: Grou
   const [currentEmail, setCurrentEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [inviteMethod, setInviteMethod] = useState<'email' | 'code'>('email');
+  const [batchName, setBatchName] = useState('');
+  const [roleType, setRoleType] = useState('batch_leader'); // batch_leader, school_admin, corporate_admin
   const { toast } = useToast();
+  
+  // Determine the maximum number of users based on the plan type
+  const getMaxUsers = () => {
+    if (plan.planType === 'school') return 50;
+    if (plan.planType === 'corporate') return 100;
+    return plan.userCount || 5; // Default to 5 for group plans
+  };
   
   // Generate unique invite codes for each potential user in the group
   const [inviteCodes, setInviteCodes] = useState<string[]>(
-    Array(5).fill(0).map(() => 'SAKHA-' + Math.random().toString(36).substring(2, 8).toUpperCase())
+    Array(getMaxUsers()).fill(0).map(() => 'SAKHA-' + Math.random().toString(36).substring(2, 8).toUpperCase())
   );
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
   
@@ -68,21 +79,29 @@ export default function GroupPlanInviteModal({ plan, onClose, onComplete }: Grou
   };
   
   const handleSubmit = () => {
-    if (inviteMethod === 'email' && emails.length === 0) {
+    // Validate batch name
+    if (!batchName.trim()) {
       toast({
-        title: "No Emails Added",
-        description: "Please add at least one email address",
+        title: "Batch Name Required",
+        description: "Please enter a name for your batch",
         variant: "destructive",
       });
       return;
     }
     
+    if (inviteMethod === 'email' && emails.length === 0) {
+      toast({
+        title: "No Members Added",
+        description: "Add at least one member or continue with just yourself",
+        variant: "default",
+      });
+    }
+    
     setIsSubmitting(true);
     
-    // For the actual implementation, we'll pass the emails and invite codes
-    // to the parent component to continue the checkout process
+    // For the actual implementation, we'll pass the emails, invite codes, batch name, and role type
     setTimeout(() => {
-      onComplete(emails, inviteCodes.slice(0, Math.max(emails.length, 1)));
+      onComplete(emails, inviteCodes.slice(0, Math.max(emails.length, 1)), batchName, roleType);
       setIsSubmitting(false);
     }, 500);
   };
@@ -106,26 +125,104 @@ export default function GroupPlanInviteModal({ plan, onClose, onComplete }: Grou
   };
 
   // Calculate how many more invites can be added
-  const maxInvites = (plan.userCount || 5) - 1; // -1 for the plan owner
+  const maxInvites = getMaxUsers() - 1; // -1 for the plan owner
   const remainingInvites = maxInvites - emails.length;
+  
+  const getPlanTypeTitle = () => {
+    switch (plan.planType) {
+      case 'school':
+        return 'School Plan';
+      case 'corporate':
+        return 'Corporate Plan';
+      default:
+        return 'Group Plan';
+    }
+  };
+  
+  const getRoleOptions = () => {
+    switch (plan.planType) {
+      case 'school':
+        return (
+          <Select value={roleType} onValueChange={setRoleType}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select your role" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectLabel>Role Type</SelectLabel>
+                <SelectItem value="school_admin">School Administrator</SelectItem>
+                <SelectItem value="batch_leader">Batch Leader</SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        );
+      case 'corporate':
+        return (
+          <Select value={roleType} onValueChange={setRoleType}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select your role" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectLabel>Role Type</SelectLabel>
+                <SelectItem value="corporate_admin">Corporate Administrator</SelectItem>
+                <SelectItem value="batch_leader">Department Leader</SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        );
+      default:
+        return (
+          <Select value={roleType} onValueChange={setRoleType}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select your role" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectLabel>Role Type</SelectLabel>
+                <SelectItem value="batch_leader">Batch Leader</SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        );
+    }
+  };
 
   return (
     <Dialog open onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="text-xl">
-            Set Up Your {plan.name}
+            Set Up Your {getPlanTypeTitle()}
           </DialogTitle>
         </DialogHeader>
         
         <div className="space-y-4 py-2">
           <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-md text-sm text-blue-700 dark:text-blue-200">
-            <p>You're setting up a group plan for {plan.userCount} users.</p>
+            <p>You're setting up a {plan.planType || 'group'} plan for up to {getMaxUsers()} users.</p>
             <p className="mt-1">
               <strong>Total price: ₹{plan.price}/month</strong> 
-              <span className="text-blue-600 dark:text-blue-300"> (₹{Math.round(plan.price / (plan.userCount || 5))}/user)</span>
+              <span className="text-blue-600 dark:text-blue-300"> (₹{Math.round(plan.price / getMaxUsers())}/user)</span>
             </p>
-            <p className="mt-1 text-xs">You can invite up to {maxInvites} users to join your group. You'll be charged only after proceeding to payment.</p>
+            <p className="mt-1 text-xs">You can invite up to {maxInvites} users to join your group. You'll be charged after proceeding to payment.</p>
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="batch-name">Batch Name</Label>
+            <Input 
+              id="batch-name" 
+              placeholder="Enter a name for your batch"
+              value={batchName}
+              onChange={(e) => setBatchName(e.target.value)}
+            />
+          </div>
+          
+          <div className="space-y-2">
+            <Label>Your Role</Label>
+            <div className="flex items-center gap-2">
+              <Shield size={16} className="text-blue-500" />
+              {getRoleOptions()}
+            </div>
           </div>
           
           <Tabs defaultValue="email" onValueChange={(v) => setInviteMethod(v as 'email' | 'code')}>
@@ -140,7 +237,7 @@ export default function GroupPlanInviteModal({ plan, onClose, onComplete }: Grou
             
             <TabsContent value="email" className="mt-4 space-y-4">
               <div className="space-y-2">
-                <Label>Invite Friends (Up to {maxInvites})</Label>
+                <Label>Invite Members (Up to {maxInvites})</Label>
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-blue-600 dark:text-blue-400">
                     {remainingInvites} invite{remainingInvites !== 1 ? 's' : ''} remaining
@@ -200,6 +297,13 @@ export default function GroupPlanInviteModal({ plan, onClose, onComplete }: Grou
                   </AnimatePresence>
                 </div>
                 
+                {emails.length === 0 && (
+                  <div className="flex items-center gap-2 mt-2 text-amber-600 dark:text-amber-400 text-sm">
+                    <AlertCircle size={16} />
+                    <span>No members added yet. You can proceed with just yourself as the {roleType === 'batch_leader' ? 'batch leader' : 'administrator'}.</span>
+                  </div>
+                )}
+                
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-4">
                   You'll proceed to payment after selecting your group members. Each person will receive
                   a unique activation code to access premium features.
@@ -209,13 +313,13 @@ export default function GroupPlanInviteModal({ plan, onClose, onComplete }: Grou
             
             <TabsContent value="code" className="mt-4 space-y-4">
               <div className="space-y-2">
-                <Label>Invitation Codes for Your Group Members</Label>
+                <Label>Invitation Codes for Your Members</Label>
                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
                   Share these codes with your group members. They can use them during signup or activate from their profile page.
                 </p>
                 
                 <div className="space-y-2">
-                  {inviteCodes.map((code, index) => (
+                  {inviteCodes.slice(0, Math.max(5, emails.length)).map((code, index) => (
                     <div key={index} className="flex items-center space-x-2">
                       <div className="flex-1 bg-gray-100 dark:bg-gray-800 rounded-md px-3 py-2 font-mono text-sm">
                         {code}
@@ -252,7 +356,7 @@ export default function GroupPlanInviteModal({ plan, onClose, onComplete }: Grou
           <Button variant="outline" onClick={onClose} disabled={isSubmitting}>
             Cancel
           </Button>
-          <Button onClick={handleSubmit} disabled={isSubmitting}>
+          <Button onClick={handleSubmit} disabled={isSubmitting || !batchName.trim()}>
             {isSubmitting ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
