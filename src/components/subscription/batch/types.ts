@@ -10,9 +10,12 @@ export interface BatchMember {
   avatar?: string;
 }
 
-export interface BatchInfo {
+export interface BatchDetails {
+  id: string;
   name: string;
-  planType: "group" | "school" | "corporate";
+  createdAt: string;
+  owner: BatchMember;
+  members: BatchMember[];
   maxMembers: number;
-  currentUserRole: "member" | "leader" | "school_admin" | "corporate_admin";
+  planType: "group" | "school" | "corporate";
 }

@@ -1,77 +1,57 @@
 
-/**
- * Enum for user roles in the system
- */
+export interface UserSubscription {
+  planId: string;
+  planType: "free" | "basic" | "premium" | "enterprise";
+  batchCode?: string;
+  batchName?: string;
+  startDate?: string;
+  endDate?: string;
+}
+
+export interface UserProfileType {
+  id: string;
+  email: string;
+  name: string;
+  role: UserRole;
+  bio?: string;
+  avatar?: string;
+  personalityType?: string;
+  goals?: {
+    id: string;
+    title: string;
+  }[];
+  areasOfInterest?: {
+    id: string;
+    name: string;
+  }[];
+  subscription?: UserSubscription;
+  joinDate?: string;
+}
+
 export enum UserRole {
   Student = "student",
-  Employee = "employee",
-  Doctor = "doctor",
-  Founder = "founder",
+  Teacher = "teacher",
+  Parent = "parent",
   Admin = "admin"
 }
 
-/**
- * Types of moods a user can select
- */
 export type MoodType = 
+  | "happy"
+  | "sad"
+  | "tired"
   | "motivated"
-  | "curious" 
-  | "neutral" 
-  | "tired" 
-  | "stressed" 
-  | "focused" 
-  | "happy" 
-  | "okay" 
-  | "overwhelmed" 
-  | "sad";
+  | "focused"
+  | "stressed"
+  | "overwhelmed"
+  | "curious"
+  | "neutral"
+  | "okay";
 
-/**
- * Types of personalities a user can have
- */
-export type PersonalityType = 
-  | "analytical" 
-  | "creative" 
-  | "practical" 
-  | "social" 
-  | "independent";
-
-/**
- * User gender types
- */
-export type GenderType = "male" | "female" | "other" | "prefer-not-to-say";
-
-/**
- * Subscription type
- */
-export enum SubscriptionType {
-  Free = "free",
-  Basic = "basic",
-  Premium = "premium",
-  Enterprise = "enterprise"
-}
-
-/**
- * Base user profile type
- */
-export interface UserProfileType {
+export interface SubscriptionType {
   id: string;
   name: string;
-  email: string;
-  role: UserRole;
-  createdAt?: string;
-  updatedAt?: string;
-  // Additional properties
-  personalityType?: string;
-  subscription?: SubscriptionType;
-  joinDate?: string;
-  lastActive?: string;
-  phoneNumber?: string;
-  gender?: GenderType;
-  areasOfInterest?: Array<{id: string, name: string, level: string}>;
-  goals: Array<{id: string, title: string, description?: string, progress: number, status?: string, dueDate?: string, targetDate?: Date}>;
-  loginCount?: number;
-  completedOnboarding?: boolean;
-  examPreparation?: string;
-  bio?: string;
-  avatar?: string;
+  price: number;
+  features: string[];
+  isPopular?: boolean;
+  description?: string;
 }
