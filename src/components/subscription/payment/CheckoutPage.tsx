@@ -16,6 +16,7 @@ const CheckoutPage = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [paymentMethod, setPaymentMethod] = useState("card");
+  const [isProcessing, setIsProcessing] = useState(false);
   
   const selectedPlan = location.state?.plan;
   
@@ -30,6 +31,7 @@ const CheckoutPage = () => {
       title: "Payment Successful!",
       description: "Your subscription has been activated.",
     });
+    setIsProcessing(false);
     navigate("/dashboard/student/subscription?status=success");
   };
 
@@ -39,6 +41,19 @@ const CheckoutPage = () => {
       description: error.message || "Please try again.",
       variant: "destructive",
     });
+    setIsProcessing(false);
+  };
+
+  const handlePaymentSubmit = async () => {
+    setIsProcessing(true);
+    // This would normally process the payment, but for demo purposes we'll
+    // simulate a successful payment after a delay
+    setTimeout(() => {
+      handlePaymentSuccess({
+        paymentId: "pay_" + Math.random().toString(36).substring(2, 15),
+        orderId: "order_" + Math.random().toString(36).substring(2, 15),
+      });
+    }, 2000);
   };
 
   return (
@@ -54,7 +69,7 @@ const CheckoutPage = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="md:col-span-2">
-          <Card>
+          <Card className="shadow-md">
             <CardHeader>
               <CardTitle>Checkout</CardTitle>
             </CardHeader>
@@ -79,6 +94,8 @@ const CheckoutPage = () => {
                     amount={selectedPlan.price}
                     onSuccess={handlePaymentSuccess}
                     onError={handlePaymentError}
+                    onSubmit={handlePaymentSubmit}
+                    isProcessing={isProcessing}
                   />
                 </TabsContent>
 
@@ -87,6 +104,8 @@ const CheckoutPage = () => {
                     amount={selectedPlan.price}
                     onSuccess={handlePaymentSuccess}
                     onError={handlePaymentError}
+                    onSubmit={handlePaymentSubmit}
+                    isProcessing={isProcessing}
                   />
                 </TabsContent>
               </Tabs>
@@ -95,7 +114,7 @@ const CheckoutPage = () => {
         </div>
 
         <div className="md:col-span-1">
-          <Card>
+          <Card className="shadow-md">
             <CardHeader>
               <CardTitle>Order Summary</CardTitle>
             </CardHeader>

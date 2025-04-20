@@ -11,17 +11,17 @@ import {
 } from "@/components/ui/select";
 
 interface NetBankingPaymentProps {
-  amount: number;
-  onSuccess: (response: any) => void;
-  onError: (error: any) => void;
+  amount?: number;
+  onSuccess?: (response: any) => void;
+  onError?: (error: any) => void;
   onSubmit?: () => Promise<void>;
   isProcessing?: boolean;
 }
 
 const NetBankingPayment: React.FC<NetBankingPaymentProps> = ({
-  amount,
-  onSuccess,
-  onError,
+  amount = 999,
+  onSuccess = () => {},
+  onError = () => {},
   onSubmit,
   isProcessing = false
 }) => {
@@ -96,7 +96,7 @@ const NetBankingPayment: React.FC<NetBankingPaymentProps> = ({
       </div>
 
       <Button type="submit" className="w-full" disabled={isProcessing || loading}>
-        {isProcessing || loading ? "Redirecting to bank..." : `Pay ₹${amount.toFixed(2)} with Net Banking`}
+        {isProcessing || loading ? "Redirecting to bank..." : `Pay ₹${amount?.toFixed(2)} with Net Banking`}
       </Button>
     </form>
   );

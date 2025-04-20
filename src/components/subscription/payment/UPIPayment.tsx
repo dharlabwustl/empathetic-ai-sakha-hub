@@ -6,17 +6,17 @@ import { Label } from "@/components/ui/label";
 import { QrCode } from "lucide-react";
 
 interface UPIPaymentProps {
-  amount: number;
-  onSuccess: (response: any) => void;
-  onError: (error: any) => void;
+  amount?: number;
+  onSuccess?: (response: any) => void;
+  onError?: (error: any) => void;
   onSubmit?: () => Promise<void>;
   isProcessing?: boolean;
 }
 
 const UPIPayment: React.FC<UPIPaymentProps> = ({
-  amount,
-  onSuccess,
-  onError,
+  amount = 999,
+  onSuccess = () => {},
+  onError = () => {},
   onSubmit,
   isProcessing = false
 }) => {
@@ -55,7 +55,7 @@ const UPIPayment: React.FC<UPIPaymentProps> = ({
           <QrCode size={120} className="text-primary" />
         </div>
         <p className="text-sm text-center text-muted-foreground">
-          Scan this QR code with your UPI app to pay ₹{amount.toFixed(2)}
+          Scan this QR code with your UPI app to pay ₹{amount?.toFixed(2)}
         </p>
       </div>
 
@@ -76,7 +76,7 @@ const UPIPayment: React.FC<UPIPaymentProps> = ({
         </div>
 
         <Button type="submit" className="w-full" disabled={isProcessing || loading}>
-          {isProcessing || loading ? "Processing..." : `Pay ₹${amount.toFixed(2)} with UPI`}
+          {isProcessing || loading ? "Processing..." : `Pay ₹${amount?.toFixed(2)} with UPI`}
         </Button>
       </form>
     </div>

@@ -2,17 +2,16 @@
 import React, { useState, useEffect } from "react";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Switch } from "@/components/ui/switch";
-import { Edit, Search, Filter, Download, Plus, Trash2 } from "lucide-react";
+import { Search, Filter, Download } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import FeatureEditDialog from "@/components/admin/features/FeatureEditDialog";
 import { featureService, Feature, PlanType } from "@/services/featureService";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import FeatureManagementCard from "@/components/admin/features/FeatureManagementCard";
 
 const FeaturesManagementPage = () => {
   const { toast } = useToast();
@@ -67,19 +66,23 @@ const FeaturesManagementPage = () => {
     return matchesSearch && matchesPlan && matchesPremium && matchesTab;
   });
 
-  const handleToggleFeature = async (index: number, isPremium: boolean) => {
+  const handleToggleFeature = async (id: string, isPremium: boolean) => {
     try {
-      const updatedFeatures = [...features];
-      updatedFeatures[index] = {...updatedFeatures[index], isPremium};
+      const updatedFeatures = features.map(feature => 
+        feature.id === id ? {...feature, isPremium} : feature
+      );
       
-      await featureService.toggleFeaturePremium(updatedFeatures[index].title, isPremium);
-      setFeatures(updatedFeatures);
-      
-      toast({
-        title: "Feature Updated",
-        description: `${updatedFeatures[index].title} is now ${isPremium ? 'premium' : 'basic'}.`,
-        variant: "default"
-      });
+      const featureToUpdate = features.find(f => f.id === id);
+      if (featureToUpdate) {
+        await featureService.toggleFeaturePremium(featureToUpdate.title, isPremium);
+        setFeatures(updatedFeatures);
+        
+        toast({
+          title: "Feature Updated",
+          description: `${featureToUpdate.title} is now ${isPremium ? 'premium' : 'basic'}.`,
+          variant: "default"
+        });
+      }
     } catch (error) {
       toast({
         title: "Error",
@@ -94,20 +97,51 @@ const FeaturesManagementPage = () => {
     setIsEditDialogOpen(true);
   };
 
+  const handleAddFeature = () => {
+    // Create an empty feature template
+    const newFeature: Feature = {
+      id: "",
+      title: "",
+      description: "",
+      path: "",
+      icon: "📱",
+      isPremium: false,
+    };
+    setSelectedFeature(newFeature);
+    setIsEditDialogOpen(true);
+  };
+
   const handleSaveFeature = async (editedFeature: Feature) => {
     try {
-      await featureService.updateFeature(editedFeature);
-      
-      const updatedFeatures = features.map(f => 
-        f.title === editedFeature.title ? editedFeature : f
-      );
-      setFeatures(updatedFeatures);
-      
-      toast({
-        title: "Feature Updated",
-        description: `Changes to ${editedFeature.title} have been saved.`,
-        variant: "default"
-      });
+      if (editedFeature.id) {
+        await featureService.updateFeature(editedFeature);
+        
+        const updatedFeatures = features.map(f => 
+          f.id === editedFeature.id ? editedFeature : f
+        );
+        setFeatures(updatedFeatures);
+        
+        toast({
+          title: "Feature Updated",
+          description: `Changes to ${editedFeature.title} have been saved.`,
+          variant: "default"
+        });
+      } else {
+        // This is a new feature
+        const newFeature = {
+          ...editedFeature,
+          id: `feature-${Date.now()}`
+        };
+        await featureService.createFeature(newFeature);
+        
+        setFeatures([...features, newFeature]);
+        
+        toast({
+          title: "Feature Created",
+          description: `${newFeature.title} has been added.`,
+          variant: "default"
+        });
+      }
     } catch (error) {
       toast({
         title: "Error",
@@ -120,33 +154,42 @@ const FeaturesManagementPage = () => {
     }
   };
 
-  const getAccessDescription = (feature: Feature) => {
-    if (!feature.freeAccessLimit) return "Full Access";
+  const handleExportFeatures = () => {
+    // Create CSV data
+    const headers = ["Title", "Description", "Path", "Premium", "Allowed Plans"];
+    const csvData = [
+      headers.join(","),
+      ...filteredFeatures.map(feature => [
+        `"${feature.title}"`,
+        `"${feature.description}"`,
+        feature.path,
+        feature.isPremium ? "Yes" : "No",
+        feature.allowedPlans ? feature.allowedPlans.join(", ") : "All"
+      ].join(","))
+    ].join("\n");
     
-    switch (feature.freeAccessLimit.type) {
-      case "time":
-        return `${feature.freeAccessLimit.limit} days free access`;
-      case "usage":
-        return `${feature.freeAccessLimit.limit} free uses`;
-      case "content":
-        return `${feature.freeAccessLimit.limit}% free content`;
-      default:
-        return "Limited Access";
-    }
+    // Create and download blob
+    const blob = new Blob([csvData], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", "features-export.csv");
+    link.style.visibility = "hidden";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    toast({
+      title: "Export Complete",
+      description: "Features data has been exported to CSV",
+    });
   };
 
-  const getPlanBadges = (feature: Feature) => {
-    if (!feature.allowedPlans || feature.allowedPlans.length === 0) {
-      return <Badge variant="outline">All Plans</Badge>;
-    }
-    
-    return (
-      <div className="flex flex-wrap gap-1">
-        {feature.allowedPlans.map(plan => (
-          <Badge key={plan} variant="outline" className="capitalize">{plan}</Badge>
-        ))}
-      </div>
-    );
+  const stats = {
+    total: features.length,
+    premium: features.filter(f => f.isPremium).length,
+    free: features.filter(f => !f.isPremium).length,
+    limited: features.filter(f => !!f.freeAccessLimit).length
   };
 
   return (
@@ -160,13 +203,63 @@ const FeaturesManagementPage = () => {
         </div>
       </div>
       
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <Card className="bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 shadow-md">
+          <CardContent className="p-4 flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">Total Features</p>
+              <p className="text-2xl font-bold">{stats.total}</p>
+            </div>
+            <div className="h-12 w-12 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center">
+              <span className="text-xl">🧩</span>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card className="bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 shadow-md">
+          <CardContent className="p-4 flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">Premium Features</p>
+              <p className="text-2xl font-bold">{stats.premium}</p>
+            </div>
+            <div className="h-12 w-12 rounded-full bg-amber-100 dark:bg-amber-900 flex items-center justify-center">
+              <span className="text-xl">✨</span>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card className="bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 shadow-md">
+          <CardContent className="p-4 flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">Free Features</p>
+              <p className="text-2xl font-bold">{stats.free}</p>
+            </div>
+            <div className="h-12 w-12 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center">
+              <span className="text-xl">🎁</span>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card className="bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 shadow-md">
+          <CardContent className="p-4 flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">Limited Access</p>
+              <p className="text-2xl font-bold">{stats.limited}</p>
+            </div>
+            <div className="h-12 w-12 rounded-full bg-purple-100 dark:bg-purple-900 flex items-center justify-center">
+              <span className="text-xl">⏱️</span>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+      
       <div className="mb-6">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="mb-4">
-            <TabsTrigger value="all">All Features</TabsTrigger>
-            <TabsTrigger value="premium">Premium</TabsTrigger>
-            <TabsTrigger value="free">Free</TabsTrigger>
-            <TabsTrigger value="limited">Limited Access</TabsTrigger>
+          <TabsList className="mb-4 bg-muted/50 p-1 w-full max-w-xl">
+            <TabsTrigger value="all" className="flex-1 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800">All Features</TabsTrigger>
+            <TabsTrigger value="premium" className="flex-1 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800">Premium Only</TabsTrigger>
+            <TabsTrigger value="free" className="flex-1 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800">Free Features</TabsTrigger>
+            <TabsTrigger value="limited" className="flex-1 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800">Limited Access</TabsTrigger>
           </TabsList>
         </Tabs>
       </div>
@@ -181,9 +274,9 @@ const FeaturesManagementPage = () => {
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
           <Select value={premiumFilter} onValueChange={(value: "all" | "premium" | "free") => setPremiumFilter(value)}>
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="w-full sm:w-[180px]">
               <SelectValue placeholder="Filter by type" />
             </SelectTrigger>
             <SelectContent>
@@ -194,7 +287,7 @@ const FeaturesManagementPage = () => {
           </Select>
           
           <Select value={planFilter} onValueChange={(value) => setPlanFilter(value as PlanType | "all")}>
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="w-full sm:w-[180px]">
               <SelectValue placeholder="Filter by plan" />
             </SelectTrigger>
             <SelectContent>
@@ -208,94 +301,24 @@ const FeaturesManagementPage = () => {
             </SelectContent>
           </Select>
 
-          <Button variant="outline" size="sm" className="flex items-center gap-2">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="flex items-center gap-2"
+            onClick={handleExportFeatures}
+          >
             <Download size={16} />
             <span>Export</span>
           </Button>
         </div>
       </div>
       
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>Platform Features</CardTitle>
-          <Button variant="outline" size="sm" className="flex items-center gap-2">
-            <Plus size={16} />
-            <span>Add Feature</span>
-          </Button>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Feature</TableHead>
-                <TableHead>Description</TableHead>
-                <TableHead>Path</TableHead>
-                <TableHead>Access Type</TableHead>
-                <TableHead>Free Limit</TableHead>
-                <TableHead>Allowed Plans</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredFeatures.map((feature, index) => {
-                const featureIndex = features.findIndex(f => f.title === feature.title);
-                return (
-                <TableRow key={index}>
-                  <TableCell className="font-medium">
-                    <div className="flex items-center gap-2">
-                      <div className="h-8 w-8 flex items-center justify-center rounded-md bg-gray-100 dark:bg-gray-800">
-                        {feature.icon}
-                      </div>
-                      <span>{feature.title}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell className="max-w-xs truncate">{feature.description}</TableCell>
-                  <TableCell className="text-sm text-gray-500">{feature.path}</TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <Switch 
-                        checked={feature.isPremium} 
-                        onCheckedChange={(checked) => handleToggleFeature(featureIndex, checked)}
-                      />
-                      <span>{feature.isPremium ? 'Premium' : 'Basic'}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    {feature.freeAccessLimit ? (
-                      <Badge variant="secondary">
-                        {getAccessDescription(feature)}
-                      </Badge>
-                    ) : (
-                      <span className="text-gray-500">None</span>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    {getPlanBadges(feature)}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleEditFeature(feature)}
-                      >
-                        <Edit size={16} />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
-                      >
-                        <Trash2 size={16} />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              )})}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+      <FeatureManagementCard
+        features={filteredFeatures}
+        onToggleFeature={handleToggleFeature}
+        onEditFeature={handleEditFeature}
+        onAddFeature={handleAddFeature}
+      />
       
       {selectedFeature && (
         <FeatureEditDialog
