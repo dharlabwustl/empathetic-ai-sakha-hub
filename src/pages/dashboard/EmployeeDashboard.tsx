@@ -1,224 +1,423 @@
-
-import { useEffect, useState } from "react";
-import { useToast } from "@/hooks/use-toast";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Briefcase, Calendar, LineChart, MessageSquare } from "lucide-react";
-import SidebarNav from "@/components/dashboard/SidebarNav";
-import ChatAssistant from "@/components/dashboard/ChatAssistant";
-import KpiCard from "@/components/dashboard/KpiCard";
-import NudgePanel from "@/components/dashboard/NudgePanel";
-import ProfileCard from "@/components/dashboard/ProfileCard";
-import FeatureCard from "@/components/dashboard/FeatureCard";
-import { useUserProfile } from "@/hooks/useUserProfile";
-import { useKpiTracking } from "@/hooks/useKpiTracking";
-import { UserRole, SubscriptionType } from "@/types/user/base";
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '@/contexts/auth/AuthContext';
+import DashboardLayout from './DashboardLayout';
+import { useEmployeeDashboard } from '@/hooks/useEmployeeDashboard';
+import DashboardLoading from './DashboardLoading';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { AlertCircle, CheckCircle, Clock, Users, Copy, Check, Crown, UserPlus } from 'lucide-react';
+import { formatDate } from '@/utils/dateUtils';
+import { useToast } from '@/hooks/use-toast';
+import BatchInvitationInput from '@/components/subscription/BatchInvitationInput';
 
 const EmployeeDashboard = () => {
-  const { toast } = useToast();
-  const [loading, setLoading] = useState(true);
-  const { userProfile } = useUserProfile(UserRole.Employee);
-  const { kpis, nudges, markNudgeAsRead } = useKpiTracking(UserRole.Employee);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoading(false);
-      toast({
-        title: "Welcome back, Professional!",
-        description: "Your dashboard is ready.",
-      });
-    }, 1000);
-
-    return () => clearTimeout(timer);
-  }, [toast]);
-
-  if (loading || !userProfile) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-sakha-light-blue/5 via-white to-sakha-lavender/5">
-        <div className="text-center">
-          <img 
-            src="/lovable-uploads/ffd1ed0a-7a25-477e-bc91-1da9aca3497f.png" 
-            alt="Sakha AI" 
-            className="w-16 h-16 mx-auto animate-pulse mb-4" 
-          />
-          <h2 className="text-xl font-medium mb-2">Loading your dashboard...</h2>
-          <p className="text-gray-500">Personalizing your experience</p>
-        </div>
-      </div>
-    );
-  }
+  const { user } = useAuth();
+  const {
+    loading,
+    userProfile,
+    activeTab,
+    showWelcomeTour,
+    showOnboarding,
+    currentTime,
+    showStudyPlan,
+    hideTabsNav,
+    hideSidebar,
+    kpis,
+    nudges,
+    markNudgeAsRead,
+    handleTabChange,
+    handleSkipTour,
+    handleCompleteTour,
+    handleCompleteOnboarding,
+    handleViewStudyPlan,
+    handleCloseStudyPlan,
+    toggleSidebar,
+    toggleTabsNav
+  } = useEmployeeDashboard();
   
-  const features = [
-    {
-      title: "24/7 Job Advisor",
-      description: "Get instant help with work challenges, emails, presentations, and more.",
-      icon: <MessageSquare size={20} />,
-      path: "/dashboard/employee/advisor",
-      isPremium: false,
-    },
-    {
-      title: "Productivity Tracker",
-      description: "Monitor your productivity patterns and get AI-powered insights to optimize your workflow.",
-      icon: <LineChart size={20} />,
-      path: "/dashboard/employee/productivity",
-      isPremium: userProfile.subscription !== SubscriptionType.Premium,
-    },
-    {
-      title: "Career Guide",
-      description: "Build your resume, practice interviews, and plan your career growth path.",
-      icon: <Briefcase size={20} />,
-      path: "/dashboard/employee/career",
-      isPremium: userProfile.subscription !== SubscriptionType.Premium,
-    },
-    {
-      title: "Training Modules",
-      description: "Access personalized learning paths to build skills relevant to your career goals.",
-      icon: <Calendar size={20} />,
-      path: "/dashboard/employee/training",
-      isPremium: userProfile.subscription !== SubscriptionType.Premium,
+  const [currentPlan, setCurrentPlan] = useState({
+    id: 'free',
+    name: 'Free Trial',
+    expiryDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
+    isActive: true,
+    isGroup: false
+  });
+
+  // For invited users to enter invitation code
+  const [activateInviteCode, setActivateInviteCode] = useState(false);
+  const [activationSuccess, setActivationSuccess] = useState(false);
+  
+  // For group leaders to manage invitations
+  const [groupInvites, setGroupInvites] = useState<{code: string, email: string, used: boolean}[]>([]);
+  const [copiedCodeIndex, setCopiedCodeIndex] = useState<number | null>(null);
+  
+  const { toast } = useToast();
+  
+  useEffect(() => {
+    // Check if there's any plan update from the checkout process
+    // if (location.state?.planUpdated && location.state?.newPlan) {
+    //   const plan = location.state.newPlan;
+    //   setCurrentPlan({
+    //     id: plan.id,
+    //     name: plan.name,
+    //     expiryDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
+    //     isActive: true,
+    //     isGroup: plan.isGroup
+    //   });
+      
+    //   // If it's a group plan and the user is the leader
+    //   if (location.state.isGroupLeader && location.state.invitedEmails && location.state.inviteCodes) {
+    //     // Create invitation records
+    //     const invites = location.state.invitedEmails.map((email: string, index: number) => ({
+    //       code: location.state.inviteCodes[index],
+    //       email: email,
+    //       used: false
+    //     }));
+        
+    //     setGroupInvites(invites);
+        
+    //     toast({
+    //       title: "Group Plan Activated",
+    //       description: "You are now a batch leader. Manage your group in this section.",
+    //       variant: "default",
+    //     });
+    //   }
+    // }
+    
+    // In a real application, this would fetch the user's subscription status
+    const urlParams = new URLSearchParams(window.location.search);
+    
+    if (urlParams.get('plan') === 'updated') {
+      toast({
+        title: "Subscription Updated",
+        description: "Your plan has been updated successfully.",
+        variant: "default",
+      });
+    } else if (urlParams.get('plan') === 'group-activated') {
+      toast({
+        title: "Group Plan Activated",
+        description: "You are now a batch leader. Manage your group in this section.",
+        variant: "default",
+      });
+      
+      setCurrentPlan({
+        id: 'group-pro',
+        name: 'Group Pro',
+        expiryDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
+        isActive: true,
+        isGroup: true
+      });
+      
+      // Extract invitation codes and emails from URL params
+      const codes = urlParams.get('codes')?.split(',') || [];
+      const emails = urlParams.get('emails')?.split(',') || [];
+      
+      // Create invitation records
+      const invites = codes.map((code, index) => ({
+        code,
+        email: emails[index] || `user${index + 1}@example.com`,
+        used: false
+      }));
+      
+      setGroupInvites(invites);
     }
-  ];
+  }, []);
+  
+  const handleActivateBatchCode = async (code: string): Promise<boolean> => {
+    // In a real application, this would call an API to verify the code
+    // and update the user's membership in the batch
+    
+    // Mock implementation for now
+    if (code.startsWith('SAKHA-')) {
+      toast({
+        title: "Success!",
+        description: "You have successfully joined the batch. Welcome!",
+        variant: "default",
+      });
+      
+      setActivationSuccess(true);
+      // You would typically update the currentPlan state here based on the batch's plan
+      setCurrentPlan({
+        id: 'group-pro-member',
+        name: 'Group Pro (Member)',
+        expiryDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+        isActive: true,
+        isGroup: true
+      });
+      
+      return true;
+    } else {
+      return false;
+    }
+  };
+  
+  const copyInviteCode = (code: string, index: number) => {
+    navigator.clipboard.writeText(code);
+    setCopiedCodeIndex(index);
+    
+    setTimeout(() => {
+      setCopiedCodeIndex(null);
+    }, 2000);
+    
+    toast({
+      title: "Code Copied!",
+      description: "Invitation code copied to clipboard",
+    });
+  };
+  
+  const handleManageBatch = () => {
+    // navigate('/dashboard/student/batch');
+  };
+  
+  if (loading || !userProfile) {
+    return <DashboardLoading />;
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-sakha-light-blue/5 via-white to-sakha-lavender/5">
-      <SidebarNav userType="employee" userName={userProfile.name} />
-      
-      <main className="md:ml-64 p-6">
-        <div className="mb-8 mt-10 md:mt-0">
-          <h1 className="text-3xl font-display font-bold mb-2">
-            Welcome back, {userProfile.name.split(' ')[0]}
-          </h1>
-          <p className="text-gray-600">Here's an overview of your work and well-being</p>
+    <DashboardLayout
+      userProfile={{
+        ...user,
+        subscription: user.subscription // This should now handle both SubscriptionType and UserSubscription
+      }}
+      hideSidebar={hideSidebar}
+      hideTabsNav={hideTabsNav}
+      activeTab={activeTab}
+      kpis={kpis}
+      nudges={nudges}
+      markNudgeAsRead={markNudgeAsRead}
+      showWelcomeTour={showWelcomeTour}
+      onTabChange={handleTabChange}
+      onViewStudyPlan={handleViewStudyPlan}
+      onToggleSidebar={toggleSidebar}
+      onToggleTabsNav={toggleTabsNav}
+      onSkipTour={handleSkipTour}
+      onCompleteTour={handleCompleteTour}
+      showStudyPlan={showStudyPlan}
+      onCloseStudyPlan={handleCloseStudyPlan}
+    >
+      <div className="container max-w-5xl mx-auto">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold mb-2">Your Subscription</h1>
+          <p className="text-gray-500 dark:text-gray-400">
+            Manage your subscription and see available plans
+          </p>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {kpis.map(kpi => (
-            <KpiCard key={kpi.id} kpi={kpi} />
-          ))}
-        </div>
-        
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-          <div className="lg:col-span-2">
-            <NudgePanel nudges={nudges} markAsRead={markNudgeAsRead} />
-          </div>
-          <div>
-            <ProfileCard profile={userProfile} />
-          </div>
-        </div>
-        
-        <h2 className="text-2xl font-semibold mb-4">Your Productivity Suite</h2>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
-          {features.map((feature, index) => (
-            <FeatureCard
-              key={index}
-              title={feature.title}
-              description={feature.description}
-              icon={feature.icon}
-              path={feature.path}
-              isPremium={feature.isPremium}
-              userSubscription={userProfile.subscription}
-            />
-          ))}
-        </div>
-        
-        <Tabs defaultValue="advisor" className="space-y-6">
-          <TabsList className="grid grid-cols-2 md:grid-cols-4 gap-2">
-            <TabsTrigger value="advisor" className="flex items-center gap-2">
-              <MessageSquare size={16} />
-              <span>Job Advisor</span>
-            </TabsTrigger>
-            <TabsTrigger value="productivity" className="flex items-center gap-2">
-              <LineChart size={16} />
-              <span>Productivity</span>
-            </TabsTrigger>
-            <TabsTrigger value="career" className="flex items-center gap-2">
-              <Briefcase size={16} />
-              <span>Career</span>
-            </TabsTrigger>
-            <TabsTrigger value="training" className="flex items-center gap-2">
-              <Calendar size={16} />
-              <span>Training</span>
-            </TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="advisor">
-            <div className="text-center p-12 bg-white rounded-lg shadow">
-              <MessageSquare size={64} className="mx-auto text-sakha-blue mb-6" />
-              <h3 className="text-2xl font-semibold mb-4">24/7 Job Advisor</h3>
-              <p className="text-gray-600 max-w-xl mx-auto mb-6">
-                Need help with a work challenge? Want feedback on an email or presentation?
-                Your AI job advisor is ready to assist you with any professional questions.
-              </p>
-              <button className="bg-gradient-to-r from-sakha-blue to-sakha-purple text-white px-6 py-3 rounded-lg font-medium">
-                Start Advisor Session
-              </button>
+        {/* Current Plan Section */}
+        <Card className="mb-8 bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800 overflow-hidden">
+          <div className={`h-2 ${
+            currentPlan.isActive ? 
+              'bg-green-500' : 
+              'bg-amber-500'
+          }`} />
+          <CardHeader className="pb-3">
+            <div className="flex justify-between items-center">
+              <CardTitle>Current Plan</CardTitle>
+              <Badge className={`${
+                currentPlan.isActive ? 
+                  'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 
+                  'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200'
+              }`}>
+                {currentPlan.isActive ? 'Active' : 'Expiring Soon'}
+              </Badge>
             </div>
-          </TabsContent>
-          
-          <TabsContent value="productivity">
-            <div className="text-center p-12 bg-white rounded-lg shadow">
-              <LineChart size={64} className="mx-auto text-sakha-blue mb-6" />
-              <h3 className="text-2xl font-semibold mb-4">Productivity Insights</h3>
-              <p className="text-gray-600 max-w-xl mx-auto mb-6">
-                Track your work habits, analyze focus patterns, and get AI recommendations
-                to optimize your productivity and work-life balance.
-              </p>
-              {userProfile.subscription === SubscriptionType.Premium ? (
-                <button className="bg-gradient-to-r from-sakha-blue to-sakha-purple text-white px-6 py-3 rounded-lg font-medium">
-                  View Productivity Dashboard
-                </button>
-              ) : (
-                <button className="border border-gray-300 text-gray-700 px-6 py-3 rounded-lg font-medium flex items-center justify-center mx-auto gap-2">
-                  Upgrade to Premium
-                </button>
-              )}
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+              <div>
+                <h2 className="text-2xl font-bold">{currentPlan.name}</h2>
+                <div className="flex items-center mt-1 text-gray-500 dark:text-gray-400">
+                  {currentPlan.isGroup ? (
+                    <span className="flex items-center">
+                      <Users size={16} className="mr-1" /> 
+                      {currentPlan.name.includes('Member') ? 'Group Plan Member' : 'Group Plan (5 Users)'}
+                    </span>
+                  ) : (
+                    <span>Individual Plan</span>
+                  )}
+                </div>
+                <div className="flex items-center mt-2 text-sm">
+                  <Clock size={14} className="mr-1" />
+                  <span>
+                    {currentPlan.isActive ? 'Renews' : 'Expires'} on {formatDate(currentPlan.expiryDate.toISOString())}
+                  </span>
+                </div>
+              </div>
+              
+              <div className="mt-4 md:mt-0">
+                {currentPlan.isGroup && !currentPlan.name.includes('Member') ? (
+                  <div className="flex flex-wrap gap-2">
+                    <Button variant="outline" className="mr-2">
+                      Manage Subscription
+                    </Button>
+                    <Button variant="default" onClick={handleManageBatch}>
+                      <Crown size={16} className="mr-2" />
+                      Manage Batch
+                    </Button>
+                  </div>
+                ) : (
+                  <Button 
+                    variant={currentPlan.isGroup ? "outline" : "default"} 
+                    className="mr-2"
+                    onClick={() => currentPlan.isGroup ? handleManageBatch() : {}}
+                  >
+                    {currentPlan.isGroup ? 'View Batch Details' : 'Manage Subscription'}
+                  </Button>
+                )}
+              </div>
             </div>
-          </TabsContent>
-          
-          <TabsContent value="career">
-            <div className="text-center p-12 bg-white rounded-lg shadow">
-              <Briefcase size={64} className="mx-auto text-sakha-blue mb-6" />
-              <h3 className="text-2xl font-semibold mb-4">Career Development</h3>
-              <p className="text-gray-600 max-w-xl mx-auto mb-6">
-                Build your professional profile, practice interviews, and chart your 
-                career growth path with AI-powered guidance.
-              </p>
-              {userProfile.subscription === SubscriptionType.Premium ? (
-                <button className="bg-gradient-to-r from-sakha-blue to-sakha-purple text-white px-6 py-3 rounded-lg font-medium">
-                  Explore Career Tools
-                </button>
-              ) : (
-                <button className="border border-gray-300 text-gray-700 px-6 py-3 rounded-lg font-medium flex items-center justify-center mx-auto gap-2">
-                  Upgrade to Premium
-                </button>
-              )}
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="training">
-            <div className="text-center p-12 bg-white rounded-lg shadow">
-              <Calendar size={64} className="mx-auto text-sakha-blue mb-6" />
-              <h3 className="text-2xl font-semibold mb-4">Training & Development</h3>
-              <p className="text-gray-600 max-w-xl mx-auto mb-6">
-                Access personalized learning paths based on your interests and career goals,
-                with bite-sized modules and hands-on projects.
-              </p>
-              {userProfile.subscription === SubscriptionType.Premium ? (
-                <button className="bg-gradient-to-r from-sakha-blue to-sakha-purple text-white px-6 py-3 rounded-lg font-medium">
-                  Browse Training Modules
-                </button>
-              ) : (
-                <button className="border border-gray-300 text-gray-700 px-6 py-3 rounded-lg font-medium flex items-center justify-center mx-auto gap-2">
-                  Upgrade to Premium
-                </button>
-              )}
-            </div>
-          </TabsContent>
-        </Tabs>
-      </main>
-      
-      <ChatAssistant userType="employee" />
-    </div>
+            
+            {currentPlan.isGroup && !currentPlan.name.includes('Member') && (
+              <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-md">
+                <div className="flex items-start">
+                  <CheckCircle size={18} className="text-blue-500 mr-2 mt-0.5" />
+                  <div>
+                    <h4 className="font-medium text-blue-800 dark:text-blue-300">You are a Batch Leader</h4>
+                    <p className="text-sm text-blue-700 dark:text-blue-200">
+                      You can manage your group members, track their progress, and add or remove users from your batch.
+                    </p>
+                    <Button 
+                      variant="link" 
+                      className="text-sm p-0 h-auto text-blue-600 dark:text-blue-400"
+                      onClick={handleManageBatch}
+                    >
+                      Go to Batch Management
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
+            
+            {currentPlan.isGroup && currentPlan.name.includes('Member') && (
+              <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-md">
+                <div className="flex items-start">
+                  <CheckCircle size={18} className="text-blue-500 mr-2 mt-0.5" />
+                  <div>
+                    <h4 className="font-medium text-blue-800 dark:text-blue-300">Group Plan Member</h4>
+                    <p className="text-sm text-blue-700 dark:text-blue-200">
+                      You're part of a study group. All premium features have been unlocked.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+        
+        {/* Group Invitation Management for Batch Leader */}
+        {currentPlan.isGroup && !currentPlan.name.includes('Member') && groupInvites.length > 0 && (
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle className="text-xl flex items-center justify-between">
+                <span>Manage Group Invitations</span>
+                <Button size="sm" onClick={handleManageBatch}>
+                  <UserPlus size={16} className="mr-1" />
+                  Batch Management
+                </Button>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <p className="text-sm text-gray-600 dark:text-gray-300">
+                  Share these invitation codes with your group members. They can enter these codes during signup or in their subscription page.
+                </p>
+                
+                <div className="space-y-3">
+                  {groupInvites.map((invite, index) => (
+                    <div key={index} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 border rounded-md border-gray-200 dark:border-gray-700">
+                      <div className="flex flex-col">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-medium">{invite.email}</span>
+                          <Badge className={invite.used ? 
+                            "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300" : 
+                            "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300"
+                          }>
+                            {invite.used ? "Activated" : "Pending"}
+                          </Badge>
+                        </div>
+                        <div className="mt-1 font-mono text-xs text-gray-600 dark:text-gray-400">
+                          Code: {invite.code}
+                        </div>
+                      </div>
+                      <div className="mt-2 sm:mt-0">
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          className="text-xs h-8 flex items-center gap-1"
+                          onClick={() => copyInviteCode(invite.code, index)}
+                        >
+                          {copiedCodeIndex === index ? <Check size={14} /> : <Copy size={14} />}
+                          {copiedCodeIndex === index ? "Copied" : "Copy Code"}
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                
+                <div className="flex justify-end">
+                  <Button onClick={handleManageBatch}>
+                    Go to Full Batch Management
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+        
+        {/* Activation Code Button for Non-Group Members */}
+        {!currentPlan.isGroup && !activationSuccess && !activateInviteCode && (
+          <Card className="mb-8">
+            <CardContent className="pt-6">
+              <div className="flex justify-between items-center">
+                <div className="flex items-center">
+                  <Users size={20} className="text-blue-500 mr-2" />
+                  <h3 className="text-lg font-medium">Have a batch invitation code?</h3>
+                </div>
+                <Button onClick={() => setActivateInviteCode(true)}>Enter Code</Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+        
+        {/* Activation Code Form */}
+        {!currentPlan.isGroup && !activationSuccess && activateInviteCode && (
+          <BatchInvitationInput 
+            onActivate={handleActivateBatchCode} 
+            activationSuccess={activationSuccess}
+            onJoinBatch={handleActivateBatchCode} // Using the same function for now
+          />
+        )}
+        
+        {/* Successful Activation Message */}
+        {activationSuccess && (
+          <Card className="mb-8 border-green-200 dark:border-green-800">
+            <CardContent className="pt-6">
+              <div className="flex items-start">
+                <div className="mr-4 bg-green-100 dark:bg-green-900 p-2 rounded-full">
+                  <CheckCircle className="h-6 w-6 text-green-600 dark:text-green-400" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-medium text-green-800 dark:text-green-300">
+                    Group Plan Activated Successfully!
+                  </h3>
+                  <p className="mt-1 text-sm text-green-700 dark:text-green-400">
+                    You now have access to all premium features as part of the group plan.
+                    Enjoy your enhanced learning experience!
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+        
+        {/* Available Plans Section */}
+        {/* <div className="mb-8">
+          <h2 className="text-2xl font-bold mb-4">Available Plans</h2>
+          <SubscriptionPlans currentPlanId={currentPlan.id} />
+        </div> */}
+      </div>
+    </DashboardLayout>
   );
 };
 

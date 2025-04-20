@@ -384,6 +384,7 @@ const SubscriptionPage = () => {
           <BatchInvitationInput 
             onActivate={handleActivateBatchCode} 
             activationSuccess={activationSuccess}
+            onJoinBatch={handleActivateBatchCode} // Using the same function for now
           />
         )}
         

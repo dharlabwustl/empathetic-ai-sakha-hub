@@ -1,225 +1,286 @@
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '@/contexts/auth/AuthContext';
+import DashboardLayout from './DashboardLayout';
+import { useDoctorDashboard } from '@/hooks/useDoctorDashboard';
+import DashboardLoading from './DashboardLoading';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
+import { Progress } from "@/components/ui/progress"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { Button } from "@/components/ui/button"
+import { Calendar } from "@/components/ui/calendar"
+import { CalendarIcon } from "lucide-react"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { cn } from "@/lib/utils"
+import { format } from "date-fns"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableFooter,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
 
-import { useEffect, useState } from "react";
-import { useToast } from "@/hooks/use-toast";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BookOpen, BookText, Calendar, LineChart, MessageSquare } from "lucide-react";
-import SidebarNav from "@/components/dashboard/SidebarNav";
-import ChatAssistant from "@/components/dashboard/ChatAssistant";
-import KpiCard from "@/components/dashboard/KpiCard";
-import NudgePanel from "@/components/dashboard/NudgePanel";
-import ProfileCard from "@/components/dashboard/ProfileCard";
-import FeatureCard from "@/components/dashboard/FeatureCard";
-import { useUserProfile } from "@/hooks/useUserProfile";
-import { useKpiTracking } from "@/hooks/useKpiTracking";
-import { UserRole, SubscriptionType } from "@/types/user/base";
-
-const DoctorDashboard = () => {
-  const { toast } = useToast();
-  const [loading, setLoading] = useState(true);
-  const { userProfile } = useUserProfile(UserRole.Doctor);
-  const { kpis, nudges, markNudgeAsRead } = useKpiTracking(UserRole.Doctor);
+export default function DoctorDashboard() {
+  const { user } = useAuth();
+  const {
+    loading,
+    userProfile,
+    activeTab,
+    showWelcomeTour,
+    showOnboarding,
+    currentTime,
+    showStudyPlan,
+    hideTabsNav,
+    hideSidebar,
+    kpis,
+    nudges,
+    markNudgeAsRead,
+    handleTabChange,
+    handleSkipTour,
+    handleCompleteTour,
+    handleCompleteOnboarding,
+    handleViewStudyPlan,
+    handleCloseStudyPlan,
+    toggleSidebar,
+    toggleTabsNav
+  } = useDoctorDashboard();
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoading(false);
-      toast({
-        title: "Welcome back, Doctor!",
-        description: "Your research dashboard is ready.",
-      });
-    }, 1000);
-
-    return () => clearTimeout(timer);
-  }, [toast]);
-
-  if (loading || !userProfile) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-sakha-light-blue/5 via-white to-sakha-lavender/5">
-        <div className="text-center">
-          <img 
-            src="/lovable-uploads/ffd1ed0a-7a25-477e-bc91-1da9aca3497f.png" 
-            alt="Sakha AI" 
-            className="w-16 h-16 mx-auto animate-pulse mb-4" 
-          />
-          <h2 className="text-xl font-medium mb-2">Loading your dashboard...</h2>
-          <p className="text-gray-500">Personalizing your experience</p>
-        </div>
-      </div>
-    );
-  }
-  
-  const features = [
-    {
-      title: "Research Hub",
-      description: "Get instant help with research questions, literature reviews, and methodology design.",
-      icon: <MessageSquare size={20} />,
-      path: "/dashboard/doctor/research",
-      isPremium: false,
-    },
-    {
-      title: "Thesis Planner",
-      description: "Plan, organize, and track your research project with AI-powered guidance.",
-      icon: <Calendar size={20} />,
-      path: "/dashboard/doctor/thesis",
-      isPremium: userProfile.subscription !== SubscriptionType.Premium,
-    },
-    {
-      title: "Literature Assistant",
-      description: "Organize and analyze research papers, find key insights, and manage citations.",
-      icon: <BookOpen size={20} />,
-      path: "/dashboard/doctor/literature",
-      isPremium: userProfile.subscription !== SubscriptionType.Premium,
-    },
-    {
-      title: "Publications Tracker",
-      description: "Track your publications, citations, and research impact metrics.",
-      icon: <BookText size={20} />,
-      path: "/dashboard/doctor/publications",
-      isPremium: userProfile.subscription !== SubscriptionType.Premium,
+    if (user) {
+      // Additional data fetching or processing can be done here
+      console.log('User authenticated:', user);
     }
-  ];
+  }, [user]);
+
+  if (loading || !user) {
+    return <DashboardLoading />;
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-sakha-light-blue/5 via-white to-sakha-lavender/5">
-      <SidebarNav userType="doctor" userName={userProfile.name} />
-      
-      <main className="md:ml-64 p-6">
-        <div className="mb-8 mt-10 md:mt-0">
-          <h1 className="text-3xl font-display font-bold mb-2">
-            Welcome back, {userProfile.name.split(' ')[0]}
+    <DashboardLayout
+      userProfile={userProfile}
+      hideSidebar={hideSidebar}
+      hideTabsNav={hideTabsNav}
+      activeTab={activeTab}
+      kpis={kpis}
+      nudges={nudges}
+      markNudgeAsRead={markNudgeAsRead}
+      showWelcomeTour={showWelcomeTour}
+      onTabChange={handleTabChange}
+      onViewStudyPlan={handleViewStudyPlan}
+      onToggleSidebar={toggleSidebar}
+      onToggleTabsNav={toggleTabsNav}
+      onSkipTour={handleSkipTour}
+      onCompleteTour={handleCompleteTour}
+      showStudyPlan={showStudyPlan}
+      onCloseStudyPlan={handleCloseStudyPlan}
+    >
+      <div className="container max-w-5xl mx-auto">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold mb-2">
+            Welcome, {user.firstName} {user.lastName}!
           </h1>
-          <p className="text-gray-600">Here's an overview of your research progress</p>
+          <p className="text-gray-500 dark:text-gray-400">
+            Here's your dashboard overview.
+          </p>
         </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {kpis.map(kpi => (
-            <KpiCard key={kpi.id} kpi={kpi} />
-          ))}
-        </div>
-        
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-          <div className="lg:col-span-2">
-            <NudgePanel nudges={nudges} markAsRead={markNudgeAsRead} />
-          </div>
-          <div>
-            <ProfileCard profile={userProfile} />
-          </div>
-        </div>
-        
-        <h2 className="text-2xl font-semibold mb-4">Your Research Tools</h2>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
-          {features.map((feature, index) => (
-            <FeatureCard
-              key={index}
-              title={feature.title}
-              description={feature.description}
-              icon={feature.icon}
-              path={feature.path}
-              isPremium={feature.isPremium}
-              userSubscription={userProfile.subscription}
-            />
-          ))}
-        </div>
-        
-        <Tabs defaultValue="research" className="space-y-6">
-          <TabsList className="grid grid-cols-2 md:grid-cols-4 gap-2">
-            <TabsTrigger value="research" className="flex items-center gap-2">
-              <MessageSquare size={16} />
-              <span>Research Hub</span>
-            </TabsTrigger>
-            <TabsTrigger value="thesis" className="flex items-center gap-2">
-              <Calendar size={16} />
-              <span>Thesis Planner</span>
-            </TabsTrigger>
-            <TabsTrigger value="literature" className="flex items-center gap-2">
-              <BookOpen size={16} />
-              <span>Literature</span>
-            </TabsTrigger>
-            <TabsTrigger value="publications" className="flex items-center gap-2">
-              <LineChart size={16} />
-              <span>Publications</span>
-            </TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="research">
-            <div className="text-center p-12 bg-white rounded-lg shadow">
-              <MessageSquare size={64} className="mx-auto text-sakha-blue mb-6" />
-              <h3 className="text-2xl font-semibold mb-4">Research Hub</h3>
-              <p className="text-gray-600 max-w-xl mx-auto mb-6">
-                Get instant help with research questions, methodology design, statistical analysis,
-                and more from your AI research companion.
-              </p>
-              <button className="bg-gradient-to-r from-sakha-blue to-sakha-purple text-white px-6 py-3 rounded-lg font-medium">
-                Start Research Session
-              </button>
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="thesis">
-            <div className="text-center p-12 bg-white rounded-lg shadow">
-              <Calendar size={64} className="mx-auto text-sakha-blue mb-6" />
-              <h3 className="text-2xl font-semibold mb-4">Thesis Planner</h3>
-              <p className="text-gray-600 max-w-xl mx-auto mb-6">
-                Plan, organize, and track your research project with milestone tracking,
-                progress analysis, and AI-powered guidance.
-              </p>
-              {userProfile.subscription === SubscriptionType.Premium ? (
-                <button className="bg-gradient-to-r from-sakha-blue to-sakha-purple text-white px-6 py-3 rounded-lg font-medium">
-                  View Thesis Planner
-                </button>
-              ) : (
-                <button className="border border-gray-300 text-gray-700 px-6 py-3 rounded-lg font-medium flex items-center justify-center mx-auto gap-2">
-                  Upgrade to Premium
-                </button>
-              )}
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="literature">
-            <div className="text-center p-12 bg-white rounded-lg shadow">
-              <BookOpen size={64} className="mx-auto text-sakha-blue mb-6" />
-              <h3 className="text-2xl font-semibold mb-4">Literature Assistant</h3>
-              <p className="text-gray-600 max-w-xl mx-auto mb-6">
-                Find, organize, and analyze research papers with AI-powered summaries,
-                key insight extraction, and citation management.
-              </p>
-              {userProfile.subscription === SubscriptionType.Premium ? (
-                <button className="bg-gradient-to-r from-sakha-blue to-sakha-purple text-white px-6 py-3 rounded-lg font-medium">
-                  Access Literature Tools
-                </button>
-              ) : (
-                <button className="border border-gray-300 text-gray-700 px-6 py-3 rounded-lg font-medium flex items-center justify-center mx-auto gap-2">
-                  Upgrade to Premium
-                </button>
-              )}
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="publications">
-            <div className="text-center p-12 bg-white rounded-lg shadow">
-              <LineChart size={64} className="mx-auto text-sakha-blue mb-6" />
-              <h3 className="text-2xl font-semibold mb-4">Publications Tracker</h3>
-              <p className="text-gray-600 max-w-xl mx-auto mb-6">
-                Track your publications, citations, and research impact metrics
-                with automated updates and analysis.
-              </p>
-              {userProfile.subscription === SubscriptionType.Premium ? (
-                <button className="bg-gradient-to-r from-sakha-blue to-sakha-purple text-white px-6 py-3 rounded-lg font-medium">
-                  View Publication Analytics
-                </button>
-              ) : (
-                <button className="border border-gray-300 text-gray-700 px-6 py-3 rounded-lg font-medium flex items-center justify-center mx-auto gap-2">
-                  Upgrade to Premium
-                </button>
-              )}
-            </div>
-          </TabsContent>
-        </Tabs>
-      </main>
-      
-      <ChatAssistant userType="doctor" />
-    </div>
-  );
-};
 
-export default DoctorDashboard;
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {/* Profile Card */}
+          <Card className="bg-white dark:bg-gray-800 shadow-md rounded-lg overflow-hidden">
+            <CardHeader className="p-4">
+              <CardTitle className="text-lg font-semibold">Profile Overview</CardTitle>
+              <CardDescription>Your account details and settings</CardDescription>
+            </CardHeader>
+            <CardContent className="p-4">
+              <div className="flex items-center space-x-4 mb-4">
+                <Avatar>
+                  <AvatarImage src={user.avatarUrl} alt={user.firstName} />
+                  <AvatarFallback>{user.firstName[0]}{user.lastName[0]}</AvatarFallback>
+                </Avatar>
+                <div>
+                  <h3 className="text-md font-medium">{user.firstName} {user.lastName}</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">{user.email}</p>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <p className="text-sm">
+                  <span className="font-semibold">Role:</span> Doctor
+                </p>
+                <p className="text-sm">
+                  <span className="font-semibold">Specialization:</span> {user.specialization || 'General'}
+                </p>
+                <p className="text-sm">
+                  <span className="font-semibold">Last Active:</span> {currentTime}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Appointments Card */}
+          <Card className="bg-white dark:bg-gray-800 shadow-md rounded-lg overflow-hidden">
+            <CardHeader className="p-4">
+              <CardTitle className="text-lg font-semibold">Today's Appointments</CardTitle>
+              <CardDescription>Your schedule for today</CardDescription>
+            </CardHeader>
+            <CardContent className="p-4">
+              <ScrollArea className="h-[200px] w-full rounded-md border">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-[100px]">Time</TableHead>
+                      <TableHead>Patient</TableHead>
+                      <TableHead className="text-right">Status</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    <TableRow>
+                      <TableCell className="font-medium">9:00 AM</TableCell>
+                      <TableCell>John Doe</TableCell>
+                      <TableCell className="text-right">Confirmed</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell className="font-medium">10:30 AM</TableCell>
+                      <TableCell>Jane Smith</TableCell>
+                      <TableCell className="text-right">Confirmed</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell className="font-medium">2:00 PM</TableCell>
+                      <TableCell>Alice Johnson</TableCell>
+                      <TableCell className="text-right">Pending</TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </ScrollArea>
+            </CardContent>
+          </Card>
+
+          {/* Calendar Card */}
+          <Card className="bg-white dark:bg-gray-800 shadow-md rounded-lg overflow-hidden">
+            <CardHeader className="p-4">
+              <CardTitle className="text-lg font-semibold">Upcoming Availability</CardTitle>
+              <CardDescription>Set your availability for appointments</CardDescription>
+            </CardHeader>
+            <CardContent className="p-4">
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant={"outline"}
+                    className={cn(
+                      "w-[240px] justify-start text-left font-normal",
+                      !currentTime && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {currentTime ? format(currentTime, "PPP") : "Pick a date"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="center" side="bottom">
+                  <Calendar
+                    mode="single"
+                    selected={currentTime}
+                    onSelect={() => { }}
+                    disabled={(date) =>
+                      date > new Date()
+                    }
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Patient Feedback Card */}
+          <Card className="bg-white dark:bg-gray-800 shadow-md rounded-lg overflow-hidden">
+            <CardHeader className="p-4">
+              <CardTitle className="text-lg font-semibold">Patient Feedback</CardTitle>
+              <CardDescription>Recent feedback from your patients</CardDescription>
+            </CardHeader>
+            <CardContent className="p-4">
+              <div className="space-y-4">
+                <div className="flex items-start space-x-4">
+                  <Avatar>
+                    <AvatarImage src="https://github.com/shadcn.png" alt="Emily Davis" />
+                    <AvatarFallback>ED</AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <h4 className="text-sm font-medium">Emily Davis</h4>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      "Dr. Smith was very attentive and helpful. I felt heard and understood."
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-start space-x-4">
+                  <Avatar>
+                    <AvatarImage src="https://github.com/shadcn.png" alt="David Lee" />
+                    <AvatarFallback>DL</AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <h4 className="text-sm font-medium">David Lee</h4>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      "The consultation was thorough and I received clear explanations."
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Quick Actions Card */}
+          <Card className="bg-white dark:bg-gray-800 shadow-md rounded-lg overflow-hidden">
+            <CardHeader className="p-4">
+              <CardTitle className="text-lg font-semibold">Quick Actions</CardTitle>
+              <CardDescription>Manage your profile and settings</CardDescription>
+            </CardHeader>
+            <CardContent className="p-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Button variant="outline">Edit Profile</Button>
+                <Button variant="outline">View Appointments</Button>
+                <Button variant="outline">Manage Availability</Button>
+                <Button variant="outline">Settings</Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Consultation Notes Section */}
+        <div className="mt-8">
+          <h2 className="text-2xl font-bold mb-4">Consultation Notes</h2>
+          <Card className="bg-white dark:bg-gray-800 shadow-md rounded-lg overflow-hidden">
+            <CardHeader className="p-4">
+              <CardTitle className="text-lg font-semibold">Add New Note</CardTitle>
+              <CardDescription>Record your observations and recommendations</CardDescription>
+            </CardHeader>
+            <CardContent className="p-4">
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="patientName">Patient Name</Label>
+                  <Input type="text" id="patientName" placeholder="Enter patient name" />
+                </div>
+                <div>
+                  <Label htmlFor="consultationDate">Consultation Date</Label>
+                  <Input type="date" id="consultationDate" />
+                </div>
+                <div>
+                  <Label htmlFor="notes">Notes</Label>
+                  <Textarea id="notes" placeholder="Enter your notes here" className="min-h-[100px]" />
+                </div>
+                <Button>Save Note</Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </DashboardLayout>
+  );
+}

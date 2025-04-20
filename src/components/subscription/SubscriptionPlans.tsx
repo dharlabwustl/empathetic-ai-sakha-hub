@@ -9,6 +9,7 @@ import { Check, CheckCircle, User, Users } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import GroupPlanInviteModal from './GroupPlanInviteModal';
+import { SubscriptionPlansProps } from './batch/types';
 
 interface PlanFeature {
   name: string;
@@ -25,10 +26,6 @@ interface Plan {
   recommended?: boolean;
   isGroup?: boolean;
   userCount?: number;
-}
-
-interface SubscriptionPlansProps {
-  currentPlanId?: string;
 }
 
 const individualPlans: Plan[] = [
@@ -117,7 +114,11 @@ const groupPlans: Plan[] = [
   }
 ];
 
-export default function SubscriptionPlans({ currentPlanId }: SubscriptionPlansProps) {
+const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({ 
+  currentPlanId, 
+  onSelectPlan,
+  showGroupOption = true 
+}) => {
   const [planType, setPlanType] = useState<'individual' | 'group'>('individual');
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [selectedGroupPlan, setSelectedGroupPlan] = useState<Plan | null>(null);
@@ -125,6 +126,11 @@ export default function SubscriptionPlans({ currentPlanId }: SubscriptionPlansPr
   const navigate = useNavigate();
 
   const handleSelectPlan = (plan: Plan) => {
+    if (onSelectPlan) {
+      onSelectPlan(plan, plan.isGroup);
+      return;
+    }
+    
     if (plan.isGroup) {
       setSelectedGroupPlan(plan);
       setShowInviteModal(true);
@@ -135,19 +141,26 @@ export default function SubscriptionPlans({ currentPlanId }: SubscriptionPlansPr
         description: `Setting up your ${plan.name} plan. Please wait...`,
       });
       
-      // In real implementation, this would redirect to Stripe or other payment gateway
+      // Navigate to checkout page
       setTimeout(() => {
         navigate('/dashboard/student/checkout', { 
           state: { 
-            plan,
-            isGroup: false
+            selectedPlan: {
+              id: plan.id,
+              name: plan.name,
+              price: plan.price,
+              features: plan.features.filter(f => f.included).map(f => f.name),
+              isPopular: plan.recommended,
+              type: plan.id === 'free' ? 'free' : plan.id === 'basic' ? 'basic' : 'premium'
+            },
+            isGroupPlan: false
           } 
         }); 
       }, 500);
     }
   };
 
-  const handleInviteComplete = (emails: string[], inviteCodes: string[]) => {
+  const handleInviteComplete = (emails: string[], inviteCodes: string[], batchName: string, roleType: string) => {
     setShowInviteModal(false);
     
     if (!selectedGroupPlan) return;
@@ -160,9 +173,20 @@ export default function SubscriptionPlans({ currentPlanId }: SubscriptionPlansPr
     
     navigate('/dashboard/student/group-checkout', {
       state: {
-        plan: selectedGroupPlan,
+        plan: {
+          id: selectedGroupPlan.id,
+          name: selectedGroupPlan.name,
+          price: selectedGroupPlan.price,
+          features: selectedGroupPlan.features.filter(f => f.included).map(f => f.name),
+          isPopular: selectedGroupPlan.recommended,
+          userCount: selectedGroupPlan.userCount,
+          type: selectedGroupPlan.id.includes('basic') ? 'group_basic' : 'group_premium',
+          planType: 'group'
+        },
         emails,
         inviteCodes,
+        batchName,
+        roleType,
         isGroup: true
       }
     });
@@ -201,10 +225,12 @@ export default function SubscriptionPlans({ currentPlanId }: SubscriptionPlansPr
                 <User size={16} />
                 <span>Individual</span>
               </TabsTrigger>
-              <TabsTrigger value="group" className="flex items-center gap-2">
-                <Users size={16} />
-                <span>Group Plans (5 Users)</span>
-              </TabsTrigger>
+              {showGroupOption && (
+                <TabsTrigger value="group" className="flex items-center gap-2">
+                  <Users size={16} />
+                  <span>Group Plans (5 Users)</span>
+                </TabsTrigger>
+              )}
             </TabsList>
           </div>
 
@@ -365,3 +391,5 @@ const PlanCard = ({
     </motion.div>
   );
 };
+
+export default SubscriptionPlans;

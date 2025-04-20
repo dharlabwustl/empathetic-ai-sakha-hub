@@ -1,920 +1,691 @@
-
-import React, { useState } from "react";
-import { UserProfileType, UserSubscription, SubscriptionType, SubscriptionPlan } from "@/types/user";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '@/contexts/auth/AuthContext';
+import { useNavigate } from 'react-router-dom';
+import DashboardLayout from './DashboardLayout';
+import { useStudentDashboard } from '@/hooks/useStudentDashboard';
+import DashboardLoading from './DashboardLoading';
+import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from '@/components/ui/card';
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { useToast } from "@/hooks/use-toast";
-import { Mail, Phone, MapPin, Book, Sparkles, Crown, CreditCard, School, Building, Users, Briefcase, GraduationCap, CalendarDays, User } from "lucide-react";
-import BatchInvitationInput from "@/components/subscription/BatchInvitationInput";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import SubscriptionPlans from "@/components/subscription/SubscriptionPlans";
-import CheckoutPage from "@/components/subscription/CheckoutPage";
-import BatchMemberUploader from "@/components/subscription/batch/BatchMemberUploader";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import BatchProfileSection from "@/components/subscription/batch/BatchProfileSection";
+import { Switch } from "@/components/ui/switch";
+import { useToast } from "@/hooks/use-toast";
+import { Check, Copy, Edit, ExternalLink, Lock, Plus, Save, User, Users } from 'lucide-react';
+import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form"
+import { useForm } from "react-hook-form"
+import * as z from "zod"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { format } from 'date-fns';
+import { SubscriptionPlans } from '@/components/subscription';
+import { SubscriptionType, UserProfileType, UserRole } from '@/types/user/base';
+import { StudentProfile } from '@/types/user/student';
+import { BatchDetails, BatchMember } from '@/components/subscription/batch/types';
+import { batchService } from '@/services/batchService';
 
-interface ProfileDetailsProps {
-  userProfile: UserProfileType;
-  onUpdateProfile: (updates: Partial<UserProfileType>) => void;
-}
-
-const ProfileDetailsEdit: React.FC<{
-  userProfile: UserProfileType;
-  onSave: (updatedProfile: Partial<UserProfileType>) => void;
-  onCancel: () => void;
-}> = ({ userProfile, onSave, onCancel }) => {
-  const [formData, setFormData] = useState({
-    name: userProfile.name || "",
-    bio: userProfile.bio || "",
-    phoneNumber: userProfile.phoneNumber || "",
-    gender: userProfile.gender || "other",
-    examPreparation: userProfile.examPreparation || "",
-    education: {
-      level: userProfile.education?.level || "",
-      institution: userProfile.education?.institution || "",
-      fieldOfStudy: userProfile.education?.fieldOfStudy || "",
-      graduationYear: userProfile.education?.graduationYear || undefined
-    },
-    address: {
-      street: userProfile.address?.street || "",
-      city: userProfile.address?.city || "",
-      state: userProfile.address?.state || "",
-      zipCode: userProfile.address?.zipCode || "",
-      country: userProfile.address?.country || "India"
-    }
-  });
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    
-    if (name.includes(".")) {
-      const [category, field] = name.split(".");
-      setFormData(prev => ({
-        ...prev,
-        [category]: {
-          ...prev[category as "education" | "address"],
-          [field]: value
-        }
-      }));
-    } else {
-      setFormData(prev => ({ ...prev, [name]: value }));
-    }
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSave(formData);
-  };
-
-  return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="name">Full Name</Label>
-          <Input
-            id="name"
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-          />
-        </div>
-        
-        <div className="space-y-2">
-          <Label htmlFor="phoneNumber">Phone Number</Label>
-          <Input
-            id="phoneNumber"
-            name="phoneNumber"
-            value={formData.phoneNumber}
-            onChange={handleChange}
-          />
-        </div>
-        
-        <div className="space-y-2">
-          <Label htmlFor="gender">Gender</Label>
-          <Select 
-            value={formData.gender} 
-            onValueChange={(value) => setFormData(prev => ({ ...prev, gender: value as "male" | "female" | "other" }))}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Select gender" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="male">Male</SelectItem>
-              <SelectItem value="female">Female</SelectItem>
-              <SelectItem value="other">Other</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        
-        <div className="space-y-2">
-          <Label htmlFor="examPreparation">Exam Preparation</Label>
-          <Input
-            id="examPreparation"
-            name="examPreparation"
-            value={formData.examPreparation}
-            onChange={handleChange}
-          />
-        </div>
-      </div>
-      
-      <div className="space-y-2">
-        <Label htmlFor="bio">Bio</Label>
-        <Textarea
-          id="bio"
-          name="bio"
-          value={formData.bio}
-          onChange={handleChange}
-          placeholder="Tell us about yourself"
-          rows={3}
-        />
-      </div>
-      
-      <div className="space-y-3">
-        <h3 className="text-lg font-medium">Education</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="education.level">Education Level</Label>
-            <Input
-              id="education.level"
-              name="education.level"
-              value={formData.education.level}
-              onChange={handleChange}
-              placeholder="High School, Undergraduate, etc."
-            />
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="education.institution">Institution</Label>
-            <Input
-              id="education.institution"
-              name="education.institution"
-              value={formData.education.institution}
-              onChange={handleChange}
-              placeholder="School or college name"
-            />
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="education.fieldOfStudy">Field of Study</Label>
-            <Input
-              id="education.fieldOfStudy"
-              name="education.fieldOfStudy"
-              value={formData.education.fieldOfStudy}
-              onChange={handleChange}
-              placeholder="Science, Arts, Commerce, etc."
-            />
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="education.graduationYear">Graduation Year</Label>
-            <Input
-              id="education.graduationYear"
-              name="education.graduationYear"
-              type="number"
-              value={formData.education.graduationYear || ""}
-              onChange={handleChange}
-              placeholder="YYYY"
-            />
-          </div>
-        </div>
-      </div>
-      
-      <div className="space-y-3">
-        <h3 className="text-lg font-medium">Address</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-2 md:col-span-2">
-            <Label htmlFor="address.street">Street Address</Label>
-            <Input
-              id="address.street"
-              name="address.street"
-              value={formData.address.street}
-              onChange={handleChange}
-            />
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="address.city">City</Label>
-            <Input
-              id="address.city"
-              name="address.city"
-              value={formData.address.city}
-              onChange={handleChange}
-            />
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="address.state">State</Label>
-            <Input
-              id="address.state"
-              name="address.state"
-              value={formData.address.state}
-              onChange={handleChange}
-            />
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="address.zipCode">ZIP/Postal Code</Label>
-            <Input
-              id="address.zipCode"
-              name="address.zipCode"
-              value={formData.address.zipCode}
-              onChange={handleChange}
-            />
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="address.country">Country</Label>
-            <Input
-              id="address.country"
-              name="address.country"
-              value={formData.address.country}
-              onChange={handleChange}
-            />
-          </div>
-        </div>
-      </div>
-      
-      <div className="flex justify-end gap-2">
-        <Button variant="outline" onClick={onCancel} type="button">
-          Cancel
-        </Button>
-        <Button type="submit">
-          Save Changes
-        </Button>
-      </div>
-    </form>
-  );
-};
-
-const ProfileReadView: React.FC<{
-  userProfile: UserProfileType;
-  onEdit: () => void;
-}> = ({ userProfile, onEdit }) => {
-  return (
-    <div className="space-y-6">
-      <div>
-        <h3 className="text-lg font-medium">Personal Information</h3>
-        <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-8">
-          <div className="flex items-center">
-            <Mail className="h-5 w-5 text-gray-400 mr-3" />
-            <div>
-              <p className="text-sm text-gray-500">Email</p>
-              <p className="font-medium">{userProfile.email}</p>
-            </div>
-          </div>
-          
-          <div className="flex items-center">
-            <Phone className="h-5 w-5 text-gray-400 mr-3" />
-            <div>
-              <p className="text-sm text-gray-500">Phone</p>
-              <p className="font-medium">{userProfile.phoneNumber || "Not provided"}</p>
-            </div>
-          </div>
-          
-          <div className="flex items-center">
-            <User className="h-5 w-5 text-gray-400 mr-3" />
-            <div>
-              <p className="text-sm text-gray-500">Gender</p>
-              <p className="font-medium">{userProfile.gender ? userProfile.gender.charAt(0).toUpperCase() + userProfile.gender.slice(1) : "Not provided"}</p>
-            </div>
-          </div>
-          
-          <div className="flex items-center">
-            <Book className="h-5 w-5 text-gray-400 mr-3" />
-            <div>
-              <p className="text-sm text-gray-500">Currently Studying</p>
-              <p className="font-medium">{userProfile.examPreparation || userProfile.goals?.[0]?.title || "Not specified"}</p>
-            </div>
-          </div>
-          
-          <div className="flex items-center">
-            <CalendarDays className="h-5 w-5 text-gray-400 mr-3" />
-            <div>
-              <p className="text-sm text-gray-500">Joined</p>
-              <p className="font-medium">{userProfile.joinDate ? new Date(userProfile.joinDate).toLocaleDateString() : "Recently"}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      {userProfile.education && (
-        <div>
-          <h3 className="text-lg font-medium">Education</h3>
-          <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-8">
-            <div className="flex items-center">
-              <GraduationCap className="h-5 w-5 text-gray-400 mr-3" />
-              <div>
-                <p className="text-sm text-gray-500">Education Level</p>
-                <p className="font-medium">{userProfile.education.level || "Not provided"}</p>
-              </div>
-            </div>
-            
-            <div className="flex items-center">
-              <Briefcase className="h-5 w-5 text-gray-400 mr-3" />
-              <div>
-                <p className="text-sm text-gray-500">Institution</p>
-                <p className="font-medium">{userProfile.education.institution || "Not provided"}</p>
-              </div>
-            </div>
-            
-            <div className="flex items-center">
-              <Book className="h-5 w-5 text-gray-400 mr-3" />
-              <div>
-                <p className="text-sm text-gray-500">Field of Study</p>
-                <p className="font-medium">{userProfile.education.fieldOfStudy || "Not provided"}</p>
-              </div>
-            </div>
-            
-            <div className="flex items-center">
-              <CalendarDays className="h-5 w-5 text-gray-400 mr-3" />
-              <div>
-                <p className="text-sm text-gray-500">Graduation Year</p>
-                <p className="font-medium">{userProfile.education.graduationYear || "Not provided"}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-      
-      {userProfile.address && (
-        <div>
-          <h3 className="text-lg font-medium">Address</h3>
-          <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-8">
-            <div className="flex items-center md:col-span-2">
-              <MapPin className="h-5 w-5 text-gray-400 mr-3" />
-              <div>
-                <p className="text-sm text-gray-500">Street Address</p>
-                <p className="font-medium">{userProfile.address.street || "Not provided"}</p>
-              </div>
-            </div>
-            
-            <div className="flex items-center">
-              <MapPin className="h-5 w-5 text-gray-400 mr-3" />
-              <div>
-                <p className="text-sm text-gray-500">City</p>
-                <p className="font-medium">{userProfile.address.city || "Not provided"}</p>
-              </div>
-            </div>
-            
-            <div className="flex items-center">
-              <MapPin className="h-5 w-5 text-gray-400 mr-3" />
-              <div>
-                <p className="text-sm text-gray-500">State</p>
-                <p className="font-medium">{userProfile.address.state || "Not provided"}</p>
-              </div>
-            </div>
-            
-            <div className="flex items-center">
-              <MapPin className="h-5 w-5 text-gray-400 mr-3" />
-              <div>
-                <p className="text-sm text-gray-500">ZIP/Postal Code</p>
-                <p className="font-medium">{userProfile.address.zipCode || "Not provided"}</p>
-              </div>
-            </div>
-            
-            <div className="flex items-center">
-              <MapPin className="h-5 w-5 text-gray-400 mr-3" />
-              <div>
-                <p className="text-sm text-gray-500">Country</p>
-                <p className="font-medium">{userProfile.address.country || "Not provided"}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-      
-      {userProfile.bio && (
-        <div className="pt-2">
-          <h3 className="text-lg font-medium mb-2">Bio</h3>
-          <p className="text-gray-700 dark:text-gray-300">{userProfile.bio}</p>
-        </div>
-      )}
-      
-      <div className="flex justify-end">
-        <Button onClick={onEdit}>
-          Edit Profile
-        </Button>
-      </div>
-    </div>
-  );
-};
-
-const ProfileDetails: React.FC<ProfileDetailsProps> = ({ userProfile, onUpdateProfile }) => {
-  const [isEditing, setIsEditing] = useState(false);
-  const [activeTab, setActiveTab] = useState("profile");
+const ProfileDetails = () => {
+  const { user, updateUserProfile } = useAuth();
+  const navigate = useNavigate();
   const { toast } = useToast();
+  const [isEditing, setIsEditing] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [userProfile, setUserProfile] = useState<StudentProfile | null>(null);
+  const [userSubscription, setUserSubscription] = useState<any>(null);
+  const [userBatch, setUserBatch] = useState<BatchDetails | null>(null);
+  const [batchMembers, setBatchMembers] = useState<BatchMember[]>([]);
+  const [isBatchLeader, setIsBatchLeader] = useState(false);
+  const [showBatchDetails, setShowBatchDetails] = useState(false);
+  const [copied, setCopied] = useState(false);
   
-  // Checkout state
-  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
-  const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null);
-  const [isGroupPlan, setIsGroupPlan] = useState(false);
-  const [invitedEmails, setInvitedEmails] = useState<string[]>([]);
-
-  // Institutional plan dialog
-  const [isInstitutionDialogOpen, setIsInstitutionDialogOpen] = useState(false);
-  const [institutionType, setInstitutionType] = useState<"school" | "corporate" | null>(null);
+  const {
+    activeTab,
+    showWelcomeTour,
+    showOnboarding,
+    currentTime,
+    showStudyPlan,
+    hideTabsNav,
+    hideSidebar,
+    kpis,
+    nudges,
+    markNudgeAsRead,
+    handleTabChange,
+    handleSkipTour,
+    handleCompleteTour,
+    handleCompleteOnboarding,
+    handleViewStudyPlan,
+    handleCloseStudyPlan,
+    toggleSidebar,
+    toggleTabsNav
+  } = useStudentDashboard();
   
-  // Mock batches for batch management
-  const [userBatches, setUserBatches] = useState<any[]>([]);
-  
-  // Get current subscription details
-  const getCurrentSubscription = () => {
-    if (!userProfile.subscription) {
-      return { planType: SubscriptionType.Free };
+  useEffect(() => {
+    if (user) {
+      // Set the user profile
+      setUserProfile({
+        ...user,
+        role: UserRole.Student,
+      });
+      
+      // Set the user subscription
+      setUserSubscription(user.subscription);
+      
+      // Fetch batch details if user has a batchId
+      if (user.batchId) {
+        fetchBatchDetails(user.batchId);
+      }
     }
-    
-    if (typeof userProfile.subscription === 'object') {
-      return userProfile.subscription;
-    }
-    
-    return { planType: userProfile.subscription };
-  };
+  }, [user]);
   
-  const handleSave = (updatedProfile: Partial<UserProfileType>) => {
-    onUpdateProfile(updatedProfile);
-    setIsEditing(false);
-    
-    toast({
-      title: "Profile updated",
-      description: "Your profile details have been updated successfully.",
-    });
-  };
-
-  const handleJoinBatch = async (code: string): Promise<void> => {
+  const fetchBatchDetails = async (batchId: string) => {
     try {
-      // In a real app, this would make an API call to verify the code and join the batch
-      console.log("Joining batch with code:", code);
-      
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Get current subscription
-      const currentSubscription = getCurrentSubscription();
-      
-      // Update profile with batch info (mock)
-      onUpdateProfile({
-        subscription: {
-          ...(typeof userProfile.subscription === 'object' ? userProfile.subscription : { planType: userProfile.subscription || SubscriptionType.Free }),
-          batchCode: code,
-          batchName: "Study Group",
-          role: "member"
-        }
-      });
-      
-      toast({
-        title: "Success!",
-        description: "You have successfully joined the batch.",
-      });
+      const batch = await batchService.getBatchDetails(batchId);
+      setUserBatch(batch);
+      setBatchMembers(batch.members);
+      setIsBatchLeader(batch.owner.id === user?.id);
     } catch (error) {
-      console.error("Error joining batch:", error);
+      console.error("Error fetching batch details:", error);
       toast({
         title: "Error",
-        description: "Failed to join batch. Please try again.",
+        description: "Failed to fetch batch details.",
         variant: "destructive",
       });
     }
   };
   
-  const handleSelectPlan = (plan: SubscriptionPlan, isGroup: boolean = false) => {
-    setSelectedPlan(plan);
-    setIsGroupPlan(isGroup);
-    setIsCheckoutOpen(true);
+  const handleEditProfile = () => {
+    setIsEditing(true);
   };
   
-  const handleCancelCheckout = () => {
-    setIsCheckoutOpen(false);
-    setSelectedPlan(null);
-    setIsGroupPlan(false);
-    setInvitedEmails([]);
-  };
-  
-  const handleCheckoutSuccess = (plan: SubscriptionPlan, inviteCodes?: string[], emails?: string[]) => {
-    setIsCheckoutOpen(false);
-    
-    // Create a new UserSubscription object
-    const newSubscription: UserSubscription = {
-      planId: plan.id,
-      planType: plan.type,
-      startDate: new Date().toISOString(),
-      endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days from now
-      role: isGroupPlan || plan.type === SubscriptionType.School || plan.type === SubscriptionType.Corporate ? 'leader' : undefined,
-      batchName: isGroupPlan ? 'Study Group' : 
-                plan.type === SubscriptionType.School ? 'School Batch' : 
-                plan.type === SubscriptionType.Corporate ? 'Corporate Batch' : undefined,
-      batchCode: isGroupPlan || plan.type === SubscriptionType.School || plan.type === SubscriptionType.Corporate 
-                ? 'BATCH-' + Math.random().toString(36).substring(2, 8).toUpperCase() 
-                : undefined
-    };
-    
-    // Update user profile with new subscription
-    onUpdateProfile({
-      subscription: newSubscription
-    });
-    
-    // Create a mock batch if this is a group plan
-    if (isGroupPlan || plan.type === SubscriptionType.School || plan.type === SubscriptionType.Corporate) {
-      const newBatch = {
-        id: Math.random().toString(36).substring(2, 9),
-        name: newSubscription.batchName || "New Batch",
-        createdAt: new Date().toISOString(),
-        expiryDate: newSubscription.endDate,
-        owner: {
-          id: userProfile.id,
-          name: userProfile.name,
-          email: userProfile.email,
-          role: "leader" as "leader" | "member" | "school_admin" | "corporate_admin",
-          status: "active" as "active" | "pending" | "inactive"
-        },
-        members: [
-          {
-            id: userProfile.id,
-            name: userProfile.name,
-            email: userProfile.email,
-            role: "leader" as "leader" | "member" | "school_admin" | "corporate_admin",
-            status: "active" as "active" | "pending" | "inactive"
-          }
-        ],
-        maxMembers: plan.maxMembers || 5,
-        planType: isGroupPlan ? "group" : plan.type === SubscriptionType.School ? "school" : "corporate"
-      };
+  const handleSaveProfile = async (values: z.infer<typeof formSchema>) => {
+    setLoading(true);
+    try {
+      // Simulate API call
+      await new Promise((resolve) => setTimeout(resolve, 1000));
       
-      setUserBatches([...userBatches, newBatch]);
-    }
-    
-    toast({
-      title: "Subscription Activated",
-      description: `Your ${plan.name} has been activated successfully.`,
-    });
-    
-    // We'd also handle invite codes and emails here in a real implementation
-    if ((isGroupPlan || plan.type === SubscriptionType.School || plan.type === SubscriptionType.Corporate) && inviteCodes && emails) {
-      toast({
-        title: "Batch Created",
-        description: `Invitation codes have been sent to ${emails.length} members.`,
+      // Update user profile in AuthContext
+      await updateUserProfile({
+        ...user,
+        name: values.name,
+        email: values.email,
+        studyHours: values.studyHours,
+        studyPace: values.studyPace,
+        preferredStudyTime: values.preferredStudyTime,
+        schoolName: values.schoolName,
+        grade: values.grade,
+        parentContact: values.parentContact,
+        lastExamScore: values.lastExamScore,
+        targetExam: values.targetExam,
+        examDate: values.examDate,
+        strengths: values.strengths,
+        weaknesses: values.weaknesses,
+        preferredLearningStyle: values.preferredLearningStyle,
+        educationLevel: values.educationLevel,
+        subjects: values.subjects
       });
-      
-      // Switch to batch tab after successful group plan purchase
-      setActiveTab("batch");
-    }
-    
-    setSelectedPlan(null);
-    setIsGroupPlan(false);
-    setInvitedEmails([]);
-  };
-  
-  const handleOpenInstitutionDialog = (type: "school" | "corporate") => {
-    setInstitutionType(type);
-    setIsInstitutionDialogOpen(true);
-  };
-  
-  const handleMemberUploadComplete = (emails: string[]) => {
-    setInvitedEmails(emails);
-    setIsInstitutionDialogOpen(false);
-    
-    // Find the appropriate plan based on institution type
-    const planType = institutionType === "school" ? SubscriptionType.School : SubscriptionType.Corporate;
-    const plan = institutionalPlans.find(p => p.type === planType);
-    
-    if (plan) {
-      setSelectedPlan(plan);
-      setIsGroupPlan(true);
-      setIsCheckoutOpen(true);
       
       toast({
-        title: "Proceeding to Checkout",
-        description: `Setting up ${institutionType} plan for ${emails.length} members.`,
+        title: "Profile Updated",
+        description: "Your profile has been updated successfully.",
+      });
+      setIsEditing(false);
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update profile. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+  };
+  
+  const handleUpgradeSubscription = () => {
+    navigate('/dashboard/student/subscription');
+  };
+  
+  const handleManageBatch = () => {
+    navigate('/dashboard/student/batch');
+  };
+  
+  const handleCopyCode = () => {
+    if (userBatch) {
+      navigator.clipboard.writeText(userBatch.invitationCode || '');
+      setCopied(true);
+      setTimeout(() => {
+        setCopied(false);
+      }, 2000);
+      toast({
+        title: "Code Copied",
+        description: "Invitation code copied to clipboard",
       });
     }
   };
   
-  const handleInviteMembers = (emails: string[]) => {
-    // In a real app, this would send invitations to these emails
-    toast({
-      title: "Invitations Sent",
-      description: `${emails.length} members have been invited to join your batch.`,
-    });
-    
-    // For mock purposes, add these as pending members to the first batch
-    if (userBatches.length > 0) {
-      const updatedBatches = [...userBatches];
-      const firstBatch = {...updatedBatches[0]};
-      
-      emails.forEach(email => {
-        firstBatch.members.push({
-          id: Math.random().toString(36).substring(2, 9),
-          name: email.split('@')[0],
-          email,
-          role: "member",
-          status: "pending",
-          invitationCode: "INV-" + Math.random().toString(36).substring(2, 8).toUpperCase()
-        });
-      });
-      
-      updatedBatches[0] = firstBatch;
-      setUserBatches(updatedBatches);
-    }
-  };
+  const formSchema = z.object({
+    name: z.string().min(2, {
+      message: "Name must be at least 2 characters.",
+    }),
+    email: z.string().email({
+      message: "Please enter a valid email address.",
+    }),
+    studyHours: z.number().min(0, {
+      message: "Study hours must be a non-negative number.",
+    }).optional().nullable(),
+    studyPace: z.string().optional(),
+    preferredStudyTime: z.string().optional(),
+    schoolName: z.string().optional(),
+    grade: z.string().optional(),
+    parentContact: z.string().optional(),
+    lastExamScore: z.number().optional().nullable(),
+    targetExam: z.string().optional(),
+    examDate: z.date().optional().nullable(),
+    strengths: z.array(z.string()).optional(),
+    weaknesses: z.array(z.string()).optional(),
+    preferredLearningStyle: z.string().optional(),
+    educationLevel: z.string().optional(),
+    subjects: z.array(z.string()).optional()
+  });
   
-  // Sample institutional plans
-  const institutionalPlans: SubscriptionPlan[] = [
-    {
-      id: "school-basic",
-      name: "School Basic",
-      price: 4999,
-      features: [
-        "Access for up to 30 students",
-        "Basic study materials",
-        "Monthly progress reports",
-        "Standard support",
-        "Student activity tracking",
-        "Teacher dashboard"
-      ],
-      type: SubscriptionType.School,
-      maxMembers: 30
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: user?.name || "",
+      email: user?.email || "",
+      studyHours: user?.studyHours || null,
+      studyPace: user?.studyPace || "",
+      preferredStudyTime: user?.preferredStudyTime || "",
+      schoolName: user?.schoolName || "",
+      grade: user?.grade || "",
+      parentContact: user?.parentContact || "",
+      lastExamScore: user?.lastExamScore || null,
+      targetExam: user?.targetExam || "",
+      examDate: user?.examDate ? new Date(user.examDate) : null,
+      strengths: user?.strengths || [],
+      weaknesses: user?.weaknesses || [],
+      preferredLearningStyle: user?.preferredLearningStyle || "",
+      educationLevel: user?.educationLevel || "",
+      subjects: user?.subjects || []
     },
-    {
-      id: "school-premium",
-      name: "School Premium",
-      price: 9999,
-      features: [
-        "Access for up to 100 students",
-        "Premium study materials",
-        "Weekly progress reports",
-        "Priority support",
-        "Advanced analytics",
-        "Parent access",
-        "Custom branding",
-        "API integration"
-      ],
-      type: SubscriptionType.School,
-      maxMembers: 100
-    },
-    {
-      id: "corporate-basic",
-      name: "Corporate Training",
-      price: 14999,
-      features: [
-        "Access for up to 50 employees",
-        "Custom training modules",
-        "Detailed progress tracking",
-        "Corporate branding",
-        "Manager dashboards",
-        "Regular reporting",
-        "API integration",
-        "Premium support"
-      ],
-      type: SubscriptionType.Corporate,
-      maxMembers: 50
-    }
-  ];
-
-  const currentSubscription = getCurrentSubscription();
-  const hasBatchManagement = 
-    (typeof userProfile.subscription === 'object' && 
-    (userProfile.subscription.role === 'leader' || 
-     userProfile.subscription.role === 'school_admin' || 
-     userProfile.subscription.role === 'corporate_admin'));
-
+    mode: "onChange",
+  });
+  
+  if (loading || !userProfile) {
+    return <DashboardLoading />;
+  }
+  
   return (
-    <div className="space-y-6">
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="profile">Profile</TabsTrigger>
-          <TabsTrigger value="subscription">Subscription</TabsTrigger>
-          <TabsTrigger value="batch">Study Batch</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="profile">
-          <Card>
+    <DashboardLayout
+      userProfile={userProfile}
+      hideSidebar={hideSidebar}
+      hideTabsNav={hideTabsNav}
+      activeTab={activeTab}
+      kpis={kpis}
+      nudges={nudges}
+      markNudgeAsRead={markNudgeAsRead}
+      showWelcomeTour={showWelcomeTour}
+      onTabChange={handleTabChange}
+      onViewStudyPlan={handleViewStudyPlan}
+      onToggleSidebar={toggleSidebar}
+      onToggleTabsNav={toggleTabsNav}
+      onSkipTour={handleSkipTour}
+      onCompleteTour={handleCompleteTour}
+      showStudyPlan={showStudyPlan}
+      onCloseStudyPlan={handleCloseStudyPlan}
+    >
+      <div className="container max-w-5xl mx-auto">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold mb-2">Your Profile</h1>
+          <p className="text-gray-500 dark:text-gray-400">
+            Manage your profile details and settings
+          </p>
+        </div>
+        
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle>Profile Information</CardTitle>
+            <CardDescription>
+              View and edit your personal information
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {isEditing ? (
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(handleSaveProfile)} className="space-y-6">
+                  <FormField
+                    control={form.control}
+                    name="name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Name</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Your Name" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Email</FormLabel>
+                        <FormControl>
+                          <Input placeholder="yourname@example.com" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="studyHours"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Study Hours</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            placeholder="e.g., 2"
+                            {...field}
+                            onChange={(e) =>
+                              field.onChange(Number(e.target.value))
+                            }
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="studyPace"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Study Pace</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select a pace" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="slow">Slow</SelectItem>
+                            <SelectItem value="moderate">Moderate</SelectItem>
+                            <SelectItem value="fast">Fast</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="preferredStudyTime"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Preferred Study Time</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select a time" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="morning">Morning</SelectItem>
+                            <SelectItem value="afternoon">Afternoon</SelectItem>
+                            <SelectItem value="evening">Evening</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="schoolName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>School Name</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Your School Name" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="grade"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Grade</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Your Grade" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="parentContact"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Parent Contact</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Parent Contact" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="lastExamScore"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Last Exam Score</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            placeholder="e.g., 85"
+                            {...field}
+                            onChange={(e) =>
+                              field.onChange(Number(e.target.value))
+                            }
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="targetExam"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Target Exam</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Target Exam" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="examDate"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Exam Date</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="date"
+                            {...field}
+                            value={field.value ? format(field.value, 'yyyy-MM-dd') : ''}
+                            onChange={(e) => field.onChange(new Date(e.target.value))}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <Button type="submit" disabled={loading}>
+                    {loading ? (
+                      <>
+                        <span className="mr-2">
+                          <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                        </span>
+                        Saving...
+                      </>
+                    ) : (
+                      "Save Changes"
+                    )}
+                  </Button>
+                  <Button type="button" variant="ghost" onClick={handleCancelEdit}>
+                    Cancel
+                  </Button>
+                </form>
+              </Form>
+            ) : (
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label>Name</Label>
+                    <p className="text-gray-600 dark:text-gray-300">{user?.name}</p>
+                  </div>
+                  <div>
+                    <Label>Email</Label>
+                    <p className="text-gray-600 dark:text-gray-300">{user?.email}</p>
+                  </div>
+                  <div>
+                    <Label>Study Hours</Label>
+                    <p className="text-gray-600 dark:text-gray-300">{user?.studyHours || 'Not set'}</p>
+                  </div>
+                  <div>
+                    <Label>Study Pace</Label>
+                    <p className="text-gray-600 dark:text-gray-300">{user?.studyPace || 'Not set'}</p>
+                  </div>
+                  <div>
+                    <Label>Preferred Study Time</Label>
+                    <p className="text-gray-600 dark:text-gray-300">{user?.preferredStudyTime || 'Not set'}</p>
+                  </div>
+                  <div>
+                    <Label>School Name</Label>
+                    <p className="text-gray-600 dark:text-gray-300">{user?.schoolName || 'Not set'}</p>
+                  </div>
+                  <div>
+                    <Label>Grade</Label>
+                    <p className="text-gray-600 dark:text-gray-300">{user?.grade || 'Not set'}</p>
+                  </div>
+                  <div>
+                    <Label>Parent Contact</Label>
+                    <p className="text-gray-600 dark:text-gray-300">{user?.parentContact || 'Not set'}</p>
+                  </div>
+                  <div>
+                    <Label>Last Exam Score</Label>
+                    <p className="text-gray-600 dark:text-gray-300">{user?.lastExamScore || 'Not set'}</p>
+                  </div>
+                  <div>
+                    <Label>Target Exam</Label>
+                    <p className="text-gray-600 dark:text-gray-300">{user?.targetExam || 'Not set'}</p>
+                  </div>
+                  <div>
+                    <Label>Exam Date</Label>
+                    <p className="text-gray-600 dark:text-gray-300">{user?.examDate ? format(new Date(user.examDate), 'yyyy-MM-dd') : 'Not set'}</p>
+                  </div>
+                  <div>
+                    <Label>Education Level</Label>
+                    <p className="text-gray-600 dark:text-gray-300">{user?.educationLevel || 'Not set'}</p>
+                  </div>
+                  <div>
+                    <Label>Subjects</Label>
+                    <p className="text-gray-600 dark:text-gray-300">{user?.subjects ? user.subjects.join(', ') : 'Not set'}</p>
+                  </div>
+                </div>
+                <Button onClick={handleEditProfile}>
+                  <Edit className="mr-2 h-4 w-4" />
+                  Edit Profile
+                </Button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+        
+        {/* Subscription Information */}
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle>Subscription Details</CardTitle>
+            <CardDescription>
+              View your current subscription plan and manage your subscription
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {userSubscription ? (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-medium">{userSubscription.planType} Plan</h3>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      {userSubscription.planId}
+                    </p>
+                  </div>
+                  <Badge variant="secondary">Active</Badge>
+                </div>
+                <Separator />
+                <div className="flex justify-between">
+                  <p>Next Billing Date:</p>
+                  <p className="font-medium">July 22, 2024</p>
+                </div>
+                <Button onClick={handleUpgradeSubscription}>
+                  Upgrade Subscription
+                </Button>
+              </div>
+            ) : (
+              <div className="text-center">
+                <p className="text-gray-500 dark:text-gray-400">
+                  You do not have an active subscription.
+                </p>
+                <Button onClick={handleUpgradeSubscription}>
+                  View Available Plans
+                </Button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+        
+        {/* Batch Information */}
+        {userBatch && (
+          <Card className="mb-8">
             <CardHeader>
-              <CardTitle>Profile Details</CardTitle>
+              <div className="flex justify-between items-center">
+                <CardTitle>Batch Details</CardTitle>
+                <div>
+                  {isBatchLeader ? (
+                    <Badge variant="default">
+                      <Crown className="mr-2 h-4 w-4" />
+                      Batch Leader
+                    </Badge>
+                  ) : (
+                    <Badge variant="secondary">Batch Member</Badge>
+                  )}
+                </div>
+              </div>
               <CardDescription>
-                Your personal information visible to others
+                View your batch details and manage your group
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              {isEditing ? (
-                <ProfileDetailsEdit 
-                  userProfile={userProfile} 
-                  onSave={handleSave}
-                  onCancel={() => setIsEditing(false)}
-                />
-              ) : (
-                <ProfileReadView 
-                  userProfile={userProfile} 
-                  onEdit={() => setIsEditing(true)}
-                />
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="subscription">
-          <Card>
-            <CardHeader>
-              <div className="flex justify-between items-center">
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <CardTitle className="flex items-center gap-2">
-                    <CreditCard className="h-5 w-5 text-violet-500" />
-                    Current Plan
-                  </CardTitle>
-                  <CardDescription>
-                    Manage your subscription and billing
-                  </CardDescription>
+                  <Label>Batch Name</Label>
+                  <p className="text-gray-600 dark:text-gray-300">{userBatch.name}</p>
                 </div>
-                <Badge variant="secondary">
-                  {currentSubscription.planType}
-                </Badge>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                  {/* Individual Plans Section */}
-                  <Card className="overflow-hidden">
-                    <div className="h-1.5 bg-blue-500" />
-                    <CardContent className="pt-4">
-                      <div className="flex items-center mb-3">
-                        <User className="h-5 w-5 text-blue-500 mr-2" />
-                        <h3 className="text-lg font-medium">Individual Plans</h3>
-                      </div>
-                      <p className="text-sm text-muted-foreground mb-3">
-                        Standard subscription plans for individual students
-                      </p>
-                      <Button 
-                        className="w-full"
-                        variant="outline"
-                        onClick={() => setActiveTab("subscription")}
-                      >
-                        View Plans
-                      </Button>
-                    </CardContent>
-                  </Card>
-                  
-                  {/* School Plans Section */}
-                  <Card className="overflow-hidden">
-                    <div className="h-1.5 bg-green-500" />
-                    <CardContent className="pt-4">
-                      <div className="flex items-center mb-3">
-                        <School className="h-5 w-5 text-green-500 mr-2" />
-                        <h3 className="text-lg font-medium">School Plans</h3>
-                      </div>
-                      <p className="text-sm text-muted-foreground mb-3">
-                        Special plans for schools and educational institutions
-                      </p>
-                      <Button 
-                        className="w-full"
-                        variant="outline"
-                        onClick={() => handleOpenInstitutionDialog("school")}
-                      >
-                        Get School Plan
-                      </Button>
-                    </CardContent>
-                  </Card>
-                  
-                  {/* Corporate Plans Section */}
-                  <Card className="overflow-hidden">
-                    <div className="h-1.5 bg-amber-500" />
-                    <CardContent className="pt-4">
-                      <div className="flex items-center mb-3">
-                        <Building className="h-5 w-5 text-amber-500 mr-2" />
-                        <h3 className="text-lg font-medium">Corporate Plans</h3>
-                      </div>
-                      <p className="text-sm text-muted-foreground mb-3">
-                        Training solutions for businesses and organizations
-                      </p>
-                      <Button 
-                        className="w-full"
-                        variant="outline"
-                        onClick={() => handleOpenInstitutionDialog("corporate")}
-                      >
-                        Get Corporate Plan
-                      </Button>
-                    </CardContent>
-                  </Card>
-                </div>
-                
-                <SubscriptionPlans 
-                  currentPlanId={typeof userProfile.subscription === 'object' ? userProfile.subscription.planId : 'free'}
-                  onSelectPlan={handleSelectPlan}
-                  showGroupOption={true}
-                />
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="batch">
-          <Card>
-            <CardHeader>
-              <div className="flex justify-between items-center">
                 <div>
-                  <CardTitle className="flex items-center gap-2">
-                    <Crown className="h-5 w-5 text-amber-500" />
-                    Study Batch
-                  </CardTitle>
-                  <CardDescription>
-                    Join or create a study batch with friends or classmates
-                  </CardDescription>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              {typeof userProfile.subscription === 'object' && userProfile.subscription.batchName ? (
-                hasBatchManagement ? (
-                  <BatchProfileSection 
-                    userBatches={userBatches}
-                    onInviteMembers={handleInviteMembers}
-                  />
-                ) : (
-                  <div className="rounded-lg border p-4">
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <p className="font-medium text-lg">{userProfile.subscription.batchName}</p>
-                        <p className="text-sm text-muted-foreground">
-                          You're currently part of this study batch
-                        </p>
-                        <div className="mt-2 flex items-center">
-                          <Badge className="mr-2">{userProfile.subscription.role}</Badge>
-                          {userProfile.subscription.batchCode && (
-                            <Badge variant="outline">Code: {userProfile.subscription.batchCode}</Badge>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )
-              ) : (
-                <div className="space-y-6">
-                  <BatchInvitationInput onJoinBatch={handleJoinBatch} />
-                  <div className="text-center">
-                    <p className="text-sm text-muted-foreground mb-4">- OR -</p>
+                  <Label>Batch Code</Label>
+                  <div className="flex items-center">
+                    <Input
+                      type="text"
+                      value={userBatch.invitationCode}
+                      readOnly
+                      className="cursor-not-allowed"
+                    />
                     <Button
                       variant="outline"
-                      className="w-full sm:w-auto"
-                      onClick={() => setActiveTab("subscription")}
+                      size="sm"
+                      className="ml-2"
+                      onClick={handleCopyCode}
+                      disabled={copied}
                     >
-                      Create Your Own Batch
+                      {copied ? <Check className="mr-2 h-4 w-4" /> : <Copy className="mr-2 h-4 w-4" />}
+                      {copied ? "Copied!" : "Copy"}
                     </Button>
                   </div>
                 </div>
-              )}
+                <div>
+                  <Label>Start Date</Label>
+                  <p className="text-gray-600 dark:text-gray-300">{format(new Date(userBatch.createdAt), 'yyyy-MM-dd')}</p>
+                </div>
+                <div>
+                  <Label>Number of Members</Label>
+                  <p className="text-gray-600 dark:text-gray-300">{batchMembers.length}</p>
+                </div>
+              </div>
+              <div className="flex justify-between">
+                <Button onClick={() => setShowBatchDetails(true)}>
+                  View Batch Details
+                </Button>
+                {isBatchLeader && (
+                  <Button onClick={handleManageBatch}>
+                    Manage Batch
+                  </Button>
+                )}
+              </div>
             </CardContent>
           </Card>
-        </TabsContent>
-      </Tabs>
-      
-      {/* Checkout Dialog */}
-      {isCheckoutOpen && selectedPlan && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-slate-900 rounded-lg w-full max-w-6xl max-h-[90vh] overflow-y-auto">
-            <CheckoutPage 
-              selectedPlan={selectedPlan}
-              onCancel={handleCancelCheckout}
-              onSuccess={handleCheckoutSuccess}
-              isGroupPlan={isGroupPlan}
-              invitedEmails={invitedEmails}
-            />
-          </div>
-        </div>
-      )}
-      
-      {/* Institution Plan Dialog */}
-      <Dialog open={isInstitutionDialogOpen} onOpenChange={setIsInstitutionDialogOpen}>
-        <DialogContent className="sm:max-w-[525px]">
-          <CardTitle className="mb-4 flex items-center gap-2">
-            {institutionType === "school" ? (
-              <>
-                <School className="h-5 w-5 text-green-600" />
-                School Plan Setup
-              </>
-            ) : (
-              <>
-                <Building className="h-5 w-5 text-amber-600" />
-                Corporate Plan Setup
-              </>
-            )}
-          </CardTitle>
-          
-          <div className="mb-4">
-            <p className="text-muted-foreground mb-4">
-              {institutionType === "school" 
-                ? "Add student emails to create a school batch. You can add up to 100 students."
-                : "Add employee emails to create a corporate training batch. You can add up to 50 employees."}
-            </p>
-            <BatchMemberUploader 
-              onUploadComplete={handleMemberUploadComplete}
-              maxMembers={institutionType === "school" ? 100 : 50}
-            />
-          </div>
-        </DialogContent>
-      </Dialog>
-    </div>
+        )}
+        
+        {/* Subscription Plans */}
+        <SubscriptionPlans 
+          currentPlanId={userSubscription?.planId || 'free'} 
+          showGroupOption={true}
+        />
+      </div>
+    </DashboardLayout>
   );
 };
 

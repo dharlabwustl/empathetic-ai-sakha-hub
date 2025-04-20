@@ -62,7 +62,7 @@ export interface BatchManagementProps {
 }
 
 export interface SubscriptionPlansProps {
-  currentPlanId: string;
-  onSelectPlan: (plan: any, isGroup?: boolean) => void;
-  showGroupOption: boolean;
+  currentPlanId?: string;
+  onSelectPlan?: (plan: any, isGroup?: boolean) => void;
+  showGroupOption?: boolean;
 }
