@@ -1,50 +1,30 @@
 
 import React from 'react';
-import { useStudentDashboard } from '@/hooks/useStudentDashboard';
-import { UserProfileType } from '@/types/user/base';
-
-// Import the component from the correct path or create a stub if needed
-// Note: You'll need to create this file or import from the correct path
-import DashboardLayout from '@/components/dashboard/DashboardLayout';
+import { UserProfileType } from '@/types/user';
 
 interface DashboardLayoutWrapperProps {
   userProfile: UserProfileType;
   children: React.ReactNode;
 }
 
-export const DashboardLayoutWrapper: React.FC<DashboardLayoutWrapperProps> = ({ userProfile, children }) => {
-  const {
-    activeTab,
-    showWelcomeTour,
-    showStudyPlan,
-    hideTabsNav,
-    hideSidebar,
-    handleTabChange,
-    handleViewStudyPlan,
-    handleCloseStudyPlan,
-    toggleSidebar,
-    toggleTabsNav,
-    handleSkipTour,
-    handleCompleteTour
-  } = useStudentDashboard();
-
+export function DashboardLayoutWrapper({ userProfile, children }: DashboardLayoutWrapperProps) {
   return (
-    <DashboardLayout
-      userProfile={userProfile}
-      activeTab={activeTab}
-      showWelcomeTour={showWelcomeTour}
-      showStudyPlan={showStudyPlan}
-      hideTabsNav={hideTabsNav}
-      hideSidebar={hideSidebar}
-      onTabChange={handleTabChange}
-      onViewStudyPlan={handleViewStudyPlan}
-      onCloseStudyPlan={handleCloseStudyPlan}
-      onToggleSidebar={toggleSidebar}
-      onToggleTabsNav={toggleTabsNav}
-      onSkipTour={handleSkipTour}
-      onCompleteTour={handleCompleteTour}
-    >
-      {children}
-    </DashboardLayout>
+    <div className="flex flex-col min-h-screen">
+      <header className="border-b bg-background py-3 px-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <h1 className="text-lg font-semibold">Sakha AI</h1>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <span className="text-sm">{userProfile.name || userProfile.email}</span>
+          </div>
+        </div>
+      </header>
+      
+      <main className="flex-1 py-6">
+        {children}
+      </main>
+    </div>
   );
-};
+}

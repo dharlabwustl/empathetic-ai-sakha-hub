@@ -1,91 +1,141 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Check, CreditCard, Users } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { SubscriptionPlan } from '@/types/user';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Check } from "lucide-react";
+import { useNavigate } from 'react-router-dom';
+import { formatDateTime } from '@/utils/dateUtils';
 
-export interface SubscriptionPlansProps {
+interface SubscriptionPlansProps {
   currentPlanId: string;
-  showGroupOption?: boolean;
   onSelectPlan: (plan: SubscriptionPlan, isGroup?: boolean) => void;
+  showGroupOption?: boolean;
+  activePlan?: {
+    id: string;
+    name: string;
+    nextBillingDate?: string;
+    status?: 'active' | 'cancelled' | 'past_due';
+  };
 }
+
+// Sample plans data
+const individualPlans: SubscriptionPlan[] = [
+  {
+    id: 'basic',
+    name: 'Basic',
+    description: 'Perfect for getting started',
+    price: 499,
+    features: [
+      'Access to basic study materials',
+      'Limited practice questions',
+      'Progress tracking',
+      'Mobile access'
+    ],
+    isPopular: false
+  },
+  {
+    id: 'premium',
+    name: 'Premium',
+    description: 'Our most popular plan',
+    price: 999,
+    features: [
+      'Full access to all study materials',
+      'Unlimited practice questions',
+      'Advanced progress tracking',
+      'Mobile access',
+      'Downloadable resources',
+      'Priority support'
+    ],
+    isPopular: true
+  },
+  {
+    id: 'enterprise',
+    name: 'Enterprise',
+    description: 'For serious learners',
+    price: 1999,
+    features: [
+      'Everything in Premium',
+      'One-on-one tutoring sessions',
+      'Custom study plans',
+      'Advanced analytics',
+      'Career guidance',
+      'Dedicated support manager'
+    ],
+    isPopular: false
+  }
+];
+
+const groupPlans: SubscriptionPlan[] = [
+  {
+    id: 'group-basic',
+    name: 'Group Basic',
+    description: 'Perfect for small groups',
+    price: 1999,
+    features: [
+      'Up to 5 members',
+      'Access to basic study materials',
+      'Limited practice questions',
+      'Group progress tracking'
+    ],
+    isPopular: false,
+    maxMembers: 5
+  },
+  {
+    id: 'group-premium',
+    name: 'Group Premium',
+    description: 'Ideal for medium-sized groups',
+    price: 3999,
+    features: [
+      'Up to 10 members',
+      'Full access to all study materials',
+      'Unlimited practice questions',
+      'Advanced group progress tracking',
+      'Group study sessions',
+      'Priority support'
+    ],
+    isPopular: true,
+    maxMembers: 10
+  },
+  {
+    id: 'group-enterprise',
+    name: 'Group Enterprise',
+    description: 'For large groups or institutions',
+    price: 7999,
+    features: [
+      'Up to 25 members',
+      'Everything in Group Premium',
+      'Custom group study plans',
+      'Advanced analytics',
+      'Dedicated support manager',
+      'Admin controls'
+    ],
+    isPopular: false,
+    maxMembers: 25
+  }
+];
 
 const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
   currentPlanId,
+  onSelectPlan,
   showGroupOption = false,
-  onSelectPlan
+  activePlan
 }) => {
-  // Sample plans - in a real app, these would come from an API
-  const plans: SubscriptionPlan[] = [
-    {
-      id: "free",
-      name: "Free Plan",
-      price: 0,
-      features: [
-        "Limited access to study materials",
-        "Basic practice questions",
-        "Community forum access"
-      ],
-      description: "Get started with basic features",
-      type: "free" as any,
-      isPopular: false
-    },
-    {
-      id: "basic",
-      name: "Basic Plan",
-      price: 499,
-      features: [
-        "Full access to study materials",
-        "Unlimited practice questions",
-        "Progress tracking",
-        "Ad-free experience",
-        "Email support"
-      ],
-      description: "Great for casual learners",
-      type: "basic" as any,
-      isPopular: false
-    },
-    {
-      id: "premium",
-      name: "Premium Plan",
-      price: 999,
-      features: [
-        "Everything in Basic",
-        "AI-powered study plan",
-        "Mock tests with analysis",
-        "Personalized feedback",
-        "Priority support",
-        "Advanced progress analytics",
-        "Mood tracking"
-      ],
-      description: "Perfect for serious exam preparation",
-      type: "premium" as any,
-      isPopular: true
-    }
-  ];
-
-  // Add group plan if enabled
-  const groupPlan: SubscriptionPlan = {
-    id: "group",
-    name: "Group Plan",
-    price: 1999,
-    features: [
-      "Everything in Premium",
-      "Up to 5 members",
-      "Group analytics",
-      "Collaborative learning tools",
-      "Shared resources",
-      "Group leader dashboard"
-    ],
-    description: "Ideal for study groups",
-    type: "premium" as any,
-    maxMembers: 5,
-    isPopular: false
+  const [planType, setPlanType] = useState<'individual' | 'group'>(
+    showGroupOption ? 'individual' : 'individual'
+  );
+  
+  const navigate = useNavigate();
+  
+  const handleSelectPlan = (plan: SubscriptionPlan) => {
+    onSelectPlan(plan, planType === 'group');
   };
-
-  const allPlans = showGroupOption ? [...plans, groupPlan] : plans;
+  
+  const handleManageSubscription = () => {
+    navigate('/dashboard/student/subscription/manage');
+  };
 
   // Format price for display
   const formatPrice = (price: number) => {
@@ -97,48 +147,166 @@ const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
   };
 
   return (
-    <div className="subscription-plans">
-      <h3 className="text-lg font-medium mb-6">Choose Your Plan</h3>
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {allPlans.map((plan) => (
-          <Card key={plan.id} className={`flex flex-col overflow-hidden ${plan.isPopular ? 'border-2 border-primary' : ''}`}>
-            {plan.isPopular && (
-              <div className="bg-primary py-1 px-4">
-                <p className="text-sm font-medium text-center text-primary-foreground">Most Popular</p>
+    <div className="space-y-6">
+      {activePlan && (
+        <Card className="border-green-200 bg-green-50">
+          <CardHeader>
+            <div className="flex justify-between items-center">
+              <div>
+                <CardTitle className="text-lg">Your Active Subscription</CardTitle>
+                <CardDescription>Details of your current subscription</CardDescription>
               </div>
-            )}
-            <CardHeader>
-              <CardTitle>{plan.name}</CardTitle>
-              <CardDescription>{plan.description}</CardDescription>
-              <div className="mt-2">
-                <span className="text-3xl font-bold">{formatPrice(plan.price)}</span>
-                <span className="text-muted-foreground ml-1">{plan.price > 0 ? '/month' : ''}</span>
-              </div>
-            </CardHeader>
-            <CardContent className="flex-grow">
-              <ul className="space-y-2">
-                {plan.features.map((feature, index) => (
-                  <li key={index} className="flex items-center gap-2">
-                    <Check size={16} className="text-green-500" />
-                    <span className="text-sm">{feature}</span>
-                  </li>
-                ))}
-              </ul>
-            </CardContent>
-            <CardFooter>
-              <Button
-                className="w-full"
-                variant={currentPlanId === plan.id ? "outline" : "default"}
-                disabled={currentPlanId === plan.id}
-                onClick={() => onSelectPlan(plan, plan.id === "group")}
-              >
-                {currentPlanId === plan.id ? "Current Plan" : "Select Plan"}
+              <Button variant="outline" onClick={handleManageSubscription}>
+                Manage Subscription
               </Button>
-            </CardFooter>
-          </Card>
-        ))}
-      </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+              <div>
+                <p className="font-semibold text-lg">{activePlan.name}</p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Status: <span className="font-medium capitalize">{activePlan.status || 'active'}</span>
+                </p>
+                {activePlan.nextBillingDate && (
+                  <p className="text-sm text-muted-foreground">
+                    Next billing date: {formatDateTime(activePlan.nextBillingDate)}
+                  </p>
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+      
+      {showGroupOption && (
+        <Tabs 
+          value={planType} 
+          onValueChange={(value) => setPlanType(value as 'individual' | 'group')}
+          className="w-full"
+        >
+          <div className="flex justify-center mb-8">
+            <TabsList className="grid w-[400px] grid-cols-2">
+              <TabsTrigger value="individual">Individual Plans</TabsTrigger>
+              <TabsTrigger value="group">Group Plans</TabsTrigger>
+            </TabsList>
+          </div>
+
+          <TabsContent value="individual">
+            <div className="grid md:grid-cols-3 gap-8">
+              {individualPlans.map((plan) => (
+                <PlanCard
+                  key={plan.id}
+                  plan={plan}
+                  isCurrent={plan.id === currentPlanId}
+                  onSelect={handleSelectPlan}
+                />
+              ))}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="group">
+            <div className="grid md:grid-cols-3 gap-8">
+              {groupPlans.map((plan) => (
+                <PlanCard
+                  key={plan.id}
+                  plan={plan}
+                  isCurrent={plan.id === currentPlanId}
+                  onSelect={handleSelectPlan}
+                  isGroup
+                />
+              ))}
+            </div>
+          </TabsContent>
+        </Tabs>
+      )}
+      
+      {!showGroupOption && (
+        <div className="grid md:grid-cols-3 gap-8">
+          {individualPlans.map((plan) => (
+            <PlanCard
+              key={plan.id}
+              plan={plan}
+              isCurrent={plan.id === currentPlanId}
+              onSelect={handleSelectPlan}
+            />
+          ))}
+        </div>
+      )}
     </div>
+  );
+};
+
+interface PlanCardProps {
+  plan: SubscriptionPlan;
+  isCurrent: boolean;
+  onSelect: (plan: SubscriptionPlan) => void;
+  isGroup?: boolean;
+}
+
+const PlanCard: React.FC<PlanCardProps> = ({ plan, isCurrent, onSelect, isGroup }) => {
+  // Format price for display
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      maximumFractionDigits: 0
+    }).format(price);
+  };
+
+  return (
+    <Card className={`flex flex-col ${isCurrent ? 'border-green-400 shadow-md' : ''} ${plan.isPopular ? 'border-amber-300 shadow-md' : ''}`}>
+      <CardHeader>
+        <div className="flex justify-between items-start">
+          <div>
+            <CardTitle>{plan.name}</CardTitle>
+            <CardDescription>{plan.description}</CardDescription>
+          </div>
+          <div className="flex flex-col items-end">
+            {plan.isPopular && (
+              <Badge className="bg-amber-100 text-amber-800 border-amber-200 mb-2">
+                Most Popular
+              </Badge>
+            )}
+            {isCurrent && (
+              <Badge className="bg-green-100 text-green-800 border-green-200">
+                Current Plan
+              </Badge>
+            )}
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent className="flex-grow">
+        <div className="mb-6">
+          <p className="text-3xl font-bold">{formatPrice(plan.price)}</p>
+          <p className="text-sm text-muted-foreground">per month</p>
+        </div>
+        <ul className="space-y-2">
+          {plan.features.map((feature, index) => (
+            <li key={index} className="flex items-start">
+              <Check className="h-4 w-4 text-green-600 mt-1 mr-2" />
+              <span className="text-sm">{feature}</span>
+            </li>
+          ))}
+        </ul>
+        {plan.maxMembers && (
+          <div className="flex items-center mt-4 text-sm text-muted-foreground">
+            <Users className="h-4 w-4 mr-2" />
+            <span>Up to {plan.maxMembers} members</span>
+          </div>
+        )}
+      </CardContent>
+      <CardFooter>
+        <Button 
+          onClick={() => onSelect(plan)} 
+          className="w-full" 
+          variant={isCurrent ? "outline" : plan.isPopular ? "default" : "outline"}
+          disabled={isCurrent}
+        >
+          {isCurrent ? 'Current Plan' : 'Select Plan'}
+        </Button>
+      </CardFooter>
+    </Card>
   );
 };
 

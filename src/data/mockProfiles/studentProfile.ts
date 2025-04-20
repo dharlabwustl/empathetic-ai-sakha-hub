@@ -1,58 +1,25 @@
 
-import { UserProfileType, UserRole, SubscriptionType } from '@/types/user/base';
-
-const studentProfile: UserProfileType = {
-  id: "s12345",
+const mockStudentProfile = {
   name: "Rahul Sharma",
-  email: "rahul.sharma@example.com",
-  role: UserRole.Student,
-  avatar: "/lovable-uploads/ffd1ed0a-7a25-477e-bc91-1da9aca3497f.png",
-  bio: "Preparing for JEE. Love physics and math.",
+  email: "rahul.sharma@gmail.com",
   phoneNumber: "+91 9876543210",
-  personalityType: "systematic_learner",
-  gender: "male",
-  examPreparation: "IIT-JEE",
-  joinDate: "2023-01-15",
-  lastActive: "2023-04-19",
-  loginCount: 45,
-  completedOnboarding: true,
-  goals: [
-    {
-      id: "g1",
-      title: "IIT-JEE",
-      description: "Score 250+ in JEE Mains",
-      progress: 65,
-      status: "in-progress",
-      targetDate: new Date("2023-12-31")
-    },
-    {
-      id: "g2",
-      title: "Physics Olympiad",
-      description: "Qualify for national level",
-      progress: 40,
-      status: "in-progress",
-      targetDate: new Date("2023-09-30")
-    }
-  ],
-  areasOfInterest: [
-    { id: "i1", name: "Physics", level: "Advanced" },
-    { id: "i2", name: "Mathematics", level: "Advanced" },
-    { id: "i3", name: "Computer Science", level: "Intermediate" }
-  ],
-  subscription: SubscriptionType.Premium,
-  address: {
-    street: "123 Main Road",
-    city: "New Delhi",
-    state: "Delhi",
-    zipCode: "110001",
-    country: "India"
+  profilePicture: "https://i.pravatar.cc/150?img=11",
+  examType: "NEET",
+  studyPreferences: {
+    preferredStudyTime: "Morning",
+    sessionsPerDay: 3,
+    preferredLanguage: "English",
   },
-  education: {
-    level: "High School", // Changed from educationLevel to level
-    institution: "Delhi Public School",
-    fieldOfStudy: "Science",
-    graduationYear: 2023
+  progress: {
+    overallCompletion: 45,
+    recentTopics: [
+      { name: "Organic Chemistry", completion: 60 },
+      { name: "Mechanics", completion: 75 },
+      { name: "Human Anatomy", completion: 30 }
+    ],
+    streak: 7,
+    lastStudySession: "2023-08-12T14:30:00Z"
   }
 };
 
-export default studentProfile;
+export default mockStudentProfile;

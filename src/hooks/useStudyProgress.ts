@@ -1,50 +1,34 @@
 
-import React, { useState, useEffect } from "react";
-import { SubjectProgress, StudyStreak } from "@/types/user";
-import { getAllSubjectsProgress, getStudyStreak } from "@/data/mockProgressData";
+import { useState, useEffect } from 'react';
+import mockProgressData from '@/data/mockProgressData';
 
-export function useStudyProgress() {
-  const [subjects, setSubjects] = useState<SubjectProgress[]>([]);
-  const [studyStreak, setStudyStreak] = useState<StudyStreak | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [selectedSubject, setSelectedSubject] = useState<SubjectProgress | null>(null);
+export const useStudyProgress = () => {
+  const [subjectsProgress, setSubjectsProgress] = useState([]);
+  const [studyStreak, setStudyStreak] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Simulate API fetch
-    const fetchData = () => {
-      setLoading(true);
-
-      setTimeout(() => {
-        const subjectsData = getAllSubjectsProgress();
-        const streakData = getStudyStreak();
+    // In a real app, this would be an API call
+    const loadData = async () => {
+      try {
+        const subjects = mockProgressData.getAllSubjectsProgress();
+        const streak = mockProgressData.getStudyStreak();
         
-        setSubjects(subjectsData);
-        setStudyStreak(streakData);
-        
-        // Set first subject as default selected
-        if (subjectsData.length > 0) {
-          setSelectedSubject(subjectsData[0]);
-        }
-        
+        setSubjectsProgress(subjects);
+        setStudyStreak(streak);
+      } catch (error) {
+        console.error("Failed to load progress data:", error);
+      } finally {
         setLoading(false);
-      }, 800);
+      }
     };
 
-    fetchData();
+    loadData();
   }, []);
 
-  const selectSubject = (subjectId: string) => {
-    const subject = subjects.find(s => s.id === subjectId);
-    if (subject) {
-      setSelectedSubject(subject);
-    }
-  };
-
   return {
-    subjects,
+    subjectsProgress,
     studyStreak,
-    loading,
-    selectedSubject,
-    selectSubject
+    loading
   };
-}
+};

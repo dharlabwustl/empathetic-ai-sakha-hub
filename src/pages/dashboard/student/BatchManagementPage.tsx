@@ -17,7 +17,7 @@ interface BatchMember {
   id: string;
   name: string;
   email: string;
-  role: "member" | "leader" | "school_admin" | "corporate_admin"; // Fixed to use specific string literals
+  role: "member" | "leader" | "school_admin" | "corporate_admin";
   status: "active" | "inactive" | "pending";
   joinedDate?: string;
   invitationCode?: string;
@@ -66,7 +66,7 @@ export default function BatchManagementPage() {
   useEffect(() => {
     // Mock data initialization
     setTimeout(() => {
-      // Create properly typed BatchMember objects
+      // Create properly typed BatchMember objects with explicit role types
       const mockMembers: BatchMember[] = [
         {
           id: 'current-user-id',

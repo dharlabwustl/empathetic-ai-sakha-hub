@@ -2,417 +2,426 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { formatDate } from "@/utils/dateUtils";
-import { BatchDetails, BatchMember } from "./batch/types";
-import { ArrowUpRight, Bell, CheckCircle, Clock, Copy, Crown, Download, Send, Users } from 'lucide-react';
-import { useToast } from "@/hooks/use-toast";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useToast } from "@/hooks/use-toast";
+import { Badge } from "@/components/ui/badge";
+import { 
+  Users, Mail, UserCheck, UserMinus, UserPlus, Edit, Check, X, CreditCard
+} from "lucide-react";
+import { Separator } from "@/components/ui/separator";
+import { formatDateTime, getRelativeTimeString } from "@/utils/dateUtils";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { 
+  AlertDialog, 
+  AlertDialogAction, 
+  AlertDialogCancel, 
+  AlertDialogContent, 
+  AlertDialogDescription, 
+  AlertDialogFooter, 
+  AlertDialogHeader, 
+  AlertDialogTitle 
+} from "@/components/ui/alert-dialog";
 
-interface BatchManagementProps {
-  userBatches: BatchDetails[];
-  onRemoveMember: (memberId: string) => Promise<void>;
-  onSendAlert: (memberId: string, message: string) => Promise<void>;
+export interface BatchMember {
+  id: string;
+  name: string;
+  email: string;
+  role: "member" | "leader" | "school_admin" | "corporate_admin";
+  status: "active" | "inactive" | "pending";
+  joinedDate?: string;
+  invitationCode?: string;
+  avatar?: string;
+  progress?: {
+    completedTopics: number;
+    totalTopics: number;
+    lastActiveDate?: string;
+  };
 }
 
-const BatchManagement: React.FC<BatchManagementProps> = ({ 
-  userBatches,
+interface BatchManagementProps {
+  batchMembers: BatchMember[];
+  batchName: string;
+  planType: "group" | "school" | "corporate";
+  maxMembers: number;
+  currentUserRole: "member" | "leader" | "school_admin" | "corporate_admin";
+  onAddMember: (email: string) => Promise<{success: boolean; inviteCode?: string}>;
+  onRemoveMember: (id: string) => Promise<void>;
+  onChangeBatchName: (name: string) => Promise<boolean>;
+  onTransferLeadership: (memberId: string) => Promise<void>;
+}
+
+const BatchManagement: React.FC<BatchManagementProps> = ({
+  batchMembers,
+  batchName,
+  planType,
+  maxMembers,
+  currentUserRole,
+  onAddMember,
   onRemoveMember,
-  onSendAlert
+  onChangeBatchName,
+  onTransferLeadership
 }) => {
   const { toast } = useToast();
-  const [selectedBatch, setSelectedBatch] = useState<BatchDetails | null>(null);
-  const [alertMessage, setAlertMessage] = useState('');
-  const [alertMemberId, setAlertMemberId] = useState<string>('');
-  const [showAlertDialog, setShowAlertDialog] = useState(false);
-  const [alertDialogOpen, setAlertDialogOpen] = useState(false);
-
-  const handleRemoveMember = async (memberId: string) => {
-    try {
-      await onRemoveMember(memberId);
+  const [isEditing, setIsEditing] = useState(false);
+  const [newBatchName, setNewBatchName] = useState(batchName);
+  const [newMemberEmail, setNewMemberEmail] = useState("");
+  const [isAddingMember, setIsAddingMember] = useState(false);
+  const [removingMemberId, setRemovingMemberId] = useState<string | null>(null);
+  const [transferId, setTransferId] = useState<string | null>(null);
+  const [isNameUpdating, setIsNameUpdating] = useState(false);
+  
+  const isLeader = currentUserRole === "leader" || 
+                   currentUserRole === "school_admin" || 
+                   currentUserRole === "corporate_admin";
+  
+  const handleNameSave = async () => {
+    if (newBatchName.trim() === "") {
       toast({
-        title: "Member Removed",
-        description: "The member has been removed from your batch.",
-      });
-    } catch (error) {
-      toast({
-        title: "Failed to Remove Member",
-        description: "There was an error removing this member. Please try again.",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleSendAlert = async () => {
-    if (!alertMessage.trim()) {
-      toast({
-        title: "Empty Message",
-        description: "Please enter a message to send.",
-        variant: "destructive",
+        title: "Error",
+        description: "Batch name cannot be empty",
+        variant: "destructive"
       });
       return;
     }
-
+    
+    setIsNameUpdating(true);
+    
     try {
-      await onSendAlert(alertMemberId, alertMessage);
-      toast({
-        title: "Alert Sent",
-        description: "Your message has been sent successfully.",
-      });
-      setAlertMessage('');
-      setAlertDialogOpen(false);
+      const success = await onChangeBatchName(newBatchName);
+      
+      if (success) {
+        toast({
+          title: "Success",
+          description: "Batch name updated successfully",
+        });
+        setIsEditing(false);
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to update batch name",
+          variant: "destructive"
+        });
+      }
     } catch (error) {
       toast({
-        title: "Failed to Send Alert",
-        description: "There was an error sending your message. Please try again.",
-        variant: "destructive",
+        title: "Error",
+        description: "An unexpected error occurred",
+        variant: "destructive"
+      });
+    } finally {
+      setIsNameUpdating(false);
+    }
+  };
+  
+  const handleAddMember = async () => {
+    if (newMemberEmail.trim() === "") {
+      toast({
+        title: "Error",
+        description: "Please enter an email address",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    if (batchMembers.length >= maxMembers) {
+      toast({
+        title: "Error",
+        description: `You've reached the maximum limit of ${maxMembers} members for your plan`,
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    if (batchMembers.some(member => member.email === newMemberEmail)) {
+      toast({
+        title: "Error",
+        description: "This email is already a member or has a pending invitation",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    setIsAddingMember(true);
+    
+    try {
+      const result = await onAddMember(newMemberEmail);
+      
+      if (result.success) {
+        toast({
+          title: "Invitation Sent",
+          description: `An invitation has been sent to ${newMemberEmail}`,
+        });
+        setNewMemberEmail("");
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to add member",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred",
+        variant: "destructive"
+      });
+    } finally {
+      setIsAddingMember(false);
+    }
+  };
+  
+  const confirmRemoveMember = (id: string) => {
+    setRemovingMemberId(id);
+  };
+  
+  const handleRemoveMember = async () => {
+    if (!removingMemberId) return;
+    
+    try {
+      await onRemoveMember(removingMemberId);
+      toast({
+        title: "Success",
+        description: "Member removed successfully",
+      });
+      setRemovingMemberId(null);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to remove member",
+        variant: "destructive"
       });
     }
   };
-
-  const openAlertDialog = (memberId: string) => {
-    setAlertMemberId(memberId);
-    setAlertDialogOpen(true);
+  
+  const confirmTransferLeadership = (id: string) => {
+    setTransferId(id);
   };
-
-  const handleDownloadReport = (batchId: string) => {
-    // In a real app, this would generate and download a batch report
-    toast({
-      title: "Downloading Report",
-      description: "Your batch report is being generated and will download shortly.",
-    });
+  
+  const handleTransferLeadership = async () => {
+    if (!transferId) return;
     
-    // Mock download by showing a success message after a delay
-    setTimeout(() => {
+    try {
+      await onTransferLeadership(transferId);
       toast({
-        title: "Report Downloaded",
-        description: "Batch performance report has been downloaded successfully.",
+        title: "Leadership Transferred",
+        description: "You have transferred leadership to another member",
       });
-    }, 2000);
+      setTransferId(null);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to transfer leadership",
+        variant: "destructive"
+      });
+    }
   };
-
-  const handleCopyInviteCode = (code: string) => {
-    navigator.clipboard.writeText(code);
-    toast({
-      title: "Invite Code Copied",
-      description: "The batch invite code has been copied to clipboard.",
-    });
-  };
-
+  
   return (
     <div className="space-y-6">
-      <Tabs defaultValue="overview">
-        <TabsList className="w-full grid grid-cols-3">
-          <TabsTrigger value="overview">Batch Overview</TabsTrigger>
-          <TabsTrigger value="members">Members</TabsTrigger>
-          <TabsTrigger value="analytics">Analytics</TabsTrigger>
-        </TabsList>
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <div>
+            {isEditing ? (
+              <div className="flex items-center gap-2">
+                <Input
+                  value={newBatchName}
+                  onChange={(e) => setNewBatchName(e.target.value)}
+                  className="max-w-xs"
+                  placeholder="Enter batch name"
+                  disabled={isNameUpdating}
+                />
+                <Button 
+                  size="icon" 
+                  variant="ghost" 
+                  onClick={handleNameSave}
+                  disabled={isNameUpdating}
+                >
+                  <Check className="h-4 w-4" />
+                </Button>
+                <Button 
+                  size="icon" 
+                  variant="ghost" 
+                  onClick={() => {
+                    setIsEditing(false);
+                    setNewBatchName(batchName);
+                  }}
+                  disabled={isNameUpdating}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <CardTitle>{batchName}</CardTitle>
+                {isLeader && (
+                  <Button 
+                    size="icon"
+                    variant="ghost"
+                    onClick={() => setIsEditing(true)}
+                  >
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
+            )}
+          </div>
+          
+          <Badge variant="outline" className="capitalize">
+            {planType} Plan
+          </Badge>
+        </CardHeader>
         
-        <TabsContent value="overview">
-          {userBatches.length > 0 ? (
-            <div className="space-y-4">
-              {userBatches.map(batch => (
-                <Card key={batch.id} className="overflow-hidden">
-                  <div className="h-2 bg-blue-500" />
-                  <CardHeader className="pb-2">
-                    <div className="flex justify-between items-start">
-                      <CardTitle className="text-xl">{batch.name}</CardTitle>
-                      <Badge>{batch.planType === 'school' ? 'School' : batch.planType === 'corporate' ? 'Corporate' : 'Group'}</Badge>
-                    </div>
-                    <div className="text-sm text-muted-foreground flex items-center gap-2">
-                      <Users className="h-4 w-4" />
-                      <span>
-                        {batch.members.length} / {batch.maxMembers} members
-                      </span>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-2">
-                          <Clock className="h-4 w-4 text-muted-foreground" />
-                          <span className="text-sm">
-                            Expires: {formatDate(batch.expiryDate || "")}
-                          </span>
-                        </div>
-                        
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          className="text-xs"
-                          onClick={() => handleDownloadReport(batch.id)}
-                        >
-                          <Download className="h-3 w-3 mr-1" />
-                          Report
-                        </Button>
-                      </div>
-                      
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-2">
-                          <Crown className="h-4 w-4 text-yellow-500" />
-                          <span className="text-sm font-medium">
-                            Batch Leader: {batch.owner.name}
-                          </span>
-                        </div>
-                        
-                        <Dialog>
-                          <DialogTrigger asChild>
-                            <Button variant="secondary" size="sm" className="text-xs">
-                              <Users className="h-3 w-3 mr-1" />
-                              Invite
-                            </Button>
-                          </DialogTrigger>
-                          <DialogContent>
-                            <DialogHeader>
-                              <DialogTitle>Invite Members to {batch.name}</DialogTitle>
-                              <DialogDescription>
-                                Share this invite code with members you want to join your batch.
-                              </DialogDescription>
-                            </DialogHeader>
-                            <div className="space-y-4 py-4">
-                              <div className="flex items-center space-x-2">
-                                <Input 
-                                  value={`SAKHA-${batch.id.substring(0, 8).toUpperCase()}`}
-                                  readOnly 
-                                  className="font-mono"
-                                />
-                                <Button
-                                  size="icon"
-                                  variant="outline"
-                                  onClick={() => handleCopyInviteCode(`SAKHA-${batch.id.substring(0, 8).toUpperCase()}`)}
-                                >
-                                  <Copy className="h-4 w-4" />
-                                </Button>
-                              </div>
-                              <p className="text-sm text-muted-foreground">
-                                Members can use this code on their profile page to join your batch.
-                              </p>
-                            </div>
-                          </DialogContent>
-                        </Dialog>
-                      </div>
-                      
-                      <div className="pt-4">
-                        <h4 className="text-sm font-semibold mb-2">Recent Activity</h4>
-                        <div className="space-y-2">
-                          <div className="text-xs text-muted-foreground">
-                            <CheckCircle className="h-3 w-3 inline-block mr-1 text-green-500" />
-                            <span>2 new members joined today</span>
-                          </div>
-                          <div className="text-xs text-muted-foreground">
-                            <ArrowUpRight className="h-3 w-3 inline-block mr-1 text-blue-500" />
-                            <span>Average progress increased by 5%</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-10">
-              <Users className="h-10 w-10 mx-auto opacity-20 mb-4" />
-              <h3 className="font-medium text-lg mb-1">No Batches Found</h3>
-              <p className="text-muted-foreground text-sm">
-                You don't have any batches yet. Create a batch or enter an invitation code to join one.
+        <CardContent>
+          <div className="flex flex-row justify-between items-center mb-4">
+            <div>
+              <p className="text-sm text-muted-foreground">
+                Members: {batchMembers.filter(m => m.status === "active").length} active, 
+                {batchMembers.filter(m => m.status === "pending").length} pending
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Capacity: {batchMembers.length} / {maxMembers}
               </p>
             </div>
-          )}
-        </TabsContent>
-        
-        <TabsContent value="members">
-          {userBatches.length > 0 ? (
-            <div className="space-y-6">
-              {userBatches.map(batch => (
-                <Card key={`members-${batch.id}`}>
-                  <CardHeader>
-                    <CardTitle className="text-lg">{batch.name} - Members</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      {batch.members.map(member => (
-                        <div 
-                          key={member.id} 
-                          className="flex items-center justify-between border-b pb-3 last:border-0"
-                        >
-                          <div className="flex items-center space-x-3">
-                            <Avatar>
-                              <AvatarImage src={member.avatar} />
-                              <AvatarFallback>{member.name.charAt(0)}</AvatarFallback>
-                            </Avatar>
-                            <div>
-                              <div className="font-medium">{member.name}</div>
-                              <div className="text-sm text-muted-foreground">{member.email}</div>
-                              <div className="flex items-center space-x-2 mt-1">
-                                <Badge 
-                                  variant={member.status === "active" ? "default" : 
-                                    member.status === "pending" ? "outline" : "secondary"}
-                                  className="text-xs"
-                                >
-                                  {member.status}
-                                </Badge>
-                                <Badge variant="outline" className="text-xs">{member.role}</Badge>
-                              </div>
-                            </div>
-                          </div>
-                          
-                          <div className="flex items-center space-x-2">
-                            <Button 
-                              size="sm" 
-                              variant="outline" 
-                              onClick={() => openAlertDialog(member.id)}
-                            >
-                              <Bell className="h-3 w-3 mr-1" />
-                              Alert
-                            </Button>
-                            
-                            {member.id !== batch.owner.id && (
-                              <Button 
-                                size="sm" 
-                                variant="outline"
-                                className="text-red-500 hover:text-red-600 hover:bg-red-50"
-                                onClick={() => handleRemoveMember(member.id)}
-                              >
-                                Remove
-                              </Button>
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-10">
-              <p className="text-muted-foreground">No batch members found.</p>
-            </div>
-          )}
-        </TabsContent>
-        
-        <TabsContent value="analytics">
-          {userBatches.length > 0 ? (
-            <div className="space-y-6">
-              {userBatches.map(batch => (
-                <Card key={`analytics-${batch.id}`}>
-                  <CardHeader>
-                    <CardTitle className="text-lg">{batch.name} - Analytics</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                        <div className="border rounded-md p-4">
-                          <div className="text-sm text-muted-foreground mb-1">Active Members</div>
-                          <div className="text-2xl font-bold">
-                            {batch.members.filter(m => m.status === "active").length}
-                          </div>
-                        </div>
-                        <div className="border rounded-md p-4">
-                          <div className="text-sm text-muted-foreground mb-1">Avg. Completion</div>
-                          <div className="text-2xl font-bold">65%</div>
-                        </div>
-                        <div className="border rounded-md p-4">
-                          <div className="text-sm text-muted-foreground mb-1">Engagement Score</div>
-                          <div className="text-2xl font-bold">7.8</div>
-                        </div>
-                      </div>
-                      
-                      <div className="mt-6">
-                        <h4 className="text-sm font-semibold mb-4">Subject Progress</h4>
-                        <div className="space-y-3">
-                          <div>
-                            <div className="flex justify-between text-sm mb-1">
-                              <span>Physics</span>
-                              <span>70%</span>
-                            </div>
-                            <div className="h-2 bg-gray-100 rounded-full">
-                              <div 
-                                className="h-full bg-blue-500 rounded-full" 
-                                style={{ width: "70%" }}
-                              ></div>
-                            </div>
-                          </div>
-                          <div>
-                            <div className="flex justify-between text-sm mb-1">
-                              <span>Chemistry</span>
-                              <span>45%</span>
-                            </div>
-                            <div className="h-2 bg-gray-100 rounded-full">
-                              <div 
-                                className="h-full bg-green-500 rounded-full" 
-                                style={{ width: "45%" }}
-                              ></div>
-                            </div>
-                          </div>
-                          <div>
-                            <div className="flex justify-between text-sm mb-1">
-                              <span>Mathematics</span>
-                              <span>80%</span>
-                            </div>
-                            <div className="h-2 bg-gray-100 rounded-full">
-                              <div 
-                                className="h-full bg-purple-500 rounded-full" 
-                                style={{ width: "80%" }}
-                              ></div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <div className="pt-4 flex justify-end">
-                        <Button variant="outline" onClick={() => handleDownloadReport(batch.id)}>
-                          <Download className="h-4 w-4 mr-2" />
-                          Download Detailed Report
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-10">
-              <p className="text-muted-foreground">No analytics available.</p>
-            </div>
-          )}
-        </TabsContent>
-      </Tabs>
-
-      <Dialog open={alertDialogOpen} onOpenChange={setAlertDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Send Alert</DialogTitle>
-            <DialogDescription>
-              Send a notification to this batch member. Use this for important updates or reminders.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="message">Message</Label>
-              <Textarea
-                id="message"
-                placeholder="Enter your message here..."
-                value={alertMessage}
-                onChange={(e) => setAlertMessage(e.target.value)}
-              />
-            </div>
+            
+            {isLeader && (
+              <div className="flex items-center gap-2">
+                <Input 
+                  value={newMemberEmail}
+                  onChange={(e) => setNewMemberEmail(e.target.value)}
+                  placeholder="Enter email address"
+                  className="max-w-xs"
+                  disabled={isAddingMember}
+                />
+                <Button 
+                  onClick={handleAddMember}
+                  disabled={isAddingMember}
+                  className="flex items-center gap-1"
+                >
+                  <UserPlus className="h-4 w-4" />
+                  <span>Add</span>
+                </Button>
+              </div>
+            )}
           </div>
-          <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={() => setAlertDialogOpen(false)}>Cancel</Button>
-            <Button onClick={handleSendAlert}>
-              <Send className="h-4 w-4 mr-2" />
-              Send Alert
-            </Button>
+          
+          <Separator className="my-4" />
+          
+          <div className="space-y-4">
+            {batchMembers.map((member) => (
+              <div 
+                key={member.id} 
+                className="flex items-center justify-between py-2 px-3 rounded-md hover:bg-muted/50 transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <Avatar className="h-9 w-9">
+                    <AvatarImage src={member.avatar} />
+                    <AvatarFallback>{member.name.substring(0, 2).toUpperCase()}</AvatarFallback>
+                  </Avatar>
+                  
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <p className="font-medium">{member.name}</p>
+                      {member.role === "leader" && (
+                        <Badge variant="outline" className="text-xs bg-amber-100 text-amber-800 border-amber-200">
+                          Leader
+                        </Badge>
+                      )}
+                      {member.status === "pending" && (
+                        <Badge variant="outline" className="text-xs bg-blue-100 text-blue-800 border-blue-200">
+                          Pending
+                        </Badge>
+                      )}
+                    </div>
+                    
+                    <p className="text-sm text-muted-foreground">{member.email}</p>
+                    
+                    {member.status === "pending" ? (
+                      <div className="flex items-center mt-1 gap-1">
+                        <Mail className="h-3 w-3 text-muted-foreground" />
+                        <p className="text-xs text-muted-foreground">
+                          Invitation code: {member.invitationCode}
+                        </p>
+                      </div>
+                    ) : (
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Joined {member.joinedDate ? getRelativeTimeString(member.joinedDate) : ""}
+                      </p>
+                    )}
+                  </div>
+                </div>
+                
+                {isLeader && member.id !== "current-user-id" && (
+                  <div className="flex items-center gap-2">
+                    {member.status === "active" && member.role !== "leader" && (
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        onClick={() => confirmTransferLeadership(member.id)}
+                      >
+                        <UserCheck className="h-3.5 w-3.5 mr-1" />
+                        Make Leader
+                      </Button>
+                    )}
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      className="text-red-600 hover:text-red-700"
+                      onClick={() => confirmRemoveMember(member.id)}
+                    >
+                      <UserMinus className="h-3.5 w-3.5 mr-1" />
+                      Remove
+                    </Button>
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
-        </DialogContent>
-      </Dialog>
+          
+          {batchMembers.length === 0 && (
+            <div className="py-8 text-center">
+              <Users className="h-10 w-10 text-muted-foreground/50 mx-auto mb-2" />
+              <p className="text-muted-foreground">No members yet</p>
+              <p className="text-sm text-muted-foreground">Add members to your batch using the form above</p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+      
+      {/* Remove Member Dialog */}
+      <AlertDialog open={removingMemberId !== null} onOpenChange={() => setRemovingMemberId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirm Removal</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to remove this member? They will lose access to all batch content.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleRemoveMember} className="bg-red-600 hover:bg-red-700">
+              Remove
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+      
+      {/* Transfer Leadership Dialog */}
+      <AlertDialog open={transferId !== null} onOpenChange={() => setTransferId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Transfer Leadership</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to transfer leadership to this member? You will become a regular member.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleTransferLeadership}>
+              Transfer
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

@@ -1,26 +1,38 @@
 
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Users } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from '@/components/ui/separator';
+import { Check, Users } from 'lucide-react';
 
 interface GroupOrderSummaryProps {
   plan: {
+    id: string;
     name: string;
     price: number;
     userCount?: number;
     planType?: 'group' | 'school' | 'corporate';
+    maxMembers?: number;
+    features?: string[];
   };
 }
 
-export const GroupOrderSummary: React.FC<GroupOrderSummaryProps> = ({ plan }) => {
-  const getMaxUsers = () => {
-    if (plan.planType === 'school') return 50;
-    if (plan.planType === 'corporate') return 100;
-    return plan.userCount || 5;
+export function GroupOrderSummary({ plan }: GroupOrderSummaryProps) {
+  // Format price for display
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      maximumFractionDigits: 0
+    }).format(price);
   };
 
-  const gst = plan.price * 0.18;
-  const total = plan.price + gst;
+  const features = plan.features || [
+    'Group access for up to ' + (plan.maxMembers || 5) + ' members',
+    'Shared study materials and resources',
+    'Group progress tracking',
+    'Collaborative learning tools',
+    'Priority support'
+  ];
 
   return (
     <Card>
@@ -28,35 +40,56 @@ export const GroupOrderSummary: React.FC<GroupOrderSummaryProps> = ({ plan }) =>
         <CardTitle>Order Summary</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-md">
-          <h3 className="font-medium text-blue-800 dark:text-blue-300">
-            {plan.name} ({getMaxUsers()} Users)
-          </h3>
-          <p className="text-sm text-blue-700 dark:text-blue-200 mt-1">
-            <Users className="inline-block mr-1 h-4 w-4" />
-            Group Plan for up to {getMaxUsers()} users
+        <div className="p-3 bg-muted/30 rounded-md">
+          <h3 className="font-semibold">{plan.name}</h3>
+          <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
+            <Users className="h-3.5 w-3.5" />
+            <span>Group plan (up to {plan.maxMembers || 5} members)</span>
           </p>
         </div>
-
+        
         <div className="space-y-2">
           <div className="flex justify-between">
             <span>Base Price</span>
-            <span>₹{plan.price}</span>
+            <span>{formatPrice(plan.price)}</span>
           </div>
-          <div className="flex justify-between text-sm text-gray-600 dark:text-gray-400">
+          
+          <Separator className="my-2" />
+          
+          <div className="flex justify-between">
+            <span>Subtotal</span>
+            <span>{formatPrice(plan.price)}</span>
+          </div>
+          
+          <div className="flex justify-between">
             <span>GST (18%)</span>
-            <span>₹{gst}</span>
+            <span>{formatPrice(plan.price * 0.18)}</span>
           </div>
-          <div className="pt-2 border-t flex justify-between font-bold">
+          
+          <Separator className="my-2" />
+          
+          <div className="flex justify-between font-semibold">
             <span>Total</span>
-            <span>₹{total}</span>
+            <span>{formatPrice(plan.price * 1.18)}</span>
           </div>
         </div>
-
-        <div className="text-xs text-center text-gray-500 dark:text-gray-400 pt-2">
-          By proceeding, you agree to our Terms of Service and Privacy Policy.
+        
+        <div className="space-y-2 mt-4">
+          <p className="font-medium text-sm">Included benefits:</p>
+          <ul className="space-y-1">
+            {features.map((feature, index) => (
+              <li key={index} className="flex items-start gap-2 text-sm">
+                <Check className="h-4 w-4 text-green-600 mt-0.5" />
+                <span>{feature}</span>
+              </li>
+            ))}
+          </ul>
         </div>
+        
+        <p className="text-xs text-muted-foreground">
+          By proceeding with the payment, you agree to our Terms of Service and Privacy Policy.
+        </p>
       </CardContent>
     </Card>
   );
-};
+}
