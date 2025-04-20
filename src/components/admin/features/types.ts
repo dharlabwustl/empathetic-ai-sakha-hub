@@ -1,6 +1,6 @@
 
-import { PlanType } from "@/services/featureService";
 import { ReactNode } from "react";
+import { PlanType } from "@/services/featureService";
 
 export interface Feature {
   id?: string;

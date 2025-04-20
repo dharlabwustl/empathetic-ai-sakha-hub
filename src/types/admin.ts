@@ -102,6 +102,13 @@ export interface AdminSettings {
   analyticsEnabled: boolean;
   autoLogout: boolean;
   logoutTimeoutMinutes: number;
+  // Adding missing properties
+  aiModels: string[];
+  flaskApiUrl: string;
+  apiKey: string;
+  notificationSettings: {
+    [key: string]: boolean;
+  };
 }
 
 // Re-export everything from the individual files

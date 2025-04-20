@@ -54,8 +54,8 @@ const FeatureFilters: React.FC<FeatureFiltersProps> = ({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Plans</SelectItem>
-            {Object.values(PlanType).map(plan => (
-              <SelectItem key={plan} value={plan}>{plan}</SelectItem>
+            {Object.keys(PlanType).map((key) => (
+              <SelectItem key={key} value={PlanType[key as keyof typeof PlanType]}>{key}</SelectItem>
             ))}
           </SelectContent>
         </Select>

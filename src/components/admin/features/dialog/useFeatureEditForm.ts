@@ -1,6 +1,7 @@
 
 import { useState } from "react";
-import { Feature, PlanType } from "@/services/featureService";
+import { Feature } from "../types";
+import { PlanType } from "@/services/featureService";
 
 export const useFeatureEditForm = (initialFeature: Feature, onSave: (feature: Feature) => void) => {
   const [editedFeature, setEditedFeature] = useState<Feature>(initialFeature);

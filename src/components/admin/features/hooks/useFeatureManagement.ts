@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { Feature, FeatureStats } from "../types";
-import { featureService, PlanType } from "@/services/featureService";
+import { PlanType, featureService } from "@/services/featureService";
 import { useToast } from "@/hooks/use-toast";
 
 export const useFeatureManagement = () => {
@@ -21,7 +21,7 @@ export const useFeatureManagement = () => {
   const loadFeatures = async () => {
     try {
       const data = await featureService.getAllFeatures();
-      setFeatures(data.map(feature => ({ ...feature, id: `feature-${Date.now()}-${Math.random()}` })));
+      setFeatures(data);
     } catch (error) {
       console.error("Failed to load features:", error);
       toast({
@@ -59,11 +59,11 @@ export const useFeatureManagement = () => {
 
   const filteredFeatures = features.filter(feature => {
     const matchesSearch = feature.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         feature.description.toLowerCase().includes(searchQuery.toLowerCase());
+                        feature.description.toLowerCase().includes(searchQuery.toLowerCase());
     
     const matchesPlan = planFilter === "all" || 
-                       !feature.allowedPlans || 
-                       feature.allowedPlans.includes(planFilter as PlanType);
+                        !feature.allowedPlans || 
+                        feature.allowedPlans.includes(planFilter as PlanType);
     
     const matchesPremium = premiumFilter === "all" ||
                           (premiumFilter === "premium" && feature.isPremium) ||

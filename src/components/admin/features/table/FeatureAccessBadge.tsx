@@ -14,8 +14,8 @@ export const FeatureAccessBadge: React.FC<FeatureAccessBadgeProps> = ({ allowedP
 
   return (
     <div className="flex flex-wrap gap-1">
-      {allowedPlans.map(plan => (
-        <Badge key={plan} variant="outline" className="capitalize">{plan}</Badge>
+      {allowedPlans.map((plan, index) => (
+        <Badge key={index} variant="outline" className="capitalize">{plan}</Badge>
       ))}
     </div>
   );
