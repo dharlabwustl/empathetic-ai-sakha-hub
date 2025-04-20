@@ -15,16 +15,20 @@ export const useFeatureAccess = (feature: Feature) => {
       if (!user) return false;
       
       try {
-        // Convert user's subscription to PlanType enum value
-        const userSubscription = user && 'subscription' in user && user.subscription
-          ? (typeof user.subscription === 'object' 
-            ? user.subscription.planType as unknown as PlanType 
-            : user.subscription as unknown as PlanType)
-          : PlanType.Free;
+        // Use safe type checking for subscription
+        let userPlanType: PlanType = PlanType.Free;
+        
+        if (user && user.subscription) {
+          if (typeof user.subscription === 'object' && 'planType' in user.subscription) {
+            userPlanType = user.subscription.planType as unknown as PlanType;
+          } else if (typeof user.subscription === 'string') {
+            userPlanType = user.subscription as unknown as PlanType;
+          }
+        }
         
         return await featureService.isFeatureAccessible(
           feature,
-          userSubscription,
+          userPlanType,
           user.id
         );
       } catch (error) {

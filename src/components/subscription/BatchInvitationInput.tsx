@@ -1,76 +1,93 @@
 
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
+import { ArrowRight } from 'lucide-react';
 
-interface BatchInvitationInputProps {
+export interface BatchInvitationInputProps {
   onJoinBatch: (code: string) => Promise<void>;
+  onActivate?: (code: string) => Promise<boolean>;  // Added for compatibility
+  activationSuccess?: boolean;  // Added for compatibility
 }
 
-const BatchInvitationInput: React.FC<BatchInvitationInputProps> = ({ onJoinBatch }) => {
+const BatchInvitationInput: React.FC<BatchInvitationInputProps> = ({ onJoinBatch, onActivate, activationSuccess }) => {
   const [inviteCode, setInviteCode] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
-
+  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!inviteCode.trim()) {
       toast({
         title: "Error",
-        description: "Please enter a valid invitation code.",
-        variant: "destructive",
+        description: "Please enter an invitation code",
+        variant: "destructive"
       });
       return;
     }
     
-    setIsLoading(true);
+    setIsSubmitting(true);
     
     try {
-      await onJoinBatch(inviteCode.trim());
-      setInviteCode('');
+      // Use onActivate if provided, otherwise use onJoinBatch
+      if (onActivate) {
+        const success = await onActivate(inviteCode);
+        if (success) {
+          toast({
+            title: "Success",
+            description: "You've successfully joined the batch"
+          });
+          setInviteCode('');
+        } else {
+          toast({
+            title: "Failed",
+            description: "Invalid invitation code. Please check and try again.",
+            variant: "destructive"
+          });
+        }
+      } else {
+        await onJoinBatch(inviteCode);
+        setInviteCode('');
+      }
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to join batch. Please check your code and try again.",
-        variant: "destructive",
+        description: "Failed to join batch. Please try again.",
+        variant: "destructive"
       });
-      console.error("Error joining batch:", error);
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
   };
-
+  
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Join a Batch</CardTitle>
+        <CardTitle className="text-lg">Join a Batch</CardTitle>
+        <CardDescription>
+          Have an invitation code? Enter it below to join an existing batch.
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="invite-code">Enter Invitation Code</Label>
+          <div>
             <Input
-              id="invite-code"
-              placeholder="e.g., SAKHA-123456"
+              placeholder="Enter invitation code (SAKHA-XXXXXX)"
               value={inviteCode}
               onChange={(e) => setInviteCode(e.target.value)}
-              disabled={isLoading}
+              className="font-mono"
             />
           </div>
-          
-          <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? (
-              <>
-                <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-b-transparent"></span>
-                Joining...
-              </>
-            ) : (
-              'Join Batch'
-            )}
+          <Button 
+            type="submit" 
+            className="w-full" 
+            disabled={isSubmitting || !inviteCode.trim()}
+          >
+            {isSubmitting ? "Joining..." : "Join Batch"}
+            <ArrowRight className="h-4 w-4 ml-2" />
           </Button>
         </form>
       </CardContent>

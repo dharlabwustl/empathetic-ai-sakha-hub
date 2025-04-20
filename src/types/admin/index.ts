@@ -61,15 +61,3 @@ export interface AdminDashboardStats {
   verifiedMoodFeatureUsage?: number;
   completedSurveys?: number;
 }
-
-// Now we'll fix the SystemLog interface by using a proper type for details
-export interface SystemLog {
-  id: string;
-  level: "info" | "warning" | "error" | "critical";
-  message: string;
-  source: string;
-  timestamp: string;
-  details?: string;
-  resolved?: boolean;
-  assignedTo?: string;
-}

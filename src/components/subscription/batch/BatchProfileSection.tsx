@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -51,12 +50,7 @@ const BatchProfileSection: React.FC<BatchProfileSectionProps> = ({
   useEffect(() => {
     if (userBatches.length > 0 && !activeBatchId) {
       setActiveBatchId(userBatches[0].id);
-      // Properly cast the members array
-      const typedMembers = userBatches[0].members.map(member => ({
-        ...member,
-        role: member.role as "member" | "leader" | "school_admin" | "corporate_admin"
-      }));
-      setBatchMembers(typedMembers);
+      setBatchMembers(userBatches[0].members);
       
       setBatchProgress({
         completed: Math.floor(Math.random() * 50) + 10,
@@ -80,12 +74,7 @@ const BatchProfileSection: React.FC<BatchProfileSectionProps> = ({
     setActiveBatchId(batchId);
     const selectedBatch = userBatches.find(batch => batch.id === batchId);
     if (selectedBatch) {
-      // Properly cast the members array
-      const typedMembers = selectedBatch.members.map(member => ({
-        ...member,
-        role: member.role as "member" | "leader" | "school_admin" | "corporate_admin"
-      }));
-      setBatchMembers(typedMembers);
+      setBatchMembers(selectedBatch.members);
       
       setBatchProgress({
         completed: Math.floor(Math.random() * 50) + 10,
@@ -112,7 +101,6 @@ const BatchProfileSection: React.FC<BatchProfileSectionProps> = ({
       description: "Member has been promoted to batch admin."
     });
     
-    // Make sure we're using the correct type when updating
     const updatedMembers = batchMembers.map(member => 
       member.id === memberId ? {...member, role: "school_admin" as const} : member
     );
