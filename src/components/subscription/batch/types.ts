@@ -8,6 +8,11 @@ export interface BatchMember {
   joinedDate?: string;
   invitationCode?: string;
   avatar?: string;
+  progress?: {
+    completedTopics: number;
+    totalTopics: number;
+    lastActiveDate?: string;
+  };
 }
 
 export interface BatchDetails {
@@ -18,4 +23,15 @@ export interface BatchDetails {
   members: BatchMember[];
   maxMembers: number;
   planType: "group" | "school" | "corporate";
+  institutionName?: string;
+  expiryDate?: string;
+}
+
+export interface BatchProgress {
+  id: string;
+  batchId: string;
+  averageCompletion: number;
+  activeMembers: number;
+  totalMembers: number;
+  lastUpdateDate: string;
 }

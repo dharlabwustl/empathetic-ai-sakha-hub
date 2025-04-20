@@ -1,11 +1,12 @@
 
 export interface UserSubscription {
   planId: string;
-  planType: "free" | "basic" | "premium" | "enterprise";
+  planType: "free" | "basic" | "premium" | "enterprise" | "school" | "corporate";
   batchCode?: string;
   batchName?: string;
   startDate?: string;
   endDate?: string;
+  role?: "member" | "leader" | "admin";
 }
 
 export interface UserProfileType {
@@ -26,6 +27,9 @@ export interface UserProfileType {
   }[];
   subscription?: UserSubscription;
   joinDate?: string;
+  gender?: "male" | "female" | "other";
+  phoneNumber?: string;
+  examPreparation?: string;
 }
 
 export enum UserRole {
@@ -47,11 +51,22 @@ export type MoodType =
   | "neutral"
   | "okay";
 
-export interface SubscriptionType {
+export enum SubscriptionType {
+  Free = "free",
+  Basic = "basic",
+  Premium = "premium",
+  Enterprise = "enterprise",
+  School = "school",
+  Corporate = "corporate"
+}
+
+export interface SubscriptionPlan {
   id: string;
   name: string;
   price: number;
   features: string[];
   isPopular?: boolean;
   description?: string;
+  type: SubscriptionType;
+  maxMembers?: number;
 }

@@ -7,11 +7,15 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Mail, Phone, MapPin, Book, Sparkles, Crown, CreditCard } from "lucide-react";
+import { Mail, Phone, MapPin, Book, Sparkles, Crown, CreditCard, School, Building, Users } from "lucide-react";
 import BatchInvitationInput from "@/components/subscription/BatchInvitationInput";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import SubscriptionPlans from "@/components/subscription/SubscriptionPlans";
+import CheckoutPage from "@/components/subscription/CheckoutPage";
+import BatchMemberUploader from "@/components/subscription/batch/BatchMemberUploader";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { SubscriptionPlan, SubscriptionType } from "@/types/user/base";
 
 interface ProfileDetailsProps {
   userProfile: UserProfileType;
@@ -24,7 +28,17 @@ const ProfileDetails: React.FC<ProfileDetailsProps> = ({ userProfile, onUpdatePr
   const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState("profile");
   const { toast } = useToast();
+  
+  // Checkout state
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null);
+  const [isGroupPlan, setIsGroupPlan] = useState(false);
+  const [invitedEmails, setInvitedEmails] = useState<string[]>([]);
 
+  // Institutional plan dialog
+  const [isInstitutionDialogOpen, setIsInstitutionDialogOpen] = useState(false);
+  const [institutionType, setInstitutionType] = useState<"school" | "corporate" | null>(null);
+  
   const handleSave = () => {
     onUpdateProfile({
       name,
@@ -66,8 +80,138 @@ const ProfileDetails: React.FC<ProfileDetailsProps> = ({ userProfile, onUpdatePr
         description: "Failed to join batch. Please try again.",
         variant: "destructive",
       });
+      throw error;
     }
   };
+  
+  const handleSelectPlan = (plan: SubscriptionPlan, isGroup: boolean = false) => {
+    setSelectedPlan(plan);
+    setIsGroupPlan(isGroup);
+    setIsCheckoutOpen(true);
+  };
+  
+  const handleCancelCheckout = () => {
+    setIsCheckoutOpen(false);
+    setSelectedPlan(null);
+    setIsGroupPlan(false);
+    setInvitedEmails([]);
+  };
+  
+  const handleCheckoutSuccess = (plan: SubscriptionPlan, inviteCodes?: string[], emails?: string[]) => {
+    setIsCheckoutOpen(false);
+    
+    // Update user profile with new subscription
+    onUpdateProfile({
+      subscription: {
+        planId: plan.id,
+        planType: plan.type,
+        startDate: new Date().toISOString(),
+        endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days from now
+        role: isGroupPlan || plan.type === SubscriptionType.School || plan.type === SubscriptionType.Corporate ? 'leader' : undefined,
+        batchName: isGroupPlan ? 'Study Group' : 
+                  plan.type === SubscriptionType.School ? 'School Batch' : 
+                  plan.type === SubscriptionType.Corporate ? 'Corporate Batch' : undefined,
+        batchCode: isGroupPlan || plan.type === SubscriptionType.School || plan.type === SubscriptionType.Corporate 
+                  ? 'BATCH-' + Math.random().toString(36).substring(2, 8).toUpperCase() 
+                  : undefined
+      }
+    });
+    
+    toast({
+      title: "Subscription Activated",
+      description: `Your ${plan.name} has been activated successfully.`,
+    });
+    
+    // We'd also handle invite codes and emails here in a real implementation
+    if ((isGroupPlan || plan.type === SubscriptionType.School || plan.type === SubscriptionType.Corporate) && inviteCodes && emails) {
+      toast({
+        title: "Batch Created",
+        description: `Invitation codes have been sent to ${emails.length} members.`,
+      });
+    }
+    
+    setSelectedPlan(null);
+    setIsGroupPlan(false);
+    setInvitedEmails([]);
+  };
+  
+  const handleOpenInstitutionDialog = (type: "school" | "corporate") => {
+    setInstitutionType(type);
+    setIsInstitutionDialogOpen(true);
+  };
+  
+  const handleMemberUploadComplete = (emails: string[]) => {
+    setInvitedEmails(emails);
+    setIsInstitutionDialogOpen(false);
+    
+    // Find the appropriate plan based on institution type
+    const planType = institutionType === "school" ? SubscriptionType.School : SubscriptionType.Corporate;
+    const plan = institutionalPlans.find(p => p.type === planType);
+    
+    if (plan) {
+      setSelectedPlan(plan);
+      setIsGroupPlan(true);
+      setIsCheckoutOpen(true);
+      
+      toast({
+        title: "Proceeding to Checkout",
+        description: `Setting up ${institutionType} plan for ${emails.length} members.`,
+      });
+    }
+  };
+  
+  // Sample institutional plans
+  const institutionalPlans: SubscriptionPlan[] = [
+    {
+      id: "school-basic",
+      name: "School Basic",
+      price: 4999,
+      features: [
+        "Access for up to 30 students",
+        "Basic study materials",
+        "Monthly progress reports",
+        "Standard support",
+        "Student activity tracking",
+        "Teacher dashboard"
+      ],
+      type: SubscriptionType.School,
+      maxMembers: 30
+    },
+    {
+      id: "school-premium",
+      name: "School Premium",
+      price: 9999,
+      features: [
+        "Access for up to 100 students",
+        "Premium study materials",
+        "Weekly progress reports",
+        "Priority support",
+        "Advanced analytics",
+        "Parent access",
+        "Custom branding",
+        "API integration"
+      ],
+      type: SubscriptionType.School,
+      maxMembers: 100
+    },
+    {
+      id: "corporate-basic",
+      name: "Corporate Training",
+      price: 14999,
+      features: [
+        "Access for up to 50 employees",
+        "Custom training modules",
+        "Detailed progress tracking",
+        "Corporate branding",
+        "Manager dashboards",
+        "Regular reporting",
+        "API integration",
+        "Premium support"
+      ],
+      type: SubscriptionType.Corporate,
+      maxMembers: 50
+    }
+  ];
 
   return (
     <div className="space-y-6">
@@ -180,8 +324,75 @@ const ProfileDetails: React.FC<ProfileDetailsProps> = ({ userProfile, onUpdatePr
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                  {/* Individual Plans Section */}
+                  <Card className="overflow-hidden">
+                    <div className="h-1.5 bg-blue-500" />
+                    <CardContent className="pt-4">
+                      <div className="flex items-center mb-3">
+                        <CreditCard className="h-5 w-5 text-blue-500 mr-2" />
+                        <h3 className="text-lg font-medium">Individual Plans</h3>
+                      </div>
+                      <p className="text-sm text-muted-foreground mb-3">
+                        Standard subscription plans for individual students
+                      </p>
+                      <Button 
+                        className="w-full"
+                        variant="outline"
+                        onClick={() => setActiveTab("subscription")}
+                      >
+                        View Plans
+                      </Button>
+                    </CardContent>
+                  </Card>
+                  
+                  {/* School Plans Section */}
+                  <Card className="overflow-hidden">
+                    <div className="h-1.5 bg-green-500" />
+                    <CardContent className="pt-4">
+                      <div className="flex items-center mb-3">
+                        <School className="h-5 w-5 text-green-500 mr-2" />
+                        <h3 className="text-lg font-medium">School Plans</h3>
+                      </div>
+                      <p className="text-sm text-muted-foreground mb-3">
+                        Special plans for schools and educational institutions
+                      </p>
+                      <Button 
+                        className="w-full"
+                        variant="outline"
+                        onClick={() => handleOpenInstitutionDialog("school")}
+                      >
+                        Get School Plan
+                      </Button>
+                    </CardContent>
+                  </Card>
+                  
+                  {/* Corporate Plans Section */}
+                  <Card className="overflow-hidden">
+                    <div className="h-1.5 bg-amber-500" />
+                    <CardContent className="pt-4">
+                      <div className="flex items-center mb-3">
+                        <Building className="h-5 w-5 text-amber-500 mr-2" />
+                        <h3 className="text-lg font-medium">Corporate Plans</h3>
+                      </div>
+                      <p className="text-sm text-muted-foreground mb-3">
+                        Training solutions for businesses and organizations
+                      </p>
+                      <Button 
+                        className="w-full"
+                        variant="outline"
+                        onClick={() => handleOpenInstitutionDialog("corporate")}
+                      >
+                        Get Corporate Plan
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </div>
+                
                 <SubscriptionPlans 
-                  currentPlanId={userProfile.subscription?.planId || "free"} 
+                  currentPlanId={userProfile.subscription?.planId || "free"}
+                  onSelectPlan={handleSelectPlan}
+                  showGroupOption={true}
                 />
               </div>
             </CardContent>
@@ -237,6 +448,52 @@ const ProfileDetails: React.FC<ProfileDetailsProps> = ({ userProfile, onUpdatePr
           </Card>
         </TabsContent>
       </Tabs>
+      
+      {/* Checkout Dialog */}
+      {isCheckoutOpen && selectedPlan && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-slate-900 rounded-lg w-full max-w-6xl max-h-[90vh] overflow-y-auto">
+            <CheckoutPage 
+              selectedPlan={selectedPlan}
+              onCancel={handleCancelCheckout}
+              onSuccess={handleCheckoutSuccess}
+              isGroupPlan={isGroupPlan}
+              invitedEmails={invitedEmails}
+            />
+          </div>
+        </div>
+      )}
+      
+      {/* Institution Plan Dialog */}
+      <Dialog open={isInstitutionDialogOpen} onOpenChange={setIsInstitutionDialogOpen}>
+        <DialogContent className="sm:max-w-[525px]">
+          <CardTitle className="mb-4 flex items-center gap-2">
+            {institutionType === "school" ? (
+              <>
+                <School className="h-5 w-5 text-green-600" />
+                School Plan Setup
+              </>
+            ) : (
+              <>
+                <Building className="h-5 w-5 text-amber-600" />
+                Corporate Plan Setup
+              </>
+            )}
+          </CardTitle>
+          
+          <div className="mb-4">
+            <p className="text-muted-foreground mb-4">
+              {institutionType === "school" 
+                ? "Add student emails to create a school batch. You can add up to 100 students."
+                : "Add employee emails to create a corporate training batch. You can add up to 50 employees."}
+            </p>
+            <BatchMemberUploader 
+              onUploadComplete={handleMemberUploadComplete}
+              maxMembers={institutionType === "school" ? 100 : 50}
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
