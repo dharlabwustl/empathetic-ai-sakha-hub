@@ -17,7 +17,6 @@ const UPIPayment: React.FC<UPIPaymentProps> = ({ onSubmit, isProcessing }) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Simple validation for UPI ID format
     const upiPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z]+$/;
     
     if (!upiPattern.test(upiId)) {
@@ -29,7 +28,6 @@ const UPIPayment: React.FC<UPIPaymentProps> = ({ onSubmit, isProcessing }) => {
       return;
     }
 
-    // Call the submit function
     onSubmit();
   };
 

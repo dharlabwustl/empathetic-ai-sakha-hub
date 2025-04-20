@@ -18,37 +18,23 @@ const CreditCardForm: React.FC<CreditCardFormProps> = ({ onSubmit, isProcessing 
   const { toast } = useToast();
 
   const formatCardNumber = (value: string) => {
-    // Remove non-digit characters
     const digits = value.replace(/\D/g, '');
-    
-    // Limit to 16 digits
     const limitedDigits = digits.substring(0, 16);
-    
-    // Format with spaces every 4 digits
-    const formatted = limitedDigits.replace(/(\d{4})(?=\d)/g, '$1 ');
-    
-    return formatted;
+    return limitedDigits.replace(/(\d{4})(?=\d)/g, '$1 ');
   };
 
   const formatExpiryDate = (value: string) => {
-    // Remove non-digit characters
     const digits = value.replace(/\D/g, '');
-    
-    // Limit to 4 digits
     const limitedDigits = digits.substring(0, 4);
-    
-    // Format as MM/YY
     if (limitedDigits.length > 2) {
       return `${limitedDigits.substring(0, 2)}/${limitedDigits.substring(2)}`;
     }
-    
     return limitedDigits;
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Simple validation
     if (cardNumber.replace(/\s/g, '').length !== 16) {
       toast({
         title: "Invalid Card Number",
@@ -85,7 +71,6 @@ const CreditCardForm: React.FC<CreditCardFormProps> = ({ onSubmit, isProcessing 
       return;
     }
 
-    // Call the submit function
     onSubmit();
   };
 
