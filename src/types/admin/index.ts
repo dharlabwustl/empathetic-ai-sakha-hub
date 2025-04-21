@@ -24,3 +24,14 @@ export interface AdminSettings {
   updatedAt: string;
   updatedBy: string;
 }
+
+export interface StudentData {
+  id: string;
+  name: string;
+  email: string;
+  phoneNumber: string;
+  examType: string;
+  registrationDate: string;
+  completedOnboarding: boolean;
+  status: string;
+}

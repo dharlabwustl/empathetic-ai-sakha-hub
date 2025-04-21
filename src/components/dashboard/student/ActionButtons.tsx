@@ -77,7 +77,7 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
           <Button 
             variant="outline"
             className="bg-gradient-to-r from-amber-50 to-orange-50 hover:from-amber-100 hover:to-orange-100 text-amber-700 border-amber-200 flex items-center justify-between h-auto py-3 px-4"
-            onClick={() => handleNavigation("/dashboard/student/practice-exams")}
+            onClick={() => handleNavigation("/dashboard/student/exams")}
           >
             <span className="flex items-center">
               <FileText className="mr-2 h-5 w-5" />

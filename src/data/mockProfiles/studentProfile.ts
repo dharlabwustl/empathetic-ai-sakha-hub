@@ -1,6 +1,6 @@
+
 import { StudentProfile } from "@/types/user";
-import { UserRole, SubscriptionType, MoodType } from "@/types/user/base";
-import { v4 as uuidv4 } from "uuid";
+import { UserRole, MoodType } from "@/types/user/base";
 
 export const mockStudentProfile: StudentProfile = {
   id: "1",
@@ -9,7 +9,12 @@ export const mockStudentProfile: StudentProfile = {
   email: "rahul.singh@example.com",
   role: UserRole.Student,
   personalityType: "Strategic Thinker",
-  subscription: SubscriptionType.Basic,
+  subscription: {
+    id: "sub-student-1",
+    plan: "basic",
+    expiresAt: "2025-12-31",
+    status: "active"
+  },
   joinDate: "2025-03-01",
   lastActive: "2025-05-12",
   areasOfInterest: [

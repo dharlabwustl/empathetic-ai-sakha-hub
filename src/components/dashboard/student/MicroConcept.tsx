@@ -13,7 +13,8 @@ import {
   Book, 
   Video, 
   FileText,
-  MessageSquare
+  MessageSquare,
+  ArrowRight
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
@@ -62,8 +63,7 @@ export default function MicroConcept({
     // In a real app, we would fetch the next concept ID
     // For now, we'll simulate moving to the next concept
     setTimeout(() => {
-      // This would navigate to the next concept
-      // navigate(`/dashboard/student/concept/${nextConceptId}`);
+      navigate("/dashboard/student/concept/next");
     }, 1500);
   };
   
@@ -146,6 +146,15 @@ export default function MicroConcept({
           <div className="flex items-center gap-2 text-green-600 text-sm">
             <Check size={16} />
             <span>Concept Understood</span>
+            <Button 
+              variant="outline"
+              size="sm"
+              className="ml-auto text-green-600 hover:text-green-700 hover:bg-green-50 flex items-center gap-1"
+              onClick={() => navigate("/dashboard/student/concept/next")}
+            >
+              <span>Next Concept</span>
+              <ArrowRight size={14} />
+            </Button>
           </div>
         ) : (
           <div className="flex flex-wrap gap-2">

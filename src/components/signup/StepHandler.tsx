@@ -3,10 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import { OnboardingStep, UserRole, UserGoal } from "./OnboardingContext";
+import { PersonalityType, MoodType } from "@/types/user/base";
 import { getDemographicsQuestion } from "./utils/stepUtils";
 import authService from "@/services/auth/authService"; 
 import { getSubjectsForGoal } from "@/components/dashboard/student/onboarding/SubjectData";
-import { MoodType } from "@/types/user/base";
 
 interface StepHandlerProps {
   onboardingData: any;

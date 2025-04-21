@@ -1,15 +1,16 @@
 
 import React from "react";
-import RoleStep from "@/components/signup/steps/RoleStep";
-import DemographicsStep from "@/components/signup/steps/DemographicsStep";
-import GoalStep from "@/components/signup/steps/GoalStep";
-import PersonalityStep from "@/components/signup/steps/PersonalityStep";
-import SentimentStep from "@/components/signup/steps/SentimentStep";
-import HabitsStep from "@/components/signup/steps/HabitsStep";
-import InterestsStep from "@/components/signup/steps/InterestsStep";
-import SignupStep from "@/components/signup/steps/SignupStep";
-import { OnboardingStep, UserRole } from "./OnboardingContext";
-import { PersonalityType, MoodType } from "@/types/user/base";
+import { OnboardingStep, UserGoal, UserRole } from "./OnboardingContext";
+import { MoodType } from "@/types/user/base";
+import RoleStep from "./steps/RoleStep";
+import GoalStep from "./steps/GoalStep";
+import DemographicsStep from "./steps/DemographicsStep";
+import PersonalityStep from "./steps/PersonalityStep";
+import SentimentStep from "./steps/SentimentStep";
+import StudyHabitsStep from "./steps/StudyHabitsStep";
+import InterestsStep from "./steps/InterestsStep";
+import SignupStep from "./steps/SignupStep";
+import CompletedStep from "./steps/CompletedStep";
 
 interface StepRendererProps {
   step: OnboardingStep;
@@ -17,8 +18,8 @@ interface StepRendererProps {
   handlers: {
     handleRoleSelect: (role: UserRole) => void;
     handleDemographicsSubmit: (data: Record<string, string>) => void;
-    handleGoalSelect: (goal: string) => void;
-    handlePersonalitySelect: (personality: PersonalityType) => void;
+    handleGoalSelect: (goal: UserGoal) => void;
+    handlePersonalitySelect: (personality: string) => void;
     handleMoodSelect: (mood: MoodType) => void;
     handleHabitsSubmit: (habits: Record<string, string>) => void;
     handleInterestsSubmit: (interests: string) => void;
@@ -33,51 +34,36 @@ const StepRenderer: React.FC<StepRendererProps> = ({
   handlers,
   isLoading
 }) => {
-  // Helper function to go to next step (for components that require it)
-  const handleNextStep = () => {
-    // This would be handled by the parent component which controls steps
-    console.log("Next step requested");
-  };
-
   switch (step) {
     case "role":
       return <RoleStep onRoleSelect={handlers.handleRoleSelect} />;
+      
     case "goal":
-      return <GoalStep 
-        role={onboardingData.role} 
-        onGoalSelect={handlers.handleGoalSelect} 
-      />;
+      return <GoalStep onGoalSelect={handlers.handleGoalSelect} selectedRole={onboardingData.role} />;
+      
     case "demographics":
-      return <DemographicsStep 
-        role={onboardingData.role}
-        goal={onboardingData.goal}
-        onSubmit={handlers.handleDemographicsSubmit} 
-      />;
+      return <DemographicsStep onSubmit={handlers.handleDemographicsSubmit} selectedGoal={onboardingData.goal} />;
+      
     case "personality":
-      return <PersonalityStep 
-        onPersonalitySelect={handlers.handlePersonalitySelect}
-        onNext={handleNextStep}
-      />;
+      return <PersonalityStep onSelect={handlers.handlePersonalitySelect} />;
+      
     case "sentiment":
-      return <SentimentStep 
-        onMoodSelect={handlers.handleMoodSelect} 
-      />;
+      return <SentimentStep onSelect={handlers.handleMoodSelect} />;
+      
     case "habits":
-      return <HabitsStep 
-        onSubmit={handlers.handleHabitsSubmit} 
-      />;
+      return <StudyHabitsStep onSubmit={handlers.handleHabitsSubmit} />;
+      
     case "interests":
-      return <InterestsStep 
-        examGoal={onboardingData.goal}
-        onSubmit={handlers.handleInterestsSubmit} 
-      />;
+      return <InterestsStep onSubmit={handlers.handleInterestsSubmit} selectedGoal={onboardingData.goal} />;
+      
     case "signup":
-      return <SignupStep 
-        onSubmit={handlers.handleSignupSubmit} 
-        isLoading={isLoading} 
-      />;
+      return <SignupStep onSubmit={handlers.handleSignupSubmit} isLoading={isLoading} />;
+      
+    case "complete":
+      return <CompletedStep onboardingData={onboardingData} />;
+      
     default:
-      return null;
+      return <div>Unknown step</div>;
   }
 };
 
