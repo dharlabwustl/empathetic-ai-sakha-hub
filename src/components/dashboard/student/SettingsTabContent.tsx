@@ -37,9 +37,9 @@ const SettingsTabContent: React.FC<SettingsTabContentProps> = ({ userProfile }) 
             
             <TabsContent value="billing" className="space-y-4">
               <ProfileBillingSection 
-                subscriptionId={userProfile?.subscription?.id}
-                planName={userProfile?.subscription?.plan}
-                currentPeriodEnd={userProfile?.subscription?.expiresAt}
+                subscriptionId={typeof userProfile?.subscription === 'object' ? userProfile?.subscription?.id : undefined}
+                planName={typeof userProfile?.subscription === 'object' ? userProfile?.subscription?.plan : userProfile?.subscription}
+                currentPeriodEnd={typeof userProfile?.subscription === 'object' ? userProfile?.subscription?.expiresAt : undefined}
               />
             </TabsContent>
             

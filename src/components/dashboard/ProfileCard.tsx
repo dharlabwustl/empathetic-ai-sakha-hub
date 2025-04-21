@@ -137,7 +137,6 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
                 <Progress
                   value={progress}
                   className="absolute bottom-0 left-0 right-0 h-1.5 bg-gray-200"
-                  indicatorClassName="bg-primary"
                 />
               </div>
             )}
@@ -200,10 +199,12 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
               <div className="flex items-center gap-1">
                 <Crown className="h-3.5 w-3.5 text-amber-500" />
                 <span className="text-sm font-medium text-amber-700 dark:text-amber-400">
-                  {profile.subscription.plan} Plan
+                  {typeof profile.subscription === 'object' && profile.subscription.plan ? 
+                    profile.subscription.plan : 
+                    profile.subscription} Plan
                 </span>
               </div>
-              {profile.subscription.expiresAt && (
+              {typeof profile.subscription === 'object' && profile.subscription.expiresAt && (
                 <span className="text-xs text-gray-500">
                   Expires: {new Date(profile.subscription.expiresAt).toLocaleDateString()}
                 </span>

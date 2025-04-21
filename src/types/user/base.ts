@@ -1,11 +1,14 @@
 
 export interface UserSubscription {
+  id?: string;
   planId: string;
+  plan?: string;
   planType: SubscriptionType;
   batchCode?: string;
   batchName?: string;
   startDate?: string;
   endDate?: string;
+  expiresAt?: string;
   role?: "member" | "leader" | "school_admin" | "corporate_admin";
 }
 
@@ -17,6 +20,7 @@ export interface UserProfileType {
   bio?: string;
   avatar?: string;
   personalityType?: string;
+  goal?: string; // Added for backward compatibility
   goals?: {
     id: string;
     title: string;
@@ -26,6 +30,8 @@ export interface UserProfileType {
     dueDate?: string;
     targetDate?: Date;
   }[];
+  examDate?: string; // Added for backward compatibility
+  peerRanking?: number; // Added for backward compatibility
   areasOfInterest?: {
     id: string;
     name: string;
@@ -39,6 +45,14 @@ export interface UserProfileType {
   examPreparation?: string;
   loginCount?: number;
   completedOnboarding?: boolean;
+  batchName?: string; // Added for backward compatibility
+  batchCode?: string; // Added for backward compatibility
+  isGroupLeader?: boolean; // Added for backward compatibility
+  city?: string; // Added for backward compatibility
+  state?: string; // Added for backward compatibility
+  school?: string; // Added for backward compatibility
+  grade?: string; // Added for backward compatibility
+  board?: string; // Added for backward compatibility
   address?: {
     street?: string;
     city?: string;
