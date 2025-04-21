@@ -9,7 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { MoodType } from "@/types/user/base";
 import MoodLogButton from "./MoodLogButton";
 import MoodSpecificContent from "./mood-tracking/MoodSpecificContent";
-import { getMoodDisplayName } from "./mood-tracking/moodUtils";
+import { getMoodDisplayName, saveMoodToLocalStorage } from "./mood-tracking/moodUtils";
 
 interface MoodTrackingProps {
   className?: string;
@@ -39,12 +39,17 @@ const MoodTracking: React.FC<MoodTrackingProps> = ({ className = "" }) => {
     navigate("/dashboard/student/mood");
   };
 
+  const updateCurrentMood = (mood: MoodType) => {
+    setCurrentMood(mood);
+    saveMoodToLocalStorage(mood);
+  };
+
   return (
     <Card className={`overflow-hidden ${className}`}>
       <CardContent className="p-4">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-medium">How are you feeling today?</h3>
-          <MoodLogButton />
+          <MoodLogButton onMoodSelect={updateCurrentMood} />
         </div>
 
         {currentMood && (

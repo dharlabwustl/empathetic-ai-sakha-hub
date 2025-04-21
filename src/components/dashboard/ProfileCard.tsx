@@ -1,207 +1,240 @@
 
-import { UserProfileType } from "@/types/user";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Camera, Trophy, Users, Star } from "lucide-react";
-import { SubscriptionType, UserSubscription } from "@/types/user/base";
-import { useState } from "react";
+import { 
+  Card, 
+  CardContent, 
+  CardDescription, 
+  CardFooter, 
+  CardHeader, 
+  CardTitle 
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { 
+  ArrowUpRight, 
+  Calendar, 
+  Crown, 
+  Edit, 
+  Medal, 
+  Star, 
+  UploadCloud, 
+  Users,
+  User
+} from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+import { getInitials } from "@/utils/stringUtils";
+import { UserProfileType, MoodType } from "@/types/user/base";
+import { cn } from "@/lib/utils";
 
 interface ProfileCardProps {
   profile: UserProfileType;
   showPeerRanking?: boolean;
+  showMoodStatus?: boolean;
+  currentMood?: MoodType;
   onUploadImage?: (file: File) => void;
-  currentMood?: string;
+  className?: string;
 }
 
-export default function ProfileCard({
+const ProfileCard: React.FC<ProfileCardProps> = ({
   profile,
   showPeerRanking = false,
+  showMoodStatus = false,
+  currentMood,
   onUploadImage,
-  currentMood
-}: ProfileCardProps) {
-  const fileInputRef = useState<HTMLInputElement | null>(null);
-  const [isHovering, setIsHovering] = useState(false);
-
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (files && files.length > 0 && onUploadImage) {
+  className = "",
+}) => {
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const navigate = useNavigate();
+  
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || !files[0] || !onUploadImage) return;
+    
+    setIsUploading(true);
+    setProgress(0);
+    
+    // Simulate progress
+    const timer = setInterval(() => {
+      setProgress((prev) => {
+        if (prev >= 95) {
+          clearInterval(timer);
+          return prev;
+        }
+        return prev + 5;
+      });
+    }, 50);
+    
+    // Simulate upload delay
+    setTimeout(() => {
       onUploadImage(files[0]);
-    }
-  };
-
-  // Helper function to determine if subscription is an object or enum
-  const isSubscriptionObject = (
-    sub: SubscriptionType | UserSubscription | undefined
-  ): sub is UserSubscription => {
-    return typeof sub === "object" && sub !== null;
-  };
-
-  // Get the subscription type, whether it's a direct enum or from an object
-  const getSubscriptionType = (
-    sub: SubscriptionType | UserSubscription | undefined
-  ): SubscriptionType => {
-    if (!sub) return SubscriptionType.Free;
-    if (isSubscriptionObject(sub)) {
-      return sub.planType;
-    }
-    return sub;
-  };
-
-  // Get the subscription plan name
-  const getSubscriptionPlanName = (): string => {
-    const subscriptionType = getSubscriptionType(profile.subscription);
-    
-    // Map subscription types to display names
-    const subscriptionDisplayNames: Record<SubscriptionType, string> = {
-      [SubscriptionType.Free]: "Free Plan",
-      [SubscriptionType.Basic]: "Basic Plan",
-      [SubscriptionType.Premium]: "Premium Plan",
-      [SubscriptionType.Enterprise]: "Enterprise Plan",
-      [SubscriptionType.School]: "School Plan",
-      [SubscriptionType.Corporate]: "Corporate Plan"
-    };
-    
-    // Use plan name from the map or fallback to subscription type
-    return subscriptionDisplayNames[subscriptionType] || String(subscriptionType);
+      setIsUploading(false);
+      setProgress(100);
+      setTimeout(() => setProgress(0), 500);
+    }, 1000);
   };
   
-  // Get badge color based on subscription
-  const getSubscriptionBadgeColor = (): string => {
-    const subscriptionType = getSubscriptionType(profile.subscription);
-    
-    // Map subscription types to badge colors
-    const badgeColors: Record<SubscriptionType, string> = {
-      [SubscriptionType.Free]: "bg-gray-500 hover:bg-gray-600",
-      [SubscriptionType.Basic]: "bg-blue-500 hover:bg-blue-600",
-      [SubscriptionType.Premium]: "bg-purple-500 hover:bg-purple-600",
-      [SubscriptionType.Enterprise]: "bg-amber-500 hover:bg-amber-600",
-      [SubscriptionType.School]: "bg-green-500 hover:bg-green-600",
-      [SubscriptionType.Corporate]: "bg-indigo-500 hover:bg-indigo-600"
-    };
-    
-    // Use color from the map or fallback to gray
-    return badgeColors[subscriptionType] || "bg-gray-500 hover:bg-gray-600";
+  const handleUploadClick = () => {
+    fileInputRef.current?.click();
   };
-
-  // Get formatted join date
-  const getJoinDate = (): string => {
-    return profile.joinDate
-      ? new Date(profile.joinDate).toLocaleDateString('en-US', {
-          year: 'numeric',
-          month: 'short',
-          day: 'numeric'
-        })
-      : 'N/A';
+  
+  const handleViewProfile = () => {
+    navigate("/dashboard/student/profile");
+  };
+  
+  const handleUpgradePlan = () => {
+    navigate("/dashboard/student/subscription");
   };
 
   return (
-    <Card className="h-full">
-      <CardHeader className="pb-2">
-        <CardTitle className="text-xl font-semibold flex justify-between items-center">
-          <span>Profile</span>
-          <Badge className={`${getSubscriptionBadgeColor()} text-white`}>
-            {getSubscriptionPlanName()}
-          </Badge>
-        </CardTitle>
+    <Card className={cn("overflow-hidden", className)}>
+      <CardHeader className="relative p-4 pb-0">
+        <div className="flex justify-between">
+          <CardTitle className="text-lg">{profile.name}</CardTitle>
+          {onUploadImage && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8"
+              onClick={handleUploadClick}
+            >
+              <Edit className="h-4 w-4" />
+            </Button>
+          )}
+        </div>
+        <CardDescription className="flex items-center gap-1 text-xs">
+          {profile.role === "student" ? "Student" : profile.role}
+          {profile.batchName && (
+            <>
+              <span className="text-gray-400">•</span>
+              <Badge variant="outline" className="text-xs py-0 h-5 px-1.5">
+                <Users className="h-3 w-3 mr-1" />
+                {profile.batchName}
+              </Badge>
+            </>
+          )}
+        </CardDescription>
       </CardHeader>
-      <CardContent>
-        <div className="flex flex-col items-center pb-3 relative">
-          <div
-            className="relative"
-            onMouseEnter={() => setIsHovering(true)}
-            onMouseLeave={() => setIsHovering(false)}
-          >
-            <Avatar className="w-24 h-24 border-4 border-white shadow-lg">
-              <AvatarImage src={profile.avatar || ""} />
-              <AvatarFallback className="text-2xl">
-                {profile.name
-                  ? profile.name
-                      .split(" ")
-                      .map((n) => n[0])
-                      .join("")
-                      .toUpperCase()
-                  : "?"}
+      
+      <CardContent className="p-4 pt-2">
+        <div className="flex items-center gap-3">
+          <div className="relative">
+            <Avatar className="h-16 w-16 border-2 border-white shadow-md">
+              <AvatarImage src={profile.avatar} />
+              <AvatarFallback className="bg-primary text-primary-foreground">
+                {getInitials(profile.name)}
               </AvatarFallback>
             </Avatar>
             
-            {onUploadImage && (
-              <>
-                <input
-                  type="file"
-                  ref={(el) => {
-                    if (fileInputRef) fileInputRef[1](el);
-                  }}
-                  onChange={handleFileUpload}
-                  className="hidden"
-                  accept="image/*"
+            {isUploading && progress > 0 && (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="h-16 w-16 rounded-full bg-black/30 flex items-center justify-center">
+                  <UploadCloud className="h-6 w-6 text-white" />
+                </div>
+                <Progress
+                  value={progress}
+                  className="absolute bottom-0 left-0 right-0 h-1.5 bg-gray-200"
+                  indicatorClassName="bg-primary"
                 />
-                <Button
-                  onClick={() => fileInputRef[0]?.click()}
-                  size="icon"
-                  variant="secondary"
-                  className={`absolute bottom-0 right-0 rounded-full shadow-md transition-opacity ${
-                    isHovering ? "opacity-100" : "opacity-0"
-                  }`}
-                >
-                  <Camera size={16} />
-                </Button>
-              </>
+              </div>
+            )}
+            
+            {onUploadImage && (
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleFileChange}
+                accept="image/*"
+                className="hidden"
+              />
             )}
           </div>
-
-          <h3 className="font-medium text-lg mt-2">{profile.name}</h3>
-          <p className="text-muted-foreground text-sm">{profile.email}</p>
           
-          {currentMood && (
-            <Badge variant="outline" className="mt-2">
-              Mood: {currentMood}
-            </Badge>
-          )}
-          
-          {showPeerRanking && (
-            <div className="flex items-center mt-2 text-amber-500">
-              <Trophy size={16} className="mr-1" />
-              <span className="text-sm">
-                Top 15% in your peer group
-              </span>
+          <div className="flex-1">
+            <div className="flex flex-col gap-1">
+              {profile.goal && (
+                <div className="text-sm flex items-center">
+                  <Star className="h-3.5 w-3.5 text-amber-500 mr-1" />
+                  <span className="text-gray-600 dark:text-gray-300">
+                    Preparing for {profile.goal}
+                  </span>
+                </div>
+              )}
+              
+              {profile.examDate && (
+                <div className="text-sm flex items-center">
+                  <Calendar className="h-3.5 w-3.5 text-blue-500 mr-1" />
+                  <span className="text-gray-600 dark:text-gray-300">
+                    Exam Date: {profile.examDate}
+                  </span>
+                </div>
+              )}
+              
+              {showPeerRanking && profile.peerRanking && (
+                <div className="text-sm flex items-center">
+                  <Medal className="h-3.5 w-3.5 text-purple-500 mr-1" />
+                  <span className="text-gray-600 dark:text-gray-300">
+                    #{profile.peerRanking} in your batch
+                  </span>
+                </div>
+              )}
+              
+              {showMoodStatus && currentMood && (
+                <Badge
+                  variant="outline"
+                  className="w-fit text-xs py-0 px-2 gap-1 mt-1"
+                >
+                  Feeling {currentMood}
+                </Badge>
+              )}
             </div>
-          )}
+          </div>
         </div>
         
-        <div className="border-t pt-3 space-y-2">
-          <div className="flex justify-between items-center">
-            <span className="text-muted-foreground text-sm">Role</span>
-            <span className="font-medium">{profile.role}</span>
-          </div>
-          
-          <div className="flex justify-between items-center">
-            <span className="text-muted-foreground text-sm">Joined</span>
-            <span>{getJoinDate()}</span>
-          </div>
-
-          {profile.personalityType && (
+        {profile.subscription && (
+          <div className="mt-3">
             <div className="flex justify-between items-center">
-              <span className="text-muted-foreground text-sm">Personality</span>
-              <span>{profile.personalityType}</span>
+              <div className="flex items-center gap-1">
+                <Crown className="h-3.5 w-3.5 text-amber-500" />
+                <span className="text-sm font-medium text-amber-700 dark:text-amber-400">
+                  {profile.subscription.plan} Plan
+                </span>
+              </div>
+              {profile.subscription.expiresAt && (
+                <span className="text-xs text-gray-500">
+                  Expires: {new Date(profile.subscription.expiresAt).toLocaleDateString()}
+                </span>
+              )}
             </div>
-          )}
-          
-          {profile.goals && profile.goals.length > 0 && (
-            <div className="flex justify-between items-center">
-              <span className="text-muted-foreground text-sm">Goal</span>
-              <span>{profile.goals[0].title}</span>
-            </div>
-          )}
-          
-          <div className="flex justify-between items-center pt-1">
-            <Button variant="outline" size="sm" className="w-full">
-              <Users size={16} className="mr-2" /> View Full Profile
-            </Button>
           </div>
-        </div>
+        )}
       </CardContent>
+      
+      <CardFooter className="p-4 pt-0 gap-2 flex">
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="w-full flex gap-1 items-center text-xs"
+          onClick={handleViewProfile}
+        >
+          <User className="h-3.5 w-3.5" />
+          View Profile
+        </Button>
+        <Button 
+          variant="default" 
+          size="sm" 
+          className="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white flex gap-1 items-center text-xs"
+          onClick={handleUpgradePlan}
+        >
+          <Crown className="h-3.5 w-3.5" />
+          Upgrade Plan
+        </Button>
+      </CardFooter>
     </Card>
   );
-}
+};
+
+export default ProfileCard;

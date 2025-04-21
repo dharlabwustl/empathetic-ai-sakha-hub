@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useNavigate } from "react-router-dom";
 import { 
   Check, 
   BookOpen, 
@@ -11,9 +12,11 @@ import {
   ThumbsUp, 
   Book, 
   Video, 
-  FileText 
+  FileText,
+  MessageSquare
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
 
 interface MicroConceptProps {
   id: string;
@@ -44,14 +47,45 @@ export default function MicroConcept({
 }: MicroConceptProps) {
   const [expanded, setExpanded] = useState(false);
   const [understood, setUnderstood] = useState(false);
+  const navigate = useNavigate();
+  const { toast } = useToast();
   
   const handleMarkUnderstood = () => {
     setUnderstood(true);
     onComplete(id);
+    
+    toast({
+      title: "Concept completed!",
+      description: "Moving to the next concept in your learning path.",
+    });
+    
+    // In a real app, we would fetch the next concept ID
+    // For now, we'll simulate moving to the next concept
+    setTimeout(() => {
+      // This would navigate to the next concept
+      // navigate(`/dashboard/student/concept/${nextConceptId}`);
+    }, 1500);
   };
   
   const handleNeedHelp = () => {
     onNeedHelp(id);
+    navigate("/dashboard/student/tutor", { 
+      state: { 
+        fromConcept: true, 
+        conceptTitle: title,
+        conceptSubject: subject,
+        conceptDifficulty: difficulty
+      } 
+    });
+  };
+  
+  const getDifficultyColor = () => {
+    switch (difficulty) {
+      case "Easy": return "bg-green-100 text-green-800 border-green-200";
+      case "Medium": return "bg-amber-100 text-amber-800 border-amber-200";
+      case "Hard": return "bg-red-100 text-red-800 border-red-200";
+      default: return "bg-gray-100 text-gray-800 border-gray-200";
+    }
   };
   
   return (
@@ -69,11 +103,8 @@ export default function MicroConcept({
             </div>
             
             <div className="flex gap-2">
-              <Badge variant={
-                difficulty === "Easy" ? "outline" : 
-                difficulty === "Medium" ? "secondary" : 
-                "destructive"
-              }>
+              <Badge variant="outline" className={cn("flex items-center gap-1", getDifficultyColor())}>
+                <Award size={14} />
                 {difficulty}
               </Badge>
               <Badge variant="outline" className="flex gap-1 items-center">
@@ -117,7 +148,7 @@ export default function MicroConcept({
             <span>Concept Understood</span>
           </div>
         ) : (
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Button 
               variant="ghost" 
               size="sm" 
@@ -131,10 +162,19 @@ export default function MicroConcept({
                 <Button 
                   variant="outline" 
                   size="sm"
+                  className="text-purple-600 hover:text-purple-700 hover:bg-purple-50 flex items-center gap-1"
+                  onClick={handleNeedHelp}
+                >
+                  <MessageSquare size={16} />
+                  24/7 AI Tutor
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm"
                   className="text-red-600 hover:text-red-700 hover:bg-red-50"
                   onClick={handleNeedHelp}
                 >
-                  <HelpCircle size={16} className="mr-1" />
+                  <HelpCircle size={16} />
                   Need Help
                 </Button>
                 <Button 
@@ -143,7 +183,7 @@ export default function MicroConcept({
                   className="text-green-600 hover:text-green-700 hover:bg-green-50"
                   onClick={handleMarkUnderstood}
                 >
-                  <ThumbsUp size={16} className="mr-1" />
+                  <ThumbsUp size={16} />
                   Got It!
                 </Button>
               </>
