@@ -42,6 +42,7 @@ export interface Goal {
 export interface UserSubscription {
   id: string;
   plan: string;
+  planType?: SubscriptionType;
   expiresAt: string;
   status: "active" | "expired" | "canceled" | "pending";
 }

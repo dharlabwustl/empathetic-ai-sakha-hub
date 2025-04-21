@@ -1,4 +1,3 @@
-
 import { FounderProfile } from "@/types/user";
 import { UserRole, SubscriptionType } from "@/types/user/base";
 import { v4 as uuidv4 } from "uuid";
@@ -11,10 +10,10 @@ export const mockFounderProfile: FounderProfile = {
   role: UserRole.Founder,
   personalityType: "Creative Builder",
   subscription: {
-    planId: "premium-001",
-    planType: SubscriptionType.Premium,
-    startDate: "2024-12-05",
-    endDate: "2025-12-05"
+    id: "sub-founder-1",
+    plan: "enterprise",
+    expiresAt: "2026-12-31",
+    status: "active"
   },
   joinDate: "2024-12-05",
   lastActive: "2025-04-07",
@@ -32,20 +31,20 @@ export const mockFounderProfile: FounderProfile = {
   pitchDeckStatus: 100,
   goals: [
     {
-      id: uuidv4(),
-      title: "Secure Series A",
-      description: "Raise $1.5M in Series A funding",
-      progress: 35,
-      status: "in-progress",
+      id: "goal-1",
+      title: "Scale platform user base",
+      description: "Reach 100,000 active users by Q3",
+      progress: 48,
+      status: "in_progress",
       dueDate: "2025-09-30",
       targetDate: new Date("2025-09-30")
     },
     {
-      id: uuidv4(),
-      title: "User Growth",
-      description: "Reach 50,000 active users",
-      progress: 60,
-      status: "in-progress",
+      id: "goal-2",
+      title: "Secure Series B funding",
+      description: "Prepare pitch deck and investor meetings",
+      progress: 65,
+      status: "in_progress",
       dueDate: "2025-06-15",
       targetDate: new Date("2025-06-15")
     }

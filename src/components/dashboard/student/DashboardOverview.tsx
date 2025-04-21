@@ -82,7 +82,7 @@ export default function DashboardOverview({
     if (!userProfile.subscription) return SubscriptionType.Basic;
     
     if (typeof userProfile.subscription === 'object') {
-      return userProfile.subscription.planType;
+      return userProfile.subscription.planType || SubscriptionType.Basic;
     }
     
     return userProfile.subscription;

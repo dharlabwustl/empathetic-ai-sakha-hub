@@ -9,10 +9,11 @@ import { getMoodDisplayName, getMoodColor } from "./moodUtils";
 
 interface MoodLogButtonProps {
   currentMood?: MoodType;
-  onMoodChange: (mood: MoodType) => void;
+  onMoodSelect?: (mood: MoodType) => void;
+  onMoodChange?: (mood: MoodType) => void;
 }
 
-const MoodLogButton: React.FC<MoodLogButtonProps> = ({ currentMood, onMoodChange }) => {
+const MoodLogButton: React.FC<MoodLogButtonProps> = ({ currentMood, onMoodSelect, onMoodChange }) => {
   const [showMoodDialog, setShowMoodDialog] = useState(false);
 
   const getMoodIcon = (mood?: MoodType) => {
@@ -21,6 +22,12 @@ const MoodLogButton: React.FC<MoodLogButtonProps> = ({ currentMood, onMoodChange
   };
 
   const handleClose = () => {
+    setShowMoodDialog(false);
+  };
+
+  const handleMoodSelection = (mood: MoodType) => {
+    if (onMoodSelect) onMoodSelect(mood);
+    if (onMoodChange) onMoodChange(mood);
     setShowMoodDialog(false);
   };
 
@@ -45,10 +52,7 @@ const MoodLogButton: React.FC<MoodLogButtonProps> = ({ currentMood, onMoodChange
         isOpen={showMoodDialog}
         onClose={handleClose}
         selectedMood={currentMood}
-        onSelectMood={(mood) => {
-          onMoodChange(mood);
-          setShowMoodDialog(false);
-        }}
+        onSelectMood={handleMoodSelection}
       />
     </>
   );

@@ -1,70 +1,54 @@
+import { UserProfileType, UserRole } from "@/types/user/base";
 
-import { EmployeeProfile } from "@/types/user";
-import { UserRole, SubscriptionType } from "@/types/user/base";
-import { v4 as uuidv4 } from "uuid";
-
-export const mockEmployeeProfile: EmployeeProfile = {
-  id: uuidv4(),
-  name: "Rajesh Kumar",
-  email: "rajesh.kumar@techsolutions.com",
-  phoneNumber: "+919876543211",
+export const employeeProfile: UserProfileType = {
+  id: "employee-1",
+  name: "Anika Sharma",
+  email: "anika.sharma@example.com",
+  avatar: "/avatars/employee1.jpg",
   role: UserRole.Employee,
-  personalityType: "Strategic Thinker",
+  phoneNumber: "+91 99887 76655",
+  createdAt: "2022-08-15",
+  lastLogin: "2024-03-20",
+  onboarded: true,
+  loginCount: 28,
+  completedOnboarding: true,
   subscription: {
-    planId: "basic-001",
-    planType: SubscriptionType.Basic,
-    startDate: "2025-01-15",
-    endDate: "2025-07-15"
+    id: "sub-emp-1",
+    plan: "elite", // Changed from planId to plan
+    expiresAt: "2024-07-15",
+    status: "active"
   },
-  joinDate: "2025-01-15",
-  lastActive: "2025-04-06",
-  jobTitle: "Product Manager",
-  workExperience: 6,
-  skills: [
-    "Product Strategy",
-    "User Research",
-    "Agile Methodologies",
-    "Roadmapping",
-    "Team Leadership"
-  ],
-  company: "TechSolutions India",
-  industry: "SaaS",
-  careerGoal: "Director of Product",
-  projectsCompleted: 12,
-  trainingCompleted: 8,
-  experienceLevel: "Mid-Senior",
-  skillsToGrow: ["Data Analytics", "Machine Learning Basics", "Product Marketing"],
-  productivityScore: 85,
+  batchName: "Sakha Employees",
+  batchCode: "SAKHA-EMP-2022",
+  isGroupLeader: false,
+  peerRanking: 15,
+  examDate: "N/A",
+  school: "N/A",
+  grade: "N/A",
+  board: "N/A",
+  city: "Mumbai",
+  state: "Maharashtra",
   goals: [
     {
-      id: uuidv4(),
-      title: "Complete PMP Certification",
-      description: "Pass the Project Management Professional exam",
-      progress: 75,
-      status: "in-progress",
-      dueDate: "2025-05-30",
-      targetDate: new Date("2025-05-30")
+      id: "goal-1",
+      title: "Complete training modules",
+      description: "Finish all assigned training courses",
+      progress: 65,
+      status: "in_progress" // Fixed from "in-progress"
     },
     {
-      id: uuidv4(),
-      title: "Learn SQL",
-      description: "Complete advanced SQL course for data analysis",
-      progress: 45,
-      status: "not-started",
-      dueDate: "2025-07-15",
-      targetDate: new Date("2025-07-15")
-    }
-  ],
-  areasOfInterest: [
-    {
-      id: uuidv4(),
-      name: "Product Analytics",
-      level: "Intermediate"
+      id: "goal-2",
+      title: "Develop leadership skills",
+      description: "Attend leadership workshops and apply concepts",
+      progress: 40,
+      status: "not_started" // Fixed from "not-started"
     },
     {
-      id: uuidv4(),
-      name: "UX Design",
-      level: "Beginner"
+      id: "goal-3",
+      title: "Improve client communication",
+      description: "Enhance communication skills for better client relations",
+      progress: 80,
+      status: "completed"
     }
   ]
 };

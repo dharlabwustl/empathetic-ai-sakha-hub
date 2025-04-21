@@ -1,4 +1,3 @@
-
 import { StudentProfile } from "@/types/user";
 import { UserRole, SubscriptionType, MoodType } from "@/types/user/base";
 import { v4 as uuidv4 } from "uuid";
@@ -20,23 +19,20 @@ export const mockStudentProfile: StudentProfile = {
   ],
   goals: [
     {
-      id: "g1",
-      title: "Complete Physics Syllabus",
-      description: "Finish all chapters in NCERT Physics",
-      progress: 75,
-      status: "in-progress",
-      dueDate: "2025-05-30",
-      targetDate: new Date("2025-05-30")
+      id: "goal-1",
+      title: "IIT-JEE Advanced",
+      description: "Score above 250 in JEE Advanced",
+      examDate: "May 25, 2025",
+      progress: 45,
+      status: "in_progress"
     },
     {
-      id: "g2",
-      title: "Score 90% in Math Test",
-      description: "Practice integration problems",
-      progress: 60,
-      status: "not-started",
-      dueDate: "2025-05-15",
-      targetDate: new Date("2025-05-15")
-    },
+      id: "goal-2",
+      title: "Complete Physics revision",
+      description: "Revise all mechanics concepts",
+      progress: 30,
+      status: "not_started"
+    }
   ],
   educationLevel: "11th Grade",
   subjects: [
@@ -55,5 +51,11 @@ export const mockStudentProfile: StudentProfile = {
   mood: "focused" as MoodType,
   syllabusCoverage: 65,
   strongSubjects: ["Physics", "Mathematics"],
-  weakSubjects: ["Chemistry", "Biology"]
+  weakSubjects: ["Chemistry", "Biology"],
+  studyGoals: [
+    "Score 250+ in JEE Advanced",
+    "Complete all Physics topics by March",
+    "Improve accuracy in mock tests",
+    "Master calculus problems"
+  ]
 };

@@ -3,10 +3,11 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import { PersonalityType } from '@/types/user/base';
 
 interface PersonalityStepProps {
-  onNext: (personality: string) => void;
-  onPersonalitySelect?: (personality: string) => void; // Added missing prop
+  onNext: (personality: PersonalityType) => void;
+  onPersonalitySelect?: (personality: PersonalityType) => void; 
 }
 
 const PersonalityStep = ({ onNext, onPersonalitySelect }: PersonalityStepProps) => {
@@ -15,13 +16,61 @@ const PersonalityStep = ({ onNext, onPersonalitySelect }: PersonalityStepProps) 
   const handleSelectPersonality = (personality: string) => {
     setSelectedPersonality(personality);
     if (onPersonalitySelect) {
-      onPersonalitySelect(personality);
+      // Create a PersonalityType object from the selected personality ID
+      const personalityObject: PersonalityType = {
+        type: personality,
+        traits: getPersonalityTraits(personality),
+        learningStyle: getPersonalityLearningStyle(personality)
+      };
+      onPersonalitySelect(personalityObject);
     }
   };
 
   const handleContinue = () => {
     if (selectedPersonality) {
-      onNext(selectedPersonality);
+      // Create a PersonalityType object from the selected personality ID
+      const personalityObject: PersonalityType = {
+        type: selectedPersonality,
+        traits: getPersonalityTraits(selectedPersonality),
+        learningStyle: getPersonalityLearningStyle(selectedPersonality)
+      };
+      onNext(personalityObject);
+    }
+  };
+
+  // Helper function to get traits based on personality type
+  const getPersonalityTraits = (personalityType: string): string[] => {
+    switch (personalityType) {
+      case "systematic_learner":
+        return ["Organized", "Methodical", "Detail-oriented", "Follows instructions well"];
+      case "curious_explorer":
+        return ["Inquisitive", "Creative", "Adaptable", "Enjoys learning new things"];
+      case "practical_applier":
+        return ["Hands-on", "Solution-focused", "Practical", "Results-oriented"];
+      case "social_collaborator":
+        return ["Team player", "Communicative", "Empathetic", "Enjoys discussion"];
+      case "creative_thinker":
+        return ["Imaginative", "Innovative", "Thinks outside the box", "Connects ideas"];
+      default:
+        return [];
+    }
+  };
+
+  // Helper function to get learning style based on personality type
+  const getPersonalityLearningStyle = (personalityType: string): string => {
+    switch (personalityType) {
+      case "systematic_learner":
+        return "Linear and sequential learning";
+      case "curious_explorer":
+        return "Exploration-based learning";
+      case "practical_applier":
+        return "Learning by doing";
+      case "social_collaborator":
+        return "Collaborative learning";
+      case "creative_thinker":
+        return "Creative and conceptual learning";
+      default:
+        return "";
     }
   };
 

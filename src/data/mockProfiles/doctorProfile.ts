@@ -1,71 +1,55 @@
+import { UserProfileType, UserRole } from "@/types/user/base";
 
-import { DoctorProfile } from "@/types/user";
-import { UserRole, SubscriptionType } from "@/types/user/base";
-import { v4 as uuidv4 } from "uuid";
-
-export const mockDoctorProfile: DoctorProfile = {
-  id: uuidv4(),
-  name: "Dr. Aisha Sharma",
-  email: "dr.aisha.sharma@maxhealthcare.com",
-  phoneNumber: "+919876543210",
+const doctorProfile: UserProfileType = {
+  id: "doctor-1",
+  name: "Dr. Emily Carter",
+  email: "emily.carter@example.com",
+  avatar: "/avatars/doctor1.jpg",
   role: UserRole.Doctor,
-  personalityType: "Analytical Problem Solver",
-  subscription: SubscriptionType.Premium,
-  joinDate: "2025-02-10",
-  lastActive: "2025-04-07",
-  specialization: "Neurology",
-  qualifications: [
-    "MBBS - AIIMS",
-    "MD - Neurology",
-    "Fellowship - Cognitive Neuroscience"
-  ],
-  researchInterests: [
-    "Alzheimer's Disease",
-    "Neuroplasticity",
-    "Cognitive Enhancement"
-  ],
-  publications: 14,
-  institution: "Max Healthcare Institute",
-  yearsOfPractice: 8,
-  certifications: [
-    "Advanced Neurology",
-    "Clinical Research",
-    "Medical Education"
-  ],
-  researchTopic: "Neural Biomarkers for Early Alzheimer's Detection",
-  thesisTitle: "Cognitive Reserve and Neurodegenerative Progression",
-  clinicalInterest: "Memory Disorders",
-  researchPhase: "Clinical Trials",
+  phoneNumber: "+15551234567",
+  createdAt: "2022-01-15",
+  lastLogin: "2023-04-19",
+  onboarded: true,
+  loginCount: 25,
+  completedOnboarding: true,
+
+  // Make sure status values conform to the allowed types
   goals: [
     {
-      id: uuidv4(),
-      title: "Complete Research Paper",
-      description: "Finish and submit paper on neural biomarkers",
+      id: "goal-1",
+      title: "Expand medical knowledge",
+      description: "Stay updated with the latest medical research and findings",
       progress: 65,
-      status: "in-progress",
-      dueDate: "2025-06-15",
-      targetDate: new Date("2025-06-15")
+      status: "in_progress" // Fixed from "in-progress"
     },
     {
-      id: uuidv4(),
-      title: "Conference Presentation",
-      description: "Present findings at International Neurology Conference",
+      id: "goal-2",
+      title: "Patient care improvements",
+      description: "Implement new strategies for better patient outcomes",
       progress: 40,
-      status: "not-started",
-      dueDate: "2025-08-20",
-      targetDate: new Date("2025-08-20")
+      status: "not_started" // Fixed from "not-started"
+    },
+    {
+      id: "goal-3",
+      title: "Publish research paper",
+      description: "Contribute to the medical field with original research",
+      progress: 15,
+      status: "not_started"
     }
   ],
-  areasOfInterest: [
-    {
-      id: uuidv4(),
-      name: "Machine Learning in Diagnostics",
-      level: "Intermediate"
-    },
-    {
-      id: uuidv4(),
-      name: "Clinical Research",
-      level: "Advanced"
-    }
-  ]
+  subscription: {
+    id: "sub-doc-1",
+    plan: "premium",
+    expiresAt: "2024-06-30",
+    status: "active"
+  },
+  // Additional fields specific to doctor profiles
+  specialization: "Cardiology",
+  yearsOfExperience: 12,
+  hospitalName: "City General Hospital",
+  licenseNumber: "MD201012345",
+  city: "New York",
+  state: "NY"
 };
+
+export default doctorProfile;
