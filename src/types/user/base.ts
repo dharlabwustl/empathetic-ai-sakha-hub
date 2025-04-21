@@ -1,80 +1,103 @@
 
 export enum UserRole {
-  Student = 'student',
-  Doctor = 'doctor',
-  Admin = 'admin',
-  Employee = 'employee',
-  Founder = 'founder',
+  Student = "student",
+  Teacher = "teacher",
+  Parent = "parent",
+  Doctor = "doctor",
+  Admin = "admin",
+  Employee = "employee",
+  Founder = "founder"
 }
 
-export type MoodType = 'sad' | 'neutral' | 'happy' | 'motivated' | undefined;
+export enum SubscriptionType {
+  Basic = "basic",
+  Premium = "premium",
+  Elite = "elite",
+  Enterprise = "enterprise",
+  Free = "free",
+  Group = "group"
+}
+
+export type MoodType = 
+  | 'happy' 
+  | 'sad' 
+  | 'neutral' 
+  | 'motivated' 
+  | 'tired' 
+  | 'stressed' 
+  | 'focused' 
+  | 'curious' 
+  | 'overwhelmed' 
+  | 'okay';
 
 export interface Goal {
   id: string;
   title: string;
   description?: string;
   examDate?: string;
-  progress?: number;
-}
-
-export interface Education {
-  school?: string;
-  grade?: string;
-  board?: string;
-  university?: string;
-  degree?: string;
-  year?: string;
-}
-
-export interface Address {
-  street?: string;
-  city?: string;
-  state?: string;
-  postalCode?: string;
-  country?: string;
+  progress: number;
+  status: "not_started" | "in_progress" | "completed";
 }
 
 export interface UserSubscription {
   id: string;
   plan: string;
   expiresAt: string;
-  status: 'active' | 'expired' | 'canceled' | 'pending';
+  status: "active" | "expired" | "canceled" | "pending";
 }
 
-export enum SubscriptionType {
-  Free = 'Free',
-  Basic = 'Basic',
-  Premium = 'Premium',
-  Enterprise = 'Enterprise',
-  Group = 'Group',
+export interface PersonalityType {
+  type: string;
+  traits: string[];
+  learningStyle: string;
 }
 
 export interface UserProfileType {
   id: string;
   name: string;
   email: string;
-  phoneNumber?: string;
   avatar?: string;
-  role: UserRole | string;
-  goals?: Goal[];
-  education?: Education;
-  address?: Address;
-  subscription?: UserSubscription | SubscriptionType;
-  studyStreak?: number;
+  role: UserRole;
+  phoneNumber?: string;
+  createdAt?: string;
   lastLogin?: string;
+  onboarded?: boolean;
   loginCount?: number;
-  language?: string;
-  timezone?: string;
-  isGroupLeader?: boolean;
+  completedOnboarding?: boolean;
+  goals?: Goal[];
+  subscription?: UserSubscription | SubscriptionType;
+  // Additional fields for student profiles
   batchName?: string;
   batchCode?: string;
+  isGroupLeader?: boolean;
   peerRanking?: number;
+  examDate?: string;
+  // Education related fields
+  school?: string;
+  grade?: string;
+  board?: string;
+  city?: string;
+  state?: string;
 }
 
 export interface AuthUser {
   id: string;
   email: string;
-  name?: string;
-  role: UserRole | string;
+  name: string;
+  role: UserRole;
   avatar?: string;
+  emailVerified?: boolean;
+  profile?: UserProfileType;
+}
+
+export interface AuthContextProps {
+  user: AuthUser | null;
+  loading: boolean;
+  error: string | null;
+  login: (email: string, password: string) => Promise<boolean>;
+  loginWithGoogle: () => Promise<boolean>;
+  register: (name: string, email: string, password: string, role: UserRole) => Promise<boolean>;
+  logout: () => Promise<void>;
+  resetPassword: (email: string) => Promise<boolean>;
+  changePassword: (oldPassword: string, newPassword: string) => Promise<boolean>;
 }

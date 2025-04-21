@@ -163,11 +163,11 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
                 </div>
               )}
               
-              {profile.goals && profile.goals[0]?.examDate && (
+              {((profile.goals && profile.goals[0]?.examDate) || profile.examDate) && (
                 <div className="text-sm flex items-center">
                   <Calendar className="h-3.5 w-3.5 text-blue-500 mr-1" />
                   <span className="text-gray-600 dark:text-gray-300">
-                    Exam Date: {profile.goals[0].examDate}
+                    Exam Date: {profile.goals && profile.goals[0]?.examDate ? profile.goals[0].examDate : profile.examDate}
                   </span>
                 </div>
               )}

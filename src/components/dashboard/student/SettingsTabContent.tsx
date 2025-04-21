@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
-import { UserProfileType } from '@/types/user/base';
+import { UserProfileType, SubscriptionType } from '@/types/user/base';
 import ProfileDetailsSection from './ProfileDetailsSection';
 import ProfileBillingSection from './ProfileBillingSection';
 import BatchManagementSection from './BatchManagementSection';
@@ -37,9 +37,9 @@ const SettingsTabContent: React.FC<SettingsTabContentProps> = ({ userProfile }) 
             
             <TabsContent value="billing" className="space-y-4">
               <ProfileBillingSection 
-                subscriptionId={userProfile?.subscription?.id}
+                subscriptionId={typeof userProfile?.subscription === 'object' ? userProfile?.subscription?.id : undefined}
                 planName={typeof userProfile?.subscription === 'object' ? userProfile?.subscription?.plan : String(userProfile?.subscription)}
-                currentPeriodEnd={userProfile?.subscription?.expiresAt}
+                currentPeriodEnd={typeof userProfile?.subscription === 'object' ? userProfile?.subscription?.expiresAt : undefined}
               />
             </TabsContent>
             

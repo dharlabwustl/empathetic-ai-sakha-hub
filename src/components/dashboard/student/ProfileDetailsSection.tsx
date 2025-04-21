@@ -1,12 +1,11 @@
 
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { UserProfileType } from '@/types/user/base';
-import { CalendarDays, Edit, Save, X } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 
 interface ProfileDetailsSectionProps {
@@ -14,296 +13,208 @@ interface ProfileDetailsSectionProps {
 }
 
 const ProfileDetailsSection: React.FC<ProfileDetailsSectionProps> = ({ userProfile }) => {
+  const { toast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
-    name: userProfile?.name || "",
-    email: userProfile?.email || "",
-    phoneNumber: userProfile?.phoneNumber || "",
-    goalTitle: userProfile?.goals?.[0]?.title || "",
-    examDate: userProfile?.goals?.[0]?.examDate || "",
-    city: userProfile?.address?.city || "",
-    state: userProfile?.address?.state || "",
-    school: userProfile?.education?.school || "",
-    grade: userProfile?.education?.grade || "",
-    board: userProfile?.education?.board || ""
+    name: userProfile?.name || '',
+    email: userProfile?.email || '',
+    phoneNumber: userProfile?.phoneNumber || '',
+    goal: userProfile?.goals?.[0]?.title || '',
+    examDate: userProfile?.goals?.[0]?.examDate || userProfile?.examDate || '',
+    city: userProfile?.city || '',
+    state: userProfile?.state || '',
+    school: userProfile?.school || '',
+    grade: userProfile?.grade || '',
+    board: userProfile?.board || ''
   });
-  const { toast } = useToast();
-  
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
   };
-  
-  const handleSelectChange = (name: string, value: string) => {
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-  
-  const handleSave = () => {
-    // In a real app, you would save the changes to the server
-    setIsEditing(false);
+
+  const handleSaveChanges = () => {
+    // In a real app, this would send data to the server
     toast({
       title: "Profile Updated",
-      description: "Your profile details have been updated successfully.",
-    });
-  };
-  
-  const handleCancel = () => {
-    // Reset form data and exit editing mode
-    setFormData({
-      name: userProfile?.name || "",
-      email: userProfile?.email || "",
-      phoneNumber: userProfile?.phoneNumber || "",
-      goalTitle: userProfile?.goals?.[0]?.title || "",
-      examDate: userProfile?.goals?.[0]?.examDate || "",
-      city: userProfile?.address?.city || "",
-      state: userProfile?.address?.state || "",
-      school: userProfile?.education?.school || "",
-      grade: userProfile?.education?.grade || "",
-      board: userProfile?.education?.board || ""
+      description: "Your profile details have been updated successfully"
     });
     setIsEditing(false);
   };
 
   return (
     <div className="space-y-6">
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>Personal Information</CardTitle>
-          <Button 
-            variant={isEditing ? "default" : "outline"} 
-            size="sm"
-            onClick={() => isEditing ? handleSave() : setIsEditing(true)}
-          >
-            {isEditing ? (
-              <>
-                <Save className="mr-2 h-4 w-4" />
-                Save Changes
-              </>
-            ) : (
-              <>
-                <Edit className="mr-2 h-4 w-4" />
-                Edit Profile
-              </>
-            )}
-          </Button>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">Full Name</Label>
-              {isEditing ? (
-                <Input 
-                  id="name" 
-                  name="name" 
-                  value={formData.name} 
-                  onChange={handleInputChange}
-                />
-              ) : (
-                <div className="py-2 px-3 bg-gray-50 dark:bg-gray-800 rounded-md">
-                  {formData.name}
+      <div className="flex justify-between items-center">
+        <h3 className="text-lg font-medium">Personal Information</h3>
+        <Button 
+          variant="outline"
+          onClick={() => setIsEditing(!isEditing)}
+        >
+          {isEditing ? 'Cancel' : 'Edit'}
+        </Button>
+      </div>
+
+      <Tabs defaultValue="personal" className="w-full">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="personal">Personal Info</TabsTrigger>
+          <TabsTrigger value="academic">Academic Info</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="personal" className="mt-4">
+          <Card>
+            <CardContent className="pt-6">
+              <div className="grid gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="name">Full Name</Label>
+                    <Input 
+                      id="name" 
+                      name="name"
+                      value={formData.name}
+                      onChange={handleInputChange}
+                      disabled={!isEditing}
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email</Label>
+                    <Input 
+                      id="email" 
+                      name="email"
+                      type="email"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      disabled={true} // Email should not be editable
+                    />
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="phoneNumber">Phone Number</Label>
+                    <Input 
+                      id="phoneNumber" 
+                      name="phoneNumber"
+                      type="tel"
+                      value={formData.phoneNumber}
+                      onChange={handleInputChange}
+                      disabled={!isEditing}
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="goal">Target Exam</Label>
+                    <Input 
+                      id="goal" 
+                      name="goal"
+                      value={formData.goal}
+                      onChange={handleInputChange}
+                      disabled={!isEditing}
+                    />
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="examDate">Exam Date</Label>
+                    <Input 
+                      id="examDate" 
+                      name="examDate"
+                      value={formData.examDate}
+                      onChange={handleInputChange}
+                      disabled={!isEditing}
+                    />
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="city">City</Label>
+                    <Input 
+                      id="city" 
+                      name="city"
+                      value={formData.city}
+                      onChange={handleInputChange}
+                      disabled={!isEditing}
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="state">State</Label>
+                    <Input 
+                      id="state" 
+                      name="state"
+                      value={formData.state}
+                      onChange={handleInputChange}
+                      disabled={!isEditing}
+                    />
+                  </div>
+                </div>
+              </div>
+              
+              {isEditing && (
+                <div className="mt-6">
+                  <Button onClick={handleSaveChanges}>Save Changes</Button>
                 </div>
               )}
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              {isEditing ? (
-                <Input 
-                  id="email" 
-                  name="email" 
-                  type="email" 
-                  value={formData.email} 
-                  onChange={handleInputChange} 
-                  disabled
-                />
-              ) : (
-                <div className="py-2 px-3 bg-gray-50 dark:bg-gray-800 rounded-md">
-                  {formData.email}
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="academic" className="mt-4">
+          <Card>
+            <CardContent className="pt-6">
+              <div className="grid gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="school">School/College</Label>
+                    <Input 
+                      id="school" 
+                      name="school"
+                      value={formData.school}
+                      onChange={handleInputChange}
+                      disabled={!isEditing}
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="grade">Grade/Year</Label>
+                    <Input 
+                      id="grade" 
+                      name="grade"
+                      value={formData.grade}
+                      onChange={handleInputChange}
+                      disabled={!isEditing}
+                    />
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="board">Board/University</Label>
+                    <Input 
+                      id="board" 
+                      name="board"
+                      value={formData.board}
+                      onChange={handleInputChange}
+                      disabled={!isEditing}
+                    />
+                  </div>
+                </div>
+              </div>
+              
+              {isEditing && (
+                <div className="mt-6">
+                  <Button onClick={handleSaveChanges}>Save Changes</Button>
                 </div>
               )}
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="phoneNumber">Phone Number</Label>
-              {isEditing ? (
-                <Input 
-                  id="phoneNumber" 
-                  name="phoneNumber" 
-                  value={formData.phoneNumber} 
-                  onChange={handleInputChange}
-                />
-              ) : (
-                <div className="py-2 px-3 bg-gray-50 dark:bg-gray-800 rounded-md">
-                  {formData.phoneNumber}
-                </div>
-              )}
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="goalTitle">Preparing For</Label>
-              {isEditing ? (
-                <Select 
-                  value={formData.goalTitle} 
-                  onValueChange={(value) => handleSelectChange("goalTitle", value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select goal" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="IIT-JEE">IIT-JEE</SelectItem>
-                    <SelectItem value="NEET">NEET</SelectItem>
-                    <SelectItem value="CAT">CAT</SelectItem>
-                    <SelectItem value="UPSC">UPSC</SelectItem>
-                  </SelectContent>
-                </Select>
-              ) : (
-                <div className="py-2 px-3 bg-gray-50 dark:bg-gray-800 rounded-md">
-                  {formData.goalTitle}
-                </div>
-              )}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-      
-      <Card>
-        <CardHeader>
-          <CardTitle>Educational Details</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="examDate">Exam Date</Label>
-              {isEditing ? (
-                <div className="relative">
-                  <CalendarDays className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                  <Input 
-                    id="examDate" 
-                    name="examDate" 
-                    value={formData.examDate} 
-                    onChange={handleInputChange}
-                    className="pl-10"
-                  />
-                </div>
-              ) : (
-                <div className="py-2 px-3 bg-gray-50 dark:bg-gray-800 rounded-md">
-                  {formData.examDate || "Not specified"}
-                </div>
-              )}
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="school">School/College</Label>
-              {isEditing ? (
-                <Input 
-                  id="school" 
-                  name="school" 
-                  value={formData.school} 
-                  onChange={handleInputChange}
-                />
-              ) : (
-                <div className="py-2 px-3 bg-gray-50 dark:bg-gray-800 rounded-md">
-                  {formData.school || "Not specified"}
-                </div>
-              )}
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="board">Board</Label>
-              {isEditing ? (
-                <Select 
-                  value={formData.board} 
-                  onValueChange={(value) => handleSelectChange("board", value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select board" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="CBSE">CBSE</SelectItem>
-                    <SelectItem value="ICSE">ICSE</SelectItem>
-                    <SelectItem value="State Board">State Board</SelectItem>
-                  </SelectContent>
-                </Select>
-              ) : (
-                <div className="py-2 px-3 bg-gray-50 dark:bg-gray-800 rounded-md">
-                  {formData.board || "Not specified"}
-                </div>
-              )}
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="grade">Grade/Class</Label>
-              {isEditing ? (
-                <Select 
-                  value={formData.grade} 
-                  onValueChange={(value) => handleSelectChange("grade", value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select grade" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="11th">11th</SelectItem>
-                    <SelectItem value="12th">12th</SelectItem>
-                    <SelectItem value="College">College</SelectItem>
-                    <SelectItem value="Graduate">Graduate</SelectItem>
-                  </SelectContent>
-                </Select>
-              ) : (
-                <div className="py-2 px-3 bg-gray-50 dark:bg-gray-800 rounded-md">
-                  {formData.grade || "Not specified"}
-                </div>
-              )}
-            </div>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="city">City</Label>
-              {isEditing ? (
-                <Input 
-                  id="city" 
-                  name="city" 
-                  value={formData.city} 
-                  onChange={handleInputChange}
-                />
-              ) : (
-                <div className="py-2 px-3 bg-gray-50 dark:bg-gray-800 rounded-md">
-                  {formData.city || "Not specified"}
-                </div>
-              )}
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="state">State</Label>
-              {isEditing ? (
-                <Input 
-                  id="state" 
-                  name="state" 
-                  value={formData.state} 
-                  onChange={handleInputChange}
-                />
-              ) : (
-                <div className="py-2 px-3 bg-gray-50 dark:bg-gray-800 rounded-md">
-                  {formData.state || "Not specified"}
-                </div>
-              )}
-            </div>
-          </div>
-          
-          {isEditing && (
-            <div className="flex justify-end space-x-2 pt-4">
-              <Button variant="outline" onClick={handleCancel}>
-                <X className="mr-2 h-4 w-4" />
-                Cancel
-              </Button>
-              <Button onClick={handleSave}>
-                <Save className="mr-2 h-4 w-4" />
-                Save Changes
-              </Button>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
