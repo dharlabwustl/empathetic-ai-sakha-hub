@@ -154,20 +154,20 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
           
           <div className="flex-1">
             <div className="flex flex-col gap-1">
-              {profile.goal && (
+              {profile.goals && profile.goals[0] && (
                 <div className="text-sm flex items-center">
                   <Star className="h-3.5 w-3.5 text-amber-500 mr-1" />
                   <span className="text-gray-600 dark:text-gray-300">
-                    Preparing for {profile.goal}
+                    Preparing for {profile.goals[0].title}
                   </span>
                 </div>
               )}
               
-              {profile.examDate && (
+              {profile.goals && profile.goals[0]?.examDate && (
                 <div className="text-sm flex items-center">
                   <Calendar className="h-3.5 w-3.5 text-blue-500 mr-1" />
                   <span className="text-gray-600 dark:text-gray-300">
-                    Exam Date: {profile.examDate}
+                    Exam Date: {profile.goals[0].examDate}
                   </span>
                 </div>
               )}
@@ -201,7 +201,7 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
                 <span className="text-sm font-medium text-amber-700 dark:text-amber-400">
                   {typeof profile.subscription === 'object' && profile.subscription.plan ? 
                     profile.subscription.plan : 
-                    profile.subscription} Plan
+                    String(profile.subscription)} Plan
                 </span>
               </div>
               {typeof profile.subscription === 'object' && profile.subscription.expiresAt && (

@@ -1,41 +1,24 @@
 
 import React from 'react';
 import { UserProfileType } from "@/types/user/base";
-import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
+import ActionButtons from '@/components/dashboard/student/ActionButtons';
 
 interface OverviewTabProps {
   userProfile: UserProfileType;
-  kpis: KpiData[];
-  nudges: NudgeData[];
-  markNudgeAsRead: (id: string) => void;
-  showWelcomeTour: boolean;
-  handleSkipTour: () => void;
-  handleCompleteTour: () => void;
-  lastActivity?: { type: string; description: string } | null;
-  suggestedNextAction?: string | null;
 }
 
-const OverviewTab: React.FC<OverviewTabProps> = ({
-  userProfile,
-  kpis,
-  nudges,
-  markNudgeAsRead,
-  showWelcomeTour,
-  handleSkipTour,
-  handleCompleteTour,
-  lastActivity,
-  suggestedNextAction
-}) => {
+const OverviewTab: React.FC<OverviewTabProps> = ({ userProfile }) => {
   return (
-    <div className="space-y-6">
-      <h2 className="text-2xl font-bold">Welcome, {userProfile.name}!</h2>
-      <p>This is your personalized dashboard overview.</p>
-      {suggestedNextAction && (
-        <div className="p-4 bg-blue-50 rounded-lg border border-blue-100">
-          <h3 className="font-medium">Suggested Next Action:</h3>
-          <p>{suggestedNextAction}</p>
-        </div>
-      )}
+    <div>
+      <h2 className="text-2xl font-bold mb-4">Overview</h2>
+      <p className="text-muted-foreground mb-6">
+        Welcome to your personalized learning dashboard. Here's your overview for today.
+      </p>
+      
+      <ActionButtons 
+        currentExam={userProfile?.goals?.[0]?.title || "IIT-JEE"} 
+        nextExamDate={userProfile?.goals?.[0]?.examDate || "April 30, 2025"} 
+      />
     </div>
   );
 };

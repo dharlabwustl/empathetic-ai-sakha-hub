@@ -1,17 +1,16 @@
 
-import React from 'react';
+import React from "react";
 import { UserProfileType } from "@/types/user";
 import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
-import OverviewTab from '@/components/dashboard/student/tab-contents/OverviewTab';
-import SubjectsTab from '@/components/dashboard/student/tab-contents/SubjectsTab';
-import QuizzesTab from '@/components/dashboard/student/tab-contents/QuizzesTab';
-import ResourcesTab from '@/components/dashboard/student/tab-contents/ResourcesTab';
-import CommunityTab from '@/components/dashboard/student/tab-contents/CommunityTab';
-import ProgressTab from '@/components/dashboard/student/tab-contents/ProgressTab';
-import SettingsTab from '@/components/dashboard/student/tab-contents/SettingsTab';
-import ActionButtons from '@/components/dashboard/student/ActionButtons';
+import OverviewTab from "@/components/dashboard/student/tab-contents/OverviewTab";
+import SubjectsTab from "@/components/dashboard/student/tab-contents/SubjectsTab";
+import QuizzesTab from "@/components/dashboard/student/tab-contents/QuizzesTab";
+import ResourcesTab from "@/components/dashboard/student/tab-contents/ResourcesTab";
+import CommunityTab from "@/components/dashboard/student/tab-contents/CommunityTab";
+import ProgressTab from "@/components/dashboard/student/tab-contents/ProgressTab";
+import SettingsTab from "@/components/dashboard/student/tab-contents/SettingsTab";
 
-interface TabContentGenerator {
+interface GenerateTabContentProps {
   userProfile: UserProfileType;
   kpis: KpiData[];
   nudges: NudgeData[];
@@ -35,33 +34,14 @@ export const generateTabContents = ({
   handleCompleteTour,
   lastActivity,
   suggestedNextAction
-}: TabContentGenerator) => {
-  // We'll generate all tab contents at once
+}: GenerateTabContentProps) => {
   return {
-    overview: (
-      <div className="space-y-6">
-        <ActionButtons 
-          currentExam={userProfile.goal || "IIT-JEE"} 
-          nextExamDate={userProfile.examDate}
-        />
-        <OverviewTab 
-          userProfile={userProfile}
-          kpis={kpis}
-          nudges={nudges}
-          markNudgeAsRead={markNudgeAsRead}
-          showWelcomeTour={showWelcomeTour}
-          handleSkipTour={handleSkipTour}
-          handleCompleteTour={handleCompleteTour}
-          lastActivity={lastActivity}
-          suggestedNextAction={suggestedNextAction}
-        />
-      </div>
-    ),
+    overview: <OverviewTab userProfile={userProfile} />,
     subjects: <SubjectsTab userProfile={userProfile} />,
     quizzes: <QuizzesTab userProfile={userProfile} />,
     resources: <ResourcesTab userProfile={userProfile} />,
     community: <CommunityTab userProfile={userProfile} />,
     progress: <ProgressTab userProfile={userProfile} />,
-    settings: <SettingsTab userProfile={userProfile} />,
+    settings: <SettingsTab userProfile={userProfile} />
   };
 };

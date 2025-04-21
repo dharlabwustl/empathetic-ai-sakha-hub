@@ -13,34 +13,19 @@ interface ProfileDetailsSectionProps {
   userProfile?: UserProfileType;
 }
 
-const ProfileDetailsSection: React.FC<ProfileDetailsSectionProps> = ({ 
-  userProfile = {
-    id: "user_1",
-    name: "Amit Singh",
-    email: "amit@example.com",
-    phoneNumber: "9876543210",
-    role: "student",
-    goal: "IIT-JEE",
-    examDate: "April 30, 2025",
-    city: "Mumbai",
-    state: "Maharashtra",
-    school: "Delhi Public School",
-    grade: "12th",
-    board: "CBSE"
-  }
-}) => {
+const ProfileDetailsSection: React.FC<ProfileDetailsSectionProps> = ({ userProfile }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
     name: userProfile?.name || "",
     email: userProfile?.email || "",
     phoneNumber: userProfile?.phoneNumber || "",
-    goal: userProfile?.goal || "",
-    examDate: userProfile?.examDate || "",
-    city: userProfile?.city || "",
-    state: userProfile?.state || "",
-    school: userProfile?.school || "",
-    grade: userProfile?.grade || "",
-    board: userProfile?.board || ""
+    goalTitle: userProfile?.goals?.[0]?.title || "",
+    examDate: userProfile?.goals?.[0]?.examDate || "",
+    city: userProfile?.address?.city || "",
+    state: userProfile?.address?.state || "",
+    school: userProfile?.education?.school || "",
+    grade: userProfile?.education?.grade || "",
+    board: userProfile?.education?.board || ""
   });
   const { toast } = useToast();
   
@@ -68,13 +53,13 @@ const ProfileDetailsSection: React.FC<ProfileDetailsSectionProps> = ({
       name: userProfile?.name || "",
       email: userProfile?.email || "",
       phoneNumber: userProfile?.phoneNumber || "",
-      goal: userProfile?.goal || "",
-      examDate: userProfile?.examDate || "",
-      city: userProfile?.city || "",
-      state: userProfile?.state || "",
-      school: userProfile?.school || "",
-      grade: userProfile?.grade || "",
-      board: userProfile?.board || ""
+      goalTitle: userProfile?.goals?.[0]?.title || "",
+      examDate: userProfile?.goals?.[0]?.examDate || "",
+      city: userProfile?.address?.city || "",
+      state: userProfile?.address?.state || "",
+      school: userProfile?.education?.school || "",
+      grade: userProfile?.education?.grade || "",
+      board: userProfile?.education?.board || ""
     });
     setIsEditing(false);
   };
@@ -155,11 +140,11 @@ const ProfileDetailsSection: React.FC<ProfileDetailsSectionProps> = ({
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="goal">Preparing For</Label>
+              <Label htmlFor="goalTitle">Preparing For</Label>
               {isEditing ? (
                 <Select 
-                  value={formData.goal} 
-                  onValueChange={(value) => handleSelectChange("goal", value)}
+                  value={formData.goalTitle} 
+                  onValueChange={(value) => handleSelectChange("goalTitle", value)}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select goal" />
@@ -173,7 +158,7 @@ const ProfileDetailsSection: React.FC<ProfileDetailsSectionProps> = ({
                 </Select>
               ) : (
                 <div className="py-2 px-3 bg-gray-50 dark:bg-gray-800 rounded-md">
-                  {formData.goal}
+                  {formData.goalTitle}
                 </div>
               )}
             </div>
@@ -202,7 +187,7 @@ const ProfileDetailsSection: React.FC<ProfileDetailsSectionProps> = ({
                 </div>
               ) : (
                 <div className="py-2 px-3 bg-gray-50 dark:bg-gray-800 rounded-md">
-                  {formData.examDate}
+                  {formData.examDate || "Not specified"}
                 </div>
               )}
             </div>
@@ -218,7 +203,7 @@ const ProfileDetailsSection: React.FC<ProfileDetailsSectionProps> = ({
                 />
               ) : (
                 <div className="py-2 px-3 bg-gray-50 dark:bg-gray-800 rounded-md">
-                  {formData.school}
+                  {formData.school || "Not specified"}
                 </div>
               )}
             </div>
@@ -241,7 +226,7 @@ const ProfileDetailsSection: React.FC<ProfileDetailsSectionProps> = ({
                 </Select>
               ) : (
                 <div className="py-2 px-3 bg-gray-50 dark:bg-gray-800 rounded-md">
-                  {formData.board}
+                  {formData.board || "Not specified"}
                 </div>
               )}
             </div>
@@ -265,7 +250,7 @@ const ProfileDetailsSection: React.FC<ProfileDetailsSectionProps> = ({
                 </Select>
               ) : (
                 <div className="py-2 px-3 bg-gray-50 dark:bg-gray-800 rounded-md">
-                  {formData.grade}
+                  {formData.grade || "Not specified"}
                 </div>
               )}
             </div>
@@ -283,7 +268,7 @@ const ProfileDetailsSection: React.FC<ProfileDetailsSectionProps> = ({
                 />
               ) : (
                 <div className="py-2 px-3 bg-gray-50 dark:bg-gray-800 rounded-md">
-                  {formData.city}
+                  {formData.city || "Not specified"}
                 </div>
               )}
             </div>
@@ -299,7 +284,7 @@ const ProfileDetailsSection: React.FC<ProfileDetailsSectionProps> = ({
                 />
               ) : (
                 <div className="py-2 px-3 bg-gray-50 dark:bg-gray-800 rounded-md">
-                  {formData.state}
+                  {formData.state || "Not specified"}
                 </div>
               )}
             </div>

@@ -11,7 +11,7 @@ const ResourcesTab: React.FC<ResourcesTabProps> = ({ userProfile }) => {
     <div>
       <h2 className="text-2xl font-bold">Learning Resources</h2>
       <p className="text-muted-foreground mt-2">
-        Access study materials and reference content for your exams.
+        Access your study materials, reference books, and online resources.
       </p>
     </div>
   );

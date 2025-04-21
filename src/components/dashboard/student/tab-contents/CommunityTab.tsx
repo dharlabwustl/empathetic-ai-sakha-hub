@@ -11,7 +11,7 @@ const CommunityTab: React.FC<CommunityTabProps> = ({ userProfile }) => {
     <div>
       <h2 className="text-2xl font-bold">Community</h2>
       <p className="text-muted-foreground mt-2">
-        Connect with peers and mentors to enhance your learning experience.
+        Connect with other students, join discussions, and participate in study groups.
       </p>
     </div>
   );
