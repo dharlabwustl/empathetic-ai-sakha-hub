@@ -1,66 +1,52 @@
 
-import { StudentProfile } from "@/types/user";
-import { UserRole, MoodType } from "@/types/user/base";
+import { UserProfileType, UserRole, Goal } from "@/types/user/base";
 
-export const mockStudentProfile: StudentProfile = {
-  id: "1",
-  name: "Rahul Singh",
-  phoneNumber: "9876543210",
-  email: "rahul.singh@example.com",
+export const mockStudentProfile: UserProfileType = {
+  id: "123",
+  name: "Rohit Kumar",
+  email: "rohit@example.com",
   role: UserRole.Student,
-  personalityType: "Strategic Thinker",
-  subscription: {
-    id: "sub-student-1",
-    plan: "basic",
-    expiresAt: "2025-12-31",
-    status: "active"
+  avatar: "/assets/avatars/student.jpg",
+  phoneNumber: "+91-9876543210",
+  createdAt: "2023-07-15T10:30:00Z",
+  lastLogin: "2023-11-02T09:15:00Z",
+  onboarded: true,
+  loginCount: 12,
+  completedOnboarding: true,
+  personalityType: {
+    type: "systematic_learner",
+    traits: ["Organized", "Detail-oriented", "Methodical", "Focused"],
+    learningStyle: "Sequential and structured learning"
   },
-  joinDate: "2025-03-01",
-  lastActive: "2025-05-12",
-  areasOfInterest: [
-    { id: "i1", name: "Physics", level: "Advanced" },
-    { id: "i2", name: "Mathematics", level: "Intermediate" },
-    { id: "i3", name: "Chemistry", level: "Intermediate" }
-  ],
+  
+  // Academic details
+  batchName: "IIT-JEE 2024",
+  batchCode: "IJ24-A1",
+  isGroupLeader: true,
+  peerRanking: 3,
+  examDate: "2024-05-25",
+  school: "Delhi Public School",
+  grade: "12",
+  board: "CBSE",
+  city: "Delhi",
+  state: "Delhi",
+  
+  // Goals
   goals: [
     {
-      id: "goal-1",
-      title: "IIT-JEE Advanced",
-      description: "Score above 250 in JEE Advanced",
-      examDate: "May 25, 2025",
-      progress: 45,
-      status: "in_progress"
+      id: "g1",
+      title: "IIT-JEE",
+      description: "Crack IIT-JEE with rank under 1000",
+      progress: 65,
+      status: "in_progress",
+      examDate: "2024-05-25"
     },
     {
-      id: "goal-2",
-      title: "Complete Physics revision",
-      description: "Revise all mechanics concepts",
-      progress: 30,
+      id: "g2",
+      title: "Physics Olympiad",
+      description: "Qualify for national level",
+      progress: 40,
       status: "not_started"
     }
   ],
-  educationLevel: "11th Grade",
-  subjects: [
-    { id: "s1", name: "Physics", progress: 75 },
-    { id: "s2", name: "Chemistry", progress: 60 },
-    { id: "s3", name: "Mathematics", progress: 80 },
-    { id: "s4", name: "Biology", progress: 45 }
-  ],
-  studyStreak: 5,
-  quizzesTaken: 12,
-  flashcardsCreated: 35,
-  examPreparation: "IIT-JEE",
-  studyHoursToday: 2.5,
-  subjectsCovered: 3,
-  quizPerformance: 82,
-  mood: "focused" as MoodType,
-  syllabusCoverage: 65,
-  strongSubjects: ["Physics", "Mathematics"],
-  weakSubjects: ["Chemistry", "Biology"],
-  studyGoals: [
-    "Score 250+ in JEE Advanced",
-    "Complete all Physics topics by March",
-    "Improve accuracy in mock tests",
-    "Master calculus problems"
-  ]
 };

@@ -7,6 +7,7 @@ export interface SubjectProgress {
   highestStreak: number;
   averageScore: number;
   timeSpent: number;
+  lastWeekProgress?: number;
 }
 
 export interface StudyStreak {
@@ -17,4 +18,5 @@ export interface StudyStreak {
   totalDaysStudied: number;
   weeklyConsistency: number;
   monthlyConsistency: number;
+  lastMonth?: string[];
 }

@@ -1,64 +1,48 @@
-import { FounderProfile } from "@/types/user";
-import { UserRole, SubscriptionType } from "@/types/user/base";
-import { v4 as uuidv4 } from "uuid";
 
-export const mockFounderProfile: FounderProfile = {
-  id: uuidv4(),
-  name: "Priya Mehta",
-  email: "priya.mehta@edumatch.com",
-  phoneNumber: "+919876543212",
+import { UserProfileType, UserRole, SubscriptionType } from "@/types/user/base";
+
+export const mockFounderProfile: UserProfileType = {
+  id: "f123",
+  name: "Neha Gupta",
+  email: "neha@techstartup.com",
   role: UserRole.Founder,
-  personalityType: "Creative Builder",
+  avatar: "/assets/avatars/founder.jpg",
+  phoneNumber: "+91-9876500001",
+  createdAt: "2023-03-15T14:30:00Z",
+  lastLogin: "2023-11-01T18:20:00Z",
+  onboarded: true,
+  loginCount: 67,
+  completedOnboarding: true,
+  
   subscription: {
-    id: "sub-founder-1",
-    plan: "enterprise",
-    expiresAt: "2026-12-31",
+    id: "sub_f123",
+    plan: "Enterprise",
+    expiresAt: "2024-03-15T00:00:00Z",
     status: "active"
   },
-  joinDate: "2024-12-05",
-  lastActive: "2025-04-07",
-  startupName: "EduMatch",
-  industry: "EdTech",
-  foundingYear: "2024",
-  teamSize: 4,
-  funding: "Seed",
-  stage: "Early Traction",
-  mvpStatus: 80,
-  pitchDeckReady: true,
-  startupStage: "Product-Market Fit",
-  startupGoal: "Series A Funding",
-  mvpCompletion: 80,
-  pitchDeckStatus: 100,
+  
+  // Business and professional goals
   goals: [
     {
-      id: "goal-1",
-      title: "Scale platform user base",
-      description: "Reach 100,000 active users by Q3",
-      progress: 48,
-      status: "in_progress",
-      dueDate: "2025-09-30",
-      targetDate: new Date("2025-09-30")
+      id: "g1",
+      title: "Series A Funding",
+      description: "Prepare for Series A funding round",
+      progress: 70,
+      status: "in_progress"
     },
     {
-      id: "goal-2",
-      title: "Secure Series B funding",
-      description: "Prepare pitch deck and investor meetings",
-      progress: 65,
-      status: "in_progress",
-      dueDate: "2025-06-15",
-      targetDate: new Date("2025-06-15")
+      id: "g2",
+      title: "Product Launch",
+      description: "Launch version 2.0 of the product",
+      progress: 85,
+      status: "in_progress"
+    },
+    {
+      id: "g3",
+      title: "Team Expansion",
+      description: "Hire key engineering and marketing roles",
+      progress: 40,
+      status: "in_progress"
     }
   ],
-  areasOfInterest: [
-    {
-      id: uuidv4(),
-      name: "Growth Marketing",
-      level: "Intermediate"
-    },
-    {
-      id: uuidv4(),
-      name: "Financial Modeling",
-      level: "Beginner"
-    }
-  ]
 };

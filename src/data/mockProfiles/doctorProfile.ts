@@ -1,55 +1,52 @@
+
 import { UserProfileType, UserRole } from "@/types/user/base";
 
 const doctorProfile: UserProfileType = {
-  id: "doctor-1",
-  name: "Dr. Emily Carter",
-  email: "emily.carter@example.com",
-  avatar: "/avatars/doctor1.jpg",
+  id: "dr123",
+  name: "Dr. Arun Sharma",
+  email: "dr.arun@example.com",
   role: UserRole.Doctor,
-  phoneNumber: "+15551234567",
-  createdAt: "2022-01-15",
-  lastLogin: "2023-04-19",
+  avatar: "/assets/avatars/doctor.jpg",
+  phoneNumber: "+91-9845670123",
+  createdAt: "2023-05-10T08:30:00Z",
+  lastLogin: "2023-11-01T16:45:00Z",
   onboarded: true,
-  loginCount: 25,
+  loginCount: 45,
   completedOnboarding: true,
-
-  // Make sure status values conform to the allowed types
-  goals: [
-    {
-      id: "goal-1",
-      title: "Expand medical knowledge",
-      description: "Stay updated with the latest medical research and findings",
-      progress: 65,
-      status: "in_progress" // Fixed from "in-progress"
-    },
-    {
-      id: "goal-2",
-      title: "Patient care improvements",
-      description: "Implement new strategies for better patient outcomes",
-      progress: 40,
-      status: "not_started" // Fixed from "not-started"
-    },
-    {
-      id: "goal-3",
-      title: "Publish research paper",
-      description: "Contribute to the medical field with original research",
-      progress: 15,
-      status: "not_started"
-    }
-  ],
+  
   subscription: {
-    id: "sub-doc-1",
-    plan: "premium",
-    expiresAt: "2024-06-30",
+    id: "sub_dr123",
+    plan: "Premium",
+    expiresAt: "2024-05-10T00:00:00Z",
     status: "active"
   },
-  // Additional fields specific to doctor profiles
+
   specialization: "Cardiology",
-  yearsOfExperience: 12,
-  hospitalName: "City General Hospital",
-  licenseNumber: "MD201012345",
-  city: "New York",
-  state: "NY"
+  
+  // Medical education goals
+  goals: [
+    {
+      id: "g1",
+      title: "Research Paper",
+      description: "Complete research on cardiac treatments",
+      progress: 75,
+      status: "in_progress"
+    },
+    {
+      id: "g2",
+      title: "Medical Conference",
+      description: "Present at the International Cardiology Conference",
+      progress: 25,
+      status: "not_started"
+    },
+    {
+      id: "g3",
+      title: "Patient Case Studies",
+      description: "Document 50 case studies for educational purposes",
+      progress: 60,
+      status: "in_progress"
+    }
+  ],
 };
 
 export default doctorProfile;

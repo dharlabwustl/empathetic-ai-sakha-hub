@@ -34,4 +34,25 @@ export interface StudentData {
   registrationDate: string;
   completedOnboarding: boolean;
   status: string;
+  joinDate?: string;
+  lastActive?: string;
+  subscriptionTier?: string;
+  studyTime?: number;
+  completedLessons?: number;
+  targetScore?: number;
+  avatarUrl?: string;
+  subjectsSelected?: string[];
+  engagementScore?: number;
+  goals?: string[];
+  studyHours?: number;
+  moodScore?: number;
+  joinedDate?: string;
+  role?: string;
+  examPrep?: string;
+  subjects?: string[];
+  progress?: {
+    completedTopics: number;
+    totalTopics: number;
+    lastActiveDate?: string;
+  };
 }

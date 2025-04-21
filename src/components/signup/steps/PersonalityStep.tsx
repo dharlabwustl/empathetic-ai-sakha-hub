@@ -6,28 +6,35 @@ import { Button } from '@/components/ui/button';
 import { PersonalityType } from '@/types/user/base';
 
 interface PersonalityStepProps {
-  onNext: (personality: PersonalityType) => void;
+  onNext?: (personality: PersonalityType) => void;
   onPersonalitySelect?: (personality: PersonalityType) => void; 
+  onSelect?: (personality: PersonalityType) => void;
 }
 
-const PersonalityStep = ({ onNext, onPersonalitySelect }: PersonalityStepProps) => {
+const PersonalityStep = ({ onNext, onPersonalitySelect, onSelect }: PersonalityStepProps) => {
   const [selectedPersonality, setSelectedPersonality] = useState<string | null>(null);
 
   const handleSelectPersonality = (personality: string) => {
     setSelectedPersonality(personality);
+    
+    // Create a PersonalityType object from the selected personality ID
+    const personalityObject: PersonalityType = {
+      type: personality,
+      traits: getPersonalityTraits(personality),
+      learningStyle: getPersonalityLearningStyle(personality)
+    };
+    
     if (onPersonalitySelect) {
-      // Create a PersonalityType object from the selected personality ID
-      const personalityObject: PersonalityType = {
-        type: personality,
-        traits: getPersonalityTraits(personality),
-        learningStyle: getPersonalityLearningStyle(personality)
-      };
       onPersonalitySelect(personalityObject);
+    }
+    
+    if (onSelect) {
+      onSelect(personalityObject);
     }
   };
 
   const handleContinue = () => {
-    if (selectedPersonality) {
+    if (selectedPersonality && onNext) {
       // Create a PersonalityType object from the selected personality ID
       const personalityObject: PersonalityType = {
         type: selectedPersonality,

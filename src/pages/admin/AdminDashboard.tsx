@@ -6,7 +6,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsi
 import KpiCard from "@/components/admin/KpiCard";
 import { useAdminAuth } from "@/contexts/AdminAuthContext";
 import adminStudentService from "@/services/admin/adminStudentService";
-import { Students, BookText, CreditCard, Users, BookOpen, UserCheck, Layers, Award } from "lucide-react";
+import { Users, BookText, CreditCard, BookOpen, UserCheck, Layers, Award } from "lucide-react";
 
 const AdminDashboard = () => {
   const { adminUser } = useAdminAuth();
@@ -79,7 +79,7 @@ const AdminDashboard = () => {
             title="Total Students" 
             value={kpis.totalStudents} 
             change={+5.2}
-            icon={<Students className="h-8 w-8 text-blue-500" />}
+            icon={<Users className="h-8 w-8 text-blue-500" />}
           />
           <KpiCard 
             title="Active Students" 

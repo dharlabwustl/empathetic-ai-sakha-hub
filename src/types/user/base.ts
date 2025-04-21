@@ -7,6 +7,13 @@ export enum UserRole {
   Admin = "admin"
 }
 
+export enum SubscriptionType {
+  Basic = "basic",
+  Premium = "premium",
+  Elite = "elite",
+  Enterprise = "enterprise"
+}
+
 export type MoodType = "happy" | "sad" | "neutral" | "motivated" | "tired" | "stressed" | "focused" | "curious" | "overwhelmed" | "okay";
 
 export type GoalStatus = "not_started" | "in_progress" | "completed";
@@ -19,11 +26,13 @@ export interface Goal {
   status: GoalStatus;
   examDate?: string;
   targetDate?: Date;
+  dueDate?: string;
 }
 
 export interface UserSubscription {
   id: string;
   plan: string;
+  planType?: SubscriptionType;
   expiresAt: string;
   status: "active" | "expired" | "cancelled" | "pending";
 }
@@ -40,11 +49,11 @@ export interface AreaOfInterest {
   level: "Beginner" | "Intermediate" | "Advanced";
 }
 
-export type PersonalityType = 
-  "Strategic Thinker" | 
-  "Creative Builder" | 
-  "Detailed Analyzer" | 
-  "Energetic Explorer";
+export type PersonalityType = {
+  type: string;
+  traits: string[];
+  learningStyle: string;
+};
 
 export interface UserProfileType {
   id: string;
@@ -59,9 +68,10 @@ export interface UserProfileType {
   loginCount?: number;
   completedOnboarding?: boolean;
   personalityType?: PersonalityType;
+  specialization?: string; // Added for doctor profile
   
   // Subscription details
-  subscription?: UserSubscription;
+  subscription?: UserSubscription | SubscriptionType;
 
   // Academic details (mainly for students)
   batchName?: string;

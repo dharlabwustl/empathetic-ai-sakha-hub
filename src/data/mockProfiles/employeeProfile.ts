@@ -1,54 +1,48 @@
+
 import { UserProfileType, UserRole } from "@/types/user/base";
 
 export const employeeProfile: UserProfileType = {
-  id: "employee-1",
-  name: "Anika Sharma",
-  email: "anika.sharma@example.com",
-  avatar: "/avatars/employee1.jpg",
+  id: "emp123",
+  name: "Vishal Mehta",
+  email: "vishal@corporate.com",
   role: UserRole.Employee,
-  phoneNumber: "+91 99887 76655",
-  createdAt: "2022-08-15",
-  lastLogin: "2024-03-20",
+  avatar: "/assets/avatars/employee.jpg",
+  phoneNumber: "+91-9998887776",
+  createdAt: "2023-04-20T09:45:00Z",
+  lastLogin: "2023-11-01T17:30:00Z",
   onboarded: true,
   loginCount: 28,
   completedOnboarding: true,
+  
   subscription: {
-    id: "sub-emp-1",
-    plan: "elite", // Changed from planId to plan
-    expiresAt: "2024-07-15",
+    id: "sub_emp123",
+    plan: "Premium",
+    expiresAt: "2024-04-20T00:00:00Z",
     status: "active"
   },
-  batchName: "Sakha Employees",
-  batchCode: "SAKHA-EMP-2022",
-  isGroupLeader: false,
-  peerRanking: 15,
-  examDate: "N/A",
-  school: "N/A",
-  grade: "N/A",
-  board: "N/A",
-  city: "Mumbai",
-  state: "Maharashtra",
+  
+  // Professional development goals
   goals: [
     {
-      id: "goal-1",
-      title: "Complete training modules",
-      description: "Finish all assigned training courses",
-      progress: 65,
-      status: "in_progress" // Fixed from "in-progress"
+      id: "g1",
+      title: "Project Management",
+      description: "Complete PMP certification",
+      progress: 60,
+      status: "in_progress"
     },
     {
-      id: "goal-2",
-      title: "Develop leadership skills",
-      description: "Attend leadership workshops and apply concepts",
-      progress: 40,
-      status: "not_started" // Fixed from "not-started"
+      id: "g2",
+      title: "Leadership Skills",
+      description: "Complete leadership training course",
+      progress: 30,
+      status: "not_started"
     },
     {
-      id: "goal-3",
-      title: "Improve client communication",
-      description: "Enhance communication skills for better client relations",
-      progress: 80,
-      status: "completed"
+      id: "g3",
+      title: "Technical Skills",
+      description: "Learn advanced data analysis",
+      progress: 25,
+      status: "in_progress"
     }
-  ]
+  ],
 };

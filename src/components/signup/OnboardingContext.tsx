@@ -6,6 +6,9 @@ export type OnboardingStep = "role" | "goal" | "demographics" | "personality" | 
 
 export type UserGoal = "IIT-JEE" | "NEET" | "GATE" | "CAT" | "UPSC" | "Bank Exams" | "Board Exams" | "Other";
 
+// Re-export UserRole from types to allow importing it from OnboardingContext
+export { UserRole };
+
 interface OnboardingContextType {
   step: OnboardingStep;
   setStep: (step: OnboardingStep) => void;

@@ -1,47 +1,56 @@
 
-import { AdminUser } from '@/types/admin';
+import { AdminUser } from "@/types/admin";
+
+interface AuthResponse {
+  success: boolean;
+  data?: AdminUser;
+  error?: string;
+}
 
 const adminAuthService = {
-  login: async (email: string, password: string): Promise<{ user: AdminUser | null; success: boolean }> => {
+  login: async (email: string, password: string): Promise<AuthResponse> => {
     // Simulate API call
     return new Promise((resolve) => {
       setTimeout(() => {
-        if (email === 'admin@sakha.ai' && password === 'admin123') {
-          const user: AdminUser = {
-            id: 'admin-1',
-            name: 'Admin User',
-            email: 'admin@sakha.ai',
-            role: 'admin',
-            permissions: ['manage_users', 'manage_content', 'manage_settings']
-          };
-          resolve({ user, success: true });
+        if (email === "admin@sakha.ai" && password === "admin123") {
+          resolve({
+            success: true,
+            data: {
+              id: "admin-1",
+              name: "Admin User",
+              email: "admin@sakha.ai",
+              role: "admin",
+              permissions: ["users.read", "users.write", "content.read", "content.write", "settings.read", "settings.write"]
+            }
+          });
         } else {
-          resolve({ user: null, success: false });
+          resolve({
+            success: false,
+            error: "Invalid email or password"
+          });
         }
-      }, 800);
+      }, 1000);
     });
   },
-  
+
   logout: async (): Promise<void> => {
     // Simulate API call
     return new Promise((resolve) => {
       setTimeout(() => {
-        localStorage.removeItem('adminUser');
+        localStorage.removeItem("adminAuthToken");
         resolve();
-      }, 300);
+      }, 500);
     });
   },
-  
-  getCurrentUser: (): AdminUser | null => {
-    const storedUser = localStorage.getItem('adminUser');
-    if (storedUser) {
-      try {
-        return JSON.parse(storedUser);
-      } catch {
-        return null;
-      }
-    }
-    return null;
+
+  checkAuth: async (): Promise<boolean> => {
+    // Simulate checking auth token validity
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        const authToken = localStorage.getItem("adminAuthToken");
+        resolve(!!authToken);
+      }, 500);
+    });
   }
 };
 

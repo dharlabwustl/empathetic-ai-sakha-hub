@@ -1,7 +1,7 @@
 
 import React from "react";
 import { OnboardingStep, UserGoal, UserRole } from "./OnboardingContext";
-import { MoodType } from "@/types/user/base";
+import { MoodType, PersonalityType } from "@/types/user/base";
 import RoleStep from "./steps/RoleStep";
 import GoalStep from "./steps/GoalStep";
 import DemographicsStep from "./steps/DemographicsStep";
@@ -19,7 +19,7 @@ interface StepRendererProps {
     handleRoleSelect: (role: UserRole) => void;
     handleDemographicsSubmit: (data: Record<string, string>) => void;
     handleGoalSelect: (goal: UserGoal) => void;
-    handlePersonalitySelect: (personality: string) => void;
+    handlePersonalitySelect: (personality: PersonalityType) => void;
     handleMoodSelect: (mood: MoodType) => void;
     handleHabitsSubmit: (habits: Record<string, string>) => void;
     handleInterestsSubmit: (interests: string) => void;
@@ -39,10 +39,10 @@ const StepRenderer: React.FC<StepRendererProps> = ({
       return <RoleStep onRoleSelect={handlers.handleRoleSelect} />;
       
     case "goal":
-      return <GoalStep onGoalSelect={handlers.handleGoalSelect} selectedRole={onboardingData.role} />;
+      return <GoalStep onGoalSelect={handlers.handleGoalSelect} />;
       
     case "demographics":
-      return <DemographicsStep onSubmit={handlers.handleDemographicsSubmit} selectedGoal={onboardingData.goal} />;
+      return <DemographicsStep onSubmit={handlers.handleDemographicsSubmit} />;
       
     case "personality":
       return <PersonalityStep onSelect={handlers.handlePersonalitySelect} />;
@@ -54,7 +54,7 @@ const StepRenderer: React.FC<StepRendererProps> = ({
       return <StudyHabitsStep onSubmit={handlers.handleHabitsSubmit} />;
       
     case "interests":
-      return <InterestsStep onSubmit={handlers.handleInterestsSubmit} selectedGoal={onboardingData.goal} />;
+      return <InterestsStep onSubmit={handlers.handleInterestsSubmit} />;
       
     case "signup":
       return <SignupStep onSubmit={handlers.handleSignupSubmit} isLoading={isLoading} />;
