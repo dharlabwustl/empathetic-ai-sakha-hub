@@ -1,85 +1,19 @@
 
-import React, { useState } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
+import { UserProfileType } from "@/types/user/base";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardFooter, 
-  CardHeader, 
-  CardTitle 
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { 
-  ArrowUpRight, 
-  Calendar, 
-  Crown, 
-  Edit, 
-  Medal, 
-  Star, 
-  UploadCloud, 
-  Users,
-  User
-} from "lucide-react";
-import { Progress } from "@/components/ui/progress";
-import { getInitials } from "@/utils/stringUtils";
-import { UserProfileType, MoodType } from "@/types/user/base";
-import { cn } from "@/lib/utils";
+import { Card, CardContent } from "@/components/ui/card";
+import { Crown, User } from "lucide-react";
 
 interface ProfileCardProps {
   profile: UserProfileType;
-  showPeerRanking?: boolean;
-  showMoodStatus?: boolean;
-  currentMood?: MoodType;
-  onUploadImage?: (file: File) => void;
   className?: string;
 }
 
-const ProfileCard: React.FC<ProfileCardProps> = ({
-  profile,
-  showPeerRanking = false,
-  showMoodStatus = false,
-  currentMood,
-  onUploadImage,
-  className = "",
-}) => {
-  const fileInputRef = React.useRef<HTMLInputElement>(null);
-  const [isUploading, setIsUploading] = useState(false);
-  const [progress, setProgress] = useState(0);
+const ProfileCard: React.FC<ProfileCardProps> = ({ profile, className = "" }) => {
   const navigate = useNavigate();
-  
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || !files[0] || !onUploadImage) return;
-    
-    setIsUploading(true);
-    setProgress(0);
-    
-    // Simulate progress
-    const timer = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 95) {
-          clearInterval(timer);
-          return prev;
-        }
-        return prev + 5;
-      });
-    }, 50);
-    
-    // Simulate upload delay
-    setTimeout(() => {
-      onUploadImage(files[0]);
-      setIsUploading(false);
-      setProgress(100);
-      setTimeout(() => setProgress(0), 500);
-    }, 1000);
-  };
-  
-  const handleUploadClick = () => {
-    fileInputRef.current?.click();
-  };
   
   const handleViewProfile = () => {
     navigate("/dashboard/student/profile");
@@ -90,150 +24,45 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
   };
 
   return (
-    <Card className={cn("overflow-hidden", className)}>
-      <CardHeader className="relative p-4 pb-0">
-        <div className="flex justify-between">
-          <CardTitle className="text-lg">{profile.name}</CardTitle>
-          {onUploadImage && (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8"
-              onClick={handleUploadClick}
-            >
-              <Edit className="h-4 w-4" />
-            </Button>
-          )}
-        </div>
-        <CardDescription className="flex items-center gap-1 text-xs">
-          {profile.role === "student" ? "Student" : profile.role}
-          {profile.batchName && (
-            <>
-              <span className="text-gray-400">•</span>
-              <Badge variant="outline" className="text-xs py-0 h-5 px-1.5">
-                <Users className="h-3 w-3 mr-1" />
-                {profile.batchName}
-              </Badge>
-            </>
-          )}
-        </CardDescription>
-      </CardHeader>
-      
-      <CardContent className="p-4 pt-2">
-        <div className="flex items-center gap-3">
-          <div className="relative">
-            <Avatar className="h-16 w-16 border-2 border-white shadow-md">
+    <Card className={`overflow-hidden ${className}`}>
+      <CardContent className="p-4">
+        <div className="flex items-start justify-between">
+          <div className="flex items-center gap-3">
+            <Avatar className="h-12 w-12">
               <AvatarImage src={profile.avatar} />
-              <AvatarFallback className="bg-primary text-primary-foreground">
-                {getInitials(profile.name)}
+              <AvatarFallback>
+                {profile.name?.charAt(0)}
               </AvatarFallback>
             </Avatar>
             
-            {isUploading && progress > 0 && (
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="h-16 w-16 rounded-full bg-black/30 flex items-center justify-center">
-                  <UploadCloud className="h-6 w-6 text-white" />
-                </div>
-                <Progress
-                  value={progress}
-                  className="absolute bottom-0 left-0 right-0 h-1.5 bg-gray-200"
-                />
-              </div>
-            )}
-            
-            {onUploadImage && (
-              <input
-                type="file"
-                ref={fileInputRef}
-                onChange={handleFileChange}
-                accept="image/*"
-                className="hidden"
-              />
-            )}
+            <div>
+              <h3 className="font-medium">{profile.name}</h3>
+              <p className="text-sm text-muted-foreground">{profile.email}</p>
+            </div>
           </div>
           
-          <div className="flex-1">
-            <div className="flex flex-col gap-1">
-              {profile.goals && profile.goals[0] && (
-                <div className="text-sm flex items-center">
-                  <Star className="h-3.5 w-3.5 text-amber-500 mr-1" />
-                  <span className="text-gray-600 dark:text-gray-300">
-                    Preparing for {profile.goals[0].title}
-                  </span>
-                </div>
-              )}
-              
-              {((profile.goals && profile.goals[0]?.examDate) || profile.examDate) && (
-                <div className="text-sm flex items-center">
-                  <Calendar className="h-3.5 w-3.5 text-blue-500 mr-1" />
-                  <span className="text-gray-600 dark:text-gray-300">
-                    Exam Date: {profile.goals && profile.goals[0]?.examDate ? profile.goals[0].examDate : profile.examDate}
-                  </span>
-                </div>
-              )}
-              
-              {showPeerRanking && profile.peerRanking && (
-                <div className="text-sm flex items-center">
-                  <Medal className="h-3.5 w-3.5 text-purple-500 mr-1" />
-                  <span className="text-gray-600 dark:text-gray-300">
-                    #{profile.peerRanking} in your batch
-                  </span>
-                </div>
-              )}
-              
-              {showMoodStatus && currentMood && (
-                <Badge
-                  variant="outline"
-                  className="w-fit text-xs py-0 px-2 gap-1 mt-1"
-                >
-                  Feeling {currentMood}
-                </Badge>
-              )}
-            </div>
-          </div>
+          {(!profile.subscription || profile.subscription.plan === "Basic") && (
+            <Button 
+              variant="outline" 
+              size="sm"
+              className="text-amber-700 border-amber-200 hover:bg-amber-50"
+              onClick={handleUpgradePlan}
+            >
+              <Crown className="mr-2 h-4 w-4" />
+              Upgrade
+            </Button>
+          )}
         </div>
         
-        {profile.subscription && (
-          <div className="mt-3">
-            <div className="flex justify-between items-center">
-              <div className="flex items-center gap-1">
-                <Crown className="h-3.5 w-3.5 text-amber-500" />
-                <span className="text-sm font-medium text-amber-700 dark:text-amber-400">
-                  {typeof profile.subscription === 'object' && profile.subscription.plan ? 
-                    profile.subscription.plan : 
-                    String(profile.subscription)} Plan
-                </span>
-              </div>
-              {typeof profile.subscription === 'object' && profile.subscription.expiresAt && (
-                <span className="text-xs text-gray-500">
-                  Expires: {new Date(profile.subscription.expiresAt).toLocaleDateString()}
-                </span>
-              )}
-            </div>
-          </div>
-        )}
-      </CardContent>
-      
-      <CardFooter className="p-4 pt-0 gap-2 flex">
         <Button 
-          variant="outline" 
-          size="sm" 
-          className="w-full flex gap-1 items-center text-xs"
+          variant="outline"
+          className="w-full mt-4"
           onClick={handleViewProfile}
         >
-          <User className="h-3.5 w-3.5" />
+          <User className="mr-2 h-4 w-4" />
           View Profile
         </Button>
-        <Button 
-          variant="default" 
-          size="sm" 
-          className="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white flex gap-1 items-center text-xs"
-          onClick={handleUpgradePlan}
-        >
-          <Crown className="h-3.5 w-3.5" />
-          Upgrade Plan
-        </Button>
-      </CardFooter>
+      </CardContent>
     </Card>
   );
 };

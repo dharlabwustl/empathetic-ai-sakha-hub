@@ -7,12 +7,10 @@ import {
   BookOpen, 
   Book, 
   FileText, 
-  Award, 
-  Brain, 
-  Clock, 
+  Brain,
+  Clock,
   ArrowRight 
 } from "lucide-react";
-import { motion } from "framer-motion";
 
 interface ActionButtonsProps {
   className?: string;
@@ -34,16 +32,7 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
   return (
     <Card className={`overflow-hidden border-purple-100 ${className}`}>
       <CardContent className="p-4">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-medium">Quick Actions</h3>
-        </div>
-        
-        <motion.div 
-          className="grid grid-cols-1 sm:grid-cols-2 gap-3"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <Button 
             variant="default" 
             className="bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white flex items-center justify-between h-auto py-3 px-4"
@@ -53,7 +42,7 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
               <Brain className="mr-2 h-5 w-5" />
               <span className="text-left">
                 <span className="block font-medium">Continue Learning</span>
-                <span className="text-xs text-indigo-100">Next: Newton's Laws of Motion</span>
+                <span className="text-xs text-indigo-100">Pick up where you left off</span>
               </span>
             </span>
             <ArrowRight className="h-5 w-5 ml-2" />
@@ -68,7 +57,7 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
               <Book className="mr-2 h-5 w-5" />
               <span className="text-left">
                 <span className="block font-medium">Let's Revise</span>
-                <span className="text-xs text-blue-600">Refresh your knowledge</span>
+                <span className="text-xs text-blue-600">Review key concepts</span>
               </span>
             </span>
             <ArrowRight className="h-5 w-5 ml-2" />
@@ -103,7 +92,7 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
             </span>
             <ArrowRight className="h-5 w-5 ml-2" />
           </Button>
-        </motion.div>
+        </div>
       </CardContent>
     </Card>
   );
