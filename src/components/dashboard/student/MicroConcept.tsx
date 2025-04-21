@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -23,6 +22,8 @@ interface MicroConceptProps {
   difficulty: "Easy" | "Medium" | "Hard";
   estimatedTime: number; // in minutes
   content: string;
+  resourceType?: "Video" | "Text" | "PDF"; // Added resourceType
+  resourceUrl?: string; // Added resourceUrl
   onComplete: (id: string) => void;
   onNeedHelp: (id: string) => void;
 }
@@ -35,6 +36,8 @@ const MicroConcept = ({
   difficulty,
   estimatedTime,
   content,
+  resourceType,
+  resourceUrl,
   onComplete,
   onNeedHelp
 }: MicroConceptProps) => {
@@ -51,7 +54,7 @@ const MicroConcept = ({
       default: return "bg-gray-100 text-gray-800 border-gray-200";
     }
   };
-  
+
   const handleGotIt = () => {
     setUnderstood(true);
     onComplete(id);
@@ -93,12 +96,28 @@ const MicroConcept = ({
               <BookOpen className="h-4 w-4" />
               {estimatedTime} min
             </Badge>
+
+            {resourceType && (
+              <Badge variant="outline" className="flex items-center gap-1">
+                {resourceType}
+              </Badge>
+            )}
           </div>
         </div>
 
         {expanded && (
           <div className="mt-4 space-y-4 animate-fade-in">
             <p className="text-sm text-gray-600">{content}</p>
+            
+            {resourceUrl && resourceType && (
+              <div className="mt-2">
+                <Button variant="outline" size="sm" asChild>
+                  <a href={resourceUrl} target="_blank" rel="noopener noreferrer">
+                    View {resourceType} Resource
+                  </a>
+                </Button>
+              </div>
+            )}
           </div>
         )}
       </CardContent>

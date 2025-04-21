@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -119,17 +118,15 @@ const CommunityTab: React.FC<CommunityTabProps> = ({ userProfile }) => {
     }
   ];
   
-  // Helper function to determine if user has premium access
-  const hasPremiumAccess = () => {
-    if (!userProfile.subscription) return false;
-    
-    if (typeof userProfile.subscription === 'object') {
-      return userProfile.subscription.plan !== SubscriptionType.Free && 
-             userProfile.subscription.plan !== SubscriptionType.Basic;
+  // Helper function to check subscription level
+  const isPremiumUser = (subscription?: UserSubscription | SubscriptionType) => {
+    if (!subscription) return false;
+
+    if (typeof subscription === 'string') {
+      return subscription !== 'basic' && subscription !== 'free';
     }
     
-    return userProfile.subscription !== SubscriptionType.Free && 
-           userProfile.subscription !== SubscriptionType.Basic;
+    return subscription.plan !== 'basic' && subscription.plan !== 'free';
   };
   
   return (
@@ -158,7 +155,7 @@ const CommunityTab: React.FC<CommunityTabProps> = ({ userProfile }) => {
         
         <TabsContent value="discussions" className="space-y-4 mt-4">
           {discussions.map((discussion) => (
-            <Card key={discussion.id} className={`hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors ${discussion.isPremium && !hasPremiumAccess() ? 'opacity-70' : ''}`}>
+            <Card key={discussion.id} className={`hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors ${discussion.isPremium && !isPremiumUser(userProfile?.subscription) ? 'opacity-70' : ''}`}>
               <CardContent className="p-4">
                 <div className="flex items-start justify-between">
                   <div className="flex items-start gap-3">
@@ -217,7 +214,7 @@ const CommunityTab: React.FC<CommunityTabProps> = ({ userProfile }) => {
         <TabsContent value="studyGroups" className="space-y-4 mt-4">
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
             {studyGroups.map((group) => (
-              <Card key={group.id} className={group.isPremium && !hasPremiumAccess() ? 'opacity-70' : ''}>
+              <Card key={group.id} className={group.isPremium && !isPremiumUser(userProfile?.subscription) ? 'opacity-70' : ''}>
                 <CardHeader className="pb-2">
                   <div className="flex justify-between items-start">
                     <div>
@@ -259,7 +256,7 @@ const CommunityTab: React.FC<CommunityTabProps> = ({ userProfile }) => {
                   </div>
                   
                   <div className="mt-4">
-                    {group.isPremium && !hasPremiumAccess() ? (
+                    {group.isPremium && !isPremiumUser(userProfile?.subscription) ? (
                       <Button disabled={true} className="w-full text-sm flex gap-2 items-center">
                         <Lock className="h-4 w-4" />
                         Upgrade to Join
@@ -284,7 +281,7 @@ const CommunityTab: React.FC<CommunityTabProps> = ({ userProfile }) => {
         
         <TabsContent value="events" className="space-y-4 mt-4">
           {events.map((event) => (
-            <Card key={event.id} className={`hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors ${event.isPremium && !hasPremiumAccess() ? 'opacity-70' : ''}`}>
+            <Card key={event.id} className={`hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors ${event.isPremium && !isPremiumUser(userProfile?.subscription) ? 'opacity-70' : ''}`}>
               <CardContent className="p-4">
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                   <div className="flex gap-3">
@@ -324,7 +321,7 @@ const CommunityTab: React.FC<CommunityTabProps> = ({ userProfile }) => {
                       <span className="font-medium text-foreground">{event.participants}</span> participants
                     </div>
                     
-                    {event.isPremium && !hasPremiumAccess() ? (
+                    {event.isPremium && !isPremiumUser(userProfile?.subscription) ? (
                       <Button disabled className="text-xs flex gap-2 items-center">
                         <Lock className="h-3.5 w-3.5" />
                         Requires Premium

@@ -1,65 +1,56 @@
 
-export interface AdminDashboardStats {
-  totalUsers: number;
-  monthlyActiveUsers: number;
-  totalStudents: number;
-  activeStudents: number;
-  subscriptionConversionRate: number;
-  churnRate: number;
-  averageStudyTimePerUser: number;
-  practiceAttemptsPerUser: number;
-  userSatisfactionScore: number;
-  referralRate: number;
-  paidUsers: {
-    total: number;
-    breakdown: {
-      free: number;
-      basic: number;
-      premium: number;
-      enterprise: number;
-      school: number;
-      corporate: number;
-    };
+import { UserRole } from './user/base';
+
+export interface AdminUser {
+  id: string;
+  email: string;
+  name: string;
+  role: UserRole;
+  permissions: string[];
+  createdAt: string;
+  lastLogin?: string;
+}
+
+export interface AdminAuthContextProps {
+  user: AdminUser | null;
+  loading: boolean;
+  error: string | null;
+  login: (email: string, password: string) => Promise<boolean>;
+  logout: () => Promise<void>;
+}
+
+export interface AdminSettings {
+  siteName: string;
+  siteDescription: string;
+  contactEmail: string;
+  enableRegistration: boolean;
+  enableGuestCheckout: boolean;
+  maintenanceMode: boolean;
+  theme: 'light' | 'dark' | 'system';
+  features: {
+    tutorChat: boolean;
+    feelGood: boolean;
+    moodTracking: boolean;
+    surroundingInfluences: boolean;
   };
-  totalRevenue: number;
-  totalConcepts: number;
-  totalFlashcards: number;
-  totalQuestions: number;
-  verifiedMoodImprovement: number;
-  averageMoodScore: number;
-  averageTimeSavedPerWeek: number;
-  studyPlanEfficiencyImprovement: number;
-  studentsWithVerifiedConsistentHabits: number;
-  studentsWithConsistentHabits: number;
-  verifiedExamConfidenceImprovement: number;
-  averageConfidenceScore: number;
-  verifiedRetentionRate: number;
-  verifiedMoodFeatureUsage: number;
-  moodBasedSessionsCount: number;
-  totalSessions: number;
-  completedSurveys: number;
 }
 
 export interface StudentData {
   id: string;
   name: string;
   email: string;
-  joinDate: string;
-  lastActive: string;
-  subscriptionTier: string;
-  studyTime: number;
-  completedLessons: number;
-  targetScore: number;
-  avatarUrl?: string;
+  phoneNumber: string;
+  registrationDate: string;
+  examType: string;
+  status: 'active' | 'inactive' | 'pending';
+  completedOnboarding: boolean;
+  lastActivity?: string;
+  subscriptionStatus?: 'active' | 'expired' | 'trial';
+  grades?: Record<string, number>;
+  examDate?: string;
 }
 
-export interface SystemLog {
-  id: string;
-  timestamp: string;
-  level: "info" | "warning" | "error" | "critical";
-  source: string;
-  message: string;
-  details?: string;
-  resolved?: boolean;
-  assignedTo?: string;
+export interface KpiData {
+  value: number;
+  trend: 'up' | 'down' | 'neutral';
 }

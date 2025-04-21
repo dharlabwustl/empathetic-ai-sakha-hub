@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
@@ -8,7 +7,26 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
-import { Check, CreditCard, Download, ArrowRight, Crown, AlertTriangle } from "lucide-react";
+import { Check, CreditCard, Download, ArrowRight, Crown, UserPlus } from "lucide-react";
+
+const AlertTriangle = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    {...props}
+  >
+    <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
+    <path d="M12 9v4" />
+    <path d="M12 17h.01" />
+  </svg>
+);
 
 interface ProfileBillingSectionProps {
   userProfile: UserProfileType;
@@ -24,6 +42,34 @@ const ProfileBillingSection: React.FC<ProfileBillingSectionProps> = ({
   const navigate = useNavigate();
   const { toast } = useToast();
   
+  const getCurrentPlanName = () => {
+    if (!userProfile.subscription) return "basic";
+    
+    if (typeof userProfile.subscription === 'string') {
+      return userProfile.subscription;
+    }
+    
+    return userProfile.subscription.plan;
+  };
+  
+  const getSubscriptionStatus = () => {
+    if (!userProfile.subscription) return "inactive";
+    
+    if (typeof userProfile.subscription === 'string') {
+      return "active";
+    }
+    
+    return userProfile.subscription.status;
+  };
+  
+  const getExpiryDate = () => {
+    if (!userProfile.subscription || typeof userProfile.subscription === 'string') {
+      return new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+    }
+    
+    return userProfile.subscription.expiresAt;
+  };
+  
   const plans = [
     {
       id: "basic",
@@ -34,7 +80,7 @@ const ProfileBillingSection: React.FC<ProfileBillingSectionProps> = ({
         "Limited practice questions",
         "Basic progress tracking"
       ],
-      current: userProfile.subscription?.plan === "basic"
+      current: getCurrentPlanName() === "basic"
     },
     {
       id: "premium",
@@ -47,7 +93,7 @@ const ProfileBillingSection: React.FC<ProfileBillingSectionProps> = ({
         "24/7 AI tutor assistance",
         "Personalized study plans"
       ],
-      current: userProfile.subscription?.plan === "premium"
+      current: getCurrentPlanName() === "premium"
     },
     {
       id: "elite",
@@ -60,7 +106,7 @@ const ProfileBillingSection: React.FC<ProfileBillingSectionProps> = ({
         "Priority support",
         "Guaranteed improvement"
       ],
-      current: userProfile.subscription?.plan === "elite"
+      current: getCurrentPlanName() === "elite"
     }
   ];
   
@@ -76,17 +122,16 @@ const ProfileBillingSection: React.FC<ProfileBillingSectionProps> = ({
   };
   
   const handleConfirmUpgrade = () => {
-    // In a real app, this would redirect to a payment gateway
     toast({
       title: "Plan upgraded",
       description: `You have successfully upgraded to the ${selectedPlan} plan.`
     });
     
-    // Update the user profile
     onUpdateProfile({
       subscription: {
-        ...userProfile.subscription!,
+        id: `sub_${Date.now()}`,
         plan: selectedPlan,
+        status: "active",
         expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
       }
     });
@@ -105,7 +150,6 @@ const ProfileBillingSection: React.FC<ProfileBillingSectionProps> = ({
     <div className="space-y-6">
       <h2 className="text-2xl font-semibold">Billing & Plans</h2>
       
-      {/* Current Subscription */}
       <Card className="border-primary/20">
         <CardHeader className="pb-3">
           <CardTitle>Current Subscription</CardTitle>
@@ -115,12 +159,12 @@ const ProfileBillingSection: React.FC<ProfileBillingSectionProps> = ({
             <div>
               <div className="text-lg font-medium flex items-center">
                 <Crown className="h-5 w-5 mr-1 text-amber-500" />
-                {userProfile.subscription?.plan?.charAt(0).toUpperCase() + 
-                 userProfile.subscription?.plan?.slice(1)} Plan
+                {getCurrentPlanName().charAt(0).toUpperCase() + 
+                 getCurrentPlanName().slice(1)} Plan
               </div>
               <p className="text-sm text-muted-foreground">
-                {userProfile.subscription?.status === "active" 
-                  ? `Expires on ${new Date(userProfile.subscription?.expiresAt).toLocaleDateString()}`
+                {getSubscriptionStatus() === "active" 
+                  ? `Expires on ${new Date(getExpiryDate()).toLocaleDateString()}`
                   : "Not active"
                 }
               </p>
@@ -134,7 +178,6 @@ const ProfileBillingSection: React.FC<ProfileBillingSectionProps> = ({
         </CardContent>
       </Card>
       
-      {/* Plan Comparison */}
       <div>
         <h3 className="text-lg font-medium mb-4">Available Plans</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -175,7 +218,6 @@ const ProfileBillingSection: React.FC<ProfileBillingSectionProps> = ({
         </div>
       </div>
       
-      {/* Billing History */}
       <div>
         <h3 className="text-lg font-medium mb-4">Billing History</h3>
         <Card>
@@ -222,7 +264,6 @@ const ProfileBillingSection: React.FC<ProfileBillingSectionProps> = ({
         </Card>
       </div>
       
-      {/* Payment Methods */}
       <Card>
         <CardHeader>
           <CardTitle>Payment Methods</CardTitle>
@@ -243,7 +284,6 @@ const ProfileBillingSection: React.FC<ProfileBillingSectionProps> = ({
         </CardContent>
       </Card>
       
-      {/* Upgrade Dialog */}
       <Dialog open={showUpgradeDialog} onOpenChange={setShowUpgradeDialog}>
         <DialogContent className="max-w-md">
           <DialogHeader>

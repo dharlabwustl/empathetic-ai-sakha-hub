@@ -1,60 +1,117 @@
-
-import React, { useState } from "react";
+import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { Smile } from "lucide-react";
-import { MoodType } from "@/types/user/base";
-import MoodSelectionDialog from "./MoodSelectionDialog";
-import { motion } from "framer-motion";
-import { getMoodDisplayName, getMoodColor } from "./moodUtils";
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuTrigger 
+} from "@/components/ui/dropdown-menu";
+import { MoodType } from '@/types/user/base';
+import { useToast } from '@/hooks/use-toast';
+import {
+  Smile,
+  Meh,
+  Frown,
+  Rocket,
+  Bed,
+  AlertTriangle,
+  Target,
+  HelpCircle,
+  Tired,
+  Check
+} from "lucide-react";
 
 interface MoodLogButtonProps {
-  currentMood?: MoodType;
-  onMoodSelect?: (mood: MoodType) => void;
-  onMoodChange?: (mood: MoodType) => void;
+  onMoodSelect: (mood: MoodType | undefined) => void;
+  className?: string; // Add className prop
 }
 
-const MoodLogButton: React.FC<MoodLogButtonProps> = ({ currentMood, onMoodSelect, onMoodChange }) => {
-  const [showMoodDialog, setShowMoodDialog] = useState(false);
+const MoodLogButton: React.FC<MoodLogButtonProps> = ({ onMoodSelect, className = '' }) => {
+  const [selectedMood, setSelectedMood] = useState<MoodType | undefined>(undefined);
+  const { toast } = useToast();
 
-  const getMoodIcon = (mood?: MoodType) => {
-    // You can customize this to return different icons based on mood
-    return <Smile className="h-4 w-4 mr-2" />;
-  };
-
-  const handleClose = () => {
-    setShowMoodDialog(false);
-  };
-
-  const handleMoodSelection = (mood: MoodType) => {
-    if (onMoodSelect) onMoodSelect(mood);
-    if (onMoodChange) onMoodChange(mood);
-    setShowMoodDialog(false);
+  const handleMoodSelect = (mood: MoodType) => {
+    setSelectedMood(mood);
+    onMoodSelect(mood);
+    
+    toast({
+      title: "Mood Logged!",
+      description: `You've logged your mood as ${mood}.`,
+    });
   };
 
   return (
-    <>
-      <motion.div 
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-      >
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => setShowMoodDialog(true)}
-          className={`transition-all ${getMoodColor(currentMood)} shadow-sm border rounded-full px-4 py-2`}
-        >
-          {getMoodIcon(currentMood)}
-          <span>{getMoodDisplayName(currentMood)}</span>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="outline" className={`flex items-center ${className}`}>
+          {selectedMood ? (
+            <>
+              {selectedMood === 'happy' && <Smile className="mr-2 h-4 w-4" />}
+              {selectedMood === 'sad' && <Frown className="mr-2 h-4 w-4" />}
+              {selectedMood === 'neutral' && <Meh className="mr-2 h-4 w-4" />}
+              {selectedMood === 'motivated' && <Rocket className="mr-2 h-4 w-4" />}
+              {selectedMood === 'tired' && <Bed className="mr-2 h-4 w-4" />}
+              {selectedMood === 'stressed' && <AlertTriangle className="mr-2 h-4 w-4" />}
+              {selectedMood === 'focused' && <Target className="mr-2 h-4 w-4" />}
+              {selectedMood === 'curious' && <HelpCircle className="mr-2 h-4 w-4" />}
+              {selectedMood === 'overwhelmed' && <Tired className="mr-2 h-4 w-4" />}
+              {selectedMood === 'okay' && <Check className="mr-2 h-4 w-4" />}
+              {selectedMood}
+            </>
+          ) : (
+            "Log Mood"
+          )}
         </Button>
-      </motion.div>
-      
-      <MoodSelectionDialog 
-        isOpen={showMoodDialog}
-        onClose={handleClose}
-        selectedMood={currentMood}
-        onSelectMood={handleMoodSelection}
-      />
-    </>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className="w-56">
+        <DropdownMenuItem onClick={() => handleMoodSelect('happy')}>
+          <Smile className="mr-2 h-4 w-4" />
+          Happy
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => handleMoodSelect('sad')}>
+          <Frown className="mr-2 h-4 w-4" />
+          Sad
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => handleMoodSelect('neutral')}>
+          <Meh className="mr-2 h-4 w-4" />
+          Neutral
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => handleMoodSelect('motivated')}>
+          <Rocket className="mr-2 h-4 w-4" />
+          Motivated
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => handleMoodSelect('tired')}>
+          <Bed className="mr-2 h-4 w-4" />
+          Tired
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => handleMoodSelect('stressed')}>
+          <AlertTriangle className="mr-2 h-4 w-4" />
+          Stressed
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => handleMoodSelect('focused')}>
+          <Target className="mr-2 h-4 w-4" />
+          Focused
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => handleMoodSelect('curious')}>
+          <HelpCircle className="mr-2 h-4 w-4" />
+          Curious
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => handleMoodSelect('overwhelmed')}>
+          <Tired className="mr-2 h-4 w-4" />
+          Overwhelmed
+        DropdownMenuItem>
+        <DropdownMenuItem onClick={() => handleMoodSelect('okay')}>
+          <Check className="mr-2 h-4 w-4" />
+          Okay
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => {
+          setSelectedMood(undefined);
+          onMoodSelect(undefined);
+        }}>
+          Reset
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 };
 

@@ -32,8 +32,6 @@ const mockTodayPlan = {
       difficulty: "Medium" as const,
       estimatedTime: 15,
       content: "Newton's third law states that for every action, there is an equal and opposite reaction. When one body exerts a force on a second body, the second body exerts a force equal in magnitude and opposite in direction on the first body.",
-      resourceType: "Video" as const,
-      resourceUrl: "#",
       completed: true
     },
     {
@@ -44,8 +42,6 @@ const mockTodayPlan = {
       difficulty: "Easy" as const,
       estimatedTime: 20,
       content: "Acid-base reactions involve the transfer of H+ ions (protons) from one substance to another. In these reactions, acids act as proton donors while bases act as proton acceptors.",
-      resourceType: "Text" as const,
-      resourceUrl: "#",
       completed: true
     },
     {
@@ -56,8 +52,6 @@ const mockTodayPlan = {
       difficulty: "Hard" as const,
       estimatedTime: 25,
       content: "Integration by parts is a technique used to evaluate integrals where the integrand is a product of two functions. The formula is: ∫u(x)v'(x)dx = u(x)v(x) - ∫u'(x)v(x)dx",
-      resourceType: "PDF" as const,
-      resourceUrl: "#",
       completed: false
     },
     {
@@ -68,8 +62,6 @@ const mockTodayPlan = {
       difficulty: "Medium" as const,
       estimatedTime: 30,
       content: "DNA replication is the process by which DNA makes a copy of itself during cell division. The structure of the double helix allows each strand to serve as a template for a new strand of complementary DNA.",
-      resourceType: "Video" as const,
-      resourceUrl: "#",
       completed: false
     },
     {
@@ -80,8 +72,6 @@ const mockTodayPlan = {
       difficulty: "Easy" as const,
       estimatedTime: 20,
       content: "The Constitution of India is the supreme law of India. It lays down the framework defining fundamental political principles, establishes the structure, procedures, powers and duties of government institutions.",
-      resourceType: "Text" as const,
-      resourceUrl: "#",
       completed: false
     }
   ]
@@ -167,8 +157,6 @@ export default function TodayStudyPlan() {
                   difficulty={concept.difficulty}
                   estimatedTime={concept.estimatedTime}
                   content={concept.content}
-                  resourceType={concept.resourceType}
-                  resourceUrl={concept.resourceUrl}
                   onComplete={handleCompleteConcept}
                   onNeedHelp={handleNeedHelp}
                 />

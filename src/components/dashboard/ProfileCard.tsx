@@ -23,6 +23,19 @@ const ProfileCard: React.FC<ProfileCardProps> = ({ profile, className = "" }) =>
     navigate("/dashboard/student/subscription");
   };
 
+  // Helper function to determine if user needs to upgrade
+  const needsUpgrade = () => {
+    if (!profile.subscription) return true;
+    
+    // If subscription is a string (enum value)
+    if (typeof profile.subscription === 'string') {
+      return profile.subscription === 'basic' || profile.subscription === 'free';
+    }
+    
+    // If subscription is an object
+    return profile.subscription.plan === 'basic' || profile.subscription.plan === 'free';
+  };
+
   return (
     <Card className={`overflow-hidden ${className}`}>
       <CardContent className="p-4">
@@ -41,7 +54,7 @@ const ProfileCard: React.FC<ProfileCardProps> = ({ profile, className = "" }) =>
             </div>
           </div>
           
-          {(!profile.subscription || profile.subscription.plan === "Basic") && (
+          {needsUpgrade() && (
             <Button 
               variant="outline" 
               size="sm"
