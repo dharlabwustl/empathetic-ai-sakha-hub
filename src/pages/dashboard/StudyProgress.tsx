@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import DashboardLayout from './DashboardLayout';
 import { useStudentDashboard } from '@/hooks/useStudentDashboard';
@@ -6,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Subject } from '@/types/user/progress';
+import { SubjectProgress } from '@/types/user';
 import { formatDate } from '@/utils/dateUtils';
 import { motion } from 'framer-motion';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -40,12 +42,16 @@ const StudyProgress = () => {
   useEffect(() => {
     if (userProfile && userProfile.subjects) {
       // Convert SubjectProgress[] to Subject[]
-      const subjectsWithLastWeekProgress = userProfile.subjects.map(subject => ({
+      const convertedSubjects = userProfile.subjects.map(subject => ({
         ...subject,
-        lastWeekProgress: subject.lastWeekProgress || 0 // Provide a default value
+        lastWeekProgress: subject.lastWeekProgress || 0,
+        topics: subject.topics || [],
+        streak: 3, // Default value
+        totalTimeSpent: 120, // Default value in minutes
+        lastStudied: new Date().toISOString() // Default value
       }));
         
-      setSubjects(subjectsWithLastWeekProgress);
+      setSubjects(convertedSubjects);
     }
   }, [userProfile]);
 

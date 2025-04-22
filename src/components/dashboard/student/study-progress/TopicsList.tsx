@@ -35,17 +35,21 @@ export const TopicsList: React.FC<TopicsListProps> = ({
     );
   }
 
+  // Handle case when topics is undefined
+  const topics = selectedSubject.topics || [];
+  const completedTopics = topics.filter(t => t.completed).length;
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-medium">{selectedSubject.name} Topics</h3>
         <div className="text-sm text-muted-foreground">
-          {selectedSubject.topics.filter(t => t.completed).length} of {selectedSubject.topics.length} completed
+          {completedTopics} of {topics.length} completed
         </div>
       </div>
       
       <div className="space-y-4">
-        {selectedSubject.topics.map(topic => (
+        {topics.map(topic => (
           <div key={topic.id} className="border rounded-lg p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">

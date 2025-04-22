@@ -1,117 +1,96 @@
 
+// Define the user roles enum
 export enum UserRole {
-  Student = 'student',
-  Tutor = 'tutor',
-  Admin = 'admin',
-  Parent = 'parent',
-  Doctor = 'doctor',
-  Employee = 'employee',
-  Founder = 'founder',
-  Teacher = 'teacher'
+  Student = "student",
+  Teacher = "teacher",
+  Admin = "admin",
+  Parent = "parent",
+  Employee = "employee",
+  Doctor = "doctor",
+  Founder = "founder"
 }
 
-export type MoodType = 'happy' | 'sad' | 'neutral' | 'motivated' | 'tired' | 'stressed' | 'focused' | 'curious' | 'overwhelmed' | 'okay';
-
-export type PersonalityType = string;
-
+// Define the subscription types
 export enum SubscriptionType {
-  Free = 'free',
-  Basic = 'basic',
-  Premium = 'premium',
-  Pro = 'pro',
-  Elite = 'elite',
-  Group = 'group',
-  Enterprise = 'enterprise'
+  Free = "free",
+  Basic = "basic",
+  Premium = "premium",
+  Enterprise = "enterprise"
 }
 
-export { UserSubscription } from './subscription';
+// Define mood types
+export type MoodType = 
+  | "happy"
+  | "sad" 
+  | "neutral" 
+  | "motivated" 
+  | "tired" 
+  | "stressed" 
+  | "focused" 
+  | "curious"
+  | "overwhelmed"
+  | "okay";
 
+// Define personality types
+export type PersonalityType = {
+  type: string;
+  traits: string[];
+  learningStyle: string;
+};
+
+// Define goal status type
+export type GoalStatus = "active" | "completed" | "abandoned" | "in_progress";
+
+// Define user goal interface
 export interface UserGoal {
   id: string;
   title: string;
   description: string;
+  progress: number;
   targetDate: string;
-  completedDate?: string;
-  examDate?: string;
-  progress: number;
-  status: 'active' | 'completed' | 'abandoned' | 'in_progress';
+  status: GoalStatus;
+  examDate?: string; // Optional exam date
 }
 
-export interface Subject {
+// Define user subscription interface
+export interface UserSubscription {
   id: string;
-  name: string;
-  progress: number;
-  lastWeekProgress?: number;
-  weakTopics?: string[];
-  strongTopics?: string[];
+  plan: string;
+  expiresAt: string;
+  status: string;
 }
 
-export interface StudyStreak {
-  current: number;
-  best: number;
-  lastStudyDate: string;
-  thisWeek: number;
-  thisMonth: number;
+// Define exam preparation interface
+export interface ExamPreparation {
+  target: string;
+  examDate: string;
+  subjects: string[];
 }
 
+// Define the user profile type
 export interface UserProfileType {
   id: string;
   name: string;
   email: string;
-  role: UserRole | string;
+  role: UserRole;
   avatar?: string;
-  goals?: UserGoal[];
-  examDate?: string;
-  subscription?: UserSubscription | SubscriptionType | string;
+  phoneNumber?: string;
   createdAt?: string;
-  updatedAt?: string;
-  loginCount?: number;
   lastLogin?: string;
-  studyStreak?: StudyStreak;
-  subjects?: Subject[];
-  batchName?: string;
-  batchCode?: string;
-  isGroupLeader?: boolean;
-  examPreparation?: {
-    target: string;
-    examDate: string;
-    subjects: string[];
-  };
-  personalDetails?: {
-    phoneNumber?: string;
-    address?: string;
-    city?: string;
-    state?: string;
-    country?: string;
-    zipCode?: string;
-    dateOfBirth?: string;
-    gender?: string;
-    school?: string;
-    grade?: string;
-    board?: string;
-    phone?: string;
-    bio?: string;
-    interests?: string[];
-  };
-  preferences?: {
-    studyReminders: boolean;
-    emailNotifications: boolean;
-    darkMode: boolean;
-    language: string;
-  };
-  aiTutorHistory?: {
-    lastInteraction: string;
-    totalInteractions: number;
-    favoriteTopics: string[];
-  };
+  onboarded?: boolean;
+  loginCount?: number;
+  completedOnboarding?: boolean;
   currentMood?: MoodType;
   personalityType?: PersonalityType;
+  subscription?: UserSubscription;
+  goals?: UserGoal[];
+  subjects?: SubjectProgress[];
+  studyStreak?: StudyStreak;
+  examPreparation?: ExamPreparation;
+  city?: string;
+  state?: string;
+  school?: string;
+  grade?: string;
+  board?: string;
 }
 
-export type AuthUser = {
-  id: string;
-  email: string;
-  role: UserRole | string;
-  name?: string;
-  subscription?: UserSubscription | SubscriptionType | string;
-};

@@ -1,5 +1,5 @@
 
-import { UserProfileType, UserRole, Goal } from "@/types/user/base";
+import { UserProfileType, UserRole, UserGoal } from "@/types/user/base";
 
 export const mockStudentProfile: UserProfileType = {
   id: "123",
@@ -39,6 +39,7 @@ export const mockStudentProfile: UserProfileType = {
       description: "Crack IIT-JEE with rank under 1000",
       progress: 65,
       status: "in_progress",
+      targetDate: "2024-05-20",
       examDate: "2024-05-25"
     },
     {
@@ -46,7 +47,8 @@ export const mockStudentProfile: UserProfileType = {
       title: "Physics Olympiad",
       description: "Qualify for national level",
       progress: 40,
-      status: "not_started"
+      status: "active", // Changed from not_started
+      targetDate: "2024-03-15"
     }
   ],
 };

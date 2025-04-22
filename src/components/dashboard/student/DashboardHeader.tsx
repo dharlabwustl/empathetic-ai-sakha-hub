@@ -1,11 +1,9 @@
-
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { UserProfileType, MoodType } from "@/types/user/base";
-import { CalendarRange, BookOpen, Clock, Target } from "lucide-react";
-import { Flame as Fire } from "lucide-react";
+import { CalendarRange, BookOpen, Clock, Target, Flame } from "lucide-react";
 import MoodLogButton from "@/components/dashboard/student/mood-tracking/MoodLogButton";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { UserRole } from "@/types/user/base";
@@ -29,19 +27,16 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   const handleMoodSelect = (mood: MoodType | undefined) => {
     setCurrentMood(mood);
     
-    // Update the user profile with the new mood
     updateUserProfile({
       ...userProfile,
       currentMood: mood
     });
   };
 
-  // Compute days until exam if available
   const daysUntilExam = userProfile.examPreparation?.examDate
     ? Math.ceil((new Date(userProfile.examPreparation.examDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))
     : null;
 
-  // Get the exam target name
   const examTarget = userProfile.examPreparation?.target || userProfile.goals?.[0]?.title || "Your Exam";
 
   return (
@@ -75,7 +70,6 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
 
       <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 shadow-sm">
         <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4">
-          {/* Exam Preparation Info */}
           <div className="flex flex-col sm:flex-row items-center gap-4">
             <div className="h-12 w-12 bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/50 dark:to-indigo-900/50 rounded-full flex items-center justify-center">
               <Target className="h-6 w-6 text-blue-600 dark:text-blue-400" />
@@ -93,7 +87,6 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
             </div>
           </div>
           
-          {/* Study Streak */}
           <div className="flex flex-col sm:flex-row items-center gap-4">
             <div className="h-12 w-12 bg-gradient-to-br from-amber-100 to-red-100 dark:from-amber-900/50 dark:to-red-900/50 rounded-full flex items-center justify-center">
               <Flame className="h-6 w-6 text-amber-600 dark:text-amber-400" />
@@ -115,7 +108,6 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
             </div>
           </div>
           
-          {/* Today's Goal */}
           <div className="flex flex-col sm:flex-row items-center gap-4">
             <div className="h-12 w-12 bg-gradient-to-br from-green-100 to-cyan-100 dark:from-green-900/50 dark:to-cyan-900/50 rounded-full flex items-center justify-center">
               <BookOpen className="h-6 w-6 text-green-600 dark:text-green-400" />

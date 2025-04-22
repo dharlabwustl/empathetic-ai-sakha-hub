@@ -30,21 +30,24 @@ const doctorProfile: UserProfileType = {
       title: "Research Paper",
       description: "Complete research on cardiac treatments",
       progress: 75,
-      status: "in_progress"
+      status: "in_progress",
+      targetDate: "2024-08-15"
     },
     {
       id: "g2",
       title: "Medical Conference",
       description: "Present at the International Cardiology Conference",
       progress: 25,
-      status: "not_started"
+      status: "active", // Changed from not_started
+      targetDate: "2024-11-30"
     },
     {
       id: "g3",
       title: "Patient Case Studies",
       description: "Document 50 case studies for educational purposes",
       progress: 60,
-      status: "in_progress"
+      status: "in_progress",
+      targetDate: "2024-09-01"
     }
   ],
 };

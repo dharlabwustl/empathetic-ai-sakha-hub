@@ -35,36 +35,45 @@ export const QuizzesList: React.FC<QuizzesListProps> = ({
     );
   }
 
+  // Handle case when quizScores is undefined
+  const quizScores = selectedSubject.quizScores || [];
+  
   return (
     <div className="space-y-6">
       <h3 className="font-medium">Recent Quiz Performance</h3>
       
-      <div className="space-y-4">
-        {selectedSubject.quizScores.map(quiz => (
-          <div key={quiz.id} className="border rounded-lg p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <h4 className="font-medium">{quiz.title}</h4>
-                <p className="text-sm text-muted-foreground">
-                  {quiz.date} • {quiz.timeTaken} min
-                </p>
-              </div>
-              <div className="text-right">
-                <div className="text-lg font-semibold">
-                  {quiz.score}/{quiz.maxScore}
+      {quizScores.length > 0 ? (
+        <div className="space-y-4">
+          {quizScores.map(quiz => (
+            <div key={quiz.id} className="border rounded-lg p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="font-medium">{quiz.title}</h4>
+                  <p className="text-sm text-muted-foreground">
+                    {quiz.date} • {quiz.timeTaken} min
+                  </p>
                 </div>
-                <div className={`text-sm ${
-                  (quiz.score / quiz.maxScore) * 100 > 70 ? 'text-green-600' :
-                  (quiz.score / quiz.maxScore) * 100 > 40 ? 'text-amber-600' :
-                  'text-red-600'
-                }`}>
-                  {Math.round((quiz.score / quiz.maxScore) * 100)}%
+                <div className="text-right">
+                  <div className="text-lg font-semibold">
+                    {quiz.score}/{quiz.maxScore}
+                  </div>
+                  <div className={`text-sm ${
+                    (quiz.score / quiz.maxScore) * 100 > 70 ? 'text-green-600' :
+                    (quiz.score / quiz.maxScore) * 100 > 40 ? 'text-amber-600' :
+                    'text-red-600'
+                  }`}>
+                    {Math.round((quiz.score / quiz.maxScore) * 100)}%
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      ) : (
+        <div className="text-center py-4">
+          <p className="text-muted-foreground">No quiz data available for this subject.</p>
+        </div>
+      )}
     </div>
   );
 };
