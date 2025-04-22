@@ -1,3 +1,4 @@
+
 // Define the user roles enum
 export enum UserRole {
   Student = "student",
@@ -34,7 +35,7 @@ export type MoodType =
   | "okay";
 
 // Define personality types
-export type PersonalityType = {
+export interface PersonalityType {
   type: string;
   traits: string[];
   learningStyle: string;
@@ -54,12 +55,23 @@ export interface UserGoal {
   examDate?: string; // Optional exam date
 }
 
+// Define study streak interface
+export interface StudyStreak {
+  current: number;
+  best: number;
+  lastStudyDate: string;
+  thisWeek: number;
+  thisMonth: number;
+}
+
 // Define user subscription interface
 export interface UserSubscription {
   id: string;
   plan: string;
   expiresAt: string;
   status: string;
+  planType?: SubscriptionType;
+  isGroupLeader?: boolean;
 }
 
 // Define exam preparation interface
@@ -88,7 +100,8 @@ export interface UserProfileType {
   goals?: UserGoal[];
   subjects?: SubjectProgress[];
   studyStreak?: StudyStreak;
-  // Add missing fields
+  examPreparation?: ExamPreparation;
+  // Additional fields
   personalDetails?: {
     phoneNumber?: string;
     phone?: string;
@@ -105,11 +118,6 @@ export interface UserProfileType {
     bio?: string;
     interests?: string[];
   };
-  examPreparation?: {
-    target: string;
-    examDate: string;
-    subjects: string[];
-  };
   batchName?: string;
   batchCode?: string;
   isGroupLeader?: boolean;
@@ -117,24 +125,19 @@ export interface UserProfileType {
     lastSession?: string;
     totalSessions?: number;
     favoriteTopics?: string[];
+    totalInteractions?: number;
   };
+  // For doctor profile
+  specialization?: string; 
+  // For student profile
+  peerRanking?: number;
+  examDate?: string;
+  school?: string;
+  grade?: string;
+  board?: string;
+  city?: string;
+  state?: string;
 }
 
-export interface UserSubscription {
-  id: string;
-  plan: string;
-  expiresAt: string;
-  status: string;
-  planType?: SubscriptionType;
-  isGroupLeader?: boolean;
-}
-
-export enum SubscriptionType {
-  Free = "free",
-  Basic = "basic",
-  Premium = "premium",
-  Pro = "pro",
-  Elite = "elite",
-  Group = "group",
-  Enterprise = "enterprise"
-}
+// Importing SubjectProgress from index.ts to prevent circular dependencies
+import { SubjectProgress } from "./index";

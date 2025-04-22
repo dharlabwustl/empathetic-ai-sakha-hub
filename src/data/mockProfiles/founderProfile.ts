@@ -1,5 +1,5 @@
 
-import { UserProfileType, UserRole, SubscriptionType } from "@/types/user/base";
+import { UserProfileType, UserRole, GoalStatus } from "@/types/user/base";
 
 export const mockFounderProfile: UserProfileType = {
   id: "f123",
@@ -28,7 +28,7 @@ export const mockFounderProfile: UserProfileType = {
       title: "Series A Funding",
       description: "Prepare for Series A funding round",
       progress: 70,
-      status: "in_progress",
+      status: "in_progress" as GoalStatus,
       targetDate: "2024-12-31"
     },
     {
@@ -36,7 +36,7 @@ export const mockFounderProfile: UserProfileType = {
       title: "Product Launch",
       description: "Launch version 2.0 of the product",
       progress: 85,
-      status: "in_progress",
+      status: "in_progress" as GoalStatus,
       targetDate: "2024-09-15"
     },
     {
@@ -44,7 +44,7 @@ export const mockFounderProfile: UserProfileType = {
       title: "Team Expansion",
       description: "Hire key engineering and marketing roles",
       progress: 40,
-      status: "in_progress",
+      status: "in_progress" as GoalStatus,
       targetDate: "2024-10-30"
     }
   ],

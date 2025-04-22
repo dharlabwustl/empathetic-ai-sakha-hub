@@ -1,4 +1,9 @@
 
+// Re-export all types from the base module
+export * from "./base";
+export * from "./progress";
+
+// Define SubjectProgress interface
 export interface SubjectProgress {
   id: string;
   name: string;

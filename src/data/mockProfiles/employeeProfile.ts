@@ -1,5 +1,5 @@
 
-import { UserProfileType, UserRole, SubscriptionType } from "@/types/user/base";
+import { UserProfileType, UserRole, GoalStatus } from "@/types/user/base";
 
 export const employeeProfile: UserProfileType = {
   id: "emp123",
@@ -28,7 +28,7 @@ export const employeeProfile: UserProfileType = {
       title: "Project Management",
       description: "Complete PMP certification",
       progress: 60,
-      status: "in_progress",
+      status: "in_progress" as GoalStatus,
       targetDate: "2025-01-15"
     },
     {
@@ -36,7 +36,7 @@ export const employeeProfile: UserProfileType = {
       title: "Leadership Skills",
       description: "Complete leadership training course",
       progress: 30,
-      status: "active", // Changed from not_started
+      status: "active" as GoalStatus,
       targetDate: "2024-09-30"
     },
     {
@@ -44,7 +44,7 @@ export const employeeProfile: UserProfileType = {
       title: "Technical Skills",
       description: "Learn advanced data analysis",
       progress: 25,
-      status: "in_progress",
+      status: "in_progress" as GoalStatus,
       targetDate: "2024-11-15"
     }
   ],

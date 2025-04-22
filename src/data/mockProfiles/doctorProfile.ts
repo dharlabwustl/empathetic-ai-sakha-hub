@@ -1,5 +1,5 @@
 
-import { UserProfileType, UserRole } from "@/types/user/base";
+import { UserProfileType, UserRole, GoalStatus } from "@/types/user/base";
 
 const doctorProfile: UserProfileType = {
   id: "dr123",
@@ -30,7 +30,7 @@ const doctorProfile: UserProfileType = {
       title: "Research Paper",
       description: "Complete research on cardiac treatments",
       progress: 75,
-      status: "in_progress",
+      status: "in_progress" as GoalStatus,
       targetDate: "2024-08-15"
     },
     {
@@ -38,7 +38,7 @@ const doctorProfile: UserProfileType = {
       title: "Medical Conference",
       description: "Present at the International Cardiology Conference",
       progress: 25,
-      status: "active", // Changed from not_started
+      status: "active" as GoalStatus,
       targetDate: "2024-11-30"
     },
     {
@@ -46,7 +46,7 @@ const doctorProfile: UserProfileType = {
       title: "Patient Case Studies",
       description: "Document 50 case studies for educational purposes",
       progress: 60,
-      status: "in_progress",
+      status: "in_progress" as GoalStatus,
       targetDate: "2024-09-01"
     }
   ],

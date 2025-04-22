@@ -1,7 +1,7 @@
 
 import React from "react";
 import { OnboardingStep, UserGoal, UserRole } from "./OnboardingContext";
-import { MoodType, PersonalityType } from "@/types/user/base";
+import { MoodType } from "@/types/user/base";
 import RoleStep from "./steps/RoleStep";
 import GoalStep from "./steps/GoalStep";
 import DemographicsStep from "./steps/DemographicsStep";
@@ -19,7 +19,7 @@ interface StepRendererProps {
     handleRoleSelect: (role: UserRole) => void;
     handleDemographicsSubmit: (data: Record<string, string>) => void;
     handleGoalSelect: (goal: UserGoal) => void;
-    handlePersonalitySelect: (personality: PersonalityType) => void;
+    handlePersonalitySelect: (personality: string) => void;
     handleMoodSelect: (mood: MoodType) => void;
     handleHabitsSubmit: (habits: Record<string, string>) => void;
     handleInterestsSubmit: (interests: string) => void;

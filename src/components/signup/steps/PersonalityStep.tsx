@@ -4,54 +4,53 @@ import { Button } from "@/components/ui/button";
 import { PersonalityType } from "@/types/user/base";
 
 interface PersonalityStepProps {
-  onSelect: (personality: PersonalityType) => void;
+  onSelect: (personality: string) => void;
 }
 
 const PersonalityStep: React.FC<PersonalityStepProps> = ({ onSelect }) => {
-  const personalities: PersonalityType[] = [
+  const personalityTypes = [
     {
-      type: "systematic_learner",
-      traits: ["Organized", "Detail-oriented", "Methodical", "Focused"],
-      learningStyle: "Sequential and structured learning"
+      name: "Systematic Learner",
+      description: "You prefer organized, structured learning with clear instructions and steps.",
+      icon: "📋"
     },
     {
-      type: "intuitive_learner",
-      traits: ["Creative", "Big-picture", "Conceptual", "Pattern-seeking"],
-      learningStyle: "Conceptual and pattern-based learning"
+      name: "Visual Learner",
+      description: "You learn best through images, diagrams, and visual demonstrations.",
+      icon: "👁️"
     },
     {
-      type: "social_learner",
-      traits: ["Collaborative", "Communicative", "People-oriented", "Verbal"],
-      learningStyle: "Discussion and group-based learning"
+      name: "Practical Learner",
+      description: "You prefer hands-on learning and practical applications of concepts.",
+      icon: "🛠️"
     },
     {
-      type: "practical_learner",
-      traits: ["Hands-on", "Realistic", "Applied", "Technical"],
-      learningStyle: "Learning through application and practice"
+      name: "Social Learner", 
+      description: "You thrive in group settings and learn through discussion and interaction.",
+      icon: "👥"
     }
   ];
 
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-semibold mb-2">Your Learning Style</h3>
-      <p className="text-muted-foreground mb-4">Choose the option that best describes your approach to learning:</p>
-      
-      <div className="space-y-3">
-        {personalities.map((personality, index) => (
+      <h2 className="text-lg font-medium mb-2">Your Learning Style</h2>
+      <p className="text-sm text-muted-foreground mb-4">
+        Select the learning style that best describes you. This helps us personalize your experience.
+      </p>
+      <div className="grid grid-cols-1 gap-3">
+        {personalityTypes.map((type) => (
           <Button
-            key={index}
+            key={type.name}
             variant="outline"
-            className="w-full justify-start p-4 h-auto flex flex-col items-start"
-            onClick={() => onSelect(personality)}
+            className="flex flex-col items-start p-4 h-auto hover:bg-purple-50 dark:hover:bg-purple-900/20 border-purple-200 text-left"
+            onClick={() => onSelect(type.name)}
           >
-            <div className="font-medium">{personality.type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}</div>
-            <div className="text-sm text-muted-foreground mt-1">{personality.learningStyle}</div>
-            <div className="flex flex-wrap gap-1 mt-2">
-              {personality.traits.map((trait, i) => (
-                <span key={i} className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
-                  {trait}
-                </span>
-              ))}
+            <div className="flex items-center w-full">
+              <span className="text-2xl mr-3">{type.icon}</span>
+              <div>
+                <h3 className="font-medium">{type.name}</h3>
+                <p className="text-sm text-muted-foreground">{type.description}</p>
+              </div>
             </div>
           </Button>
         ))}
