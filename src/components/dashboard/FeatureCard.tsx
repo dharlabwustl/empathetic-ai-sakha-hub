@@ -1,17 +1,10 @@
 
-import React from 'react';
-import { Card, CardContent, CardFooter } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Lock } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { SubscriptionType } from '@/types/user/base';
-import { motion } from 'framer-motion';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import React from "react";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
+import { Lock } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { SubscriptionType } from "@/types/user/base";
 
 interface FeatureCardProps {
   title: string;
@@ -19,178 +12,67 @@ interface FeatureCardProps {
   icon: React.ReactNode;
   path: string;
   isPremium: boolean;
-  userSubscription?: string | SubscriptionType;
+  userSubscription: SubscriptionType;
+  className?: string;
 }
 
-export default function FeatureCard({
+const FeatureCard = ({
   title,
   description,
   icon,
   path,
   isPremium,
-  userSubscription = SubscriptionType.Basic
-}: FeatureCardProps) {
+  userSubscription,
+  className
+}: FeatureCardProps) => {
   const navigate = useNavigate();
-  // Check if userSubscription is either the enum value or string 'premium'
-  const hasPremiumAccess = userSubscription === SubscriptionType.Premium || 
-                           userSubscription === 'premium' ||
-                           userSubscription === SubscriptionType.Elite ||
-                           userSubscription === 'elite';
   
+  // Check if feature is accessible based on subscription
+  const canAccess = !isPremium || 
+    userSubscription === SubscriptionType.Premium || 
+    userSubscription === SubscriptionType.Pro || 
+    userSubscription === SubscriptionType.Elite || 
+    userSubscription === SubscriptionType.Group || 
+    userSubscription === SubscriptionType.Enterprise;
+
   const handleClick = () => {
-    if (isPremium && !hasPremiumAccess) {
-      navigate('/pricing');
-    } else {
+    if (canAccess) {
       navigate(path);
-    }
-  };
-
-  // Enhanced subtle animation variants
-  const iconAnimation = {
-    hover: {
-      scale: 1.15, 
-      rotate: [0, -5, 5, 0],
-      transition: { duration: 0.5 }
-    },
-    rest: { 
-      scale: 1,
-      rotate: 0
-    }
-  };
-
-  const cardAnimation = {
-    hover: {
-      y: -8,
-      boxShadow: "0 10px 30px rgba(0,0,0,0.1)",
-      transition: { duration: 0.3 }
-    },
-    rest: {
-      y: 0,
-      boxShadow: "0 4px 6px rgba(0,0,0,0.05)",
-      transition: { duration: 0.3 }
-    }
-  };
-
-  const textAnimation = {
-    hover: {
-      color: "var(--sakha-blue)",
-      transition: { duration: 0.2 }
-    },
-    rest: {
-      color: "currentColor",
-      transition: { duration: 0.2 }
+    } else {
+      // For premium features, redirect to upgrade page
+      navigate("/dashboard/student/subscription");
     }
   };
 
   return (
-    <TooltipProvider>
-      <motion.div
-        initial="rest"
-        whileHover="hover"
-        animate="rest"
-        className="h-full"
-      >
-        <motion.div
-          variants={cardAnimation}
-          className="h-full flex flex-col overflow-hidden transition-all duration-200 bg-gradient-to-br from-white to-gray-50 dark:from-gray-950 dark:to-gray-900 border rounded-lg shadow-sm"
-        >
-          <div className="bg-gradient-to-r from-sakha-light-blue/10 to-sakha-lavender/10 dark:from-sakha-light-blue/5 dark:to-sakha-lavender/5 p-4">
-            <motion.div 
-              className="w-12 h-12 rounded-full bg-white dark:bg-gray-800 flex items-center justify-center shadow-sm mx-auto"
-              variants={iconAnimation}
-              animate={{ 
-                y: [0, -5, 0],
-                transition: { 
-                  duration: 2,
-                  repeat: Infinity,
-                  repeatType: "reverse"
-                }
-              }}
-            >
-              <motion.div className="text-sakha-blue">
-                {icon}
-              </motion.div>
-            </motion.div>
-            
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="text-center mt-2"
-            >
-              <div className="text-xs text-gray-500 dark:text-gray-400">
-                {title === "24/7 AI Tutor" && "Your Personal Guide"}
-                {title === "Study Plan" && "Smart Learning Path"}
-                {title === "Progress Tracking" && "Track Your Growth"}
-                {title === "Resources" && "Knowledge Hub"}
-              </div>
-            </motion.div>
-          </div>
-
-          <CardContent className="flex-grow p-4">
-            <div className="flex justify-between items-start mb-2">
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <motion.h3 
-                    className="font-medium cursor-help relative group"
-                    variants={textAnimation}
-                  >
-                    {title}
-                    <motion.span 
-                      className="absolute -bottom-1 left-0 w-0 h-0.5 bg-sakha-blue opacity-0 group-hover:w-full group-hover:opacity-100"
-                      transition={{ duration: 0.3 }}
-                      initial={false}
-                    />
-                  </motion.h3>
-                </TooltipTrigger>
-                <TooltipContent className="max-w-xs">
-                  <p>{description}</p>
-                  {isPremium && !hasPremiumAccess && (
-                    <p className="text-amber-500 mt-1 text-sm">✨ Premium Feature</p>
-                  )}
-                </TooltipContent>
-              </Tooltip>
-              {isPremium && !hasPremiumAccess && (
-                <motion.div 
-                  className="bg-amber-100 dark:bg-amber-950 p-1 rounded"
-                  whileHover={{ rotate: [0, -10, 10, 0] }}
-                  transition={{ duration: 0.5 }}
-                >
-                  <Lock size={14} className="text-amber-600 dark:text-amber-400" />
-                </motion.div>
-              )}
+    <Card 
+      className={cn(
+        "h-full overflow-hidden cursor-pointer transition-all duration-200",
+        !canAccess && "opacity-90",
+        className
+      )}
+      onClick={handleClick}
+    >
+      <CardContent className="p-6 pt-6">
+        <div className="flex flex-col h-full">
+          <div className="flex justify-between items-start mb-3">
+            <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+              {icon}
             </div>
-            <motion.p 
-              className="text-sm text-gray-500 dark:text-gray-400"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.3 }}
-            >
-              {description}
-            </motion.p>
-          </CardContent>
-
-          <CardFooter className="p-4 pt-0">
-            <motion.div
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="w-full"
-            >
-              <Button
-                variant={isPremium && !hasPremiumAccess ? "outline" : "default"}
-                className={`w-full ${
-                  isPremium && !hasPremiumAccess
-                    ? "border-amber-300 text-amber-700 dark:border-amber-700 dark:text-amber-400"
-                    : "bg-gradient-to-r from-sakha-blue to-sakha-purple text-white"
-                }`}
-                onClick={handleClick}
-              >
-                {isPremium && !hasPremiumAccess ? "Upgrade to Access" : "Open"}
-              </Button>
-            </motion.div>
-          </CardFooter>
-        </motion.div>
-      </motion.div>
-    </TooltipProvider>
+            {isPremium && !canAccess && (
+              <div className="flex items-center text-xs font-medium text-amber-600">
+                <Lock className="h-3 w-3 mr-1" />
+                <span>Premium</span>
+              </div>
+            )}
+          </div>
+          <h3 className="font-medium mb-1">{title}</h3>
+          <p className="text-sm text-muted-foreground">{description}</p>
+        </div>
+      </CardContent>
+      <CardFooter className="p-0"></CardFooter>
+    </Card>
   );
-}
+};
+
+export default FeatureCard;

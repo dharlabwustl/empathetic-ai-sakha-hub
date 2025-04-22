@@ -20,8 +20,11 @@ export enum SubscriptionType {
   Premium = 'premium',
   Pro = 'pro',
   Elite = 'elite',
-  Group = 'group'
+  Group = 'group',
+  Enterprise = 'enterprise'
 }
+
+export { UserSubscription } from './subscription';
 
 export interface UserGoal {
   id: string;
@@ -49,21 +52,6 @@ export interface StudyStreak {
   lastStudyDate: string;
   thisWeek: number;
   thisMonth: number;
-}
-
-export interface UserSubscription {
-  id: string;
-  plan: SubscriptionType | string;
-  status: 'active' | 'inactive' | 'pending' | 'expired';
-  expiresAt: string;
-  startedAt?: string;
-  nextBillingDate?: string;
-  amount?: number;
-  currency?: string;
-  paymentMethod?: string;
-  autoRenew?: boolean;
-  isGroupLeader?: boolean;
-  groupMembers?: string[];
 }
 
 export interface UserProfileType {
@@ -100,6 +88,10 @@ export interface UserProfileType {
     gender?: string;
     school?: string;
     grade?: string;
+    board?: string;
+    phone?: string;
+    bio?: string;
+    interests?: string[];
   };
   preferences?: {
     studyReminders: boolean;

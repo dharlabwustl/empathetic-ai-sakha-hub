@@ -55,6 +55,39 @@ export interface UserProfileType {
   completedOnboarding?: boolean;
   goals?: Goal[];
   subscription?: SubscriptionType | string;
+  examDate?: string;
+  batchName?: string;
+  batchCode?: string;
+  isGroupLeader?: boolean;
+  currentMood?: MoodType;
+  personalDetails?: {
+    phoneNumber?: string;
+    phone?: string;
+    address?: string;
+    city?: string;
+    state?: string;
+    country?: string;
+    zipCode?: string;
+    dateOfBirth?: string;
+    gender?: string;
+    school?: string;
+    grade?: string;
+    board?: string;
+    bio?: string;
+    interests?: string[];
+  };
+  examPreparation?: {
+    target: string;
+    examDate: string;
+    subjects: string[];
+  };
+  studyStreak?: {
+    current: number;
+    best: number;
+    lastStudyDate: string;
+    thisWeek: number;
+    thisMonth: number;
+  };
 }
 
 export interface AuthUser {

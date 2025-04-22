@@ -1,316 +1,189 @@
 
-import React, { useState } from "react";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { SystemLog } from "@/types/admin";
+import React, { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import {
-  AlertCircle,
-  Check,
-  CheckCircle,
-  Clock,
-  Info,
-  Search,
-  Trash2,
-  User,
-  Users,
-  FileText,
-  Settings,
-  RefreshCcw,
-} from "lucide-react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { format } from "date-fns";
+import { format } from 'date-fns';
+import { SystemLog } from '@/types/admin';
+import { AlertCircle, CheckCircle, Clock, FileText, Filter, Search, XCircle } from 'lucide-react';
 
-const IssueResolutionTab = () => {
-  // Mock data for system logs
-  const [logs, setLogs] = useState<SystemLog[]>([
-    {
-      id: "1",
-      timestamp: "2023-12-01T08:30:00",
-      type: "error",
-      level: "critical",
-      message: "Payment gateway connection failed",
-      source: "payment-service",
-      resolved: false,
-    },
-    {
-      id: "2",
-      timestamp: "2023-12-01T10:15:00",
-      type: "warning",
-      level: "medium",
-      message: "High CPU usage detected",
-      source: "monitoring",
-      resolved: false,
-    },
-    {
-      id: "3",
-      timestamp: "2023-12-01T11:45:00",
-      type: "info",
-      level: "low",
-      message: "Backup completed successfully",
-      source: "backup-service",
-      resolved: true,
-    },
-    {
-      id: "4",
-      timestamp: "2023-12-02T09:20:00",
-      type: "error",
-      level: "high",
-      message: "Database query timeout",
-      source: "db-service",
-      resolved: false,
-    },
-    {
-      id: "5",
-      timestamp: "2023-12-02T14:10:00",
-      type: "warning",
-      level: "medium",
-      message: "Memory usage approaching limit",
-      source: "monitoring",
-      resolved: true,
-    },
-    {
-      id: "6",
-      timestamp: "2023-12-03T08:05:00",
-      type: "error",
-      level: "critical",
-      message: "Authentication service unreachable",
-      source: "auth-service",
-      resolved: false,
-    },
-  ]);
+interface IssueResolutionTabProps {
+  recentLogs: SystemLog[];
+}
 
-  const [filter, setFilter] = useState("all");
-  const [searchTerm, setSearchTerm] = useState("");
+const IssueResolutionTab: React.FC<IssueResolutionTabProps> = ({ recentLogs }) => {
+  const [activeTab, setActiveTab] = useState("open");
+  const [search, setSearch] = useState("");
+  const [filter, setFilter] = useState<string | null>(null);
 
-  // Calculate stats
-  const criticalCount = logs.filter(log => log.level === "critical" && !log.resolved).length;
-  const highCount = logs.filter(log => log.level === "high" && !log.resolved).length;
-  const mediumCount = logs.filter(log => log.level === "medium" && !log.resolved).length;
-  const resolvedCount = logs.filter(log => log.resolved).length;
-
-  // Handle filters
-  const filteredLogs = logs.filter(log => {
-    // Search term
-    if (searchTerm && !log.message.toLowerCase().includes(searchTerm.toLowerCase()) && !log.source.toLowerCase().includes(searchTerm.toLowerCase())) {
-      return false;
-    }
+  // Filter logs based on search term, status, and type filter
+  const filteredLogs = recentLogs.filter(log => {
+    const matchesSearch = search === "" || 
+      log.message.toLowerCase().includes(search.toLowerCase()) || 
+      log.source.toLowerCase().includes(search.toLowerCase());
     
-    // Status filter
-    if (filter === "resolved" && !log.resolved) return false;
-    if (filter === "unresolved" && log.resolved) return false;
+    const matchesStatus = 
+      (activeTab === "open" && !log.resolved) || 
+      (activeTab === "resolved" && log.resolved) ||
+      activeTab === "all";
     
-    return true;
+    const matchesFilter = filter === null || log.type === filter;
+    
+    return matchesSearch && matchesStatus && matchesFilter;
   });
 
-  const handleResolve = (id: string) => {
-    setLogs(logs.map(log => 
-      log.id === id ? { ...log, resolved: true } : log
-    ));
-  };
-
-  const handleDeleteResolved = () => {
-    setLogs(logs.filter(log => !log.resolved));
-  };
-
-  const getStatusBadge = (log: SystemLog) => {
-    if (log.resolved) {
-      return <Badge className="bg-green-100 text-green-800">Resolved</Badge>;
-    }
-    
-    switch(log.level) {
-      case "critical":
-        return <Badge variant="destructive">Critical</Badge>;
-      case "high":
-        return <Badge className="bg-red-100 text-red-800">High</Badge>;
-      case "medium":
-        return <Badge className="bg-yellow-100 text-yellow-800">Medium</Badge>;
-      case "low":
-        return <Badge className="bg-blue-100 text-blue-800">Low</Badge>;
-      default:
-        return <Badge variant="outline">Unknown</Badge>;
+  const getBadgeColor = (type: string) => {
+    switch (type) {
+      case 'error': return "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300";
+      case 'warning': return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300";
+      case 'info': return "bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300";
+      case 'success': return "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300";
+      default: return "bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-300";
     }
   };
 
-  const getTypeIcon = (type: string) => {
-    switch(type) {
-      case "error":
-        return <AlertCircle className="h-5 w-5 text-red-500" />;
-      case "warning":
-        return <AlertCircle className="h-5 w-5 text-yellow-500" />;
-      case "info":
-        return <Info className="h-5 w-5 text-blue-500" />;
-      case "success":
-        return <CheckCircle className="h-5 w-5 text-green-500" />;
-      default:
-        return <Info className="h-5 w-5 text-gray-500" />;
+  const getSeverityColor = (level: string) => {
+    if (level === 'critical' || level === 'error') {
+      return "text-red-600 dark:text-red-400";
+    } else if (level === 'high' || level === 'warning') {
+      return "text-yellow-600 dark:text-yellow-400";
+    } else if (level === 'medium' || level === 'info') {
+      return "text-blue-600 dark:text-blue-400";
+    } else {
+      return "text-gray-600 dark:text-gray-400";
     }
+  };
+
+  const formatTime = (timestamp: string) => {
+    return format(new Date(timestamp), 'MMM dd, yyyy HH:mm:ss');
   };
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="bg-red-50 dark:bg-red-900/20">
-          <CardContent className="p-4 flex items-center space-x-4">
-            <div className="bg-red-100 dark:bg-red-800/30 p-3 rounded-full">
-              <AlertCircle className="h-6 w-6 text-red-600 dark:text-red-400" />
-            </div>
-            <div>
-              <p className="text-sm text-red-600 dark:text-red-400">Critical Issues</p>
-              <p className="text-2xl font-bold text-red-700 dark:text-red-300">{criticalCount}</p>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="bg-orange-50 dark:bg-orange-900/20">
-          <CardContent className="p-4 flex items-center space-x-4">
-            <div className="bg-orange-100 dark:bg-orange-800/30 p-3 rounded-full">
-              <AlertCircle className="h-6 w-6 text-orange-600 dark:text-orange-400" />
-            </div>
-            <div>
-              <p className="text-sm text-orange-600 dark:text-orange-400">High Priority</p>
-              <p className="text-2xl font-bold text-orange-700 dark:text-orange-300">{highCount}</p>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="bg-yellow-50 dark:bg-yellow-900/20">
-          <CardContent className="p-4 flex items-center space-x-4">
-            <div className="bg-yellow-100 dark:bg-yellow-800/30 p-3 rounded-full">
-              <Clock className="h-6 w-6 text-yellow-600 dark:text-yellow-400" />
-            </div>
-            <div>
-              <p className="text-sm text-yellow-600 dark:text-yellow-400">Medium Priority</p>
-              <p className="text-2xl font-bold text-yellow-700 dark:text-yellow-300">{mediumCount}</p>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="bg-green-50 dark:bg-green-900/20">
-          <CardContent className="p-4 flex items-center space-x-4">
-            <div className="bg-green-100 dark:bg-green-800/30 p-3 rounded-full">
-              <CheckCircle className="h-6 w-6 text-green-600 dark:text-green-400" />
-            </div>
-            <div>
-              <p className="text-sm text-green-600 dark:text-green-400">Resolved Issues</p>
-              <p className="text-2xl font-bold text-green-700 dark:text-green-300">{resolvedCount}</p>
-            </div>
-          </CardContent>
-        </Card>
+      <div className="flex flex-col md:flex-row gap-4 md:items-center md:justify-between">
+        <div className="flex items-center gap-2">
+          <h2 className="text-xl font-semibold">Issue Management</h2>
+          <Badge variant="outline" className="ml-2 bg-primary/10">
+            {filteredLogs.filter(log => !log.resolved).length} Open Issues
+          </Badge>
+        </div>
+        
+        <div className="flex gap-2">
+          <div className="relative flex-1 md:w-64">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input 
+              className="pl-8" 
+              placeholder="Search issues..." 
+              value={search} 
+              onChange={(e) => setSearch(e.target.value)} 
+            />
+          </div>
+          
+          <Button variant="outline" size="icon" onClick={() => setFilter(filter === null ? 'error' : null)}>
+            <Filter className={filter !== null ? "text-primary" : "text-muted-foreground"} size={16} />
+          </Button>
+        </div>
       </div>
-
-      <Card>
-        <CardHeader className="pb-3">
-          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-2 sm:space-y-0">
-            <CardTitle>System Logs & Issues</CardTitle>
-            <div className="flex items-center space-x-2">
-              <Button size="sm" variant="outline" className="h-8 gap-1" onClick={() => setLogs([...logs])}>
-                <RefreshCcw size={14} />
-                <span className="hidden sm:inline">Refresh</span>
-              </Button>
-              <Button size="sm" variant="destructive" className="h-8 gap-1" onClick={handleDeleteResolved}>
-                <Trash2 size={14} />
-                <span className="hidden sm:inline">Clear Resolved</span>
-              </Button>
-            </div>
-          </div>
-          <div className="flex flex-col sm:flex-row gap-3 pt-3">
-            <div className="relative flex-1">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500 dark:text-gray-400" />
-              <Input
-                placeholder="Search issues..." 
-                className="pl-8"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-            <Select 
-              defaultValue="all"
-              onValueChange={setFilter}
-            >
-              <SelectTrigger className="w-full sm:w-[180px]">
-                <SelectValue placeholder="Filter by status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Issues</SelectItem>
-                <SelectItem value="unresolved">Unresolved</SelectItem>
-                <SelectItem value="resolved">Resolved</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="rounded-md border overflow-hidden">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[40px]">Type</TableHead>
-                  <TableHead className="w-[180px] sm:w-auto">Message</TableHead>
-                  <TableHead className="hidden sm:table-cell">Source</TableHead>
-                  <TableHead className="hidden md:table-cell">Time</TableHead>
-                  <TableHead className="w-[100px]">Status</TableHead>
-                  <TableHead className="w-[100px] text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
+      
+      <Tabs 
+        defaultValue="open" 
+        value={activeTab} 
+        onValueChange={setActiveTab} 
+        className="w-full"
+      >
+        <TabsList className="w-full md:w-auto grid grid-cols-3 mb-4">
+          <TabsTrigger value="open">Open Issues</TabsTrigger>
+          <TabsTrigger value="resolved">Resolved</TabsTrigger>
+          <TabsTrigger value="all">All Logs</TabsTrigger>
+        </TabsList>
+        
+        {['open', 'resolved', 'all'].map((tab) => (
+          <TabsContent key={tab} value={tab}>
+            <Card>
+              <CardHeader>
+                <CardTitle>
+                  {tab === 'open' ? 'Open Issues' : tab === 'resolved' ? 'Resolved Issues' : 'All System Logs'}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
                 {filteredLogs.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={6} className="text-center text-gray-500 py-8">
-                      No issues found
-                    </TableCell>
-                  </TableRow>
+                  <div className="flex flex-col items-center justify-center py-8">
+                    <FileText className="h-12 w-12 text-gray-300 mb-3" />
+                    <h3 className="text-lg font-medium">No Issues Found</h3>
+                    <p className="text-sm text-muted-foreground text-center max-w-sm mt-1">
+                      {activeTab === 'open' ? "There are no open issues at the moment." : 
+                       activeTab === 'resolved' ? "No resolved issues match your search criteria." :
+                       "No logs match your search criteria."}
+                    </p>
+                  </div>
                 ) : (
-                  filteredLogs.map((log) => (
-                    <TableRow key={log.id}>
-                      <TableCell className="align-top pt-4">
-                        {getTypeIcon(log.type)}
-                      </TableCell>
-                      <TableCell className="font-medium">
-                        {log.message}
-                        <div className="md:hidden text-xs text-gray-500 mt-1">
-                          {log.source} • {format(new Date(log.timestamp), "MMM d, h:mm a")}
+                  <div className="space-y-4 max-h-[600px] overflow-y-auto">
+                    {filteredLogs.map((log) => (
+                      <div 
+                        key={log.id} 
+                        className="border rounded-md p-4 hover:bg-accent/10 transition-colors"
+                      >
+                        <div className="flex flex-col md:flex-row md:items-start justify-between gap-3">
+                          <div className="flex-grow">
+                            <div className="flex items-center gap-2 mb-1">
+                              <Badge variant="outline" className={getBadgeColor(log.type)}>
+                                {log.type.toUpperCase()}
+                              </Badge>
+                              <span className={`text-xs font-mono ${getSeverityColor(log.level)}`}>
+                                {log.level === 'critical' || log.level === 'error' ? (
+                                  <AlertCircle className="inline h-3 w-3 mr-1" />
+                                ) : log.level === 'high' || log.level === 'warning' ? (
+                                  <Clock className="inline h-3 w-3 mr-1" />
+                                ) : (
+                                  <></>
+                                )}
+                                {log.level.toUpperCase()}
+                              </span>
+                            </div>
+                            
+                            <h3 className="font-medium">{log.message}</h3>
+                            <div className="flex items-center text-xs text-muted-foreground mt-1 gap-2">
+                              <span className="bg-muted px-2 py-1 rounded">
+                                {log.source}
+                              </span>
+                              <span>{formatTime(log.timestamp)}</span>
+                            </div>
+                          </div>
+                          
+                          <div className="flex items-center gap-2">
+                            {log.resolved ? (
+                              <Badge className="bg-green-100 text-green-800 border-green-200 flex items-center gap-1">
+                                <CheckCircle className="h-3 w-3" /> Resolved
+                              </Badge>
+                            ) : (
+                              <Button 
+                                variant="ghost" 
+                                size="sm"
+                                className="text-xs h-8"
+                              >
+                                <XCircle className="h-3 w-3 mr-1" /> Mark Resolved
+                              </Button>
+                            )}
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              className="text-xs h-8"
+                            >
+                              View Details
+                            </Button>
+                          </div>
                         </div>
-                      </TableCell>
-                      <TableCell className="hidden sm:table-cell">{log.source}</TableCell>
-                      <TableCell className="hidden md:table-cell">
-                        {format(new Date(log.timestamp), "MMM d, h:mm a")}
-                      </TableCell>
-                      <TableCell>
-                        {getStatusBadge(log)}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        {!log.resolved && (
-                          <Button 
-                            variant="ghost" 
-                            size="sm"
-                            className="h-8 w-8 p-0"
-                            onClick={() => handleResolve(log.id)}
-                          >
-                            <Check className="h-4 w-4" />
-                            <span className="sr-only">Resolve</span>
-                          </Button>
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  ))
+                      </div>
+                    ))}
+                  </div>
                 )}
-              </TableBody>
-            </Table>
-          </div>
-        </CardContent>
-      </Card>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        ))}
+      </Tabs>
     </div>
   );
 };

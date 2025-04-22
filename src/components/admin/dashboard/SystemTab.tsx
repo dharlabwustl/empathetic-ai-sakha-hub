@@ -21,7 +21,7 @@ const SystemTab = () => {
     {
       id: '2',
       type: 'info',
-      level: 'low',
+      level: 'info',
       message: 'User authentication successful',
       source: 'auth',
       timestamp: '2025-04-15T13:45:00',

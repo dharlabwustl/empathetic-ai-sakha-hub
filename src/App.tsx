@@ -40,7 +40,7 @@ import AcademicAdvisor from "./pages/dashboard/student/AcademicAdvisor";
 import SubscriptionPage from "./pages/dashboard/student/SubscriptionPage";
 import NotFound from "./pages/NotFound";
 import "./styles/animations.css";
-import { UserRole } from "./types/user/base";
+import { UserRole, UserProfileType } from "./types/user/base";
 
 import StudentProfilePage from "./pages/dashboard/student/ProfilePage";
 import StudentSettingsPage from "./pages/dashboard/student/SettingsPage";
@@ -194,7 +194,7 @@ const App = () => {
                           progress: 65, 
                           status: "in_progress" 
                         }]
-                      }} />
+                      } as UserProfileType} />
                     </ProtectedRoute>
                   } />
                   
@@ -210,7 +210,7 @@ const App = () => {
                           examDate: "2025-05-01",
                           subjects: ["Physics", "Chemistry", "Mathematics"]
                         }
-                      }} />
+                      } as UserProfileType} />
                     </ProtectedRoute>
                   } />
                   

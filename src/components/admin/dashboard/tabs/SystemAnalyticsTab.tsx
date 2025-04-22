@@ -51,36 +51,44 @@ const SystemAnalyticsTab = () => {
       if (dashboardStats) {
         setStats({
           stressReduction: dashboardStats.verifiedMoodImprovement
-            ? Math.min(Math.round(dashboardStats.verifiedMoodImprovement), 100)
-            : Math.min(Math.round((dashboardStats.averageMoodScore - 5) / 5 * 100), 100),
+            ? Math.min(Math.round(dashboardStats.verifiedMoodImprovement.value), 100)
+            : Math.min(Math.round((dashboardStats.averageMoodScore ? dashboardStats.averageMoodScore.value : 5) - 5) / 5 * 100, 100),
           
           timeOptimization: dashboardStats.averageTimeSavedPerWeek
-            ? Math.round(dashboardStats.averageTimeSavedPerWeek)
+            ? Math.round(dashboardStats.averageTimeSavedPerWeek.value)
             : dashboardStats.studyPlanEfficiencyImprovement
-              ? Math.round(dashboardStats.studyPlanEfficiencyImprovement / 10)
+              ? Math.round(dashboardStats.studyPlanEfficiencyImprovement.value / 10)
               : 5,
           
-          habitFormation: dashboardStats.studentsWithVerifiedConsistentHabits
-            ? Math.round((dashboardStats.studentsWithVerifiedConsistentHabits / dashboardStats.totalStudents) * 100)
-            : Math.round((dashboardStats.studentsWithConsistentHabits / dashboardStats.totalStudents) * 100),
+          habitFormation: dashboardStats.studentsWithVerifiedConsistentHabits && dashboardStats.totalStudents
+            ? Math.round((dashboardStats.studentsWithVerifiedConsistentHabits.value / dashboardStats.totalStudents.value) * 100)
+            : dashboardStats.studentsWithConsistentHabits && dashboardStats.totalStudents
+              ? Math.round((dashboardStats.studentsWithConsistentHabits.value / dashboardStats.totalStudents.value) * 100)
+              : 50,
           
           examConfidence: dashboardStats.verifiedExamConfidenceImprovement
-            ? Math.round(dashboardStats.verifiedExamConfidenceImprovement)
-            : Math.round((dashboardStats.averageConfidenceScore / 10) * 100),
+            ? Math.round(dashboardStats.verifiedExamConfidenceImprovement.value)
+            : dashboardStats.averageConfidenceScore
+              ? Math.round((dashboardStats.averageConfidenceScore.value / 10) * 100)
+              : 75,
           
           userRetention: dashboardStats.verifiedRetentionRate
-            ? dashboardStats.verifiedRetentionRate
-            : Math.round((dashboardStats.activeStudents / dashboardStats.totalStudents) * 100),
+            ? dashboardStats.verifiedRetentionRate.value
+            : dashboardStats.activeStudents && dashboardStats.totalStudents
+              ? Math.round((dashboardStats.activeStudents.value / dashboardStats.totalStudents.value) * 100)
+              : 85,
           
           moodBasedUsage: dashboardStats.verifiedMoodFeatureUsage
-            ? dashboardStats.verifiedMoodFeatureUsage
-            : Math.round((dashboardStats.moodBasedSessionsCount / dashboardStats.totalSessions) * 100)
+            ? dashboardStats.verifiedMoodFeatureUsage.value
+            : dashboardStats.moodBasedSessionsCount && dashboardStats.totalSessions
+              ? Math.round((dashboardStats.moodBasedSessionsCount.value / dashboardStats.totalSessions.value) * 100)
+              : 40
         });
         
         setSampleSizes({
-          totalStudents: dashboardStats.totalStudents,
-          totalSessions: dashboardStats.totalSessions,
-          completedSurveys: dashboardStats.completedSurveys || 0
+          totalStudents: dashboardStats.totalStudents ? dashboardStats.totalStudents.value : 0,
+          totalSessions: dashboardStats.totalSessions ? dashboardStats.totalSessions.value : 0,
+          completedSurveys: dashboardStats.completedSurveys ? dashboardStats.completedSurveys.value : 0
         });
         
         const MIN_SAMPLE_SIZE = 50;
@@ -89,22 +97,22 @@ const SystemAnalyticsTab = () => {
         
         setDataReliability({
           stressReduction: Boolean(dashboardStats.verifiedMoodImprovement) && 
-                          (dashboardStats.completedSurveys >= MIN_SURVEYS),
+                          (dashboardStats.completedSurveys ? dashboardStats.completedSurveys.value >= MIN_SURVEYS : false),
           
           timeOptimization: Boolean(dashboardStats.averageTimeSavedPerWeek) && 
-                          (dashboardStats.totalSessions >= MIN_SESSIONS_FOR_TIME_CALC),
+                          (dashboardStats.totalSessions ? dashboardStats.totalSessions.value >= MIN_SESSIONS_FOR_TIME_CALC : false),
           
           habitFormation: Boolean(dashboardStats.studentsWithVerifiedConsistentHabits) && 
-                          (dashboardStats.totalStudents >= MIN_SAMPLE_SIZE),
+                          (dashboardStats.totalStudents ? dashboardStats.totalStudents.value >= MIN_SAMPLE_SIZE : false),
           
           examConfidence: Boolean(dashboardStats.verifiedExamConfidenceImprovement) && 
-                          (dashboardStats.completedSurveys >= MIN_SURVEYS),
+                          (dashboardStats.completedSurveys ? dashboardStats.completedSurveys.value >= MIN_SURVEYS : false),
           
           userRetention: Boolean(dashboardStats.verifiedRetentionRate) && 
-                        (dashboardStats.totalStudents >= MIN_SAMPLE_SIZE),
+                        (dashboardStats.totalStudents ? dashboardStats.totalStudents.value >= MIN_SAMPLE_SIZE : false),
           
           moodBasedUsage: Boolean(dashboardStats.verifiedMoodFeatureUsage) && 
-                        (dashboardStats.totalSessions >= MIN_SESSIONS_FOR_TIME_CALC)
+                        (dashboardStats.totalSessions ? dashboardStats.totalSessions.value >= MIN_SESSIONS_FOR_TIME_CALC : false)
         });
       }
     };

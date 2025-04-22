@@ -81,11 +81,11 @@ export default function DashboardOverview({
   const getUserSubscriptionType = (): SubscriptionType => {
     if (!userProfile.subscription) return SubscriptionType.Basic;
     
-    if (typeof userProfile.subscription === 'object') {
-      return userProfile.subscription.planType || SubscriptionType.Basic;
+    if (typeof userProfile.subscription === 'object' && userProfile.subscription !== null && 'plan' in userProfile.subscription) {
+      return userProfile.subscription.plan as SubscriptionType;
     }
     
-    return userProfile.subscription;
+    return userProfile.subscription as SubscriptionType;
   };
 
   return (

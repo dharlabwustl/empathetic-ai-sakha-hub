@@ -122,7 +122,7 @@ export interface SystemLog {
   id: string;
   timestamp: string;
   type: 'error' | 'warning' | 'info' | 'success';
-  level: 'critical' | 'high' | 'medium' | 'low';
+  level: 'critical' | 'high' | 'medium' | 'low' | 'error' | 'warning' | 'info';
   message: string;
   source: string;
   resolved: boolean;
