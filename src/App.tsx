@@ -209,7 +209,7 @@ const App = () => {
                           examDate: "2025-05-01",
                           subjects: ["Physics", "Chemistry", "Mathematics"]
                         }
-                      }} />
+                      } as UserProfileType} />
                     </ProtectedRoute>
                   } />
                   

@@ -6,7 +6,8 @@ import { SubjectOverview } from './SubjectOverview';
 import { TopicsList } from './TopicsList';
 import { QuizzesList } from './QuizzesList';
 import StudyTimeChart from './StudyTimeChart';
-import { SubjectProgress, StudyStreak } from "@/types/user";
+import { SubjectProgress } from "@/types/user/progress";
+import { StudyStreak } from "@/types/user/progress";
 
 interface PerformanceTabsProps {
   subjects: SubjectProgress[];
@@ -58,12 +59,7 @@ export const PerformanceTabs: React.FC<PerformanceTabsProps> = ({
           </TabsContent>
           
           <TabsContent value="time">
-            <StudyTimeChart
-              selectedSubject={selectedSubject}
-              subjects={subjects}
-              selectSubject={selectSubject}
-              studyStreak={studyStreak}
-            />
+            <StudyTimeChart studyStreak={studyStreak} />
           </TabsContent>
         </Tabs>
       </CardContent>

@@ -1,5 +1,5 @@
 
-import { UserProfileType, UserRole, GoalStatus, PersonalityType } from "@/types/user/base";
+import { UserProfileType, UserRole, GoalStatus, PersonalityType, UserSubscription } from "@/types/user/base";
 
 export const mockStudentProfile: UserProfileType = {
   id: "123",
@@ -17,7 +17,7 @@ export const mockStudentProfile: UserProfileType = {
     type: "systematic_learner",
     traits: ["Organized", "Detail-oriented", "Methodical", "Focused"],
     learningStyle: "Sequential and structured learning"
-  },
+  } as PersonalityType,
   
   // Academic details
   batchName: "IIT-JEE 2024",

@@ -1,5 +1,5 @@
 
-import { UserProfileType, UserRole, GoalStatus } from "@/types/user/base";
+import { UserProfileType, UserRole, GoalStatus, UserSubscription } from "@/types/user/base";
 
 export const employeeProfile: UserProfileType = {
   id: "emp123",
@@ -19,7 +19,7 @@ export const employeeProfile: UserProfileType = {
     plan: "Premium",
     expiresAt: "2024-04-20T00:00:00Z",
     status: "active"
-  },
+  } as UserSubscription,
   
   // Professional development goals
   goals: [

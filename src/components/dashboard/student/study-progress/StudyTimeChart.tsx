@@ -2,10 +2,10 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { StudyStreak } from "@/types/user/base";
+import { StudyStreak } from "@/types/user/progress";
 
 interface StudyTimeChartProps {
-  studyStreak?: StudyStreak;
+  studyStreak?: StudyStreak | null;
 }
 
 export const StudyTimeChart: React.FC<StudyTimeChartProps> = ({ studyStreak }) => {

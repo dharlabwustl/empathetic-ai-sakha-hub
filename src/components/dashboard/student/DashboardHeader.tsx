@@ -1,6 +1,6 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { Bell, Calendar, Clock, Settings, Flame } from "lucide-react"; // Added Flame import
+import { Bell, Calendar, ChevronDown, Menu, User, Settings, LogOut, Flame } from 'lucide-react';
 import { UserProfileType } from "@/types/user/base";
 
 interface DashboardHeaderProps {

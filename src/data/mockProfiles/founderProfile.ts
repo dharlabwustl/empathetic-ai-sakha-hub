@@ -1,5 +1,5 @@
 
-import { UserProfileType, UserRole, GoalStatus } from "@/types/user/base";
+import { UserProfileType, UserRole, GoalStatus, UserSubscription } from "@/types/user/base";
 
 export const mockFounderProfile: UserProfileType = {
   id: "f123",
@@ -19,7 +19,7 @@ export const mockFounderProfile: UserProfileType = {
     plan: "Enterprise",
     expiresAt: "2024-03-15T00:00:00Z",
     status: "active"
-  },
+  } as UserSubscription,
   
   // Business and professional goals
   goals: [

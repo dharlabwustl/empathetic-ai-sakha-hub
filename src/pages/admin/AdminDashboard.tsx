@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import MainLayout from "@/components/layouts/MainLayout";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -77,25 +78,25 @@ const AdminDashboard = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           <KpiCard 
             title="Total Students" 
-            value={kpis.totalStudents} 
+            value={{ value: kpis.totalStudents, trend: "up" }}
             change={+5.2}
             icon={<Users className="h-8 w-8 text-blue-500" />}
           />
           <KpiCard 
             title="Active Students" 
-            value={kpis.activeStudents} 
+            value={{ value: kpis.activeStudents, trend: "up" }}
             change={+3.1}
             icon={<UserCheck className="h-8 w-8 text-green-500" />}
           />
           <KpiCard 
             title="Content Items" 
-            value={kpis.totalContent} 
+            value={{ value: kpis.totalContent, trend: "up" }}
             change={+12.5}
             icon={<BookText className="h-8 w-8 text-purple-500" />}
           />
           <KpiCard 
             title="Total Revenue" 
-            value={`₹${kpis.totalRevenue.toLocaleString()}`} 
+            value={{ value: kpis.totalRevenue, trend: "up" }}
             change={+8.4}
             icon={<CreditCard className="h-8 w-8 text-amber-500" />}
           />

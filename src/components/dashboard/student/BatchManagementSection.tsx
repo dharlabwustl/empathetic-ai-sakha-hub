@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -40,7 +39,6 @@ const BatchManagementSection: React.FC<BatchManagementSectionProps> = ({
   const [errorMessage, setErrorMessage] = useState('');
   const { updateUserProfile } = useUserProfile(UserRole.Student);
 
-  // State for leader features
   const [inviteEmail, setInviteEmail] = useState('');
   const [pendingRequests, setPendingRequests] = useState([
     { id: 'req-1', name: 'Arjun Singh', email: 'arjun@example.com', requestDate: '2025-04-20' },
@@ -67,7 +65,6 @@ const BatchManagementSection: React.FC<BatchManagementSectionProps> = ({
           setJoinStatus('success');
           setShowJoinDialog(false);
           
-          // Update user profile with batch info
           updateUserProfile({
             batchName: `Study Group ${batchCodeInput.slice(-4)}`,
             batchCode: batchCodeInput,
@@ -77,7 +74,7 @@ const BatchManagementSection: React.FC<BatchManagementSectionProps> = ({
               status: 'active',
               expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
               isGroupLeader: false
-            }
+            } as UserSubscription
           });
           
           toast({
@@ -89,14 +86,10 @@ const BatchManagementSection: React.FC<BatchManagementSectionProps> = ({
           setErrorMessage('Invalid batch code. Please check and try again.');
         }
       } else {
-        // Fallback if no onJoinBatch provided (for backwards compatibility)
-        // Simulate API call
         setTimeout(() => {
-          // Check if code is valid (this would be a server check in a real app)
           if (batchCodeInput === 'BATCH123' || batchCodeInput === 'TEST456' || batchCodeInput.startsWith('SAKHA-')) {
             setJoinStatus('success');
             
-            // Update user profile with batch info
             updateUserProfile({
               batchName: `Study Group ${batchCodeInput.slice(-4)}`,
               batchCode: batchCodeInput,
@@ -106,7 +99,7 @@ const BatchManagementSection: React.FC<BatchManagementSectionProps> = ({
                 status: 'active',
                 expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
                 isGroupLeader: false
-              }
+              } as UserSubscription
             });
             
             toast({
@@ -128,12 +121,16 @@ const BatchManagementSection: React.FC<BatchManagementSectionProps> = ({
   };
 
   const handleLeaveBatch = () => {
-    // In a real app, this would send a request to the server
     updateUserProfile({
       batchName: '',
       batchCode: '',
       isGroupLeader: false,
-      subscription: 'basic'
+      subscription: {
+        id: `sub_${Date.now()}`,
+        plan: 'basic',
+        status: 'active',
+        expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString()
+      } as UserSubscription
     });
     
     toast({

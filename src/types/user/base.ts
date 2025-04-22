@@ -42,7 +42,7 @@ export interface PersonalityType {
 };
 
 // Define goal status type
-export type GoalStatus = "active" | "completed" | "abandoned" | "in_progress";
+export type GoalStatus = "active" | "completed" | "abandoned" | "in_progress" | "not_started";
 
 // Define user goal interface
 export interface UserGoal {
@@ -96,11 +96,11 @@ export interface UserProfileType {
   completedOnboarding?: boolean;
   currentMood?: MoodType;
   personalityType?: PersonalityType;
-  subscription?: UserSubscription;
+  subscription?: UserSubscription | string;
   goals?: UserGoal[];
   subjects?: SubjectProgress[];
   studyStreak?: StudyStreak;
-  examPreparation?: ExamPreparation;
+  examPreparation?: ExamPreparation | string;
   // Additional fields
   personalDetails?: {
     phoneNumber?: string;
@@ -139,5 +139,5 @@ export interface UserProfileType {
   state?: string;
 }
 
-// Importing SubjectProgress from index.ts to prevent circular dependencies
-import { SubjectProgress } from "./index";
+// Importing SubjectProgress from progress.ts to prevent circular dependencies
+import { SubjectProgress } from "./progress";

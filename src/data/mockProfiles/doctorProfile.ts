@@ -1,5 +1,5 @@
 
-import { UserProfileType, UserRole, GoalStatus } from "@/types/user/base";
+import { UserProfileType, UserRole, GoalStatus, UserSubscription } from "@/types/user/base";
 
 const doctorProfile: UserProfileType = {
   id: "dr123",
@@ -19,7 +19,7 @@ const doctorProfile: UserProfileType = {
     plan: "Premium",
     expiresAt: "2024-05-10T00:00:00Z",
     status: "active"
-  },
+  } as UserSubscription,
 
   specialization: "Cardiology",
   

@@ -6,8 +6,7 @@ import DashboardLoading from './DashboardLoading';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Subject } from '@/types/user/progress';
-import { SubjectProgress } from '@/types/user';
+import { SubjectProgress } from '@/types/user/progress';
 import { formatDate } from '@/utils/dateUtils';
 import { motion } from 'framer-motion';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -36,22 +35,13 @@ const StudyProgress = () => {
     toggleTabsNav
   } = useStudentDashboard();
   
-  const [subjects, setSubjects] = useState<Subject[]>([]);
+  const [subjects, setSubjects] = useState<SubjectProgress[]>([]);
   const isMobile = useIsMobile();
 
   useEffect(() => {
     if (userProfile && userProfile.subjects) {
-      // Convert SubjectProgress[] to Subject[]
-      const convertedSubjects = userProfile.subjects.map(subject => ({
-        ...subject,
-        lastWeekProgress: subject.lastWeekProgress || 0,
-        topics: subject.topics || [],
-        streak: 3, // Default value
-        totalTimeSpent: 120, // Default value in minutes
-        lastStudied: new Date().toISOString() // Default value
-      }));
-        
-      setSubjects(convertedSubjects);
+      // Use subjects directly since it's already SubjectProgress[]
+      setSubjects(userProfile.subjects);
     }
   }, [userProfile]);
 
@@ -118,15 +108,15 @@ const StudyProgress = () => {
                       <div className="flex items-center justify-between">
                         <span className="text-sm font-medium">Last Week Progress</span>
                         <span className="text-sm text-gray-500 dark:text-gray-400">
-                          {subject.lastWeekProgress}%
+                          {subject.lastWeekProgress || 0}%
                         </span>
                       </div>
-                      <Progress value={subject.lastWeekProgress} />
+                      <Progress value={subject.lastWeekProgress || 0} />
                       
                       <div className="flex items-center justify-between">
                         <span className="text-sm font-medium">Total Time Spent</span>
                         <span className="text-sm text-gray-500 dark:text-gray-400">
-                          {subject.totalTimeSpent} minutes
+                          {subject.totalTimeSpent || 0} minutes
                         </span>
                       </div>
                     </div>
