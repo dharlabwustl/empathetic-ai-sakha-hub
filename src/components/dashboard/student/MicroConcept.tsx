@@ -76,6 +76,14 @@ const MicroConcept = ({
     navigate(`/dashboard/student/tutor?conceptId=${id}&from=concept&back=true`);
   };
 
+  const handleAITutorHelp = () => {
+    toast({
+      title: "Connecting to AI Tutor",
+      description: "Opening 24/7 AI Tutor chat with this concept...",
+    });
+    navigate(`/dashboard/student/tutor?conceptId=${id}&topic=${encodeURIComponent(title)}&subject=${encodeURIComponent(subject)}`);
+  };
+
   return (
     <Card className={`shadow-md transition-all duration-300 ${understood ? 'border-l-4 border-l-green-500' : ''}`}>
       <CardContent className="p-4">
@@ -155,7 +163,7 @@ const MicroConcept = ({
                 <Button 
                   variant="outline" 
                   size="sm"
-                  onClick={handleNeedHelp}
+                  onClick={handleAITutorHelp}
                   className="text-purple-600 hover:text-purple-700 hover:bg-purple-50"
                 >
                   <MessageSquare className="mr-2 h-4 w-4" />

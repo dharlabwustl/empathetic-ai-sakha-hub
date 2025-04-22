@@ -1,10 +1,13 @@
 
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { UserProfileType } from "@/types/user";
-import { Eye } from "lucide-react";
-import MoodLogButton from "@/components/dashboard/student/MoodLogButton";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { motion } from "framer-motion";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { UserProfileType, MoodType } from "@/types/user/base";
+import { CalendarRange, BookOpen, Clock, Target, Fire } from "lucide-react";
+import MoodLogButton from "@/components/dashboard/student/mood-tracking/MoodLogButton";
+import { useUserProfile } from "@/hooks/useUserProfile";
+import { UserRole } from "@/types/user/base";
 
 interface DashboardHeaderProps {
   userProfile: UserProfileType;
@@ -13,136 +16,119 @@ interface DashboardHeaderProps {
   onViewStudyPlan: () => void;
 }
 
-const DashboardHeader = ({
+const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   userProfile,
   formattedTime,
   formattedDate,
   onViewStudyPlan
-}: DashboardHeaderProps) => {
-  const isMobile = useIsMobile();
+}) => {
+  const [currentMood, setCurrentMood] = useState<MoodType | undefined>(userProfile.currentMood);
+  const { updateUserProfile } = useUserProfile(UserRole.Student);
   
-  // Animation variants
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { 
-        when: "beforeChildren",
-        staggerChildren: 0.15 
-      }
-    }
+  const handleMoodSelect = (mood: MoodType | undefined) => {
+    setCurrentMood(mood);
+    
+    // Update the user profile with the new mood
+    updateUserProfile({
+      ...userProfile,
+      currentMood: mood
+    });
   };
 
-  const itemVariants = {
-    hidden: { opacity: 0, y: -20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.5 }
-    }
-  };
+  // Compute days until exam if available
+  const daysUntilExam = userProfile.examPreparation?.examDate
+    ? Math.ceil((new Date(userProfile.examPreparation.examDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))
+    : null;
+
+  // Get the exam target name
+  const examTarget = userProfile.examPreparation?.target || userProfile.goals?.[0]?.title || "Your Exam";
 
   return (
-    <motion.div 
-      className="w-full p-4 sm:p-6 rounded-xl bg-gradient-to-r from-violet-500/10 via-sky-100/20 to-purple-100/20 border border-violet-200/50 shadow-sm"
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-    >
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <motion.div variants={itemVariants}>
-          <motion.h1 
-            className="text-2xl md:text-3xl font-semibold flex items-center"
-            variants={itemVariants}
-          >
-            Hello, 
-            <motion.span 
-              className="gradient-text ml-2"
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ 
-                duration: 0.5, 
-                delay: 0.3,
-                type: "spring",
-                stiffness: 260,
-                damping: 20
-              }}
-            >
-              {userProfile.name}
-            </motion.span>
-            <motion.span
-              initial={{ opacity: 0, scale: 0, rotate: -20 }}
-              animate={{ opacity: 1, scale: 1, rotate: 0 }}
-              transition={{ delay: 0.6, duration: 0.5 }}
-              className="inline-block ml-2"
-            >
-              👋
-            </motion.span>
-          </motion.h1>
-          
-          <motion.div 
-            className="text-xs sm:text-sm text-muted-foreground flex flex-wrap items-center gap-x-2 sm:gap-x-4 mt-1"
-            variants={itemVariants}
-          >
+    <div className="w-full space-y-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold">{formattedTime}, {userProfile.name}</h1>
+          <div className="flex items-center text-sm text-muted-foreground mt-1">
+            <CalendarRange className="h-3.5 w-3.5 mr-1" />
             <span>{formattedDate}</span>
-            <span className="hidden xs:inline-block">•</span>
-            <span className="hidden xs:inline-block">{formattedTime}</span>
-            {userProfile.goals && userProfile.goals[0] && (
-              <motion.span 
-                className="font-medium text-primary bg-violet-100/70 px-2 py-0.5 rounded-full"
-                whileHover={{ scale: 1.05 }}
-              >
-                Goal: {userProfile.goals[0].title}
-              </motion.span>
-            )}
-          </motion.div>
-        </motion.div>
-        
-        <motion.div 
-          className="flex gap-2 items-start justify-start md:justify-end w-full sm:w-auto"
-          variants={itemVariants}
-        >
-          <MoodLogButton className={`${isMobile ? 'text-xs px-3 py-1' : ''} whitespace-nowrap`} />
-        </motion.div>
-      </div>
-      
-      {userProfile.studyStreak && userProfile.studyStreak > 0 && (
-        <motion.div 
-          className="mt-3 sm:mt-4 flex items-center gap-2"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.8, duration: 0.5 }}
-        >
-          <div className="flex">
-            {[...Array(Math.min(userProfile.studyStreak, 5))].map((_, i) => (
-              <motion.div 
-                key={i}
-                className="w-6 h-6 bg-amber-100 rounded-full border-2 border-amber-300 flex items-center justify-center -ml-1 first:ml-0"
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ delay: 0.9 + i * 0.1 }}
-              >
-                <span className="text-xs">🔥</span>
-              </motion.div>
-            ))}
           </div>
-          <span className="text-xs font-medium text-amber-700">
-            {userProfile.studyStreak} day{userProfile.studyStreak > 1 ? 's' : ''} streak! Keep it up!
-          </span>
+        </div>
+
+        <div className="flex flex-wrap gap-2">
+          <MoodLogButton 
+            onMoodSelect={handleMoodSelect}
+            selectedMood={currentMood}
+            className="mr-2"
+          />
           
-          {userProfile.studyStreak >= 7 && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 1.2, duration: 0.5 }}
-              className="ml-2 px-2 py-0.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-bold rounded-full"
-            >
-              Weekly Goal Achieved!
-            </motion.div>
-          )}
-        </motion.div>
-      )}
-    </motion.div>
+          <Button
+            variant="outline"
+            className="border-primary/30 bg-primary/5"
+            onClick={onViewStudyPlan}
+          >
+            <BookOpen className="mr-2 h-4 w-4" />
+            View Study Plan
+          </Button>
+        </div>
+      </div>
+
+      <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 shadow-sm">
+        <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4">
+          {/* Exam Preparation Info */}
+          <div className="flex flex-col sm:flex-row items-center gap-4">
+            <div className="h-12 w-12 bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/50 dark:to-indigo-900/50 rounded-full flex items-center justify-center">
+              <Target className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+            </div>
+            <div>
+              <h3 className="font-medium text-blue-700 dark:text-blue-300">{examTarget}</h3>
+              {daysUntilExam !== null && (
+                <div className="flex items-center mt-1">
+                  <Clock className="h-3.5 w-3.5 mr-1 text-blue-500" />
+                  <p className="text-sm text-blue-600 dark:text-blue-400">
+                    {daysUntilExam} days until exam
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+          
+          {/* Study Streak */}
+          <div className="flex flex-col sm:flex-row items-center gap-4">
+            <div className="h-12 w-12 bg-gradient-to-br from-amber-100 to-red-100 dark:from-amber-900/50 dark:to-red-900/50 rounded-full flex items-center justify-center">
+              <Fire className="h-6 w-6 text-amber-600 dark:text-amber-400" />
+            </div>
+            <div>
+              <div className="flex items-center">
+                <h3 className="font-medium text-amber-700 dark:text-amber-300">
+                  {userProfile.studyStreak?.current || 0} Day Streak
+                </h3>
+                {userProfile.studyStreak && userProfile.studyStreak.current >= 3 && (
+                  <Badge variant="outline" className="ml-2 bg-amber-100 text-amber-800 border-amber-200">
+                    On Fire!
+                  </Badge>
+                )}
+              </div>
+              <p className="text-sm text-amber-600 dark:text-amber-400 mt-1">
+                Best: {userProfile.studyStreak?.best || 0} days
+              </p>
+            </div>
+          </div>
+          
+          {/* Today's Goal */}
+          <div className="flex flex-col sm:flex-row items-center gap-4">
+            <div className="h-12 w-12 bg-gradient-to-br from-green-100 to-cyan-100 dark:from-green-900/50 dark:to-cyan-900/50 rounded-full flex items-center justify-center">
+              <BookOpen className="h-6 w-6 text-green-600 dark:text-green-400" />
+            </div>
+            <div>
+              <h3 className="font-medium text-green-700 dark:text-green-300">Today's Goal</h3>
+              <p className="text-sm text-green-600 dark:text-green-400 mt-1">
+                Complete 3 core concepts
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 

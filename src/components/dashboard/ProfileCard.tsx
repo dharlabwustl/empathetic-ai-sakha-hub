@@ -37,8 +37,10 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
     navigate("/dashboard/student/subscription");
   };
 
-  // Default avatar image
-  const defaultAvatar = "/lovable-uploads/f436a725-c9b9-4a8c-964e-0c271ed95dd4.png";
+  // Default avatar images
+  const femaleAvatar = "/lovable-uploads/f436a725-c9b9-4a8c-964e-0c271ed95dd4.png";
+  const maleAvatar = "/lovable-uploads/ad945ccd-0301-4d99-938f-aee38d42e2d1.png";
+  const defaultAvatar = profile?.personalDetails?.gender === 'female' ? femaleAvatar : maleAvatar;
 
   // Helper function to determine if user needs to upgrade
   const needsUpgrade = () => {
@@ -64,6 +66,13 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
       
       if (onUploadImage) {
         onUploadImage(file);
+        setTimeout(() => {
+          setIsUploading(false);
+          toast({
+            title: "Avatar Updated",
+            description: "Your profile image has been updated successfully.",
+          });
+        }, 1000);
       } else {
         // Mock implementation if onUploadImage is not provided
         setTimeout(() => {

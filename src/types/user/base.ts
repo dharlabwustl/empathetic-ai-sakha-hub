@@ -21,7 +21,7 @@ export interface UserGoal {
   completedDate?: string;
   examDate?: string;
   progress: number;
-  status: 'active' | 'completed' | 'abandoned';
+  status: 'active' | 'completed' | 'abandoned' | 'in_progress';
 }
 
 export interface Subject {
@@ -46,6 +46,14 @@ export interface UserSubscription {
   plan: SubscriptionType;
   status: 'active' | 'inactive' | 'pending' | 'expired';
   expiresAt: string;
+  startedAt?: string;
+  nextBillingDate?: string;
+  amount?: number;
+  currency?: string;
+  paymentMethod?: string;
+  autoRenew?: boolean;
+  isGroupLeader?: boolean;
+  groupMembers?: string[];
 }
 
 export interface UserProfileType {
@@ -71,6 +79,31 @@ export interface UserProfileType {
     examDate: string;
     subjects: string[];
   };
+  personalDetails?: {
+    phoneNumber?: string;
+    address?: string;
+    city?: string;
+    state?: string;
+    country?: string;
+    zipCode?: string;
+    dateOfBirth?: string;
+    gender?: string;
+    school?: string;
+    grade?: string;
+  };
+  preferences?: {
+    studyReminders: boolean;
+    emailNotifications: boolean;
+    darkMode: boolean;
+    language: string;
+  };
+  aiTutorHistory?: {
+    lastInteraction: string;
+    totalInteractions: number;
+    favoriteTopics: string[];
+  };
+  currentMood?: MoodType;
+  personalityType?: PersonalityType;
 }
 
 export type AuthUser = {

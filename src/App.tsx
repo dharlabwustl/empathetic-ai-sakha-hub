@@ -47,6 +47,7 @@ import FlashcardsPage from "./pages/dashboard/student/FlashcardsPage";
 import ExamPreparationPage from "./pages/dashboard/student/ExamPreparationPage";
 
 import FeaturesManagementPage from "./pages/admin/FeaturesManagementPage";
+import PaymentGatewayPage from './pages/admin/PaymentGatewayPage';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -239,6 +240,12 @@ const App = () => {
                   <Route path="/admin/features" element={
                     <AdminRouteGuard>
                       <FeaturesManagementPage />
+                    </AdminRouteGuard>
+                  } />
+                  
+                  <Route path="/admin/payment-gateway" element={
+                    <AdminRouteGuard>
+                      <PaymentGatewayPage />
                     </AdminRouteGuard>
                   } />
                   

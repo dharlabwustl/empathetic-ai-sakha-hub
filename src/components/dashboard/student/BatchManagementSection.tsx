@@ -17,6 +17,8 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { Crown, Users, UserPlus, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { useUserProfile } from '@/hooks/useUserProfile';
+import { UserRole } from '@/types/user/base';
 
 interface BatchManagementSectionProps {
   isLeader: boolean;
@@ -36,6 +38,7 @@ const BatchManagementSection: React.FC<BatchManagementSectionProps> = ({
   const [showJoinDialog, setShowJoinDialog] = useState(false);
   const [joinStatus, setJoinStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
+  const { updateUserProfile } = useUserProfile(UserRole.Student);
 
   // State for leader features
   const [inviteEmail, setInviteEmail] = useState('');
@@ -63,6 +66,24 @@ const BatchManagementSection: React.FC<BatchManagementSectionProps> = ({
         if (success) {
           setJoinStatus('success');
           setShowJoinDialog(false);
+          
+          // Update user profile with batch info
+          updateUserProfile({
+            batchName: `Study Group ${batchCodeInput.slice(-4)}`,
+            batchCode: batchCodeInput,
+            subscription: {
+              id: `sub_${Date.now()}`,
+              plan: 'group',
+              status: 'active',
+              expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
+              isGroupLeader: false
+            }
+          });
+          
+          toast({
+            title: "Successfully joined batch",
+            description: "You've been added to the study group with group plan benefits"
+          });
         } else {
           setJoinStatus('error');
           setErrorMessage('Invalid batch code. Please check and try again.');
@@ -72,11 +93,25 @@ const BatchManagementSection: React.FC<BatchManagementSectionProps> = ({
         // Simulate API call
         setTimeout(() => {
           // Check if code is valid (this would be a server check in a real app)
-          if (batchCodeInput === 'BATCH123' || batchCodeInput === 'TEST456') {
+          if (batchCodeInput === 'BATCH123' || batchCodeInput === 'TEST456' || batchCodeInput.startsWith('SAKHA-')) {
             setJoinStatus('success');
+            
+            // Update user profile with batch info
+            updateUserProfile({
+              batchName: `Study Group ${batchCodeInput.slice(-4)}`,
+              batchCode: batchCodeInput,
+              subscription: {
+                id: `sub_${Date.now()}`,
+                plan: 'group',
+                status: 'active',
+                expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
+                isGroupLeader: false
+              }
+            });
+            
             toast({
               title: "Successfully joined batch",
-              description: "You've been added to the study group"
+              description: "You've been added to the study group with group plan benefits"
             });
             setShowJoinDialog(false);
           } else {
@@ -94,6 +129,13 @@ const BatchManagementSection: React.FC<BatchManagementSectionProps> = ({
 
   const handleLeaveBatch = () => {
     // In a real app, this would send a request to the server
+    updateUserProfile({
+      batchName: '',
+      batchCode: '',
+      isGroupLeader: false,
+      subscription: 'basic'
+    });
+    
     toast({
       title: "Left batch",
       description: "You've successfully left the batch",

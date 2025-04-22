@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Check, Lightbulb, CalendarRange } from "lucide-react";
+import { Check, Lightbulb, CalendarRange, BookOpen, Brain } from "lucide-react";
 
 interface WelcomeTourProps {
   onSkipTour: () => void;
@@ -53,7 +53,7 @@ const WelcomeTour: React.FC<WelcomeTourProps> = ({
       description: "Log your mood to get personalized recommendations based on how you're feeling."
     },
     {
-      title: "Ready to Start",
+      title: "Your Exam Preparation",
       description: "Let's take an overview of your study plan based on your exam preparation."
     }
   ];
@@ -146,6 +146,33 @@ const WelcomeTour: React.FC<WelcomeTourProps> = ({
                   <span>Revision schedule as you approach your exam</span>
                 </li>
               </ul>
+              
+              <div className="mt-2 flex gap-3 flex-wrap">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  className="flex items-center"
+                  onClick={() => {
+                    onCompleteTour();
+                    // Navigate to first concept - this will happen in onCompleteTour handler
+                  }}
+                >
+                  <BookOpen className="h-4 w-4 mr-2" />
+                  Start Learning
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  className="flex items-center"
+                  onClick={() => {
+                    onCompleteTour();
+                    // Navigate to AI tutor - this will happen in onCompleteTour handler
+                  }}
+                >
+                  <Brain className="h-4 w-4 mr-2" />
+                  Ask AI Tutor
+                </Button>
+              </div>
             </div>
           )}
         </div>

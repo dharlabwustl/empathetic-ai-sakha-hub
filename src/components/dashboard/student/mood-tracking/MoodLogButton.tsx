@@ -24,10 +24,11 @@ import {
 interface MoodLogButtonProps {
   onMoodSelect: (mood: MoodType | undefined) => void;
   className?: string;
+  selectedMood?: MoodType;
 }
 
-const MoodLogButton: React.FC<MoodLogButtonProps> = ({ onMoodSelect, className = '' }) => {
-  const [selectedMood, setSelectedMood] = useState<MoodType | undefined>(undefined);
+const MoodLogButton: React.FC<MoodLogButtonProps> = ({ onMoodSelect, className = '', selectedMood: initialMood }) => {
+  const [selectedMood, setSelectedMood] = useState<MoodType | undefined>(initialMood);
   const { toast } = useToast();
 
   const handleMoodSelect = (mood: MoodType) => {

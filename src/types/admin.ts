@@ -45,6 +45,14 @@ export interface AdminSettings {
     systemAlerts: boolean;
   };
   contentApprovalRequired?: boolean;
+  paymentGateway?: {
+    provider: 'stripe' | 'razorpay' | 'paypal' | 'custom';
+    isLive: boolean;
+    apiKey?: string;
+    secretKey?: string;
+    webhookSecret?: string;
+    redirectUrl?: string;
+  };
 }
 
 export interface StudentData {
@@ -72,12 +80,49 @@ export interface AdminDashboardStats {
   totalRevenue: KpiData;
   conversionRate: KpiData;
   averageSessionTime: KpiData;
+  // Adding all missing KPIs
+  totalStudents: KpiData;
+  monthlyActiveUsers: KpiData;
+  subscriptionConversionRate: KpiData;
+  churnRate: KpiData;
+  averageStudyTimePerUser: KpiData;
+  practiceAttemptsPerUser: KpiData;
+  userSatisfactionScore: KpiData;
+  referralRate: KpiData;
+  paidUsers: KpiData;
+  totalConcepts: KpiData;
+  totalFlashcards: KpiData; 
+  totalQuestions: KpiData;
+  activeStudents: KpiData;
+  totalSessions: KpiData;
+  completedSurveys: KpiData;
+  averageTimePerSession: KpiData;
+  averageMoodScore: KpiData;
+  verifiedMoodImprovement: KpiData;
+  averageTimeSavedPerWeek: KpiData;
+  studyPlanEfficiencyImprovement: KpiData;
+  studentsWithVerifiedConsistentHabits: KpiData;
+  studentsWithConsistentHabits: KpiData;
+  verifiedExamConfidenceImprovement: KpiData;
+  averageConfidenceScore: KpiData;
+  verifiedRetentionRate: KpiData;
+  verifiedMoodFeatureUsage: KpiData;
+  moodBasedSessionsCount: KpiData;
+  dailyActiveUsers: KpiData;
+  weeklyActiveUsers: KpiData;
+  monthlyActiveUsers2: KpiData;
+  revenueGrowth: KpiData;
+  averageRevenuePerUser: KpiData;
+  lifetimeValue: KpiData;
+  acquisitionCost: KpiData;
+  returnOnInvestment: KpiData;
 }
 
 export interface SystemLog {
   id: string;
   timestamp: string;
   type: 'error' | 'warning' | 'info' | 'success';
+  level?: 'critical' | 'high' | 'medium' | 'low';
   message: string;
   source: string;
   resolved: boolean;
