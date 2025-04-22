@@ -1,38 +1,47 @@
 
 import { AdminUser } from "@/types/admin";
+import { validateCredentials } from "../auth/accountData";
 
 const adminAuthService = {
   login: async (email: string, password: string): Promise<AdminUser> => {
-    // Mock implementation - in a real app, this would call an API
-    if (email === 'admin@example.com' && password === 'admin123') {
-      const user: AdminUser = {
-        id: '1',
-        email: 'admin@example.com',
-        name: 'Admin User',
+    console.log("Admin login attempt:", email);
+    
+    // Use the common validateCredentials function
+    const user = validateCredentials(email, password);
+    
+    if (user && user.role === 'admin') {
+      const adminUser: AdminUser = {
+        id: user.id,
+        email: user.email,
+        name: user.name,
         role: 'admin',
-        permissions: ['users:read', 'users:write', 'content:read', 'content:write', 'settings:read', 'settings:write'],
+        permissions: user.permissions || ['all'],
         createdAt: new Date().toISOString(),
         lastLogin: new Date().toISOString()
       };
-      return Promise.resolve(user);
-    } else {
-      return Promise.reject(new Error('Invalid credentials'));
+      
+      // Store user in localStorage for session persistence
+      localStorage.setItem('adminUser', JSON.stringify(adminUser));
+      
+      console.log("Admin login successful:", adminUser);
+      return Promise.resolve(adminUser);
     }
+    
+    console.log("Admin login failed for:", email);
+    return Promise.reject(new Error('Invalid credentials'));
   },
 
   logout: async (): Promise<void> => {
-    // Mock implementation
+    localStorage.removeItem('adminUser');
     return Promise.resolve();
   },
 
   getCurrentUser: (): AdminUser | null => {
-    // Mock implementation
     const userJson = localStorage.getItem('adminUser');
     return userJson ? JSON.parse(userJson) : null;
   },
   
   checkAuth: async (): Promise<AdminUser> => {
-    // Mock implementation
     const userJson = localStorage.getItem('adminUser');
     if (userJson) {
       return Promise.resolve(JSON.parse(userJson));
