@@ -1,4 +1,3 @@
-
 // Define the user roles enum
 export enum UserRole {
   Student = "student",
@@ -15,6 +14,9 @@ export enum SubscriptionType {
   Free = "free",
   Basic = "basic",
   Premium = "premium",
+  Pro = "pro",
+  Elite = "elite",
+  Group = "group",
   Enterprise = "enterprise"
 }
 
@@ -86,11 +88,53 @@ export interface UserProfileType {
   goals?: UserGoal[];
   subjects?: SubjectProgress[];
   studyStreak?: StudyStreak;
-  examPreparation?: ExamPreparation;
-  city?: string;
-  state?: string;
-  school?: string;
-  grade?: string;
-  board?: string;
+  // Add missing fields
+  personalDetails?: {
+    phoneNumber?: string;
+    phone?: string;
+    address?: string;
+    city?: string;
+    state?: string;
+    country?: string;
+    zipCode?: string;
+    dateOfBirth?: string;
+    gender?: string;
+    school?: string;
+    grade?: string;
+    board?: string;
+    bio?: string;
+    interests?: string[];
+  };
+  examPreparation?: {
+    target: string;
+    examDate: string;
+    subjects: string[];
+  };
+  batchName?: string;
+  batchCode?: string;
+  isGroupLeader?: boolean;
+  aiTutorHistory?: {
+    lastSession?: string;
+    totalSessions?: number;
+    favoriteTopics?: string[];
+  };
 }
 
+export interface UserSubscription {
+  id: string;
+  plan: string;
+  expiresAt: string;
+  status: string;
+  planType?: SubscriptionType;
+  isGroupLeader?: boolean;
+}
+
+export enum SubscriptionType {
+  Free = "free",
+  Basic = "basic",
+  Premium = "premium",
+  Pro = "pro",
+  Elite = "elite",
+  Group = "group",
+  Enterprise = "enterprise"
+}

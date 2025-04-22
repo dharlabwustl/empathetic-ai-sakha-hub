@@ -1,6 +1,4 @@
 
-export * from './base';
-
 export interface SubjectProgress {
   id: string;
   name: string;
@@ -15,6 +13,7 @@ export interface SubjectProgress {
     completed: boolean;
     masteryLevel: number;
     lastPracticed?: string;
+    status?: 'not_started' | 'in_progress' | 'completed';
   }[];
   quizScores?: {
     id: string;
@@ -24,13 +23,7 @@ export interface SubjectProgress {
     date: string;
     timeTaken: number;
   }[];
+  streak?: number;
+  totalTimeSpent?: number;
+  lastStudied?: string;
 }
-
-export interface StudyStreak {
-  current: number;
-  best: number;
-  lastStudyDate: string;
-  thisWeek: number;
-  thisMonth: number;
-}
-
