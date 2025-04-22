@@ -1,5 +1,6 @@
 
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -10,7 +11,8 @@ import {
   Clock, 
   Target, 
   Award,
-  Flame
+  Flame,
+  BookOpen
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import MicroConcept from "./MicroConcept";
@@ -125,6 +127,12 @@ export default function TodayStudyPlan() {
               <Flame size={16} className="text-amber-500" />
               <span>Streak: <span className="font-medium">{todayPlan.streak} days</span></span>
             </div>
+            <Link to="/dashboard/student/concepts">
+              <Button size="sm" variant="outline" className="ml-2 text-xs">
+                <BookOpen className="h-3.5 w-3.5 mr-1" />
+                View All Concepts
+              </Button>
+            </Link>
           </div>
         </div>
         

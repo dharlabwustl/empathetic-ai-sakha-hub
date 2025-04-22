@@ -68,6 +68,30 @@ const StepHandler = ({
       if (response.success && response.data) {
         console.log("Registration successful:", response.data);
         
+        // Process collected study plan data
+        const examDate = onboardingData.examDate ? new Date(onboardingData.examDate) : null;
+        const formattedExamDate = examDate ? examDate.toISOString() : null;
+        
+        // Get the strong and weak subjects
+        const strongSubjects = onboardingData.strongSubjects?.map((s: any) => s.name) || [];
+        const weakSubjects = onboardingData.weakSubjects?.map((s: any) => s.name) || [];
+        
+        // Build a study plan object
+        const studyPlan = {
+          examGoal: onboardingData.goal || "IIT-JEE",
+          examDate: formattedExamDate,
+          daysLeft: examDate ? Math.ceil((examDate.getTime() - new Date().getTime()) / (1000 * 3600 * 24)) : 180,
+          studyHoursPerDay: onboardingData.studyHours || 4,
+          subjects: strongSubjects.concat(weakSubjects),
+          strongSubjects,
+          weakSubjects,
+          studyPace: onboardingData.studyPace || "moderate",
+          preferredStudyTime: onboardingData.studyTime || "evening",
+          personalityType: onboardingData.personalityType,
+          mood: onboardingData.mood,
+          interests: onboardingData.interests || []
+        };
+        
         // Save additional onboarding data to localStorage with consistent format
         const extendedUserData = {
           ...onboardingData,
@@ -75,10 +99,15 @@ const StepHandler = ({
           phoneNumber: cleanMobile,
           completedOnboarding: false, // Mark as not completed to trigger onboarding flow
           isNewUser: true,
-          sawWelcomeTour: false
+          sawWelcomeTour: false,
+          studyPlan
         };
         
         localStorage.setItem("userData", JSON.stringify(extendedUserData));
+        
+        // Call API endpoint to save the study plan data - in a real app
+        // This would be something like:
+        // await studyPlanService.createStudyPlan(studyPlan);
         
         toast({
           title: "Welcome to Sakha AI!",
@@ -130,7 +159,16 @@ const StepHandler = ({
         setStep("personality");
       },
       handleGoalSelect: (goal: UserGoal) => {
-        setOnboardingData({ ...onboardingData, goal });
+        // Get default subjects for this goal
+        const defaultSubjects = getSubjectsForGoal(goal);
+        
+        // Update onboarding data with goal and default subjects
+        setOnboardingData({ 
+          ...onboardingData, 
+          goal,
+          defaultSubjects
+        });
+        
         setMessages([
           ...messages, 
           { content: goal, isBot: false },

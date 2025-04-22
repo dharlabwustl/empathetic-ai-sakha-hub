@@ -26,6 +26,27 @@ export interface SubjectProgress {
   streak?: number;
   totalTimeSpent?: number;
   lastStudied?: string;
+  conceptCards?: ConceptCard[];
+}
+
+export interface ConceptCard {
+  id: string;
+  title: string;
+  description: string;
+  subject: string;
+  topic: string;
+  difficulty: 'easy' | 'medium' | 'hard' | 'advanced';
+  completed: boolean;
+  progress: number;
+  isLocked?: boolean;
+  isPremium?: boolean;
+  dueDate?: string;
+  lastStudied?: string;
+  masteryLevel?: number;
+  content?: string;
+  examples?: string[];
+  commonMistakes?: string[];
+  examRelevance?: string;
 }
 
 export interface StudyStreak {
