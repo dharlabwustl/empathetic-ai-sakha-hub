@@ -53,7 +53,7 @@ const DashboardStats = ({ stats }: DashboardStatsProps) => {
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
       <StatCard 
         title="Total Users" 
-        value={stats.totalStudents || "2,350"} 
+        value={stats.totalStudents ? stats.totalStudents.value : 2350} 
         icon={<Users size={24} className="text-blue-600" />}
         trend="+12% from last month"
         route="/admin/users"
@@ -62,7 +62,7 @@ const DashboardStats = ({ stats }: DashboardStatsProps) => {
       />
       <StatCard 
         title="Monthly Active Users" 
-        value={stats.monthlyActiveUsers || "1,840"} 
+        value={stats.monthlyActiveUsers ? stats.monthlyActiveUsers.value : 1840} 
         icon={<Activity size={24} className="text-green-600" />}
         trend="+5% from last month"
         iconColor="text-green-600"
@@ -70,7 +70,7 @@ const DashboardStats = ({ stats }: DashboardStatsProps) => {
       />
       <StatCard 
         title="Conversion Rate" 
-        value={`${stats.subscriptionConversionRate || 24}%`} 
+        value={`${stats.subscriptionConversionRate ? stats.subscriptionConversionRate.value : 24}%`} 
         icon={<Percent size={24} className="text-amber-600" />}
         trend="+2% from last month"
         iconColor="text-amber-600"
@@ -78,7 +78,7 @@ const DashboardStats = ({ stats }: DashboardStatsProps) => {
       />
       <StatCard 
         title="Churn Rate" 
-        value={`${stats.churnRate || 3.2}%`} 
+        value={`${stats.churnRate ? stats.churnRate.value : 3.2}%`} 
         icon={<UserPlus size={24} className="text-red-600" />}
         trend="-0.5% from last month"
         iconColor="text-red-600"
@@ -86,7 +86,7 @@ const DashboardStats = ({ stats }: DashboardStatsProps) => {
       />
       <StatCard 
         title="Avg. Study Time" 
-        value={`${stats.averageStudyTimePerUser || 42} min`} 
+        value={`${stats.averageStudyTimePerUser ? stats.averageStudyTimePerUser.value : 42} min`} 
         icon={<Clock size={24} className="text-indigo-600" />}
         trend="+8% from last month"
         iconColor="text-indigo-600"
@@ -94,7 +94,7 @@ const DashboardStats = ({ stats }: DashboardStatsProps) => {
       />
       <StatCard 
         title="Practice Attempts" 
-        value={stats.practiceAttemptsPerUser || "18"} 
+        value={stats.practiceAttemptsPerUser ? stats.practiceAttemptsPerUser.value : 18} 
         icon={<ChartBar size={24} className="text-orange-600" />}
         trend="+15% from last month"
         iconColor="text-orange-600"
@@ -102,7 +102,7 @@ const DashboardStats = ({ stats }: DashboardStatsProps) => {
       />
       <StatCard 
         title="User Satisfaction" 
-        value={`${stats.userSatisfactionScore || 87}%`} 
+        value={`${stats.userSatisfactionScore ? stats.userSatisfactionScore.value : 87}%`} 
         icon={<Heart size={24} className="text-pink-600" />}
         trend="+5% from last week"
         route="/admin/feedback"
@@ -111,7 +111,7 @@ const DashboardStats = ({ stats }: DashboardStatsProps) => {
       />
       <StatCard 
         title="Referral Rate" 
-        value={`${stats.referralRate || 28}%`} 
+        value={`${stats.referralRate ? stats.referralRate.value : 28}%`} 
         icon={<UserCheck size={24} className="text-purple-600" />}
         trend="+18% from last month"
         iconColor="text-purple-600"
@@ -120,7 +120,7 @@ const DashboardStats = ({ stats }: DashboardStatsProps) => {
       {/* New KPI: User Types */}
       <StatCard 
         title="Free vs Paid Users" 
-        value={`${stats.paidUsers || 261}/${stats.totalStudents || 1245}`} 
+        value={`${stats.paidUsers ? stats.paidUsers.value : 261}/${stats.totalStudents ? stats.totalStudents.value : 1245}`} 
         icon={<UsersIcon size={24} className="text-blue-600" />}
         trend="+10% paid users this month"
         route="/admin/subscriptions"
@@ -130,7 +130,7 @@ const DashboardStats = ({ stats }: DashboardStatsProps) => {
       {/* New KPI: Total Revenue */}
       <StatCard 
         title="Total Revenue" 
-        value={`₹${stats.totalRevenue?.toLocaleString() || "127,840"}`} 
+        value={`₹${stats.totalRevenue ? stats.totalRevenue.value.toLocaleString() : "127,840"}`} 
         icon={<IndianRupee size={24} className="text-green-600" />}
         trend="+8% from last month"
         route="/admin/subscriptions"

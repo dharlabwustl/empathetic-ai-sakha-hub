@@ -1,17 +1,27 @@
 
-export type UserRole = 'student' | 'tutor' | 'admin' | 'parent';
+export enum UserRole {
+  Student = 'student',
+  Tutor = 'tutor',
+  Admin = 'admin',
+  Parent = 'parent',
+  Doctor = 'doctor',
+  Employee = 'employee',
+  Founder = 'founder',
+  Teacher = 'teacher'
+}
 
 export type MoodType = 'happy' | 'sad' | 'neutral' | 'motivated' | 'tired' | 'stressed' | 'focused' | 'curious' | 'overwhelmed' | 'okay';
 
 export type PersonalityType = string;
 
-export type SubscriptionType = 
-  | 'free'
-  | 'basic'
-  | 'premium'
-  | 'pro'
-  | 'elite'
-  | 'group';
+export enum SubscriptionType {
+  Free = 'free',
+  Basic = 'basic',
+  Premium = 'premium',
+  Pro = 'pro',
+  Elite = 'elite',
+  Group = 'group'
+}
 
 export interface UserGoal {
   id: string;
@@ -43,7 +53,7 @@ export interface StudyStreak {
 
 export interface UserSubscription {
   id: string;
-  plan: SubscriptionType;
+  plan: SubscriptionType | string;
   status: 'active' | 'inactive' | 'pending' | 'expired';
   expiresAt: string;
   startedAt?: string;
@@ -60,11 +70,11 @@ export interface UserProfileType {
   id: string;
   name: string;
   email: string;
-  role: UserRole;
+  role: UserRole | string;
   avatar?: string;
   goals?: UserGoal[];
   examDate?: string;
-  subscription?: UserSubscription | SubscriptionType;
+  subscription?: UserSubscription | SubscriptionType | string;
   createdAt?: string;
   updatedAt?: string;
   loginCount?: number;
@@ -109,7 +119,7 @@ export interface UserProfileType {
 export type AuthUser = {
   id: string;
   email: string;
-  role: UserRole;
+  role: UserRole | string;
   name?: string;
-  subscription?: UserSubscription | SubscriptionType;
+  subscription?: UserSubscription | SubscriptionType | string;
 };

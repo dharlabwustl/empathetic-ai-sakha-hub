@@ -19,7 +19,7 @@ interface FeatureCardProps {
   icon: React.ReactNode;
   path: string;
   isPremium: boolean;
-  userSubscription?: SubscriptionType;
+  userSubscription?: string | SubscriptionType;
 }
 
 export default function FeatureCard({
@@ -31,7 +31,11 @@ export default function FeatureCard({
   userSubscription = SubscriptionType.Basic
 }: FeatureCardProps) {
   const navigate = useNavigate();
-  const hasPremiumAccess = userSubscription === SubscriptionType.Premium;
+  // Check if userSubscription is either the enum value or string 'premium'
+  const hasPremiumAccess = userSubscription === SubscriptionType.Premium || 
+                           userSubscription === 'premium' ||
+                           userSubscription === SubscriptionType.Elite ||
+                           userSubscription === 'elite';
   
   const handleClick = () => {
     if (isPremium && !hasPremiumAccess) {

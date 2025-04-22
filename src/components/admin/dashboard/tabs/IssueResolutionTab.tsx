@@ -1,368 +1,316 @@
 
-import React from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import {
-  AlertTriangle,
-  CheckCircle2,
-  AlertOctagon,
-  Search,
-  Filter,
-  MessageSquare,
-  UserCheck,
-  ShieldAlert,
-  Clock
-} from "lucide-react";
-import { Input } from "@/components/ui/input";
+import React, { useState } from "react";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { SystemLog } from "@/types/admin";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import {
+  AlertCircle,
+  Check,
+  CheckCircle,
+  Clock,
+  Info,
+  Search,
+  Trash2,
+  User,
+  Users,
+  FileText,
+  Settings,
+  RefreshCcw,
+} from "lucide-react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { format } from "date-fns";
 
-interface IssueResolutionTabProps {
-  recentLogs: SystemLog[];
-}
+const IssueResolutionTab = () => {
+  // Mock data for system logs
+  const [logs, setLogs] = useState<SystemLog[]>([
+    {
+      id: "1",
+      timestamp: "2023-12-01T08:30:00",
+      type: "error",
+      level: "critical",
+      message: "Payment gateway connection failed",
+      source: "payment-service",
+      resolved: false,
+    },
+    {
+      id: "2",
+      timestamp: "2023-12-01T10:15:00",
+      type: "warning",
+      level: "medium",
+      message: "High CPU usage detected",
+      source: "monitoring",
+      resolved: false,
+    },
+    {
+      id: "3",
+      timestamp: "2023-12-01T11:45:00",
+      type: "info",
+      level: "low",
+      message: "Backup completed successfully",
+      source: "backup-service",
+      resolved: true,
+    },
+    {
+      id: "4",
+      timestamp: "2023-12-02T09:20:00",
+      type: "error",
+      level: "high",
+      message: "Database query timeout",
+      source: "db-service",
+      resolved: false,
+    },
+    {
+      id: "5",
+      timestamp: "2023-12-02T14:10:00",
+      type: "warning",
+      level: "medium",
+      message: "Memory usage approaching limit",
+      source: "monitoring",
+      resolved: true,
+    },
+    {
+      id: "6",
+      timestamp: "2023-12-03T08:05:00",
+      type: "error",
+      level: "critical",
+      message: "Authentication service unreachable",
+      source: "auth-service",
+      resolved: false,
+    },
+  ]);
 
-const IssueResolutionTab = ({ recentLogs }: IssueResolutionTabProps) => {
+  const [filter, setFilter] = useState("all");
+  const [searchTerm, setSearchTerm] = useState("");
+
+  // Calculate stats
+  const criticalCount = logs.filter(log => log.level === "critical" && !log.resolved).length;
+  const highCount = logs.filter(log => log.level === "high" && !log.resolved).length;
+  const mediumCount = logs.filter(log => log.level === "medium" && !log.resolved).length;
+  const resolvedCount = logs.filter(log => log.resolved).length;
+
+  // Handle filters
+  const filteredLogs = logs.filter(log => {
+    // Search term
+    if (searchTerm && !log.message.toLowerCase().includes(searchTerm.toLowerCase()) && !log.source.toLowerCase().includes(searchTerm.toLowerCase())) {
+      return false;
+    }
+    
+    // Status filter
+    if (filter === "resolved" && !log.resolved) return false;
+    if (filter === "unresolved" && log.resolved) return false;
+    
+    return true;
+  });
+
+  const handleResolve = (id: string) => {
+    setLogs(logs.map(log => 
+      log.id === id ? { ...log, resolved: true } : log
+    ));
+  };
+
+  const handleDeleteResolved = () => {
+    setLogs(logs.filter(log => !log.resolved));
+  };
+
+  const getStatusBadge = (log: SystemLog) => {
+    if (log.resolved) {
+      return <Badge className="bg-green-100 text-green-800">Resolved</Badge>;
+    }
+    
+    switch(log.level) {
+      case "critical":
+        return <Badge variant="destructive">Critical</Badge>;
+      case "high":
+        return <Badge className="bg-red-100 text-red-800">High</Badge>;
+      case "medium":
+        return <Badge className="bg-yellow-100 text-yellow-800">Medium</Badge>;
+      case "low":
+        return <Badge className="bg-blue-100 text-blue-800">Low</Badge>;
+      default:
+        return <Badge variant="outline">Unknown</Badge>;
+    }
+  };
+
+  const getTypeIcon = (type: string) => {
+    switch(type) {
+      case "error":
+        return <AlertCircle className="h-5 w-5 text-red-500" />;
+      case "warning":
+        return <AlertCircle className="h-5 w-5 text-yellow-500" />;
+      case "info":
+        return <Info className="h-5 w-5 text-blue-500" />;
+      case "success":
+        return <CheckCircle className="h-5 w-5 text-green-500" />;
+      default:
+        return <Info className="h-5 w-5 text-gray-500" />;
+    }
+  };
+
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold">Issue Resolution & System Health</h2>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" className="flex items-center gap-2">
-            <Filter size={16} />
-            <span>Filter</span>
-          </Button>
-          <Button className="flex items-center gap-2">
-            <AlertOctagon size={16} />
-            <span>System Checkup</span>
-          </Button>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="font-medium">Open Issues</h3>
-              <Badge className="bg-amber-100 text-amber-800">15 Open</Badge>
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card className="bg-red-50 dark:bg-red-900/20">
+          <CardContent className="p-4 flex items-center space-x-4">
+            <div className="bg-red-100 dark:bg-red-800/30 p-3 rounded-full">
+              <AlertCircle className="h-6 w-6 text-red-600 dark:text-red-400" />
             </div>
-            <div className="flex items-center justify-between">
-              <div className="space-y-1">
-                <div className="flex items-center gap-2">
-                  <Badge className="bg-red-100 text-red-800">4</Badge>
-                  <span className="text-sm">Critical</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Badge className="bg-amber-100 text-amber-800">7</Badge>
-                  <span className="text-sm">High</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Badge className="bg-blue-100 text-blue-800">4</Badge>
-                  <span className="text-sm">Normal</span>
-                </div>
-              </div>
-              <div className="h-24 w-24 rounded-full border-8 border-blue-200 dark:border-blue-900/30 relative">
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-xl font-bold">15</span>
-                </div>
-                <div className="absolute top-0 right-0 left-0 bottom-0 border-8 border-amber-400 rounded-full" style={{ clip: 'rect(0, 48px, 96px, 0)' }}></div>
-                <div className="absolute top-0 right-0 left-0 bottom-0 border-8 border-red-400 rounded-full" style={{ clip: 'rect(0, 24px, 48px, 0)' }}></div>
-              </div>
-            </div>
-            <Button variant="outline" size="sm" className="w-full mt-4">View All Issues</Button>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="font-medium">Resolution Time</h3>
-              <Badge className="bg-green-100 text-green-800">Improving</Badge>
-            </div>
-            <div className="flex items-end gap-2 mb-2">
-              <span className="text-3xl font-bold">3.2</span>
-              <span className="text-sm text-gray-500">hours avg</span>
-            </div>
-            <div className="h-10 bg-green-50 dark:bg-green-900/20 rounded-md flex items-end">
-              <div className="bg-green-500 h-10 w-8 rounded-sm"></div>
-              <div className="bg-green-500 h-8 w-8 rounded-sm"></div>
-              <div className="bg-green-500 h-7 w-8 rounded-sm"></div>
-              <div className="bg-green-500 h-6 w-8 rounded-sm"></div>
-              <div className="bg-green-500 h-5 w-8 rounded-sm"></div>
-              <div className="bg-green-500 h-4 w-8 rounded-sm"></div>
-              <div className="bg-green-500 h-3 w-8 rounded-sm"></div>
-            </div>
-            <div className="flex items-center justify-between mt-1">
-              <span className="text-xs text-gray-500">Last Week: 5.8 hrs</span>
-              <span className="text-xs text-green-600">-44%</span>
+            <div>
+              <p className="text-sm text-red-600 dark:text-red-400">Critical Issues</p>
+              <p className="text-2xl font-bold text-red-700 dark:text-red-300">{criticalCount}</p>
             </div>
           </CardContent>
         </Card>
-
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="font-medium">System Status</h3>
-              <Badge className="bg-green-100 text-green-800">Healthy</Badge>
+        <Card className="bg-orange-50 dark:bg-orange-900/20">
+          <CardContent className="p-4 flex items-center space-x-4">
+            <div className="bg-orange-100 dark:bg-orange-800/30 p-3 rounded-full">
+              <AlertCircle className="h-6 w-6 text-orange-600 dark:text-orange-400" />
             </div>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-sm">API Services</span>
-                <div className="flex items-center gap-1">
-                  <div className="h-2 w-2 rounded-full bg-green-500"></div>
-                  <span className="text-xs text-gray-600">Online</span>
-                </div>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm">Database</span>
-                <div className="flex items-center gap-1">
-                  <div className="h-2 w-2 rounded-full bg-green-500"></div>
-                  <span className="text-xs text-gray-600">Online</span>
-                </div>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm">AI Services</span>
-                <div className="flex items-center gap-1">
-                  <div className="h-2 w-2 rounded-full bg-green-500"></div>
-                  <span className="text-xs text-gray-600">Online</span>
-                </div>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm">Storage</span>
-                <div className="flex items-center gap-1">
-                  <div className="h-2 w-2 rounded-full bg-amber-500"></div>
-                  <span className="text-xs text-gray-600">82% Used</span>
-                </div>
-              </div>
+            <div>
+              <p className="text-sm text-orange-600 dark:text-orange-400">High Priority</p>
+              <p className="text-2xl font-bold text-orange-700 dark:text-orange-300">{highCount}</p>
             </div>
-            <Button variant="outline" size="sm" className="w-full mt-4">System Logs</Button>
+          </CardContent>
+        </Card>
+        <Card className="bg-yellow-50 dark:bg-yellow-900/20">
+          <CardContent className="p-4 flex items-center space-x-4">
+            <div className="bg-yellow-100 dark:bg-yellow-800/30 p-3 rounded-full">
+              <Clock className="h-6 w-6 text-yellow-600 dark:text-yellow-400" />
+            </div>
+            <div>
+              <p className="text-sm text-yellow-600 dark:text-yellow-400">Medium Priority</p>
+              <p className="text-2xl font-bold text-yellow-700 dark:text-yellow-300">{mediumCount}</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="bg-green-50 dark:bg-green-900/20">
+          <CardContent className="p-4 flex items-center space-x-4">
+            <div className="bg-green-100 dark:bg-green-800/30 p-3 rounded-full">
+              <CheckCircle className="h-6 w-6 text-green-600 dark:text-green-400" />
+            </div>
+            <div>
+              <p className="text-sm text-green-600 dark:text-green-400">Resolved Issues</p>
+              <p className="text-2xl font-bold text-green-700 dark:text-green-300">{resolvedCount}</p>
+            </div>
           </CardContent>
         </Card>
       </div>
 
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-lg">Recent Support Tickets</CardTitle>
-          <div className="flex items-center gap-2">
-            <div className="relative w-64">
-              <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-500" />
-              <Input placeholder="Search tickets..." className="pl-8" />
+        <CardHeader className="pb-3">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-2 sm:space-y-0">
+            <CardTitle>System Logs & Issues</CardTitle>
+            <div className="flex items-center space-x-2">
+              <Button size="sm" variant="outline" className="h-8 gap-1" onClick={() => setLogs([...logs])}>
+                <RefreshCcw size={14} />
+                <span className="hidden sm:inline">Refresh</span>
+              </Button>
+              <Button size="sm" variant="destructive" className="h-8 gap-1" onClick={handleDeleteResolved}>
+                <Trash2 size={14} />
+                <span className="hidden sm:inline">Clear Resolved</span>
+              </Button>
             </div>
           </div>
-        </CardHeader>
-        <CardContent className="p-0">
-          <div className="rounded-md overflow-hidden">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>ID</TableHead>
-                  <TableHead>User</TableHead>
-                  <TableHead>Issue</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Priority</TableHead>
-                  <TableHead>Created</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {[
-                  { 
-                    id: 'TICKET-124', 
-                    user: 'Rahul Sharma', 
-                    issue: 'Cannot submit quiz answers',
-                    status: 'open',
-                    priority: 'high',
-                    created: new Date(2023, 5, 15, 14, 32) 
-                  },
-                  { 
-                    id: 'TICKET-123', 
-                    user: 'Priya Patel', 
-                    issue: 'Payment failed but account charged',
-                    status: 'in-progress',
-                    priority: 'critical',
-                    created: new Date(2023, 5, 15, 10, 24) 
-                  },
-                  { 
-                    id: 'TICKET-122', 
-                    user: 'Amit Kumar', 
-                    issue: 'Unable to view flashcards',
-                    status: 'resolved',
-                    priority: 'normal',
-                    created: new Date(2023, 5, 14, 16, 45) 
-                  },
-                  { 
-                    id: 'TICKET-121', 
-                    user: 'Sneha Gupta', 
-                    issue: 'Wrong score displayed for test',
-                    status: 'open',
-                    priority: 'high',
-                    created: new Date(2023, 5, 14, 9, 18) 
-                  },
-                ].map((ticket, i) => (
-                  <TableRow key={i}>
-                    <TableCell className="font-mono">{ticket.id}</TableCell>
-                    <TableCell>{ticket.user}</TableCell>
-                    <TableCell>{ticket.issue}</TableCell>
-                    <TableCell>
-                      {ticket.status === 'open' && (
-                        <Badge className="bg-amber-100 text-amber-800">Open</Badge>
-                      )}
-                      {ticket.status === 'in-progress' && (
-                        <Badge className="bg-blue-100 text-blue-800">In Progress</Badge>
-                      )}
-                      {ticket.status === 'resolved' && (
-                        <Badge className="bg-green-100 text-green-800">Resolved</Badge>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      {ticket.priority === 'critical' && (
-                        <Badge className="bg-red-100 text-red-800">Critical</Badge>
-                      )}
-                      {ticket.priority === 'high' && (
-                        <Badge className="bg-amber-100 text-amber-800">High</Badge>
-                      )}
-                      {ticket.priority === 'normal' && (
-                        <Badge className="bg-blue-100 text-blue-800">Normal</Badge>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      {ticket.created.toLocaleDateString()} {ticket.created.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <Button variant="ghost" size="sm" className="flex items-center gap-1 h-8">
-                          <MessageSquare size={14} />
-                          <span>Reply</span>
-                        </Button>
-                        {ticket.status !== 'resolved' && (
-                          <Button variant="ghost" size="sm" className="flex items-center gap-1 h-8 text-green-600">
-                            <CheckCircle2 size={14} />
-                            <span>Resolve</span>
-                          </Button>
-                        )}
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+          <div className="flex flex-col sm:flex-row gap-3 pt-3">
+            <div className="relative flex-1">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500 dark:text-gray-400" />
+              <Input
+                placeholder="Search issues..." 
+                className="pl-8"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+            <Select 
+              defaultValue="all"
+              onValueChange={setFilter}
+            >
+              <SelectTrigger className="w-full sm:w-[180px]">
+                <SelectValue placeholder="Filter by status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Issues</SelectItem>
+                <SelectItem value="unresolved">Unresolved</SelectItem>
+                <SelectItem value="resolved">Resolved</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">System Logs</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="overflow-x-auto rounded-md border">
+          <div className="rounded-md border overflow-hidden">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[180px]">Timestamp</TableHead>
-                  <TableHead className="w-[100px]">Level</TableHead>
-                  <TableHead>Message</TableHead>
-                  <TableHead>Source</TableHead>
+                  <TableHead className="w-[40px]">Type</TableHead>
+                  <TableHead className="w-[180px] sm:w-auto">Message</TableHead>
+                  <TableHead className="hidden sm:table-cell">Source</TableHead>
+                  <TableHead className="hidden md:table-cell">Time</TableHead>
+                  <TableHead className="w-[100px]">Status</TableHead>
+                  <TableHead className="w-[100px] text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {recentLogs.map((log, i) => (
-                  <TableRow key={i}>
-                    <TableCell className="font-mono text-xs">
-                      {new Date(log.timestamp).toLocaleString()}
+                {filteredLogs.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={6} className="text-center text-gray-500 py-8">
+                      No issues found
                     </TableCell>
-                    <TableCell>
-                      {log.level === 'error' && (
-                        <Badge className="bg-red-100 text-red-800">Error</Badge>
-                      )}
-                      {log.level === 'warning' && (
-                        <Badge className="bg-amber-100 text-amber-800">Warning</Badge>
-                      )}
-                      {log.level === 'info' && (
-                        <Badge className="bg-blue-100 text-blue-800">Info</Badge>
-                      )}
-                    </TableCell>
-                    <TableCell className="font-medium">{log.message}</TableCell>
-                    <TableCell>{log.source}</TableCell>
                   </TableRow>
-                ))}
+                ) : (
+                  filteredLogs.map((log) => (
+                    <TableRow key={log.id}>
+                      <TableCell className="align-top pt-4">
+                        {getTypeIcon(log.type)}
+                      </TableCell>
+                      <TableCell className="font-medium">
+                        {log.message}
+                        <div className="md:hidden text-xs text-gray-500 mt-1">
+                          {log.source} • {format(new Date(log.timestamp), "MMM d, h:mm a")}
+                        </div>
+                      </TableCell>
+                      <TableCell className="hidden sm:table-cell">{log.source}</TableCell>
+                      <TableCell className="hidden md:table-cell">
+                        {format(new Date(log.timestamp), "MMM d, h:mm a")}
+                      </TableCell>
+                      <TableCell>
+                        {getStatusBadge(log)}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        {!log.resolved && (
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            className="h-8 w-8 p-0"
+                            onClick={() => handleResolve(log.id)}
+                          >
+                            <Check className="h-4 w-4" />
+                            <span className="sr-only">Resolve</span>
+                          </Button>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
               </TableBody>
             </Table>
           </div>
-          <div className="flex justify-end mt-4">
-            <Button variant="outline">View All Logs</Button>
-          </div>
         </CardContent>
       </Card>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Security Alerts</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              <div className="flex items-start gap-3 bg-amber-50 dark:bg-amber-900/10 p-3 rounded-md">
-                <ShieldAlert className="h-5 w-5 text-amber-600 mt-0.5" />
-                <div>
-                  <h4 className="font-medium">Multiple Failed Login Attempts</h4>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">5 failed attempts from IP 103.54.244.12</p>
-                  <div className="flex items-center gap-2 mt-2">
-                    <span className="text-xs text-gray-500">Today, 10:24 AM</span>
-                    <Button variant="outline" size="sm" className="h-7 text-xs">Block IP</Button>
-                  </div>
-                </div>
-              </div>
-              <div className="flex items-start gap-3 bg-green-50 dark:bg-green-900/10 p-3 rounded-md">
-                <CheckCircle2 className="h-5 w-5 text-green-600 mt-0.5" />
-                <div>
-                  <h4 className="font-medium">Security Scan Complete</h4>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">No vulnerabilities detected in system</p>
-                  <div className="flex items-center gap-2 mt-2">
-                    <span className="text-xs text-gray-500">Yesterday, 11:30 PM</span>
-                    <Button variant="outline" size="sm" className="h-7 text-xs">View Report</Button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Admin Activity</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              <div className="flex items-start gap-3">
-                <UserCheck className="h-5 w-5 text-blue-600 mt-0.5" />
-                <div>
-                  <h4 className="font-medium">Vikram Singh</h4>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Updated AI model parameters for learning style detection</p>
-                  <span className="text-xs text-gray-500">Today, 2:14 PM</span>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <Clock className="h-5 w-5 text-blue-600 mt-0.5" />
-                <div>
-                  <h4 className="font-medium">Ananya Sharma</h4>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Approved 24 new concept cards for Physics</p>
-                  <span className="text-xs text-gray-500">Today, 11:32 AM</span>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <AlertOctagon className="h-5 w-5 text-blue-600 mt-0.5" />
-                <div>
-                  <h4 className="font-medium">Raj Patel</h4>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Resolved system issue with doubt responder API</p>
-                  <span className="text-xs text-gray-500">Yesterday, 5:47 PM</span>
-                </div>
-              </div>
-            </div>
-            <Button variant="outline" size="sm" className="w-full mt-4">View All Activity</Button>
-          </CardContent>
-        </Card>
-      </div>
     </div>
   );
 };
