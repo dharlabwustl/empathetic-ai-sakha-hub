@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { 
@@ -23,7 +24,7 @@ import {
 
 interface MoodLogButtonProps {
   onMoodSelect: (mood: MoodType | undefined) => void;
-  className?: string; // Add className prop
+  className?: string;
 }
 
 const MoodLogButton: React.FC<MoodLogButtonProps> = ({ onMoodSelect, className = '' }) => {
@@ -99,7 +100,7 @@ const MoodLogButton: React.FC<MoodLogButtonProps> = ({ onMoodSelect, className =
         <DropdownMenuItem onClick={() => handleMoodSelect('overwhelmed')}>
           <Tired className="mr-2 h-4 w-4" />
           Overwhelmed
-        DropdownMenuItem>
+        </DropdownMenuItem>
         <DropdownMenuItem onClick={() => handleMoodSelect('okay')}>
           <Check className="mr-2 h-4 w-4" />
           Okay
