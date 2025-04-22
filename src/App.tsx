@@ -1,4 +1,3 @@
-
 import * as React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -210,7 +209,7 @@ const App = () => {
                           examDate: "2025-05-01",
                           subjects: ["Physics", "Chemistry", "Mathematics"]
                         }
-                      } as UserProfileType} />
+                      }} />
                     </ProtectedRoute>
                   } />
                   

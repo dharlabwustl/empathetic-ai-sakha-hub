@@ -1,4 +1,3 @@
-
 export interface AdminUser {
   id: string;
   name: string;
@@ -55,4 +54,11 @@ export interface StudentData {
     totalTopics: number;
     lastActiveDate?: string;
   };
+}
+
+export interface KpiData {
+  value: number;
+  timestamp?: string;
+  confidence?: number;
+  source?: string;
 }

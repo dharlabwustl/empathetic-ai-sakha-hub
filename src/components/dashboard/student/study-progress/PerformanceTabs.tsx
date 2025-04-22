@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SubjectOverview } from './SubjectOverview';
 import { TopicsList } from './TopicsList';
 import { QuizzesList } from './QuizzesList';
-import { StudyTimeChart } from './StudyTimeChart';
+import StudyTimeChart from './StudyTimeChart';
 import { SubjectProgress, StudyStreak } from "@/types/user";
 
 interface PerformanceTabsProps {

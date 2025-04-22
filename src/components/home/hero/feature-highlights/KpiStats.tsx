@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Brain, Clock, TrendingUp, Smile, Users, Headphones } from 'lucide-react';
@@ -21,6 +20,13 @@ interface KpiItem {
   color: string;
   delay: number;
 }
+
+// Helper function to safely get number value
+const getNumberValue = (value: any): number => {
+  if (typeof value === 'number') return value;
+  if (value && typeof value === 'object' && 'value' in value) return Number(value.value);
+  return 0;
+};
 
 // Define minimum thresholds for data validity
 const MIN_SAMPLE_SIZE = 50; // Minimum number of users for reliable stats
@@ -57,43 +63,43 @@ const KpiStats = () => {
         
         if (dashboardStats) {
           // Check if we have enough data for reliable statistics
-          const hasSufficientUsers = dashboardStats.totalStudents >= MIN_SAMPLE_SIZE;
-          const hasSufficientSessions = dashboardStats.totalSessions >= MIN_SESSIONS_FOR_TIME_CALC;
+          const hasSufficientUsers = getNumberValue(dashboardStats.totalStudents) >= MIN_SAMPLE_SIZE;
+          const hasSufficientSessions = getNumberValue(dashboardStats.totalSessions) >= MIN_SESSIONS_FOR_TIME_CALC;
           
           // Calculate metrics with confidence indicators
           const newStats = {
             // Calculate stress reduction based on verified mood improvement data
             stressReduction: dashboardStats.verifiedMoodImprovement 
-              ? Math.min(Math.round(dashboardStats.verifiedMoodImprovement), 100)
-              : Math.min(Math.round((dashboardStats.averageMoodScore - 5) / 5 * 100), 100),
+              ? Math.min(Math.round(getNumberValue(dashboardStats.verifiedMoodImprovement)), 100)
+              : Math.min(Math.round((getNumberValue(dashboardStats.averageMoodScore) - 5) / 5 * 100), 100),
             
             // Calculate time optimization based on study plan efficiency metrics
             // If we have verified time savings data, use it; otherwise calculate from efficiency improvement
             timeOptimization: dashboardStats.averageTimeSavedPerWeek 
-              ? Math.round(dashboardStats.averageTimeSavedPerWeek) 
+              ? Math.round(getNumberValue(dashboardStats.averageTimeSavedPerWeek)) 
               : dashboardStats.studyPlanEfficiencyImprovement
-                ? Math.round(dashboardStats.studyPlanEfficiencyImprovement / 10)
+                ? Math.round(getNumberValue(dashboardStats.studyPlanEfficiencyImprovement) / 10)
                 : 5,
             
             // Calculate habit formation using verified consistency data across 2+ weeks
             habitFormation: dashboardStats.studentsWithVerifiedConsistentHabits && hasSufficientUsers
-              ? Math.round((dashboardStats.studentsWithVerifiedConsistentHabits / dashboardStats.totalStudents) * 100)
-              : Math.round((dashboardStats.studentsWithConsistentHabits / dashboardStats.totalStudents) * 100),
+              ? Math.round((getNumberValue(dashboardStats.studentsWithVerifiedConsistentHabits) / getNumberValue(dashboardStats.totalStudents)) * 100)
+              : Math.round((getNumberValue(dashboardStats.studentsWithConsistentHabits) / getNumberValue(dashboardStats.totalStudents)) * 100),
             
             // Calculate exam confidence from pre/post survey data
             examConfidence: dashboardStats.verifiedExamConfidenceImprovement
-              ? Math.round(dashboardStats.verifiedExamConfidenceImprovement) 
-              : Math.round((dashboardStats.averageConfidenceScore / 10) * 100),
+              ? Math.round(getNumberValue(dashboardStats.verifiedExamConfidenceImprovement)) 
+              : Math.round((getNumberValue(dashboardStats.averageConfidenceScore) / 10) * 100),
             
             // Calculate user retention with verified retention data
             userRetention: dashboardStats.verifiedRetentionRate
-              ? dashboardStats.verifiedRetentionRate
-              : Math.round((dashboardStats.activeStudents / dashboardStats.totalStudents) * 100),
+              ? getNumberValue(dashboardStats.verifiedRetentionRate)
+              : Math.round((getNumberValue(dashboardStats.activeStudents) / getNumberValue(dashboardStats.totalStudents)) * 100),
             
             // Calculate mood feature usage with verified engagement data
             moodBasedUsage: dashboardStats.verifiedMoodFeatureUsage
-              ? dashboardStats.verifiedMoodFeatureUsage
-              : Math.round((dashboardStats.moodBasedSessionsCount / dashboardStats.totalSessions) * 100)
+              ? getNumberValue(dashboardStats.verifiedMoodFeatureUsage)
+              : Math.round((getNumberValue(dashboardStats.moodBasedSessionsCount) / getNumberValue(dashboardStats.totalSessions)) * 100)
           };
           
           setStats(newStats);

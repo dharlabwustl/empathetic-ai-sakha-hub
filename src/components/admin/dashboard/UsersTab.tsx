@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -36,6 +37,13 @@ const UsersTab = ({ stats, recentStudents }: UsersTabProps) => {
   const closeProfileModal = () => {
     setShowProfileModal(false);
     setSelectedStudent(null);
+  };
+
+  // Helper function to safely get number value
+  const getNumberValue = (value: any): number => {
+    if (typeof value === 'number') return value;
+    if (value && typeof value === 'object' && 'value' in value) return Number(value.value);
+    return 0;
   };
 
   return (
@@ -127,19 +135,19 @@ const UsersTab = ({ stats, recentStudents }: UsersTabProps) => {
                 </div>
                 <div className="grid grid-cols-4 gap-1 mt-2">
                   <div className="text-center p-2">
-                    <div className="font-bold">{stats?.totalStudents || 0}</div>
+                    <div className="font-bold">{getNumberValue(stats?.totalStudents) || 0}</div>
                     <div className="text-xs text-gray-600">Total</div>
                   </div>
                   <div className="text-center p-2">
-                    <div className="font-bold">{stats?.activeStudents || 0}</div>
+                    <div className="font-bold">{getNumberValue(stats?.activeStudents) || 0}</div>
                     <div className="text-xs text-gray-600">Active</div>
                   </div>
                   <div className="text-center p-2">
-                    <div className="font-bold">{Math.floor((stats?.activeStudents || 0) * 0.8)}</div>
+                    <div className="font-bold">{Math.floor(getNumberValue(stats?.activeStudents) * 0.8)}</div>
                     <div className="text-xs text-gray-600">Engaged</div>
                   </div>
                   <div className="text-center p-2">
-                    <div className="font-bold">{Math.floor((stats?.activeStudents || 0) * 0.2)}</div>
+                    <div className="font-bold">{Math.floor(getNumberValue(stats?.activeStudents) * 0.2)}</div>
                     <div className="text-xs text-gray-600">At Risk</div>
                   </div>
                 </div>

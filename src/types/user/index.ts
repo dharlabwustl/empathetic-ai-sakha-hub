@@ -1,8 +1,19 @@
 
-// Re-export everything from the individual files
 export * from './base';
-export * from './exam';
-export * from './student';
-export * from './professional';
-export * from './onboarding';
-export * from './institutional';
+
+export interface SubjectProgress {
+  id: string;
+  name: string;
+  progress: number;
+  lastWeekProgress?: number;
+  weakTopics?: string[];
+  strongTopics?: string[];
+}
+
+export interface StudyStreak {
+  current: number;
+  best: number;
+  lastStudyDate: string;
+  thisWeek: number;
+  thisMonth: number;
+}
