@@ -22,12 +22,14 @@ interface BatchManagementSectionProps {
   isLeader: boolean;
   batchName: string;
   batchCode: string;
+  onJoinBatch?: (code: string) => Promise<boolean>;
 }
 
 const BatchManagementSection: React.FC<BatchManagementSectionProps> = ({ 
   isLeader,
   batchName,
-  batchCode
+  batchCode,
+  onJoinBatch
 }) => {
   const { toast } = useToast();
   const [batchCodeInput, setBatchCodeInput] = useState('');
@@ -47,7 +49,7 @@ const BatchManagementSection: React.FC<BatchManagementSectionProps> = ({
     { id: 'mem-3', name: 'Rohit Kumar', email: 'rohit@example.com', joinDate: '2025-03-25', isOnline: true }
   ]);
 
-  const handleJoinBatch = () => {
+  const handleJoinBatch = async () => {
     if (!batchCodeInput) {
       setErrorMessage('Please enter a batch code');
       return;
@@ -55,23 +57,39 @@ const BatchManagementSection: React.FC<BatchManagementSectionProps> = ({
 
     setJoinStatus('loading');
     
-    // Simulate API call
-    setTimeout(() => {
-      // Check if code is valid (this would be a server check in a real app)
-      if (batchCodeInput === 'BATCH123' || batchCodeInput === 'TEST456') {
-        setJoinStatus('success');
-        setBatchName('Test Batch');
-        setBatchCode(batchCodeInput);
-        toast({
-          title: "Successfully joined batch",
-          description: "You've been added to the study group"
-        });
-        setShowJoinDialog(false);
+    try {
+      if (onJoinBatch) {
+        const success = await onJoinBatch(batchCodeInput);
+        if (success) {
+          setJoinStatus('success');
+          setShowJoinDialog(false);
+        } else {
+          setJoinStatus('error');
+          setErrorMessage('Invalid batch code. Please check and try again.');
+        }
       } else {
-        setJoinStatus('error');
-        setErrorMessage('Invalid batch code. Please check and try again.');
+        // Fallback if no onJoinBatch provided (for backwards compatibility)
+        // Simulate API call
+        setTimeout(() => {
+          // Check if code is valid (this would be a server check in a real app)
+          if (batchCodeInput === 'BATCH123' || batchCodeInput === 'TEST456') {
+            setJoinStatus('success');
+            toast({
+              title: "Successfully joined batch",
+              description: "You've been added to the study group"
+            });
+            setShowJoinDialog(false);
+          } else {
+            setJoinStatus('error');
+            setErrorMessage('Invalid batch code. Please check and try again.');
+          }
+        }, 1500);
       }
-    }, 1500);
+    } catch (error) {
+      setJoinStatus('error');
+      setErrorMessage('An error occurred. Please try again.');
+      console.error("Error joining batch:", error);
+    }
   };
 
   const handleLeaveBatch = () => {
@@ -81,8 +99,6 @@ const BatchManagementSection: React.FC<BatchManagementSectionProps> = ({
       description: "You've successfully left the batch",
       variant: "destructive"
     });
-    setBatchName('');
-    setBatchCode('');
   };
 
   const handleInviteMember = () => {
@@ -122,11 +138,7 @@ const BatchManagementSection: React.FC<BatchManagementSectionProps> = ({
     });
   };
 
-  // State to manage batch info (if coming from a real API)
-  const [batchNameState, setBatchName] = useState(batchName);
-  const [batchCodeState, setBatchCode] = useState(batchCode);
-
-  const isInBatch = batchNameState !== '';
+  const isInBatch = batchName !== '';
 
   return (
     <div className="space-y-6">
@@ -143,7 +155,7 @@ const BatchManagementSection: React.FC<BatchManagementSectionProps> = ({
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h4 className="text-xl font-semibold flex items-center">
-                  {batchNameState}
+                  {batchName}
                   {isLeader && (
                     <Badge className="ml-2 bg-amber-100 text-amber-800 border-amber-200">
                       <Crown className="h-3 w-3 mr-1" /> Batch Leader
@@ -151,7 +163,7 @@ const BatchManagementSection: React.FC<BatchManagementSectionProps> = ({
                   )}
                 </h4>
                 <p className="text-sm text-muted-foreground">
-                  Batch Code: <span className="font-mono">{batchCodeState}</span>
+                  Batch Code: <span className="font-mono">{batchCode}</span>
                 </p>
               </div>
               {!isLeader && (

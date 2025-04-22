@@ -1,24 +1,30 @@
 
-import React from "react";
+import React from 'react';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent } from "@/components/ui/card";
-import { ArrowRight, Check, CalendarDays, Book, MessageSquare } from "lucide-react";
+import { Check, Lightbulb, CalendarRange } from "lucide-react";
 
 interface WelcomeTourProps {
   onSkipTour: () => void;
   onCompleteTour: () => void;
   isFirstTimeUser: boolean;
-  lastActivity?: { type: string; description: string } | null;
+  lastActivity?: { type: string, description: string } | null;
   suggestedNextAction?: string | null;
   loginCount?: number;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-const WelcomeTour: React.FC<WelcomeTourProps> = ({ 
-  onSkipTour, 
+const WelcomeTour: React.FC<WelcomeTourProps> = ({
+  onSkipTour,
   onCompleteTour,
   isFirstTimeUser,
   lastActivity,
@@ -31,30 +37,24 @@ const WelcomeTour: React.FC<WelcomeTourProps> = ({
   
   const steps = [
     {
-      title: "Welcome to Sakha AI!",
-      description: "Your personalized learning assistant is here to help you succeed in your exams.",
-      image: "/assets/welcome-tour/welcome.svg"
+      title: "Welcome to Sakha AI",
+      description: "Your personalized learning assistant that adapts to your needs and goals."
     },
     {
-      title: "Personalized Learning",
-      description: "We've created a customized study plan based on your goals and learning style.",
-      image: "/assets/welcome-tour/personalized.svg"
+      title: "Your Dashboard",
+      description: "This is your personalized dashboard that shows your progress and study plans."
     },
     {
-      title: "24/7 AI Tutor",
-      description: "Get help anytime with our AI tutor. Ask questions, solve problems, and clarify concepts.",
-      image: "/assets/welcome-tour/tutor.svg"
+      title: "AI Tutor",
+      description: "Get 24/7 help from your AI tutor. Ask questions about any topic or concept you're struggling with."
     },
     {
-      title: "Track Your Progress",
-      description: "Monitor your improvement, identify weak areas, and celebrate your achievements.",
-      image: "/assets/welcome-tour/progress.svg"
+      title: "Mood Tracking",
+      description: "Log your mood to get personalized recommendations based on how you're feeling."
     },
     {
-      title: "Ready to Start Learning?",
-      description: "Let's take an overview of your study plan based on your exam preparation needs.",
-      image: "/assets/welcome-tour/start.svg",
-      isLast: true
+      title: "Ready to Start",
+      description: "Let's take an overview of your study plan based on your exam preparation."
     }
   ];
   
@@ -71,85 +71,122 @@ const WelcomeTour: React.FC<WelcomeTourProps> = ({
       setCurrentStep(currentStep - 1);
     }
   };
-  
-  const currentStepData = steps[currentStep];
-  
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[550px] p-0 overflow-hidden">
-        <div className="bg-gradient-to-r from-indigo-500 to-purple-600 p-6 text-white">
-          <DialogTitle className="text-xl">{currentStepData.title}</DialogTitle>
-          <DialogDescription className="text-indigo-100 mt-2">
-            {currentStepData.description}
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>{steps[currentStep].title}</DialogTitle>
+          <DialogDescription>
+            {steps[currentStep].description}
           </DialogDescription>
-        </div>
+        </DialogHeader>
         
-        <div className="p-6 flex flex-col items-center">
-          <img 
-            src={currentStepData.image || "/assets/welcome-tour/placeholder.svg"} 
-            alt={currentStepData.title}
-            className="h-40 mb-4 object-contain"
-          />
-          
-          {currentStepData.isLast && (
-            <Card className="w-full mb-4 bg-gradient-to-r from-green-50 to-emerald-50 border-emerald-100">
-              <CardContent className="p-4 flex items-center gap-3">
-                <CalendarDays className="h-10 w-10 text-emerald-600" />
-                <div>
-                  <h3 className="font-medium">Today's Study Plan</h3>
-                  <p className="text-sm text-muted-foreground">Review your personalized study schedule for maximum productivity</p>
-                </div>
-              </CardContent>
-            </Card>
+        <div className="grid gap-4 py-4">
+          {currentStep === 0 && (
+            <div className="flex items-center justify-center">
+              <div className="bg-gradient-to-br from-violet-100 to-blue-100 dark:from-violet-900/20 dark:to-blue-900/20 p-6 rounded-full">
+                <Lightbulb className="h-12 w-12 text-violet-500" />
+              </div>
+            </div>
           )}
           
-          <div className="flex w-full gap-2 justify-center mt-2 mb-4">
-            {steps.map((_, index) => (
-              <div 
-                key={index} 
-                className={`h-2 rounded-full ${index === currentStep ? 'w-8 bg-indigo-600' : 'w-2 bg-gray-200'}`} 
-              />
-            ))}
-          </div>
+          {currentStep === 1 && (
+            <div className="grid gap-3">
+              <p className="text-sm">Your dashboard provides:</p>
+              <ul className="space-y-2 text-sm">
+                <li className="flex items-start">
+                  <Check className="h-4 w-4 mr-2 text-green-500 mt-0.5" />
+                  <span>Overview of your progress</span>
+                </li>
+                <li className="flex items-start">
+                  <Check className="h-4 w-4 mr-2 text-green-500 mt-0.5" />
+                  <span>Daily study plan based on your goals</span>
+                </li>
+                <li className="flex items-start">
+                  <Check className="h-4 w-4 mr-2 text-green-500 mt-0.5" />
+                  <span>Quick access to subjects and concepts</span>
+                </li>
+                <li className="flex items-start">
+                  <Check className="h-4 w-4 mr-2 text-green-500 mt-0.5" />
+                  <span>Personalized learning recommendations</span>
+                </li>
+              </ul>
+            </div>
+          )}
+          
+          {currentStep === 4 && (
+            <div className="grid gap-4">
+              <div className="flex items-center justify-center">
+                <div className="bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/20 dark:to-indigo-900/20 p-6 rounded-full">
+                  <CalendarRange className="h-12 w-12 text-blue-500" />
+                </div>
+              </div>
+              
+              <p className="text-sm">
+                We've prepared a personalized study plan to help you excel in your exam preparation.
+                Your study plan includes:
+              </p>
+              
+              <ul className="space-y-2 text-sm">
+                <li className="flex items-start">
+                  <Check className="h-4 w-4 mr-2 text-green-500 mt-0.5" />
+                  <span>Daily study goals and targets</span>
+                </li>
+                <li className="flex items-start">
+                  <Check className="h-4 w-4 mr-2 text-green-500 mt-0.5" />
+                  <span>Important concepts and topics to cover</span>
+                </li>
+                <li className="flex items-start">
+                  <Check className="h-4 w-4 mr-2 text-green-500 mt-0.5" />
+                  <span>Practice tests and quizzes</span>
+                </li>
+                <li className="flex items-start">
+                  <Check className="h-4 w-4 mr-2 text-green-500 mt-0.5" />
+                  <span>Revision schedule as you approach your exam</span>
+                </li>
+              </ul>
+            </div>
+          )}
         </div>
         
-        <DialogFooter className="border-t p-4">
-          <div className="flex justify-between w-full">
-            <Button
-              variant="ghost"
-              onClick={onSkipTour}
-            >
+        <div className="flex items-center justify-center py-2">
+          <Tabs defaultValue={`step-${currentStep}`} className="w-full">
+            <TabsList className="grid grid-cols-5 h-1 p-0 bg-gray-200">
+              {steps.map((_, index) => (
+                <TabsTrigger
+                  key={`step-${index}`}
+                  value={`step-${index}`}
+                  className={`h-1 p-0 data-[state=active]:bg-primary data-[state=active]:shadow-none data-[state=active]:h-1 rounded-none`}
+                  disabled
+                />
+              ))}
+            </TabsList>
+          </Tabs>
+        </div>
+
+        <DialogFooter className="flex flex-col sm:flex-row sm:justify-between gap-2">
+          <div className="flex gap-2 order-2 sm:order-1">
+            <Button variant="outline" onClick={onSkipTour}>
               Skip Tour
             </Button>
-            
-            <div className="flex gap-2">
-              {currentStep > 0 && (
-                <Button
-                  variant="outline"
-                  onClick={handleBack}
-                >
-                  Back
-                </Button>
-              )}
-              
-              <Button 
-                onClick={handleNext}
-                className={currentStepData.isLast ? "bg-emerald-600 hover:bg-emerald-700" : ""}
-              >
-                {currentStepData.isLast ? (
-                  <>
-                    <span>View Study Plan</span>
-                    <CalendarDays className="ml-2 h-4 w-4" />
-                  </>
-                ) : (
-                  <>
-                    <span>Next</span>
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </>
-                )}
+            {currentStep > 0 && (
+              <Button variant="outline" onClick={handleBack}>
+                Back
               </Button>
-            </div>
+            )}
           </div>
+          
+          <Button 
+            onClick={handleNext} 
+            className="order-1 sm:order-2"
+          >
+            {currentStep === steps.length - 1 ? (
+              "View Study Plan"
+            ) : (
+              "Next"
+            )}
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

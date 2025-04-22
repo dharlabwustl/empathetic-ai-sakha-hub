@@ -1,114 +1,82 @@
 
-export enum UserRole {
-  Student = "student",
-  Doctor = "doctor",
-  Employee = "employee",
-  Founder = "founder",
-  Admin = "admin"
-}
+export type UserRole = 'student' | 'tutor' | 'admin' | 'parent';
 
-export enum SubscriptionType {
-  Basic = "basic",
-  Free = "free", // Added Free option since it's used in the code
-  Premium = "premium",
-  Elite = "elite",
-  Enterprise = "enterprise"
-}
+export type MoodType = 'happy' | 'sad' | 'neutral' | 'motivated' | 'tired' | 'stressed' | 'focused' | 'curious' | 'overwhelmed' | 'okay';
 
-export type MoodType = "happy" | "sad" | "neutral" | "motivated" | "tired" | "stressed" | "focused" | "curious" | "overwhelmed" | "okay";
+export type PersonalityType = string;
 
-export type GoalStatus = "not_started" | "in_progress" | "completed";
+export type SubscriptionType = 
+  | 'free'
+  | 'basic'
+  | 'premium'
+  | 'pro'
+  | 'elite'
+  | 'group';
 
-export interface Goal {
+export interface UserGoal {
   id: string;
   title: string;
-  description?: string;
-  progress: number;
-  status: GoalStatus;
+  description: string;
+  targetDate: string;
+  completedDate?: string;
   examDate?: string;
-  targetDate?: Date;
-  dueDate?: string; // Added dueDate since it's used in founderProfile
-}
-
-export interface UserSubscription {
-  id: string;
-  plan: string;
-  planType?: SubscriptionType;
-  expiresAt: string;
-  status: "active" | "expired" | "cancelled" | "pending";
+  progress: number;
+  status: 'active' | 'completed' | 'abandoned';
 }
 
 export interface Subject {
   id: string;
   name: string;
   progress: number;
+  lastWeekProgress?: number;
+  weakTopics?: string[];
+  strongTopics?: string[];
 }
 
 export interface StudyStreak {
-  currentStreak: number;
-  longestStreak: number;
-  startDate: string;
-  endDate: string;
-  totalDaysStudied: number;
-  weeklyConsistency: number;
-  monthlyConsistency: number;
-  lastMonth?: string[];
+  current: number;
+  best: number;
+  lastStudyDate: string;
+  thisWeek: number;
+  thisMonth: number;
 }
 
-export interface AreaOfInterest {
+export interface UserSubscription {
   id: string;
-  name: string;
-  level: "Beginner" | "Intermediate" | "Advanced";
+  plan: SubscriptionType;
+  status: 'active' | 'inactive' | 'pending' | 'expired';
+  expiresAt: string;
 }
-
-export type PersonalityType = {
-  type: string;
-  traits: string[];
-  learningStyle: string;
-};
 
 export interface UserProfileType {
   id: string;
   name: string;
   email: string;
-  phoneNumber?: string;
   role: UserRole;
   avatar?: string;
+  goals?: UserGoal[];
+  examDate?: string;
+  subscription?: UserSubscription | SubscriptionType;
   createdAt?: string;
-  lastLogin?: string;
-  onboarded?: boolean;
+  updatedAt?: string;
   loginCount?: number;
-  completedOnboarding?: boolean;
-  personalityType?: PersonalityType;
-  specialization?: string; // For doctor profile
-  examPreparation?: string; // Added for AIChatTutor
-  studyStreak?: StudyStreak; // Added for DashboardHeader
-  
-  // Subscription details
-  subscription?: UserSubscription;
-
-  // Academic details (mainly for students)
-  subjects?: Subject[]; // Added for StudyProgress
+  lastLogin?: string;
+  studyStreak?: StudyStreak;
+  subjects?: Subject[];
   batchName?: string;
   batchCode?: string;
   isGroupLeader?: boolean;
-  peerRanking?: number;
-  examDate?: string;
-  school?: string;
-  grade?: string;
-  board?: string;
-  city?: string;
-  state?: string;
-  goals?: Goal[];
+  examPreparation?: {
+    target: string;
+    examDate: string;
+    subjects: string[];
+  };
 }
 
-export interface AuthUser {
+export type AuthUser = {
   id: string;
   email: string;
-  name: string;
   role: UserRole;
-  avatar?: string;
-  emailVerified?: boolean;
-  profile?: UserProfileType;
-  subscription?: UserSubscription; // Added for FounderDashboard
-}
+  name?: string;
+  subscription?: UserSubscription | SubscriptionType;
+};

@@ -1,115 +1,106 @@
-import { useState, useEffect } from "react";
-import { useToast } from "@/hooks/use-toast";
+
+import React, { useState } from "react";
 import AdminLayout from "@/components/admin/AdminLayout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { useAdminAuth } from "@/contexts/AdminAuthContext";
+import { AdminSettings } from "@/types/admin";
+import { Card } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { adminService } from "@/services/adminService";
-import { AdminSettings } from "@/types/admin";
-import { Download } from "lucide-react";
-import { downloadDatabaseSchemaCSV } from "@/utils/database-schema-export";
+import { Separator } from "@/components/ui/separator";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
+import { AlertCircle, Save, Check, CreditCard } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+
+const initialSettings: AdminSettings = {
+  siteName: "Sakha AI Learning Platform",
+  siteDescription: "AI-powered personalized learning platform for students",
+  contactEmail: "admin@sakha-ai.com",
+  enableRegistration: true,
+  enableGuestCheckout: false,
+  maintenanceMode: false,
+  theme: "light",
+  features: {
+    tutorChat: true,
+    feelGood: true,
+    moodTracking: true,
+    surroundingInfluences: true
+  },
+  flaskApiUrl: "https://api.sakha-ai.com",
+  apiKey: "sk_test_sample_key_123456",
+  aiModels: ["gpt-3.5-turbo", "gpt-4"],
+  notificationSettings: {
+    newUserSignup: true,
+    paymentReceived: true,
+    systemAlerts: true
+  },
+  contentApprovalRequired: false
+};
 
 const SettingsPage = () => {
-  const { toast } = useToast();
-  const [loading, setLoading] = useState(true);
-  const [settings, setSettings] = useState<AdminSettings | null>(null);
+  const { adminUser } = useAdminAuth();
+  const [settings, setSettings] = useState<AdminSettings>(initialSettings);
+  const [activeTab, setActiveTab] = useState("general");
   const [isSaving, setIsSaving] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [paymentProviders, setPaymentProviders] = useState([
+    { id: "stripe", name: "Stripe", configured: false, testMode: true },
+    { id: "razorpay", name: "Razorpay", configured: false, testMode: true },
+    { id: "paypal", name: "PayPal", configured: false, testMode: true }
+  ]);
+  const { toast } = useToast();
 
-  useEffect(() => {
-    fetchSettings();
-  }, []);
-
-  const fetchSettings = async () => {
-    setLoading(true);
-    try {
-      const data = await adminService.getSettings();
-      setSettings(data);
-    } catch (error) {
-      console.error("Error fetching settings:", error);
-      toast({
-        title: "Error",
-        description: "Failed to load settings. Please try again.",
-        variant: "destructive"
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleSaveSettings = async () => {
-    if (!settings) return;
-    
+  const handleSaveSettings = () => {
     setIsSaving(true);
-    try {
-      await adminService.updateSettings(settings);
-      toast({
-        title: "Settings Saved",
-        description: "Your settings have been updated successfully."
-      });
-    } catch (error) {
-      console.error("Error saving settings:", error);
-      toast({
-        title: "Error",
-        description: "Failed to save settings. Please try again.",
-        variant: "destructive"
-      });
-    } finally {
+    
+    // Simulate API call
+    setTimeout(() => {
       setIsSaving(false);
-    }
+      setShowSuccess(true);
+      
+      toast({
+        title: "Settings saved",
+        description: "Your settings have been saved successfully.",
+      });
+      
+      setTimeout(() => {
+        setShowSuccess(false);
+      }, 3000);
+    }, 1000);
   };
 
-  const handleInputChange = (field: string, value: any) => {
-    if (!settings) return;
+  const handleConfigurePayment = (providerId: string) => {
+    // Find provider and toggle configured state
+    setPaymentProviders(providers => providers.map(p => 
+      p.id === providerId ? { ...p, configured: !p.configured } : p
+    ));
     
-    setSettings({
-      ...settings,
-      [field]: value
+    toast({
+      title: "Payment Provider Updated",
+      description: `Configuration ${providerId === 'stripe' ? 'saved' : 'updated'} successfully.`,
     });
   };
 
-  const handleModelChange = (index: number, field: string, value: any) => {
-    if (!settings) return;
-    
-    const updatedModels = [...settings.aiModels];
-    updatedModels[index] = {
-      ...updatedModels[index],
-      [field]: value
-    };
-    
-    setSettings({
-      ...settings,
-      aiModels: updatedModels
-    });
-  };
-  
-  const handleDownloadSchema = () => {
-    try {
-      downloadDatabaseSchemaCSV();
-      toast({
-        title: "Success",
-        description: "Database schema file is being downloaded."
-      });
-    } catch (error) {
-      console.error("Error downloading schema:", error);
-      toast({
-        title: "Error",
-        description: "Failed to download database schema.",
-        variant: "destructive"
-      });
-    }
+  const handleTestModeToggle = (providerId: string) => {
+    setPaymentProviders(providers => providers.map(p => 
+      p.id === providerId ? { ...p, testMode: !p.testMode } : p
+    ));
   };
 
-  if (loading) {
+  if (!adminUser) {
     return (
       <AdminLayout>
-        <div className="flex items-center justify-center h-[80vh]">
-          <div className="text-center">
-            <div className="w-12 h-12 border-4 border-t-indigo-500 border-indigo-200 rounded-full animate-spin mx-auto mb-4"></div>
-            <h2 className="text-xl font-medium">Loading settings...</h2>
-          </div>
+        <div className="flex items-center justify-center h-96">
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Authentication Error</AlertTitle>
+            <AlertDescription>
+              You must be logged in as an administrator to view this page.
+            </AlertDescription>
+          </Alert>
         </div>
       </AdminLayout>
     );
@@ -117,394 +108,434 @@ const SettingsPage = () => {
 
   return (
     <AdminLayout>
-      <div className="mb-6 flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold">System Settings</h1>
-          <p className="text-gray-500">Configure your Sakha AI admin portal settings</p>
+      <div className="container py-8">
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-3xl font-bold">Platform Settings</h1>
+          <Button 
+            onClick={handleSaveSettings} 
+            disabled={isSaving}
+            className={showSuccess ? "bg-green-600" : ""}
+          >
+            {isSaving ? (
+              "Saving..."
+            ) : showSuccess ? (
+              <>
+                <Check className="mr-2 h-4 w-4" /> Saved
+              </>
+            ) : (
+              <>
+                <Save className="mr-2 h-4 w-4" /> Save Changes
+              </>
+            )}
+          </Button>
         </div>
-        <Button 
-          variant="outline" 
-          onClick={handleDownloadSchema} 
-          className="flex items-center gap-2"
-        >
-          <Download className="h-4 w-4" />
-          <span>Download DB Schema</span>
-        </Button>
-      </div>
-      
-      <Tabs defaultValue="api" className="space-y-6">
-        <TabsList className="grid grid-cols-1 md:grid-cols-5 gap-2">
-          <TabsTrigger value="api">API Configuration</TabsTrigger>
-          <TabsTrigger value="notifications">Notification Settings</TabsTrigger>
-          <TabsTrigger value="content">Content Controls</TabsTrigger>
-          <TabsTrigger value="database">Database Settings</TabsTrigger>
-          <TabsTrigger value="schema">Database Schema</TabsTrigger>
-        </TabsList>
-        
-        {settings && (
-          <>
-            <TabsContent value="api">
-              <Card>
-                <CardHeader>
-                  <CardTitle>API Configuration</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-1 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="apiUrl">Flask API URL</Label>
-                        <Input
-                          id="apiUrl"
-                          value={settings.flaskApiUrl}
-                          onChange={(e) => handleInputChange('flaskApiUrl', e.target.value)}
-                          placeholder="https://api.example.com"
-                        />
-                        <p className="text-xs text-gray-500">The base URL for the Flask API endpoint</p>
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <Label htmlFor="apiKey">API Key</Label>
-                        <Input
-                          id="apiKey"
-                          value={settings.apiKey}
-                          onChange={(e) => handleInputChange('apiKey', e.target.value)}
-                          type="password"
-                        />
-                        <p className="text-xs text-gray-500">Used for authenticating API requests</p>
-                      </div>
-                    </div>
+
+        <Card>
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
+            <TabsList className="w-full border-b rounded-none grid grid-cols-5">
+              <TabsTrigger value="general">General</TabsTrigger>
+              <TabsTrigger value="features">Features</TabsTrigger>
+              <TabsTrigger value="api">API Settings</TabsTrigger>
+              <TabsTrigger value="payments">Payment Gateways</TabsTrigger>
+              <TabsTrigger value="notifications">Notifications</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="general" className="p-6">
+              <div className="space-y-6">
+                <div className="grid gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="siteName">Site Name</Label>
+                    <Input 
+                      id="siteName" 
+                      value={settings.siteName}
+                      onChange={(e) => setSettings({...settings, siteName: e.target.value})}
+                    />
                   </div>
                   
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-medium">AI Model Configurations</h3>
-                    {settings.aiModels.map((model, index) => (
-                      <Card key={index}>
-                        <CardContent className="pt-6">
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="space-y-2">
-                              <Label htmlFor={`model-${index}-name`}>Model Name</Label>
-                              <Input
-                                id={`model-${index}-name`}
-                                value={model.modelName}
-                                onChange={(e) => handleModelChange(index, 'modelName', e.target.value)}
-                              />
+                  <div className="space-y-2">
+                    <Label htmlFor="siteDescription">Site Description</Label>
+                    <Input 
+                      id="siteDescription" 
+                      value={settings.siteDescription}
+                      onChange={(e) => setSettings({...settings, siteDescription: e.target.value})}
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="contactEmail">Contact Email</Label>
+                    <Input 
+                      id="contactEmail" 
+                      type="email"
+                      value={settings.contactEmail}
+                      onChange={(e) => setSettings({...settings, contactEmail: e.target.value})}
+                    />
+                  </div>
+                </div>
+                
+                <Separator />
+                
+                <div className="space-y-4">
+                  <h3 className="text-lg font-medium">System Settings</h3>
+                  
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="enableRegistration">Enable User Registration</Label>
+                      <p className="text-sm text-muted-foreground">Allow new users to register for accounts</p>
+                    </div>
+                    <Switch 
+                      id="enableRegistration"
+                      checked={settings.enableRegistration}
+                      onCheckedChange={(checked) => setSettings({...settings, enableRegistration: checked})}
+                    />
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="enableGuestCheckout">Enable Guest Checkout</Label>
+                      <p className="text-sm text-muted-foreground">Allow users to checkout without an account</p>
+                    </div>
+                    <Switch 
+                      id="enableGuestCheckout"
+                      checked={settings.enableGuestCheckout}
+                      onCheckedChange={(checked) => setSettings({...settings, enableGuestCheckout: checked})}
+                    />
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="maintenanceMode">Maintenance Mode</Label>
+                      <p className="text-sm text-muted-foreground">Take the site offline for maintenance</p>
+                    </div>
+                    <Switch 
+                      id="maintenanceMode"
+                      checked={settings.maintenanceMode}
+                      onCheckedChange={(checked) => setSettings({...settings, maintenanceMode: checked})}
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="theme">Site Theme</Label>
+                    <Select 
+                      value={settings.theme} 
+                      onValueChange={(value) => setSettings({...settings, theme: value as "light" | "dark" | "system"})}
+                    >
+                      <SelectTrigger id="theme">
+                        <SelectValue placeholder="Select theme" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="light">Light</SelectItem>
+                        <SelectItem value="dark">Dark</SelectItem>
+                        <SelectItem value="system">System</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="features" className="p-6">
+              <div className="space-y-6">
+                <h3 className="text-lg font-medium">Feature Controls</h3>
+                
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="featureTutorChat">AI Tutor Chat</Label>
+                      <p className="text-sm text-muted-foreground">Enable 24/7 AI tutoring feature</p>
+                    </div>
+                    <Switch 
+                      id="featureTutorChat"
+                      checked={settings.features.tutorChat}
+                      onCheckedChange={(checked) => 
+                        setSettings({
+                          ...settings, 
+                          features: {...settings.features, tutorChat: checked}
+                        })
+                      }
+                    />
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="featureFeelGood">Feel Good Corner</Label>
+                      <p className="text-sm text-muted-foreground">Enable feel good corner for mental wellbeing</p>
+                    </div>
+                    <Switch 
+                      id="featureFeelGood"
+                      checked={settings.features.feelGood}
+                      onCheckedChange={(checked) => 
+                        setSettings({
+                          ...settings, 
+                          features: {...settings.features, feelGood: checked}
+                        })
+                      }
+                    />
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="featureMoodTracking">Mood Tracking</Label>
+                      <p className="text-sm text-muted-foreground">Enable mood tracking and analysis</p>
+                    </div>
+                    <Switch 
+                      id="featureMoodTracking"
+                      checked={settings.features.moodTracking}
+                      onCheckedChange={(checked) => 
+                        setSettings({
+                          ...settings, 
+                          features: {...settings.features, moodTracking: checked}
+                        })
+                      }
+                    />
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="featureSurroundingInfluences">Surrounding Influences</Label>
+                      <p className="text-sm text-muted-foreground">Enable surrounding influences tracking</p>
+                    </div>
+                    <Switch 
+                      id="featureSurroundingInfluences"
+                      checked={settings.features.surroundingInfluences}
+                      onCheckedChange={(checked) => 
+                        setSettings({
+                          ...settings, 
+                          features: {...settings.features, surroundingInfluences: checked}
+                        })
+                      }
+                    />
+                  </div>
+                </div>
+                
+                <Separator />
+                
+                <div className="space-y-4">
+                  <h3 className="text-lg font-medium">Content Controls</h3>
+                  
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="contentApprovalRequired">Content Approval Required</Label>
+                      <p className="text-sm text-muted-foreground">Require approval for user-generated content</p>
+                    </div>
+                    <Switch 
+                      id="contentApprovalRequired"
+                      checked={settings.contentApprovalRequired}
+                      onCheckedChange={(checked) => 
+                        setSettings({
+                          ...settings, 
+                          contentApprovalRequired: checked
+                        })
+                      }
+                    />
+                  </div>
+                </div>
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="api" className="p-6">
+              <div className="space-y-6">
+                <div className="grid gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="flaskApiUrl">API Endpoint URL</Label>
+                    <Input 
+                      id="flaskApiUrl" 
+                      value={settings.flaskApiUrl}
+                      onChange={(e) => setSettings({...settings, flaskApiUrl: e.target.value})}
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="apiKey">API Key</Label>
+                    <Input 
+                      id="apiKey"
+                      type="password"
+                      value={settings.apiKey}
+                      onChange={(e) => setSettings({...settings, apiKey: e.target.value})}
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label>AI Models</Label>
+                    <div className="flex flex-wrap gap-2">
+                      {settings.aiModels?.map((model, index) => (
+                        <div key={index} className="bg-gray-100 rounded-full px-3 py-1 text-sm">
+                          {model}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                
+                <Alert>
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>
+                    API keys are sensitive. Make sure they are stored securely and not exposed in client-side code.
+                  </AlertDescription>
+                </Alert>
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="payments" className="p-6">
+              <div className="space-y-6">
+                <h3 className="text-lg font-medium">Payment Gateway Integration</h3>
+                <p className="text-muted-foreground">
+                  Configure payment gateways to process subscriptions and payments.
+                </p>
+                
+                <div className="space-y-6">
+                  {paymentProviders.map(provider => (
+                    <Card key={provider.id} className={`p-4 border ${provider.configured ? 'border-green-200' : ''}`}>
+                      <div className="flex justify-between items-start">
+                        <div className="space-y-2">
+                          <h4 className="text-lg font-medium flex items-center">
+                            {provider.name}
+                            {provider.configured && (
+                              <Badge className="ml-2 bg-green-100 text-green-700 border-green-200">
+                                <Check className="h-3.5 w-3.5 mr-1" />
+                                Configured
+                              </Badge>
+                            )}
+                          </h4>
+                          
+                          {provider.configured ? (
+                            <div className="space-y-1">
+                              <p className="text-sm text-muted-foreground">
+                                Integration is active and ready to process payments.
+                              </p>
+                              
+                              <div className="flex items-center mt-2">
+                                <Label htmlFor={`${provider.id}-test-mode`} className="text-sm mr-2">
+                                  Test Mode
+                                </Label>
+                                <Switch
+                                  id={`${provider.id}-test-mode`}
+                                  checked={provider.testMode}
+                                  onCheckedChange={() => handleTestModeToggle(provider.id)}
+                                />
+                              </div>
                             </div>
-                            
-                            <div className="space-y-2">
-                              <Label htmlFor={`model-${index}-key`}>API Key</Label>
-                              <Input
-                                id={`model-${index}-key`}
-                                value={model.apiKey}
-                                onChange={(e) => handleModelChange(index, 'apiKey', e.target.value)}
-                                type="password"
-                              />
+                          ) : (
+                            <p className="text-sm text-muted-foreground">
+                              Configure {provider.name} to enable payments.
+                            </p>
+                          )}
+                        </div>
+                        
+                        <Button 
+                          variant={provider.configured ? "outline" : "default"}
+                          onClick={() => handleConfigurePayment(provider.id)}
+                        >
+                          <CreditCard className="mr-2 h-4 w-4" />
+                          {provider.configured ? "Edit Configuration" : "Configure"}
+                        </Button>
+                      </div>
+                      
+                      {provider.configured && (
+                        <div className="mt-4 p-3 bg-gray-50 rounded-md">
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <Label className="text-xs">API Key</Label>
+                              <div className="bg-white border rounded-md px-2 py-1 text-sm mt-1">
+                                •••••••••••••••••
+                              </div>
                             </div>
-                            
-                            <div className="space-y-2">
-                              <Label htmlFor={`model-${index}-temp`}>Temperature</Label>
-                              <Input
-                                id={`model-${index}-temp`}
-                                value={model.temperature}
-                                onChange={(e) => handleModelChange(index, 'temperature', parseFloat(e.target.value))}
-                                type="number"
-                                min="0"
-                                max="1"
-                                step="0.1"
-                              />
-                              <p className="text-xs text-gray-500">Controls randomness (0-1)</p>
-                            </div>
-                            
-                            <div className="space-y-2">
-                              <Label htmlFor={`model-${index}-tokens`}>Max Tokens</Label>
-                              <Input
-                                id={`model-${index}-tokens`}
-                                value={model.maxTokens}
-                                onChange={(e) => handleModelChange(index, 'maxTokens', parseInt(e.target.value))}
-                                type="number"
-                                min="1"
-                              />
-                            </div>
-                            
-                            <div className="flex items-center space-x-2">
-                              <Switch
-                                id={`model-${index}-active`}
-                                checked={model.active}
-                                onCheckedChange={(checked) => handleModelChange(index, 'active', checked)}
-                              />
-                              <Label htmlFor={`model-${index}-active`}>Active</Label>
+                            <div>
+                              <Label className="text-xs">Webhook URL</Label>
+                              <div className="bg-white border rounded-md px-2 py-1 text-sm mt-1 font-mono text-xs">
+                                https://sakha-ai.com/api/webhooks/{provider.id}
+                              </div>
                             </div>
                           </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                    <Button variant="outline">Add Model</Button>
-                  </div>
-                  
-                  <Button 
-                    className="w-full sm:w-auto"
-                    onClick={handleSaveSettings}
-                    disabled={isSaving}
-                  >
-                    {isSaving ? "Saving..." : "Save API Settings"}
-                  </Button>
-                </CardContent>
-              </Card>
-            </TabsContent>
-            
-            <TabsContent value="notifications">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Notification Settings</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <Label htmlFor="maxNotifications">Maximum Notifications Per Day</Label>
-                      <Input
-                        id="maxNotifications"
-                        type="number"
-                        value={settings.notificationSettings.maxPerDay}
-                        onChange={(e) => handleInputChange('notificationSettings', {
-                          ...settings.notificationSettings,
-                          maxPerDay: parseInt(e.target.value)
-                        })}
-                      />
-                      <p className="text-xs text-gray-500">Max notifications a user can receive per day</p>
-                    </div>
-                    
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="quietStart">Quiet Hours Start</Label>
-                        <Input
-                          id="quietStart"
-                          type="number"
-                          min="0"
-                          max="23"
-                          value={settings.notificationSettings.quietHoursStart}
-                          onChange={(e) => handleInputChange('notificationSettings', {
-                            ...settings.notificationSettings,
-                            quietHoursStart: parseInt(e.target.value)
-                          })}
-                        />
-                        <p className="text-xs text-gray-500">24-hour format (0-23)</p>
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <Label htmlFor="quietEnd">Quiet Hours End</Label>
-                        <Input
-                          id="quietEnd"
-                          type="number"
-                          min="0"
-                          max="23"
-                          value={settings.notificationSettings.quietHoursEnd}
-                          onChange={(e) => handleInputChange('notificationSettings', {
-                            ...settings.notificationSettings,
-                            quietHoursEnd: parseInt(e.target.value)
-                          })}
-                        />
-                        <p className="text-xs text-gray-500">24-hour format (0-23)</p>
+                        </div>
+                      )}
+                    </Card>
+                  ))}
+                </div>
+                
+                <Alert>
+                  <AlertDescription>
+                    <div className="flex items-start">
+                      <AlertCircle className="h-4 w-4 mt-0.5 mr-2 flex-shrink-0" />
+                      <div>
+                        <p>Make sure to complete the payment gateway configuration in both test and live modes.</p>
+                        <p className="text-sm mt-1">Webhook endpoints need to be configured at the payment provider's dashboard as well.</p>
                       </div>
                     </div>
-                  </div>
-                  
-                  <Button 
-                    className="w-full sm:w-auto"
-                    onClick={handleSaveSettings}
-                    disabled={isSaving}
-                  >
-                    {isSaving ? "Saving..." : "Save Notification Settings"}
-                  </Button>
-                </CardContent>
-              </Card>
+                  </AlertDescription>
+                </Alert>
+              </div>
             </TabsContent>
             
-            <TabsContent value="content">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Content Controls</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="space-y-4">
-                    <div className="flex items-center space-x-2">
-                      <Switch
-                        id="approvalRequired"
-                        checked={settings.contentApprovalRequired}
-                        onCheckedChange={(checked) => handleInputChange('contentApprovalRequired', checked)}
-                      />
-                      <Label htmlFor="approvalRequired">Require Manual Approval for AI-Generated Content</Label>
+            <TabsContent value="notifications" className="p-6">
+              <div className="space-y-6">
+                <h3 className="text-lg font-medium">Notification Settings</h3>
+                
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="notifyNewUsers">New User Signup</Label>
+                      <p className="text-sm text-muted-foreground">Notify when new users register</p>
                     </div>
-                    <p className="text-sm text-gray-500">
-                      When enabled, all AI-generated content (flashcards, concepts, questions) must be approved by an admin before being shown to students.
-                    </p>
+                    <Switch 
+                      id="notifyNewUsers"
+                      checked={settings.notificationSettings?.newUserSignup || false}
+                      onCheckedChange={(checked) => 
+                        setSettings({
+                          ...settings, 
+                          notificationSettings: {
+                            ...settings.notificationSettings!,
+                            newUserSignup: checked
+                          }
+                        })
+                      }
+                    />
                   </div>
                   
-                  <Button 
-                    className="w-full sm:w-auto"
-                    onClick={handleSaveSettings}
-                    disabled={isSaving}
-                  >
-                    {isSaving ? "Saving..." : "Save Content Settings"}
-                  </Button>
-                </CardContent>
-              </Card>
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="notifyPaymentReceived">Payment Received</Label>
+                      <p className="text-sm text-muted-foreground">Notify when payments are processed</p>
+                    </div>
+                    <Switch 
+                      id="notifyPaymentReceived"
+                      checked={settings.notificationSettings?.paymentReceived || false}
+                      onCheckedChange={(checked) => 
+                        setSettings({
+                          ...settings, 
+                          notificationSettings: {
+                            ...settings.notificationSettings!,
+                            paymentReceived: checked
+                          }
+                        })
+                      }
+                    />
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="notifySystemAlerts">System Alerts</Label>
+                      <p className="text-sm text-muted-foreground">Notify for system errors and warnings</p>
+                    </div>
+                    <Switch 
+                      id="notifySystemAlerts"
+                      checked={settings.notificationSettings?.systemAlerts || false}
+                      onCheckedChange={(checked) => 
+                        setSettings({
+                          ...settings, 
+                          notificationSettings: {
+                            ...settings.notificationSettings!,
+                            systemAlerts: checked
+                          }
+                        })
+                      }
+                    />
+                  </div>
+                </div>
+              </div>
             </TabsContent>
-            
-            <TabsContent value="database">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Database Settings</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <Label htmlFor="dbHost">Database Host</Label>
-                      <Input
-                        id="dbHost"
-                        placeholder="localhost"
-                        disabled
-                      />
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="dbPort">Database Port</Label>
-                      <Input
-                        id="dbPort"
-                        placeholder="3306"
-                        disabled
-                      />
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="dbName">Database Name</Label>
-                      <Input
-                        id="dbName"
-                        placeholder="sakha_ai_db"
-                        disabled
-                      />
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="dbUser">Database User</Label>
-                      <Input
-                        id="dbUser"
-                        placeholder="sakha_admin"
-                        disabled
-                      />
-                    </div>
-                  </div>
-                  
-                  <div className="bg-amber-50 p-4 rounded border border-amber-200 text-amber-800 text-sm">
-                    <p className="font-medium">Database settings are currently managed via Flask config files</p>
-                    <p className="mt-1">Please contact your system administrator to modify database connection settings.</p>
-                  </div>
-                  
-                  <div className="bg-emerald-50 p-4 rounded border border-emerald-200 text-emerald-800 text-sm">
-                    <p className="font-medium">Database status: Connected</p>
-                    <p className="mt-1">Last backup: Today at 04:00 AM</p>
-                  </div>
-                  
-                  <div className="flex items-center gap-4">
-                    <Button variant="outline">
-                      Trigger Manual Backup
-                    </Button>
-                    <Button variant="outline" className="text-amber-600 hover:text-amber-700">
-                      Clear Cache
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-            
-            <TabsContent value="schema">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Database Schema</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-md">
-                    <p className="mb-4">
-                      The Sakha AI platform uses a relational database schema designed to store and manage all student data, 
-                      learning content, and application settings. The schema includes tables for:
-                    </p>
-                    <ul className="list-disc pl-5 mb-4 space-y-1">
-                      <li>User accounts and profiles</li>
-                      <li>Student onboarding information</li>
-                      <li>Study plans and sessions</li>
-                      <li>Learning content (concepts, flashcards, questions, exams)</li>
-                      <li>Engagement metrics (mood logs, surrounding influences)</li>
-                      <li>AI personalization settings and data</li>
-                      <li>System configuration and administration</li>
-                    </ul>
-                    <p className="mb-4">
-                      The schema includes appropriate relationships between tables, with foreign key constraints
-                      to maintain data integrity across the application.
-                    </p>
-                  </div>
-                  
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <h3 className="font-medium text-lg">Database Schema Export</h3>
-                      <p className="text-sm text-gray-500">Download complete database schema in CSV format</p>
-                    </div>
-                    <Button 
-                      onClick={() => {
-                        try {
-                          downloadDatabaseSchemaCSV();
-                          toast({
-                            title: "Schema Downloaded",
-                            description: "Database schema CSV has been generated."
-                          });
-                        } catch (error) {
-                          console.error("Error downloading schema:", error);
-                          toast({
-                            title: "Download Failed",
-                            description: "Unable to generate database schema.",
-                            variant: "destructive"
-                          });
-                        }
-                      }} 
-                      className="flex items-center gap-2"
-                    >
-                      <Download className="h-4 w-4" />
-                      <span>Download Schema (CSV)</span>
-                    </Button>
-                  </div>
-                  
-                  <div className="border-t pt-4">
-                    <h3 className="font-medium text-lg mb-2">Database Schema Overview</h3>
-                    <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-md overflow-auto max-h-96">
-                      <pre className="text-xs">
-                        <code>
-                          {`-- Simplified schema overview
-CREATE TABLE students (
-  id VARCHAR(36) PRIMARY KEY,
-  user_id VARCHAR(36) NOT NULL,
-  name VARCHAR(255) NOT NULL,
-  email VARCHAR(255) NOT NULL,
-  /* ... other fields */
-);
-
-CREATE TABLE student_goals (
-  id VARCHAR(36) PRIMARY KEY,
-  student_id VARCHAR(36) NOT NULL,
-  title VARCHAR(255) NOT NULL,
-  /* ... other fields */
-  FOREIGN KEY (student_id) REFERENCES students(id)
-);
-
-/* ... additional tables ... */
-
--- See full schema in the downloaded SQL file`}
-                        </code>
-                      </pre>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </>
-        )}
-      </Tabs>
+          </Tabs>
+        </Card>
+      </div>
     </AdminLayout>
   );
 };

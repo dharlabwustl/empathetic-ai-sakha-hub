@@ -13,8 +13,11 @@ export interface AdminUser {
 
 export interface AdminAuthContextProps {
   user: AdminUser | null;
+  adminUser: AdminUser | null;
   loading: boolean;
+  isLoading: boolean;
   error: string | null;
+  isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<boolean>;
   logout: () => Promise<void>;
 }
@@ -33,6 +36,15 @@ export interface AdminSettings {
     moodTracking: boolean;
     surroundingInfluences: boolean;
   };
+  flaskApiUrl?: string;
+  apiKey?: string;
+  aiModels?: string[];
+  notificationSettings?: {
+    newUserSignup: boolean;
+    paymentReceived: boolean;
+    systemAlerts: boolean;
+  };
+  contentApprovalRequired?: boolean;
 }
 
 export interface StudentData {
@@ -53,4 +65,20 @@ export interface StudentData {
 export interface KpiData {
   value: number;
   trend: 'up' | 'down' | 'neutral';
+}
+
+export interface AdminDashboardStats {
+  activeUsers: KpiData;
+  totalRevenue: KpiData;
+  conversionRate: KpiData;
+  averageSessionTime: KpiData;
+}
+
+export interface SystemLog {
+  id: string;
+  timestamp: string;
+  type: 'error' | 'warning' | 'info' | 'success';
+  message: string;
+  source: string;
+  resolved: boolean;
 }

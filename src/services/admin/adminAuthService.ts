@@ -29,6 +29,15 @@ const adminAuthService = {
     // Mock implementation
     const userJson = localStorage.getItem('adminUser');
     return userJson ? JSON.parse(userJson) : null;
+  },
+  
+  checkAuth: async (): Promise<AdminUser> => {
+    // Mock implementation
+    const userJson = localStorage.getItem('adminUser');
+    if (userJson) {
+      return Promise.resolve(JSON.parse(userJson));
+    }
+    return Promise.reject(new Error('Not authenticated'));
   }
 };
 

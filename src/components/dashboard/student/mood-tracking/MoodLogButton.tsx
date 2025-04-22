@@ -18,7 +18,6 @@ import {
   AlertTriangle,
   Target,
   HelpCircle,
-  Tired,
   Check
 } from "lucide-react";
 
@@ -55,7 +54,7 @@ const MoodLogButton: React.FC<MoodLogButtonProps> = ({ onMoodSelect, className =
               {selectedMood === 'stressed' && <AlertTriangle className="mr-2 h-4 w-4" />}
               {selectedMood === 'focused' && <Target className="mr-2 h-4 w-4" />}
               {selectedMood === 'curious' && <HelpCircle className="mr-2 h-4 w-4" />}
-              {selectedMood === 'overwhelmed' && <Tired className="mr-2 h-4 w-4" />}
+              {selectedMood === 'overwhelmed' && <Frown className="mr-2 h-4 w-4" />}
               {selectedMood === 'okay' && <Check className="mr-2 h-4 w-4" />}
               {selectedMood}
             </>
@@ -98,7 +97,7 @@ const MoodLogButton: React.FC<MoodLogButtonProps> = ({ onMoodSelect, className =
           Curious
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => handleMoodSelect('overwhelmed')}>
-          <Tired className="mr-2 h-4 w-4" />
+          <Frown className="mr-2 h-4 w-4" />
           Overwhelmed
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => handleMoodSelect('okay')}>
