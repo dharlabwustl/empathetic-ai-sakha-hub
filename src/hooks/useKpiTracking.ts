@@ -15,10 +15,6 @@ export interface KpiData {
   changeDirection?: 'up' | 'down' | 'neutral';
   target?: string | number;
   chartData?: { date: string; value: number }[];
-  icon?: React.ReactNode; // Added to fix build error
-  label?: string; // Added to fix build error
-  unit?: string; // Added to fix build error
-  change?: number; // Added to fix build error
 }
 
 export interface NudgeData {
@@ -28,10 +24,6 @@ export interface NudgeData {
   priority: 'high' | 'medium' | 'low';
   timestamp?: string;
   isRead?: boolean;
-  read?: boolean; // Added to fix build error
-  type?: string; // Added to fix build error
-  actionLabel?: string; // Added to fix build error
-  actionUrl?: string; // Added to fix build error
 }
 
 export const useKpiTracking = (userRole: UserRole) => {
@@ -49,10 +41,7 @@ export const useKpiTracking = (userRole: UserRole) => {
           value: '24h',
           trend: { value: 10, trend: 'up' },
           changePercentage: 10,
-          changeDirection: 'up',
-          label: 'Hours',
-          unit: 'h',
-          change: 10
+          changeDirection: 'up'
         },
         {
           id: '2',
@@ -60,10 +49,7 @@ export const useKpiTracking = (userRole: UserRole) => {
           value: '35',
           trend: { value: 5, trend: 'up' },
           changePercentage: 5,
-          changeDirection: 'up',
-          label: 'Concepts',
-          unit: '',
-          change: 5
+          changeDirection: 'up'
         },
         {
           id: '3',
@@ -71,10 +57,7 @@ export const useKpiTracking = (userRole: UserRole) => {
           value: '85%',
           trend: { value: 2, trend: 'up' },
           changePercentage: 2,
-          changeDirection: 'up',
-          label: 'Score',
-          unit: '%',
-          change: 2
+          changeDirection: 'up'
         }
       ]);
       
@@ -85,11 +68,7 @@ export const useKpiTracking = (userRole: UserRole) => {
           message: 'Add your educational background to get more personalized recommendations.',
           priority: 'medium',
           timestamp: new Date().toISOString(),
-          isRead: false,
-          read: false,
-          type: 'profile',
-          actionLabel: 'Complete Profile',
-          actionUrl: '/dashboard/student/profile'
+          isRead: false
         },
         {
           id: '2',
@@ -97,11 +76,7 @@ export const useKpiTracking = (userRole: UserRole) => {
           message: 'A new practice test for your upcoming exam is now available.',
           priority: 'high',
           timestamp: new Date().toISOString(),
-          isRead: false,
-          read: false,
-          type: 'quiz',
-          actionLabel: 'Take Test',
-          actionUrl: '/dashboard/student/quizzes'
+          isRead: false
         }
       ]);
     }
@@ -110,7 +85,7 @@ export const useKpiTracking = (userRole: UserRole) => {
   const markNudgeAsRead = (id: string) => {
     setNudges((prevNudges) =>
       prevNudges.map((nudge) =>
-        nudge.id === id ? { ...nudge, isRead: true, read: true } : nudge
+        nudge.id === id ? { ...nudge, isRead: true } : nudge
       )
     );
   };

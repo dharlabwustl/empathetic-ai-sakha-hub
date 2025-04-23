@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { UserProfileType, MoodType } from "@/types/user/base";
-import { CalendarRange, BookOpen, Clock, Target, Flame } from "lucide-react";
+import { CalendarRange, BookOpen, Clock, Target, Fire } from "lucide-react";
 import MoodLogButton from "@/components/dashboard/student/mood-tracking/MoodLogButton";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { UserRole } from "@/types/user/base";
@@ -95,7 +95,7 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
           {/* Study Streak */}
           <div className="flex flex-col sm:flex-row items-center gap-4">
             <div className="h-12 w-12 bg-gradient-to-br from-amber-100 to-red-100 dark:from-amber-900/50 dark:to-red-900/50 rounded-full flex items-center justify-center">
-              <Flame className="h-6 w-6 text-amber-600 dark:text-amber-400" />
+              <Fire className="h-6 w-6 text-amber-600 dark:text-amber-400" />
             </div>
             <div>
               <div className="flex items-center">

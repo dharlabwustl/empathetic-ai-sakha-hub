@@ -1,11 +1,11 @@
 
 import React from 'react';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Lightbulb } from 'lucide-react';
 import { UserProfileType } from '@/types/user/base';
 
 interface TodayTipProps {
-  userProfile: UserProfileType;
+  userProfile?: UserProfileType;
   lastActivity?: { type: string; description: string } | null;
   suggestedNextAction?: string | null;
 }
@@ -15,55 +15,54 @@ const TodayTip: React.FC<TodayTipProps> = ({
   lastActivity,
   suggestedNextAction
 }) => {
-  const getTipBasedOnProfile = () => {
+  // Generate a tip based on the time of day or random motivation
+  const getRandomTip = () => {
     const tips = [
-      "Spacing out your study sessions is more effective than cramming.",
-      "Take short breaks every 25 minutes to maintain focus.",
-      "Review your notes within 24 hours after learning to improve retention.",
-      "Teaching concepts to others helps solidify your own understanding.",
-      "Connect new information to what you already know to improve recall.",
-      "Practice active recall by testing yourself instead of just reviewing notes."
+      "Taking short breaks between study sessions can improve retention.",
+      "Try the Pomodoro technique: 25 minutes of focused study, then a 5-minute break.",
+      "Reviewing material before sleep can help your brain process information better.",
+      "Stay hydrated! Drinking water improves cognitive performance.",
+      "Teaching concepts to others is one of the best ways to solidify your understanding.",
+      "Changing your study environment occasionally can boost memory and focus.",
+      "Exercise before studying can increase alertness and concentration.",
+      "Group similar topics together when studying to understand connections better.",
+      "Create mind maps to visualize relationships between concepts.",
+      "Test yourself regularly to identify knowledge gaps."
     ];
     
-    // Use user's mood to customize the tip
-    if (userProfile.mood === 'stressed' || userProfile.currentMood === 'stressed') {
-      return "Remember to take breaks and practice deep breathing when feeling overwhelmed.";
-    }
-    
-    if (userProfile.mood === 'tired' || userProfile.currentMood === 'tired') {
-      return "Consider a 20-minute power nap or light exercise to boost energy before studying.";
-    }
-    
-    // Return a random tip if no specific condition is met
     return tips[Math.floor(Math.random() * tips.length)];
   };
-  
+
+  const generateWelcomeMessage = () => {
+    const currentHour = new Date().getHours();
+    const name = userProfile?.name?.split(' ')[0] || 'there';
+    
+    if (currentHour < 12) return `Good morning, ${name}!`;
+    if (currentHour < 17) return `Good afternoon, ${name}!`;
+    return `Good evening, ${name}!`;
+  };
+
   return (
-    <Card className="bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-indigo-950/30 dark:to-blue-950/30">
-      <CardContent className="p-4">
-        <div className="flex items-start gap-4">
-          <div className="p-2 rounded-full bg-indigo-100 dark:bg-indigo-900/50">
-            <Lightbulb className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
-          </div>
-          <div className="flex-1">
-            <h3 className="font-medium text-indigo-700 dark:text-indigo-300">Today's Tip</h3>
-            <p className="text-sm text-indigo-600 dark:text-indigo-400">
-              {getTipBasedOnProfile()}
-            </p>
-            
-            {suggestedNextAction && (
-              <p className="mt-2 text-sm font-medium text-indigo-700 dark:text-indigo-300">
-                Suggested next: {suggestedNextAction}
-              </p>
-            )}
-            
-            {lastActivity && (
-              <div className="mt-2 text-xs text-indigo-500 dark:text-indigo-500">
-                {lastActivity.description}
-              </div>
-            )}
-          </div>
+    <Card className="border-l-4 border-l-amber-500">
+      <CardHeader className="pb-2">
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-lg flex items-center">
+            <Lightbulb className="mr-2 h-5 w-5 text-amber-500" />
+            {generateWelcomeMessage()}
+          </CardTitle>
         </div>
+        <CardDescription>
+          {lastActivity ? (
+            <span>{lastActivity.description}</span>
+          ) : (
+            "Here's a tip to help with your studies today"
+          )}
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <p className="text-sm">
+          {suggestedNextAction || getRandomTip()}
+        </p>
       </CardContent>
     </Card>
   );

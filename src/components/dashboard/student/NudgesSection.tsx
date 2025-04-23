@@ -1,60 +1,45 @@
 
 import React from 'react';
-import { X } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Bell, CheckCircle, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-
-export interface NudgeData {
-  id: string;
-  title: string;
-  description: string;
-  type: 'info' | 'warning' | 'success' | 'error';
-  icon?: React.ReactNode;
-  action?: {
-    text: string;
-    url: string;
-  };
-}
+import { NudgeData } from '@/hooks/useKpiTracking';
 
 interface NudgesSectionProps {
   nudges: NudgeData[];
   onMarkAsRead: (id: string) => void;
 }
 
-const NudgesSection: React.FC<NudgesSectionProps> = ({
-  nudges,
-  onMarkAsRead,
-}) => {
+const NudgesSection: React.FC<NudgesSectionProps> = ({ nudges, onMarkAsRead }) => {
   if (!nudges || nudges.length === 0) return null;
-  
+
   return (
-    <div className="space-y-2 mb-6">
+    <div className="space-y-2 mb-4">
       {nudges.map((nudge) => (
-        <Alert key={nudge.id} variant={nudge.type === 'error' ? 'destructive' : 'default'}>
-          <div className="flex justify-between items-start">
-            <div className="flex-1">
-              <AlertTitle>{nudge.title}</AlertTitle>
-              <AlertDescription>{nudge.description}</AlertDescription>
-              
-              {nudge.action && (
-                <Button 
-                  variant="link" 
-                  className="mt-2 p-0 h-auto text-sm"
-                  asChild
-                >
-                  <a href={nudge.action.url}>{nudge.action.text}</a>
-                </Button>
-              )}
+        <Alert 
+          key={nudge.id} 
+          className={`border-l-4 ${getPriorityColor(nudge.priority)}`}
+        >
+          <div className="flex items-start justify-between">
+            <div className="flex items-center">
+              <Bell className="h-4 w-4 mr-2" />
+              <div>
+                <AlertTitle className="text-sm font-medium">
+                  {nudge.title}
+                </AlertTitle>
+                <AlertDescription className="text-xs">
+                  {nudge.message}
+                </AlertDescription>
+              </div>
             </div>
-            
             <Button 
               variant="ghost" 
               size="sm" 
+              className="h-6 w-6 p-0 ml-2" 
               onClick={() => onMarkAsRead(nudge.id)}
-              className="-mt-1 -mr-2"
             >
-              <X className="h-4 w-4" />
-              <span className="sr-only">Dismiss</span>
+              <CheckCircle className="h-4 w-4" />
+              <span className="sr-only">Mark as read</span>
             </Button>
           </div>
         </Alert>
@@ -62,5 +47,17 @@ const NudgesSection: React.FC<NudgesSectionProps> = ({
     </div>
   );
 };
+
+// Helper function to get appropriate color based on priority
+function getPriorityColor(priority: string): string {
+  switch (priority) {
+    case 'high':
+      return 'border-red-500';
+    case 'medium':
+      return 'border-amber-500';
+    default:
+      return 'border-blue-500';
+  }
+}
 
 export default NudgesSection;

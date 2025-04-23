@@ -1,26 +1,24 @@
 
+import { UserSubscription } from './subscription';
+
+export type MoodType = 'sad' | 'neutral' | 'happy' | 'motivated';
+
 export type UserRole = 'student' | 'teacher' | 'admin' | 'parent';
 
-export type MoodType = 
-  | 'happy' 
-  | 'sad' 
-  | 'neutral' 
-  | 'motivated' 
-  | 'tired' 
-  | 'stressed' 
-  | 'focused' 
-  | 'curious' 
-  | 'overwhelmed'
-  | 'okay';
-
-export type SubscriptionType = 'free' | 'basic' | 'premium' | 'enterprise' | 'group';
-
 export interface UserGoal {
-  id?: string;
+  id: string;
   title: string;
-  progress: number;
-  target: string;
-  examDate?: string;
+  description?: string;
+  targetDate?: string;
+  progress?: number;
+}
+
+export interface SubscriptionType {
+  id?: string;
+  plan?: string;
+  expiresAt?: string;
+  isActive?: boolean;
+  features?: string[];
 }
 
 export interface UserProfileType {
@@ -28,53 +26,35 @@ export interface UserProfileType {
   name: string;
   email: string;
   role: UserRole;
-  bio?: string;
   avatar?: string;
-  createdAt?: string;
-  location?: string;
-  phoneNumber?: string;
-  mood?: MoodType;
-  lastLogin?: string;
+  phone?: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  zip?: string;
+  country?: string;
+  createdAt: string;
+  updatedAt: string;
   goals?: UserGoal[];
-  isVerified?: boolean;
+  subscription?: string | UserSubscription;
   loginCount?: number;
-  subscription?: {
-    plan: string;
-    status: 'active' | 'inactive' | 'trial';
-    endDate: string;
-    isGroupLeader?: boolean;
-  };
+  lastLogin?: string;
+  isVerified?: boolean;
+  isPremium?: boolean;
+  isOnboardingComplete?: boolean;
+  isGroupLeader?: boolean;
   batchName?: string;
   batchCode?: string;
-  isGroupLeader?: boolean;
-  personalInfo?: {
-    firstName?: string;
-    lastName?: string;
-    dob?: string;
-    gender?: string;
-    occupation?: string;
-    location?: string;
-    city?: string;
-    state?: string;
-    school?: string;
-    grade?: string;
-    board?: string;
-    phoneNumber?: string;
-  };
-}
-
-// This defines the KPI data structure
-export interface KpiData {
-  id: string;
-  title: string;
-  value: number;
-  unit: string;
-  trend: 'up' | 'down' | 'neutral';
-  changeValue?: number;
-  changePercentage?: number;
-  description?: string;
-  icon?: string;
-  color?: string;
-  target?: number;
-  period?: string;
+  batchMembers?: number;
+  preferredLanguage?: string;
+  subjects?: string[];
+  preferences?: Record<string, any>;
+  badges?: string[];
+  achievements?: string[];
+  streakDays?: number;
+  totalStudyHours?: number;
+  completedLessons?: number;
+  completedQuizzes?: number;
+  accuracyRate?: number;
+  mood?: MoodType;
 }

@@ -1,178 +1,133 @@
 
-import React from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowUpRight, ArrowDownRight, Minus, Clock, Award, BookOpen, Brain, Target } from 'lucide-react';
-import { KpiData } from '@/types/user/base';
+import { 
+  Card, 
+  CardContent, 
+  CardHeader, 
+  CardTitle 
+} from "@/components/ui/card";
+import { KpiData } from "@/hooks/useKpiTracking";
+import { 
+  ArrowDownIcon, 
+  ArrowUpIcon, 
+  Battery, 
+  BookOpen, 
+  Brain, 
+  CheckSquare, 
+  Clock, 
+  Code, 
+  FileText, 
+  Heart, 
+  LineChart, 
+  PieChart, 
+  Smile, 
+  TrendingUp, 
+  Users 
+} from "lucide-react";
+import { motion } from "framer-motion";
 
 interface KpiCardProps {
   kpi: KpiData;
-  size?: 'sm' | 'md' | 'lg';
-  className?: string;
+  delay?: number;
 }
 
-const KpiCard: React.FC<KpiCardProps> = ({
-  kpi,
-  size = 'md',
-  className = '',
-}) => {
-  // Determine styles based on size
-  const getCardStyles = () => {
-    switch(size) {
-      case 'sm':
-        return {
-          padding: 'p-3',
-          titleSize: 'text-sm',
-          valueSize: 'text-2xl',
-          iconSize: 'h-4 w-4'
-        };
-      case 'lg':
-        return {
-          padding: 'p-5',
-          titleSize: 'text-lg',
-          valueSize: 'text-4xl',
-          iconSize: 'h-6 w-6'
-        };
-      default: // 'md'
-        return {
-          padding: 'p-4',
-          titleSize: 'text-base',
-          valueSize: 'text-3xl',
-          iconSize: 'h-5 w-5'
-        };
+export default function KpiCard({ kpi, delay = 0 }: KpiCardProps) {
+  // Map icon string to Lucide component
+  const IconComponent = () => {
+    switch (kpi.icon) {
+      case "Clock": return <Clock className="text-sky-500" size={24} />;
+      case "BookOpen": return <BookOpen className="text-violet-500" size={24} />;
+      case "Brain": return <Brain className="text-indigo-500" size={24} />;
+      case "Smile": return <Smile className="text-amber-500" size={24} />;
+      case "LineChart": return <LineChart className="text-emerald-500" size={24} />;
+      case "CheckSquare": return <CheckSquare className="text-teal-500" size={24} />;
+      case "Heart": return <Heart className="text-rose-500" size={24} />;
+      case "TrendingUp": return <TrendingUp className="text-blue-500" size={24} />;
+      case "FileText": return <FileText className="text-purple-500" size={24} />;
+      case "Code": return <Code className="text-fuchsia-500" size={24} />;
+      case "PieChart": return <PieChart className="text-cyan-500" size={24} />;
+      case "Users": return <Users className="text-red-500" size={24} />;
+      case "Battery": return <Battery className="text-green-500" size={24} />;
+      default: return <Clock className="text-sky-500" size={24} />;
     }
   };
   
-  const styles = getCardStyles();
-  
-  // Get trend icon
-  const getTrendIcon = () => {
-    if (typeof kpi.trend === 'object') {
-      // Handle the case where trend is an object
-      return <Minus className="h-4 w-4 text-gray-500" />;
-    }
-
-    switch(kpi.trend) {
-      case 'up':
-        return <ArrowUpRight className="h-4 w-4 text-green-500" />;
-      case 'down':
-        return <ArrowDownRight className="h-4 w-4 text-red-500" />;
-      default:
-        return <Minus className="h-4 w-4 text-gray-500" />;
-    }
-  };
-  
-  // Get KPI icon
-  const getKpiIcon = () => {
-    switch(kpi.icon) {
-      case 'clock':
-        return <Clock className={styles.iconSize} />;
-      case 'award':
-        return <Award className={styles.iconSize} />;
-      case 'book':
-        return <BookOpen className={styles.iconSize} />;
-      case 'brain':
-        return <Brain className={styles.iconSize} />;
-      case 'target':
-        return <Target className={styles.iconSize} />;
-      default:
-        return <Target className={styles.iconSize} />;
-    }
-  };
-  
-  // Format value with commas
-  const formatValue = (value: number) => {
-    return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-  };
-  
-  // Calculate percentage of target
-  const getPercentageOfTarget = () => {
-    if (kpi.target && kpi.target > 0) {
-      return Math.round((kpi.value / kpi.target) * 100);
-    }
-    return 0;
-  };
-  
-  // Get trend text color
   const getTrendColor = () => {
-    if (typeof kpi.trend === 'object') {
-      return 'text-gray-500';
+    if (kpi.trend === "up") {
+      return kpi.id.includes("burnout") || kpi.id.includes("risk") ? 
+        "text-red-600" : "text-green-600";
+    } else if (kpi.trend === "down") {
+      return kpi.id.includes("burnout") || kpi.id.includes("risk") ? 
+        "text-green-600" : "text-red-600";
     }
-    
-    if (kpi.trend === 'up') {
-      return 'text-green-500';
-    } else if (kpi.trend === 'down') {
-      return 'text-red-500';
-    } else {
-      return 'text-gray-500';
-    }
+    return "text-gray-600";
+  };
+
+  // Get gradient based on KPI type
+  const getGradient = () => {
+    if (kpi.id.includes("progress")) return "from-sky-500/10 to-indigo-500/10";
+    if (kpi.id.includes("streak") || kpi.id.includes("completion")) return "from-emerald-500/10 to-teal-500/10";
+    if (kpi.id.includes("score") || kpi.id.includes("performance")) return "from-violet-500/10 to-purple-500/10";
+    if (kpi.id.includes("mood") || kpi.id.includes("wellness")) return "from-amber-500/10 to-orange-500/10";
+    if (kpi.id.includes("time")) return "from-blue-500/10 to-sky-500/10";
+    return "from-violet-500/5 to-sky-500/5";
   };
 
   return (
-    <Card className={`${className}`}>
-      <CardHeader className={`${styles.padding} pb-2`}>
-        <div className="flex justify-between items-start">
-          <CardTitle className={`${styles.titleSize}`}>{kpi.title}</CardTitle>
-          {kpi.icon && (
-            <span className="p-1.5 bg-gray-100 dark:bg-gray-800 rounded-md">
-              {getKpiIcon()}
-            </span>
-          )}
-        </div>
-        {kpi.description && (
-          <CardDescription className="text-xs">
-            {kpi.description}
-          </CardDescription>
-        )}
-      </CardHeader>
-      <CardContent className={`${styles.padding} pt-0`}>
-        <div className="flex flex-col">
-          <div className="flex items-baseline gap-2">
-            <span className={`font-bold ${styles.valueSize}`}>
-              {formatValue(kpi.value)}
-            </span>
-            <span className="text-sm text-muted-foreground">
-              {kpi.unit}
-            </span>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, delay: delay * 0.1 }}
+      whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
+    >
+      <Card className={`overflow-hidden bg-gradient-to-br ${getGradient()} hover:shadow-lg transition-all`}>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-300">
+            {kpi.label}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-between">
+            <motion.span 
+              className="text-2xl font-bold"
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.3, delay: delay * 0.1 + 0.2 }}
+            >
+              {kpi.value}
+              {kpi.unit && <span className="text-lg ml-1">{kpi.unit}</span>}
+            </motion.span>
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ 
+                type: "spring", 
+                stiffness: 260,
+                damping: 20, 
+                delay: delay * 0.1 + 0.3 
+              }}
+              className="w-10 h-10 rounded-full bg-white dark:bg-gray-800 flex items-center justify-center shadow-sm"
+            >
+              <IconComponent />
+            </motion.div>
           </div>
-          
-          <div className="flex items-center mt-2">
-            <div className={`flex items-center text-xs ${getTrendColor()}`}>
-              {getTrendIcon()}
-              <span className="ml-1">
-                {kpi.changeValue !== undefined && (
-                  <span>{kpi.changeValue > 0 ? '+' : ''}{kpi.changeValue}</span>
-                )}
-                {kpi.changePercentage !== undefined && (
-                  <span>{kpi.changePercentage > 0 ? '+' : ''}{kpi.changePercentage}%</span>
-                )}
-              </span>
-            </div>
-            
-            {kpi.period && (
-              <span className="text-xs text-muted-foreground ml-2">
-                {kpi.period}
-              </span>
+          <motion.p 
+            className={`text-xs mt-2 flex items-center ${getTrendColor()}`}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3, delay: delay * 0.1 + 0.4 }}
+          >
+            {kpi.trend === "up" && <ArrowUpIcon className="h-3 w-3 mr-1" />}
+            {kpi.trend === "down" && <ArrowDownIcon className="h-3 w-3 mr-1" />}
+            {kpi.change !== 0 && (
+              <>
+                {kpi.change > 0 ? "+" : ""}
+                {kpi.change}% from {kpi.id === "mood" ? "yesterday" : "last week"}
+              </>
             )}
-          </div>
-          
-          {kpi.target && (
-            <div className="mt-2">
-              <div className="flex justify-between text-xs mb-1">
-                <span className="text-muted-foreground">Progress</span>
-                <span>{getPercentageOfTarget()}%</span>
-              </div>
-              <div className="h-1.5 w-full bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
-                <div 
-                  className="h-full bg-primary rounded-full" 
-                  style={{ width: `${getPercentageOfTarget()}%` }}
-                />
-              </div>
-            </div>
-          )}
-        </div>
-      </CardContent>
-    </Card>
+            {kpi.change === 0 && "No change"}
+          </motion.p>
+        </CardContent>
+      </Card>
+    </motion.div>
   );
-};
-
-export default KpiCard;
+}

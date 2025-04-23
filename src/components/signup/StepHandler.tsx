@@ -1,3 +1,4 @@
+
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
@@ -40,19 +41,22 @@ const StepHandler = ({
     setIsLoading(true);
     
     try {
+      // Clean up user input
       const cleanName = formValues.name.trim();
       const cleanMobile = formValues.mobile.trim();
       
+      // Create a user object with the collected data
       const userData = {
         name: cleanName,
-        email: `${cleanMobile}@sakha.ai`,
+        email: `${cleanMobile}@sakha.ai`, // Use consistent email format based on mobile
         phoneNumber: cleanMobile,
-        password: formValues.otp,
-        role: (onboardingData.role || 'Student').toLowerCase(),
+        password: formValues.otp, // Simplified password for easier login
+        role: (onboardingData.role || 'Student').toLowerCase(), // Make sure role is lowercase
       };
       
       console.log("Registering user:", userData);
       
+      // Register the user using auth service
       const response = await authService.register({
         name: userData.name,
         email: userData.email,
@@ -64,12 +68,15 @@ const StepHandler = ({
       if (response.success && response.data) {
         console.log("Registration successful:", response.data);
         
+        // Process collected study plan data
         const examDate = onboardingData.examDate ? new Date(onboardingData.examDate) : null;
         const formattedExamDate = examDate ? examDate.toISOString() : null;
         
+        // Get the strong and weak subjects
         const strongSubjects = onboardingData.strongSubjects?.map((s: any) => s.name) || [];
         const weakSubjects = onboardingData.weakSubjects?.map((s: any) => s.name) || [];
         
+        // Build a study plan object
         const studyPlan = {
           examGoal: onboardingData.goal || "IIT-JEE",
           examDate: formattedExamDate,
@@ -85,11 +92,12 @@ const StepHandler = ({
           interests: onboardingData.interests || []
         };
         
+        // Save additional onboarding data to localStorage with consistent format
         const extendedUserData = {
           ...onboardingData,
           name: cleanName,
           phoneNumber: cleanMobile,
-          completedOnboarding: false,
+          completedOnboarding: false, // Mark as not completed to trigger onboarding flow
           isNewUser: true,
           sawWelcomeTour: false,
           studyPlan
@@ -97,11 +105,16 @@ const StepHandler = ({
         
         localStorage.setItem("userData", JSON.stringify(extendedUserData));
         
+        // Call API endpoint to save the study plan data - in a real app
+        // This would be something like:
+        // await studyPlanService.createStudyPlan(studyPlan);
+        
         toast({
           title: "Welcome to Sakha AI!",
           description: "Let's create your personalized study plan.",
         });
         
+        // Go directly to the dashboard with parameters to show onboarding
         navigate("/dashboard/student?completedOnboarding=false&new=true");
       } else {
         throw new Error("Registration failed");
@@ -118,66 +131,19 @@ const StepHandler = ({
     }
   };
 
-  const handlePersonalitySelect = (personality: string) => {
-    let personalityType: PersonalityType;
-    
-    switch(personality) {
-      case "Systematic Learner":
-        personalityType = {
-          type: "systematic_learner",
-          traits: ["Organized", "Detail-oriented", "Methodical", "Focused"],
-          learningStyle: "Sequential and structured learning"
-        };
-        break;
-      case "Visual Learner":
-        personalityType = {
-          type: "visual_learner",
-          traits: ["Creative", "Imaginative", "Attentive", "Observant"],
-          learningStyle: "Learning through visual aids and diagrams"
-        };
-        break;
-      case "Practical Learner":
-        personalityType = {
-          type: "practical_learner",
-          traits: ["Hands-on", "Experimental", "Realistic", "Task-oriented"],
-          learningStyle: "Learning by doing and experimenting"
-        };
-        break;
-      case "Social Learner":
-        personalityType = {
-          type: "social_learner",
-          traits: ["Collaborative", "Communicative", "Empathetic", "Interactive"],
-          learningStyle: "Learning through discussions and group work"
-        };
-        break;
-      default:
-        personalityType = {
-          type: "adaptive_learner",
-          traits: ["Flexible", "Resilient", "Versatile", "Quick-thinking"],
-          learningStyle: "Adapts to different learning styles as needed"
-        };
-    }
-
-    setOnboardingData({ ...onboardingData, personalityType });
-    setMessages([
-      ...messages,
-      { content: personality, isBot: false },
-      { content: "How are you feeling about your studies/work today?", isBot: true }
-    ]);
-    setStep("sentiment");
-  };
-
   return {
     isLoading,
     handlers: {
       handleRoleSelect,
       handleDemographicsSubmit: (data: Record<string, string>) => {
+        // Create a readable message for chat
         let userMessage = "";
         Object.entries(data).forEach(([key, value]) => {
           userMessage += `${key}: ${value.trim()}, `;
         });
-        userMessage = userMessage.slice(0, -2);
+        userMessage = userMessage.slice(0, -2); // Remove trailing comma
         
+        // Clean the data by trimming all string values
         const cleanData: Record<string, string> = {};
         Object.entries(data).forEach(([key, value]) => {
           cleanData[key] = value.trim();
@@ -193,8 +159,10 @@ const StepHandler = ({
         setStep("personality");
       },
       handleGoalSelect: (goal: UserGoal) => {
+        // Get default subjects for this goal
         const defaultSubjects = getSubjectsForGoal(goal);
         
+        // Update onboarding data with goal and default subjects
         setOnboardingData({ 
           ...onboardingData, 
           goal,
@@ -208,7 +176,55 @@ const StepHandler = ({
         ]);
         setStep("demographics");
       },
-      handlePersonalitySelect,
+      handlePersonalitySelect: (personality: string) => {
+        // Create a personality object based on the selection
+        let personalityType: PersonalityType;
+        
+        switch(personality) {
+          case "Systematic Learner":
+            personalityType = {
+              type: "systematic_learner",
+              traits: ["Organized", "Detail-oriented", "Methodical", "Focused"],
+              learningStyle: "Sequential and structured learning"
+            };
+            break;
+          case "Visual Learner":
+            personalityType = {
+              type: "visual_learner",
+              traits: ["Creative", "Imaginative", "Attentive", "Observant"],
+              learningStyle: "Learning through visual aids and diagrams"
+            };
+            break;
+          case "Practical Learner":
+            personalityType = {
+              type: "practical_learner",
+              traits: ["Hands-on", "Experimental", "Realistic", "Task-oriented"],
+              learningStyle: "Learning by doing and experimenting"
+            };
+            break;
+          case "Social Learner":
+            personalityType = {
+              type: "social_learner",
+              traits: ["Collaborative", "Communicative", "Empathetic", "Interactive"],
+              learningStyle: "Learning through discussions and group work"
+            };
+            break;
+          default:
+            personalityType = {
+              type: "adaptive_learner",
+              traits: ["Flexible", "Resilient", "Versatile", "Quick-thinking"],
+              learningStyle: "Adapts to different learning styles as needed"
+            };
+        }
+
+        setOnboardingData({ ...onboardingData, personalityType });
+        setMessages([
+          ...messages,
+          { content: personality, isBot: false },
+          { content: "How are you feeling about your studies/work today?", isBot: true }
+        ]);
+        setStep("sentiment");
+      },
       handleMoodSelect: (mood: MoodType) => {
         setOnboardingData({ ...onboardingData, mood });
         setMessages([
@@ -219,23 +235,27 @@ const StepHandler = ({
         setStep("habits");
       },
       handleHabitsSubmit: (habits: Record<string, string>) => {
+        // Clean up habits data - remove whitespace and normalize
         const cleanedHabits: Record<string, string> = {};
         
         Object.entries(habits).forEach(([key, value]) => {
+          // Skip custom fields in the cleaned data if they've already been included
           if (key === "stressManagementCustom" || key === "studyPreferenceCustom") {
             return;
           }
           cleanedHabits[key] = value.trim();
         });
         
+        // Create a readable message for chat from the habits
         let userMessage = "";
         Object.entries(cleanedHabits).forEach(([key, value]) => {
           userMessage += `${key}: ${value}, `;
         });
-        userMessage = userMessage.slice(0, -2);
+        userMessage = userMessage.slice(0, -2); // Remove trailing comma
         
         setOnboardingData({ ...onboardingData, ...cleanedHabits });
         
+        // Get subjects based on selected exam goal
         const suggestedSubjects = onboardingData.goal 
           ? getSubjectsForGoal(onboardingData.goal)
           : [];
@@ -248,6 +268,7 @@ const StepHandler = ({
         setStep("interests");
       },
       handleInterestsSubmit: (interests: string) => {
+        // Clean and deduplicate interests
         const interestsList = Array.from(new Set(
           interests.split(",").map(i => i.trim()).filter(i => i.length > 0)
         ));

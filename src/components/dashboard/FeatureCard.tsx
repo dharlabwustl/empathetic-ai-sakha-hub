@@ -12,7 +12,7 @@ interface FeatureCardProps {
   icon: React.ReactNode;
   path: string;
   isPremium: boolean;
-  userSubscription: string;
+  userSubscription: SubscriptionType;
   className?: string;
 }
 
@@ -29,11 +29,11 @@ const FeatureCard = ({
   
   // Check if feature is accessible based on subscription
   const canAccess = !isPremium || 
-    userSubscription === SubscriptionType.Premium.toString() || 
-    userSubscription === SubscriptionType.Pro.toString() || 
-    userSubscription === SubscriptionType.Elite.toString() || 
-    userSubscription === SubscriptionType.Group.toString() || 
-    userSubscription === SubscriptionType.Enterprise.toString();
+    userSubscription === SubscriptionType.Premium || 
+    userSubscription === SubscriptionType.Pro || 
+    userSubscription === SubscriptionType.Elite || 
+    userSubscription === SubscriptionType.Group || 
+    userSubscription === SubscriptionType.Enterprise;
 
   const handleClick = () => {
     if (canAccess) {

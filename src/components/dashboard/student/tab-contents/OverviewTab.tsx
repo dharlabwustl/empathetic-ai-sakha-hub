@@ -41,14 +41,6 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ userProfile }) => {
     navigate(`/dashboard/student/concept/${id}`);
   };
 
-  // Get exam info from profile
-  const examInfo = userProfile.goals && userProfile.goals.length > 0
-    ? {
-        title: userProfile.goals[0].title,
-        examDate: userProfile.goals[0].examDate || (userProfile.examPreparation && typeof userProfile.examPreparation !== 'string' ? userProfile.examPreparation.examDate : null) || ''
-      }
-    : { title: "Exam", examDate: "" };
-
   return (
     <div>
       <h2 className="text-2xl font-bold mb-4">Overview</h2>
@@ -90,8 +82,8 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ userProfile }) => {
       </div>
       
       <ActionButtons 
-        currentExam={examInfo.title}
-        nextExamDate={examInfo.examDate || "April 30, 2025"} 
+        currentExam={userProfile?.goals?.[0]?.title || "IIT-JEE"} 
+        nextExamDate={userProfile?.goals?.[0]?.examDate || userProfile?.examDate || "April 30, 2025"} 
       />
     </div>
   );
