@@ -70,13 +70,26 @@ export default function OnboardingFlow({ userProfile, goalTitle, onComplete }: O
     studyTime,
     setExamDate,
     setStudyHours,
-    setStudyPace,
-    setStudyTime,
+    setStudyPace: originalSetStudyPace,
+    setStudyTime: originalSetStudyTime,
     handleNext,
     handlePrevious,
     handleToggleSubject,
     savingStudyPlan
   } = useOnboardingForm(goalTitle, onComplete);
+
+  // Create adapter functions for type compatibility
+  const setPaceAdapter = (pace: "Aggressive" | "Balanced" | "Relaxed") => {
+    const mappedPace = 
+      pace === "Aggressive" ? "fast" :
+      pace === "Balanced" ? "moderate" : "slow";
+    originalSetStudyPace(mappedPace);
+  };
+
+  const setTimeAdapter = (time: "Morning" | "Afternoon" | "Evening" | "Night") => {
+    const mappedTime = time.toLowerCase() as "morning" | "afternoon" | "evening" | "night";
+    originalSetStudyTime(mappedTime);
+  };
 
   if (loading) {
     return <LoadingScreen goalTitle={goalTitle} weakSubjects={weakSubjects.map(s => s.name)} />;
@@ -143,8 +156,8 @@ export default function OnboardingFlow({ userProfile, goalTitle, onComplete }: O
                     setExamDate={setExamDate}
                     setStudyHours={setStudyHours}
                     handleToggleSubject={handleToggleSubject}
-                    setStudyPace={setStudyPace}
-                    setStudyTime={setStudyTime}
+                    setStudyPace={originalSetStudyPace}
+                    setStudyTime={originalSetStudyTime}
                     studyPlanData={studyPlanData}
                   />
                 </AnimatePresence>

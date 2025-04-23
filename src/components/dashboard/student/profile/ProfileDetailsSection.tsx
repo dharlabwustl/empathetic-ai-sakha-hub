@@ -6,22 +6,23 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Edit } from 'lucide-react';
 
-interface ProfileDetailsSectionProps {
+export interface ProfileDetailsSectionProps {
   userProfile: UserProfileType;
   onEdit?: () => void;
+  onUpdateProfile?: (updates: Partial<UserProfileType>) => void;
 }
 
-const ProfileDetailsSection: React.FC<ProfileDetailsSectionProps> = ({ userProfile, onEdit }) => {
+const ProfileDetailsSection: React.FC<ProfileDetailsSectionProps> = ({ userProfile, onEdit, onUpdateProfile }) => {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <div>
-          <CardTitle>Personal Information</CardTitle>
-          <CardDescription>Your profile details</CardDescription>
+          <CardTitle>Personal Details</CardTitle>
+          <CardDescription>Your account information</CardDescription>
         </div>
         {onEdit && (
           <Button variant="ghost" size="sm" onClick={onEdit}>
-            <Edit className="h-4 w-4 mr-2" /> Edit Profile
+            <Edit className="h-4 w-4 mr-2" /> Edit
           </Button>
         )}
       </CardHeader>
@@ -39,43 +40,47 @@ const ProfileDetailsSection: React.FC<ProfileDetailsSectionProps> = ({ userProfi
             </div>
             
             <div>
-              <Label className="text-xs text-muted-foreground">Phone</Label>
-              <div className="font-medium">{userProfile.personalDetails?.phone || userProfile.personalDetails?.phoneNumber || 'Not provided'}</div>
+              <Label className="text-xs text-muted-foreground">Phone Number</Label>
+              <div className="font-medium">{userProfile.personalDetails?.phoneNumber || 'Not provided'}</div>
             </div>
             
             <div>
-              <Label className="text-xs text-muted-foreground">Address</Label>
-              <div className="font-medium">{userProfile.personalDetails?.address || 'Not provided'}</div>
+              <Label className="text-xs text-muted-foreground">City</Label>
+              <div className="font-medium">{userProfile.personalDetails?.city || 'Not provided'}</div>
             </div>
-            
             <div>
-              <Label className="text-xs text-muted-foreground">Date of Birth</Label>
-              <div className="font-medium">{userProfile.personalDetails?.dateOfBirth || 'Not provided'}</div>
+              <Label className="text-xs text-muted-foreground">State</Label>
+              <div className="font-medium">{userProfile.personalDetails?.state || 'Not provided'}</div>
             </div>
           </div>
           
           <div className="space-y-3">
             <div>
-              <Label className="text-xs text-muted-foreground">Bio</Label>
-              <div className="font-medium">{userProfile.personalDetails?.bio || 'No bio provided'}</div>
-            </div>
-            
-            <div>
-              <Label className="text-xs text-muted-foreground">School</Label>
+              <Label className="text-xs text-muted-foreground">School/College</Label>
               <div className="font-medium">{userProfile.personalDetails?.school || 'Not provided'}</div>
             </div>
             
             <div>
-              <Label className="text-xs text-muted-foreground">Grade</Label>
+              <Label className="text-xs text-muted-foreground">Grade/Year</Label>
               <div className="font-medium">{userProfile.personalDetails?.grade || 'Not provided'}</div>
             </div>
             
             <div>
-              <Label className="text-xs text-muted-foreground">Interests</Label>
+              <Label className="text-xs text-muted-foreground">Board</Label>
+              <div className="font-medium">{userProfile.personalDetails?.board || 'Not provided'}</div>
+            </div>
+            
+            <div>
+              <Label className="text-xs text-muted-foreground">Member Since</Label>
               <div className="font-medium">
-                {userProfile.personalDetails?.interests && userProfile.personalDetails.interests.length > 0 
-                  ? userProfile.personalDetails.interests.join(', ') 
-                  : 'None specified'}
+                {userProfile.createdAt 
+                  ? new Date(userProfile.createdAt).toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric'
+                    })
+                  : 'Unknown'
+                }
               </div>
             </div>
           </div>

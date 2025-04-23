@@ -17,30 +17,30 @@ interface OnboardingStepContentProps {
   strongSubjects: NewStudyPlanSubject[] | Subject[];
   weakSubjects: NewStudyPlanSubject[] | Subject[];
   studyPace: string;
-  studyTime: "Morning" | "Afternoon" | "Evening" | "Night";
+  studyTime: string;
   examGoal: string;
   setExamDate: (date: Date | undefined) => void;
   setStudyHours: (hours: number) => void;
   handleToggleSubject: (subject: string | Subject, type: "strong" | "weak") => void;
-  setStudyPace: (pace: "Aggressive" | "Balanced" | "Relaxed") => void;
-  setStudyTime: (time: "Morning" | "Afternoon" | "Evening" | "Night") => void;
+  setStudyPace: (pace: "slow" | "moderate" | "fast") => void;
+  setStudyTime: (time: "morning" | "afternoon" | "evening" | "night") => void;
+  studyPlanData?: any;
 }
 
 // Adapter functions to handle different types
-const adaptPace = (pace: string): "Aggressive" | "Balanced" | "Relaxed" => {
-  if (pace === "fast") return "Aggressive";
-  if (pace === "moderate") return "Balanced";
-  return "Relaxed";
+const adaptPace = (pace: string): "slow" | "moderate" | "fast" => {
+  if (pace === "fast" || pace === "Aggressive") return "fast";
+  if (pace === "moderate" || pace === "Balanced") return "moderate";
+  return "slow";
 };
 
-const adaptTimeCasing = (time: string): "Morning" | "Afternoon" | "Evening" | "Night" => {
-  const capitalizedTime = time.charAt(0).toUpperCase() + time.slice(1).toLowerCase();
-  return capitalizedTime as "Morning" | "Afternoon" | "Evening" | "Night";
+const adaptTimeCasing = (time: string): "morning" | "afternoon" | "evening" | "night" => {
+  return time.toLowerCase() as "morning" | "afternoon" | "evening" | "night";
 };
 
 const adaptSubjects = (subjects: NewStudyPlanSubject[] | Subject[]): Subject[] => {
   return subjects.map(subject => {
-    if ('key' in subject) return subject as Subject;
+    if ('key' in subject && subject.key) return subject as Subject;
     return {
       name: subject.name,
       key: subject.name.toLowerCase().replace(/\s+/g, '-'),
@@ -70,7 +70,7 @@ const OnboardingStepContent: React.FC<OnboardingStepContentProps> = ({
   
   // Wrapper function for handleToggleSubject to handle type conversion
   const handleToggleSubjectWrapper = (subject: Subject, type: "strong" | "weak") => {
-    handleToggleSubject(subject.name, type);
+    handleToggleSubject(subject, type);
   };
 
   // Render the appropriate step content
@@ -80,6 +80,7 @@ const OnboardingStepContent: React.FC<OnboardingStepContentProps> = ({
         <StepExamDate 
           examDate={examDate} 
           setExamDate={setExamDate} 
+          examGoal={examGoal}
         />
       );
     case 2:

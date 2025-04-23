@@ -29,10 +29,12 @@ export interface StudyPlanTopic {
   duration?: number; // in minutes
   complexity?: 'easy' | 'medium' | 'hard';
   resources?: string[];
+  priority?: 'high' | 'medium' | 'low'; // Adding priority as it's being used
 }
 
 export interface StudyPlanSubject {
   name: string;
+  key?: string; // Making key optional to allow compatibility with Subject type
   proficiency: 'strong' | 'weak' | 'moderate';
   progress: number; // percentage
   topics: StudyPlanTopic[];
@@ -40,10 +42,10 @@ export interface StudyPlanSubject {
 
 export interface StudyPlan {
   id: string;
-  userId: string;
+  userId: string; // Required field
   examGoal: string;
   createdAt: string;
-  updatedAt: string;
+  updatedAt: string; // Required field
   status: 'active' | 'completed' | 'archived' | 'draft';
   examDate: string;
   daysLeft: number;

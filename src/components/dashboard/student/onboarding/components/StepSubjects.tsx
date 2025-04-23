@@ -4,16 +4,30 @@ import { motion } from "framer-motion";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Subject, convertToSubjects } from "../SubjectData";
+import { Subject } from "@/types/user/studyPlan";
 import { Check, Search, X } from "lucide-react";
 
+// Helper function to convert string arrays to Subject arrays
+export const convertToSubjects = (subjectNames: string[]): Subject[] => {
+  return subjectNames.map(name => ({
+    name,
+    key: name.toLowerCase().replace(/\s+/g, '-'),
+  }));
+};
+
 interface StepSubjectsProps {
-  initialSubjects: Subject[];
-  onSubjectsChange: (subjects: Subject[]) => void;
+  strongSubjects: Subject[];
+  weakSubjects: Subject[];
+  handleToggleSubject: (subject: Subject, type: "strong" | "weak") => void;
+  examGoal: string;
 }
 
-const StepSubjects: React.FC<StepSubjectsProps> = ({ initialSubjects, onSubjectsChange }) => {
-  const [subjects, setSubjects] = useState<Subject[]>(initialSubjects);
+const StepSubjects: React.FC<StepSubjectsProps> = ({ 
+  strongSubjects,
+  weakSubjects,
+  handleToggleSubject,
+  examGoal 
+}) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredSubjects, setFilteredSubjects] = useState<Subject[]>([]);
   
@@ -26,7 +40,7 @@ const StepSubjects: React.FC<StepSubjectsProps> = ({ initialSubjects, onSubjects
   ];
 
   useEffect(() => {
-    // Convert string arrays to Subject arrays with proper keys
+    // Convert string arrays to Subject arrays
     const groups = new Map(suggestedSubjectGroups.map(group => {
       const subjectList = convertToSubjects(group.subjects).map(subject => ({
         ...subject,
@@ -49,23 +63,14 @@ const StepSubjects: React.FC<StepSubjectsProps> = ({ initialSubjects, onSubjects
   }, [searchTerm]);
 
   const isSubjectSelected = (subjectName: string) => {
-    return subjects.some(s => s.name.toLowerCase() === subjectName.toLowerCase());
+    return [...strongSubjects, ...weakSubjects].some(s => 
+      s.name.toLowerCase() === subjectName.toLowerCase()
+    );
   };
 
-  const handleToggleSubject = (subject: Subject) => {
-    if (isSubjectSelected(subject.name)) {
-      // Remove subject
-      setSubjects(subjects.filter(s => s.name !== subject.name));
-    } else {
-      // Add subject
-      setSubjects([...subjects, subject]);
-    }
+  const isStrongSubject = (subjectName: string) => {
+    return strongSubjects.some(s => s.name.toLowerCase() === subjectName.toLowerCase());
   };
-
-  useEffect(() => {
-    // Update parent component when subjects change
-    onSubjectsChange(subjects);
-  }, [subjects, onSubjectsChange]);
 
   return (
     <motion.div
@@ -79,7 +84,7 @@ const StepSubjects: React.FC<StepSubjectsProps> = ({ initialSubjects, onSubjects
         <div>
           <h3 className="text-xl font-semibold mb-2">Select Subjects</h3>
           <p className="text-muted-foreground mb-4">
-            Choose the subjects you want to study for your exam
+            Choose the subjects you want to study for your {examGoal} exam
           </p>
           
           {/* Search input */}
@@ -108,21 +113,28 @@ const StepSubjects: React.FC<StepSubjectsProps> = ({ initialSubjects, onSubjects
             <div className="mb-4">
               <h4 className="text-sm font-medium mb-2">Search Results</h4>
               <div className="flex flex-wrap gap-2">
-                {filteredSubjects.map(subject => (
-                  <Badge
-                    key={subject.key}
-                    variant={isSubjectSelected(subject.name) ? "default" : "outline"}
-                    className={`cursor-pointer ${
-                      isSubjectSelected(subject.name) 
-                        ? "bg-primary text-primary-foreground" 
-                        : "hover:bg-primary/10"
-                    }`}
-                    onClick={() => handleToggleSubject(subject)}
-                  >
-                    {isSubjectSelected(subject.name) && <Check className="mr-1 h-3 w-3" />}
-                    {subject.name}
-                  </Badge>
-                ))}
+                {filteredSubjects.map(subject => {
+                  const isSelected = isSubjectSelected(subject.name);
+                  const isStrong = isStrongSubject(subject.name);
+                  
+                  return (
+                    <Badge
+                      key={subject.key}
+                      variant={isSelected ? "default" : "outline"}
+                      className={`cursor-pointer ${
+                        isSelected 
+                          ? isStrong
+                            ? "bg-green-600 hover:bg-green-700"
+                            : "bg-amber-600 hover:bg-amber-700" 
+                          : "hover:bg-primary/10"
+                      }`}
+                      onClick={() => handleToggleSubject(subject, isStrong ? "strong" : "weak")}
+                    >
+                      {isSelected && <Check className="mr-1 h-3 w-3" />}
+                      {subject.name}
+                    </Badge>
+                  );
+                })}
               </div>
             </div>
           )}
@@ -133,17 +145,38 @@ const StepSubjects: React.FC<StepSubjectsProps> = ({ initialSubjects, onSubjects
             </div>
           )}
           
-          {/* Currently selected subjects */}
-          {subjects.length > 0 && (
-            <div className="mb-6">
-              <h4 className="text-sm font-medium mb-2">Your Selected Subjects</h4>
+          {/* Strong subjects */}
+          {strongSubjects.length > 0 && (
+            <div className="mb-4">
+              <h4 className="text-sm font-medium mb-2">Strong Subjects</h4>
               <div className="flex flex-wrap gap-2">
-                {subjects.map(subject => (
+                {strongSubjects.map(subject => (
                   <Badge
                     key={subject.key}
                     variant="default"
-                    className="cursor-pointer bg-primary text-primary-foreground"
-                    onClick={() => handleToggleSubject(subject)}
+                    className="cursor-pointer bg-green-600 hover:bg-green-700"
+                    onClick={() => handleToggleSubject(subject, "strong")}
+                  >
+                    <Check className="mr-1 h-3 w-3" />
+                    {subject.name}
+                    <X className="ml-1 h-3 w-3" />
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          )}
+          
+          {/* Weak subjects */}
+          {weakSubjects.length > 0 && (
+            <div className="mb-4">
+              <h4 className="text-sm font-medium mb-2">Weak Subjects</h4>
+              <div className="flex flex-wrap gap-2">
+                {weakSubjects.map(subject => (
+                  <Badge
+                    key={subject.key}
+                    variant="default"
+                    className="cursor-pointer bg-amber-600 hover:bg-amber-700"
+                    onClick={() => handleToggleSubject(subject, "weak")}
                   >
                     <Check className="mr-1 h-3 w-3" />
                     {subject.name}
@@ -161,21 +194,28 @@ const StepSubjects: React.FC<StepSubjectsProps> = ({ initialSubjects, onSubjects
                 <div key={group.group}>
                   <h4 className="text-sm font-medium mb-2">{group.group}</h4>
                   <div className="flex flex-wrap gap-2">
-                    {convertToSubjects(group.subjects).map((subject) => (
-                      <Badge
-                        key={subject.key}
-                        variant={isSubjectSelected(subject.name) ? "default" : "outline"}
-                        className={`cursor-pointer ${
-                          isSubjectSelected(subject.name) 
-                            ? "bg-primary text-primary-foreground" 
-                            : "hover:bg-primary/10"
-                        }`}
-                        onClick={() => handleToggleSubject(subject)}
-                      >
-                        {isSubjectSelected(subject.name) && <Check className="mr-1 h-3 w-3" />}
-                        {subject.name}
-                      </Badge>
-                    ))}
+                    {convertToSubjects(group.subjects).map((subject) => {
+                      const isSelected = isSubjectSelected(subject.name);
+                      const isStrong = isStrongSubject(subject.name);
+                      
+                      return (
+                        <Badge
+                          key={subject.key}
+                          variant={isSelected ? "default" : "outline"}
+                          className={`cursor-pointer ${
+                            isSelected 
+                              ? isStrong
+                                ? "bg-green-600 hover:bg-green-700"
+                                : "bg-amber-600 hover:bg-amber-700" 
+                              : "hover:bg-primary/10"
+                          }`}
+                          onClick={() => handleToggleSubject(subject, isStrong ? "strong" : "weak")}
+                        >
+                          {isSelected && <Check className="mr-1 h-3 w-3" />}
+                          {subject.name}
+                        </Badge>
+                      );
+                    })}
                   </div>
                 </div>
               ))}

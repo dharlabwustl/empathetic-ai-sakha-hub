@@ -14,9 +14,9 @@ interface SettingsTabContentProps {
 const SettingsTabContent: React.FC<SettingsTabContentProps> = ({ userProfile }) => {
   const [activeTab, setActiveTab] = useState("profile");
   
-  const handleUpdateProfile = () => {
+  const handleUpdateProfile = (updates: Partial<UserProfileType>) => {
     // No-op function to satisfy the prop requirement
-    console.log("Profile update requested");
+    console.log("Profile update requested", updates);
   };
   
   return (
