@@ -1,49 +1,75 @@
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Check, BookOpen, AlertCircle } from "lucide-react";
-import { cn } from "@/lib/utils";
-
-interface Subject {
-  name: string;
-  key: string;
-  group?: string;
-}
+import { Badge } from "@/components/ui/badge";
+import { Subject, convertToSubjects } from "../SubjectData";
+import { Check, Search, X } from "lucide-react";
 
 interface StepSubjectsProps {
-  strongSubjects: Subject[];
-  weakSubjects: Subject[];
-  handleToggleSubject: (subject: Subject, type: 'strong' | 'weak') => void;
-  examGoal?: string;
+  initialSubjects: Subject[];
+  onSubjectsChange: (subjects: Subject[]) => void;
 }
 
-const StepSubjects: React.FC<StepSubjectsProps> = ({ 
-  strongSubjects,
-  weakSubjects,
-  handleToggleSubject,
-  examGoal = "exam"
-}) => {
-  // Get all unique subjects from both arrays
-  const allSubjects = [...new Map([
-    ...strongSubjects.map(s => [s.key, s]),
-    ...weakSubjects.map(s => [s.key, s])
-  ].filter(Boolean)).values()];
+const StepSubjects: React.FC<StepSubjectsProps> = ({ initialSubjects, onSubjectsChange }) => {
+  const [subjects, setSubjects] = useState<Subject[]>(initialSubjects);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filteredSubjects, setFilteredSubjects] = useState<Subject[]>([]);
   
-  // Organize subjects by group if available
-  const groupedSubjects: Record<string, Subject[]> = {};
-  
-  allSubjects.forEach(subject => {
-    const group = subject.group || 'General';
-    if (!groupedSubjects[group]) {
-      groupedSubjects[group] = [];
+  // Suggested subjects based on common exam preparations
+  const suggestedSubjectGroups = [
+    { group: "Mathematics", subjects: ["Algebra", "Geometry", "Calculus", "Trigonometry", "Statistics"] },
+    { group: "Science", subjects: ["Physics", "Chemistry", "Biology", "Environmental Science"] },
+    { group: "Languages", subjects: ["English", "Hindi", "Sanskrit"] },
+    { group: "Social Studies", subjects: ["History", "Geography", "Political Science", "Economics"] }
+  ];
+
+  useEffect(() => {
+    // Convert string arrays to Subject arrays with proper keys
+    const groups = new Map(suggestedSubjectGroups.map(group => {
+      const subjectList = convertToSubjects(group.subjects).map(subject => ({
+        ...subject,
+        group: group.group
+      }));
+      return [group.group, subjectList];
+    }));
+
+    // Filter subjects based on search term
+    if (searchTerm) {
+      const allSubjects = Array.from(groups.values()).flat();
+      setFilteredSubjects(
+        allSubjects.filter(subject =>
+          subject.name.toLowerCase().includes(searchTerm.toLowerCase())
+        )
+      );
+    } else {
+      setFilteredSubjects([]);
     }
-    groupedSubjects[group].push(subject);
-  });
+  }, [searchTerm]);
+
+  const isSubjectSelected = (subjectName: string) => {
+    return subjects.some(s => s.name.toLowerCase() === subjectName.toLowerCase());
+  };
+
+  const handleToggleSubject = (subject: Subject) => {
+    if (isSubjectSelected(subject.name)) {
+      // Remove subject
+      setSubjects(subjects.filter(s => s.name !== subject.name));
+    } else {
+      // Add subject
+      setSubjects([...subjects, subject]);
+    }
+  };
+
+  useEffect(() => {
+    // Update parent component when subjects change
+    onSubjectsChange(subjects);
+  }, [subjects, onSubjectsChange]);
 
   return (
     <motion.div
-      key="step3"
+      key="step-subjects"
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: -20 }}
@@ -51,75 +77,110 @@ const StepSubjects: React.FC<StepSubjectsProps> = ({
     >
       <div className="space-y-6">
         <div>
-          <h3 className="text-xl font-semibold mb-2 flex items-center gap-2">
-            <BookOpen className="text-purple-500" size={20} />
-            Subject Proficiency
-          </h3>
+          <h3 className="text-xl font-semibold mb-2">Select Subjects</h3>
           <p className="text-muted-foreground mb-4">
-            Select your strong and weak subjects for your {examGoal} preparation
+            Choose the subjects you want to study for your exam
           </p>
           
-          {Object.keys(groupedSubjects).length > 0 ? (
+          {/* Search input */}
+          <div className="relative mb-4">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input 
+              placeholder="Search for subjects" 
+              className="pl-8" 
+              value={searchTerm} 
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            {searchTerm && (
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="absolute right-1 top-1 h-8 w-8" 
+                onClick={() => setSearchTerm("")}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
+          
+          {/* Search results */}
+          {searchTerm && filteredSubjects.length > 0 && (
+            <div className="mb-4">
+              <h4 className="text-sm font-medium mb-2">Search Results</h4>
+              <div className="flex flex-wrap gap-2">
+                {filteredSubjects.map(subject => (
+                  <Badge
+                    key={subject.key}
+                    variant={isSubjectSelected(subject.name) ? "default" : "outline"}
+                    className={`cursor-pointer ${
+                      isSubjectSelected(subject.name) 
+                        ? "bg-primary text-primary-foreground" 
+                        : "hover:bg-primary/10"
+                    }`}
+                    onClick={() => handleToggleSubject(subject)}
+                  >
+                    {isSubjectSelected(subject.name) && <Check className="mr-1 h-3 w-3" />}
+                    {subject.name}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          )}
+          
+          {searchTerm && filteredSubjects.length === 0 && (
+            <div className="mb-4 p-4 text-center border border-dashed rounded-md">
+              <p className="text-sm text-muted-foreground">No subjects found matching "{searchTerm}"</p>
+            </div>
+          )}
+          
+          {/* Currently selected subjects */}
+          {subjects.length > 0 && (
+            <div className="mb-6">
+              <h4 className="text-sm font-medium mb-2">Your Selected Subjects</h4>
+              <div className="flex flex-wrap gap-2">
+                {subjects.map(subject => (
+                  <Badge
+                    key={subject.key}
+                    variant="default"
+                    className="cursor-pointer bg-primary text-primary-foreground"
+                    onClick={() => handleToggleSubject(subject)}
+                  >
+                    <Check className="mr-1 h-3 w-3" />
+                    {subject.name}
+                    <X className="ml-1 h-3 w-3" />
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          )}
+          
+          {/* Common subject groups */}
+          {!searchTerm && (
             <div className="space-y-4">
-              {Object.entries(groupedSubjects).map(([group, subjects]) => (
-                <div key={group} className="space-y-2">
-                  {group !== 'General' && <h4 className="text-sm font-medium text-muted-foreground">{group}</h4>}
-                  <div className="grid grid-cols-1 gap-2">
-                    {subjects.map((subject) => (
-                      <div key={subject.key} className="border rounded-lg p-3 bg-card">
-                        <div className="flex justify-between items-center">
-                          <span className="font-medium">{subject.name}</span>
-                          <div className="flex gap-2">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className={cn(
-                                "text-xs h-8 px-2",
-                                strongSubjects.some(s => s.key === subject.key) && 
-                                "bg-green-50 text-green-700 border-green-200 hover:bg-green-100 hover:text-green-800"
-                              )}
-                              onClick={() => handleToggleSubject(subject, 'strong')}
-                            >
-                              {strongSubjects.some(s => s.key === subject.key) && (
-                                <Check className="mr-1 h-3 w-3" />
-                              )}
-                              Strong
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className={cn(
-                                "text-xs h-8 px-2",
-                                weakSubjects.some(s => s.key === subject.key) && 
-                                "bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100 hover:text-amber-800"
-                              )}
-                              onClick={() => handleToggleSubject(subject, 'weak')}
-                            >
-                              {weakSubjects.some(s => s.key === subject.key) && (
-                                <Check className="mr-1 h-3 w-3" />
-                              )}
-                              Needs Work
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
+              {suggestedSubjectGroups.map((group) => (
+                <div key={group.group}>
+                  <h4 className="text-sm font-medium mb-2">{group.group}</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {convertToSubjects(group.subjects).map((subject) => (
+                      <Badge
+                        key={subject.key}
+                        variant={isSubjectSelected(subject.name) ? "default" : "outline"}
+                        className={`cursor-pointer ${
+                          isSubjectSelected(subject.name) 
+                            ? "bg-primary text-primary-foreground" 
+                            : "hover:bg-primary/10"
+                        }`}
+                        onClick={() => handleToggleSubject(subject)}
+                      >
+                        {isSubjectSelected(subject.name) && <Check className="mr-1 h-3 w-3" />}
+                        {subject.name}
+                      </Badge>
                     ))}
                   </div>
                 </div>
               ))}
             </div>
-          ) : (
-            <div className="text-center p-8 border border-dashed rounded-lg">
-              <p className="text-muted-foreground">No subjects available</p>
-            </div>
           )}
-          
-          <div className="mt-4 bg-purple-50 p-4 rounded-md">
-            <p className="text-sm flex items-center gap-2">
-              <AlertCircle size={16} className="text-purple-500" />
-              <span>Marking your weak subjects will help us allocate more practice time for them.</span>
-            </p>
-          </div>
         </div>
       </div>
     </motion.div>

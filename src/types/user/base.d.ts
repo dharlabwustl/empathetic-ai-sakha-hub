@@ -1,113 +1,60 @@
 
-export enum UserRole {
-  Student = "student",
-  Teacher = "teacher",
-  Parent = "parent",
-  Doctor = "doctor",
-  Admin = "admin",
-  Employee = "employee",
-  Founder = "founder",
-  Tutor = "tutor"
-}
+import { UserSubscription } from './subscription';
 
-export enum SubscriptionType {
-  Free = "free",
-  Basic = "basic",
-  Premium = "premium",
-  Pro = "pro",
-  Elite = "elite",
-  Group = "group",
-  Enterprise = "enterprise"
-}
+export type MoodType = 'sad' | 'neutral' | 'happy' | 'motivated';
 
-export type MoodType = 
-  | 'happy' 
-  | 'sad' 
-  | 'neutral' 
-  | 'motivated' 
-  | 'tired' 
-  | 'stressed' 
-  | 'focused' 
-  | 'curious' 
-  | 'overwhelmed' 
-  | 'okay';
+export type UserRole = 'student' | 'teacher' | 'admin' | 'parent';
 
-export interface Goal {
+export interface UserGoal {
   id: string;
   title: string;
   description?: string;
-  dueDate?: string;
   targetDate?: string;
-  progress: number;
-  status: "not_started" | "in_progress" | "completed";
+  progress?: number;
+}
+
+export interface SubscriptionType {
+  id?: string;
+  plan?: string;
+  expiresAt?: string;
+  isActive?: boolean;
+  features?: string[];
 }
 
 export interface UserProfileType {
   id: string;
   name: string;
   email: string;
+  role: UserRole;
   avatar?: string;
-  role: UserRole | string;
-  createdAt?: string;
-  lastLogin?: string;
-  onboarded?: boolean;
+  phone?: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  zip?: string;
+  country?: string;
+  createdAt: string;
+  updatedAt: string;
+  goals?: UserGoal[];
+  subscription?: string | UserSubscription;
   loginCount?: number;
-  completedOnboarding?: boolean;
-  goals?: Goal[];
-  subscription?: SubscriptionType | string;
-  examDate?: string;
+  lastLogin?: string;
+  isVerified?: boolean;
+  isPremium?: boolean;
+  isOnboardingComplete?: boolean;
+  isGroupLeader?: boolean;
   batchName?: string;
   batchCode?: string;
-  isGroupLeader?: boolean;
-  currentMood?: MoodType;
-  personalDetails?: {
-    phoneNumber?: string;
-    phone?: string;
-    address?: string;
-    city?: string;
-    state?: string;
-    country?: string;
-    zipCode?: string;
-    dateOfBirth?: string;
-    gender?: string;
-    school?: string;
-    grade?: string;
-    board?: string;
-    bio?: string;
-    interests?: string[];
-  };
-  examPreparation?: {
-    target: string;
-    examDate: string;
-    subjects: string[];
-  };
-  studyStreak?: {
-    current: number;
-    best: number;
-    lastStudyDate: string;
-    thisWeek: number;
-    thisMonth: number;
-  };
-}
-
-export interface AuthUser {
-  id: string;
-  email: string;
-  name: string;
-  role: UserRole | string;
-  avatar?: string;
-  emailVerified?: boolean;
-  profile?: UserProfileType;
-}
-
-export interface AuthContextProps {
-  user: AuthUser | null;
-  loading: boolean;
-  error: string | null;
-  login: (email: string, password: string) => Promise<boolean>;
-  loginWithGoogle: () => Promise<boolean>;
-  register: (name: string, email: string, password: string, role: UserRole | string) => Promise<boolean>;
-  logout: () => Promise<void>;
-  resetPassword: (email: string) => Promise<boolean>;
-  changePassword: (oldPassword: string, newPassword: string) => Promise<boolean>;
+  batchMembers?: number;
+  preferredLanguage?: string;
+  subjects?: string[];
+  preferences?: Record<string, any>;
+  badges?: string[];
+  achievements?: string[];
+  streakDays?: number;
+  totalStudyHours?: number;
+  completedLessons?: number;
+  completedQuizzes?: number;
+  accuracyRate?: number;
+  mood?: MoodType;
 }
