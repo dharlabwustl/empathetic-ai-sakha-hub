@@ -1,4 +1,11 @@
 
+// Subject type definition
+export interface Subject {
+  name: string;
+  key: string;
+  group?: string;
+}
+
 // Mock subject data based on common exam goals
 export const subjectsByGoal: Record<string, string[]> = {
   "IIT-JEE": ["Physics", "Chemistry", "Mathematics"],
@@ -22,4 +29,12 @@ export const getSubjectsForGoal = (goalTitle: string): string[] => {
   return normalizedGoalTitle ? 
     subjectsByGoal[normalizedGoalTitle] : 
     defaultSubjects;
+};
+
+// Helper to convert string array to Subject array
+export const convertToSubjects = (subjectNames: string[]): Subject[] => {
+  return subjectNames.map(name => ({
+    name,
+    key: name.toLowerCase().replace(/\s+/g, '-')
+  }));
 };

@@ -1,222 +1,130 @@
 
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { UserProfileType } from "@/types/user/base";
-import { useToast } from "@/hooks/use-toast";
-import {
-  Clock,
-  BookOpen,
-  Check,
-  FileText,
-  Tag,
-  AlertCircle,
-  ArrowRight,
-  Brain
-} from "lucide-react";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { UserProfileType } from "@/types/user";
+import { ExamPreparation } from "@/types/user/exam-preparation";
+import { motion } from "framer-motion";
+import { ArrowRight, Clock, Award, BookOpen } from "lucide-react";
 
-interface PracticeExamProps {
+interface PracticeExamStartProps {
   userProfile: UserProfileType;
   onStartExam: () => void;
 }
 
-const PracticeExamStart: React.FC<PracticeExamProps> = ({ userProfile, onStartExam }) => {
-  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
-  const [examLoading, setExamLoading] = useState(false);
+const PracticeExamStart: React.FC<PracticeExamStartProps> = ({ userProfile, onStartExam }) => {
   const navigate = useNavigate();
-  const { toast } = useToast();
   
-  // Get exam name based on user's exam preparation
-  const examName = userProfile.examPreparation?.target || "Mock Test";
-  
-  // Sample exam data - in a real app this would come from a backend
-  const examData = {
-    id: "practice-001",
-    title: `${examName} Practice Test`,
-    description: "This practice test will help you prepare for your upcoming exam by simulating real exam conditions.",
-    timeLimit: 60, // minutes
-    questionCount: 25,
-    subject: userProfile.subjects?.[0]?.name || "General Knowledge",
-    difficulty: "Medium",
-    avgScore: "68%",
-    attempts: 543,
-    requiredSubscription: "free"
-  };
-  
-  const handleStartExam = () => {
-    setShowConfirmDialog(false);
-    setExamLoading(true);
-    
-    toast({
-      title: "Starting Exam",
-      description: "Preparing your practice test..."
-    });
-    
-    // Simulate loading time for exam preparation
-    setTimeout(() => {
-      setExamLoading(false);
-      onStartExam();
-      navigate("/dashboard/student/practice-exam/1");
-    }, 1500);
-  };
-  
+  // Get user's exam preparation info, with proper type handling
+  const examPrep = userProfile?.examPreparation && typeof userProfile.examPreparation === 'object' 
+    ? (userProfile.examPreparation as ExamPreparation) 
+    : null;
+
+  const examTarget = examPrep && 'target' in examPrep ? examPrep.target : "your exam";
+
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-2xl font-bold">Practice Exams</h2>
-          <p className="text-muted-foreground">Test your knowledge and track your progress.</p>
-        </div>
-        
-        <Button 
-          onClick={() => setShowConfirmDialog(true)}
-          disabled={examLoading}
-          className="bg-gradient-to-r from-blue-600 to-indigo-700"
-        >
-          {examLoading ? (
-            <>
-              <Clock className="mr-2 h-4 w-4 animate-spin" />
-              Loading Exam...
-            </>
-          ) : (
-            <>
-              <FileText className="mr-2 h-4 w-4" />
-              Start New Practice Test
-            </>
-          )}
-        </Button>
-      </div>
-      
+    <div className="container max-w-4xl mx-auto py-6 px-4 sm:px-6 space-y-8">
+      <header>
+        <h1 className="text-2xl font-bold">Practice Exam</h1>
+        <p className="text-muted-foreground">
+          Test your knowledge with practice exams tailored to your study plan
+        </p>
+      </header>
+
       <Card className="overflow-hidden border-2 border-primary/20">
-        <div className="bg-gradient-to-r from-blue-500/20 to-indigo-500/20 h-2" />
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-xl">{examData.title}</CardTitle>
-            <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
-              Recommended
-            </Badge>
-          </div>
-          <CardDescription>{examData.description}</CardDescription>
+        <CardHeader className="bg-primary/5 border-b border-primary/10">
+          <CardTitle className="flex items-center gap-2">
+            <Award className="h-5 w-5 text-primary" />
+            Start a New Practice Exam
+          </CardTitle>
         </CardHeader>
-        
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-            <div className="flex flex-col gap-1">
-              <span className="text-sm text-muted-foreground">Time Limit</span>
-              <div className="flex items-center">
-                <Clock className="h-4 w-4 mr-2 text-blue-600" />
-                <span className="font-medium">{examData.timeLimit} minutes</span>
+        <CardContent className="p-6">
+          <div className="grid md:grid-cols-2 gap-6">
+            <div className="space-y-4">
+              <h3 className="font-medium text-lg">Ready to challenge yourself?</h3>
+              <p className="text-muted-foreground">
+                This 60-minute practice exam is designed to simulate real exam conditions
+                and test your knowledge on key topics for {examTarget || "your exam"}.
+              </p>
+              
+              <div className="space-y-2">
+                <div className="flex items-start gap-2">
+                  <Clock className="h-5 w-5 text-muted-foreground mt-0.5" />
+                  <div>
+                    <p className="font-medium">60 Minutes</p>
+                    <p className="text-sm text-muted-foreground">Timed test environment</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start gap-2">
+                  <BookOpen className="h-5 w-5 text-muted-foreground mt-0.5" />
+                  <div>
+                    <p className="font-medium">Mixed Topics</p>
+                    <p className="text-sm text-muted-foreground">
+                      Covers subjects from your study plan
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
             
-            <div className="flex flex-col gap-1">
-              <span className="text-sm text-muted-foreground">Questions</span>
-              <div className="flex items-center">
-                <FileText className="h-4 w-4 mr-2 text-blue-600" />
-                <span className="font-medium">{examData.questionCount} questions</span>
-              </div>
-            </div>
-            
-            <div className="flex flex-col gap-1">
-              <span className="text-sm text-muted-foreground">Subject</span>
-              <div className="flex items-center">
-                <BookOpen className="h-4 w-4 mr-2 text-blue-600" />
-                <span className="font-medium">{examData.subject}</span>
-              </div>
-            </div>
-            
-            <div className="flex flex-col gap-1">
-              <span className="text-sm text-muted-foreground">Difficulty</span>
-              <div className="flex items-center">
-                <Tag className="h-4 w-4 mr-2 text-blue-600" />
-                <span className="font-medium">{examData.difficulty}</span>
-              </div>
-            </div>
-          </div>
-          
-          <div className="bg-blue-50 dark:bg-blue-900/30 p-3 rounded-md">
-            <div className="flex items-start">
-              <Brain className="h-5 w-5 mr-2 text-blue-600 mt-0.5" />
-              <div>
-                <h4 className="font-medium text-blue-700 dark:text-blue-300">Test Preparation Tips:</h4>
-                <ul className="mt-1 text-sm text-blue-700 dark:text-blue-300 space-y-1">
-                  <li>• Find a quiet place with minimal distractions</li>
-                  <li>• Have paper/calculator ready if allowed for your exam</li>
-                  <li>• Maintain a steady pace to complete all questions</li>
-                  <li>• Review your answers before submitting if time permits</li>
-                </ul>
-              </div>
+            <div className="flex flex-col justify-center space-y-4 md:border-l md:border-gray-200 md:pl-6">
+              <Button 
+                size="lg" 
+                className="gap-2"
+                onClick={() => navigate("/dashboard/student/practice-exam/1")}
+              >
+                Start Practice Exam
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+              
+              <Button 
+                variant="outline" 
+                className="gap-2"
+                onClick={() => navigate("/dashboard/student/practice-exam/history")}
+              >
+                View Previous Results
+              </Button>
             </div>
           </div>
         </CardContent>
-        
-        <CardFooter className="flex flex-col sm:flex-row justify-between border-t bg-gray-50 dark:bg-gray-800/50 p-4">
-          <div className="flex items-center mb-2 sm:mb-0">
-            <span className="flex items-center text-sm text-muted-foreground">
-              <Check className="h-4 w-4 mr-1 text-green-500" />
-              Avg. Score: {examData.avgScore}
-            </span>
-            <span className="mx-2">•</span>
-            <span className="text-sm text-muted-foreground">{examData.attempts} attempts</span>
-          </div>
-          
-          <Button 
-            onClick={() => setShowConfirmDialog(true)}
-            disabled={examLoading}
-          >
-            {examLoading ? (
-              <>
-                <Clock className="mr-2 h-4 w-4 animate-spin" />
-                Loading...
-              </>
-            ) : (
-              <>
-                Start Practice Test
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </>
-            )}
-          </Button>
-        </CardFooter>
       </Card>
       
-      <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Start Practice Exam</DialogTitle>
-            <DialogDescription>
-              You're about to start a {examData.timeLimit}-minute practice exam with {examData.questionCount} questions.
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="py-4">
-            <div className="flex items-start mb-4">
-              <AlertCircle className="h-5 w-5 mr-2 text-amber-500 mt-0.5" />
-              <div>
-                <h4 className="font-medium">Before you begin:</h4>
-                <ul className="mt-1 text-sm text-muted-foreground space-y-1">
-                  <li>• Make sure you have {examData.timeLimit} minutes of uninterrupted time</li>
-                  <li>• Your progress will be saved automatically</li>
-                  <li>• You can pause the exam, but the timer will continue</li>
-                </ul>
-              </div>
-            </div>
-            
-            <p className="text-center font-medium">Are you ready to begin?</p>
-          </div>
-          
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowConfirmDialog(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleStartExam}>
-              Start Now
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <div className="grid md:grid-cols-3 gap-4">
+        {["Flash Cards", "Concept Mastery", "Quick Quiz"].map((type, i) => (
+          <motion.div
+            key={type}
+            initial={{ opacity: 0, y: 20 }} 
+            animate={{ 
+              opacity: 1, 
+              y: 0,
+              transition: { delay: 0.1 * i }
+            }}
+          >
+            <Card className="h-full">
+              <CardContent className="p-4 flex flex-col justify-between h-full">
+                <div>
+                  <h3 className="font-medium mb-2">{type}</h3>
+                  <p className="text-sm text-muted-foreground">
+                    {type === "Flash Cards" && "Quick review with flash cards"}
+                    {type === "Concept Mastery" && "Deep dive into key concepts"}
+                    {type === "Quick Quiz" && "Test knowledge in 10 minutes"}
+                  </p>
+                </div>
+                <Button 
+                  variant="ghost" 
+                  className="mt-4 w-full justify-between"
+                  onClick={() => navigate(`/dashboard/student/${type.toLowerCase().replace(/\s+/g, "-")}`)}
+                >
+                  Start
+                  <ArrowRight className="h-4 w-4 ml-2" />
+                </Button>
+              </CardContent>
+            </Card>
+          </motion.div>
+        ))}
+      </div>
     </div>
   );
 };

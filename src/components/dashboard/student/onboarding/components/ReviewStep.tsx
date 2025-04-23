@@ -1,43 +1,50 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { CalendarClock, Clock, BookOpen, FastForward, Sunrise, Sun, Sunset, Moon } from "lucide-react";
 import { format } from "date-fns";
-import { CheckCircle2, Calendar, Clock, BookOpen, Gauge, AlarmClock } from "lucide-react";
-
-interface StudyPlanData {
-  examGoal: string;
-  examDate: string;
-  daysLeft: number;
-  studyHoursPerDay: number;
-  strongSubjects: string[];
-  weakSubjects: string[];
-  studyPace: 'slow' | 'moderate' | 'fast';
-  preferredStudyTime: 'morning' | 'afternoon' | 'evening' | 'night';
-}
 
 interface ReviewStepProps {
-  studyPlanData: StudyPlanData;
+  studyPlanData: {
+    examGoal: string;
+    examDate?: string;
+    daysLeft?: number;
+    studyHoursPerDay: number;
+    strongSubjects: string[];
+    weakSubjects: string[];
+    studyPace: 'slow' | 'moderate' | 'fast';
+    preferredStudyTime: 'morning' | 'afternoon' | 'evening' | 'night';
+  };
 }
 
-const ReviewStep = ({ studyPlanData }: ReviewStepProps) => {
-  const {
-    examGoal,
-    examDate,
-    daysLeft,
-    studyHoursPerDay,
-    strongSubjects,
-    weakSubjects,
-    studyPace,
-    preferredStudyTime
-  } = studyPlanData;
+const ReviewStep: React.FC<ReviewStepProps> = ({ studyPlanData }) => {
+  const getTimeIcon = () => {
+    switch (studyPlanData.preferredStudyTime) {
+      case 'morning': return <Sunrise className="w-5 h-5 text-amber-500" />;
+      case 'afternoon': return <Sun className="w-5 h-5 text-orange-500" />;
+      case 'evening': return <Sunset className="w-5 h-5 text-indigo-500" />;
+      case 'night': return <Moon className="w-5 h-5 text-blue-500" />;
+      default: return <Clock className="w-5 h-5 text-gray-500" />;
+    }
+  };
 
-  const formatDate = (dateString: string) => {
-    try {
-      const date = new Date(dateString);
-      return format(date, "PPP");
-    } catch (error) {
-      return "Invalid date";
+  const getPaceLabel = () => {
+    switch (studyPlanData.studyPace) {
+      case 'fast': return 'Fast';
+      case 'moderate': return 'Moderate';
+      case 'slow': return 'Relaxed';
+      default: return 'Moderate';
+    }
+  };
+
+  const getTimeLabel = () => {
+    switch (studyPlanData.preferredStudyTime) {
+      case 'morning': return 'Morning (6 AM - 11 AM)';
+      case 'afternoon': return 'Afternoon (12 PM - 4 PM)';
+      case 'evening': return 'Evening (5 PM - 8 PM)';
+      case 'night': return 'Night (9 PM - 12 AM)';
+      default: return 'Evening';
     }
   };
 
@@ -50,104 +57,113 @@ const ReviewStep = ({ studyPlanData }: ReviewStepProps) => {
       transition={{ duration: 0.3 }}
     >
       <div className="space-y-6">
-        <div>
-          <h3 className="text-xl font-semibold mb-2 flex items-center gap-2">
-            <CheckCircle2 className="text-green-500" size={20} />
-            Review Your Study Plan
-          </h3>
-          <p className="text-muted-foreground mb-4">Here's a summary of your personalized study plan</p>
-          
-          <Card className="bg-gray-50 border-gray-200">
-            <CardContent className="pt-6">
-              <dl className="space-y-4">
-                <div className="flex items-start">
-                  <dt className="w-1/3 font-medium flex items-center">
-                    <Calendar size={16} className="mr-2 text-purple-600" />
-                    Exam Goal:
-                  </dt>
-                  <dd className="w-2/3">{examGoal}</dd>
+        <h3 className="text-xl font-semibold">Review Your Study Plan</h3>
+        <p className="text-muted-foreground">
+          We'll create a personalized study plan based on these preferences
+        </p>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Card>
+            <CardHeader className="pb-2">
+              <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                <CalendarClock className="w-4 h-4" />
+                <span>Exam Details</span>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <div>
+                  <p className="text-sm text-muted-foreground">Goal</p>
+                  <p className="font-medium">{studyPlanData.examGoal}</p>
                 </div>
-                
-                <div className="flex items-start">
-                  <dt className="w-1/3 font-medium flex items-center">
-                    <Calendar size={16} className="mr-2 text-purple-600" />
-                    Exam Date:
-                  </dt>
-                  <dd className="w-2/3">
-                    {formatDate(examDate)}
-                    <p className="text-sm text-muted-foreground">({daysLeft} days remaining)</p>
-                  </dd>
+                <div>
+                  <p className="text-sm text-muted-foreground">Exam Date</p>
+                  <p className="font-medium">
+                    {studyPlanData.examDate 
+                      ? format(new Date(studyPlanData.examDate), "PPP") 
+                      : "Not specified"}
+                  </p>
                 </div>
-                
-                <div className="flex items-start">
-                  <dt className="w-1/3 font-medium flex items-center">
-                    <Clock size={16} className="mr-2 text-purple-600" />
-                    Study Hours:
-                  </dt>
-                  <dd className="w-2/3">{studyHoursPerDay} hours per day</dd>
+                <div>
+                  <p className="text-sm text-muted-foreground">Days Remaining</p>
+                  <p className="font-medium">{studyPlanData.daysLeft || "N/A"}</p>
                 </div>
-                
-                <div className="flex items-start">
-                  <dt className="w-1/3 font-medium flex items-center">
-                    <BookOpen size={16} className="mr-2 text-purple-600" />
-                    Strong Subjects:
-                  </dt>
-                  <dd className="w-2/3">
-                    {strongSubjects.length > 0 ? (
-                      <ul className="list-disc list-inside">
-                        {strongSubjects.map(subject => (
-                          <li key={subject}>{subject}</li>
-                        ))}
-                      </ul>
-                    ) : (
-                      <span className="text-muted-foreground">None selected</span>
-                    )}
-                  </dd>
-                </div>
-                
-                <div className="flex items-start">
-                  <dt className="w-1/3 font-medium flex items-center">
-                    <BookOpen size={16} className="mr-2 text-purple-600" />
-                    Weak Subjects:
-                  </dt>
-                  <dd className="w-2/3">
-                    {weakSubjects.length > 0 ? (
-                      <ul className="list-disc list-inside">
-                        {weakSubjects.map(subject => (
-                          <li key={subject}>{subject}</li>
-                        ))}
-                      </ul>
-                    ) : (
-                      <span className="text-muted-foreground">None selected</span>
-                    )}
-                  </dd>
-                </div>
-                
-                <div className="flex items-start">
-                  <dt className="w-1/3 font-medium flex items-center">
-                    <Gauge size={16} className="mr-2 text-purple-600" />
-                    Study Pace:
-                  </dt>
-                  <dd className="w-2/3 capitalize">{studyPace}</dd>
-                </div>
-                
-                <div className="flex items-start">
-                  <dt className="w-1/3 font-medium flex items-center">
-                    <AlarmClock size={16} className="mr-2 text-purple-600" />
-                    Preferred Time:
-                  </dt>
-                  <dd className="w-2/3 capitalize">{preferredStudyTime}</dd>
-                </div>
-              </dl>
+              </div>
             </CardContent>
           </Card>
           
-          <div className="mt-6 p-4 bg-green-50 border border-green-100 rounded-md">
-            <p className="text-sm text-green-700 flex items-start">
-              <CheckCircle2 size={16} className="mr-2 mt-0.5 flex-shrink-0 text-green-600" />
-              <span>Your personalized study plan is ready to be generated. Click the button below to create your plan and start your learning journey!</span>
-            </p>
-          </div>
+          <Card>
+            <CardHeader className="pb-2">
+              <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                <Clock className="w-4 h-4" />
+                <span>Study Schedule</span>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <div>
+                  <p className="text-sm text-muted-foreground">Daily Hours</p>
+                  <p className="font-medium">{studyPlanData.studyHoursPerDay} hours</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Study Pace</p>
+                  <div className="flex items-center gap-1.5">
+                    <FastForward className="w-4 h-4 text-amber-500" />
+                    <p className="font-medium">{getPaceLabel()}</p>
+                  </div>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Preferred Time</p>
+                  <div className="flex items-center gap-1.5">
+                    {getTimeIcon()}
+                    <p className="font-medium">{getTimeLabel()}</p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card className="md:col-span-2">
+            <CardHeader className="pb-2">
+              <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                <BookOpen className="w-4 h-4" />
+                <span>Subjects</span>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div>
+                  <p className="text-sm text-muted-foreground mb-1.5">Strong Subjects</p>
+                  {studyPlanData.strongSubjects.length > 0 ? (
+                    <div className="flex flex-wrap gap-2">
+                      {studyPlanData.strongSubjects.map(subject => (
+                        <span key={subject} className="bg-green-100 text-green-800 text-xs px-2.5 py-1 rounded-full">
+                          {subject}
+                        </span>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-sm italic text-muted-foreground">None selected</p>
+                  )}
+                </div>
+                
+                <div>
+                  <p className="text-sm text-muted-foreground mb-1.5">Subjects Needing Work</p>
+                  {studyPlanData.weakSubjects.length > 0 ? (
+                    <div className="flex flex-wrap gap-2">
+                      {studyPlanData.weakSubjects.map(subject => (
+                        <span key={subject} className="bg-amber-100 text-amber-800 text-xs px-2.5 py-1 rounded-full">
+                          {subject}
+                        </span>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-sm italic text-muted-foreground">None selected</p>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </motion.div>

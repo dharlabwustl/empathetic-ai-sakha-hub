@@ -29,7 +29,13 @@ export const useOnboardingForm = (examGoal: string, onComplete: () => void) => {
     const fetchSubjects = async () => {
       try {
         // Get subjects for the selected exam goal
-        const subjects = getSubjectsForGoal(examGoal);
+        const subjectNames = getSubjectsForGoal(examGoal);
+        // Convert string array to Subject array with keys
+        const subjects: Subject[] = subjectNames.map((name) => ({
+          name: name,
+          key: name.toLowerCase().replace(/\s+/g, '-')
+        }));
+        
         setAllSubjects(subjects);
 
         // Check if we have userData from signup with subject preferences

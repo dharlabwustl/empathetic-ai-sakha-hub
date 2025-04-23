@@ -1,41 +1,35 @@
 
-import React from 'react';
+import React from "react";
 import { motion } from "framer-motion";
-import { 
-  Sunrise, 
-  Sun, 
-  Sunset, 
-  Moon,
-  Check
-} from "lucide-react";
+import { Sunrise, Sun, Sunset, Moon, Check } from "lucide-react";
 
 interface StepStudyTimeProps {
-  studyTime: 'morning' | 'afternoon' | 'evening' | 'night';
-  setStudyTime: (time: 'morning' | 'afternoon' | 'evening' | 'night') => void;
+  studyTime: "morning" | "afternoon" | "evening" | "night";
+  setStudyTime: (time: "morning" | "afternoon" | "evening" | "night") => void;
 }
 
-const StepStudyTime = ({ studyTime, setStudyTime }: StepStudyTimeProps) => {
+const StepStudyTime: React.FC<StepStudyTimeProps> = ({ studyTime, setStudyTime }) => {
   const timeOptions = [
     {
-      value: "morning",
+      value: "morning" as const,
       label: "Morning",
       description: "Early hours, 6 AM - 11 AM",
       icon: <Sunrise className="h-6 w-6 text-amber-500" />
     },
     {
-      value: "afternoon",
+      value: "afternoon" as const,
       label: "Afternoon",
       description: "Midday hours, 12 PM - 4 PM",
       icon: <Sun className="h-6 w-6 text-orange-500" />
     },
     {
-      value: "evening",
+      value: "evening" as const,
       label: "Evening",
       description: "After sunset, 5 PM - 8 PM",
       icon: <Sunset className="h-6 w-6 text-indigo-500" />
     },
     {
-      value: "night",
+      value: "night" as const,
       label: "Night",
       description: "Late hours, 9 PM - 12 AM",
       icon: <Moon className="h-6 w-6 text-blue-500" />
@@ -58,13 +52,12 @@ const StepStudyTime = ({ studyTime, setStudyTime }: StepStudyTimeProps) => {
           </p>
         </div>
 
-        {/* Improved button-style time selection with clearer feedback */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {timeOptions.map((option) => (
             <div
               key={option.value}
               className={`relative cursor-pointer group transition-all rounded-lg overflow-hidden`}
-              onClick={() => setStudyTime(option.value as "morning" | "afternoon" | "evening" | "night")}
+              onClick={() => setStudyTime(option.value)}
             >
               <div className={`flex items-center gap-4 p-4 border-2 transition-colors ${
                 studyTime === option.value
@@ -87,7 +80,6 @@ const StepStudyTime = ({ studyTime, setStudyTime }: StepStudyTimeProps) => {
                 )}
               </div>
 
-              {/* Selection overlay for accessibility and clearer feedback */}
               {studyTime !== option.value && (
                 <div className="absolute inset-0 bg-indigo-500/0 hover:bg-indigo-500/5 transition-colors" />
               )}

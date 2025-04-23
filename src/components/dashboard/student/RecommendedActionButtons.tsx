@@ -1,145 +1,78 @@
 
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button } from "@/components/ui/button";
-import { UserProfileType } from "@/types/user/base";
-import {
-  BookOpen,
-  Brain,
-  BookCheck,
-  Target,
-  Calendar,
-  FileText,
-  Zap
-} from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { Book, Calendar, Clock, PencilLine } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { ExamPreparation } from '@/types/user/exam-preparation';
 
 interface RecommendedActionButtonsProps {
-  userProfile: UserProfileType;
-  className?: string;
+  name: string;
+  examPrep: ExamPreparation | string;
+  suggestedNextAction?: string | null;
 }
 
-const RecommendedActionButtons: React.FC<RecommendedActionButtonsProps> = ({ userProfile, className = "" }) => {
+const RecommendedActionButtons: React.FC<RecommendedActionButtonsProps> = ({ name, examPrep, suggestedNextAction }) => {
   const navigate = useNavigate();
-  const { toast } = useToast();
   
-  // Calculate days to exam if exam date is available
-  const daysToExam = userProfile.examPreparation?.examDate 
-    ? Math.ceil((new Date(userProfile.examPreparation.examDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
-    : null;
-  
-  // Generate recommendations based on user profile
-  const getRecommendations = () => {
-    const recommendations = [];
-    
-    // Next concept recommendation
-    recommendations.push({
-      id: "next-concept",
-      title: "Continue Learning",
-      description: "Move to your next concept",
-      icon: <BookOpen className="h-4 w-4 mr-2" />,
-      action: () => navigate("/dashboard/student/concept/next"),
-      variant: "default" as const,
-      priority: 10
-    });
-    
-    // Flashcard revision recommendation
-    recommendations.push({
-      id: "revise-flashcards",
-      title: "Let's Revise",
-      description: "Practice with flashcards",
-      icon: <BookCheck className="h-4 w-4 mr-2" />,
-      action: () => navigate("/dashboard/student/flashcards"),
-      variant: "outline" as const,
-      priority: 8
-    });
-    
-    // Practice exam recommendation (higher priority if exam is close)
-    const examPriority = daysToExam && daysToExam < 30 ? 9 : 7;
-    recommendations.push({
-      id: "practice-exam",
-      title: daysToExam && daysToExam < 30 ? `Prepare for Exam (${daysToExam} days left)` : "Practice Exam",
-      description: "Test your knowledge",
-      icon: <FileText className="h-4 w-4 mr-2" />,
-      action: () => navigate("/dashboard/student/practice-exam"),
-      variant: daysToExam && daysToExam < 14 ? "default" as const : "outline" as const,
-      priority: examPriority
-    });
-    
-    // Focus on weak topics if available
-    if (userProfile.subjects?.some(subject => subject.weakTopics && subject.weakTopics.length > 0)) {
-      recommendations.push({
-        id: "focus-weak-topics",
-        title: "Focus on Weak Areas",
-        description: "Improve your understanding",
-        icon: <Target className="h-4 w-4 mr-2" />,
-        action: () => navigate("/dashboard/student/weakareas"),
-        variant: "outline" as const,
-        priority: 9
-      });
-    }
-    
-    // Study plan recommendation
-    recommendations.push({
-      id: "view-study-plan",
-      title: "View Study Plan",
-      description: "Follow your personalized plan",
-      icon: <Calendar className="h-4 w-4 mr-2" />,
-      action: () => navigate("/dashboard/student/study-plan"),
-      variant: "outline" as const,
-      priority: 6
-    });
-    
-    // AI Tutor chat if user has had previous interactions
-    if (userProfile.aiTutorHistory && userProfile.aiTutorHistory.totalInteractions > 0) {
-      recommendations.push({
-        id: "ai-tutor",
-        title: "Continue with AI Tutor",
-        description: "Get help with concepts",
-        icon: <Brain className="h-4 w-4 mr-2" />,
-        action: () => navigate("/dashboard/student/tutor"),
-        variant: "outline" as const,
-        priority: 7
-      });
-    }
-    
-    // Quick practice for busy users
-    recommendations.push({
-      id: "quick-practice",
-      title: "Quick Practice",
-      description: "15-min focused review",
-      icon: <Zap className="h-4 w-4 mr-2" />,
-      action: () => navigate("/dashboard/student/quick-practice"),
-      variant: "outline" as const,
-      priority: 5
-    });
-    
-    // Sort by priority (highest first) and return top 4
-    return recommendations.sort((a, b) => b.priority - a.priority).slice(0, 4);
-  };
-  
-  const recommendations = getRecommendations();
-  
+  // Only access examDate if examPrep is an object
+  const examDate = typeof examPrep === 'object' ? examPrep.examDate : null;
+  const daysLeft = typeof examPrep === 'object' ? examPrep.daysLeft : null;
+
   return (
-    <div className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2 ${className}`}>
-      {recommendations.map((rec) => (
-        <Button
-          key={rec.id}
-          variant={rec.variant}
-          onClick={() => {
-            rec.action();
-            toast({
-              title: rec.title,
-              description: "Navigating to your recommended activity...",
-            });
-          }}
-          className={`flex items-center justify-center text-xs sm:text-sm ${rec.variant === 'default' ? 'bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700' : ''}`}
-        >
-          {rec.icon}
-          {rec.title}
-        </Button>
-      ))}
-    </div>
+    <Card className="border-none shadow-none bg-transparent">
+      <CardHeader className="px-0 pt-0">
+        <CardTitle className="text-lg font-medium">Welcome back, {name}</CardTitle>
+        <CardDescription>
+          {examDate && `Your ${typeof examPrep === 'object' ? examPrep.title : ''} exam is coming up`}
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="px-0 pb-0">
+        {suggestedNextAction && (
+          <p className="text-sm mb-3 text-muted-foreground">{suggestedNextAction}</p>
+        )}
+        
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+          <Button 
+            variant="outline" 
+            className="justify-start h-auto py-2.5 px-3"
+            onClick={() => navigate("/dashboard/student/practice-exam/start")}
+          >
+            <PencilLine className="w-4 h-4 mr-2 text-blue-500" />
+            <span className="text-sm">Practice Exam</span>
+          </Button>
+          
+          <Button 
+            variant="outline" 
+            className="justify-start h-auto py-2.5 px-3"
+            onClick={() => navigate("/dashboard/student/concepts")}
+          >
+            <Book className="w-4 h-4 mr-2 text-green-500" />
+            <span className="text-sm">Study Concepts</span>
+          </Button>
+          
+          <Button 
+            variant="outline" 
+            className="justify-start h-auto py-2.5 px-3"
+          >
+            <Calendar className="w-4 h-4 mr-2 text-purple-500" />
+            <span className="text-sm">My Schedule</span>
+          </Button>
+          
+          {(typeof examPrep === 'object' && examPrep.daysLeft !== undefined) && (
+            <Button 
+              variant="outline" 
+              className="justify-start h-auto py-2.5 px-3"
+            >
+              <Clock className="w-4 h-4 mr-2 text-amber-500" />
+              <span className="text-sm">{examPrep.daysLeft} Days Left</span>
+            </Button>
+          )}
+        </div>
+      </CardContent>
+      <CardFooter className="px-0 pt-3">
+      </CardFooter>
+    </Card>
   );
 };
 

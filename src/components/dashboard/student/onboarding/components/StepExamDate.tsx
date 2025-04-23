@@ -10,10 +10,10 @@ import { format } from "date-fns";
 interface StepExamDateProps {
   examDate: Date | undefined;
   setExamDate: (date: Date | undefined) => void;
-  examGoal: string;
+  examGoal?: string;
 }
 
-const StepExamDate = ({ examDate, setExamDate, examGoal }: StepExamDateProps) => {
+const StepExamDate: React.FC<StepExamDateProps> = ({ examDate, setExamDate, examGoal }) => {
   return (
     <motion.div
       key="step1"
@@ -26,7 +26,7 @@ const StepExamDate = ({ examDate, setExamDate, examGoal }: StepExamDateProps) =>
         <div>
           <h3 className="text-xl font-semibold mb-2 flex items-center gap-2">
             <CalendarIcon className="text-sky-500" size={20} />
-            Target Exam Date for {examGoal}
+            Target Exam Date
           </h3>
           <p className="text-muted-foreground mb-4">When are you planning to take the exam?</p>
           
@@ -57,7 +57,7 @@ const StepExamDate = ({ examDate, setExamDate, examGoal }: StepExamDateProps) =>
           <div className="mt-4 bg-sky-50 p-4 rounded-md">
             <p className="text-sm flex items-center gap-2">
               <AlertCircle size={16} className="text-sky-500" />
-              <span>Common exam dates for {examGoal} are typically in May-June and November-December.</span>
+              <span>Common exam dates are typically in May-June and November-December.</span>
             </p>
           </div>
         </div>

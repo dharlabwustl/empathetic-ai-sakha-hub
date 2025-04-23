@@ -6,11 +6,11 @@ import { cn } from "@/lib/utils";
 import { FastForward, Play, Pause, AlertCircle } from "lucide-react";
 
 interface StepStudyPaceProps {
-  studyPace: 'slow' | 'moderate' | 'fast';
-  setStudyPace: (pace: 'slow' | 'moderate' | 'fast') => void;
+  studyPace: "slow" | "moderate" | "fast";
+  setStudyPace: (pace: "slow" | "moderate" | "fast") => void;
 }
 
-const StepStudyPace = ({ studyPace, setStudyPace }: StepStudyPaceProps) => {
+const StepStudyPace: React.FC<StepStudyPaceProps> = ({ studyPace, setStudyPace }) => {
   return (
     <motion.div
       key="step4"

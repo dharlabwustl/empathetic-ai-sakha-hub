@@ -9,7 +9,7 @@ interface StepStudyHoursProps {
   setStudyHours: (hours: number) => void;
 }
 
-const StepStudyHours = ({ studyHours, setStudyHours }: StepStudyHoursProps) => {
+const StepStudyHours: React.FC<StepStudyHoursProps> = ({ studyHours, setStudyHours }) => {
   return (
     <motion.div
       key="step2"
