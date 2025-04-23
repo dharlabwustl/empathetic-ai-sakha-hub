@@ -1,118 +1,69 @@
 
 import React, { useState } from 'react';
-import { Button } from "@/components/ui/button";
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuTrigger 
-} from "@/components/ui/dropdown-menu";
+import { Button } from '@/components/ui/button';
+import { Smile } from 'lucide-react';
 import { MoodType } from '@/types/user/base';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useToast } from '@/hooks/use-toast';
-import {
-  Smile,
-  Meh,
-  Frown,
-  Rocket,
-  Bed,
-  AlertTriangle,
-  Target,
-  HelpCircle,
-  Check
-} from "lucide-react";
+import MoodSelector from './MoodSelector';
 
 interface MoodLogButtonProps {
   onMoodSelect: (mood: MoodType | undefined) => void;
-  className?: string;
-  selectedMood?: MoodType;
+  initialMood?: MoodType;
 }
 
-const MoodLogButton: React.FC<MoodLogButtonProps> = ({ onMoodSelect, className = '', selectedMood: initialMood }) => {
+const MoodLogButton: React.FC<MoodLogButtonProps> = ({ onMoodSelect, initialMood }) => {
+  const [open, setOpen] = useState(false);
   const [selectedMood, setSelectedMood] = useState<MoodType | undefined>(initialMood);
   const { toast } = useToast();
-
+  
   const handleMoodSelect = (mood: MoodType) => {
     setSelectedMood(mood);
     onMoodSelect(mood);
     
+    // Update localStorage
+    try {
+      const userData = localStorage.getItem("userData");
+      if (userData) {
+        const parsedData = JSON.parse(userData);
+        parsedData.mood = mood;
+        localStorage.setItem("userData", JSON.stringify(parsedData));
+      } else {
+        localStorage.setItem("userData", JSON.stringify({ mood }));
+      }
+    } catch (error) {
+      console.error("Error saving mood to localStorage:", error);
+    }
+    
     toast({
-      title: "Mood Logged!",
-      description: `You've logged your mood as ${mood}.`,
+      title: "Mood logged!",
+      description: "Your mood has been updated successfully.",
     });
+    
+    setOpen(false);
   };
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="outline" className={`flex items-center ${className}`}>
-          {selectedMood ? (
-            <>
-              {selectedMood === 'happy' && <Smile className="mr-2 h-4 w-4" />}
-              {selectedMood === 'sad' && <Frown className="mr-2 h-4 w-4" />}
-              {selectedMood === 'neutral' && <Meh className="mr-2 h-4 w-4" />}
-              {selectedMood === 'motivated' && <Rocket className="mr-2 h-4 w-4" />}
-              {selectedMood === 'tired' && <Bed className="mr-2 h-4 w-4" />}
-              {selectedMood === 'stressed' && <AlertTriangle className="mr-2 h-4 w-4" />}
-              {selectedMood === 'focused' && <Target className="mr-2 h-4 w-4" />}
-              {selectedMood === 'curious' && <HelpCircle className="mr-2 h-4 w-4" />}
-              {selectedMood === 'overwhelmed' && <Frown className="mr-2 h-4 w-4" />}
-              {selectedMood === 'okay' && <Check className="mr-2 h-4 w-4" />}
-              {selectedMood}
-            </>
-          ) : (
-            "Log Mood"
-          )}
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button variant="outline" size="sm" className="h-9">
+          <Smile className="h-4 w-4 mr-2" />
+          {selectedMood ? `Mood: ${selectedMood.charAt(0).toUpperCase() + selectedMood.slice(1)}` : "Log Mood"}
         </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56">
-        <DropdownMenuItem onClick={() => handleMoodSelect('happy')}>
-          <Smile className="mr-2 h-4 w-4" />
-          Happy
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => handleMoodSelect('sad')}>
-          <Frown className="mr-2 h-4 w-4" />
-          Sad
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => handleMoodSelect('neutral')}>
-          <Meh className="mr-2 h-4 w-4" />
-          Neutral
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => handleMoodSelect('motivated')}>
-          <Rocket className="mr-2 h-4 w-4" />
-          Motivated
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => handleMoodSelect('tired')}>
-          <Bed className="mr-2 h-4 w-4" />
-          Tired
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => handleMoodSelect('stressed')}>
-          <AlertTriangle className="mr-2 h-4 w-4" />
-          Stressed
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => handleMoodSelect('focused')}>
-          <Target className="mr-2 h-4 w-4" />
-          Focused
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => handleMoodSelect('curious')}>
-          <HelpCircle className="mr-2 h-4 w-4" />
-          Curious
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => handleMoodSelect('overwhelmed')}>
-          <Frown className="mr-2 h-4 w-4" />
-          Overwhelmed
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => handleMoodSelect('okay')}>
-          <Check className="mr-2 h-4 w-4" />
-          Okay
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => {
-          setSelectedMood(undefined);
-          onMoodSelect(undefined);
-        }}>
-          Reset
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+      </PopoverTrigger>
+      <PopoverContent className="w-80">
+        <div className="space-y-4">
+          <h4 className="font-medium text-sm">How are you feeling today?</h4>
+          <MoodSelector 
+            currentMood={selectedMood} 
+            onMoodSelect={handleMoodSelect} 
+          />
+          <p className="text-xs text-muted-foreground text-center mt-2">
+            Logging your mood helps us personalize your learning experience.
+          </p>
+        </div>
+      </PopoverContent>
+    </Popover>
   );
 };
 

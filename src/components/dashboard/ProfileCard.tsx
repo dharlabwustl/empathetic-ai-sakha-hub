@@ -1,144 +1,193 @@
 
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { Card, CardContent } from '@/components/ui/card';
+import React, { useState } from 'react';
+import { Card, CardContent, CardFooter } from '@/components/ui/card';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { BadgeCheck, ChevronRight, CreditCard, Calendar } from 'lucide-react';
-import { UserProfileType } from '@/types/user/base';
+import { Badge } from '@/components/ui/badge';
+import { Link } from 'react-router-dom';
+import { UserProfileType, MoodType } from '@/types/user/base';
+import { CalendarDays, ChevronRight, Cloud, CreditCard, Users } from 'lucide-react';
+import { formatDistanceToNow } from 'date-fns';
+import MoodSelector from './student/mood-tracking/MoodSelector';
 
-interface ProfileCardProps {
+export interface ProfileCardProps {
   userProfile: UserProfileType;
-  showStats?: boolean;
+  onUploadImage?: (file: File) => void;
+  showPeerRanking?: boolean;
+  currentMood?: MoodType;
+  onMoodChange?: (mood: MoodType) => void;
 }
 
-interface UserSubscription {
-  planName: string;
-  status: 'active' | 'inactive' | 'trial';
-  endDate: string;
-  isGroupLeader?: boolean;
-}
-
-// Helper to format date
-const formatDate = (dateStr: string): string => {
-  if (!dateStr) return '';
-  const date = new Date(dateStr);
-  return date.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' });
-};
-
-const ProfileCard: React.FC<ProfileCardProps> = ({ userProfile, showStats = true }) => {
-  // Default avatar
-  const defaultAvatar = 'https://github.com/shadcn.png';
-  const avatarSrc = userProfile?.avatar || defaultAvatar;
+const ProfileCard: React.FC<ProfileCardProps> = ({ 
+  userProfile, 
+  onUploadImage,
+  showPeerRanking = false,
+  currentMood,
+  onMoodChange
+}) => {
+  const [isUploading, setIsUploading] = useState(false);
   
-  // Get user's initials for avatar fallback
-  const getInitials = () => {
-    if (!userProfile?.name) return 'U';
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !onUploadImage) return;
     
-    const nameArray = userProfile.name.split(' ');
-    if (nameArray.length === 1) return nameArray[0][0];
-    return `${nameArray[0][0]}${nameArray[nameArray.length - 1][0]}`;
+    setIsUploading(true);
+    try {
+      onUploadImage(file);
+    } finally {
+      setIsUploading(false);
+    }
   };
-  
-  // Safely handle subscription data
-  const userSubscription: UserSubscription = userProfile?.subscription || {
-    planName: 'Free Trial',
-    status: 'trial',
-    endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+
+  // Get initials from name for avatar fallback
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map(part => part[0])
+      .join('')
+      .toUpperCase()
+      .substring(0, 2);
   };
-  
+
+  // Format last active time
+  const getLastActive = () => {
+    if (!userProfile.lastLogin) return 'Never logged in';
+    try {
+      return formatDistanceToNow(new Date(userProfile.lastLogin), { addSuffix: true });
+    } catch (error) {
+      return 'Recently';
+    }
+  };
+
   return (
-    <Card className="w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden shadow-sm">
-      <div className="h-12 bg-gradient-to-r from-blue-500 to-violet-600"></div>
-      <CardContent className="p-0">
-        <div className="px-6 pt-0 pb-6 relative">
-          <div className="flex flex-col sm:flex-row sm:items-center -mt-6">
-            <Avatar className="h-20 w-20 border-4 border-white dark:border-gray-900 shadow-md">
-              <AvatarImage src={avatarSrc} alt={userProfile?.name || 'User'} />
-              <AvatarFallback className="bg-gradient-to-tr from-blue-500 to-violet-600 text-white">
-                {getInitials()}
-              </AvatarFallback>
-            </Avatar>
-            
-            <div className="mt-4 sm:mt-0 sm:ml-4 flex-1">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <h3 className="text-lg font-medium flex items-center">
-                    {userProfile?.name}
-                    {userProfile?.isVerified && (
-                      <BadgeCheck className="ml-1 h-4 w-4 text-blue-500" />
-                    )}
-                  </h3>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    {userProfile?.email}
-                  </p>
-                </div>
-                
-                <div className="mt-2 sm:mt-0 flex flex-wrap gap-2">
-                  <Link to="/dashboard/student/profile">
-                    <Button variant="outline" size="sm" className="flex items-center gap-1">
-                      View Profile
-                      <ChevronRight className="h-3 w-3" />
-                    </Button>
-                  </Link>
-                  
-                  <Link to="/dashboard/student/subscription">
-                    <Button variant="default" size="sm" className="flex items-center gap-1 bg-gradient-to-r from-blue-500 to-violet-600 hover:from-blue-600 hover:to-violet-700">
-                      Upgrade Plan
-                    </Button>
-                  </Link>
-                </div>
+    <Card className="overflow-hidden">
+      <div className="h-24 bg-gradient-to-r from-primary/40 to-primary/60 relative">
+        {onUploadImage && (
+          <div className="absolute top-2 right-2">
+            <label htmlFor="avatar-upload" className="cursor-pointer">
+              <div className="bg-white dark:bg-gray-800 p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                <svg 
+                  xmlns="http://www.w3.org/2000/svg" 
+                  width="16" 
+                  height="16" 
+                  viewBox="0 0 24 24" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  strokeWidth="2" 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round" 
+                  className="text-gray-600 dark:text-gray-300"
+                >
+                  <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7"></path>
+                  <line x1="16" y1="5" x2="22" y2="5"></line>
+                  <line x1="19" y1="2" x2="19" y2="8"></line>
+                  <circle cx="9" cy="9" r="2"></circle>
+                  <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"></path>
+                </svg>
               </div>
-            </div>
+            </label>
+            <input
+              id="avatar-upload"
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleFileChange}
+              disabled={isUploading}
+            />
+          </div>
+        )}
+      </div>
+      
+      <CardContent className="pt-0 pb-3">
+        <div className="flex justify-center -mt-12">
+          <Avatar className="h-24 w-24 border-4 border-white dark:border-gray-800">
+            {userProfile.avatar ? (
+              <AvatarImage src={userProfile.avatar} alt={userProfile.name} />
+            ) : (
+              <AvatarFallback className="text-xl bg-primary/20">
+                {getInitials(userProfile.name)}
+              </AvatarFallback>
+            )}
+          </Avatar>
+        </div>
+        
+        <div className="text-center mt-3 space-y-1">
+          <h3 className="font-semibold text-xl">{userProfile.name}</h3>
+          <p className="text-sm text-muted-foreground">{userProfile.email}</p>
+          
+          <div className="flex justify-center space-x-2 mt-1">
+            <Badge variant="secondary" className="bg-primary/10 text-primary hover:bg-primary/20">
+              {userProfile.role.charAt(0).toUpperCase() + userProfile.role.slice(1)}
+            </Badge>
+            
+            {userProfile.isVerified && (
+              <Badge variant="outline" className="bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400 border-green-200 dark:border-green-800">
+                Verified
+              </Badge>
+            )}
           </div>
           
           {/* Subscription Info */}
-          <div className="mt-4 bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
-            <div className="flex items-start justify-between">
-              <div className="flex items-center">
-                <CreditCard className="h-4 w-4 mr-2 text-blue-500" />
-                <div>
-                  <p className="text-sm font-medium">{userSubscription.planName}</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
-                    {userSubscription.status === 'trial' ? 'Trial ends' : 'Renews'} on {formatDate(userSubscription.endDate)}
-                  </p>
-                </div>
-              </div>
-              
-              {userSubscription.isGroupLeader && (
-                <span className="inline-flex items-center rounded-md bg-amber-50 dark:bg-amber-900/50 px-2 py-1 text-xs font-medium text-amber-700 dark:text-amber-300">
-                  Batch Leader
+          {userProfile.subscription && (
+            <div className="mt-3 py-2 border-t border-b border-gray-100 dark:border-gray-800">
+              <div className="flex items-center justify-center gap-2 text-sm">
+                <CreditCard className="h-4 w-4 text-primary" />
+                <span>
+                  {userProfile.subscription.planName} Plan
+                  {userProfile.subscription.status === 'trial' && " (Trial)"}
                 </span>
+              </div>
+              {userProfile.isGroupLeader && (
+                <div className="flex items-center justify-center gap-1 mt-1 text-xs text-muted-foreground">
+                  <Users className="h-3 w-3" />
+                  <span>Group Leader</span>
+                </div>
               )}
-            </div>
-          </div>
-          
-          {/* Stats */}
-          {showStats && (
-            <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-3">
-              <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
-                <p className="text-xs text-gray-500 dark:text-gray-400">Study Time</p>
-                <p className="text-lg font-medium">{userProfile?.totalStudyHours || 0}h</p>
-              </div>
-              
-              <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
-                <p className="text-xs text-gray-500 dark:text-gray-400">Accuracy</p>
-                <p className="text-lg font-medium">{userProfile?.accuracyRate || 0}%</p>
-              </div>
-              
-              <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
-                <p className="text-xs text-gray-500 dark:text-gray-400">Streak</p>
-                <p className="text-lg font-medium">{userProfile?.streakDays || 0} days</p>
-              </div>
-              
-              <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
-                <p className="text-xs text-gray-500 dark:text-gray-400">Lessons</p>
-                <p className="text-lg font-medium">{userProfile?.completedLessons || 0}</p>
+              <div className="flex items-center justify-center gap-1 mt-1 text-xs text-muted-foreground">
+                <CalendarDays className="h-3 w-3" />
+                <span>
+                  {userProfile.subscription.status === 'active' ? 'Renews' : 'Expires'} on {' '}
+                  {new Date(userProfile.subscription.endDate).toLocaleDateString()}
+                </span>
               </div>
             </div>
           )}
+          
+          {/* Mood Selection */}
+          {onMoodChange && (
+            <div className="mt-3">
+              <p className="text-sm font-medium mb-2">How are you feeling today?</p>
+              <MoodSelector 
+                currentMood={currentMood || userProfile.mood || userProfile.currentMood} 
+                onMoodSelect={onMoodChange}
+              />
+            </div>
+          )}
+          
+          {/* Last active */}
+          <div className="flex items-center justify-center gap-1 text-xs text-muted-foreground mt-2">
+            <Cloud className="h-3 w-3" />
+            <span>Last active: {getLastActive()}</span>
+          </div>
         </div>
       </CardContent>
+      
+      <CardFooter className="flex flex-col gap-2 pt-0">
+        <Link to="/dashboard/student/profile" className="w-full">
+          <Button variant="outline" className="w-full">
+            View Profile
+            <ChevronRight className="h-4 w-4 ml-1" />
+          </Button>
+        </Link>
+        
+        {!userProfile.subscription?.planName?.toLowerCase().includes('premium') && (
+          <Link to="/dashboard/student/subscription" className="w-full">
+            <Button className="w-full">
+              Upgrade Plan
+            </Button>
+          </Link>
+        )}
+      </CardFooter>
     </Card>
   );
 };

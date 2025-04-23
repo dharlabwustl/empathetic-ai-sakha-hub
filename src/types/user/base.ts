@@ -4,10 +4,19 @@ export enum UserRole {
   Teacher = "teacher",
   Admin = "admin",
   Parent = "parent",
-  Mentor = "mentor"
+  Mentor = "mentor",
+  // Additional roles needed by the codebase
+  Employee = "employee",
+  Doctor = "doctor",
+  Founder = "founder"
 }
 
 export type MoodType = 'happy' | 'sad' | 'neutral' | 'motivated' | 'tired' | 'stressed' | 'focused' | 'curious' | 'overwhelmed' | 'okay';
+
+// Add the missing types referenced in errors
+export type PersonalityType = 'analytical' | 'creative' | 'practical' | 'social' | 'independent' | 'competitive';
+export type GoalStatus = 'in-progress' | 'completed' | 'planned' | 'overdue';
+export type SubscriptionType = 'free' | 'basic' | 'premium' | 'enterprise' | 'group';
 
 export interface UserProfileType {
   id: string;
@@ -39,6 +48,7 @@ export interface UserProfileType {
     title: string;
     progress: number;
     target: string;
+    examDate?: string; // Added for the errors in OverviewTab
   }[];
   subjects?: {
     name: string;
@@ -52,6 +62,9 @@ export interface UserProfileType {
     status: 'active' | 'inactive' | 'trial';
     endDate: string;
     isGroupLeader?: boolean;
+    plan?: string; // Added for errors in DashboardHeader and others
+    expiresAt?: string; // Added for errors in DashboardHeader and others
+    id?: string; // Added for ProfileBillingSection
   };
   createdAt?: string;
   lastLogin?: string;
@@ -86,6 +99,16 @@ export interface UserProfileType {
   }[];
   // User mood tracking
   mood?: MoodType;
+  currentMood?: MoodType;
+  // Personal details field needed by ProfileDetailsSection
+  personalDetails?: {
+    firstName?: string;
+    lastName?: string;
+    dob?: string;
+    gender?: string;
+    occupation?: string;
+    location?: string;
+  };
 }
 
 export interface AuthContextType {
