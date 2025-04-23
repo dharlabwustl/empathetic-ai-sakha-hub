@@ -1,21 +1,16 @@
 
-import React from "react";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"; // Fixed import
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertTriangle } from "lucide-react";
-import OverviewTab from "@/components/dashboard/student/tab-contents/OverviewTab";
-import SubjectsTab from "@/components/dashboard/student/tab-contents/SubjectsTab";
-import QuizzesTab from "@/components/dashboard/student/tab-contents/QuizzesTab";
-import ResourcesTab from "@/components/dashboard/student/tab-contents/ResourcesTab";
-import CommunityTab from "@/components/dashboard/student/tab-contents/CommunityTab";
-import ProgressTab from "@/components/dashboard/student/tab-contents/ProgressTab";
-import SettingsTab from "@/components/dashboard/student/tab-contents/SettingsTab";
-import NoMatchContent from "@/components/dashboard/student/tab-contents/NoMatchContent";
-import TodayTip from "@/components/dashboard/student/TodayTip";
-import NudgesSection from "@/components/dashboard/student/NudgesSection";
-import RecommendedActionButtons from "@/components/dashboard/student/RecommendedActionButtons";
-import { UserProfileType } from "@/types/user/base";
+import React from 'react';
+import { UserProfileType } from "@/types/user";
 import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
+import { generateTabContents } from "@/components/dashboard/student/TabContentManager";
+import DashboardTabs from "@/components/dashboard/student/DashboardTabs";
+import ReturnUserRecap from "@/components/dashboard/student/ReturnUserRecap";
+
+interface DashboardTabsProps {
+  activeTab: string;
+  onTabChange: (tab: string) => void;
+  tabContents?: Record<string, React.ReactNode>; // Added tabContents field
+}
 
 interface DashboardContentProps {
   activeTab: string;
@@ -24,16 +19,16 @@ interface DashboardContentProps {
   kpis: KpiData[];
   nudges: NudgeData[];
   markNudgeAsRead: (id: string) => void;
-  features: any; // Replace with proper type
-  showWelcomeTour?: boolean;
-  handleSkipTour?: () => void;
-  handleCompleteTour?: () => void;
-  hideTabsNav?: boolean;
+  features: any[];
+  showWelcomeTour: boolean;
+  handleSkipTour: () => void;
+  handleCompleteTour: () => void;
+  hideTabsNav: boolean;
   lastActivity?: { type: string; description: string } | null;
   suggestedNextAction?: string | null;
 }
 
-const DashboardContent: React.FC<DashboardContentProps> = ({
+const DashboardContent = ({
   activeTab,
   onTabChange,
   userProfile,
@@ -41,106 +36,73 @@ const DashboardContent: React.FC<DashboardContentProps> = ({
   nudges,
   markNudgeAsRead,
   features,
+  showWelcomeTour,
+  handleSkipTour,
+  handleCompleteTour,
   hideTabsNav,
   lastActivity,
-  suggestedNextAction,
-}) => {
+  suggestedNextAction
+}: DashboardContentProps) => {
+  // State to track whether the returning user recap has been closed
+  const [showReturnRecap, setShowReturnRecap] = React.useState(
+    Boolean(userProfile.loginCount && userProfile.loginCount > 1 && lastActivity)
+  );
+
+  // Generate tab contents once
+  const tabContents = generateTabContents({
+    userProfile,
+    kpis,
+    nudges,
+    markNudgeAsRead,
+    features,
+    showWelcomeTour,
+    handleSkipTour,
+    handleCompleteTour,
+    lastActivity,
+    suggestedNextAction
+  });
+  
+  // Handle closing the recap
+  const handleCloseRecap = () => {
+    setShowReturnRecap(false);
+  };
+
   return (
-    <div className="pb-20 lg:pb-0">
-      {nudges && nudges.length > 0 && (
-        <NudgesSection nudges={nudges} onMarkAsRead={markNudgeAsRead} />
-      )}
-      
-      <div className="my-4">
-        <TodayTip 
-          userProfile={userProfile} 
-          lastActivity={lastActivity}
-          suggestedNextAction={suggestedNextAction}
+    <div className="h-full flex flex-col">
+      {/* Returning User Recap - Show for users with login count > 1 */}
+      {showReturnRecap && activeTab === "overview" && !showWelcomeTour && (
+        <ReturnUserRecap
+          userName={userProfile.name}
+          lastLoginDate={lastActivity?.description || "recently"}
+          suggestedNextTasks={suggestedNextAction ? [suggestedNextAction] : undefined}
+          onClose={handleCloseRecap}
+          loginCount={userProfile.loginCount}
         />
-      </div>
-      
-      <div className="mb-6">
-        <h3 className="text-sm font-medium text-muted-foreground mb-2">
-          Recommended Actions
-        </h3>
-        <RecommendedActionButtons userProfile={userProfile} />
-      </div>
-      
-      <Tabs
-        defaultValue={activeTab}
-        value={activeTab}
-        onValueChange={onTabChange}
-        className="w-full"
-      >
-        {!hideTabsNav && (
-          <TabsList className="mb-4 bg-white dark:bg-gray-800 overflow-x-auto flex flex-nowrap w-full justify-start h-auto p-1 rounded-md">
-            <TabsTrigger value="overview" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground px-4 py-2 rounded-md">
-              Overview
-            </TabsTrigger>
-            <TabsTrigger value="subjects" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground px-4 py-2 rounded-md">
-              Subjects
-            </TabsTrigger>
-            <TabsTrigger value="quizzes" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground px-4 py-2 rounded-md">
-              Practice Tests
-            </TabsTrigger>
-            <TabsTrigger value="resources" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground px-4 py-2 rounded-md">
-              Resources
-            </TabsTrigger>
-            <TabsTrigger value="community" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground px-4 py-2 rounded-md">
-              Community
-            </TabsTrigger>
-            <TabsTrigger value="progress" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground px-4 py-2 rounded-md">
-              Progress
-            </TabsTrigger>
-            <TabsTrigger value="settings" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground px-4 py-2 rounded-md">
-              Settings
-            </TabsTrigger>
-          </TabsList>
+      )}
+
+      {/* Tabs navigation */}
+      {!hideTabsNav && (
+        <DashboardTabs 
+          activeTab={activeTab} 
+          onTabChange={onTabChange} 
+          tabContents={tabContents} // Pass tabContents to avoid regenerating
+        />
+      )}
+
+      {/* Tab content */}
+      <div className="mt-6 bg-white dark:bg-gray-800 rounded-lg shadow p-4 sm:p-6 flex-grow">
+        {tabContents[activeTab] || (
+          <div className="text-center py-8">
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white">Coming Soon</h3>
+            <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+              This tab is not yet available. Check back later.
+            </p>
+          </div>
         )}
-        
-        {!features[activeTab] ? (
-          <Alert className="mb-2">
-            <AlertTriangle className="h-4 w-4" />
-            <AlertDescription>
-              The {activeTab} feature is not available in your current plan. Please upgrade to access this feature.
-            </AlertDescription>
-          </Alert>
-        ) : null}
-        
-        <TabsContent value="overview">
-          <OverviewTab userProfile={userProfile} kpis={kpis} />
-        </TabsContent>
-        
-        <TabsContent value="subjects">
-          <SubjectsTab userProfile={userProfile} />
-        </TabsContent>
-        
-        <TabsContent value="quizzes">
-          <QuizzesTab userProfile={userProfile} />
-        </TabsContent>
-        
-        <TabsContent value="resources">
-          <ResourcesTab userProfile={userProfile} />
-        </TabsContent>
-        
-        <TabsContent value="community">
-          <CommunityTab userProfile={userProfile} />
-        </TabsContent>
-        
-        <TabsContent value="progress">
-          <ProgressTab userProfile={userProfile} />
-        </TabsContent>
-        
-        <TabsContent value="settings">
-          <SettingsTab userProfile={userProfile} />
-        </TabsContent>
-        
-        {!["overview", "subjects", "quizzes", "resources", "community", "progress", "settings"].includes(activeTab) && (
-          <NoMatchContent activeTab={activeTab} />
-        )}
-      </Tabs>
+      </div>
     </div>
   );
 };
 
 export default DashboardContent;
+export type { DashboardTabsProps };

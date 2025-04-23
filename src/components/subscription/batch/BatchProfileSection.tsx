@@ -50,7 +50,7 @@ const BatchProfileSection: React.FC<BatchProfileSectionProps> = ({
   useEffect(() => {
     if (userBatches.length > 0 && !activeBatchId) {
       setActiveBatchId(userBatches[0].id);
-      setBatchMembers(userBatches[0].members);
+      setBatchMembers(userBatches[0].members || []);
       
       setBatchProgress({
         completed: Math.floor(Math.random() * 50) + 10,
@@ -74,7 +74,7 @@ const BatchProfileSection: React.FC<BatchProfileSectionProps> = ({
     setActiveBatchId(batchId);
     const selectedBatch = userBatches.find(batch => batch.id === batchId);
     if (selectedBatch) {
-      setBatchMembers(selectedBatch.members);
+      setBatchMembers(selectedBatch.members || []);
       
       setBatchProgress({
         completed: Math.floor(Math.random() * 50) + 10,
@@ -102,7 +102,7 @@ const BatchProfileSection: React.FC<BatchProfileSectionProps> = ({
     });
     
     const updatedMembers = batchMembers.map(member => 
-      member.id === memberId ? {...member, role: "school_admin" as const} : member
+      member.id === memberId ? {...member, role: "school_admin"} : member
     );
     
     setBatchMembers(updatedMembers);

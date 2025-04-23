@@ -16,7 +16,7 @@ export const accountData = {
     {
       id: "admin1",
       name: "Admin User",
-      email: "admin@sakha.ai", // Updated to match what user is trying
+      email: "admin@sakhaai.com",
       password: "admin123",
       role: "admin",
       permissions: ["all"]
@@ -24,7 +24,7 @@ export const accountData = {
     {
       id: "content_creator1",
       name: "Content Creator",
-      email: "content@sakha.ai", // Updated domain
+      email: "content@sakhaai.com",
       password: "content123",
       role: "admin",
       permissions: ["content_management", "content_creation", "content_upload"]
@@ -32,7 +32,7 @@ export const accountData = {
     {
       id: "content_uploader1",
       name: "Content Uploader",
-      email: "uploader@sakha.ai", // Updated domain
+      email: "uploader@sakhaai.com",
       password: "uploader123",
       role: "admin",
       permissions: ["content_upload", "content_management"]

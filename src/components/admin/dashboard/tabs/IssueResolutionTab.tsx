@@ -1,189 +1,368 @@
 
-import React, { useState } from 'react';
+import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { format } from 'date-fns';
-import { SystemLog } from '@/types/admin';
-import { AlertCircle, CheckCircle, Clock, FileText, Filter, Search, XCircle } from 'lucide-react';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  AlertTriangle,
+  CheckCircle2,
+  AlertOctagon,
+  Search,
+  Filter,
+  MessageSquare,
+  UserCheck,
+  ShieldAlert,
+  Clock
+} from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { SystemLog } from "@/types/admin";
 
 interface IssueResolutionTabProps {
   recentLogs: SystemLog[];
 }
 
-const IssueResolutionTab: React.FC<IssueResolutionTabProps> = ({ recentLogs }) => {
-  const [activeTab, setActiveTab] = useState("open");
-  const [search, setSearch] = useState("");
-  const [filter, setFilter] = useState<string | null>(null);
-
-  // Filter logs based on search term, status, and type filter
-  const filteredLogs = recentLogs.filter(log => {
-    const matchesSearch = search === "" || 
-      log.message.toLowerCase().includes(search.toLowerCase()) || 
-      log.source.toLowerCase().includes(search.toLowerCase());
-    
-    const matchesStatus = 
-      (activeTab === "open" && !log.resolved) || 
-      (activeTab === "resolved" && log.resolved) ||
-      activeTab === "all";
-    
-    const matchesFilter = filter === null || log.type === filter;
-    
-    return matchesSearch && matchesStatus && matchesFilter;
-  });
-
-  const getBadgeColor = (type: string) => {
-    switch (type) {
-      case 'error': return "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300";
-      case 'warning': return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300";
-      case 'info': return "bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300";
-      case 'success': return "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300";
-      default: return "bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-300";
-    }
-  };
-
-  const getSeverityColor = (level: string) => {
-    if (level === 'critical' || level === 'error') {
-      return "text-red-600 dark:text-red-400";
-    } else if (level === 'high' || level === 'warning') {
-      return "text-yellow-600 dark:text-yellow-400";
-    } else if (level === 'medium' || level === 'info') {
-      return "text-blue-600 dark:text-blue-400";
-    } else {
-      return "text-gray-600 dark:text-gray-400";
-    }
-  };
-
-  const formatTime = (timestamp: string) => {
-    return format(new Date(timestamp), 'MMM dd, yyyy HH:mm:ss');
-  };
-
+const IssueResolutionTab = ({ recentLogs }: IssueResolutionTabProps) => {
   return (
     <div className="space-y-6">
-      <div className="flex flex-col md:flex-row gap-4 md:items-center md:justify-between">
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold">Issue Resolution & System Health</h2>
         <div className="flex items-center gap-2">
-          <h2 className="text-xl font-semibold">Issue Management</h2>
-          <Badge variant="outline" className="ml-2 bg-primary/10">
-            {filteredLogs.filter(log => !log.resolved).length} Open Issues
-          </Badge>
-        </div>
-        
-        <div className="flex gap-2">
-          <div className="relative flex-1 md:w-64">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input 
-              className="pl-8" 
-              placeholder="Search issues..." 
-              value={search} 
-              onChange={(e) => setSearch(e.target.value)} 
-            />
-          </div>
-          
-          <Button variant="outline" size="icon" onClick={() => setFilter(filter === null ? 'error' : null)}>
-            <Filter className={filter !== null ? "text-primary" : "text-muted-foreground"} size={16} />
+          <Button variant="outline" className="flex items-center gap-2">
+            <Filter size={16} />
+            <span>Filter</span>
+          </Button>
+          <Button className="flex items-center gap-2">
+            <AlertOctagon size={16} />
+            <span>System Checkup</span>
           </Button>
         </div>
       </div>
-      
-      <Tabs 
-        defaultValue="open" 
-        value={activeTab} 
-        onValueChange={setActiveTab} 
-        className="w-full"
-      >
-        <TabsList className="w-full md:w-auto grid grid-cols-3 mb-4">
-          <TabsTrigger value="open">Open Issues</TabsTrigger>
-          <TabsTrigger value="resolved">Resolved</TabsTrigger>
-          <TabsTrigger value="all">All Logs</TabsTrigger>
-        </TabsList>
-        
-        {['open', 'resolved', 'all'].map((tab) => (
-          <TabsContent key={tab} value={tab}>
-            <Card>
-              <CardHeader>
-                <CardTitle>
-                  {tab === 'open' ? 'Open Issues' : tab === 'resolved' ? 'Resolved Issues' : 'All System Logs'}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {filteredLogs.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center py-8">
-                    <FileText className="h-12 w-12 text-gray-300 mb-3" />
-                    <h3 className="text-lg font-medium">No Issues Found</h3>
-                    <p className="text-sm text-muted-foreground text-center max-w-sm mt-1">
-                      {activeTab === 'open' ? "There are no open issues at the moment." : 
-                       activeTab === 'resolved' ? "No resolved issues match your search criteria." :
-                       "No logs match your search criteria."}
-                    </p>
-                  </div>
-                ) : (
-                  <div className="space-y-4 max-h-[600px] overflow-y-auto">
-                    {filteredLogs.map((log) => (
-                      <div 
-                        key={log.id} 
-                        className="border rounded-md p-4 hover:bg-accent/10 transition-colors"
-                      >
-                        <div className="flex flex-col md:flex-row md:items-start justify-between gap-3">
-                          <div className="flex-grow">
-                            <div className="flex items-center gap-2 mb-1">
-                              <Badge variant="outline" className={getBadgeColor(log.type)}>
-                                {log.type.toUpperCase()}
-                              </Badge>
-                              <span className={`text-xs font-mono ${getSeverityColor(log.level)}`}>
-                                {log.level === 'critical' || log.level === 'error' ? (
-                                  <AlertCircle className="inline h-3 w-3 mr-1" />
-                                ) : log.level === 'high' || log.level === 'warning' ? (
-                                  <Clock className="inline h-3 w-3 mr-1" />
-                                ) : (
-                                  <></>
-                                )}
-                                {log.level.toUpperCase()}
-                              </span>
-                            </div>
-                            
-                            <h3 className="font-medium">{log.message}</h3>
-                            <div className="flex items-center text-xs text-muted-foreground mt-1 gap-2">
-                              <span className="bg-muted px-2 py-1 rounded">
-                                {log.source}
-                              </span>
-                              <span>{formatTime(log.timestamp)}</span>
-                            </div>
-                          </div>
-                          
-                          <div className="flex items-center gap-2">
-                            {log.resolved ? (
-                              <Badge className="bg-green-100 text-green-800 border-green-200 flex items-center gap-1">
-                                <CheckCircle className="h-3 w-3" /> Resolved
-                              </Badge>
-                            ) : (
-                              <Button 
-                                variant="ghost" 
-                                size="sm"
-                                className="text-xs h-8"
-                              >
-                                <XCircle className="h-3 w-3 mr-1" /> Mark Resolved
-                              </Button>
-                            )}
-                            <Button 
-                              variant="ghost" 
-                              size="sm"
-                              className="text-xs h-8"
-                            >
-                              View Details
-                            </Button>
-                          </div>
-                        </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="font-medium">Open Issues</h3>
+              <Badge className="bg-amber-100 text-amber-800">15 Open</Badge>
+            </div>
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <Badge className="bg-red-100 text-red-800">4</Badge>
+                  <span className="text-sm">Critical</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Badge className="bg-amber-100 text-amber-800">7</Badge>
+                  <span className="text-sm">High</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Badge className="bg-blue-100 text-blue-800">4</Badge>
+                  <span className="text-sm">Normal</span>
+                </div>
+              </div>
+              <div className="h-24 w-24 rounded-full border-8 border-blue-200 dark:border-blue-900/30 relative">
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="text-xl font-bold">15</span>
+                </div>
+                <div className="absolute top-0 right-0 left-0 bottom-0 border-8 border-amber-400 rounded-full" style={{ clip: 'rect(0, 48px, 96px, 0)' }}></div>
+                <div className="absolute top-0 right-0 left-0 bottom-0 border-8 border-red-400 rounded-full" style={{ clip: 'rect(0, 24px, 48px, 0)' }}></div>
+              </div>
+            </div>
+            <Button variant="outline" size="sm" className="w-full mt-4">View All Issues</Button>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="font-medium">Resolution Time</h3>
+              <Badge className="bg-green-100 text-green-800">Improving</Badge>
+            </div>
+            <div className="flex items-end gap-2 mb-2">
+              <span className="text-3xl font-bold">3.2</span>
+              <span className="text-sm text-gray-500">hours avg</span>
+            </div>
+            <div className="h-10 bg-green-50 dark:bg-green-900/20 rounded-md flex items-end">
+              <div className="bg-green-500 h-10 w-8 rounded-sm"></div>
+              <div className="bg-green-500 h-8 w-8 rounded-sm"></div>
+              <div className="bg-green-500 h-7 w-8 rounded-sm"></div>
+              <div className="bg-green-500 h-6 w-8 rounded-sm"></div>
+              <div className="bg-green-500 h-5 w-8 rounded-sm"></div>
+              <div className="bg-green-500 h-4 w-8 rounded-sm"></div>
+              <div className="bg-green-500 h-3 w-8 rounded-sm"></div>
+            </div>
+            <div className="flex items-center justify-between mt-1">
+              <span className="text-xs text-gray-500">Last Week: 5.8 hrs</span>
+              <span className="text-xs text-green-600">-44%</span>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="font-medium">System Status</h3>
+              <Badge className="bg-green-100 text-green-800">Healthy</Badge>
+            </div>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-sm">API Services</span>
+                <div className="flex items-center gap-1">
+                  <div className="h-2 w-2 rounded-full bg-green-500"></div>
+                  <span className="text-xs text-gray-600">Online</span>
+                </div>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm">Database</span>
+                <div className="flex items-center gap-1">
+                  <div className="h-2 w-2 rounded-full bg-green-500"></div>
+                  <span className="text-xs text-gray-600">Online</span>
+                </div>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm">AI Services</span>
+                <div className="flex items-center gap-1">
+                  <div className="h-2 w-2 rounded-full bg-green-500"></div>
+                  <span className="text-xs text-gray-600">Online</span>
+                </div>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm">Storage</span>
+                <div className="flex items-center gap-1">
+                  <div className="h-2 w-2 rounded-full bg-amber-500"></div>
+                  <span className="text-xs text-gray-600">82% Used</span>
+                </div>
+              </div>
+            </div>
+            <Button variant="outline" size="sm" className="w-full mt-4">System Logs</Button>
+          </CardContent>
+        </Card>
+      </div>
+
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle className="text-lg">Recent Support Tickets</CardTitle>
+          <div className="flex items-center gap-2">
+            <div className="relative w-64">
+              <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-500" />
+              <Input placeholder="Search tickets..." className="pl-8" />
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="p-0">
+          <div className="rounded-md overflow-hidden">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>ID</TableHead>
+                  <TableHead>User</TableHead>
+                  <TableHead>Issue</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Priority</TableHead>
+                  <TableHead>Created</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {[
+                  { 
+                    id: 'TICKET-124', 
+                    user: 'Rahul Sharma', 
+                    issue: 'Cannot submit quiz answers',
+                    status: 'open',
+                    priority: 'high',
+                    created: new Date(2023, 5, 15, 14, 32) 
+                  },
+                  { 
+                    id: 'TICKET-123', 
+                    user: 'Priya Patel', 
+                    issue: 'Payment failed but account charged',
+                    status: 'in-progress',
+                    priority: 'critical',
+                    created: new Date(2023, 5, 15, 10, 24) 
+                  },
+                  { 
+                    id: 'TICKET-122', 
+                    user: 'Amit Kumar', 
+                    issue: 'Unable to view flashcards',
+                    status: 'resolved',
+                    priority: 'normal',
+                    created: new Date(2023, 5, 14, 16, 45) 
+                  },
+                  { 
+                    id: 'TICKET-121', 
+                    user: 'Sneha Gupta', 
+                    issue: 'Wrong score displayed for test',
+                    status: 'open',
+                    priority: 'high',
+                    created: new Date(2023, 5, 14, 9, 18) 
+                  },
+                ].map((ticket, i) => (
+                  <TableRow key={i}>
+                    <TableCell className="font-mono">{ticket.id}</TableCell>
+                    <TableCell>{ticket.user}</TableCell>
+                    <TableCell>{ticket.issue}</TableCell>
+                    <TableCell>
+                      {ticket.status === 'open' && (
+                        <Badge className="bg-amber-100 text-amber-800">Open</Badge>
+                      )}
+                      {ticket.status === 'in-progress' && (
+                        <Badge className="bg-blue-100 text-blue-800">In Progress</Badge>
+                      )}
+                      {ticket.status === 'resolved' && (
+                        <Badge className="bg-green-100 text-green-800">Resolved</Badge>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {ticket.priority === 'critical' && (
+                        <Badge className="bg-red-100 text-red-800">Critical</Badge>
+                      )}
+                      {ticket.priority === 'high' && (
+                        <Badge className="bg-amber-100 text-amber-800">High</Badge>
+                      )}
+                      {ticket.priority === 'normal' && (
+                        <Badge className="bg-blue-100 text-blue-800">Normal</Badge>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {ticket.created.toLocaleDateString()} {ticket.created.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <Button variant="ghost" size="sm" className="flex items-center gap-1 h-8">
+                          <MessageSquare size={14} />
+                          <span>Reply</span>
+                        </Button>
+                        {ticket.status !== 'resolved' && (
+                          <Button variant="ghost" size="sm" className="flex items-center gap-1 h-8 text-green-600">
+                            <CheckCircle2 size={14} />
+                            <span>Resolve</span>
+                          </Button>
+                        )}
                       </div>
-                    ))}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">System Logs</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="overflow-x-auto rounded-md border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-[180px]">Timestamp</TableHead>
+                  <TableHead className="w-[100px]">Level</TableHead>
+                  <TableHead>Message</TableHead>
+                  <TableHead>Source</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {recentLogs.map((log, i) => (
+                  <TableRow key={i}>
+                    <TableCell className="font-mono text-xs">
+                      {new Date(log.timestamp).toLocaleString()}
+                    </TableCell>
+                    <TableCell>
+                      {log.level === 'error' && (
+                        <Badge className="bg-red-100 text-red-800">Error</Badge>
+                      )}
+                      {log.level === 'warning' && (
+                        <Badge className="bg-amber-100 text-amber-800">Warning</Badge>
+                      )}
+                      {log.level === 'info' && (
+                        <Badge className="bg-blue-100 text-blue-800">Info</Badge>
+                      )}
+                    </TableCell>
+                    <TableCell className="font-medium">{log.message}</TableCell>
+                    <TableCell>{log.source}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+          <div className="flex justify-end mt-4">
+            <Button variant="outline">View All Logs</Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Security Alerts</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              <div className="flex items-start gap-3 bg-amber-50 dark:bg-amber-900/10 p-3 rounded-md">
+                <ShieldAlert className="h-5 w-5 text-amber-600 mt-0.5" />
+                <div>
+                  <h4 className="font-medium">Multiple Failed Login Attempts</h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">5 failed attempts from IP 103.54.244.12</p>
+                  <div className="flex items-center gap-2 mt-2">
+                    <span className="text-xs text-gray-500">Today, 10:24 AM</span>
+                    <Button variant="outline" size="sm" className="h-7 text-xs">Block IP</Button>
                   </div>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-        ))}
-      </Tabs>
+                </div>
+              </div>
+              <div className="flex items-start gap-3 bg-green-50 dark:bg-green-900/10 p-3 rounded-md">
+                <CheckCircle2 className="h-5 w-5 text-green-600 mt-0.5" />
+                <div>
+                  <h4 className="font-medium">Security Scan Complete</h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">No vulnerabilities detected in system</p>
+                  <div className="flex items-center gap-2 mt-2">
+                    <span className="text-xs text-gray-500">Yesterday, 11:30 PM</span>
+                    <Button variant="outline" size="sm" className="h-7 text-xs">View Report</Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Admin Activity</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              <div className="flex items-start gap-3">
+                <UserCheck className="h-5 w-5 text-blue-600 mt-0.5" />
+                <div>
+                  <h4 className="font-medium">Vikram Singh</h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Updated AI model parameters for learning style detection</p>
+                  <span className="text-xs text-gray-500">Today, 2:14 PM</span>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <Clock className="h-5 w-5 text-blue-600 mt-0.5" />
+                <div>
+                  <h4 className="font-medium">Ananya Sharma</h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Approved 24 new concept cards for Physics</p>
+                  <span className="text-xs text-gray-500">Today, 11:32 AM</span>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <AlertOctagon className="h-5 w-5 text-blue-600 mt-0.5" />
+                <div>
+                  <h4 className="font-medium">Raj Patel</h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Resolved system issue with doubt responder API</p>
+                  <span className="text-xs text-gray-500">Yesterday, 5:47 PM</span>
+                </div>
+              </div>
+            </div>
+            <Button variant="outline" size="sm" className="w-full mt-4">View All Activity</Button>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };

@@ -1,45 +1,80 @@
 
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
+import React, { useRef, useState } from 'react';
+import Header from '@/components/layout/HeaderWithAdmin';
+import Footer from '@/components/layout/Footer';
+import HeroSection from '@/components/home/HeroSection';
+import WhatIsSection from '@/components/home/WhatIsSection';
+import ForWhomSection from '@/components/home/ForWhomSection';
+import FeaturesSection from '@/components/home/FeaturesSection';
+import ExamPreparationSection from '@/components/home/ExamPreparationSection';
+import StudentBenefitsSection from '@/components/home/StudentBenefitsSection';
+import CallToAction from '@/components/home/CallToAction';
+import FounderSection from '@/components/home/FounderSection';
+import VideoSection from '@/components/home/VideoSection';
+import { ExamReadinessAnalyzer } from '@/components/home/ExamReadinessAnalyzer';
 
 const Index = () => {
+  const featuresRef = useRef<HTMLDivElement>(null);
+  const forWhomRef = useRef<HTMLDivElement>(null);
+  const [showExamAnalyzer, setShowExamAnalyzer] = useState(false);
+  
+  const scrollToFeatures = () => {
+    if (featuresRef.current) {
+      featuresRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+  
+  const scrollToForWhom = () => {
+    if (forWhomRef.current) {
+      forWhomRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+  
+  const handleOpenExamAnalyzer = () => {
+    setShowExamAnalyzer(true);
+  };
+  
+  const handleCloseExamAnalyzer = () => {
+    setShowExamAnalyzer(false);
+  };
+
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-purple-50 to-white dark:from-gray-900 dark:to-gray-800 p-4">
-      <div className="max-w-3xl mx-auto text-center">
-        <h1 className="text-4xl md:text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600 mb-6">
-          Sakha AI
-        </h1>
-        <p className="text-lg md:text-xl mb-8 text-gray-600 dark:text-gray-300">
-          Your personalized AI learning companion for exam preparation
-        </p>
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-background overflow-hidden">
+      <Header />
+      
+      <main>
+        <HeroSection 
+          scrollToFeatures={scrollToFeatures} 
+          scrollToForWhom={scrollToForWhom}
+          openExamAnalyzer={handleOpenExamAnalyzer}
+        />
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-md mx-auto">
-          <Link to="/login">
-            <Button className="w-full" size="lg">
-              Login
-            </Button>
-          </Link>
-          
-          <Link to="/signup">
-            <Button variant="outline" className="w-full" size="lg">
-              Sign Up
-            </Button>
-          </Link>
-          
-          <Link to="/dashboard/student" className="md:col-span-2">
-            <Button variant="secondary" className="w-full" size="lg">
-              Student Dashboard
-            </Button>
-          </Link>
+        <WhatIsSection />
+        
+        <div ref={featuresRef}>
+          <FeaturesSection />
         </div>
         
-        <div className="mt-16">
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            Prepare for exams more effectively with personalized study plans and AI assistance
-          </p>
+        <div ref={forWhomRef}>
+          <ForWhomSection />
         </div>
-      </div>
+        
+        <ExamPreparationSection />
+        
+        {showExamAnalyzer && <ExamReadinessAnalyzer onClose={handleCloseExamAnalyzer} />}
+        
+        <StudentBenefitsSection />
+        
+        {/* Both EcosystemAnimation and OnboardingSection are now in HeroSection */}
+        
+        <VideoSection />
+        
+        <FounderSection />
+        
+        <CallToAction />
+      </main>
+      
+      <Footer />
     </div>
   );
 };

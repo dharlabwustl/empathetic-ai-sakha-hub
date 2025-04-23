@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { adminService } from "@/services/adminService";
@@ -8,12 +9,6 @@ import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import DatabaseSchemaDownloader from "../DatabaseSchemaDownloader";
 import APIPerformance from "../system/APIPerformance";
-
-const getNumberValue = (value: any): number => {
-  if (typeof value === 'number') return value;
-  if (value && typeof value === 'object' && 'value' in value) return Number(value.value);
-  return 0;
-};
 
 interface KpiStats {
   stressReduction: number;
@@ -56,44 +51,36 @@ const SystemAnalyticsTab = () => {
       if (dashboardStats) {
         setStats({
           stressReduction: dashboardStats.verifiedMoodImprovement
-            ? Math.min(Math.round(getNumberValue(dashboardStats.verifiedMoodImprovement)), 100)
-            : Math.min(Math.round((getNumberValue(dashboardStats.averageMoodScore ? dashboardStats.averageMoodScore : 5) - 5) / 5 * 100), 100),
+            ? Math.min(Math.round(dashboardStats.verifiedMoodImprovement), 100)
+            : Math.min(Math.round((dashboardStats.averageMoodScore - 5) / 5 * 100), 100),
           
           timeOptimization: dashboardStats.averageTimeSavedPerWeek
-            ? Math.round(getNumberValue(dashboardStats.averageTimeSavedPerWeek))
+            ? Math.round(dashboardStats.averageTimeSavedPerWeek)
             : dashboardStats.studyPlanEfficiencyImprovement
-              ? Math.round(getNumberValue(dashboardStats.studyPlanEfficiencyImprovement) / 10)
+              ? Math.round(dashboardStats.studyPlanEfficiencyImprovement / 10)
               : 5,
           
-          habitFormation: dashboardStats.studentsWithVerifiedConsistentHabits && dashboardStats.totalStudents
-            ? Math.round((getNumberValue(dashboardStats.studentsWithVerifiedConsistentHabits) / getNumberValue(dashboardStats.totalStudents)) * 100)
-            : dashboardStats.studentsWithConsistentHabits && dashboardStats.totalStudents
-              ? Math.round((getNumberValue(dashboardStats.studentsWithConsistentHabits) / getNumberValue(dashboardStats.totalStudents)) * 100)
-              : 50,
+          habitFormation: dashboardStats.studentsWithVerifiedConsistentHabits
+            ? Math.round((dashboardStats.studentsWithVerifiedConsistentHabits / dashboardStats.totalStudents) * 100)
+            : Math.round((dashboardStats.studentsWithConsistentHabits / dashboardStats.totalStudents) * 100),
           
           examConfidence: dashboardStats.verifiedExamConfidenceImprovement
-            ? Math.round(getNumberValue(dashboardStats.verifiedExamConfidenceImprovement))
-            : dashboardStats.averageConfidenceScore
-              ? Math.round((getNumberValue(dashboardStats.averageConfidenceScore) / 10) * 100)
-              : 75,
+            ? Math.round(dashboardStats.verifiedExamConfidenceImprovement)
+            : Math.round((dashboardStats.averageConfidenceScore / 10) * 100),
           
           userRetention: dashboardStats.verifiedRetentionRate
-            ? getNumberValue(dashboardStats.verifiedRetentionRate)
-            : dashboardStats.activeStudents && dashboardStats.totalStudents
-              ? Math.round((getNumberValue(dashboardStats.activeStudents) / getNumberValue(dashboardStats.totalStudents)) * 100)
-              : 85,
+            ? dashboardStats.verifiedRetentionRate
+            : Math.round((dashboardStats.activeStudents / dashboardStats.totalStudents) * 100),
           
           moodBasedUsage: dashboardStats.verifiedMoodFeatureUsage
-            ? getNumberValue(dashboardStats.verifiedMoodFeatureUsage)
-            : dashboardStats.moodBasedSessionsCount && dashboardStats.totalSessions
-              ? Math.round((getNumberValue(dashboardStats.moodBasedSessionsCount) / getNumberValue(dashboardStats.totalSessions)) * 100)
-              : 40
+            ? dashboardStats.verifiedMoodFeatureUsage
+            : Math.round((dashboardStats.moodBasedSessionsCount / dashboardStats.totalSessions) * 100)
         });
         
         setSampleSizes({
-          totalStudents: getNumberValue(dashboardStats.totalStudents),
-          totalSessions: getNumberValue(dashboardStats.totalSessions),
-          completedSurveys: getNumberValue(dashboardStats.completedSurveys)
+          totalStudents: dashboardStats.totalStudents,
+          totalSessions: dashboardStats.totalSessions,
+          completedSurveys: dashboardStats.completedSurveys || 0
         });
         
         const MIN_SAMPLE_SIZE = 50;
@@ -102,22 +89,22 @@ const SystemAnalyticsTab = () => {
         
         setDataReliability({
           stressReduction: Boolean(dashboardStats.verifiedMoodImprovement) && 
-                          (getNumberValue(dashboardStats.completedSurveys) >= MIN_SURVEYS),
+                          (dashboardStats.completedSurveys >= MIN_SURVEYS),
           
           timeOptimization: Boolean(dashboardStats.averageTimeSavedPerWeek) && 
-                          (getNumberValue(dashboardStats.totalSessions) >= MIN_SESSIONS_FOR_TIME_CALC),
+                          (dashboardStats.totalSessions >= MIN_SESSIONS_FOR_TIME_CALC),
           
           habitFormation: Boolean(dashboardStats.studentsWithVerifiedConsistentHabits) && 
-                          (getNumberValue(dashboardStats.totalStudents) >= MIN_SAMPLE_SIZE),
+                          (dashboardStats.totalStudents >= MIN_SAMPLE_SIZE),
           
           examConfidence: Boolean(dashboardStats.verifiedExamConfidenceImprovement) && 
-                          (getNumberValue(dashboardStats.completedSurveys) >= MIN_SURVEYS),
+                          (dashboardStats.completedSurveys >= MIN_SURVEYS),
           
           userRetention: Boolean(dashboardStats.verifiedRetentionRate) && 
-                        (getNumberValue(dashboardStats.totalStudents) >= MIN_SAMPLE_SIZE),
+                        (dashboardStats.totalStudents >= MIN_SAMPLE_SIZE),
           
           moodBasedUsage: Boolean(dashboardStats.verifiedMoodFeatureUsage) && 
-                        (getNumberValue(dashboardStats.totalSessions) >= MIN_SESSIONS_FOR_TIME_CALC)
+                        (dashboardStats.totalSessions >= MIN_SESSIONS_FOR_TIME_CALC)
         });
       }
     };

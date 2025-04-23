@@ -1,54 +1,59 @@
 
-import { UserProfileType, UserRole, GoalStatus, PersonalityType, UserSubscription } from "@/types/user/base";
+import { StudentProfile } from "@/types/user";
+import { UserRole, SubscriptionType, MoodType } from "@/types/user/base";
+import { v4 as uuidv4 } from "uuid";
 
-export const mockStudentProfile: UserProfileType = {
-  id: "123",
-  name: "Rohit Kumar",
-  email: "rohit@example.com",
+export const mockStudentProfile: StudentProfile = {
+  id: "1",
+  name: "Rahul Singh",
+  phoneNumber: "9876543210",
+  email: "rahul.singh@example.com",
   role: UserRole.Student,
-  avatar: "/assets/avatars/student.jpg",
-  phoneNumber: "+91-9876543210",
-  createdAt: "2023-07-15T10:30:00Z",
-  lastLogin: "2023-11-02T09:15:00Z",
-  onboarded: true,
-  loginCount: 12,
-  completedOnboarding: true,
-  personalityType: {
-    type: "systematic_learner",
-    traits: ["Organized", "Detail-oriented", "Methodical", "Focused"],
-    learningStyle: "Sequential and structured learning"
-  } as PersonalityType,
-  
-  // Academic details
-  batchName: "IIT-JEE 2024",
-  batchCode: "IJ24-A1",
-  isGroupLeader: true,
-  peerRanking: 3,
-  examDate: "2024-05-25",
-  school: "Delhi Public School",
-  grade: "12",
-  board: "CBSE",
-  city: "Delhi",
-  state: "Delhi",
-  
-  // Goals
+  personalityType: "Strategic Thinker",
+  subscription: SubscriptionType.Basic,
+  joinDate: "2025-03-01",
+  lastActive: "2025-05-12",
+  areasOfInterest: [
+    { id: "i1", name: "Physics", level: "Advanced" },
+    { id: "i2", name: "Mathematics", level: "Intermediate" },
+    { id: "i3", name: "Chemistry", level: "Intermediate" }
+  ],
   goals: [
     {
       id: "g1",
-      title: "IIT-JEE",
-      description: "Crack IIT-JEE with rank under 1000",
-      progress: 65,
-      status: "in_progress" as GoalStatus,
-      targetDate: "2024-05-20",
-      examDate: "2024-05-25"
+      title: "Complete Physics Syllabus",
+      description: "Finish all chapters in NCERT Physics",
+      progress: 75,
+      status: "in-progress",
+      dueDate: "2025-05-30",
+      targetDate: new Date("2025-05-30")
     },
     {
       id: "g2",
-      title: "Physics Olympiad",
-      description: "Qualify for national level",
-      progress: 40,
-      status: "active" as GoalStatus,
-      targetDate: "2024-03-15"
-    }
+      title: "Score 90% in Math Test",
+      description: "Practice integration problems",
+      progress: 60,
+      status: "not-started",
+      dueDate: "2025-05-15",
+      targetDate: new Date("2025-05-15")
+    },
   ],
+  educationLevel: "11th Grade",
+  subjects: [
+    { id: "s1", name: "Physics", progress: 75 },
+    { id: "s2", name: "Chemistry", progress: 60 },
+    { id: "s3", name: "Mathematics", progress: 80 },
+    { id: "s4", name: "Biology", progress: 45 }
+  ],
+  studyStreak: 5,
+  quizzesTaken: 12,
+  flashcardsCreated: 35,
+  examPreparation: "IIT-JEE",
+  studyHoursToday: 2.5,
+  subjectsCovered: 3,
+  quizPerformance: 82,
+  mood: "focused" as MoodType,
+  syllabusCoverage: 65,
+  strongSubjects: ["Physics", "Mathematics"],
+  weakSubjects: ["Chemistry", "Biology"]
 };

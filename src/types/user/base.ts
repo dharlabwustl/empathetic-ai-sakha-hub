@@ -1,22 +1,44 @@
 
-export enum UserRole {
-  Student = "student",
-  Teacher = "teacher",
-  Admin = "admin",
-  Parent = "parent",
-  Mentor = "mentor"
+export interface UserSubscription {
+  planId: string;
+  planType: SubscriptionType;
+  batchCode?: string;
+  batchName?: string;
+  startDate?: string;
+  endDate?: string;
+  role?: "member" | "leader" | "school_admin" | "corporate_admin";
 }
-
-export type MoodType = 'happy' | 'sad' | 'neutral' | 'motivated' | 'tired' | 'stressed' | 'focused' | 'curious' | 'overwhelmed' | 'okay';
 
 export interface UserProfileType {
   id: string;
-  name: string;
   email: string;
+  name: string;
   role: UserRole;
+  bio?: string;
   avatar?: string;
-  isVerified?: boolean;
-  phone?: string;
+  personalityType?: string;
+  goals?: {
+    id: string;
+    title: string;
+    description?: string;
+    progress?: number;
+    status?: "completed" | "in-progress" | "not-started";
+    dueDate?: string;
+    targetDate?: Date;
+  }[];
+  areasOfInterest?: {
+    id: string;
+    name: string;
+    level?: string;
+  }[];
+  subscription?: SubscriptionType | UserSubscription;
+  joinDate?: string;
+  lastActive?: string;
+  gender?: "male" | "female" | "other";
+  phoneNumber?: string;
+  examPreparation?: string;
+  loginCount?: number;
+  completedOnboarding?: boolean;
   address?: {
     street?: string;
     city?: string;
@@ -25,81 +47,54 @@ export interface UserProfileType {
     country?: string;
   };
   education?: {
-    school?: string;
-    degree?: string;
+    level?: string;
+    institution?: string;
     fieldOfStudy?: string;
     graduationYear?: number;
   };
-  examPreparation?: {
-    examDate: string;
-    daysLeft: number;
-    title: string;
-  } | string;
-  goals?: {
-    title: string;
-    progress: number;
-    target: string;
-  }[];
-  subjects?: {
-    name: string;
-    progress: number;
-    strength: 'strong' | 'weak' | 'moderate';
-  }[];
-  interests?: string[];
-  bio?: string;
-  subscription?: {
-    planName: string;
-    status: 'active' | 'inactive' | 'trial';
-    endDate: string;
-    isGroupLeader?: boolean;
-  };
-  createdAt?: string;
-  lastLogin?: string;
-  loginCount?: number;
-  preferences?: {
-    theme?: 'light' | 'dark' | 'system';
-    notifications?: {
-      email?: boolean;
-      push?: boolean;
-      sms?: boolean;
-    };
-    studyPreferences?: {
-      preferredTime?: 'morning' | 'afternoon' | 'evening' | 'night';
-      sessionsPerDay?: number;
-      sessionDuration?: number;
-    };
-  };
-  // Stats tracking fields
-  totalStudyHours?: number;
-  accuracyRate?: number;
-  streakDays?: number;
-  completedLessons?: number;
-  // Group subscription related fields
-  isGroupLeader?: boolean;
-  batchName?: string;
-  batchCode?: string;
-  batchMembers?: {
-    id: string;
-    name: string;
-    email: string;
-    progress: number;
-  }[];
-  // User mood tracking
-  mood?: MoodType;
 }
 
-export interface AuthContextType {
-  user: UserProfileType | null;
-  isAuthenticated: boolean;
-  isLoading: boolean;
-  login: (email: string, password: string) => Promise<boolean>;
-  register: (name: string, email: string, password: string) => Promise<boolean>;
-  logout: () => Promise<void>;
+export enum UserRole {
+  Student = "student",
+  Teacher = "teacher",
+  Parent = "parent",
+  Admin = "admin",
+  Employee = "employee",
+  Doctor = "doctor",
+  Founder = "founder"
 }
 
-export interface AuthUser {
+export type MoodType = 
+  | "happy"
+  | "sad"
+  | "tired"
+  | "motivated"
+  | "focused"
+  | "stressed"
+  | "overwhelmed"
+  | "curious"
+  | "neutral"
+  | "okay";
+
+export enum SubscriptionType {
+  Free = "free",
+  Basic = "basic",
+  Premium = "premium",
+  Enterprise = "enterprise",
+  School = "school",
+  Corporate = "corporate"
+}
+
+export interface SubscriptionPlan {
   id: string;
-  email: string;
-  role: UserRole;
   name: string;
+  price: number;
+  features: string[];
+  isPopular?: boolean;
+  description?: string;
+  type: SubscriptionType;
+  maxMembers?: number;
 }
+
+// Changed to type string
+export type PersonalityType = string;

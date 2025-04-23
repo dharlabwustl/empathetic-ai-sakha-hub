@@ -154,31 +154,6 @@ const SubscriptionPage = () => {
     }
   };
   
-  const handleJoinBatch = async (code: string): Promise<boolean> => {
-    // Mock implementation for now
-    if (code.startsWith('SAKHA-')) {
-      toast({
-        title: "Success!",
-        description: "You have successfully joined the batch. Welcome!",
-        variant: "default",
-      });
-      
-      setActivationSuccess(true);
-      // You would typically update the currentPlan state here based on the batch's plan
-      setCurrentPlan({
-        id: 'group-pro-member',
-        name: 'Group Pro (Member)',
-        expiryDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-        isActive: true,
-        isGroup: true
-      });
-      
-      return true;
-    } else {
-      return false;
-    }
-  };
-  
   const copyInviteCode = (code: string, index: number) => {
     navigator.clipboard.writeText(code);
     setCopiedCodeIndex(index);
@@ -409,7 +384,6 @@ const SubscriptionPage = () => {
           <BatchInvitationInput 
             onActivate={handleActivateBatchCode} 
             activationSuccess={activationSuccess}
-            onJoinBatch={handleJoinBatch} 
           />
         )}
         

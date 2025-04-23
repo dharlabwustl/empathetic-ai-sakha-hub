@@ -16,9 +16,4 @@ export interface StudentProfile extends UserProfileType {
   weaknesses?: string[];
   preferredLearningStyle?: string;
   lastActive?: string;
-  educationLevel?: string;
-  subjects?: string[];
-  mood?: 'happy' | 'sad' | 'neutral' | 'motivated' | 'tired' | 'stressed' | 'focused' | 'curious' | 'overwhelmed' | 'okay';
-  moodTimestamp?: string;
-  studyStreak?: number;
 }

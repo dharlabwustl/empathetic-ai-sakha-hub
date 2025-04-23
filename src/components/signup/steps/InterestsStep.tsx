@@ -1,125 +1,136 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { X, Plus } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Badge } from "@/components/ui/badge";
+import { getSubjectsForGoal } from "@/components/dashboard/student/onboarding/SubjectData";
 
 interface InterestsStepProps {
+  examGoal?: string;
   onSubmit: (interests: string) => void;
-  selectedGoal?: string;
 }
 
-const InterestsStep: React.FC<InterestsStepProps> = ({ onSubmit, selectedGoal }) => {
-  const [interests, setInterests] = useState<string[]>([]);
-  const [inputValue, setInputValue] = useState("");
+const InterestsStep: React.FC<InterestsStepProps> = ({ examGoal, onSubmit }) => {
+  const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
+  const [customInterest, setCustomInterest] = useState("");
+  const [suggestedSubjects, setSuggestedSubjects] = useState<string[]>([]);
 
-  const suggestedInterests = [
-    "Physics", "Chemistry", "Biology", "Mathematics",
-    "Computer Science", "History", "Geography", "Economics",
-    "Programming", "AI", "Machine Learning", "Data Science"
-  ];
+  useEffect(() => {
+    // Get suggested subjects based on the exam goal
+    if (examGoal) {
+      const subjects = getSubjectsForGoal(examGoal);
+      setSuggestedSubjects(subjects);
+    }
+  }, [examGoal]);
 
-  const handleAddInterest = (interest: string) => {
-    if (interest.trim() !== "" && !interests.includes(interest.trim())) {
-      setInterests([...interests, interest.trim()]);
-      setInputValue("");
+  const handleAddCustomInterest = () => {
+    if (customInterest.trim() && !selectedInterests.includes(customInterest.trim())) {
+      setSelectedInterests(prev => [...prev, customInterest.trim()]);
+      setCustomInterest("");
+    }
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleAddCustomInterest();
     }
   };
 
   const handleRemoveInterest = (interest: string) => {
-    setInterests(interests.filter(i => i !== interest));
+    setSelectedInterests(prev => prev.filter(item => item !== interest));
   };
 
-  const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && inputValue.trim() !== "") {
-      e.preventDefault();
-      handleAddInterest(inputValue);
+  const toggleSubject = (subject: string) => {
+    if (selectedInterests.includes(subject)) {
+      handleRemoveInterest(subject);
+    } else {
+      setSelectedInterests(prev => [...prev, subject]);
     }
   };
 
-  const handleSubmit = () => {
-    if (interests.length > 0) {
-      onSubmit(interests.join(","));
-    }
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSubmit(selectedInterests.join(", "));
   };
 
   return (
-    <div className="max-w-2xl mx-auto">
-      <h2 className="text-2xl font-bold text-center mb-4">Select Your Interests</h2>
-      <p className="text-center text-gray-500 dark:text-gray-400 mb-8">
-        Choose the subjects that interest you the most
-        {selectedGoal ? ` for ${selectedGoal}` : ''}
-      </p>
-      
-      <Card className="mb-6">
-        <CardContent className="pt-6">
-          <div className="space-y-4">
-            <div className="flex flex-wrap gap-2 min-h-[50px] border p-2 rounded-md">
-              {interests.map(interest => (
-                <Badge key={interest} variant="secondary" className="gap-1 pr-1">
-                  {interest}
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveInterest(interest)}
-                    className="ml-1 rounded-full hover:bg-gray-200 p-1"
-                  >
-                    <X className="h-3 w-3" />
-                  </button>
-                </Badge>
-              ))}
-              {interests.length === 0 && (
-                <span className="text-gray-400 text-sm py-1">No interests selected yet</span>
-              )}
-            </div>
-            
-            <div className="flex gap-2">
-              <Input
-                placeholder="Add an interest..."
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                onKeyDown={handleInputKeyDown}
-                className="flex-grow"
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div>
+        <h3 className="text-lg font-medium mb-2">Select Your Preferred Subjects</h3>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+          {examGoal ? `Based on your goal for ${examGoal}, we recommend these subjects:` : 'Choose subjects you want to focus on:'}
+        </p>
+
+        <div className="grid grid-cols-2 gap-2 mb-4">
+          {suggestedSubjects.map(subject => (
+            <div key={subject} className="flex items-center space-x-2">
+              <Checkbox 
+                id={`subject-${subject}`}
+                checked={selectedInterests.includes(subject)}
+                onCheckedChange={() => toggleSubject(subject)}
               />
-              <Button
-                type="button"
-                onClick={() => handleAddInterest(inputValue)}
-                disabled={!inputValue.trim()}
-                size="icon"
+              <label 
+                htmlFor={`subject-${subject}`}
+                className="text-sm cursor-pointer"
               >
-                <Plus className="h-4 w-4" />
-              </Button>
+                {subject}
+              </label>
             </div>
-          </div>
-        </CardContent>
-      </Card>
-      
-      <div className="mb-6">
-        <h3 className="text-sm font-medium mb-2">Suggested Interests:</h3>
-        <div className="flex flex-wrap gap-2">
-          {suggestedInterests.map(interest => (
-            <Badge
-              key={interest}
-              variant="outline"
-              className="cursor-pointer hover:bg-primary/10"
-              onClick={() => handleAddInterest(interest)}
-            >
-              {interest}
-            </Badge>
           ))}
         </div>
+
+        <h4 className="text-sm font-medium mb-2 mt-4">Or add your own interests:</h4>
+        <div className="flex gap-2">
+          <Input
+            value={customInterest}
+            onChange={(e) => setCustomInterest(e.target.value)}
+            onKeyPress={handleKeyPress}
+            placeholder="Enter an interest and press Enter"
+          />
+          <Button 
+            type="button" 
+            onClick={handleAddCustomInterest} 
+            variant="outline"
+          >
+            Add
+          </Button>
+        </div>
       </div>
-      
-      <div className="flex justify-end">
-        <Button 
-          onClick={handleSubmit}
-          disabled={interests.length === 0}
-        >
-          Continue
-        </Button>
-      </div>
-    </div>
+
+      {selectedInterests.length > 0 && (
+        <div className="mt-4">
+          <h4 className="text-sm font-medium mb-2">Selected interests:</h4>
+          <div className="flex flex-wrap gap-2">
+            {selectedInterests.map((interest) => (
+              <Badge 
+                key={interest} 
+                variant="secondary"
+                className="flex items-center gap-1"
+              >
+                {interest}
+                <button
+                  type="button"
+                  className="ml-1 h-4 w-4 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 inline-flex items-center justify-center"
+                  onClick={() => handleRemoveInterest(interest)}
+                >
+                  ×
+                </button>
+              </Badge>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <Button 
+        type="submit" 
+        className="w-full bg-gradient-to-r from-blue-600 to-indigo-700"
+        disabled={selectedInterests.length === 0}
+      >
+        Next
+      </Button>
+    </form>
   );
 };
 

@@ -1,51 +1,70 @@
 
-import { UserProfileType, UserRole, GoalStatus, UserSubscription } from "@/types/user/base";
+import { EmployeeProfile } from "@/types/user";
+import { UserRole, SubscriptionType } from "@/types/user/base";
+import { v4 as uuidv4 } from "uuid";
 
-export const employeeProfile: UserProfileType = {
-  id: "emp123",
-  name: "Vishal Mehta",
-  email: "vishal@corporate.com",
+export const mockEmployeeProfile: EmployeeProfile = {
+  id: uuidv4(),
+  name: "Rajesh Kumar",
+  email: "rajesh.kumar@techsolutions.com",
+  phoneNumber: "+919876543211",
   role: UserRole.Employee,
-  avatar: "/assets/avatars/employee.jpg",
-  phoneNumber: "+91-9998887776",
-  createdAt: "2023-04-20T09:45:00Z",
-  lastLogin: "2023-11-01T17:30:00Z",
-  onboarded: true,
-  loginCount: 28,
-  completedOnboarding: true,
-  
+  personalityType: "Strategic Thinker",
   subscription: {
-    id: "sub_emp123",
-    plan: "Premium",
-    expiresAt: "2024-04-20T00:00:00Z",
-    status: "active"
-  } as UserSubscription,
-  
-  // Professional development goals
+    planId: "basic-001",
+    planType: SubscriptionType.Basic,
+    startDate: "2025-01-15",
+    endDate: "2025-07-15"
+  },
+  joinDate: "2025-01-15",
+  lastActive: "2025-04-06",
+  jobTitle: "Product Manager",
+  workExperience: 6,
+  skills: [
+    "Product Strategy",
+    "User Research",
+    "Agile Methodologies",
+    "Roadmapping",
+    "Team Leadership"
+  ],
+  company: "TechSolutions India",
+  industry: "SaaS",
+  careerGoal: "Director of Product",
+  projectsCompleted: 12,
+  trainingCompleted: 8,
+  experienceLevel: "Mid-Senior",
+  skillsToGrow: ["Data Analytics", "Machine Learning Basics", "Product Marketing"],
+  productivityScore: 85,
   goals: [
     {
-      id: "g1",
-      title: "Project Management",
-      description: "Complete PMP certification",
-      progress: 60,
-      status: "in_progress" as GoalStatus,
-      targetDate: "2025-01-15"
+      id: uuidv4(),
+      title: "Complete PMP Certification",
+      description: "Pass the Project Management Professional exam",
+      progress: 75,
+      status: "in-progress",
+      dueDate: "2025-05-30",
+      targetDate: new Date("2025-05-30")
     },
     {
-      id: "g2",
-      title: "Leadership Skills",
-      description: "Complete leadership training course",
-      progress: 30,
-      status: "active" as GoalStatus,
-      targetDate: "2024-09-30"
-    },
-    {
-      id: "g3",
-      title: "Technical Skills",
-      description: "Learn advanced data analysis",
-      progress: 25,
-      status: "in_progress" as GoalStatus,
-      targetDate: "2024-11-15"
+      id: uuidv4(),
+      title: "Learn SQL",
+      description: "Complete advanced SQL course for data analysis",
+      progress: 45,
+      status: "not-started",
+      dueDate: "2025-07-15",
+      targetDate: new Date("2025-07-15")
     }
   ],
+  areasOfInterest: [
+    {
+      id: uuidv4(),
+      name: "Product Analytics",
+      level: "Intermediate"
+    },
+    {
+      id: uuidv4(),
+      name: "UX Design",
+      level: "Beginner"
+    }
+  ]
 };

@@ -1,77 +1,139 @@
 
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { shuffle } from "lodash";
-import { motion, AnimatePresence } from "framer-motion";
-import { RefreshCw } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { ThumbsUp, RefreshCcw } from "lucide-react";
+import { motion } from "framer-motion";
+import { useToast } from "@/hooks/use-toast";
+import { Joke } from "./types";
 
-// Jokes appropriate for students
-const jokes = [
-  "Why did the physics book break up with the math book? There was just too much tension!",
-  "What did the calculator say to the student? You can count on me!",
-  "Why don't scientists trust atoms? Because they make up everything!",
-  "I told my chemistry joke, but there was no reaction.",
-  "What do you call a parade of rabbits jumping backward? A receding hare line!",
-  "I used to be a baker, but I couldn't make enough dough.",
-  "Why did the scarecrow win an award? Because he was outstanding in his field!",
-  "Where do boats go when they're sick? To the dock!",
-  "Why don't eggs tell jokes? They'd crack each other up!",
-  "What did one wall say to the other? I'll meet you at the corner!",
-  "Why did the student eat his homework? Because the teacher said it was a piece of cake!",
-  "What's a computer's favorite snack? Microchips!",
-  "Why was the math book sad? It had too many problems.",
-  "I would tell you a chemistry joke but I know I wouldn't get a reaction.",
-  "What's the difference between a poorly dressed man on a trampoline and a well-dressed man on a trampoline? Attire!",
+// Mock data
+const mockJokes = [
+  { id: 1, content: "Why don't scientists trust atoms? Because they make up everything!", likes: 42, author: "PhysicsNerd" },
+  { id: 2, content: "I told my wife she was drawing her eyebrows too high. She looked surprised.", likes: 38, author: "DadJokeMaster" },
+  { id: 3, content: "Why did the scarecrow win an award? Because he was outstanding in his field!", likes: 27, author: "FarmLife" },
+  { id: 4, content: "I'm reading a book about anti-gravity. It's impossible to put down!", likes: 35, author: "ScienceWiz" },
+  { id: 5, content: "Did you hear about the mathematician who's afraid of negative numbers? He'll stop at nothing to avoid them.", likes: 31, author: "MathGeek" },
 ];
 
-const JokesTab: React.FC = () => {
-  const [currentJoke, setCurrentJoke] = useState(jokes[0]);
-  const [isRefreshing, setIsRefreshing] = useState(false);
+interface JokesTabProps {
+  initialJokes?: Joke[];
+}
+
+const JokesTab: React.FC<JokesTabProps> = ({ initialJokes = mockJokes }) => {
+  const { toast } = useToast();
+  const [jokes, setJokes] = useState<Joke[]>(initialJokes);
+  const [newJoke, setNewJoke] = useState("");
+  const [likedJokes, setLikedJokes] = useState<number[]>([]);
   
-  const getNewJoke = () => {
-    setIsRefreshing(true);
+  const handleSubmitJoke = () => {
+    if (!newJoke.trim()) return;
     
-    // Get a random joke different from the current one
-    let newJoke;
-    do {
-      newJoke = jokes[Math.floor(Math.random() * jokes.length)];
-    } while (newJoke === currentJoke && jokes.length > 1);
+    const newJokeObj = {
+      id: jokes.length + 1,
+      content: newJoke,
+      likes: 0,
+      author: "You"
+    };
     
-    // Simulate network request
-    setTimeout(() => {
-      setCurrentJoke(newJoke);
-      setIsRefreshing(false);
-    }, 600);
+    setJokes([newJokeObj, ...jokes]);
+    
+    toast({
+      title: "Joke submitted!",
+      description: "Your joke has been added to the collection!",
+    });
+    
+    setNewJoke("");
   };
 
+  const handleLikeJoke = (id: number) => {
+    if (likedJokes.includes(id)) {
+      // Unlike
+      setJokes(jokes.map(joke => 
+        joke.id === id ? {...joke, likes: joke.likes - 1} : joke
+      ));
+      setLikedJokes(likedJokes.filter(jokeId => jokeId !== id));
+    } else {
+      // Like
+      setJokes(jokes.map(joke => 
+        joke.id === id ? {...joke, likes: joke.likes + 1} : joke
+      ));
+      setLikedJokes([...likedJokes, id]);
+    }
+  };
+  
   return (
-    <div className="space-y-6">
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={currentJoke}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20 }}
-          transition={{ duration: 0.5 }}
-          className="min-h-[100px] flex items-center justify-center p-4 bg-gradient-to-r from-violet-50 to-blue-50 dark:from-violet-900/20 dark:to-blue-900/20 rounded-lg border border-violet-100 dark:border-violet-800/30"
-        >
-          <p className="text-center font-medium text-violet-800 dark:text-violet-300">
-            {currentJoke}
-          </p>
-        </motion.div>
-      </AnimatePresence>
-      
-      <div className="flex justify-center">
-        <Button 
-          onClick={getNewJoke} 
-          disabled={isRefreshing}
-          className="bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white"
-        >
-          <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
-          {isRefreshing ? 'Finding a joke...' : 'Another One!'}
-        </Button>
+    <motion.div 
+      key="jokes"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+    >
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h3 className="font-medium">Today's Top Jokes</h3>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="text-xs"
+            onClick={() => setJokes([...mockJokes])}
+          >
+            <RefreshCcw size={12} className="mr-1" /> Refresh
+          </Button>
+        </div>
+        
+        <ScrollArea className="h-[280px] rounded border p-2">
+          <div className="space-y-3">
+            {jokes.map((joke) => (
+              <motion.div 
+                key={joke.id} 
+                className="bg-white rounded-lg p-3 shadow-sm border"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: joke.id * 0.1 }}
+                whileHover={{ scale: 1.01 }}
+              >
+                <p className="text-sm mb-2">{joke.content}</p>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-gray-500">by @{joke.author}</span>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className={`h-7 gap-1 text-xs ${likedJokes.includes(joke.id) ? 'text-pink-500' : ''}`}
+                    onClick={() => handleLikeJoke(joke.id)}
+                  >
+                    <ThumbsUp size={12} />
+                    {joke.likes}
+                  </Button>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </ScrollArea>
+        
+        <div className="pt-2">
+          <p className="text-xs text-gray-500 mb-2">Share your own joke:</p>
+          <div className="flex gap-2">
+            <Textarea 
+              value={newJoke} 
+              onChange={(e) => setNewJoke(e.target.value)} 
+              placeholder="Type your joke here..."
+              className="text-sm min-h-[60px] resize-none"
+            />
+          </div>
+          <div className="flex justify-end mt-2">
+            <Button 
+              size="sm" 
+              className="bg-violet-600 text-xs"
+              onClick={handleSubmitJoke}
+            >
+              Share Joke
+            </Button>
+          </div>
+        </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

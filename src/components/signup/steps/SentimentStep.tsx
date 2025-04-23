@@ -1,84 +1,49 @@
 
-import React, { useState } from "react";
+import React from "react";
 import { Button } from "@/components/ui/button";
-import { motion } from "framer-motion";
-import { MoodType } from "@/types/user/base";
+import { useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 
 interface SentimentStepProps {
-  onMoodSelect?: (mood: MoodType) => void;
-  onSelect?: (mood: MoodType) => void;
+  onMoodSelect: (mood: string) => void;
+  isUpdate?: boolean;
 }
 
-const SentimentStep: React.FC<SentimentStepProps> = ({ onMoodSelect, onSelect }) => {
-  const [selectedMood, setSelectedMood] = useState<MoodType | null>(null);
-
-  const moods: { value: MoodType; emoji: string; label: string }[] = [
-    { value: "happy", emoji: "😊", label: "Happy" },
-    { value: "motivated", emoji: "💪", label: "Motivated" },
-    { value: "focused", emoji: "🎯", label: "Focused" },
-    { value: "curious", emoji: "🤔", label: "Curious" },
-    { value: "okay", emoji: "😐", label: "Okay" },
-    { value: "tired", emoji: "😴", label: "Tired" },
-    { value: "stressed", emoji: "😰", label: "Stressed" },
-    { value: "overwhelmed", emoji: "😩", label: "Overwhelmed" },
-    { value: "sad", emoji: "😔", label: "Sad" }
+const SentimentStep: React.FC<SentimentStepProps> = ({ onMoodSelect, isUpdate = false }) => {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  
+  const moodOptions = [
+    "😊 Motivated", "🤔 Curious", "😐 Neutral", "😓 Tired", "😔 Stressed"
   ];
 
-  const handleMoodSelect = (mood: MoodType) => {
-    setSelectedMood(mood);
+  const handleMoodSelect = (mood: string) => {
+    onMoodSelect(mood);
     
-    if (onMoodSelect) {
-      onMoodSelect(mood);
-    }
-    
-    if (onSelect) {
-      onSelect(mood);
+    if (isUpdate) {
+      toast({
+        title: "Mood Updated",
+        description: `Your mood has been logged as ${mood}`,
+      });
+      
+      // If this is an update from the dashboard, close the modal or navigate back
+      navigate("/dashboard/student");
     }
   };
 
   return (
-    <div className="max-w-2xl mx-auto">
-      <h2 className="text-2xl font-bold text-center mb-6">How are you feeling today?</h2>
-      <p className="text-gray-600 dark:text-gray-300 text-center mb-8">
-        Your emotional state affects how you learn. We'll adjust your experience accordingly.
-      </p>
-
-      <div className="grid grid-cols-3 gap-4 mb-8">
-        {moods.map((mood) => (
-          <motion.div
-            key={mood.value}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className={`flex flex-col items-center justify-center p-4 rounded-lg cursor-pointer border ${
-              selectedMood === mood.value
-                ? "border-primary bg-primary/10"
-                : "border-gray-200 hover:border-gray-300 dark:border-gray-700 dark:hover:border-gray-600"
-            }`}
-            onClick={() => handleMoodSelect(mood.value)}
-          >
-            <span className="text-4xl">{mood.emoji}</span>
-            <span className="mt-2 text-sm">{mood.label}</span>
-          </motion.div>
-        ))}
-      </div>
-
-      {selectedMood && (
-        <div className="text-center">
-          <Button
-            onClick={() => {
-              if (selectedMood && onMoodSelect) {
-                onMoodSelect(selectedMood);
-              }
-              if (selectedMood && onSelect) {
-                onSelect(selectedMood);
-              }
-            }}
-            className="w-full sm:w-auto"
-          >
-            Continue
-          </Button>
-        </div>
-      )}
+    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+      {moodOptions.map((mood) => (
+        <Button
+          key={mood}
+          onClick={() => handleMoodSelect(mood)}
+          className="bg-white hover:bg-blue-50 text-blue-700 border border-blue-200 h-auto py-4 flex flex-col items-center"
+          variant="outline"
+        >
+          <span className="text-2xl mb-2">{mood.split(" ")[0]}</span>
+          <span>{mood.split(" ")[1]}</span>
+        </Button>
+      ))}
     </div>
   );
 };

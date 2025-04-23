@@ -5,9 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SubjectOverview } from './SubjectOverview';
 import { TopicsList } from './TopicsList';
 import { QuizzesList } from './QuizzesList';
-import StudyTimeChart from './StudyTimeChart';
-import { SubjectProgress } from "@/types/user/progress";
-import { StudyStreak } from "@/types/user/progress";
+import { StudyTimeChart } from './StudyTimeChart';
+import { SubjectProgress, StudyStreak } from "@/types/user";
 
 interface PerformanceTabsProps {
   subjects: SubjectProgress[];
@@ -59,7 +58,12 @@ export const PerformanceTabs: React.FC<PerformanceTabsProps> = ({
           </TabsContent>
           
           <TabsContent value="time">
-            <StudyTimeChart studyStreak={studyStreak} />
+            <StudyTimeChart
+              selectedSubject={selectedSubject}
+              subjects={subjects}
+              selectSubject={selectSubject}
+              studyStreak={studyStreak}
+            />
           </TabsContent>
         </Tabs>
       </CardContent>

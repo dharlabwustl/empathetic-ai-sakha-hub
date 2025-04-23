@@ -2,198 +2,102 @@
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card } from "@/components/ui/card";
-import { Avatar } from "@/components/ui/avatar";
-import { Send, Smile, Bot } from "lucide-react";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Send } from "lucide-react";
 import { motion } from "framer-motion";
-import { useToast } from "@/hooks/use-toast";
+import { ChatMessage } from "./types";
 
-const ChatTab: React.FC = () => {
-  const [message, setMessage] = useState('');
-  const [messages, setMessages] = useState<{ sender: 'user' | 'ai'; text: string; timestamp: Date }[]>([
-    {
-      sender: 'ai',
-      text: "Hi there! I'm Sakha, your friendly AI companion. How are you feeling today?",
-      timestamp: new Date()
-    }
-  ]);
-  const [isTyping, setIsTyping] = useState(false);
-  const { toast } = useToast();
-  const messagesEndRef = React.useRef<HTMLDivElement>(null);
+interface ChatTabProps {
+  initialMessages?: ChatMessage[];
+}
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
-  React.useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
-  const handleSendMessage = () => {
-    if (!message.trim()) return;
+const ChatTab: React.FC<ChatTabProps> = ({ 
+  initialMessages = [{text: "Hi there! I'm Sakha in chill mode. How can I brighten your day?", isUser: false}] 
+}) => {
+  const [chatMessage, setChatMessage] = useState("");
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>(initialMessages);
+  
+  const handleSendChatMessage = () => {
+    if (!chatMessage.trim()) return;
     
-    // Add user message
-    const userMessage = {
-      sender: 'user' as const,
-      text: message,
-      timestamp: new Date()
-    };
+    // Add user message to chat
+    setChatMessages([...chatMessages, {text: chatMessage, isUser: true}]);
     
-    setMessages(prev => [...prev, userMessage]);
-    setMessage('');
-    setIsTyping(true);
-    
-    // Simulate AI thinking and then responding
+    // Simulate AI response
     setTimeout(() => {
-      const aiResponse = getAIResponse(message);
-      
-      setMessages(prev => [
-        ...prev, 
-        {
-          sender: 'ai',
-          text: aiResponse,
-          timestamp: new Date()
-        }
-      ]);
-      
-      setIsTyping(false);
-    }, 1500);
+      const responses = [
+        "Did you hear about the guy who invented Lifesavers? He made a mint!",
+        "Here's a fun fact: Honey never spoils. Archaeologists have found pots of honey in ancient Egyptian tombs that are over 3,000 years old and still perfectly good to eat!",
+        "Want to recharge? Try this: Close your eyes and take three deep breaths, focusing only on the sensation of breathing.",
+        "You know what? You're doing great today. Sometimes we don't hear that enough!",
+        "Quick happiness hack: Try smiling for 10 seconds, even if forced. Your brain often can't tell the difference and will release feel-good chemicals!"
+      ];
+      const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+      setChatMessages(prev => [...prev, {text: randomResponse, isUser: false}]);
+    }, 1000);
+    
+    setChatMessage("");
   };
-
-  const getAIResponse = (userMessage: string): string => {
-    const normalizedMessage = userMessage.toLowerCase();
-    
-    if (normalizedMessage.includes('joke') || normalizedMessage.includes('funny')) {
-      return "Why don't scientists trust atoms? Because they make up everything! 😄";
-    }
-    
-    if (normalizedMessage.includes('sad') || normalizedMessage.includes('depressed') || normalizedMessage.includes('unhappy')) {
-      return "I'm sorry to hear you're feeling down. Remember that it's okay to have ups and downs. Would you like me to suggest some mood-lifting activities?";
-    }
-    
-    if (normalizedMessage.includes('stress') || normalizedMessage.includes('worried') || normalizedMessage.includes('anxiety')) {
-      return "It sounds like you might be feeling stressed. Deep breathing can help: try inhaling for 4 counts, holding for 4, and exhaling for 6. Would you like more stress management tips?";
-    }
-    
-    if (normalizedMessage.includes('happy') || normalizedMessage.includes('good') || normalizedMessage.includes('great')) {
-      return "I'm glad to hear you're feeling positive! That's wonderful. Would you like to discuss what's making you feel good today?";
-    }
-    
-    if (normalizedMessage.includes('tired') || normalizedMessage.includes('exhausted') || normalizedMessage.includes('sleepy')) {
-      return "Feeling tired is natural, especially during intense study periods. Have you considered taking a short 20-minute power nap? It can help refresh your mind!";
-    }
-    
-    const genericResponses = [
-      "That's interesting! Would you like to tell me more?",
-      "I'm here to listen and help. How can I support you today?",
-      "Thank you for sharing. How does that make you feel?",
-      "I understand. Is there something specific you'd like to talk about?",
-      "I appreciate you opening up. Would you like some suggestions or just someone to listen?"
-    ];
-    
-    return genericResponses[Math.floor(Math.random() * genericResponses.length)];
-  };
-
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSendMessage();
-    }
-  };
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: { opacity: 1, transition: { duration: 0.3 } }
-  };
-
+  
   return (
     <motion.div 
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-      className="flex flex-col h-96"
+      key="chat"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
     >
-      <div className="flex flex-col space-y-2 overflow-y-auto mb-4 flex-grow pr-2">
-        {messages.map((msg, idx) => (
-          <motion.div
-            key={idx}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-            className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-          >
-            <div className="flex items-start gap-2 max-w-[80%]">
-              {msg.sender === 'ai' && (
-                <Avatar className="w-8 h-8 bg-violet-100 border-violet-200">
-                  <Bot className="h-4 w-4 text-violet-600" />
-                </Avatar>
-              )}
-              
-              <Card className={`p-3 text-sm ${
-                msg.sender === 'user' 
-                  ? 'bg-gradient-to-br from-violet-100 to-indigo-100 text-violet-800' 
-                  : 'bg-white border border-gray-100'
-              }`}>
-                {msg.text}
-                <div className="text-[10px] text-gray-400 mt-1 text-right">
-                  {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                </div>
-              </Card>
-              
-              {msg.sender === 'user' && (
-                <Avatar className="w-8 h-8 bg-violet-500">
-                  <Smile className="h-4 w-4 text-white" />
-                </Avatar>
-              )}
-            </div>
-          </motion.div>
-        ))}
+      <div className="space-y-3">
+        <h3 className="font-medium">Talk to Sakha - Chill Mode</h3>
         
-        {isTyping && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex items-center space-x-1 text-xs text-gray-500 ml-10"
+        <ScrollArea className="h-[250px] rounded border p-2 bg-white">
+          <div className="space-y-3">
+            {chatMessages.map((msg, index) => (
+              <motion.div 
+                key={index}
+                className={`flex ${msg.isUser ? 'justify-end' : 'justify-start'}`}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+              >
+                <div className={`
+                  max-w-[80%] rounded-lg p-2 px-3 
+                  ${msg.isUser 
+                    ? 'bg-violet-600 text-white' 
+                    : 'bg-gray-100 text-gray-800 border'
+                  }
+                `}>
+                  <p className="text-sm">{msg.text}</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </ScrollArea>
+        
+        <div className="flex gap-2">
+          <Input 
+            value={chatMessage} 
+            onChange={(e) => setChatMessage(e.target.value)} 
+            placeholder="Type something to brighten your day..."
+            className="text-sm"
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') handleSendChatMessage();
+            }}
+          />
+          <Button 
+            className="bg-violet-600" 
+            size="icon"
+            onClick={handleSendChatMessage}
           >
-            <div className="flex space-x-1">
-              <span className="animate-bounce delay-0">•</span>
-              <span className="animate-bounce delay-100">•</span>
-              <span className="animate-bounce delay-200">•</span>
-            </div>
-            <span>Sakha is typing</span>
-          </motion.div>
-        )}
-        <div ref={messagesEndRef} />
+            <Send size={16} />
+          </Button>
+        </div>
+        
+        <div className="pt-1">
+          <p className="text-xs text-gray-500">
+            Try: "Tell me a joke" • "Share a fun fact" • "I need a motivation boost"
+          </p>
+        </div>
       </div>
-      
-      <div className="flex space-x-2 mt-auto">
-        <Input
-          value={message}
-          onChange={e => setMessage(e.target.value)}
-          onKeyDown={handleKeyPress}
-          placeholder="Type a message..."
-          className="flex-grow"
-        />
-        <Button 
-          onClick={handleSendMessage} 
-          size="sm" 
-          className="bg-violet-600 hover:bg-violet-700"
-          disabled={!message.trim()}
-        >
-          <Send className="h-4 w-4" />
-        </Button>
-      </div>
-      
-      <style>
-        {`
-          .delay-100 {
-            animation-delay: 0.1s;
-          }
-          .delay-200 {
-            animation-delay: 0.2s;
-          }
-        `}
-      </style>
     </motion.div>
   );
 };

@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -17,28 +18,12 @@ interface BatchManagementProps {
   userBatches: BatchDetails[];
   onRemoveMember: (memberId: string) => Promise<void>;
   onSendAlert: (memberId: string, message: string) => Promise<void>;
-  batchMembers?: BatchMember[];
-  batchName?: string;
-  planType?: "group" | "school" | "corporate";
-  maxMembers?: number;
-  currentUserRole?: "member" | "leader" | "school_admin" | "corporate_admin";
-  onAddMember?: (email: string) => Promise<{ success: boolean; inviteCode?: string }>;
-  onChangeBatchName?: (name: string) => Promise<boolean>;
-  onTransferLeadership?: (memberId: string) => Promise<void>;
 }
 
 const BatchManagement: React.FC<BatchManagementProps> = ({ 
   userBatches,
   onRemoveMember,
-  onSendAlert,
-  batchMembers = [],
-  batchName = "",
-  planType = "group",
-  maxMembers = 5,
-  currentUserRole = "member",
-  onAddMember = async () => ({ success: false }),
-  onChangeBatchName = async () => false,
-  onTransferLeadership = async () => {}
+  onSendAlert
 }) => {
   const { toast } = useToast();
   const [selectedBatch, setSelectedBatch] = useState<BatchDetails | null>(null);
@@ -96,11 +81,13 @@ const BatchManagement: React.FC<BatchManagementProps> = ({
   };
 
   const handleDownloadReport = (batchId: string) => {
+    // In a real app, this would generate and download a batch report
     toast({
       title: "Downloading Report",
       description: "Your batch report is being generated and will download shortly.",
     });
     
+    // Mock download by showing a success message after a delay
     setTimeout(() => {
       toast({
         title: "Report Downloaded",

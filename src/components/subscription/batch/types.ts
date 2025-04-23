@@ -1,4 +1,3 @@
-
 export interface BatchMember {
   id: string;
   name: string;
@@ -41,28 +40,4 @@ export interface GroupSetupFormData {
   roleType: string;
   inviteMethod: 'email' | 'code';
   emails: string[];
-}
-
-export interface BatchInvitationInputProps {
-  onActivate?: (code: string) => Promise<boolean>;
-  activationSuccess?: boolean;
-  onJoinBatch: (code: string) => Promise<boolean>;
-}
-
-export interface BatchManagementProps {
-  batchMembers: BatchMember[];
-  batchName: string;
-  planType: "group" | "school" | "corporate";
-  maxMembers: number;
-  currentUserRole: "leader" | "member" | "school_admin" | "corporate_admin";
-  onAddMember: (email: string) => Promise<boolean>;
-  onRemoveMember: (id: string) => Promise<boolean>;
-  onChangeBatchName: (name: string) => Promise<boolean>;
-  onTransferOwnership: (memberId: string) => Promise<boolean>;
-}
-
-export interface SubscriptionPlansProps {
-  currentPlanId?: string;
-  onSelectPlan?: (plan: any, isGroup?: boolean) => void;
-  showGroupOption?: boolean;
 }

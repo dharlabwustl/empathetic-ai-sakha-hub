@@ -14,7 +14,8 @@ import {
   Settings,
   Layers
 } from "lucide-react";
-import { AdminDashboardStats, SystemLog } from "@/types/admin";
+import { AdminDashboardStats } from "@/types/admin";
+import { SystemLog } from "@/types/admin/systemLog";
 import { StudentData } from "@/types/admin/studentData";
 
 import UserManagementTab from "./tabs/UserManagementTab";

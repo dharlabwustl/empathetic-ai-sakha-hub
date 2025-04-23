@@ -1,15 +1,14 @@
+
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Check, CheckCircle, User, Users } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import GroupPlanInviteModal from './GroupPlanInviteModal';
-import { SubscriptionPlansProps } from './batch/types';
-import { SubscriptionFlowModal } from './SubscriptionFlowModal';
 
 interface PlanFeature {
   name: string;
@@ -26,6 +25,10 @@ interface Plan {
   recommended?: boolean;
   isGroup?: boolean;
   userCount?: number;
+}
+
+interface SubscriptionPlansProps {
+  currentPlanId?: string;
 }
 
 const individualPlans: Plan[] = [
@@ -114,32 +117,55 @@ const groupPlans: Plan[] = [
   }
 ];
 
-const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({ 
-  currentPlanId, 
-  onSelectPlan,
-  showGroupOption = true 
-}) => {
+export default function SubscriptionPlans({ currentPlanId }: SubscriptionPlansProps) {
   const [planType, setPlanType] = useState<'individual' | 'group'>('individual');
-  const [selectedPlan, setSelectedPlan] = useState<any>(null);
-  const [showPaymentModal, setShowPaymentModal] = useState(false);
-  const [showGroupInviteModal, setShowGroupInviteModal] = useState(false);
+  const [showInviteModal, setShowInviteModal] = useState(false);
+  const [selectedGroupPlan, setSelectedGroupPlan] = useState<Plan | null>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  const handleSelectPlan = (plan: any) => {
-    setSelectedPlan(plan);
+  const handleSelectPlan = (plan: Plan) => {
     if (plan.isGroup) {
-      setShowGroupInviteModal(true);
+      setSelectedGroupPlan(plan);
+      setShowInviteModal(true);
     } else {
-      setShowPaymentModal(true);
+      // Individual plan checkout
+      toast({
+        title: "Processing",
+        description: `Setting up your ${plan.name} plan. Please wait...`,
+      });
+      
+      // In real implementation, this would redirect to Stripe or other payment gateway
+      setTimeout(() => {
+        navigate('/dashboard/student/checkout', { 
+          state: { 
+            plan,
+            isGroup: false
+          } 
+        }); 
+      }, 500);
     }
   };
 
-  const handlePaymentSuccess = (plan: any, inviteCodes?: string[], invitedEmails?: string[]) => {
-    // Handle successful payment logic here
-    setShowPaymentModal(false);
-    setShowGroupInviteModal(false);
-    // You can implement success handling here
+  const handleInviteComplete = (emails: string[], inviteCodes: string[]) => {
+    setShowInviteModal(false);
+    
+    if (!selectedGroupPlan) return;
+
+    // Navigate to the checkout page with group plan details
+    toast({
+      title: "Proceeding to Payment",
+      description: "Please complete the payment process to activate your group plan.",
+    });
+    
+    navigate('/dashboard/student/group-checkout', {
+      state: {
+        plan: selectedGroupPlan,
+        emails,
+        inviteCodes,
+        isGroup: true
+      }
+    });
   };
 
   return (
@@ -175,12 +201,10 @@ const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
                 <User size={16} />
                 <span>Individual</span>
               </TabsTrigger>
-              {showGroupOption && (
-                <TabsTrigger value="group" className="flex items-center gap-2">
-                  <Users size={16} />
-                  <span>Group Plans (5 Users)</span>
-                </TabsTrigger>
-              )}
+              <TabsTrigger value="group" className="flex items-center gap-2">
+                <Users size={16} />
+                <span>Group Plans (5 Users)</span>
+              </TabsTrigger>
             </TabsList>
           </div>
 
@@ -242,24 +266,11 @@ const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
         </Tabs>
       </div>
 
-      {selectedPlan && (
-        <SubscriptionFlowModal
-          isOpen={showPaymentModal}
-          onClose={() => setShowPaymentModal(false)}
-          selectedPlan={selectedPlan}
-          isGroup={false}
-          onSuccess={handlePaymentSuccess}
-        />
-      )}
-
-      {selectedPlan && showGroupInviteModal && (
-        <GroupPlanInviteModal
-          plan={selectedPlan}
-          onClose={() => setShowGroupInviteModal(false)}
-          onComplete={(emails, codes, batchName, roleType) => {
-            setShowGroupInviteModal(false);
-            setShowPaymentModal(true);
-          }}
+      {showInviteModal && selectedGroupPlan && (
+        <GroupPlanInviteModal 
+          plan={selectedGroupPlan}
+          onClose={() => setShowInviteModal(false)}
+          onComplete={handleInviteComplete}
         />
       )}
     </>
@@ -354,5 +365,3 @@ const PlanCard = ({
     </motion.div>
   );
 };
-
-export default SubscriptionPlans;

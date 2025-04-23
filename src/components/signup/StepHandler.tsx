@@ -3,10 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import { OnboardingStep, UserRole, UserGoal } from "./OnboardingContext";
-import { PersonalityType, MoodType } from "@/types/user/base";
 import { getDemographicsQuestion } from "./utils/stepUtils";
 import authService from "@/services/auth/authService"; 
 import { getSubjectsForGoal } from "@/components/dashboard/student/onboarding/SubjectData";
+import { MoodType } from "@/types/user/base";
 
 interface StepHandlerProps {
   onboardingData: any;
@@ -68,30 +68,6 @@ const StepHandler = ({
       if (response.success && response.data) {
         console.log("Registration successful:", response.data);
         
-        // Process collected study plan data
-        const examDate = onboardingData.examDate ? new Date(onboardingData.examDate) : null;
-        const formattedExamDate = examDate ? examDate.toISOString() : null;
-        
-        // Get the strong and weak subjects
-        const strongSubjects = onboardingData.strongSubjects?.map((s: any) => s.name) || [];
-        const weakSubjects = onboardingData.weakSubjects?.map((s: any) => s.name) || [];
-        
-        // Build a study plan object
-        const studyPlan = {
-          examGoal: onboardingData.goal || "IIT-JEE",
-          examDate: formattedExamDate,
-          daysLeft: examDate ? Math.ceil((examDate.getTime() - new Date().getTime()) / (1000 * 3600 * 24)) : 180,
-          studyHoursPerDay: onboardingData.studyHours || 4,
-          subjects: strongSubjects.concat(weakSubjects),
-          strongSubjects,
-          weakSubjects,
-          studyPace: onboardingData.studyPace || "moderate",
-          preferredStudyTime: onboardingData.studyTime || "evening",
-          personalityType: onboardingData.personalityType,
-          mood: onboardingData.mood,
-          interests: onboardingData.interests || []
-        };
-        
         // Save additional onboarding data to localStorage with consistent format
         const extendedUserData = {
           ...onboardingData,
@@ -99,15 +75,10 @@ const StepHandler = ({
           phoneNumber: cleanMobile,
           completedOnboarding: false, // Mark as not completed to trigger onboarding flow
           isNewUser: true,
-          sawWelcomeTour: false,
-          studyPlan
+          sawWelcomeTour: false
         };
         
         localStorage.setItem("userData", JSON.stringify(extendedUserData));
-        
-        // Call API endpoint to save the study plan data - in a real app
-        // This would be something like:
-        // await studyPlanService.createStudyPlan(studyPlan);
         
         toast({
           title: "Welcome to Sakha AI!",
@@ -159,16 +130,7 @@ const StepHandler = ({
         setStep("personality");
       },
       handleGoalSelect: (goal: UserGoal) => {
-        // Get default subjects for this goal
-        const defaultSubjects = getSubjectsForGoal(goal);
-        
-        // Update onboarding data with goal and default subjects
-        setOnboardingData({ 
-          ...onboardingData, 
-          goal,
-          defaultSubjects
-        });
-        
+        setOnboardingData({ ...onboardingData, goal });
         setMessages([
           ...messages, 
           { content: goal, isBot: false },
@@ -177,47 +139,7 @@ const StepHandler = ({
         setStep("demographics");
       },
       handlePersonalitySelect: (personality: string) => {
-        // Create a personality object based on the selection
-        let personalityType: PersonalityType;
-        
-        switch(personality) {
-          case "Systematic Learner":
-            personalityType = {
-              type: "systematic_learner",
-              traits: ["Organized", "Detail-oriented", "Methodical", "Focused"],
-              learningStyle: "Sequential and structured learning"
-            };
-            break;
-          case "Visual Learner":
-            personalityType = {
-              type: "visual_learner",
-              traits: ["Creative", "Imaginative", "Attentive", "Observant"],
-              learningStyle: "Learning through visual aids and diagrams"
-            };
-            break;
-          case "Practical Learner":
-            personalityType = {
-              type: "practical_learner",
-              traits: ["Hands-on", "Experimental", "Realistic", "Task-oriented"],
-              learningStyle: "Learning by doing and experimenting"
-            };
-            break;
-          case "Social Learner":
-            personalityType = {
-              type: "social_learner",
-              traits: ["Collaborative", "Communicative", "Empathetic", "Interactive"],
-              learningStyle: "Learning through discussions and group work"
-            };
-            break;
-          default:
-            personalityType = {
-              type: "adaptive_learner",
-              traits: ["Flexible", "Resilient", "Versatile", "Quick-thinking"],
-              learningStyle: "Adapts to different learning styles as needed"
-            };
-        }
-
-        setOnboardingData({ ...onboardingData, personalityType });
+        setOnboardingData({ ...onboardingData, personalityType: personality });
         setMessages([
           ...messages,
           { content: personality, isBot: false },

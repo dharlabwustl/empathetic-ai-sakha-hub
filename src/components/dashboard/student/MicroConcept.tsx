@@ -1,19 +1,19 @@
 
-import React, { useState } from "react";
+import { useState } from "react";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { useNavigate } from "react-router-dom";
-import { useToast } from "@/hooks/use-toast";
 import { 
   Check, 
   BookOpen, 
   Award, 
   HelpCircle, 
   ThumbsUp, 
-  MessageSquare,
-  ArrowRight
+  Book, 
+  Video, 
+  FileText 
 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface MicroConceptProps {
   id: string;
@@ -23,13 +23,13 @@ interface MicroConceptProps {
   difficulty: "Easy" | "Medium" | "Hard";
   estimatedTime: number; // in minutes
   content: string;
-  resourceType?: "Video" | "Text" | "PDF"; // Added resourceType
-  resourceUrl?: string; // Added resourceUrl
+  resourceType: "Video" | "Text" | "PDF";
+  resourceUrl: string;
   onComplete: (id: string) => void;
   onNeedHelp: (id: string) => void;
 }
 
-const MicroConcept = ({
+export default function MicroConcept({
   id,
   title,
   subject,
@@ -41,161 +41,116 @@ const MicroConcept = ({
   resourceUrl,
   onComplete,
   onNeedHelp
-}: MicroConceptProps) => {
+}: MicroConceptProps) {
   const [expanded, setExpanded] = useState(false);
   const [understood, setUnderstood] = useState(false);
-  const navigate = useNavigate();
-  const { toast } = useToast();
   
-  const getDifficultyColor = () => {
-    switch(difficulty) {
-      case "Easy": return "bg-green-100 text-green-800 border-green-200";
-      case "Medium": return "bg-amber-100 text-amber-800 border-amber-200";
-      case "Hard": return "bg-red-100 text-red-800 border-red-200";
-      default: return "bg-gray-100 text-gray-800 border-gray-200";
-    }
-  };
-
-  const handleGotIt = () => {
+  const handleMarkUnderstood = () => {
     setUnderstood(true);
     onComplete(id);
-    
-    toast({
-      title: "Concept Completed!",
-      description: "Great job! Moving to the next concept.",
-    });
-    
-    // Navigate to next concept after a short delay
-    setTimeout(() => {
-      navigate("/dashboard/student/concept/next");
-    }, 1500);
   };
   
   const handleNeedHelp = () => {
     onNeedHelp(id);
-    navigate(`/dashboard/student/tutor?conceptId=${id}&from=concept&back=true`);
   };
-
-  const handleAITutorHelp = () => {
-    toast({
-      title: "Connecting to AI Tutor",
-      description: "Opening 24/7 AI Tutor chat with this concept...",
-    });
-    navigate(`/dashboard/student/tutor?conceptId=${id}&topic=${encodeURIComponent(title)}&subject=${encodeURIComponent(subject)}`);
-  };
-
+  
   return (
-    <Card className={`shadow-md transition-all duration-300 ${understood ? 'border-l-4 border-l-green-500' : ''}`}>
-      <CardContent className="p-4">
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h3 className="font-medium text-lg">{title}</h3>
-            <div className="text-sm text-muted-foreground">
-              {subject} · {chapter}
+    <Card className={cn(
+      "shadow-md transition-all duration-300 overflow-hidden", 
+      expanded ? "border-l-4" : "",
+      understood ? "border-l-green-500" : expanded ? "border-l-sky-500" : ""
+    )}>
+      <CardContent className="p-0">
+        <div className="p-4">
+          <div className="flex items-start justify-between">
+            <div>
+              <div className="font-medium text-lg">{title}</div>
+              <div className="text-muted-foreground text-sm">{subject} · {chapter}</div>
+            </div>
+            
+            <div className="flex gap-2">
+              <Badge variant={
+                difficulty === "Easy" ? "outline" : 
+                difficulty === "Medium" ? "secondary" : 
+                "destructive"
+              }>
+                {difficulty}
+              </Badge>
+              <Badge variant="outline" className="flex gap-1 items-center">
+                <BookOpen size={14} />
+                <span>{estimatedTime} min</span>
+              </Badge>
             </div>
           </div>
           
-          <div className="flex gap-2">
-            <Badge variant="outline" className={`flex items-center gap-1 ${getDifficultyColor()}`}>
-              <Award className="h-4 w-4" />
-              {difficulty}
-            </Badge>
-            
-            <Badge variant="outline" className="flex items-center gap-1">
-              <BookOpen className="h-4 w-4" />
-              {estimatedTime} min
-            </Badge>
-
-            {resourceType && (
-              <Badge variant="outline" className="flex items-center gap-1">
-                {resourceType}
-              </Badge>
-            )}
-          </div>
-        </div>
-
-        {expanded && (
-          <div className="mt-4 space-y-4 animate-fade-in">
-            <p className="text-sm text-gray-600">{content}</p>
-            
-            {resourceUrl && resourceType && (
-              <div className="mt-2">
-                <Button variant="outline" size="sm" asChild>
-                  <a href={resourceUrl} target="_blank" rel="noopener noreferrer">
-                    View {resourceType} Resource
-                  </a>
-                </Button>
+          {expanded && (
+            <div className="mt-4 space-y-4 animate-fade-in">
+              <div className="text-sm prose max-w-none">
+                {content}
               </div>
-            )}
-          </div>
-        )}
-      </CardContent>
-
-      <CardFooter className="border-t bg-gray-50 p-3 flex flex-wrap gap-2">
-        {understood ? (
-          <div className="w-full flex items-center justify-between">
-            <div className="flex items-center gap-2 text-green-600">
-              <Check className="h-5 w-5" />
-              <span>Concept Understood</span>
+              
+              {resourceUrl && (
+                <a 
+                  href={resourceUrl} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 text-sky-600 hover:text-sky-800"
+                >
+                  {resourceType === "Video" && <Video size={16} />}
+                  {resourceType === "Text" && <FileText size={16} />}
+                  {resourceType === "PDF" && <Book size={16} />}
+                  <span>Open {resourceType} Resource</span>
+                </a>
+              )}
             </div>
-            <Button 
-              variant="outline"
-              size="sm"
-              className="text-green-600"
-              onClick={() => navigate("/dashboard/student/concept/next")}
-            >
-              Next Concept
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
+          )}
+        </div>
+      </CardContent>
+      
+      <CardFooter className={cn(
+        "p-3 bg-gray-50 flex justify-between", 
+        understood && "bg-green-50"
+      )}>
+        {understood ? (
+          <div className="flex items-center gap-2 text-green-600 text-sm">
+            <Check size={16} />
+            <span>Concept Understood</span>
           </div>
         ) : (
-          <>
+          <div className="flex gap-2">
             <Button 
               variant="ghost" 
-              size="sm"
+              size="sm" 
               onClick={() => setExpanded(!expanded)}
             >
               {expanded ? "Collapse" : "Expand"}
             </Button>
-
+            
             {expanded && (
               <>
                 <Button 
                   variant="outline" 
                   size="sm"
-                  onClick={handleAITutorHelp}
-                  className="text-purple-600 hover:text-purple-700 hover:bg-purple-50"
-                >
-                  <MessageSquare className="mr-2 h-4 w-4" />
-                  24/7 AI Tutor
-                </Button>
-
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={handleNeedHelp}
                   className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                  onClick={handleNeedHelp}
                 >
-                  <HelpCircle className="mr-2 h-4 w-4" />
+                  <HelpCircle size={16} className="mr-1" />
                   Need Help
                 </Button>
-
                 <Button 
                   variant="outline" 
                   size="sm"
-                  onClick={handleGotIt}
                   className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                  onClick={handleMarkUnderstood}
                 >
-                  <ThumbsUp className="mr-2 h-4 w-4" />
+                  <ThumbsUp size={16} className="mr-1" />
                   Got It!
                 </Button>
               </>
             )}
-          </>
+          </div>
         )}
       </CardFooter>
     </Card>
   );
-};
-
-export default MicroConcept;
+}

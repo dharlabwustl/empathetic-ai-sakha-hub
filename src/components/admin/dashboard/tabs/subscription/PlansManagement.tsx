@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,8 +18,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { featureService, PlanType, SubscriptionInterval } from "@/services/featureService";
-import type { SubscriptionPlan } from "@/types/features";
+import { featureService, PlanType, SubscriptionPlan, SubscriptionInterval } from "@/services/featureService";
 
 const PlansManagement = () => {
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
@@ -28,16 +28,18 @@ const PlansManagement = () => {
   const [currentPlan, setCurrentPlan] = useState<SubscriptionPlan | null>(null);
   const { toast } = useToast();
 
+  // Form state for editing or creating a plan
   const [formData, setFormData] = useState<Partial<SubscriptionPlan>>({
     name: "",
     type: PlanType.Basic,
     price: 0,
-    interval: "monthly",
+    interval: SubscriptionInterval.Monthly,
     features: [],
     description: "",
     trialDays: 0
   });
 
+  // Load plans on component mount
   useEffect(() => {
     const loadPlans = async () => {
       try {
@@ -59,15 +61,18 @@ const PlansManagement = () => {
     loadPlans();
   }, [toast]);
 
+  // Handle input changes for form fields
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: name === "price" ? Number(value) : value });
   };
 
+  // Handle select changes for dropdowns
   const handleSelectChange = (name: string, value: string) => {
     setFormData({ ...formData, [name]: value });
   };
 
+  // Handle opening the edit dialog for a plan
   const handleEditPlan = (plan: SubscriptionPlan) => {
     setCurrentPlan(plan);
     setFormData({
@@ -84,6 +89,7 @@ const PlansManagement = () => {
     setShowEditDialog(true);
   };
 
+  // Handle saving plan changes
   const handleSavePlan = async () => {
     try {
       if (!formData.name || !formData.price || !formData.description) {
@@ -95,15 +101,19 @@ const PlansManagement = () => {
         return;
       }
 
+      // Save the updated plan
       const updatedPlan = await featureService.updateSubscriptionPlan(formData as SubscriptionPlan);
       
+      // Update the plans list
       setPlans(plans.map(plan => plan.id === updatedPlan.id ? updatedPlan : plan));
       
+      // Close the dialog and show success message
       setShowEditDialog(false);
       toast({
         title: "Success",
         description: "Plan updated successfully"
       });
+      
     } catch (error) {
       console.error("Error updating plan:", error);
       toast({
@@ -114,6 +124,7 @@ const PlansManagement = () => {
     }
   };
 
+  // Format price for display
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
@@ -203,6 +214,7 @@ const PlansManagement = () => {
         </div>
       )}
 
+      {/* Edit Plan Dialog */}
       <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
         <DialogContent className="max-w-3xl">
           <DialogHeader>
@@ -266,8 +278,8 @@ const PlansManagement = () => {
                     <SelectValue placeholder="Select interval" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="monthly">Monthly</SelectItem>
-                    <SelectItem value="yearly">Yearly</SelectItem>
+                    <SelectItem value={SubscriptionInterval.Monthly}>Monthly</SelectItem>
+                    <SelectItem value={SubscriptionInterval.Yearly}>Yearly</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -310,6 +322,8 @@ const PlansManagement = () => {
                 onChange={handleInputChange}
               />
             </div>
+            
+            {/* Feature list would go here - simplified for now */}
           </div>
           
           <DialogFooter>

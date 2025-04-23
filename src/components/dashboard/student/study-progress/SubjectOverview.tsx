@@ -9,11 +9,6 @@ interface SubjectOverviewProps {
 }
 
 export const SubjectOverview: React.FC<SubjectOverviewProps> = ({ subjects }) => {
-  const getSubjectColor = (subject: SubjectProgress) => {
-    // Fallback color if not defined in the subject
-    return subject.color || "#0ea5e9";
-  };
-  
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div>
@@ -25,8 +20,8 @@ export const SubjectOverview: React.FC<SubjectOverviewProps> = ({ subjects }) =>
                 <span>{subject.name}</span>
                 <span className="font-medium">{subject.progress}%</span>
               </div>
-              <Progress value={subject.progress} className="h-2" style={{backgroundColor: `${getSubjectColor(subject)}40`}}>
-                <div className="h-full" style={{backgroundColor: getSubjectColor(subject)}}></div>
+              <Progress value={subject.progress} className="h-2" style={{backgroundColor: `${subject.color}40`}}>
+                <div className="h-full" style={{backgroundColor: subject.color}}></div>
               </Progress>
             </div>
           ))}

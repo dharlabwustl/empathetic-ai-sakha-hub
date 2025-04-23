@@ -1,129 +1,65 @@
 
-import { UserRole } from './user/base';
-
-export interface AdminUser {
-  id: string;
-  email: string;
-  name: string;
-  role: UserRole;
-  permissions: string[];
-  createdAt: string;
-  lastLogin?: string;
-}
-
-export interface AdminAuthContextProps {
-  user: AdminUser | null;
-  adminUser: AdminUser | null;
-  loading: boolean;
-  isLoading: boolean;
-  error: string | null;
-  isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<boolean>;
-  logout: () => Promise<void>;
-}
-
-export interface AdminSettings {
-  siteName: string;
-  siteDescription: string;
-  contactEmail: string;
-  enableRegistration: boolean;
-  enableGuestCheckout: boolean;
-  maintenanceMode: boolean;
-  theme: 'light' | 'dark' | 'system';
-  features: {
-    tutorChat: boolean;
-    feelGood: boolean;
-    moodTracking: boolean;
-    surroundingInfluences: boolean;
+export interface AdminDashboardStats {
+  totalUsers: number;
+  monthlyActiveUsers: number;
+  totalStudents: number;
+  activeStudents: number;
+  subscriptionConversionRate: number;
+  churnRate: number;
+  averageStudyTimePerUser: number;
+  practiceAttemptsPerUser: number;
+  userSatisfactionScore: number;
+  referralRate: number;
+  paidUsers: {
+    total: number;
+    breakdown: {
+      free: number;
+      basic: number;
+      premium: number;
+      enterprise: number;
+      school: number;
+      corporate: number;
+    };
   };
-  flaskApiUrl?: string;
-  apiKey?: string;
-  aiModels?: string[];
-  notificationSettings?: {
-    newUserSignup: boolean;
-    paymentReceived: boolean;
-    systemAlerts: boolean;
-  };
-  contentApprovalRequired?: boolean;
-  paymentGateway?: {
-    provider: 'stripe' | 'razorpay' | 'paypal' | 'custom';
-    isLive: boolean;
-    apiKey?: string;
-    secretKey?: string;
-    webhookSecret?: string;
-    redirectUrl?: string;
-  };
+  totalRevenue: number;
+  totalConcepts: number;
+  totalFlashcards: number;
+  totalQuestions: number;
+  verifiedMoodImprovement: number;
+  averageMoodScore: number;
+  averageTimeSavedPerWeek: number;
+  studyPlanEfficiencyImprovement: number;
+  studentsWithVerifiedConsistentHabits: number;
+  studentsWithConsistentHabits: number;
+  verifiedExamConfidenceImprovement: number;
+  averageConfidenceScore: number;
+  verifiedRetentionRate: number;
+  verifiedMoodFeatureUsage: number;
+  moodBasedSessionsCount: number;
+  totalSessions: number;
+  completedSurveys: number;
 }
 
 export interface StudentData {
   id: string;
   name: string;
   email: string;
-  phoneNumber: string;
-  registrationDate: string;
-  examType: string;
-  status: 'active' | 'inactive' | 'pending';
-  completedOnboarding: boolean;
-  lastActivity?: string;
-  subscriptionStatus?: 'active' | 'expired' | 'trial';
-  grades?: Record<string, number>;
-  examDate?: string;
-}
-
-export interface KpiData {
-  value: number;
-  trend: 'up' | 'down' | 'neutral';
-}
-
-export interface AdminDashboardStats {
-  activeUsers: KpiData;
-  totalRevenue: KpiData;
-  conversionRate: KpiData;
-  averageSessionTime: KpiData;
-  // Adding all missing KPIs
-  totalStudents: KpiData;
-  monthlyActiveUsers: KpiData;
-  subscriptionConversionRate: KpiData;
-  churnRate: KpiData;
-  averageStudyTimePerUser: KpiData;
-  practiceAttemptsPerUser: KpiData;
-  userSatisfactionScore: KpiData;
-  referralRate: KpiData;
-  paidUsers: KpiData;
-  totalConcepts: KpiData;
-  totalFlashcards: KpiData; 
-  totalQuestions: KpiData;
-  activeStudents: KpiData;
-  totalSessions: KpiData;
-  completedSurveys: KpiData;
-  averageTimePerSession: KpiData;
-  averageMoodScore: KpiData;
-  verifiedMoodImprovement: KpiData;
-  averageTimeSavedPerWeek: KpiData;
-  studyPlanEfficiencyImprovement: KpiData;
-  studentsWithVerifiedConsistentHabits: KpiData;
-  studentsWithConsistentHabits: KpiData;
-  verifiedExamConfidenceImprovement: KpiData;
-  averageConfidenceScore: KpiData;
-  verifiedRetentionRate: KpiData;
-  verifiedMoodFeatureUsage: KpiData;
-  moodBasedSessionsCount: KpiData;
-  dailyActiveUsers: KpiData;
-  weeklyActiveUsers: KpiData;
-  monthlyActiveUsers2: KpiData;
-  revenueGrowth: KpiData;
-  averageRevenuePerUser: KpiData;
-  lifetimeValue: KpiData;
-  acquisitionCost: KpiData;
-  returnOnInvestment: KpiData;
+  joinDate: string;
+  lastActive: string;
+  subscriptionTier: string;
+  studyTime: number;
+  completedLessons: number;
+  targetScore: number;
+  avatarUrl?: string;
 }
 
 export interface SystemLog {
   id: string;
   timestamp: string;
-  type: 'error' | 'warning' | 'info' | 'success';
-  level: 'critical' | 'high' | 'medium' | 'low' | 'error' | 'warning' | 'info';
-  message: string;
+  level: "info" | "warning" | "error" | "critical";
   source: string;
-  resolved: boolean;
+  message: string;
+  details?: string;
+  resolved?: boolean;
+  assignedTo?: string;
 }

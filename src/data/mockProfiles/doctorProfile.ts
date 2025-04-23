@@ -1,55 +1,71 @@
 
-import { UserProfileType, UserRole, GoalStatus, UserSubscription } from "@/types/user/base";
+import { DoctorProfile } from "@/types/user";
+import { UserRole, SubscriptionType } from "@/types/user/base";
+import { v4 as uuidv4 } from "uuid";
 
-const doctorProfile: UserProfileType = {
-  id: "dr123",
-  name: "Dr. Arun Sharma",
-  email: "dr.arun@example.com",
+export const mockDoctorProfile: DoctorProfile = {
+  id: uuidv4(),
+  name: "Dr. Aisha Sharma",
+  email: "dr.aisha.sharma@maxhealthcare.com",
+  phoneNumber: "+919876543210",
   role: UserRole.Doctor,
-  avatar: "/assets/avatars/doctor.jpg",
-  phoneNumber: "+91-9845670123",
-  createdAt: "2023-05-10T08:30:00Z",
-  lastLogin: "2023-11-01T16:45:00Z",
-  onboarded: true,
-  loginCount: 45,
-  completedOnboarding: true,
-  
-  subscription: {
-    id: "sub_dr123",
-    plan: "Premium",
-    expiresAt: "2024-05-10T00:00:00Z",
-    status: "active"
-  } as UserSubscription,
-
-  specialization: "Cardiology",
-  
-  // Medical education goals
+  personalityType: "Analytical Problem Solver",
+  subscription: SubscriptionType.Premium,
+  joinDate: "2025-02-10",
+  lastActive: "2025-04-07",
+  specialization: "Neurology",
+  qualifications: [
+    "MBBS - AIIMS",
+    "MD - Neurology",
+    "Fellowship - Cognitive Neuroscience"
+  ],
+  researchInterests: [
+    "Alzheimer's Disease",
+    "Neuroplasticity",
+    "Cognitive Enhancement"
+  ],
+  publications: 14,
+  institution: "Max Healthcare Institute",
+  yearsOfPractice: 8,
+  certifications: [
+    "Advanced Neurology",
+    "Clinical Research",
+    "Medical Education"
+  ],
+  researchTopic: "Neural Biomarkers for Early Alzheimer's Detection",
+  thesisTitle: "Cognitive Reserve and Neurodegenerative Progression",
+  clinicalInterest: "Memory Disorders",
+  researchPhase: "Clinical Trials",
   goals: [
     {
-      id: "g1",
-      title: "Research Paper",
-      description: "Complete research on cardiac treatments",
-      progress: 75,
-      status: "in_progress" as GoalStatus,
-      targetDate: "2024-08-15"
+      id: uuidv4(),
+      title: "Complete Research Paper",
+      description: "Finish and submit paper on neural biomarkers",
+      progress: 65,
+      status: "in-progress",
+      dueDate: "2025-06-15",
+      targetDate: new Date("2025-06-15")
     },
     {
-      id: "g2",
-      title: "Medical Conference",
-      description: "Present at the International Cardiology Conference",
-      progress: 25,
-      status: "active" as GoalStatus,
-      targetDate: "2024-11-30"
-    },
-    {
-      id: "g3",
-      title: "Patient Case Studies",
-      description: "Document 50 case studies for educational purposes",
-      progress: 60,
-      status: "in_progress" as GoalStatus,
-      targetDate: "2024-09-01"
+      id: uuidv4(),
+      title: "Conference Presentation",
+      description: "Present findings at International Neurology Conference",
+      progress: 40,
+      status: "not-started",
+      dueDate: "2025-08-20",
+      targetDate: new Date("2025-08-20")
     }
   ],
+  areasOfInterest: [
+    {
+      id: uuidv4(),
+      name: "Machine Learning in Diagnostics",
+      level: "Intermediate"
+    },
+    {
+      id: uuidv4(),
+      name: "Clinical Research",
+      level: "Advanced"
+    }
+  ]
 };
-
-export default doctorProfile;

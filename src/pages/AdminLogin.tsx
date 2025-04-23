@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Eye, EyeOff, Lock, Mail, ArrowRight } from "lucide-react";
+import { adminService } from "@/services/adminService";
 import { useAdminAuth } from "@/contexts/AdminAuthContext";
 
 const AdminLogin = () => {
@@ -47,23 +48,19 @@ const AdminLogin = () => {
     setIsLoading(true);
     
     try {
-      // Using the admin auth context login function
-      const success = await login(formData.email, formData.password);
+      // Using the mock admin service for now, will be replaced with Flask backend later
+      const adminUser = await adminService.login(formData.email, formData.password);
       
-      if (success) {
-        console.log("Login successful, redirecting to /admin/dashboard");
-        
-        // Use a small delay to ensure state is updated before redirect
-        setTimeout(() => {
-          navigate("/admin/dashboard", { replace: true });
-        }, 100);
-      } else {
-        toast({
-          title: "Login Failed",
-          description: "Invalid email or password. Please try again.",
-          variant: "destructive"
-        });
-      }
+      // Call the login function from AdminAuthContext
+      login(adminUser);
+      
+      console.log("Login successful, redirecting to /admin/dashboard");
+      
+      // Use a small delay to ensure state is updated before redirect
+      setTimeout(() => {
+        navigate("/admin/dashboard", { replace: true });
+      }, 100);
+      
     } catch (error) {
       toast({
         title: "Login Failed",

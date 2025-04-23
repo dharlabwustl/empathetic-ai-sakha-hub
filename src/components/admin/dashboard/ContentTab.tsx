@@ -19,15 +19,15 @@ const ContentTab = ({ stats }: ContentTabProps) => {
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="bg-muted/50 p-4 rounded-lg text-center">
-                <h3 className="text-xl font-bold">{stats?.totalConcepts ? stats.totalConcepts.value : 0}</h3>
+                <h3 className="text-xl font-bold">{stats?.totalConcepts || 0}</h3>
                 <p className="text-sm text-gray-500">Concept Cards</p>
               </div>
               <div className="bg-muted/50 p-4 rounded-lg text-center">
-                <h3 className="text-xl font-bold">{stats?.totalFlashcards ? stats.totalFlashcards.value : 0}</h3>
+                <h3 className="text-xl font-bold">{stats?.totalFlashcards || 0}</h3>
                 <p className="text-sm text-gray-500">Flashcards</p>
               </div>
               <div className="bg-muted/50 p-4 rounded-lg text-center">
-                <h3 className="text-xl font-bold">{stats?.totalQuestions ? stats.totalQuestions.value : 0}</h3>
+                <h3 className="text-xl font-bold">{stats?.totalQuestions || 0}</h3>
                 <p className="text-sm text-gray-500">Practice Questions</p>
               </div>
               <div className="bg-muted/50 p-4 rounded-lg text-center">
