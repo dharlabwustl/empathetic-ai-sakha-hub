@@ -10,7 +10,7 @@ interface MoodSelectorProps {
   size?: 'sm' | 'md' | 'lg';
 }
 
-const moodEmojis: Record<MoodType, { emoji: string, label: string }> = {
+export const moodEmojis: Record<MoodType, { emoji: string, label: string }> = {
   'happy': { emoji: '😊', label: 'Happy' },
   'sad': { emoji: '😔', label: 'Sad' },
   'neutral': { emoji: '😐', label: 'Neutral' },
@@ -44,6 +44,25 @@ const MoodSelector: React.FC<MoodSelectorProps> = ({
     }
   };
 
+  const handleMoodSelect = (mood: MoodType) => {
+    // Save mood to localStorage for persistence
+    try {
+      const userData = localStorage.getItem("userData");
+      if (userData) {
+        const parsedData = JSON.parse(userData);
+        parsedData.mood = mood;
+        localStorage.setItem("userData", JSON.stringify(parsedData));
+      } else {
+        localStorage.setItem("userData", JSON.stringify({ mood }));
+      }
+    } catch (error) {
+      console.error("Error saving mood to localStorage:", error);
+    }
+    
+    // Call the provided callback
+    onMoodSelect(mood);
+  };
+
   return (
     <div className="flex flex-wrap justify-center gap-1">
       {displayMoods.map((mood) => (
@@ -57,7 +76,7 @@ const MoodSelector: React.FC<MoodSelectorProps> = ({
             "rounded-full transition-all",
             currentMood === mood && "bg-primary text-primary-foreground ring-2 ring-offset-2 ring-primary"
           )}
-          onClick={() => onMoodSelect(mood)}
+          onClick={() => handleMoodSelect(mood)}
           title={moodEmojis[mood].label}
         >
           {moodEmojis[mood].emoji}

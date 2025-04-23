@@ -27,7 +27,12 @@ const TodayTip: React.FC<TodayTipProps> = ({
   
   // Get a deterministic but seemingly random tip based on the day
   const date = new Date();
-  const dayOfYear = Math.floor((date - new Date(date.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
+  // Calculate day of year properly using numeric values
+  const start = new Date(date.getFullYear(), 0, 0);
+  const diff = date.getTime() - start.getTime();
+  const oneDay = 1000 * 60 * 60 * 24;
+  const dayOfYear = Math.floor(diff / oneDay);
+  
   const tipIndex = dayOfYear % tips.length;
   const todaysTip = tips[tipIndex];
 
