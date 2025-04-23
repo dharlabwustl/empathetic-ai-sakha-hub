@@ -13,10 +13,47 @@ export enum UserRole {
 
 export type MoodType = 'happy' | 'sad' | 'neutral' | 'motivated' | 'tired' | 'stressed' | 'focused' | 'curious' | 'overwhelmed' | 'okay';
 
-// Add the missing types referenced in errors
-export type PersonalityType = 'analytical' | 'creative' | 'practical' | 'social' | 'independent' | 'competitive';
+// Updated the PersonalityType to match what StepHandler is using
+export interface PersonalityType {
+  type: string;
+  traits: string[];
+  learningStyle: string;
+}
+
 export type GoalStatus = 'in-progress' | 'completed' | 'planned' | 'overdue';
-export type SubscriptionType = 'free' | 'basic' | 'premium' | 'enterprise' | 'group';
+
+// Convert this from type to enum for use as a value
+export enum SubscriptionType {
+  Free = 'free',
+  Basic = 'basic',
+  Premium = 'premium',
+  Enterprise = 'enterprise',
+  Group = 'group',
+  Pro = 'pro',
+  Elite = 'elite'
+}
+
+export interface KpiData {
+  id: string;
+  title: string;
+  value: number;
+  unit: string;
+  trend: 'up' | 'down' | 'neutral';
+  changeValue?: number;
+  changePercentage?: number;
+  description?: string;
+  icon?: string;
+  color?: string;
+  target?: number;
+  period?: string;
+}
+
+export interface UserSubscription {
+  plan: string;
+  status: 'active' | 'inactive' | 'trial';
+  endDate: string;
+  isGroupLeader?: boolean;
+}
 
 export interface UserProfileType {
   id: string;
@@ -26,6 +63,7 @@ export interface UserProfileType {
   avatar?: string;
   isVerified?: boolean;
   phone?: string;
+  phoneNumber?: string;
   address?: {
     street?: string;
     city?: string;
@@ -45,10 +83,11 @@ export interface UserProfileType {
     title: string;
   } | string;
   goals?: {
+    id?: string; // Added id property here
     title: string;
     progress: number;
     target: string;
-    examDate?: string; // Added for the errors in OverviewTab
+    examDate?: string;
   }[];
   subjects?: {
     name: string;
@@ -62,9 +101,9 @@ export interface UserProfileType {
     status: 'active' | 'inactive' | 'trial';
     endDate: string;
     isGroupLeader?: boolean;
-    plan?: string; // Added for errors in DashboardHeader and others
-    expiresAt?: string; // Added for errors in DashboardHeader and others
-    id?: string; // Added for ProfileBillingSection
+    plan?: string;
+    expiresAt?: string;
+    id?: string;
   };
   createdAt?: string;
   lastLogin?: string;
@@ -108,7 +147,30 @@ export interface UserProfileType {
     gender?: string;
     occupation?: string;
     location?: string;
+    phoneNumber?: string;
+    city?: string;
+    state?: string;
+    school?: string;
+    grade?: string;
+    board?: string;
   };
+  // Added personalInfo to match what's used in the components
+  personalInfo?: {
+    firstName?: string;
+    lastName?: string;
+    dob?: string;
+    gender?: string;
+    occupation?: string;
+    location?: string;
+    phoneNumber?: string;
+    city?: string;
+    state?: string;
+    school?: string;
+    grade?: string;
+    board?: string;
+    address?: string;
+  };
+  location?: string;
 }
 
 export interface AuthContextType {

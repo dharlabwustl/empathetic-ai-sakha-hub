@@ -41,7 +41,7 @@ const ProfileDetailsSection: React.FC<ProfileDetailsSectionProps> = ({ userProfi
             
             <div>
               <Label className="text-xs text-muted-foreground">Phone Number</Label>
-              <div className="font-medium">{userProfile.personalDetails?.phoneNumber || 'Not provided'}</div>
+              <div className="font-medium">{userProfile.personalDetails?.phoneNumber || userProfile.phoneNumber || 'Not provided'}</div>
             </div>
             
             <div>

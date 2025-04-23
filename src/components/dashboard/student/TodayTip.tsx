@@ -1,8 +1,8 @@
 
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { UserProfileType } from '@/types/user/base';
 import { Lightbulb } from 'lucide-react';
+import { UserProfileType } from '@/types/user/base';
 
 interface TodayTipProps {
   userProfile: UserProfileType;
@@ -15,58 +15,53 @@ const TodayTip: React.FC<TodayTipProps> = ({
   lastActivity,
   suggestedNextAction
 }) => {
-  const name = userProfile?.name?.split(' ')[0] || 'Student';
+  const getTipBasedOnProfile = () => {
+    const tips = [
+      "Spacing out your study sessions is more effective than cramming.",
+      "Take short breaks every 25 minutes to maintain focus.",
+      "Review your notes within 24 hours after learning to improve retention.",
+      "Teaching concepts to others helps solidify your own understanding.",
+      "Connect new information to what you already know to improve recall.",
+      "Practice active recall by testing yourself instead of just reviewing notes."
+    ];
+    
+    // Use user's mood to customize the tip
+    if (userProfile.mood === 'stressed' || userProfile.currentMood === 'stressed') {
+      return "Remember to take breaks and practice deep breathing when feeling overwhelmed.";
+    }
+    
+    if (userProfile.mood === 'tired' || userProfile.currentMood === 'tired') {
+      return "Consider a 20-minute power nap or light exercise to boost energy before studying.";
+    }
+    
+    // Return a random tip if no specific condition is met
+    return tips[Math.floor(Math.random() * tips.length)];
+  };
   
-  const tips = [
-    "Try to complete at least 3 concepts today to stay on track with your study plan.",
-    "Don't forget to take breaks between study sessions for better retention.",
-    "Practice tests help reinforce your learning and identify knowledge gaps.",
-    "Create short summaries of what you've learned today to improve retention.",
-    "Your brain processes information while you sleep - study before bedtime!"
-  ];
-  
-  // Get a deterministic but seemingly random tip based on the day
-  const date = new Date();
-  // Calculate day of year properly using numeric values
-  const start = new Date(date.getFullYear(), 0, 0);
-  const diff = date.getTime() - start.getTime();
-  const oneDay = 1000 * 60 * 60 * 24;
-  const dayOfYear = Math.floor(diff / oneDay);
-  
-  const tipIndex = dayOfYear % tips.length;
-  const todaysTip = tips[tipIndex];
-
   return (
-    <Card className="bg-white dark:bg-gray-800 border border-blue-100 dark:border-blue-900">
-      <CardContent className="pt-6 pb-4">
-        <div className="flex items-start space-x-4">
-          <div className="bg-blue-100 dark:bg-blue-900/50 p-2 rounded-full">
-            <Lightbulb className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+    <Card className="bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-indigo-950/30 dark:to-blue-950/30">
+      <CardContent className="p-4">
+        <div className="flex items-start gap-4">
+          <div className="p-2 rounded-full bg-indigo-100 dark:bg-indigo-900/50">
+            <Lightbulb className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
           </div>
-          <div className="space-y-2">
-            <h3 className="font-medium text-lg">
-              {lastActivity 
-                ? `Welcome back, ${name}!`
-                : `Hello, ${name}!`}
-            </h3>
-            
-            {lastActivity && (
-              <p className="text-sm text-muted-foreground">
-                {lastActivity.description}
-              </p>
-            )}
+          <div className="flex-1">
+            <h3 className="font-medium text-indigo-700 dark:text-indigo-300">Today's Tip</h3>
+            <p className="text-sm text-indigo-600 dark:text-indigo-400">
+              {getTipBasedOnProfile()}
+            </p>
             
             {suggestedNextAction && (
-              <p className="text-sm font-medium text-blue-600 dark:text-blue-400">
-                Suggested next step: {suggestedNextAction}
+              <p className="mt-2 text-sm font-medium text-indigo-700 dark:text-indigo-300">
+                Suggested next: {suggestedNextAction}
               </p>
             )}
             
-            <div className="mt-2 pt-2 border-t border-gray-100 dark:border-gray-700">
-              <p className="text-sm text-muted-foreground flex items-center">
-                <span className="font-medium text-primary mr-1">Today's Tip:</span> {todaysTip}
-              </p>
-            </div>
+            {lastActivity && (
+              <div className="mt-2 text-xs text-indigo-500 dark:text-indigo-500">
+                {lastActivity.description}
+              </div>
+            )}
           </div>
         </div>
       </CardContent>
