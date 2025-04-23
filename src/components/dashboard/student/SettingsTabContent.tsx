@@ -14,6 +14,11 @@ interface SettingsTabContentProps {
 const SettingsTabContent: React.FC<SettingsTabContentProps> = ({ userProfile }) => {
   const [activeTab, setActiveTab] = useState("profile");
   
+  const handleUpdateProfile = () => {
+    // No-op function to satisfy the prop requirement
+    console.log("Profile update requested");
+  };
+  
   return (
     <div className="space-y-4">
       <Card>
@@ -32,17 +37,21 @@ const SettingsTabContent: React.FC<SettingsTabContentProps> = ({ userProfile }) 
             </TabsList>
             
             <TabsContent value="profile" className="space-y-4">
-              <ProfileDetailsSection 
-                userProfile={userProfile}
-                onUpdateProfile={() => {}}
-              />
+              {userProfile && (
+                <ProfileDetailsSection 
+                  userProfile={userProfile}
+                  onUpdateProfile={handleUpdateProfile}
+                />
+              )}
             </TabsContent>
             
             <TabsContent value="billing" className="space-y-4">
-              <ProfileBillingSection 
-                userProfile={userProfile}
-                onUpdateProfile={() => {}}
-              />
+              {userProfile && (
+                <ProfileBillingSection 
+                  userProfile={userProfile}
+                  onUpdateProfile={handleUpdateProfile}
+                />
+              )}
             </TabsContent>
             
             <TabsContent value="batch" className="space-y-4">

@@ -72,6 +72,8 @@ export interface UserSubscription {
   status: string;
   planType?: SubscriptionType;
   isGroupLeader?: boolean;
+  planName?: string;
+  endDate?: string;
 }
 
 // Define exam preparation interface
@@ -79,6 +81,8 @@ export interface ExamPreparation {
   target: string;
   examDate: string;
   subjects: string[];
+  daysLeft?: number;
+  title?: string;
 }
 
 // Define the user profile type
@@ -137,6 +141,12 @@ export interface UserProfileType {
   board?: string;
   city?: string;
   state?: string;
+  // These were missing properties causing errors
+  mood?: MoodType;
+  totalStudyHours?: number;
+  accuracyRate?: number;
+  streakDays?: number;
+  completedLessons?: number;
 }
 
 // Importing SubjectProgress from progress.ts to prevent circular dependencies

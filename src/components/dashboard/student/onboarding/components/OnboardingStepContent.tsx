@@ -1,50 +1,57 @@
 
 import React from 'react';
-import { motion } from 'framer-motion';
 import StepExamDate from './StepExamDate';
 import StepStudyHours from './StepStudyHours';
 import StepSubjects from './StepSubjects';
 import StepStudyPace from './StepStudyPace';
 import StepStudyTime from './StepStudyTime';
-import ReviewStep from './ReviewStep';
+import StepReview from './StepReview';
+import { NewStudyPlanSubject } from '@/types/user/studyPlan';
+import { Subject } from '@/types/user/studyPlan';
 
-interface Subject {
-  name: string;
-  key: string;
-  group?: string;
-}
-
-interface StudyPlanData {
-  examGoal: string;
-  examDate: string;
-  daysLeft: number;
-  studyHoursPerDay: number;
-  strongSubjects: string[];
-  weakSubjects: string[];
-  studyPace: 'slow' | 'moderate' | 'fast';
-  preferredStudyTime: 'morning' | 'afternoon' | 'evening' | 'night';
-}
-
+// Add interface for component props
 interface OnboardingStepContentProps {
   currentStep: number;
-  examDate: Date | undefined;
+  examDate: Date;
   studyHours: number;
-  strongSubjects: Subject[];
-  weakSubjects: Subject[];
-  studyPace: 'slow' | 'moderate' | 'fast';
-  studyTime: 'morning' | 'afternoon' | 'evening' | 'night';
+  strongSubjects: NewStudyPlanSubject[] | Subject[];
+  weakSubjects: NewStudyPlanSubject[] | Subject[];
+  studyPace: string;
+  studyTime: "Morning" | "Afternoon" | "Evening" | "Night";
   examGoal: string;
   setExamDate: (date: Date | undefined) => void;
   setStudyHours: (hours: number) => void;
-  handleToggleSubject: (subject: Subject, type: 'strong' | 'weak') => void;
-  setStudyPace: (pace: 'slow' | 'moderate' | 'fast') => void;
-  setStudyTime: (time: 'morning' | 'afternoon' | 'evening' | 'night') => void;
-  studyPlanData: StudyPlanData;
+  handleToggleSubject: (subject: string | Subject, type: "strong" | "weak") => void;
+  setStudyPace: (pace: "Aggressive" | "Balanced" | "Relaxed") => void;
+  setStudyTime: (time: "Morning" | "Afternoon" | "Evening" | "Night") => void;
 }
 
-const OnboardingStepContent: React.FC<OnboardingStepContentProps> = ({ 
-  currentStep, 
-  examDate, 
+// Adapter functions to handle different types
+const adaptPace = (pace: string): "Aggressive" | "Balanced" | "Relaxed" => {
+  if (pace === "fast") return "Aggressive";
+  if (pace === "moderate") return "Balanced";
+  return "Relaxed";
+};
+
+const adaptTimeCasing = (time: string): "Morning" | "Afternoon" | "Evening" | "Night" => {
+  const capitalizedTime = time.charAt(0).toUpperCase() + time.slice(1).toLowerCase();
+  return capitalizedTime as "Morning" | "Afternoon" | "Evening" | "Night";
+};
+
+const adaptSubjects = (subjects: NewStudyPlanSubject[] | Subject[]): Subject[] => {
+  return subjects.map(subject => {
+    if ('key' in subject) return subject as Subject;
+    return {
+      name: subject.name,
+      key: subject.name.toLowerCase().replace(/\s+/g, '-'),
+      proficiency: subject.proficiency
+    };
+  });
+};
+
+const OnboardingStepContent: React.FC<OnboardingStepContentProps> = ({
+  currentStep,
+  examDate,
   studyHours,
   strongSubjects,
   weakSubjects,
@@ -55,93 +62,71 @@ const OnboardingStepContent: React.FC<OnboardingStepContentProps> = ({
   setStudyHours,
   handleToggleSubject,
   setStudyPace,
-  setStudyTime,
-  studyPlanData
+  setStudyTime
 }) => {
-  const variants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { 
-      opacity: 1, 
-      y: 0,
-      transition: {
-        type: "spring",
-        stiffness: 100,
-        damping: 15
-      }
-    },
-    exit: { 
-      opacity: 0, 
-      y: -20, 
-      transition: { 
-        ease: "easeInOut", 
-        duration: 0.3 
-      } 
-    }
+  // Convert NewStudyPlanSubject arrays to Subject arrays for compatibility
+  const adaptedStrongSubjects = adaptSubjects(strongSubjects);
+  const adaptedWeakSubjects = adaptSubjects(weakSubjects);
+  
+  // Wrapper function for handleToggleSubject to handle type conversion
+  const handleToggleSubjectWrapper = (subject: Subject, type: "strong" | "weak") => {
+    handleToggleSubject(subject.name, type);
   };
 
-  // Render the correct step content based on currentStep
-  const renderStepContent = () => {
-    switch(currentStep) {
-      case 0:
-        return (
-          <StepExamDate 
-            examDate={examDate}
-            setExamDate={setExamDate}
-            examGoal={examGoal}
-          />
-        );
-      case 1:
-        return (
-          <StepStudyHours 
-            studyHours={studyHours}
-            setStudyHours={setStudyHours}
-          />
-        );
-      case 2:
-        return (
-          <StepSubjects 
-            strongSubjects={strongSubjects}
-            weakSubjects={weakSubjects}
-            handleToggleSubject={handleToggleSubject}
-            examGoal={examGoal}
-          />
-        );
-      case 3:
-        return (
-          <StepStudyPace 
-            studyPace={studyPace}
-            setStudyPace={setStudyPace}
-          />
-        );
-      case 4:
-        return (
-          <StepStudyTime 
-            studyTime={studyTime}
-            setStudyTime={setStudyTime}
-          />
-        );
-      case 5:
-        return (
-          <ReviewStep 
-            studyPlanData={studyPlanData}
-          />
-        );
-      default:
-        return <div>Unknown step</div>;
-    }
-  };
-
-  return (
-    <motion.div
-      key={`step-${currentStep}`}
-      variants={variants}
-      initial="hidden"
-      animate="visible"
-      exit="exit"
-    >
-      {renderStepContent()}
-    </motion.div>
-  );
+  // Render the appropriate step content
+  switch (currentStep) {
+    case 1:
+      return (
+        <StepExamDate 
+          examDate={examDate} 
+          setExamDate={setExamDate} 
+        />
+      );
+    case 2:
+      return (
+        <StepStudyHours 
+          studyHours={studyHours}
+          setStudyHours={setStudyHours}
+        />
+      );
+    case 3:
+      return (
+        <StepSubjects
+          strongSubjects={adaptedStrongSubjects}
+          weakSubjects={adaptedWeakSubjects}
+          handleToggleSubject={handleToggleSubjectWrapper}
+          examGoal={examGoal}
+        />
+      );
+    case 4:
+      return (
+        <StepStudyPace 
+          studyPace={adaptPace(studyPace)}
+          setStudyPace={setStudyPace}
+        />
+      );
+    case 5:
+      return (
+        <StepStudyTime 
+          studyTime={adaptTimeCasing(studyTime)}
+          setStudyTime={setStudyTime}
+        />
+      );
+    case 6:
+      return (
+        <StepReview 
+          examDate={examDate}
+          studyHours={studyHours}
+          strongSubjects={adaptedStrongSubjects}
+          weakSubjects={adaptedWeakSubjects}
+          studyPace={adaptPace(studyPace)}
+          studyTime={adaptTimeCasing(studyTime)}
+          examGoal={examGoal}
+        />
+      );
+    default:
+      return <div>Unknown step</div>;
+  }
 };
 
 export default OnboardingStepContent;

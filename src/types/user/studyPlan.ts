@@ -1,34 +1,15 @@
 
-export interface Topic {
-  name: string;
-  status: 'pending' | 'in-progress' | 'completed';
-  priority: 'high' | 'medium' | 'low';
-}
-
 export interface Subject {
   name: string;
-  progress: number;
-  proficiency: 'weak' | 'moderate' | 'strong';
-  topics: Topic[];
-}
-
-export interface StudyPlan {
-  id: string;
-  examGoal: string;
-  examDate: string;
-  daysLeft: number;
-  createdAt: string;
-  status: 'active' | 'completed' | 'expired';
-  progressPercentage: number;
-  subjects: Subject[];
-  studyHoursPerDay: number;
-  preferredStudyTime: 'morning' | 'afternoon' | 'evening' | 'night';
-  learningPace: 'slow' | 'moderate' | 'fast';
+  key: string;
+  group?: string;
+  proficiency?: 'strong' | 'weak' | 'moderate';
 }
 
 export interface NewStudyPlanSubject {
   name: string;
-  proficiency: 'weak' | 'moderate' | 'strong';
+  proficiency: 'strong' | 'weak' | 'moderate';
+  key?: string; // Making key optional to match with Subject
 }
 
 export interface NewStudyPlan {
@@ -36,6 +17,39 @@ export interface NewStudyPlan {
   examDate: Date;
   subjects: NewStudyPlanSubject[];
   studyHoursPerDay: number;
+  preferredStudyTime: 'morning' | 'afternoon' | 'evening' | 'night';
+  learningPace: 'slow' | 'moderate' | 'fast';
+}
+
+export interface StudyPlanTopic {
+  id: string;
+  name: string;
+  status: 'not_started' | 'in_progress' | 'completed';
+  scheduledDate?: string;
+  duration?: number; // in minutes
+  complexity?: 'easy' | 'medium' | 'hard';
+  resources?: string[];
+}
+
+export interface StudyPlanSubject {
+  name: string;
+  proficiency: 'strong' | 'weak' | 'moderate';
+  progress: number; // percentage
+  topics: StudyPlanTopic[];
+}
+
+export interface StudyPlan {
+  id: string;
+  userId: string;
+  examGoal: string;
+  createdAt: string;
+  updatedAt: string;
+  status: 'active' | 'completed' | 'archived' | 'draft';
+  examDate: string;
+  daysLeft: number;
+  studyHoursPerDay: number;
+  subjects: StudyPlanSubject[];
+  progressPercentage: number; // overall progress
   preferredStudyTime: 'morning' | 'afternoon' | 'evening' | 'night';
   learningPace: 'slow' | 'moderate' | 'fast';
 }

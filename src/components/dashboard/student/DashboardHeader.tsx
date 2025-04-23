@@ -23,7 +23,9 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
 }) => {
   const navigate = useNavigate();
   const [greeting, setGreeting] = useState<string>("");
-  const [currentMood, setCurrentMood] = useState<MoodType | undefined>(userProfile.mood);
+  const [currentMood, setCurrentMood] = useState<MoodType | undefined>(
+    userProfile.currentMood || userProfile.mood
+  );
   
   useEffect(() => {
     const hour = new Date().getHours();
@@ -48,6 +50,22 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   const handleViewProfile = () => {
     navigate("/profile");
   };
+
+  // Helper function to safely get subscription details
+  const getSubscriptionDetails = () => {
+    if (!userProfile.subscription) return null;
+    
+    if (typeof userProfile.subscription === 'string') {
+      return { planName: userProfile.subscription };
+    }
+    
+    return {
+      planName: userProfile.subscription.planName || userProfile.subscription.plan || "Free Plan",
+      endDate: userProfile.subscription.endDate || userProfile.subscription.expiresAt
+    };
+  };
+
+  const subscriptionDetails = getSubscriptionDetails();
 
   return (
     <>
@@ -101,11 +119,11 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
             )}
           </div>
           
-          {userProfile.subscription && typeof userProfile.subscription === 'object' && (
+          {subscriptionDetails && (
             <div className="mt-2 text-xs text-muted-foreground">
-              <span className="font-medium">{userProfile.subscription.planName || "Free Plan"}</span>
-              {userProfile.subscription.endDate && (
-                <> • <span>Expires: {new Date(userProfile.subscription.endDate).toLocaleDateString()}</span></>
+              <span className="font-medium">{subscriptionDetails.planName}</span>
+              {subscriptionDetails.endDate && (
+                <> • <span>Expires: {new Date(subscriptionDetails.endDate).toLocaleDateString()}</span></>
               )}
             </div>
           )}

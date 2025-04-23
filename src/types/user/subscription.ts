@@ -13,6 +13,10 @@ export interface UserSubscription {
   features: string[];
   maxMembers?: number;
   currentMembers?: number;
+  plan?: string;
+  expiresAt?: string;
+  isGroupLeader?: boolean;
+  groupMembers?: string[];
 }
 
 export interface BatchInvitation {

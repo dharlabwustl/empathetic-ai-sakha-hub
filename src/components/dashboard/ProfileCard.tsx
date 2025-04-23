@@ -53,9 +53,9 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
     }
     
     return {
-      name: profile.subscription.planName || 'Premium Plan',
+      name: profile.subscription.planName || profile.subscription.plan || 'Premium Plan',
       active: profile.subscription.status === 'active',
-      endDate: profile.subscription.endDate
+      endDate: profile.subscription.endDate || profile.subscription.expiresAt
     };
   };
   
