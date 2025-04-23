@@ -5,7 +5,7 @@ export const accountData = {
     {
       id: "student1",
       name: "Rahul Sharma",
-      email: "student@sakhaai.com",
+      email: "student@sakha.ai",
       password: "student123",
       role: "student",
       phoneNumber: "+91 9876543210",
@@ -16,7 +16,7 @@ export const accountData = {
     {
       id: "admin1",
       name: "Admin User",
-      email: "admin@sakhaai.com",
+      email: "admin@sakha.ai",
       password: "admin123",
       role: "admin",
       permissions: ["all"]
@@ -24,7 +24,7 @@ export const accountData = {
     {
       id: "content_creator1",
       name: "Content Creator",
-      email: "content@sakhaai.com",
+      email: "content@sakha.ai",
       password: "content123",
       role: "admin",
       permissions: ["content_management", "content_creation", "content_upload"]
@@ -32,7 +32,7 @@ export const accountData = {
     {
       id: "content_uploader1",
       name: "Content Uploader",
-      email: "uploader@sakhaai.com",
+      email: "uploader@sakha.ai",
       password: "uploader123",
       role: "admin",
       permissions: ["content_upload", "content_management"]

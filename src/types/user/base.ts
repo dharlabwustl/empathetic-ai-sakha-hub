@@ -1,12 +1,18 @@
 
 export interface UserSubscription {
-  planId: string;
   planType: SubscriptionType;
   batchCode?: string;
   batchName?: string;
   startDate?: string;
   endDate?: string;
   role?: "member" | "leader" | "school_admin" | "corporate_admin";
+  planId?: string;
+  planName?: string;
+  status?: "active" | "inactive" | "trial";
+  isGroupLeader?: boolean;
+  plan?: string;
+  expiresAt?: string;
+  id?: string;
 }
 
 export interface UserProfileType {
@@ -16,7 +22,7 @@ export interface UserProfileType {
   role: UserRole;
   bio?: string;
   avatar?: string;
-  personalityType?: string;
+  personalityType?: PersonalityType;
   goals?: {
     id: string;
     title: string;
@@ -25,6 +31,8 @@ export interface UserProfileType {
     status?: "completed" | "in-progress" | "not-started";
     dueDate?: string;
     targetDate?: Date;
+    target?: string;
+    examDate?: string;
   }[];
   areasOfInterest?: {
     id: string;
@@ -51,6 +59,21 @@ export interface UserProfileType {
     institution?: string;
     fieldOfStudy?: string;
     graduationYear?: number;
+  };
+  location?: string;
+  personalInfo?: {
+    firstName?: string;
+    lastName?: string;
+    dob?: string;
+    gender?: string;
+    occupation?: string;
+    location?: string;
+    phoneNumber?: string;
+    city?: string;
+    state?: string;
+    school?: string;
+    grade?: string;
+    board?: string;
   };
 }
 
@@ -85,16 +108,18 @@ export enum SubscriptionType {
   Corporate = "corporate"
 }
 
-export interface SubscriptionPlan {
-  id: string;
-  name: string;
-  price: number;
-  features: string[];
-  isPopular?: boolean;
-  description?: string;
-  type: SubscriptionType;
-  maxMembers?: number;
+export interface PersonalityType {
+  type: string;
+  traits: string[];
+  learningStyle: string;
 }
 
-// Changed to type string
-export type PersonalityType = string;
+export interface KpiData {
+  id: string;
+  title: string;
+  value: number | { value: number; trend: "up" | "down" | "neutral" };
+  trend?: "up" | "down" | "neutral";
+  icon?: React.ReactNode;
+  description?: string;
+  color?: string;
+}
