@@ -14,15 +14,34 @@ interface RecommendedActionButtonsProps {
 const RecommendedActionButtons: React.FC<RecommendedActionButtonsProps> = ({ userProfile }) => {
   const navigate = useNavigate();
   
-  const examPrep = userProfile?.examPreparation || { examDate: null, daysLeft: null, title: '' };
+  // Handle the examPreparation safely with proper type checking
+  const examPrep = userProfile?.examPreparation || null;
   const name = userProfile?.name?.split(' ')[0] || 'there';
+  
+  // Helper function to safely access nested properties
+  const getExamInfo = () => {
+    if (!examPrep) return { examDate: null, daysLeft: null, title: '' };
+    
+    if (typeof examPrep === 'string') {
+      return { examDate: null, daysLeft: null, title: examPrep };
+    }
+    
+    // Now TypeScript knows examPrep is either ExamPreparation or has examDate, daysLeft, title
+    return {
+      examDate: 'examDate' in examPrep ? examPrep.examDate : null,
+      daysLeft: 'daysLeft' in examPrep ? examPrep.daysLeft : null,
+      title: 'title' in examPrep ? examPrep.title : ''
+    };
+  };
+  
+  const { examDate, daysLeft, title } = getExamInfo();
   
   return (
     <Card className="border-none shadow-none bg-transparent">
       <CardHeader className="px-0 pt-0">
         <CardTitle className="text-lg font-medium">Welcome back, {name}</CardTitle>
         <CardDescription>
-          {examPrep.examDate && `Your ${examPrep.title} exam is coming up`}
+          {examDate && `Your ${title} exam is coming up`}
         </CardDescription>
       </CardHeader>
       <CardContent className="px-0 pb-0">
@@ -53,13 +72,13 @@ const RecommendedActionButtons: React.FC<RecommendedActionButtonsProps> = ({ use
             <span className="text-sm">My Schedule</span>
           </Button>
           
-          {examPrep.daysLeft && (
+          {daysLeft && (
             <Button 
               variant="outline" 
               className="justify-start h-auto py-2.5 px-3"
             >
               <Clock className="w-4 h-4 mr-2 text-amber-500" />
-              <span className="text-sm">{examPrep.daysLeft} Days Left</span>
+              <span className="text-sm">{daysLeft} Days Left</span>
             </Button>
           )}
         </div>

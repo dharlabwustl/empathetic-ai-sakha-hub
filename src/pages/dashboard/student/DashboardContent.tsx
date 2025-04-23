@@ -1,10 +1,8 @@
 
 import React from "react";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/card";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"; // Fixed import
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertTriangle } from "lucide-react";
-import { UserProfileType } from "@/types/user/base";
-import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
 import OverviewTab from "@/components/dashboard/student/tab-contents/OverviewTab";
 import SubjectsTab from "@/components/dashboard/student/tab-contents/SubjectsTab";
 import QuizzesTab from "@/components/dashboard/student/tab-contents/QuizzesTab";
@@ -16,6 +14,8 @@ import NoMatchContent from "@/components/dashboard/student/tab-contents/NoMatchC
 import TodayTip from "@/components/dashboard/student/TodayTip";
 import NudgesSection from "@/components/dashboard/student/NudgesSection";
 import RecommendedActionButtons from "@/components/dashboard/student/RecommendedActionButtons";
+import { UserProfileType } from "@/types/user/base";
+import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
 
 interface DashboardContentProps {
   activeTab: string;
@@ -24,12 +24,12 @@ interface DashboardContentProps {
   kpis: KpiData[];
   nudges: NudgeData[];
   markNudgeAsRead: (id: string) => void;
-  features: any;
-  showWelcomeTour: boolean;
-  handleSkipTour: () => void;
-  handleCompleteTour: () => void;
-  hideTabsNav: boolean;
-  lastActivity?: { type: string, description: string } | null;
+  features: any; // Replace with proper type
+  showWelcomeTour?: boolean;
+  handleSkipTour?: () => void;
+  handleCompleteTour?: () => void;
+  hideTabsNav?: boolean;
+  lastActivity?: { type: string; description: string } | null;
   suggestedNextAction?: string | null;
 }
 
@@ -43,33 +43,29 @@ const DashboardContent: React.FC<DashboardContentProps> = ({
   features,
   hideTabsNav,
   lastActivity,
-  suggestedNextAction
+  suggestedNextAction,
 }) => {
   return (
     <div className="pb-20 lg:pb-0">
-      {/* Unread alerts section */}
       {nudges && nudges.length > 0 && (
         <NudgesSection nudges={nudges} onMarkAsRead={markNudgeAsRead} />
       )}
-
-      {/* Today's tip - random helpful tip */}
+      
       <div className="my-4">
         <TodayTip 
-          userProfile={userProfile}
+          userProfile={userProfile} 
           lastActivity={lastActivity}
           suggestedNextAction={suggestedNextAction}
         />
       </div>
       
-      {/* Recommended action buttons */}
       <div className="mb-6">
         <h3 className="text-sm font-medium text-muted-foreground mb-2">
           Recommended Actions
         </h3>
         <RecommendedActionButtons userProfile={userProfile} />
       </div>
-
-      {/* Main content tabs */}
+      
       <Tabs
         defaultValue={activeTab}
         value={activeTab}
@@ -101,7 +97,7 @@ const DashboardContent: React.FC<DashboardContentProps> = ({
             </TabsTrigger>
           </TabsList>
         )}
-
+        
         {!features[activeTab] ? (
           <Alert className="mb-2">
             <AlertTriangle className="h-4 w-4" />
@@ -110,7 +106,7 @@ const DashboardContent: React.FC<DashboardContentProps> = ({
             </AlertDescription>
           </Alert>
         ) : null}
-
+        
         <TabsContent value="overview">
           <OverviewTab userProfile={userProfile} kpis={kpis} />
         </TabsContent>
@@ -138,8 +134,7 @@ const DashboardContent: React.FC<DashboardContentProps> = ({
         <TabsContent value="settings">
           <SettingsTab userProfile={userProfile} />
         </TabsContent>
-
-        {/* Content for tab that doesn't match any of the above */}
+        
         {!["overview", "subjects", "quizzes", "resources", "community", "progress", "settings"].includes(activeTab) && (
           <NoMatchContent activeTab={activeTab} />
         )}

@@ -1,16 +1,15 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { X, ChevronLeft, ChevronRight, CheckCircle, BookOpen, Layout, Calendar, Brain, BarChart3, ClipboardCheck, Search } from "lucide-react";
-import { motion } from 'framer-motion';
+  DialogFooter,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
+import { Book, Calendar, ChevronLeft, ChevronRight, Layout, PencilLine } from 'lucide-react';
 
 interface WelcomeTourProps {
   onSkipTour: () => void;
@@ -33,126 +32,168 @@ const WelcomeTour: React.FC<WelcomeTourProps> = ({
   open,
   onOpenChange
 }) => {
-  const [currentStep, setCurrentStep] = useState(0);
+  const [step, setStep] = React.useState(1);
+  const totalSteps = 5;
   
-  const steps = [
-    {
-      title: "Welcome to Sakha AI",
-      description: "Your personal learning companion designed to help you succeed in your studies.",
-      icon: <Brain size={48} className="text-primary mx-auto mb-4" />
-    },
-    {
-      title: "Dashboard Overview",
-      description: "Your dashboard gives you a complete view of your learning progress, insights, and recommendations.",
-      icon: <Layout size={48} className="text-primary mx-auto mb-4" />
-    },
-    {
-      title: "Study Plan",
-      description: "We've created a personalized study plan based on your goals, preferences, and learning style.",
-      icon: <Calendar size={48} className="text-primary mx-auto mb-4" />
-    },
-    {
-      title: "Track Your Progress",
-      description: "Monitor your improvement over time with detailed analytics and insights.",
-      icon: <BarChart3 size={48} className="text-primary mx-auto mb-4" />
-    },
-    {
-      title: "Get Started Today",
-      description: "Head to the Overview tab to see your daily tasks, then check out Today's Plan to start studying right away.",
-      icon: <ClipboardCheck size={48} className="text-primary mx-auto mb-4" />
-    }
-  ];
-
-  const navigateStep = (direction: 'next' | 'prev') => {
-    if (direction === 'next') {
-      if (currentStep < steps.length - 1) {
-        setCurrentStep(currentStep + 1);
-      } else {
-        onCompleteTour();
-      }
+  const handleNext = () => {
+    if (step < totalSteps) {
+      setStep(step + 1);
     } else {
-      if (currentStep > 0) {
-        setCurrentStep(currentStep - 1);
-      }
+      onCompleteTour();
     }
   };
-
+  
+  const handleBack = () => {
+    if (step > 1) {
+      setStep(step - 1);
+    }
+  };
+  
+  const handleSkip = () => {
+    onSkipTour();
+  };
+  
+  const progress = (step / totalSteps) * 100;
+  
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md md:max-w-lg">
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-center text-xl">{steps[currentStep].title}</DialogTitle>
-          <DialogDescription className="text-center">
-            Step {currentStep + 1} of {steps.length}
-          </DialogDescription>
+          <DialogTitle className="text-2xl">
+            {step === 1 && "Welcome to Sakha AI!"}
+            {step === 2 && "Your Dashboard Overview"}
+            {step === 3 && "Study Concepts & Practice"}
+            {step === 4 && "Track Your Progress"}
+            {step === 5 && "Let's Get Started!"}
+          </DialogTitle>
         </DialogHeader>
         
-        <div className="flex flex-col items-center justify-center py-6">
-          <motion.div
-            key={currentStep}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3 }}
-          >
-            {steps[currentStep].icon}
-            <p className="text-center mb-6">{steps[currentStep].description}</p>
-            
-            {currentStep === 4 && (
-              <div className="bg-primary/10 p-4 rounded-lg border border-primary/20 mt-4">
-                <div className="flex items-start gap-3">
-                  <Search className="h-5 w-5 text-primary mt-0.5" />
-                  <div>
-                    <h4 className="font-medium">Next steps:</h4>
-                    <ol className="list-decimal list-inside space-y-1 mt-2 text-sm">
-                      <li>Go to <span className="font-medium">Overview</span> tab to see your personalized dashboard</li>
-                      <li>Check <span className="font-medium">Today's Plan</span> for your study sessions</li>
-                      <li>Complete tasks to track your progress</li>
-                      <li>Use <span className="font-medium">AI Tutor</span> if you need help with a topic</li>
-                    </ol>
-                  </div>
+        <div className="py-4">
+          {/* Step 1: Welcome */}
+          {step === 1 && (
+            <div className="space-y-4">
+              <img 
+                src="https://placehold.co/600x300/e2e8f0/475569?text=Welcome+to+Sakha+AI"
+                alt="Welcome"
+                className="rounded-lg w-full h-48 object-cover"
+              />
+              <p>
+                Welcome to your personalized learning journey! We've designed this platform to help you achieve your academic goals and excel in your exams.
+              </p>
+              <p>
+                Let's take a quick tour to get you familiar with all the features we offer.
+              </p>
+            </div>
+          )}
+          
+          {/* Step 2: Dashboard Overview */}
+          {step === 2 && (
+            <div className="space-y-4">
+              <div className="flex gap-4">
+                <Layout className="h-12 w-12 text-blue-600" />
+                <div>
+                  <h3 className="font-medium text-lg mb-1">Your Dashboard</h3>
+                  <p>
+                    The Overview tab shows your daily updates, study plan and upcoming tasks. Here you'll find:
+                  </p>
+                  <ul className="list-disc pl-5 mt-2 space-y-1">
+                    <li>Today's learning recommendations</li>
+                    <li>Study timeline and progress</li>
+                    <li>Important notifications and reminders</li>
+                    <li>Quick access to practice exams</li>
+                  </ul>
                 </div>
               </div>
-            )}
-          </motion.div>
+            </div>
+          )}
+          
+          {/* Step 3: Study Content */}
+          {step === 3 && (
+            <div className="space-y-4">
+              <div className="flex gap-4">
+                <Book className="h-12 w-12 text-green-600" />
+                <div>
+                  <h3 className="font-medium text-lg mb-1">Study Concepts</h3>
+                  <p>
+                    Master concepts through our interactive learning system:
+                  </p>
+                  <ul className="list-disc pl-5 mt-2 space-y-1">
+                    <li>Study concept cards for each subject</li>
+                    <li>Take practice exams to test your knowledge</li>
+                    <li>Review your performance and focus on weak areas</li>
+                    <li>Access educational resources and references</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          )}
+          
+          {/* Step 4: Progress Tracking */}
+          {step === 4 && (
+            <div className="space-y-4">
+              <div className="flex gap-4">
+                <Calendar className="h-12 w-12 text-purple-600" />
+                <div>
+                  <h3 className="font-medium text-lg mb-1">Track Your Progress</h3>
+                  <p>
+                    Monitor your improvement over time:
+                  </p>
+                  <ul className="list-disc pl-5 mt-2 space-y-1">
+                    <li>View detailed analytics on your study habits</li>
+                    <li>Track concept mastery and test scores</li>
+                    <li>See your daily and weekly study streak</li>
+                    <li>Compare your performance with practice exams</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          )}
+          
+          {/* Step 5: Next Actions */}
+          {step === 5 && (
+            <div className="space-y-4">
+              <div className="flex gap-4">
+                <PencilLine className="h-12 w-12 text-amber-600" />
+                <div>
+                  <h3 className="font-medium text-lg mb-1">Start Learning Today</h3>
+                  <p>
+                    We recommend these next steps to get started:
+                  </p>
+                  <ul className="list-disc pl-5 mt-2 space-y-2">
+                    <li><strong>First:</strong> Go to the Overview tab to see your personalized study plan</li>
+                    <li><strong>Next:</strong> Start with today's recommended concept cards</li>
+                    <li><strong>Then:</strong> Try a practice test to assess your current knowledge</li>
+                    <li><strong>Finally:</strong> Track your progress in the Progress tab</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
-
-        <div className="flex justify-center mt-2">
-          {Array.from({ length: steps.length }).map((_, index) => (
-            <div
-              key={index}
-              className={`h-2 w-2 rounded-full mx-1 ${
-                index === currentStep ? 'bg-primary' : 'bg-gray-300 dark:bg-gray-700'
-              }`}
-            />
-          ))}
-        </div>
-
-        <DialogFooter className="flex justify-between items-center sm:justify-between">
-          <div>
-            {currentStep > 0 ? (
-              <Button variant="outline" onClick={() => navigateStep('prev')}>
-                <ChevronLeft className="mr-1 h-4 w-4" />
-                Back
+        
+        <Progress value={progress} className="h-2 mb-4" />
+        
+        <DialogFooter className="flex justify-between items-center">
+          <div className="flex gap-2">
+            {step > 1 && (
+              <Button variant="outline" onClick={handleBack}>
+                <ChevronLeft className="mr-1 h-4 w-4" /> Back
               </Button>
-            ) : (
-              <Button variant="outline" onClick={onSkipTour}>
-                <X className="mr-1 h-4 w-4" />
+            )}
+            {step < totalSteps && (
+              <Button variant="outline" onClick={handleSkip}>
                 Skip Tour
               </Button>
             )}
           </div>
-          <Button onClick={() => navigateStep('next')}>
-            {currentStep < steps.length - 1 ? (
+          
+          <Button onClick={handleNext} className="bg-primary">
+            {step < totalSteps ? (
               <>
-                Next
-                <ChevronRight className="ml-1 h-4 w-4" />
+                Next <ChevronRight className="ml-1 h-4 w-4" />
               </>
             ) : (
-              <>
-                Get Started
-                <CheckCircle className="ml-1 h-4 w-4" />
-              </>
+              "Get Started"
             )}
           </Button>
         </DialogFooter>
