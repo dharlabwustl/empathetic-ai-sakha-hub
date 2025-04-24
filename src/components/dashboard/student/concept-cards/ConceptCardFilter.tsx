@@ -1,12 +1,12 @@
 
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { DateFilterType } from "@/types/user/base";
-import { BookOpen, Calendar, Filter } from 'lucide-react';
+import { BookOpen, Filter } from 'lucide-react';
 
 interface ConceptCardFilterProps {
   subjects: string[];
@@ -15,53 +15,66 @@ interface ConceptCardFilterProps {
     subject: string;
     difficulty: string;
     completed: boolean | null;
+    learningStyle?: string;
   }) => void;
+  learningStyles?: string[];
+  userLearningStyle?: string[];
   className?: string;
 }
 
 const ConceptCardFilter: React.FC<ConceptCardFilterProps> = ({
   subjects,
   onFilterChange,
+  learningStyles = [],
+  userLearningStyle = [],
   className = ""
 }) => {
   const [dateFilter, setDateFilter] = useState<DateFilterType>("all");
   const [subjectFilter, setSubjectFilter] = useState<string>("all");
   const [difficultyFilter, setDifficultyFilter] = useState<string>("all");
   const [completedFilter, setCompletedFilter] = useState<boolean | null>(null);
+  const [learningStyleFilter, setLearningStyleFilter] = useState<string>(userLearningStyle[0] || "all");
   const [showFilters, setShowFilters] = useState(false);
   
   const handleDateFilterChange = (value: string) => {
     const newDateFilter = value as DateFilterType;
     setDateFilter(newDateFilter);
-    applyFilters(newDateFilter, subjectFilter, difficultyFilter, completedFilter);
+    applyFilters(newDateFilter, subjectFilter, difficultyFilter, completedFilter, learningStyleFilter);
   };
   
   const handleSubjectFilterChange = (value: string) => {
     setSubjectFilter(value);
-    applyFilters(dateFilter, value, difficultyFilter, completedFilter);
+    applyFilters(dateFilter, value, difficultyFilter, completedFilter, learningStyleFilter);
   };
   
   const handleDifficultyFilterChange = (value: string) => {
     setDifficultyFilter(value);
-    applyFilters(dateFilter, subjectFilter, value, completedFilter);
+    applyFilters(dateFilter, subjectFilter, value, completedFilter, learningStyleFilter);
+  };
+  
+  const handleLearningStyleFilterChange = (value: string) => {
+    setLearningStyleFilter(value);
+    applyFilters(dateFilter, subjectFilter, difficultyFilter, completedFilter, value);
   };
   
   const handleCompletedFilterChange = (completed: boolean | null) => {
     setCompletedFilter(completed);
-    applyFilters(dateFilter, subjectFilter, difficultyFilter, completed);
+    applyFilters(dateFilter, subjectFilter, difficultyFilter, completed, learningStyleFilter);
   };
   
   const applyFilters = (
     dateFilter: DateFilterType,
     subject: string,
     difficulty: string,
-    completed: boolean | null
+    completed: boolean | null,
+    learningStyle: string
   ) => {
     onFilterChange({
       dateFilter,
       subject,
       difficulty,
-      completed
+      completed,
+      learningStyle
     });
   };
   
@@ -70,11 +83,28 @@ const ConceptCardFilter: React.FC<ConceptCardFilterProps> = ({
     setSubjectFilter("all");
     setDifficultyFilter("all");
     setCompletedFilter(null);
-    applyFilters("all", "all", "all", null);
+    setLearningStyleFilter(userLearningStyle[0] || "all");
+    applyFilters("all", "all", "all", null, userLearningStyle[0] || "all");
   };
   
   const toggleFilters = () => {
     setShowFilters(!showFilters);
+  };
+  
+  // Count active filters for badge
+  const getActiveFilterCount = () => {
+    let count = 0;
+    if (dateFilter !== "all") count++;
+    if (subjectFilter !== "all") count++;
+    if (difficultyFilter !== "all") count++;
+    if (completedFilter !== null) count++;
+    if (learningStyleFilter !== "all" && learningStyleFilter !== userLearningStyle[0]) count++;
+    return count;
+  };
+  
+  // Get display name for learning style
+  const getLearningStyleDisplay = (style: string) => {
+    return style.charAt(0).toUpperCase() + style.slice(1) + " Learner";
   };
   
   return (
@@ -83,7 +113,7 @@ const ConceptCardFilter: React.FC<ConceptCardFilterProps> = ({
         <CardTitle className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <BookOpen className="h-5 w-5 text-indigo-500" />
-            <span>Concept Cards</span>
+            <span>Filter Options</span>
           </div>
           <Button 
             variant="outline" 
@@ -93,15 +123,9 @@ const ConceptCardFilter: React.FC<ConceptCardFilterProps> = ({
           >
             <Filter className="h-4 w-4" />
             Filters
-            {(dateFilter !== "all" || subjectFilter !== "all" || 
-              difficultyFilter !== "all" || completedFilter !== null) && (
+            {getActiveFilterCount() > 0 && (
               <Badge className="ml-1 h-5 w-5 p-0 flex items-center justify-center">
-                {[
-                  dateFilter !== "all" ? 1 : 0,
-                  subjectFilter !== "all" ? 1 : 0,
-                  difficultyFilter !== "all" ? 1 : 0,
-                  completedFilter !== null ? 1 : 0
-                ].reduce((sum, val) => sum + val, 0)}
+                {getActiveFilterCount()}
               </Badge>
             )}
           </Button>
@@ -110,7 +134,7 @@ const ConceptCardFilter: React.FC<ConceptCardFilterProps> = ({
       
       <CardContent className="space-y-4">
         {/* Date filter tabs always visible */}
-        <Tabs defaultValue="all" value={dateFilter} onValueChange={handleDateFilterChange} className="w-full">
+        <Tabs defaultValue={dateFilter} value={dateFilter} onValueChange={handleDateFilterChange} className="w-full">
           <TabsList className="grid grid-cols-4 w-full">
             <TabsTrigger value="today" className="text-xs sm:text-sm">Today</TabsTrigger>
             <TabsTrigger value="week" className="text-xs sm:text-sm">This Week</TabsTrigger>
@@ -122,7 +146,7 @@ const ConceptCardFilter: React.FC<ConceptCardFilterProps> = ({
         {/* Additional filters */}
         {showFilters && (
           <div className="space-y-3 pt-2 border-t">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="space-y-3">
               <div className="space-y-1">
                 <label className="text-sm font-medium">Subject</label>
                 <Select value={subjectFilter} onValueChange={handleSubjectFilterChange}>
@@ -152,6 +176,32 @@ const ConceptCardFilter: React.FC<ConceptCardFilterProps> = ({
                   </SelectContent>
                 </Select>
               </div>
+              
+              {learningStyles.length > 0 && (
+                <div className="space-y-1">
+                  <label className="text-sm font-medium">Learning Style</label>
+                  <Select value={learningStyleFilter} onValueChange={handleLearningStyleFilterChange}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select learning style" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Learning Styles</SelectItem>
+                      {userLearningStyle.map(style => (
+                        <SelectItem key={style} value={style} className="font-medium">
+                          {getLearningStyleDisplay(style)} (Recommended)
+                        </SelectItem>
+                      ))}
+                      {learningStyles
+                        .filter(style => !userLearningStyle.includes(style))
+                        .map(style => (
+                          <SelectItem key={style} value={style}>
+                            {getLearningStyleDisplay(style)}
+                          </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
             </div>
             
             <div className="flex flex-wrap gap-2">

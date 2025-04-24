@@ -4,9 +4,10 @@ import Index from "./pages/Index";
 import StudentDashboard from "./pages/dashboard/student/StudentDashboard";
 import ConceptCardStudyPage from "./pages/student/ConceptCardStudyPage";
 import ConceptCardsListPage from "./pages/dashboard/student/ConceptCardsListPage";
+import ConceptCardPage from "./pages/student/ConceptCardPage";
 import { AuthProvider } from "./contexts/auth/AuthContext";
 import { AdminAuthProvider } from "./contexts/AdminAuthContext";
-import { ThemeProvider } from "@/components/theme-provider";
+import { ThemeProvider } from "./components/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
 
 function App() {
@@ -24,6 +25,8 @@ function App() {
               
               {/* Concept Card Routes */}
               <Route path="/dashboard/student/concepts" element={<ConceptCardsListPage />} />
+              <Route path="/study/concept-cards" element={<ConceptCardPage />} />
+              <Route path="/study/concept-cards/:filterType" element={<ConceptCardPage />} />
               <Route path="/study/concept-card/:cardId" element={<ConceptCardStudyPage />} />
               
               {/* Fallback routes */}

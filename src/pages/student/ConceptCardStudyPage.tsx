@@ -1,343 +1,303 @@
 
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, BookOpen, Check, ChevronLeft, ChevronRight } from 'lucide-react';
-import ConceptCardFilter from '@/components/dashboard/student/concept-cards/ConceptCardFilter';
-import { DateFilterType, ConceptCardType } from '@/types/user/base';
-import { getSubjectsForGoal } from '@/components/dashboard/student/onboarding/SubjectData';
-import { Badge } from '@/components/ui/badge';
-import { formatDate } from '@/utils/dateUtils';
-import { useToast } from '@/hooks/use-toast';
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Progress } from "@/components/ui/progress";
+import { useToast } from "@/hooks/use-toast";
+import { ArrowLeft, BookOpen, CheckCircle, Brain, BookOpenCheck, Lightbulb, GraduationCap } from 'lucide-react';
 
-// Mock data for concept cards
-const mockConceptCards: ConceptCardType[] = [
+// Mock data to find the card by ID
+const mockConceptCards = [
   {
     id: "cc1",
-    title: "Newton's First Law of Motion",
+    title: "Newton's Laws of Motion",
+    description: "Understanding the fundamental laws of motion and their applications in mechanics",
     subject: "Physics",
-    chapter: "Laws of Motion",
+    chapter: "Classical Mechanics",
     difficulty: "medium",
-    tags: ["mechanics", "newton", "forces"],
-    content: "Newton's first law states that an object will remain at rest or in uniform motion in a straight line unless acted upon by an external force. This is also known as the law of inertia.",
+    completed: false,
+    progress: 0,
+    content: `
+      <h2>Newton's Three Laws of Motion</h2>
+      <p>Sir Isaac Newton's three laws of motion form the foundation of classical mechanics.</p>
+      
+      <h3>First Law: Law of Inertia</h3>
+      <p>An object at rest stays at rest, and an object in motion stays in motion with the same speed and in the same direction, unless acted upon by an unbalanced force.</p>
+      
+      <h3>Second Law: F = ma</h3>
+      <p>The acceleration of an object is directly proportional to the net force acting on it and inversely proportional to its mass. F = ma, where F is force, m is mass, and a is acceleration.</p>
+      
+      <h3>Third Law: Action and Reaction</h3>
+      <p>For every action, there is an equal and opposite reaction. When one object exerts a force on a second object, the second object exerts an equal force in the opposite direction on the first object.</p>
+    `,
     examples: [
       {
-        question: "A book is placed on a table. Why does it remain stationary?",
-        solution: "According to Newton's First Law, the book remains stationary because it's in equilibrium. The gravitational force pulling down is balanced by the normal force from the table pushing up."
+        question: "A 2 kg object experiences a net force of 10 N. What is its acceleration?",
+        solution: "Using Newton's Second Law: F = ma\na = F/m = 10 N / 2 kg = 5 m/s²"
+      },
+      {
+        question: "Explain why a rocket moves forward.",
+        solution: "As per Newton's Third Law, the rocket expels gas backward (action) and experiences a thrust force forward (reaction), propelling it in the forward direction."
       }
     ],
-    completedAt: null
+    relatedTopics: ["Momentum", "Friction", "Circular Motion", "Gravity"]
   },
   {
     id: "cc2",
-    title: "Periodic Table Elements",
+    title: "Chemical Bonding",
+    description: "Learn about different types of chemical bonds and their formation mechanisms",
     subject: "Chemistry",
-    chapter: "Periodic Table",
-    difficulty: "easy",
-    tags: ["elements", "periodic table", "chemistry basics"],
-    content: "The periodic table organizes chemical elements by their atomic numbers, electron configurations, and chemical properties.",
-    examples: [
-      {
-        question: "Why are noble gases unreactive?",
-        solution: "Noble gases have a full outer shell of electrons, making them stable and less likely to form bonds with other elements."
-      }
-    ],
-    completedAt: new Date()
-  },
-  {
-    id: "cc3",
-    title: "Differentiation Basics",
-    subject: "Mathematics",
-    chapter: "Calculus",
+    chapter: "Chemical Structures",
     difficulty: "hard",
-    tags: ["calculus", "differentiation", "rate of change"],
-    content: "Differentiation is a method of finding the derivative of a function. It measures the rate at which a function's output changes with respect to its input.",
+    completed: false,
+    progress: 30,
+    content: `
+      <h2>Chemical Bonding</h2>
+      <p>Chemical bonding is the attraction between atoms that allows the formation of chemical substances containing two or more atoms.</p>
+      
+      <h3>Ionic Bonding</h3>
+      <p>Involves the transfer of electrons between atoms, typically between a metal and a non-metal, resulting in the formation of positive and negative ions that attract each other.</p>
+      
+      <h3>Covalent Bonding</h3>
+      <p>Involves the sharing of electron pairs between atoms, typically between non-metals, resulting in the formation of molecules.</p>
+      
+      <h3>Metallic Bonding</h3>
+      <p>Involves the sharing of free electrons among a structure of positively charged ions, typically in metals, resulting in the formation of a lattice structure.</p>
+    `,
     examples: [
       {
-        question: "Find the derivative of f(x) = x²",
-        solution: "f'(x) = 2x"
+        question: "Identify the type of bonding in NaCl.",
+        solution: "NaCl (sodium chloride) exhibits ionic bonding, where sodium (a metal) donates an electron to chlorine (a non-metal), forming Na+ and Cl- ions that attract each other electrostatically."
+      },
+      {
+        question: "Explain the bonding in a water molecule (H2O).",
+        solution: "H2O exhibits covalent bonding, where each hydrogen atom shares an electron pair with the oxygen atom, forming two separate covalent bonds."
       }
     ],
-    completedAt: null
+    relatedTopics: ["Lewis Structures", "Molecular Geometry", "Electronegativity", "Valence Bond Theory"]
   }
 ];
 
-const ConceptCardStudyPage: React.FC = () => {
-  const { cardId } = useParams<{ cardId?: string }>();
+const ConceptCardStudyPage = () => {
+  const { cardId } = useParams<{ cardId: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [activeCardIndex, setActiveCardIndex] = useState(0);
-  const [conceptCards, setConceptCards] = useState<ConceptCardType[]>(mockConceptCards);
-  const [filteredCards, setFilteredCards] = useState<ConceptCardType[]>(mockConceptCards);
-  const [isCardCompleted, setIsCardCompleted] = useState(false);
   
-  const allSubjects = getSubjectsForGoal("IIT-JEE");
+  const [card, setCard] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState("content");
+  const [progress, setProgress] = useState(0);
+  const [completed, setCompleted] = useState(false);
   
-  // Find the initial card index if a specific card ID is provided
   useEffect(() => {
-    if (cardId) {
-      const index = conceptCards.findIndex(card => card.id === cardId);
-      if (index !== -1) {
-        setActiveCardIndex(index);
-        setIsCardCompleted(Boolean(conceptCards[index].completedAt));
+    // In a real app, this would be an API call
+    setTimeout(() => {
+      const foundCard = mockConceptCards.find(c => c.id === cardId);
+      if (foundCard) {
+        setCard(foundCard);
+        setProgress(foundCard.progress);
+        setCompleted(foundCard.completed);
       }
-    }
-  }, [cardId, conceptCards]);
-  
-  const currentCard = filteredCards[activeCardIndex] || null;
-  
-  const handleFilterChange = (filters: {
-    dateFilter: DateFilterType;
-    subject: string;
-    difficulty: string;
-    completed: boolean | null;
-  }) => {
-    let filtered = [...conceptCards];
-    
-    // Apply subject filter
-    if (filters.subject !== "all") {
-      filtered = filtered.filter(card => card.subject === filters.subject);
-    }
-    
-    // Apply difficulty filter
-    if (filters.difficulty !== "all") {
-      filtered = filtered.filter(card => card.difficulty === filters.difficulty);
-    }
-    
-    // Apply completed filter
-    if (filters.completed !== null) {
-      filtered = filtered.filter(card => Boolean(card.completedAt) === filters.completed);
-    }
-    
-    // Apply date filter (this is a simplified version)
-    if (filters.dateFilter !== "all") {
-      // For demo purposes only
-      filtered = filtered.slice(0, filters.dateFilter === "today" ? 1 : filters.dateFilter === "week" ? 2 : 3);
-    }
-    
-    setFilteredCards(filtered);
-    setActiveCardIndex(0);
-  };
-  
-  const handlePrevCard = () => {
-    if (activeCardIndex > 0) {
-      setActiveCardIndex(activeCardIndex - 1);
-      const prevCard = filteredCards[activeCardIndex - 1];
-      setIsCardCompleted(Boolean(prevCard?.completedAt));
-    }
-  };
-  
-  const handleNextCard = () => {
-    if (activeCardIndex < filteredCards.length - 1) {
-      setActiveCardIndex(activeCardIndex + 1);
-      const nextCard = filteredCards[activeCardIndex + 1];
-      setIsCardCompleted(Boolean(nextCard?.completedAt));
-    }
-  };
-  
-  const handleBackToDashboard = () => {
-    navigate('/dashboard/student/concepts');
-  };
+      setLoading(false);
+    }, 500);
+  }, [cardId]);
   
   const handleMarkComplete = () => {
-    if (!currentCard) return;
+    setCompleted(!completed);
+    setProgress(completed ? 50 : 100);
     
-    const updatedCards = [...conceptCards];
-    const cardIndex = updatedCards.findIndex(card => card.id === currentCard.id);
-    
-    if (cardIndex !== -1) {
-      updatedCards[cardIndex] = {
-        ...updatedCards[cardIndex],
-        completedAt: isCardCompleted ? null : new Date()
-      };
-      
-      setConceptCards(updatedCards);
-      setFilteredCards(prevFiltered => {
-        const newFiltered = [...prevFiltered];
-        const filteredIndex = newFiltered.findIndex(card => card.id === currentCard.id);
-        if (filteredIndex !== -1) {
-          newFiltered[filteredIndex] = {
-            ...newFiltered[filteredIndex],
-            completedAt: isCardCompleted ? null : new Date()
-          };
-        }
-        return newFiltered;
-      });
-      
-      setIsCardCompleted(!isCardCompleted);
-      
-      toast({
-        title: isCardCompleted ? "Marked as incomplete" : "Concept completed!",
-        description: isCardCompleted 
-          ? "You can revisit this concept card anytime" 
-          : "Great job! This will be reflected in your progress.",
-        variant: isCardCompleted ? "default" : "success",
-      });
-      
-      // Save to local storage for demo
-      const userData = localStorage.getItem("userData");
-      if (userData) {
-        const parsedData = JSON.parse(userData);
-        parsedData.lastActivity = {
-          type: "concept_card",
-          description: `Studying ${currentCard.title}`,
-          id: currentCard.id
-        };
-        localStorage.setItem("userData", JSON.stringify(parsedData));
-      }
-    }
+    toast({
+      title: completed ? "Marked as in progress" : "Marked as completed",
+      description: `Concept card has been marked as ${completed ? "in progress" : "completed"}.`,
+    });
   };
+  
+  const handleGoBack = () => {
+    navigate(-1); // Go back to previous page
+  };
+  
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="max-w-4xl mx-auto">
+          <Card className="animate-pulse">
+            <CardHeader className="h-24"></CardHeader>
+            <CardContent className="h-96"></CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+  
+  if (!card) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="max-w-4xl mx-auto">
+          <Card>
+            <CardHeader>
+              <CardTitle>Concept Card Not Found</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p>The requested concept card could not be found.</p>
+            </CardContent>
+            <CardFooter>
+              <Button onClick={handleGoBack}>Go Back</Button>
+            </CardFooter>
+          </Card>
+        </div>
+      </div>
+    );
+  }
   
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="flex items-center mb-6">
-        <Button
-          variant="ghost"
-          onClick={handleBackToDashboard}
-          className="mr-2"
+      <div className="max-w-4xl mx-auto">
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          onClick={handleGoBack}
+          className="mb-4 flex items-center gap-1"
         >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Dashboard
+          <ArrowLeft className="h-4 w-4" />
+          Back to Concept Cards
         </Button>
-      </div>
-      
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        <div className="lg:col-span-1">
-          <ConceptCardFilter
-            subjects={allSubjects}
-            onFilterChange={handleFilterChange}
-            className="sticky top-4"
-          />
-        </div>
         
-        <div className="lg:col-span-3">
-          {currentCard ? (
-            <Card className="shadow-md">
-              <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <CardTitle className="text-xl">{currentCard.title}</CardTitle>
-                    <div className="flex flex-wrap gap-2 mt-2">
-                      <Badge variant="outline" className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
-                        {currentCard.subject}
-                      </Badge>
-                      {currentCard.chapter && (
-                        <Badge variant="outline" className="bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300">
-                          {currentCard.chapter}
-                        </Badge>
-                      )}
-                      <Badge variant={
-                        currentCard.difficulty === "easy" ? "outline" : 
-                        currentCard.difficulty === "medium" ? "secondary" : "destructive"
-                      } className={
-                        currentCard.difficulty === "easy" ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300" :
-                        currentCard.difficulty === "medium" ? "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300" :
-                        "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300"
-                      }>
-                        {currentCard.difficulty.charAt(0).toUpperCase() + currentCard.difficulty.slice(1)}
-                      </Badge>
-                      {currentCard.completedAt && (
-                        <Badge variant="outline" className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
-                          Completed on {formatDate(currentCard.completedAt)}
-                        </Badge>
-                      )}
-                    </div>
-                  </div>
-                  <Button 
-                    variant={isCardCompleted ? "outline" : "default"}
-                    size="sm"
-                    onClick={handleMarkComplete}
-                    className={isCardCompleted 
-                      ? "border-green-200 text-green-700 hover:bg-green-50" 
-                      : "bg-green-600 hover:bg-green-700"
-                    }
-                  >
-                    <Check className="h-4 w-4 mr-1" />
-                    {isCardCompleted ? "Completed" : "Mark Complete"}
-                  </Button>
+        <Card className="mb-6">
+          <CardHeader className="border-b pb-4">
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <Badge variant="outline" className="bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-300 border-indigo-200 dark:border-indigo-700">
+                    {card.subject}
+                  </Badge>
+                  <Badge variant="outline" className="bg-amber-100 dark:bg-amber-900 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-700">
+                    {card.chapter}
+                  </Badge>
+                  <Badge variant="outline" className={`
+                    ${card.difficulty === 'easy' ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-300 border-green-200 dark:border-green-700' : ''}
+                    ${card.difficulty === 'medium' ? 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-300 border-blue-200 dark:border-blue-700' : ''}
+                    ${card.difficulty === 'hard' ? 'bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-300 border-orange-200 dark:border-orange-700' : ''}
+                  `}>
+                    {card.difficulty.charAt(0).toUpperCase() + card.difficulty.slice(1)}
+                  </Badge>
                 </div>
-              </CardHeader>
+                <CardTitle className="text-2xl font-bold">{card.title}</CardTitle>
+                <CardDescription className="text-base">{card.description}</CardDescription>
+              </div>
               
-              <CardContent className="pt-6">
-                <div className="space-y-6">
-                  <div>
-                    <h3 className="text-lg font-medium mb-2 flex items-center">
-                      <BookOpen className="h-5 w-5 mr-2 text-blue-500" />
-                      Concept
-                    </h3>
-                    <p className="text-gray-700 dark:text-gray-300">
-                      {currentCard.content}
-                    </p>
-                  </div>
-                  
-                  {currentCard.examples && currentCard.examples.length > 0 && (
-                    <div className="space-y-4">
-                      <h3 className="text-lg font-medium">Examples</h3>
-                      {currentCard.examples.map((example, index) => (
-                        <div 
-                          key={index} 
-                          className="border rounded-lg p-4 bg-gray-50 dark:bg-gray-800/50"
-                        >
-                          <h4 className="font-medium text-indigo-700 dark:text-indigo-300 mb-2">
-                            Question:
-                          </h4>
-                          <p className="mb-4">{example.question}</p>
-                          <h4 className="font-medium text-green-700 dark:text-green-300 mb-2">
-                            Solution:
-                          </h4>
-                          <p>{example.solution}</p>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                  
-                  {currentCard.tags && currentCard.tags.length > 0 && (
-                    <div>
-                      <h3 className="text-lg font-medium mb-2">Related Tags</h3>
-                      <div className="flex flex-wrap gap-2">
-                        {currentCard.tags.map((tag, index) => (
-                          <Badge key={index} variant="outline">
-                            {tag}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-              
-              <CardFooter className="border-t pt-4 flex justify-between">
-                <Button
-                  variant="outline"
-                  onClick={handlePrevCard}
-                  disabled={activeCardIndex === 0}
-                >
-                  <ChevronLeft className="h-4 w-4 mr-1" />
-                  Previous
-                </Button>
-                <div className="text-sm text-gray-500">
-                  Card {activeCardIndex + 1} of {filteredCards.length}
-                </div>
-                <Button
-                  variant="outline"
-                  onClick={handleNextCard}
-                  disabled={activeCardIndex === filteredCards.length - 1}
-                >
-                  Next
-                  <ChevronRight className="h-4 w-4 ml-1" />
-                </Button>
-              </CardFooter>
-            </Card>
-          ) : (
-            <div className="flex flex-col items-center justify-center h-64 border rounded-lg bg-gray-50 dark:bg-gray-800">
-              <p className="text-gray-500 mb-4">No concept cards match the current filters.</p>
-              <Button onClick={() => handleFilterChange({ dateFilter: "all", subject: "all", difficulty: "all", completed: null })}>
-                Reset Filters
+              <Button
+                variant={completed ? "outline" : "default"}
+                className={`min-w-32 ${completed ? 'text-green-600 border-green-200 hover:bg-green-50' : ''}`}
+                onClick={handleMarkComplete}
+              >
+                {completed ? (
+                  <>
+                    <CheckCircle className="h-4 w-4 mr-2" />
+                    Completed
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle className="h-4 w-4 mr-2" />
+                    Mark Complete
+                  </>
+                )}
               </Button>
             </div>
-          )}
-        </div>
+            
+            <div className="mt-4 space-y-1">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">Progress</span>
+                <span className="font-medium">{progress}%</span>
+              </div>
+              <Progress value={progress} className="h-2" />
+            </div>
+          </CardHeader>
+          
+          <div>
+            <Tabs defaultValue={activeTab} onValueChange={setActiveTab}>
+              <TabsList className="grid w-full grid-cols-3">
+                <TabsTrigger value="content" className="flex items-center gap-1.5">
+                  <BookOpen className="h-4 w-4" />
+                  <span>Content</span>
+                </TabsTrigger>
+                <TabsTrigger value="examples" className="flex items-center gap-1.5">
+                  <Lightbulb className="h-4 w-4" />
+                  <span>Examples</span>
+                </TabsTrigger>
+                <TabsTrigger value="related" className="flex items-center gap-1.5">
+                  <Brain className="h-4 w-4" />
+                  <span>Related Topics</span>
+                </TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="content">
+                <CardContent className="prose dark:prose-invert max-w-none py-6">
+                  <div dangerouslySetInnerHTML={{ __html: card.content }} />
+                </CardContent>
+              </TabsContent>
+              
+              <TabsContent value="examples">
+                <CardContent className="py-6">
+                  <h3 className="text-xl font-semibold mb-4 flex items-center">
+                    <GraduationCap className="h-5 w-5 mr-2" />
+                    Example Problems
+                  </h3>
+                  
+                  <div className="space-y-6">
+                    {card.examples?.map((example: any, index: number) => (
+                      <Card key={index} className="bg-muted/50">
+                        <CardHeader>
+                          <CardTitle className="text-lg">Problem {index + 1}</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                          <div>
+                            <h4 className="font-medium mb-2">Question:</h4>
+                            <p>{example.question}</p>
+                          </div>
+                          <div className="pt-3 border-t">
+                            <h4 className="font-medium mb-2">Solution:</h4>
+                            <p className="text-muted-foreground whitespace-pre-wrap">{example.solution}</p>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                    
+                    {(!card.examples || card.examples.length === 0) && (
+                      <p className="text-center py-6 text-muted-foreground">No example problems available for this concept.</p>
+                    )}
+                  </div>
+                </CardContent>
+              </TabsContent>
+              
+              <TabsContent value="related">
+                <CardContent className="py-6">
+                  <h3 className="text-xl font-semibold mb-4 flex items-center">
+                    <BookOpenCheck className="h-5 w-5 mr-2" />
+                    Related Topics
+                  </h3>
+                  
+                  {card.relatedTopics && card.relatedTopics.length > 0 ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {card.relatedTopics.map((topic: string, index: number) => (
+                        <Card key={index} className="bg-muted/50 hover:bg-muted cursor-pointer transition-colors">
+                          <CardContent className="p-4 flex items-center">
+                            <BookOpen className="h-4 w-4 mr-2 text-muted-foreground" />
+                            <span>{topic}</span>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-center py-6 text-muted-foreground">No related topics available for this concept.</p>
+                  )}
+                </CardContent>
+              </TabsContent>
+            </Tabs>
+          </div>
+        </Card>
       </div>
     </div>
   );
