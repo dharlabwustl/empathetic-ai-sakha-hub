@@ -1,93 +1,112 @@
 
-import React, { ReactNode } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { motion } from "framer-motion";
+import React from 'react';
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   LayoutDashboard, 
-  CalendarDays, 
-  GraduationCap, 
   BookOpen, 
-  Brain, 
-  FileText,
-  Bell
+  GraduationCap, 
+  FileText, 
+  Users, 
+  LineChart, 
+  Settings,
+  Calendar,
+  List,
+  ListTodo
 } from "lucide-react";
-import { useIsMobile } from '@/hooks/use-mobile';
+import { DashboardTabsProps } from "@/pages/dashboard/student/DashboardContent";
 
-interface DashboardTabsProps {
-  activeTab: string;
-  onTabChange: (tab: string) => void;
-  tabContents: Record<string, ReactNode>;
-  hideTabsNav?: boolean;
-}
-
-export default function DashboardTabs({
+const DashboardTabs: React.FC<DashboardTabsProps> = ({
   activeTab,
   onTabChange,
-  tabContents,
-  hideTabsNav = false
-}: DashboardTabsProps) {
-  const isMobile = useIsMobile();
+  tabContents
+}) => {
+  const availableTabs = tabContents ? Object.keys(tabContents) : [];
   
-  // Updated main navigation tabs with more focused menu items
   const tabs = [
-    { id: "overview", label: "Overview", icon: <LayoutDashboard size={16} /> },
-    { id: "today", label: "Today's Plan", icon: <CalendarDays size={16} /> },
-    { id: "academic", label: "Academic Advisor", icon: <GraduationCap size={16} /> },
-    { id: "concepts", label: "Concept Cards", icon: <BookOpen size={16} /> },
-    { id: "flashcards", label: "Flashcards", icon: <Brain size={16} /> },
-    { id: "practice-exam", label: "Practice Exams", icon: <FileText size={16} /> },
-    { id: "notifications", label: "Notifications", icon: <Bell size={16} /> }
+    {
+      id: "overview",
+      label: "Overview",
+      icon: <LayoutDashboard className="h-4 w-4" />
+    },
+    {
+      id: "weekly-plan",
+      label: "Weekly Plan",
+      icon: <Calendar className="h-4 w-4" />
+    },
+    {
+      id: "todays-plan",
+      label: "Today's Plan",
+      icon: <ListTodo className="h-4 w-4" />
+    },
+    {
+      id: "subjects",
+      label: "Subjects",
+      icon: <BookOpen className="h-4 w-4" />
+    },
+    {
+      id: "concepts",
+      label: "Concept Cards",
+      icon: <FileText className="h-4 w-4" />
+    },
+    {
+      id: "flashcards",
+      label: "Flashcards",
+      icon: <List className="h-4 w-4" />
+    },
+    {
+      id: "quizzes",
+      label: "Quizzes",
+      icon: <GraduationCap className="h-4 w-4" />
+    },
+    {
+      id: "community",
+      label: "Community",
+      icon: <Users className="h-4 w-4" />
+    },
+    {
+      id: "progress",
+      label: "Progress",
+      icon: <LineChart className="h-4 w-4" />
+    },
+    {
+      id: "settings",
+      label: "Settings",
+      icon: <Settings className="h-4 w-4" />
+    }
   ];
 
-  // Animation variants
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.05,
-        delayChildren: 0.1
-      }
-    }
-  };
+  // Filter tabs based on available content
+  const visibleTabs = availableTabs.length > 0
+    ? tabs.filter(tab => availableTabs.includes(tab.id))
+    : tabs;
 
-  const itemVariants = {
-    hidden: { opacity: 0, y: 10 },
-    visible: { 
-      opacity: 1, 
-      y: 0,
-      transition: {
-        type: "spring",
-        stiffness: 500,
-        damping: 25
-      }
-    }
+  const handleTabChange = (value: string) => {
+    onTabChange(value);
   };
 
   return (
-    <Tabs value={activeTab} onValueChange={onTabChange} className="space-y-4 sm:space-y-6">
-      {!hideTabsNav && (
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-          className="mb-2"
-        >
-          <TabsList className="p-1.5 rounded-xl bg-gradient-to-r from-indigo-50/80 via-purple-50/80 to-pink-50/80 dark:from-indigo-900/20 dark:via-purple-900/20 dark:to-pink-900/20 border border-indigo-100/50 dark:border-indigo-800/30 flex items-center justify-between overflow-x-auto max-w-full shadow-sm">
-            {tabs.map(tab => (
-              <motion.div key={tab.id} variants={itemVariants} className="flex-shrink-0">
-                <TabsTrigger 
-                  value={tab.id} 
-                  className="rounded-lg flex items-center gap-2 py-2.5 px-4 transition-all duration-300 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800 data-[state=active]:text-indigo-600 dark:data-[state=active]:text-indigo-400 data-[state=active]:shadow-sm"
-                >
-                  {tab.icon}
-                  <span className={isMobile ? "hidden sm:inline text-xs" : ""}>{tab.label}</span>
-                </TabsTrigger>
-              </motion.div>
-            ))}
-          </TabsList>
-        </motion.div>
-      )}
-    </Tabs>
+    <div className="w-full overflow-auto">
+      <Tabs
+        defaultValue="overview"
+        value={activeTab}
+        onValueChange={handleTabChange}
+        className="w-full"
+      >
+        <TabsList className="bg-gray-100/70 dark:bg-gray-800/70 h-12 w-full overflow-x-auto grid grid-flow-col auto-cols-max gap-2 pb-px overflow-y-hidden justify-start">
+          {visibleTabs.map((tab) => (
+            <TabsTrigger
+              key={tab.id}
+              value={tab.id}
+              className="flex items-center gap-2 h-9 data-[state=active]:bg-white data-[state=active]:dark:bg-gray-700"
+            >
+              {tab.icon}
+              {tab.label}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+      </Tabs>
+    </div>
   );
-}
+};
+
+export default DashboardTabs;

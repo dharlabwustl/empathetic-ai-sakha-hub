@@ -1,24 +1,24 @@
 
-import React from "react";
-import RoleStep from "@/components/signup/steps/RoleStep";
-import DemographicsStep from "@/components/signup/steps/DemographicsStep";
-import GoalStep from "@/components/signup/steps/GoalStep";
+import React, { useState } from "react";
+import RoleSelection from "@/components/signup/steps/RoleSelection";
+import GoalSelection from "@/components/signup/steps/GoalSelection";
+import DemographicsForm from "@/components/signup/steps/DemographicsForm";
 import PersonalityStep from "@/components/signup/steps/PersonalityStep";
-import SentimentStep from "@/components/signup/steps/SentimentStep";
-import HabitsStep from "@/components/signup/steps/HabitsStep";
-import InterestsStep from "@/components/signup/steps/InterestsStep";
-import SignupStep from "@/components/signup/steps/SignupStep";
+import MoodSelection from "@/components/signup/steps/MoodSelection";
+import HabitsForm from "@/components/signup/steps/HabitsForm";
+import SignupForm from "@/components/signup/steps/SignupForm";
 import { OnboardingStep, UserRole } from "./OnboardingContext";
-import { PersonalityType, MoodType } from "@/types/user/base";
+import SubjectSelectionStep from "./steps/SubjectSelectionStep";
+import { MoodType, PersonalityType } from "@/types/user/base";
 
 interface StepRendererProps {
   step: OnboardingStep;
   onboardingData: any;
   handlers: {
     handleRoleSelect: (role: UserRole) => void;
-    handleDemographicsSubmit: (data: Record<string, string>) => void;
     handleGoalSelect: (goal: string) => void;
-    handlePersonalitySelect: (personality: PersonalityType) => void;
+    handleDemographicsSubmit: (data: Record<string, string>) => void;
+    handlePersonalitySelect: (personality: string) => void;
     handleMoodSelect: (mood: MoodType) => void;
     handleHabitsSubmit: (habits: Record<string, string>) => void;
     handleInterestsSubmit: (interests: string) => void;
@@ -27,50 +27,64 @@ interface StepRendererProps {
   isLoading: boolean;
 }
 
-const StepRenderer: React.FC<StepRendererProps> = ({ 
-  step, 
-  onboardingData, 
+const StepRenderer: React.FC<StepRendererProps> = ({
+  step,
+  onboardingData,
   handlers,
   isLoading
 }) => {
   switch (step) {
     case "role":
-      return <RoleStep onRoleSelect={handlers.handleRoleSelect} />;
+      return <RoleSelection onSelect={handlers.handleRoleSelect} />;
     case "goal":
-      return <GoalStep 
-        role={onboardingData.role} 
-        onGoalSelect={handlers.handleGoalSelect} 
-      />;
+      return <GoalSelection onSelect={handlers.handleGoalSelect} selectedRole={onboardingData.role} />;
     case "demographics":
-      return <DemographicsStep 
-        role={onboardingData.role}
-        goal={onboardingData.goal}
-        onSubmit={handlers.handleDemographicsSubmit} 
-      />;
+      return (
+        <DemographicsForm
+          onSubmit={handlers.handleDemographicsSubmit}
+          role={onboardingData.role}
+          goal={onboardingData.goal}
+          isLoading={isLoading}
+        />
+      );
     case "personality":
-      return <PersonalityStep 
-        onPersonalitySelect={handlers.handlePersonalitySelect} 
-      />;
+      return (
+        <PersonalityStep
+          onSelect={handlers.handlePersonalitySelect}
+          isLoading={isLoading}
+        />
+      );
     case "sentiment":
-      return <SentimentStep 
-        onMoodSelect={handlers.handleMoodSelect} 
-      />;
+      return (
+        <MoodSelection
+          onSelect={handlers.handleMoodSelect}
+          isLoading={isLoading}
+        />
+      );
     case "habits":
-      return <HabitsStep 
-        onSubmit={handlers.handleHabitsSubmit} 
-      />;
+      return (
+        <HabitsForm
+          onSubmit={handlers.handleHabitsSubmit}
+          isLoading={isLoading}
+        />
+      );
     case "interests":
-      return <InterestsStep 
-        examGoal={onboardingData.goal}
-        onSubmit={handlers.handleInterestsSubmit} 
-      />;
+      return (
+        <SubjectSelectionStep
+          examGoal={onboardingData.goal}
+          onSubmit={handlers.handleInterestsSubmit}
+          isLoading={isLoading}
+        />
+      );
     case "signup":
-      return <SignupStep 
-        onSubmit={handlers.handleSignupSubmit} 
-        isLoading={isLoading} 
-      />;
+      return (
+        <SignupForm
+          onSubmit={handlers.handleSignupSubmit}
+          isLoading={isLoading}
+        />
+      );
     default:
-      return null;
+      return <div>Unknown step</div>;
   }
 };
 

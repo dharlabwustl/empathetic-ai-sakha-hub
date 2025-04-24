@@ -6,6 +6,7 @@ import DashboardLoading from "@/pages/dashboard/student/DashboardLoading";
 import DashboardLayout from "@/pages/dashboard/student/DashboardLayout";
 import SplashScreen from "@/components/dashboard/student/SplashScreen";
 import { useLocation } from "react-router-dom";
+import ReturnUserWelcome from "@/components/dashboard/student/ReturnUserWelcome";
 
 const StudentDashboard = () => {
   const [showSplash, setShowSplash] = useState(true);
@@ -107,27 +108,37 @@ const StudentDashboard = () => {
   }
 
   return (
-    <DashboardLayout
-      userProfile={userProfile}
-      hideSidebar={hideSidebar}
-      hideTabsNav={hideTabsNav}
-      activeTab={activeTab}
-      kpis={kpis}
-      nudges={nudges}
-      markNudgeAsRead={markNudgeAsRead}
-      showWelcomeTour={showWelcomeTour}
-      onTabChange={handleTabChange}
-      onViewStudyPlan={handleViewStudyPlan}
-      onToggleSidebar={toggleSidebar}
-      onToggleTabsNav={toggleTabsNav}
-      onSkipTour={handleSkipTour}
-      onCompleteTour={handleCompleteTour}
-      showStudyPlan={showStudyPlan}
-      onCloseStudyPlan={handleCloseStudyPlan}
-      lastActivity={lastActivity}
-      suggestedNextAction={suggestedNextAction}
-      currentMood={currentMood}
-    />
+    <>
+      <DashboardLayout
+        userProfile={userProfile}
+        hideSidebar={hideSidebar}
+        hideTabsNav={hideTabsNav}
+        activeTab={activeTab}
+        kpis={kpis}
+        nudges={nudges}
+        markNudgeAsRead={markNudgeAsRead}
+        showWelcomeTour={showWelcomeTour}
+        onTabChange={handleTabChange}
+        onViewStudyPlan={handleViewStudyPlan}
+        onToggleSidebar={toggleSidebar}
+        onToggleTabsNav={toggleTabsNav}
+        onSkipTour={handleSkipTour}
+        onCompleteTour={handleCompleteTour}
+        showStudyPlan={showStudyPlan}
+        onCloseStudyPlan={handleCloseStudyPlan}
+        lastActivity={lastActivity}
+        suggestedNextAction={suggestedNextAction}
+        currentMood={currentMood}
+      />
+      
+      {/* Welcome back dialog for returning users */}
+      {userProfile.loginCount && userProfile.loginCount > 1 && (
+        <ReturnUserWelcome 
+          userName={userProfile.name}
+          lastActivity={lastActivity}
+        />
+      )}
+    </>
   );
 };
 

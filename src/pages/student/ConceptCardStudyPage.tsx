@@ -1,439 +1,390 @@
 
-import React, { useState, useEffect } from "react";
-import MainLayout from "@/components/layouts/MainLayout";
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { useNavigate } from "react-router-dom";
-import { Search, Filter, BookOpen, ArrowLeft, Check, Plus, ChevronRight, BookMarked } from "lucide-react";
-import { motion } from "framer-motion";
+import MainLayout from "@/components/layouts/MainLayout";
+import ConceptCardFilter, { ConceptCardFilters } from "@/components/dashboard/student/concept-cards/ConceptCardFilter";
+import { ArrowLeft, BookOpen, CheckCircle, Clock } from "lucide-react";
+import { Link, useParams } from "react-router-dom";
+import { useUserProfile } from "@/hooks/useUserProfile";
+import { UserRole } from "@/types/user/base";
+import { getSubjectsForGoal } from "@/components/dashboard/student/onboarding/SubjectData";
 
-interface ConceptCard {
-  id: string;
-  title: string;
-  subject: string;
-  chapter: string;
-  difficulty: 'easy' | 'medium' | 'hard';
-  status: 'not-started' | 'in-progress' | 'completed';
-  dueDate?: string;
-  tags: string[];
-  isNew?: boolean;
-  priority?: 'high' | 'medium' | 'low';
-  completedAt?: string;
-  estimatedTime?: number; // in minutes
-}
+// Mock concept card data
+const mockConceptCards = [
+  {
+    id: "cc1",
+    title: "Newton's First Law of Motion",
+    subject: "Physics",
+    chapter: "Laws of Motion",
+    difficulty: "medium",
+    estimatedTime: 10,
+    completed: true,
+    completedAt: new Date(new Date().setHours(new Date().getHours() - 25)),
+    content: "An object at rest stays at rest, and an object in motion stays in motion unless acted upon by an external force.",
+    createdAt: new Date(new Date().setDate(new Date().getDate() - 8))
+  },
+  {
+    id: "cc2",
+    title: "Newton's Second Law of Motion",
+    subject: "Physics",
+    chapter: "Laws of Motion",
+    difficulty: "medium",
+    estimatedTime: 15,
+    completed: true,
+    completedAt: new Date(new Date().setHours(new Date().getHours() - 2)),
+    content: "Force equals mass times acceleration (F = ma).",
+    createdAt: new Date(new Date().setDate(new Date().getDate() - 7))
+  },
+  {
+    id: "cc3",
+    title: "Newton's Third Law of Motion",
+    subject: "Physics",
+    chapter: "Laws of Motion",
+    difficulty: "hard",
+    estimatedTime: 20,
+    completed: false,
+    content: "For every action, there is an equal and opposite reaction.",
+    createdAt: new Date(new Date().setDate(new Date().getDate() - 6))
+  },
+  {
+    id: "cc4",
+    title: "Chemical Bonding",
+    subject: "Chemistry",
+    chapter: "Chemical Bonds",
+    difficulty: "medium",
+    estimatedTime: 15,
+    completed: true,
+    completedAt: new Date(new Date().setHours(new Date().getHours() - 26)),
+    content: "Chemical bonding is the attraction between atoms or ions that holds them together in a molecule or crystal.",
+    createdAt: new Date(new Date().setDate(new Date().getDate() - 5))
+  },
+  {
+    id: "cc5",
+    title: "Periodic Table",
+    subject: "Chemistry",
+    chapter: "Elements",
+    difficulty: "easy",
+    estimatedTime: 10,
+    completed: false,
+    content: "The periodic table is a tabular arrangement of the chemical elements, organized based on their atomic number.",
+    createdAt: new Date(new Date().setDate(new Date().getDate() - 4))
+  },
+  {
+    id: "cc6",
+    title: "Integration Techniques",
+    subject: "Mathematics",
+    chapter: "Calculus",
+    difficulty: "hard",
+    estimatedTime: 25,
+    completed: false,
+    content: "Different techniques for solving integrals: substitution, integration by parts, partial fractions.",
+    createdAt: new Date(new Date().setDate(new Date().getDate() - 3))
+  },
+  {
+    id: "cc7",
+    title: "Photosynthesis",
+    subject: "Biology",
+    chapter: "Plant Physiology",
+    difficulty: "medium",
+    estimatedTime: 15,
+    completed: true,
+    completedAt: new Date(new Date().setDate(new Date().getDate() - 1)),
+    content: "Photosynthesis is the process used by plants to convert light energy into chemical energy.",
+    createdAt: new Date(new Date().setDate(new Date().getDate() - 2))
+  },
+  {
+    id: "cc8",
+    title: "Cell Structure",
+    subject: "Biology",
+    chapter: "Cell Biology",
+    difficulty: "easy",
+    estimatedTime: 15,
+    completed: false,
+    content: "Cells are the basic structural and functional units of all living organisms.",
+    createdAt: new Date(new Date().setDate(new Date().getDate() - 1))
+  }
+];
 
-const ConceptCardStudyPage: React.FC = () => {
-  const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState("today");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [filterSubject, setFilterSubject] = useState<string>("");
-  const [filterDifficulty, setFilterDifficulty] = useState<string>("");
+const ConceptCardStudyPage = () => {
+  const { cardId } = useParams<{ cardId?: string }>();
+  const [activeCard, setActiveCard] = useState<typeof mockConceptCards[0] | null>(null);
+  const [filteredCards, setFilteredCards] = useState(mockConceptCards);
+  const [filters, setFilters] = useState<ConceptCardFilters>({
+    timeFrame: 'today',
+    difficulty: [],
+    subjects: [],
+    completed: null
+  });
+  const { userProfile } = useUserProfile(UserRole.Student);
   
-  // Mock data for concept cards
-  const [conceptCards, setConceptCards] = useState<ConceptCard[]>([
-    {
-      id: "card-1",
-      title: "Newton's Laws of Motion",
-      subject: "Physics",
-      chapter: "Classical Mechanics",
-      difficulty: "medium",
-      status: "not-started",
-      dueDate: "2025-04-24",
-      tags: ["mechanics", "forces", "motion"],
-      isNew: true,
-      priority: "high",
-      estimatedTime: 30
-    },
-    {
-      id: "card-2",
-      title: "Periodic Table Elements",
-      subject: "Chemistry",
-      chapter: "Chemical Elements",
-      difficulty: "medium",
-      status: "in-progress",
-      dueDate: "2025-04-25",
-      tags: ["elements", "periodic table", "classification"],
-      priority: "medium",
-      estimatedTime: 25
-    },
-    {
-      id: "card-3",
-      title: "Cell Structure and Function",
-      subject: "Biology",
-      chapter: "Cell Biology",
-      difficulty: "easy",
-      status: "completed",
-      dueDate: "2025-04-23",
-      completedAt: "2025-04-22",
-      tags: ["cells", "organelles", "cytology"],
-      priority: "medium",
-      estimatedTime: 20
-    },
-    {
-      id: "card-4",
-      title: "Quadratic Equations",
-      subject: "Mathematics",
-      chapter: "Algebra",
-      difficulty: "hard",
-      status: "not-started",
-      dueDate: "2025-04-26",
-      tags: ["algebra", "equations", "functions"],
-      priority: "high",
-      estimatedTime: 45
-    },
-    {
-      id: "card-5",
-      title: "Electromagnetic Induction",
-      subject: "Physics",
-      chapter: "Electromagnetism",
-      difficulty: "hard",
-      status: "not-started",
-      dueDate: "2025-04-27",
-      tags: ["electricity", "magnetism", "induction"],
-      priority: "medium",
-      estimatedTime: 40
+  const availableSubjects = userProfile?.goals?.[0]?.title 
+    ? getSubjectsForGoal(userProfile.goals[0].title)
+    : ["Physics", "Chemistry", "Mathematics", "Biology"];
+
+  useEffect(() => {
+    // When cardId changes, find the card
+    if (cardId) {
+      const card = mockConceptCards.find(card => card.id === cardId);
+      if (card) {
+        setActiveCard(card);
+        
+        // Save last viewed card to local storage for returning users
+        const userData = localStorage.getItem("userData");
+        if (userData) {
+          const parsedData = JSON.parse(userData);
+          parsedData.lastActivity = {
+            type: "concept_card",
+            description: `Viewed ${card.title}`,
+            id: card.id,
+            timestamp: new Date().toISOString()
+          };
+          localStorage.setItem("userData", JSON.stringify(parsedData));
+        }
+      }
+    } else {
+      setActiveCard(null);
     }
-  ]);
+  }, [cardId]);
   
-  // Filter cards based on active tab, search query, and filters
-  const filteredCards = conceptCards.filter(card => {
-    // Filter by tab
-    if (activeTab === "today" && new Date(card.dueDate!) > new Date()) {
-      return false;
-    }
-    if (activeTab === "week" && new Date(card.dueDate!) > new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)) {
-      return false;
-    }
-    if (activeTab === "completed" && card.status !== "completed") {
-      return false;
-    }
+  useEffect(() => {
+    // Apply filters to concept cards
+    let filtered = [...mockConceptCards];
     
-    // Filter by search
-    if (searchQuery && !card.title.toLowerCase().includes(searchQuery.toLowerCase()) &&
-        !card.subject.toLowerCase().includes(searchQuery.toLowerCase()) &&
-        !card.chapter.toLowerCase().includes(searchQuery.toLowerCase()) &&
-        !card.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))) {
-      return false;
-    }
-    
-    // Filter by subject
-    if (filterSubject && card.subject !== filterSubject) {
-      return false;
+    // Filter by time frame
+    if (filters.timeFrame !== 'all') {
+      const now = new Date();
+      let cutoffDate = new Date();
+      
+      switch (filters.timeFrame) {
+        case 'today':
+          cutoffDate.setHours(0, 0, 0, 0);
+          break;
+        case 'week':
+          cutoffDate.setDate(now.getDate() - 7);
+          break;
+        case 'month':
+          cutoffDate.setMonth(now.getMonth() - 1);
+          break;
+      }
+      
+      filtered = filtered.filter(card => card.createdAt >= cutoffDate);
     }
     
     // Filter by difficulty
-    if (filterDifficulty && card.difficulty !== filterDifficulty) {
-      return false;
+    if (filters.difficulty.length > 0) {
+      filtered = filtered.filter(card => filters.difficulty.includes(card.difficulty));
     }
     
-    return true;
-  });
+    // Filter by subject
+    if (filters.subjects.length > 0) {
+      filtered = filtered.filter(card => filters.subjects.includes(card.subject));
+    }
+    
+    // Filter by completion status
+    if (filters.completed !== null) {
+      filtered = filtered.filter(card => card.completed === filters.completed);
+    }
+    
+    setFilteredCards(filtered);
+  }, [filters]);
   
-  // Get unique subjects for filter
-  const subjects = Array.from(new Set(conceptCards.map(card => card.subject)));
-  
-  const handleCardClick = (cardId: string) => {
-    navigate(`/study/concept-card/${cardId}`);
+  const handleFilterChange = (newFilters: ConceptCardFilters) => {
+    setFilters(newFilters);
   };
   
-  const handleMarkCompleted = (e: React.MouseEvent, cardId: string) => {
-    e.stopPropagation();
-    setConceptCards(prevCards => 
-      prevCards.map(card => 
-        card.id === cardId 
-          ? { ...card, status: "completed", completedAt: new Date().toISOString() } 
-          : card
-      )
+  const handleMarkComplete = (id: string) => {
+    // In a real app, this would update the server
+    // For now, we'll just update our local state
+    const updatedCards = mockConceptCards.map(card => 
+      card.id === id ? { ...card, completed: true, completedAt: new Date() } : card
     );
-  };
-  
-  const handleBack = () => {
-    navigate(-1);
+    
+    // Update filtered cards
+    const updatedFilteredCards = filteredCards.map(card => 
+      card.id === id ? { ...card, completed: true, completedAt: new Date() } : card
+    );
+    
+    setFilteredCards(updatedFilteredCards);
   };
   
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
-      case 'easy': return 'bg-green-100 text-green-800 border-green-200';
-      case 'medium': return 'bg-amber-100 text-amber-800 border-amber-200';
-      case 'hard': return 'bg-red-100 text-red-800 border-red-200';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+      case 'easy':
+        return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300';
+      case 'medium':
+        return 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300';
+      case 'hard':
+        return 'bg-rose-100 text-rose-800 dark:bg-rose-900/30 dark:text-rose-300';
+      default:
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300';
     }
   };
   
-  const getPriorityColor = (priority: string | undefined) => {
-    switch (priority) {
-      case 'high': return 'bg-red-100 text-red-800 border-red-200';
-      case 'medium': return 'bg-amber-100 text-amber-800 border-amber-200';
-      case 'low': return 'bg-blue-100 text-blue-800 border-blue-200';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200';
-    }
-  };
+  // Show detailed view if a card is selected
+  if (activeCard) {
+    return (
+      <MainLayout>
+        <div className="container max-w-5xl py-8">
+          <div className="flex items-center mb-6">
+            <Link to="/study/concept-card">
+              <Button variant="ghost" size="sm" className="flex items-center gap-2">
+                <ArrowLeft className="h-4 w-4" /> Back to Concept Cards
+              </Button>
+            </Link>
+          </div>
+          
+          <Card className="shadow-lg">
+            <CardContent className="p-6">
+              <div className="flex flex-wrap items-start justify-between gap-4 mb-6">
+                <div>
+                  <h1 className="text-2xl font-bold">{activeCard.title}</h1>
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    <Badge variant="outline" className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+                      {activeCard.subject}
+                    </Badge>
+                    <Badge variant="outline" className="bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">
+                      {activeCard.chapter}
+                    </Badge>
+                    <Badge variant="outline" className={getDifficultyColor(activeCard.difficulty)}>
+                      {activeCard.difficulty.charAt(0).toUpperCase() + activeCard.difficulty.slice(1)} Difficulty
+                    </Badge>
+                    <Badge variant="outline" className="flex items-center gap-1">
+                      <Clock className="h-3 w-3" />
+                      {activeCard.estimatedTime} min
+                    </Badge>
+                  </div>
+                </div>
+                
+                <div>
+                  {activeCard.completed ? (
+                    <Badge variant="outline" className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 flex items-center gap-1">
+                      <CheckCircle className="h-3 w-3" />
+                      Completed {activeCard.completedAt && `on ${activeCard.completedAt.toLocaleDateString()}`}
+                    </Badge>
+                  ) : (
+                    <Button onClick={() => handleMarkComplete(activeCard.id)}>
+                      Mark as Complete
+                    </Button>
+                  )}
+                </div>
+              </div>
+              
+              <div className="prose dark:prose-invert max-w-none">
+                <h2>Concept Overview</h2>
+                <p className="text-lg">{activeCard.content}</p>
+                
+                {/* In a real app, this would be more detailed concept content */}
+                <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-md my-6">
+                  <h3>Key Points</h3>
+                  <ul>
+                    <li>This is a key point about the concept</li>
+                    <li>This is another important aspect to understand</li>
+                    <li>Remember this crucial information for tests</li>
+                  </ul>
+                </div>
+                
+                <h3>Examples</h3>
+                <p>
+                  Here would be examples of the concept in action. In a real application,
+                  this would include diagrams, formulas, and interactive elements.
+                </p>
+                
+                <h3>Practice Questions</h3>
+                <div className="space-y-4">
+                  <div className="bg-white dark:bg-gray-800 p-4 border border-gray-200 dark:border-gray-700 rounded-md">
+                    <p className="font-medium">Question 1:</p>
+                    <p>A sample question about {activeCard.title} would appear here.</p>
+                  </div>
+                  
+                  <div className="bg-white dark:bg-gray-800 p-4 border border-gray-200 dark:border-gray-700 rounded-md">
+                    <p className="font-medium">Question 2:</p>
+                    <p>Another question to test understanding of the concept.</p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </MainLayout>
+    );
+  }
   
+  // Show card list
   return (
     <MainLayout>
       <div className="container py-8">
         <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" onClick={handleBack} className="p-2">
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-            <h1 className="text-2xl font-bold">Concept Cards</h1>
+          <div>
+            <h1 className="text-2xl font-bold flex items-center gap-2">
+              <BookOpen className="text-indigo-500" /> Concept Cards
+            </h1>
+            <p className="text-muted-foreground">
+              Master key concepts through detailed explanations
+            </p>
           </div>
           
-          <Button className="bg-gradient-to-r from-purple-600 to-indigo-600" onClick={() => navigate("/study/concept-card/create")}>
-            <Plus className="mr-2 h-4 w-4" />
-            Create Card
-          </Button>
+          <Link to="/dashboard/student">
+            <Button variant="outline" size="sm" className="flex items-center gap-2">
+              <ArrowLeft className="h-4 w-4" /> Back to Dashboard
+            </Button>
+          </Link>
         </div>
         
-        <div className="mb-6">
-          <Tabs defaultValue="today" value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid grid-cols-3 mb-6">
-              <TabsTrigger value="today">Today's Plan</TabsTrigger>
-              <TabsTrigger value="week">Weekly Plan</TabsTrigger>
-              <TabsTrigger value="completed">Completed</TabsTrigger>
-            </TabsList>
-            
-            <div className="flex flex-col md:flex-row gap-4 mb-6">
-              <div className="flex-1 relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search by title, subject, or tag"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-9"
-                />
-              </div>
-              
-              <div className="flex gap-2">
-                <Select value={filterSubject} onValueChange={setFilterSubject}>
-                  <SelectTrigger className="w-[180px]">
-                    <div className="flex items-center gap-2">
-                      <Filter className="h-4 w-4 text-muted-foreground" />
-                      <span>{filterSubject || "Filter Subject"}</span>
+        <ConceptCardFilter 
+          onFilterChange={handleFilterChange} 
+          subjects={availableSubjects} 
+          className="mb-6"
+        />
+        
+        {filteredCards.length === 0 ? (
+          <div className="text-center py-12 bg-gray-50 dark:bg-gray-800 rounded-lg">
+            <BookOpen className="h-12 w-12 text-gray-400 mx-auto" />
+            <h2 className="mt-4 text-xl font-medium">No concept cards match your filters</h2>
+            <p className="mt-2 text-muted-foreground">Try adjusting your filters to see more cards</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredCards.map(card => (
+              <Link key={card.id} to={`/study/concept-card/${card.id}`}>
+                <Card className="h-full hover:shadow-md transition-shadow cursor-pointer">
+                  <CardContent className="p-5">
+                    <div className="flex justify-between items-start">
+                      <h2 className="font-semibold text-lg">{card.title}</h2>
+                      {card.completed && <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />}
                     </div>
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="">All Subjects</SelectItem>
-                    {subjects.map((subject) => (
-                      <SelectItem key={subject} value={subject}>
-                        {subject}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                
-                <Select value={filterDifficulty} onValueChange={setFilterDifficulty}>
-                  <SelectTrigger className="w-[180px]">
-                    <div className="flex items-center gap-2">
-                      <Filter className="h-4 w-4 text-muted-foreground" />
-                      <span>{filterDifficulty || "Filter Difficulty"}</span>
+                    
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      <Badge variant="secondary" className="bg-blue-100 text-blue-800 dark:bg-blue-800/20 dark:text-blue-300">
+                        {card.subject}
+                      </Badge>
+                      <Badge variant="outline" className={getDifficultyColor(card.difficulty)}>
+                        {card.difficulty.charAt(0).toUpperCase() + card.difficulty.slice(1)}
+                      </Badge>
                     </div>
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="">All Difficulty</SelectItem>
-                    <SelectItem value="easy">Easy</SelectItem>
-                    <SelectItem value="medium">Medium</SelectItem>
-                    <SelectItem value="hard">Hard</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            
-            <TabsContent value="today" className="mt-0">
-              <div className="space-y-4">
-                {filteredCards.length > 0 ? (
-                  filteredCards.map((card) => (
-                    <ConceptCardItem
-                      key={card.id}
-                      card={card}
-                      onClick={() => handleCardClick(card.id)}
-                      onMarkCompleted={(e) => handleMarkCompleted(e, card.id)}
-                      getDifficultyColor={getDifficultyColor}
-                      getPriorityColor={getPriorityColor}
-                    />
-                  ))
-                ) : (
-                  <EmptyState
-                    title="No cards for today"
-                    description="You have no concept cards scheduled for today. Add new cards or check your weekly plan."
-                  />
-                )}
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="week" className="mt-0">
-              <div className="space-y-4">
-                {filteredCards.length > 0 ? (
-                  filteredCards.map((card) => (
-                    <ConceptCardItem
-                      key={card.id}
-                      card={card}
-                      onClick={() => handleCardClick(card.id)}
-                      onMarkCompleted={(e) => handleMarkCompleted(e, card.id)}
-                      getDifficultyColor={getDifficultyColor}
-                      getPriorityColor={getPriorityColor}
-                    />
-                  ))
-                ) : (
-                  <EmptyState
-                    title="No weekly cards"
-                    description="You have no concept cards scheduled for this week. Create new cards to add to your study plan."
-                  />
-                )}
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="completed" className="mt-0">
-              <div className="space-y-4">
-                {filteredCards.length > 0 ? (
-                  filteredCards.map((card) => (
-                    <ConceptCardItem
-                      key={card.id}
-                      card={card}
-                      onClick={() => handleCardClick(card.id)}
-                      onMarkCompleted={(e) => handleMarkCompleted(e, card.id)}
-                      getDifficultyColor={getDifficultyColor}
-                      getPriorityColor={getPriorityColor}
-                    />
-                  ))
-                ) : (
-                  <EmptyState
-                    title="No completed cards"
-                    description="You haven't completed any concept cards yet. Keep studying to build your knowledge base."
-                  />
-                )}
-              </div>
-            </TabsContent>
-          </Tabs>
-        </div>
+                    
+                    <p className="text-muted-foreground text-sm mt-3 line-clamp-3">
+                      {card.content}
+                    </p>
+                    
+                    <div className="flex justify-between items-center mt-4">
+                      <Badge variant="outline" className="flex items-center gap-1">
+                        <Clock className="h-3 w-3" /> {card.estimatedTime} min
+                      </Badge>
+                      
+                      <Button size="sm" variant="ghost">
+                        {card.completed ? "Review" : "Study"} Card
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+            ))}
+          </div>
+        )}
       </div>
     </MainLayout>
-  );
-};
-
-interface ConceptCardItemProps {
-  card: ConceptCard;
-  onClick: () => void;
-  onMarkCompleted: (e: React.MouseEvent) => void;
-  getDifficultyColor: (difficulty: string) => string;
-  getPriorityColor: (priority: string | undefined) => string;
-}
-
-const ConceptCardItem: React.FC<ConceptCardItemProps> = ({
-  card,
-  onClick,
-  onMarkCompleted,
-  getDifficultyColor,
-  getPriorityColor
-}) => {
-  return (
-    <motion.div
-      whileHover={{ y: -2, boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}
-      transition={{ duration: 0.2 }}
-      onClick={onClick}
-      className="cursor-pointer"
-    >
-      <Card className="border-gray-200 hover:border-indigo-300">
-        <CardContent className="p-4">
-          <div className="flex items-start justify-between">
-            <div className="space-y-1.5">
-              <div className="flex items-center gap-2">
-                <BookMarked className="h-5 w-5 text-indigo-500" />
-                <h3 className="font-medium">{card.title}</h3>
-                {card.isNew && (
-                  <Badge variant="outline" className="bg-blue-100 text-blue-800 border-blue-200 text-[10px] px-1.5 py-0">
-                    NEW
-                  </Badge>
-                )}
-              </div>
-              
-              <div className="text-sm text-muted-foreground">
-                {card.subject} • {card.chapter}
-              </div>
-              
-              <div className="flex flex-wrap gap-2 mt-2">
-                <Badge variant="outline" className={getDifficultyColor(card.difficulty)}>
-                  {card.difficulty.charAt(0).toUpperCase() + card.difficulty.slice(1)}
-                </Badge>
-                
-                {card.priority && (
-                  <Badge variant="outline" className={getPriorityColor(card.priority)}>
-                    {card.priority.charAt(0).toUpperCase() + card.priority.slice(1)} Priority
-                  </Badge>
-                )}
-                
-                {card.tags.slice(0, 2).map((tag) => (
-                  <Badge key={tag} variant="outline" className="bg-gray-100 text-gray-800 border-gray-200">
-                    {tag}
-                  </Badge>
-                ))}
-                
-                {card.tags.length > 2 && (
-                  <Badge variant="outline" className="bg-gray-100 text-gray-800 border-gray-200">
-                    +{card.tags.length - 2} more
-                  </Badge>
-                )}
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-1 ml-4">
-              {card.status !== "completed" ? (
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="rounded-full p-1 h-8 w-8"
-                  onClick={onMarkCompleted}
-                >
-                  <Check className="h-4 w-4" />
-                  <span className="sr-only">Mark Completed</span>
-                </Button>
-              ) : (
-                <Badge className="bg-green-100 text-green-800 border-green-200">
-                  Completed
-                </Badge>
-              )}
-              
-              <ChevronRight className="h-5 w-5 text-muted-foreground ml-1" />
-            </div>
-          </div>
-          
-          <div className="flex items-center justify-between mt-4 text-sm text-muted-foreground">
-            <div className="flex items-center gap-1">
-              <BookOpen className="h-4 w-4" />
-              <span>Est. {card.estimatedTime} minutes</span>
-            </div>
-            
-            <div>
-              {card.status === "completed" ? (
-                <span>Completed on {new Date(card.completedAt!).toLocaleDateString()}</span>
-              ) : (
-                <span>Due by {new Date(card.dueDate!).toLocaleDateString()}</span>
-              )}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    </motion.div>
-  );
-};
-
-interface EmptyStateProps {
-  title: string;
-  description: string;
-}
-
-const EmptyState: React.FC<EmptyStateProps> = ({ title, description }) => {
-  return (
-    <div className="text-center py-10 bg-gray-50 rounded-lg border border-dashed border-gray-300">
-      <BookOpen className="h-12 w-12 text-gray-400 mx-auto" />
-      <h3 className="mt-4 text-lg font-medium text-gray-900">{title}</h3>
-      <p className="mt-2 text-sm text-gray-600 max-w-md mx-auto">{description}</p>
-    </div>
   );
 };
 

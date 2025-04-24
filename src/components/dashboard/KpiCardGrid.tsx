@@ -17,12 +17,7 @@ const KpiCardGrid: React.FC<KpiCardGridProps> = ({
       {kpis.map((kpi) => (
         <KpiCard
           key={kpi.id}
-          title={kpi.title}
-          value={kpi.value}
-          trend={kpi.trend}
-          icon={kpi.icon}
-          description={kpi.description}
-          color={kpi.color}
+          kpi={kpi}
         />
       ))}
     </div>
