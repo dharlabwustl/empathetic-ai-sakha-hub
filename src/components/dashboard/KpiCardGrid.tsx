@@ -17,7 +17,12 @@ const KpiCardGrid: React.FC<KpiCardGridProps> = ({
       {kpis.map((kpi) => (
         <KpiCard
           key={kpi.id}
-          kpi={kpi}
+          kpi={{
+            ...kpi,
+            label: kpi.title || "",
+            unit: "",
+            change: typeof kpi.value === 'object' ? kpi.value.trend : kpi.trend || 'neutral'
+          }}
         />
       ))}
     </div>

@@ -8,87 +8,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CalendarDays, CheckCircle, Circle, ArrowRight } from "lucide-react";
 import { formatDate } from "@/utils/dateUtils";
 
-// Mock data for weekly plan
-const mockWeeklyPlan = {
-  weekStartDate: new Date(),
-  weekEndDate: new Date(new Date().setDate(new Date().getDate() + 6)),
-  totalItems: 15,
-  completedItems: 7,
-  subjects: [
-    {
-      id: "s1",
-      name: "Physics",
-      topics: [
-        {
-          id: "t1",
-          name: "Newton's Laws of Motion",
-          type: "concept",
-          difficulty: "medium",
-          completed: true,
-          completedDate: new Date(new Date().setDate(new Date().getDate() - 1)),
-        },
-        {
-          id: "t2",
-          name: "Thermodynamics",
-          type: "concept",
-          difficulty: "hard",
-          completed: false,
-        },
-        {
-          id: "t3",
-          name: "Optics Quiz",
-          type: "quiz",
-          difficulty: "medium",
-          completed: false,
-        }
-      ]
-    },
-    {
-      id: "s2",
-      name: "Chemistry",
-      topics: [
-        {
-          id: "t4",
-          name: "Periodic Table",
-          type: "flashcard",
-          difficulty: "easy",
-          completed: true,
-          completedDate: new Date(new Date().setDate(new Date().getDate() - 2)),
-        },
-        {
-          id: "t5",
-          name: "Chemical Bonding",
-          type: "concept",
-          difficulty: "medium",
-          completed: true,
-          completedDate: new Date(new Date().setDate(new Date().getDate() - 1)),
-        }
-      ]
-    },
-    {
-      id: "s3",
-      name: "Mathematics",
-      topics: [
-        {
-          id: "t6",
-          name: "Calculus Fundamentals",
-          type: "concept",
-          difficulty: "hard",
-          completed: false,
-        },
-        {
-          id: "t7",
-          name: "Algebra Practice",
-          type: "quiz",
-          difficulty: "medium",
-          completed: true,
-          completedDate: new Date(),
-        }
-      ]
-    }
-  ]
-};
-
 // Type definitions
 type TopicType = "concept" | "flashcard" | "quiz" | "exam";
 type DifficultyType = "easy" | "medium" | "hard";
@@ -107,6 +26,87 @@ interface Subject {
   name: string;
   topics: Topic[];
 }
+
+// Mock data for weekly plan
+const mockWeeklyPlan = {
+  weekStartDate: new Date(),
+  weekEndDate: new Date(new Date().setDate(new Date().getDate() + 6)),
+  totalItems: 15,
+  completedItems: 7,
+  subjects: [
+    {
+      id: "s1",
+      name: "Physics",
+      topics: [
+        {
+          id: "t1",
+          name: "Newton's Laws of Motion",
+          type: "concept" as TopicType,
+          difficulty: "medium" as DifficultyType,
+          completed: true,
+          completedDate: new Date(new Date().setDate(new Date().getDate() - 1)),
+        },
+        {
+          id: "t2",
+          name: "Thermodynamics",
+          type: "concept" as TopicType,
+          difficulty: "hard" as DifficultyType,
+          completed: false,
+        },
+        {
+          id: "t3",
+          name: "Optics Quiz",
+          type: "quiz" as TopicType,
+          difficulty: "medium" as DifficultyType,
+          completed: false,
+        }
+      ]
+    },
+    {
+      id: "s2",
+      name: "Chemistry",
+      topics: [
+        {
+          id: "t4",
+          name: "Periodic Table",
+          type: "flashcard" as TopicType,
+          difficulty: "easy" as DifficultyType,
+          completed: true,
+          completedDate: new Date(new Date().setDate(new Date().getDate() - 2)),
+        },
+        {
+          id: "t5",
+          name: "Chemical Bonding",
+          type: "concept" as TopicType,
+          difficulty: "medium" as DifficultyType,
+          completed: true,
+          completedDate: new Date(new Date().setDate(new Date().getDate() - 1)),
+        }
+      ]
+    },
+    {
+      id: "s3",
+      name: "Mathematics",
+      topics: [
+        {
+          id: "t6",
+          name: "Calculus Fundamentals",
+          type: "concept" as TopicType,
+          difficulty: "hard" as DifficultyType,
+          completed: false,
+        },
+        {
+          id: "t7",
+          name: "Algebra Practice",
+          type: "quiz" as TopicType,
+          difficulty: "medium" as DifficultyType,
+          completed: true,
+          completedDate: new Date(),
+        }
+      ]
+    }
+  ]
+};
 
 interface WeeklyPlanProps {
   className?: string;

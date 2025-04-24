@@ -122,4 +122,31 @@ export interface KpiData {
   icon?: React.ReactNode;
   description?: string;
   color?: string;
+  label?: string; // For compatibility
+  unit?: string; // For compatibility
+  change?: "up" | "down" | "neutral"; // For compatibility
+}
+
+export type SubscriptionPlan = {
+  id: string;
+  name: string;
+  price: number;
+  interval: 'monthly' | 'yearly' | 'quarterly';
+  features: string[];
+  isPopular?: boolean;
+  type: SubscriptionType;
+};
+
+export interface NudgeData {
+  id: string;
+  title: string;
+  description: string;
+  type: "info" | "warning" | "success" | "error";
+  isRead: boolean;
+  createdAt: Date;
+  expiresAt?: Date;
+  priority: "low" | "medium" | "high";
+  action?: string;
+  actionLink?: string;
+  onAction?: () => void;
 }

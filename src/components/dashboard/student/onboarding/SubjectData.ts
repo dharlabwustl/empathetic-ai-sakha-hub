@@ -55,3 +55,16 @@ export const getWeakSubjects = (goal: string, examType: string | undefined): { n
     isWeak: false
   }));
 };
+
+// Add these exports for ContentUploader.tsx
+export const subjectsByGoal = {
+  "IIT-JEE": ["Physics", "Chemistry", "Mathematics"],
+  "NEET": ["Physics", "Chemistry", "Biology"],
+  "UPSC": ["History", "Geography", "Polity", "Economics", "General Studies"],
+  "Board Exams": ["Mathematics", "Physics", "Chemistry", "Biology", "English", "History", "Geography"],
+  "Banking": ["Mathematics", "Reasoning", "English", "General Awareness", "Computer Knowledge"],
+  "CAT": ["Quantitative Aptitude", "Verbal Ability", "Data Interpretation", "Logical Reasoning"],
+  "GATE": ["Engineering Mathematics", "General Aptitude", "Subject Specific"],
+};
+
+export const defaultSubjects = ["Mathematics", "Physics", "Chemistry", "Biology", "English"];
