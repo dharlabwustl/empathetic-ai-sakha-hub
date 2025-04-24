@@ -1,236 +1,187 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Calendar, Filter, CheckSquare } from 'lucide-react';
-
-export type TimeFrameType = "today" | "week" | "month" | "all";
-export type DifficultyType = "easy" | "medium" | "hard";
-
-export interface ConceptCardFilters {
-  timeFrame: TimeFrameType;
-  difficulty: DifficultyType[];
-  subjects: string[];
-  completed: boolean | null;
-}
+import { Badge } from "@/components/ui/badge";
+import { DateFilterType } from "@/types/user/base";
+import { BookOpen, Calendar, Filter } from 'lucide-react';
 
 interface ConceptCardFilterProps {
-  onFilterChange: (filters: ConceptCardFilters) => void;
   subjects: string[];
+  onFilterChange: (filters: {
+    dateFilter: DateFilterType;
+    subject: string;
+    difficulty: string;
+    completed: boolean | null;
+  }) => void;
   className?: string;
 }
 
-const ConceptCardFilter: React.FC<ConceptCardFilterProps> = ({ 
-  onFilterChange, 
+const ConceptCardFilter: React.FC<ConceptCardFilterProps> = ({
   subjects,
-  className = "" 
+  onFilterChange,
+  className = ""
 }) => {
-  const [filters, setFilters] = useState<ConceptCardFilters>({
-    timeFrame: "today",
-    difficulty: [],
-    subjects: [],
-    completed: null
-  });
+  const [dateFilter, setDateFilter] = useState<DateFilterType>("all");
+  const [subjectFilter, setSubjectFilter] = useState<string>("all");
+  const [difficultyFilter, setDifficultyFilter] = useState<string>("all");
+  const [completedFilter, setCompletedFilter] = useState<boolean | null>(null);
+  const [showFilters, setShowFilters] = useState(false);
   
-  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
-  
-  const handleTimeFrameChange = (value: string) => {
-    const newFilters = {
-      ...filters,
-      timeFrame: value as TimeFrameType
-    };
-    setFilters(newFilters);
-    onFilterChange(newFilters);
+  const handleDateFilterChange = (value: string) => {
+    const newDateFilter = value as DateFilterType;
+    setDateFilter(newDateFilter);
+    applyFilters(newDateFilter, subjectFilter, difficultyFilter, completedFilter);
   };
   
-  const handleDifficultyChange = (difficulty: DifficultyType, checked: boolean) => {
-    let newDifficulties = [...filters.difficulty];
-    
-    if (checked) {
-      newDifficulties.push(difficulty);
-    } else {
-      newDifficulties = newDifficulties.filter(d => d !== difficulty);
-    }
-    
-    const newFilters = {
-      ...filters,
-      difficulty: newDifficulties
-    };
-    
-    setFilters(newFilters);
-    onFilterChange(newFilters);
+  const handleSubjectFilterChange = (value: string) => {
+    setSubjectFilter(value);
+    applyFilters(dateFilter, value, difficultyFilter, completedFilter);
   };
   
-  const handleSubjectChange = (subject: string, checked: boolean) => {
-    let newSubjects = [...filters.subjects];
-    
-    if (checked) {
-      newSubjects.push(subject);
-    } else {
-      newSubjects = newSubjects.filter(s => s !== subject);
-    }
-    
-    const newFilters = {
-      ...filters,
-      subjects: newSubjects
-    };
-    
-    setFilters(newFilters);
-    onFilterChange(newFilters);
+  const handleDifficultyFilterChange = (value: string) => {
+    setDifficultyFilter(value);
+    applyFilters(dateFilter, subjectFilter, value, completedFilter);
   };
   
-  const handleCompletionChange = (status: boolean | null) => {
-    const newFilters = {
-      ...filters,
-      completed: status
-    };
-    
-    setFilters(newFilters);
-    onFilterChange(newFilters);
+  const handleCompletedFilterChange = (completed: boolean | null) => {
+    setCompletedFilter(completed);
+    applyFilters(dateFilter, subjectFilter, difficultyFilter, completed);
+  };
+  
+  const applyFilters = (
+    dateFilter: DateFilterType,
+    subject: string,
+    difficulty: string,
+    completed: boolean | null
+  ) => {
+    onFilterChange({
+      dateFilter,
+      subject,
+      difficulty,
+      completed
+    });
   };
   
   const resetFilters = () => {
-    const defaultFilters: ConceptCardFilters = {
-      timeFrame: "today",
-      difficulty: [],
-      subjects: [],
-      completed: null
-    };
-    
-    setFilters(defaultFilters);
-    onFilterChange(defaultFilters);
+    setDateFilter("all");
+    setSubjectFilter("all");
+    setDifficultyFilter("all");
+    setCompletedFilter(null);
+    applyFilters("all", "all", "all", null);
+  };
+  
+  const toggleFilters = () => {
+    setShowFilters(!showFilters);
   };
   
   return (
-    <div className={`space-y-4 ${className}`}>
-      <div className="flex flex-col sm:flex-row gap-4 sm:items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Calendar className="h-5 w-5 text-indigo-500" />
-          <Select 
-            value={filters.timeFrame} 
-            onValueChange={handleTimeFrameChange}
-          >
-            <SelectTrigger className="w-[160px]">
-              <SelectValue placeholder="Time Frame" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="today">Today</SelectItem>
-              <SelectItem value="week">This Week</SelectItem>
-              <SelectItem value="month">This Month</SelectItem>
-              <SelectItem value="all">All Time</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        
-        <div className="flex gap-2">
+    <Card className={`shadow-sm ${className}`}>
+      <CardHeader className="pb-2">
+        <CardTitle className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <BookOpen className="h-5 w-5 text-indigo-500" />
+            <span>Concept Cards</span>
+          </div>
           <Button 
             variant="outline" 
             size="sm" 
+            onClick={toggleFilters}
             className="flex items-center gap-1"
-            onClick={() => setIsFiltersOpen(!isFiltersOpen)}
           >
             <Filter className="h-4 w-4" />
             Filters
-            {(filters.difficulty.length > 0 || filters.subjects.length > 0 || filters.completed !== null) && (
-              <span className="ml-1 w-5 h-5 rounded-full bg-indigo-500 text-white text-xs flex items-center justify-center">
-                {filters.difficulty.length + filters.subjects.length + (filters.completed !== null ? 1 : 0)}
-              </span>
+            {(dateFilter !== "all" || subjectFilter !== "all" || 
+              difficultyFilter !== "all" || completedFilter !== null) && (
+              <Badge className="ml-1 h-5 w-5 p-0 flex items-center justify-center">
+                {[
+                  dateFilter !== "all" ? 1 : 0,
+                  subjectFilter !== "all" ? 1 : 0,
+                  difficultyFilter !== "all" ? 1 : 0,
+                  completedFilter !== null ? 1 : 0
+                ].reduce((sum, val) => sum + val, 0)}
+              </Badge>
             )}
           </Button>
-          
-          {(filters.difficulty.length > 0 || filters.subjects.length > 0 || filters.completed !== null) && (
-            <Button 
-              variant="ghost" 
-              size="sm"
-              onClick={resetFilters}
-            >
-              Reset
-            </Button>
-          )}
-        </div>
-      </div>
+        </CardTitle>
+      </CardHeader>
       
-      {isFiltersOpen && (
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-          {/* Difficulty filters */}
-          <div>
-            <h3 className="font-medium mb-2">Difficulty</h3>
-            <div className="space-y-2">
-              {["easy", "medium", "hard"].map((difficulty) => (
-                <div key={difficulty} className="flex items-center space-x-2">
-                  <Checkbox 
-                    id={`difficulty-${difficulty}`} 
-                    checked={filters.difficulty.includes(difficulty as DifficultyType)}
-                    onCheckedChange={(checked) => 
-                      handleDifficultyChange(difficulty as DifficultyType, checked === true)
-                    }
-                  />
-                  <Label htmlFor={`difficulty-${difficulty}`}>
-                    {difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}
-                  </Label>
-                </div>
-              ))}
-            </div>
-          </div>
-          
-          {/* Subject filters */}
-          <div>
-            <h3 className="font-medium mb-2">Subjects</h3>
-            <div className="space-y-2 max-h-48 overflow-y-auto">
-              {subjects.map((subject) => (
-                <div key={subject} className="flex items-center space-x-2">
-                  <Checkbox 
-                    id={`subject-${subject}`} 
-                    checked={filters.subjects.includes(subject)}
-                    onCheckedChange={(checked) => 
-                      handleSubjectChange(subject, checked === true)
-                    }
-                  />
-                  <Label htmlFor={`subject-${subject}`}>{subject}</Label>
-                </div>
-              ))}
-            </div>
-          </div>
-          
-          {/* Completion status */}
-          <div>
-            <h3 className="font-medium mb-2">Status</h3>
-            <div className="space-y-2">
-              <div className="flex items-center space-x-2">
-                <Checkbox 
-                  id="status-completed" 
-                  checked={filters.completed === true}
-                  onCheckedChange={(checked) => {
-                    if (checked) {
-                      handleCompletionChange(true);
-                    } else if (filters.completed === true) {
-                      handleCompletionChange(null);
-                    }
-                  }}
-                />
-                <Label htmlFor="status-completed">Completed</Label>
+      <CardContent className="space-y-4">
+        {/* Date filter tabs always visible */}
+        <Tabs defaultValue="all" value={dateFilter} onValueChange={handleDateFilterChange} className="w-full">
+          <TabsList className="grid grid-cols-4 w-full">
+            <TabsTrigger value="today" className="text-xs sm:text-sm">Today</TabsTrigger>
+            <TabsTrigger value="week" className="text-xs sm:text-sm">This Week</TabsTrigger>
+            <TabsTrigger value="month" className="text-xs sm:text-sm">This Month</TabsTrigger>
+            <TabsTrigger value="all" className="text-xs sm:text-sm">All</TabsTrigger>
+          </TabsList>
+        </Tabs>
+        
+        {/* Additional filters */}
+        {showFilters && (
+          <div className="space-y-3 pt-2 border-t">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <label className="text-sm font-medium">Subject</label>
+                <Select value={subjectFilter} onValueChange={handleSubjectFilterChange}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select subject" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Subjects</SelectItem>
+                    {subjects.map(subject => (
+                      <SelectItem key={subject} value={subject}>{subject}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
-              <div className="flex items-center space-x-2">
-                <Checkbox 
-                  id="status-pending" 
-                  checked={filters.completed === false}
-                  onCheckedChange={(checked) => {
-                    if (checked) {
-                      handleCompletionChange(false);
-                    } else if (filters.completed === false) {
-                      handleCompletionChange(null);
-                    }
-                  }}
-                />
-                <Label htmlFor="status-pending">Pending</Label>
+              
+              <div className="space-y-1">
+                <label className="text-sm font-medium">Difficulty</label>
+                <Select value={difficultyFilter} onValueChange={handleDifficultyFilterChange}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select difficulty" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Difficulties</SelectItem>
+                    <SelectItem value="easy">Easy</SelectItem>
+                    <SelectItem value="medium">Medium</SelectItem>
+                    <SelectItem value="hard">Hard</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
+            
+            <div className="flex flex-wrap gap-2">
+              <Button 
+                size="sm" 
+                variant={completedFilter === true ? "default" : "outline"} 
+                onClick={() => handleCompletedFilterChange(completedFilter === true ? null : true)}
+              >
+                Completed
+              </Button>
+              <Button 
+                size="sm" 
+                variant={completedFilter === false ? "default" : "outline"}
+                onClick={() => handleCompletedFilterChange(completedFilter === false ? null : false)} 
+              >
+                Not Completed
+              </Button>
+              <Button 
+                size="sm" 
+                variant="ghost" 
+                onClick={resetFilters}
+                className="ml-auto"
+              >
+                Reset Filters
+              </Button>
+            </div>
           </div>
-        </div>
-      )}
-    </div>
+        )}
+      </CardContent>
+    </Card>
   );
 };
 

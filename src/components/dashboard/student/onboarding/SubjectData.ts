@@ -68,3 +68,19 @@ export const subjectsByGoal = {
 };
 
 export const defaultSubjects = ["Mathematics", "Physics", "Chemistry", "Biology", "English"];
+
+// Create type definitions for better type safety
+export interface SubjectItem {
+  name: string;
+  isSelected?: boolean;
+  isStrong?: boolean;
+  isWeak?: boolean;
+  topics?: number;
+  progress?: number;
+}
+
+export interface SubjectSelectionResult {
+  strongSubjects: string[];
+  weakSubjects: string[];
+  allSelectedSubjects: string[];
+}

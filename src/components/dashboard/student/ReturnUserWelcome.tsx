@@ -34,6 +34,9 @@ const ReturnUserWelcome: React.FC<ReturnUserWelcomeProps> = ({
       navigate(`/study/flashcard/${lastActivity.id}`);
     } else if (lastActivity?.type === 'quiz' && lastActivity.id) {
       navigate(`/study/quiz/${lastActivity.id}`);
+    } else {
+      // If no specific activity ID, go to today's plan
+      navigate('/dashboard/student/todays-plan');
     }
   };
   

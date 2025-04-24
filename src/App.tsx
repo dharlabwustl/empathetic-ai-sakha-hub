@@ -44,6 +44,14 @@ function App() {
                 } 
               />
               <Route 
+                path="/dashboard/student/:tab" 
+                element={
+                  <ProtectedRoute>
+                    <StudentDashboard />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
                 path="/profile" 
                 element={
                   <ProtectedRoute>

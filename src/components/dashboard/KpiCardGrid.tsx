@@ -21,7 +21,9 @@ const KpiCardGrid: React.FC<KpiCardGridProps> = ({
             ...kpi,
             label: kpi.title || "",
             unit: "",
-            change: typeof kpi.value === 'object' ? kpi.value.trend : kpi.trend || 'neutral'
+            change: typeof kpi.value === 'object' ? kpi.value.trend : kpi.trend || 'neutral',
+            // Ensure value is a number
+            value: typeof kpi.value === 'object' ? kpi.value.value : Number(kpi.value)
           }}
         />
       ))}

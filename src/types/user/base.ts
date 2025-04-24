@@ -150,3 +150,66 @@ export interface NudgeData {
   actionLink?: string;
   onAction?: () => void;
 }
+
+// Add this new interface to properly handle concept cards
+export interface ConceptCardType {
+  id: string;
+  title: string;
+  subject: string;
+  chapter?: string;
+  difficulty: "easy" | "medium" | "hard";
+  tags?: string[];
+  content?: string;
+  examples?: {
+    question: string;
+    solution: string;
+  }[];
+  relatedTopics?: string[];
+  completedAt?: Date | null;
+}
+
+// Add utility type for date filtering
+export type DateFilterType = "today" | "week" | "month" | "all";
+
+// Add study plan type
+export interface StudyPlanItem {
+  id: string;
+  type: "concept" | "flashcard" | "quiz" | "exam";
+  title: string;
+  subject: string;
+  difficulty: "easy" | "medium" | "hard";
+  duration: number;
+  completed: boolean;
+  completedAt?: Date;
+  path: string;
+}
+
+export interface StudyPlanDay {
+  date: Date;
+  items: StudyPlanItem[];
+}
+
+export interface WeeklyStudyPlan {
+  weekStartDate: Date;
+  weekEndDate: Date;
+  totalItems: number;
+  completedItems: number;
+  subjects: {
+    id: string;
+    name: string;
+    topics: {
+      id: string;
+      name: string;
+      type: "concept" | "flashcard" | "quiz" | "exam";
+      difficulty: "easy" | "medium" | "hard";
+      completed: boolean;
+      completedDate?: Date;
+    }[];
+  }[];
+}
+
+export interface MoodLogEntry {
+  date: Date;
+  mood: MoodType;
+  note?: string;
+}
