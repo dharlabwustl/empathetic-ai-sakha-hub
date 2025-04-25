@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import ConceptCardView from '@/components/dashboard/student/concept-cards/ConceptCardView';
 import { Button } from '@/components/ui/button';
@@ -12,6 +11,7 @@ import SmartSuggestionSection from '@/components/dashboard/student/SmartSuggesti
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import PracticeExamsSection from '@/components/dashboard/student/practice-exams/PracticeExamsSection';
 
 export const MicroConceptView = () => {
   const { userProfile } = useUserProfile();
@@ -317,83 +317,7 @@ export const FlashcardsView = () => {
 export const PracticeExamsView = () => {
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold">Practice Exams</h2>
-          <p className="text-gray-600">
-            Test your knowledge with practice exams and quizzes.
-          </p>
-        </div>
-        <Link to="/dashboard/student/exams">
-          <Button variant="outline" className="flex items-center gap-2">
-            View All <ArrowRight size={16} />
-          </Button>
-        </Link>
-      </div>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-        <PracticeExamCard
-          title="Physics Mock Test"
-          subject="Physics"
-          questionsCount={30}
-          duration={60}
-          difficulty="medium"
-          recommended={true}
-        />
-        
-        <PracticeExamCard
-          title="Chemistry: Organic"
-          subject="Chemistry"
-          questionsCount={20}
-          duration={45}
-          difficulty="easy"
-          recommended={false}
-        />
-        
-        <PracticeExamCard
-          title="Full JEE Mock Test"
-          subject="Combined"
-          questionsCount={90}
-          duration={180}
-          difficulty="hard"
-          recommended={false}
-        />
-        
-        <PracticeExamCard
-          title="Weekly Mathematics Challenge"
-          subject="Mathematics"
-          questionsCount={25}
-          duration={50}
-          difficulty="medium"
-          recommended={true}
-        />
-        
-        <PracticeExamCard
-          title="Thermodynamics Quiz"
-          subject="Physics"
-          questionsCount={15}
-          duration={30}
-          difficulty="medium"
-          recommended={false}
-        />
-        
-        <PracticeExamCard
-          title="Periodic Table Master Quiz"
-          subject="Chemistry"
-          questionsCount={20}
-          duration={40}
-          difficulty="easy"
-          recommended={false}
-        />
-      </div>
-      
-      <div className="flex justify-center mt-4">
-        <Link to="/dashboard/student/exams">
-          <Button variant="outline" className="flex items-center gap-2">
-            View All Practice Tests <ArrowRight size={16} />
-          </Button>
-        </Link>
-      </div>
+      <PracticeExamsSection />
     </div>
   );
 };
