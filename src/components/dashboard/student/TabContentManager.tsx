@@ -1,3 +1,4 @@
+
 import React, { ReactNode } from 'react';
 import TutorCard from '@/components/dashboard/student/TutorCard';
 import StudyPlannerCard from '@/components/dashboard/student/StudyPlannerCard';
@@ -21,6 +22,9 @@ import PracticeExamFeature from '@/components/dashboard/student/practice-exam/Pr
 import FeelGoodCorner from '@/components/dashboard/student/FeelGoodCorner';
 import ConceptsSection from '@/components/dashboard/student/ConceptsSection';
 import { TodayPlanView, FlashcardsView, PracticeExamsView } from '@/pages/dashboard/student/TabContentViews';
+
+// Import Card components
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface TabContentManagerProps {
   userProfile: UserProfileType;
@@ -98,7 +102,3 @@ export const generateTabContents = ({
     tutor: <AIChatTutor userProfile={userProfile} />
   };
 };
-
-// Import Card components at the top
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import ConceptsSection from './ConceptsSection';
