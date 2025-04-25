@@ -1,25 +1,11 @@
 
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Clock, ExternalLink, LoaderCircle, ArrowRight } from 'lucide-react';
+import { Clock, BookOpen, Star, BarChart } from "lucide-react";
 import { motion } from "framer-motion";
 
 interface ExamCardProps {
-  exam: {
-    id: string;
-    title: string;
-    subject: string;
-    description: string;
-    progress?: number;
-    cardCount?: number;
-    timeEstimate: string;
-    difficulty: string;
-    questions: number;
-    completed?: boolean;
-    score?: number;
-    dateCompleted?: string;
-  };
+  exam: any;
   onExamClick: (exam: any) => void;
   onStartExam: (exam: any, e: React.MouseEvent) => void;
   onReviewExam: (exam: any, e: React.MouseEvent) => void;
@@ -37,65 +23,80 @@ const ExamCard: React.FC<ExamCardProps> = ({
 }) => {
   return (
     <motion.div
-      key={exam.id}
-      className="p-3 rounded-lg border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition-all duration-200"
-      whileHover={{ scale: 1.01, boxShadow: "0 4px 12px rgba(0,0,0,0.05)" }}
+      className="border rounded-lg p-4 bg-white dark:bg-gray-800 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+      onClick={() => onExamClick(exam)}
+      whileHover={{ scale: 1.01 }}
+      whileTap={{ scale: 0.99 }}
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3, type: "spring", stiffness: 260, damping: 20 }}
-      onClick={() => onExamClick(exam)}
+      transition={{ duration: 0.2 }}
     >
-      <div className="flex justify-between items-start">
-        <div>
-          <h4 className="font-medium text-gray-900 dark:text-gray-100 flex items-center">
-            {exam.title}
-            {exam.completed ? (
-              <div className="h-3.5 w-3.5 ml-1.5 text-green-500">✓</div>
-            ) : (
-              <ExternalLink className="h-3.5 w-3.5 ml-1.5 text-gray-400" />
-            )}
-          </h4>
+      <div className="flex flex-wrap justify-between gap-2">
+        <div className="space-y-1">
+          <h3 className="font-medium">{exam.title}</h3>
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            {exam.subject} • {exam.completed ? `Score: ${exam.score}%` : `${exam.questions} questions`}
+            {exam.description}
           </p>
         </div>
-        <Badge className={`${getDifficultyColor(exam.difficulty)}`}>
-          {exam.completed ? "Completed" : exam.difficulty}
-        </Badge>
-      </div>
-      <div className="flex justify-between items-center mt-2">
-        <span className="text-xs text-gray-400 flex items-center">
-          <Clock className="h-3 w-3 mr-1" />
-          {exam.completed ? `Completed: ${exam.dateCompleted}` : `Duration: ${exam.timeEstimate}`}
-        </span>
-        {exam.completed ? (
-          <Button 
-            size="sm" 
-            variant="outline"
-            className="h-7 text-xs border-green-500 text-green-700 hover:bg-green-50 hover:text-green-800 dark:border-green-600 dark:text-green-400 dark:hover:bg-green-900/20"
-            onClick={(e) => onReviewExam(exam, e)}
-          >
-            Review Exam
-          </Button>
-        ) : (
-          <Button 
-            size="sm" 
-            className="h-7 text-xs bg-blue-600 hover:bg-blue-700 text-white"
-            onClick={(e) => onStartExam(exam, e)}
-            disabled={isLoadingExam}
-          >
-            {isLoadingExam ? (
-              <>
-                <LoaderCircle className="h-3 w-3 mr-1 animate-spin" />
-                Loading...
-              </>
+
+        {!isLoadingExam && (
+          <div>
+            {exam.completed ? (
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-1"
+                onClick={(e) => onReviewExam(exam, e)}
+              >
+                <BarChart className="h-4 w-4" />
+                Review
+              </Button>
             ) : (
-              <>
-                Start Exam
-                <ArrowRight className="h-3 w-3 ml-1" />
-              </>
+              <Button
+                variant="default"
+                size="sm"
+                className="gap-1"
+                onClick={(e) => onStartExam(exam, e)}
+              >
+                <BookOpen className="h-4 w-4" />
+                Start
+              </Button>
             )}
+          </div>
+        )}
+
+        {isLoadingExam && (
+          <Button variant="outline" size="sm" disabled>
+            <span className="animate-spin mr-1">◌</span>
+            Loading...
           </Button>
+        )}
+      </div>
+
+      <div className="flex flex-wrap items-center gap-3 mt-3 text-xs">
+        <div className="flex items-center gap-1">
+          <div className={`px-2 py-1 rounded-full ${getDifficultyColor(exam.difficulty)}`}>
+            {exam.difficulty}
+          </div>
+        </div>
+        <div className="flex items-center gap-1 text-gray-500 dark:text-gray-400">
+          <Clock className="h-3 w-3" />
+          {exam.timeEstimate}
+        </div>
+        <div className="flex items-center gap-1 text-gray-500 dark:text-gray-400">
+          <BookOpen className="h-3 w-3" />
+          {exam.questions} questions
+        </div>
+        {exam.completed && (
+          <>
+            <div className="flex items-center gap-1 text-gray-500 dark:text-gray-400">
+              <Star className={exam.score >= 80 ? "h-3 w-3 text-yellow-500" : "h-3 w-3"} />
+              Score: {exam.score}%
+            </div>
+            <div className="flex items-center gap-1 text-gray-500 dark:text-gray-400">
+              <span>Completed: {exam.dateCompleted}</span>
+            </div>
+          </>
         )}
       </div>
     </motion.div>

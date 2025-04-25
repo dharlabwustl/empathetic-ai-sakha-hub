@@ -1,3 +1,4 @@
+
 import React, { ReactNode } from 'react';
 import TutorCard from '@/components/dashboard/student/TutorCard';
 import StudyPlannerCard from '@/components/dashboard/student/StudyPlannerCard';
@@ -9,14 +10,13 @@ import { LiveTutorSection } from '@/components/dashboard/student/LiveTutorSectio
 import { CollaborativeForumSection } from '@/components/dashboard/student/CollaborativeForumSection';
 import { VideoLibrarySection } from '@/components/dashboard/student/VideoLibrarySection';
 import { SmartNotificationSection } from '@/components/dashboard/student/SmartNotificationSection';
-import TodayPlanView from '@/components/dashboard/student/TodayPlanView';
+import TodayStudyPlan from '@/components/dashboard/student/TodayStudyPlan';
 import DashboardOverview from '@/components/dashboard/student/DashboardOverview';
 import WelcomeTour from '@/components/dashboard/student/WelcomeTour';
 import AIChatTutor from '@/pages/dashboard/student/AIChatTutor';
 import AcademicAdvisor from '@/pages/dashboard/student/AcademicAdvisor';
 import { UserProfileType } from '@/types/user';
 import { KpiData, NudgeData } from '@/hooks/useKpiTracking';
-import { MicroConceptView, FlashcardsView, PracticeExamsView } from '@/pages/dashboard/student/TabContentViews';
 import FlashcardsFeature from '@/components/dashboard/student/FlashcardsFeature';
 import PracticeExamFeature from '@/components/dashboard/student/PracticeExamFeature';
 import FeelGoodCorner from '@/components/dashboard/student/FeelGoodCorner';
@@ -71,9 +71,9 @@ export const generateTabContents = ({
         />
       </>
     ),
-    today: <TodayPlanView />,
+    today: <TodayStudyPlan />,
     academic: <AcademicAdvisor userProfile={userProfile} />,
-    concepts: <MicroConceptView />,
+    concepts: <div>Micro Concept View</div>,
     flashcards: <FlashcardsFeature />,
     'practice-exam': <PracticeExamFeature />,
     'feel-good': <FeelGoodCorner />,

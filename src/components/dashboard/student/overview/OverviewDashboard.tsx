@@ -5,7 +5,7 @@ import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CalendarDays, BarChart, Clock } from "lucide-react";
 import { StudyStatus, StudyPlanItem } from "@/types/user/study";
-import { MoodLogButton } from "../mood-tracking/MoodLogButton";
+import MoodLogButton from "../mood-tracking/MoodLogButton";
 
 interface OverviewDashboardProps {
   userProfile: any;
@@ -56,59 +56,83 @@ const OverviewDashboard: React.FC<OverviewDashboardProps> = ({
           <TabsTrigger value="weekly">Weekly</TabsTrigger>
           <TabsTrigger value="monthly">Monthly</TabsTrigger>
         </TabsList>
-
-        <TabsContent value="daily" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {todaysPlan.map((item) => (
-              <Card key={item.id} className="p-4">
-                <div className="flex items-center gap-4">
-                  <div className={`w-2 h-2 rounded-full ${
-                    item.priority === 'high' ? 'bg-red-500' :
-                    item.priority === 'medium' ? 'bg-yellow-500' :
-                    'bg-green-500'
-                  }`} />
-                  <div className="flex-1">
-                    <h4 className="font-medium">{item.title}</h4>
-                    <p className="text-sm text-muted-foreground">{item.subject}</p>
+        
+        <TabsContent value="daily">
+          <Card className="p-6">
+            <h3 className="text-lg font-semibold mb-4">Today's Focus</h3>
+            <div className="space-y-3">
+              {todaysPlan.slice(0, 3).map(task => (
+                <div key={task.id} className="p-3 border rounded-md flex items-start justify-between">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <div className={`w-2 h-2 rounded-full ${
+                        task.priority === 'high' ? 'bg-red-500' :
+                        task.priority === 'medium' ? 'bg-yellow-500' : 'bg-green-500'
+                      }`}></div>
+                      <p className="font-medium">{task.title}</p>
+                    </div>
+                    <p className="text-sm text-muted-foreground mt-1">{task.subject}</p>
                   </div>
                   <div className="text-sm text-muted-foreground">
-                    {item.timeAllocation} mins
+                    {task.timeAllocation} min
                   </div>
                 </div>
-              </Card>
-            ))}
-          </div>
+              ))}
+            </div>
+          </Card>
         </TabsContent>
-
-        <TabsContent value="weekly" className="space-y-4">
+        
+        <TabsContent value="weekly">
           <Card className="p-6">
-            <h3 className="text-lg font-semibold mb-4">Weekly Overview</h3>
-            <div className="grid gap-4">
-              <div className="flex justify-between items-center">
-                <span>Average Study Hours</span>
-                <span className="font-medium">{studyStatus.weekly.averageStudyHours}h/day</span>
+            <h3 className="text-lg font-semibold mb-4">Weekly Progress</h3>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between text-sm">
+                <span>Completion rate</span>
+                <span>{Math.round((studyStatus.weekly.completedTasks / studyStatus.weekly.totalTasks) * 100)}%</span>
               </div>
-              <div className="flex justify-between items-center">
-                <span>Task Completion Rate</span>
-                <span className="font-medium">
-                  {Math.round((studyStatus.weekly.completedTasks / studyStatus.weekly.totalTasks) * 100)}%
-                </span>
+              <Progress 
+                value={(studyStatus.weekly.completedTasks / studyStatus.weekly.totalTasks) * 100} 
+                className="h-2 mb-4"
+              />
+              
+              <div className="mt-6">
+                <h4 className="font-medium mb-2">Top Subjects</h4>
+                <div className="grid grid-cols-2 gap-2">
+                  {studyStatus.weekly.topSubjects.map(subject => (
+                    <div key={subject} className="bg-gray-100 dark:bg-gray-800 p-2 rounded text-center">
+                      {subject}
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </Card>
         </TabsContent>
-
-        <TabsContent value="monthly" className="space-y-4">
+        
+        <TabsContent value="monthly">
           <Card className="p-6">
-            <h3 className="text-lg font-semibold mb-4">Monthly Progress</h3>
-            <div className="grid gap-4">
-              <div className="flex justify-between items-center">
-                <span>Average Study Hours</span>
-                <span className="font-medium">{studyStatus.monthly.averageStudyHours}h/day</span>
+            <h3 className="text-lg font-semibold mb-4">Monthly Overview</h3>
+            <div className="space-y-4">
+              <div>
+                <div className="flex items-center justify-between text-sm">
+                  <span>Tasks completed</span>
+                  <span>{studyStatus.monthly.completedTasks}/{studyStatus.monthly.totalTasks}</span>
+                </div>
+                <Progress 
+                  value={(studyStatus.monthly.completedTasks / studyStatus.monthly.totalTasks) * 100} 
+                  className="h-2 mb-2 mt-1"
+                />
               </div>
-              <div className="flex justify-between items-center">
-                <span>Improvement</span>
-                <span className="font-medium text-green-500">+{studyStatus.monthly.improvement}%</span>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
+                  <p className="text-sm text-muted-foreground">Avg. Daily Study</p>
+                  <p className="text-lg font-semibold">{studyStatus.monthly.averageStudyHours}h</p>
+                </div>
+                <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
+                  <p className="text-sm text-muted-foreground">Improvement</p>
+                  <p className="text-lg font-semibold text-green-600">+{studyStatus.monthly.improvement}%</p>
+                </div>
               </div>
             </div>
           </Card>
