@@ -1,6 +1,5 @@
-
 import React, { useState } from 'react';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -26,6 +25,9 @@ interface FlashcardProps {
   image?: string;
   type: 'definition' | 'image' | 'question' | 'mcq';
   conceptId?: string;
+  isBookmarked?: boolean;
+  cardsCount?: number;
+  mastery?: number;
 }
 
 const FlashcardsFeature: React.FC = () => {
@@ -59,7 +61,10 @@ const FlashcardsFeature: React.FC = () => {
       timeToComplete: 1,
       difficulty: concept.difficulty.toLowerCase() as 'easy' | 'medium' | 'hard',
       type: 'definition',
-      conceptId: concept.id
+      conceptId: concept.id,
+      isBookmarked: false,
+      cardsCount: 10,
+      mastery: 75
     },
     {
       id: `flash-q-${concept.id}`,
@@ -70,7 +75,10 @@ const FlashcardsFeature: React.FC = () => {
       timeToComplete: 2,
       difficulty: concept.difficulty.toLowerCase() as 'easy' | 'medium' | 'hard',
       type: 'question',
-      conceptId: concept.id
+      conceptId: concept.id,
+      isBookmarked: true,
+      cardsCount: 15,
+      mastery: 60
     }
   ]);
   
@@ -89,15 +97,6 @@ const FlashcardsFeature: React.FC = () => {
       case 'month':
         // Demo month flashcards
         return sampleFlashcards;
-      case 'bookmarks':
-        // Demo bookmarked flashcards
-        return sampleFlashcards.filter((card) => isBookmarked[card.id]);
-      case 'review':
-        // Demo review flashcards (low recall)
-        return sampleFlashcards.filter((card) => {
-          const rating = recallRatings[card.id];
-          return rating && rating < 3;
-        });
       default:
         return sampleFlashcards;
     }
@@ -295,325 +294,46 @@ const FlashcardsFeature: React.FC = () => {
         </Card>
       </div>
 
-      {/* Flashcard Browser */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
-          <Card className="border-t-4 border-t-blue-500">
+          <Card>
             <CardHeader>
-              <div className="flex justify-between items-center">
-                <CardTitle>Flashcard Browser</CardTitle>
-                <div className="flex items-center gap-2">
-                  <Button variant="outline" size="sm" onClick={handlePrevious}>
-                    <RotateCcw size={16} />
-                  </Button>
-                  <span className="text-sm">
-                    {currentFlashcardIndex + 1} / {flashcards.length}
-                  </span>
-                  <Button variant="outline" size="sm" onClick={handleNext}>
-                    <ArrowRight size={16} />
-                  </Button>
-                </div>
-              </div>
-              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="grid grid-cols-5 w-full">
+              <CardTitle>Flashcard Sets</CardTitle>
+              <Tabs value={activeTab} onValueChange={setActiveTab}>
+                <TabsList>
                   <TabsTrigger value="today">Today</TabsTrigger>
                   <TabsTrigger value="week">This Week</TabsTrigger>
                   <TabsTrigger value="month">This Month</TabsTrigger>
-                  <TabsTrigger value="bookmarks">Bookmarks</TabsTrigger>
-                  <TabsTrigger value="review">Need Review</TabsTrigger>
                 </TabsList>
               </Tabs>
             </CardHeader>
-
             <CardContent>
-              {flashcards.length > 0 ? (
-                <div className="relative perspective-1000 h-[350px]">
-                  <motion.div 
-                    className="absolute w-full h-full cursor-pointer"
-                    animate={isFlipped ? "back" : "front"}
-                    variants={cardVariants}
-                    transition={{ duration: 0.6, type: "spring" }}
-                    onClick={() => !showAnswerFeedback && setIsFlipped(!isFlipped)}
-                    style={{ transformStyle: "preserve-3d" }}
-                  >
-                    {/* Front of card */}
-                    <div className={`absolute w-full h-full backface-hidden flex flex-col justify-between rounded-lg p-6 border ${
-                      isFlipped ? 'opacity-0' : 'opacity-100'
-                    } bg-white`}>
-                      <div>
-                        <div className="flex justify-between items-center mb-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {flashcards.map((set) => (
+                  <Link key={set.id} to={`/dashboard/student/flashcards/${set.id}`}>
+                    <Card className="h-full hover:shadow-md transition-shadow duration-200">
+                      <CardContent className="p-4 space-y-4">
+                        <div className="flex justify-between items-start">
                           <Badge variant="outline" className="bg-blue-50 text-blue-700">
-                            {currentFlashcard.subject}
-                          </Badge>
-                          <div className="flex items-center gap-2">
-                            <Badge variant={
-                              currentFlashcard.difficulty === 'easy' ? 'success' :
-                              currentFlashcard.difficulty === 'medium' ? 'warning' :
-                              'destructive'
-                            }>
-                              {currentFlashcard.difficulty.charAt(0).toUpperCase() + currentFlashcard.difficulty.slice(1)}
-                            </Badge>
-                            <Button 
-                              variant="ghost" 
-                              size="icon" 
-                              className="h-8 w-8" 
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                toggleBookmark();
-                              }}
-                            >
-                              {isBookmarked[currentFlashcard.id] ? (
-                                <BookMarked className="h-5 w-5 text-blue-600 fill-blue-600" />
-                              ) : (
-                                <Bookmark className="h-5 w-5 text-gray-400" />
-                              )}
-                            </Button>
-                          </div>
-                        </div>
-                        <div className="flex justify-center mb-4">
-                          <Badge variant="outline" className="bg-gray-50">
-                            {currentFlashcard.topic}
+                            {set.subject}
                           </Badge>
                         </div>
-                        <h3 className="text-xl font-semibold text-center my-5">{currentFlashcard.front}</h3>
-                        
-                        {!isFlipped && !showAnswerFeedback && (
-                          <div className="my-4 space-y-4">
-                            <div className="flex justify-between items-center">
-                              <h4 className="text-sm font-medium">Your Answer</h4>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="flex items-center gap-1"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  toggleSpeechInput();
-                                }}
-                              >
-                                {useSpeechInput ? 'Type Answer' : 'Voice Answer'}
-                                {useSpeechInput ? <MessageSquare size={14} /> : <Mic size={14} />}
-                              </Button>
-                            </div>
-                            
-                            {useSpeechInput ? (
-                              <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-                                <Textarea
-                                  value={userAnswer}
-                                  onChange={(e) => setUserAnswer(e.target.value)}
-                                  placeholder="Your answer will appear here..."
-                                  className="resize-none"
-                                  disabled={isRecording}
-                                />
-                                <Button
-                                  variant={isRecording ? "destructive" : "default"}
-                                  size="sm"
-                                  className="shrink-0"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    isRecording ? stopRecording() : startRecording();
-                                  }}
-                                >
-                                  <Mic size={16} className={isRecording ? "animate-pulse" : ""} />
-                                </Button>
-                              </div>
-                            ) : (
-                              <Textarea
-                                value={userAnswer}
-                                onChange={(e) => setUserAnswer(e.target.value)}
-                                placeholder="Type your answer here..."
-                                onClick={(e) => e.stopPropagation()}
-                                className="resize-none"
-                              />
-                            )}
-                            
-                            <div className="flex justify-between">
-                              <Button
-                                variant="outline"
-                                className="flex items-center gap-1"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setIsFlipped(true);
-                                }}
-                              >
-                                Flip to Answer
-                              </Button>
-                              
-                              <Button
-                                variant="default"
-                                className="flex items-center gap-1"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleSubmitAnswer();
-                                }}
-                                disabled={!userAnswer.trim()}
-                              >
-                                <Check size={16} className="mr-1" />
-                                Submit Answer
-                              </Button>
-                            </div>
-                          </div>
-                        )}
-                        
-                        {showAnswerFeedback && (
-                          <div className="bg-gray-50 p-4 rounded-lg space-y-3 my-4">
-                            <h4 className="text-center font-medium">
-                              Answer Accuracy
-                            </h4>
-                            <Progress value={answerAccuracy} className="h-2" />
-                            <p className="text-center font-bold">
-                              {answerAccuracy}% Match
-                            </p>
-                            <div className="flex justify-center gap-2">
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setUserAnswer('');
-                                  setShowAnswerFeedback(false);
-                                }}
-                              >
-                                Try Again
-                              </Button>
-                              <Button
-                                variant="default"
-                                size="sm"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setIsFlipped(true);
-                                }}
-                              >
-                                View Answer
-                              </Button>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                      {!showAnswerFeedback && (
-                        <div className="text-center text-sm text-gray-500">Click to flip</div>
-                      )}
-                    </div>
-
-                    {/* Back of card */}
-                    <div className={`absolute w-full h-full backface-hidden flex flex-col justify-between rounded-lg p-6 border ${
-                      isFlipped ? 'opacity-100' : 'opacity-0'
-                    } bg-blue-50 [transform:rotateY(180deg)]`}>
-                      <div>
-                        <div className="flex justify-between items-center mb-4">
-                          <Badge variant="outline" className="bg-white">
-                            {currentFlashcard.topic}
-                          </Badge>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              toggleVoice();
-                            }}
-                          >
-                            {voiceEnabled ? (
-                              <Volume2 className="h-5 w-5 text-blue-600" />
-                            ) : (
-                              <VolumeX className="h-5 w-5 text-gray-400" />
-                            )}
-                          </Button>
-                        </div>
-                        <div className="mb-4 flex justify-center">
-                          <Badge variant="outline" className="bg-white border-blue-200">
-                            Answer
+                        <h3 className="font-semibold">{set.front}</h3>
+                        <div className="flex flex-wrap gap-2">
+                          <Badge variant="outline" className="text-xs">
+                            {set.topic}
                           </Badge>
                         </div>
-                        <div className="bg-white p-4 rounded-lg border border-blue-200 mb-4">
-                          <p className="text-lg text-center my-4">{currentFlashcard.back}</p>
-                        </div>
-                      </div>
-                      
-                      <div>
-                        <p className="text-sm text-center mb-2 text-gray-600">Rate your recall:</p>
-                        <div className="flex justify-center gap-2">
-                          {[1, 2, 3, 4, 5].map((rating) => (
-                            <Button 
-                              key={rating}
-                              variant={recallRatings[currentFlashcard.id] === rating ? "default" : "outline"}
-                              size="sm"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleRecall(rating as 1 | 2 | 3 | 4 | 5);
-                              }}
-                            >
-                              {rating}
-                            </Button>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  </motion.div>
-                </div>
-              ) : (
-                <div className="h-64 flex items-center justify-center border rounded-lg">
-                  <p className="text-gray-500">No flashcards available in this category</p>
-                </div>
-              )}
-            </CardContent>
-
-            <CardFooter className="flex flex-col sm:flex-row gap-2 justify-between border-t pt-4">
-              <div className="text-sm text-gray-500 flex items-center gap-2">
-                <span>Type: {currentFlashcard?.type.charAt(0).toUpperCase() + currentFlashcard?.type.slice(1)}</span>
-                {currentFlashcard?.conceptId && (
-                  <Link 
-                    to={`/dashboard/student/concepts/${currentFlashcard.conceptId}`}
-                    className="text-blue-600 hover:underline flex items-center"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <BookOpen size={14} className="mr-1" />
-                    View Concept
+                        <Button className="w-full mt-2">Study Now</Button>
+                      </CardContent>
+                    </Card>
                   </Link>
-                )}
+                ))}
               </div>
-              
-              <div className="flex flex-wrap gap-2">
-                <Button variant="outline" size="sm" className="flex items-center">
-                  <BookmarkPlus size={14} className="mr-1" />
-                  Bookmark
-                </Button>
-                <Button variant="outline" size="sm" className="flex items-center">
-                  <FileText size={14} className="mr-1" />
-                  Add Note
-                </Button>
-                <Button variant="outline" size="sm" className="flex items-center">
-                  <BarChart size={14} className="mr-1" />
-                  Progress
-                </Button>
-              </div>
-            </CardFooter>
+            </CardContent>
           </Card>
-          
-          <div className="mt-4 p-4 bg-gray-50 rounded-lg border flex flex-col sm:flex-row gap-4">
-            <div className="flex-1 flex flex-col items-center justify-center p-3 border rounded-lg bg-white text-center">
-              <BookOpen className="text-blue-600 mb-2" size={20} />
-              <h4 className="font-medium">Related Concept</h4>
-              <Link to={`/dashboard/student/concepts/${currentFlashcard?.conceptId || ''}`} className="text-blue-600 text-sm hover:underline">
-                View Full Concept
-              </Link>
-            </div>
-            
-            <div className="flex-1 flex flex-col items-center justify-center p-3 border rounded-lg bg-white text-center">
-              <FileText className="text-purple-600 mb-2" size={20} />
-              <h4 className="font-medium">Practice Test</h4>
-              <Link to="/dashboard/student/practice-exam" className="text-purple-600 text-sm hover:underline">
-                Take Related Test
-              </Link>
-            </div>
-            
-            <div className="flex-1 flex flex-col items-center justify-center p-3 border rounded-lg bg-white text-center">
-              <BarChart className="text-green-600 mb-2" size={20} />
-              <h4 className="font-medium">Performance</h4>
-              <p className="text-sm text-gray-500">70% Accuracy</p>
-            </div>
-          </div>
         </div>
-        
+
         {/* Sidebar with stats and filters */}
         <div className="space-y-4">
           <Card>
