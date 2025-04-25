@@ -122,7 +122,8 @@ export default function TodayStudyPlan() {
   });
 
   const handleMarkComplete = (taskId: string) => {
-    markConceptCompleted(taskId);
+    // Fix: Add the missing arguments required by markConceptCompleted
+    markConceptCompleted(taskId, true);
     toast({
       title: "Task completed!",
       description: "Your progress has been updated.",
