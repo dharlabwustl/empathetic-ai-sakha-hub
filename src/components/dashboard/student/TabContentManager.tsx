@@ -1,4 +1,3 @@
-
 import React, { ReactNode } from 'react';
 import TutorCard from '@/components/dashboard/student/TutorCard';
 import StudyPlannerCard from '@/components/dashboard/student/StudyPlannerCard';
@@ -10,7 +9,7 @@ import { LiveTutorSection } from '@/components/dashboard/student/LiveTutorSectio
 import { CollaborativeForumSection } from '@/components/dashboard/student/CollaborativeForumSection';
 import { VideoLibrarySection } from '@/components/dashboard/student/VideoLibrarySection';
 import { SmartNotificationSection } from '@/components/dashboard/student/SmartNotificationSection';
-import TodayStudyPlan from '@/components/dashboard/student/TodayStudyPlan';
+import TodayPlanView from '@/components/dashboard/student/TodayPlanView';
 import DashboardOverview from '@/components/dashboard/student/DashboardOverview';
 import WelcomeTour from '@/components/dashboard/student/WelcomeTour';
 import AIChatTutor from '@/pages/dashboard/student/AIChatTutor';
@@ -47,8 +46,6 @@ export const generateTabContents = ({
   lastActivity,
   suggestedNextAction
 }: TabContentManagerProps): Record<string, ReactNode> => {
-  // Check if user is a first time user based on profile data
-  // Using optional chaining to safely access potentially undefined properties
   const isFirstTimeUser = (userProfile?.loginCount ?? 0) < 3 || !(userProfile?.completedOnboarding ?? false);
   const loginCount = userProfile?.loginCount ?? 0;
 
@@ -74,12 +71,7 @@ export const generateTabContents = ({
         />
       </>
     ),
-    today: (
-      <div className="space-y-8">
-        <TodayStudyPlan />
-        <MicroConceptView />
-      </div>
-    ),
+    today: <TodayPlanView />,
     academic: <AcademicAdvisor userProfile={userProfile} />,
     concepts: <MicroConceptView />,
     flashcards: <FlashcardsFeature />,

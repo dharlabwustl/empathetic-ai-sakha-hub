@@ -1,4 +1,3 @@
-
 export interface SubjectProgress {
   id: string;
   subjectId: string;
@@ -57,4 +56,28 @@ export interface NudgeData {
   actionLabel?: string;
   timestamp: string;
   read: boolean;
+}
+
+export interface DailyTaskItem {
+  id: string;
+  type: 'concept' | 'flashcard' | 'practice-exam';
+  title: string;
+  subject: string;
+  chapter?: string;
+  difficulty?: 'Easy' | 'Medium' | 'Hard';
+  completed: boolean;
+  completedAt?: string;
+  dueDate: string;
+  description?: string;
+}
+
+export interface DailyStudyPlan {
+  date: string;
+  tasks: DailyTaskItem[];
+  completionRate: number;
+}
+
+export interface StudyHistory {
+  date: string;
+  plan: DailyStudyPlan;
 }
