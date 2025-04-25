@@ -1,185 +1,228 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { UserRole } from "@/components/signup/OnboardingContext";
-import { getDemographicsQuestion } from "@/components/signup/utils/stepUtils";
+import { Textarea } from "@/components/ui/textarea";
+import { UserRole } from "@/types/user/base";
+import { getDemographicsQuestion } from "../utils/stepUtils";
 
 interface DemographicsFormProps {
   onSubmit: (data: Record<string, string>) => void;
-  role?: UserRole;
-  goal?: string;
-  isLoading?: boolean;
+  role: UserRole;
+  goal: string;
+  isLoading: boolean;
 }
 
-const DemographicsForm: React.FC<DemographicsFormProps> = ({
+const DemographicsForm: React.FC<DemographicsFormProps> = ({ 
   onSubmit, 
-  role = UserRole.Student, 
-  goal,
-  isLoading = false
+  role, 
+  goal, 
+  isLoading 
 }) => {
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData(e.target as HTMLFormElement);
-    const data: Record<string, string> = {};
-    
-    formData.forEach((value, key) => {
-      data[key] = value as string;
-    });
-    
-    onSubmit(data);
-  };
-
-  const fields = getDemographicsFieldsByRole(role);
+  const [formData, setFormData] = useState<Record<string, string>>({});
   const question = getDemographicsQuestion(role);
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSubmit(formData);
+  };
+
+  // Generate form fields based on role
+  const renderFormFields = () => {
+    switch(role) {
+      case "student":
+        return (
+          <>
+            <div className="space-y-2">
+              <Label htmlFor="age">Age</Label>
+              <Input 
+                id="age" 
+                name="age" 
+                placeholder="Your age" 
+                value={formData.age || ""} 
+                onChange={handleInputChange} 
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="grade">Class/Grade</Label>
+              <Input 
+                id="grade" 
+                name="grade" 
+                placeholder="10th to post graduation" 
+                value={formData.grade || ""} 
+                onChange={handleInputChange} 
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="location">Location</Label>
+              <Input 
+                id="location" 
+                name="location" 
+                placeholder="City, State" 
+                value={formData.location || ""} 
+                onChange={handleInputChange} 
+              />
+            </div>
+          </>
+        );
+      case "employee":
+        return (
+          <>
+            <div className="space-y-2">
+              <Label htmlFor="jobRole">Job Role</Label>
+              <Input 
+                id="jobRole" 
+                name="jobRole" 
+                placeholder="Your job title" 
+                value={formData.jobRole || ""} 
+                onChange={handleInputChange} 
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="seniority">Seniority Level</Label>
+              <Input 
+                id="seniority" 
+                name="seniority" 
+                placeholder="Entry, Mid, Senior, etc." 
+                value={formData.seniority || ""} 
+                onChange={handleInputChange} 
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="domain">Domain/Industry</Label>
+              <Input 
+                id="domain" 
+                name="domain" 
+                placeholder="Tech, Finance, Healthcare, etc." 
+                value={formData.domain || ""} 
+                onChange={handleInputChange} 
+              />
+            </div>
+          </>
+        );
+      case "doctor":
+        return (
+          <>
+            <div className="space-y-2">
+              <Label htmlFor="specialization">Specialization</Label>
+              <Input 
+                id="specialization" 
+                name="specialization" 
+                placeholder="Your medical specialization" 
+                value={formData.specialization || ""} 
+                onChange={handleInputChange} 
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="institution">Institution</Label>
+              <Input 
+                id="institution" 
+                name="institution" 
+                placeholder="Hospital or clinic name" 
+                value={formData.institution || ""} 
+                onChange={handleInputChange} 
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="research">Research Interests (if any)</Label>
+              <Textarea 
+                id="research" 
+                name="research" 
+                placeholder="Brief description of your research" 
+                value={formData.research || ""} 
+                onChange={handleInputChange} 
+              />
+            </div>
+          </>
+        );
+      case "founder":
+        return (
+          <>
+            <div className="space-y-2">
+              <Label htmlFor="startupStage">Startup Stage</Label>
+              <Input 
+                id="startupStage" 
+                name="startupStage" 
+                placeholder="Idea, MVP, Growth, etc." 
+                value={formData.startupStage || ""} 
+                onChange={handleInputChange} 
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="teamSize">Team Size</Label>
+              <Input 
+                id="teamSize" 
+                name="teamSize" 
+                placeholder="Number of team members" 
+                value={formData.teamSize || ""} 
+                onChange={handleInputChange} 
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="industry">Industry</Label>
+              <Input 
+                id="industry" 
+                name="industry" 
+                placeholder="Tech, Healthcare, Finance, etc." 
+                value={formData.industry || ""} 
+                onChange={handleInputChange} 
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="goals">Main Goals</Label>
+              <Textarea 
+                id="goals" 
+                name="goals" 
+                placeholder="What are your main goals for your startup?" 
+                value={formData.goals || ""} 
+                onChange={handleInputChange} 
+              />
+            </div>
+          </>
+        );
+      default:
+        return (
+          <div className="space-y-2">
+            <Label htmlFor="aboutYou">About You</Label>
+            <Textarea 
+              id="aboutYou" 
+              name="aboutYou" 
+              placeholder="Tell us more about yourself" 
+              value={formData.aboutYou || ""} 
+              onChange={handleInputChange} 
+            />
+          </div>
+        );
+    }
+  };
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="mb-6">
-        <h3 className="font-medium text-lg">{question}</h3>
-        {goal && (
-          <p className="text-sm text-muted-foreground mt-1">
-            You're preparing for: <span className="font-medium">{goal}</span>
-          </p>
-        )}
+    <div className="space-y-6">
+      <div>
+        <h3 className="text-lg font-medium mb-1">{question}</h3>
+        <p className="text-sm text-muted-foreground">
+          This helps us personalize your experience for {goal}
+        </p>
       </div>
 
-      {fields.map((field) => (
-        <div key={field.id} className="space-y-2">
-          <Label htmlFor={field.id}>{field.label}</Label>
-          <Input
-            id={field.id}
-            name={field.id}
-            placeholder={field.placeholder}
-            type={field.type || "text"}
-            required={field.required}
-          />
-        </div>
-      ))}
-
-      <Button type="submit" disabled={isLoading} className="w-full mt-6">
-        {isLoading ? "Processing..." : "Next"}
-      </Button>
-    </form>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        {renderFormFields()}
+        <Button 
+          type="submit" 
+          className="w-full"
+          disabled={isLoading}
+        >
+          {isLoading ? "Submitting..." : "Continue"}
+        </Button>
+      </form>
+    </div>
   );
 };
-
-// Helper function to get fields based on user role
-function getDemographicsFieldsByRole(role: UserRole): {
-  id: string;
-  label: string;
-  placeholder: string;
-  type?: string;
-  required?: boolean;
-}[] {
-  switch (role) {
-    case UserRole.Student:
-      return [
-        {
-          id: "age",
-          label: "Age",
-          placeholder: "Enter your age",
-          type: "number",
-          required: true,
-        },
-        {
-          id: "grade",
-          label: "Class/Grade",
-          placeholder: "e.g., 11th, 12th, Undergraduate",
-          required: true,
-        },
-        {
-          id: "location",
-          label: "City",
-          placeholder: "Where do you live?",
-        },
-        {
-          id: "institute",
-          label: "School/College",
-          placeholder: "Name of your educational institution",
-        },
-      ];
-    case UserRole.Employee:
-      return [
-        {
-          id: "jobTitle",
-          label: "Job Title",
-          placeholder: "Your current position",
-          required: true,
-        },
-        {
-          id: "experience",
-          label: "Years of Experience",
-          placeholder: "e.g., 2 years",
-          required: true,
-        },
-        {
-          id: "industry",
-          label: "Industry",
-          placeholder: "e.g., Technology, Healthcare",
-        },
-      ];
-    case UserRole.Doctor:
-      return [
-        {
-          id: "specialization",
-          label: "Medical Specialization",
-          placeholder: "Your medical specialization",
-          required: true,
-        },
-        {
-          id: "institution",
-          label: "Hospital/Clinic",
-          placeholder: "Where do you practice",
-        },
-        {
-          id: "researchTopic",
-          label: "Research Interest (if any)",
-          placeholder: "Your area of research interest",
-        },
-      ];
-    case UserRole.Founder:
-      return [
-        {
-          id: "startupStage",
-          label: "Startup Stage",
-          placeholder: "e.g., Idea, Pre-seed, Seed",
-          required: true,
-        },
-        {
-          id: "industry",
-          label: "Industry",
-          placeholder: "Your startup's industry",
-          required: true,
-        },
-        {
-          id: "teamSize",
-          label: "Team Size",
-          placeholder: "Number of team members",
-          type: "number",
-        },
-        {
-          id: "startupGoal",
-          label: "Primary Goal",
-          placeholder: "e.g., Funding, Product Development",
-        },
-      ];
-    default:
-      return [
-        {
-          id: "background",
-          label: "Background",
-          placeholder: "Tell us about yourself",
-          required: true,
-        },
-        {
-          id: "interests",
-          label: "Interests",
-          placeholder: "Your key interests",
-        },
-      ];
-  }
-}
 
 export default DemographicsForm;

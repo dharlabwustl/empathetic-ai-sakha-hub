@@ -1,146 +1,122 @@
 
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import React, { useState } from "react";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Bell, CheckCircle, AlertTriangle, InfoIcon, CheckCircle2 } from "lucide-react";
-import { NudgeData } from "@/types/user/base";
+import { NudgeData } from "@/hooks/useKpiTracking";
+import { Bell, Check, ChevronRight } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { formatDistanceToNow } from "date-fns";
+import { useNavigate } from "react-router-dom";
 
-// Sample nudge data
 const mockNudges: NudgeData[] = [
   {
-    id: "n1",
-    title: "Complete your profile",
-    description: "Your profile is 70% complete. Finish it to unlock personalized recommendations.",
-    type: "info",
-    isRead: false,
-    createdAt: new Date(new Date().setDate(new Date().getDate() - 1)),
-    priority: "medium",
-    action: "Complete Profile",
-    actionLink: "/profile"
-  },
-  {
-    id: "n2",
-    title: "New concepts added for Physics",
-    description: "We've added new concept cards for your Physics subject. Check them out!",
-    type: "success",
-    isRead: false,
-    createdAt: new Date(),
-    priority: "medium",
-    action: "View Concepts",
-    actionLink: "/study/concept-card"
-  },
-  {
-    id: "n3",
-    title: "Upcoming exam reminder",
-    description: "You have a practice exam scheduled for tomorrow. Make sure to prepare!",
-    type: "warning",
-    isRead: false,
-    createdAt: new Date(),
+    id: "nudge1",
+    title: "Physics Quiz Due",
+    message: "You have a physics quiz due tomorrow on Newton's Laws",
+    timestamp: new Date().toISOString(),
+    read: false,
     priority: "high",
-    action: "View Exam",
-    actionLink: "/exams"
+    type: "reminder",
+    action: "Review Quiz",
+    url: "/study/quiz/physics-101"
+  },
+  {
+    id: "nudge2",
+    title: "Streak Achievement",
+    message: "Congrats! You've maintained a 7-day study streak!",
+    timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+    read: true,
+    priority: "medium",
+    type: "achievement"
+  },
+  {
+    id: "nudge3",
+    title: "Study Suggestion",
+    message: "Based on your progress, we recommend focusing on Organic Chemistry concepts",
+    timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+    read: false,
+    priority: "low",
+    type: "suggestion",
+    action: "View Concepts",
+    url: "/study/concept-cards/chemistry"
   }
 ];
 
 interface NudgesSectionProps {
-  nudges?: NudgeData[];
-  onMarkAsRead?: (id: string) => void;
-  className?: string;
+  nudges: NudgeData[];
+  markNudgeAsRead?: (id: string) => void;
 }
 
-const NudgesSection: React.FC<NudgesSectionProps> = ({ 
-  nudges = mockNudges, 
-  onMarkAsRead,
-  className = ""
-}) => {
-  const [localNudges, setLocalNudges] = useState<NudgeData[]>([]);
-  
-  useEffect(() => {
-    setLocalNudges(nudges);
-  }, [nudges]);
-  
-  const handleMarkAsRead = (id: string) => {
-    if (onMarkAsRead) {
-      onMarkAsRead(id);
-    } else {
-      setLocalNudges(prev => 
-        prev.map(nudge => 
-          nudge.id === id ? { ...nudge, isRead: true } : nudge
-        )
-      );
-    }
-  };
-  
-  const handleActionClick = (nudge: NudgeData) => {
-    // Mark as read first
-    handleMarkAsRead(nudge.id);
+const NudgesSection: React.FC<NudgesSectionProps> = ({ nudges = mockNudges, markNudgeAsRead }) => {
+  const navigate = useNavigate();
+  const [expandedNudge, setExpandedNudge] = useState<string | null>(null);
+
+  const toggleExpand = (id: string) => {
+    setExpandedNudge(expandedNudge === id ? null : id);
     
-    // Then perform action if available
-    if (nudge.actionLink) {
-      window.location.href = nudge.actionLink;
+    // Mark as read when expanded
+    if (!nudges.find(n => n.id === id)?.read && markNudgeAsRead) {
+      markNudgeAsRead(id);
     }
   };
-  
-  const getNudgeIcon = (type: string) => {
-    switch (type) {
-      case "info":
-        return <InfoIcon className="h-5 w-5 text-blue-500" />;
-      case "success":
-        return <CheckCircle2 className="h-5 w-5 text-green-500" />;
-      case "warning":
-        return <AlertTriangle className="h-5 w-5 text-amber-500" />;
-      case "error":
-        return <AlertTriangle className="h-5 w-5 text-red-500" />;
-      default:
-        return <InfoIcon className="h-5 w-5 text-gray-500" />;
+
+  const handleAction = (nudge: NudgeData) => {
+    if (nudge.url) {
+      navigate(nudge.url);
     }
-  };
-  
-  const getNudgeBadgeClass = (type: string) => {
-    switch (type) {
-      case "info":
-        return "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300";
-      case "success":
-        return "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300";
-      case "warning":
-        return "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300";
-      case "error":
-        return "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300";
-      default:
-        return "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300";
-    }
-  };
-  
-  const getTimeAgo = (date: Date) => {
-    const now = new Date();
-    const diffInMilliseconds = now.getTime() - date.getTime();
-    const diffInHours = Math.floor(diffInMilliseconds / (1000 * 60 * 60));
     
-    if (diffInHours < 1) {
-      return "Just now";
-    } else if (diffInHours < 24) {
-      return `${diffInHours} hour${diffInHours > 1 ? 's' : ''} ago`;
-    } else {
-      const diffInDays = Math.floor(diffInHours / 24);
-      return `${diffInDays} day${diffInDays > 1 ? 's' : ''} ago`;
+    // Mark as read when action taken
+    if (!nudge.read && markNudgeAsRead) {
+      markNudgeAsRead(nudge.id);
     }
   };
-  
-  const unreadNudges = localNudges.filter(nudge => !nudge.isRead);
-  
-  if (unreadNudges.length === 0) {
+
+  const formatTimeAgo = (timestamp: string) => {
+    try {
+      return formatDistanceToNow(new Date(timestamp), { addSuffix: true });
+    } catch (error) {
+      return "recently";
+    }
+  };
+
+  const getPriorityClass = (priority: string) => {
+    switch (priority) {
+      case "high":
+        return "bg-red-100 text-red-700";
+      case "medium":
+        return "bg-amber-100 text-amber-700";
+      case "low":
+        return "bg-emerald-100 text-emerald-700";
+      default:
+        return "bg-slate-100 text-slate-700";
+    }
+  };
+
+  const getTypeIcon = (type: string) => {
+    switch (type) {
+      case "reminder":
+        return <Bell className="h-4 w-4" />;
+      case "achievement":
+        return <Check className="h-4 w-4" />;
+      case "suggestion":
+        return <ChevronRight className="h-4 w-4" />;
+      case "alert":
+        return <Bell className="h-4 w-4" />;
+      default:
+        return <Bell className="h-4 w-4" />;
+    }
+  };
+
+  if (nudges.length === 0) {
     return (
-      <Card className={`${className} h-full`}>
-        <CardHeader>
-          <CardTitle className="text-lg flex items-center gap-2">
-            <Bell className="text-gray-500" />
-            Notifications
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="flex items-center justify-center h-32">
-          <p className="text-gray-500 dark:text-gray-400 text-center">
-            No new notifications
+      <Card className="border-dashed border-2 bg-white/70 dark:bg-gray-800/20">
+        <CardContent className="p-6 flex flex-col items-center text-center">
+          <div className="rounded-full bg-slate-100 p-3 mb-3">
+            <Bell className="h-5 w-5 text-slate-400" />
+          </div>
+          <h3 className="text-lg font-medium">No Notifications</h3>
+          <p className="text-sm text-muted-foreground mt-1">
+            You're all caught up! No new notifications.
           </p>
         </CardContent>
       </Card>
@@ -148,67 +124,83 @@ const NudgesSection: React.FC<NudgesSectionProps> = ({
   }
 
   return (
-    <Card className={`${className} h-full`}>
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-lg flex items-center gap-2">
-            <Bell className="text-indigo-500" />
-            Notifications
-          </CardTitle>
-          {unreadNudges.length > 0 && (
-            <Badge className="bg-indigo-500">
-              {unreadNudges.length} new
-            </Badge>
+    <div className="space-y-3">
+      {nudges.map((nudge) => (
+        <Card 
+          key={nudge.id}
+          className={cn(
+            "overflow-hidden transition-all duration-300 bg-white dark:bg-gray-800/70",
+            nudge.read ? "opacity-70" : "shadow-sm"
           )}
-        </div>
-      </CardHeader>
-      <CardContent className="p-3">
-        <div className="space-y-3">
-          {unreadNudges.map((nudge) => (
+        >
+          <CardContent className="p-0">
             <div 
-              key={nudge.id}
-              className="flex gap-3 p-3 border border-gray-100 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 shadow-sm"
+              className={cn(
+                "flex cursor-pointer p-3",
+                nudge.read ? "bg-white dark:bg-gray-800/70" : "bg-blue-50/50 dark:bg-blue-900/10"
+              )}
+              onClick={() => toggleExpand(nudge.id)}
             >
-              <div>
-                {getNudgeIcon(nudge.type)}
-              </div>
-              <div className="flex-1">
-                <div className="flex items-start justify-between">
-                  <h4 className="font-medium">{nudge.title}</h4>
-                  <Badge variant="outline" className={getNudgeBadgeClass(nudge.type)}>
-                    {nudge.type.charAt(0).toUpperCase() + nudge.type.slice(1)}
-                  </Badge>
-                </div>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{nudge.description}</p>
-                <div className="flex items-center justify-between mt-2">
-                  <span className="text-xs text-gray-400">{getTimeAgo(nudge.createdAt)}</span>
-                  <div className="flex gap-2">
-                    <Button 
-                      size="sm" 
-                      variant="ghost"
-                      className="text-xs py-1 h-auto"
-                      onClick={() => handleMarkAsRead(nudge.id)}
+              <div className="flex-grow">
+                <div className="flex items-center justify-between mb-1">
+                  <div className="flex items-center">
+                    <span 
+                      className={cn(
+                        "w-2 h-2 rounded-full mr-2",
+                        nudge.read ? "bg-gray-300" : "bg-blue-500"
+                      )}
+                    ></span>
+                    <h3 
+                      className={cn(
+                        "font-medium",
+                        nudge.read ? "text-gray-700 dark:text-gray-300" : "text-gray-900 dark:text-white"
+                      )}
                     >
-                      Mark as read
-                    </Button>
-                    {nudge.action && (
-                      <Button 
-                        size="sm" 
-                        variant="default"
-                        className="text-xs py-1 h-auto bg-indigo-500 hover:bg-indigo-600"
-                        onClick={() => handleActionClick(nudge)}
-                      >
-                        {nudge.action}
-                      </Button>
-                    )}
+                      {nudge.title}
+                    </h3>
                   </div>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">
+                    {formatTimeAgo(nudge.timestamp)}
+                  </span>
                 </div>
+                
+                <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-1">
+                  {nudge.message}
+                </p>
               </div>
             </div>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
+            
+            {expandedNudge === nudge.id && (
+              <div className="p-3 pt-0 border-t border-gray-100 dark:border-gray-700">
+                <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
+                  {nudge.message}
+                </p>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <span className={cn("text-xs px-2 py-1 rounded-full", getPriorityClass(nudge.priority))}>
+                      <span className="flex items-center space-x-1">
+                        {getTypeIcon(nudge.type)}
+                        <span>{nudge.type}</span>
+                      </span>
+                    </span>
+                  </div>
+                  {nudge.action && (
+                    <Button 
+                      size="sm" 
+                      variant="outline"
+                      className="text-xs h-8"
+                      onClick={() => handleAction(nudge)}
+                    >
+                      {nudge.action}
+                    </Button>
+                  )}
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      ))}
+    </div>
   );
 };
 

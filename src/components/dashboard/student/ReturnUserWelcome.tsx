@@ -58,6 +58,20 @@ const ReturnUserWelcome: React.FC<ReturnUserWelcomeProps> = ({
     setOpen(false);
   };
 
+  // Define default activity if none is provided
+  const activityIcon = () => {
+    switch(lastActivity?.type) {
+      case 'concept':
+        return <BookOpen className="h-5 w-5 text-indigo-500 mt-0.5" />;
+      case 'flashcard':
+        return <Calendar className="h-5 w-5 text-green-500 mt-0.5" />;
+      case 'exam':
+        return <BookOpen className="h-5 w-5 text-orange-500 mt-0.5" />;
+      default:
+        return <BookOpen className="h-5 w-5 text-indigo-500 mt-0.5" />;
+    }
+  };
+
   return (
     <AnimatePresence>
       {open && (
@@ -77,7 +91,7 @@ const ReturnUserWelcome: React.FC<ReturnUserWelcomeProps> = ({
               <div className="p-4 border rounded-lg bg-muted/50 my-2">
                 <h3 className="font-medium mb-1">Your last activity:</h3>
                 <div className="flex items-start gap-3">
-                  {lastActivity.type === 'concept' && <BookOpen className="h-5 w-5 text-indigo-500 mt-0.5" />}
+                  {activityIcon()}
                   <p>{lastActivity.description}</p>
                 </div>
               </div>

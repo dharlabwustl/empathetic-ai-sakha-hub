@@ -38,6 +38,16 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSubmit, isLoading }) => {
       "The youngest IAS officer was just 21 when selected!",
       "Over 48% of current IAS officers come from small towns.",
       "Civil servants directly impact millions of lives daily."
+    ],
+    "Board Exams": [
+      "Strong board exam results open doors to prestigious colleges!",
+      "Consistent study habits are the key to board exam success.",
+      "Students who use spaced repetition improve scores by 30% on average."
+    ],
+    "General Study": [
+      "Regular study breaks actually improve retention by 20%!",
+      "Students who teach concepts to others understand them 90% better.",
+      "Active recall is 2x more effective than passive re-reading."
     ]
   };
 
@@ -69,7 +79,8 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSubmit, isLoading }) => {
       description: "A verification code has been sent to your mobile.",
     });
     
-    setFormValues({ ...formValues, otp: "1234" }); // Auto-fill OTP for demo
+    // Auto-fill OTP for demo
+    setFormValues({ ...formValues, otp: "1234" });
   };
 
   const handleSubmit = (e: React.FormEvent) => {

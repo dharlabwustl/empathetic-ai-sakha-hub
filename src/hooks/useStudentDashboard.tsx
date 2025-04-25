@@ -13,114 +13,179 @@ export const useStudentDashboard = () => {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [hideSidebar, setHideSidebar] = useState(false);
   const [hideTabsNav, setHideTabsNav] = useState(false);
-  const [currentMood, setCurrentMood] = useState<MoodType | undefined>(undefined);
-  const [showMoodTracker, setShowMoodTracker] = useState(false);
-  const { userProfile, loading, updateUserProfile } = useUserProfile();
-  const { kpis, nudges, markNudgeAsRead } = useKpiTracking();
-  const { tab } = useParams<{ tab?: string }>();
+  const [currentTime, setCurrentTime] = useState(new Date());
+  const [lastActivity, setLastActivity] = useState<{type: string; description: string; url?: string} | null>(null);
+  const [suggestedNextAction, setSuggestedNextAction] = useState<string | null>(null);
+  
+  const { tab } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
   
-  // Get time of day for greeting
-  const currentTime = new Date();
-  const hour = currentTime.getHours();
-  let timeOfDay = "day";
+  // Get user profile data
+  const { loading, userProfile, setUserProfile } = useUserProfile();
   
-  if (hour < 12) {
-    timeOfDay = "morning";
-  } else if (hour < 17) {
-    timeOfDay = "afternoon";
-  } else {
-    timeOfDay = "evening";
-  }
-  
-  // Mock data for last activity and suggested next action
-  const lastActivity = {
-    type: 'concept',
-    description: 'Studying Newton\'s Laws of Motion concept card',
-    url: '/study/concept-card/cc1'
-  };
-  
-  const suggestedNextAction = "Continue with your Chemical Bonding concept card";
-  
-  // Define features available to the user
+  // Get KPI tracking data
+  const { kpis, nudges, markNudgeAsRead } = useKpiTracking();
+
+  // Define example features (these would normally come from backend)
   const features = [
-    "ai_tutor",
-    "concept_cards",
-    "flashcards",
-    "practice_exams",
-    "mood_tracking"
+    {
+      id: 'concept_cards',
+      title: 'Concept Cards',
+      description: 'Master key concepts with visual cards and spaced repetition',
+      icon: '🧠',
+      cta: 'View Cards',
+      url: '/dashboard/student/concepts',
+      isNew: false,
+    },
+    {
+      id: 'flashcards',
+      title: 'Flashcards',
+      description: 'Practice with interactive flashcards for better retention',
+      icon: '📝',
+      cta: 'Study Now',
+      url: '/dashboard/student/flashcards',
+      isNew: true,
+    },
+    {
+      id: 'practice_exam',
+      title: 'Practice Exams',
+      description: 'Test your knowledge with timed practice exams',
+      icon: '📚',
+      cta: 'Take Exam',
+      url: '/dashboard/student/practice-exam',
+      isNew: false, 
+    }
   ];
-  
+
   // Set active tab based on URL param
   useEffect(() => {
     if (tab) {
       setActiveTab(tab);
     }
   }, [tab]);
-  
-  // Handle showing onboarding or welcome tour for new users
+
+  // Update current time
   useEffect(() => {
-    if (loading) return;
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 60000);
     
+    return () => clearInterval(timer);
+  }, []);
+
+  // Check if user is new or returning
+  useEffect(() => {
+    if (loading || !userProfile) return;
+    
+    // Use helper to determine if we should show onboarding/welcome tour
     const { shouldShowOnboarding, shouldShowWelcomeTour } = handleNewUser(location, navigate);
     
     setShowOnboarding(shouldShowOnboarding);
     setShowWelcomeTour(shouldShowWelcomeTour);
     
-    // Try to get saved mood from local storage
-    const savedUserData = localStorage.getItem("userData");
-    if (savedUserData) {
-      const parsedData = JSON.parse(savedUserData);
-      if (parsedData.mood) {
-        setCurrentMood(parsedData.mood as MoodType);
+  }, [loading, userProfile, location, navigate]);
+
+  // Load last activity and suggested next action
+  useEffect(() => {
+    if (!userProfile) return;
+    
+    // Check if there's any saved activity in local storage
+    const savedData = localStorage.getItem('userData');
+    if (savedData) {
+      try {
+        const parsedData = JSON.parse(savedData);
+        
+        // Set last activity if available
+        if (parsedData.lastActivity) {
+          setLastActivity(parsedData.lastActivity);
+        } else {
+          // Set a default activity (this would normally come from backend)
+          const defaultActivity = {
+            type: 'concept',
+            description: 'Newton\'s Laws of Motion',
+            url: '/study/concept-card/physics-101'
+          };
+          setLastActivity(defaultActivity);
+          
+          // Save to localStorage
+          parsedData.lastActivity = defaultActivity;
+          localStorage.setItem('userData', JSON.stringify(parsedData));
+        }
+        
+        // Set suggested next action if available
+        if (parsedData.suggestedNextAction) {
+          setSuggestedNextAction(parsedData.suggestedNextAction);
+        } else {
+          // Set a default suggestion (this would normally come from backend)
+          setSuggestedNextAction('Review your pending concepts for Physics');
+        }
+      } catch (error) {
+        console.error('Error parsing user data:', error);
       }
     }
-  }, [loading, location, navigate]);
-  
+  }, [userProfile]);
+
   // Handle tab change
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
     navigate(`/dashboard/student/${tab}`);
   };
-  
-  // Tour handlers
+
+  // Handle welcome tour actions
   const handleSkipTour = () => {
     setShowWelcomeTour(false);
-    const userData = localStorage.getItem("userData");
     
+    // Save to localStorage so we don't show the tour again
+    const userData = localStorage.getItem('userData');
     if (userData) {
       const parsedData = JSON.parse(userData);
       parsedData.sawWelcomeTour = true;
-      localStorage.setItem("userData", JSON.stringify(parsedData));
-    } else {
-      localStorage.setItem("userData", JSON.stringify({ sawWelcomeTour: true }));
+      localStorage.setItem('userData', JSON.stringify(parsedData));
     }
   };
   
   const handleCompleteTour = () => {
-    handleSkipTour();
-  };
-  
-  // Onboarding completion handler
-  const handleCompleteOnboarding = () => {
-    setShowOnboarding(false);
-    setShowWelcomeTour(true);
+    setShowWelcomeTour(false);
     
-    const userData = localStorage.getItem("userData");
+    // Save to localStorage so we don't show the tour again
+    const userData = localStorage.getItem('userData');
     if (userData) {
       const parsedData = JSON.parse(userData);
-      parsedData.completedOnboarding = true;
-      localStorage.setItem("userData", JSON.stringify(parsedData));
-    } else {
-      localStorage.setItem("userData", JSON.stringify({ completedOnboarding: true }));
+      parsedData.sawWelcomeTour = true;
+      localStorage.setItem('userData', JSON.stringify(parsedData));
     }
     
-    // Update URL to clean state
-    navigate("/dashboard/student", { replace: true });
+    // Show the study plan after completing the tour
+    setShowStudyPlan(true);
   };
   
-  // Study plan handlers
+  // Handle onboarding completion
+  const handleCompleteOnboarding = () => {
+    setShowOnboarding(false);
+    
+    // Mark as completed in user profile
+    if (userProfile) {
+      const updatedProfile = { 
+        ...userProfile,
+        completedOnboarding: true
+      };
+      setUserProfile(updatedProfile);
+      
+      // Save to localStorage
+      const userData = localStorage.getItem('userData');
+      if (userData) {
+        const parsedData = JSON.parse(userData);
+        parsedData.completedOnboarding = true;
+        localStorage.setItem('userData', JSON.stringify(parsedData));
+      }
+    }
+    
+    // Show welcome tour after onboarding
+    setShowWelcomeTour(true);
+  };
+
+  // Handle study plan visibility
   const handleViewStudyPlan = () => {
     setShowStudyPlan(true);
   };
@@ -128,42 +193,16 @@ export const useStudentDashboard = () => {
   const handleCloseStudyPlan = () => {
     setShowStudyPlan(false);
   };
-  
-  // Layout toggle handlers
+
+  // Sidebar and tabs navigation toggles
   const toggleSidebar = () => {
-    setHideSidebar(!hideSidebar);
+    setHideSidebar(prev => !prev);
   };
   
   const toggleTabsNav = () => {
-    setHideTabsNav(!hideTabsNav);
+    setHideTabsNav(prev => !prev);
   };
-  
-  // Mood tracking handler
-  const handleMoodChange = (mood: MoodType) => {
-    setCurrentMood(mood);
-    
-    // Save mood to local storage
-    const userData = localStorage.getItem("userData");
-    if (userData) {
-      const parsedData = JSON.parse(userData);
-      parsedData.mood = mood;
-      localStorage.setItem("userData", JSON.stringify(parsedData));
-    } else {
-      localStorage.setItem("userData", JSON.stringify({ mood }));
-    }
-    
-    // In a real app, we would also save this to the backend
-    setShowMoodTracker(false);
-  };
-  
-  const openMoodTracker = () => {
-    setShowMoodTracker(true);
-  };
-  
-  const closeMoodTracker = () => {
-    setShowMoodTracker(false);
-  };
-  
+
   return {
     loading,
     userProfile,
@@ -171,7 +210,6 @@ export const useStudentDashboard = () => {
     showWelcomeTour,
     showOnboarding,
     currentTime,
-    timeOfDay,
     showStudyPlan,
     hideTabsNav,
     hideSidebar,
@@ -180,8 +218,6 @@ export const useStudentDashboard = () => {
     features,
     lastActivity,
     suggestedNextAction,
-    currentMood,
-    showMoodTracker,
     markNudgeAsRead,
     handleTabChange,
     handleSkipTour,
@@ -190,9 +226,8 @@ export const useStudentDashboard = () => {
     handleViewStudyPlan,
     handleCloseStudyPlan,
     toggleSidebar,
-    toggleTabsNav,
-    handleMoodChange,
-    openMoodTracker,
-    closeMoodTracker
+    toggleTabsNav
   };
 };
+
+export default useStudentDashboard;

@@ -7,11 +7,13 @@ import DashboardLayout from "@/pages/dashboard/student/DashboardLayout";
 import SplashScreen from "@/components/dashboard/student/SplashScreen";
 import { useLocation } from "react-router-dom";
 import ReturnUserWelcome from "@/components/dashboard/student/ReturnUserWelcome";
+import { useAuth } from "@/contexts/auth/AuthContext";
 
 const StudentDashboard = () => {
   const [showSplash, setShowSplash] = useState(true);
   const [currentMood, setCurrentMood] = useState<'sad' | 'neutral' | 'happy' | 'motivated' | undefined>(undefined);
   const location = useLocation();
+  const { user } = useAuth();
   
   const {
     loading,
@@ -83,10 +85,16 @@ const StudentDashboard = () => {
     }
   };
 
-  // Show splash screen if needed
-  if (showSplash) {
-    return <SplashScreen onComplete={handleSplashComplete} mood={currentMood} />;
-  }
+  // Check if this is a returning user - show splash screen only for first-time visitors
+  useEffect(() => {
+    if (user) {
+      // If user exists and has logged in before, don't show splash
+      const loginCount = userProfile?.loginCount || 0;
+      if (loginCount > 1) {
+        setShowSplash(false);
+      }
+    }
+  }, [user, userProfile]);
 
   if (loading || !userProfile) {
     return <DashboardLoading />;
@@ -107,32 +115,39 @@ const StudentDashboard = () => {
     );
   }
 
+  // Return user welcome dialog will be shown if this is a returning user
+  const showReturnUserWelcome = userProfile.loginCount && userProfile.loginCount > 1;
+
   return (
     <>
-      <DashboardLayout
-        userProfile={userProfile}
-        hideSidebar={hideSidebar}
-        hideTabsNav={hideTabsNav}
-        activeTab={activeTab}
-        kpis={kpis}
-        nudges={nudges}
-        markNudgeAsRead={markNudgeAsRead}
-        showWelcomeTour={showWelcomeTour}
-        onTabChange={handleTabChange}
-        onViewStudyPlan={handleViewStudyPlan}
-        onToggleSidebar={toggleSidebar}
-        onToggleTabsNav={toggleTabsNav}
-        onSkipTour={handleSkipTour}
-        onCompleteTour={handleCompleteTour}
-        showStudyPlan={showStudyPlan}
-        onCloseStudyPlan={handleCloseStudyPlan}
-        lastActivity={lastActivity}
-        suggestedNextAction={suggestedNextAction}
-        currentMood={currentMood}
-      />
+      {showSplash ? (
+        <SplashScreen onComplete={handleSplashComplete} mood={currentMood} />
+      ) : (
+        <DashboardLayout
+          userProfile={userProfile}
+          hideSidebar={hideSidebar}
+          hideTabsNav={hideTabsNav}
+          activeTab={activeTab}
+          kpis={kpis}
+          nudges={nudges}
+          markNudgeAsRead={markNudgeAsRead}
+          showWelcomeTour={showWelcomeTour}
+          onTabChange={handleTabChange}
+          onViewStudyPlan={handleViewStudyPlan}
+          onToggleSidebar={toggleSidebar}
+          onToggleTabsNav={toggleTabsNav}
+          onSkipTour={handleSkipTour}
+          onCompleteTour={handleCompleteTour}
+          showStudyPlan={showStudyPlan}
+          onCloseStudyPlan={handleCloseStudyPlan}
+          lastActivity={lastActivity}
+          suggestedNextAction={suggestedNextAction}
+          currentMood={currentMood}
+        />
+      )}
       
       {/* Welcome back dialog for returning users */}
-      {userProfile.loginCount && userProfile.loginCount > 1 && (
+      {showReturnUserWelcome && (
         <ReturnUserWelcome 
           userName={userProfile.name}
           lastActivity={lastActivity}

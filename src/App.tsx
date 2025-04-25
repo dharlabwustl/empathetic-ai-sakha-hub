@@ -12,6 +12,7 @@ import { AuthProvider } from "./contexts/auth/AuthContext";
 import { AdminAuthProvider } from "./contexts/AdminAuthContext";
 import { ThemeProvider } from "./components/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
+import ProtectedRoute from "@/components/common/ProtectedRoute";
 
 function App() {
   return (
@@ -25,16 +26,49 @@ function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<SignUp />} />
               
-              {/* Student Dashboard Routes */}
-              <Route path="/dashboard/student" element={<StudentDashboard />} />
-              <Route path="/dashboard/student/:tab" element={<StudentDashboard />} />
-              <Route path="/profile" element={<ProfilePage />} />
+              {/* Protected Routes */}
+              <Route path="/dashboard/student" element={
+                <ProtectedRoute>
+                  <StudentDashboard />
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/dashboard/student/:tab" element={
+                <ProtectedRoute>
+                  <StudentDashboard />
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/profile" element={
+                <ProtectedRoute>
+                  <ProfilePage />
+                </ProtectedRoute>
+              } />
               
               {/* Concept Card Routes */}
-              <Route path="/dashboard/student/concepts" element={<ConceptCardsListPage />} />
-              <Route path="/study/concept-cards" element={<ConceptCardPage />} />
-              <Route path="/study/concept-cards/:filterType" element={<ConceptCardPage />} />
-              <Route path="/study/concept-card/:cardId" element={<ConceptCardStudyPage />} />
+              <Route path="/dashboard/student/concepts" element={
+                <ProtectedRoute>
+                  <ConceptCardsListPage />
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/study/concept-cards" element={
+                <ProtectedRoute>
+                  <ConceptCardPage />
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/study/concept-cards/:filterType" element={
+                <ProtectedRoute>
+                  <ConceptCardPage />
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/study/concept-card/:cardId" element={
+                <ProtectedRoute>
+                  <ConceptCardStudyPage />
+                </ProtectedRoute>
+              } />
               
               {/* Fallback routes */}
               <Route path="/dashboard" element={<Navigate to="/dashboard/student" replace />} />
