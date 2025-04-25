@@ -1,13 +1,12 @@
-
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { Brain, Search, ArrowRight } from 'lucide-react';
-import ConceptCard, { ConceptCardProps } from './ConceptCard';
+import { Brain, Search, ArrowRight, BookOpen, Tag, Star, Volume2, VolumeX } from 'lucide-react';
+import ConceptCard from './ConceptCard';
+import { ConceptCardProps } from './ConceptCard';
 
-// We'll move this to API/hooks later
 const mockCards: ConceptCardProps[] = [
   {
     id: '1',
@@ -106,7 +105,6 @@ const ConceptsSection = () => {
   const [selectedTab, setSelectedTab] = React.useState<'today' | 'week' | 'month'>('today');
   const [voiceEnabled, setVoiceEnabled] = React.useState(false);
 
-  // Filter cards based on the selected tab
   const getFilteredCards = () => {
     switch(selectedTab) {
       case 'today':
@@ -118,10 +116,6 @@ const ConceptsSection = () => {
       default:
         return mockCards;
     }
-  };
-
-  const handleToggleVoice = () => {
-    setVoiceEnabled(!voiceEnabled);
   };
 
   return (
@@ -136,24 +130,16 @@ const ConceptsSection = () => {
             variant="ghost" 
             size="sm" 
             className="flex items-center gap-1"
-            onClick={handleToggleVoice}
+            onClick={() => setVoiceEnabled(!voiceEnabled)}
           >
             {voiceEnabled ? (
               <span className="text-blue-600 flex items-center gap-1">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-                  <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
-                  <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
-                </svg>
+                <Volume2 className="h-4 w-4" />
                 Voice On
               </span>
             ) : (
               <span className="text-gray-500 flex items-center gap-1">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-                  <line x1="23" y1="9" x2="17" y2="15"></line>
-                  <line x1="17" y1="9" x2="23" y2="15"></line>
-                </svg>
+                <VolumeX className="h-4 w-4" />
                 Voice Off
               </span>
             )}
