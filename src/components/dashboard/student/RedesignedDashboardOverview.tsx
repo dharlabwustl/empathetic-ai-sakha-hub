@@ -1,13 +1,16 @@
-
 import React from 'react';
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { useUserStudyPlan } from "@/hooks/useUserStudyPlan";
 import { Book, Brain, CalendarDays, ChartBar, Flag, RefreshCcw, TrendingUp } from "lucide-react";
 import { motion } from "framer-motion";
+import { useUserProfile } from "@/hooks/useUserProfile";
 
 const RedesignedDashboardOverview = () => {
   const { conceptCards, loading } = useUserStudyPlan();
+  const { userProfile } = useUserProfile();
+  
+  const examGoal = userProfile?.goals?.[0]?.title || 'IIT-JEE';
   
   const subjects = [
     { 
@@ -65,12 +68,22 @@ const RedesignedDashboardOverview = () => {
       animate="visible"
       className="space-y-6"
     >
-      {/* Exam Goal Section */}
-      <Card className="p-6">
-        <h2 className="text-2xl font-bold flex items-center gap-2 mb-4">
-          <Book className="text-primary" />
-          Exam Goal - Your Study Plan
-        </h2>
+      {/* Exam Goal Section - Now more prominent */}
+      <Card className="p-6 border-t-4 border-blue-500">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
+          <div>
+            <h2 className="text-2xl font-bold flex items-center gap-2">
+              <Book className="text-blue-500" />
+              Exam Goal: {examGoal}
+            </h2>
+            <p className="text-sm text-gray-500 mt-1">
+              Your personalized study plan is tailored for this exam
+            </p>
+          </div>
+          <div className="mt-2 md:mt-0 px-4 py-2 bg-blue-100 text-blue-700 rounded-full font-medium text-sm">
+            {conceptCards.filter(card => card.completed).length}/{conceptCards.length} Concepts Completed
+          </div>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="p-4 bg-violet-50 rounded-lg">
             <p className="text-sm text-gray-600">Enrolled Subjects</p>
@@ -161,6 +174,28 @@ const RedesignedDashboardOverview = () => {
               ))}
             </tbody>
           </table>
+        </div>
+      </Card>
+
+      {/* Study Plan Calendar - New section */}
+      <Card className="p-6">
+        <h2 className="text-2xl font-bold flex items-center gap-2 mb-4">
+          <CalendarDays className="text-primary" />
+          Study Plan Calendar
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+          <button className="p-3 bg-blue-50 rounded-lg text-blue-700 font-medium hover:bg-blue-100 transition-colors">
+            Daily View
+          </button>
+          <button className="p-3 bg-gray-100 rounded-lg text-gray-700 font-medium hover:bg-gray-200 transition-colors">
+            Weekly View
+          </button>
+          <button className="p-3 bg-gray-100 rounded-lg text-gray-700 font-medium hover:bg-gray-200 transition-colors">
+            Monthly View
+          </button>
+        </div>
+        <div className="h-64 bg-gray-50 rounded-lg border flex items-center justify-center">
+          <p className="text-gray-500">Your study schedule will appear here</p>
         </div>
       </Card>
 
