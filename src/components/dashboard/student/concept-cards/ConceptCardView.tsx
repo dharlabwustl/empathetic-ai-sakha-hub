@@ -4,8 +4,11 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Brain, BookOpen, Clock, Book } from 'lucide-react';
+import { 
+  ArrowRight, Brain, BookOpen, Clock, Book, Tag, Star, AlertCircle, CheckCircle, Bookmark, VolumeX, Volume2
+} from 'lucide-react';
 import { useUserStudyPlan } from '@/hooks/useUserStudyPlan';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface ConceptCardViewProps {
   title?: string;
@@ -24,6 +27,11 @@ const ConceptCardView: React.FC<ConceptCardViewProps> = ({
 }) => {
   const { conceptCards, loading } = useUserStudyPlan();
   const [selectedView, setSelectedView] = useState<'today' | 'week' | 'month'>('today');
+  const [isVoiceEnabled, setIsVoiceEnabled] = useState(false);
+  
+  const toggleVoice = () => {
+    setIsVoiceEnabled(!isVoiceEnabled);
+  };
   
   const filteredCards = conceptCards
     .filter(card => !subject || card.subject === subject)
@@ -47,99 +55,143 @@ const ConceptCardView: React.FC<ConceptCardViewProps> = ({
   
   return (
     <div className="space-y-4">
-      {title && <h3 className="text-xl font-medium">{title}</h3>}
-      
-      {!subject && !chapter && (
-        <div className="flex items-center space-x-4 mb-4 overflow-x-auto pb-2">
-          <Button 
-            variant={selectedView === 'today' ? "default" : "outline"}
-            size="sm"
-            onClick={() => setSelectedView('today')}
-            className="rounded-full"
-          >
-            Today
-          </Button>
-          <Button 
-            variant={selectedView === 'week' ? "default" : "outline"}
-            size="sm"
-            onClick={() => setSelectedView('week')}
-            className="rounded-full"
-          >
-            This Week
-          </Button>
-          <Button 
-            variant={selectedView === 'month' ? "default" : "outline"}
-            size="sm"
-            onClick={() => setSelectedView('month')}
-            className="rounded-full"
-          >
-            This Month
-          </Button>
+      {title && (
+        <div className="flex items-center justify-between">
+          <h3 className="text-xl font-medium">{title}</h3>
+          {!subject && !chapter && (
+            <div className="flex items-center space-x-3">
+              <Button 
+                variant="outline" 
+                size="sm"
+                className="flex items-center gap-1"
+                onClick={toggleVoice}
+              >
+                {isVoiceEnabled ? <Volume2 size={16} className="mr-1" /> : <VolumeX size={16} className="mr-1" />}
+                {isVoiceEnabled ? 'Voice Enabled' : 'Enable Voice'}
+              </Button>
+            </div>
+          )}
         </div>
       )}
       
-      {filteredCards.length === 0 ? (
-        <Card className="bg-gray-50">
-          <CardContent className="p-6 text-center">
-            <p className="text-gray-500">No concept cards found for {selectedView === 'today' ? "today" : selectedView === 'week' ? "this week" : "this month"}</p>
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-          {filteredCards.map((card) => (
-            <Link 
-              key={card.id} 
-              to={`/dashboard/student/concepts/${card.id}`}
-              className="block transition-transform hover:scale-[1.02]"
-            >
-              <Card className="h-full hover:shadow-md transition-shadow duration-200 overflow-hidden group border-l-4" 
-                    style={{ borderLeftColor: getDifficultyColor(card.difficulty) }}>
-                <CardContent className="p-4 h-full flex flex-col">
-                  <div className="flex items-start justify-between mb-2">
-                    <Badge variant={card.completed ? "outline" : "default"} className="mb-2">
-                      {card.completed ? "Completed" : "Pending"}
-                    </Badge>
-                    <Badge variant="outline" className={getDifficultyClass(card.difficulty)}>
-                      {card.difficulty}
-                    </Badge>
-                  </div>
-                  
-                  <h3 className="font-semibold text-lg mb-1 group-hover:text-blue-600 transition-colors duration-200">
-                    {card.title}
-                  </h3>
-                  
-                  <div className="mt-auto pt-2 space-y-1 text-sm text-gray-500">
-                    <div className="flex items-center gap-1">
-                      <Book size={14} />
-                      <span>{card.subject}</span>
-                    </div>
-                    
-                    <div className="flex items-center gap-1">
-                      <BookOpen size={14} />
-                      <span>{card.chapter}</span>
-                    </div>
-                    
-                    <div className="flex items-center gap-1">
-                      <Clock size={14} />
-                      <span>{card.estimatedTime} min</span>
-                    </div>
-                  </div>
+      <Tabs value={selectedView} onValueChange={(v) => setSelectedView(v as 'today' | 'week' | 'month')}>
+        <TabsList className="grid grid-cols-3 w-full md:w-[400px]">
+          <TabsTrigger value="today" className="flex items-center">
+            <Clock size={14} className="mr-1" />
+            Today
+          </TabsTrigger>
+          <TabsTrigger value="week" className="flex items-center">
+            <CheckCircle size={14} className="mr-1" />
+            This Week
+          </TabsTrigger>
+          <TabsTrigger value="month" className="flex items-center">
+            <BookOpen size={14} className="mr-1" />
+            This Month
+          </TabsTrigger>
+        </TabsList>
+        
+        {['today', 'week', 'month'].map((tab) => (
+          <TabsContent key={tab} value={tab} className="pt-4">
+            {filteredCards.length === 0 ? (
+              <Card className="bg-gray-50">
+                <CardContent className="p-6 text-center">
+                  <p className="text-gray-500">No concept cards scheduled for {tab === 'today' ? "today" : tab === 'week' ? "this week" : "this month"}</p>
                 </CardContent>
               </Card>
-            </Link>
-          ))}
-        </div>
-      )}
-      
-      {showViewAll && filteredCards.length > 0 && (
-        <div className="flex justify-center mt-4">
-          <Link to="/dashboard/student/concepts/all" className="inline-flex">
-            <Button variant="outline" className="flex items-center gap-2">
-              View All Concepts <ArrowRight size={16} />
-            </Button>
-          </Link>
-        </div>
-      )}
+            ) : (
+              <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+                {filteredCards.map((card) => (
+                  <Link 
+                    key={card.id} 
+                    to={`/dashboard/student/concepts/${card.id}`}
+                    className="block transition-transform hover:scale-[1.02]"
+                  >
+                    <Card className="h-full hover:shadow-md transition-shadow duration-200 overflow-hidden group border-l-4" 
+                          style={{ borderLeftColor: getDifficultyColor(card.difficulty) }}>
+                      <CardContent className="p-4 h-full flex flex-col">
+                        <div className="flex items-start justify-between mb-2">
+                          <Badge variant={card.completed ? "outline" : "default"} className="mb-2">
+                            {card.completed ? "Completed" : "Pending"}
+                          </Badge>
+                          <div className="flex gap-1">
+                            <Badge variant="outline" className={getDifficultyClass(card.difficulty)}>
+                              {card.difficulty}
+                            </Badge>
+                            <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">
+                              <Star size={10} className="mr-1" />
+                              High
+                            </Badge>
+                          </div>
+                        </div>
+                        
+                        <h3 className="font-semibold text-lg mb-1 group-hover:text-blue-600 transition-colors duration-200">
+                          {card.title}
+                        </h3>
+                        
+                        <div className="mt-auto pt-2 space-y-1.5 text-sm text-gray-500">
+                          <div className="flex items-center gap-1">
+                            <Book size={14} />
+                            <span>{card.subject}</span>
+                          </div>
+                          
+                          <div className="flex items-center gap-1">
+                            <BookOpen size={14} />
+                            <span>{card.chapter}</span>
+                          </div>
+                          
+                          <div className="flex items-center gap-1">
+                            <Clock size={14} />
+                            <span>{card.estimatedTime} min</span>
+                          </div>
+                          
+                          <div className="flex items-center gap-1">
+                            <Tag size={14} />
+                            <div className="flex flex-wrap gap-1">
+                              {card.tags && card.tags.map((tag, i) => (
+                                <span key={i} className="bg-gray-100 px-1.5 rounded text-xs">
+                                  {tag}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div className="mt-2 pt-2 border-t border-gray-100 flex justify-between items-center">
+                          <div className="flex gap-2">
+                            <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700">
+                              <AlertCircle size={10} className="mr-1" />
+                              Flashcards
+                            </Badge>
+                            <Badge variant="outline" className="text-xs bg-green-50 text-green-700">
+                              <CheckCircle size={10} className="mr-1" />
+                              Test Ready
+                            </Badge>
+                          </div>
+                          {isVoiceEnabled && (
+                            <Button size="sm" variant="ghost" className="p-1 h-auto">
+                              <Volume2 size={16} className="text-blue-600" />
+                            </Button>
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                ))}
+              </div>
+            )}
+            
+            {showViewAll && filteredCards.length > 0 && (
+              <div className="flex justify-center mt-4">
+                <Link to="/dashboard/student/concepts/all" className="inline-flex">
+                  <Button variant="outline" className="flex items-center gap-2">
+                    View All Concepts <ArrowRight size={16} />
+                  </Button>
+                </Link>
+              </div>
+            )}
+          </TabsContent>
+        ))}
+      </Tabs>
     </div>
   );
 };

@@ -1,15 +1,18 @@
-
 import React, { useState } from 'react';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { BookOpen, Brain, Check, Clock, Repeat, RotateCcw, Sparkles, ArrowRight, Filter } from 'lucide-react';
+import { BookOpen, Brain, Check, Clock, Repeat, RotateCcw, Sparkles, ArrowRight, Filter, 
+  Volume2, VolumeX, Bookmark, Bell, Tag, MessageSquare, Mic, Zap, BookmarkPlus, FileText, 
+  BookMarked, BarChart } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { useUserStudyPlan } from '@/hooks/useUserStudyPlan';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 
 interface FlashcardProps {
   id: string;
@@ -22,6 +25,9 @@ interface FlashcardProps {
   image?: string;
   type: 'definition' | 'image' | 'question' | 'mcq';
   conceptId?: string;
+  isBookmarked?: boolean;
+  cardsCount?: number;
+  mastery?: number;
 }
 
 const FlashcardsFeature: React.FC = () => {
@@ -31,6 +37,13 @@ const FlashcardsFeature: React.FC = () => {
   const [currentFlashcardIndex, setCurrentFlashcardIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
   const [recallRatings, setRecallRatings] = useState<Record<string, 1 | 2 | 3 | 4 | 5>>({});
+  const [voiceEnabled, setVoiceEnabled] = useState(false);
+  const [userAnswer, setUserAnswer] = useState('');
+  const [showAnswerFeedback, setShowAnswerFeedback] = useState(false);
+  const [answerAccuracy, setAnswerAccuracy] = useState(0);
+  const [isBookmarked, setIsBookmarked] = useState<Record<string, boolean>>({});
+  const [useSpeechInput, setUseSpeechInput] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
   
   // Get exam goal
   const examGoal = userProfile?.goals?.[0]?.title || 'IIT-JEE';
@@ -48,7 +61,10 @@ const FlashcardsFeature: React.FC = () => {
       timeToComplete: 1,
       difficulty: concept.difficulty.toLowerCase() as 'easy' | 'medium' | 'hard',
       type: 'definition',
-      conceptId: concept.id
+      conceptId: concept.id,
+      isBookmarked: false,
+      cardsCount: 10,
+      mastery: 75
     },
     {
       id: `flash-q-${concept.id}`,
@@ -59,7 +75,10 @@ const FlashcardsFeature: React.FC = () => {
       timeToComplete: 2,
       difficulty: concept.difficulty.toLowerCase() as 'easy' | 'medium' | 'hard',
       type: 'question',
-      conceptId: concept.id
+      conceptId: concept.id,
+      isBookmarked: true,
+      cardsCount: 15,
+      mastery: 60
     }
   ]);
   
@@ -72,15 +91,12 @@ const FlashcardsFeature: React.FC = () => {
           const relatedConcept = conceptCards.find(concept => concept.id === card.conceptId);
           return relatedConcept?.scheduledFor === 'today';
         });
-      case 'bookmarks':
-        // Demo bookmarked flashcards
-        return sampleFlashcards.filter((_, i) => i % 5 === 0);
-      case 'review':
-        // Demo review flashcards (low recall)
-        return sampleFlashcards.filter((card) => {
-          const rating = recallRatings[card.id];
-          return rating && rating < 3;
-        });
+      case 'week':
+        // Demo week flashcards
+        return sampleFlashcards.filter((_, i) => i % 3 !== 0);
+      case 'month':
+        // Demo month flashcards
+        return sampleFlashcards;
       default:
         return sampleFlashcards;
     }
@@ -105,12 +121,16 @@ const FlashcardsFeature: React.FC = () => {
       subject,
       total: cards.length,
       rated: rated.length,
-      mastered: mastered.length
+      mastered: mastered.length,
+      avgScore: Math.round(rated.reduce((acc, card) => acc + (recallRatings[card.id] || 0), 0) / (rated.length || 1) * 20),
+      avgRecall: Math.round(rated.reduce((acc, card) => acc + (recallRatings[card.id] || 0), 0) / (rated.length || 1) * 25)
     };
   });
 
   const handleNext = () => {
     setIsFlipped(false);
+    setUserAnswer('');
+    setShowAnswerFeedback(false);
     setCurrentFlashcardIndex(prev => 
       prev < flashcards.length - 1 ? prev + 1 : 0
     );
@@ -118,6 +138,8 @@ const FlashcardsFeature: React.FC = () => {
 
   const handlePrevious = () => {
     setIsFlipped(false);
+    setUserAnswer('');
+    setShowAnswerFeedback(false);
     setCurrentFlashcardIndex(prev => 
       prev > 0 ? prev - 1 : flashcards.length - 1
     );
@@ -129,10 +151,69 @@ const FlashcardsFeature: React.FC = () => {
         ...prev,
         [currentFlashcard.id]: rating
       }));
-      
-      // Automatically move to next card after rating
-      setTimeout(handleNext, 500);
     }
+  };
+  
+  const toggleVoice = () => {
+    setVoiceEnabled(!voiceEnabled);
+  };
+  
+  const toggleBookmark = () => {
+    if (currentFlashcard) {
+      setIsBookmarked(prev => ({
+        ...prev,
+        [currentFlashcard.id]: !prev[currentFlashcard.id]
+      }));
+    }
+  };
+  
+  const handleSubmitAnswer = () => {
+    if (currentFlashcard) {
+      // Simple accuracy calculation (in a real app, this would use more sophisticated matching)
+      const words = currentFlashcard.back.toLowerCase().split(' ');
+      const userWords = userAnswer.toLowerCase().split(' ');
+      
+      let matches = 0;
+      userWords.forEach(word => {
+        if (word.length > 3 && words.includes(word)) {
+          matches++;
+        }
+      });
+      
+      const totalKeywords = words.filter(word => word.length > 3).length;
+      const accuracy = Math.min(100, Math.round((matches / Math.max(1, totalKeywords)) * 100));
+      
+      setAnswerAccuracy(accuracy);
+      setShowAnswerFeedback(true);
+      
+      // Auto-rate based on accuracy
+      const autoRating: 1 | 2 | 3 | 4 | 5 = 
+        accuracy >= 90 ? 5 :
+        accuracy >= 75 ? 4 :
+        accuracy >= 60 ? 3 :
+        accuracy >= 40 ? 2 : 1;
+        
+      handleRecall(autoRating);
+    }
+  };
+  
+  const toggleSpeechInput = () => {
+    setUseSpeechInput(!useSpeechInput);
+  };
+  
+  const startRecording = () => {
+    // In a real implementation, this would use the Web Speech API
+    setIsRecording(true);
+    
+    // Mock recording after 2 seconds
+    setTimeout(() => {
+      setIsRecording(false);
+      setUserAnswer(prev => prev + " " + currentFlashcard.back.split(' ').slice(0, 3).join(' ') + "...");
+    }, 2000);
+  };
+  
+  const stopRecording = () => {
+    setIsRecording(false);
   };
 
   // Animation variants
@@ -154,16 +235,27 @@ const FlashcardsFeature: React.FC = () => {
             Flashcards
           </h2>
           <p className="text-gray-500">
-            Review key concepts for your {examGoal} preparation with spaced repetition
+            Quick Recaps for Your {examGoal} Preparation, Available Anytime
           </p>
         </div>
         
-        <Link to="/dashboard/student/flashcards/all">
-          <Button variant="outline" className="flex items-center gap-2">
-            View All Flashcards 
-            <ArrowRight size={16} />
+        <div className="flex items-center gap-2">
+          <Button 
+            variant="outline"
+            size="sm"
+            className="flex items-center gap-1"
+            onClick={toggleVoice}
+          >
+            {voiceEnabled ? <Volume2 size={16} className="mr-1" /> : <VolumeX size={16} className="mr-1" />}
+            {voiceEnabled ? 'Voice Enabled' : 'Enable Voice'}
           </Button>
-        </Link>
+          
+          <Link to="/dashboard/student/flashcards/all">
+            <Button variant="outline" className="flex items-center gap-2">
+              View All Flashcards <ArrowRight size={16} />
+            </Button>
+          </Link>
+        </div>
       </div>
       
       {/* Progress Summary */}
@@ -202,128 +294,46 @@ const FlashcardsFeature: React.FC = () => {
         </Card>
       </div>
 
-      {/* Flashcard Browser */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
-          <Card className="border-t-4 border-t-blue-500">
+          <Card>
             <CardHeader>
-              <div className="flex justify-between items-center">
-                <CardTitle>Flashcard Browser</CardTitle>
-                <div className="flex items-center gap-2">
-                  <Button variant="outline" size="sm" onClick={handlePrevious}>
-                    <RotateCcw size={16} />
-                  </Button>
-                  <span className="text-sm">
-                    {currentFlashcardIndex + 1} / {flashcards.length}
-                  </span>
-                  <Button variant="outline" size="sm" onClick={handleNext}>
-                    <ArrowRight size={16} />
-                  </Button>
-                </div>
-              </div>
-              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="grid grid-cols-3 w-full">
-                  <TabsTrigger value="today">Today's Cards</TabsTrigger>
-                  <TabsTrigger value="bookmarks">Bookmarks</TabsTrigger>
-                  <TabsTrigger value="review">Need Review</TabsTrigger>
+              <CardTitle>Flashcard Sets</CardTitle>
+              <Tabs value={activeTab} onValueChange={setActiveTab}>
+                <TabsList>
+                  <TabsTrigger value="today">Today</TabsTrigger>
+                  <TabsTrigger value="week">This Week</TabsTrigger>
+                  <TabsTrigger value="month">This Month</TabsTrigger>
                 </TabsList>
               </Tabs>
             </CardHeader>
-
             <CardContent>
-              {flashcards.length > 0 ? (
-                <div className="relative perspective-1000 h-64">
-                  <motion.div 
-                    className="absolute w-full h-full cursor-pointer"
-                    animate={isFlipped ? "back" : "front"}
-                    variants={cardVariants}
-                    transition={{ duration: 0.6, type: "spring" }}
-                    onClick={() => setIsFlipped(!isFlipped)}
-                    style={{ transformStyle: "preserve-3d" }}
-                  >
-                    {/* Front of card */}
-                    <div className={`absolute w-full h-full backface-hidden flex flex-col justify-between rounded-lg p-6 border ${
-                      isFlipped ? 'opacity-0' : 'opacity-100'
-                    } bg-white`}>
-                      <div>
-                        <div className="flex justify-between items-center mb-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {flashcards.map((set) => (
+                  <Link key={set.id} to={`/dashboard/student/flashcards/${set.id}`}>
+                    <Card className="h-full hover:shadow-md transition-shadow duration-200">
+                      <CardContent className="p-4 space-y-4">
+                        <div className="flex justify-between items-start">
                           <Badge variant="outline" className="bg-blue-50 text-blue-700">
-                            {currentFlashcard.subject}
-                          </Badge>
-                          <Badge variant={`${
-                            currentFlashcard.difficulty === 'easy' ? 'secondary' : 
-                            currentFlashcard.difficulty === 'medium' ? 'default' : 
-                            'destructive'
-                          }`}>
-                            {currentFlashcard.difficulty.charAt(0).toUpperCase() + currentFlashcard.difficulty.slice(1)}
+                            {set.subject}
                           </Badge>
                         </div>
-                        <h3 className="text-xl font-semibold text-center my-8">{currentFlashcard.front}</h3>
-                      </div>
-                      <div className="text-center text-sm text-gray-500">Click to flip</div>
-                    </div>
-
-                    {/* Back of card */}
-                    <div className={`absolute w-full h-full backface-hidden flex flex-col justify-between rounded-lg p-6 border ${
-                      isFlipped ? 'opacity-100' : 'opacity-0'
-                    } bg-blue-50 [transform:rotateY(180deg)]`}>
-                      <div>
-                        <div className="flex justify-between items-center mb-4">
-                          <Badge variant="outline" className="bg-white">
-                            {currentFlashcard.topic}
-                          </Badge>
-                          <Badge variant="secondary">
-                            {currentFlashcard.type.charAt(0).toUpperCase() + currentFlashcard.type.slice(1)}
+                        <h3 className="font-semibold">{set.front}</h3>
+                        <div className="flex flex-wrap gap-2">
+                          <Badge variant="outline" className="text-xs">
+                            {set.topic}
                           </Badge>
                         </div>
-                        <p className="text-lg text-center my-8">{currentFlashcard.back}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-center mb-2 text-gray-600">How well did you recall this?</p>
-                        <div className="flex justify-center gap-2">
-                          {[1, 2, 3, 4, 5].map((rating) => (
-                            <Button 
-                              key={rating}
-                              variant={recallRatings[currentFlashcard.id] === rating ? "default" : "outline"}
-                              size="sm"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleRecall(rating as 1 | 2 | 3 | 4 | 5);
-                              }}
-                            >
-                              {rating}
-                            </Button>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  </motion.div>
-                </div>
-              ) : (
-                <div className="h-64 flex items-center justify-center border rounded-lg">
-                  <p className="text-gray-500">No flashcards available in this category</p>
-                </div>
-              )}
+                        <Button className="w-full mt-2">Study Now</Button>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                ))}
+              </div>
             </CardContent>
-
-            <CardFooter className="flex justify-between">
-              <div className="text-sm text-gray-500">
-                {flashcards.length > 0 && `Type: ${currentFlashcard.type.charAt(0).toUpperCase() + currentFlashcard.type.slice(1)}`}
-              </div>
-              <div className="flex gap-2">
-                <Button variant="outline" size="sm">
-                  <BookOpen size={16} className="mr-1" />
-                  View Full Concept
-                </Button>
-                <Button variant="outline" size="sm">
-                  <Repeat size={16} className="mr-1" />
-                  Mark for Review
-                </Button>
-              </div>
-            </CardFooter>
           </Card>
         </div>
-        
+
         {/* Sidebar with stats and filters */}
         <div className="space-y-4">
           <Card>
@@ -362,7 +372,7 @@ const FlashcardsFeature: React.FC = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               {subjectStats.map(stat => (
-                <div key={stat.subject}>
+                <div key={stat.subject} className="space-y-2">
                   <div className="flex justify-between mb-1">
                     <span className="text-sm font-medium">{stat.subject}</span>
                     <span className="text-sm">{stat.mastered}/{stat.total}</span>
@@ -371,8 +381,44 @@ const FlashcardsFeature: React.FC = () => {
                     value={(stat.mastered / stat.total) * 100} 
                     className="h-2" 
                   />
+                  
+                  <div className="flex justify-between text-xs text-gray-500">
+                    <span>Quiz: {stat.avgScore}%</span>
+                    <span>Recall: {stat.avgRecall}%</span>
+                  </div>
                 </div>
               ))}
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Zap size={16} />
+                Learning Tips
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4 text-sm">
+              <div className="p-3 bg-blue-50 rounded-lg border border-blue-100">
+                <h4 className="font-medium text-blue-800 mb-1">Spaced Repetition</h4>
+                <p className="text-blue-700">
+                  Review cards at increasing intervals: 1 day, 3 days, 7 days, etc.
+                </p>
+              </div>
+              
+              <div className="p-3 bg-amber-50 rounded-lg border border-amber-100">
+                <h4 className="font-medium text-amber-800 mb-1">Active Recall</h4>
+                <p className="text-amber-700">
+                  Try to answer before flipping the card to strengthen memory.
+                </p>
+              </div>
+              
+              <div className="p-3 bg-green-50 rounded-lg border border-green-100">
+                <h4 className="font-medium text-green-800 mb-1">Interleaving</h4>
+                <p className="text-green-700">
+                  Mix different subjects rather than studying one topic at a time.
+                </p>
+              </div>
             </CardContent>
           </Card>
         </div>
