@@ -4,189 +4,274 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { 
-  Calendar, 
-  CheckCircle, 
-  Circle, 
+  BookOpen, 
   Clock, 
-  Target, 
-  Award,
-  Flame
+  Calendar,
+  CheckCircle, 
+  Circle,
+  BookCheck,
+  Timer,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import MicroConcept from "./MicroConcept";
 
-// Mock data for today's plan
-const mockTodayPlan = {
-  date: new Date(),
-  totalConcepts: 5,
-  completedConcepts: 2,
-  timeSpent: 45, // minutes
-  targetTime: 120, // minutes
-  streak: 7, // days
-  concepts: [
-    {
-      id: "c1",
-      title: "Newton's Third Law of Motion",
-      subject: "Physics",
-      chapter: "Laws of Motion",
-      difficulty: "Medium" as const,
-      estimatedTime: 15,
-      content: "Newton's third law states that for every action, there is an equal and opposite reaction. When one body exerts a force on a second body, the second body exerts a force equal in magnitude and opposite in direction on the first body.",
-      resourceType: "Video" as const,
-      resourceUrl: "#",
-      completed: true
-    },
-    {
-      id: "c2",
-      title: "Acid-Base Reactions",
-      subject: "Chemistry",
-      chapter: "Chemical Reactions",
-      difficulty: "Easy" as const,
-      estimatedTime: 20,
-      content: "Acid-base reactions involve the transfer of H+ ions (protons) from one substance to another. In these reactions, acids act as proton donors while bases act as proton acceptors.",
-      resourceType: "Text" as const,
-      resourceUrl: "#",
-      completed: true
-    },
-    {
-      id: "c3",
-      title: "Integration by Parts",
-      subject: "Mathematics",
-      chapter: "Integral Calculus",
-      difficulty: "Hard" as const,
-      estimatedTime: 25,
-      content: "Integration by parts is a technique used to evaluate integrals where the integrand is a product of two functions. The formula is: ∫u(x)v'(x)dx = u(x)v(x) - ∫u'(x)v(x)dx",
-      resourceType: "PDF" as const,
-      resourceUrl: "#",
-      completed: false
-    },
-    {
-      id: "c4",
-      title: "DNA Replication",
-      subject: "Biology",
-      chapter: "Molecular Biology",
-      difficulty: "Medium" as const,
-      estimatedTime: 30,
-      content: "DNA replication is the process by which DNA makes a copy of itself during cell division. The structure of the double helix allows each strand to serve as a template for a new strand of complementary DNA.",
-      resourceType: "Video" as const,
-      resourceUrl: "#",
-      completed: false
-    },
-    {
-      id: "c5",
-      title: "The Indian Constitution",
-      subject: "Polity",
-      chapter: "Indian Political System",
-      difficulty: "Easy" as const,
-      estimatedTime: 20,
-      content: "The Constitution of India is the supreme law of India. It lays down the framework defining fundamental political principles, establishes the structure, procedures, powers and duties of government institutions.",
-      resourceType: "Text" as const,
-      resourceUrl: "#",
-      completed: false
-    }
-  ]
-};
+// Mock data interface
+interface SubjectTask {
+  id: string;
+  type: 'concept' | 'flashcard' | 'practice';
+  title: string;
+  status: 'completed' | 'pending' | 'in-progress';
+  timeEstimate?: number; // in minutes
+  details?: {
+    questionCount?: number;
+    duration?: number;
+  };
+}
+
+interface SubjectPlan {
+  subject: string;
+  tasks: SubjectTask[];
+}
+
+interface HistoryEntry {
+  date: string;
+  concepts: { completed: number; total: number };
+  flashcards: { completed: number; total: number };
+  practice: { completed: number; total: number };
+  status: 'done' | 'incomplete' | 'pending';
+}
+
+const mockTodayPlan: SubjectPlan[] = [
+  {
+    subject: "Biology",
+    tasks: [
+      {
+        id: "bio1",
+        type: "concept",
+        title: "Photosynthesis Explained",
+        status: "completed"
+      },
+      {
+        id: "bio2",
+        type: "concept",
+        title: "Cell Structure & Function",
+        status: "completed"
+      },
+      {
+        id: "bio3",
+        type: "flashcard",
+        title: "Chapter 2 Quick Recap",
+        status: "completed"
+      },
+      {
+        id: "bio4",
+        type: "practice",
+        title: "Quiz: Plant Biology Basics",
+        status: "completed",
+        details: {
+          questionCount: 10,
+          duration: 20
+        }
+      }
+    ]
+  },
+  {
+    subject: "Mathematics",
+    tasks: [
+      {
+        id: "math1",
+        type: "concept",
+        title: "Algebraic Identities",
+        status: "completed"
+      },
+      {
+        id: "math2",
+        type: "concept",
+        title: "Linear Equations",
+        status: "pending"
+      },
+      {
+        id: "math3",
+        type: "flashcard",
+        title: "Equations & Practice",
+        status: "in-progress"
+      },
+      {
+        id: "math4",
+        type: "practice",
+        title: "Mini Test: Algebra Level 1",
+        status: "pending",
+        details: {
+          questionCount: 15,
+          duration: 30
+        }
+      }
+    ]
+  }
+];
+
+const mockHistory: HistoryEntry[] = [
+  {
+    date: "Apr 24",
+    concepts: { completed: 4, total: 5 },
+    flashcards: { completed: 1, total: 1 },
+    practice: { completed: 1, total: 1 },
+    status: "incomplete"
+  },
+  {
+    date: "Apr 23",
+    concepts: { completed: 3, total: 4 },
+    flashcards: { completed: 0, total: 1 },
+    practice: { completed: 1, total: 1 },
+    status: "pending"
+  },
+  {
+    date: "Apr 22",
+    concepts: { completed: 5, total: 5 },
+    flashcards: { completed: 2, total: 2 },
+    practice: { completed: 1, total: 1 },
+    status: "done"
+  }
+];
+
+const TaskItem = ({ task }: { task: SubjectTask }) => (
+  <div className="flex items-center gap-3 py-2">
+    {task.status === "completed" ? (
+      <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
+    ) : task.status === "in-progress" ? (
+      <Circle className="h-5 w-5 text-yellow-500 flex-shrink-0" />
+    ) : (
+      <Circle className="h-5 w-5 text-gray-300 flex-shrink-0" />
+    )}
+    <div className="flex-1">
+      <p className={cn(
+        "text-sm font-medium",
+        task.status === "completed" ? "text-gray-600 dark:text-gray-300" : "text-gray-900 dark:text-gray-100"
+      )}>
+        {task.title}
+      </p>
+      {task.details && (
+        <p className="text-xs text-gray-500">
+          {task.details.questionCount} Questions · ⏱ {task.details.duration} mins
+        </p>
+      )}
+    </div>
+  </div>
+);
 
 export default function TodayStudyPlan() {
-  const [todayPlan, setTodayPlan] = useState(mockTodayPlan);
+  const [showHistory, setShowHistory] = useState(false);
   
-  const handleCompleteConcept = (id: string) => {
-    setTodayPlan(prev => {
-      const updatedConcepts = prev.concepts.map(concept => 
-        concept.id === id ? {...concept, completed: true} : concept
-      );
-      
-      return {
-        ...prev,
-        concepts: updatedConcepts,
-        completedConcepts: updatedConcepts.filter(c => c.completed).length
-      };
-    });
-  };
+  const timeAllocation = [
+    { task: "Concept Cards", time: 60 },
+    { task: "Flashcards", time: 30 },
+    { task: "Practice Tests", time: 20 }
+  ];
   
-  const handleNeedHelp = (id: string) => {
-    // In a real app, this would open a chat assistant or help modal
-    console.log(`Help requested for concept ${id}`);
-  };
-  
-  // Calculate progress percentage
-  const progressPercentage = Math.round((todayPlan.completedConcepts / todayPlan.totalConcepts) * 100);
+  const totalTime = timeAllocation.reduce((acc, curr) => acc + curr.time, 0);
   
   return (
-    <Card className="shadow-md">
-      <CardHeader className="bg-gradient-to-r from-sky-50 to-indigo-50 pb-3">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-          <div>
-            <CardTitle className="text-xl flex items-center gap-2">
-              <Calendar className="text-sky-500" size={20} />
-              Today's Study Plan
-            </CardTitle>
-            <p className="text-sm text-muted-foreground">
-              {todayPlan.date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
-            </p>
-          </div>
-          
-          <div className="mt-2 md:mt-0 flex gap-4 text-sm">
-            <div className="flex items-center gap-1">
-              <Clock size={16} className="text-indigo-500" />
-              <span>Time spent: <span className="font-medium">{todayPlan.timeSpent} min</span></span>
-            </div>
-            <div className="flex items-center gap-1">
-              <Flame size={16} className="text-amber-500" />
-              <span>Streak: <span className="font-medium">{todayPlan.streak} days</span></span>
-            </div>
-          </div>
-        </div>
+    <div className="space-y-6 animate-in fade-in-50">
+      <Card className="border-t-4 border-t-indigo-500">
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2 text-xl">
+            <BookCheck className="h-5 w-5 text-indigo-500" />
+            Your Smart Study Agenda
+          </CardTitle>
+          <p className="text-sm text-muted-foreground">
+            Welcome back! Here's your personalized learning list for today.
+          </p>
+        </CardHeader>
         
-        <div className="mt-4 space-y-1">
-          <div className="flex items-center justify-between text-sm">
-            <span>Progress: {progressPercentage}%</span>
-            <span>{todayPlan.completedConcepts}/{todayPlan.totalConcepts} Concepts</span>
-          </div>
-          <Progress value={progressPercentage} className="h-2" />
-        </div>
-      </CardHeader>
-      
-      <CardContent className="p-4">
-        <div className="space-y-4">
-          {todayPlan.concepts.map(concept => (
-            <div key={concept.id} className="flex items-start gap-3">
-              <div className="mt-1 text-lg">
-                {concept.completed ? (
-                  <CheckCircle className="text-green-500" />
-                ) : (
-                  <Circle className="text-gray-300" />
-                )}
+        <CardContent className="space-y-6">
+          {/* Time Allocation */}
+          <div className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-950/50 dark:to-purple-950/50 rounded-lg p-4">
+            <h3 className="flex items-center gap-2 text-sm font-semibold mb-3">
+              <Timer className="h-4 w-4 text-indigo-600" />
+              Time Guidance & Allocation
+            </h3>
+            <div className="space-y-3">
+              {timeAllocation.map((item, index) => (
+                <div key={index} className="flex items-center justify-between text-sm">
+                  <span className="text-gray-600 dark:text-gray-300">{item.task}</span>
+                  <span className="font-medium">{item.time} mins</span>
+                </div>
+              ))}
+              <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
+                <div className="flex items-center justify-between text-sm font-semibold">
+                  <span>Total Time</span>
+                  <span>~{Math.floor(totalTime / 60)} hr {totalTime % 60} mins</span>
+                </div>
               </div>
-              <div className="flex-1">
-                <MicroConcept 
-                  id={concept.id}
-                  title={concept.title}
-                  subject={concept.subject}
-                  chapter={concept.chapter}
-                  difficulty={concept.difficulty}
-                  estimatedTime={concept.estimatedTime}
-                  content={concept.content}
-                  resourceType={concept.resourceType}
-                  resourceUrl={concept.resourceUrl}
-                  onComplete={handleCompleteConcept}
-                  onNeedHelp={handleNeedHelp}
-                />
+            </div>
+          </div>
+
+          {/* Subject Breakdown */}
+          {mockTodayPlan.map((subject, index) => (
+            <div key={index} className="space-y-3">
+              <h3 className="flex items-center gap-2 text-sm font-semibold">
+                <BookOpen className="h-4 w-4 text-indigo-600" />
+                {subject.subject}
+              </h3>
+              <div className="pl-4 space-y-1">
+                {subject.tasks.map((task) => (
+                  <TaskItem key={task.id} task={task} />
+                ))}
               </div>
             </div>
           ))}
-        </div>
-        
-        {progressPercentage === 100 && (
-          <div className="mt-6 text-center bg-green-50 p-4 rounded-lg">
-            <div className="inline-block p-2 bg-green-100 rounded-full mb-2">
-              <Award className="h-6 w-6 text-green-600" />
-            </div>
-            <h3 className="font-medium text-green-800">Amazing job! You've completed today's study plan.</h3>
-            <p className="text-sm text-green-600">Check back tomorrow for your next set of concepts.</p>
+
+          {/* History Section */}
+          <div>
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full"
+              onClick={() => setShowHistory(!showHistory)}
+            >
+              {showHistory ? "Hide History" : "Show History"}
+            </Button>
+            
+            {showHistory && (
+              <div className="mt-4 space-y-4">
+                <h4 className="text-sm font-semibold flex items-center gap-2">
+                  <Calendar className="h-4 w-4 text-gray-500" />
+                  Past Progress
+                </h4>
+                <div className="space-y-3">
+                  {mockHistory.map((entry, index) => (
+                    <div key={index} className="flex items-center justify-between text-sm p-2 rounded-lg bg-gray-50 dark:bg-gray-800/50">
+                      <span className="font-medium">{entry.date}</span>
+                      <div className="flex items-center gap-4">
+                        <span className="text-xs">
+                          {entry.concepts.completed}/{entry.concepts.total}
+                        </span>
+                        <span className="text-xs">
+                          {entry.flashcards.completed}/{entry.flashcards.total}
+                        </span>
+                        <span className="text-xs">
+                          {entry.practice.completed}/{entry.practice.total}
+                        </span>
+                        <span>
+                          {entry.status === 'done' ? '✅' : 
+                           entry.status === 'incomplete' ? '🟡' : '🔴'}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
-        )}
-      </CardContent>
-    </Card>
+
+          {/* Done Button */}
+          <Button 
+            className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white shadow-lg"
+          >
+            <CheckCircle className="h-4 w-4 mr-2" />
+            I'm Done for Today!
+          </Button>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
