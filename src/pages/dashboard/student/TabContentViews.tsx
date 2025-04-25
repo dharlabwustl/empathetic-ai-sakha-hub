@@ -3,6 +3,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { BookOpen } from 'lucide-react';
+import TodaysPlanView from "@/components/dashboard/student/TodaysPlanView";
 
 export const MicroConceptView = () => {
   const navigate = useNavigate();
@@ -111,4 +112,8 @@ export const PracticeExamsView = () => {
       </div>
     </div>
   );
+};
+
+export const TodaysPlanTabView = () => {
+  return <TodaysPlanView />;
 };

@@ -5,6 +5,9 @@ import StudentDashboard from "./pages/dashboard/student/StudentDashboard";
 import ConceptCardStudyPage from "./pages/student/ConceptCardStudyPage";
 import ConceptCardsListPage from "./pages/dashboard/student/ConceptCardsListPage";
 import ConceptCardPage from "./pages/student/ConceptCardPage";
+import Login from "./pages/Login";
+import SignUp from "./pages/SignUp";
+import ProfilePage from "./pages/student/ProfilePage";
 import { AuthProvider } from "./contexts/auth/AuthContext";
 import { AdminAuthProvider } from "./contexts/AdminAuthContext";
 import { ThemeProvider } from "./components/theme-provider";
@@ -17,11 +20,15 @@ function App() {
         <AdminAuthProvider>
           <Router>
             <Routes>
+              {/* Public Routes */}
               <Route path="/" element={<Index />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<SignUp />} />
               
               {/* Student Dashboard Routes */}
               <Route path="/dashboard/student" element={<StudentDashboard />} />
               <Route path="/dashboard/student/:tab" element={<StudentDashboard />} />
+              <Route path="/profile" element={<ProfilePage />} />
               
               {/* Concept Card Routes */}
               <Route path="/dashboard/student/concepts" element={<ConceptCardsListPage />} />

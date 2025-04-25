@@ -1,276 +1,265 @@
 
-import React, { useState } from "react";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import React, { useState } from 'react';
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { useNavigate } from "react-router-dom";
-import { UserProfileType } from "@/types/user/base";
-import { useToast } from "@/hooks/use-toast";
-import { Progress } from "@/components/ui/progress";
-import { Upload, Star, Users, User, Settings, CreditCard } from "lucide-react";
-import { MoodType } from "@/types/user/base";
-import { formatDate } from "@/utils/dateUtils";
+import { UserProfileType, MoodType } from "@/types/user/base";
+import { 
+  Upload, 
+  CreditCard, 
+  TrendingUp, 
+  Award, 
+  Calendar, 
+  Smile, 
+  Meh, 
+  Frown, 
+  Heart, 
+  ChevronDown,
+  ChevronUp,
+  Crown
+} from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+
+interface SubscriptionTier {
+  name: string;
+  badge: string;
+  color: string;
+  expiresAt?: string;
+}
 
 interface ProfileCardProps {
   profile: UserProfileType;
-  showPeerRanking?: boolean;
   onUploadImage?: (file: File) => void;
+  showPeerRanking?: boolean;
+  showSubscription?: boolean;
   currentMood?: MoodType;
+  onMoodChange?: (mood: MoodType) => void;
+  className?: string;
 }
 
-const ProfileCard: React.FC<ProfileCardProps> = ({
+const ProfileCard: React.FC<ProfileCardProps> = ({ 
   profile,
-  showPeerRanking = false,
   onUploadImage,
-  currentMood
+  showPeerRanking = false,
+  showSubscription = true,
+  currentMood,
+  onMoodChange,
+  className = ""
 }) => {
-  const navigate = useNavigate();
-  const { toast } = useToast();
-  const [imageHover, setImageHover] = useState(false);
+  const [showBilling, setShowBilling] = useState(false);
   
-  const fileInputRef = React.useRef<HTMLInputElement>(null);
+  // Mock subscription data
+  const subscription: SubscriptionTier = {
+    name: "Premium Plan",
+    badge: "PREMIUM",
+    color: "text-amber-500 bg-amber-100 border-amber-200",
+    expiresAt: "2025-05-20"
+  };
   
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      
-      // Check file size (limit to 5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        toast({
-          title: "File too large",
-          description: "Please select an image under 5MB.",
-          variant: "destructive"
-        });
-        return;
+  const formatExpirationDate = (dateString?: string) => {
+    if (!dateString) return "Never";
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", { 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    });
+  };
+  
+  const handleAvatarClick = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = (e: Event) => {
+      const target = e.target as HTMLInputElement;
+      if (target.files && target.files[0] && onUploadImage) {
+        onUploadImage(target.files[0]);
       }
-      
-      // Check file type
-      if (!file.type.startsWith('image/')) {
-        toast({
-          title: "Invalid file type",
-          description: "Please select an image file.",
-          variant: "destructive"
-        });
-        return;
-      }
-      
-      // Call the upload function
-      onUploadImage && onUploadImage(file);
+    };
+    input.click();
+  };
+  
+  const toggleBillingSection = () => {
+    setShowBilling(!showBilling);
+  };
+  
+  const handleMoodSelection = (mood: MoodType) => {
+    if (onMoodChange) {
+      onMoodChange(mood);
     }
   };
   
-  const handleEditProfile = () => {
-    navigate("/profile/edit");
-  };
-  
-  const handleEditAvatar = () => {
-    fileInputRef.current?.click();
-  };
-  
-  const handleUpgradePlan = () => {
-    navigate("/subscription/plans");
-  };
-  
-  const getSubscriptionDisplay = () => {
-    if (!profile.subscription) {
-      return { label: "Free Plan", badgeColor: "bg-gray-100 text-gray-800 border-gray-200" };
-    }
-    
-    const subscriptionType = typeof profile.subscription === 'string' 
-      ? profile.subscription 
-      : profile.subscription.planType;
-    
-    switch (subscriptionType) {
-      case "premium":
-        return { label: "Premium Plan", badgeColor: "bg-purple-100 text-purple-800 border-purple-200" };
-      case "enterprise":
-        return { label: "Enterprise", badgeColor: "bg-indigo-100 text-indigo-800 border-indigo-200" };
-      case "school":
-        return { label: "School Plan", badgeColor: "bg-green-100 text-green-800 border-green-200" };
-      case "corporate":
-        return { label: "Corporate", badgeColor: "bg-blue-100 text-blue-800 border-blue-200" };
-      case "basic":
-        return { label: "Basic Plan", badgeColor: "bg-amber-100 text-amber-800 border-amber-200" };
+  const getMoodIcon = (mood: MoodType) => {
+    switch (mood) {
+      case 'happy':
+        return <Smile className="h-5 w-5 text-green-500" />;
+      case 'neutral':
+        return <Meh className="h-5 w-5 text-amber-500" />;
+      case 'sad':
+        return <Frown className="h-5 w-5 text-red-500" />;
+      case 'motivated':
+        return <Heart className="h-5 w-5 text-pink-500" />;
       default:
-        return { label: "Free Plan", badgeColor: "bg-gray-100 text-gray-800 border-gray-200" };
+        return <Meh className="h-5 w-5 text-gray-500" />;
     }
   };
   
-  const getSubscriptionDetails = () => {
-    if (typeof profile.subscription === 'object' && profile.subscription) {
-      const endDate = profile.subscription.endDate || profile.subscription.expiresAt;
-      
-      const isGroupLeader = profile.subscription.role === 'leader' || profile.subscription.isGroupLeader;
-      const planName = profile.subscription.planName || profile.subscription.plan || "Subscription";
-      
-      return {
-        endDate,
-        isGroupLeader,
-        planName
-      };
-    }
-    
-    return null;
-  };
-  
-  const subscriptionDisplay = getSubscriptionDisplay();
-  const subscriptionDetails = getSubscriptionDetails();
-
   return (
-    <Card>
-      <CardHeader className="pb-2 pt-6">
-        <div className="flex justify-center items-center relative">
-          <div
-            className="relative"
-            onMouseEnter={() => setImageHover(true)}
-            onMouseLeave={() => setImageHover(false)}
-            onClick={handleEditAvatar}
+    <Card className={`overflow-hidden ${className}`}>
+      <div className="bg-gradient-to-r from-indigo-500 to-violet-600 h-20 relative">
+        {showSubscription && subscription && (
+          <div className="absolute top-3 right-3">
+            <Badge className={`font-bold ${subscription.color}`}>
+              <Crown className="h-3 w-3 mr-1" />
+              {subscription.badge}
+            </Badge>
+          </div>
+        )}
+      </div>
+      
+      <div className="relative px-6">
+        <div className="absolute -top-12 left-6">
+          <Avatar 
+            className="h-24 w-24 border-4 border-white dark:border-gray-900 rounded-full relative group"
+            onClick={handleAvatarClick}
           >
-            <Avatar className="h-20 w-20">
-              <AvatarImage src={profile.avatar || ""} />
-              <AvatarFallback className="text-lg">
-                {profile.name ? profile.name.charAt(0).toUpperCase() : "U"}
-              </AvatarFallback>
-            </Avatar>
+            <AvatarImage src={profile.avatar} alt={profile.name} className="object-cover" />
+            <AvatarFallback className="text-2xl bg-indigo-100 text-indigo-800">
+              {profile.name.charAt(0).toUpperCase()}
+            </AvatarFallback>
+            
             {onUploadImage && (
-              <div
-                className={`absolute inset-0 bg-black bg-opacity-40 rounded-full flex items-center justify-center transition-opacity cursor-pointer ${
-                  imageHover ? "opacity-100" : "opacity-0"
-                }`}
-              >
+              <div className="absolute inset-0 bg-black/30 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                 <Upload className="h-6 w-6 text-white" />
               </div>
             )}
-            <input
-              type="file"
-              ref={fileInputRef}
-              onChange={handleFileChange}
-              accept="image/*"
-              className="hidden"
-            />
-          </div>
+          </Avatar>
         </div>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="text-center">
-          <h2 className="text-lg font-medium">{profile.name}</h2>
-          <p className="text-sm text-muted-foreground">{profile.email}</p>
-          <div className="mt-2">
-            <Badge 
-              variant="outline" 
-              className={`${subscriptionDisplay.badgeColor}`}
-            >
-              {subscriptionDisplay.label}
-            </Badge>
+      </div>
+      
+      <CardContent className="pt-14 pb-4">
+        <div className="flex flex-col gap-1 mb-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-bold">{profile.name}</h2>
             
             {currentMood && (
-              <Badge 
-                variant="outline" 
-                className="ml-2 bg-blue-50 text-blue-700 border-blue-100"
-              >
-                {currentMood}
-              </Badge>
+              <div className="flex items-center gap-1 text-sm">
+                {getMoodIcon(currentMood)}
+                <span className="capitalize">{currentMood}</span>
+              </div>
             )}
           </div>
+          
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            {profile.goals?.[0]?.title || "Student"}
+          </p>
         </div>
-
-        {showPeerRanking && (
-          <div className="space-y-2 pt-2">
-            <div className="flex items-center justify-between text-sm">
-              <span>Peer Ranking</span>
-              <span className="font-medium">Top 15%</span>
-            </div>
-            <Progress value={85} className="h-2" />
-            <div className="flex items-center justify-center text-xs text-muted-foreground">
-              <Star className="h-3 w-3 mr-1 text-amber-500" />
-              <span>Based on your performance</span>
-            </div>
-          </div>
-        )}
         
-        {/* Subscription details section */}
-        {profile.subscription && (
-          <div className="border rounded-md p-3 space-y-2 bg-gray-50">
-            <h3 className="text-sm font-medium flex items-center gap-1">
-              <CreditCard className="h-4 w-4 text-muted-foreground" />
-              Subscription Details
-            </h3>
-            
-            <div className="space-y-1">
-              {subscriptionDetails?.planName && (
-                <div className="flex justify-between text-xs">
-                  <span className="text-muted-foreground">Plan:</span>
-                  <span>{subscriptionDetails.planName}</span>
-                </div>
-              )}
-              
-              {subscriptionDetails?.endDate && (
-                <div className="flex justify-between text-xs">
-                  <span className="text-muted-foreground">Expires:</span>
-                  <span>{formatDate(new Date(subscriptionDetails.endDate))}</span>
-                </div>
-              )}
-              
-              {typeof profile.subscription === 'object' && profile.subscription.batchCode && (
-                <div className="flex justify-between text-xs">
-                  <span className="text-muted-foreground">Batch:</span>
-                  <span>{profile.subscription.batchName || profile.subscription.batchCode}</span>
-                </div>
-              )}
-              
-              {subscriptionDetails?.isGroupLeader && (
-                <div className="flex justify-between text-xs">
-                  <span className="text-muted-foreground">Role:</span>
-                  <Badge variant="outline" className="text-[10px] py-0 h-4 bg-blue-50 text-blue-700 border-blue-100">
-                    Group Leader
-                  </Badge>
-                </div>
-              )}
+        {/* Stats and badges */}
+        <div className="grid grid-cols-2 gap-2 mb-4">
+          <div className="p-2 bg-gray-50 dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700">
+            <div className="flex items-center">
+              <Calendar className="h-4 w-4 text-indigo-500 mr-2" />
+              <span className="text-xs text-gray-600 dark:text-gray-400">Joined</span>
             </div>
-            
+            <p className="font-semibold">{profile.joinDate || "2023"}</p>
+          </div>
+          
+          <div className="p-2 bg-gray-50 dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700">
+            <div className="flex items-center">
+              <Award className="h-4 w-4 text-indigo-500 mr-2" />
+              <span className="text-xs text-gray-600 dark:text-gray-400">Streaks</span>
+            </div>
+            <p className="font-semibold">{profile.streak || "0"} days</p>
+          </div>
+          
+          {showPeerRanking && (
+            <div className="p-2 bg-gray-50 dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700 col-span-2">
+              <div className="flex items-center">
+                <TrendingUp className="h-4 w-4 text-indigo-500 mr-2" />
+                <span className="text-xs text-gray-600 dark:text-gray-400">Peer Ranking</span>
+              </div>
+              <p className="font-semibold">Top {profile.peerRanking || "15"}%</p>
+            </div>
+          )}
+        </div>
+        
+        {/* Subscription information */}
+        {showSubscription && (
+          <>
             <Button 
               variant="outline" 
               size="sm" 
-              className="w-full mt-2 text-xs border-indigo-200 text-indigo-700 hover:bg-indigo-50"
-              onClick={handleUpgradePlan}
+              className="w-full flex items-center justify-between" 
+              onClick={toggleBillingSection}
             >
-              Upgrade Plan
+              <span className="flex items-center">
+                <CreditCard className="h-4 w-4 mr-2" />
+                {showBilling ? "Hide Billing Info" : "View Billing Info"}
+              </span>
+              {showBilling ? 
+                <ChevronUp className="h-4 w-4" /> : 
+                <ChevronDown className="h-4 w-4" />
+              }
             </Button>
+            
+            <AnimatePresence>
+              {showBilling && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="overflow-hidden"
+                >
+                  <div className="pt-4 space-y-3">
+                    <div className="p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/30 rounded-md">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium">Current Plan</p>
+                          <p className="text-lg font-bold text-amber-700 dark:text-amber-400">{subscription.name}</p>
+                        </div>
+                        <Badge className={subscription.color}>Active</Badge>
+                      </div>
+                      <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                        Expires: {formatExpirationDate(subscription.expiresAt)}
+                      </div>
+                    </div>
+                    
+                    <Button variant="default" className="w-full bg-gradient-to-r from-amber-500 to-orange-600">
+                      Upgrade Plan
+                    </Button>
+                    
+                    <Button variant="outline" size="sm" className="w-full">
+                      Manage Subscription
+                    </Button>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </>
+        )}
+        
+        {/* Mood selection */}
+        {onMoodChange && (
+          <div className="mt-4">
+            <p className="text-sm font-medium mb-2">How are you feeling today?</p>
+            <div className="flex justify-between">
+              {(['sad', 'neutral', 'happy', 'motivated'] as MoodType[]).map((mood) => (
+                <Button
+                  key={mood}
+                  variant={currentMood === mood ? "default" : "ghost"}
+                  size="sm"
+                  className={`px-2 ${currentMood === mood ? 'bg-indigo-500' : ''}`}
+                  onClick={() => handleMoodSelection(mood)}
+                >
+                  {getMoodIcon(mood)}
+                </Button>
+              ))}
+            </div>
           </div>
         )}
-
-        <div className="flex flex-col space-y-2">
-          <Button
-            variant="outline"
-            className="w-full"
-            onClick={handleEditProfile}
-          >
-            <User className="mr-2 h-4 w-4" />
-            Edit Profile
-          </Button>
-          
-          <Button
-            variant="outline"
-            className="w-full"
-            onClick={() => navigate("/settings")}
-          >
-            <Settings className="mr-2 h-4 w-4" />
-            Settings
-          </Button>
-          
-          {typeof profile.subscription === 'object' && 
-           profile.subscription.batchCode && (
-            <Button
-              variant="outline"
-              className="w-full"
-              onClick={() => navigate("/group-management")}
-            >
-              <Users className="mr-2 h-4 w-4" />
-              Manage Group
-            </Button>
-          )}
-        </div>
       </CardContent>
     </Card>
   );

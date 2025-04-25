@@ -1,215 +1,76 @@
 
-export interface UserSubscription {
-  planType: SubscriptionType;
-  batchCode?: string;
-  batchName?: string;
-  startDate?: string;
-  endDate?: string;
-  role?: "member" | "leader" | "school_admin" | "corporate_admin";
-  planId?: string;
-  planName?: string;
-  status?: "active" | "inactive" | "trial";
-  isGroupLeader?: boolean;
-  plan?: string;
-  expiresAt?: string;
-  id?: string;
+export type UserRole = 'student' | 'tutor' | 'admin' | 'parent' | 'employee' | 'doctor' | 'founder';
+
+export type PersonalityType = 'analytical' | 'creative' | 'practical' | 'social' | 'logical' | 'verbal' | 'visual' | 'auditory' | 'kinesthetic' | 'solitary';
+
+export type MoodType = 'happy' | 'sad' | 'neutral' | 'motivated';
+
+export type DateFilterType = 'today' | 'week' | 'month' | 'all';
+
+export type ExamType = 'IIT-JEE' | 'NEET' | 'UPSC' | 'CAT' | 'GMAT' | 'GRE';
+
+export type UserGoal = {
+  id: string;
+  title: string;
+  targetDate?: string;
+  progress: number;
+  description?: string;
+  status?: 'active' | 'completed' | 'on-hold';
+};
+
+export interface ConceptCardType {
+  id: string;
+  title: string;
+  description: string;
+  subject: string;
+  difficulty: string;
+  completed: boolean;
+  progress: number;
+  tags?: string[];
+  chapter?: string;
 }
 
 export interface UserProfileType {
   id: string;
-  email: string;
   name: string;
+  email: string;
+  phone?: string;
   role: UserRole;
-  bio?: string;
   avatar?: string;
-  personalityType?: PersonalityType;
-  goals?: {
-    id: string;
-    title: string;
-    description?: string;
-    progress?: number;
-    status?: "completed" | "in-progress" | "not-started";
-    dueDate?: string;
-    targetDate?: Date;
-    target?: string;
-    examDate?: string;
-  }[];
-  areasOfInterest?: {
-    id: string;
-    name: string;
-    level?: string;
-  }[];
-  subscription?: SubscriptionType | UserSubscription;
+  goals?: UserGoal[];
+  streak?: number;
   joinDate?: string;
   lastActive?: string;
-  gender?: "male" | "female" | "other";
-  phoneNumber?: string;
-  examPreparation?: string;
+  learningStyles?: string[];
+  personality?: PersonalityType[];
+  interests?: string[];
+  peerRanking?: number;
   loginCount?: number;
-  completedOnboarding?: boolean;
-  address?: {
-    street?: string;
-    city?: string;
-    state?: string;
-    zipCode?: string;
-    country?: string;
-  };
-  education?: {
-    level?: string;
-    institution?: string;
-    fieldOfStudy?: string;
-    graduationYear?: number;
-  };
-  location?: string;
-  personalInfo?: {
-    firstName?: string;
-    lastName?: string;
-    dob?: string;
-    gender?: string;
-    occupation?: string;
-    location?: string;
-    phoneNumber?: string;
-    city?: string;
-    state?: string;
-    school?: string;
-    grade?: string;
-    board?: string;
-  };
 }
 
-export enum UserRole {
-  Student = "student",
-  Teacher = "teacher",
-  Parent = "parent",
-  Admin = "admin",
-  Employee = "employee",
-  Doctor = "doctor",
-  Founder = "founder"
-}
-
-export type MoodType = 
-  | "happy"
-  | "sad"
-  | "tired"
-  | "motivated"
-  | "focused"
-  | "stressed"
-  | "overwhelmed"
-  | "curious"
-  | "neutral"
-  | "okay";
-
-export enum SubscriptionType {
-  Free = "free",
-  Basic = "basic",
-  Premium = "premium",
-  Enterprise = "enterprise",
-  School = "school",
-  Corporate = "corporate"
-}
-
-export interface PersonalityType {
-  type: string;
-  traits: string[];
-  learningStyle: string;
-}
-
-export interface KpiData {
-  id: string;
-  title: string;
-  value: number | { value: number; trend: "up" | "down" | "neutral" };
-  trend?: "up" | "down" | "neutral";
-  icon?: React.ReactNode;
-  description?: string;
-  color?: string;
-  label?: string; // For compatibility
-  unit?: string; // For compatibility
-  change?: "up" | "down" | "neutral"; // For compatibility
-}
-
-export type SubscriptionPlan = {
+export interface ProgressItem {
   id: string;
   name: string;
-  price: number;
-  interval: 'monthly' | 'yearly' | 'quarterly';
-  features: string[];
-  isPopular?: boolean;
-  type: SubscriptionType;
-};
+  progress: number;  // Percentage of completion
+  status: 'completed' | 'in-progress' | 'not-started';
+  lastPracticed?: string;  // ISO date string
+  score?: number;          // Test/quiz score if applicable
+  completed?: boolean;     // If the item is completed
+  masteryLevel?: number;   // Mastery level (1-5 scale)
+}
 
-export interface NudgeData {
+export interface BatchMember {
   id: string;
-  title: string;
-  description: string;
-  type: "info" | "warning" | "success" | "error";
-  isRead: boolean;
-  createdAt: Date;
-  expiresAt?: Date;
-  priority: "low" | "medium" | "high";
-  action?: string;
-  actionLink?: string;
-  onAction?: () => void;
-}
-
-// Add this new interface to properly handle concept cards
-export interface ConceptCardType {
-  id: string;
-  title: string;
-  subject: string;
-  chapter?: string;
-  difficulty: "easy" | "medium" | "hard";
-  tags?: string[];
-  content?: string;
-  examples?: {
-    question: string;
-    solution: string;
-  }[];
-  relatedTopics?: string[];
-  completedAt?: Date | null;
-}
-
-// Add utility type for date filtering
-export type DateFilterType = "today" | "week" | "month" | "all";
-
-// Add study plan type
-export interface StudyPlanItem {
-  id: string;
-  type: "concept" | "flashcard" | "quiz" | "exam";
-  title: string;
-  subject: string;
-  difficulty: "easy" | "medium" | "hard";
-  duration: number;
-  completed: boolean;
-  completedAt?: Date;
-  path: string;
-}
-
-export interface StudyPlanDay {
-  date: Date;
-  items: StudyPlanItem[];
-}
-
-export interface WeeklyStudyPlan {
-  weekStartDate: Date;
-  weekEndDate: Date;
-  totalItems: number;
-  completedItems: number;
-  subjects: {
-    id: string;
-    name: string;
-    topics: {
-      id: string;
-      name: string;
-      type: "concept" | "flashcard" | "quiz" | "exam";
-      difficulty: "easy" | "medium" | "hard";
-      completed: boolean;
-      completedDate?: Date;
-    }[];
-  }[];
-}
-
-export interface MoodLogEntry {
-  date: Date;
-  mood: MoodType;
-  note?: string;
+  name: string;
+  email: string;
+  role: "member" | "leader" | "school_admin" | "corporate_admin";
+  status: "active" | "inactive" | "pending";
+  joinedDate?: string;
+  invitationCode?: string;
+  avatar?: string;
+  progress?: {
+    completedTopics: number;
+    totalTopics: number;
+    lastActiveDate?: string;
+  };
 }
