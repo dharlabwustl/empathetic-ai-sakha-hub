@@ -43,12 +43,6 @@ export const generateTabContents = ({
   const isFirstTimeUser = (userProfile?.loginCount ?? 0) < 3 || !(userProfile?.completedOnboarding ?? false);
   const loginCount = userProfile?.loginCount ?? 0;
 
-  console.log('generateTabContents - Active User Profile:', {
-    loginCount,
-    isFirstTimeUser,
-    completedOnboarding: userProfile?.completedOnboarding
-  });
-
   return {
     overview: (
       <>
