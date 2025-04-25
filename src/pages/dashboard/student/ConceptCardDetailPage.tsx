@@ -86,7 +86,7 @@ const ConceptCardDetailPage = () => {
     if (!concept || !conceptId) return;
     
     // Update the concept card with the mark completed function from the hook
-    markConceptCompleted(conceptId);
+    markConceptCompleted(conceptId, true);
     
     // Update the local state to reflect completion
     setConcept({

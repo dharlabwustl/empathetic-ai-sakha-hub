@@ -13,7 +13,6 @@ import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { TodayPlanView, FlashcardsView, PracticeExamsView } from '@/pages/dashboard/student/TabContentViews';
 import ConceptCardView from '@/components/dashboard/student/concept-cards/ConceptCardView';
-import { MicroConceptView } from '@/pages/dashboard/student/TabContentViews';
 
 interface TabContentManagerProps {
   userProfile: UserProfileType;
@@ -39,9 +38,15 @@ export const generateTabContents = ({
   handleCompleteTour,
   lastActivity,
   suggestedNextAction
-}: TabContentManagerProps): Record<string, React.ReactNode> => {
+}: TabContentManagerProps): Record<string, ReactNode> => {
   const isFirstTimeUser = (userProfile?.loginCount ?? 0) < 3 || !(userProfile?.completedOnboarding ?? false);
   const loginCount = userProfile?.loginCount ?? 0;
+
+  console.log('generateTabContents - Active User Profile:', {
+    loginCount,
+    isFirstTimeUser,
+    completedOnboarding: userProfile?.completedOnboarding
+  });
 
   return {
     overview: (
@@ -83,7 +88,7 @@ export const generateTabContents = ({
           </Link>
         </div>
         <ConceptCardView 
-          title="Study Concepts" 
+          title="Today's Concepts" 
           limit={6}
           showViewAll={true}
         />
