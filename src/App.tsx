@@ -46,6 +46,7 @@ import StudentProfilePage from "./pages/dashboard/student/ProfilePage";
 import StudentSettingsPage from "./pages/dashboard/student/SettingsPage";
 import FlashcardsPage from "./pages/dashboard/student/FlashcardsPage";
 import ExamPreparationPage from "./pages/dashboard/student/ExamPreparationPage";
+import PracticeExamsPage from "./pages/dashboard/student/PracticeExamsPage";
 
 import FeaturesManagementPage from "./pages/admin/FeaturesManagementPage";
 import BatchManagementPage from "./pages/admin/BatchManagementPage";

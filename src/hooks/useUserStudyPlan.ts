@@ -166,7 +166,27 @@ export const useUserStudyPlan = () => {
     return () => clearTimeout(timer);
   }, []);
   
-  return { conceptCards, loading, setConceptCards };
+  // Function to mark a concept card as completed
+  const markConceptCompleted = (conceptId: string, completed: boolean = true) => {
+    setConceptCards(prevCards => 
+      prevCards.map(card => 
+        card.id === conceptId ? { ...card, completed } : card
+      )
+    );
+  };
+  
+  // Function to get a specific concept card
+  const getConceptCard = (conceptId: string) => {
+    return conceptCards.find(card => card.id === conceptId);
+  };
+  
+  return { 
+    conceptCards, 
+    loading, 
+    setConceptCards,
+    markConceptCompleted,
+    getConceptCard
+  };
 };
 
 export default useUserStudyPlan;

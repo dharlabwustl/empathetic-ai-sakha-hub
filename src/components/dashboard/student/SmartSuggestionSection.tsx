@@ -5,7 +5,6 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Brain, BookOpen, FileCheck, Clock, Book, Award, Lightbulb } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { useUserStudyPlan } from '@/hooks/useUserStudyPlan';
 import { motion } from 'framer-motion';
 
 interface SmartSuggestion {
@@ -38,7 +37,7 @@ const SmartSuggestionSection: React.FC<SmartSuggestionSectionProps> = ({ classNa
       subject: 'Physics',
       chapter: 'Mechanics',
       priority: 'high',
-      url: '/dashboard/student/concepts/c1'
+      url: '/dashboard/student/concepts/c2'
     },
     {
       id: '2',
@@ -49,7 +48,7 @@ const SmartSuggestionSection: React.FC<SmartSuggestionSectionProps> = ({ classNa
       estimatedTime: 45,
       subject: 'Physics',
       priority: 'medium',
-      url: '/dashboard/student/exams/e1'
+      url: '/dashboard/student/exams'
     },
     {
       id: '3',
@@ -59,7 +58,7 @@ const SmartSuggestionSection: React.FC<SmartSuggestionSectionProps> = ({ classNa
       subject: 'Chemistry',
       chapter: 'Organic Chemistry',
       priority: 'high',
-      url: '/dashboard/student/flashcards/deck/d1'
+      url: '/dashboard/student/flashcards'
     },
     {
       id: '4',
@@ -70,7 +69,7 @@ const SmartSuggestionSection: React.FC<SmartSuggestionSectionProps> = ({ classNa
       chapter: 'Calculus',
       estimatedTime: 20,
       priority: 'medium',
-      url: '/dashboard/student/resources/r1'
+      url: '/dashboard/student/concepts/c8'
     }
   ];
 

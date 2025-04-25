@@ -2,13 +2,13 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import MainLayout from '@/components/layouts/MainLayout';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
-import { ArrowLeft, Search, Clock, Calendar, File, CheckCircle, Award } from 'lucide-react';
+import { ArrowLeft, Search, Clock, Calendar, FileText, CheckCircle, Award } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 type ExamType = 'mock' | 'subject' | 'chapter' | 'full';
@@ -239,7 +239,7 @@ const PracticeExamsPage = () => {
               {filteredExams.length === 0 ? (
                 <Card>
                   <CardContent className="py-8 text-center">
-                    <File className="mx-auto text-gray-300 mb-3" size={48} />
+                    <FileText className="mx-auto text-gray-300 mb-3" size={48} />
                     <h3 className="text-xl font-medium mb-1">No exams found</h3>
                     <p className="text-gray-500">
                       {tab === 'upcoming' ? "You don't have any upcoming exams matching your search." : 
@@ -334,7 +334,7 @@ const ExamCard = ({ exam }: { exam: PracticeExam }) => {
                 )}
                 
                 <div className="flex items-center gap-1">
-                  <File size={14} />
+                  <FileText size={14} />
                   <span>{exam.questionsCount} questions</span>
                 </div>
                 
