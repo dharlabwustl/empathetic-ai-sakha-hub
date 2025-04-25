@@ -1,9 +1,9 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import ConceptCardView from '@/components/dashboard/student/concept-cards/ConceptCardView';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Book, FileCheck, BookOpen, Clock, Tag, Brain, Star } from 'lucide-react';
+import { ArrowRight, Book, FileCheck, BookOpen, Clock, Tag, Brain, Star, Bookmark, Bell, VolumeX, Volume2, Mic } from 'lucide-react';
 import TodayStudyPlan from '@/components/dashboard/student/TodayStudyPlan';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { useUserProfile } from '@/hooks/useUserProfile';
@@ -11,6 +11,7 @@ import { useUserStudyPlan } from '@/hooks/useUserStudyPlan';
 import SmartSuggestionSection from '@/components/dashboard/student/SmartSuggestionSection';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export const MicroConceptView = () => {
   const { userProfile } = useUserProfile();
@@ -83,54 +84,209 @@ export const TodayPlanView = () => {
 };
 
 export const FlashcardsView = () => {
+  const { userProfile } = useUserProfile();
   const { conceptCards } = useUserStudyPlan();
+  const [selectedTab, setSelectedTab] = useState<'today' | 'week' | 'month'>('today');
+  const [voiceEnabled, setVoiceEnabled] = useState(false);
+  
+  const examGoal = userProfile?.goals?.[0]?.title || 'IIT-JEE';
+  
   const flashcardSets = [
-    { id: 'f1', title: 'Physics: Mechanics', cardsCount: 45, mastery: 72, subject: 'Physics' },
-    { id: 'f2', title: 'Organic Chemistry Basics', cardsCount: 30, mastery: 58, subject: 'Chemistry' },
-    { id: 'f3', title: 'Calculus Derivatives', cardsCount: 25, mastery: 86, subject: 'Mathematics' },
-    { id: 'f4', title: 'Modern Physics', cardsCount: 32, mastery: 45, subject: 'Physics' },
+    {
+      id: 'f1',
+      title: 'Physics: Mechanics Quick Recap',
+      cardsCount: 45,
+      mastery: 72,
+      subject: 'Physics',
+      topic: 'Mechanics',
+      linkedConcept: 'Newtons Laws of Motion',
+      status: 'In Progress',
+      isBookmarked: true,
+      hasReminder: false
+    },
+    {
+      id: 'f2',
+      title: 'Organic Chemistry Basics Review',
+      cardsCount: 30,
+      mastery: 58,
+      subject: 'Chemistry',
+      topic: 'Organic Chemistry',
+      linkedConcept: 'Functional Groups',
+      status: 'Not Started',
+      isBookmarked: false,
+      hasReminder: true
+    },
+    {
+      id: 'f3',
+      title: 'Calculus Derivatives Mastery',
+      cardsCount: 25,
+      mastery: 86,
+      subject: 'Mathematics',
+      topic: 'Calculus',
+      linkedConcept: 'Limits and Derivatives',
+      status: 'Completed',
+      isBookmarked: true,
+      hasReminder: false
+    },
+    {
+      id: 'f4',
+      title: 'Modern Physics Fundamentals',
+      cardsCount: 32,
+      mastery: 45,
+      subject: 'Physics',
+      topic: 'Modern Physics',
+      linkedConcept: 'Quantum Mechanics',
+      status: 'In Progress',
+      isBookmarked: false,
+      hasReminder: true
+    },
   ];
+
+  // Filter flashcard sets based on selected tab
+  const getFilteredFlashcards = () => {
+    // In a real implementation, this would filter based on date ranges
+    // For this demo, we're just filtering randomly
+    switch(selectedTab) {
+      case 'today':
+        return flashcardSets.slice(0, 2);
+      case 'week':
+        return flashcardSets.slice(0, 3);
+      case 'month':
+        return flashcardSets;
+      default:
+        return flashcardSets;
+    }
+  };
+
+  const filteredFlashcards = getFilteredFlashcards();
+
+  const toggleVoiceEnabled = () => {
+    setVoiceEnabled(prev => !prev);
+  };
+
+  const getStatusBadgeVariant = (status: string) => {
+    switch(status) {
+      case 'Completed':
+        return 'success';
+      case 'In Progress':
+        return 'default';
+      case 'Not Started':
+        return 'outline';
+      default:
+        return 'secondary';
+    }
+  };
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold">Flashcards</h2>
-          <p className="text-gray-600 mb-4">
-            Study and memorize key concepts with interactive flashcards.
+          <h2 className="text-2xl font-bold flex items-center gap-2">
+            <Brain className="text-blue-600" />
+            Flashcards
+          </h2>
+          <p className="text-gray-600">
+            Quick Recaps for Your {examGoal} Preparation, Available Anytime
           </p>
         </div>
-        <Link to="/dashboard/student/flashcards/all">
-          <Button variant="outline" className="flex items-center gap-2">
-            View All <ArrowRight size={16} />
+        
+        <div className="flex items-center gap-3">
+          <Button
+            variant="outline"
+            size="sm"
+            className="flex items-center gap-1"
+            onClick={toggleVoiceEnabled}
+          >
+            {voiceEnabled ? (
+              <>
+                <Volume2 size={16} className="mr-1" />
+                Voice Enabled
+              </>
+            ) : (
+              <>
+                <VolumeX size={16} className="mr-1" />
+                Enable Voice
+              </>
+            )}
           </Button>
-        </Link>
+          
+          <Link to="/dashboard/student/flashcards/all">
+            <Button variant="outline" className="flex items-center gap-2">
+              View All <ArrowRight size={16} />
+            </Button>
+          </Link>
+        </div>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {flashcardSets.map(set => (
-          <Link key={set.id} to={`/dashboard/student/flashcards/${set.id}`}>
-            <Card className="h-full hover:shadow-md transition-shadow duration-200">
-              <CardHeader className="pb-2">
-                <Badge variant="outline" className="mb-2 w-fit">{set.subject}</Badge>
-                <CardTitle className="text-lg">{set.title}</CardTitle>
-              </CardHeader>
-              <CardContent className="pb-2">
-                <div className="text-sm text-gray-500">
-                  <div className="flex items-center justify-between mb-1">
-                    <span>{set.cardsCount} cards</span>
-                    <span>{set.mastery}% mastery</span>
-                  </div>
-                  <Progress value={set.mastery} className="h-1.5" />
-                </div>
-              </CardContent>
-              <CardFooter>
-                <Button className="w-full">Study Now</Button>
-              </CardFooter>
-            </Card>
-          </Link>
-        ))}
-      </div>
+      <Tabs value={selectedTab} onValueChange={(val) => setSelectedTab(val as 'today' | 'week' | 'month')}>
+        <TabsList className="mb-4">
+          <TabsTrigger value="today" className="flex items-center">
+            <Clock size={14} className="mr-1" /> Today
+          </TabsTrigger>
+          <TabsTrigger value="week" className="flex items-center">
+            <Book size={14} className="mr-1" /> This Week
+          </TabsTrigger>
+          <TabsTrigger value="month" className="flex items-center">
+            <BookOpen size={14} className="mr-1" /> This Month
+          </TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value={selectedTab} className="mt-0">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {filteredFlashcards.map(set => (
+              <Link key={set.id} to={`/dashboard/student/flashcards/${set.id}`}>
+                <Card className="h-full hover:shadow-md transition-shadow duration-200 border-l-4 border-l-blue-500">
+                  <CardHeader className="pb-2">
+                    <div className="flex justify-between items-center mb-1">
+                      <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">{set.subject}</Badge>
+                      {set.isBookmarked && <Bookmark size={16} className="text-blue-600 fill-blue-600" />}
+                    </div>
+                    <CardTitle className="text-lg">{set.title}</CardTitle>
+                  </CardHeader>
+                  <CardContent className="pb-2 space-y-3">
+                    <div className="flex flex-wrap gap-1">
+                      <Badge variant="outline" className="text-xs bg-gray-50 text-gray-700 border-gray-200 flex items-center">
+                        <BookOpen size={10} className="mr-1" /> {set.topic}
+                      </Badge>
+                      <Badge variant="outline" className="text-xs bg-violet-50 text-violet-700 border-violet-200 flex items-center">
+                        <Tag size={10} className="mr-1" /> {set.linkedConcept}
+                      </Badge>
+                      <Badge variant={getStatusBadgeVariant(set.status)} className="text-xs flex items-center">
+                        {set.status}
+                      </Badge>
+                    </div>
+                    
+                    <div className="text-sm text-gray-500">
+                      <div className="flex items-center justify-between mb-1">
+                        <span>{set.cardsCount} cards</span>
+                        <span>{set.mastery}% mastery</span>
+                      </div>
+                      <Progress value={set.mastery} className="h-1.5" />
+                    </div>
+                    
+                    <div className="flex items-center justify-between text-sm text-gray-500">
+                      <div className="flex items-center gap-2">
+                        {voiceEnabled && <Volume2 size={14} className="text-blue-600" />}
+                        {set.hasReminder && <Bell size={14} className="text-amber-600" />}
+                      </div>
+                      <span>Last practiced: 2d ago</span>
+                    </div>
+                  </CardContent>
+                  <CardFooter>
+                    <Button className="w-full">Study Now</Button>
+                  </CardFooter>
+                </Card>
+              </Link>
+            ))}
+          </div>
+          
+          {filteredFlashcards.length === 0 && (
+            <div className="text-center py-8 bg-gray-50 rounded-lg border border-gray-200">
+              <p className="text-gray-500">No flashcard sets scheduled for this period</p>
+            </div>
+          )}
+        </TabsContent>
+      </Tabs>
       
       <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-100">
         <div className="flex items-start gap-3">
@@ -138,13 +294,21 @@ export const FlashcardsView = () => {
             <Brain className="text-blue-600" size={18} />
           </div>
           <div>
-            <h3 className="font-medium text-blue-800">Pro Tip</h3>
+            <h3 className="font-medium text-blue-800">Learning Insight</h3>
             <p className="text-sm text-blue-700">
-              Studies show that regular flashcard practice can improve retention by up to 70%. 
-              Try to review your flashcards at least 3 times a week!
+              Studies show that spaced repetition with flashcards can improve retention by up to 70%. 
+              Try to review each flashcard set at least 3 times a week for optimal results!
             </p>
           </div>
         </div>
+      </div>
+      
+      <div className="flex justify-center mt-4">
+        <Link to="/dashboard/student/flashcards/all">
+          <Button variant="outline" className="flex items-center gap-2">
+            View All Flashcard Sets <ArrowRight size={16} />
+          </Button>
+        </Link>
       </div>
     </div>
   );

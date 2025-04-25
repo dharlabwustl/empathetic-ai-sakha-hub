@@ -17,5 +17,5 @@ export interface SystemLog {
   resolved?: boolean;
   message?: string;
   source?: string;
-  level?: string;
+  level?: string | "info" | "warning" | "error" | "critical";
 }
