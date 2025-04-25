@@ -1,382 +1,293 @@
 
 import React, { useState } from 'react';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { BookOpen, Brain, Check, Clock, Repeat, RotateCcw, Sparkles, ArrowRight, Filter } from 'lucide-react';
-import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
-import { useUserStudyPlan } from '@/hooks/useUserStudyPlan';
-import { useUserProfile } from '@/hooks/useUserProfile';
-import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { useUserStudyPlan } from "@/hooks/useUserStudyPlan";
+import { BookOpen, CheckCircle, RotateCcw } from "lucide-react";
 
-interface FlashcardProps {
+// Mock flashcard data structure
+interface Flashcard {
   id: string;
-  front: string;
-  back: string;
+  question: string;
+  answer: string;
   subject: string;
-  topic: string;
-  timeToComplete?: number;
   difficulty: 'easy' | 'medium' | 'hard';
-  image?: string;
-  type: 'definition' | 'image' | 'question' | 'mcq';
-  conceptId?: string;
+  lastReviewed?: string;
+  masteryLevel: number;
 }
 
-const FlashcardsFeature: React.FC = () => {
+const FlashcardsFeature = () => {
   const { conceptCards } = useUserStudyPlan();
-  const { userProfile } = useUserProfile();
-  const [activeTab, setActiveTab] = useState('today');
-  const [currentFlashcardIndex, setCurrentFlashcardIndex] = useState(0);
-  const [isFlipped, setIsFlipped] = useState(false);
-  const [recallRatings, setRecallRatings] = useState<Record<string, 1 | 2 | 3 | 4 | 5>>({});
+  const [currentCardIndex, setCurrentCardIndex] = useState(0);
+  const [showAnswer, setShowAnswer] = useState(false);
+  const [selectedDeck, setSelectedDeck] = useState<string | null>(null);
   
-  // Get exam goal
-  const examGoal = userProfile?.goals?.[0]?.title || 'IIT-JEE';
-
-  // Generate sample flashcards based on completed concept cards
-  const completedConcepts = conceptCards.filter(card => card.completed);
+  // Mock flashcard decks based on concept cards
+  const flashcardDecks = [
+    { id: 'physics', name: 'Physics', count: 25, subject: 'Physics', color: 'bg-blue-100 border-blue-300 text-blue-800' },
+    { id: 'chemistry', name: 'Chemistry', count: 30, subject: 'Chemistry', color: 'bg-green-100 border-green-300 text-green-800' },
+    { id: 'mathematics', name: 'Mathematics', count: 40, subject: 'Mathematics', color: 'bg-purple-100 border-purple-300 text-purple-800' },
+  ];
   
-  const sampleFlashcards: FlashcardProps[] = completedConcepts.flatMap((concept, i) => [
-    {
-      id: `flash-def-${concept.id}`,
-      front: `Define: ${concept.title}`,
-      back: `${concept.title} is a key concept in ${concept.subject} that deals with ${concept.chapter}.`,
-      subject: concept.subject,
-      topic: concept.chapter,
-      timeToComplete: 1,
-      difficulty: concept.difficulty.toLowerCase() as 'easy' | 'medium' | 'hard',
-      type: 'definition',
-      conceptId: concept.id
-    },
-    {
-      id: `flash-q-${concept.id}`,
-      front: `Question: How does ${concept.title} relate to ${concept.chapter}?`,
-      back: `${concept.title} is fundamental to understanding ${concept.chapter} because it provides the theoretical foundation.`,
-      subject: concept.subject,
-      topic: concept.chapter,
-      timeToComplete: 2,
-      difficulty: concept.difficulty.toLowerCase() as 'easy' | 'medium' | 'hard',
-      type: 'question',
-      conceptId: concept.id
-    }
-  ]);
-  
-  // Filter based on active tab
-  const filterFlashcards = () => {
-    switch (activeTab) {
-      case 'today':
-        // Today's flashcards - related to concept cards scheduled for today
-        return sampleFlashcards.filter(card => {
-          const relatedConcept = conceptCards.find(concept => concept.id === card.conceptId);
-          return relatedConcept?.scheduledFor === 'today';
-        });
-      case 'bookmarks':
-        // Demo bookmarked flashcards
-        return sampleFlashcards.filter((_, i) => i % 5 === 0);
-      case 'review':
-        // Demo review flashcards (low recall)
-        return sampleFlashcards.filter((card) => {
-          const rating = recallRatings[card.id];
-          return rating && rating < 3;
-        });
-      default:
-        return sampleFlashcards;
-    }
-  };
-  
-  const flashcards = filterFlashcards();
-  const currentFlashcard = flashcards[currentFlashcardIndex];
-  
-  // Calculate overall progress
-  const totalFlashcards = sampleFlashcards.length;
-  const ratedFlashcards = Object.keys(recallRatings).length;
-  const masteredFlashcards = Object.values(recallRatings).filter(rating => rating >= 4).length;
-  
-  // Subjects breakdown
-  const subjects = [...new Set(sampleFlashcards.map(card => card.subject))];
-  const subjectStats = subjects.map(subject => {
-    const cards = sampleFlashcards.filter(card => card.subject === subject);
-    const rated = cards.filter(card => recallRatings[card.id]);
-    const mastered = cards.filter(card => recallRatings[card.id] >= 4);
-    
-    return {
-      subject,
-      total: cards.length,
-      rated: rated.length,
-      mastered: mastered.length
+  // Generate mock flashcards for the selected deck
+  const generateFlashcardsForDeck = (deckId: string): Flashcard[] => {
+    const subjects: Record<string, { questions: string[], answers: string[] }> = {
+      'physics': {
+        questions: [
+          "What is Newton's first law of motion?",
+          "What is the formula for calculating kinetic energy?",
+          "What is the difference between velocity and acceleration?"
+        ],
+        answers: [
+          "An object at rest stays at rest, and an object in motion stays in motion with the same speed and direction, unless acted upon by an external force.",
+          "Kinetic Energy (KE) = (1/2) × mass × velocity²",
+          "Velocity is the rate of change of position with respect to time, while acceleration is the rate of change of velocity with respect to time."
+        ]
+      },
+      'chemistry': {
+        questions: [
+          "What is the periodic law?",
+          "What are valence electrons?",
+          "What is the difference between an exothermic and endothermic reaction?"
+        ],
+        answers: [
+          "The physical and chemical properties of elements recur in a systematic and predictable way when the elements are arranged in order of increasing atomic number.",
+          "Valence electrons are electrons in the outermost shell of an atom that can participate in forming chemical bonds with other atoms.",
+          "Exothermic reactions release energy to the surroundings, while endothermic reactions absorb energy from the surroundings."
+        ]
+      },
+      'mathematics': {
+        questions: [
+          "What is the quadratic formula?",
+          "What is a derivative in calculus?",
+          "What is the Pythagorean theorem?"
+        ],
+        answers: [
+          "For a quadratic equation ax² + bx + c = 0, the solutions are x = (-b ± √(b² - 4ac)) / (2a)",
+          "A derivative measures the rate at which a function changes at a particular point. It's defined as the limit of the ratio of the change in the function value to the change in the independent variable as the change in the independent variable approaches zero.",
+          "In a right-angled triangle, the square of the length of the hypotenuse equals the sum of the squares of the lengths of the other two sides: a² + b² = c²"
+        ]
+      }
     };
-  });
-
-  const handleNext = () => {
-    setIsFlipped(false);
-    setCurrentFlashcardIndex(prev => 
-      prev < flashcards.length - 1 ? prev + 1 : 0
-    );
+    
+    const source = subjects[deckId] || subjects['physics'];
+    const cards: Flashcard[] = [];
+    
+    for (let i = 0; i < source.questions.length; i++) {
+      cards.push({
+        id: `${deckId}_${i}`,
+        question: source.questions[i],
+        answer: source.answers[i],
+        subject: deckId,
+        difficulty: ['easy', 'medium', 'hard'][Math.floor(Math.random() * 3)] as 'easy' | 'medium' | 'hard',
+        masteryLevel: Math.floor(Math.random() * 5) + 1,
+        lastReviewed: i === 0 ? 'Never' : `${Math.floor(Math.random() * 7) + 1} days ago`
+      });
+    }
+    
+    return cards;
   };
-
-  const handlePrevious = () => {
-    setIsFlipped(false);
-    setCurrentFlashcardIndex(prev => 
-      prev > 0 ? prev - 1 : flashcards.length - 1
-    );
+  
+  const [flashcards, setFlashcards] = useState<Flashcard[]>([]);
+  
+  // Handle deck selection
+  const handleDeckSelect = (deckId: string) => {
+    setSelectedDeck(deckId);
+    const generatedCards = generateFlashcardsForDeck(deckId);
+    setFlashcards(generatedCards);
+    setCurrentCardIndex(0);
+    setShowAnswer(false);
   };
-
-  const handleRecall = (rating: 1 | 2 | 3 | 4 | 5) => {
-    if (currentFlashcard) {
-      setRecallRatings(prev => ({
-        ...prev,
-        [currentFlashcard.id]: rating
-      }));
-      
-      // Automatically move to next card after rating
-      setTimeout(handleNext, 500);
+  
+  // Navigate to next card
+  const handleNextCard = () => {
+    if (currentCardIndex < flashcards.length - 1) {
+      setCurrentCardIndex(currentCardIndex + 1);
+      setShowAnswer(false);
+    } else {
+      // Loop back to first card when reached the end
+      setCurrentCardIndex(0);
+      setShowAnswer(false);
     }
   };
-
-  // Animation variants
-  const cardVariants = {
-    front: {
-      rotateY: 0
-    },
-    back: {
-      rotateY: 180
+  
+  // Navigate to previous card
+  const handlePrevCard = () => {
+    if (currentCardIndex > 0) {
+      setCurrentCardIndex(currentCardIndex - 1);
+      setShowAnswer(false);
+    } else {
+      // Loop to last card when on first card
+      setCurrentCardIndex(flashcards.length - 1);
+      setShowAnswer(false);
     }
   };
-
+  
+  // Toggle answer visibility
+  const toggleAnswer = () => {
+    setShowAnswer(!showAnswer);
+  };
+  
+  // Handle marking mastery level
+  const handleMarkMastery = (level: number) => {
+    const updatedFlashcards = [...flashcards];
+    updatedFlashcards[currentCardIndex] = {
+      ...updatedFlashcards[currentCardIndex],
+      masteryLevel: level,
+      lastReviewed: 'Today'
+    };
+    setFlashcards(updatedFlashcards);
+    
+    // Move to next card after marking
+    setTimeout(() => {
+      handleNextCard();
+    }, 500);
+  };
+  
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <h2 className="text-2xl font-bold flex items-center gap-2">
-            <Brain className="text-blue-500" />
-            Flashcards
-          </h2>
-          <p className="text-gray-500">
-            Review key concepts for your {examGoal} preparation with spaced repetition
-          </p>
-        </div>
-        
-        <Link to="/dashboard/student/flashcards/all">
-          <Button variant="outline" className="flex items-center gap-2">
-            View All Flashcards 
-            <ArrowRight size={16} />
-          </Button>
-        </Link>
-      </div>
-      
-      {/* Progress Summary */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card>
-          <CardContent className="p-4">
-            <h3 className="text-sm font-medium text-gray-600 mb-2">Overall Progress</h3>
-            <div className="flex justify-between mb-1">
-              <span className="text-sm">{ratedFlashcards}/{totalFlashcards} Reviewed</span>
-              <span className="text-sm font-medium">{Math.round((ratedFlashcards / totalFlashcards) * 100)}%</span>
-            </div>
-            <Progress value={(ratedFlashcards / totalFlashcards) * 100} />
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="p-4">
-            <h3 className="text-sm font-medium text-gray-600 mb-2">Mastery Level</h3>
-            <div className="flex justify-between mb-1">
-              <span className="text-sm">{masteredFlashcards}/{totalFlashcards} Mastered</span>
-              <span className="text-sm font-medium">{Math.round((masteredFlashcards / totalFlashcards) * 100)}%</span>
-            </div>
-            <Progress value={(masteredFlashcards / totalFlashcards) * 100} className="bg-gray-200" />
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="p-4">
-            <h3 className="text-sm font-medium text-gray-600 mb-2">Time Spent</h3>
-            <div className="flex items-center gap-2">
-              <Clock className="text-blue-500" size={16} />
-              <span className="text-lg font-medium">45 minutes</span>
-            </div>
-            <p className="text-sm text-gray-500 mt-1">Today's review session</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Flashcard Browser */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
-          <Card className="border-t-4 border-t-blue-500">
-            <CardHeader>
-              <div className="flex justify-between items-center">
-                <CardTitle>Flashcard Browser</CardTitle>
-                <div className="flex items-center gap-2">
-                  <Button variant="outline" size="sm" onClick={handlePrevious}>
-                    <RotateCcw size={16} />
-                  </Button>
-                  <span className="text-sm">
-                    {currentFlashcardIndex + 1} / {flashcards.length}
-                  </span>
-                  <Button variant="outline" size="sm" onClick={handleNext}>
-                    <ArrowRight size={16} />
-                  </Button>
-                </div>
-              </div>
-              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="grid grid-cols-3 w-full">
-                  <TabsTrigger value="today">Today's Cards</TabsTrigger>
-                  <TabsTrigger value="bookmarks">Bookmarks</TabsTrigger>
-                  <TabsTrigger value="review">Need Review</TabsTrigger>
-                </TabsList>
-              </Tabs>
-            </CardHeader>
-
-            <CardContent>
-              {flashcards.length > 0 ? (
-                <div className="relative perspective-1000 h-64">
-                  <motion.div 
-                    className="absolute w-full h-full cursor-pointer"
-                    animate={isFlipped ? "back" : "front"}
-                    variants={cardVariants}
-                    transition={{ duration: 0.6, type: "spring" }}
-                    onClick={() => setIsFlipped(!isFlipped)}
-                    style={{ transformStyle: "preserve-3d" }}
-                  >
-                    {/* Front of card */}
-                    <div className={`absolute w-full h-full backface-hidden flex flex-col justify-between rounded-lg p-6 border ${
-                      isFlipped ? 'opacity-0' : 'opacity-100'
-                    } bg-white`}>
+    <div className="space-y-8">
+      {!selectedDeck ? (
+        <div className="space-y-6">
+          <div>
+            <h2 className="text-xl font-medium mb-4">Select a Flashcard Deck</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {flashcardDecks.map((deck) => (
+                <Card 
+                  key={deck.id} 
+                  className={`border-2 hover:shadow-md transition-all cursor-pointer ${deck.color}`}
+                  onClick={() => handleDeckSelect(deck.id)}
+                >
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
                       <div>
-                        <div className="flex justify-between items-center mb-4">
-                          <Badge variant="outline" className="bg-blue-50 text-blue-700">
-                            {currentFlashcard.subject}
-                          </Badge>
-                          <Badge variant={`${
-                            currentFlashcard.difficulty === 'easy' ? 'secondary' : 
-                            currentFlashcard.difficulty === 'medium' ? 'default' : 
-                            'destructive'
-                          }`}>
-                            {currentFlashcard.difficulty.charAt(0).toUpperCase() + currentFlashcard.difficulty.slice(1)}
-                          </Badge>
-                        </div>
-                        <h3 className="text-xl font-semibold text-center my-8">{currentFlashcard.front}</h3>
+                        <h3 className="text-lg font-medium">{deck.name}</h3>
+                        <p className="text-sm mt-1">{deck.count} flashcards</p>
                       </div>
-                      <div className="text-center text-sm text-gray-500">Click to flip</div>
+                      <BookOpen className="h-10 w-10 opacity-70" />
                     </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
 
-                    {/* Back of card */}
-                    <div className={`absolute w-full h-full backface-hidden flex flex-col justify-between rounded-lg p-6 border ${
-                      isFlipped ? 'opacity-100' : 'opacity-0'
-                    } bg-blue-50 [transform:rotateY(180deg)]`}>
-                      <div>
-                        <div className="flex justify-between items-center mb-4">
-                          <Badge variant="outline" className="bg-white">
-                            {currentFlashcard.topic}
-                          </Badge>
-                          <Badge variant="secondary">
-                            {currentFlashcard.type.charAt(0).toUpperCase() + currentFlashcard.type.slice(1)}
-                          </Badge>
-                        </div>
-                        <p className="text-lg text-center my-8">{currentFlashcard.back}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-center mb-2 text-gray-600">How well did you recall this?</p>
-                        <div className="flex justify-center gap-2">
-                          {[1, 2, 3, 4, 5].map((rating) => (
+          <div>
+            <h2 className="text-xl font-medium mb-4">Flashcards Statistics</h2>
+            <Card>
+              <CardContent className="p-6">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
+                  <div className="p-4 bg-blue-50 rounded-lg">
+                    <p className="text-3xl font-bold text-blue-700">95</p>
+                    <p className="text-sm text-gray-600">Total Flashcards</p>
+                  </div>
+                  <div className="p-4 bg-green-50 rounded-lg">
+                    <p className="text-3xl font-bold text-green-700">42</p>
+                    <p className="text-sm text-gray-600">Cards Mastered</p>
+                  </div>
+                  <div className="p-4 bg-amber-50 rounded-lg">
+                    <p className="text-3xl font-bold text-amber-700">23</p>
+                    <p className="text-sm text-gray-600">Due for Review</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      ) : (
+        <div className="space-y-6">
+          <div className="flex justify-between items-center">
+            <h2 className="text-xl font-medium">
+              {flashcardDecks.find(deck => deck.id === selectedDeck)?.name} Flashcards
+              <span className="ml-2 text-sm text-gray-500">
+                ({currentCardIndex + 1}/{flashcards.length})
+              </span>
+            </h2>
+            <Button variant="outline" onClick={() => setSelectedDeck(null)}>
+              Change Deck
+            </Button>
+          </div>
+          
+          {flashcards.length > 0 && (
+            <>
+              <Card className="min-h-[300px] flex items-center justify-center border-2 border-blue-200">
+                <CardContent className="p-8 w-full">
+                  <div 
+                    className="cursor-pointer w-full h-full text-center" 
+                    onClick={toggleAnswer}
+                  >
+                    <div className="text-sm text-gray-500 mb-4">
+                      {showAnswer ? "Answer" : "Question"} (Click to flip)
+                    </div>
+                    <div className="text-xl font-medium">
+                      {showAnswer 
+                        ? flashcards[currentCardIndex].answer 
+                        : flashcards[currentCardIndex].question
+                      }
+                    </div>
+                    {showAnswer && (
+                      <div className="mt-8">
+                        <p className="text-sm text-gray-500 mb-2">How well did you know this?</p>
+                        <div className="flex justify-center space-x-2">
+                          {[1, 2, 3, 4, 5].map(level => (
                             <Button 
-                              key={rating}
-                              variant={recallRatings[currentFlashcard.id] === rating ? "default" : "outline"}
+                              key={level}
+                              variant={level === flashcards[currentCardIndex].masteryLevel ? "default" : "outline"}
                               size="sm"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleRecall(rating as 1 | 2 | 3 | 4 | 5);
-                              }}
+                              onClick={() => handleMarkMastery(level)}
+                              className={level === flashcards[currentCardIndex].masteryLevel ? "bg-green-600" : ""}
                             >
-                              {rating}
+                              {level}
                             </Button>
                           ))}
                         </div>
+                        <p className="text-xs text-gray-500 mt-2">
+                          1 = Didn't know, 5 = Perfect recall
+                        </p>
                       </div>
-                    </div>
-                  </motion.div>
-                </div>
-              ) : (
-                <div className="h-64 flex items-center justify-center border rounded-lg">
-                  <p className="text-gray-500">No flashcards available in this category</p>
-                </div>
-              )}
-            </CardContent>
-
-            <CardFooter className="flex justify-between">
-              <div className="text-sm text-gray-500">
-                {flashcards.length > 0 && `Type: ${currentFlashcard.type.charAt(0).toUpperCase() + currentFlashcard.type.slice(1)}`}
-              </div>
-              <div className="flex gap-2">
-                <Button variant="outline" size="sm">
-                  <BookOpen size={16} className="mr-1" />
-                  View Full Concept
-                </Button>
-                <Button variant="outline" size="sm">
-                  <Repeat size={16} className="mr-1" />
-                  Mark for Review
-                </Button>
-              </div>
-            </CardFooter>
-          </Card>
-        </div>
-        
-        {/* Sidebar with stats and filters */}
-        <div className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2">
-                <Filter size={16} />
-                Quick Filters
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <Button variant="outline" className="w-full justify-start">
-                <BookOpen className="mr-2 h-4 w-4" />
-                Physics Concepts
-              </Button>
-              <Button variant="outline" className="w-full justify-start">
-                <Brain className="mr-2 h-4 w-4" />
-                Hard Flashcards
-              </Button>
-              <Button variant="outline" className="w-full justify-start">
-                <Sparkles className="mr-2 h-4 w-4" />
-                Recently Added
-              </Button>
-              <Button variant="outline" className="w-full justify-start">
-                <Check className="mr-2 h-4 w-4" />
-                Mastered Cards
-              </Button>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2">
-                <BookOpen size={16} />
-                Subject Progress
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {subjectStats.map(stat => (
-                <div key={stat.subject}>
-                  <div className="flex justify-between mb-1">
-                    <span className="text-sm font-medium">{stat.subject}</span>
-                    <span className="text-sm">{stat.mastered}/{stat.total}</span>
+                    )}
                   </div>
-                  <Progress 
-                    value={(stat.mastered / stat.total) * 100} 
-                    className="h-2" 
-                  />
-                </div>
-              ))}
-            </CardContent>
-          </Card>
+                </CardContent>
+              </Card>
+              
+              <div className="flex justify-between">
+                <Button 
+                  variant="outline" 
+                  onClick={handlePrevCard}
+                >
+                  Previous
+                </Button>
+                <Button 
+                  variant="outline" 
+                  onClick={toggleAnswer}
+                >
+                  {showAnswer ? "Show Question" : "Show Answer"}
+                </Button>
+                <Button 
+                  onClick={handleNextCard}
+                >
+                  Next
+                </Button>
+              </div>
+              
+              <Card className="border-gray-200">
+                <CardContent className="p-4">
+                  <div className="flex justify-between items-center text-sm text-gray-500">
+                    <div>
+                      Difficulty: <span className="font-medium">{flashcards[currentCardIndex].difficulty}</span>
+                    </div>
+                    <div>
+                      Last Reviewed: <span className="font-medium">{flashcards[currentCardIndex].lastReviewed}</span>
+                    </div>
+                    <div>
+                      Mastery Level: <span className="font-medium">{flashcards[currentCardIndex].masteryLevel}/5</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </>
+          )}
         </div>
-      </div>
+      )}
     </div>
   );
 };

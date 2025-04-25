@@ -74,15 +74,15 @@ export const useStudentDashboard = () => {
           }
         } else {
           // Regular new session handling
-          const { shouldShowOnboarding, shouldShowWelcomeTour } = handleNewUser(location, navigate);
+          const sessionResult = handleNewUser(location, navigate);
           
           console.log("useStudentDashboard - Session result:", { 
-            shouldShowOnboarding, 
-            shouldShowWelcomeTour 
+            shouldShowOnboarding: sessionResult.shouldShowOnboarding, 
+            shouldShowWelcomeTour: sessionResult.shouldShowWelcomeTour 
           });
           
-          setShowOnboarding(shouldShowOnboarding);
-          setShowWelcomeTour(shouldShowWelcomeTour);
+          setShowOnboarding(sessionResult.shouldShowOnboarding);
+          setShowWelcomeTour(sessionResult.shouldShowWelcomeTour);
         }
         
         // Get last activity data for display in dashboard
@@ -110,7 +110,7 @@ export const useStudentDashboard = () => {
           }
         }
         
-        if (userProfile && !shouldShowOnboarding) {
+        if (userProfile && !profileLoading) {
           const currentLoginCount = userProfile.loginCount || 0;
           
           if (!sessionStorage.getItem('session_active')) {

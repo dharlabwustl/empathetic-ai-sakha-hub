@@ -1,93 +1,72 @@
+
 import { Location, NavigateFunction } from "react-router-dom";
 
-export const handleNewUser = (location: Location, navigate: NavigateFunction) => {
+interface SessionResult {
+  shouldShowOnboarding: boolean;
+  shouldShowWelcomeTour: boolean;
+}
+
+export const handleNewUser = (
+  location: Location, 
+  navigate: NavigateFunction
+): SessionResult => {
   console.log("UserSessionManager - Current URL params:", location.search);
   
-  // Check URL params first
   const params = new URLSearchParams(location.search);
-  const completedOnboardingParam = params.get('completedOnboarding');
-  const isNewParam = params.get('new');
-  const isReturningParam = params.get('returning');
+  const completedOnboarding = params.get('completedOnboarding');
+  const isNew = params.get('new');
+  const isReturning = params.get('returning');
   
-  console.log("UserSessionManager - completedOnboarding param:", completedOnboardingParam);
-  console.log("UserSessionManager - isNew param:", isNewParam);
-  console.log("UserSessionManager - isReturning param:", isReturningParam);
+  console.log("UserSessionManager - completedOnboarding param:", completedOnboarding);
+  console.log("UserSessionManager - isNew param:", isNew);
+  console.log("UserSessionManager - isReturning param:", isReturning);
   
-  // Check local storage for user data
+  // Get user data from localStorage
   const userData = localStorage.getItem("userData");
   console.log("UserSessionManager - userData:", userData);
   
-  // For returning users from login, skip onboarding and welcome tour
-  if (isReturningParam === 'true') {
-    return {
-      shouldShowOnboarding: false,
-      shouldShowWelcomeTour: false
-    };
-  }
-  
-  // If URL param indicates completed onboarding, respect that
-  if (completedOnboardingParam === 'true') {
-    const shouldShowWelcomeTour = isNewParam === 'true';
-    return {
-      shouldShowOnboarding: false,
-      shouldShowWelcomeTour
-    };
-  }
-  
-  // If URL param indicates new user, respect that
-  if (isNewParam === 'true') {
-    return {
-      shouldShowOnboarding: true,
-      shouldShowWelcomeTour: false
-    };
-  }
-  
-  // Otherwise check local storage
-  if (userData) {
-    const parsedData = JSON.parse(userData);
-    
-    // If user has completed onboarding, don't show it
-    if (parsedData.completedOnboarding) {
-      // Only show welcome tour if they haven't seen it yet
-      return {
-        shouldShowOnboarding: false,
-        shouldShowWelcomeTour: !parsedData.sawWelcomeTour
-      };
-    }
-    
-    // If user has started but not completed onboarding
-    if (parsedData.isNewUser) {
-      return {
-        shouldShowOnboarding: true,
-        shouldShowWelcomeTour: false
-      };
-    }
-  }
-  
-  // Default for truly new users or when user data is missing
-  return {
-    shouldShowOnboarding: true,
+  // Default result
+  const result: SessionResult = {
+    shouldShowOnboarding: false,
     shouldShowWelcomeTour: false
   };
-};
-
-// Helper to track a concept card or flashcard activity
-export const trackStudyActivity = (activity: {
-  type: string;
-  id?: string;
-  name: string;
-  description?: string;
-  progress?: number;
-}) => {
-  const userData = localStorage.getItem("userData");
+  
+  // If user data exists, parse it
   if (userData) {
-    const parsedData = JSON.parse(userData);
-    parsedData.lastActivity = {
-      ...activity,
-      timestamp: new Date().toISOString()
+    const parsedUserData = JSON.parse(userData);
+    
+    // Determine if onboarding should be shown
+    // Only show if explicitly set to false or not set
+    result.shouldShowOnboarding = 
+      parsedUserData.completedOnboarding !== true && 
+      completedOnboarding !== 'true';
+    
+    // Determine if welcome tour should be shown
+    // Show if user has completed onboarding but not seen welcome tour
+    result.shouldShowWelcomeTour = 
+      (parsedUserData.completedOnboarding === true || completedOnboarding === 'true') && 
+      parsedUserData.sawWelcomeTour !== true;
+    
+  } else {
+    // No user data, show onboarding by default
+    result.shouldShowOnboarding = true;
+    result.shouldShowWelcomeTour = false;
+    
+    // Initialize user data
+    const newUserData = {
+      completedOnboarding: false,
+      sawWelcomeTour: false,
+      firstLogin: new Date().toISOString(),
+      lastLoginTime: new Date().toISOString()
     };
-    localStorage.setItem("userData", JSON.stringify(parsedData));
-    return true;
+    
+    localStorage.setItem("userData", JSON.stringify(newUserData));
   }
-  return false;
+  
+  // Clean URL parameters if needed
+  if (completedOnboarding || isNew || isReturning) {
+    navigate(location.pathname, { replace: true });
+  }
+  
+  return result;
 };
