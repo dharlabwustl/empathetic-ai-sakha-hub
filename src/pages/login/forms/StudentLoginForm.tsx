@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { Phone, Lock, Loader2 } from "lucide-react";
-import { useAuth } from "@/contexts/auth/AuthContext";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface StudentLoginFormProps {
   activeTab: string;
@@ -39,23 +39,8 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
       const success = await login(email, password);
       
       if (success) {
-        toast({
-          title: "Login successful",
-          description: "Welcome back to Sakha AI"
-        });
-        
-        // Get user data to determine if they're a returning user
-        const userData = localStorage.getItem("userData") ? 
-          JSON.parse(localStorage.getItem("userData")!) : {};
-        
-        // Navigate based on whether they've completed onboarding
-        if (userData.completedOnboarding) {
-          // For returning users, redirect to dashboard with a parameter to show last activity prompt
-          navigate("/dashboard/student/overview?returning=true");
-        } else {
-          // For first-time users or those who haven't completed onboarding
-          navigate("/dashboard/student/overview");
-        }
+        // Redirect based on role
+        navigate("/dashboard/student");
       } else {
         throw new Error("Login failed");
       }

@@ -1,6 +1,5 @@
-
-// Re-export everything from the individual files
 export * from './base';
+export * from './study';
 export * from './exam';
 export * from './student';
 export * from './professional';

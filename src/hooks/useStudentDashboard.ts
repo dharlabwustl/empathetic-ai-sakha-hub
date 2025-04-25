@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -14,7 +13,7 @@ export const useStudentDashboard = () => {
   const [showStudyPlan, setShowStudyPlan] = useState(false);
   const [hideSidebar, setHideSidebar] = useState(false);
   const [hideTabsNav, setHideTabsNav] = useState(false);
-  const [dashboardLastActivity, setDashboardLastActivity] = useState<{ type: string, description: string } | null>(null);
+  const [lastActivity, setLastActivity] = useState<{ type: string, description: string } | null>(null);
   const [suggestedNextAction, setSuggestedNextAction] = useState<string | null>(null);
   const { userProfile, loading: profileLoading, updateUserProfile } = useUserProfile(UserRole.Student);
   const { kpis, nudges, markNudgeAsRead } = useKpiTracking(UserRole.Student);
@@ -56,61 +55,40 @@ export const useStudentDashboard = () => {
       try {
         setLoading(true);
         
-        // Check if the user is returning from login
-        const params = new URLSearchParams(location.search);
-        const isReturningUser = params.get('returning') === 'true';
+        const { shouldShowOnboarding, shouldShowWelcomeTour } = handleNewUser(location, navigate);
         
-        // Skip onboarding and welcome tour for returning users
-        if (isReturningUser) {
-          setShowOnboarding(false);
-          setShowWelcomeTour(false);
-          
-          // Track this session as a return visit
+        console.log("useStudentDashboard - Session result:", { 
+          shouldShowOnboarding, 
+          shouldShowWelcomeTour 
+        });
+        
+        setShowOnboarding(shouldShowOnboarding);
+        setShowWelcomeTour(shouldShowWelcomeTour);
+        
+        if (!shouldShowOnboarding && !shouldShowWelcomeTour) {
           const userData = localStorage.getItem("userData");
           if (userData) {
             const parsedData = JSON.parse(userData);
-            parsedData.lastSessionTime = new Date().toISOString();
-            localStorage.setItem("userData", JSON.stringify(parsedData));
-          }
-        } else {
-          // Regular new session handling
-          const sessionResult = handleNewUser(location, navigate);
-          
-          console.log("useStudentDashboard - Session result:", { 
-            shouldShowOnboarding: sessionResult.shouldShowOnboarding, 
-            shouldShowWelcomeTour: sessionResult.shouldShowWelcomeTour 
-          });
-          
-          setShowOnboarding(sessionResult.shouldShowOnboarding);
-          setShowWelcomeTour(sessionResult.shouldShowWelcomeTour);
-        }
-        
-        // Get last activity data for display in dashboard
-        const userData = localStorage.getItem("userData");
-        if (userData) {
-          const parsedData = JSON.parse(userData);
-          
-          if (parsedData.lastActivity) {
-            setDashboardLastActivity({
-              type: parsedData.lastActivity.type,
-              description: `You were last studying ${parsedData.lastActivity.name || "a topic"}`
-            });
-          } else {
-            setDashboardLastActivity({
-              type: "login",
-              description: "You last logged in yesterday"
-            });
-          }
-          
-          if (parsedData.completedModules && parsedData.completedModules.length > 0) {
-            const lastModule = parsedData.completedModules[parsedData.completedModules.length - 1];
-            setSuggestedNextAction(`Continue with ${lastModule.nextModule || "Practice Exercises"}`);
-          } else {
-            setSuggestedNextAction("Start today's recommended study plan");
+            
+            if (parsedData.lastActivity) {
+              setLastActivity(parsedData.lastActivity);
+            } else {
+              setLastActivity({
+                type: "login",
+                description: "You last logged in yesterday"
+              });
+            }
+            
+            if (parsedData.completedModules && parsedData.completedModules.length > 0) {
+              const lastModule = parsedData.completedModules[parsedData.completedModules.length - 1];
+              setSuggestedNextAction(`Continue with ${lastModule.nextModule || "Practice Exercises"}`);
+            } else {
+              setSuggestedNextAction("Start today's recommended study plan");
+            }
           }
         }
         
-        if (userProfile && !profileLoading) {
+        if (userProfile && !shouldShowOnboarding) {
           const currentLoginCount = userProfile.loginCount || 0;
           
           if (!sessionStorage.getItem('session_active')) {
@@ -143,25 +121,6 @@ export const useStudentDashboard = () => {
       setLoading(false);
     }
   }, [profileLoading]);
-  
-  // Track user activity when they view content
-  const trackUserActivity = (activity: {
-    type: string;
-    id?: string;
-    name: string;
-    description?: string;
-    progress?: number;
-  }) => {
-    const userData = localStorage.getItem("userData");
-    if (userData) {
-      const parsedData = JSON.parse(userData);
-      parsedData.lastActivity = {
-        ...activity,
-        timestamp: new Date().toISOString()
-      };
-      localStorage.setItem("userData", JSON.stringify(parsedData));
-    }
-  };
   
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
@@ -240,7 +199,7 @@ export const useStudentDashboard = () => {
     kpis,
     nudges,
     features,
-    dashboardLastActivity,
+    lastActivity,
     suggestedNextAction,
     markNudgeAsRead,
     handleTabChange,
@@ -250,7 +209,6 @@ export const useStudentDashboard = () => {
     handleViewStudyPlan,
     handleCloseStudyPlan,
     toggleSidebar,
-    toggleTabsNav,
-    trackUserActivity
+    toggleTabsNav
   };
 };

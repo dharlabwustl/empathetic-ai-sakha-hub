@@ -1,18 +1,26 @@
 
 import React, { ReactNode } from 'react';
+import TutorCard from '@/components/dashboard/student/TutorCard';
+import StudyPlannerCard from '@/components/dashboard/student/StudyPlannerCard';
+import AcademicAdvisorCard from '@/components/dashboard/student/AcademicAdvisorCard';
+import MotivationCard from '@/components/dashboard/student/MotivationCard';
+import ProgressCard from '@/components/dashboard/student/ProgressCard';
+import ProjectsCard from '@/components/dashboard/student/ProjectsCard';
+import { LiveTutorSection } from '@/components/dashboard/student/LiveTutorSection';
+import { CollaborativeForumSection } from '@/components/dashboard/student/CollaborativeForumSection';
+import { VideoLibrarySection } from '@/components/dashboard/student/VideoLibrarySection';
+import { SmartNotificationSection } from '@/components/dashboard/student/SmartNotificationSection';
+import TodayStudyPlan from '@/components/dashboard/student/TodayStudyPlan';
 import DashboardOverview from '@/components/dashboard/student/DashboardOverview';
 import WelcomeTour from '@/components/dashboard/student/WelcomeTour';
 import AIChatTutor from '@/pages/dashboard/student/AIChatTutor';
 import AcademicAdvisor from '@/pages/dashboard/student/AcademicAdvisor';
 import { UserProfileType } from '@/types/user';
 import { KpiData, NudgeData } from '@/hooks/useKpiTracking';
+import { MicroConceptView, FlashcardsView, PracticeExamsView } from '@/pages/dashboard/student/TabContentViews';
 import FlashcardsFeature from '@/components/dashboard/student/FlashcardsFeature';
+import PracticeExamFeature from '@/components/dashboard/student/PracticeExamFeature';
 import FeelGoodCorner from '@/components/dashboard/student/FeelGoodCorner';
-import { Button } from '@/components/ui/button';
-import { Link } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
-import { TodayPlanView, FlashcardsView, PracticeExamsView } from '@/pages/dashboard/student/TabContentViews';
-import ConceptCardView from '@/components/dashboard/student/concept-cards/ConceptCardView';
 
 interface TabContentManagerProps {
   userProfile: UserProfileType;
@@ -39,14 +47,10 @@ export const generateTabContents = ({
   lastActivity,
   suggestedNextAction
 }: TabContentManagerProps): Record<string, ReactNode> => {
+  // Check if user is a first time user based on profile data
+  // Using optional chaining to safely access potentially undefined properties
   const isFirstTimeUser = (userProfile?.loginCount ?? 0) < 3 || !(userProfile?.completedOnboarding ?? false);
   const loginCount = userProfile?.loginCount ?? 0;
-
-  console.log('generateTabContents - Active User Profile:', {
-    loginCount,
-    isFirstTimeUser,
-    completedOnboarding: userProfile?.completedOnboarding
-  });
 
   return {
     overview: (
@@ -70,42 +74,18 @@ export const generateTabContents = ({
         />
       </>
     ),
-    today: <TodayPlanView />,
+    today: (
+      <div className="space-y-8">
+        <TodayStudyPlan />
+        <MicroConceptView />
+      </div>
+    ),
     academic: <AcademicAdvisor userProfile={userProfile} />,
-    concepts: (
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-2xl font-bold">Concept Cards</h2>
-            <p className="text-gray-600">
-              Browse through your learning concepts and master the fundamentals.
-            </p>
-          </div>
-          <Link to="/dashboard/student/concepts/all">
-            <Button variant="outline" className="flex items-center gap-2">
-              View All <ArrowRight size={16} />
-            </Button>
-          </Link>
-        </div>
-        <ConceptCardView 
-          title="Today's Concepts" 
-          limit={6}
-          showViewAll={true}
-        />
-      </div>
-    ),
-    flashcards: <FlashcardsView />,
-    'practice-exam': <PracticeExamsView />,
+    concepts: <MicroConceptView />,
+    flashcards: <FlashcardsFeature />,
+    'practice-exam': <PracticeExamFeature />,
     'feel-good': <FeelGoodCorner />,
-    notifications: (
-      <div>
-        <h2 className="text-2xl font-bold">Notifications</h2>
-        <p className="text-gray-600 mb-4">Your latest updates and notifications.</p>
-        <div className="p-8 text-center bg-gray-100 rounded-lg">
-          <p className="text-gray-500">You have no new notifications.</p>
-        </div>
-      </div>
-    ),
+    notifications: <SmartNotificationSection />,
     tutor: <AIChatTutor userProfile={userProfile} />
   };
 };

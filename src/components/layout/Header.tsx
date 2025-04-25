@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -20,7 +21,7 @@ const Header = () => {
           <div className="flex items-center space-x-4">
             <Link to="/" className="flex items-center space-x-2">
               <img 
-                src="/lovable-uploads/fdc1cebd-e35f-4f08-a45b-e839964fd590.png" 
+                src="/lovable-uploads/ffd1ed0a-7a25-477e-bc91-1da9aca3497f.png" 
                 alt="Sakha AI Logo" 
                 className="w-10 h-10"
               />
