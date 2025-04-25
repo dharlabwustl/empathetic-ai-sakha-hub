@@ -86,8 +86,8 @@ const FlashcardBrowserPage = () => {
 
   return (
     <MainLayout>
-      <div className="container py-8">
-        <Card className="max-w-4xl mx-auto">
+      <div className="container max-w-3xl mx-auto py-8">
+        <Card>
           <CardContent className="p-6 space-y-6">
             {/* Header */}
             <div className="flex justify-between items-center">
