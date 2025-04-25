@@ -2,7 +2,8 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { useToast } from "@/components/ui/toast";
+import { toast } from "@/components/ui/toast";
+import { Button } from "@/components/ui/button";
 import ConceptCardDetailView from "@/components/dashboard/student/concept-cards/ConceptCardDetailView";
 import MainLayout from "@/components/layouts/MainLayout";
 import { ConceptCard } from "@/hooks/useUserStudyPlan";
@@ -23,11 +24,10 @@ interface ConceptDetail extends ConceptCard {
 
 const ConceptCardDetailPage = () => {
   const { conceptId } = useParams<{ conceptId: string }>();
-  const { conceptCards, loading: cardsLoading, setConceptCards } = useUserStudyPlan();
+  const { conceptCards, loading: cardsLoading, markConceptCompleted } = useUserStudyPlan();
   const [concept, setConcept] = useState<ConceptDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-  const { toast } = useToast();
 
   useEffect(() => {
     if (conceptId && !cardsLoading) {
@@ -80,21 +80,19 @@ const ConceptCardDetailPage = () => {
       
       setLoading(false);
     }
-  }, [conceptId, conceptCards, cardsLoading, navigate, toast]);
+  }, [conceptId, conceptCards, cardsLoading, navigate]);
 
   const handleMarkCompleted = () => {
-    if (!concept) return;
+    if (!concept || !conceptId) return;
     
-    // Update the concept card in our local state
-    const updatedConcept = { ...concept, completed: true };
-    setConcept(updatedConcept as ConceptDetail);
+    // Update the concept card with the mark completed function from the hook
+    markConceptCompleted(conceptId, true);
     
-    // Update the concept cards in the hook
-    setConceptCards(prevCards => 
-      prevCards.map(card => 
-        card.id === conceptId ? { ...card, completed: true } : card
-      )
-    );
+    // Update the local state to reflect completion
+    setConcept({
+      ...concept,
+      completed: true
+    });
     
     // Show success message
     toast({

@@ -25,7 +25,7 @@ import {
   Award,
 } from "lucide-react";
 import { ConceptCard } from "@/hooks/useUserStudyPlan";
-import { useToast } from "@/components/ui/toast";
+import { toast } from "@/components/ui/toast";
 
 interface ConceptCardDetailViewProps {
   concept: any;
@@ -41,7 +41,6 @@ const ConceptCardDetailView: React.FC<ConceptCardDetailViewProps> = ({
   const [isReading, setIsReading] = useState(false);
   const [speech, setSpeech] = useState<SpeechSynthesisUtterance | null>(null);
   const navigate = useNavigate();
-  const { toast } = useToast();
 
   // Initialize speech synthesis
   useEffect(() => {

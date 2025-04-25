@@ -3,7 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Brain, BookOpen, FileCheck, Clock, Book, Award, Lightbulb } from 'lucide-react';
+import { ArrowRight, Brain, BookOpen, Clock, Book, Award, Lightbulb } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
@@ -76,7 +76,7 @@ const SmartSuggestionSection: React.FC<SmartSuggestionSectionProps> = ({ classNa
   const getIconForType = (type: string) => {
     switch (type) {
       case 'concept': return <Brain className="text-purple-500" />;
-      case 'exam': return <FileCheck className="text-green-500" />;
+      case 'exam': return <BookOpen className="text-green-500" />;
       case 'flashcard': return <Book className="text-blue-500" />;
       case 'resource': return <BookOpen className="text-amber-500" />;
       default: return <Lightbulb className="text-indigo-500" />;
