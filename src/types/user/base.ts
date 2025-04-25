@@ -3,7 +3,7 @@ export type UserRole = 'student' | 'tutor' | 'admin' | 'parent' | 'employee' | '
 
 export type PersonalityType = 'analytical' | 'creative' | 'practical' | 'social' | 'logical' | 'verbal' | 'visual' | 'auditory' | 'kinesthetic' | 'solitary';
 
-export type MoodType = 'happy' | 'sad' | 'neutral' | 'motivated';
+export type MoodType = 'happy' | 'sad' | 'neutral' | 'motivated' | 'tired' | 'stressed' | 'curious' | 'focused' | 'okay' | 'overwhelmed';
 
 export type DateFilterType = 'today' | 'week' | 'month' | 'all';
 
@@ -46,6 +46,13 @@ export interface UserProfileType {
   interests?: string[];
   peerRanking?: number;
   loginCount?: number;
+  completedOnboarding?: boolean;
+  subscription?: {
+    plan: string;
+    status: string;
+    expiresAt: string;
+    features: string[];
+  };
 }
 
 export interface ProgressItem {
@@ -73,4 +80,40 @@ export interface BatchMember {
     totalTopics: number;
     lastActiveDate?: string;
   };
+}
+
+export interface KpiData {
+  id: string;
+  title: string;
+  value: string | number;
+  change?: number;
+  trend?: 'up' | 'down' | 'neutral';
+  icon?: React.ReactNode;
+  description?: string;
+  color?: string;
+  secondaryValue?: string;
+  secondaryLabel?: string;
+}
+
+export interface NudgeData {
+  id: string;
+  title: string;
+  description: string;
+  type: 'info' | 'warning' | 'success' | 'error';
+  read: boolean;
+  action?: string;
+  actionUrl?: string;
+  createdAt: string;
+  priority: 'high' | 'medium' | 'low';
+}
+
+export type SubscriptionType = 'free' | 'basic' | 'premium' | 'enterprise';
+
+export interface SystemLog {
+  id: string;
+  timestamp: string;
+  level: 'info' | 'warning' | 'error' | 'critical';
+  message: string;
+  details: string;
+  source: string;
 }

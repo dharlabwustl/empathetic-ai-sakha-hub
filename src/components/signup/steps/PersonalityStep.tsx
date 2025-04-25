@@ -5,23 +5,20 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 
 interface PersonalityStepProps {
-  onNext: (personality: string) => void;
-  onPersonalitySelect?: (personality: string) => void; // Added missing prop
+  onSelect: (personality: string) => void;
+  isLoading?: boolean;
 }
 
-const PersonalityStep = ({ onNext, onPersonalitySelect }: PersonalityStepProps) => {
+const PersonalityStep = ({ onSelect, isLoading = false }: PersonalityStepProps) => {
   const [selectedPersonality, setSelectedPersonality] = useState<string | null>(null);
 
   const handleSelectPersonality = (personality: string) => {
     setSelectedPersonality(personality);
-    if (onPersonalitySelect) {
-      onPersonalitySelect(personality);
-    }
   };
 
   const handleContinue = () => {
     if (selectedPersonality) {
-      onNext(selectedPersonality);
+      onSelect(selectedPersonality);
     }
   };
 
@@ -93,10 +90,10 @@ const PersonalityStep = ({ onNext, onPersonalitySelect }: PersonalityStepProps) 
       <div className="flex justify-end">
         <Button
           onClick={handleContinue}
-          disabled={!selectedPersonality}
+          disabled={!selectedPersonality || isLoading}
           className="w-full md:w-auto"
         >
-          Continue
+          {isLoading ? "Processing..." : "Continue"}
         </Button>
       </div>
     </div>
