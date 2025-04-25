@@ -20,6 +20,22 @@ import {
 } from "lucide-react";
 import { BatchDetails, BatchMember } from './types';
 
+interface BatchMember {
+  id: string;
+  name: string;
+  email: string;
+  role: "member" | "leader" | "school_admin" | "corporate_admin";
+  status: "active" | "inactive" | "pending";
+  joinedDate?: string;
+  invitationCode?: string;
+  avatar?: string;
+  progress?: {
+    completedTopics: number;
+    totalTopics: number;
+    lastActiveDate?: string;
+  };
+}
+
 interface BatchProfileSectionProps {
   userBatches?: BatchDetails[];
   onInviteMembers: (emails: string[]) => void;

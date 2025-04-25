@@ -34,8 +34,36 @@ const SystemTab = () => {
     }
   ]);
 
-  // Rest of the component logic...
-  
+  const recentLogs: SystemLog[] = [
+    {
+      id: "1",
+      timestamp: new Date().toISOString(),  // Convert Date to string
+      level: "error",
+      source: "Authentication Service",
+      message: "Failed login attempt",
+      details: { userId: "user123", ip: "192.168.1.1" },
+      resolved: false
+    },
+    {
+      id: "2",
+      timestamp: new Date().toISOString(),  // Convert Date to string
+      level: "warning",
+      source: "Database Service",
+      message: "High database load detected",
+      details: { server: "db-main-01", load: 0.89 },
+      resolved: true
+    },
+    {
+      id: "3",
+      timestamp: new Date().toISOString(),  // Convert Date to string
+      level: "info",
+      source: "Content Delivery Network",
+      message: "Cache invalidation completed",
+      details: { region: "us-east-1", duration: "45s" },
+      resolved: true
+    }
+  ];
+
   const resolveLog = (id: string) => {
     setSystemLogs(prev => 
       prev.map(log => 
@@ -44,15 +72,10 @@ const SystemTab = () => {
     );
   };
 
-  // Convert string timestamp to Date if necessary
   const formatTimestamp = (timestamp: Date | string) => {
-    // If timestamp is already a Date object, use it directly
-    // Otherwise parse it as a Date
     const date = timestamp instanceof Date ? timestamp : new Date(timestamp);
     return format(date, 'MMM dd, yyyy HH:mm:ss');
   };
-
-  // ... rest of the component
 
   return (
     <div className="space-y-6">

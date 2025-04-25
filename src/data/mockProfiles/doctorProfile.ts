@@ -1,71 +1,36 @@
+import { UserProfileType, UserRole, SubscriptionType } from "@/types/user";
 
-import { DoctorProfile } from "@/types/user";
-import { UserRole, SubscriptionType } from "@/types/user/base";
-import { v4 as uuidv4 } from "uuid";
-
-export const mockDoctorProfile: DoctorProfile = {
-  id: uuidv4(),
-  name: "Dr. Aisha Sharma",
-  email: "dr.aisha.sharma@maxhealthcare.com",
-  phoneNumber: "+919876543210",
+// Mock doctor profile
+export const doctorProfile: UserProfileType = {
+  id: "doc123",
+  name: "Dr. Emily Carter",
+  email: "emily.carter@example.com",
   role: UserRole.Doctor,
-  personalityType: "Analytical Problem Solver",
-  subscription: SubscriptionType.Premium,
-  joinDate: "2025-02-10",
-  lastActive: "2025-04-07",
-  specialization: "Neurology",
-  qualifications: [
-    "MBBS - AIIMS",
-    "MD - Neurology",
-    "Fellowship - Cognitive Neuroscience"
-  ],
-  researchInterests: [
-    "Alzheimer's Disease",
-    "Neuroplasticity",
-    "Cognitive Enhancement"
-  ],
-  publications: 14,
-  institution: "Max Healthcare Institute",
-  yearsOfPractice: 8,
-  certifications: [
-    "Advanced Neurology",
-    "Clinical Research",
-    "Medical Education"
-  ],
-  researchTopic: "Neural Biomarkers for Early Alzheimer's Detection",
-  thesisTitle: "Cognitive Reserve and Neurodegenerative Progression",
-  clinicalInterest: "Memory Disorders",
-  researchPhase: "Clinical Trials",
+  avatar: "/lovable-uploads/doctor_avatar.jpg",
+  joinDate: "2022-05-20",
+  personalityType: "analytical",
+  loginCount: 15,
+  completedOnboarding: true,
+  examPreparation: "Medical Licensing Exam",
+  subscription: {
+    id: "sub_doctor1",
+    userId: "doc123",
+    planType: SubscriptionType.Premium,
+    startDate: "2023-01-15",
+    endDate: "2024-01-15",
+    status: "active",
+    autoRenew: true
+  },
   goals: [
     {
-      id: uuidv4(),
-      title: "Complete Research Paper",
-      description: "Finish and submit paper on neural biomarkers",
-      progress: 65,
-      status: "in-progress",
-      dueDate: "2025-06-15",
-      targetDate: new Date("2025-06-15")
+      id: "goal1",
+      title: "Complete NEET Course",
+      progress: 75,
     },
     {
-      id: uuidv4(),
-      title: "Conference Presentation",
-      description: "Present findings at International Neurology Conference",
-      progress: 40,
-      status: "not-started",
-      dueDate: "2025-08-20",
-      targetDate: new Date("2025-08-20")
+      id: "goal2",
+      title: "Practice 1000 Questions",
+      progress: 45,
     }
   ],
-  areasOfInterest: [
-    {
-      id: uuidv4(),
-      name: "Machine Learning in Diagnostics",
-      level: "Intermediate"
-    },
-    {
-      id: uuidv4(),
-      name: "Clinical Research",
-      level: "Advanced"
-    }
-  ]
 };

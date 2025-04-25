@@ -3,16 +3,33 @@ export interface SubjectProgress {
   id: string;
   subjectId: string;
   subjectName: string;
+  name?: string; // Added for compatibility with components
+  color?: string; // Added for compatibility with components
   progress: number;
   totalTopics: number;
   completedTopics: number;
   lastStudyDate?: string;
+  studyHours?: number[];
+  topics?: Array<{
+    id: string;
+    name: string;
+    completed: boolean;
+    progress: number;
+  }>;
+  quizScores?: Array<{
+    id: string;
+    score: number;
+    date: string;
+    timeTaken: number;
+  }>;
 }
 
 export interface StudyStreak {
   currentStreak: number;
   longestStreak: number;
   lastStudyDate: string;
+  current?: number; // Added for compatibility with components
+  thisWeek?: number; // Added for compatibility with components
   streakHistory: Array<{
     date: string;
     completed: boolean;

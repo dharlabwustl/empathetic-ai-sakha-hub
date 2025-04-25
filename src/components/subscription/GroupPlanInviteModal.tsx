@@ -9,6 +9,7 @@ import PlanSummaryCard from './group-plan/PlanSummaryCard';
 import BatchNameInput from './group-plan/BatchNameInput';
 import EmailInviteSection from './group-plan/EmailInviteSection';
 import InvitationCodeSection from './group-plan/InvitationCodeSection';
+import { Mail, Shield } from "lucide-react";
 
 interface Plan {
   id: string;

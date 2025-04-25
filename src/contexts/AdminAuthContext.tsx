@@ -1,60 +1,56 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { AdminUser } from '@/types/admin';
 
 interface AdminAuthContextProps {
-  adminUser: AdminUser | null;
+  user: AdminUser | null;
   isAuthenticated: boolean;
-  isLoading: boolean;
-  login: (username: string, password: string) => Promise<boolean>;
-  logout: () => void;
+  loading: boolean;
+  login: (email: string, password: string) => Promise<boolean>;
+  logout: () => Promise<void>;
 }
 
 const AdminAuthContext = createContext<AdminAuthContextProps | undefined>(undefined);
 
 export const AdminAuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [adminUser, setAdminUser] = useState<AdminUser | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [user, setUser] = useState<AdminUser | null>(null);
+  const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
   useEffect(() => {
-    // Check if admin is logged in
     const checkAdminAuth = () => {
       const adminData = localStorage.getItem('adminUser');
       if (adminData) {
         try {
           const admin = JSON.parse(adminData);
-          setAdminUser(admin);
+          setUser(admin);
         } catch (error) {
           console.error('Error parsing admin user data:', error);
           localStorage.removeItem('adminUser');
         }
       }
-      setIsLoading(false);
+      setLoading(false);
     };
 
     checkAdminAuth();
   }, []);
 
-  const login = async (username: string, password: string): Promise<boolean> => {
-    setIsLoading(true);
+  const login = async (email: string, password: string): Promise<boolean> => {
+    setLoading(true);
     
     try {
-      // In a real app, this would be an API call
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // Mock authentication logic
-      if (username === 'admin@example.com' && password === 'admin123') {
+      if (email === 'admin@example.com' && password === 'admin123') {
         const admin: AdminUser = {
           id: '1',
           username: 'admin',
-          email: username,
+          email: email,
           role: 'admin',
           permissions: ['read', 'write', 'delete']
         };
         
-        setAdminUser(admin);
+        setUser(admin);
         localStorage.setItem('adminUser', JSON.stringify(admin));
         
         toast({
@@ -83,12 +79,12 @@ export const AdminAuthProvider: React.FC<{ children: ReactNode }> = ({ children 
       
       return false;
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
   const logout = () => {
-    setAdminUser(null);
+    setUser(null);
     localStorage.removeItem('adminUser');
     
     toast({
@@ -99,9 +95,9 @@ export const AdminAuthProvider: React.FC<{ children: ReactNode }> = ({ children 
 
   return (
     <AdminAuthContext.Provider value={{ 
-      adminUser, 
-      isAuthenticated: !!adminUser, 
-      isLoading, 
+      user, 
+      isAuthenticated: !!user, 
+      loading, 
       login, 
       logout 
     }}>
