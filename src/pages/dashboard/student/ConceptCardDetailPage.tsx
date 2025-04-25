@@ -9,6 +9,7 @@ import { useStudentDashboard } from "@/hooks/useStudentDashboard";
 import { trackStudyActivity } from "./utils/UserSessionManager";
 import { useToast } from "@/components/ui/toast";
 import ConceptCardDetailView from "@/components/dashboard/student/concept-cards/ConceptCardDetailView";
+import MainLayout from "@/components/layouts/MainLayout";
 
 const ConceptCardDetailPage = () => {
   const { conceptId } = useParams<{ conceptId: string }>();
@@ -28,8 +29,10 @@ const ConceptCardDetailPage = () => {
       const mockConcept = {
         id: conceptId,
         name: "Kinematics in One Dimension",
+        title: "Kinematics in One Dimension",
         subject: "Physics",
         topic: "Motion",
+        chapter: "Mechanics",
         difficulty: "Medium",
         estimatedTime: 20,
         description: "Understanding motion along a straight line",
@@ -104,9 +107,11 @@ const ConceptCardDetailPage = () => {
 
   if (profileLoading || loading) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-      </div>
+      <MainLayout>
+        <div className="flex items-center justify-center h-screen">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        </div>
+      </MainLayout>
     );
   }
 
@@ -116,28 +121,30 @@ const ConceptCardDetailPage = () => {
   }
 
   return (
-    <DashboardLayout userProfile={userProfile}>
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
-        className="w-full px-4 sm:px-6"
-      >
-        {concept ? (
-          <ConceptCardDetailView 
-            concept={concept} 
-            onMarkCompleted={handleMarkCompleted}
-          />
-        ) : (
-          <div className="p-8 text-center">
-            <h2 className="text-2xl font-bold">Concept not found</h2>
-            <p className="text-muted-foreground">
-              The concept you're looking for may have been moved or doesn't exist
-            </p>
-          </div>
-        )}
-      </motion.div>
-    </DashboardLayout>
+    <MainLayout>
+      <div className="container py-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+          className="w-full"
+        >
+          {concept ? (
+            <ConceptCardDetailView 
+              concept={concept} 
+              onMarkCompleted={handleMarkCompleted}
+            />
+          ) : (
+            <div className="p-8 text-center">
+              <h2 className="text-2xl font-bold">Concept not found</h2>
+              <p className="text-muted-foreground">
+                The concept you're looking for may have been moved or doesn't exist
+              </p>
+            </div>
+          )}
+        </motion.div>
+      </div>
+    </MainLayout>
   );
 };
 

@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -23,6 +24,7 @@ const ConceptCardView: React.FC<ConceptCardViewProps> = ({
 }) => {
   const { conceptCards, loading } = useUserStudyPlan();
   const [selectedView, setSelectedView] = useState<'today' | 'week' | 'month'>('today');
+  const navigate = useNavigate();
   
   const filteredCards = conceptCards
     .filter(card => !subject || card.subject === subject)
@@ -30,6 +32,11 @@ const ConceptCardView: React.FC<ConceptCardViewProps> = ({
     .filter(card => card.scheduledFor === selectedView)
     .slice(0, limit);
   
+  const handleCardClick = (cardId: string) => {
+    // Navigate to individual concept card page
+    navigate(`/dashboard/student/concepts/${cardId}`);
+  };
+
   if (loading) {
     return (
       <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 animate-pulse">
@@ -86,10 +93,10 @@ const ConceptCardView: React.FC<ConceptCardViewProps> = ({
       ) : (
         <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
           {filteredCards.map((card) => (
-            <Link 
-              key={card.id} 
-              to={`/dashboard/student/concepts/${card.id}`}
-              className="block transition-transform hover:scale-[1.02]"
+            <div 
+              key={card.id}
+              onClick={() => handleCardClick(card.id)}
+              className="cursor-pointer block transition-transform hover:scale-[1.02]"
             >
               <Card className="h-full hover:shadow-md transition-shadow duration-200 overflow-hidden group border-l-4" 
                     style={{ borderLeftColor: getDifficultyColor(card.difficulty) }}>
@@ -125,7 +132,7 @@ const ConceptCardView: React.FC<ConceptCardViewProps> = ({
                   </div>
                 </CardContent>
               </Card>
-            </Link>
+            </div>
           ))}
         </div>
       )}

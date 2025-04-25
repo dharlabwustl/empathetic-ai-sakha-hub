@@ -1,3 +1,4 @@
+
 import * as React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -111,6 +112,7 @@ const App = () => {
                     {/* Concept card routes */}
                     <Route path="/dashboard/student/concepts/all" element={<ConceptsPage />} />
                     <Route path="/dashboard/student/concepts/:conceptId" element={<ConceptCardDetailPage />} />
+                    <Route path="/dashboard/student/exams" element={<PracticeExamsPage />} />
                     
                     <Route path="/dashboard/student/progress" element={<StudyProgress />} />
                     <Route path="/dashboard/student/profile" element={<StudentProfilePage />} />

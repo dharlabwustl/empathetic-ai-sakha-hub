@@ -13,7 +13,7 @@ const SystemTab = () => {
       level: 'error',
       message: 'Database connection failed',
       source: 'backend',
-      timestamp: new Date('2025-04-15T12:30:00'),
+      timestamp: new Date('2025-04-15T12:30:00').toISOString(),
       resolved: false
     },
     {
@@ -21,7 +21,7 @@ const SystemTab = () => {
       level: 'info',
       message: 'User authentication successful',
       source: 'auth',
-      timestamp: new Date('2025-04-15T13:45:00'),
+      timestamp: new Date('2025-04-15T13:45:00').toISOString(),
       resolved: true
     },
     {
@@ -29,14 +29,10 @@ const SystemTab = () => {
       level: 'warning',
       message: 'Rate limit approaching',
       source: 'api',
-      timestamp: new Date('2025-04-15T14:20:00'),
+      timestamp: new Date('2025-04-15T14:20:00').toISOString(),
       resolved: false
     }
   ]);
-
-  const formatDate = (date: Date): string => {
-    return date.toISOString();
-  };
 
   const resolveLog = (id: string) => {
     setSystemLogs(prev => 
@@ -46,8 +42,8 @@ const SystemTab = () => {
     );
   };
 
-  const formatTimestamp = (timestamp: Date | string) => {
-    const date = timestamp instanceof Date ? timestamp : new Date(timestamp);
+  const formatTimestamp = (timestamp: string) => {
+    const date = new Date(timestamp);
     return format(date, 'MMM dd, yyyy HH:mm:ss');
   };
 
