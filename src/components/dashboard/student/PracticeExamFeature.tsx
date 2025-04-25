@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -811,7 +810,7 @@ export default function PracticeExamFeature({ displayCount = 3 }: PracticeExamFe
                     </span>
                     <Button 
                       size="sm" 
-                      className="h-7 text-xs bg-blue-600 hover:bg-blue-700"
+                      className="h-7 text-xs bg-blue-600 hover:bg-blue-700 text-white"
                       onClick={(e) => handleStartExam(exam, e)}
                       disabled={isLoadingExam}
                     >
@@ -822,7 +821,8 @@ export default function PracticeExamFeature({ displayCount = 3 }: PracticeExamFe
                         </>
                       ) : (
                         <>
-                          Start Exam <ExternalLink className="h-3 w-3 ml-1" />
+                          Start Exam
+                          <ArrowRight className="h-3 w-3 ml-1" />
                         </>
                       )}
                     </Button>
