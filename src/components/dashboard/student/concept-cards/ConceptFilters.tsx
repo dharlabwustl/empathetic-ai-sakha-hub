@@ -1,12 +1,27 @@
 
-import React from 'react';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Search, Clock, Tag, BookOpen, GraduationCap } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Search, Filter, SlidersHorizontal, X, Clock, Tag } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { ConceptCard } from '@/hooks/useUserStudyPlan';
 import { Badge } from '@/components/ui/badge';
-import { useUserProfile } from '@/hooks/useUserProfile';
+import { Slider } from '@/components/ui/slider';
+
+// Extend ConceptCard type if needed
+type ExtendedConceptCard = ConceptCard & {
+  tags?: string[];
+  estimatedTime?: number;
+  examGoal?: string;
+};
 
 interface ConceptFiltersProps {
   selectedSubject: string;
@@ -15,14 +30,14 @@ interface ConceptFiltersProps {
   setSelectedDifficulty: (value: string) => void;
   searchQuery: string;
   setSearchQuery: (value: string) => void;
+  selectedExamGoal?: string;
+  setSelectedExamGoal: (value: string) => void;
+  selectedTopicTag?: string;
+  setSelectedTopicTag: (value: string) => void;
+  selectedTimeRange?: number | null;
+  setSelectedTimeRange: (value: number | null) => void;
   clearFilters: () => void;
   conceptCards: ConceptCard[];
-  selectedExamGoal?: string;
-  setSelectedExamGoal?: (value: string) => void;
-  selectedTopicTag?: string;
-  setSelectedTopicTag?: (value: string) => void;
-  selectedTimeRange?: number | null;
-  setSelectedTimeRange?: (value: number | null) => void;
 }
 
 const ConceptFilters: React.FC<ConceptFiltersProps> = ({
@@ -32,211 +47,209 @@ const ConceptFilters: React.FC<ConceptFiltersProps> = ({
   setSelectedDifficulty,
   searchQuery,
   setSearchQuery,
-  clearFilters,
-  conceptCards,
   selectedExamGoal,
   setSelectedExamGoal,
   selectedTopicTag,
   setSelectedTopicTag,
   selectedTimeRange,
-  setSelectedTimeRange
+  setSelectedTimeRange,
+  clearFilters,
+  conceptCards
 }) => {
-  const { userProfile } = useUserProfile();
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+  
+  // Type assertion to support the expected properties
+  const typedCards = conceptCards as ExtendedConceptCard[];
+
+  // Extract unique values for filters
   const subjects = [...new Set(conceptCards.map(card => card.subject))];
-  const difficulties = ['Easy', 'Medium', 'Hard'];
+  const difficulties = [...new Set(conceptCards.map(card => card.difficulty))];
+  const examGoals = [...new Set(typedCards.filter(card => card.examGoal).map(card => card.examGoal as string))];
   
-  // Extract all unique tags from concept cards
-  const allTags = conceptCards
-    .flatMap(card => card.tags || [])
-    .filter((tag, i, arr) => arr.indexOf(tag) === i);
-  
-  // Get available exam goals
-  const examGoals = userProfile?.goals?.map(goal => goal.title) || [];
-  
-  // Time range options
-  const timeRanges = [15, 30, 45, 60, 90, 120];
+  // Get all tags from all cards, flatten, and get unique values
+  const allTags = [...new Set(
+    typedCards
+      .filter(card => card.tags)
+      .flatMap(card => card.tags as string[])
+  )];
+
+  // Get max time range from cards
+  const maxTimeRange = Math.max(...typedCards.filter(card => card.estimatedTime).map(card => card.estimatedTime || 0));
+
+  const toggleAdvancedFilters = () => {
+    setShowAdvancedFilters(prev => !prev);
+  };
+
+  const handleClearFilters = () => {
+    clearFilters();
+  };
 
   return (
     <div className="space-y-4">
-      <div className="relative flex-grow">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-        <Input 
-          placeholder="Search concepts, subjects or chapters..." 
-          className="pl-10"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-        />
-      </div>
-      
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
-        <Select value={selectedSubject} onValueChange={setSelectedSubject}>
-          <SelectTrigger className="w-full">
-            <div className="flex items-center gap-2">
-              <BookOpen size={16} className="text-blue-500" />
-              <SelectValue placeholder="Subject" />
-            </div>
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="">All Subjects</SelectItem>
-            {subjects.map((subject) => (
-              <SelectItem key={subject} value={subject}>{subject}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        
-        <Select value={selectedDifficulty} onValueChange={setSelectedDifficulty}>
-          <SelectTrigger className="w-full">
-            <div className="flex items-center gap-2">
-              <Tag size={16} className="text-orange-500" />
-              <SelectValue placeholder="Difficulty" />
-            </div>
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="">All Difficulties</SelectItem>
-            {difficulties.map((diff) => (
-              <SelectItem key={diff} value={diff}>{diff}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        
-        {setSelectedExamGoal && (
-          <Select value={selectedExamGoal} onValueChange={setSelectedExamGoal}>
-            <SelectTrigger className="w-full">
-              <div className="flex items-center gap-2">
-                <GraduationCap size={16} className="text-purple-500" />
-                <SelectValue placeholder="Exam Goal" />
-              </div>
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="">All Exam Goals</SelectItem>
-              {examGoals.map((goal) => (
-                <SelectItem key={goal} value={goal}>{goal}</SelectItem>
+      <div className="flex flex-col sm:flex-row gap-2">
+        {/* Search input */}
+        <div className="relative flex-grow">
+          <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500" size={18} />
+          <Input
+            className="pl-8"
+            placeholder="Search concepts..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+          {searchQuery && (
+            <button
+              className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+              onClick={() => setSearchQuery('')}
+            >
+              <X size={18} />
+            </button>
+          )}
+        </div>
+
+        {/* Quick filters dropdown */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" className="flex items-center gap-1">
+              <Filter size={18} />
+              Subject
+              {selectedSubject && <Badge variant="secondary" className="ml-1">{selectedSubject}</Badge>}
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-56">
+            <DropdownMenuLabel>Filter by Subject</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuGroup>
+              <DropdownMenuItem 
+                className={!selectedSubject ? "bg-gray-100" : ""} 
+                onClick={() => setSelectedSubject("")}
+              >
+                All Subjects
+              </DropdownMenuItem>
+              {subjects.map((subject) => (
+                <DropdownMenuItem 
+                  key={subject} 
+                  className={selectedSubject === subject ? "bg-gray-100" : ""} 
+                  onClick={() => setSelectedSubject(subject)}
+                >
+                  {subject}
+                </DropdownMenuItem>
               ))}
-            </SelectContent>
-          </Select>
-        )}
-        
-        {setSelectedTopicTag && allTags.length > 0 && (
-          <Select value={selectedTopicTag} onValueChange={setSelectedTopicTag}>
-            <SelectTrigger className="w-full">
-              <div className="flex items-center gap-2">
-                <Tag size={16} className="text-green-500" />
-                <SelectValue placeholder="Topic Tag" />
-              </div>
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="">All Tags</SelectItem>
-              {allTags.map((tag) => (
-                <SelectItem key={tag} value={tag}>{tag}</SelectItem>
+            </DropdownMenuGroup>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" className="flex items-center gap-1">
+              <SlidersHorizontal size={18} />
+              Difficulty
+              {selectedDifficulty && <Badge variant="secondary" className="ml-1">{selectedDifficulty}</Badge>}
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-56">
+            <DropdownMenuLabel>Filter by Difficulty</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuGroup>
+              <DropdownMenuItem 
+                className={!selectedDifficulty ? "bg-gray-100" : ""} 
+                onClick={() => setSelectedDifficulty("")}
+              >
+                All Difficulties
+              </DropdownMenuItem>
+              {difficulties.map((difficulty) => (
+                <DropdownMenuItem 
+                  key={difficulty} 
+                  className={selectedDifficulty === difficulty ? "bg-gray-100" : ""} 
+                  onClick={() => setSelectedDifficulty(difficulty)}
+                >
+                  {difficulty}
+                </DropdownMenuItem>
               ))}
-            </SelectContent>
-          </Select>
-        )}
-        
-        {setSelectedTimeRange && (
-          <Select 
-            value={selectedTimeRange?.toString() || ''} 
-            onValueChange={(val) => setSelectedTimeRange(val ? parseInt(val) : null)}
-          >
-            <SelectTrigger className="w-full">
-              <div className="flex items-center gap-2">
-                <Clock size={16} className="text-pink-500" />
-                <SelectValue placeholder="Time (mins)" />
-              </div>
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="">Any Duration</SelectItem>
-              {timeRanges.map((time) => (
-                <SelectItem key={time} value={time.toString()}>≤ {time} mins</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        )}
-      </div>
-      
-      {/* Active filters display */}
-      <div className="flex flex-wrap gap-2">
-        {selectedSubject && (
-          <Badge variant="secondary" className="flex items-center gap-1">
-            Subject: {selectedSubject}
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="h-4 w-4 p-0 ml-1" 
-              onClick={() => setSelectedSubject('')}
-            >
-              ✕
-            </Button>
-          </Badge>
-        )}
-        
-        {selectedDifficulty && (
-          <Badge variant="secondary" className="flex items-center gap-1">
-            Difficulty: {selectedDifficulty}
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="h-4 w-4 p-0 ml-1" 
-              onClick={() => setSelectedDifficulty('')}
-            >
-              ✕
-            </Button>
-          </Badge>
-        )}
-        
-        {selectedExamGoal && (
-          <Badge variant="secondary" className="flex items-center gap-1">
-            Exam: {selectedExamGoal}
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="h-4 w-4 p-0 ml-1" 
-              onClick={() => setSelectedExamGoal?.('')}
-            >
-              ✕
-            </Button>
-          </Badge>
-        )}
-        
-        {selectedTopicTag && (
-          <Badge variant="secondary" className="flex items-center gap-1">
-            Tag: {selectedTopicTag}
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="h-4 w-4 p-0 ml-1" 
-              onClick={() => setSelectedTopicTag?.('')}
-            >
-              ✕
-            </Button>
-          </Badge>
-        )}
-        
-        {selectedTimeRange && (
-          <Badge variant="secondary" className="flex items-center gap-1">
-            Time: ≤ {selectedTimeRange} mins
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="h-4 w-4 p-0 ml-1" 
-              onClick={() => setSelectedTimeRange?.(null)}
-            >
-              ✕
-            </Button>
-          </Badge>
-        )}
-        
+            </DropdownMenuGroup>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        {/* Advanced filters toggle */}
+        <Button variant={showAdvancedFilters ? "default" : "outline"} onClick={toggleAdvancedFilters}>
+          {showAdvancedFilters ? "Hide Advanced" : "Advanced Filters"}
+        </Button>
+
+        {/* Clear filters button */}
         {(selectedSubject || selectedDifficulty || searchQuery || selectedExamGoal || selectedTopicTag || selectedTimeRange) && (
-          <Button 
-            variant="ghost"
-            size="sm"
-            onClick={clearFilters}
-            className="text-xs"
-          >
-            Clear All
+          <Button variant="outline" className="flex items-center gap-1" onClick={handleClearFilters}>
+            <X size={18} />
+            Clear
           </Button>
         )}
       </div>
+
+      {/* Advanced filters section */}
+      {showAdvancedFilters && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-gray-50 p-4 rounded-md">
+          {/* Exam Goal filter */}
+          <div>
+            <h4 className="text-sm font-medium mb-2">Exam Goal</h4>
+            <div className="space-y-1">
+              <div
+                className={`px-3 py-1.5 rounded-md cursor-pointer ${!selectedExamGoal ? 'bg-blue-100' : 'hover:bg-gray-200'}`}
+                onClick={() => setSelectedExamGoal('')}
+              >
+                All Goals
+              </div>
+              {examGoals.map((goal) => (
+                <div
+                  key={goal}
+                  className={`px-3 py-1.5 rounded-md cursor-pointer ${selectedExamGoal === goal ? 'bg-blue-100' : 'hover:bg-gray-200'}`}
+                  onClick={() => setSelectedExamGoal(goal)}
+                >
+                  {goal}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Topic Tags filter */}
+          <div>
+            <h4 className="text-sm font-medium mb-2 flex items-center">
+              <Tag size={14} className="mr-1" />
+              Topic Tags
+            </h4>
+            <div className="flex flex-wrap gap-1">
+              {allTags.map((tag) => (
+                <Badge 
+                  key={tag}
+                  variant={selectedTopicTag === tag ? "default" : "outline"}
+                  className="cursor-pointer"
+                  onClick={() => setSelectedTopicTag(selectedTopicTag === tag ? '' : tag)}
+                >
+                  {tag}
+                </Badge>
+              ))}
+            </div>
+          </div>
+
+          {/* Time Range filter */}
+          <div>
+            <h4 className="text-sm font-medium mb-2 flex items-center">
+              <Clock size={14} className="mr-1" />
+              Time (minutes)
+            </h4>
+            <div className="px-2">
+              <Slider 
+                defaultValue={[maxTimeRange]}
+                max={maxTimeRange} 
+                step={5}
+                onValueChange={(values) => setSelectedTimeRange(values[0])}
+                value={selectedTimeRange ? [selectedTimeRange] : [maxTimeRange]}
+              />
+              <div className="flex justify-between text-xs text-gray-500 mt-1">
+                <span>5 min</span>
+                <span>{selectedTimeRange || maxTimeRange} min or less</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

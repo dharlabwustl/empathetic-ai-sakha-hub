@@ -19,6 +19,13 @@ interface ConceptsListProps {
   selectedTimeRange?: number | null;
 }
 
+// Extend ConceptCard type from useUserStudyPlan if needed
+type ExtendedConceptCard = IConceptCard & {
+  examGoal?: string;
+  tags?: string[];
+  estimatedTime?: number;
+};
+
 const ConceptsList: React.FC<ConceptsListProps> = ({
   conceptCards,
   loading,
@@ -29,10 +36,13 @@ const ConceptsList: React.FC<ConceptsListProps> = ({
   selectedTopicTag,
   selectedTimeRange
 }) => {
-  const filteredCards = conceptCards
+  // Type assertion to support the expected properties
+  const typedCards = conceptCards as ExtendedConceptCard[];
+
+  const filteredCards = typedCards
     .filter(card => !selectedSubject || card.subject === selectedSubject)
     .filter(card => !selectedDifficulty || card.difficulty === selectedDifficulty)
-    .filter(card => !selectedExamGoal || card.examGoal === selectedExamGoal)
+    .filter(card => !selectedExamGoal || (card.examGoal && card.examGoal === selectedExamGoal))
     .filter(card => !selectedTopicTag || (card.tags && card.tags.includes(selectedTopicTag)))
     .filter(card => !selectedTimeRange || (card.estimatedTime && card.estimatedTime <= selectedTimeRange))
     .filter(card => !searchQuery || 
