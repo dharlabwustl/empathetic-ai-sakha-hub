@@ -1,4 +1,3 @@
-
 import * as React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -48,6 +47,11 @@ import FlashcardsPage from "./pages/dashboard/student/FlashcardsPage";
 import ExamPreparationPage from "./pages/dashboard/student/ExamPreparationPage";
 
 import FeaturesManagementPage from "./pages/admin/FeaturesManagementPage";
+import BatchManagementPage from "./pages/admin/BatchManagementPage";
+
+// New imports for concept pages
+import ConceptsPage from "./pages/dashboard/student/ConceptsPage";
+import ConceptCardDetailPage from "./pages/dashboard/student/ConceptCardDetailPage";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -69,6 +73,7 @@ const App = () => {
               <Sonner />
               <BrowserRouter>
                 <Routes>
+                  {/* Landing pages */}
                   <Route path="/" element={<Index />} />
                   <Route path="/about" element={<About />} />
                   <Route path="/features" element={<Features />} />
@@ -77,6 +82,7 @@ const App = () => {
                   <Route path="/login" element={<LoginPage />} />
                   <Route path="/login/old" element={<Login />} />
                   
+                  {/* Admin routes */}
                   <Route path="/admin/login" element={<AdminLogin />} />
                   <Route path="/admin/dashboard" element={
                     <AdminRouteGuard>
@@ -138,111 +144,91 @@ const App = () => {
                       <SettingsPage />
                     </AdminRouteGuard>
                   } />
-                  
-                  <Route path="/dashboard/student" element={
-                    <ProtectedRoute>
-                      <StudentDashboard />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/dashboard/student/:tab" element={
-                    <ProtectedRoute>
-                      <StudentDashboard />
-                    </ProtectedRoute>
-                  } />
-                  
-                  <Route path="/dashboard/student/profile" element={
-                    <ProtectedRoute>
-                      <StudentProfilePage />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/dashboard/student/settings" element={
-                    <ProtectedRoute>
-                      <StudentSettingsPage />
-                    </ProtectedRoute>
-                  } />
-                  
-                  <Route path="/dashboard/student/subscription" element={
-                    <ProtectedRoute>
-                      <SubscriptionPage />
-                    </ProtectedRoute>
-                  } />
-                  
-                  <Route path="/dashboard/student/flashcards" element={
-                    <ProtectedRoute>
-                      <FlashcardsPage />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/dashboard/student/exams" element={
-                    <ProtectedRoute>
-                      <ExamPreparationPage />
-                    </ProtectedRoute>
-                  } />
-                  
-                  <Route path="/dashboard/student/tutor" element={
-                    <ProtectedRoute>
-                      <AIChatTutor userProfile={{
-                        id: "1",
-                        name: "Student",
-                        email: "student@example.com",
-                        role: UserRole.Student,
-                        goals: [{ id: "1", title: "JEE", progress: 65 }]
-                      }} />
-                    </ProtectedRoute>
-                  } />
-                  
-                  <Route path="/dashboard/student/academic" element={
-                    <ProtectedRoute>
-                      <AcademicAdvisor userProfile={{
-                        examPreparation: "IIT-JEE"
-                      }} />
-                    </ProtectedRoute>
-                  } />
-                  
-                  <Route path="/dashboard/student/progress" element={
-                    <ProtectedRoute>
-                      <StudyProgress />
-                    </ProtectedRoute>
-                  } />
-                  
-                  <Route path="/dashboard/employee" element={
-                    <ProtectedRoute>
-                      <EmployeeDashboard />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/dashboard/employee/:tab" element={
-                    <ProtectedRoute>
-                      <EmployeeDashboard />
-                    </ProtectedRoute>
-                  } />
-                  
-                  <Route path="/dashboard/doctor" element={
-                    <ProtectedRoute>
-                      <DoctorDashboard />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/dashboard/doctor/:tab" element={
-                    <ProtectedRoute>
-                      <DoctorDashboard />
-                    </ProtectedRoute>
-                  } />
-                  
-                  <Route path="/dashboard/founder" element={
-                    <ProtectedRoute>
-                      <FounderDashboard />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/dashboard/founder/:tab" element={
-                    <ProtectedRoute>
-                      <FounderDashboard />
-                    </ProtectedRoute>
-                  } />
-                  
                   <Route path="/admin/features" element={
                     <AdminRouteGuard>
                       <FeaturesManagementPage />
                     </AdminRouteGuard>
                   } />
                   
+                  {/* Student routes */}
+                  <Route element={<ProtectedRoute />}>
+                    <Route path="/dashboard/student" element={<Navigate to="/dashboard/student/overview" replace />} />
+                    <Route path="/dashboard/student/:tab" element={<StudentDashboard />} />
+                    
+                    {/* Concept card routes */}
+                    <Route path="/dashboard/student/concepts/all" element={<ConceptsPage />} />
+                    <Route path="/dashboard/student/concepts/:conceptId" element={<ConceptCardDetailPage />} />
+                    
+                    <Route path="/dashboard/student/progress" element={<StudyProgress />} />
+                    <Route path="/dashboard/student/batch" element={<BatchManagementPage />} />
+                    
+                    <Route path="/dashboard/student/profile" element={
+                      <ProtectedRoute>
+                        <StudentProfilePage />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/dashboard/student/settings" element={
+                      <ProtectedRoute>
+                        <StudentSettingsPage />
+                      </ProtectedRoute>
+                    } />
+                    
+                    <Route path="/dashboard/student/subscription" element={
+                      <ProtectedRoute>
+                        <SubscriptionPage />
+                      </ProtectedRoute>
+                    } />
+                    
+                    <Route path="/dashboard/student/flashcards" element={
+                      <ProtectedRoute>
+                        <FlashcardsPage />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/dashboard/student/exams" element={
+                      <ProtectedRoute>
+                        <ExamPreparationPage />
+                      </ProtectedRoute>
+                    } />
+                    
+                    <Route path="/dashboard/student/tutor" element={
+                      <ProtectedRoute>
+                        <AIChatTutor userProfile={{
+                          id: "1",
+                          name: "Student",
+                          email: "student@example.com",
+                          role: UserRole.Student,
+                          goals: [{ id: "1", title: "JEE", progress: 65 }]
+                        }} />
+                      </ProtectedRoute>
+                    } />
+                    
+                    <Route path="/dashboard/student/academic" element={
+                      <ProtectedRoute>
+                        <AcademicAdvisor userProfile={{
+                          examPreparation: "IIT-JEE"
+                        }} />
+                      </ProtectedRoute>
+                    } />
+                    
+                    {/* Other user type dashboards */}
+                    <Route path="/dashboard/doctor" element={
+                      <ProtectedRoute>
+                        <DoctorDashboard />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/dashboard/employee" element={
+                      <ProtectedRoute>
+                        <EmployeeDashboard />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/dashboard/founder" element={
+                      <ProtectedRoute>
+                        <FounderDashboard />
+                      </ProtectedRoute>
+                    } />
+                  </Route>
+                  
+                  {/* 404 page */}
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </BrowserRouter>

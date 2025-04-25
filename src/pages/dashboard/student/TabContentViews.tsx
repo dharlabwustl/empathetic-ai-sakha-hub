@@ -1,19 +1,45 @@
 
 import React from 'react';
 import ConceptCardView from '@/components/dashboard/student/concept-cards/ConceptCardView';
+import { Button } from '@/components/ui/button';
+import { Link } from 'react-router-dom';
+import { ArrowRight } from 'lucide-react';
+import TodayStudyPlan from '@/components/dashboard/student/TodayStudyPlan';
 
 export const MicroConceptView = () => {
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold">Concept Cards</h2>
-      <p className="text-gray-500">
-        Understand concepts deeply with comprehensive explanations and examples.
-      </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold">Concept Cards</h2>
+          <p className="text-gray-500">
+            Understand concepts deeply with comprehensive explanations and examples.
+          </p>
+        </div>
+        <Link to="/dashboard/student/concepts/all">
+          <Button variant="outline" className="flex items-center gap-2">
+            View All <ArrowRight size={16} />
+          </Button>
+        </Link>
+      </div>
       
       <ConceptCardView 
-        title="Newton's Laws of Motion" 
-        subject="Physics" 
-        chapter="Laws of Motion" 
+        title="Today's Concept Cards" 
+        limit={3}
+        showViewAll={false}
+      />
+    </div>
+  );
+};
+
+export const TodayPlanView = () => {
+  return (
+    <div className="space-y-6">
+      <TodayStudyPlan />
+      <ConceptCardView 
+        title="Today's Concept Cards" 
+        limit={3}
+        showViewAll={true}
       />
     </div>
   );
