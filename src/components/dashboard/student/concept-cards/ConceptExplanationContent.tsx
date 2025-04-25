@@ -3,18 +3,13 @@ import React from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { LightbulbIcon, BookOpenIcon, AlertTriangleIcon, TrophyIcon, Volume2 } from "lucide-react";
+import { LightbulbIcon, BookOpenIcon, AlertTriangleIcon, TrophyIcon } from "lucide-react";
 
 interface ConceptExplanationContentProps {
   conceptTitle: string;
-  handleVoiceReading?: (text: string) => void;
 }
 
-const ConceptExplanationContent: React.FC<ConceptExplanationContentProps> = ({ 
-  conceptTitle,
-  handleVoiceReading
-}) => {
+const ConceptExplanationContent: React.FC<ConceptExplanationContentProps> = ({ conceptTitle }) => {
   const explanationTypes = [
     { 
       id: "basic", 
@@ -56,8 +51,7 @@ const ConceptExplanationContent: React.FC<ConceptExplanationContentProps> = ({
             <li><strong>Third Law (Action-Reaction):</strong> For every action, there is an equal and opposite reaction.</li>
           </ul>
         </div>
-      ),
-      audioText: "Newton's Laws of Motion are three fundamental principles that explain how objects move and interact with forces. First Law: An object at rest stays at rest, and an object in motion stays in motion with the same speed and direction unless acted upon by an unbalanced force. Second Law: The force acting on an object is equal to the mass of the object times its acceleration. Third Law: For every action, there is an equal and opposite reaction."
+      )
     },
     detailed: {
       title: "Detailed Explanation",
@@ -89,8 +83,7 @@ const ConceptExplanationContent: React.FC<ConceptExplanationContentProps> = ({
             <li>A rocket expelling gas downward (action) propels the rocket upward (reaction).</li>
           </ul>
         </div>
-      ),
-      audioText: "Newton's First Law states that an object will remain at rest or in uniform motion in a straight line unless acted upon by an external force. Newton's Second Law quantifies the relationship between force, mass, and acceleration. The formula is F equals m times a. Newton's Third Law states that for every action, there is an equal and opposite reaction."
+      )
     },
     simplified: {
       title: "Simplified Explanation",
@@ -100,23 +93,22 @@ const ConceptExplanationContent: React.FC<ConceptExplanationContentProps> = ({
           
           <div className="p-3 bg-emerald-50 rounded-lg border border-emerald-100">
             <h4 className="font-medium text-emerald-700">First Law (The Lazy Object Law)</h4>
-            <p className="mt-1 text-emerald-600">Objects are lazy! They want to keep doing what they're already doing. If something is still, it wants to stay still. If something is moving, it wants to keep moving the same way. Only a push or pull can change this.</p>
+            <p className="text-emerald-600">Objects are lazy! They want to keep doing what they're already doing. If something is still, it wants to stay still. If something is moving, it wants to keep moving the same way. Only a push or pull can change this.</p>
           </div>
           
           <div className="p-3 bg-emerald-50 rounded-lg border border-emerald-100">
             <h4 className="font-medium text-emerald-700">Second Law (The Stronger Push Law)</h4>
-            <p className="mt-1 text-emerald-600">The harder you push something, the faster it speeds up. But heavy objects need a stronger push than light objects to speed up the same amount.</p>
+            <p className="text-emerald-600">The harder you push something, the faster it speeds up. But heavy objects need a stronger push than light objects to speed up the same amount.</p>
           </div>
           
           <div className="p-3 bg-emerald-50 rounded-lg border border-emerald-100">
             <h4 className="font-medium text-emerald-700">Third Law (The Push-Back Law)</h4>
-            <p className="mt-1 text-emerald-600">Whenever you push on something, that thing pushes back on you with the same strength but in the opposite direction. Like when you push on a wall, the wall pushes back on you!</p>
+            <p className="text-emerald-600">Whenever you push on something, that thing pushes back on you with the same strength but in the opposite direction. Like when you push on a wall, the wall pushes back on you!</p>
           </div>
           
           <p className="italic text-gray-500">Think of it like this: When you're on a skateboard and you throw something forward, you move backward. That's the third law in action!</p>
         </div>
-      ),
-      audioText: "Let's make Newton's Laws super simple: First Law - Objects are lazy! They want to keep doing what they're already doing. Second Law - The harder you push something, the faster it speeds up. Heavy objects need a stronger push. Third Law - Whenever you push on something, that thing pushes back on you with the same strength but in the opposite direction."
+      )
     },
     advanced: {
       title: "Advanced Explanation",
@@ -147,15 +139,7 @@ const ConceptExplanationContent: React.FC<ConceptExplanationContentProps> = ({
             <li>In strong gravitational fields (requires general relativity)</li>
           </ul>
         </div>
-      ),
-      audioText: "Advanced explanation of Newton's Laws: Mathematical formulations include differential equations. Newton's laws extend to rotational dynamics, have relativistic implications, and lead to conservation laws. However, they break down at quantum scales, relativistic speeds, and in strong gravitational fields."
-    }
-  };
-
-  // Function to handle reading the explanation aloud
-  const readExplanation = (type: string) => {
-    if (handleVoiceReading && explanations[type as keyof typeof explanations]?.audioText) {
-      handleVoiceReading(explanations[type as keyof typeof explanations].audioText);
+      )
     }
   };
 
@@ -163,42 +147,29 @@ const ConceptExplanationContent: React.FC<ConceptExplanationContentProps> = ({
     <Card className="overflow-hidden">
       <div className="p-5">
         <Tabs defaultValue="basic" className="w-full">
-          <div className="flex justify-between items-center mb-4">
-            <TabsList className="grid grid-cols-4">
-              {explanationTypes.map((type) => (
-                <TabsTrigger
-                  key={type.id}
-                  value={type.id}
-                  className="flex items-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-50 data-[state=active]:to-violet-50"
-                >
-                  {type.icon}
-                  <span className="hidden sm:inline">{type.name}</span>
-                </TabsTrigger>
-              ))}
-            </TabsList>
-          </div>
+          <TabsList className="w-full grid grid-cols-4 mb-4">
+            {explanationTypes.map((type) => (
+              <TabsTrigger
+                key={type.id}
+                value={type.id}
+                className="flex items-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-50 data-[state=active]:to-violet-50"
+              >
+                {type.icon}
+                <span className="hidden sm:inline">{type.name}</span>
+              </TabsTrigger>
+            ))}
+          </TabsList>
 
           {Object.entries(explanations).map(([key, explanation]) => (
-            <TabsContent key={key} value={key} className="mt-0 relative">
+            <TabsContent key={key} value={key} className="mt-0">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4 }}
                 className="space-y-4"
               >
-                <div className={`p-3 rounded-lg ${explanationTypes.find(t => t.id === key)?.color} flex justify-between items-center`}>
+                <div className={`p-3 rounded-lg ${explanationTypes.find(t => t.id === key)?.color}`}>
                   <h3 className="font-medium">{explanation.title}</h3>
-                  {handleVoiceReading && (
-                    <Button 
-                      variant="ghost" 
-                      size="sm"
-                      onClick={() => readExplanation(key)}
-                      className="h-8 w-8 p-0 rounded-full"
-                    >
-                      <Volume2 className="h-4 w-4" />
-                      <span className="sr-only">Read aloud</span>
-                    </Button>
-                  )}
                 </div>
                 <div className="prose prose-sm max-w-none">
                   {explanation.content}

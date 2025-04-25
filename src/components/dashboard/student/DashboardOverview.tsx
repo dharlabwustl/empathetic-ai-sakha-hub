@@ -12,15 +12,19 @@ import { ReactNode } from "react";
 import { motion } from "framer-motion";
 import { AlertCircle, BookOpen, Coffee } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
-import OverviewDashboard from "./overview/OverviewDashboard";
-import { StudyPlanItem, StudyStatus, TaskPriority, StudyTaskType } from "@/types/user/study";
 
 interface DashboardOverviewProps {
   userProfile: UserProfileType;
   kpis: KpiData[];
   nudges: NudgeData[];
   markNudgeAsRead: (id: string) => void;
-  features: any[];
+  features: {
+    icon: ReactNode;
+    title: string;
+    description: string;
+    path: string;
+    isPremium: boolean;
+  }[];
 }
 
 export default function DashboardOverview({
@@ -84,71 +88,6 @@ export default function DashboardOverview({
     return userProfile.subscription;
   };
 
-  // Mock data for demonstration - in a real app this would come from an API
-  const mockStudyStatus: StudyStatus = {
-    daily: {
-      completedTasks: 3,
-      totalTasks: 8,
-      studyHours: 2.5,
-      mood: 'motivated'
-    },
-    weekly: {
-      completedTasks: 15,
-      totalTasks: 25,
-      averageStudyHours: 3.2,
-      topSubjects: ['Physics', 'Mathematics']
-    },
-    monthly: {
-      completedTasks: 45,
-      totalTasks: 60,
-      averageStudyHours: 3.5,
-      improvement: 15
-    }
-  };
-
-  const mockTodaysPlan: StudyPlanItem[] = [
-    {
-      id: '1',
-      type: 'concept' as StudyTaskType,
-      title: 'Newton\'s Laws of Motion',
-      subject: 'Physics',
-      priority: 'high' as TaskPriority,
-      timeAllocation: 45,
-      completed: false,
-      dueDate: new Date().toISOString()
-    },
-    {
-      id: '2',
-      type: 'flashcard' as StudyTaskType,
-      title: 'Organic Chemistry Formulas',
-      subject: 'Chemistry',
-      priority: 'medium' as TaskPriority,
-      timeAllocation: 30,
-      completed: false,
-      dueDate: new Date().toISOString()
-    },
-    {
-      id: '3',
-      type: 'practice-exam' as StudyTaskType,
-      title: 'Calculus Problem Set',
-      subject: 'Mathematics',
-      priority: 'high' as TaskPriority,
-      timeAllocation: 60,
-      completed: false,
-      dueDate: new Date().toISOString()
-    },
-    {
-      id: '4',
-      type: 'concept' as StudyTaskType,
-      title: 'Cell Structure and Function',
-      subject: 'Biology',
-      priority: 'low' as TaskPriority,
-      timeAllocation: 25,
-      completed: false,
-      dueDate: new Date().toISOString()
-    }
-  ];
-
   return (
     <motion.div
       variants={containerVariants}
@@ -181,9 +120,9 @@ export default function DashboardOverview({
         ))}
       </motion.div>
       
-      {/* Main Dashboard Content */}
+      {/* Study Plan and Profile - Only show study plan here, not duplicated */}
       <motion.div 
-        className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6 sm:mb-8"
+        className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8"
         variants={itemVariants}
       >
         <motion.div 
@@ -191,11 +130,7 @@ export default function DashboardOverview({
           whileHover={{ scale: isMobile ? 1.005 : 1.01, transition: { duration: 0.2 } }}
           variants={itemVariants}
         >
-          <OverviewDashboard
-            userProfile={userProfile}
-            studyStatus={mockStudyStatus}
-            todaysPlan={mockTodaysPlan}
-          />
+          <TodayStudyPlan />
         </motion.div>
         <motion.div
           whileHover={{ scale: isMobile ? 1.005 : 1.02, transition: { duration: 0.2 } }}

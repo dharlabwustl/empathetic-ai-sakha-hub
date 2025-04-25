@@ -49,8 +49,7 @@ const StepRenderer: React.FC<StepRendererProps> = ({
       />;
     case "personality":
       return <PersonalityStep 
-        onPersonalitySelect={handlers.handlePersonalitySelect}
-        onNext={() => {}} // Add dummy onNext prop to fix error
+        onPersonalitySelect={handlers.handlePersonalitySelect} 
       />;
     case "sentiment":
       return <SentimentStep 

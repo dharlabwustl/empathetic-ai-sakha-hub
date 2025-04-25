@@ -17,14 +17,10 @@ import AIChatTutor from '@/pages/dashboard/student/AIChatTutor';
 import AcademicAdvisor from '@/pages/dashboard/student/AcademicAdvisor';
 import { UserProfileType } from '@/types/user';
 import { KpiData, NudgeData } from '@/hooks/useKpiTracking';
+import { MicroConceptView, FlashcardsView, PracticeExamsView } from '@/pages/dashboard/student/TabContentViews';
 import FlashcardsFeature from '@/components/dashboard/student/FlashcardsFeature';
-import PracticeExamFeature from '@/components/dashboard/student/practice-exam/PracticeExamFeature';
+import PracticeExamFeature from '@/components/dashboard/student/PracticeExamFeature';
 import FeelGoodCorner from '@/components/dashboard/student/FeelGoodCorner';
-import ConceptsSection from '@/components/dashboard/student/ConceptsSection';
-import { TodayPlanView, FlashcardsView, PracticeExamsView } from '@/pages/dashboard/student/TabContentViews';
-
-// Import Card components
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface TabContentManagerProps {
   userProfile: UserProfileType;
@@ -51,14 +47,10 @@ export const generateTabContents = ({
   lastActivity,
   suggestedNextAction
 }: TabContentManagerProps): Record<string, ReactNode> => {
+  // Check if user is a first time user based on profile data
+  // Using optional chaining to safely access potentially undefined properties
   const isFirstTimeUser = (userProfile?.loginCount ?? 0) < 3 || !(userProfile?.completedOnboarding ?? false);
   const loginCount = userProfile?.loginCount ?? 0;
-
-  console.log('generateTabContents - Active User Profile:', {
-    loginCount,
-    isFirstTimeUser,
-    completedOnboarding: userProfile?.completedOnboarding
-  });
 
   return {
     overview: (
@@ -82,21 +74,16 @@ export const generateTabContents = ({
         />
       </>
     ),
-    today: <TodayPlanView />,
-    academic: <AcademicAdvisor userProfile={userProfile} />,
-    concepts: (
-      <div className="space-y-6">
-        <h2 className="text-2xl font-bold">Concept Cards</h2>
-        <p className="text-gray-600">
-          Browse through your learning concepts and master the fundamentals.
-        </p>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <ConceptsSection />
-        </div>
+    today: (
+      <div className="space-y-8">
+        <TodayStudyPlan />
+        <MicroConceptView />
       </div>
     ),
-    flashcards: <FlashcardsView />,
-    'practice-exam': <PracticeExamsView />,
+    academic: <AcademicAdvisor userProfile={userProfile} />,
+    concepts: <MicroConceptView />,
+    flashcards: <FlashcardsFeature />,
+    'practice-exam': <PracticeExamFeature />,
     'feel-good': <FeelGoodCorner />,
     notifications: <SmartNotificationSection />,
     tutor: <AIChatTutor userProfile={userProfile} />

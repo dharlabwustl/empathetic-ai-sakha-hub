@@ -64,10 +64,6 @@ export default function DashboardTabs({
     }
   };
 
-  // Add console logs to help with debugging
-  console.log("DashboardTabs - activeTab:", activeTab);
-  console.log("DashboardTabs - tabContents keys:", Object.keys(tabContents));
-
   return (
     <Tabs value={activeTab} onValueChange={onTabChange} className="space-y-4 sm:space-y-6">
       {!hideTabsNav && (
@@ -92,13 +88,6 @@ export default function DashboardTabs({
           </TabsList>
         </motion.div>
       )}
-      
-      {/* Display the content for the active tab */}
-      {Object.entries(tabContents).map(([key, content]) => (
-        <TabsContent key={key} value={key} className={activeTab === key ? "block" : "hidden"}>
-          {content}
-        </TabsContent>
-      ))}
     </Tabs>
   );
 }

@@ -1,52 +1,100 @@
 
-export enum UserRole {
-  Student = 'student',
-  Employee = 'employee',
-  Doctor = 'doctor',
-  Founder = 'founder',
-  Admin = 'admin'
-}
-
-export enum SubscriptionType {
-  Free = 'free',
-  Basic = 'basic',
-  Premium = 'premium',
-  Enterprise = 'enterprise',
-  School = 'school',
-  Corporate = 'corporate'
-}
-
-export type MoodType = 'motivated' | 'curious' | 'neutral' | 'tired' | 'stressed' | 'focused' | 
-                      'happy' | 'okay' | 'overwhelmed' | 'sad';
-
-export type PersonalityType = 'analytical' | 'creative' | 'determined' | 'practical' | 'social';
-
 export interface UserSubscription {
-  id: string;
-  userId: string;
+  planId: string;
   planType: SubscriptionType;
-  startDate: string;
-  endDate: string;
-  status: 'active' | 'inactive' | 'cancelled';
-  autoRenew: boolean;
+  batchCode?: string;
+  batchName?: string;
+  startDate?: string;
+  endDate?: string;
+  role?: "member" | "leader" | "school_admin" | "corporate_admin";
 }
 
 export interface UserProfileType {
   id: string;
-  name: string;
   email: string;
+  name: string;
   role: UserRole;
+  bio?: string;
   avatar?: string;
-  subscription?: UserSubscription;
-  joinDate?: string;
-  personalityType?: PersonalityType;
-  loginCount?: number;
-  completedOnboarding?: boolean;
-  examPreparation?: string;
-  goals?: Array<{
+  personalityType?: string;
+  goals?: {
     id: string;
     title: string;
-    progress: number;
     description?: string;
-  }>;
+    progress?: number;
+    status?: "completed" | "in-progress" | "not-started";
+    dueDate?: string;
+    targetDate?: Date;
+  }[];
+  areasOfInterest?: {
+    id: string;
+    name: string;
+    level?: string;
+  }[];
+  subscription?: SubscriptionType | UserSubscription;
+  joinDate?: string;
+  lastActive?: string;
+  gender?: "male" | "female" | "other";
+  phoneNumber?: string;
+  examPreparation?: string;
+  loginCount?: number;
+  completedOnboarding?: boolean;
+  address?: {
+    street?: string;
+    city?: string;
+    state?: string;
+    zipCode?: string;
+    country?: string;
+  };
+  education?: {
+    level?: string;
+    institution?: string;
+    fieldOfStudy?: string;
+    graduationYear?: number;
+  };
 }
+
+export enum UserRole {
+  Student = "student",
+  Teacher = "teacher",
+  Parent = "parent",
+  Admin = "admin",
+  Employee = "employee",
+  Doctor = "doctor",
+  Founder = "founder"
+}
+
+export type MoodType = 
+  | "happy"
+  | "sad"
+  | "tired"
+  | "motivated"
+  | "focused"
+  | "stressed"
+  | "overwhelmed"
+  | "curious"
+  | "neutral"
+  | "okay";
+
+export enum SubscriptionType {
+  Free = "free",
+  Basic = "basic",
+  Premium = "premium",
+  Enterprise = "enterprise",
+  School = "school",
+  Corporate = "corporate"
+}
+
+export interface SubscriptionPlan {
+  id: string;
+  name: string;
+  price: number;
+  features: string[];
+  isPopular?: boolean;
+  description?: string;
+  type: SubscriptionType;
+  maxMembers?: number;
+}
+
+// Changed to type string
+export type PersonalityType = string;

@@ -79,13 +79,6 @@ export default function DashboardTabs({
             ))}
           </TabsList>
         )}
-        
-        {/* Add this to display the content of the selected tab */}
-        {Object.entries(tabContents).map(([key, content]) => (
-          <TabsContent key={key} value={key} className="mt-6">
-            {content}
-          </TabsContent>
-        ))}
       </Tabs>
     </TooltipProvider>
   );

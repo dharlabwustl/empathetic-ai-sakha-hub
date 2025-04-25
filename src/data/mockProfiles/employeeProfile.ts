@@ -1,36 +1,70 @@
-import { UserProfileType, UserRole, SubscriptionType } from "@/types/user";
 
-// Fix employeeProfile definition
-export const employeeProfile: UserProfileType = {
-  id: "emp123",
-  name: "Alice Johnson",
-  email: "alice.johnson@example.com",
+import { EmployeeProfile } from "@/types/user";
+import { UserRole, SubscriptionType } from "@/types/user/base";
+import { v4 as uuidv4 } from "uuid";
+
+export const mockEmployeeProfile: EmployeeProfile = {
+  id: uuidv4(),
+  name: "Rajesh Kumar",
+  email: "rajesh.kumar@techsolutions.com",
+  phoneNumber: "+919876543211",
   role: UserRole.Employee,
-  avatar: "/lovable-uploads/default-avatar.webp",
-  joinDate: "2022-05-20",
-  personalityType: "practical",
-  loginCount: 15,
-  completedOnboarding: true,
-  examPreparation: "Professional Development",
+  personalityType: "Strategic Thinker",
   subscription: {
-    id: "sub_emp1",
-    userId: "emp123",
-    planType: SubscriptionType.Corporate,
-    startDate: "2023-02-10",
-    endDate: "2024-02-10",
-    status: "active",
-    autoRenew: true
+    planId: "basic-001",
+    planType: SubscriptionType.Basic,
+    startDate: "2025-01-15",
+    endDate: "2025-07-15"
   },
+  joinDate: "2025-01-15",
+  lastActive: "2025-04-06",
+  jobTitle: "Product Manager",
+  workExperience: 6,
+  skills: [
+    "Product Strategy",
+    "User Research",
+    "Agile Methodologies",
+    "Roadmapping",
+    "Team Leadership"
+  ],
+  company: "TechSolutions India",
+  industry: "SaaS",
+  careerGoal: "Director of Product",
+  projectsCompleted: 12,
+  trainingCompleted: 8,
+  experienceLevel: "Mid-Senior",
+  skillsToGrow: ["Data Analytics", "Machine Learning Basics", "Product Marketing"],
+  productivityScore: 85,
   goals: [
     {
-      id: "goal1",
-      title: "Complete Leadership Course",
-      progress: 85
+      id: uuidv4(),
+      title: "Complete PMP Certification",
+      description: "Pass the Project Management Professional exam",
+      progress: 75,
+      status: "in-progress",
+      dueDate: "2025-05-30",
+      targetDate: new Date("2025-05-30")
     },
     {
-      id: "goal2",
-      title: "Data Analysis Certification",
-      progress: 35
+      id: uuidv4(),
+      title: "Learn SQL",
+      description: "Complete advanced SQL course for data analysis",
+      progress: 45,
+      status: "not-started",
+      dueDate: "2025-07-15",
+      targetDate: new Date("2025-07-15")
+    }
+  ],
+  areasOfInterest: [
+    {
+      id: uuidv4(),
+      name: "Product Analytics",
+      level: "Intermediate"
+    },
+    {
+      id: uuidv4(),
+      name: "UX Design",
+      level: "Beginner"
     }
   ]
 };
