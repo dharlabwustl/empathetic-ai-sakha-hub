@@ -1,6 +1,6 @@
 
 import { useEffect } from "react";
-import { UserRole } from "@/types/user/base";
+import { UserRole } from "@/types/user";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { useKpiTracking } from "@/hooks/useKpiTracking";
 import { useInitialization } from "./dashboard/useInitialization";
