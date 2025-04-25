@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -23,7 +22,6 @@ const SidebarNav = ({ userType, userName = "User" }: SidebarNavProps) => {
 
   return (
     <>
-      {/* Mobile Menu Button */}
       <Button 
         variant="outline" 
         size="icon" 
@@ -33,7 +31,6 @@ const SidebarNav = ({ userType, userName = "User" }: SidebarNavProps) => {
         {mobileOpen ? <X size={20} /> : <Menu size={20} />}
       </Button>
       
-      {/* Sidebar Overlay for Mobile */}
       {mobileOpen && (
         <div 
           className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 md:hidden"
@@ -41,7 +38,6 @@ const SidebarNav = ({ userType, userName = "User" }: SidebarNavProps) => {
         ></div>
       )}
       
-      {/* Sidebar */}
       <div 
         className={cn(
           "fixed top-0 left-0 h-full bg-sidebar dark:bg-gradient-to-b dark:from-slate-900 dark:to-slate-800 border-r border-sidebar-border z-40 transition-all duration-300 flex flex-col",
@@ -53,7 +49,7 @@ const SidebarNav = ({ userType, userName = "User" }: SidebarNavProps) => {
           <div className={cn("flex items-center gap-2", collapsed && "justify-center")}>
             <div className="avatar-eyes w-10 h-10 bg-gradient-to-br from-sky-400 to-violet-500 rounded-full relative overflow-hidden animate-glow">
               <img 
-                src="/lovable-uploads/ffd1ed0a-7a25-477e-bc91-1da9aca3497f.png" 
+                src="/lovable-uploads/fdc1cebd-e35f-4f08-a45b-e839964fd590.png" 
                 alt="Sakha AI Logo" 
                 className="w-10 h-10"
               />
