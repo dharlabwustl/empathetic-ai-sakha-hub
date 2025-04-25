@@ -1,17 +1,17 @@
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { ArrowLeft, ArrowRight, Clock, X, AlertCircle } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
 import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
+import { Clock, ArrowLeft, ArrowRight, X } from 'lucide-react';
+import { motion } from "framer-motion";
 
 interface ExamEnvironmentProps {
   exam: any;
   currentQuestion: any;
   currentQuestionIndex: number;
   questions: any[];
-  selectedAnswers: Record<string, number>;
+  selectedAnswers: Record<string, number | null>;
   examTimer: number | null;
   handleAnswerSelect: (questionId: string, answerIndex: number) => void;
   handlePreviousQuestion: () => void;
@@ -39,168 +39,123 @@ const ExamEnvironment: React.FC<ExamEnvironmentProps> = ({
   getDifficultyColor,
   formatTime
 }) => {
-  const [timeWarning, setTimeWarning] = useState(false);
-  
-  // Show warning when less than 5 minutes remain
-  useEffect(() => {
-    if (examTimer !== null && examTimer <= 300 && examTimer > 0) {
-      setTimeWarning(true);
-    } else {
-      setTimeWarning(false);
-    }
-  }, [examTimer]);
-  
-  // Calculate progress percentage
-  const progressPercentage = ((currentQuestionIndex + 1) / questions.length) * 100;
+  const progress = (currentQuestionIndex / (questions.length - 1)) * 100;
   
   return (
-    <motion.div
-      className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-      initial={{ opacity: 0 }}
+    <motion.div 
+      initial={{ opacity: 0 }} 
       animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70"
     >
-      <motion.div
-        className="bg-white dark:bg-gray-900 rounded-lg shadow-lg w-full max-w-4xl max-h-[90vh] overflow-auto"
-        initial={{ scale: 0.9, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        exit={{ scale: 0.9, opacity: 0 }}
-        transition={{ type: "spring", damping: 25, stiffness: 300 }}
-      >
-        {/* Exam header */}
-        <div className="border-b p-4 flex items-center justify-between sticky top-0 bg-white dark:bg-gray-900 z-10">
-          <div className="flex-1">
-            <h2 className="font-semibold">{exam.title}</h2>
-            <div className="flex items-center gap-3 text-sm">
-              <span className={`px-2 py-0.5 rounded-full ${getDifficultyColor(exam.difficulty)}`}>
+      <div className="bg-white dark:bg-gray-900 rounded-lg shadow-xl w-full max-w-4xl p-6">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h2 className="text-2xl font-bold">{exam.title}</h2>
+            <div className="flex items-center gap-2 text-sm mt-1">
+              <Badge className={getDifficultyColor(exam.difficulty)}>
                 {exam.difficulty}
+              </Badge>
+              <span className="text-gray-500 dark:text-gray-400">
+                {questions.length} Questions
               </span>
-              <span className="text-gray-500 dark:text-gray-400">{questions.length} Questions</span>
             </div>
           </div>
-          
-          <div className="flex items-center gap-3">
-            <div className={`flex items-center gap-1 p-2 rounded-md ${timeWarning ? 'bg-red-50 text-red-600 dark:bg-red-900/30 dark:text-red-400 animate-pulse' : ''}`}>
-              <Clock className="h-4 w-4" />
-              <span className="font-mono">{formatTime(examTimer)}</span>
+          <div className="flex items-center gap-4">
+            <div className="bg-blue-50 dark:bg-blue-900/30 px-3 py-1 rounded-lg">
+              <div className="flex items-center text-blue-700 dark:text-blue-300">
+                <Clock className="h-4 w-4 mr-2" />
+                <span>{formatTime(examTimer)}</span>
+              </div>
             </div>
-            <Button
-              variant="ghost"
-              size="icon"
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="text-gray-500"
               onClick={closeExamEnvironment}
-              className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
             >
               <X className="h-4 w-4" />
             </Button>
           </div>
         </div>
         
-        {/* Progress bar */}
-        <div className="px-4 py-2 border-b">
-          <div className="flex justify-between text-sm mb-1">
+        <div className="space-y-1 mb-6">
+          <div className="flex justify-between text-sm">
             <span>Question {currentQuestionIndex + 1} of {questions.length}</span>
-            <span>{progressPercentage.toFixed(0)}% Complete</span>
+            <span>{Math.round(progress)}% Complete</span>
           </div>
-          <Progress value={progressPercentage} className="h-1" />
+          <Progress value={progress} className="h-2" />
         </div>
         
-        {/* Question content */}
-        <div className="p-6">
-          {currentQuestion ? (
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={currentQuestion.id}
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.2 }}
-                className="space-y-6"
-              >
-                <div className="text-lg font-medium">{currentQuestion.text}</div>
-                
-                <div className="space-y-3">
-                  {currentQuestion.options.map((option: string, index: number) => (
-                    <motion.div
-                      key={`${currentQuestion.id}-option-${index}`}
-                      whileHover={{ scale: 1.01 }}
-                      whileTap={{ scale: 0.99 }}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.1, delay: index * 0.05 }}
-                    >
-                      <Card
-                        className={`p-4 cursor-pointer border-2 transition-all ${
+        {currentQuestion && (
+          <div className="space-y-6">
+            <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+              <h3 className="text-lg font-medium mb-2">{currentQuestion.text}</h3>
+              
+              <div className="space-y-2">
+                {currentQuestion.options.map((option: string, index: number) => (
+                  <div 
+                    key={index}
+                    className={`p-3 border rounded-lg cursor-pointer transition-colors ${
+                      selectedAnswers[currentQuestion.id] === index 
+                        ? "bg-blue-50 border-blue-200 dark:bg-blue-900/30 dark:border-blue-500/50"
+                        : "hover:bg-gray-100 dark:hover:bg-gray-700"
+                    }`}
+                    onClick={() => handleAnswerSelect(currentQuestion.id, index)}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div 
+                        className={`w-6 h-6 flex items-center justify-center rounded-full border ${
                           selectedAnswers[currentQuestion.id] === index 
-                            ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                            : 'hover:border-gray-300 dark:hover:border-gray-600'
+                            ? "border-blue-500 bg-blue-500 text-white" 
+                            : "border-gray-300"
                         }`}
-                        onClick={() => handleAnswerSelect(currentQuestion.id, index)}
                       >
-                        <div className="flex items-start gap-3">
-                          <div 
-                            className={`w-6 h-6 rounded-full flex items-center justify-center text-sm ${
-                              selectedAnswers[currentQuestion.id] === index
-                                ? 'bg-blue-500 text-white'
-                                : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300'
-                            }`}
-                          >
-                            {String.fromCharCode(65 + index)}
-                          </div>
-                          <div>{option}</div>
-                        </div>
-                      </Card>
-                    </motion.div>
-                  ))}
-                </div>
-              </motion.div>
-            </AnimatePresence>
-          ) : (
-            <div className="text-center py-10 text-gray-500 dark:text-gray-400">
-              <AlertCircle className="h-10 w-10 mx-auto mb-2" />
-              <p>Question not found.</p>
+                        {String.fromCharCode(65 + index)}
+                      </div>
+                      <span>{option}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
-          )}
-        </div>
-        
-        {/* Navigation buttons */}
-        <div className="border-t p-4 flex justify-between gap-3 sticky bottom-0 bg-white dark:bg-gray-900">
-          <Button 
-            variant="outline" 
-            onClick={handlePreviousQuestion}
-            disabled={currentQuestionIndex === 0}
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Previous
-          </Button>
-          
-          <div className="flex gap-3">
-            {currentQuestionIndex < questions.length - 1 ? (
-              <Button
-                variant="default"
-                onClick={handleNextQuestion}
+            
+            <div className="flex justify-between">
+              <Button 
+                variant="outline"
+                onClick={handlePreviousQuestion}
+                disabled={currentQuestionIndex === 0}
               >
-                Next
-                <ArrowRight className="h-4 w-4 ml-2" />
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Previous
               </Button>
-            ) : (
-              <Button
-                variant="default"
-                onClick={handleSubmitExam}
-                disabled={examSubmitting}
-              >
-                {examSubmitting ? (
-                  <>
-                    <span className="animate-spin mr-2">◌</span>
-                    Submitting...
-                  </>
-                ) : (
-                  'Submit Exam'
-                )}
-              </Button>
-            )}
+              
+              {currentQuestionIndex < questions.length - 1 ? (
+                <Button 
+                  onClick={handleNextQuestion}
+                >
+                  Next
+                  <ArrowRight className="h-4 w-4 ml-2" />
+                </Button>
+              ) : (
+                <Button 
+                  className="bg-green-600 hover:bg-green-700"
+                  onClick={handleSubmitExam}
+                  disabled={examSubmitting}
+                >
+                  {examSubmitting ? (
+                    <>
+                      <span className="animate-spin mr-2">◌</span>
+                      Submitting...
+                    </>
+                  ) : (
+                    "Submit Exam"
+                  )}
+                </Button>
+              )}
+            </div>
           </div>
-        </div>
-      </motion.div>
+        )}
+      </div>
     </motion.div>
   );
 };

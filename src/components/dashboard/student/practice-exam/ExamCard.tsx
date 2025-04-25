@@ -81,7 +81,7 @@ const ExamCard: React.FC<ExamCardProps> = ({
         </div>
         <div className="flex items-center gap-1 text-gray-500 dark:text-gray-400">
           <Clock className="h-3 w-3" />
-          {exam.timeEstimate}
+          {exam.timeEstimate || exam.duration}
         </div>
         <div className="flex items-center gap-1 text-gray-500 dark:text-gray-400">
           <BookOpen className="h-3 w-3" />
@@ -94,7 +94,7 @@ const ExamCard: React.FC<ExamCardProps> = ({
               Score: {exam.score}%
             </div>
             <div className="flex items-center gap-1 text-gray-500 dark:text-gray-400">
-              <span>Completed: {exam.dateCompleted}</span>
+              <span>Completed: {exam.dateCompleted || exam.dateTaken}</span>
             </div>
           </>
         )}

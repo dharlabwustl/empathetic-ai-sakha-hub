@@ -14,7 +14,7 @@ interface MoodLogButtonProps {
   onMoodChange?: (mood: 'sad' | 'neutral' | 'happy' | 'motivated') => void;
 }
 
-export const MoodLogButton: React.FC<MoodLogButtonProps> = ({ 
+const MoodLogButton: React.FC<MoodLogButtonProps> = ({ 
   currentMood = 'neutral', 
   onMoodChange 
 }) => {

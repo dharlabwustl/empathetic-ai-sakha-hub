@@ -29,7 +29,7 @@ const ExamList: React.FC<ExamListProps> = ({
   }
 
   return (
-    <div className="space-y-3">
+    <motion.div className="space-y-3">
       {exams.map((exam) => (
         <ExamCard
           key={exam.id}
@@ -41,7 +41,7 @@ const ExamList: React.FC<ExamListProps> = ({
           getDifficultyColor={getDifficultyColor}
         />
       ))}
-    </div>
+    </motion.div>
   );
 };
 

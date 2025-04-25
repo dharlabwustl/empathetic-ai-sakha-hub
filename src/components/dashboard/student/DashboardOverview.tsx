@@ -1,3 +1,4 @@
+
 import { UserProfileType } from "@/types/user";
 import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
 import { SubscriptionType } from "@/types/user/base";
@@ -12,19 +13,14 @@ import { motion } from "framer-motion";
 import { AlertCircle, BookOpen, Coffee } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import OverviewDashboard from "./overview/OverviewDashboard";
+import { StudyPlanItem, StudyStatus, TaskPriority, StudyTaskType } from "@/types/user/study";
 
 interface DashboardOverviewProps {
   userProfile: UserProfileType;
   kpis: KpiData[];
   nudges: NudgeData[];
   markNudgeAsRead: (id: string) => void;
-  features: {
-    icon: ReactNode;
-    title: string;
-    description: string;
-    path: string;
-    isPremium: boolean;
-  }[];
+  features: any[];
 }
 
 export default function DashboardOverview({
@@ -89,7 +85,7 @@ export default function DashboardOverview({
   };
 
   // Mock data for demonstration - in a real app this would come from an API
-  const mockStudyStatus = {
+  const mockStudyStatus: StudyStatus = {
     daily: {
       completedTasks: 3,
       totalTasks: 8,
@@ -110,43 +106,43 @@ export default function DashboardOverview({
     }
   };
 
-  const mockTodaysPlan = [
+  const mockTodaysPlan: StudyPlanItem[] = [
     {
       id: '1',
-      type: 'concept',
+      type: 'concept' as StudyTaskType,
       title: 'Newton\'s Laws of Motion',
       subject: 'Physics',
-      priority: 'high',
+      priority: 'high' as TaskPriority,
       timeAllocation: 45,
       completed: false,
       dueDate: new Date().toISOString()
     },
     {
       id: '2',
-      type: 'flashcard',
+      type: 'flashcard' as StudyTaskType,
       title: 'Organic Chemistry Formulas',
       subject: 'Chemistry',
-      priority: 'medium',
+      priority: 'medium' as TaskPriority,
       timeAllocation: 30,
       completed: false,
       dueDate: new Date().toISOString()
     },
     {
       id: '3',
-      type: 'practice-exam',
+      type: 'practice-exam' as StudyTaskType,
       title: 'Calculus Problem Set',
       subject: 'Mathematics',
-      priority: 'high',
+      priority: 'high' as TaskPriority,
       timeAllocation: 60,
       completed: false,
       dueDate: new Date().toISOString()
     },
     {
       id: '4',
-      type: 'concept',
+      type: 'concept' as StudyTaskType,
       title: 'Cell Structure and Function',
       subject: 'Biology',
-      priority: 'low',
+      priority: 'low' as TaskPriority,
       timeAllocation: 25,
       completed: false,
       dueDate: new Date().toISOString()

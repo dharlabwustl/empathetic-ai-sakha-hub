@@ -18,7 +18,7 @@ import AcademicAdvisor from '@/pages/dashboard/student/AcademicAdvisor';
 import { UserProfileType } from '@/types/user';
 import { KpiData, NudgeData } from '@/hooks/useKpiTracking';
 import FlashcardsFeature from '@/components/dashboard/student/FlashcardsFeature';
-import PracticeExamFeature from '@/components/dashboard/student/PracticeExamFeature';
+import PracticeExamFeature from '@/components/dashboard/student/practice-exam/PracticeExamFeature';
 import FeelGoodCorner from '@/components/dashboard/student/FeelGoodCorner';
 
 interface TabContentManagerProps {
