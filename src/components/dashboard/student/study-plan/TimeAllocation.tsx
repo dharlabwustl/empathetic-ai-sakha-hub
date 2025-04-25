@@ -1,11 +1,7 @@
 
 import { Card } from "@/components/ui/card";
 import { Timer } from "lucide-react";
-
-interface TimeAllocationItem {
-  task: string;
-  time: number;
-}
+import { TimeAllocationItem } from "@/types/user/base";
 
 interface TimeAllocationProps {
   timeAllocation: TimeAllocationItem[];

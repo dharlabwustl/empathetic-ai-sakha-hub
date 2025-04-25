@@ -5,11 +5,6 @@ import ConceptCardView from '@/components/dashboard/student/concept-cards/Concep
 export const MicroConceptView = () => {
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold">Concept Cards</h2>
-      <p className="text-gray-500">
-        Understand concepts deeply with comprehensive explanations and examples.
-      </p>
-      
       <ConceptCardView 
         title="Newton's Laws of Motion" 
         subject="Physics" 

@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -5,34 +6,10 @@ import { BookCheck, CheckCircle } from "lucide-react";
 import { TimeAllocation } from "./study-plan/TimeAllocation";
 import { TaskItem } from "./study-plan/TaskItem";
 import { StudyHistory } from "./study-plan/StudyHistory";
-import { SubjectPlan, HistoryEntry } from "@/types/user/base";
+import { SubjectPlan, HistoryEntry, TimeAllocationItem, SubjectTask } from "@/types/user/base";
+import { useToast } from "@/hooks/use-toast";
 
-// Mock data interface
-interface SubjectTask {
-  id: string;
-  type: 'concept' | 'flashcard' | 'practice';
-  title: string;
-  status: 'completed' | 'pending' | 'in-progress';
-  timeEstimate?: number; // in minutes
-  details?: {
-    questionCount?: number;
-    duration?: number;
-  };
-}
-
-interface SubjectPlan {
-  subject: string;
-  tasks: SubjectTask[];
-}
-
-interface HistoryEntry {
-  date: string;
-  concepts: { completed: number; total: number };
-  flashcards: { completed: number; total: number };
-  practice: { completed: number; total: number };
-  status: 'done' | 'incomplete' | 'pending';
-}
-
+// Mock data
 const mockTodayPlan: SubjectPlan[] = [
   {
     subject: "Biology",
@@ -126,14 +103,23 @@ const mockHistory: HistoryEntry[] = [
   }
 ];
 
+const mockTimeAllocation: TimeAllocationItem[] = [
+  { task: "Concept Cards", time: 60 },
+  { task: "Flashcards", time: 30 },
+  { task: "Practice Tests", time: 20 }
+];
+
 export default function TodayStudyPlan() {
   const [showHistory, setShowHistory] = useState(false);
+  const { toast } = useToast();
   
-  const timeAllocation = [
-    { task: "Concept Cards", time: 60 },
-    { task: "Flashcards", time: 30 },
-    { task: "Practice Tests", time: 20 }
-  ];
+  const handleDoneForToday = () => {
+    toast({
+      title: "Great job!",
+      description: "You've completed your study plan for today. See you tomorrow!",
+      variant: "success"
+    });
+  };
   
   return (
     <div className="space-y-6 animate-in fade-in-50">
@@ -149,7 +135,7 @@ export default function TodayStudyPlan() {
         </CardHeader>
         
         <CardContent className="space-y-6">
-          <TimeAllocation timeAllocation={timeAllocation} />
+          <TimeAllocation timeAllocation={mockTimeAllocation} />
 
           {mockTodayPlan.map((subject, index) => (
             <div key={index} className="space-y-3">
@@ -173,6 +159,7 @@ export default function TodayStudyPlan() {
 
           <Button 
             className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white shadow-lg"
+            onClick={handleDoneForToday}
           >
             <CheckCircle className="h-4 w-4 mr-2" />
             I'm Done for Today!

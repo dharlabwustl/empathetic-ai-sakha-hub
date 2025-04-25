@@ -1,3 +1,4 @@
+
 export enum UserRole {
   Student = "student",
   Tutor = "tutor",
@@ -117,3 +118,83 @@ export interface UserProfileType {
   studyPlanMetrics?: StudyPlanMetrics;
   revisionMetrics?: RevisionMetrics;
 }
+
+// New types for the concept cards section
+export interface ConceptCardItem {
+  id: string;
+  title: string;
+  description: string;
+  subject: string;
+  topic: string;
+  difficulty: 'easy' | 'medium' | 'hard' | 'advanced';
+  priority: 'high' | 'medium' | 'low';
+  status: 'completed' | 'in-progress' | 'pending';
+  timeAllocation: number; // in minutes
+  hasAudioNarration?: boolean;
+  hasNotes?: boolean;
+  isBookmarked?: boolean;
+  progress?: number; // 0-100
+  tags?: string[];
+  completion?: {
+    date?: string;
+    score?: number;
+  };
+}
+
+export interface ConceptTimeframe {
+  daily: ConceptCardItem[];
+  weekly: ConceptCardItem[];
+  monthly: ConceptCardItem[];
+}
+
+export interface SubjectPlan {
+  subject: string;
+  tasks: SubjectTask[];
+}
+
+export interface SubjectTask {
+  id: string;
+  type: 'concept' | 'flashcard' | 'practice';
+  title: string;
+  status: 'completed' | 'pending' | 'in-progress';
+  timeEstimate?: number; // in minutes
+  details?: {
+    questionCount?: number;
+    duration?: number;
+  };
+}
+
+export interface HistoryEntry {
+  date: string;
+  concepts: { completed: number; total: number };
+  flashcards: { completed: number; total: number };
+  practice: { completed: number; total: number };
+  status: 'done' | 'incomplete' | 'pending';
+}
+
+export interface TimeAllocationItem {
+  task: string;
+  time: number;
+}
+
+export interface SubjectBreakdown {
+  subject: string;
+  count: number;
+}
+
+export interface ConceptsOverview {
+  total: number;
+  completed: number;
+  inProgress: number;
+  pending: number;
+  subjectBreakdown: SubjectBreakdown[];
+}
+
+export interface MonthlyConceptSummary {
+  subject: string;
+  totalConcepts: number;
+  completed: number;
+  inProgress: number;
+  pending: number;
+}
+
