@@ -1,12 +1,10 @@
-
 import React, { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
 import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Textarea } from '@/components/ui/textarea';
-import { Check, Mic, RotateCcw, Volume2, VolumeX } from 'lucide-react';
 import MainLayout from '@/components/layouts/MainLayout';
+import FlashcardHeader from '@/components/dashboard/student/flashcard-browser/FlashcardHeader';
+import FlashcardQuestion from '@/components/dashboard/student/flashcard-browser/FlashcardQuestion';
+import AnswerInput from '@/components/dashboard/student/flashcard-browser/AnswerInput';
+import ResultsView from '@/components/dashboard/student/flashcard-browser/ResultsView';
 
 interface FlashcardDetail {
   id: string;
@@ -25,7 +23,6 @@ const FlashcardBrowserPage = () => {
   const [accuracy, setAccuracy] = useState(0);
   const [voiceEnabled, setVoiceEnabled] = useState(false);
 
-  // Mock flashcard data for demo
   useEffect(() => {
     setCurrentCard({
       id: '1',
@@ -39,7 +36,6 @@ const FlashcardBrowserPage = () => {
 
   const handleSpeechToText = () => {
     setIsRecording(true);
-    // In a real implementation, this would use the Web Speech API
     setTimeout(() => {
       setIsRecording(false);
       setUserAnswer(prev => prev + " " + currentCard?.answer.split(' ').slice(0, 3).join(' ') + "...");
@@ -89,78 +85,33 @@ const FlashcardBrowserPage = () => {
       <div className="container max-w-3xl mx-auto py-8">
         <Card>
           <CardContent className="p-6 space-y-6">
-            {/* Header */}
-            <div className="flex justify-between items-center">
-              <Badge variant="outline">{currentCard.subject}</Badge>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={toggleVoice}
-              >
-                {voiceEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
-              </Button>
-            </div>
+            <FlashcardHeader 
+              subject={currentCard.subject}
+              voiceEnabled={voiceEnabled}
+              onToggleVoice={toggleVoice}
+            />
 
-            {/* Question */}
-            <div className="text-center space-y-4">
-              <Badge variant="secondary">{currentCard.topic}</Badge>
-              <h2 className="text-2xl font-semibold">{currentCard.question}</h2>
-            </div>
+            <FlashcardQuestion 
+              topic={currentCard.topic}
+              question={currentCard.question}
+            />
 
-            {/* Answer Input */}
             {!answerSubmitted && (
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <label className="text-sm font-medium">Your Answer</label>
-                  <Button
-                    variant={isRecording ? "destructive" : "outline"}
-                    size="sm"
-                    onClick={handleSpeechToText}
-                    className="flex items-center gap-2"
-                  >
-                    <Mic className="h-4 w-4" />
-                    {isRecording ? "Recording..." : "Voice Input"}
-                  </Button>
-                </div>
-                <Textarea
-                  value={userAnswer}
-                  onChange={(e) => setUserAnswer(e.target.value)}
-                  placeholder="Type your answer here..."
-                  className="min-h-[100px]"
-                  disabled={isRecording}
-                />
-                <Button 
-                  className="w-full"
-                  onClick={handleSubmitAnswer}
-                  disabled={!userAnswer.trim()}
-                >
-                  <Check className="mr-2 h-4 w-4" />
-                  Submit Answer
-                </Button>
-              </div>
+              <AnswerInput 
+                userAnswer={userAnswer}
+                isRecording={isRecording}
+                onAnswerChange={setUserAnswer}
+                onSpeechToText={handleSpeechToText}
+                onSubmit={handleSubmitAnswer}
+              />
             )}
 
-            {/* Results */}
             {answerSubmitted && (
-              <div className="space-y-4 p-4 bg-gray-50 rounded-lg">
-                <div className="text-center">
-                  <h3 className="font-medium mb-2">Answer Accuracy</h3>
-                  <Progress value={accuracy} className="h-2 mb-2" />
-                  <p className="text-lg font-bold mb-4">{accuracy}% Match</p>
-                </div>
-                
-                <div className="space-y-3">
-                  <h4 className="font-medium">Correct Answer:</h4>
-                  <p className="p-3 bg-white rounded border">{currentCard.answer}</p>
-                </div>
-
-                <div className="flex justify-center gap-2">
-                  <Button variant="outline" onClick={handleTryAgain}>
-                    <RotateCcw className="mr-2 h-4 w-4" />
-                    Try Again
-                  </Button>
-                </div>
-              </div>
+              <ResultsView 
+                accuracy={accuracy}
+                correctAnswer={currentCard.answer}
+                onTryAgain={handleTryAgain}
+              />
             )}
           </CardContent>
         </Card>
