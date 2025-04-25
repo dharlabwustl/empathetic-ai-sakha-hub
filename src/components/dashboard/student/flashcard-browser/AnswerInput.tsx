@@ -1,8 +1,7 @@
-
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Check, Mic } from 'lucide-react';
+import { Mic, Check } from 'lucide-react';
 
 interface AnswerInputProps {
   userAnswer: string;
