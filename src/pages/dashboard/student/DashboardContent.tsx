@@ -5,10 +5,8 @@ import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
 import { generateTabContents } from "@/components/dashboard/student/TabContentManager";
 import DashboardTabs from "@/components/dashboard/student/DashboardTabs";
 import ReturnUserRecap from "@/components/dashboard/student/ReturnUserRecap";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import TodayStudyPlan from "@/components/dashboard/student/TodayStudyPlan";
 import ConceptsSection from "@/components/dashboard/student/ConceptsSection";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface DashboardTabsProps {
   activeTab: string;
@@ -73,6 +71,9 @@ const DashboardContent = ({
 
   // Show the quick access sections when on overview tab
   const showQuickAccess = activeTab === "overview";
+  
+  console.log("Current activeTab:", activeTab);
+  console.log("Quick Access Sections visible:", showQuickAccess);
 
   return (
     <div className="h-full flex flex-col">

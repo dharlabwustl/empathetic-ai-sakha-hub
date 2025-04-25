@@ -32,7 +32,7 @@ const ConceptsSection: React.FC = () => {
               transition={{ delay: index * 0.1 }}
               className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg mb-3 hover:bg-gray-100 dark:hover:bg-gray-700"
             >
-              <Link to={`/dashboard/student/concepts/${concept.id}`}>
+              <Link to={`/dashboard/student/concepts/${concept.id}`} className="block w-full h-full">
                 <h3 className="font-medium">{concept.title}</h3>
                 <p className="text-sm text-gray-500 dark:text-gray-400">{concept.subject}</p>
               </Link>

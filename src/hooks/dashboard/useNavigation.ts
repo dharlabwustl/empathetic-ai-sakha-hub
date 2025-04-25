@@ -21,6 +21,11 @@ export function useNavigation() {
     } else if (location.pathname === "/dashboard/student") {
       setActiveTab("overview");
     }
+    
+    // Add special handling for concept detail pages
+    if (location.pathname.startsWith('/dashboard/student/concepts/') && location.pathname !== '/dashboard/student/concepts') {
+      setActiveTab("concepts");
+    }
   }, [tab, location.pathname]);
 
   const handleTabChange = (tab: string) => {

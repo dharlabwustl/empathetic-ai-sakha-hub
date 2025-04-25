@@ -6,8 +6,11 @@ import { CheckCircle, Circle, CalendarDays, ChevronRight, Clock } from 'lucide-r
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
+import { useToast } from '@/hooks/use-toast';
 
 const TodayStudyPlan = () => {
+  const { toast } = useToast();
+  
   // Mock data for study tasks
   const studyTasks = [
     {
@@ -43,6 +46,11 @@ const TodayStudyPlan = () => {
     setTasks(tasks.map(task => 
       task.id === taskId ? { ...task, completed: !task.completed } : task
     ));
+    
+    toast({
+      title: "Task updated",
+      description: "Your study plan has been updated",
+    });
   };
 
   const totalMinutes = tasks.reduce((sum, task) => sum + parseInt(task.duration), 0);
@@ -78,6 +86,7 @@ const TodayStudyPlan = () => {
               <button 
                 onClick={() => handleMarkComplete(task.id)}
                 className="mt-1 focus:outline-none"
+                aria-label={task.completed ? "Mark as incomplete" : "Mark as complete"}
               >
                 {task.completed ? (
                   <CheckCircle className="h-5 w-5 text-green-500" />

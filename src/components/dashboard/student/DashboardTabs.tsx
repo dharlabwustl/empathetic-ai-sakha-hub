@@ -64,6 +64,10 @@ export default function DashboardTabs({
     }
   };
 
+  // Add console logs to help with debugging
+  console.log("DashboardTabs - activeTab:", activeTab);
+  console.log("DashboardTabs - tabContents keys:", Object.keys(tabContents));
+
   return (
     <Tabs value={activeTab} onValueChange={onTabChange} className="space-y-4 sm:space-y-6">
       {!hideTabsNav && (
