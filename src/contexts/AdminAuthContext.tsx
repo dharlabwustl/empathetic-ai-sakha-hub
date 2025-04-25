@@ -1,9 +1,16 @@
 
-import React, { createContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useState, useEffect, ReactNode, useContext } from 'react';
+
+interface AdminUser {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+}
 
 interface AdminAuthContextProps {
   isAuthenticated: boolean;
-  user: { id: string; name: string; email: string; role: string } | null;
+  user: AdminUser | null;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
 }
@@ -15,12 +22,15 @@ export const AdminAuthContext = createContext<AdminAuthContextProps>({
   logout: () => {}
 });
 
+export const useAdminAuth = () => useContext(AdminAuthContext);
+
 interface AdminAuthProviderProps {
   children: ReactNode;
 }
 
 export const AdminAuthProvider = ({ children }: AdminAuthProviderProps) => {
-  const [user, setUser] = useState<{ id: string; name: string; email: string; role: string } | null>(null);
+  const [user, setUser] = useState<AdminUser | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     // Check for existing session
@@ -34,6 +44,7 @@ export const AdminAuthProvider = ({ children }: AdminAuthProviderProps) => {
           role: 'admin'
         });
       }
+      setLoading(false);
     };
     
     checkAuth();

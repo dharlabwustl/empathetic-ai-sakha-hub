@@ -16,7 +16,7 @@ import Pricing from "./pages/Pricing";
 import SignUp from "./pages/SignUp";
 import Login from "./pages/Login";
 import LoginPage from "./pages/login/LoginPage";
-import AdminLogin from "./pages/AdminLogin";
+import AdminLogin from "./pages/admin/AdminLogin";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import StudentsPage from "./pages/admin/StudentsPage";
 import ContentPage from "./pages/admin/ContentPage";
@@ -84,71 +84,24 @@ const App = () => {
                   
                   {/* Admin routes */}
                   <Route path="/admin/login" element={<AdminLogin />} />
-                  <Route path="/admin/dashboard" element={
-                    <AdminRouteGuard>
-                      <AdminDashboard />
-                    </AdminRouteGuard>
-                  } />
-                  <Route path="/admin/students" element={
-                    <AdminRouteGuard>
-                      <StudentsPage />
-                    </AdminRouteGuard>
-                  } />
-                  <Route path="/admin/ai" element={
-                    <AdminRouteGuard>
-                      <AIPersonalizationPage />
-                    </AdminRouteGuard>
-                  } />
-                  <Route path="/admin/content" element={
-                    <AdminRouteGuard>
-                      <ContentPage />
-                    </AdminRouteGuard>
-                  } />
-                  <Route path="/admin/engagement" element={
-                    <AdminRouteGuard>
-                      <EngagementPage />
-                    </AdminRouteGuard>
-                  } />
-                  <Route path="/admin/subscriptions" element={
-                    <AdminRouteGuard>
-                      <SubscriptionsPage />
-                    </AdminRouteGuard>
-                  } />
-                  <Route path="/admin/system" element={
-                    <AdminRouteGuard>
-                      <SystemMonitoringPage />
-                    </AdminRouteGuard>
-                  } />
-                  <Route path="/admin/analytics" element={
-                    <AdminRouteGuard>
-                      <AnalyticsPage />
-                    </AdminRouteGuard>
-                  } />
-                  <Route path="/admin/issues" element={
-                    <AdminRouteGuard>
-                      <IssuesPage />
-                    </AdminRouteGuard>
-                  } />
-                  <Route path="/admin/notifications" element={
-                    <AdminRouteGuard>
-                      <NotificationsPage />
-                    </AdminRouteGuard>
-                  } />
-                  <Route path="/admin/documentation" element={
-                    <AdminRouteGuard>
-                      <DocumentationPage />
-                    </AdminRouteGuard>
-                  } />
-                  <Route path="/admin/settings" element={
-                    <AdminRouteGuard>
-                      <SettingsPage />
-                    </AdminRouteGuard>
-                  } />
-                  <Route path="/admin/features" element={
-                    <AdminRouteGuard>
-                      <FeaturesManagementPage />
-                    </AdminRouteGuard>
-                  } />
+                  
+                  {/* Fix the AdminRouteGuard usage */}
+                  <Route element={<AdminRouteGuard />}>
+                    <Route path="/admin/dashboard" element={<AdminDashboard />} />
+                    <Route path="/admin/students" element={<StudentsPage />} />
+                    <Route path="/admin/ai" element={<AIPersonalizationPage />} />
+                    <Route path="/admin/content" element={<ContentPage />} />
+                    <Route path="/admin/engagement" element={<EngagementPage />} />
+                    <Route path="/admin/subscriptions" element={<SubscriptionsPage />} />
+                    <Route path="/admin/system" element={<SystemMonitoringPage />} />
+                    <Route path="/admin/analytics" element={<AnalyticsPage />} />
+                    <Route path="/admin/issues" element={<IssuesPage />} />
+                    <Route path="/admin/notifications" element={<NotificationsPage />} />
+                    <Route path="/admin/documentation" element={<DocumentationPage />} />
+                    <Route path="/admin/settings" element={<SettingsPage />} />
+                    <Route path="/admin/features" element={<FeaturesManagementPage />} />
+                    <Route path="/admin/batch" element={<BatchManagementPage />} />
+                  </Route>
                   
                   {/* Student routes */}
                   <Route element={<ProtectedRoute />}>
@@ -160,72 +113,26 @@ const App = () => {
                     <Route path="/dashboard/student/concepts/:conceptId" element={<ConceptCardDetailPage />} />
                     
                     <Route path="/dashboard/student/progress" element={<StudyProgress />} />
-                    <Route path="/dashboard/student/batch" element={<BatchManagementPage />} />
-                    
-                    <Route path="/dashboard/student/profile" element={
-                      <ProtectedRoute>
-                        <StudentProfilePage />
-                      </ProtectedRoute>
-                    } />
-                    <Route path="/dashboard/student/settings" element={
-                      <ProtectedRoute>
-                        <StudentSettingsPage />
-                      </ProtectedRoute>
-                    } />
-                    
-                    <Route path="/dashboard/student/subscription" element={
-                      <ProtectedRoute>
-                        <SubscriptionPage />
-                      </ProtectedRoute>
-                    } />
-                    
-                    <Route path="/dashboard/student/flashcards" element={
-                      <ProtectedRoute>
-                        <FlashcardsPage />
-                      </ProtectedRoute>
-                    } />
-                    <Route path="/dashboard/student/exams" element={
-                      <ProtectedRoute>
-                        <ExamPreparationPage />
-                      </ProtectedRoute>
-                    } />
-                    
-                    <Route path="/dashboard/student/tutor" element={
-                      <ProtectedRoute>
-                        <AIChatTutor userProfile={{
-                          id: "1",
-                          name: "Student",
-                          email: "student@example.com",
-                          role: UserRole.Student,
-                          goals: [{ id: "1", title: "JEE", progress: 65 }]
-                        }} />
-                      </ProtectedRoute>
-                    } />
-                    
-                    <Route path="/dashboard/student/academic" element={
-                      <ProtectedRoute>
-                        <AcademicAdvisor userProfile={{
-                          examPreparation: "IIT-JEE"
-                        }} />
-                      </ProtectedRoute>
-                    } />
+                    <Route path="/dashboard/student/profile" element={<StudentProfilePage />} />
+                    <Route path="/dashboard/student/settings" element={<StudentSettingsPage />} />
+                    <Route path="/dashboard/student/subscription" element={<SubscriptionPage />} />
+                    <Route path="/dashboard/student/flashcards" element={<FlashcardsPage />} />
+                    <Route path="/dashboard/student/exams" element={<ExamPreparationPage />} />
+                    <Route path="/dashboard/student/tutor" element={<AIChatTutor userProfile={{
+                      id: "1",
+                      name: "Student",
+                      email: "student@example.com",
+                      role: UserRole.Student,
+                      goals: [{ id: "1", title: "JEE", progress: 65 }]
+                    }} />} />
+                    <Route path="/dashboard/student/academic" element={<AcademicAdvisor userProfile={{
+                      examPreparation: "IIT-JEE"
+                    }} />} />
                     
                     {/* Other user type dashboards */}
-                    <Route path="/dashboard/doctor" element={
-                      <ProtectedRoute>
-                        <DoctorDashboard />
-                      </ProtectedRoute>
-                    } />
-                    <Route path="/dashboard/employee" element={
-                      <ProtectedRoute>
-                        <EmployeeDashboard />
-                      </ProtectedRoute>
-                    } />
-                    <Route path="/dashboard/founder" element={
-                      <ProtectedRoute>
-                        <FounderDashboard />
-                      </ProtectedRoute>
-                    } />
+                    <Route path="/dashboard/doctor" element={<DoctorDashboard />} />
+                    <Route path="/dashboard/employee" element={<EmployeeDashboard />} />
+                    <Route path="/dashboard/founder" element={<FounderDashboard />} />
                   </Route>
                   
                   {/* 404 page */}

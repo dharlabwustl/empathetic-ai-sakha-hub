@@ -20,8 +20,11 @@ import { KpiData, NudgeData } from '@/hooks/useKpiTracking';
 import FlashcardsFeature from '@/components/dashboard/student/FlashcardsFeature';
 import FeelGoodCorner from '@/components/dashboard/student/FeelGoodCorner';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import ConceptsSection from '@/components/dashboard/student/ConceptsSection';
 import { TodayPlanView, FlashcardsView, PracticeExamsView, MicroConceptView } from '@/pages/dashboard/student/TabContentViews';
+import ConceptCardView from '@/components/dashboard/student/concept-cards/ConceptCardView';
+import { Button } from '@/components/ui/button';
+import { Link } from 'react-router-dom';
+import { ArrowRight } from 'lucide-react';
 
 interface TabContentManagerProps {
   userProfile: UserProfileType;
@@ -81,7 +84,30 @@ export const generateTabContents = ({
     ),
     today: <TodayPlanView />,
     academic: <AcademicAdvisor userProfile={userProfile} />,
-    concepts: <MicroConceptView />,
+    concepts: (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-2xl font-bold">Concept Cards</h2>
+            <p className="text-gray-600">
+              Browse through your learning concepts and master the fundamentals.
+            </p>
+          </div>
+          <Link to="/dashboard/student/concepts/all">
+            <Button variant="outline" className="flex items-center gap-2">
+              View All <ArrowRight size={16} />
+            </Button>
+          </Link>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <ConceptCardView 
+            title="Today's Concepts" 
+            limit={6}
+            showViewAll={true}
+          />
+        </div>
+      </div>
+    ),
     flashcards: <FlashcardsView />,
     'practice-exam': <PracticeExamsView />,
     'feel-good': <FeelGoodCorner />,

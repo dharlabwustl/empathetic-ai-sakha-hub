@@ -226,12 +226,12 @@ const ConceptCardDetailPage = () => {
                 
                 <div className="flex items-center gap-2">
                   <div className={`p-2 rounded-full ${
-                    conceptCard.difficulty === 'Easy' ? 'bg-green-100' :
-                    conceptCard.difficulty === 'Medium' ? 'bg-amber-100' : 'bg-red-100'
+                    conceptCard.difficulty.toLowerCase() === 'easy' ? 'bg-green-100' :
+                    conceptCard.difficulty.toLowerCase() === 'medium' ? 'bg-amber-100' : 'bg-red-100'
                   }`}>
                     <Tag className={`h-4 w-4 ${
-                      conceptCard.difficulty === 'Easy' ? 'text-green-600' :
-                      conceptCard.difficulty === 'Medium' ? 'text-amber-600' : 'text-red-600'
+                      conceptCard.difficulty.toLowerCase() === 'easy' ? 'text-green-600' :
+                      conceptCard.difficulty.toLowerCase() === 'medium' ? 'text-amber-600' : 'text-red-600'
                     }`} />
                   </div>
                   <div>
@@ -284,18 +284,22 @@ const ConceptCardDetailPage = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="prose max-w-none">
-                    <ul className="space-y-4">
-                      {conceptCard.examples?.map((example, index) => (
-                        <li key={index} className="bg-blue-50 p-4 rounded-lg border border-blue-100">
-                          <div className="flex gap-3">
-                            <div className="bg-blue-100 p-2 h-8 w-8 rounded-full flex items-center justify-center">
-                              <span className="font-medium text-blue-700">{index + 1}</span>
+                    {conceptCard.examples && conceptCard.examples.length > 0 ? (
+                      <ul className="space-y-4">
+                        {conceptCard.examples.map((example, index) => (
+                          <li key={index} className="bg-blue-50 p-4 rounded-lg border border-blue-100">
+                            <div className="flex gap-3">
+                              <div className="bg-blue-100 p-2 h-8 w-8 rounded-full flex items-center justify-center">
+                                <span className="font-medium text-blue-700">{index + 1}</span>
+                              </div>
+                              <p>{example}</p>
                             </div>
-                            <p>{example}</p>
-                          </div>
-                        </li>
-                      ))}
-                    </ul>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="text-gray-500 text-center py-6">No examples available for this concept.</p>
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -309,18 +313,22 @@ const ConceptCardDetailPage = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="prose max-w-none">
-                    <ul className="space-y-4">
-                      {conceptCard.commonMistakes?.map((mistake, index) => (
-                        <li key={index} className="bg-red-50 p-4 rounded-lg border border-red-100">
-                          <div className="flex gap-3">
-                            <div className="bg-red-100 p-2 h-8 w-8 rounded-full flex items-center justify-center">
-                              <AlertTriangle className="h-4 w-4 text-red-600" />
+                    {conceptCard.commonMistakes && conceptCard.commonMistakes.length > 0 ? (
+                      <ul className="space-y-4">
+                        {conceptCard.commonMistakes.map((mistake, index) => (
+                          <li key={index} className="bg-red-50 p-4 rounded-lg border border-red-100">
+                            <div className="flex gap-3">
+                              <div className="bg-red-100 p-2 h-8 w-8 rounded-full flex items-center justify-center">
+                                <AlertTriangle className="h-4 w-4 text-red-600" />
+                              </div>
+                              <p>{mistake}</p>
                             </div>
-                            <p>{mistake}</p>
-                          </div>
-                        </li>
-                      ))}
-                    </ul>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="text-gray-500 text-center py-6">No common mistakes listed for this concept.</p>
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -334,14 +342,18 @@ const ConceptCardDetailPage = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="prose max-w-none">
-                    <div className="bg-purple-50 p-4 rounded-lg border border-purple-100">
-                      <div className="flex gap-3">
-                        <div className="bg-purple-100 p-2 rounded-full h-8 w-8 flex items-center justify-center">
-                          <Brain className="h-4 w-4 text-purple-600" />
+                    {conceptCard.examRelevance ? (
+                      <div className="bg-purple-50 p-4 rounded-lg border border-purple-100">
+                        <div className="flex gap-3">
+                          <div className="bg-purple-100 p-2 rounded-full h-8 w-8 flex items-center justify-center">
+                            <Brain className="h-4 w-4 text-purple-600" />
+                          </div>
+                          <p>{conceptCard.examRelevance}</p>
                         </div>
-                        <p>{conceptCard.examRelevance}</p>
                       </div>
-                    </div>
+                    ) : (
+                      <p className="text-gray-500 text-center py-6">No exam relevance information available.</p>
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -351,35 +363,39 @@ const ConceptCardDetailPage = () => {
           {/* Related Concepts Section */}
           <div className="mt-8">
             <h2 className="text-xl font-bold mb-4">Related Concepts</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {conceptCard.relatedConcepts?.map((relatedId) => (
-                <Link key={relatedId} to={`/dashboard/student/concepts/${relatedId}`}>
-                  <Card className="hover:shadow-md transition-shadow duration-200">
-                    <CardContent className="p-4">
-                      <div className="flex items-center gap-3">
-                        <div className="bg-indigo-100 p-2 rounded-full">
-                          <Lightbulb className="h-4 w-4 text-indigo-600" />
+            {conceptCard.relatedConcepts && conceptCard.relatedConcepts.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {conceptCard.relatedConcepts.map((relatedId) => (
+                  <Link key={relatedId} to={`/dashboard/student/concepts/${relatedId}`}>
+                    <Card className="hover:shadow-md transition-shadow duration-200">
+                      <CardContent className="p-4">
+                        <div className="flex items-center gap-3">
+                          <div className="bg-indigo-100 p-2 rounded-full">
+                            <Lightbulb className="h-4 w-4 text-indigo-600" />
+                          </div>
+                          <div>
+                            <p className="font-medium">
+                              {relatedId === 'c1' ? "Newton's Third Law of Motion" : 
+                               relatedId === 'c4' ? "Integration by Parts" : 
+                               relatedId === 'c7' ? "Organic Chemistry Nomenclature" : 
+                               "Related Concept"}
+                            </p>
+                            <p className="text-sm text-gray-500">
+                              {relatedId === 'c1' ? "Physics" : 
+                               relatedId === 'c4' ? "Mathematics" : 
+                               relatedId === 'c7' ? "Chemistry" : 
+                               "Subject"}
+                            </p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="font-medium">
-                            {relatedId === 'c1' ? "Newton's Third Law of Motion" : 
-                             relatedId === 'c4' ? "DNA Replication" : 
-                             relatedId === 'c7' ? "Electromagnetic Induction" : 
-                             "Related Concept"}
-                          </p>
-                          <p className="text-sm text-gray-500">
-                            {relatedId === 'c1' ? "Physics" : 
-                             relatedId === 'c4' ? "Biology" : 
-                             relatedId === 'c7' ? "Physics" : 
-                             "Subject"}
-                          </p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </Link>
-              ))}
-            </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <p className="text-gray-500 text-center py-6">No related concepts available.</p>
+            )}
           </div>
         </div>
       </div>

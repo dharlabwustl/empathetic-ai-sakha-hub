@@ -135,7 +135,7 @@ const ConceptCardView: React.FC<ConceptCardViewProps> = ({
         </div>
       )}
       
-      {showViewAll && (
+      {showViewAll && filteredCards.length > 0 && (
         <div className="flex justify-center mt-4">
           <Link to="/dashboard/student/concepts/all">
             <Button variant="outline" className="flex items-center gap-2">
