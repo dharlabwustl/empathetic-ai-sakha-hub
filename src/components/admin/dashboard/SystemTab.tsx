@@ -34,8 +34,10 @@ const SystemTab = () => {
     }
   ]);
 
-  // Rest of the component logic...
-  
+  const formatDate = (date: Date): string => {
+    return date.toISOString();
+  };
+
   const resolveLog = (id: string) => {
     setSystemLogs(prev => 
       prev.map(log => 
@@ -44,15 +46,10 @@ const SystemTab = () => {
     );
   };
 
-  // Convert string timestamp to Date if necessary
   const formatTimestamp = (timestamp: Date | string) => {
-    // If timestamp is already a Date object, use it directly
-    // Otherwise parse it as a Date
     const date = timestamp instanceof Date ? timestamp : new Date(timestamp);
     return format(date, 'MMM dd, yyyy HH:mm:ss');
   };
-
-  // ... rest of the component
 
   return (
     <div className="space-y-6">
@@ -70,7 +67,6 @@ const SystemTab = () => {
               <CardDescription>Current system status and health metrics</CardDescription>
             </CardHeader>
             <CardContent>
-              {/* Content for system health overview */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {/* System health content... */}
               </div>
@@ -129,7 +125,6 @@ const SystemTab = () => {
               <CardDescription>Performance metrics and analytics</CardDescription>
             </CardHeader>
             <CardContent>
-              {/* Performance metrics content */}
               <div className="space-y-6">
                 {/* Performance metrics... */}
               </div>

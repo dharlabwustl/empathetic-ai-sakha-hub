@@ -1,13 +1,13 @@
 
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import DashboardLayout from "./DashboardLayout";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { UserRole } from "@/types/user/base";
 import { motion } from "framer-motion";
 import { useStudentDashboard } from "@/hooks/useStudentDashboard";
 import { trackStudyActivity } from "./utils/UserSessionManager";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/components/ui/toast";
 import ConceptCardDetailView from "@/components/dashboard/student/concept-cards/ConceptCardDetailView";
 
 const ConceptCardDetailPage = () => {
