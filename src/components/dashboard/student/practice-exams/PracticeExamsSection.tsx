@@ -4,7 +4,8 @@ import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Search, Brain, ChevronRight } from 'lucide-react';
+import { Brain, Search, ChevronRight } from 'lucide-react';
+import { motion } from 'framer-motion';
 import PracticeExamCard, { PracticeExam } from './PracticeExamCard';
 
 // Sample data - in production this would come from an API
@@ -43,16 +44,7 @@ const mockExams: PracticeExam[] = [
     duration: 60,
     difficulty: 'hard',
     status: 'in-progress'
-  },
-  {
-    id: '4',
-    title: 'Full Mock JEE Test',
-    subject: 'Combined',
-    questionCount: 90,
-    duration: 180,
-    difficulty: 'hard',
-    status: 'not-started'
-  },
+  }
 ];
 
 const PracticeExamsSection: React.FC = () => {
@@ -99,7 +91,14 @@ const PracticeExamsSection: React.FC = () => {
           <TabsContent value={selectedTab} className="mt-0">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {filteredExams.map((exam) => (
-                <PracticeExamCard key={exam.id} exam={exam} />
+                <motion.div
+                  key={exam.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <PracticeExamCard exam={exam} />
+                </motion.div>
               ))}
             </div>
             
@@ -114,6 +113,7 @@ const PracticeExamsSection: React.FC = () => {
                 <Button variant="outline" className="flex items-center gap-2">
                   <Search className="h-4 w-4" />
                   View All Practice Tests
+                  <ChevronRight className="h-4 w-4" />
                 </Button>
               </Link>
             </div>
