@@ -8,4 +8,5 @@ export interface SystemLog {
   resolved?: boolean;
   message?: string;
   source?: string;
+  level?: string;
 }

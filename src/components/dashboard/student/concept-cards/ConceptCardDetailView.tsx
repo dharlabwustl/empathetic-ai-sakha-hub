@@ -136,7 +136,7 @@ const ConceptCardDetailView: React.FC<ConceptCardDetailViewProps> = ({ concept, 
             <Badge variant="outline" className="bg-purple-50 text-purple-600 border-purple-200">
               <Clock size={12} className="mr-1" /> {concept.estimatedTime} min
             </Badge>
-            <Badge variant={concept.completed ? "success" : "default"}>
+            <Badge variant={concept.completed ? "secondary" : "default"}>
               {concept.completed ? "Completed" : "Not Completed"}
             </Badge>
           </div>

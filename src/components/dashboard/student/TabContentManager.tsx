@@ -83,7 +83,7 @@ export const generateTabContents = ({
           </Link>
         </div>
         <ConceptCardView 
-          title="Today's Concepts" 
+          title="Study Concepts" 
           limit={6}
           showViewAll={true}
         />

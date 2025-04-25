@@ -5,7 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Link } from 'react-router-dom';
 import { 
-  ArrowRight, Brain, BookOpen, Clock, Book, Tag, Star, AlertCircle, CheckCircle 
+  ArrowRight, Brain, BookOpen, Clock, Book, Tag, Star, AlertCircle, CheckCircle, Bookmark, VolumeX, Volume2
 } from 'lucide-react';
 import { useUserStudyPlan } from '@/hooks/useUserStudyPlan';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -27,6 +27,11 @@ const ConceptCardView: React.FC<ConceptCardViewProps> = ({
 }) => {
   const { conceptCards, loading } = useUserStudyPlan();
   const [selectedView, setSelectedView] = useState<'today' | 'week' | 'month'>('today');
+  const [isVoiceEnabled, setIsVoiceEnabled] = useState(false);
+  
+  const toggleVoice = () => {
+    setIsVoiceEnabled(!isVoiceEnabled);
+  };
   
   const filteredCards = conceptCards
     .filter(card => !subject || card.subject === subject)
@@ -56,12 +61,13 @@ const ConceptCardView: React.FC<ConceptCardViewProps> = ({
           {!subject && !chapter && (
             <div className="flex items-center space-x-3">
               <Button 
-                variant="ghost" 
+                variant="outline" 
                 size="sm"
                 className="flex items-center gap-1"
+                onClick={toggleVoice}
               >
-                <Brain size={16} />
-                Voice Mode
+                {isVoiceEnabled ? <Volume2 size={16} className="mr-1" /> : <VolumeX size={16} className="mr-1" />}
+                {isVoiceEnabled ? 'Voice Enabled' : 'Enable Voice'}
               </Button>
             </div>
           )}
@@ -161,6 +167,11 @@ const ConceptCardView: React.FC<ConceptCardViewProps> = ({
                               Test Ready
                             </Badge>
                           </div>
+                          {isVoiceEnabled && (
+                            <Button size="sm" variant="ghost" className="p-1 h-auto">
+                              <Volume2 size={16} className="text-blue-600" />
+                            </Button>
+                          )}
                         </div>
                       </CardContent>
                     </Card>
