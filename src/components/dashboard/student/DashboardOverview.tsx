@@ -4,6 +4,7 @@ import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
 import KpiCard from "@/components/dashboard/KpiCard";
 import NudgePanel from "@/components/dashboard/NudgePanel";
 import ProfileCard from "@/components/dashboard/ProfileCard";
+import TodayStudyPlan from "@/components/dashboard/student/TodayStudyPlan";
 import RedesignedDashboardOverview from "@/components/dashboard/student/RedesignedDashboardOverview";
 
 interface DashboardOverviewProps {
@@ -68,6 +69,9 @@ export default function DashboardOverview({
           <ProfileCard profile={userProfile} />
         </div>
       </div>
+
+      {/* Today's Study Plan Section */}
+      <TodayStudyPlan />
 
       {/* Redesigned Dashboard Overview */}
       <RedesignedDashboardOverview />

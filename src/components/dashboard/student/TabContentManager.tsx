@@ -1,4 +1,3 @@
-
 import React, { ReactNode } from 'react';
 import DashboardOverview from '@/components/dashboard/student/DashboardOverview';
 import WelcomeTour from '@/components/dashboard/student/WelcomeTour';
@@ -13,6 +12,7 @@ import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { TodayPlanView, FlashcardsView, PracticeExamsView } from '@/pages/dashboard/student/TabContentViews';
 import ConceptCardView from '@/components/dashboard/student/concept-cards/ConceptCardView';
+import { MicroConceptView } from '@/pages/dashboard/student/TabContentViews';
 
 interface TabContentManagerProps {
   userProfile: UserProfileType;
@@ -38,7 +38,7 @@ export const generateTabContents = ({
   handleCompleteTour,
   lastActivity,
   suggestedNextAction
-}: TabContentManagerProps): Record<string, ReactNode> => {
+}: TabContentManagerProps): Record<string, React.ReactNode> => {
   const isFirstTimeUser = (userProfile?.loginCount ?? 0) < 3 || !(userProfile?.completedOnboarding ?? false);
   const loginCount = userProfile?.loginCount ?? 0;
 

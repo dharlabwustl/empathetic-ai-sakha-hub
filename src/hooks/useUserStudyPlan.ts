@@ -6,187 +6,117 @@ export interface ConceptCard {
   title: string;
   subject: string;
   chapter: string;
-  scheduledFor: 'today' | 'week' | 'month';
-  difficulty: 'Easy' | 'Medium' | 'Hard';
-  estimatedTime: number;
+  difficulty: string;
   completed: boolean;
+  scheduledFor: 'today' | 'week' | 'month';
+  estimatedTime: number;
+  progress?: number;
+  examGoal?: string; // Added field for concept filtering
+  tags?: string[]; // Added field for concept filtering
 }
 
 export const useUserStudyPlan = () => {
-  const [conceptCards, setConceptCards] = useState<ConceptCard[]>([
-    {
-      id: 'c1',
-      title: 'Kinematics in One Dimension',
-      subject: 'Physics',
-      chapter: 'Mechanics',
-      scheduledFor: 'today',
-      difficulty: 'Medium',
-      estimatedTime: 20,
-      completed: false
-    },
-    {
-      id: 'c2',
-      title: 'Newton\'s Laws of Motion',
-      subject: 'Physics',
-      chapter: 'Mechanics',
-      scheduledFor: 'today',
-      difficulty: 'Medium',
-      estimatedTime: 25,
-      completed: false
-    },
-    {
-      id: 'c3',
-      title: 'Work, Energy and Power',
-      subject: 'Physics',
-      chapter: 'Mechanics',
-      scheduledFor: 'today',
-      difficulty: 'Hard',
-      estimatedTime: 30,
-      completed: false
-    },
-    {
-      id: 'c4',
-      title: 'Rotational Motion',
-      subject: 'Physics',
-      chapter: 'Mechanics',
-      scheduledFor: 'week',
-      difficulty: 'Hard',
-      estimatedTime: 35,
-      completed: false
-    },
-    {
-      id: 'c5',
-      title: 'Periodic Table and Elements',
-      subject: 'Chemistry',
-      chapter: 'Inorganic Chemistry',
-      scheduledFor: 'today',
-      difficulty: 'Easy',
-      estimatedTime: 15,
-      completed: true
-    },
-    {
-      id: 'c6',
-      title: 'Organic Chemistry Basics',
-      subject: 'Chemistry',
-      chapter: 'Organic Chemistry',
-      scheduledFor: 'week',
-      difficulty: 'Medium',
-      estimatedTime: 25,
-      completed: false
-    },
-    {
-      id: 'c7',
-      title: 'Differentiation Techniques',
-      subject: 'Mathematics',
-      chapter: 'Calculus',
-      scheduledFor: 'today',
-      difficulty: 'Medium',
-      estimatedTime: 30,
-      completed: true
-    },
-    {
-      id: 'c8',
-      title: 'Integration Methods',
-      subject: 'Mathematics',
-      chapter: 'Calculus',
-      scheduledFor: 'week',
-      difficulty: 'Hard',
-      estimatedTime: 40,
-      completed: false
-    },
-    {
-      id: 'c9',
-      title: 'Equilibrium and Acids/Bases',
-      subject: 'Chemistry',
-      chapter: 'Physical Chemistry',
-      scheduledFor: 'today',
-      difficulty: 'Medium',
-      estimatedTime: 25,
-      completed: false
-    },
-    {
-      id: 'c10',
-      title: 'Quadratic Equations',
-      subject: 'Mathematics',
-      chapter: 'Algebra',
-      scheduledFor: 'week',
-      difficulty: 'Easy',
-      estimatedTime: 20,
-      completed: true
-    },
-    {
-      id: 'c11',
-      title: 'Thermodynamics',
-      subject: 'Physics',
-      chapter: 'Thermal Physics',
-      scheduledFor: 'month',
-      difficulty: 'Hard',
-      estimatedTime: 35,
-      completed: false
-    },
-    {
-      id: 'c12',
-      title: 'Waves and Sound',
-      subject: 'Physics',
-      chapter: 'Waves',
-      scheduledFor: 'month',
-      difficulty: 'Medium',
-      estimatedTime: 25,
-      completed: false
-    },
-    {
-      id: 'c13',
-      title: 'Organic Reactions',
-      subject: 'Chemistry',
-      chapter: 'Organic Chemistry',
-      scheduledFor: 'month',
-      difficulty: 'Hard',
-      estimatedTime: 30,
-      completed: false
-    },
-    {
-      id: 'c14',
-      title: 'Probability',
-      subject: 'Mathematics',
-      chapter: 'Statistics',
-      scheduledFor: 'month',
-      difficulty: 'Medium',
-      estimatedTime: 20,
-      completed: false
-    }
-  ]);
+  const [conceptCards, setConceptCards] = useState<ConceptCard[]>([]);
   const [loading, setLoading] = useState(true);
-  
+
   useEffect(() => {
-    // Simulate API loading
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 1000);
+    // Simulate loading data
+    const loadData = async () => {
+      setLoading(true);
+      
+      // Mock data
+      const mockCards: ConceptCard[] = [
+        {
+          id: '1',
+          title: 'Newton\'s Laws of Motion',
+          subject: 'Physics',
+          chapter: 'Classical Mechanics',
+          difficulty: 'Medium',
+          completed: true,
+          scheduledFor: 'today',
+          estimatedTime: 20,
+          tags: ['mechanics', 'fundamental', 'forces']
+        },
+        {
+          id: '2',
+          title: 'Integration Techniques',
+          subject: 'Mathematics',
+          chapter: 'Calculus',
+          difficulty: 'Hard',
+          completed: false,
+          scheduledFor: 'today',
+          estimatedTime: 25,
+          tags: ['calculus', 'advanced', 'integration']
+        },
+        {
+          id: '3',
+          title: 'Periodic Table Trends',
+          subject: 'Chemistry',
+          chapter: 'Inorganic Chemistry',
+          difficulty: 'Easy',
+          completed: false,
+          scheduledFor: 'today',
+          estimatedTime: 15,
+          tags: ['periodic table', 'elements', 'trends']
+        },
+        {
+          id: '4',
+          title: 'Cell Structure',
+          subject: 'Biology',
+          chapter: 'Cell Biology',
+          difficulty: 'Medium',
+          completed: true,
+          scheduledFor: 'week',
+          estimatedTime: 20,
+          tags: ['cells', 'organelles', 'membrane']
+        },
+        {
+          id: '5',
+          title: 'Thermodynamics Laws',
+          subject: 'Physics',
+          chapter: 'Thermal Physics',
+          difficulty: 'Hard',
+          completed: false,
+          scheduledFor: 'week',
+          estimatedTime: 30,
+          tags: ['thermal', 'energy', 'laws']
+        },
+        {
+          id: '6',
+          title: 'Quantum Mechanics',
+          subject: 'Physics',
+          chapter: 'Modern Physics',
+          difficulty: 'Hard',
+          completed: false,
+          scheduledFor: 'month',
+          estimatedTime: 35,
+          tags: ['quantum', 'advanced', 'waves']
+        }
+      ];
+      
+      // Add examGoal to each card
+      mockCards.forEach(card => {
+        card.examGoal = 'IIT-JEE';
+      });
+      
+      setTimeout(() => {
+        setConceptCards(mockCards);
+        setLoading(false);
+      }, 1000);
+    };
     
-    return () => clearTimeout(timer);
+    loadData();
   }, []);
   
-  // Function to mark a concept card as completed
-  const markConceptCompleted = (conceptId: string, completed: boolean = true) => {
+  const markConceptCompleted = (conceptId: string) => {
     setConceptCards(prevCards => 
       prevCards.map(card => 
-        card.id === conceptId ? { ...card, completed } : card
+        card.id === conceptId 
+          ? { ...card, completed: true } 
+          : card
       )
     );
   };
   
-  // Function to get a specific concept card
-  const getConceptCard = (conceptId: string) => {
-    return conceptCards.find(card => card.id === conceptId);
-  };
-  
-  return { 
-    conceptCards, 
-    loading, 
-    setConceptCards,
-    markConceptCompleted,
-    getConceptCard
-  };
+  return { conceptCards, loading, markConceptCompleted };
 };
-
-export default useUserStudyPlan;
