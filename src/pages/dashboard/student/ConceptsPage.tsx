@@ -1,15 +1,14 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import MainLayout from '@/components/layouts/MainLayout';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Separator } from '@/components/ui/separator';
-import { ArrowLeft, Search, BookOpen, Book, Clock, Tag, CheckCircle, XCircle, Brain } from 'lucide-react';
+import { ArrowLeft, Search, BookOpen, Book, Clock, CheckCircle, XCircle, Brain, Volume2, VolumeX } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useUserStudyPlan } from '@/hooks/useUserStudyPlan';
 import { useUserProfile } from '@/hooks/useUserProfile';
@@ -22,14 +21,31 @@ const ConceptsPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSubject, setSelectedSubject] = useState<string>('');
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>('');
+  const [isReading, setIsReading] = useState(false);
+  const [speech, setSpeech] = useState<SpeechSynthesisUtterance | null>(null);
+
+  // Initialize speech synthesis
+  useEffect(() => {
+    if ('speechSynthesis' in window) {
+      const newSpeech = new SpeechSynthesisUtterance();
+      setSpeech(newSpeech);
+      
+      return () => {
+        if (window.speechSynthesis.speaking) {
+          window.speechSynthesis.cancel();
+        }
+      };
+    }
+  }, []);
 
   // Filter cards based on active filters
   const filteredCards = conceptCards
     .filter(card => card.scheduledFor === activeTab)
     .filter(card => subTab === 'pending' ? !card.completed : card.completed)
-    .filter(card => !searchQuery || card.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                   card.subject.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                   card.chapter.toLowerCase().includes(searchQuery.toLowerCase()))
+    .filter(card => !searchQuery || 
+      card.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+      card.subject.toLowerCase().includes(searchQuery.toLowerCase()) || 
+      card.chapter.toLowerCase().includes(searchQuery.toLowerCase()))
     .filter(card => !selectedSubject || card.subject === selectedSubject)
     .filter(card => !selectedDifficulty || card.difficulty === selectedDifficulty);
   
@@ -43,16 +59,57 @@ const ConceptsPage = () => {
   const completionPercentage = totalCards > 0 ? (completedCards / totalCards) * 100 : 0;
   
   const examGoal = userProfile?.goals?.[0]?.title || 'IIT-JEE';
+  
+  // Handle speech synthesis for page overview
+  const handleSpeechSummary = () => {
+    if (!speech) return;
+    
+    if (isReading) {
+      window.speechSynthesis.cancel();
+      setIsReading(false);
+      return;
+    }
+    
+    const periodText = activeTab === 'today' ? "today's" : activeTab === 'week' ? "this week's" : "this month's";
+    const statusText = subTab === 'pending' ? "pending" : "completed";
+    
+    const summaryText = `You are viewing ${periodText} ${statusText} concept cards for your ${examGoal} preparation. 
+                         You have completed ${completedCards} out of ${totalCards} concepts for ${activeTab}, 
+                         which is ${Math.round(completionPercentage)}% completion.`;
+    
+    speech.text = summaryText;
+    speech.rate = 1;
+    speech.pitch = 1;
+    window.speechSynthesis.speak(speech);
+    setIsReading(true);
+    
+    speech.onend = () => {
+      setIsReading(false);
+    };
+  };
 
   return (
     <MainLayout>
       <div className="container py-8">
         <div className="flex flex-col space-y-6">
-          {/* Header Section */}
+          {/* Header Section with Voice Control */}
           <div>
-            <Link to="/dashboard/student/overview" className="inline-flex items-center text-blue-600 hover:text-blue-700 mb-4">
-              <ArrowLeft size={16} className="mr-1" /> Back to Dashboard
-            </Link>
+            <div className="flex justify-between items-center mb-4">
+              <Link to="/dashboard/student/overview" className="inline-flex items-center text-blue-600 hover:text-blue-700">
+                <ArrowLeft size={16} className="mr-1" /> Back to Dashboard
+              </Link>
+              
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleSpeechSummary}
+                className="flex items-center gap-2"
+              >
+                {isReading ? <VolumeX size={16} /> : <Volume2 size={16} />}
+                {isReading ? "Stop Reading" : "Read Page Overview"}
+              </Button>
+            </div>
+            
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <h1 className="text-3xl font-bold">Concept Cards</h1>
@@ -73,18 +130,18 @@ const ConceptsPage = () => {
           
           {/* Progress Card */}
           <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg font-medium">Learning Progress</CardTitle>
-            </CardHeader>
-            <CardContent>
+            <CardContent className="p-6">
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
-                  <span className="text-sm font-medium">
-                    {completedCards} of {totalCards} concepts completed
-                  </span>
+                  <h3 className="text-lg font-medium">Learning Progress</h3>
                   <span className="text-sm font-medium">{Math.round(completionPercentage)}%</span>
                 </div>
                 <Progress value={completionPercentage} className="h-2" />
+                
+                <div className="flex justify-between items-center text-sm font-medium">
+                  <span>{completedCards} of {totalCards} concepts completed</span>
+                  <span className="text-gray-500">{totalCards - completedCards} remaining</span>
+                </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
                   <div className="bg-green-50 rounded-lg p-4 flex items-center space-x-3">
@@ -185,7 +242,7 @@ const ConceptsPage = () => {
               <TabsTrigger value="month">This Month</TabsTrigger>
             </TabsList>
             
-            {/* Tab Content */}
+            {/* Sub Tabs for Status */}
             <div className="mb-4">
               <div className="flex gap-4">
                 <Button 
@@ -205,6 +262,7 @@ const ConceptsPage = () => {
               </div>
             </div>
             
+            {/* Cards Display */}
             {loading ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {[...Array(6)].map((_, i) => (

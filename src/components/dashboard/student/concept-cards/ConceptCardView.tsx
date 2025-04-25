@@ -29,15 +29,7 @@ const ConceptCardView: React.FC<ConceptCardViewProps> = ({
   const filteredCards = conceptCards
     .filter(card => !subject || card.subject === subject)
     .filter(card => !chapter || card.chapter === chapter)
-    .filter(card => {
-      if (selectedView === 'today') {
-        return card.scheduledFor === 'today';
-      } else if (selectedView === 'week') {
-        return card.scheduledFor === 'week';
-      } else {
-        return card.scheduledFor === 'month';
-      }
-    })
+    .filter(card => card.scheduledFor === selectedView)
     .slice(0, limit);
   
   if (loading) {
