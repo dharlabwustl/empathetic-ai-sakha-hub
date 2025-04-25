@@ -4,7 +4,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { motion } from "framer-motion";
 import { BookOpen } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { Button } from "@/components/ui/button";
 
 const ConceptsSection: React.FC = () => {
   // Mock concept data - replace with actual data fetching logic
@@ -13,6 +12,8 @@ const ConceptsSection: React.FC = () => {
     { id: '2', title: 'Organic Chemistry Basics', subject: 'Chemistry' },
     { id: '3', title: 'Calculus Fundamentals', subject: 'Mathematics' }
   ];
+
+  console.log('ConceptsSection - Concepts:', concepts);
 
   return (
     <Card className="h-full">
@@ -32,7 +33,11 @@ const ConceptsSection: React.FC = () => {
               transition={{ delay: index * 0.1 }}
               className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg mb-3 hover:bg-gray-100 dark:hover:bg-gray-700"
             >
-              <Link to={`/dashboard/student/concepts/${concept.id}`} className="block w-full h-full">
+              <Link 
+                to={`/dashboard/student/concepts/${concept.id}`} 
+                className="block w-full h-full"
+                onClick={() => console.log(`Navigating to concept ${concept.id}`)}
+              >
                 <h3 className="font-medium">{concept.title}</h3>
                 <p className="text-sm text-gray-500 dark:text-gray-400">{concept.subject}</p>
               </Link>
@@ -42,7 +47,9 @@ const ConceptsSection: React.FC = () => {
         
         <div className="mt-4">
           <Link to="/dashboard/student/concepts">
-            <Button variant="outline" className="w-full">View All Concept Cards</Button>
+            <button className="w-full p-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+              View All Concept Cards
+            </button>
           </Link>
         </div>
       </CardContent>

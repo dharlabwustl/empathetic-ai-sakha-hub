@@ -16,6 +16,9 @@ export function useNavigation() {
 
   // Update active tab when URL changes
   useEffect(() => {
+    console.log('useNavigation - Current Location:', location.pathname);
+    console.log('useNavigation - Current Tab Parameter:', tab);
+
     if (tab && validTabs.includes(tab)) {
       setActiveTab(tab);
     } else if (location.pathname === "/dashboard/student") {
@@ -24,11 +27,13 @@ export function useNavigation() {
     
     // Add special handling for concept detail pages
     if (location.pathname.startsWith('/dashboard/student/concepts/') && location.pathname !== '/dashboard/student/concepts') {
+      console.log('Detected concept detail page');
       setActiveTab("concepts");
     }
   }, [tab, location.pathname]);
 
   const handleTabChange = (tab: string) => {
+    console.log(`Changing tab to: ${tab}`);
     setActiveTab(tab);
     navigate(`/dashboard/student/${tab}`);
   };

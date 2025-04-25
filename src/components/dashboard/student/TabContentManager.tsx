@@ -1,4 +1,3 @@
-
 import React, { ReactNode } from 'react';
 import TutorCard from '@/components/dashboard/student/TutorCard';
 import StudyPlannerCard from '@/components/dashboard/student/StudyPlannerCard';
@@ -51,6 +50,12 @@ export const generateTabContents = ({
   const isFirstTimeUser = (userProfile?.loginCount ?? 0) < 3 || !(userProfile?.completedOnboarding ?? false);
   const loginCount = userProfile?.loginCount ?? 0;
 
+  console.log('generateTabContents - Active User Profile:', {
+    loginCount,
+    isFirstTimeUser,
+    completedOnboarding: userProfile?.completedOnboarding
+  });
+
   return {
     overview: (
       <>
@@ -83,22 +88,6 @@ export const generateTabContents = ({
         </p>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <ConceptsSection />
-          <Card className="h-full">
-            <CardHeader>
-              <CardTitle>Recent Concepts</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p>Your recently viewed concepts will appear here.</p>
-            </CardContent>
-          </Card>
-          <Card className="h-full">
-            <CardHeader>
-              <CardTitle>Recommended</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p>Concepts recommended for you based on your study plan.</p>
-            </CardContent>
-          </Card>
         </div>
       </div>
     ),
@@ -112,3 +101,4 @@ export const generateTabContents = ({
 
 // Import Card components at the top
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import ConceptsSection from './ConceptsSection';

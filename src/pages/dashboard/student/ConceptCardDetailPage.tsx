@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import DashboardLayout from './DashboardLayout';
@@ -14,6 +13,8 @@ import { Link } from 'react-router-dom';
 const ConceptCardDetailPage = () => {
   // Get the concept ID from URL parameters
   const { conceptId } = useParams<{ conceptId: string }>();
+  
+  console.log('ConceptCardDetailPage - Concept ID:', conceptId);
   
   // Get student dashboard data
   const {
