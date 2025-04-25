@@ -10,7 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { ArrowLeft, Search, BookOpen, Book, Clock, CheckCircle, XCircle, Brain, Volume2, VolumeX } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { useUserStudyPlan, ConceptCard } from '@/hooks/useUserStudyPlan';
+import { useUserStudyPlan } from '@/hooks/useUserStudyPlan';
 import { useUserProfile } from '@/hooks/useUserProfile';
 
 const ConceptsPage = () => {

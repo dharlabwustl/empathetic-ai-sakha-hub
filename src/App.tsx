@@ -1,4 +1,3 @@
-
 import * as React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -46,7 +45,6 @@ import StudentProfilePage from "./pages/dashboard/student/ProfilePage";
 import StudentSettingsPage from "./pages/dashboard/student/SettingsPage";
 import FlashcardsPage from "./pages/dashboard/student/FlashcardsPage";
 import ExamPreparationPage from "./pages/dashboard/student/ExamPreparationPage";
-import PracticeExamsPage from "./pages/dashboard/student/PracticeExamsPage";
 
 import FeaturesManagementPage from "./pages/admin/FeaturesManagementPage";
 import BatchManagementPage from "./pages/admin/BatchManagementPage";
@@ -113,7 +111,6 @@ const App = () => {
                     {/* Concept card routes */}
                     <Route path="/dashboard/student/concepts/all" element={<ConceptsPage />} />
                     <Route path="/dashboard/student/concepts/:conceptId" element={<ConceptCardDetailPage />} />
-                    <Route path="/dashboard/student/exams" element={<PracticeExamsPage />} />
                     
                     <Route path="/dashboard/student/progress" element={<StudyProgress />} />
                     <Route path="/dashboard/student/profile" element={<StudentProfilePage />} />
