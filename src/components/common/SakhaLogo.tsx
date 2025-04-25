@@ -14,7 +14,7 @@ const SakhaLogo: React.FC<SakhaLogoProps> = ({
 }) => {
   return (
     <img 
-      src="/lovable-uploads/2bb8a7c0-61bf-4d87-84b8-3afc0f66adc0.png" 
+      src="/lovable-uploads/fdc1cebd-e35f-4f08-a45b-e839964fd590.png" 
       alt="Sakha Logo" 
       className={className} 
       style={{ 

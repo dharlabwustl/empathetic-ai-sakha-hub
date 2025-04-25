@@ -1,26 +1,18 @@
 
 import { UserProfileType } from "@/types/user";
 import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
+import KpiCard from "@/components/dashboard/KpiCard";
 import NudgePanel from "@/components/dashboard/NudgePanel";
 import ProfileCard from "@/components/dashboard/ProfileCard";
-import FeatureCard from "@/components/dashboard/FeatureCard";
-import LearningCommandCenter from "./learning-command-center/LearningCommandCenter";
-import FeelGoodCorner from "@/components/dashboard/student/FeelGoodCorner";
-import { motion } from "framer-motion";
-import { useIsMobile } from "@/hooks/use-mobile";
+import TodayStudyPlan from "@/components/dashboard/student/TodayStudyPlan";
+import RedesignedDashboardOverview from "@/components/dashboard/student/RedesignedDashboardOverview";
 
 interface DashboardOverviewProps {
   userProfile: UserProfileType;
   kpis: KpiData[];
   nudges: NudgeData[];
   markNudgeAsRead: (id: string) => void;
-  features: {
-    icon: React.ReactNode;
-    title: string;
-    description: string;
-    path: string;
-    isPremium: boolean;
-  }[];
+  features: any[];
 }
 
 export default function DashboardOverview({
@@ -30,43 +22,27 @@ export default function DashboardOverview({
   markNudgeAsRead,
   features
 }: DashboardOverviewProps) {
-  const isMobile = useIsMobile();
-  
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: { 
-      opacity: 1,
-      transition: { staggerChildren: 0.1 }
-    }
-  };
-  
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { 
-      opacity: 1, 
-      y: 0,
-      transition: { type: "spring", stiffness: 260, damping: 20 }
-    }
-  };
-
   return (
-    <motion.div
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-      className="space-y-6"
-    >
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div className="space-y-6">
+      {/* Profile and Study Plan Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
         <div className="lg:col-span-2">
-          <LearningCommandCenter userProfile={userProfile} />
+          <TodayStudyPlan />
         </div>
-        
-        <div className="space-y-6">
+        <div>
           <ProfileCard profile={userProfile} />
-          <NudgePanel nudges={nudges} markAsRead={markNudgeAsRead} />
-          <FeelGoodCorner />
         </div>
       </div>
-    </motion.div>
+
+      {/* Redesigned Dashboard Overview */}
+      <RedesignedDashboardOverview />
+
+      {/* Nudges Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+        <div>
+          <NudgePanel nudges={nudges} markAsRead={markNudgeAsRead} />
+        </div>
+      </div>
+    </div>
   );
 }

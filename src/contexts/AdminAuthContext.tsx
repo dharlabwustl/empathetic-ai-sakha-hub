@@ -1,121 +1,79 @@
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { useToast } from '@/hooks/use-toast';
-import { AdminUser } from '@/types/admin';
+import React, { createContext, useState, useEffect, ReactNode, useContext } from 'react';
+
+interface AdminUser {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+}
 
 interface AdminAuthContextProps {
-  adminUser: AdminUser | null;
   isAuthenticated: boolean;
-  isLoading: boolean;
-  login: (username: string, password: string) => Promise<boolean>;
+  user: AdminUser | null;
+  login: (email: string, password: string) => Promise<void>;
   logout: () => void;
 }
 
-const AdminAuthContext = createContext<AdminAuthContextProps | undefined>(undefined);
+export const AdminAuthContext = createContext<AdminAuthContextProps>({
+  isAuthenticated: false,
+  user: null,
+  login: async () => {},
+  logout: () => {}
+});
 
-export const AdminAuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [adminUser, setAdminUser] = useState<AdminUser | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const { toast } = useToast();
+export const useAdminAuth = () => useContext(AdminAuthContext);
+
+interface AdminAuthProviderProps {
+  children: ReactNode;
+}
+
+export const AdminAuthProvider = ({ children }: AdminAuthProviderProps) => {
+  const [user, setUser] = useState<AdminUser | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check if admin is logged in
-    const checkAdminAuth = () => {
-      const adminData = localStorage.getItem('adminUser');
-      if (adminData) {
-        try {
-          const admin = JSON.parse(adminData);
-          setAdminUser(admin);
-        } catch (error) {
-          console.error('Error parsing admin user data:', error);
-          localStorage.removeItem('adminUser');
-        }
+    // Check for existing session
+    const checkAuth = () => {
+      // For development purposes, always authenticated
+      if (process.env.NODE_ENV === 'development') {
+        setUser({
+          id: '1',
+          name: 'Admin User',
+          email: 'admin@example.com',
+          role: 'admin'
+        });
       }
-      setIsLoading(false);
+      setLoading(false);
     };
-
-    checkAdminAuth();
+    
+    checkAuth();
   }, []);
 
-  const login = async (username: string, password: string): Promise<boolean> => {
-    setIsLoading(true);
-    
-    try {
-      // In a real app, this would be an API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Mock authentication logic
-      if (username === 'admin@example.com' && password === 'admin123') {
-        const admin: AdminUser = {
-          id: '1',
-          username: 'admin',
-          email: username,
-          role: 'admin',
-          permissions: ['read', 'write', 'delete']
-        };
-        
-        setAdminUser(admin);
-        localStorage.setItem('adminUser', JSON.stringify(admin));
-        
-        toast({
-          title: 'Login Successful',
-          description: 'Welcome to the admin dashboard',
-        });
-        
-        return true;
-      } else {
-        toast({
-          variant: 'destructive',
-          title: 'Login Failed',
-          description: 'Invalid credentials',
-        });
-        
-        return false;
-      }
-    } catch (error) {
-      console.error('Admin login error:', error);
-      
-      toast({
-        variant: 'destructive',
-        title: 'Login Failed',
-        description: 'An error occurred during login',
-      });
-      
-      return false;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const logout = () => {
-    setAdminUser(null);
-    localStorage.removeItem('adminUser');
-    
-    toast({
-      title: 'Logged Out',
-      description: 'You have been logged out of the admin panel',
+  const login = async (email: string, password: string) => {
+    // Mock login
+    setUser({
+      id: '1',
+      name: 'Admin User',
+      email: email,
+      role: 'admin'
     });
   };
 
+  const logout = () => {
+    setUser(null);
+  };
+
   return (
-    <AdminAuthContext.Provider value={{ 
-      adminUser, 
-      isAuthenticated: !!adminUser, 
-      isLoading, 
-      login, 
-      logout 
-    }}>
+    <AdminAuthContext.Provider
+      value={{
+        isAuthenticated: !!user,
+        user,
+        login,
+        logout
+      }}
+    >
       {children}
     </AdminAuthContext.Provider>
   );
-};
-
-export const useAdminAuth = (): AdminAuthContextProps => {
-  const context = useContext(AdminAuthContext);
-  
-  if (context === undefined) {
-    throw new Error('useAdminAuth must be used within an AdminAuthProvider');
-  }
-  
-  return context;
 };

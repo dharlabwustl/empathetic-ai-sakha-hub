@@ -21,18 +21,32 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // Login function
   const login = async (email: string, password: string): Promise<boolean> => {
     setIsLoading(true);
-    const success = await handleLogin(email, password);
-    
-    if (success) {
-      // Update local state after successful login
-      const currentUser = authService.getCurrentUser();
-      if (currentUser) {
-        setUser(currentUser);
+    try {
+      const success = await handleLogin(email, password);
+      
+      if (success) {
+        // Update local state after successful login
+        const currentUser = authService.getCurrentUser();
+        if (currentUser) {
+          setUser(currentUser);
+          
+          // Store last login time
+          const userData = localStorage.getItem("userData") ? 
+            JSON.parse(localStorage.getItem("userData")!) : {};
+          
+          userData.lastLoginTime = new Date().toISOString();
+          userData.isReturningUser = true;
+          localStorage.setItem("userData", JSON.stringify(userData));
+        }
       }
+      
+      setIsLoading(false);
+      return success;
+    } catch (error) {
+      console.error("Login error:", error);
+      setIsLoading(false);
+      return false;
     }
-    
-    setIsLoading(false);
-    return success;
   };
 
   // Admin login function
@@ -68,6 +82,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const currentUser = authService.getCurrentUser();
       if (currentUser) {
         setUser(currentUser);
+        
+        // Initialize user data for first-time users
+        const userData = {
+          isNewUser: true,
+          completedOnboarding: false,
+          sawWelcomeTour: false,
+          firstLogin: new Date().toISOString(),
+          lastLoginTime: new Date().toISOString()
+        };
+        localStorage.setItem("userData", JSON.stringify(userData));
       }
     }
     

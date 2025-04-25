@@ -1,200 +1,100 @@
 
-export enum UserRole {
-  Student = "student",
-  Tutor = "tutor",
-  Parent = "parent",
-  Admin = "admin",
-  Doctor = "doctor",
-  Employee = "employee",
-  Founder = "founder",
-  SchoolAdmin = "school_admin",
-  Guest = "guest"
-}
-
-export type MoodType = 'sad' | 'neutral' | 'happy' | 'motivated' | 'overwhelmed' | 'tired' | 'focused' | 'curious' | 'stressed' | 'okay';
-
-export type PersonalityType = 'analytical' | 'creative' | 'practical' | 'social' | 'independent';
-
-export interface SubjectProgress {
-  id: string;
-  name: string;
-  percentageComplete: number;
-  lastStudied: string;
-}
-
-export interface StudyStreak {
-  currentStreak: number;
-  longestStreak: number;
-}
-
-export interface KpiData {
-  label: string;
-  value: number | string;
-  trend?: "up" | "down" | "neutral";
-  percentageChange?: number;
-}
-
-export interface NudgeData {
-  id: string;
-  title: string;
-  description: string;
-  ctaText: string;
-  ctaLink: string;
-  isRead: boolean;
-}
-
-export interface StudyMetrics {
-  totalConceptCards: number;
-  flashcardsToComplete: number;
-  practiceExams: number;
-  averageQuizScore: number;
-  averageRecallAccuracy: number;
-  totalConceptsCompleted: number;
-}
-
-export interface SubjectMetrics {
-  subject: string;
-  priority: 'High' | 'Medium' | 'Low';
-  concepts: {
-    completed: number;
-    total: number;
-  };
-  flashcards: {
-    completed: number;
-    total: number;
-  };
-  practiceTests: {
-    completed: number;
-    total: number;
-  };
-  status: 'completed' | 'in-progress' | 'need-attention';
-}
-
-export interface StudyPlanMetrics {
-  dailyStudyTarget: number;
-  conceptsPerDay: number;
-  flashcardsPerDay: number;
-  practiceTestsPerWeek: number;
-}
-
-export interface RevisionMetrics {
-  pendingReviewConcepts: number;
-  lowRetentionFlashcards: number;
-  flaggedForRevisit: number;
-  nextWeeklyTarget: string;
-  nextPracticeExam: {
-    topic: string;
-    date: string;
-  };
-  performanceCheckIn: string;
+export interface UserSubscription {
+  planId: string;
+  planType: SubscriptionType;
+  batchCode?: string;
+  batchName?: string;
+  startDate?: string;
+  endDate?: string;
+  role?: "member" | "leader" | "school_admin" | "corporate_admin";
 }
 
 export interface UserProfileType {
   id: string;
-  name: string;
   email: string;
+  name: string;
   role: UserRole;
   bio?: string;
   avatar?: string;
-  subjects?: string[];
-  createdAt?: string;
-  updatedAt?: string;
-  completedOnboarding?: boolean;
-  loginCount?: number;
-  examPreparation?: string;
+  personalityType?: string;
   goals?: {
     id: string;
     title: string;
-    progress: number;
+    description?: string;
+    progress?: number;
+    status?: "completed" | "in-progress" | "not-started";
+    dueDate?: string;
+    targetDate?: Date;
   }[];
-  lastActivity?: {
-    type: string;
-    description: string;
+  areasOfInterest?: {
+    id: string;
+    name: string;
+    level?: string;
+  }[];
+  subscription?: SubscriptionType | UserSubscription;
+  joinDate?: string;
+  lastActive?: string;
+  gender?: "male" | "female" | "other";
+  phoneNumber?: string;
+  examPreparation?: string;
+  loginCount?: number;
+  completedOnboarding?: boolean;
+  address?: {
+    street?: string;
+    city?: string;
+    state?: string;
+    zipCode?: string;
+    country?: string;
   };
-  suggestedNextAction?: string;
-  mood?: MoodType;
-  studyMetrics?: StudyMetrics;
-  subjectMetrics?: SubjectMetrics[];
-  studyPlanMetrics?: StudyPlanMetrics;
-  revisionMetrics?: RevisionMetrics;
+  education?: {
+    level?: string;
+    institution?: string;
+    fieldOfStudy?: string;
+    graduationYear?: number;
+  };
 }
 
-// New types for the concept cards section
-export interface ConceptCardItem {
+export enum UserRole {
+  Student = "student",
+  Teacher = "teacher",
+  Parent = "parent",
+  Admin = "admin",
+  Employee = "employee",
+  Doctor = "doctor",
+  Founder = "founder"
+}
+
+export type MoodType = 
+  | "happy"
+  | "sad"
+  | "tired"
+  | "motivated"
+  | "focused"
+  | "stressed"
+  | "overwhelmed"
+  | "curious"
+  | "neutral"
+  | "okay";
+
+export enum SubscriptionType {
+  Free = "free",
+  Basic = "basic",
+  Premium = "premium",
+  Enterprise = "enterprise",
+  School = "school",
+  Corporate = "corporate"
+}
+
+export interface SubscriptionPlan {
   id: string;
-  title: string;
-  description: string;
-  subject: string;
-  topic: string;
-  difficulty: 'easy' | 'medium' | 'hard' | 'advanced';
-  priority: 'high' | 'medium' | 'low';
-  status: 'completed' | 'in-progress' | 'pending';
-  timeAllocation: number; // in minutes
-  hasAudioNarration?: boolean;
-  hasNotes?: boolean;
-  isBookmarked?: boolean;
-  progress?: number; // 0-100
-  tags?: string[];
-  completion?: {
-    date?: string;
-    score?: number;
-  };
+  name: string;
+  price: number;
+  features: string[];
+  isPopular?: boolean;
+  description?: string;
+  type: SubscriptionType;
+  maxMembers?: number;
 }
 
-export interface ConceptTimeframe {
-  daily: ConceptCardItem[];
-  weekly: ConceptCardItem[];
-  monthly: ConceptCardItem[];
-}
-
-export interface SubjectPlan {
-  subject: string;
-  tasks: SubjectTask[];
-}
-
-export interface SubjectTask {
-  id: string;
-  type: 'concept' | 'flashcard' | 'practice';
-  title: string;
-  status: 'completed' | 'pending' | 'in-progress';
-  timeEstimate?: number; // in minutes
-  details?: {
-    questionCount?: number;
-    duration?: number;
-  };
-}
-
-export interface HistoryEntry {
-  date: string;
-  concepts: { completed: number; total: number };
-  flashcards: { completed: number; total: number };
-  practice: { completed: number; total: number };
-  status: 'done' | 'incomplete' | 'pending';
-}
-
-export interface TimeAllocationItem {
-  task: string;
-  time: number;
-}
-
-export interface SubjectBreakdown {
-  subject: string;
-  count: number;
-}
-
-export interface ConceptsOverview {
-  total: number;
-  completed: number;
-  inProgress: number;
-  pending: number;
-  subjectBreakdown: SubjectBreakdown[];
-}
-
-export interface MonthlyConceptSummary {
-  subject: string;
-  totalConcepts: number;
-  completed: number;
-  inProgress: number;
-  pending: number;
-}
-
+// Changed to type string
+export type PersonalityType = string;
