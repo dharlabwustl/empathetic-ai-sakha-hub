@@ -21,7 +21,8 @@ const RedesignedDashboardOverview = () => {
       concepts: { done: 45, total: 60 },
       quizAverage: 85,
       flashcardAccuracy: 78,
-      status: 'in-progress'
+      status: 'in-progress',
+      lastUpdated: new Date().toISOString()
     },
     { 
       name: 'Science', 
@@ -29,7 +30,8 @@ const RedesignedDashboardOverview = () => {
       concepts: { done: 55, total: 55 },
       quizAverage: 92,
       flashcardAccuracy: 89,
-      status: 'completed'
+      status: 'completed',
+      lastUpdated: new Date().toISOString()
     },
     { 
       name: 'History', 
@@ -37,7 +39,8 @@ const RedesignedDashboardOverview = () => {
       concepts: { done: 20, total: 40 },
       quizAverage: 75,
       flashcardAccuracy: 68,
-      status: 'need-attention'
+      status: 'need-attention',
+      lastUpdated: new Date().toISOString()
     }
   ];
 
@@ -85,13 +88,14 @@ const RedesignedDashboardOverview = () => {
             {conceptCards.filter(card => card.completed).length}/{conceptCards.length} Concepts Completed
           </div>
         </div>
+
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="p-4 bg-violet-50 rounded-lg hover:bg-violet-100 transition-colors">
-            <p className="text-sm text-gray-600">Enrolled Subjects</p>
+            <p className="text-sm text-gray-600">Total Subjects</p>
             <p className="text-2xl font-bold text-violet-700">{subjects.length}</p>
           </div>
           <div className="p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
-            <p className="text-sm text-gray-600">Total Concept Cards</p>
+            <p className="text-sm text-gray-600">Concept Cards</p>
             <p className="text-2xl font-bold text-blue-700">
               {subjects.reduce((acc, subj) => acc + subj.concepts.total, 0)}
             </p>
@@ -103,17 +107,16 @@ const RedesignedDashboardOverview = () => {
             </p>
           </div>
           <div className="p-4 bg-amber-50 rounded-lg hover:bg-amber-100 transition-colors">
-            <p className="text-sm text-gray-600">Flashcard Accuracy</p>
+            <p className="text-sm text-gray-600">Overall Accuracy</p>
             <p className="text-2xl font-bold text-amber-700">
               {Math.round(subjects.reduce((acc, subj) => acc + subj.flashcardAccuracy, 0) / subjects.length)}%
             </p>
           </div>
         </div>
+
         <div className="mt-4 flex justify-end">
           <Button className="bg-blue-600 hover:bg-blue-700" asChild>
-            <Link to="/dashboard/student/concepts/all">
-              View All Concepts
-            </Link>
+            <Link to="/dashboard/student/concepts/all">View All Concepts</Link>
           </Button>
         </div>
       </Card>
@@ -132,6 +135,7 @@ const RedesignedDashboardOverview = () => {
                 <th className="pb-2">Concepts</th>
                 <th className="pb-2">Quiz Average</th>
                 <th className="pb-2">Flashcard Accuracy</th>
+                <th className="pb-2">Last Updated</th>
                 <th className="pb-2">Status</th>
               </tr>
             </thead>
@@ -150,7 +154,7 @@ const RedesignedDashboardOverview = () => {
                   <td>
                     <div className="flex items-center gap-2">
                       <span className="text-sm">
-                        {subject.concepts.done} / {subject.concepts.total}
+                        {subject.concepts.done}/{subject.concepts.total}
                       </span>
                       <Progress 
                         value={(subject.concepts.done / subject.concepts.total) * 100} 
@@ -163,10 +167,7 @@ const RedesignedDashboardOverview = () => {
                       <span className="text-sm font-medium">
                         {subject.quizAverage}%
                       </span>
-                      <Progress 
-                        value={subject.quizAverage} 
-                        className="w-20" 
-                      />
+                      <Progress value={subject.quizAverage} className="w-20" />
                     </div>
                   </td>
                   <td>
@@ -174,11 +175,13 @@ const RedesignedDashboardOverview = () => {
                       <span className="text-sm font-medium">
                         {subject.flashcardAccuracy}%
                       </span>
-                      <Progress 
-                        value={subject.flashcardAccuracy} 
-                        className="w-20" 
-                      />
+                      <Progress value={subject.flashcardAccuracy} className="w-20" />
                     </div>
+                  </td>
+                  <td>
+                    <span className="text-sm text-gray-600">
+                      {new Date(subject.lastUpdated).toLocaleDateString()}
+                    </span>
                   </td>
                   <td>
                     <span className="flex items-center gap-1">
