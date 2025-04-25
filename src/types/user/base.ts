@@ -1,29 +1,45 @@
-
 export enum UserRole {
-  Student = 'student',
-  Employee = 'employee',
-  Doctor = 'doctor',
-  Founder = 'founder',
-  Admin = 'admin'
+  Student = "student",
+  Tutor = "tutor",
+  Parent = "parent",
+  Admin = "admin",
+  Doctor = "doctor",
+  Employee = "employee",
+  Founder = "founder",
+  SchoolAdmin = "school_admin",
+  Guest = "guest"
 }
 
-export enum SubscriptionType {
-  Free = 'free',
-  Basic = 'basic',
-  Premium = 'premium',
-  Enterprise = 'enterprise',
-  School = 'school',
-  Corporate = 'corporate'
-}
+export type MoodType = 'sad' | 'neutral' | 'happy' | 'motivated' | 'overwhelmed' | 'tired' | 'focused' | 'curious' | 'stressed' | 'okay';
 
-export interface UserSubscription {
+export type PersonalityType = 'analytical' | 'creative' | 'practical' | 'social' | 'independent';
+
+export interface SubjectProgress {
   id: string;
-  userId: string;
-  planType: SubscriptionType;
-  startDate: string;
-  endDate: string;
-  status: 'active' | 'inactive' | 'cancelled';
-  autoRenew: boolean;
+  name: string;
+  percentageComplete: number;
+  lastStudied: string;
+}
+
+export interface StudyStreak {
+  currentStreak: number;
+  longestStreak: number;
+}
+
+export interface KpiData {
+  label: string;
+  value: number | string;
+  trend?: "up" | "down" | "neutral";
+  percentageChange?: number;
+}
+
+export interface NudgeData {
+  id: string;
+  title: string;
+  description: string;
+  ctaText: string;
+  ctaLink: string;
+  isRead: boolean;
 }
 
 export interface UserProfileType {
@@ -31,14 +47,23 @@ export interface UserProfileType {
   name: string;
   email: string;
   role: UserRole;
+  bio?: string;
   avatar?: string;
-  subscription?: UserSubscription;
-  joinDate?: string;
-  personalityType?: string;
+  subjects?: string[];
+  createdAt?: string;
+  updatedAt?: string;
+  completedOnboarding?: boolean;
   loginCount?: number;
-  goals?: Array<{
+  examPreparation?: string;
+  goals?: {
     id: string;
     title: string;
     progress: number;
-  }>;
+  }[];
+  lastActivity?: {
+    type: string;
+    description: string;
+  };
+  suggestedNextAction?: string;
+  mood?: MoodType;
 }

@@ -2,22 +2,9 @@
 import React from 'react';
 import { UserProfileType } from "@/types/user";
 import { Card } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
 import {
   Book,
   Zap,
-  Brain,
-  Repeat,
-  TestTube,
-  ChartBar,
-  Check,
-  CalendarDays,
-  Clock,
-  ListTodo,
-  ChartLine,
-  RefreshCcw,
-  Flag,
-  Compass
 } from 'lucide-react';
 import { StudyMetricsGrid } from './StudyMetricsGrid';
 import { SubjectBreakdown } from './SubjectBreakdown';
