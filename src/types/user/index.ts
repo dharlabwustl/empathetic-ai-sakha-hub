@@ -7,7 +7,7 @@ export * from './professional';
 export * from './onboarding';
 export * from './institutional';
 
-// Add system log types to fix the type error
+// Add system log types that match the structure in admin/systemLog.d.ts
 export interface SystemLog {
   id: string;
   timestamp: string;
