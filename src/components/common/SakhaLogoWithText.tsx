@@ -10,7 +10,7 @@ const SakhaLogoWithText: React.FC<SakhaLogoWithTextProps> = ({ className = "" })
   return (
     <Link to="/" className={`flex items-center gap-2 ${className}`}>
       <img
-        src="/lovable-uploads/f294ea8b-7f79-4425-9971-8ecd365d9c42.png"
+        src="/lovable-uploads/ffd1ed0a-7a25-477e-bc91-1da9aca3497f.png"
         alt="Sakha AI"
         className="w-10 h-10"
       />

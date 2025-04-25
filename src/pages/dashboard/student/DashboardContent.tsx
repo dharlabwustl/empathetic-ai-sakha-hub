@@ -1,11 +1,10 @@
+
 import React from 'react';
 import { UserProfileType } from "@/types/user";
 import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
 import { generateTabContents } from "@/components/dashboard/student/TabContentManager";
 import DashboardTabs from "@/components/dashboard/student/DashboardTabs";
 import ReturnUserRecap from "@/components/dashboard/student/ReturnUserRecap";
-import WeeklyPlan from '@/components/dashboard/student/WeeklyPlan';
-import TodaysPlan from '@/components/dashboard/student/TodaysPlan';
 
 interface DashboardTabsProps {
   activeTab: string;
@@ -49,8 +48,8 @@ const DashboardContent = ({
     Boolean(userProfile.loginCount && userProfile.loginCount > 1 && lastActivity)
   );
 
-  // Generate tab contents
-  const standardTabContents = generateTabContents({
+  // Generate tab contents once
+  const tabContents = generateTabContents({
     userProfile,
     kpis,
     nudges,
@@ -62,29 +61,6 @@ const DashboardContent = ({
     lastActivity,
     suggestedNextAction
   });
-  
-  // Add custom tabs
-  const tabContents = {
-    ...standardTabContents,
-    "weekly-plan": (
-      <div className="space-y-4">
-        <h2 className="text-2xl font-bold">Weekly Study Plan</h2>
-        <p className="text-gray-500">
-          Your personalized weekly plan based on your exam goal and subject strengths.
-        </p>
-        <WeeklyPlan />
-      </div>
-    ),
-    "todays-plan": (
-      <div className="space-y-4">
-        <h2 className="text-2xl font-bold">Today's Study Plan</h2>
-        <p className="text-gray-500">
-          Complete your daily study tasks to stay on track with your goals.
-        </p>
-        <TodaysPlan />
-      </div>
-    )
-  };
   
   // Handle closing the recap
   const handleCloseRecap = () => {
@@ -109,7 +85,7 @@ const DashboardContent = ({
         <DashboardTabs 
           activeTab={activeTab} 
           onTabChange={onTabChange} 
-          tabContents={tabContents}
+          tabContents={tabContents} // Pass tabContents to avoid regenerating
         />
       )}
 

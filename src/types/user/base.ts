@@ -1,87 +1,100 @@
 
-export type UserRole = "student" | "employee" | "doctor" | "founder" | "admin";
+export interface UserSubscription {
+  planId: string;
+  planType: SubscriptionType;
+  batchCode?: string;
+  batchName?: string;
+  startDate?: string;
+  endDate?: string;
+  role?: "member" | "leader" | "school_admin" | "corporate_admin";
+}
+
+export interface UserProfileType {
+  id: string;
+  email: string;
+  name: string;
+  role: UserRole;
+  bio?: string;
+  avatar?: string;
+  personalityType?: string;
+  goals?: {
+    id: string;
+    title: string;
+    description?: string;
+    progress?: number;
+    status?: "completed" | "in-progress" | "not-started";
+    dueDate?: string;
+    targetDate?: Date;
+  }[];
+  areasOfInterest?: {
+    id: string;
+    name: string;
+    level?: string;
+  }[];
+  subscription?: SubscriptionType | UserSubscription;
+  joinDate?: string;
+  lastActive?: string;
+  gender?: "male" | "female" | "other";
+  phoneNumber?: string;
+  examPreparation?: string;
+  loginCount?: number;
+  completedOnboarding?: boolean;
+  address?: {
+    street?: string;
+    city?: string;
+    state?: string;
+    zipCode?: string;
+    country?: string;
+  };
+  education?: {
+    level?: string;
+    institution?: string;
+    fieldOfStudy?: string;
+    graduationYear?: number;
+  };
+}
+
+export enum UserRole {
+  Student = "student",
+  Teacher = "teacher",
+  Parent = "parent",
+  Admin = "admin",
+  Employee = "employee",
+  Doctor = "doctor",
+  Founder = "founder"
+}
 
 export type MoodType = 
-  | "happy" 
-  | "neutral" 
-  | "sad" 
-  | "motivated" 
-  | "focused"
+  | "happy"
+  | "sad"
   | "tired"
+  | "motivated"
+  | "focused"
   | "stressed"
+  | "overwhelmed"
   | "curious"
-  | "okay"
-  | "overwhelmed";
+  | "neutral"
+  | "okay";
 
-export type PersonalityType = "analytical" | "creative" | "practical" | "social";
+export enum SubscriptionType {
+  Free = "free",
+  Basic = "basic",
+  Premium = "premium",
+  Enterprise = "enterprise",
+  School = "school",
+  Corporate = "corporate"
+}
 
-export type SubscriptionType = "free" | "basic" | "premium" | "ultimate";
-
-export interface UserSubscription {
-  plan: string;
-  status: string;
-  expiresAt: string;
+export interface SubscriptionPlan {
+  id: string;
+  name: string;
+  price: number;
   features: string[];
-}
-
-export interface UserGoal {
-  id: string;
-  title: string;
-  targetDate: string;
-  progress: number;
-  subjects?: string[];
-}
-
-export interface UserNotification {
-  id: string;
-  title: string;
-  message: string;
-  timestamp: string;
-  read: boolean;
-  type: "info" | "warning" | "success" | "error";
-  actionUrl?: string;
-}
-
-export interface UserPreferences {
-  theme: "light" | "dark" | "system";
-  emailNotifications: boolean;
-  pushNotifications: boolean;
-  studyReminders: boolean;
-}
-
-export interface UserActivity {
-  id: string;
-  type: string;
-  description: string;
-  timestamp: string;
-  subject?: string;
-  duration?: number;
-  score?: number;
-  completed: boolean;
-  url?: string;
-}
-
-// Add the missing KpiData type
-export interface KpiData {
-  title: string;
-  value: string | number;
-  change?: number;
-  trend?: "up" | "down" | "neutral";
+  isPopular?: boolean;
   description?: string;
-  icon?: React.ReactNode;
+  type: SubscriptionType;
+  maxMembers?: number;
 }
 
-// Add the missing NudgeData type with actionLabel and actionUrl
-export interface NudgeData {
-  id: string;
-  title: string;
-  message: string;
-  type: "info" | "warning" | "success" | "error";
-  action?: string;
-  actionLabel?: string;
-  actionUrl?: string;
-  read: boolean;
-}
-
-// Add DateFilterType
-export type DateFilterType = "today" | "week" | "month" | "all";
+// Changed to type string
+export type PersonalityType = string;

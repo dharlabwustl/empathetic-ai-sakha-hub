@@ -21,29 +21,6 @@ export const useAuthUtils = () => {
           title: 'Login successful',
           description: `Welcome back, ${response.data.name}!`,
         });
-        
-        // For returning users, update loginCount and last login timestamp
-        try {
-          const userData = localStorage.getItem('userData');
-          if (userData) {
-            const parsedData = JSON.parse(userData);
-            parsedData.loginCount = (parsedData.loginCount || 0) + 1;
-            parsedData.lastLogin = new Date().toISOString();
-            localStorage.setItem('userData', JSON.stringify(parsedData));
-          } else {
-            // Create initial user data if it doesn't exist
-            const newUserData = {
-              loginCount: 1,
-              lastLogin: new Date().toISOString(),
-              completedOnboarding: true,
-              sawWelcomeTour: false
-            };
-            localStorage.setItem('userData', JSON.stringify(newUserData));
-          }
-        } catch (error) {
-          console.error('Error updating user data:', error);
-        }
-        
         return true;
       } else {
         // For demo purposes, create a mock user if regular login fails
@@ -61,34 +38,6 @@ export const useAuthUtils = () => {
         
         // Save the mock user to auth service
         authService.setAuthData(mockUser);
-        
-        // Update user data for returning user simulation
-        try {
-          const userData = localStorage.getItem('userData');
-          if (userData) {
-            const parsedData = JSON.parse(userData);
-            parsedData.loginCount = (parsedData.loginCount || 0) + 1;
-            parsedData.lastLogin = new Date().toISOString();
-            localStorage.setItem('userData', JSON.stringify(parsedData));
-          } else {
-            // Create initial user data
-            const newUserData = {
-              loginCount: 1,
-              lastLogin: new Date().toISOString(),
-              completedOnboarding: true,
-              sawWelcomeTour: false,
-              // Add a mock last activity to demonstrate the welcome back dialog
-              lastActivity: {
-                type: 'concept',
-                description: 'Newton\'s Laws of Motion',
-                url: '/study/concept-card/physics-101'
-              }
-            };
-            localStorage.setItem('userData', JSON.stringify(newUserData));
-          }
-        } catch (error) {
-          console.error('Error updating user data:', error);
-        }
         
         toast({
           title: 'Login successful',
@@ -160,19 +109,6 @@ export const useAuthUtils = () => {
           title: 'Registration successful',
           description: `Welcome, ${name}!`,
         });
-        
-        // Initialize new user data
-        const newUserData = {
-          name,
-          email,
-          phoneNumber,
-          role,
-          loginCount: 1,
-          lastLogin: new Date().toISOString(),
-          completedOnboarding: false,
-          sawWelcomeTour: false
-        };
-        localStorage.setItem('userData', JSON.stringify(newUserData));
         
         console.log("AuthUtils - Registration complete, user set");
         return true;

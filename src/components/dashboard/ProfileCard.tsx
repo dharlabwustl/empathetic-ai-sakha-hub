@@ -1,268 +1,207 @@
 
-import React, { useState } from 'react';
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { UserProfileType } from "@/types/user";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { UserProfileType, MoodType } from "@/types/user/base";
-import { 
-  Upload, 
-  CreditCard, 
-  TrendingUp, 
-  Award, 
-  Calendar, 
-  Smile, 
-  Meh, 
-  Frown, 
-  Heart, 
-  ChevronDown,
-  ChevronUp,
-  Crown
-} from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
-
-interface SubscriptionTier {
-  name: string;
-  badge: string;
-  color: string;
-  expiresAt?: string;
-}
+import { Button } from "@/components/ui/button";
+import { Camera, Trophy, Users, Star } from "lucide-react";
+import { SubscriptionType, UserSubscription } from "@/types/user/base";
+import { useState } from "react";
 
 interface ProfileCardProps {
   profile: UserProfileType;
-  onUploadImage?: (file: File) => void;
   showPeerRanking?: boolean;
-  showSubscription?: boolean;
-  currentMood?: MoodType;
-  onMoodChange?: (mood: MoodType) => void;
-  className?: string;
+  onUploadImage?: (file: File) => void;
+  currentMood?: string;
 }
 
-const ProfileCard: React.FC<ProfileCardProps> = ({ 
+export default function ProfileCard({
   profile,
-  onUploadImage,
   showPeerRanking = false,
-  showSubscription = true,
-  currentMood,
-  onMoodChange,
-  className = ""
-}) => {
-  const [showBilling, setShowBilling] = useState(false);
-  
-  // Mock subscription data
-  const subscription: SubscriptionTier = {
-    name: "Premium Plan",
-    badge: "PREMIUM",
-    color: "text-amber-500 bg-amber-100 border-amber-200",
-    expiresAt: "2025-05-20"
+  onUploadImage,
+  currentMood
+}: ProfileCardProps) {
+  const fileInputRef = useState<HTMLInputElement | null>(null);
+  const [isHovering, setIsHovering] = useState(false);
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (files && files.length > 0 && onUploadImage) {
+      onUploadImage(files[0]);
+    }
   };
-  
-  const formatExpirationDate = (dateString?: string) => {
-    if (!dateString) return "Never";
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", { 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric' 
-    });
+
+  // Helper function to determine if subscription is an object or enum
+  const isSubscriptionObject = (
+    sub: SubscriptionType | UserSubscription | undefined
+  ): sub is UserSubscription => {
+    return typeof sub === "object" && sub !== null;
   };
-  
-  const handleAvatarClick = () => {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'image/*';
-    input.onchange = (e: Event) => {
-      const target = e.target as HTMLInputElement;
-      if (target.files && target.files[0] && onUploadImage) {
-        onUploadImage(target.files[0]);
-      }
+
+  // Get the subscription type, whether it's a direct enum or from an object
+  const getSubscriptionType = (
+    sub: SubscriptionType | UserSubscription | undefined
+  ): SubscriptionType => {
+    if (!sub) return SubscriptionType.Free;
+    if (isSubscriptionObject(sub)) {
+      return sub.planType;
+    }
+    return sub;
+  };
+
+  // Get the subscription plan name
+  const getSubscriptionPlanName = (): string => {
+    const subscriptionType = getSubscriptionType(profile.subscription);
+    
+    // Map subscription types to display names
+    const subscriptionDisplayNames: Record<SubscriptionType, string> = {
+      [SubscriptionType.Free]: "Free Plan",
+      [SubscriptionType.Basic]: "Basic Plan",
+      [SubscriptionType.Premium]: "Premium Plan",
+      [SubscriptionType.Enterprise]: "Enterprise Plan",
+      [SubscriptionType.School]: "School Plan",
+      [SubscriptionType.Corporate]: "Corporate Plan"
     };
-    input.click();
+    
+    // Use plan name from the map or fallback to subscription type
+    return subscriptionDisplayNames[subscriptionType] || String(subscriptionType);
   };
   
-  const toggleBillingSection = () => {
-    setShowBilling(!showBilling);
+  // Get badge color based on subscription
+  const getSubscriptionBadgeColor = (): string => {
+    const subscriptionType = getSubscriptionType(profile.subscription);
+    
+    // Map subscription types to badge colors
+    const badgeColors: Record<SubscriptionType, string> = {
+      [SubscriptionType.Free]: "bg-gray-500 hover:bg-gray-600",
+      [SubscriptionType.Basic]: "bg-blue-500 hover:bg-blue-600",
+      [SubscriptionType.Premium]: "bg-purple-500 hover:bg-purple-600",
+      [SubscriptionType.Enterprise]: "bg-amber-500 hover:bg-amber-600",
+      [SubscriptionType.School]: "bg-green-500 hover:bg-green-600",
+      [SubscriptionType.Corporate]: "bg-indigo-500 hover:bg-indigo-600"
+    };
+    
+    // Use color from the map or fallback to gray
+    return badgeColors[subscriptionType] || "bg-gray-500 hover:bg-gray-600";
   };
-  
-  const handleMoodSelection = (mood: MoodType) => {
-    if (onMoodChange) {
-      onMoodChange(mood);
-    }
+
+  // Get formatted join date
+  const getJoinDate = (): string => {
+    return profile.joinDate
+      ? new Date(profile.joinDate).toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric'
+        })
+      : 'N/A';
   };
-  
-  const getMoodIcon = (mood: MoodType) => {
-    switch (mood) {
-      case 'happy':
-        return <Smile className="h-5 w-5 text-green-500" />;
-      case 'neutral':
-        return <Meh className="h-5 w-5 text-amber-500" />;
-      case 'sad':
-        return <Frown className="h-5 w-5 text-red-500" />;
-      case 'motivated':
-        return <Heart className="h-5 w-5 text-pink-500" />;
-      default:
-        return <Meh className="h-5 w-5 text-gray-500" />;
-    }
-  };
-  
+
   return (
-    <Card className={`overflow-hidden ${className}`}>
-      <div className="bg-gradient-to-r from-indigo-500 to-violet-600 h-20 relative">
-        {showSubscription && subscription && (
-          <div className="absolute top-3 right-3">
-            <Badge className={`font-bold ${subscription.color}`}>
-              <Crown className="h-3 w-3 mr-1" />
-              {subscription.badge}
-            </Badge>
-          </div>
-        )}
-      </div>
-      
-      <div className="relative px-6">
-        <div className="absolute -top-12 left-6">
-          <Avatar 
-            className="h-24 w-24 border-4 border-white dark:border-gray-900 rounded-full relative group"
-            onClick={handleAvatarClick}
+    <Card className="h-full">
+      <CardHeader className="pb-2">
+        <CardTitle className="text-xl font-semibold flex justify-between items-center">
+          <span>Profile</span>
+          <Badge className={`${getSubscriptionBadgeColor()} text-white`}>
+            {getSubscriptionPlanName()}
+          </Badge>
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="flex flex-col items-center pb-3 relative">
+          <div
+            className="relative"
+            onMouseEnter={() => setIsHovering(true)}
+            onMouseLeave={() => setIsHovering(false)}
           >
-            <AvatarImage src={profile.avatar} alt={profile.name} className="object-cover" />
-            <AvatarFallback className="text-2xl bg-indigo-100 text-indigo-800">
-              {profile.name.charAt(0).toUpperCase()}
-            </AvatarFallback>
+            <Avatar className="w-24 h-24 border-4 border-white shadow-lg">
+              <AvatarImage src={profile.avatar || ""} />
+              <AvatarFallback className="text-2xl">
+                {profile.name
+                  ? profile.name
+                      .split(" ")
+                      .map((n) => n[0])
+                      .join("")
+                      .toUpperCase()
+                  : "?"}
+              </AvatarFallback>
+            </Avatar>
             
             {onUploadImage && (
-              <div className="absolute inset-0 bg-black/30 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                <Upload className="h-6 w-6 text-white" />
-              </div>
+              <>
+                <input
+                  type="file"
+                  ref={(el) => {
+                    if (fileInputRef) fileInputRef[1](el);
+                  }}
+                  onChange={handleFileUpload}
+                  className="hidden"
+                  accept="image/*"
+                />
+                <Button
+                  onClick={() => fileInputRef[0]?.click()}
+                  size="icon"
+                  variant="secondary"
+                  className={`absolute bottom-0 right-0 rounded-full shadow-md transition-opacity ${
+                    isHovering ? "opacity-100" : "opacity-0"
+                  }`}
+                >
+                  <Camera size={16} />
+                </Button>
+              </>
             )}
-          </Avatar>
-        </div>
-      </div>
-      
-      <CardContent className="pt-14 pb-4">
-        <div className="flex flex-col gap-1 mb-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold">{profile.name}</h2>
-            
-            {currentMood && (
-              <div className="flex items-center gap-1 text-sm">
-                {getMoodIcon(currentMood)}
-                <span className="capitalize">{currentMood}</span>
-              </div>
-            )}
           </div>
+
+          <h3 className="font-medium text-lg mt-2">{profile.name}</h3>
+          <p className="text-muted-foreground text-sm">{profile.email}</p>
           
-          <p className="text-sm text-gray-600 dark:text-gray-400">
-            {profile.goals?.[0]?.title || "Student"}
-          </p>
-        </div>
-        
-        {/* Stats and badges */}
-        <div className="grid grid-cols-2 gap-2 mb-4">
-          <div className="p-2 bg-gray-50 dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700">
-            <div className="flex items-center">
-              <Calendar className="h-4 w-4 text-indigo-500 mr-2" />
-              <span className="text-xs text-gray-600 dark:text-gray-400">Joined</span>
-            </div>
-            <p className="font-semibold">{profile.joinDate || "2023"}</p>
-          </div>
-          
-          <div className="p-2 bg-gray-50 dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700">
-            <div className="flex items-center">
-              <Award className="h-4 w-4 text-indigo-500 mr-2" />
-              <span className="text-xs text-gray-600 dark:text-gray-400">Streaks</span>
-            </div>
-            <p className="font-semibold">{profile.streak || "0"} days</p>
-          </div>
+          {currentMood && (
+            <Badge variant="outline" className="mt-2">
+              Mood: {currentMood}
+            </Badge>
+          )}
           
           {showPeerRanking && (
-            <div className="p-2 bg-gray-50 dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700 col-span-2">
-              <div className="flex items-center">
-                <TrendingUp className="h-4 w-4 text-indigo-500 mr-2" />
-                <span className="text-xs text-gray-600 dark:text-gray-400">Peer Ranking</span>
-              </div>
-              <p className="font-semibold">Top {profile.peerRanking || "15"}%</p>
+            <div className="flex items-center mt-2 text-amber-500">
+              <Trophy size={16} className="mr-1" />
+              <span className="text-sm">
+                Top 15% in your peer group
+              </span>
             </div>
           )}
         </div>
         
-        {/* Subscription information */}
-        {showSubscription && (
-          <>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="w-full flex items-center justify-between" 
-              onClick={toggleBillingSection}
-            >
-              <span className="flex items-center">
-                <CreditCard className="h-4 w-4 mr-2" />
-                {showBilling ? "Hide Billing Info" : "View Billing Info"}
-              </span>
-              {showBilling ? 
-                <ChevronUp className="h-4 w-4" /> : 
-                <ChevronDown className="h-4 w-4" />
-              }
-            </Button>
-            
-            <AnimatePresence>
-              {showBilling && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: "auto", opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.3 }}
-                  className="overflow-hidden"
-                >
-                  <div className="pt-4 space-y-3">
-                    <div className="p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/30 rounded-md">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-sm font-medium">Current Plan</p>
-                          <p className="text-lg font-bold text-amber-700 dark:text-amber-400">{subscription.name}</p>
-                        </div>
-                        <Badge className={subscription.color}>Active</Badge>
-                      </div>
-                      <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-                        Expires: {formatExpirationDate(subscription.expiresAt)}
-                      </div>
-                    </div>
-                    
-                    <Button variant="default" className="w-full bg-gradient-to-r from-amber-500 to-orange-600">
-                      Upgrade Plan
-                    </Button>
-                    
-                    <Button variant="outline" size="sm" className="w-full">
-                      Manage Subscription
-                    </Button>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </>
-        )}
-        
-        {/* Mood selection */}
-        {onMoodChange && (
-          <div className="mt-4">
-            <p className="text-sm font-medium mb-2">How are you feeling today?</p>
-            <div className="flex justify-between">
-              {(['sad', 'neutral', 'happy', 'motivated'] as MoodType[]).map((mood) => (
-                <Button
-                  key={mood}
-                  variant={currentMood === mood ? "default" : "ghost"}
-                  size="sm"
-                  className={`px-2 ${currentMood === mood ? 'bg-indigo-500' : ''}`}
-                  onClick={() => handleMoodSelection(mood)}
-                >
-                  {getMoodIcon(mood)}
-                </Button>
-              ))}
-            </div>
+        <div className="border-t pt-3 space-y-2">
+          <div className="flex justify-between items-center">
+            <span className="text-muted-foreground text-sm">Role</span>
+            <span className="font-medium">{profile.role}</span>
           </div>
-        )}
+          
+          <div className="flex justify-between items-center">
+            <span className="text-muted-foreground text-sm">Joined</span>
+            <span>{getJoinDate()}</span>
+          </div>
+
+          {profile.personalityType && (
+            <div className="flex justify-between items-center">
+              <span className="text-muted-foreground text-sm">Personality</span>
+              <span>{profile.personalityType}</span>
+            </div>
+          )}
+          
+          {profile.goals && profile.goals.length > 0 && (
+            <div className="flex justify-between items-center">
+              <span className="text-muted-foreground text-sm">Goal</span>
+              <span>{profile.goals[0].title}</span>
+            </div>
+          )}
+          
+          <div className="flex justify-between items-center pt-1">
+            <Button variant="outline" size="sm" className="w-full">
+              <Users size={16} className="mr-2" /> View Full Profile
+            </Button>
+          </div>
+        </div>
       </CardContent>
     </Card>
   );
-};
-
-export default ProfileCard;
+}

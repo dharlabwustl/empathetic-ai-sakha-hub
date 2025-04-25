@@ -1,28 +1,62 @@
 
-export interface SystemLog {
-  id: string;
-  timestamp: string;
-  level: 'info' | 'warning' | 'error';
-  message: string;
-  source: string;
-  details: string;
-  resolved?: boolean;
-}
+// Re-export StudentData from studentData.ts to ensure consistency
+export * from './studentData';
+export * from './systemLog';
 
+// Admin User Interface
 export interface AdminUser {
   id: string;
-  name: string;
+  username: string;
   email: string;
-  role: string;
+  role: 'admin' | 'super_admin' | 'support';
   permissions: string[];
 }
 
+// Admin Settings Interface
+export interface AdminSettings {
+  id: string;
+  userId: string;
+  theme: 'light' | 'dark' | 'system';
+  notifications: boolean;
+  emailAlerts: boolean;
+  defaultView: string;
+  preferences: Record<string, any>;
+}
+
+// Admin Dashboard Stats Interface
 export interface AdminDashboardStats {
-  totalUsers: number;
-  activeUsers: number;
-  newUsers: number;
-  totalRevenue: number;
-  conversionRate: number;
-  averageSessionTime: number;
-  topFeatures: { name: string; usage: number }[];
+  totalStudents: number;
+  activeStudents: number;
+  studentsWithConsistentHabits: number;
+  averageMoodScore: number;
+  studyPlanEfficiencyImprovement: number;
+  averageConfidenceScore: number;
+  totalSessions: number;
+  moodBasedSessionsCount: number;
+  studentsWithMoodTracking: number;
+  
+  // New KPIs for admin dashboard
+  dailyActiveUsers?: number;
+  weeklyActiveUsers?: number;
+  monthlyActiveUsers?: number;
+  freeUsers?: number;
+  paidUsers?: number;
+  groupUsers?: number;
+  subscriptionConversionRate?: number;
+  churnRate?: number;
+  averageStudyTimePerUser?: number;
+  practiceAttemptsPerUser?: number;
+  weakAreaIdentificationRate?: number;
+  userSatisfactionScore?: number;
+  referralRate?: number;
+  totalRevenue?: number;
+
+  // Verified metrics
+  verifiedMoodImprovement?: number;
+  averageTimeSavedPerWeek?: number;
+  studentsWithVerifiedConsistentHabits?: number;
+  verifiedExamConfidenceImprovement?: number;
+  verifiedRetentionRate?: number;
+  verifiedMoodFeatureUsage?: number;
+  completedSurveys?: number;
 }

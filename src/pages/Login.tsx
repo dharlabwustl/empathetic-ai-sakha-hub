@@ -1,18 +1,17 @@
 
 import React, { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/contexts/auth/AuthContext";
+import authService from "@/services/auth/authService";
 import { motion } from "framer-motion";
 
 const Login = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { login } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [credentials, setCredentials] = useState({
     email: "",
@@ -29,16 +28,40 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      const success = await login(credentials.email, credentials.password);
+      const response = await authService.login({
+        email: credentials.email,
+        password: credentials.password
+      });
 
-      if (success) {
+      if (response.success && response.data) {
         toast({
           title: "Login successful",
           description: "Welcome back to Sakha AI"
         });
 
-        // Redirect to student dashboard
-        navigate("/dashboard/student");
+        // Check user's role to direct to appropriate dashboard
+        const userRole = response.data.role.toLowerCase();
+        
+        // Redirect based on role
+        switch (userRole) {
+          case 'student':
+            navigate("/dashboard/student");
+            break;
+          case 'employee':
+            navigate("/dashboard/employee");
+            break;
+          case 'doctor':
+            navigate("/dashboard/doctor");
+            break;
+          case 'founder':
+            navigate("/dashboard/founder");
+            break;
+          case 'admin':
+            navigate("/admin/dashboard");
+            break;
+          default:
+            navigate("/dashboard/student");
+        }
       } else {
         toast({
           title: "Login failed",
@@ -83,12 +106,12 @@ const Login = () => {
           <CardContent className="p-6">
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email">Email or Phone</Label>
+                <Label htmlFor="email">Email</Label>
                 <Input 
                   id="email" 
                   name="email" 
-                  type="text" 
-                  placeholder="Email or Phone Number" 
+                  type="email" 
+                  placeholder="your.email@example.com" 
                   required 
                   value={credentials.email}
                   onChange={handleInputChange}
@@ -131,9 +154,9 @@ const Login = () => {
             <div className="mt-4 text-center text-sm">
               <p className="text-gray-600">
                 Don't have an account?{" "}
-                <Link to="/signup" className="text-blue-600 hover:underline">
+                <a href="/signup" className="text-blue-600 hover:underline">
                   Sign up
-                </Link>
+                </a>
               </p>
             </div>
             <div className="mt-6">

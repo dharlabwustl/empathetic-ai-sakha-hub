@@ -63,8 +63,6 @@ export const generateTabContents = ({
             lastActivity={lastActivity}
             suggestedNextAction={suggestedNextAction}
             loginCount={loginCount}
-            open={showWelcomeTour}
-            onOpenChange={(open) => !open && handleSkipTour()}
           />
         )}
         <DashboardOverview
@@ -82,12 +80,12 @@ export const generateTabContents = ({
         <MicroConceptView />
       </div>
     ),
-    academic: <AcademicAdvisor />,
+    academic: <AcademicAdvisor userProfile={userProfile} />,
     concepts: <MicroConceptView />,
     flashcards: <FlashcardsFeature />,
     'practice-exam': <PracticeExamFeature />,
     'feel-good': <FeelGoodCorner />,
     notifications: <SmartNotificationSection />,
-    tutor: <AIChatTutor />
+    tutor: <AIChatTutor userProfile={userProfile} />
   };
 };
