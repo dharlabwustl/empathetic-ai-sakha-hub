@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import MainLayout from '@/components/layouts/MainLayout';
 import ConceptsList from '@/components/dashboard/student/concept-cards/ConceptsList';
 import ConceptFilters from '@/components/dashboard/student/concept-cards/ConceptFilters';
@@ -7,21 +7,14 @@ import ConceptProgress from '@/components/dashboard/student/concept-cards/Concep
 import { useUserStudyPlan } from '@/hooks/useUserStudyPlan';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { useSubjectFilters } from '@/hooks/useSubjectFilters';
-import { Link, useLocation } from 'react-router-dom';
-import { ArrowLeft, Brain, CalendarDays, BookOpen, Filter, RefreshCw } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { ArrowLeft, Brain, CalendarDays, BookOpen } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-
-type ViewMode = 'all' | 'today' | 'week' | 'month' | 'completed' | 'pending';
 
 const ConceptsPage = () => {
   const { conceptCards, loading } = useUserStudyPlan();
   const { userProfile } = useUserProfile();
-  const location = useLocation();
-  const [viewMode, setViewMode] = useState<ViewMode>('all');
   const {
     selectedSubject,
     setSelectedSubject,
@@ -37,24 +30,6 @@ const ConceptsPage = () => {
     setSelectedTimeRange,
     clearFilters
   } = useSubjectFilters();
-
-  // Extract concept cards based on time periods for different views
-  const todayCards = conceptCards.filter(card => card.scheduledFor === 'today');
-  const weekCards = conceptCards.filter(card => ['today', 'this-week'].includes(card.scheduledFor || ''));
-  const monthCards = conceptCards.filter(card => ['today', 'this-week', 'this-month'].includes(card.scheduledFor || ''));
-  const completedCards = conceptCards.filter(card => card.completed);
-  const pendingCards = conceptCards.filter(card => !card.completed);
-
-  // Get view mode from URL if possible
-  useEffect(() => {
-    const path = location.pathname;
-    if (path.includes('/all')) setViewMode('all');
-    else if (path.includes('/today')) setViewMode('today');
-    else if (path.includes('/week')) setViewMode('week');
-    else if (path.includes('/month')) setViewMode('month');
-    else if (path.includes('/completed')) setViewMode('completed');
-    else if (path.includes('/pending')) setViewMode('pending');
-  }, [location]);
 
   const examGoal = userProfile?.goals?.[0]?.title || 'IIT-JEE';
   
@@ -72,25 +47,6 @@ const ConceptsPage = () => {
     const percentage = total > 0 ? (completed / total) * 100 : 0;
     return { subject, completed, total, percentage };
   });
-
-  // Function to get the display set of cards based on the selected view
-  const getDisplayCards = () => {
-    switch (viewMode) {
-      case 'today':
-        return todayCards;
-      case 'week':
-        return weekCards;
-      case 'month':
-        return monthCards;
-      case 'completed':
-        return completedCards;
-      case 'pending':
-        return pendingCards;
-      case 'all':
-      default:
-        return conceptCards;
-    }
-  };
 
   return (
     <MainLayout>
@@ -157,157 +113,23 @@ const ConceptsPage = () => {
           {/* Progress Summary */}
           <ConceptProgress conceptCards={conceptCards} />
 
-          {/* Enhanced View Selection Tabs */}
-          <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as ViewMode)} className="w-full">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
-              <TabsList>
-                <TabsTrigger value="all" className="text-xs sm:text-sm">All Concepts</TabsTrigger>
-                <TabsTrigger value="today" className="text-xs sm:text-sm">Today ({todayCards.length})</TabsTrigger>
-                <TabsTrigger value="week" className="text-xs sm:text-sm">This Week ({weekCards.length})</TabsTrigger>
-                <TabsTrigger value="month" className="text-xs sm:text-sm">This Month ({monthCards.length})</TabsTrigger>
-                <TabsTrigger value="completed" className="text-xs sm:text-sm">Completed ({completedCards.length})</TabsTrigger>
-                <TabsTrigger value="pending" className="text-xs sm:text-sm">Pending ({pendingCards.length})</TabsTrigger>
-              </TabsList>
-
-              <div className="flex gap-2">
-                <Button variant="outline" size="sm" className="flex items-center gap-1" onClick={clearFilters}>
-                  <RefreshCw size={14} />
-                  Reset
-                </Button>
-                <Button size="sm" className="flex items-center gap-1">
-                  <Filter size={14} />
-                  Filters
-                </Button>
-              </div>
-            </div>
-            
-            <div className="bg-gray-50 p-4 rounded-lg mb-4">
-              <div className="flex flex-wrap gap-2 mb-4">
-                {selectedSubject && (
-                  <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-200">
-                    Subject: {selectedSubject}
-                  </Badge>
-                )}
-                {selectedDifficulty && (
-                  <Badge className="bg-purple-100 text-purple-800 hover:bg-purple-200">
-                    Difficulty: {selectedDifficulty}
-                  </Badge>
-                )}
-                {selectedTopicTag && (
-                  <Badge className="bg-green-100 text-green-800 hover:bg-green-200">
-                    Tag: {selectedTopicTag}
-                  </Badge>
-                )}
-                {selectedTimeRange && (
-                  <Badge className="bg-orange-100 text-orange-800 hover:bg-orange-200">
-                    Time: ≤ {selectedTimeRange} min
-                  </Badge>
-                )}
-                {searchQuery && (
-                  <Badge className="bg-gray-100 text-gray-800 hover:bg-gray-200">
-                    Search: "{searchQuery}"
-                  </Badge>
-                )}
-              </div>
-
-              {/* Enhanced Filters */}
-              <ConceptFilters
-                selectedSubject={selectedSubject}
-                setSelectedSubject={setSelectedSubject}
-                selectedDifficulty={selectedDifficulty}
-                setSelectedDifficulty={setSelectedDifficulty}
-                searchQuery={searchQuery}
-                setSearchQuery={setSearchQuery}
-                selectedExamGoal={selectedExamGoal}
-                setSelectedExamGoal={setSelectedExamGoal}
-                selectedTopicTag={selectedTopicTag}
-                setSelectedTopicTag={setSelectedTopicTag}
-                selectedTimeRange={selectedTimeRange}
-                setSelectedTimeRange={setSelectedTimeRange}
-                clearFilters={clearFilters}
-                conceptCards={conceptCards}
-              />
-            </div>
-
-            {/* Tab Contents */}
-            <TabsContent value="all" className="mt-0">
-              <ConceptsList
-                conceptCards={conceptCards}
-                loading={loading}
-                selectedSubject={selectedSubject}
-                selectedDifficulty={selectedDifficulty}
-                searchQuery={searchQuery}
-                selectedExamGoal={selectedExamGoal}
-                selectedTopicTag={selectedTopicTag}
-                selectedTimeRange={selectedTimeRange}
-              />
-            </TabsContent>
-
-            <TabsContent value="today" className="mt-0">
-              <ConceptsList
-                conceptCards={todayCards}
-                loading={loading}
-                selectedSubject={selectedSubject}
-                selectedDifficulty={selectedDifficulty}
-                searchQuery={searchQuery}
-                selectedExamGoal={selectedExamGoal}
-                selectedTopicTag={selectedTopicTag}
-                selectedTimeRange={selectedTimeRange}
-              />
-            </TabsContent>
-
-            <TabsContent value="week" className="mt-0">
-              <ConceptsList
-                conceptCards={weekCards}
-                loading={loading}
-                selectedSubject={selectedSubject}
-                selectedDifficulty={selectedDifficulty}
-                searchQuery={searchQuery}
-                selectedExamGoal={selectedExamGoal}
-                selectedTopicTag={selectedTopicTag}
-                selectedTimeRange={selectedTimeRange}
-              />
-            </TabsContent>
-
-            <TabsContent value="month" className="mt-0">
-              <ConceptsList
-                conceptCards={monthCards}
-                loading={loading}
-                selectedSubject={selectedSubject}
-                selectedDifficulty={selectedDifficulty}
-                searchQuery={searchQuery}
-                selectedExamGoal={selectedExamGoal}
-                selectedTopicTag={selectedTopicTag}
-                selectedTimeRange={selectedTimeRange}
-              />
-            </TabsContent>
-
-            <TabsContent value="completed" className="mt-0">
-              <ConceptsList
-                conceptCards={completedCards}
-                loading={loading}
-                selectedSubject={selectedSubject}
-                selectedDifficulty={selectedDifficulty}
-                searchQuery={searchQuery}
-                selectedExamGoal={selectedExamGoal}
-                selectedTopicTag={selectedTopicTag}
-                selectedTimeRange={selectedTimeRange}
-              />
-            </TabsContent>
-
-            <TabsContent value="pending" className="mt-0">
-              <ConceptsList
-                conceptCards={pendingCards}
-                loading={loading}
-                selectedSubject={selectedSubject}
-                selectedDifficulty={selectedDifficulty}
-                searchQuery={searchQuery}
-                selectedExamGoal={selectedExamGoal}
-                selectedTopicTag={selectedTopicTag}
-                selectedTimeRange={selectedTimeRange}
-              />
-            </TabsContent>
-          </Tabs>
+          {/* Enhanced Filters */}
+          <ConceptFilters
+            selectedSubject={selectedSubject}
+            setSelectedSubject={setSelectedSubject}
+            selectedDifficulty={selectedDifficulty}
+            setSelectedDifficulty={setSelectedDifficulty}
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            selectedExamGoal={selectedExamGoal}
+            setSelectedExamGoal={setSelectedExamGoal}
+            selectedTopicTag={selectedTopicTag}
+            setSelectedTopicTag={setSelectedTopicTag}
+            selectedTimeRange={selectedTimeRange}
+            setSelectedTimeRange={setSelectedTimeRange}
+            clearFilters={clearFilters}
+            conceptCards={conceptCards}
+          />
 
           {/* Subject Progress Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -324,6 +146,18 @@ const ConceptsPage = () => {
               </Card>
             ))}
           </div>
+
+          {/* Enhanced Concept Cards List */}
+          <ConceptsList
+            conceptCards={conceptCards}
+            loading={loading}
+            selectedSubject={selectedSubject}
+            selectedDifficulty={selectedDifficulty}
+            searchQuery={searchQuery}
+            selectedExamGoal={selectedExamGoal}
+            selectedTopicTag={selectedTopicTag}
+            selectedTimeRange={selectedTimeRange}
+          />
         </div>
       </div>
     </MainLayout>

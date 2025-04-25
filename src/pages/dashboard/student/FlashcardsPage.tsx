@@ -3,9 +3,9 @@ import React from 'react';
 import MainLayout from '@/components/layouts/MainLayout';
 import { useUserStudyPlan } from '@/hooks/useUserStudyPlan';
 import { useUserProfile } from '@/hooks/useUserProfile';
+import FlashcardsFeature from '@/components/dashboard/student/FlashcardsFeature';
 import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
-import FlashcardsOverview from '@/components/dashboard/student/flashcards/FlashcardsOverview';
 
 const FlashcardsPage = () => {
   const { conceptCards } = useUserStudyPlan();
@@ -37,8 +37,8 @@ const FlashcardsPage = () => {
             </div>
           </div>
           
-          {/* Enhanced Flashcards Overview Component */}
-          <FlashcardsOverview />
+          {/* Main Flashcards Feature */}
+          <FlashcardsFeature />
         </div>
       </div>
     </MainLayout>
