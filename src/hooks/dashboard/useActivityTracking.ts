@@ -28,8 +28,23 @@ export function useActivityTracking() {
     }
   }, []);
 
+  // Add a function to track new activities
+  const trackActivity = (type: string, description: string) => {
+    const newActivity = { type, description };
+    setLastActivity(newActivity);
+    
+    // Store in localStorage
+    const userData = localStorage.getItem("userData");
+    if (userData) {
+      const parsedData = JSON.parse(userData);
+      parsedData.lastActivity = newActivity;
+      localStorage.setItem("userData", JSON.stringify(parsedData));
+    }
+  };
+
   return {
     lastActivity,
-    suggestedNextAction
+    suggestedNextAction,
+    trackActivity
   };
 }

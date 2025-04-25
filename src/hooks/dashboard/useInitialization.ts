@@ -2,7 +2,6 @@
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { handleNewUser } from "@/pages/dashboard/student/utils/UserSessionManager";
 
 export function useInitialization() {
   const [loading, setLoading] = useState(true);
@@ -15,7 +14,34 @@ export function useInitialization() {
   const initializeDashboard = async () => {
     try {
       setLoading(true);
-      const { shouldShowOnboarding, shouldShowWelcomeTour } = handleNewUser(location, navigate);
+      
+      // Check if user needs onboarding
+      const userData = localStorage.getItem("userData");
+      const isNewUser = new URLSearchParams(location.search).get('new') === 'true';
+      
+      let shouldShowOnboarding = false;
+      let shouldShowWelcomeTour = false;
+      
+      if (userData) {
+        const parsedData = JSON.parse(userData);
+        shouldShowOnboarding = !parsedData.completedOnboarding;
+        shouldShowWelcomeTour = !parsedData.sawWelcomeTour && !shouldShowOnboarding;
+      } else {
+        // If no user data, create default data
+        shouldShowOnboarding = true;
+        const defaultUserData = {
+          completedOnboarding: false,
+          sawWelcomeTour: false,
+          lastLogin: new Date().toISOString(),
+        };
+        localStorage.setItem("userData", JSON.stringify(defaultUserData));
+        
+        // If this is a new user coming from signup, redirect to onboarding
+        if (isNewUser) {
+          navigate('/dashboard/student/overview?completedOnboarding=false', { replace: true });
+        }
+      }
+      
       setShowOnboarding(shouldShowOnboarding);
       setShowWelcomeTour(shouldShowWelcomeTour);
     } catch (error) {

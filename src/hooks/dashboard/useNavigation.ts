@@ -1,14 +1,24 @@
 
-import { useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 
 export function useNavigation() {
   const { tab } = useParams<{ tab?: string }>();
+  const location = useLocation();
   const [activeTab, setActiveTab] = useState(tab || "overview");
   const [hideSidebar, setHideSidebar] = useState(false);
   const [hideTabsNav, setHideTabsNav] = useState(false);
   const [showStudyPlan, setShowStudyPlan] = useState(false);
   const navigate = useNavigate();
+
+  // Update active tab when URL changes
+  useEffect(() => {
+    if (tab) {
+      setActiveTab(tab);
+    } else if (location.pathname === "/dashboard/student") {
+      setActiveTab("overview");
+    }
+  }, [tab, location.pathname]);
 
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);

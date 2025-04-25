@@ -6,6 +6,7 @@ import { useKpiTracking } from "@/hooks/useKpiTracking";
 import { useInitialization } from "./dashboard/useInitialization";
 import { useNavigation } from "./dashboard/useNavigation";
 import { useActivityTracking } from "./dashboard/useActivityTracking";
+import { getGreeting } from "@/utils/timeUtils";
 
 export const useStudentDashboard = () => {
   const { userProfile, loading: profileLoading, updateUserProfile } = useUserProfile(UserRole.Student);
@@ -42,43 +43,9 @@ export const useStudentDashboard = () => {
     }
   }, [profileLoading, userProfile, showOnboarding, updateUserProfile]);
 
-  const handleSkipTour = () => {
-    setShowWelcomeTour(false);
-    const userData = localStorage.getItem("userData");
-    if (userData) {
-      const parsedData = JSON.parse(userData);
-      parsedData.sawWelcomeTour = true;
-      localStorage.setItem("userData", JSON.stringify(parsedData));
-    }
-  };
-
-  const handleCompleteTour = () => {
-    setShowWelcomeTour(false);
-    const userData = localStorage.getItem("userData");
-    if (userData) {
-      const parsedData = JSON.parse(userData);
-      parsedData.sawWelcomeTour = true;
-      localStorage.setItem("userData", JSON.stringify(parsedData));
-    }
-  };
-
-  const handleCompleteOnboarding = () => {
-    setShowOnboarding(false);
-    const userData = localStorage.getItem("userData");
-    if (userData) {
-      const parsedData = JSON.parse(userData);
-      parsedData.completedOnboarding = true;
-      localStorage.setItem("userData", JSON.stringify(parsedData));
-    }
-    setShowWelcomeTour(true);
-  };
-
+  // Use the utility function to get the greeting based on current time
   const now = new Date();
-  const hour = now.getHours();
-  let currentTime = "";
-  if (hour < 12) currentTime = "Good Morning";
-  else if (hour < 17) currentTime = "Good Afternoon";
-  else currentTime = "Good Evening";
+  const currentTime = getGreeting(now.getHours());
 
   const features = {
     overview: true,
@@ -103,8 +70,33 @@ export const useStudentDashboard = () => {
     lastActivity,
     suggestedNextAction,
     markNudgeAsRead,
-    handleSkipTour,
-    handleCompleteTour,
-    handleCompleteOnboarding
+    handleSkipTour: () => {
+      setShowWelcomeTour(false);
+      const userData = localStorage.getItem("userData");
+      if (userData) {
+        const parsedData = JSON.parse(userData);
+        parsedData.sawWelcomeTour = true;
+        localStorage.setItem("userData", JSON.stringify(parsedData));
+      }
+    },
+    handleCompleteTour: () => {
+      setShowWelcomeTour(false);
+      const userData = localStorage.getItem("userData");
+      if (userData) {
+        const parsedData = JSON.parse(userData);
+        parsedData.sawWelcomeTour = true;
+        localStorage.setItem("userData", JSON.stringify(parsedData));
+      }
+    },
+    handleCompleteOnboarding: () => {
+      setShowOnboarding(false);
+      const userData = localStorage.getItem("userData");
+      if (userData) {
+        const parsedData = JSON.parse(userData);
+        parsedData.completedOnboarding = true;
+        localStorage.setItem("userData", JSON.stringify(parsedData));
+      }
+      setShowWelcomeTour(true);
+    }
   };
 };
