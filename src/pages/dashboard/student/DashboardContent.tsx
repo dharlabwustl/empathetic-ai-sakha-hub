@@ -5,6 +5,10 @@ import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
 import { generateTabContents } from "@/components/dashboard/student/TabContentManager";
 import DashboardTabs from "@/components/dashboard/student/DashboardTabs";
 import ReturnUserRecap from "@/components/dashboard/student/ReturnUserRecap";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import TodayStudyPlan from "@/components/dashboard/student/TodayStudyPlan";
+import ConceptsSection from "@/components/dashboard/student/ConceptsSection";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface DashboardTabsProps {
   activeTab: string;
@@ -67,6 +71,9 @@ const DashboardContent = ({
     setShowReturnRecap(false);
   };
 
+  // Show the quick access sections when on overview tab
+  const showQuickAccess = activeTab === "overview";
+
   return (
     <div className="h-full flex flex-col">
       {/* Returning User Recap - Show for users with login count > 1 */}
@@ -78,6 +85,14 @@ const DashboardContent = ({
           onClose={handleCloseRecap}
           loginCount={userProfile.loginCount}
         />
+      )}
+
+      {/* Quick Access Section - Only show on overview tab */}
+      {showQuickAccess && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <TodayStudyPlan />
+          <ConceptsSection />
+        </div>
       )}
 
       {/* Tabs navigation and content */}

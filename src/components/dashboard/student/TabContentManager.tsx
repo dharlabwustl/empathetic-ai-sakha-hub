@@ -21,6 +21,7 @@ import FlashcardsFeature from '@/components/dashboard/student/FlashcardsFeature'
 import PracticeExamFeature from '@/components/dashboard/student/practice-exam/PracticeExamFeature';
 import FeelGoodCorner from '@/components/dashboard/student/FeelGoodCorner';
 import ConceptsSection from '@/components/dashboard/student/ConceptsSection';
+import { TodayPlanView, FlashcardsView, PracticeExamsView } from '@/pages/dashboard/student/TabContentViews';
 
 interface TabContentManagerProps {
   userProfile: UserProfileType;
@@ -72,13 +73,42 @@ export const generateTabContents = ({
         />
       </>
     ),
-    today: <TodayStudyPlan />,
+    today: <TodayPlanView />,
     academic: <AcademicAdvisor userProfile={userProfile} />,
-    concepts: <ConceptsSection />,
-    flashcards: <FlashcardsFeature />,
-    'practice-exam': <PracticeExamFeature />,
+    concepts: (
+      <div className="space-y-6">
+        <h2 className="text-2xl font-bold">Concept Cards</h2>
+        <p className="text-gray-600">
+          Browse through your learning concepts and master the fundamentals.
+        </p>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <ConceptsSection />
+          <Card className="h-full">
+            <CardHeader>
+              <CardTitle>Recent Concepts</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p>Your recently viewed concepts will appear here.</p>
+            </CardContent>
+          </Card>
+          <Card className="h-full">
+            <CardHeader>
+              <CardTitle>Recommended</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p>Concepts recommended for you based on your study plan.</p>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    ),
+    flashcards: <FlashcardsView />,
+    'practice-exam': <PracticeExamsView />,
     'feel-good': <FeelGoodCorner />,
     notifications: <SmartNotificationSection />,
     tutor: <AIChatTutor userProfile={userProfile} />
   };
 };
+
+// Import Card components at the top
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

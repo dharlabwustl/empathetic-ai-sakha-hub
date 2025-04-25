@@ -11,9 +11,12 @@ export function useNavigation() {
   const [showStudyPlan, setShowStudyPlan] = useState(false);
   const navigate = useNavigate();
 
+  // Valid tab names
+  const validTabs = ["overview", "today", "academic", "concepts", "flashcards", "practice-exam", "feel-good", "notifications", "tutor"];
+
   // Update active tab when URL changes
   useEffect(() => {
-    if (tab) {
+    if (tab && validTabs.includes(tab)) {
       setActiveTab(tab);
     } else if (location.pathname === "/dashboard/student") {
       setActiveTab("overview");

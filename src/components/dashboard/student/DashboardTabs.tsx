@@ -88,6 +88,13 @@ export default function DashboardTabs({
           </TabsList>
         </motion.div>
       )}
+      
+      {/* Display the content for the active tab */}
+      {Object.entries(tabContents).map(([key, content]) => (
+        <TabsContent key={key} value={key} className={activeTab === key ? "block" : "hidden"}>
+          {content}
+        </TabsContent>
+      ))}
     </Tabs>
   );
 }
