@@ -81,3 +81,35 @@ export interface StudyHistory {
   date: string;
   plan: DailyStudyPlan;
 }
+
+export interface StudyStatus {
+  daily: {
+    completedTasks: number;
+    totalTasks: number;
+    studyHours: number;
+    mood: string;
+  };
+  weekly: {
+    completedTasks: number;
+    totalTasks: number;
+    averageStudyHours: number;
+    topSubjects: string[];
+  };
+  monthly: {
+    completedTasks: number;
+    totalTasks: number;
+    averageStudyHours: number;
+    improvement: number;
+  };
+}
+
+export interface StudyPlanItem {
+  id: string;
+  type: 'concept' | 'flashcard' | 'practice-exam';
+  title: string;
+  subject: string;
+  priority: 'high' | 'medium' | 'low';
+  timeAllocation: number;
+  completed: boolean;
+  dueDate: string;
+}

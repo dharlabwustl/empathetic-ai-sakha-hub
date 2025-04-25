@@ -1,4 +1,3 @@
-
 import { UserProfileType } from "@/types/user";
 import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
 import { SubscriptionType } from "@/types/user/base";
@@ -12,6 +11,7 @@ import { ReactNode } from "react";
 import { motion } from "framer-motion";
 import { AlertCircle, BookOpen, Coffee } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import OverviewDashboard from "./overview/OverviewDashboard";
 
 interface DashboardOverviewProps {
   userProfile: UserProfileType;
@@ -88,6 +88,71 @@ export default function DashboardOverview({
     return userProfile.subscription;
   };
 
+  // Mock data for demonstration - in a real app this would come from an API
+  const mockStudyStatus = {
+    daily: {
+      completedTasks: 3,
+      totalTasks: 8,
+      studyHours: 2.5,
+      mood: 'motivated'
+    },
+    weekly: {
+      completedTasks: 15,
+      totalTasks: 25,
+      averageStudyHours: 3.2,
+      topSubjects: ['Physics', 'Mathematics']
+    },
+    monthly: {
+      completedTasks: 45,
+      totalTasks: 60,
+      averageStudyHours: 3.5,
+      improvement: 15
+    }
+  };
+
+  const mockTodaysPlan = [
+    {
+      id: '1',
+      type: 'concept',
+      title: 'Newton\'s Laws of Motion',
+      subject: 'Physics',
+      priority: 'high',
+      timeAllocation: 45,
+      completed: false,
+      dueDate: new Date().toISOString()
+    },
+    {
+      id: '2',
+      type: 'flashcard',
+      title: 'Organic Chemistry Formulas',
+      subject: 'Chemistry',
+      priority: 'medium',
+      timeAllocation: 30,
+      completed: false,
+      dueDate: new Date().toISOString()
+    },
+    {
+      id: '3',
+      type: 'practice-exam',
+      title: 'Calculus Problem Set',
+      subject: 'Mathematics',
+      priority: 'high',
+      timeAllocation: 60,
+      completed: false,
+      dueDate: new Date().toISOString()
+    },
+    {
+      id: '4',
+      type: 'concept',
+      title: 'Cell Structure and Function',
+      subject: 'Biology',
+      priority: 'low',
+      timeAllocation: 25,
+      completed: false,
+      dueDate: new Date().toISOString()
+    }
+  ];
+
   return (
     <motion.div
       variants={containerVariants}
@@ -120,9 +185,9 @@ export default function DashboardOverview({
         ))}
       </motion.div>
       
-      {/* Study Plan and Profile - Only show study plan here, not duplicated */}
+      {/* Main Dashboard Content */}
       <motion.div 
-        className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8"
+        className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6 sm:mb-8"
         variants={itemVariants}
       >
         <motion.div 
@@ -130,7 +195,11 @@ export default function DashboardOverview({
           whileHover={{ scale: isMobile ? 1.005 : 1.01, transition: { duration: 0.2 } }}
           variants={itemVariants}
         >
-          <TodayStudyPlan />
+          <OverviewDashboard
+            userProfile={userProfile}
+            studyStatus={mockStudyStatus}
+            todaysPlan={mockTodaysPlan}
+          />
         </motion.div>
         <motion.div
           whileHover={{ scale: isMobile ? 1.005 : 1.02, transition: { duration: 0.2 } }}
