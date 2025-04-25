@@ -6,7 +6,8 @@ import FlashcardHeader from '@/components/dashboard/student/flashcard-browser/Fl
 import FlashcardQuestion from '@/components/dashboard/student/flashcard-browser/FlashcardQuestion';
 import AnswerInput from '@/components/dashboard/student/flashcard-browser/AnswerInput';
 import ResultsView from '@/components/dashboard/student/flashcard-browser/ResultsView';
-import { useToast } from "@/components/ui/use-toast";
+import { useFlashcardNavigation } from '@/hooks/useFlashcardNavigation';
+import { useAnswerSubmission } from '@/hooks/useAnswerSubmission';
 
 interface FlashcardQuestion {
   id: string;
@@ -23,15 +24,29 @@ interface FlashcardDetail {
 }
 
 const FlashcardBrowserPage = () => {
-  const { toast } = useToast();
   const [currentCard, setCurrentCard] = useState<FlashcardDetail | null>(null);
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [userAnswer, setUserAnswer] = useState('');
-  const [isRecording, setIsRecording] = useState(false);
-  const [answerSubmitted, setAnswerSubmitted] = useState(false);
-  const [accuracy, setAccuracy] = useState(0);
   const [voiceEnabled, setVoiceEnabled] = useState(false);
-  const [isFlipped, setIsFlipped] = useState(false);
+
+  const {
+    currentQuestionIndex,
+    isFlipped,
+    handleNext,
+    toggleFlip
+  } = useFlashcardNavigation({
+    totalCards: currentCard?.questions.length || 0
+  });
+
+  const {
+    userAnswer,
+    setUserAnswer,
+    answerSubmitted,
+    accuracy,
+    isRecording,
+    handleSpeechToText,
+    handleSubmitAnswer,
+    handleTryAgain,
+    handleBookmark
+  } = useAnswerSubmission();
 
   useEffect(() => {
     // Simulated data - in real app, this would come from API
@@ -60,67 +75,6 @@ const FlashcardBrowserPage = () => {
     });
   }, []);
 
-  const handleSpeechToText = () => {
-    setIsRecording(true);
-    setTimeout(() => {
-      setIsRecording(false);
-      setUserAnswer(prev => prev + " " + currentCard?.questions[currentQuestionIndex].answer.split(' ').slice(0, 3).join(' ') + "...");
-    }, 2000);
-  };
-
-  const calculateAccuracy = (userAns: string, correctAns: string): number => {
-    if (!userAns || !correctAns) return 0;
-    
-    const userWords = userAns.toLowerCase().split(' ');
-    const correctWords = correctAns.toLowerCase().split(' ');
-    let matches = 0;
-    
-    userWords.forEach(word => {
-      if (word.length > 3 && correctWords.includes(word)) {
-        matches++;
-      }
-    });
-    
-    return Math.min(100, Math.round((matches / Math.max(1, correctWords.length)) * 100));
-  };
-
-  const handleSubmitAnswer = () => {
-    if (!currentCard) return;
-    
-    const accuracyScore = calculateAccuracy(
-      userAnswer, 
-      currentCard.questions[currentQuestionIndex].answer
-    );
-    setAccuracy(accuracyScore);
-    setAnswerSubmitted(true);
-  };
-
-  const handleTryAgain = () => {
-    setUserAnswer('');
-    setAnswerSubmitted(false);
-    setAccuracy(0);
-    setIsFlipped(false);
-  };
-
-  const handleBookmark = () => {
-    toast({
-      title: "Flashcard Bookmarked",
-      description: "This card has been added to your bookmarks.",
-    });
-  };
-
-  const handleNextQuestion = () => {
-    if (!currentCard) return;
-    if (currentQuestionIndex < currentCard.questions.length - 1) {
-      setCurrentQuestionIndex(prev => prev + 1);
-      handleTryAgain();
-    }
-  };
-
-  const toggleVoice = () => {
-    setVoiceEnabled(!voiceEnabled);
-  };
-
   if (!currentCard) {
     return <div>Loading...</div>;
   }
@@ -135,7 +89,7 @@ const FlashcardBrowserPage = () => {
             <FlashcardHeader 
               subject={currentCard.subject}
               voiceEnabled={voiceEnabled}
-              onToggleVoice={toggleVoice}
+              onToggleVoice={() => setVoiceEnabled(!voiceEnabled)}
             />
 
             <FlashcardQuestion 
@@ -145,11 +99,11 @@ const FlashcardBrowserPage = () => {
               isFlipped={isFlipped}
               currentQuestionIndex={currentQuestionIndex}
               totalQuestions={currentCard.questions.length}
-              onFlip={() => setIsFlipped(!isFlipped)}
+              onFlip={toggleFlip}
               onBookmark={handleBookmark}
-              onReplayAudio={() => {/* Implement audio replay */}}
-              onMarkDone={handleNextQuestion}
-              onViewConcept={() => {/* Implement concept view navigation */}}
+              onReplayAudio={() => {/* Audio replay logic */}}
+              onMarkDone={handleNext}
+              onViewConcept={() => {/* View concept logic */}}
               voiceEnabled={voiceEnabled}
             />
 
@@ -159,7 +113,7 @@ const FlashcardBrowserPage = () => {
                 isRecording={isRecording}
                 onAnswerChange={setUserAnswer}
                 onSpeechToText={handleSpeechToText}
-                onSubmit={handleSubmitAnswer}
+                onSubmit={() => handleSubmitAnswer(currentQuestion.answer)}
               />
             )}
 
@@ -169,15 +123,6 @@ const FlashcardBrowserPage = () => {
                 correctAnswer={currentQuestion.answer}
                 onTryAgain={handleTryAgain}
               />
-            )}
-
-            {answerSubmitted && currentQuestionIndex < currentCard.questions.length - 1 && (
-              <Button 
-                onClick={handleNextQuestion}
-                className="w-full mt-4"
-              >
-                Next Question
-              </Button>
             )}
           </CardContent>
         </Card>
