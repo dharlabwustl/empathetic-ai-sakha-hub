@@ -2,134 +2,89 @@
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { getSubjectsForGoal } from "@/components/dashboard/student/onboarding/SubjectData";
 
 interface SubjectSelectionStepProps {
   examGoal: string;
   onSubmit: (subjects: string) => void;
-  isLoading: boolean;
+  isLoading?: boolean;
 }
 
-const SubjectSelectionStep: React.FC<SubjectSelectionStepProps> = ({
-  examGoal,
-  onSubmit,
-  isLoading
+const SubjectSelectionStep: React.FC<SubjectSelectionStepProps> = ({ 
+  examGoal, 
+  onSubmit, 
+  isLoading = false 
 }) => {
   const [selectedSubjects, setSelectedSubjects] = useState<string[]>([]);
-  const [customSubject, setCustomSubject] = useState("");
-  const suggestedSubjects = getSubjectsForGoal(examGoal);
+  const [availableSubjects, setAvailableSubjects] = useState<string[]>([]);
 
+  // Load subjects based on exam goal
   useEffect(() => {
-    // Pre-select the first 2 subjects (if available)
-    if (suggestedSubjects.length > 0 && selectedSubjects.length === 0) {
-      setSelectedSubjects(suggestedSubjects.slice(0, Math.min(2, suggestedSubjects.length)));
+    const subjects = examGoal ? getSubjectsForGoal(examGoal) : [];
+    setAvailableSubjects(subjects);
+    
+    // Pre-select some common subjects based on goal
+    if (subjects.length > 0) {
+      // Select first 3 subjects by default or all if less than 3
+      const defaultSelection = subjects.slice(0, Math.min(3, subjects.length));
+      setSelectedSubjects(defaultSelection);
     }
-  }, [suggestedSubjects]);
+  }, [examGoal]);
 
-  const toggleSubject = (subject: string) => {
-    setSelectedSubjects((prev) =>
-      prev.includes(subject)
-        ? prev.filter((s) => s !== subject)
-        : [...prev, subject]
+  const handleToggleSubject = (subject: string) => {
+    setSelectedSubjects(current => 
+      current.includes(subject)
+        ? current.filter(s => s !== subject)
+        : [...current, subject]
     );
   };
 
-  const addCustomSubject = () => {
-    if (customSubject.trim() && !selectedSubjects.includes(customSubject.trim())) {
-      setSelectedSubjects((prev) => [...prev, customSubject.trim()]);
-      setCustomSubject("");
-    }
-  };
-
   const handleSubmit = () => {
-    if (selectedSubjects.length > 0) {
-      onSubmit(selectedSubjects.join(", "));
-    }
+    onSubmit(selectedSubjects.join(", "));
   };
 
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-lg font-medium mb-1">Select Your Subjects</h3>
+        <h3 className="text-lg font-medium mb-1">Select your preferred subjects</h3>
         <p className="text-sm text-muted-foreground">
-          Select the subjects you want to focus on for {examGoal}
+          Choose subjects you want to focus on for your {examGoal} preparation
         </p>
       </div>
-
-      <div className="space-y-3">
-        {suggestedSubjects.map((subject) => (
-          <div key={subject} className="flex items-center space-x-2">
-            <Checkbox
-              id={`subject-${subject}`}
+      
+      <div className="space-y-3 max-h-60 overflow-y-auto pr-2">
+        {availableSubjects.map((subject) => (
+          <div key={subject} className="flex items-center space-x-3 p-2 border border-gray-100 rounded-md">
+            <Checkbox 
+              id={subject}
               checked={selectedSubjects.includes(subject)}
-              onCheckedChange={() => toggleSubject(subject)}
+              onCheckedChange={() => handleToggleSubject(subject)}
             />
-            <Label
-              htmlFor={`subject-${subject}`}
-              className="font-medium cursor-pointer"
-            >
-              {subject}
-            </Label>
+            <Label htmlFor={subject} className="cursor-pointer flex-1">{subject}</Label>
           </div>
         ))}
-
-        <div className="pt-2 border-t">
-          <div className="flex items-end space-x-2">
-            <div className="flex-1">
-              <Label htmlFor="custom-subject" className="text-sm mb-1 block">
-                Add Custom Subject
-              </Label>
-              <Input
-                id="custom-subject"
-                value={customSubject}
-                onChange={(e) => setCustomSubject(e.target.value)}
-                placeholder="Enter a subject"
-              />
-            </div>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={addCustomSubject}
-              disabled={!customSubject.trim()}
-            >
-              Add
-            </Button>
-          </div>
-        </div>
-
-        {selectedSubjects.length > 0 && (
-          <div className="pt-4">
-            <Label className="text-sm mb-1 block">Selected Subjects</Label>
-            <div className="flex flex-wrap gap-1">
-              {selectedSubjects.map((subject) => (
-                <div
-                  key={subject}
-                  className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs flex items-center"
-                >
-                  {subject}
-                  <button
-                    type="button"
-                    onClick={() => toggleSubject(subject)}
-                    className="ml-1 text-blue-600 hover:text-blue-800"
-                  >
-                    ×
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
+        
+        {availableSubjects.length === 0 && (
+          <p className="text-center text-gray-500 py-4">
+            No subjects available for selected goal. Please select a different goal.
+          </p>
         )}
       </div>
-
-      <Button
-        onClick={handleSubmit}
+      
+      <Button 
+        onClick={handleSubmit} 
         className="w-full"
         disabled={isLoading || selectedSubjects.length === 0}
       >
-        {isLoading ? "Submitting..." : "Continue"}
+        {isLoading ? "Processing..." : "Continue"}
       </Button>
+      
+      {selectedSubjects.length > 0 && (
+        <div className="text-sm text-gray-500">
+          Selected {selectedSubjects.length} subject(s)
+        </div>
+      )}
     </div>
   );
 };

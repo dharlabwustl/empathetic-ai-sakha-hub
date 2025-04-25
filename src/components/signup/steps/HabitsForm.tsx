@@ -1,31 +1,26 @@
 
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface HabitsFormProps {
-  onSubmit: (data: Record<string, string>) => void;
-  isLoading: boolean;
+  onSubmit: (habits: Record<string, string>) => void;
+  isLoading?: boolean;
 }
 
-const HabitsForm: React.FC<HabitsFormProps> = ({ onSubmit, isLoading }) => {
+const HabitsForm: React.FC<HabitsFormProps> = ({ onSubmit, isLoading = false }) => {
   const [formData, setFormData] = useState<Record<string, string>>({
     studyTime: "morning",
     studyDuration: "1-2",
-    studyFrequency: "daily",
-    studyPreference: "visual",
-    stressManagement: "breaks"
+    studyPreference: "alone",
+    stressManagement: "exercise",
   });
 
-  const handleInputChange = (key: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [key]: value }));
-  };
-
-  const handleSelectChange = (key: string) => (value: string) => {
-    setFormData((prev) => ({ ...prev, [key]: value }));
+  const handleChange = (field: string, value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -34,127 +29,138 @@ const HabitsForm: React.FC<HabitsFormProps> = ({ onSubmit, isLoading }) => {
   };
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h3 className="text-lg font-medium mb-1">Study Habits</h3>
-        <p className="text-sm text-muted-foreground">
-          Let's understand your study preferences for a personalized experience
-        </p>
-      </div>
-
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="space-y-2">
-          <Label>When do you prefer to study?</Label>
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="space-y-4">
+        <div>
+          <Label className="text-base font-medium">Preferred study time</Label>
           <RadioGroup 
-            defaultValue={formData.studyTime} 
-            onValueChange={(value) => handleInputChange("studyTime", value)}
+            value={formData.studyTime} 
+            onValueChange={(value) => handleChange("studyTime", value)}
+            className="mt-2 space-y-1"
           >
             <div className="flex items-center space-x-2">
+              <RadioGroupItem value="early-morning" id="early-morning" />
+              <Label htmlFor="early-morning">Early Morning (5-8 AM)</Label>
+            </div>
+            <div className="flex items-center space-x-2">
               <RadioGroupItem value="morning" id="morning" />
-              <Label htmlFor="morning">Morning</Label>
+              <Label htmlFor="morning">Morning (8-12 PM)</Label>
             </div>
             <div className="flex items-center space-x-2">
               <RadioGroupItem value="afternoon" id="afternoon" />
-              <Label htmlFor="afternoon">Afternoon</Label>
+              <Label htmlFor="afternoon">Afternoon (12-5 PM)</Label>
             </div>
             <div className="flex items-center space-x-2">
               <RadioGroupItem value="evening" id="evening" />
-              <Label htmlFor="evening">Evening</Label>
+              <Label htmlFor="evening">Evening (5-9 PM)</Label>
             </div>
             <div className="flex items-center space-x-2">
               <RadioGroupItem value="night" id="night" />
-              <Label htmlFor="night">Night</Label>
+              <Label htmlFor="night">Night (9 PM-12 AM)</Label>
             </div>
           </RadioGroup>
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="studyDuration">How long can you study in one session?</Label>
+        <div>
+          <Label className="text-base font-medium">Daily study duration (hours)</Label>
           <Select 
-            value={formData.studyDuration} 
-            onValueChange={handleSelectChange("studyDuration")}
+            value={formData.studyDuration}
+            onValueChange={(value) => handleChange("studyDuration", value)}
           >
-            <SelectTrigger id="studyDuration">
+            <SelectTrigger className="mt-1">
               <SelectValue placeholder="Select duration" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="<1">Less than 1 hour</SelectItem>
+              <SelectItem value="0-1">Less than 1 hour</SelectItem>
               <SelectItem value="1-2">1-2 hours</SelectItem>
-              <SelectItem value="2-3">2-3 hours</SelectItem>
-              <SelectItem value=">3">More than 3 hours</SelectItem>
+              <SelectItem value="2-4">2-4 hours</SelectItem>
+              <SelectItem value="4-6">4-6 hours</SelectItem>
+              <SelectItem value="6+">More than 6 hours</SelectItem>
             </SelectContent>
           </Select>
         </div>
 
-        <div className="space-y-2">
-          <Label>How do you prefer to learn?</Label>
+        <div>
+          <Label className="text-base font-medium">Study preference</Label>
           <RadioGroup 
-            defaultValue={formData.studyPreference} 
-            onValueChange={(value) => handleInputChange("studyPreference", value)}
+            value={formData.studyPreference} 
+            onValueChange={(value) => handleChange("studyPreference", value)}
+            className="mt-2 space-y-1"
           >
             <div className="flex items-center space-x-2">
-              <RadioGroupItem value="visual" id="visual" />
-              <Label htmlFor="visual">Visual (diagrams, charts)</Label>
+              <RadioGroupItem value="alone" id="alone" />
+              <Label htmlFor="alone">Study alone</Label>
             </div>
             <div className="flex items-center space-x-2">
-              <RadioGroupItem value="reading" id="reading" />
-              <Label htmlFor="reading">Reading material</Label>
+              <RadioGroupItem value="group" id="group" />
+              <Label htmlFor="group">Study in groups</Label>
             </div>
             <div className="flex items-center space-x-2">
-              <RadioGroupItem value="interactive" id="interactive" />
-              <Label htmlFor="interactive">Interactive (quizzes, exercises)</Label>
+              <RadioGroupItem value="both" id="both" />
+              <Label htmlFor="both">Both, depending on the subject</Label>
             </div>
             <div className="flex items-center space-x-2">
               <RadioGroupItem value="custom" id="custom" />
-              <Label htmlFor="custom">Custom:</Label>
-              <Input 
-                className="ml-1 h-8 w-48" 
-                placeholder="Your preference" 
-                onChange={(e) => handleInputChange("studyPreferenceCustom", e.target.value)}
-              />
+              <Label htmlFor="custom">Other</Label>
             </div>
           </RadioGroup>
+          {formData.studyPreference === "custom" && (
+            <Input 
+              className="mt-2"
+              placeholder="Please specify"
+              value={formData.studyPreferenceCustom || ""}
+              onChange={(e) => handleChange("studyPreferenceCustom", e.target.value)}
+            />
+          )}
         </div>
 
-        <div className="space-y-2">
-          <Label>How do you manage stress during studying?</Label>
+        <div>
+          <Label className="text-base font-medium">Stress management technique</Label>
           <RadioGroup 
-            defaultValue={formData.stressManagement} 
-            onValueChange={(value) => handleInputChange("stressManagement", value)}
+            value={formData.stressManagement} 
+            onValueChange={(value) => handleChange("stressManagement", value)}
+            className="mt-2 space-y-1"
           >
             <div className="flex items-center space-x-2">
-              <RadioGroupItem value="breaks" id="breaks" />
-              <Label htmlFor="breaks">Taking breaks</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="music" id="music" />
-              <Label htmlFor="music">Listening to music</Label>
-            </div>
-            <div className="flex items-center space-x-2">
               <RadioGroupItem value="exercise" id="exercise" />
-              <Label htmlFor="exercise">Physical exercise</Label>
+              <Label htmlFor="exercise">Exercise/Sports</Label>
             </div>
             <div className="flex items-center space-x-2">
-              <RadioGroupItem value="custom" id="customStress" />
-              <Label htmlFor="customStress">Custom:</Label>
-              <Input 
-                className="ml-1 h-8 w-48" 
-                placeholder="Your method" 
-                onChange={(e) => handleInputChange("stressManagementCustom", e.target.value)}
-              />
+              <RadioGroupItem value="meditation" id="meditation" />
+              <Label htmlFor="meditation">Meditation/Yoga</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="hobbies" id="hobbies" />
+              <Label htmlFor="hobbies">Creative hobbies</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="social" id="social" />
+              <Label htmlFor="social">Social activities</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="custom" id="stress-custom" />
+              <Label htmlFor="stress-custom">Other</Label>
             </div>
           </RadioGroup>
+          {formData.stressManagement === "custom" && (
+            <Input 
+              className="mt-2"
+              placeholder="Please specify"
+              value={formData.stressManagementCustom || ""}
+              onChange={(e) => handleChange("stressManagementCustom", e.target.value)}
+            />
+          )}
         </div>
+      </div>
 
-        <Button 
-          type="submit" 
-          className="w-full"
-          disabled={isLoading}
-        >
-          {isLoading ? "Submitting..." : "Continue"}
-        </Button>
-      </form>
-    </div>
+      <Button 
+        type="submit" 
+        className="w-full"
+        disabled={isLoading}
+      >
+        {isLoading ? "Submitting..." : "Continue"}
+      </Button>
+    </form>
   );
 };
 

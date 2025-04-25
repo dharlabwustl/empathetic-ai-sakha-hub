@@ -1,7 +1,17 @@
 
 export type UserRole = "student" | "employee" | "doctor" | "founder" | "admin";
 
-export type MoodType = "happy" | "neutral" | "sad" | "motivated";
+export type MoodType = 
+  | "happy" 
+  | "neutral" 
+  | "sad" 
+  | "motivated" 
+  | "focused"
+  | "tired"
+  | "stressed"
+  | "curious"
+  | "okay"
+  | "overwhelmed";
 
 export type PersonalityType = "analytical" | "creative" | "practical" | "social";
 
@@ -50,3 +60,28 @@ export interface UserActivity {
   completed: boolean;
   url?: string;
 }
+
+// Add the missing KpiData type
+export interface KpiData {
+  title: string;
+  value: string | number;
+  change?: number;
+  trend?: "up" | "down" | "neutral";
+  description?: string;
+  icon?: React.ReactNode;
+}
+
+// Add the missing NudgeData type with actionLabel and actionUrl
+export interface NudgeData {
+  id: string;
+  title: string;
+  message: string;
+  type: "info" | "warning" | "success" | "error";
+  action?: string;
+  actionLabel?: string;
+  actionUrl?: string;
+  read: boolean;
+}
+
+// Add DateFilterType
+export type DateFilterType = "today" | "week" | "month" | "all";

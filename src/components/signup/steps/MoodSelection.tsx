@@ -10,67 +10,41 @@ interface MoodSelectionProps {
 }
 
 const MoodSelection: React.FC<MoodSelectionProps> = ({ onSelect, isLoading = false }) => {
-  const moodOptions: {value: MoodType, emoji: string, label: string}[] = [
-    { value: "happy", emoji: "😊", label: "Happy" },
-    { value: "neutral", emoji: "😐", label: "Neutral" },
-    { value: "sad", emoji: "😔", label: "Sad" },
-    { value: "motivated", emoji: "💪", label: "Motivated" }
+  const moods: { type: MoodType; emoji: string; label: string }[] = [
+    { type: "happy", emoji: "😊", label: "Happy" },
+    { type: "neutral", emoji: "😐", label: "Neutral" },
+    { type: "motivated", emoji: "💪", label: "Motivated" },
+    { type: "sad", emoji: "😔", label: "Sad" }
   ];
-
-  // Animation variants
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.1 }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 10 },
-    visible: { 
-      opacity: 1, 
-      y: 0,
-      transition: { duration: 0.3 }
-    }
-  };
 
   return (
     <div className="space-y-6">
       <div>
         <h3 className="text-lg font-medium mb-1">How are you feeling today?</h3>
         <p className="text-sm text-muted-foreground">
-          This helps us adapt your learning experience to match your mood.
+          Your mood affects how we'll personalize your experience
         </p>
       </div>
-
-      <motion.div 
-        className="grid grid-cols-2 gap-3"
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-      >
-        {moodOptions.map((mood) => (
-          <motion.div 
-            key={mood.value}
-            variants={itemVariants}
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.97 }}
+      
+      <div className="grid grid-cols-2 gap-4">
+        {moods.map((mood) => (
+          <motion.div
+            key={mood.type}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
           >
             <Button
-              onClick={() => onSelect(mood.value)}
+              onClick={() => onSelect(mood.type)}
               disabled={isLoading}
-              className="w-full h-auto py-6 bg-white hover:bg-blue-50 border border-blue-200 text-blue-700 dark:bg-gray-800 dark:hover:bg-gray-700 dark:border-gray-700"
+              className="w-full h-auto py-6 flex flex-col items-center bg-white hover:bg-blue-50 border border-blue-200 text-blue-700"
               variant="outline"
             >
-              <div className="flex flex-col items-center">
-                <span className="text-3xl mb-2">{mood.emoji}</span>
-                <span className="font-medium">{mood.label}</span>
-              </div>
+              <span className="text-3xl mb-2">{mood.emoji}</span>
+              <span>{mood.label}</span>
             </Button>
           </motion.div>
         ))}
-      </motion.div>
+      </div>
     </div>
   );
 };
