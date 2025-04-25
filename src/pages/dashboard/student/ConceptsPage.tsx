@@ -11,7 +11,7 @@ import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
 import { ArrowLeft, Search, BookOpen, Book, Clock, Tag, CheckCircle, XCircle, Brain } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { useUserStudyPlan, ConceptCard } from '@/hooks/useUserStudyPlan';
+import { useUserStudyPlan } from '@/hooks/useUserStudyPlan';
 import { useUserProfile } from '@/hooks/useUserProfile';
 
 const ConceptsPage = () => {
@@ -50,7 +50,7 @@ const ConceptsPage = () => {
         <div className="flex flex-col space-y-6">
           {/* Header Section */}
           <div>
-            <Link to="/dashboard/student/concepts" className="inline-flex items-center text-blue-600 hover:text-blue-700 mb-4">
+            <Link to="/dashboard/student/overview" className="inline-flex items-center text-blue-600 hover:text-blue-700 mb-4">
               <ArrowLeft size={16} className="mr-1" /> Back to Dashboard
             </Link>
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
