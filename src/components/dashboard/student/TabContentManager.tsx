@@ -20,7 +20,7 @@ import { KpiData, NudgeData } from '@/hooks/useKpiTracking';
 import FlashcardsFeature from '@/components/dashboard/student/FlashcardsFeature';
 import PracticeExamFeature from '@/components/dashboard/student/practice-exam/PracticeExamFeature';
 import FeelGoodCorner from '@/components/dashboard/student/FeelGoodCorner';
-import ConceptsSection from '@/components/dashboard/student/ConceptsSection'; // Added new import
+import ConceptsSection from '@/components/dashboard/student/ConceptsSection';
 
 interface TabContentManagerProps {
   userProfile: UserProfileType;
@@ -72,9 +72,9 @@ export const generateTabContents = ({
         />
       </>
     ),
-    today: <TodayStudyPlan />, // Ensure this is imported from the correct path
+    today: <TodayStudyPlan />,
     academic: <AcademicAdvisor userProfile={userProfile} />,
-    concepts: <ConceptsSection />, // Use the new Concepts Section
+    concepts: <ConceptsSection />,
     flashcards: <FlashcardsFeature />,
     'practice-exam': <PracticeExamFeature />,
     'feel-good': <FeelGoodCorner />,
@@ -82,4 +82,3 @@ export const generateTabContents = ({
     tutor: <AIChatTutor userProfile={userProfile} />
   };
 };
-
