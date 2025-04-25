@@ -4,11 +4,30 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { RefreshCw, ArrowRight, ArrowLeft, BookOpen, Brain, Check, X, BookmarkPlus, Volume2, VolumeX, ThumbsUp, ThumbsDown } from 'lucide-react';
+import { 
+  RefreshCw, 
+  ArrowRight, 
+  ArrowLeft, 
+  BookOpen, 
+  Brain, 
+  Check, 
+  X, 
+  BookmarkPlus, 
+  Volume2, 
+  VolumeX, 
+  ThumbsUp, 
+  ThumbsDown, 
+  Mic, 
+  MicOff,
+  Calculator
+} from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 import { useUserProfile } from '@/hooks/useUserProfile';
+import { Link } from 'react-router-dom';
 
 interface Flashcard {
   id: string;
@@ -32,32 +51,132 @@ const FlashcardsFeature = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [isReading, setIsReading] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
+  const [userAnswer, setUserAnswer] = useState("");
   
   const examGoal = userProfile?.goals?.[0]?.title || 'IIT-JEE';
 
   // Mock flashcards data - in a real app, this would come from an API
   const mockFlashcards: Record<string, Flashcard[]> = {
     today: [
-      { id: 'f1', front: 'What is Newton\'s First Law?', back: 'An object at rest stays at rest, and an object in motion stays in motion with the same speed and direction, unless acted upon by an external force.', subject: 'Physics', topic: 'Mechanics', difficulty: 'medium', timesCorrect: 2, timesIncorrect: 1, interval: 2 },
-      { id: 'f2', front: 'What is the formula for kinetic energy?', back: 'KE = (1/2)mv²', subject: 'Physics', topic: 'Energy', difficulty: 'easy', timesCorrect: 3, timesIncorrect: 0, interval: 4 },
-      { id: 'f3', front: 'Define pH scale', back: 'The pH scale measures how acidic or basic a solution is. It ranges from 0 to 14, with 7 being neutral. Values less than 7 are acidic, and values greater than 7 are basic.', subject: 'Chemistry', topic: 'Acid-Base', difficulty: 'medium', timesCorrect: 1, timesIncorrect: 2, interval: 1 }
+      { 
+        id: 'f1', 
+        front: "What is Newton's First Law?", 
+        back: "An object at rest stays at rest, and an object in motion stays in motion with the same speed and direction, unless acted upon by an external force.", 
+        subject: 'Physics', 
+        topic: 'Mechanics', 
+        difficulty: 'medium', 
+        timesCorrect: 2, 
+        timesIncorrect: 1, 
+        interval: 2 
+      },
+      { 
+        id: 'f2', 
+        front: "What is the formula for kinetic energy?", 
+        back: "KE = (1/2)mv²", 
+        subject: 'Physics', 
+        topic: 'Energy', 
+        difficulty: 'easy', 
+        timesCorrect: 3, 
+        timesIncorrect: 0, 
+        interval: 4 
+      },
+      { 
+        id: 'f3', 
+        front: "Define pH scale", 
+        back: "The pH scale measures how acidic or basic a solution is. It ranges from 0 to 14, with 7 being neutral. Values less than 7 are acidic, and values greater than 7 are basic.", 
+        subject: 'Chemistry', 
+        topic: 'Acid-Base', 
+        difficulty: 'medium', 
+        timesCorrect: 1, 
+        timesIncorrect: 2, 
+        interval: 1 
+      }
     ],
-    recent: [
-      { id: 'f4', front: 'What is the function of mitochondria?', back: 'Mitochondria are the powerhouse of the cell, responsible for producing most of the cell\'s supply of ATP through cellular respiration.', subject: 'Biology', topic: 'Cell Biology', difficulty: 'medium', timesCorrect: 4, timesIncorrect: 1, interval: 7 },
-      { id: 'f5', front: 'What is integration in calculus?', back: 'Integration is the process of finding the integral or antiderivative of a function. It's the reverse process of differentiation and is used to calculate areas, volumes, and more.', subject: 'Mathematics', topic: 'Calculus', difficulty: 'hard', timesCorrect: 2, timesIncorrect: 3, interval: 1 }
+    upcoming: [
+      { 
+        id: 'f4', 
+        front: "What is the function of mitochondria?", 
+        back: "Mitochondria are the powerhouse of the cell, responsible for producing most of the cell's supply of ATP through cellular respiration.", 
+        subject: 'Biology', 
+        topic: 'Cell Biology', 
+        difficulty: 'medium', 
+        timesCorrect: 4, 
+        timesIncorrect: 1, 
+        interval: 7 
+      },
+      { 
+        id: 'f5', 
+        front: "What is integration in calculus?", 
+        back: "Integration is the process of finding the integral or antiderivative of a function. It's the reverse process of differentiation and is used to calculate areas, volumes, and more.", 
+        subject: 'Mathematics', 
+        topic: 'Calculus', 
+        difficulty: 'hard', 
+        timesCorrect: 2, 
+        timesIncorrect: 3, 
+        interval: 1 
+      }
     ],
-    mastered: [
-      { id: 'f6', front: 'What is the speed of light?', back: 'The speed of light in vacuum is approximately 3 x 10⁸ meters per second or 299,792,458 meters per second.', subject: 'Physics', topic: 'Waves', difficulty: 'easy', timesCorrect: 5, timesIncorrect: 0, interval: 14, mastered: true },
-      { id: 'f7', front: 'What are the first 10 elements of the periodic table?', back: '1. Hydrogen (H)\n2. Helium (He)\n3. Lithium (Li)\n4. Beryllium (Be)\n5. Boron (B)\n6. Carbon (C)\n7. Nitrogen (N)\n8. Oxygen (O)\n9. Fluorine (F)\n10. Neon (Ne)', subject: 'Chemistry', topic: 'Periodic Table', difficulty: 'medium', timesCorrect: 8, timesIncorrect: 1, interval: 30, mastered: true }
+    completed: [
+      { 
+        id: 'f6', 
+        front: "What is the speed of light?", 
+        back: "The speed of light in vacuum is approximately 3 x 10⁸ meters per second or 299,792,458 meters per second.", 
+        subject: 'Physics', 
+        topic: 'Waves', 
+        difficulty: 'easy', 
+        timesCorrect: 5, 
+        timesIncorrect: 0, 
+        interval: 14, 
+        mastered: true 
+      },
+      { 
+        id: 'f7', 
+        front: "What are the first 10 elements of the periodic table?", 
+        back: "1. Hydrogen (H)\n2. Helium (He)\n3. Lithium (Li)\n4. Beryllium (Be)\n5. Boron (B)\n6. Carbon (C)\n7. Nitrogen (N)\n8. Oxygen (O)\n9. Fluorine (F)\n10. Neon (Ne)", 
+        subject: 'Chemistry', 
+        topic: 'Periodic Table', 
+        difficulty: 'medium', 
+        timesCorrect: 8, 
+        timesIncorrect: 1, 
+        interval: 30, 
+        mastered: true 
+      }
     ],
-    review: [
-      { id: 'f8', front: 'What is the quadratic formula?', back: 'x = (-b ± √(b² - 4ac)) / 2a', subject: 'Mathematics', topic: 'Algebra', difficulty: 'medium', timesCorrect: 1, timesIncorrect: 3, interval: 1 },
-      { id: 'f9', front: 'What is the difference between DNA and RNA?', back: 'DNA: double-stranded, has deoxyribose sugar, uses thymine, stores genetic information\nRNA: single-stranded, has ribose sugar, uses uracil instead of thymine, helps in protein synthesis', subject: 'Biology', topic: 'Genetics', difficulty: 'hard', timesCorrect: 0, timesIncorrect: 2, interval: 1 }
+    pending: [
+      { 
+        id: 'f8', 
+        front: "What is the quadratic formula?", 
+        back: "x = (-b ± √(b² - 4ac)) / 2a", 
+        subject: 'Mathematics', 
+        topic: 'Algebra', 
+        difficulty: 'medium', 
+        timesCorrect: 1, 
+        timesIncorrect: 3, 
+        interval: 1 
+      },
+      { 
+        id: 'f9', 
+        front: "What is the difference between DNA and RNA?", 
+        back: "DNA: double-stranded, has deoxyribose sugar, uses thymine, stores genetic information\nRNA: single-stranded, has ribose sugar, uses uracil instead of thymine, helps in protein synthesis", 
+        subject: 'Biology', 
+        topic: 'Genetics', 
+        difficulty: 'hard', 
+        timesCorrect: 0, 
+        timesIncorrect: 2, 
+        interval: 1 
+      }
     ]
   };
 
-  const allFlashcards = [...mockFlashcards.today, ...mockFlashcards.recent, ...mockFlashcards.review, ...mockFlashcards.mastered];
+  const allFlashcards = [
+    ...mockFlashcards.today, 
+    ...mockFlashcards.upcoming, 
+    ...mockFlashcards.pending, 
+    ...mockFlashcards.completed
+  ];
+  
   const groupedBySubject: Record<string, Flashcard[]> = {};
   
   allFlashcards.forEach(card => {
@@ -76,12 +195,84 @@ const FlashcardsFeature = () => {
   
   const handleNext = () => {
     setFlipped(false);
+    setUserAnswer(""); // Reset user answer for next card
     setCurrentIndex((prevIndex) => (prevIndex + 1) % currentCards.length);
   };
   
   const handlePrevious = () => {
     setFlipped(false);
+    setUserAnswer(""); // Reset user answer for next card
     setCurrentIndex((prevIndex) => (prevIndex - 1 + currentCards.length) % currentCards.length);
+  };
+  
+  const handleSubmitAnswer = () => {
+    if (!currentCard) return;
+    
+    // Compare user's answer with the correct answer
+    // In a real app, this would use more sophisticated matching
+    const userAnswerLower = userAnswer.toLowerCase().trim();
+    const correctAnswerLower = currentCard.back.toLowerCase().trim();
+    
+    const isCorrect = userAnswerLower.includes(correctAnswerLower) || 
+                      correctAnswerLower.includes(userAnswerLower);
+    
+    // Calculate accuracy (simple version)
+    const accuracy = isCorrect ? 100 : (
+      userAnswerLower.length > 0 
+        ? (userAnswerLower.length / correctAnswerLower.length) * 50 
+        : 0
+    );
+    
+    toast({
+      title: isCorrect ? "Correct Answer!" : "Review Your Answer",
+      description: isCorrect 
+        ? `Great job! You got it right with ${Math.round(accuracy)}% accuracy.` 
+        : `Your answer was approximately ${Math.round(accuracy)}% accurate. Review the correct answer.`,
+      variant: isCorrect ? "default" : "destructive",
+    });
+    
+    // Flip the card to show the answer
+    setFlipped(true);
+  };
+  
+  const handleVoiceInput = () => {
+    if (!('webkitSpeechRecognition' in window)) {
+      toast({
+        title: "Speech Recognition Not Available",
+        description: "Your browser doesn't support speech recognition. Try using a different browser.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    // @ts-ignore - WebkitSpeechRecognition is not in standard TypeScript defs
+    const recognition = new window.webkitSpeechRecognition();
+    recognition.lang = 'en-IN'; // Set to Indian English
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    
+    setIsRecording(true);
+    
+    recognition.start();
+    
+    recognition.onresult = (event: any) => {
+      const transcript = event.results[0][0].transcript;
+      setUserAnswer((prev) => prev + " " + transcript);
+      setIsRecording(false);
+    };
+    
+    recognition.onerror = () => {
+      setIsRecording(false);
+      toast({
+        title: "Error Recording",
+        description: "There was an issue with speech recognition. Please try again.",
+        variant: "destructive",
+      });
+    };
+    
+    recognition.onend = () => {
+      setIsRecording(false);
+    };
   };
   
   const handleResult = (correct: boolean) => {
@@ -94,10 +285,12 @@ const FlashcardsFeature = () => {
     if (currentIndex < currentCards.length - 1) {
       setTimeout(() => {
         setFlipped(false);
+        setUserAnswer(""); // Reset user answer for next card
         setCurrentIndex((prevIndex) => prevIndex + 1);
       }, 1000);
     } else {
       setFlipped(false);
+      setUserAnswer(""); // Reset user answer
       setTimeout(() => {
         toast({
           title: "Review Complete",
@@ -174,14 +367,36 @@ const FlashcardsFeature = () => {
         </div>
       </div>
       
+      {/* Subject Filters */}
+      <div className="overflow-x-auto pb-2">
+        <div className="flex gap-2 min-w-max">
+          <Button 
+            variant="outline" 
+            className={`${!true ? 'bg-primary/10' : ''}`}
+          >
+            All Subjects
+          </Button>
+          
+          {Object.keys(groupedBySubject).map((subject) => (
+            <Button
+              key={subject}
+              variant="outline"
+              className={`${true ? '' : 'bg-primary/10'}`}
+            >
+              {subject} ({groupedBySubject[subject].length})
+            </Button>
+          ))}
+        </div>
+      </div>
+      
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <div className="flex justify-between items-center mb-2">
           <TabsList>
             <TabsTrigger value="today">Today's Cards ({mockFlashcards.today.length})</TabsTrigger>
-            <TabsTrigger value="recent">Recent ({mockFlashcards.recent.length})</TabsTrigger>
-            <TabsTrigger value="review">Need Review ({mockFlashcards.review.length})</TabsTrigger>
-            <TabsTrigger value="mastered">Mastered ({mockFlashcards.mastered.length})</TabsTrigger>
+            <TabsTrigger value="upcoming">Upcoming ({mockFlashcards.upcoming.length})</TabsTrigger>
+            <TabsTrigger value="pending">Pending ({mockFlashcards.pending.length})</TabsTrigger>
+            <TabsTrigger value="completed">Completed ({mockFlashcards.completed.length})</TabsTrigger>
           </TabsList>
           
           <Button variant="ghost" size="sm" onClick={() => setShowDetails(!showDetails)}>
@@ -212,14 +427,14 @@ const FlashcardsFeature = () => {
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
                     <span>Mastered</span>
-                    <span>{mockFlashcards.mastered.length} cards</span>
+                    <span>{mockFlashcards.completed.length} cards</span>
                   </div>
                   <Progress 
-                    value={(mockFlashcards.mastered.length / allFlashcards.length) * 100} 
+                    value={(mockFlashcards.completed.length / allFlashcards.length) * 100} 
                     className="h-2 bg-gray-100" 
                   />
                   <p className="text-xs text-gray-500 mt-1">
-                    {Math.round((mockFlashcards.mastered.length / allFlashcards.length) * 100)}% mastery achieved
+                    {Math.round((mockFlashcards.completed.length / allFlashcards.length) * 100)}% mastery achieved
                   </p>
                 </div>
               </CardContent>
@@ -234,7 +449,7 @@ const FlashcardsFeature = () => {
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span>Today</span>
-                    <span>{mockFlashcards.today.length + mockFlashcards.review.length}</span>
+                    <span>{mockFlashcards.today.length + mockFlashcards.pending.length}</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Tomorrow</span>
@@ -254,16 +469,16 @@ const FlashcardsFeature = () => {
           {renderFlashcardContent(mockFlashcards.today)}
         </TabsContent>
         
-        <TabsContent value="recent" className="mt-4">
-          {renderFlashcardContent(mockFlashcards.recent)}
+        <TabsContent value="upcoming" className="mt-4">
+          {renderFlashcardContent(mockFlashcards.upcoming)}
         </TabsContent>
         
-        <TabsContent value="review" className="mt-4">
-          {renderFlashcardContent(mockFlashcards.review)}
+        <TabsContent value="pending" className="mt-4">
+          {renderFlashcardContent(mockFlashcards.pending)}
         </TabsContent>
         
-        <TabsContent value="mastered" className="mt-4">
-          {renderFlashcardContent(mockFlashcards.mastered)}
+        <TabsContent value="completed" className="mt-4">
+          {renderFlashcardContent(mockFlashcards.completed)}
         </TabsContent>
       </Tabs>
     </div>
@@ -319,7 +534,7 @@ const FlashcardsFeature = () => {
 
           {/* Card itself */}
           <div 
-            className="relative w-full h-64 cursor-pointer"
+            className="relative w-full cursor-pointer"
             onClick={handleFlip}
           >
             <AnimatePresence initial={false} mode="wait">
@@ -329,7 +544,7 @@ const FlashcardsFeature = () => {
                 animate={{ rotateY: 0, opacity: 1 }}
                 exit={{ rotateY: flipped ? 90 : -90, opacity: 0 }}
                 transition={{ duration: 0.3 }}
-                className={`absolute inset-0 w-full h-full bg-white border rounded-xl p-6 flex flex-col ${
+                className={`w-full bg-white border rounded-xl p-6 flex flex-col ${
                   flipped ? 'bg-blue-50' : 'bg-white'
                 }`}
               >
@@ -362,20 +577,62 @@ const FlashcardsFeature = () => {
                     </Button>
                   </div>
                 </div>
-                <div className="flex-grow flex items-center justify-center">
+                <div className="flex-grow py-6">
                   <p className="text-center text-lg">
                     {flipped ? card.back : card.front}
                   </p>
                 </div>
                 <div className="mt-4 text-sm text-center text-gray-500">
-                  Tap to {flipped ? 'see question' : 'reveal answer'}
+                  {!flipped ? "Tap to reveal answer" : "Tap to see question"}
                 </div>
               </motion.div>
             </AnimatePresence>
           </div>
+
+          {/* Answer input section - only show when not flipped */}
+          {!flipped && (
+            <div className="mt-6 border rounded-lg p-4 bg-gray-50">
+              <div className="mb-2 flex justify-between">
+                <h4 className="font-medium">Your Answer:</h4>
+                <div className="flex gap-2">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="flex items-center gap-1"
+                    onClick={handleVoiceInput}
+                    disabled={isRecording}
+                  >
+                    {isRecording ? <MicOff size={14} /> : <Mic size={14} />}
+                    {isRecording ? "Recording..." : "Voice Input"}
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="flex items-center gap-1"
+                  >
+                    <Calculator size={14} />
+                    Formula
+                  </Button>
+                </div>
+              </div>
+              
+              <Textarea
+                value={userAnswer}
+                onChange={(e) => setUserAnswer(e.target.value)}
+                placeholder="Enter your answer here..."
+                className="min-h-[100px] mb-3"
+              />
+              
+              <div className="flex justify-end">
+                <Button onClick={handleSubmitAnswer}>
+                  Submit Answer
+                </Button>
+              </div>
+            </div>
+          )}
           
           {/* Navigation buttons */}
-          <div className="mt-4 flex justify-between items-center">
+          <div className="mt-6 flex justify-between items-center">
             <Button variant="outline" onClick={handlePrevious} disabled={cards.length <= 1}>
               <ArrowLeft size={16} className="mr-1" />
               Previous
@@ -425,11 +682,5 @@ const FlashcardsFeature = () => {
     );
   }
 };
-
-// Type definitions
-interface Link {
-  href: string;
-  label: string;
-}
 
 export default FlashcardsFeature;

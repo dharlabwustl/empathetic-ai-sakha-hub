@@ -1,153 +1,71 @@
 
-import * as React from "react";
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { ThemeProvider } from "@/providers/ThemeProvider";
-import { AdminAuthProvider } from "@/contexts/AdminAuthContext";
-import { AuthProvider } from "@/contexts/auth/AuthContext";
-import AdminRouteGuard from "@/components/admin/AdminRouteGuard";
-import ProtectedRoute from "@/components/common/ProtectedRoute";
-import Index from "./pages/Index";
-import About from "./pages/About";
-import Features from "./pages/Features";
-import Pricing from "./pages/Pricing";
-import SignUp from "./pages/SignUp";
-import Login from "./pages/Login";
-import LoginPage from "./pages/login/LoginPage";
-import AdminLogin from "./pages/admin/AdminLogin";
-import AdminDashboard from "./pages/admin/AdminDashboard";
-import StudentsPage from "./pages/admin/StudentsPage";
-import ContentPage from "./pages/admin/ContentPage";
-import SettingsPage from "./pages/admin/SettingsPage";
-import AnalyticsPage from "./pages/admin/AnalyticsPage";
-import SystemMonitoringPage from "./pages/admin/SystemMonitoringPage";
-import EngagementPage from "./pages/admin/EngagementPage";
-import SubscriptionsPage from "./pages/admin/SubscriptionsPage";
-import AIPersonalizationPage from "./pages/admin/AIPersonalizationPage";
-import IssuesPage from "./pages/admin/IssuesPage";
-import NotificationsPage from "./pages/admin/NotificationsPage";
-import DocumentationPage from "./pages/admin/DocumentationPage";
-import StudentDashboard from "./pages/dashboard/StudentDashboard";
-import EmployeeDashboard from "./pages/dashboard/EmployeeDashboard";
-import DoctorDashboard from "./pages/dashboard/DoctorDashboard";
-import FounderDashboard from "./pages/dashboard/FounderDashboard";
-import StudyProgress from "./pages/dashboard/StudyProgress";
-import AIChatTutor from "./pages/dashboard/student/AIChatTutor";
-import AcademicAdvisor from "./pages/dashboard/student/AcademicAdvisor";
-import SubscriptionPage from "./pages/dashboard/student/SubscriptionPage";
-import NotFound from "./pages/NotFound";
-import "./styles/animations.css";
-import { UserRole } from "./types/user/base";
+import { Routes, Route, Navigate } from "react-router-dom";
+import SignupPage from "@/pages/auth/SignupPage";
+import LoginPage from "@/pages/auth/LoginPage";
+import HomePage from "@/pages/HomePage";
+import AboutPage from "@/pages/AboutPage";
+import PricingPage from "@/pages/PricingPage";
+import ContactPage from "@/pages/ContactPage";
+import FeaturesPage from "@/pages/FeaturesPage";
+import DashboardLayout from "@/pages/dashboard/student/DashboardLayout";
+import StudentDashboard from "@/pages/dashboard/student/StudentDashboard";
+import ConceptsPage from "@/pages/dashboard/student/ConceptsPage";
+import ConceptsAllPage from "@/pages/dashboard/student/ConceptsAllPage";
+import FlashcardsPage from "@/pages/dashboard/student/FlashcardsPage";
+import PracticeExamPage from "@/pages/dashboard/student/PracticeExamPage";
+import ExamDetailPage from "@/pages/dashboard/student/ExamDetailPage";
+import NotFoundPage from "@/pages/NotFoundPage";
+import ConceptDetailPage from "@/pages/dashboard/student/ConceptDetailPage";
+import AuthProvider from "@/components/auth/AuthProvider";
+import ProtectedRoute from "@/components/auth/ProtectedRoute";
+import DashboardContextProvider from "@/contexts/DashboardContext";
 
-import StudentProfilePage from "./pages/dashboard/student/ProfilePage";
-import StudentSettingsPage from "./pages/dashboard/student/SettingsPage";
-import FlashcardsPage from "./pages/dashboard/student/FlashcardsPage";
-import ExamPreparationPage from "./pages/dashboard/student/ExamPreparationPage";
-import PracticeExamsPage from "./pages/dashboard/student/PracticeExamsPage";
-
-import FeaturesManagementPage from "./pages/admin/FeaturesManagementPage";
-import BatchManagementPage from "./pages/admin/BatchManagementPage";
-
-// New imports for concept pages
-import ConceptsPage from "./pages/dashboard/student/ConceptsPage";
-import ConceptCardDetailPage from "./pages/dashboard/student/ConceptCardDetailPage";
-
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: 1,
-      refetchOnWindowFocus: false,
-    },
-  },
-});
-
-const App = () => {
+function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <ThemeProvider>
-        <TooltipProvider>
-          <AuthProvider>
-            <AdminAuthProvider>
-              <Toaster />
-              <Sonner />
-              <BrowserRouter>
-                <Routes>
-                  {/* Landing pages */}
-                  <Route path="/" element={<Index />} />
-                  <Route path="/about" element={<About />} />
-                  <Route path="/features" element={<Features />} />
-                  <Route path="/pricing" element={<Pricing />} />
-                  <Route path="/signup" element={<SignUp />} />
-                  <Route path="/login" element={<LoginPage />} />
-                  <Route path="/login/old" element={<Login />} />
-                  
-                  {/* Admin routes */}
-                  <Route path="/admin/login" element={<AdminLogin />} />
-                  
-                  {/* Fix the AdminRouteGuard usage */}
-                  <Route element={<AdminRouteGuard />}>
-                    <Route path="/admin/dashboard" element={<AdminDashboard />} />
-                    <Route path="/admin/students" element={<StudentsPage />} />
-                    <Route path="/admin/ai" element={<AIPersonalizationPage />} />
-                    <Route path="/admin/content" element={<ContentPage />} />
-                    <Route path="/admin/engagement" element={<EngagementPage />} />
-                    <Route path="/admin/subscriptions" element={<SubscriptionsPage />} />
-                    <Route path="/admin/system" element={<SystemMonitoringPage />} />
-                    <Route path="/admin/analytics" element={<AnalyticsPage />} />
-                    <Route path="/admin/issues" element={<IssuesPage />} />
-                    <Route path="/admin/notifications" element={<NotificationsPage />} />
-                    <Route path="/admin/documentation" element={<DocumentationPage />} />
-                    <Route path="/admin/settings" element={<SettingsPage />} />
-                    <Route path="/admin/features" element={<FeaturesManagementPage />} />
-                    <Route path="/admin/batch" element={<BatchManagementPage />} />
-                  </Route>
-                  
-                  {/* Student routes */}
-                  <Route element={<ProtectedRoute />}>
-                    <Route path="/dashboard/student" element={<Navigate to="/dashboard/student/overview" replace />} />
-                    <Route path="/dashboard/student/:tab" element={<StudentDashboard />} />
-                    
-                    {/* Concept card routes */}
-                    <Route path="/dashboard/student/concepts/all" element={<ConceptsPage />} />
-                    <Route path="/dashboard/student/concepts/:conceptId" element={<ConceptCardDetailPage />} />
-                    <Route path="/dashboard/student/exams" element={<PracticeExamsPage />} />
-                    
-                    <Route path="/dashboard/student/progress" element={<StudyProgress />} />
-                    <Route path="/dashboard/student/profile" element={<StudentProfilePage />} />
-                    <Route path="/dashboard/student/settings" element={<StudentSettingsPage />} />
-                    <Route path="/dashboard/student/subscription" element={<SubscriptionPage />} />
-                    <Route path="/dashboard/student/flashcards" element={<FlashcardsPage />} />
-                    <Route path="/dashboard/student/exams" element={<ExamPreparationPage />} />
-                    <Route path="/dashboard/student/tutor" element={<AIChatTutor userProfile={{
-                      id: "1",
-                      name: "Student",
-                      email: "student@example.com",
-                      role: UserRole.Student,
-                      goals: [{ id: "1", title: "JEE", progress: 65 }]
-                    }} />} />
-                    <Route path="/dashboard/student/academic" element={<AcademicAdvisor userProfile={{
-                      examPreparation: "IIT-JEE"
-                    }} />} />
-                    
-                    {/* Other user type dashboards */}
-                    <Route path="/dashboard/doctor" element={<DoctorDashboard />} />
-                    <Route path="/dashboard/employee" element={<EmployeeDashboard />} />
-                    <Route path="/dashboard/founder" element={<FounderDashboard />} />
-                  </Route>
-                  
-                  {/* 404 page */}
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </BrowserRouter>
-            </AdminAuthProvider>
-          </AuthProvider>
-        </TooltipProvider>
-      </ThemeProvider>
-    </QueryClientProvider>
+    <AuthProvider>
+      <Routes>
+        {/* Public Routes */}
+        <Route path="/" element={<HomePage />} />
+        <Route path="/about" element={<AboutPage />} />
+        <Route path="/features" element={<FeaturesPage />} />
+        <Route path="/pricing" element={<PricingPage />} />
+        <Route path="/contact" element={<ContactPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignupPage />} />
+
+        {/* Protected Dashboard Routes */}
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <DashboardContextProvider>
+                <DashboardLayout />
+              </DashboardContextProvider>
+            </ProtectedRoute>
+          }
+        >
+          <Route path="" element={<Navigate to="student/overview" replace />} />
+          <Route path="student" element={<Navigate to="overview" replace />} />
+          <Route path="student/overview" element={<StudentDashboard />} />
+          <Route path="student/concepts" element={<ConceptsPage />} />
+          <Route path="student/concepts/all" element={<ConceptsAllPage />} />
+          <Route path="student/concepts/:conceptId" element={<ConceptDetailPage />} />
+          <Route path="student/flashcards" element={<FlashcardsPage />} />
+          <Route path="student/practice-exams" element={<PracticeExamPage />} />
+          <Route path="student/exam/:examId" element={<ExamDetailPage />} />
+          <Route path="student/exam/:examId/review" element={<ExamDetailPage />} />
+
+          {/* Redirects */}
+          <Route path="student/today" element={<Navigate to="/dashboard/student/concepts" replace />} />
+          <Route path="student/week" element={<Navigate to="/dashboard/student/concepts" replace />} />
+          <Route path="student/month" element={<Navigate to="/dashboard/student/concepts" replace />} />
+        </Route>
+
+        {/* 404 - Not Found */}
+        <Route path="*" element={<NotFoundPage />} />
+      </Routes>
+    </AuthProvider>
   );
-};
+}
 
 export default App;
