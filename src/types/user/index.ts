@@ -14,4 +14,7 @@ export interface SystemLog {
   type: string;
   details: Record<string, any>;
   severity: 'info' | 'warning' | 'error';
+  resolved?: boolean;
+  message?: string;
+  source?: string;
 }
