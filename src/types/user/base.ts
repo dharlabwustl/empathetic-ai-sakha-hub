@@ -42,6 +42,52 @@ export interface NudgeData {
   isRead: boolean;
 }
 
+export interface StudyMetrics {
+  totalConceptCards: number;
+  flashcardsToComplete: number;
+  practiceExams: number;
+  averageQuizScore: number;
+  averageRecallAccuracy: number;
+  totalConceptsCompleted: number;
+}
+
+export interface SubjectMetrics {
+  subject: string;
+  priority: 'High' | 'Medium' | 'Low';
+  concepts: {
+    completed: number;
+    total: number;
+  };
+  flashcards: {
+    completed: number;
+    total: number;
+  };
+  practiceTests: {
+    completed: number;
+    total: number;
+  };
+  status: 'completed' | 'in-progress' | 'need-attention';
+}
+
+export interface StudyPlanMetrics {
+  dailyStudyTarget: number;
+  conceptsPerDay: number;
+  flashcardsPerDay: number;
+  practiceTestsPerWeek: number;
+}
+
+export interface RevisionMetrics {
+  pendingReviewConcepts: number;
+  lowRetentionFlashcards: number;
+  flaggedForRevisit: number;
+  nextWeeklyTarget: string;
+  nextPracticeExam: {
+    topic: string;
+    date: string;
+  };
+  performanceCheckIn: string;
+}
+
 export interface UserProfileType {
   id: string;
   name: string;
@@ -66,4 +112,8 @@ export interface UserProfileType {
   };
   suggestedNextAction?: string;
   mood?: MoodType;
+  studyMetrics?: StudyMetrics;
+  subjectMetrics?: SubjectMetrics[];
+  studyPlanMetrics?: StudyPlanMetrics;
+  revisionMetrics?: RevisionMetrics;
 }
