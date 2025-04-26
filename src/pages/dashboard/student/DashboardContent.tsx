@@ -4,7 +4,7 @@ import { generateTabContents } from "@/components/dashboard/student/TabContentMa
 import DashboardTabs from "@/components/dashboard/student/DashboardTabs";
 import ReturnUserRecap from "@/components/dashboard/student/ReturnUserRecap";
 import { TodaysPlanSection } from "@/components/dashboard/student/todays-plan";
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 interface DashboardTabsProps {
   activeTab: string;

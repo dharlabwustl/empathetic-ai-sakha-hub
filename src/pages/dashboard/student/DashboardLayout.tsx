@@ -1,6 +1,6 @@
 
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import SidebarNav from "@/components/dashboard/SidebarNav";
 import ChatAssistant from "@/components/dashboard/ChatAssistant";
 import DashboardHeader from "./DashboardHeader";
@@ -67,6 +67,7 @@ const DashboardLayout = ({
   currentMood,
   children // Now we use children
 }: DashboardLayoutProps) => {
+  const navigate = useNavigate();
   const currentTime = new Date();
   const formattedTime = formatTime(currentTime);
   const formattedDate = formatDate(currentTime);
@@ -75,19 +76,19 @@ const DashboardLayout = ({
   
   const features = getFeatures();
 
-  // Navigation buttons for quick access - moved from inside the render
+  // Navigation buttons for quick access
   const navigationButtons = [
     { 
       name: "24/7 AI Tutor", 
       icon: <MessageSquareText className="h-4 w-4 mr-1" />, 
-      path: "/dashboard/student/tutor", 
+      path: "/dashboard/student/ai-tutor", 
       variant: "default" as const,
       className: "bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white shadow-md"
     },
     { 
       name: "Academic Advisor", 
       icon: <Brain className="h-4 w-4 mr-1" />, 
-      path: "/dashboard/student/academic", 
+      path: "/dashboard/student/academic-advisor", 
       variant: "default" as const,
       className: "bg-gradient-to-r from-purple-500 to-violet-600 hover:from-purple-600 hover:to-violet-700 text-white shadow-md"
     },
@@ -114,6 +115,11 @@ const DashboardLayout = ({
   const handleCompleteTourAndClose = () => {
     setShowTour(false);
     onCompleteTour();
+  };
+  
+  // Handler for navigation button clicks
+  const handleNavigateToSection = (path: string) => {
+    navigate(path);
   };
 
   return (
@@ -154,16 +160,15 @@ const DashboardLayout = ({
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              <Link to={button.path}>
-                <Button 
-                  variant={button.variant} 
-                  size="sm" 
-                  className={`flex items-center ${button.className}`}
-                >
-                  {button.icon}
-                  {button.name}
-                </Button>
-              </Link>
+              <Button 
+                variant={button.variant} 
+                size="sm" 
+                className={`flex items-center ${button.className}`}
+                onClick={() => handleNavigateToSection(button.path)}
+              >
+                {button.icon}
+                {button.name}
+              </Button>
             </motion.div>
           ))}
           

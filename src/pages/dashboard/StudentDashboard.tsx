@@ -29,7 +29,7 @@ const StudentDashboard = () => {
     kpis,
     nudges,
     features,
-    dashboardLastActivity,
+    lastActivity: dashboardLastActivity,
     suggestedNextAction,
     markNudgeAsRead,
     handleTabChange,
@@ -161,6 +161,25 @@ const StudentDashboard = () => {
       />
     );
   }
+
+  // Update effect for handling navigation
+  useEffect(() => {
+    const path = location.pathname;
+    const tab = path.split('/').pop() || 'overview';
+    const returnParam = location.search.includes('returning=true');
+    
+    if (tab !== activeTab) {
+      handleTabChange(tab);
+    }
+    
+    // Preserve return parameter when navigating
+    if (returnParam) {
+      const params = new URLSearchParams(location.search);
+      if (params.get('returning') === 'true') {
+        navigate(`${location.pathname}?returning=true`, { replace: true });
+      }
+    }
+  }, [location.pathname, activeTab, handleTabChange, navigate, location.search]);
 
   return (
     <DashboardLayout
