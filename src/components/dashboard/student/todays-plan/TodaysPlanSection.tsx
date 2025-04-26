@@ -4,7 +4,6 @@ import { Calendar, Brain, Clock } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import StudyTimeline from "./StudyTimeline";
 import SubjectBreakdown from "./SubjectBreakdown";
 import TimeAllocation from "./TimeAllocation";
 import TaskHistory from "./TaskHistory";
