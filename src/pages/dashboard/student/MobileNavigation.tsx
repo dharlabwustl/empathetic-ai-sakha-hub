@@ -15,17 +15,17 @@ const MobileNavigation = ({ activeTab, onTabChange }: MobileNavigationProps) => 
   const isMobile = useIsMobile();
   
   const navItems = [
-    { icon: <Home size={16} />, title: "Dashboard", tab: "overview" },
-    { icon: <Calendar size={16} />, title: "Today's Plan", tab: "today" },
-    { icon: <BookMarked size={16} />, title: "Academic", tab: "academic" },
-    { icon: <MessageSquare size={16} />, title: "Tutor", tab: "tutor" },
-    { icon: <Brain size={16} />, title: "Flashcards", tab: "flashcards" },
-    { icon: <BookOpen size={16} />, title: "Exams", tab: "exams" },
+    { icon: <Home size={16} />, title: "Dashboard", tab: "overview", path: "/dashboard/student/overview" },
+    { icon: <Calendar size={16} />, title: "Today's Plan", tab: "today", path: "/dashboard/student/today" },
+    { icon: <BookMarked size={16} />, title: "Academic", tab: "academic", path: "/dashboard/student/academic" },
+    { icon: <BookOpen size={16} />, title: "Concepts", tab: "concepts", path: "/dashboard/student/concepts/all" },
+    { icon: <Brain size={16} />, title: "Flashcards", tab: "flashcards", path: "/dashboard/student/flashcards" },
+    { icon: <BookOpen size={16} />, title: "Exams", tab: "exams", path: "/dashboard/student/exams" },
   ];
 
-  const handleTabChange = (tab: string) => {
+  const handleTabChange = (tab: string, path: string) => {
     onTabChange(tab);
-    navigate(`/dashboard/student/${tab}`);
+    navigate(path);
   };
 
   if (!isMobile) {
@@ -45,7 +45,7 @@ const MobileNavigation = ({ activeTab, onTabChange }: MobileNavigationProps) => 
                 : "hover:bg-gray-100 dark:hover:bg-gray-800 border-gray-200 dark:border-gray-700"
             }`}
             size="sm"
-            onClick={() => handleTabChange(item.tab)}
+            onClick={() => handleTabChange(item.tab, item.path)}
           >
             {item.icon}
             <span className="ml-2 whitespace-nowrap">{item.title}</span>

@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Calculator, Book, Brain, FileText, Function } from 'lucide-react';
+import { Calculator, Book, Brain, FileText } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { MathJax, MathJaxContext } from 'better-react-mathjax';
 

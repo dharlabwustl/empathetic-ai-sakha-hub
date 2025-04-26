@@ -11,6 +11,7 @@ import TopNavigationControls from '@/components/dashboard/student/TopNavigationC
 import SurroundingInfluencesSection from '@/components/dashboard/student/SurroundingInfluencesSection';
 import MainContent from '@/components/dashboard/student/MainContent';
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useNavigate } from 'react-router-dom';
 
 interface DashboardWrapperProps {
   userProfile: UserProfileType;
@@ -57,6 +58,7 @@ const DashboardWrapper: React.FC<DashboardWrapperProps> = ({
   const formattedTime = formatTime(currentTime);
   const formattedDate = formatDate(currentTime);
   const [influenceMeterCollapsed, setInfluenceMeterCollapsed] = React.useState(true);
+  const navigate = useNavigate();
 
   return (
     <main className={`transition-all duration-300 ${hideSidebar ? 'md:ml-0' : 'md:ml-64'} p-4 sm:p-6 pb-20 md:pb-6`}>

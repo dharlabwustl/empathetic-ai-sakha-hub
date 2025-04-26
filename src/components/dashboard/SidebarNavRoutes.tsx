@@ -1,3 +1,4 @@
+
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
@@ -35,6 +36,7 @@ const tooltipDescriptions: Record<string, string> = {
   "Academic Advisor": "Plan and track your academic journey",
   Progress: "View detailed analytics of your performance",
   Flashcards: "Practice with smart flashcards",
+  "Concept Cards": "Master key concepts for your exams",
   "Materials Vault": "Access your study materials and resources",
   "Live Tutors": "Connect with expert tutors in real-time",
   Forum: "Discuss and learn with your peers",
@@ -53,10 +55,10 @@ export const SidebarNavRoutes = ({
   
   const userTypeRoutes: UserRouteMap = {
     student: [
-      { name: "Dashboard", path: "/dashboard/student", icon: <LayoutDashboard size={20} /> },
+      { name: "Dashboard", path: "/dashboard/student/overview", icon: <LayoutDashboard size={20} /> },
       { name: "Today's Plan", path: "/dashboard/student/today", icon: <Calendar size={20} /> },
       { name: "Academic Advisor", path: "/dashboard/student/academic", icon: <Calendar size={20} /> },
-      { name: "Concept Cards", path: "/dashboard/student/concepts", icon: <BookOpen size={20} /> },
+      { name: "Concept Cards", path: "/dashboard/student/concepts/all", icon: <BookOpen size={20} /> },
       { name: "Flashcards", path: "/dashboard/student/flashcards", icon: <Brain size={20} /> },
       { name: "Materials Vault", path: "/dashboard/student/materials", icon: <BookOpen size={20} /> },
       { name: "Live Tutors", path: "/dashboard/student/live-tutors", icon: <Video size={20} /> },
@@ -111,7 +113,7 @@ export const SidebarNavRoutes = ({
                     to={route.path}
                     className={cn(
                       "flex items-center gap-3 px-3 py-2 rounded-md transition-all duration-200",
-                      location.pathname === route.path
+                      location.pathname === route.path || location.pathname.startsWith(route.path + '/')
                         ? "bg-gradient-to-r from-sky-500 to-violet-500 text-white shadow-lg"
                         : "hover:bg-accent hover:shadow-md",
                       collapsed && "justify-center"

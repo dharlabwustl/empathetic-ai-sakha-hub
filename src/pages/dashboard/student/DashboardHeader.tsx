@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { useNavigate } from 'react-router-dom';
@@ -17,8 +18,8 @@ const DashboardHeader = ({
 }: DashboardHeaderProps) => {
   const navigate = useNavigate();
 
-  const navigateToTutor = () => navigate('/dashboard/student/academic');
-  const navigateToAdvisor = () => navigate('/dashboard/student/advisor');
+  const navigateToTutor = () => navigate('/dashboard/student/tutor');
+  const navigateToAdvisor = () => navigate('/dashboard/student/academic');
   const navigateToWellness = () => navigate('/dashboard/student/wellness');
 
   return (
