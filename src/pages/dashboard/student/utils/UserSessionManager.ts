@@ -35,9 +35,10 @@ export const handleNewUser = (location: Location, navigate: NavigateFunction) =>
   }
   
   // Default for truly new users or when user data is missing
-  console.log("UserSessionManager - No user data found, treating as new user");
+  // Don't enforce onboarding if accessed directly for now (allows direct access to dashboard)
+  console.log("UserSessionManager - No user data found, allowing access to dashboard");
   return {
-    shouldShowOnboarding: true,
+    shouldShowOnboarding: false,
     shouldShowWelcomeTour: false
   };
 };

@@ -44,38 +44,30 @@ const StudentDashboard = () => {
     trackUserActivity
   } = useStudentDashboard();
 
-  // Enhanced URL parameter handling
+  // Check for user state directly from localStorage
   useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const isReturningUser = params.get('returning') === 'true';
-    const isNewUser = params.get('new') === 'true';
+    console.log("StudentDashboard - Checking user state");
     
-    console.log("Dashboard URL params:", { 
-      isReturningUser, 
-      isNewUser 
-    });
-    
-    if (isReturningUser) {
-      const userData = localStorage.getItem("userData");
-      if (userData) {
-        const parsedData = JSON.parse(userData);
+    const userData = localStorage.getItem("userData");
+    if (userData) {
+      const parsedData = JSON.parse(userData);
+      
+      // Set last activity from stored data if it exists
+      if (parsedData.lastActivity) {
+        setLastActivity(parsedData.lastActivity);
         
-        // Set last activity from stored data
-        if (parsedData.lastActivity) {
-          setLastActivity(parsedData.lastActivity);
+        // Show returning prompt only if user has logged in before and has activity
+        if (parsedData.isReturningUser && parsedData.loginCount > 1) {
           setShowReturningPrompt(true);
         }
-        
-        // Get saved mood from localStorage
-        if (parsedData.mood) {
-          setCurrentMood(parsedData.mood as MoodType);
-        }
       }
-    } else if (isNewUser) {
-      // Direct to onboarding for new users
-      setShowSplash(false);
+      
+      // Get saved mood from localStorage
+      if (parsedData.mood) {
+        setCurrentMood(parsedData.mood as MoodType);
+      }
     }
-  }, [location]);
+  }, []);
   
   const handleContinueLastActivity = () => {
     setShowReturningPrompt(false);
