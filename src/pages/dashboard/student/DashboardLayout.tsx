@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import SidebarNav from "@/components/dashboard/SidebarNav";
@@ -18,8 +17,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import MobileNavigation from "./MobileNavigation";
 import { getFeatures } from "./utils/FeatureManager";
 import { Button } from "@/components/ui/button";
-import { BookOpen, MessageSquareText, Brain } from "lucide-react";
-import ProfileCard from "@/components/dashboard/ProfileCard";
+import { BookOpen, MessageSquare, Brain, Heart } from "lucide-react";
 import WelcomeTour from "@/components/dashboard/student/WelcomeTour";
 
 interface DashboardLayoutProps {
@@ -42,7 +40,7 @@ interface DashboardLayoutProps {
   lastActivity?: { type: string; description: string } | null;
   suggestedNextAction?: string | null;
   currentMood?: MoodType;
-  children?: React.ReactNode; // Add support for children
+  children?: React.ReactNode;
 }
 
 const DashboardLayout = ({
@@ -65,7 +63,7 @@ const DashboardLayout = ({
   lastActivity,
   suggestedNextAction,
   currentMood,
-  children // Now we use children
+  children
 }: DashboardLayoutProps) => {
   const navigate = useNavigate();
   const currentTime = new Date();
@@ -80,21 +78,21 @@ const DashboardLayout = ({
   const navigationButtons = [
     { 
       name: "24/7 AI Tutor", 
-      icon: <MessageSquareText className="h-4 w-4 mr-1" />, 
-      path: "/dashboard/student/ai-tutor", 
+      icon: <MessageSquare className="h-4 w-4 mr-1" />, 
+      path: "/dashboard/student/tutor", 
       variant: "default" as const,
       className: "bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white shadow-md"
     },
     { 
       name: "Academic Advisor", 
       icon: <Brain className="h-4 w-4 mr-1" />, 
-      path: "/dashboard/student/academic-advisor", 
+      path: "/dashboard/student/academic", 
       variant: "default" as const,
       className: "bg-gradient-to-r from-purple-500 to-violet-600 hover:from-purple-600 hover:to-violet-700 text-white shadow-md"
     },
     { 
       name: "Feel Good Corner", 
-      icon: <BookOpen className="h-4 w-4 mr-1" />, 
+      icon: <Heart className="h-4 w-4 mr-1" />, 
       path: "/dashboard/student/feel-good", 
       variant: "default" as const,
       className: "bg-gradient-to-r from-pink-500 to-rose-600 hover:from-pink-600 hover:to-rose-700 text-white shadow-md"
@@ -120,6 +118,9 @@ const DashboardLayout = ({
   // Handler for navigation button clicks
   const handleNavigateToSection = (path: string) => {
     navigate(path);
+    // Update the active tab based on the path
+    const tabFromPath = path.split('/').pop() || 'overview';
+    onTabChange(tabFromPath);
   };
 
   return (

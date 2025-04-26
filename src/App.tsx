@@ -61,6 +61,7 @@ import ConceptCardsListingPage from "./pages/dashboard/student/ConceptCardsListi
 import PracticeExamPage from "./components/dashboard/student/practice-exams/PracticeExamPage";
 import ExamResultsPage from "./components/dashboard/student/practice-exams/ExamResultsPage";
 import PracticeExamsListPage from "./pages/dashboard/student/PracticeExamsListPage";
+import FeelGoodPage from "./pages/dashboard/student/FeelGoodPage";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -141,8 +142,9 @@ const App = () => {
                     <Route path="/dashboard/student/settings" element={<StudentSettingsPage />} />
                     <Route path="/dashboard/student/subscription" element={<SubscriptionPage />} />
                     
-                    <Route path="/dashboard/student/ai-tutor" element={<AIChatTutor />} />
-                    <Route path="/dashboard/student/academic-advisor" element={<AcademicAdvisor />} />
+                    <Route path="/dashboard/student/ai-tutor" element={<AIChatTutor userProfile={{} as any} />} />
+                    <Route path="/dashboard/student/academic-advisor" element={<AcademicAdvisor userProfile={{} as any} />} />
+                    <Route path="/dashboard/student/feel-good-corner" element={<FeelGoodPage />} />
                     
                     <Route path="/dashboard/doctor" element={<DoctorDashboard />} />
                     <Route path="/dashboard/employee" element={<EmployeeDashboard />} />

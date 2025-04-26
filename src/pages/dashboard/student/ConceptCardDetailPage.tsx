@@ -8,6 +8,8 @@ import ConceptCardDetailView from "@/components/dashboard/student/concept-cards/
 import MainLayout from "@/components/layouts/MainLayout";
 import { ConceptCard } from "@/hooks/useUserStudyPlan";
 import { useUserStudyPlan } from "@/hooks/useUserStudyPlan";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { BookOpen, Brain, FileText } from "lucide-react";
 
 interface ConceptDetail extends ConceptCard {
   content: {
@@ -108,6 +110,101 @@ const ConceptCardDetailPage = () => {
     });
   };
 
+  // Function to render linked resources
+  const renderLinkedResources = () => {
+    if (!concept) return null;
+
+    return (
+      <div className="mt-8 space-y-6">
+        <h2 className="text-2xl font-bold">Related Resources</h2>
+        
+        {/* Related Concepts */}
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-lg flex items-center">
+              <BookOpen className="mr-2 h-5 w-5 text-blue-600" />
+              Related Concepts
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {concept.relatedConcepts.length > 0 ? (
+                concept.relatedConcepts.map((conceptId, index) => (
+                  <Link 
+                    key={conceptId} 
+                    to={`/dashboard/student/concepts/${conceptId}`}
+                    className="p-4 border rounded-md hover:bg-blue-50 transition-colors flex items-center"
+                  >
+                    <BookOpen className="h-4 w-4 mr-2 text-blue-600" />
+                    <span>Related Concept {index + 1}</span>
+                  </Link>
+                ))
+              ) : (
+                <p className="text-gray-500">No related concepts available.</p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+        
+        {/* Linked Flashcards */}
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-lg flex items-center">
+              <Brain className="mr-2 h-5 w-5 text-purple-600" />
+              Practice with Flashcards
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {concept.linkedFlashcards.length > 0 ? (
+                concept.linkedFlashcards.map((flashcardId, index) => (
+                  <Link 
+                    key={flashcardId} 
+                    to={`/dashboard/student/flashcards/${flashcardId}`}
+                    className="p-4 border rounded-md hover:bg-purple-50 transition-colors flex items-center"
+                  >
+                    <Brain className="h-4 w-4 mr-2 text-purple-600" />
+                    <span>Flashcard Set {index + 1}</span>
+                  </Link>
+                ))
+              ) : (
+                <p className="text-gray-500">No linked flashcards available.</p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+        
+        {/* Linked Practice Exams */}
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-lg flex items-center">
+              <FileText className="mr-2 h-5 w-5 text-green-600" />
+              Test Your Knowledge
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {concept.linkedExams.length > 0 ? (
+                concept.linkedExams.map((examId, index) => (
+                  <Link 
+                    key={examId} 
+                    to={`/dashboard/student/exams/${examId}`}
+                    className="p-4 border rounded-md hover:bg-green-50 transition-colors flex items-center"
+                  >
+                    <FileText className="h-4 w-4 mr-2 text-green-600" />
+                    <span>Practice Exam {index + 1}</span>
+                  </Link>
+                ))
+              ) : (
+                <p className="text-gray-500">No linked practice exams available.</p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  };
+
   if (loading) {
     return (
       <MainLayout>
@@ -128,10 +225,13 @@ const ConceptCardDetailPage = () => {
           className="w-full"
         >
           {concept ? (
-            <ConceptCardDetailView 
-              concept={concept} 
-              onMarkCompleted={handleMarkCompleted}
-            />
+            <>
+              <ConceptCardDetailView 
+                concept={concept} 
+                onMarkCompleted={handleMarkCompleted}
+              />
+              {renderLinkedResources()}
+            </>
           ) : (
             <div className="p-8 text-center">
               <h2 className="text-2xl font-bold">Concept not found</h2>

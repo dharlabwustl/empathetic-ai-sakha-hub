@@ -119,6 +119,6 @@ export const generateTabContents = ({
         </div>
       </div>
     ),
-    tutor: <AIChatTutor />
+    tutor: <AIChatTutor userProfile={userProfile} />
   };
 };
