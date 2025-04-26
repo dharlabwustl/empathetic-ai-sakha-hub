@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Separator } from "@/components/ui/separator";
 import { Home, Calendar, BookMarked, MessageSquare, Brain, BookOpen, LineChart, 
   Activity, Heart, Folder, Video, Users, Bell, LogOut, ChevronRight } from "lucide-react";
@@ -12,6 +12,7 @@ interface SidebarNavigationProps {
 
 const SidebarNavigation = ({ activeTab, onTabChange }: SidebarNavigationProps) => {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const navItems = [
     { icon: <Home size={20} />, title: "Dashboard", tab: "overview" },
@@ -30,8 +31,22 @@ const SidebarNavigation = ({ activeTab, onTabChange }: SidebarNavigationProps) =
   ];
 
   const handleTabChange = (tab: string) => {
+    // Preserve any query parameters that should be maintained between navigation
+    const currentParams = new URLSearchParams(location.search);
+    const persistParams = ['returning']; // Parameters to maintain between tabs
+    
+    const params = new URLSearchParams();
+    persistParams.forEach(param => {
+      if (currentParams.has(param)) {
+        params.set(param, currentParams.get(param)!);
+      }
+    });
+    
+    const queryString = params.toString();
+    const path = queryString ? `/dashboard/student/${tab}?${queryString}` : `/dashboard/student/${tab}`;
+    
     onTabChange(tab);
-    navigate(`/dashboard/student/${tab}`);
+    navigate(path);
   };
   
   return (

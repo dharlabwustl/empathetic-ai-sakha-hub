@@ -14,16 +14,20 @@ export const useStudentDashboard = () => {
   const [showStudyPlan, setShowStudyPlan] = useState(false);
   const [hideSidebar, setHideSidebar] = useState(false);
   const [hideTabsNav, setHideTabsNav] = useState(false);
-  const [dashboardLastActivity, setDashboardLastActivity] = useState<{ type: string, description: string } | null>(null);
+  const [lastActivity, setLastActivity] = useState<{ type: string, description: string } | null>(null);
   const [suggestedNextAction, setSuggestedNextAction] = useState<string | null>(null);
   const { userProfile, loading: profileLoading, updateUserProfile } = useUserProfile(UserRole.Student);
   const { kpis, nudges, markNudgeAsRead } = useKpiTracking(UserRole.Student);
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
-  const { tab } = useParams<{ tab?: string }>();
   
-  const [activeTab, setActiveTab] = useState(tab || "overview");
+  // Get tab from URL or default to overview
+  const path = location.pathname;
+  const pathSegments = path.split('/');
+  const initialTab = pathSegments[pathSegments.length - 1] || 'overview';
+  
+  const [activeTab, setActiveTab] = useState(initialTab);
   
   const now = new Date();
   const hour = now.getHours();
@@ -44,10 +48,13 @@ export const useStudentDashboard = () => {
   };
   
   useEffect(() => {
-    if (tab) {
-      setActiveTab(tab);
+    // Update active tab when URL path changes
+    const pathSegments = location.pathname.split('/');
+    const tabFromPath = pathSegments[pathSegments.length - 1];
+    if (tabFromPath && tabFromPath !== activeTab) {
+      setActiveTab(tabFromPath);
     }
-  }, [tab]);
+  }, [location.pathname]);
   
   useEffect(() => {
     console.log("useStudentDashboard - Initializing dashboard");
@@ -91,12 +98,12 @@ export const useStudentDashboard = () => {
           const parsedData = JSON.parse(userData);
           
           if (parsedData.lastActivity) {
-            setDashboardLastActivity({
+            setLastActivity({
               type: parsedData.lastActivity.type,
               description: `You were last studying ${parsedData.lastActivity.name || "a topic"}`
             });
           } else {
-            setDashboardLastActivity({
+            setLastActivity({
               type: "login",
               description: "You last logged in yesterday"
             });
@@ -144,28 +151,25 @@ export const useStudentDashboard = () => {
     }
   }, [profileLoading]);
   
-  // Track user activity when they view content
-  const trackUserActivity = (activity: {
-    type: string;
-    id?: string;
-    name: string;
-    description?: string;
-    progress?: number;
-  }) => {
-    const userData = localStorage.getItem("userData");
-    if (userData) {
-      const parsedData = JSON.parse(userData);
-      parsedData.lastActivity = {
-        ...activity,
-        timestamp: new Date().toISOString()
-      };
-      localStorage.setItem("userData", JSON.stringify(parsedData));
-    }
-  };
-  
+  // Enhanced tab change handler to maintain URL query parameters
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
-    navigate(`/dashboard/student/${tab}`);
+    
+    // Preserve query parameters when changing tabs
+    const currentParams = new URLSearchParams(location.search);
+    const persistParams = ['returning']; // Parameters to maintain between tabs
+    
+    const params = new URLSearchParams();
+    persistParams.forEach(param => {
+      if (currentParams.has(param)) {
+        params.set(param, currentParams.get(param)!);
+      }
+    });
+    
+    const queryString = params.toString();
+    const path = queryString ? `/dashboard/student/${tab}?${queryString}` : `/dashboard/student/${tab}`;
+    
+    navigate(path);
   };
   
   const toggleSidebar = () => {
@@ -240,7 +244,7 @@ export const useStudentDashboard = () => {
     kpis,
     nudges,
     features,
-    dashboardLastActivity,
+    lastActivity,
     suggestedNextAction,
     markNudgeAsRead,
     handleTabChange,
@@ -251,6 +255,16 @@ export const useStudentDashboard = () => {
     handleCloseStudyPlan,
     toggleSidebar,
     toggleTabsNav,
-    trackUserActivity
+    trackUserActivity: (activity: any) => {
+      const userData = localStorage.getItem("userData");
+      if (userData) {
+        const parsedData = JSON.parse(userData);
+        parsedData.lastActivity = {
+          ...activity,
+          timestamp: new Date().toISOString()
+        };
+        localStorage.setItem("userData", JSON.stringify(parsedData));
+      }
+    }
   };
 };

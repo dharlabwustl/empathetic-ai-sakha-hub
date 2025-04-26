@@ -5,12 +5,13 @@ import OnboardingFlow from "@/components/dashboard/student/OnboardingFlow";
 import DashboardLoading from "@/pages/dashboard/student/DashboardLoading";
 import DashboardLayout from "@/pages/dashboard/student/DashboardLayout";
 import SplashScreen from "@/components/dashboard/student/SplashScreen";
-import { useLocation } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 
 const StudentDashboard = () => {
   const [showSplash, setShowSplash] = useState(true);
   const [currentMood, setCurrentMood] = useState<'sad' | 'neutral' | 'happy' | 'motivated' | undefined>(undefined);
   const location = useLocation();
+  const params = useParams();
   
   const {
     loading,
@@ -38,16 +39,28 @@ const StudentDashboard = () => {
     toggleTabsNav
   } = useStudentDashboard();
 
+  // Determine active tab from URL path
+  useEffect(() => {
+    const path = location.pathname;
+    const tab = path.split('/').pop() || 'overview';
+    
+    // Only update if it's different from current tab to prevent unnecessary re-renders
+    if (tab !== activeTab) {
+      handleTabChange(tab);
+    }
+  }, [location.pathname]);
+
   // Check URL parameters for onboarding status
   useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const isNewUser = params.get('new') === 'true';
-    const completedOnboarding = params.get('completedOnboarding') === 'true';
+    const urlParams = new URLSearchParams(location.search);
+    const isNewUser = urlParams.get('new') === 'true';
+    const completedOnboarding = urlParams.get('completedOnboarding') === 'true';
+    const isReturningUser = urlParams.get('returning') === 'true';
     
-    console.log("URL params:", { isNewUser, completedOnboarding });
+    console.log("URL params:", { isNewUser, completedOnboarding, isReturningUser });
     
-    // Don't show splash screen for new users coming from signup flow
-    if (isNewUser) {
+    // Don't show splash screen for new or returning users
+    if (isNewUser || isReturningUser) {
       setShowSplash(false);
     } else {
       // Check if the user has seen the splash screen in this session
