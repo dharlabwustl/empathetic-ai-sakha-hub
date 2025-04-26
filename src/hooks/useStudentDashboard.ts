@@ -5,7 +5,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { handleNewUser } from "@/pages/dashboard/student/utils/UserSessionManager";
 import { useKpiTracking } from "@/hooks/useKpiTracking";
-import { UserRole } from "@/types/user/base";
+import { UserRole, MoodType } from "@/types/user/base";
 
 export const useStudentDashboard = () => {
   const [loading, setLoading] = useState(true);
@@ -15,6 +15,7 @@ export const useStudentDashboard = () => {
   const [hideSidebar, setHideSidebar] = useState(false);
   const [hideTabsNav, setHideTabsNav] = useState(false);
   const [lastActivity, setLastActivity] = useState<{ type: string, description: string } | null>(null);
+  const [currentMood, setCurrentMood] = useState<MoodType | undefined>(undefined);
   const [suggestedNextAction, setSuggestedNextAction] = useState<string | null>(null);
   const { userProfile, loading: profileLoading, updateUserProfile } = useUserProfile(UserRole.Student);
   const { kpis, nudges, markNudgeAsRead } = useKpiTracking(UserRole.Student);
@@ -63,12 +64,32 @@ export const useStudentDashboard = () => {
       try {
         setLoading(true);
         
-        // Check if the user is returning from login
+        // Check if the user is returning or new based on URL parameters
         const params = new URLSearchParams(location.search);
         const isReturningUser = params.get('returning') === 'true';
+        const isNewUser = params.get('new') === 'true';
+        const completedOnboarding = params.get('completedOnboarding') === 'true';
         
-        // Skip onboarding and welcome tour for returning users
-        if (isReturningUser) {
+        console.log("URL params:", { isReturningUser, isNewUser, completedOnboarding });
+        
+        if (isNewUser) {
+          // For new users, show onboarding but not the returning prompt
+          setShowOnboarding(true);
+          
+          // Ensure we have user data stored
+          const userData = localStorage.getItem("userData");
+          if (!userData) {
+            // Create basic user data if missing
+            localStorage.setItem("userData", JSON.stringify({
+              isNewUser: true,
+              completedOnboarding: false,
+              sawWelcomeTour: false,
+              firstLogin: new Date().toISOString(),
+              lastLoginTime: new Date().toISOString()
+            }));
+          }
+        } else if (isReturningUser) {
+          // For returning users, skip onboarding and welcome tour
           setShowOnboarding(false);
           setShowWelcomeTour(false);
           
@@ -77,10 +98,11 @@ export const useStudentDashboard = () => {
           if (userData) {
             const parsedData = JSON.parse(userData);
             parsedData.lastSessionTime = new Date().toISOString();
+            parsedData.isReturningUser = true;
             localStorage.setItem("userData", JSON.stringify(parsedData));
           }
         } else {
-          // Regular new session handling
+          // Regular session handling
           const { shouldShowOnboarding, shouldShowWelcomeTour } = handleNewUser(location, navigate);
           
           console.log("useStudentDashboard - Session result:", { 
@@ -92,11 +114,17 @@ export const useStudentDashboard = () => {
           setShowWelcomeTour(shouldShowWelcomeTour);
         }
         
-        // Get last activity data for display in dashboard
+        // Get user data from localStorage to set initial mood
         const userData = localStorage.getItem("userData");
         if (userData) {
           const parsedData = JSON.parse(userData);
           
+          // Set current mood
+          if (parsedData.mood) {
+            setCurrentMood(parsedData.mood as MoodType);
+          }
+          
+          // Get last activity data for display in dashboard
           if (parsedData.lastActivity) {
             setLastActivity({
               type: parsedData.lastActivity.type,
@@ -109,6 +137,7 @@ export const useStudentDashboard = () => {
             });
           }
           
+          // Set suggested next action
           if (parsedData.completedModules && parsedData.completedModules.length > 0) {
             const lastModule = parsedData.completedModules[parsedData.completedModules.length - 1];
             setSuggestedNextAction(`Continue with ${lastModule.nextModule || "Practice Exercises"}`);
@@ -117,7 +146,8 @@ export const useStudentDashboard = () => {
           }
         }
         
-        if (userProfile && !shouldShowOnboarding) {
+        // Update login count for analytics
+        if (userProfile && !showOnboarding) {
           const currentLoginCount = userProfile.loginCount || 0;
           
           if (!sessionStorage.getItem('session_active')) {
@@ -157,7 +187,7 @@ export const useStudentDashboard = () => {
     
     // Preserve query parameters when changing tabs
     const currentParams = new URLSearchParams(location.search);
-    const persistParams = ['returning']; // Parameters to maintain between tabs
+    const persistParams = ['returning', 'new', 'completedOnboarding']; // Parameters to maintain between tabs
     
     const params = new URLSearchParams();
     persistParams.forEach(param => {
@@ -231,6 +261,20 @@ export const useStudentDashboard = () => {
     setShowStudyPlan(false);
   };
   
+  // Track user activity (concepts, flashcards, exams)
+  const trackUserActivity = (activity: any) => {
+    const userData = localStorage.getItem("userData");
+    if (userData) {
+      const parsedData = JSON.parse(userData);
+      parsedData.lastActivity = {
+        ...activity,
+        timestamp: new Date().toISOString()
+      };
+      localStorage.setItem("userData", JSON.stringify(parsedData));
+      console.log("Activity tracked:", activity);
+    }
+  };
+  
   return {
     loading,
     userProfile,
@@ -245,6 +289,7 @@ export const useStudentDashboard = () => {
     nudges,
     features,
     lastActivity,
+    currentMood,
     suggestedNextAction,
     markNudgeAsRead,
     handleTabChange,
@@ -255,16 +300,6 @@ export const useStudentDashboard = () => {
     handleCloseStudyPlan,
     toggleSidebar,
     toggleTabsNav,
-    trackUserActivity: (activity: any) => {
-      const userData = localStorage.getItem("userData");
-      if (userData) {
-        const parsedData = JSON.parse(userData);
-        parsedData.lastActivity = {
-          ...activity,
-          timestamp: new Date().toISOString()
-        };
-        localStorage.setItem("userData", JSON.stringify(parsedData));
-      }
-    }
+    trackUserActivity
   };
 };

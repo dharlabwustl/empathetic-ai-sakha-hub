@@ -48,12 +48,12 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
         const userData = localStorage.getItem("userData") ? 
           JSON.parse(localStorage.getItem("userData")!) : {};
         
-        // Navigate based on whether they've completed onboarding
-        if (userData.completedOnboarding) {
-          // For returning users, redirect to dashboard with a parameter to show last activity prompt
+        // Check for last activity to show returning user prompt
+        if (userData.lastActivity) {
+          // Navigate to dashboard with returning user flag to show prompt
           navigate("/dashboard/student/overview?returning=true");
         } else {
-          // For first-time users or those who haven't completed onboarding
+          // For users without tracked activity, go straight to dashboard
           navigate("/dashboard/student/overview");
         }
       } else {

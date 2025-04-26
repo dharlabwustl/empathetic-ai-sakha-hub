@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import { OnboardingStep, UserRole, UserGoal } from "./OnboardingContext";
-import { getDemographicsQuestion } from "./utils/stepUtils";
 import authService from "@/services/auth/authService"; 
 import { getSubjectsForGoal } from "@/components/dashboard/student/onboarding/SubjectData";
 import { MoodType } from "@/types/user/base";
@@ -75,7 +74,8 @@ const StepHandler = ({
           phoneNumber: cleanMobile,
           completedOnboarding: false, // Mark as not completed to trigger onboarding flow
           isNewUser: true,
-          sawWelcomeTour: false
+          sawWelcomeTour: false,
+          registrationDate: new Date().toISOString()
         };
         
         localStorage.setItem("userData", JSON.stringify(extendedUserData));
@@ -86,7 +86,7 @@ const StepHandler = ({
         });
         
         // Go directly to the dashboard with parameters to show onboarding
-        navigate("/dashboard/student?completedOnboarding=false&new=true");
+        navigate("/dashboard/student?new=true&completedOnboarding=false");
       } else {
         throw new Error("Registration failed");
       }

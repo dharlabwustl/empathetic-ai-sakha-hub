@@ -63,6 +63,15 @@ const SidebarNavigation = ({ activeTab, onTabChange }: SidebarNavigationProps) =
     onTabChange(tab);
     navigate(navigatePath);
   };
+
+  const handleLogout = () => {
+    // Clear user session data
+    localStorage.removeItem("userData");
+    sessionStorage.clear();
+    
+    // Redirect to login page
+    navigate('/login');
+  };
   
   return (
     <div className="hidden lg:block lg:col-span-3 xl:col-span-2">
@@ -94,7 +103,7 @@ const SidebarNavigation = ({ activeTab, onTabChange }: SidebarNavigationProps) =
           
           <button 
             className="w-full flex items-center gap-3 rounded-md px-3 py-2.5 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-red-500 dark:hover:text-red-400 transition-all"
-            onClick={() => navigate('/login')}
+            onClick={handleLogout}
           >
             <LogOut size={20} />
             <span>Logout</span>

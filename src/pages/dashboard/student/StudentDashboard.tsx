@@ -5,13 +5,17 @@ import OnboardingFlow from "@/components/dashboard/student/OnboardingFlow";
 import DashboardLoading from "@/pages/dashboard/student/DashboardLoading";
 import DashboardLayout from "@/pages/dashboard/student/DashboardLayout";
 import SplashScreen from "@/components/dashboard/student/SplashScreen";
-import { useLocation, useParams } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import ReturningUserPrompt from "@/components/dashboard/student/ReturningUserPrompt";
+import { MoodType } from "@/types/user/base";
 
 const StudentDashboard = () => {
   const [showSplash, setShowSplash] = useState(true);
-  const [currentMood, setCurrentMood] = useState<'sad' | 'neutral' | 'happy' | 'motivated' | undefined>(undefined);
+  const [showReturningPrompt, setShowReturningPrompt] = useState(false);
+  const [currentMood, setCurrentMood] = useState<MoodType | undefined>(undefined);
+  const [lastActivity, setLastActivity] = useState<any>(null);
   const location = useLocation();
-  const params = useParams();
+  const navigate = useNavigate();
   
   const {
     loading,
@@ -26,7 +30,7 @@ const StudentDashboard = () => {
     kpis,
     nudges,
     features,
-    lastActivity,
+    dashboardLastActivity,
     suggestedNextAction,
     markNudgeAsRead,
     handleTabChange,
@@ -36,34 +40,45 @@ const StudentDashboard = () => {
     handleViewStudyPlan,
     handleCloseStudyPlan,
     toggleSidebar,
-    toggleTabsNav
+    toggleTabsNav,
+    trackUserActivity
   } = useStudentDashboard();
 
-  // Determine active tab from URL path
+  // Check URL parameters and localStorage for user status
   useEffect(() => {
-    const path = location.pathname;
-    const tab = path.split('/').pop() || 'overview';
-    
-    // Only update if it's different from current tab to prevent unnecessary re-renders
-    if (tab !== activeTab) {
-      handleTabChange(tab);
-    }
-  }, [location.pathname]);
-
-  // Check URL parameters for onboarding status
-  useEffect(() => {
-    const urlParams = new URLSearchParams(location.search);
-    const isNewUser = urlParams.get('new') === 'true';
-    const completedOnboarding = urlParams.get('completedOnboarding') === 'true';
-    const isReturningUser = urlParams.get('returning') === 'true';
+    const params = new URLSearchParams(location.search);
+    const isNewUser = params.get('new') === 'true';
+    const completedOnboarding = params.get('completedOnboarding') === 'true';
+    const isReturningUser = params.get('returning') === 'true';
     
     console.log("URL params:", { isNewUser, completedOnboarding, isReturningUser });
     
-    // Don't show splash screen for new or returning users
-    if (isNewUser || isReturningUser) {
+    // For returning users, show continuation prompt
+    if (isReturningUser) {
+      // Get user data from localStorage
+      const userData = localStorage.getItem("userData");
+      if (userData) {
+        const parsedData = JSON.parse(userData);
+        
+        // Set last activity from stored data
+        if (parsedData.lastActivity) {
+          setLastActivity(parsedData.lastActivity);
+          setShowReturningPrompt(true);
+        }
+        
+        // Don't show splash for returning users
+        setShowSplash(false);
+        
+        // Get saved mood from localStorage
+        if (parsedData.mood) {
+          setCurrentMood(parsedData.mood as MoodType);
+        }
+      }
+    } else if (isNewUser) {
+      // New users from signup should see onboarding
       setShowSplash(false);
     } else {
-      // Check if the user has seen the splash screen in this session
+      // Regular session start
       const hasSeen = sessionStorage.getItem("hasSeenSplash");
       setShowSplash(!hasSeen);
     }
@@ -73,7 +88,12 @@ const StudentDashboard = () => {
     if (savedUserData) {
       const parsedData = JSON.parse(savedUserData);
       if (parsedData.mood) {
-        setCurrentMood(parsedData.mood);
+        setCurrentMood(parsedData.mood as MoodType);
+      }
+      
+      // Check for last activity
+      if (parsedData.lastActivity) {
+        setLastActivity(parsedData.lastActivity);
       }
     }
   }, [location]);
@@ -86,14 +106,45 @@ const StudentDashboard = () => {
     // Save a default optimistic mood if none is set
     if (!currentMood) {
       setCurrentMood('motivated');
-      const userData = localStorage.getItem("userData");
-      if (userData) {
-        const parsedData = JSON.parse(userData);
-        parsedData.mood = 'motivated';
-        localStorage.setItem("userData", JSON.stringify(parsedData));
+      const userData = localStorage.getItem("userData") ? 
+        JSON.parse(localStorage.getItem("userData")!) : {};
+      userData.mood = 'motivated';
+      localStorage.setItem("userData", JSON.stringify(userData));
+    }
+  };
+  
+  const handleContinueLastActivity = () => {
+    setShowReturningPrompt(false);
+    
+    if (lastActivity) {
+      if (lastActivity.type === 'concept') {
+        navigate(`/dashboard/student/concepts/${lastActivity.id}`);
+      } else if (lastActivity.type === 'flashcard') {
+        navigate('/dashboard/student/flashcards');
+      } else if (lastActivity.type === 'exam') {
+        navigate(`/dashboard/student/exams/${lastActivity.id}`);
+      } else {
+        // Default to main dashboard
+        navigate('/dashboard/student/overview');
       }
     }
   };
+  
+  const handleSkipLastActivity = () => {
+    setShowReturningPrompt(false);
+    navigate('/dashboard/student/overview');
+  };
+
+  // Show returning user prompt if needed
+  if (showReturningPrompt && lastActivity) {
+    return (
+      <ReturningUserPrompt 
+        lastActivity={lastActivity} 
+        onContinue={handleContinueLastActivity}
+        onSkip={handleSkipLastActivity}
+      />
+    );
+  }
 
   // Show splash screen if needed
   if (showSplash) {
@@ -137,7 +188,7 @@ const StudentDashboard = () => {
       onCompleteTour={handleCompleteTour}
       showStudyPlan={showStudyPlan}
       onCloseStudyPlan={handleCloseStudyPlan}
-      lastActivity={lastActivity}
+      lastActivity={dashboardLastActivity}
       suggestedNextAction={suggestedNextAction}
       currentMood={currentMood}
     />

@@ -3,7 +3,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
-import { BookOpen, Bookmark, Clock, ArrowRight } from "lucide-react";
+import { BookOpen, Bookmark, Clock, ArrowRight, FileText } from "lucide-react";
 import SakhaLogo from "@/components/common/SakhaLogo";
 
 interface LastActivity {
@@ -46,6 +46,8 @@ const ReturningUserPrompt: React.FC<ReturningUserPromptProps> = ({
         return <BookOpen className="h-10 w-10 text-violet-500" />;
       case 'flashcard':
         return <Bookmark className="h-10 w-10 text-indigo-500" />;
+      case 'exam':
+        return <FileText className="h-10 w-10 text-blue-500" />;
       default:
         return <Clock className="h-10 w-10 text-blue-500" />;
     }
@@ -56,7 +58,9 @@ const ReturningUserPrompt: React.FC<ReturningUserPromptProps> = ({
       case 'concept':
         return `Continue learning "${lastActivity.name}"`;
       case 'flashcard':
-        return "Continue your flashcard session";
+        return `Continue your flashcard session on "${lastActivity.name}"`;
+      case 'exam':
+        return `Continue your practice exam "${lastActivity.name}"`;
       default:
         return "Continue where you left off";
     }
@@ -70,6 +74,8 @@ const ReturningUserPrompt: React.FC<ReturningUserPromptProps> = ({
         return `You were studying this concept ${lastActivity.timestamp ? formatTimeAgo(lastActivity.timestamp) : 'recently'}. Continue to build your understanding.`;
       case 'flashcard':
         return `You were reviewing flashcards ${lastActivity.timestamp ? formatTimeAgo(lastActivity.timestamp) : 'recently'}. Continue to strengthen your memory.`;
+      case 'exam':
+        return `You were taking a practice exam ${lastActivity.timestamp ? formatTimeAgo(lastActivity.timestamp) : 'recently'}. Continue to test your knowledge.`;
       default:
         return `You were last active ${lastActivity.timestamp ? formatTimeAgo(lastActivity.timestamp) : 'recently'}.`;
     }

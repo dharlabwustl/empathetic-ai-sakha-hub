@@ -6,10 +6,9 @@ import {
   Home, 
   Calendar, 
   BookMarked, 
-  MessageSquare, 
-  Brain, 
   BookOpen, 
-  LineChart, 
+  Brain, 
+  FileText, 
   Activity, 
   Heart, 
   Folder, 
@@ -35,7 +34,13 @@ const MobileNavigation = ({ activeTab, onTabChange }: MobileNavigationProps) => 
     { icon: <BookMarked size={16} />, title: "Academic", tab: "academic", path: "/dashboard/student/academic" },
     { icon: <BookOpen size={16} />, title: "Concepts", tab: "concepts", path: "/dashboard/student/concepts/all" },
     { icon: <Brain size={16} />, title: "Flashcards", tab: "flashcards", path: "/dashboard/student/flashcards" },
-    { icon: <BookOpen size={16} />, title: "Exams", tab: "exams", path: "/dashboard/student/exams" },
+    { icon: <FileText size={16} />, title: "Exams", tab: "exams", path: "/dashboard/student/exams" },
+    { icon: <Activity size={16} />, title: "Progress", tab: "progress", path: "/dashboard/student/progress" },
+    { icon: <Heart size={16} />, title: "Wellness", tab: "wellness", path: "/dashboard/student/wellness" },
+    { icon: <Folder size={16} />, title: "Materials", tab: "materials", path: "/dashboard/student/materials" },
+    { icon: <Video size={16} />, title: "Videos", tab: "videos", path: "/dashboard/student/videos" },
+    { icon: <Users size={16} />, title: "Forum", tab: "forum", path: "/dashboard/student/forum" },
+    { icon: <Bell size={16} />, title: "Alerts", tab: "notifications", path: "/dashboard/student/notifications" },
   ];
 
   const handleTabChange = (tab: string, path: string) => {

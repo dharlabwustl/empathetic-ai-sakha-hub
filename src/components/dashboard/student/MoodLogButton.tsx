@@ -97,8 +97,24 @@ const MoodLogButton: React.FC<MoodLogButtonProps> = ({
   const { toast } = useToast();
   
   const handleMoodSelect = (mood: MoodType) => {
-    onMoodChange?.(mood);
+    if (onMoodChange) {
+      onMoodChange(mood);
+    } else {
+      // If no callback provided, handle locally
+      saveMoodToLocalStorage(mood);
+    }
+    
     setIsOpen(false);
+  };
+  
+  const saveMoodToLocalStorage = (mood: MoodType) => {
+    // Save mood to localStorage
+    const userData = localStorage.getItem("userData") ? 
+      JSON.parse(localStorage.getItem("userData")!) : {};
+    
+    userData.mood = mood;
+    userData.lastMoodTimestamp = new Date().toISOString();
+    localStorage.setItem("userData", JSON.stringify(userData));
     
     toast({
       title: "Mood updated",
