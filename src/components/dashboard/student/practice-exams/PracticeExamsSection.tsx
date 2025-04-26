@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -15,35 +14,38 @@ const mockExams: PracticeExam[] = [
     title: 'Algebra Level 1 Mini Test',
     subject: 'Mathematics',
     topic: 'Algebra',
-    linkedConcept: 'Quadratic Equations',
     questionCount: 15,
     duration: 30,
     difficulty: 'easy',
-    status: 'not-started'
+    status: 'not-started',
+    linkedConceptIds: ['c1', 'c2'],
+    linkedFlashcardIds: ['f1', 'f2']
   },
   {
     id: '2',
     title: 'Newton\'s Laws Test',
     subject: 'Physics',
     topic: 'Mechanics',
-    linkedConcept: 'Force and Motion',
     questionCount: 20,
     duration: 45,
     difficulty: 'medium',
     status: 'completed',
     score: 85,
-    completedAt: '2025-04-20'
+    completedAt: '2025-04-20',
+    linkedConceptIds: ['c3', 'c4'],
+    linkedFlashcardIds: ['f3', 'f4']
   },
   {
     id: '3',
     title: 'Organic Chemistry Quiz',
     subject: 'Chemistry',
     topic: 'Organic Chemistry',
-    linkedConcept: 'Functional Groups',
     questionCount: 25,
     duration: 60,
     difficulty: 'hard',
-    status: 'in-progress'
+    status: 'in-progress',
+    linkedConceptIds: ['c5', 'c6'],
+    linkedFlashcardIds: ['f5', 'f6']
   }
 ];
 

@@ -1,4 +1,3 @@
-
 import React, { ReactNode } from 'react';
 import DashboardOverview from '@/components/dashboard/student/DashboardOverview';
 import WelcomeTour from '@/components/dashboard/student/WelcomeTour';
@@ -14,6 +13,7 @@ import { ArrowRight } from 'lucide-react';
 import { TodayPlanView, FlashcardsView, PracticeExamsView } from '@/pages/dashboard/student/TabContentViews';
 import ConceptCardView from '@/components/dashboard/student/concept-cards/ConceptCardView';
 import { MicroConceptView } from '@/pages/dashboard/student/TabContentViews';
+import PracticeExamsSection from './practice-exams/PracticeExamsSection';
 
 interface TabContentManagerProps {
   userProfile: UserProfileType;
@@ -90,7 +90,24 @@ export const generateTabContents = ({
       </div>
     ),
     flashcards: <FlashcardsView />,
-    'practice-exam': <PracticeExamsView />,
+    'practice-exam': (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-2xl font-bold">Practice Tests</h2>
+            <p className="text-gray-600">
+              Test your knowledge with practice exams
+            </p>
+          </div>
+          <Link to="/dashboard/student/exams">
+            <Button variant="outline" className="flex items-center gap-2">
+              View All <ArrowRight size={16} />
+            </Button>
+          </Link>
+        </div>
+        <PracticeExamsSection />
+      </div>
+    ),
     'feel-good': <FeelGoodCorner />,
     notifications: (
       <div>

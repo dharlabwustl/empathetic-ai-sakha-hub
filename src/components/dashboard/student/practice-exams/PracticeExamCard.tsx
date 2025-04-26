@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
@@ -17,6 +16,8 @@ export interface PracticeExam {
   status: 'not-started' | 'in-progress' | 'completed';
   score?: number;
   completedAt?: string;
+  linkedConceptIds?: string[];
+  linkedFlashcardIds?: string[];
 }
 
 interface Props {
