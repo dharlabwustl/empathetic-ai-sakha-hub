@@ -20,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import { BookOpen, MessageSquareText, Brain } from "lucide-react";
 import WelcomeTour from "@/components/dashboard/student/WelcomeTour";
 import { QuickAccessButtons } from "@/components/dashboard/student/QuickAccessButtons";
+import { QuickAccess } from "@/components/dashboard/student/QuickAccess";
 
 interface DashboardLayoutProps {
   userProfile: UserProfileType;

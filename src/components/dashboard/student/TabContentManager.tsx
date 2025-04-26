@@ -1,4 +1,3 @@
-
 import React, { ReactNode } from 'react';
 import TutorCard from '@/components/dashboard/student/TutorCard';
 import StudyPlannerCard from '@/components/dashboard/student/StudyPlannerCard';
@@ -110,7 +109,11 @@ export const generateTabContents = ({
       </div>
     ),
     flashcards: <FlashcardsView />,
-    'practice-exam': <PracticeExamsView />,
+    'practice-exam': (
+      <div className="space-y-6">
+        <PracticeExamSection />
+      </div>
+    ),
     'feel-good': <FeelGoodCorner />,
     notifications: <SmartNotificationSection />,
     tutor: <AIChatTutor userProfile={userProfile} />

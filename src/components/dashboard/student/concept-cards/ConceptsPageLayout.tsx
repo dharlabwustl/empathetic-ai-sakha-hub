@@ -1,22 +1,35 @@
 
 import React from 'react';
-import { SharedPageLayout } from '../SharedPageLayout';
-import { useUserProfile } from '@/hooks/useUserProfile';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { ChevronLeft } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 interface ConceptsPageLayoutProps {
   children: React.ReactNode;
+  showBackButton?: boolean;
 }
 
-export const ConceptsPageLayout = ({ children }: ConceptsPageLayoutProps) => {
-  const { userProfile } = useUserProfile();
-  const examGoal = userProfile?.goals?.[0]?.title || 'IIT-JEE';
-
+export const ConceptsPageLayout: React.FC<ConceptsPageLayoutProps> = ({
+  children,
+  showBackButton = false
+}) => {
   return (
-    <SharedPageLayout
-      title="Concept Cards"
-      subtitle={`Master concepts aligned with your ${examGoal} preparation`}
-    >
-      {children}
-    </SharedPageLayout>
+    <div className="container py-6 space-y-6">
+      <div className="flex items-center justify-between">
+        {showBackButton && (
+          <Link to="/dashboard/student/concepts">
+            <Button variant="ghost" className="flex items-center gap-2">
+              <ChevronLeft className="h-4 w-4" />
+              Back to Concepts
+            </Button>
+          </Link>
+        )}
+      </div>
+      
+      <Card className="p-6">
+        {children}
+      </Card>
+    </div>
   );
 };
