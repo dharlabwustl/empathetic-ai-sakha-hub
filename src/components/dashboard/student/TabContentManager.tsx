@@ -8,7 +8,7 @@ import TodaysPlanView from "@/components/dashboard/student/todays-plan/TodaysPla
 import ConceptCardsSection from "@/components/dashboard/student/concepts/ConceptCardsSection";
 import FlashcardsSection from "@/components/dashboard/student/flashcards/FlashcardsSection";
 import PracticeExamSection from "@/components/dashboard/student/practice-exams/PracticeExamSection";
-import NotificationsPanel from "@/components/dashboard/NotificationsPanel";
+import NudgePanel from "@/components/dashboard/NudgePanel";
 import AcademicAdvisorSection from "@/components/dashboard/student/academic-advisor/AcademicAdvisorSection";
 
 export interface GenerateTabContentsProps {
@@ -76,10 +76,9 @@ export const generateTabContents = ({
       <PracticeExamSection />
     ),
     "notifications": (
-      <NotificationsPanel
-        notifications={nudges}
+      <NudgePanel
+        nudges={nudges}
         markAsRead={markNudgeAsRead}
-        showAll
       />
     )
   };
