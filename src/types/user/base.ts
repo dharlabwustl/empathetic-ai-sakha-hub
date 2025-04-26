@@ -16,6 +16,8 @@ export interface UserProfileBase {
   permissions?: UserPermission[];
   createdAt?: string;
   updatedAt?: string;
+  joinDate?: string;
+  personalityType?: string;
   mood?: MoodType;
   subscription?: SubscriptionType | UserSubscription;
 }
@@ -50,9 +52,12 @@ export enum UserPermission {
 }
 
 export enum SubscriptionType {
+  Free = 'free',
   Basic = 'basic',
   Premium = 'premium',
-  Enterprise = 'enterprise'
+  Enterprise = 'enterprise',
+  School = 'school',
+  Corporate = 'corporate'
 }
 
 export interface UserSubscription {
@@ -73,3 +78,36 @@ export type SubscriptionPlan = {
   features: string[];
   isPopular?: boolean;
 };
+
+export interface SubjectProgress {
+  id: string;
+  name: string;
+  progress: number;
+  lastUpdated: string;
+  topics: TopicProgress[];
+  quizzes: QuizProgress[];
+}
+
+export interface TopicProgress {
+  id: string;
+  name: string;
+  progress: number;
+  lastStudied: string;
+  status: 'not-started' | 'in-progress' | 'completed' | 'mastered';
+}
+
+export interface QuizProgress {
+  id: string;
+  name: string;
+  score: number;
+  date: string;
+  totalQuestions: number;
+  correctAnswers: number;
+}
+
+export interface StudyStreak {
+  current: number;
+  longest: number;
+  history: { date: string; minutes: number }[];
+  weeklyAverage: number;
+}

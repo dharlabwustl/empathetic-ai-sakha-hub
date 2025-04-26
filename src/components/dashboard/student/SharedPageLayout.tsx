@@ -17,7 +17,8 @@ export const SharedPageLayout: React.FC<SharedPageLayoutProps> = ({
 }) => {
   return (
     <div className="space-y-4">
-      {showQuickAccess && <QuickAccess />}
+      {/* Place QuickAccess at the top */}
+      {showQuickAccess && <QuickAccess className="mb-2" />}
       
       <div className="mb-6">
         <h1 className="text-2xl font-bold tracking-tight mb-1">{title}</h1>

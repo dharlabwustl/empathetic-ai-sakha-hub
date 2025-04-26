@@ -61,7 +61,7 @@ export const generateTabContents = ({
       </>
     ),
     "today": (
-      <TodaysPlanView />
+      <TodaysPlanView userProfile={userProfile} />
     ),
     "academic": (
       <AcademicAdvisorSection />
@@ -79,6 +79,7 @@ export const generateTabContents = ({
       <NudgePanel
         nudges={nudges}
         markAsRead={markNudgeAsRead}
+        showAll={true}
       />
     )
   };
