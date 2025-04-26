@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import SidebarNav from "@/components/dashboard/SidebarNav";
@@ -20,6 +19,7 @@ import { getFeatures } from "./utils/FeatureManager";
 import { Button } from "@/components/ui/button";
 import { BookOpen, MessageSquareText, Brain } from "lucide-react";
 import WelcomeTour from "@/components/dashboard/student/WelcomeTour";
+import { QuickAccessButtons } from "@/components/dashboard/student/QuickAccessButtons";
 
 interface DashboardLayoutProps {
   userProfile: UserProfileType;
@@ -129,6 +129,9 @@ const DashboardLayout = ({
           formattedTime={formattedTime}
           onOpenTour={handleOpenTour}
         />
+
+        {/* Quick Access Buttons - Now appears on all pages */}
+        <QuickAccessButtons />
         
         <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
           <DashboardHeader 

@@ -3,6 +3,7 @@ import React from 'react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
+import { QuickAccessButtons } from "../QuickAccessButtons";
 import { DailyPlanBreakdown } from "./DailyPlanBreakdown";
 import { TimeAllocationWidget } from "./TimeAllocationWidget";
 import { BacklogTasksList } from "./BacklogTasksList";
@@ -50,6 +51,9 @@ export default function NewTodaysPlanView() {
 
   return (
     <div className="space-y-6">
+      {/* Quick Access Buttons - Now appears on all pages */}
+      <QuickAccessButtons />
+      
       {/* Header Section */}
       <div className="space-y-3">
         <div>

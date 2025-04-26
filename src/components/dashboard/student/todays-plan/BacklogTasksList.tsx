@@ -33,6 +33,19 @@ export function BacklogTasksList({ planData, isLoading }: BacklogTasksListProps)
 
   if (pendingTasks.length === 0) return null;
 
+  const getTaskPath = (task: any) => {
+    switch (task.type) {
+      case 'concept':
+        return `/dashboard/student/concepts/${encodeURIComponent(task.id)}`;
+      case 'flashcard':
+        return `/dashboard/student/flashcards/${encodeURIComponent(task.id)}`;
+      case 'practice-exam':
+        return `/dashboard/student/practice/${encodeURIComponent(task.id)}`;
+      default:
+        return '#';
+    }
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -46,7 +59,7 @@ export function BacklogTasksList({ planData, isLoading }: BacklogTasksListProps)
           {pendingTasks.map((task) => (
             <Link
               key={task.id}
-              to={`/dashboard/student/${task.type}s/${encodeURIComponent(task.title)}`}
+              to={getTaskPath(task)}
               className="block"
             >
               <div className="flex items-center justify-between p-2 rounded-lg border hover:bg-accent transition-colors">
