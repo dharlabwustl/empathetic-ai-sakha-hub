@@ -64,57 +64,15 @@ export const useStudentDashboard = () => {
       try {
         setLoading(true);
         
-        // Check if the user is returning or new based on URL parameters
-        const params = new URLSearchParams(location.search);
-        const isReturningUser = params.get('returning') === 'true';
-        const isNewUser = params.get('new') === 'true';
-        const completedOnboarding = params.get('completedOnboarding') === 'true';
+        // Check user session state from UserSessionManager
+        const sessionResult = handleNewUser(location, navigate);
+        console.log("useStudentDashboard - Session result:", sessionResult);
         
-        console.log("URL params:", { isReturningUser, isNewUser, completedOnboarding });
+        // Apply session state from UserSessionManager
+        setShowOnboarding(sessionResult.shouldShowOnboarding);
+        setShowWelcomeTour(sessionResult.shouldShowWelcomeTour);
         
-        if (isNewUser) {
-          // For new users, show onboarding but not the returning prompt
-          setShowOnboarding(true);
-          
-          // Ensure we have user data stored
-          const userData = localStorage.getItem("userData");
-          if (!userData) {
-            // Create basic user data if missing
-            localStorage.setItem("userData", JSON.stringify({
-              isNewUser: true,
-              completedOnboarding: false,
-              sawWelcomeTour: false,
-              firstLogin: new Date().toISOString(),
-              lastLoginTime: new Date().toISOString()
-            }));
-          }
-        } else if (isReturningUser) {
-          // For returning users, skip onboarding and welcome tour
-          setShowOnboarding(false);
-          setShowWelcomeTour(false);
-          
-          // Track this session as a return visit
-          const userData = localStorage.getItem("userData");
-          if (userData) {
-            const parsedData = JSON.parse(userData);
-            parsedData.lastSessionTime = new Date().toISOString();
-            parsedData.isReturningUser = true;
-            localStorage.setItem("userData", JSON.stringify(parsedData));
-          }
-        } else {
-          // Regular session handling
-          const { shouldShowOnboarding, shouldShowWelcomeTour } = handleNewUser(location, navigate);
-          
-          console.log("useStudentDashboard - Session result:", { 
-            shouldShowOnboarding, 
-            shouldShowWelcomeTour 
-          });
-          
-          setShowOnboarding(shouldShowOnboarding);
-          setShowWelcomeTour(shouldShowWelcomeTour);
-        }
-        
-        // Get user data from localStorage to set initial mood
+        // Get user data from localStorage to set initial mood and activities
         const userData = localStorage.getItem("userData");
         if (userData) {
           const parsedData = JSON.parse(userData);
@@ -184,22 +142,7 @@ export const useStudentDashboard = () => {
   // Enhanced tab change handler to maintain URL query parameters
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
-    
-    // Preserve query parameters when changing tabs
-    const currentParams = new URLSearchParams(location.search);
-    const persistParams = ['returning', 'new', 'completedOnboarding']; // Parameters to maintain between tabs
-    
-    const params = new URLSearchParams();
-    persistParams.forEach(param => {
-      if (currentParams.has(param)) {
-        params.set(param, currentParams.get(param)!);
-      }
-    });
-    
-    const queryString = params.toString();
-    const path = queryString ? `/dashboard/student/${tab}?${queryString}` : `/dashboard/student/${tab}`;
-    
-    navigate(path);
+    navigate(`/dashboard/student/${tab}`);
   };
   
   const toggleSidebar = () => {
@@ -288,9 +231,9 @@ export const useStudentDashboard = () => {
     kpis,
     nudges,
     features,
-    lastActivity,
-    currentMood,
+    dashboardLastActivity: lastActivity,
     suggestedNextAction,
+    currentMood,
     markNudgeAsRead,
     handleTabChange,
     handleSkipTour,

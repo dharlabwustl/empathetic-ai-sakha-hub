@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -43,7 +44,16 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
           description: "Welcome back to Sakha AI"
         });
         
-        // Always navigate to dashboard overview
+        // Save user state to localStorage
+        const userData = localStorage.getItem("userData") ? 
+          JSON.parse(localStorage.getItem("userData")!) : {};
+          
+        // Mark user as returning user
+        userData.isReturningUser = true;
+        userData.lastLoginTime = new Date().toISOString();
+        localStorage.setItem("userData", JSON.stringify(userData));
+        
+        // Navigate directly to dashboard overview
         navigate("/dashboard/student/overview");
       } else {
         throw new Error("Login failed");

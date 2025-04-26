@@ -1,3 +1,4 @@
+
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
@@ -76,6 +77,7 @@ const StepHandler = ({
           description: "Let's create your personalized study plan.",
         });
         
+        // Navigate directly to dashboard overview - state will be managed internally
         navigate("/dashboard/student/overview");
       } else {
         throw new Error("Registration failed");
