@@ -117,7 +117,7 @@ export const useStudentDashboard = () => {
           }
         }
         
-        if (userProfile && !showOnboarding) {
+        if (userProfile && !shouldShowOnboarding) {
           const currentLoginCount = userProfile.loginCount || 0;
           
           if (!sessionStorage.getItem('session_active')) {

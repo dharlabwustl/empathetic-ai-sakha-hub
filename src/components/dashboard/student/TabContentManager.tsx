@@ -1,4 +1,3 @@
-
 import React, { ReactNode } from 'react';
 import DashboardOverview from '@/components/dashboard/student/DashboardOverview';
 import WelcomeTour from '@/components/dashboard/student/WelcomeTour';
@@ -11,7 +10,7 @@ import FeelGoodCorner from '@/components/dashboard/student/FeelGoodCorner';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
-import { TodayPlanView, FlashcardsView } from '@/pages/dashboard/student/TabContentViews';
+import { TodayPlanView, FlashcardsView, PracticeExamsView } from '@/pages/dashboard/student/TabContentViews';
 import ConceptCardView from '@/components/dashboard/student/concept-cards/ConceptCardView';
 import { MicroConceptView } from '@/pages/dashboard/student/TabContentViews';
 import PracticeExamsSection from './practice-exams/PracticeExamsSection';
@@ -90,24 +89,7 @@ export const generateTabContents = ({
         />
       </div>
     ),
-    flashcards: (
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-2xl font-bold">Flashcards</h2>
-            <p className="text-gray-600">
-              Review and practice with our smart flashcard system
-            </p>
-          </div>
-          <Link to="/dashboard/student/flashcards">
-            <Button variant="outline" className="flex items-center gap-2">
-              View All <ArrowRight size={16} />
-            </Button>
-          </Link>
-        </div>
-        <FlashcardsView />
-      </div>
-    ),
+    flashcards: <FlashcardsView />,
     'practice-exam': (
       <div className="space-y-6">
         <div className="flex items-center justify-between">

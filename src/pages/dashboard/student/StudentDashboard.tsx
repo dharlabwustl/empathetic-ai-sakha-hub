@@ -1,11 +1,10 @@
-
 import React, { useState, useEffect } from "react";
 import { useStudentDashboard } from "@/hooks/useStudentDashboard";
 import OnboardingFlow from "@/components/dashboard/student/OnboardingFlow";
 import DashboardLoading from "@/pages/dashboard/student/DashboardLoading";
 import DashboardLayout from "@/pages/dashboard/student/DashboardLayout";
 import SplashScreen from "@/components/dashboard/student/SplashScreen";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import ReturningUserPrompt from "@/components/dashboard/student/ReturningUserPrompt";
 
 const StudentDashboard = () => {
@@ -179,7 +178,7 @@ const StudentDashboard = () => {
         navigate(`${location.pathname}?returning=true`, { replace: true });
       }
     }
-  }, [location.pathname, activeTab, handleTabChange, location, navigate]);
+  }, [location.pathname, activeTab]);
 
   return (
     <DashboardLayout
