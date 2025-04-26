@@ -1,18 +1,11 @@
 
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { useStudentDashboard } from "@/hooks/useStudentDashboard";
 import OnboardingFlow from "@/components/dashboard/student/OnboardingFlow";
-import DashboardLoading from "@/pages/dashboard/student/DashboardLoading";
-import DashboardLayout from "@/pages/dashboard/student/DashboardLayout";
-import SplashScreen from "@/components/dashboard/student/SplashScreen";
-import { useLocation } from "react-router-dom";
-import { RedesignedDashboardOverview } from "@/components/dashboard/student/RedesignedDashboardOverview";
+import DashboardLoading from "./student/DashboardLoading";
+import DashboardLayout from "./student/DashboardLayout";
 
 const StudentDashboard = () => {
-  const [showSplash, setShowSplash] = useState(true);
-  const [currentMood, setCurrentMood] = useState<'sad' | 'neutral' | 'happy' | 'motivated' | undefined>(undefined);
-  const location = useLocation();
-  
   const {
     loading,
     userProfile,
@@ -26,8 +19,6 @@ const StudentDashboard = () => {
     kpis,
     nudges,
     features,
-    lastActivity,
-    suggestedNextAction,
     markNudgeAsRead,
     handleTabChange,
     handleSkipTour,
@@ -39,60 +30,11 @@ const StudentDashboard = () => {
     toggleTabsNav
   } = useStudentDashboard();
 
-  // Check URL parameters for onboarding status
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const isNewUser = params.get('new') === 'true';
-    const completedOnboarding = params.get('completedOnboarding') === 'true';
-    
-    console.log("URL params:", { isNewUser, completedOnboarding });
-    
-    // Don't show splash screen for new users coming from signup flow
-    if (isNewUser) {
-      setShowSplash(false);
-    } else {
-      // Check if the user has seen the splash screen in this session
-      const hasSeen = sessionStorage.getItem("hasSeenSplash");
-      setShowSplash(!hasSeen);
-    }
-    
-    // Try to get saved mood from local storage
-    const savedUserData = localStorage.getItem("userData");
-    if (savedUserData) {
-      const parsedData = JSON.parse(savedUserData);
-      if (parsedData.mood) {
-        setCurrentMood(parsedData.mood);
-      }
-    }
-  }, [location]);
-  
-  const handleSplashComplete = () => {
-    setShowSplash(false);
-    // Mark that the user has seen the splash screen in this session
-    sessionStorage.setItem("hasSeenSplash", "true");
-    
-    // Save a default optimistic mood if none is set
-    if (!currentMood) {
-      setCurrentMood('motivated');
-      const userData = localStorage.getItem("userData");
-      if (userData) {
-        const parsedData = JSON.parse(userData);
-        parsedData.mood = 'motivated';
-        localStorage.setItem("userData", JSON.stringify(parsedData));
-      }
-    }
-  };
-
-  // Show splash screen if needed
-  if (showSplash) {
-    return <SplashScreen onComplete={handleSplashComplete} mood={currentMood} />;
-  }
-
   if (loading || !userProfile) {
     return <DashboardLoading />;
   }
 
-  // Show onboarding flow only for users who haven't completed it
+  // Show onboarding flow for first-time users
   if (showOnboarding) {
     // Make sure we have a goal to work with
     const defaultGoal = "IIT-JEE";
@@ -106,9 +48,6 @@ const StudentDashboard = () => {
       />
     );
   }
-
-  // Determine if we should show the redesigned overview
-  const showRedesignedOverview = activeTab === "overview";
 
   return (
     <DashboardLayout
@@ -128,14 +67,7 @@ const StudentDashboard = () => {
       onCompleteTour={handleCompleteTour}
       showStudyPlan={showStudyPlan}
       onCloseStudyPlan={handleCloseStudyPlan}
-      lastActivity={lastActivity}
-      suggestedNextAction={suggestedNextAction}
-      currentMood={currentMood}
-    >
-      {showRedesignedOverview && (
-        <RedesignedDashboardOverview userProfile={userProfile} />
-      )}
-    </DashboardLayout>
+    />
   );
 };
 
