@@ -67,3 +67,23 @@ export const handleNewUser = (
     shouldShowWelcomeTour: false
   };
 };
+
+export const trackStudyActivity = (activity: {
+  type: string;
+  id?: string;
+  name: string;
+  description?: string;
+  progress?: number;
+}) => {
+  const userData = localStorage.getItem("userData");
+  if (userData) {
+    const parsedData = JSON.parse(userData);
+    parsedData.lastActivity = {
+      ...activity,
+      timestamp: new Date().toISOString()
+    };
+    localStorage.setItem("userData", JSON.stringify(parsedData));
+    return true;
+  }
+  return false;
+};
