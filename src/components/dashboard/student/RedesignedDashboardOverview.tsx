@@ -2,7 +2,6 @@
 import React from 'react';
 import { useStudentDashboardData } from '@/hooks/useStudentDashboardData';
 import { UserProfileType } from '@/types/user';
-import { DashboardData, Subject, ConceptCard } from '@/types/student/dashboard';
 import { KpiData } from '@/hooks/useKpiTracking';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,7 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
 import { motion } from 'framer-motion';
-import { AlertCircle, BookOpen, Calendar, Check, Clock, FileText, Star, TrendingUp } from 'lucide-react';
+import { AlertCircle, BookOpen, Calendar, Check, Clock, FileText, TrendingUp } from 'lucide-react';
 
 // Import all the section components
 import StudyStatsSection from './dashboard-sections/StudyStatsSection';

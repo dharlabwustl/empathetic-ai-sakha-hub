@@ -19,7 +19,6 @@ import MobileNavigation from "./MobileNavigation";
 import { getFeatures } from "./utils/FeatureManager";
 import { Button } from "@/components/ui/button";
 import { BookOpen, MessageSquareText, Brain } from "lucide-react";
-import ProfileCard from "@/components/dashboard/ProfileCard";
 import WelcomeTour from "@/components/dashboard/student/WelcomeTour";
 
 interface DashboardLayoutProps {
@@ -42,7 +41,7 @@ interface DashboardLayoutProps {
   lastActivity?: { type: string; description: string } | null;
   suggestedNextAction?: string | null;
   currentMood?: MoodType;
-  children?: React.ReactNode; // Add support for children
+  children?: React.ReactNode;
 }
 
 const DashboardLayout = ({
@@ -65,7 +64,7 @@ const DashboardLayout = ({
   lastActivity,
   suggestedNextAction,
   currentMood,
-  children // Now we use children
+  children
 }: DashboardLayoutProps) => {
   const currentTime = new Date();
   const formattedTime = formatTime(currentTime);
@@ -75,7 +74,7 @@ const DashboardLayout = ({
   
   const features = getFeatures();
 
-  // Navigation buttons for quick access - moved from inside the render
+  // Navigation buttons for quick access
   const navigationButtons = [
     { 
       name: "24/7 AI Tutor", 
@@ -187,7 +186,7 @@ const DashboardLayout = ({
           </motion.div>
         </motion.div>
 
-        {/* Surrounding Influences Section - Enhanced with our redesigned component */}
+        {/* Surrounding Influences Section */}
         <SurroundingInfluencesSection 
           influenceMeterCollapsed={influenceMeterCollapsed}
           setInfluenceMeterCollapsed={setInfluenceMeterCollapsed}
@@ -199,9 +198,9 @@ const DashboardLayout = ({
           </div>
         )}
         
-        {/* Either render children or the default dashboard content */}
+        {/* Either render children (custom content) or the default dashboard content */}
         {children ? (
-          <div>{children}</div>
+          <div className="mt-6">{children}</div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 mt-4 sm:mt-6">
             {!hideSidebar && !isMobile && (

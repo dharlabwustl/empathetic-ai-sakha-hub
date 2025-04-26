@@ -3,7 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { RevisionStats } from '@/types/student/dashboard';
-import { BookOpen, FileText, Flag, Progress } from 'lucide-react';
+import { BookOpen, FileText, Flag, ArrowClockwise } from 'lucide-react';
 
 interface RevisionLoopSectionProps {
   revisionStats: RevisionStats;
@@ -41,7 +41,7 @@ const RevisionLoopSection: React.FC<RevisionLoopSectionProps> = ({ revisionStats
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center">
-          <Progress className="h-5 w-5 mr-2 text-violet-600" />
+          <ArrowClockwise className="h-5 w-5 mr-2 text-violet-600" />
           Revision Loop
         </CardTitle>
       </CardHeader>
@@ -75,7 +75,7 @@ const RevisionLoopSection: React.FC<RevisionLoopSectionProps> = ({ revisionStats
       </CardContent>
       <CardFooter>
         <Button variant="outline" className="w-full">
-          <Progress className="h-4 w-4 mr-1" /> View All Pending Revisions
+          <ArrowClockwise className="h-4 w-4 mr-1" /> View All Pending Revisions
         </Button>
       </CardFooter>
     </Card>
