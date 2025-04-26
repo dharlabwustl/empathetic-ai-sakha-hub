@@ -1,99 +1,80 @@
 
 import React from 'react';
-import ConceptCardView from '@/components/dashboard/student/concept-cards/ConceptCardView';
-import { Button } from '@/components/ui/button';
-import { Link } from 'react-router-dom';
-import { ArrowRight, Book } from 'lucide-react';
 import TodayStudyPlan from '@/components/dashboard/student/TodayStudyPlan';
-import { Card, CardContent } from '@/components/ui/card';
-import { useUserProfile } from '@/hooks/useUserProfile';
-import { useUserStudyPlan } from '@/hooks/useUserStudyPlan';
+import TodaysPlanView from '@/components/dashboard/student/todays-plan/TodaysPlanView';
 
-export const MicroConceptView = () => {
-  const { userProfile } = useUserProfile();
-  const { conceptCards, loading } = useUserStudyPlan();
-  
-  const todayCards = conceptCards.filter(card => card.scheduledFor === 'today');
-  const examGoal = userProfile?.goals?.[0]?.title || 'IIT-JEE';
-
+export function TodayPlanView() {
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold">Concept Cards</h2>
-          <p className="text-gray-500">
-            Master key concepts for your {examGoal} preparation with detailed explanations.
-          </p>
-        </div>
-        <Link to="/dashboard/student/concepts/all">
-          <Button variant="outline" className="flex items-center gap-2">
-            View All <ArrowRight size={16} />
-          </Button>
-        </Link>
-      </div>
-      
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <ConceptCardView 
-          title=""
-          limit={3}
-          showViewAll={false}
-        />
-      </div>
-      
-      {todayCards.length > 3 && (
-        <div className="text-center">
-          <Link to="/dashboard/student/concepts/all">
-            <Button variant="ghost">
-              View {todayCards.length - 3} more concept cards
-            </Button>
-          </Link>
-        </div>
-      )}
+      <TodaysPlanView />
     </div>
   );
-};
+}
 
-export const TodayPlanView = () => {
+export function FlashcardsView() {
   return (
     <div className="space-y-6">
-      <TodayStudyPlan />
-      <ConceptCardView 
-        title="Today's Concept Cards" 
-        limit={3}
-        showViewAll={true}
-      />
-    </div>
-  );
-};
-
-export const FlashcardsView = () => {
-  return (
-    <div>
       <h2 className="text-2xl font-bold">Flashcards</h2>
-      <p className="text-gray-600 mb-4">
-        Study and memorize key concepts with interactive flashcards.
+      <p className="text-muted-foreground">
+        Review and practice with your personalized flashcards.
       </p>
-      
-      {/* Flashcards content would go here */}
-      <div className="p-8 text-center bg-gray-100 rounded-lg">
-        <p className="text-gray-500">Select a flashcard deck to begin studying.</p>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {/* Placeholder for flashcards content */}
+        <div className="p-6 border rounded-lg bg-gray-50 dark:bg-gray-800 text-center">
+          <p>Flashcards content will appear here.</p>
+        </div>
       </div>
     </div>
   );
-};
+}
 
-export const PracticeExamsView = () => {
+export function PracticeExamsView() {
   return (
-    <div>
+    <div className="space-y-6">
       <h2 className="text-2xl font-bold">Practice Exams</h2>
-      <p className="text-gray-600 mb-4">
-        Test your knowledge with practice exams and quizzes.
+      <p className="text-muted-foreground">
+        Test your knowledge with practice exams tailored to your study goals.
       </p>
-      
-      {/* Practice exams content would go here */}
-      <div className="p-8 text-center bg-gray-100 rounded-lg">
-        <p className="text-gray-500">Select a practice exam to begin testing.</p>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Placeholder for practice exams content */}
+        <div className="p-6 border rounded-lg bg-gray-50 dark:bg-gray-800 text-center">
+          <p>Practice exams content will appear here.</p>
+        </div>
       </div>
     </div>
   );
-};
+}
+
+export function MicroConceptView() {
+  return (
+    <div className="space-y-6">
+      <h2 className="text-2xl font-bold">Micro Concepts</h2>
+      <p className="text-muted-foreground">
+        Browse and learn with bite-sized concept explanations.
+      </p>
+      <div className="grid grid-cols-1 gap-4">
+        {/* Placeholder for micro concepts content */}
+        <div className="p-6 border rounded-lg bg-gray-50 dark:bg-gray-800 text-center">
+          <p>Micro concepts content will appear here.</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function NotificationsView() {
+  return (
+    <div className="space-y-6">
+      <h2 className="text-2xl font-bold">Notifications</h2>
+      <p className="text-muted-foreground">
+        Stay updated with important announcements and reminders.
+      </p>
+      <div className="grid grid-cols-1 gap-4">
+        {/* Placeholder for notifications content */}
+        <div className="p-6 border rounded-lg bg-gray-50 dark:bg-gray-800 text-center">
+          <p>Notifications content will appear here.</p>
+        </div>
+      </div>
+    </div>
+  );
+}
