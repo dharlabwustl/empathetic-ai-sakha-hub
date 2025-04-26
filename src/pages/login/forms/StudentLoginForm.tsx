@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -14,6 +13,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import PostLoginRedirect from "@/components/login/PostLoginRedirect";
 
 interface StudentLoginFormProps {
   activeTab: string;
@@ -32,6 +32,13 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { login } = useAuth();
+
+  const [showRedirectPrompt, setShowRedirectPrompt] = useState(false);
+  const [lastUserActivity, setLastUserActivity] = useState<{
+    type: string;
+    id?: string;
+    description: string;
+  } | null>(null);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -53,38 +60,23 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
       const success = await login(email, password);
       
       if (success) {
-        // Check for last activity to redirect to appropriate page
         const userData = localStorage.getItem("userData");
-        let redirectPath = "/dashboard/student";
+        let lastActivity = null;
         
         if (userData) {
           const parsedData = JSON.parse(userData);
-          
           if (parsedData.lastActivity) {
-            const { type, id } = parsedData.lastActivity;
-            
-            if (type === "concept") {
-              redirectPath = `/dashboard/student/concepts/${id}`;
-            } else if (type === "flashcard") {
-              redirectPath = `/dashboard/student/flashcards/${id}`;
-            } else if (type === "practice-exam") {
-              redirectPath = `/dashboard/student/practice-exam/${id}`;
-            }
-            
-            toast({
-              title: "Welcome back!",
-              description: "Redirecting you to where you left off"
-            });
-          } else {
-            toast({
-              title: "Login successful",
-              description: "Welcome to your dashboard"
-            });
+            lastActivity = parsedData.lastActivity;
           }
         }
         
-        // Redirect based on last activity or to default dashboard
-        navigate(redirectPath);
+        setLastUserActivity(lastActivity);
+        setShowRedirectPrompt(true);
+        
+        toast({
+          title: "Login successful",
+          description: "Welcome back!"
+        });
       } else {
         throw new Error("Login failed");
       }
@@ -110,7 +102,6 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
       return;
     }
     
-    // Simulate OTP sending
     setOtpSent(true);
     toast({
       title: "OTP Sent",
@@ -128,13 +119,11 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
       return;
     }
     
-    // Simulate password reset
     toast({
       title: "Password Reset Successful",
       description: "You can now login with your new password",
     });
     
-    // Reset form and close dialog
     setShowPasswordReset(false);
     setOtpSent(false);
     setResetIdentifier("");
@@ -212,7 +201,6 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
         </div>
       </form>
       
-      {/* Password Reset Dialog */}
       <Dialog open={showPasswordReset} onOpenChange={setShowPasswordReset}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
@@ -302,6 +290,12 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
           )}
         </DialogContent>
       </Dialog>
+      
+      <PostLoginRedirect
+        open={showRedirectPrompt}
+        onOpenChange={setShowRedirectPrompt}
+        lastActivity={lastUserActivity}
+      />
     </>
   );
 };
