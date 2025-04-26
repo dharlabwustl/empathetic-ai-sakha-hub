@@ -3,462 +3,246 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Label } from '@/components/ui/label';
-import { Separator } from '@/components/ui/separator';
-import { Check, ChevronLeft, ChevronRight, Flag, Clock, HelpCircle } from 'lucide-react';
-
-// Define question type
-interface ExamQuestion {
-  id: string;
-  text: string;
-  options: { id: string; text: string }[];
-  correctAnswerId: string;
-  explanation?: string;
-}
-
-// Define exam type
-interface Exam {
-  id: string;
-  title: string;
-  subject: string;
-  topic: string;
-  description: string;
-  duration: number; // In minutes
-  questions: ExamQuestion[];
-  difficulty: 'easy' | 'medium' | 'hard';
-}
-
-// Mock data generator
-const getExamById = (id: string): Exam => {
-  return {
-    id,
-    title: 'Physics Mechanics Comprehensive Exam',
-    subject: 'Physics',
-    topic: 'Mechanics',
-    description: 'This exam tests your understanding of fundamental mechanics concepts including Newton\'s laws of motion, momentum, and energy conservation.',
-    duration: 45,
-    difficulty: 'medium',
-    questions: [
-      {
-        id: 'q1',
-        text: 'What is Newton\'s first law of motion?',
-        options: [
-          { id: 'a', text: 'Force equals mass times acceleration' },
-          { id: 'b', text: 'An object in motion stays in motion unless acted upon by an external force' },
-          { id: 'c', text: 'For every action there is an equal and opposite reaction' },
-          { id: 'd', text: 'Energy cannot be created or destroyed' }
-        ],
-        correctAnswerId: 'b',
-        explanation: 'Newton\'s first law states that an object will remain at rest or in uniform motion in a straight line unless acted upon by an external force.'
-      },
-      {
-        id: 'q2',
-        text: 'What is the SI unit of force?',
-        options: [
-          { id: 'a', text: 'Newton' },
-          { id: 'b', text: 'Joule' },
-          { id: 'c', text: 'Watt' },
-          { id: 'd', text: 'Pascal' }
-        ],
-        correctAnswerId: 'a',
-        explanation: 'The SI unit of force is the Newton (N), which is equal to kg·m/s².'
-      },
-      {
-        id: 'q3',
-        text: 'Which of the following is a vector quantity?',
-        options: [
-          { id: 'a', text: 'Mass' },
-          { id: 'b', text: 'Time' },
-          { id: 'c', text: 'Velocity' },
-          { id: 'd', text: 'Energy' }
-        ],
-        correctAnswerId: 'c',
-        explanation: 'Velocity is a vector quantity because it has both magnitude (speed) and direction.'
-      },
-      // Additional questions would be here in a real app
-    ]
-  };
-};
+import { ArrowLeft, Clock, AlertTriangle, CheckCircle, XCircle } from 'lucide-react';
+import { PracticeExam } from './PracticeExamCard';
 
 const PracticeExamPage: React.FC = () => {
   const { examId } = useParams<{ examId: string }>();
   const navigate = useNavigate();
-  const [exam, setExam] = useState<Exam | null>(null);
+  const [exam, setExam] = useState<PracticeExam | null>(null);
   const [loading, setLoading] = useState(true);
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [userAnswers, setUserAnswers] = useState<Record<string, string>>({});
-  const [timeRemaining, setTimeRemaining] = useState<number>(0);
-  const [isExamStarted, setIsExamStarted] = useState(false);
-  const [isExamSubmitted, setIsExamSubmitted] = useState(false);
-  const [flaggedQuestions, setFlaggedQuestions] = useState<string[]>([]);
-  const [showExplanation, setShowExplanation] = useState(false);
-  const [isReviewMode, setIsReviewMode] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  // Load exam data
+  // Mock questions for demo
+  const mockQuestions = [
+    {
+      id: 1,
+      question: "What is the formula for the area of a circle?",
+      options: ["πr²", "2πr", "πr³", "2πr²"],
+      correctAnswer: "πr²",
+    },
+    {
+      id: 2,
+      question: "What is the chemical symbol for gold?",
+      options: ["Au", "Ag", "Fe", "Cu"],
+      correctAnswer: "Au",
+    }
+  ];
+
+  // Fetch exam data
   useEffect(() => {
-    if (!examId) return;
-    
+    // This would typically be an API call
     setLoading(true);
-    try {
-      // In a real app, this would be an API call
-      const examData = getExamById(examId);
-      setExam(examData);
-      setTimeRemaining(examData.duration * 60); // Convert minutes to seconds
-    } catch (error) {
-      console.error("Error loading exam:", error);
-    } finally {
-      setLoading(false);
-    }
     
-    // Check if we're in review mode
-    const url = window.location.href;
-    if (url.includes('review=true')) {
-      setIsReviewMode(true);
-      setIsExamStarted(true);
+    // Mock data - This would be replaced with a real API call
+    setTimeout(() => {
+      // Mocked exam data
+      const mockExams: PracticeExam[] = [
+        {
+          id: "physics-101",
+          title: "Physics Fundamentals",
+          subject: "Physics",
+          topic: "Mechanics",
+          questionCount: 25,
+          duration: 60,
+          difficulty: "medium",
+          status: "not-started"
+        },
+        {
+          id: "chemistry-101",
+          title: "Chemistry Basics",
+          subject: "Chemistry",
+          topic: "Periodic Table",
+          questionCount: 30,
+          duration: 45,
+          difficulty: "easy",
+          status: "in-progress"
+        },
+        {
+          id: "biology-101",
+          title: "Biology Essentials",
+          subject: "Biology",
+          topic: "Cell Biology",
+          questionCount: 40,
+          duration: 90,
+          difficulty: "hard",
+          status: "completed",
+          score: 85,
+          completedAt: "2023-05-15T14:30:00"
+        }
+      ];
       
-      // In a real app, we would fetch the user's previous answers
-      // For now, we'll just simulate some answers
-      if (exam) {
-        const simulatedAnswers: Record<string, string> = {};
-        exam.questions.forEach((q, index) => {
-          // Simulate some answers (correctly answer 70% of questions)
-          if (Math.random() > 0.3) {
-            simulatedAnswers[q.id] = q.correctAnswerId;
-          } else {
-            // Get a wrong answer
-            const wrongOptions = q.options.filter(o => o.id !== q.correctAnswerId);
-            if (wrongOptions.length > 0) {
-              simulatedAnswers[q.id] = wrongOptions[0].id;
-            }
-          }
-        });
-        setUserAnswers(simulatedAnswers);
+      const foundExam = mockExams.find(e => e.id === examId);
+      
+      if (foundExam) {
+        setExam(foundExam);
+        setError(null);
+      } else {
+        setError("Exam not found");
       }
-    }
+      
+      setLoading(false);
+    }, 800);
   }, [examId]);
 
-  // Timer effect
-  useEffect(() => {
-    if (!isExamStarted || isExamSubmitted || isReviewMode) return;
-    
-    const timer = setInterval(() => {
-      setTimeRemaining(prev => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          handleSubmitExam();
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-    
-    return () => clearInterval(timer);
-  }, [isExamStarted, isExamSubmitted, isReviewMode]);
-
-  const handleStartExam = () => {
-    setIsExamStarted(true);
-  };
-
-  const handleAnswerChange = (questionId: string, answerId: string) => {
-    setUserAnswers(prev => ({ ...prev, [questionId]: answerId }));
-  };
-
-  const handleNextQuestion = () => {
-    if (exam && currentQuestionIndex < exam.questions.length - 1) {
-      setCurrentQuestionIndex(prev => prev + 1);
-      setShowExplanation(false);
-    }
-  };
-
-  const handlePreviousQuestion = () => {
-    if (currentQuestionIndex > 0) {
-      setCurrentQuestionIndex(prev => prev - 1);
-      setShowExplanation(false);
-    }
-  };
-
-  const handleFlagQuestion = () => {
-    if (!exam) return;
-    
-    const questionId = exam.questions[currentQuestionIndex].id;
-    setFlaggedQuestions(prev => {
-      if (prev.includes(questionId)) {
-        return prev.filter(id => id !== questionId);
-      } else {
-        return [...prev, questionId];
-      }
-    });
-  };
-
-  const handleSubmitExam = () => {
-    setIsExamSubmitted(true);
-    
-    // Calculate score - in a real app this would be sent to the server
-    let correctAnswers = 0;
-    if (exam) {
-      exam.questions.forEach(question => {
-        if (userAnswers[question.id] === question.correctAnswerId) {
-          correctAnswers++;
-        }
-      });
-    }
-    
-    // Navigate to results page
-    setTimeout(() => {
-      navigate(`/dashboard/student/exams/${examId}/results`);
-    }, 1500);
-  };
-
-  const formatTime = (seconds: number): string => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-  };
-
-  if (loading || !exam) {
+  if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-t-blue-500 border-blue-200 rounded-full animate-spin mx-auto mb-4"></div>
+          <h2 className="text-xl font-medium">Loading exam...</h2>
+        </div>
       </div>
     );
   }
 
-  // If exam hasn't started yet, show start screen
-  if (!isExamStarted) {
+  if (error || !exam) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <Button variant="outline" onClick={() => navigate(-1)} className="mb-6 flex items-center gap-2">
-          <ChevronLeft size={16} /> Back to Exams
-        </Button>
-        
-        <Card className="max-w-2xl mx-auto">
+      <div className="min-h-screen flex items-center justify-center">
+        <Card className="w-full max-w-md">
           <CardHeader>
-            <CardTitle>{exam.title}</CardTitle>
+            <CardTitle className="text-red-500 flex items-center gap-2">
+              <AlertTriangle />
+              Error
+            </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <h3 className="font-medium">Subject:</h3>
-              <p>{exam.subject}</p>
-            </div>
-            <div>
-              <h3 className="font-medium">Topic:</h3>
-              <p>{exam.topic}</p>
-            </div>
-            <div>
-              <h3 className="font-medium">Description:</h3>
-              <p>{exam.description}</p>
-            </div>
-            <div className="flex justify-between">
-              <div>
-                <h3 className="font-medium">Duration:</h3>
-                <p>{exam.duration} minutes</p>
-              </div>
-              <div>
-                <h3 className="font-medium">Questions:</h3>
-                <p>{exam.questions.length}</p>
-              </div>
-              <div>
-                <h3 className="font-medium">Difficulty:</h3>
-                <p className="capitalize">{exam.difficulty}</p>
-              </div>
-            </div>
+          <CardContent>
+            <p>{error || "An unknown error occurred"}</p>
           </CardContent>
           <CardFooter>
-            <Button onClick={handleStartExam} className="w-full">Start Exam</Button>
+            <Button onClick={() => navigate("/dashboard/student/exams")}>
+              Go Back to Exams
+            </Button>
           </CardFooter>
         </Card>
       </div>
     );
   }
 
-  // If exam is submitted, show loading screen
-  if (isExamSubmitted) {
-    return (
-      <div className="flex flex-col justify-center items-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mb-4"></div>
-        <p className="text-lg">Calculating your results...</p>
-      </div>
-    );
-  }
-
-  // Get current question
-  const currentQuestion = exam.questions[currentQuestionIndex];
-  const isQuestionFlagged = flaggedQuestions.includes(currentQuestion.id);
-  const currentAnswer = userAnswers[currentQuestion.id] || '';
-  const isCorrect = currentAnswer === currentQuestion.correctAnswerId;
-  const isAnswered = !!currentAnswer;
-  const progress = ((currentQuestionIndex + 1) / exam.questions.length) * 100;
-  
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="mb-6 flex flex-wrap gap-4 justify-between items-center">
-        {isReviewMode ? (
-          <Button variant="outline" onClick={() => navigate(-1)} className="flex items-center gap-2">
-            <ChevronLeft size={16} /> Back to Results
-          </Button>
-        ) : (
-          <Button 
-            variant="outline" 
-            className="flex items-center gap-2"
-            onClick={() => {
-              if (confirm("Are you sure you want to exit the exam? Your progress will be lost.")) {
-                navigate(-1);
-              }
-            }}
-          >
-            <ChevronLeft size={16} /> Exit Exam
-          </Button>
-        )}
-
-        {!isReviewMode && (
-          <div className="flex items-center gap-2">
-            <Clock className="h-5 w-5 text-red-500" />
-            <span className="font-mono font-bold">{formatTime(timeRemaining)}</span>
+      <Button 
+        variant="ghost" 
+        onClick={() => navigate("/dashboard/student/exams")}
+        className="mb-6 flex items-center gap-2"
+      >
+        <ArrowLeft size={16} />
+        Back to Exams
+      </Button>
+      
+      <Card className="mb-8">
+        <CardHeader>
+          <div className="flex justify-between items-start">
+            <div>
+              <CardTitle className="text-2xl">{exam.title}</CardTitle>
+              <p className="text-gray-500 mt-1">
+                {exam.subject} • {exam.topic}
+              </p>
+            </div>
+            <div className="flex items-center gap-2 text-sm font-medium">
+              <Clock size={16} className="text-gray-400" />
+              {exam.duration} minutes
+              <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full">
+                {exam.questionCount} questions
+              </span>
+              <span className={`px-2 py-1 rounded-full ${
+                exam.difficulty === 'easy' ? 'bg-green-100 text-green-700' :
+                exam.difficulty === 'medium' ? 'bg-yellow-100 text-yellow-700' :
+                'bg-red-100 text-red-700'
+              }`}>
+                {exam.difficulty} difficulty
+              </span>
+            </div>
           </div>
-        )}
-      </div>
-
-      {/* Progress bar */}
-      <div className="mb-6">
-        <div className="flex justify-between text-sm mb-1">
-          <span>Question {currentQuestionIndex + 1} of {exam.questions.length}</span>
-          <span>{Math.round(progress)}% Complete</span>
-        </div>
-        <Progress value={progress} className="h-2" />
-      </div>
-
-      <Card className="mb-6">
-        <CardHeader className="pb-3 flex flex-row items-start justify-between">
-          <div>
-            <CardTitle className="text-lg">Question {currentQuestionIndex + 1}</CardTitle>
-            <p className="text-sm text-muted-foreground">{exam.subject} - {exam.topic}</p>
-          </div>
-          
-          <Button 
-            variant="outline" 
-            size="sm" 
-            className={`flex items-center gap-1 ${isQuestionFlagged ? 'text-amber-600' : ''}`}
-            onClick={handleFlagQuestion}
-          >
-            <Flag className={`h-4 w-4 ${isQuestionFlagged ? 'fill-amber-500 text-amber-600' : ''}`} />
-            {isQuestionFlagged ? 'Flagged' : 'Flag'}
-          </Button>
         </CardHeader>
         
         <CardContent>
-          <h3 className="text-lg font-medium mb-4">{currentQuestion.text}</h3>
-          <RadioGroup 
-            value={currentAnswer}
-            onValueChange={(value) => handleAnswerChange(currentQuestion.id, value)}
-            className="space-y-3"
-            disabled={isReviewMode}
-          >
-            {currentQuestion.options.map(option => (
-              <div key={option.id} className={`
-                flex items-center space-x-2 p-3 rounded-md border
-                ${isReviewMode && option.id === currentQuestion.correctAnswerId ? 'border-green-500 bg-green-50' : ''}
-                ${isReviewMode && currentAnswer === option.id && option.id !== currentQuestion.correctAnswerId ? 'border-red-500 bg-red-50' : ''}
-              `}>
-                <RadioGroupItem value={option.id} id={option.id} />
-                <Label htmlFor={option.id} className="flex-1 cursor-pointer">{option.text}</Label>
-                {isReviewMode && option.id === currentQuestion.correctAnswerId && (
-                  <Check className="h-5 w-5 text-green-600" />
-                )}
-              </div>
-            ))}
-          </RadioGroup>
+          <div className="mb-6">
+            <h3 className="text-lg font-medium mb-2">Description</h3>
+            <p className="text-gray-600">
+              This exam will test your knowledge about {exam.topic} in {exam.subject}. 
+              You will have {exam.duration} minutes to complete {exam.questionCount} questions.
+            </p>
+          </div>
           
-          {isReviewMode && currentQuestion.explanation && (
-            <div className="mt-6 p-3 bg-blue-50 rounded-md border border-blue-200">
-              <h4 className="font-medium mb-1 flex items-center gap-2">
-                <HelpCircle className="h-4 w-4 text-blue-600" />
-                Explanation
-              </h4>
-              <p>{currentQuestion.explanation}</p>
+          {exam.status === 'completed' ? (
+            <div>
+              <div className="flex justify-between items-center mb-4 p-4 bg-gray-50 rounded-lg">
+                <div>
+                  <h3 className="text-lg font-medium">Your Results</h3>
+                  <p className="text-gray-600">
+                    Completed on {new Date(exam.completedAt || '').toLocaleString()}
+                  </p>
+                </div>
+                <div className={`text-2xl font-bold ${
+                  (exam.score || 0) >= 80 ? 'text-green-600' : 
+                  (exam.score || 0) >= 60 ? 'text-yellow-600' : 
+                  'text-red-600'
+                }`}>
+                  {exam.score}%
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="p-4 border rounded-lg">
+                  <h4 className="font-medium mb-2">Strengths</h4>
+                  <ul className="list-disc list-inside text-gray-600">
+                    <li>Strong understanding of core principles</li>
+                    <li>Excellent application of formulas</li>
+                  </ul>
+                </div>
+                <div className="p-4 border rounded-lg">
+                  <h4 className="font-medium mb-2">Areas to Improve</h4>
+                  <ul className="list-disc list-inside text-gray-600">
+                    <li>Review complex problems</li>
+                    <li>Practice time management</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="p-6 bg-gray-50 rounded-lg text-center">
+              <h3 className="text-lg font-medium mb-2">
+                {exam.status === 'in-progress' ? 'Continue Your Exam' : 'Ready to Begin?'}
+              </h3>
+              <p className="text-gray-600 mb-4">
+                {exam.status === 'in-progress' 
+                  ? "You've already started this exam. Pick up where you left off."
+                  : "Once you start, you'll have a set time to complete all questions."}
+              </p>
+              <Button
+                size="lg"
+                className={`${
+                  exam.status === 'in-progress' 
+                    ? 'bg-yellow-600 hover:bg-yellow-700' 
+                    : 'bg-green-600 hover:bg-green-700'
+                } text-white`}
+                onClick={() => navigate(`/dashboard/student/exams/${exam.id}/take`)}
+              >
+                {exam.status === 'in-progress' ? 'Continue Exam' : 'Start Exam'}
+              </Button>
             </div>
           )}
         </CardContent>
         
-        <CardFooter className="flex flex-wrap gap-3 justify-between">
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              onClick={handlePreviousQuestion}
-              disabled={currentQuestionIndex === 0}
-              className="flex items-center gap-2"
-            >
-              <ChevronLeft size={16} />
-              Previous
-            </Button>
-            
-            <Button
-              variant="outline"
-              onClick={handleNextQuestion}
-              disabled={currentQuestionIndex === exam.questions.length - 1}
-              className="flex items-center gap-2"
-            >
-              Next
-              <ChevronRight size={16} />
-            </Button>
-          </div>
+        <CardFooter className="flex justify-between">
+          <Button
+            variant="outline"
+            onClick={() => navigate("/dashboard/student/exams")}
+          >
+            Back to All Exams
+          </Button>
           
-          {!isReviewMode && currentQuestionIndex === exam.questions.length - 1 && (
-            <Button onClick={handleSubmitExam}>Submit Exam</Button>
+          {exam.status === 'completed' && (
+            <Button
+              onClick={() => navigate(`/dashboard/student/exams/${exam.id}/results`)}
+              className="bg-blue-600 hover:bg-blue-700 text-white"
+            >
+              View Detailed Results
+            </Button>
           )}
         </CardFooter>
       </Card>
-      
-      {/* Question navigation */}
-      <div className="bg-white p-4 rounded-lg border shadow-sm">
-        <h4 className="font-medium mb-3">Question Navigation</h4>
-        <div className="grid grid-cols-5 sm:grid-cols-10 gap-2">
-          {exam.questions.map((question, index) => {
-            const isAnsweredQuestion = !!userAnswers[question.id];
-            const isFlagged = flaggedQuestions.includes(question.id);
-            
-            return (
-              <Button
-                key={question.id}
-                variant="outline"
-                size="sm"
-                className={`h-10 w-10 p-0 relative ${
-                  index === currentQuestionIndex ? 'ring-2 ring-offset-2 ring-primary' : ''
-                } ${
-                  isAnsweredQuestion ? 'bg-blue-50' : ''
-                } ${
-                  isReviewMode && userAnswers[question.id] === question.correctAnswerId ? 'bg-green-100' : ''
-                } ${
-                  isReviewMode && userAnswers[question.id] && userAnswers[question.id] !== question.correctAnswerId ? 'bg-red-100' : ''
-                }`}
-                onClick={() => setCurrentQuestionIndex(index)}
-              >
-                {index + 1}
-                {isFlagged && (
-                  <div className="absolute -top-1 -right-1">
-                    <Flag className="h-3 w-3 fill-amber-500 text-amber-600" />
-                  </div>
-                )}
-              </Button>
-            );
-          })}
-        </div>
-        <div className="mt-4 flex gap-4 text-xs">
-          <div className="flex items-center gap-1">
-            <div className="h-3 w-3 bg-blue-50 border rounded-sm"></div>
-            <span>Answered</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <div className="h-3 w-3 border rounded-sm"></div>
-            <span>Unanswered</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <Flag className="h-3 w-3 fill-amber-500 text-amber-600" />
-            <span>Flagged</span>
-          </div>
-        </div>
-      </div>
     </div>
   );
 };

@@ -1,322 +1,423 @@
 
-import React, { useState } from 'react';
-import MainLayout from '@/components/layouts/MainLayout';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { Link } from 'react-router-dom';
-import { ArrowLeft, Filter, Search, FileText, PieChart } from 'lucide-react';
-import PracticeExamCard, { PracticeExam } from '@/components/dashboard/student/practice-exams/PracticeExamCard';
-
-// Sample data - in production this would come from an API
-const mockExams: PracticeExam[] = [
-  {
-    id: 'exam1',
-    title: 'Physics Mechanics Test',
-    subject: 'Physics',
-    topic: 'Mechanics',
-    questionCount: 15,
-    duration: 30,
-    difficulty: 'easy',
-    status: 'not-started',
-  },
-  {
-    id: 'exam2',
-    title: 'Organic Chemistry Quiz',
-    subject: 'Chemistry',
-    topic: 'Organic Chemistry',
-    questionCount: 20,
-    duration: 45,
-    difficulty: 'medium',
-    status: 'completed',
-    score: 85,
-    completedAt: '2025-04-20',
-  },
-  {
-    id: 'exam3',
-    title: 'Calculus Practice Test',
-    subject: 'Mathematics',
-    topic: 'Calculus',
-    questionCount: 25,
-    duration: 60,
-    difficulty: 'hard',
-    status: 'in-progress',
-  },
-  {
-    id: 'exam4',
-    title: 'Electrostatics Quiz',
-    subject: 'Physics',
-    topic: 'Electrostatics',
-    questionCount: 15,
-    duration: 30,
-    difficulty: 'medium',
-    status: 'not-started',
-  },
-  {
-    id: 'exam5',
-    title: 'Algebra Test',
-    subject: 'Mathematics',
-    topic: 'Algebra',
-    questionCount: 20,
-    duration: 45,
-    difficulty: 'easy',
-    status: 'completed',
-    score: 92,
-    completedAt: '2025-04-15',
-  },
-];
+import { ArrowLeft, Filter, Search, SortAsc, SortDesc, BookOpen, BarChart, Calendar } from 'lucide-react';
+import { PracticeExam } from '@/components/dashboard/student/practice-exams/PracticeExamCard';
+import { Input } from '@/components/ui/input';
+import { 
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const PracticeExamsListPage: React.FC = () => {
-  const [filters, setFilters] = useState({
-    subject: '',
-    topic: '',
-    difficulty: '',
-    status: '',
-    search: ''
-  });
-  
-  const [activeTab, setActiveTab] = useState<'all' | 'analysis'>('all');
+  const navigate = useNavigate();
+  const [exams, setExams] = useState<PracticeExam[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [subjectFilter, setSubjectFilter] = useState<string>('all');
+  const [difficultyFilter, setDifficultyFilter] = useState<string>('all');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [activeTab, setActiveTab] = useState<string>('all-exams');
 
-  const handleFilterChange = (key: string, value: string) => {
-    setFilters(prev => ({ ...prev, [key]: value }));
-  };
+  useEffect(() => {
+    // This would be an API call in a real app
+    const fetchExams = () => {
+      setLoading(true);
+      
+      setTimeout(() => {
+        // Mock data
+        const mockExams: PracticeExam[] = [
+          {
+            id: "physics-101",
+            title: "Physics Fundamentals",
+            subject: "Physics",
+            topic: "Mechanics",
+            questionCount: 25,
+            duration: 60,
+            difficulty: "medium",
+            status: "not-started"
+          },
+          {
+            id: "chemistry-101",
+            title: "Chemistry Basics",
+            subject: "Chemistry",
+            topic: "Periodic Table",
+            questionCount: 30,
+            duration: 45,
+            difficulty: "easy",
+            status: "in-progress"
+          },
+          {
+            id: "biology-101",
+            title: "Biology Essentials",
+            subject: "Biology",
+            topic: "Cell Biology",
+            questionCount: 40,
+            duration: 90,
+            difficulty: "hard",
+            status: "completed",
+            score: 85,
+            completedAt: "2023-05-15T14:30:00"
+          },
+          {
+            id: "math-101",
+            title: "Mathematics Review",
+            subject: "Mathematics",
+            topic: "Calculus",
+            questionCount: 20,
+            duration: 45,
+            difficulty: "medium",
+            status: "completed",
+            score: 72,
+            completedAt: "2023-05-10T10:15:00"
+          },
+          {
+            id: "physics-102",
+            title: "Advanced Physics Concepts",
+            subject: "Physics",
+            topic: "Thermodynamics",
+            questionCount: 30,
+            duration: 75,
+            difficulty: "hard",
+            status: "not-started"
+          },
+          {
+            id: "chemistry-102",
+            title: "Organic Chemistry",
+            subject: "Chemistry",
+            topic: "Carbon Compounds",
+            questionCount: 35,
+            duration: 60,
+            difficulty: "hard",
+            status: "not-started"
+          },
+          {
+            id: "physics-103",
+            title: "Electromagnetism",
+            subject: "Physics",
+            topic: "Electricity & Magnetism",
+            questionCount: 28,
+            duration: 60,
+            difficulty: "medium",
+            status: "not-started"
+          },
+          {
+            id: "math-102",
+            title: "Algebra Mastery",
+            subject: "Mathematics",
+            topic: "Advanced Algebra",
+            questionCount: 25,
+            duration: 50,
+            difficulty: "medium",
+            status: "not-started"
+          }
+        ];
+        
+        setExams(mockExams);
+        setLoading(false);
+      }, 800);
+    };
+    
+    fetchExams();
+  }, []);
 
-  const filteredExams = mockExams.filter(exam => {
-    if (filters.subject && exam.subject !== filters.subject) return false;
-    if (filters.topic && exam.topic !== filters.topic) return false;
-    if (filters.difficulty && exam.difficulty !== filters.difficulty) return false;
-    if (filters.status && exam.status !== filters.status) return false;
-    if (filters.search && !exam.title.toLowerCase().includes(filters.search.toLowerCase())) return false;
+  // Apply filters
+  const filteredExams = exams.filter(exam => {
+    // Search term
+    if (searchTerm && !exam.title.toLowerCase().includes(searchTerm.toLowerCase()) && 
+        !exam.subject.toLowerCase().includes(searchTerm.toLowerCase()) && 
+        !exam.topic.toLowerCase().includes(searchTerm.toLowerCase())) {
+      return false;
+    }
+    
+    // Subject filter
+    if (subjectFilter !== 'all' && exam.subject !== subjectFilter) {
+      return false;
+    }
+    
+    // Difficulty filter
+    if (difficultyFilter !== 'all' && exam.difficulty !== difficultyFilter) {
+      return false;
+    }
+    
+    // Status filter
+    if (statusFilter !== 'all' && exam.status !== statusFilter) {
+      return false;
+    }
+    
+    // Tab filter
+    if (activeTab === 'completed' && exam.status !== 'completed') {
+      return false;
+    } else if (activeTab === 'in-progress' && exam.status !== 'in-progress') {
+      return false;
+    } else if (activeTab === 'not-started' && exam.status !== 'not-started') {
+      return false;
+    }
+    
     return true;
   });
-
-  // Compute some analytics for the analysis tab
-  const totalExams = mockExams.length;
-  const completedExams = mockExams.filter(e => e.status === 'completed').length;
-  const averageScore = mockExams
-    .filter(e => e.status === 'completed' && e.score)
-    .reduce((sum, exam) => sum + (exam.score || 0), 0) / 
-    (mockExams.filter(e => e.status === 'completed' && e.score).length || 1);
-
-  // Extract unique subjects for analysis
-  const subjects = [...new Set(mockExams.map(e => e.subject))];
-  const subjectStats = subjects.map(subject => {
-    const subjectExams = mockExams.filter(e => e.subject === subject);
-    const completed = subjectExams.filter(e => e.status === 'completed').length;
-    const avgScore = subjectExams
-      .filter(e => e.status === 'completed' && e.score)
-      .reduce((sum, exam) => sum + (exam.score || 0), 0) / 
-      (subjectExams.filter(e => e.status === 'completed' && e.score).length || 1);
-    
-    return {
-      subject,
-      total: subjectExams.length,
-      completed,
-      avgScore: Math.round(avgScore),
-      percentCompleted: Math.round((completed / subjectExams.length) * 100)
-    };
-  });
+  
+  // Get unique subjects
+  const subjects = ['all', ...new Set(exams.map(exam => exam.subject))];
 
   return (
-    <MainLayout>
-      <div className="container py-6">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-4">
-            <Link to="/dashboard/student/practice-exam" className="hover:text-blue-600">
-              <ArrowLeft className="h-6 w-6" />
-            </Link>
+    <div className="container mx-auto px-4 py-8">
+      <Button 
+        variant="ghost" 
+        onClick={() => navigate("/dashboard/student/overview")}
+        className="mb-6 flex items-center gap-2"
+      >
+        <ArrowLeft size={16} />
+        Back to Dashboard
+      </Button>
+      
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+        <div>
+          <h1 className="text-3xl font-bold">Practice Exams</h1>
+          <p className="text-gray-600">Prepare for your exams with our comprehensive practice tests</p>
+        </div>
+        
+        <div className="flex gap-2">
+          <Button variant="outline">
+            <Calendar className="h-4 w-4 mr-2" />
+            Schedule Exam
+          </Button>
+          <Button>
+            <BarChart className="h-4 w-4 mr-2" />
+            View Analytics
+          </Button>
+        </div>
+      </div>
+      
+      {/* Tabs */}
+      <Tabs 
+        defaultValue="all-exams" 
+        value={activeTab}
+        onValueChange={setActiveTab}
+        className="mb-6"
+      >
+        <TabsList className="grid grid-cols-4 max-w-md">
+          <TabsTrigger value="all-exams">All Exams</TabsTrigger>
+          <TabsTrigger value="not-started">Not Started</TabsTrigger>
+          <TabsTrigger value="in-progress">In Progress</TabsTrigger>
+          <TabsTrigger value="completed">Completed</TabsTrigger>
+        </TabsList>
+      </Tabs>
+      
+      {/* Search and filters */}
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle className="text-lg flex items-center gap-2">
+            <Filter size={18} />
+            Search & Filter
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
-              <h1 className="text-2xl font-bold flex items-center gap-2">
-                <FileText className="text-blue-600" />
-                Practice Tests
-              </h1>
-              <p className="text-gray-500">Browse and filter all available practice tests</p>
+              <Input
+                placeholder="Search exams..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full"
+                icon={<Search className="h-4 w-4 text-gray-400" />}
+              />
+            </div>
+            <div>
+              <Select value={subjectFilter} onValueChange={setSubjectFilter}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Filter by Subject" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectLabel>Subjects</SelectLabel>
+                    {subjects.map((subject) => (
+                      <SelectItem key={subject} value={subject}>
+                        {subject === 'all' ? 'All Subjects' : subject}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Select value={difficultyFilter} onValueChange={setDifficultyFilter}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Filter by Difficulty" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectLabel>Difficulty</SelectLabel>
+                    <SelectItem value="all">All Difficulties</SelectItem>
+                    <SelectItem value="easy">Easy</SelectItem>
+                    <SelectItem value="medium">Medium</SelectItem>
+                    <SelectItem value="hard">Hard</SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Filter by Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectLabel>Status</SelectLabel>
+                    <SelectItem value="all">All Statuses</SelectItem>
+                    <SelectItem value="not-started">Not Started</SelectItem>
+                    <SelectItem value="in-progress">In Progress</SelectItem>
+                    <SelectItem value="completed">Completed</SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
             </div>
           </div>
+        </CardContent>
+      </Card>
+      
+      {/* Exams grid */}
+      {loading ? (
+        <div className="flex items-center justify-center py-12">
+          <div className="text-center">
+            <div className="w-12 h-12 border-4 border-t-blue-500 border-blue-200 rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading exams...</p>
+          </div>
         </div>
-
-        <Tabs 
-          value={activeTab} 
-          onValueChange={(value) => setActiveTab(value as 'all' | 'analysis')}
-          className="w-full"
-        >
-          <TabsList className="mb-6 w-full flex justify-start">
-            <TabsTrigger value="all" className="flex-1 max-w-[200px]">All Tests</TabsTrigger>
-            <TabsTrigger value="analysis" className="flex-1 max-w-[200px]">Analysis</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="all">
-            {/* Filters Section */}
-            <Card className="p-4 mb-6">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-sm font-medium mb-2">Search</label>
-                  <Input
-                    placeholder="Search tests..."
-                    value={filters.search}
-                    onChange={(e) => handleFilterChange('search', e.target.value)}
-                    icon={<Search className="h-4 w-4" />}
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-2">Subject</label>
-                  <Select onValueChange={(value) => handleFilterChange('subject', value)}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="All Subjects" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="">All Subjects</SelectItem>
-                      <SelectItem value="Physics">Physics</SelectItem>
-                      <SelectItem value="Chemistry">Chemistry</SelectItem>
-                      <SelectItem value="Mathematics">Mathematics</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-2">Difficulty</label>
-                  <Select onValueChange={(value) => handleFilterChange('difficulty', value)}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="All Difficulties" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="">All Difficulties</SelectItem>
-                      <SelectItem value="easy">Easy</SelectItem>
-                      <SelectItem value="medium">Medium</SelectItem>
-                      <SelectItem value="hard">Hard</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-2">Status</label>
-                  <Select onValueChange={(value) => handleFilterChange('status', value)}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="All Status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="">All Status</SelectItem>
-                      <SelectItem value="completed">Completed</SelectItem>
-                      <SelectItem value="in-progress">In Progress</SelectItem>
-                      <SelectItem value="not-started">Not Started</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            </Card>
-
-            {/* Exams Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filteredExams.length === 0 ? (
-                <div className="col-span-full text-center py-8">
-                  <p className="text-gray-500">No practice tests found</p>
-                </div>
-              ) : (
-                filteredExams.map((exam) => (
-                  <PracticeExamCard key={exam.id} exam={exam} />
-                ))
-              )}
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="analysis">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {/* Overall Stats */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Overall Progress</CardTitle>
+      ) : filteredExams.length > 0 ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {filteredExams.map((exam) => (
+            <Link 
+              key={exam.id} 
+              to={`/dashboard/student/exams/${exam.id}`}
+              className="block h-full"
+            >
+              <Card className="h-full transition-shadow hover:shadow-lg">
+                <CardHeader className={`pb-2 border-b ${
+                  exam.status === 'completed' ? 'border-green-200 bg-green-50' :
+                  exam.status === 'in-progress' ? 'border-yellow-200 bg-yellow-50' :
+                  'border-blue-200 bg-blue-50'
+                }`}>
+                  <CardTitle className="text-lg line-clamp-1" title={exam.title}>
+                    {exam.title}
+                  </CardTitle>
+                  <div className="flex justify-between text-xs">
+                    <span className="text-gray-600">{exam.subject}</span>
+                    <span className={`px-2 py-0.5 rounded-full ${
+                      exam.difficulty === 'easy' ? 'bg-green-100 text-green-700' :
+                      exam.difficulty === 'medium' ? 'bg-yellow-100 text-yellow-700' :
+                      'bg-red-100 text-red-700'
+                    }`}>
+                      {exam.difficulty}
+                    </span>
+                  </div>
                 </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div>
-                      <p className="text-sm font-medium">Total Tests</p>
-                      <p className="text-3xl font-bold">{totalExams}</p>
+                <CardContent className="pt-4">
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-500">Topic:</span>
+                      <span>{exam.topic}</span>
                     </div>
-                    <div>
-                      <p className="text-sm font-medium">Completed</p>
-                      <div className="flex items-center">
-                        <p className="text-3xl font-bold mr-2">{completedExams}</p>
-                        <span className="text-sm text-gray-500">
-                          ({Math.round((completedExams / totalExams) * 100)}%)
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-500">Questions:</span>
+                      <span>{exam.questionCount}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-500">Duration:</span>
+                      <span>{exam.duration} min</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-500">Status:</span>
+                      <span className={`${
+                        exam.status === 'completed' ? 'text-green-600' :
+                        exam.status === 'in-progress' ? 'text-yellow-600' :
+                        'text-blue-600'
+                      }`}>
+                        {exam.status === 'not-started' ? 'Not Started' :
+                         exam.status === 'in-progress' ? 'In Progress' : 'Completed'}
+                      </span>
+                    </div>
+                    {exam.score !== undefined && (
+                      <div className="flex justify-between text-sm font-medium">
+                        <span className="text-gray-500">Score:</span>
+                        <span className={`${
+                          exam.score >= 80 ? 'text-green-600' :
+                          exam.score >= 60 ? 'text-yellow-600' :
+                          'text-red-600'
+                        }`}>
+                          {exam.score}%
                         </span>
                       </div>
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium">Average Score</p>
-                      <p className="text-3xl font-bold">{Math.round(averageScore)}%</p>
-                    </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
-              
-              {/* Subject-wise Analysis */}
-              <Card className="md:col-span-2">
-                <CardHeader>
-                  <CardTitle>Subject Analysis</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {subjectStats.map(stat => (
-                      <div key={stat.subject} className="border-b pb-4 last:border-0 last:pb-0">
-                        <div className="flex justify-between mb-1">
-                          <p className="font-medium">{stat.subject}</p>
-                          <p className="text-sm">{stat.completed}/{stat.total} completed</p>
-                        </div>
-                        <div className="w-full bg-gray-200 rounded-full h-2.5">
-                          <div 
-                            className="bg-blue-600 h-2.5 rounded-full" 
-                            style={{ width: `${stat.percentCompleted}%` }}
-                          ></div>
-                        </div>
-                        <div className="flex justify-between mt-1">
-                          <p className="text-sm text-gray-500">Progress: {stat.percentCompleted}%</p>
-                          <p className="text-sm text-gray-500">Avg. Score: {stat.avgScore}%</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-              
-              {/* Difficulty Analysis */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Difficulty Breakdown</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {['easy', 'medium', 'hard'].map(difficulty => {
-                      const tests = mockExams.filter(e => e.difficulty === difficulty);
-                      const completed = tests.filter(e => e.status === 'completed').length;
-                      return (
-                        <div key={difficulty} className="border-b pb-4 last:border-0 last:pb-0">
-                          <div className="flex justify-between">
-                            <p className="font-medium capitalize">{difficulty}</p>
-                            <p className="text-sm">{completed}/{tests.length} tests</p>
-                          </div>
-                          <div className="w-full bg-gray-200 rounded-full h-2.5 mt-1">
-                            <div 
-                              className={`h-2.5 rounded-full ${
-                                difficulty === 'easy' ? 'bg-green-500' :
-                                difficulty === 'medium' ? 'bg-yellow-500' : 'bg-red-500'
-                              }`}
-                              style={{ width: tests.length ? `${(completed / tests.length) * 100}%` : '0%' }}
-                            ></div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </CardContent>
-              </Card>
+            </Link>
+          ))}
+        </div>
+      ) : (
+        <div className="text-center py-12 bg-gray-50 rounded-lg">
+          <BookOpen className="h-12 w-12 mx-auto text-gray-400 mb-3" />
+          <h3 className="text-xl font-medium mb-1">No Exams Found</h3>
+          <p className="text-gray-500 max-w-md mx-auto">
+            We couldn't find any exams matching your search criteria. Try adjusting your filters or search term.
+          </p>
+        </div>
+      )}
+      
+      {/* Performance Summary */}
+      {activeTab === 'completed' && filteredExams.some(e => e.status === 'completed') && (
+        <Card className="mt-8 bg-gradient-to-r from-blue-50 to-indigo-50">
+          <CardHeader>
+            <CardTitle className="text-xl flex items-center gap-2">
+              <BarChart className="h-5 w-5 text-blue-600" />
+              Your Performance Summary
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              <div className="bg-white p-4 rounded-lg shadow-sm">
+                <h4 className="text-gray-500 text-sm mb-1">Exams Completed</h4>
+                <div className="text-2xl font-bold">
+                  {exams.filter(e => e.status === 'completed').length}
+                </div>
+              </div>
+              <div className="bg-white p-4 rounded-lg shadow-sm">
+                <h4 className="text-gray-500 text-sm mb-1">Average Score</h4>
+                <div className="text-2xl font-bold text-green-600">
+                  {Math.round(
+                    exams
+                      .filter(e => e.status === 'completed' && e.score !== undefined)
+                      .reduce((sum, e) => sum + (e.score || 0), 0) / 
+                    exams.filter(e => e.status === 'completed' && e.score !== undefined).length
+                  )}%
+                </div>
+              </div>
+              <div className="bg-white p-4 rounded-lg shadow-sm">
+                <h4 className="text-gray-500 text-sm mb-1">Best Subject</h4>
+                <div className="text-2xl font-bold text-blue-600">
+                  Physics
+                </div>
+              </div>
+              <div className="bg-white p-4 rounded-lg shadow-sm">
+                <h4 className="text-gray-500 text-sm mb-1">Area to Improve</h4>
+                <div className="text-2xl font-bold text-amber-600">
+                  Chemistry
+                </div>
+              </div>
             </div>
-          </TabsContent>
-        </Tabs>
-      </div>
-    </MainLayout>
+          </CardContent>
+        </Card>
+      )}
+    </div>
   );
 };
 

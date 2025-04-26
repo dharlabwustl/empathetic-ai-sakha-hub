@@ -30,7 +30,7 @@ import AIPersonalizationPage from "./pages/admin/AIPersonalizationPage";
 import IssuesPage from "./pages/admin/IssuesPage";
 import NotificationsPage from "./pages/admin/NotificationsPage";
 import DocumentationPage from "./pages/admin/DocumentationPage";
-import StudentDashboard from "./pages/dashboard/StudentDashboard";
+import StudentDashboard from "./pages/dashboard/student/StudentDashboard";
 import EmployeeDashboard from "./pages/dashboard/EmployeeDashboard";
 import DoctorDashboard from "./pages/dashboard/DoctorDashboard";
 import FounderDashboard from "./pages/dashboard/FounderDashboard";
