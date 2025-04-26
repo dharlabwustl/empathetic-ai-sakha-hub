@@ -1,11 +1,10 @@
-
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { handleNewUser } from "@/pages/dashboard/student/utils/UserSessionManager";
 import { useKpiTracking } from "@/hooks/useKpiTracking";
-import { UserRole, MoodType } from "@/types/user/base";
+import { UserRole } from "@/types/user/base";
 
 export const useStudentDashboard = () => {
   const [loading, setLoading] = useState(true);
@@ -15,24 +14,15 @@ export const useStudentDashboard = () => {
   const [hideSidebar, setHideSidebar] = useState(false);
   const [hideTabsNav, setHideTabsNav] = useState(false);
   const [lastActivity, setLastActivity] = useState<{ type: string, description: string } | null>(null);
-  const [currentMood, setCurrentMood] = useState<MoodType | undefined>(undefined);
   const [suggestedNextAction, setSuggestedNextAction] = useState<string | null>(null);
   const { userProfile, loading: profileLoading, updateUserProfile } = useUserProfile(UserRole.Student);
   const { kpis, nudges, markNudgeAsRead } = useKpiTracking(UserRole.Student);
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
+  const { tab } = useParams<{ tab?: string }>();
   
-  // Extract tab from the URL path correctly
-  const pathSegments = location.pathname.split('/');
-  let tabFromPath = pathSegments[pathSegments.length - 1];
-  
-  // Handle nested paths like concepts/all
-  if (tabFromPath === 'all' && pathSegments.length > 3) {
-    tabFromPath = pathSegments[pathSegments.length - 2]; // Get parent segment like "concepts"
-  }
-  
-  const [activeTab, setActiveTab] = useState(tabFromPath || 'overview');
+  const [activeTab, setActiveTab] = useState(tab || "overview");
   
   const now = new Date();
   const hour = now.getHours();
@@ -52,24 +42,11 @@ export const useStudentDashboard = () => {
     settings: true,
   };
   
-  // Update active tab when URL path changes
   useEffect(() => {
-    const pathSegments = location.pathname.split('/');
-    let newTab = pathSegments[pathSegments.length - 1];
-    
-    // Handle nested paths like concepts/all
-    if (newTab === 'all' && pathSegments.length > 3) {
-      newTab = pathSegments[pathSegments.length - 2]; // Get parent segment
+    if (tab) {
+      setActiveTab(tab);
     }
-    
-    // Don't update if it's a detail view (typically has an ID)
-    const isDetailView = !isNaN(Number(newTab));
-    
-    if (newTab && newTab !== activeTab && !isDetailView) {
-      console.log(`Tab changed from URL: ${activeTab} -> ${newTab}`);
-      setActiveTab(newTab);
-    }
-  }, [location.pathname]);
+  }, [tab]);
   
   useEffect(() => {
     console.log("useStudentDashboard - Initializing dashboard");
@@ -78,48 +55,40 @@ export const useStudentDashboard = () => {
       try {
         setLoading(true);
         
-        // Check user session state from UserSessionManager
-        const sessionResult = handleNewUser(location, navigate);
-        console.log("useStudentDashboard - Session result:", sessionResult);
+        const { shouldShowOnboarding, shouldShowWelcomeTour } = handleNewUser(location, navigate);
         
-        // Apply session state from UserSessionManager
-        setShowOnboarding(sessionResult.shouldShowOnboarding);
-        setShowWelcomeTour(sessionResult.shouldShowWelcomeTour);
+        console.log("useStudentDashboard - Session result:", { 
+          shouldShowOnboarding, 
+          shouldShowWelcomeTour 
+        });
         
-        // Get user data from localStorage to set initial mood and activities
-        const userData = localStorage.getItem("userData");
-        if (userData) {
-          const parsedData = JSON.parse(userData);
-          
-          // Set current mood
-          if (parsedData.mood) {
-            setCurrentMood(parsedData.mood as MoodType);
-          }
-          
-          // Get last activity data for display in dashboard
-          if (parsedData.lastActivity) {
-            setLastActivity({
-              type: parsedData.lastActivity.type,
-              description: `You were last studying ${parsedData.lastActivity.name || "a topic"}`
-            });
-          } else {
-            setLastActivity({
-              type: "login",
-              description: "You last logged in yesterday"
-            });
-          }
-          
-          // Set suggested next action
-          if (parsedData.completedModules && parsedData.completedModules.length > 0) {
-            const lastModule = parsedData.completedModules[parsedData.completedModules.length - 1];
-            setSuggestedNextAction(`Continue with ${lastModule.nextModule || "Practice Exercises"}`);
-          } else {
-            setSuggestedNextAction("Start today's recommended study plan");
+        setShowOnboarding(shouldShowOnboarding);
+        setShowWelcomeTour(shouldShowWelcomeTour);
+        
+        if (!shouldShowOnboarding && !shouldShowWelcomeTour) {
+          const userData = localStorage.getItem("userData");
+          if (userData) {
+            const parsedData = JSON.parse(userData);
+            
+            if (parsedData.lastActivity) {
+              setLastActivity(parsedData.lastActivity);
+            } else {
+              setLastActivity({
+                type: "login",
+                description: "You last logged in yesterday"
+              });
+            }
+            
+            if (parsedData.completedModules && parsedData.completedModules.length > 0) {
+              const lastModule = parsedData.completedModules[parsedData.completedModules.length - 1];
+              setSuggestedNextAction(`Continue with ${lastModule.nextModule || "Practice Exercises"}`);
+            } else {
+              setSuggestedNextAction("Start today's recommended study plan");
+            }
           }
         }
         
-        // Update login count for analytics
-        if (userProfile && !showOnboarding) {
+        if (userProfile && !shouldShowOnboarding) {
           const currentLoginCount = userProfile.loginCount || 0;
           
           if (!sessionStorage.getItem('session_active')) {
@@ -153,30 +122,9 @@ export const useStudentDashboard = () => {
     }
   }, [profileLoading]);
   
-  // Enhanced tab change handler with standardized URLs for each tab
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
-    
-    // Map tabs to their standardized routes
-    const tabToRoute: Record<string, string> = {
-      overview: "/dashboard/student/overview",
-      today: "/dashboard/student/today",
-      academic: "/dashboard/student/academic",
-      concepts: "/dashboard/student/concepts/all",
-      flashcards: "/dashboard/student/flashcards",
-      exams: "/dashboard/student/exams",
-      progress: "/dashboard/student/progress",
-      notifications: "/dashboard/student/notifications",
-      wellness: "/dashboard/student/wellness",
-      materials: "/dashboard/student/materials",
-      videos: "/dashboard/student/videos",
-      forum: "/dashboard/student/forum",
-      motivation: "/dashboard/student/motivation"
-    };
-    
-    // Navigate to the standard route for this tab
-    const route = tabToRoute[tab] || `/dashboard/student/${tab}`;
-    navigate(route);
+    navigate(`/dashboard/student/${tab}`);
   };
   
   const toggleSidebar = () => {
@@ -238,20 +186,6 @@ export const useStudentDashboard = () => {
     setShowStudyPlan(false);
   };
   
-  // Track user activity (concepts, flashcards, exams)
-  const trackUserActivity = (activity: any) => {
-    const userData = localStorage.getItem("userData");
-    if (userData) {
-      const parsedData = JSON.parse(userData);
-      parsedData.lastActivity = {
-        ...activity,
-        timestamp: new Date().toISOString()
-      };
-      localStorage.setItem("userData", JSON.stringify(parsedData));
-      console.log("Activity tracked:", activity);
-    }
-  };
-  
   return {
     loading,
     userProfile,
@@ -265,9 +199,8 @@ export const useStudentDashboard = () => {
     kpis,
     nudges,
     features,
-    dashboardLastActivity: lastActivity,
+    lastActivity,
     suggestedNextAction,
-    currentMood,
     markNudgeAsRead,
     handleTabChange,
     handleSkipTour,
@@ -276,7 +209,6 @@ export const useStudentDashboard = () => {
     handleViewStudyPlan,
     handleCloseStudyPlan,
     toggleSidebar,
-    toggleTabsNav,
-    trackUserActivity
+    toggleTabsNav
   };
 };

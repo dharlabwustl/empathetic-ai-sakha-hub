@@ -1,19 +1,34 @@
 
-import React, { useState } from 'react';
-import DashboardHeader from './DashboardHeader';
-import SidebarNavigation from './SidebarNavigation';
-import MobileNavigation from './MobileNavigation';
-import { Card } from '@/components/ui/card';
-import { MoodType, UserProfileType } from '@/types/user/base';
-import { useToast } from '@/hooks/use-toast';
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
+import SidebarNav from "@/components/dashboard/SidebarNav";
+import ChatAssistant from "@/components/dashboard/ChatAssistant";
+import DashboardHeader from "./DashboardHeader";
+import SidebarNavigation from "./SidebarNavigation";
+import DashboardContent from "./DashboardContent";
+import StudyPlanDialog from "./StudyPlanDialog";
+import TopNavigationControls from "@/components/dashboard/student/TopNavigationControls";
+import SurroundingInfluencesSection from "@/components/dashboard/student/SurroundingInfluencesSection";
+import NavigationToggleButton from "@/components/dashboard/student/NavigationToggleButton";
+import { UserProfileType, MoodType } from "@/types/user/base";
+import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
+import { formatTime, formatDate } from "./utils/DateTimeFormatter";
+import { motion } from "framer-motion";
+import { useIsMobile } from "@/hooks/use-mobile";
+import MobileNavigation from "./MobileNavigation";
+import { getFeatures } from "./utils/FeatureManager";
+import { Button } from "@/components/ui/button";
+import { BookOpen, MessageSquareText, Brain } from "lucide-react";
+import ProfileCard from "@/components/dashboard/ProfileCard";
+import WelcomeTour from "@/components/dashboard/student/WelcomeTour";
 
 interface DashboardLayoutProps {
   userProfile: UserProfileType;
   hideSidebar: boolean;
   hideTabsNav: boolean;
   activeTab: string;
-  kpis: any[];
-  nudges: any[];
+  kpis: KpiData[];
+  nudges: NudgeData[];
   markNudgeAsRead: (id: string) => void;
   showWelcomeTour: boolean;
   onTabChange: (tab: string) => void;
@@ -24,13 +39,13 @@ interface DashboardLayoutProps {
   onCompleteTour: () => void;
   showStudyPlan: boolean;
   onCloseStudyPlan: () => void;
-  lastActivity: any;
-  suggestedNextAction: string | null;
+  lastActivity?: { type: string; description: string } | null;
+  suggestedNextAction?: string | null;
   currentMood?: MoodType;
-  children?: React.ReactNode;
+  children?: React.ReactNode; // Add support for children
 }
 
-const DashboardLayout: React.FC<DashboardLayoutProps> = ({
+const DashboardLayout = ({
   userProfile,
   hideSidebar,
   hideTabsNav,
@@ -50,124 +65,199 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   lastActivity,
   suggestedNextAction,
   currentMood,
-  children
-}) => {
-  const [localMood, setLocalMood] = useState<MoodType | undefined>(currentMood);
-  const { toast } = useToast();
+  children // Now we use children
+}: DashboardLayoutProps) => {
+  const currentTime = new Date();
+  const formattedTime = formatTime(currentTime);
+  const formattedDate = formatDate(currentTime);
+  const isMobile = useIsMobile();
+  const [influenceMeterCollapsed, setInfluenceMeterCollapsed] = useState(true);
+  
+  const features = getFeatures();
 
-  // Format time greeting
-  const now = new Date();
-  const hour = now.getHours();
-  let formattedTime = "";
-  
-  if (hour < 12) formattedTime = "Good Morning";
-  else if (hour < 17) formattedTime = "Good Afternoon";
-  else formattedTime = "Good Evening";
-  
-  // Format date
-  const options: Intl.DateTimeFormatOptions = { 
-    weekday: 'long', 
-    year: 'numeric', 
-    month: 'long', 
-    day: 'numeric' 
-  };
-  const formattedDate = new Date().toLocaleDateString(undefined, options);
-
-  const handleMoodChange = (mood: MoodType) => {
-    setLocalMood(mood);
-    
-    // Save mood to localStorage
-    const userData = localStorage.getItem("userData") ? 
-      JSON.parse(localStorage.getItem("userData")!) : {};
-    
-    userData.mood = mood;
-    userData.lastMoodTimestamp = new Date().toISOString();
-    localStorage.setItem("userData", JSON.stringify(userData));
-    
-    // Show smart suggestion based on mood
-    showSmartSuggestion(mood);
-    
-    toast({
-      title: "Mood updated",
-      description: `We'll adapt your learning experience based on your mood.`
-    });
-  };
-  
-  const showSmartSuggestion = (mood: MoodType) => {
-    // Simple rule-based suggestions based on mood
-    let suggestion = "";
-    
-    switch(mood) {
-      case "happy":
-        suggestion = "Great mood! How about tackling some challenging practice problems?";
-        break;
-      case "motivated":
-        suggestion = "You're on fire! Let's work on your weekly goals.";
-        break;
-      case "focused":
-        suggestion = "Excellent focus! Time to dive deep into a complex concept.";
-        break;
-      case "curious":
-        suggestion = "Curious minds learn best! Discover a new topic today.";
-        break;
-      case "neutral":
-        suggestion = "Ready for a balanced study session? Mix review and new concepts.";
-        break;
-      case "tired":
-        suggestion = "Feeling tired? Try a quick 5-minute break or a lighter topic.";
-        break;
-      case "stressed":
-        suggestion = "Stress can be managed! Try a breathing exercise in the Feel Good Corner.";
-        break;
-      case "sad":
-        suggestion = "It's okay to feel down sometimes. Chat with study buddies or try something easy today.";
-        break;
-      case "okay":
-        suggestion = "Steady state is good! Pick a topic you're comfortable with to build momentum.";
-        break;
-      case "overwhelmed":
-        suggestion = "Take a step back and break your tasks into smaller, manageable chunks.";
-        break;
-      default:
-        suggestion = "What would you like to focus on today?";
+  // Navigation buttons for quick access - moved from inside the render
+  const navigationButtons = [
+    { 
+      name: "24/7 AI Tutor", 
+      icon: <MessageSquareText className="h-4 w-4 mr-1" />, 
+      path: "/dashboard/student/tutor", 
+      variant: "default" as const,
+      className: "bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white shadow-md"
+    },
+    { 
+      name: "Academic Advisor", 
+      icon: <Brain className="h-4 w-4 mr-1" />, 
+      path: "/dashboard/student/academic", 
+      variant: "default" as const,
+      className: "bg-gradient-to-r from-purple-500 to-violet-600 hover:from-purple-600 hover:to-violet-700 text-white shadow-md"
+    },
+    { 
+      name: "Feel Good Corner", 
+      icon: <BookOpen className="h-4 w-4 mr-1" />, 
+      path: "/dashboard/student/feel-good", 
+      variant: "default" as const,
+      className: "bg-gradient-to-r from-pink-500 to-rose-600 hover:from-pink-600 hover:to-rose-700 text-white shadow-md"
     }
-    
-    toast({
-      title: "Smart Suggestion",
-      description: suggestion
-    });
+  ];
+  
+  const [showTour, setShowTour] = useState(showWelcomeTour);
+  
+  const handleOpenTour = () => {
+    setShowTour(true);
+  };
+  
+  const handleCloseTour = () => {
+    setShowTour(false);
+    onSkipTour();
+  };
+  
+  const handleCompleteTourAndClose = () => {
+    setShowTour(false);
+    onCompleteTour();
   };
 
   return (
-    <div className="flex flex-col md:flex-row h-screen bg-gray-50 dark:bg-gray-900">
-      {/* Sidebar navigation - desktop only */}
-      <SidebarNavigation 
-        activeTab={activeTab} 
-        onTabChange={onTabChange} 
-        hidden={hideSidebar} 
-      />
+    <div className={`min-h-screen bg-gradient-to-br from-sky-100/10 via-white to-violet-100/10 dark:from-sky-900/10 dark:via-gray-900 dark:to-violet-900/10 ${currentMood ? `mood-${currentMood}` : ''}`}>
+      <SidebarNav userType="student" userName={userProfile.name} />
       
-      {/* Main content */}
-      <div className="flex-1 overflow-auto p-4 md:p-6">
-        {/* Mobile navigation tabs */}
-        <MobileNavigation 
-          activeTab={activeTab} 
-          onTabChange={onTabChange} 
-        />
-        
-        {/* Header section */}
-        <DashboardHeader 
-          userProfile={userProfile}
-          formattedTime={formattedTime}
+      <main className={`transition-all duration-300 ${hideSidebar ? 'md:ml-0' : 'md:ml-64'} p-4 sm:p-6 pb-20 md:pb-6`}>
+        <TopNavigationControls 
+          hideSidebar={hideSidebar}
+          onToggleSidebar={onToggleSidebar}
           formattedDate={formattedDate}
-          onViewStudyPlan={onViewStudyPlan}
-          currentMood={localMood}
-          onMoodChange={handleMoodChange}
+          formattedTime={formattedTime}
+          onOpenTour={handleOpenTour}
         />
         
-        {/* Main dashboard content */}
-        {children}
-      </div>
+        <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+          <DashboardHeader 
+            userProfile={userProfile}
+            formattedTime={formattedTime}
+            formattedDate={formattedDate}
+            onViewStudyPlan={onViewStudyPlan}
+          />
+        </div>
+
+        {/* Enhanced Quick Access Navigation Bar */}
+        <motion.div 
+          className="flex flex-wrap items-center gap-2 mb-4 p-2 bg-white/80 dark:bg-gray-800/50 backdrop-blur-sm rounded-lg shadow-md border border-gray-100 dark:border-gray-700"
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          {navigationButtons.map((button, index) => (
+            <motion.div
+              key={button.name}
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: index * 0.1, duration: 0.3 }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <Link to={button.path}>
+                <Button 
+                  variant={button.variant} 
+                  size="sm" 
+                  className={`flex items-center ${button.className}`}
+                >
+                  {button.icon}
+                  {button.name}
+                </Button>
+              </Link>
+            </motion.div>
+          ))}
+          
+          <motion.div
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.3, duration: 0.3 }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="ml-auto"
+          >
+            <Button 
+              variant="outline"
+              size="sm"
+              className="bg-gradient-to-r hover:from-violet-500 hover:to-indigo-500 hover:text-white border-violet-200"
+              onClick={onViewStudyPlan}
+            >
+              <BookOpen className="h-4 w-4 mr-1" />
+              View Study Plan
+            </Button>
+          </motion.div>
+        </motion.div>
+
+        {/* Surrounding Influences Section - Enhanced with our redesigned component */}
+        <SurroundingInfluencesSection 
+          influenceMeterCollapsed={influenceMeterCollapsed}
+          setInfluenceMeterCollapsed={setInfluenceMeterCollapsed}
+        />
+        
+        {isMobile && (
+          <div className="mb-6">
+            <MobileNavigation activeTab={activeTab} onTabChange={onTabChange} />
+          </div>
+        )}
+        
+        {/* Either render children or the default dashboard content */}
+        {children ? (
+          <div>{children}</div>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 mt-4 sm:mt-6">
+            {!hideSidebar && !isMobile && (
+              <SidebarNavigation 
+                activeTab={activeTab} 
+                onTabChange={onTabChange} 
+              />
+            )}
+            
+            <div className="lg:col-span-9 xl:col-span-10">
+              {!isMobile && (
+                <NavigationToggleButton 
+                  hideTabsNav={hideTabsNav} 
+                  onToggleTabsNav={onToggleTabsNav}
+                />
+              )}
+              
+              <DashboardContent
+                activeTab={activeTab}
+                onTabChange={onTabChange}
+                userProfile={userProfile}
+                kpis={kpis}
+                nudges={nudges}
+                markNudgeAsRead={markNudgeAsRead}
+                features={features}
+                showWelcomeTour={showWelcomeTour}
+                handleSkipTour={onSkipTour}
+                handleCompleteTour={onCompleteTour}
+                hideTabsNav={hideTabsNav || isMobile}
+                lastActivity={lastActivity}
+                suggestedNextAction={suggestedNextAction}
+              />
+            </div>
+          </div>
+        )}
+      </main>
+      
+      <ChatAssistant userType="student" />
+      
+      {showStudyPlan && (
+        <StudyPlanDialog 
+          userProfile={userProfile} 
+          onClose={onCloseStudyPlan} 
+        />
+      )}
+      
+      <WelcomeTour
+        onSkipTour={handleCloseTour}
+        onCompleteTour={handleCompleteTourAndClose}
+        isFirstTimeUser={!userProfile.loginCount || userProfile.loginCount <= 1}
+        lastActivity={lastActivity}
+        suggestedNextAction={suggestedNextAction}
+        loginCount={userProfile.loginCount}
+        open={showTour}
+        onOpenChange={setShowTour}
+      />
     </div>
   );
 };

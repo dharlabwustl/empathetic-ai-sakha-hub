@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "@/providers/ThemeProvider";
 import { AdminAuthProvider } from "@/contexts/AdminAuthContext";
 import { AuthProvider } from "@/contexts/auth/AuthContext";
@@ -45,15 +45,13 @@ import StudentProfilePage from "./pages/dashboard/student/ProfilePage";
 import StudentSettingsPage from "./pages/dashboard/student/SettingsPage";
 import FlashcardsPage from "./pages/dashboard/student/FlashcardsPage";
 import ExamPreparationPage from "./pages/dashboard/student/ExamPreparationPage";
-import PracticeExamsPage from "./pages/dashboard/student/PracticeExamsPage";
 
 import FeaturesManagementPage from "./pages/admin/FeaturesManagementPage";
 import BatchManagementPage from "./pages/admin/BatchManagementPage";
 
+// New imports for concept pages
 import ConceptsPage from "./pages/dashboard/student/ConceptsPage";
 import ConceptCardDetailPage from "./pages/dashboard/student/ConceptCardDetailPage";
-
-import FlashcardBrowserPage from '@/pages/dashboard/student/FlashcardBrowserPage';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -73,8 +71,9 @@ const App = () => {
             <AdminAuthProvider>
               <Toaster />
               <Sonner />
-              <Router>
+              <BrowserRouter>
                 <Routes>
+                  {/* Landing pages */}
                   <Route path="/" element={<Index />} />
                   <Route path="/about" element={<About />} />
                   <Route path="/features" element={<Features />} />
@@ -83,8 +82,10 @@ const App = () => {
                   <Route path="/login" element={<LoginPage />} />
                   <Route path="/login/old" element={<Login />} />
                   
+                  {/* Admin routes */}
                   <Route path="/admin/login" element={<AdminLogin />} />
                   
+                  {/* Fix the AdminRouteGuard usage */}
                   <Route element={<AdminRouteGuard />}>
                     <Route path="/admin/dashboard" element={<AdminDashboard />} />
                     <Route path="/admin/students" element={<StudentsPage />} />
@@ -102,40 +103,42 @@ const App = () => {
                     <Route path="/admin/batch" element={<BatchManagementPage />} />
                   </Route>
                   
+                  {/* Student routes */}
                   <Route element={<ProtectedRoute />}>
                     <Route path="/dashboard/student" element={<Navigate to="/dashboard/student/overview" replace />} />
-                    <Route path="/dashboard/student/overview" element={<StudentDashboard />} />
-                    <Route path="/dashboard/student/today" element={<StudentDashboard />} />
-                    <Route path="/dashboard/student/academic" element={<StudentDashboard />} />
-                    <Route path="/dashboard/student/concepts" element={<StudentDashboard />} />
-                    <Route path="/dashboard/student/flashcards" element={<StudentDashboard />} />
-                    <Route path="/dashboard/student/practice-exam" element={<StudentDashboard />} />
-                    <Route path="/dashboard/student/notifications" element={<StudentDashboard />} />
-                    <Route path="/dashboard/student/tutor" element={<StudentDashboard />} />
-                    <Route path="/dashboard/student/progress" element={<StudentDashboard />} />
-                    <Route path="/dashboard/student/motivation" element={<StudentDashboard />} />
-                    <Route path="/dashboard/student/wellness" element={<StudentDashboard />} />
-                    <Route path="/dashboard/student/materials" element={<StudentDashboard />} />
-                    <Route path="/dashboard/student/videos" element={<StudentDashboard />} />
-                    <Route path="/dashboard/student/forum" element={<StudentDashboard />} />
+                    <Route path="/dashboard/student/:tab" element={<StudentDashboard />} />
                     
+                    {/* Concept card routes */}
                     <Route path="/dashboard/student/concepts/all" element={<ConceptsPage />} />
                     <Route path="/dashboard/student/concepts/:conceptId" element={<ConceptCardDetailPage />} />
-                    <Route path="/dashboard/student/exams" element={<PracticeExamsPage />} />
+                    
+                    <Route path="/dashboard/student/progress" element={<StudyProgress />} />
                     <Route path="/dashboard/student/profile" element={<StudentProfilePage />} />
                     <Route path="/dashboard/student/settings" element={<StudentSettingsPage />} />
                     <Route path="/dashboard/student/subscription" element={<SubscriptionPage />} />
+                    <Route path="/dashboard/student/flashcards" element={<FlashcardsPage />} />
+                    <Route path="/dashboard/student/exams" element={<ExamPreparationPage />} />
+                    <Route path="/dashboard/student/tutor" element={<AIChatTutor userProfile={{
+                      id: "1",
+                      name: "Student",
+                      email: "student@example.com",
+                      role: UserRole.Student,
+                      goals: [{ id: "1", title: "JEE", progress: 65 }]
+                    }} />} />
+                    <Route path="/dashboard/student/academic" element={<AcademicAdvisor userProfile={{
+                      examPreparation: "IIT-JEE"
+                    }} />} />
                     
-                    <Route path="/dashboard/student/flashcards/:id" element={<FlashcardBrowserPage />} />
-                    
+                    {/* Other user type dashboards */}
                     <Route path="/dashboard/doctor" element={<DoctorDashboard />} />
                     <Route path="/dashboard/employee" element={<EmployeeDashboard />} />
                     <Route path="/dashboard/founder" element={<FounderDashboard />} />
                   </Route>
                   
+                  {/* 404 page */}
                   <Route path="*" element={<NotFound />} />
                 </Routes>
-              </Router>
+              </BrowserRouter>
             </AdminAuthProvider>
           </AuthProvider>
         </TooltipProvider>

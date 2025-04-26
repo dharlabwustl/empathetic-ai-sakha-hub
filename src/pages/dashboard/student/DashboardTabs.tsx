@@ -1,6 +1,5 @@
 
 import React, { ReactNode } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { motion } from "framer-motion";
 import { 
@@ -34,31 +33,21 @@ export default function DashboardTabs({
   hideTabsNav = false
 }: DashboardTabsProps) {
   const isMobile = useIsMobile();
-  const navigate = useNavigate();
   
-  // Define consistent routes for all dashboard navigation
+  // Updated main navigation tabs with more focused menu items
   const tabs = [
-    { id: "overview", label: "Overview", icon: LayoutDashboard, description: "Your personalized dashboard summary", path: "/dashboard/student/overview" },
-    { id: "today", label: "Today's Plan", icon: CalendarDays, description: "Daily tasks and schedule", path: "/dashboard/student/today" },
-    { id: "academic", label: "Academic Advisor", icon: GraduationCap, description: "Personalized academic guidance", path: "/dashboard/student/academic" },
-    { id: "concepts", label: "Concept Cards", icon: BookOpen, description: "Key learning concepts and explanations", path: "/dashboard/student/concepts/all" },
-    { id: "flashcards", label: "Flashcards", icon: Brain, description: "Smart revision and memorization", path: "/dashboard/student/flashcards" },
-    { id: "exams", label: "Practice Exams", icon: FileText, description: "Mock tests and exam preparation", path: "/dashboard/student/exams" },
-    { id: "notifications", label: "Notifications", icon: Bell, description: "Important updates and alerts", path: "/dashboard/student/notifications" }
+    { id: "overview", label: "Overview", icon: LayoutDashboard, description: "Your personalized dashboard summary" },
+    { id: "today", label: "Today's Plan", icon: CalendarDays, description: "Daily tasks and schedule" },
+    { id: "academic", label: "Academic Advisor", icon: GraduationCap, description: "Personalized academic guidance" },
+    { id: "concepts", label: "Concept Cards", icon: BookOpen, description: "Key learning concepts and explanations" },
+    { id: "flashcards", label: "Flashcards", icon: Brain, description: "Smart revision and memorization" },
+    { id: "practice-exam", label: "Practice Exams", icon: FileText, description: "Mock tests and exam preparation" },
+    { id: "notifications", label: "Notifications", icon: Bell, description: "Important updates and alerts" }
   ];
-
-  // Handle tab change with proper navigation
-  const handleTabChange = (tabId: string) => {
-    const tab = tabs.find(t => t.id === tabId);
-    if (tab) {
-      navigate(tab.path);
-      onTabChange(tabId);
-    }
-  };
 
   return (
     <TooltipProvider delayDuration={50}>
-      <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-4 sm:space-y-6">
+      <Tabs value={activeTab} onValueChange={onTabChange} className="space-y-4 sm:space-y-6">
         {!hideTabsNav && (
           <TabsList className="p-1.5 rounded-xl bg-gradient-to-r from-indigo-50/80 via-purple-50/80 to-pink-50/80 dark:from-indigo-900/20 dark:via-purple-900/20 dark:to-pink-900/20 border border-indigo-100/50 dark:border-indigo-800/30 flex items-center justify-between overflow-x-auto max-w-full shadow-sm">
             {tabs.map(tab => (
@@ -90,13 +79,7 @@ export default function DashboardTabs({
             ))}
           </TabsList>
         )}
-        
-        {Object.entries(tabContents).map(([key, content]) => (
-          <TabsContent key={key} value={key} className="mt-0 focus-visible:outline-none focus-visible:ring-0">
-            {content}
-          </TabsContent>
-        ))}
       </Tabs>
     </TooltipProvider>
   );
-}
+};

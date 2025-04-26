@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { Phone, Lock, Loader2 } from "lucide-react";
-import { useAuth } from "@/contexts/auth/AuthContext";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface StudentLoginFormProps {
   activeTab: string;
@@ -39,22 +39,8 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
       const success = await login(email, password);
       
       if (success) {
-        toast({
-          title: "Login successful",
-          description: "Welcome back to Sakha AI"
-        });
-        
-        // Save user state to localStorage
-        const userData = localStorage.getItem("userData") ? 
-          JSON.parse(localStorage.getItem("userData")!) : {};
-          
-        // Mark user as returning user
-        userData.isReturningUser = true;
-        userData.lastLoginTime = new Date().toISOString();
-        localStorage.setItem("userData", JSON.stringify(userData));
-        
-        // Navigate directly to dashboard overview
-        navigate("/dashboard/student/overview");
+        // Redirect based on role
+        navigate("/dashboard/student");
       } else {
         throw new Error("Login failed");
       }

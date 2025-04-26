@@ -1,36 +1,24 @@
-import React, { useState, useEffect } from "react";
+
+import React from "react";
 import { useStudentDashboard } from "@/hooks/useStudentDashboard";
 import OnboardingFlow from "@/components/dashboard/student/OnboardingFlow";
-import DashboardLoading from "@/pages/dashboard/student/DashboardLoading";
-import DashboardLayout from "@/pages/dashboard/student/DashboardLayout";
-import SplashScreen from "@/components/dashboard/student/SplashScreen";
-import { useLocation, useNavigate } from "react-router-dom";
-import ReturningUserPrompt from "@/components/dashboard/student/ReturningUserPrompt";
-import { MoodType } from "@/types/user/base";
-import DashboardContent from "./DashboardContent";
+import DashboardLoading from "./student/DashboardLoading";
+import DashboardLayout from "./student/DashboardLayout";
 
 const StudentDashboard = () => {
-  const [showSplash, setShowSplash] = useState(false);
-  const [showReturningPrompt, setShowReturningPrompt] = useState(false);
-  const [currentMood, setCurrentMood] = useState<MoodType | undefined>(undefined);
-  const [lastActivity, setLastActivity] = useState<any>(null);
-  const location = useLocation();
-  const navigate = useNavigate();
-  
   const {
     loading,
     userProfile,
     activeTab,
     showWelcomeTour,
     showOnboarding,
+    currentTime,
     showStudyPlan,
     hideTabsNav,
     hideSidebar,
     kpis,
     nudges,
     features,
-    dashboardLastActivity,
-    suggestedNextAction,
     markNudgeAsRead,
     handleTabChange,
     handleSkipTour,
@@ -39,101 +27,16 @@ const StudentDashboard = () => {
     handleViewStudyPlan,
     handleCloseStudyPlan,
     toggleSidebar,
-    toggleTabsNav,
-    trackUserActivity
+    toggleTabsNav
   } = useStudentDashboard();
-
-  useEffect(() => {
-    console.log("StudentDashboard - Initializing dashboard");
-    
-    const initDashboard = async () => {
-      try {
-        setLoading(true);
-        
-        // Simply check userData for user state
-        const userData = localStorage.getItem("userData");
-        if (userData) {
-          const parsedData = JSON.parse(userData);
-          
-          // Show onboarding for new users who haven't completed it
-          if (parsedData.isNewUser && !parsedData.completedOnboarding) {
-            setShowOnboarding(true);
-          }
-          
-          // Welcome tour for users who haven't seen it
-          if (!parsedData.sawWelcomeTour) {
-            setShowWelcomeTour(true);
-          }
-          
-          // Get last activity and mood
-          if (parsedData.lastActivity) {
-            setLastActivity(parsedData.lastActivity);
-          }
-          
-          if (parsedData.mood) {
-            setCurrentMood(parsedData.mood);
-          }
-        }
-        
-      } catch (error) {
-        console.error("Dashboard initialization error:", error);
-        toast({
-          title: "Error",
-          description: "Failed to initialize dashboard",
-          variant: "destructive",
-        });
-      } finally {
-        if (!profileLoading) {
-          setLoading(false);
-        }
-      }
-    };
-    
-    initDashboard();
-  }, []);
-  
-  const handleContinueLastActivity = () => {
-    setShowReturningPrompt(false);
-    
-    if (lastActivity) {
-      switch (lastActivity.type) {
-        case 'concept':
-          navigate(`/dashboard/student/concepts/${lastActivity.id}`);
-          break;
-        case 'flashcard':
-          navigate('/dashboard/student/flashcards');
-          break;
-        case 'exam':
-          navigate(`/dashboard/student/exams/${lastActivity.id}`);
-          break;
-        default:
-          navigate('/dashboard/student/overview');
-      }
-    }
-  };
-  
-  const handleSkipLastActivity = () => {
-    setShowReturningPrompt(false);
-    navigate('/dashboard/student/overview');
-  };
-
-  // Returning user prompt handling
-  if (showReturningPrompt && lastActivity) {
-    return (
-      <ReturningUserPrompt 
-        lastActivity={lastActivity} 
-        onContinue={handleContinueLastActivity}
-        onSkip={handleSkipLastActivity}
-      />
-    );
-  }
 
   if (loading || !userProfile) {
     return <DashboardLoading />;
   }
 
-  // Onboarding flow for new users
+  // Show onboarding flow for first-time users
   if (showOnboarding) {
+    // Make sure we have a goal to work with
     const defaultGoal = "IIT-JEE";
     const goalTitle = userProfile?.goals?.[0]?.title || defaultGoal;
     
@@ -164,26 +67,7 @@ const StudentDashboard = () => {
       onCompleteTour={handleCompleteTour}
       showStudyPlan={showStudyPlan}
       onCloseStudyPlan={handleCloseStudyPlan}
-      lastActivity={dashboardLastActivity}
-      suggestedNextAction={suggestedNextAction}
-      currentMood={currentMood}
-    >
-      <DashboardContent 
-        activeTab={activeTab}
-        onTabChange={handleTabChange}
-        userProfile={userProfile}
-        kpis={kpis}
-        nudges={nudges}
-        markNudgeAsRead={markNudgeAsRead}
-        features={features}
-        showWelcomeTour={showWelcomeTour}
-        handleSkipTour={handleSkipTour}
-        handleCompleteTour={handleCompleteTour}
-        hideTabsNav={hideTabsNav}
-        lastActivity={dashboardLastActivity}
-        suggestedNextAction={suggestedNextAction}
-      />
-    </DashboardLayout>
+    />
   );
 };
 

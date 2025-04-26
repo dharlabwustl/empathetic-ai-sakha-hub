@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import { OnboardingStep, UserRole, UserGoal } from "./OnboardingContext";
+import { getDemographicsQuestion } from "./utils/stepUtils";
 import authService from "@/services/auth/authService"; 
 import { getSubjectsForGoal } from "@/components/dashboard/student/onboarding/SubjectData";
 import { MoodType } from "@/types/user/base";
@@ -40,17 +41,22 @@ const StepHandler = ({
     setIsLoading(true);
     
     try {
+      // Clean up user input
       const cleanName = formValues.name.trim();
       const cleanMobile = formValues.mobile.trim();
       
+      // Create a user object with the collected data
       const userData = {
         name: cleanName,
-        email: `${cleanMobile}@sakha.ai`, 
+        email: `${cleanMobile}@sakha.ai`, // Use consistent email format based on mobile
         phoneNumber: cleanMobile,
-        password: formValues.otp,
-        role: (onboardingData.role || 'Student').toLowerCase(),
+        password: formValues.otp, // Simplified password for easier login
+        role: (onboardingData.role || 'Student').toLowerCase(), // Make sure role is lowercase
       };
       
+      console.log("Registering user:", userData);
+      
+      // Register the user using auth service
       const response = await authService.register({
         name: userData.name,
         email: userData.email,
@@ -60,14 +66,16 @@ const StepHandler = ({
       });
       
       if (response.success && response.data) {
+        console.log("Registration successful:", response.data);
+        
+        // Save additional onboarding data to localStorage with consistent format
         const extendedUserData = {
           ...onboardingData,
           name: cleanName,
           phoneNumber: cleanMobile,
-          completedOnboarding: false,
+          completedOnboarding: false, // Mark as not completed to trigger onboarding flow
           isNewUser: true,
-          sawWelcomeTour: false,
-          registrationDate: new Date().toISOString()
+          sawWelcomeTour: false
         };
         
         localStorage.setItem("userData", JSON.stringify(extendedUserData));
@@ -77,8 +85,8 @@ const StepHandler = ({
           description: "Let's create your personalized study plan.",
         });
         
-        // Navigate directly to dashboard overview - state will be managed internally
-        navigate("/dashboard/student/overview");
+        // Go directly to the dashboard with parameters to show onboarding
+        navigate("/dashboard/student?completedOnboarding=false&new=true");
       } else {
         throw new Error("Registration failed");
       }
@@ -99,12 +107,14 @@ const StepHandler = ({
     handlers: {
       handleRoleSelect,
       handleDemographicsSubmit: (data: Record<string, string>) => {
+        // Create a readable message for chat
         let userMessage = "";
         Object.entries(data).forEach(([key, value]) => {
           userMessage += `${key}: ${value.trim()}, `;
         });
-        userMessage = userMessage.slice(0, -2);
+        userMessage = userMessage.slice(0, -2); // Remove trailing comma
         
+        // Clean the data by trimming all string values
         const cleanData: Record<string, string> = {};
         Object.entries(data).forEach(([key, value]) => {
           cleanData[key] = value.trim();
@@ -147,23 +157,27 @@ const StepHandler = ({
         setStep("habits");
       },
       handleHabitsSubmit: (habits: Record<string, string>) => {
+        // Clean up habits data - remove whitespace and normalize
         const cleanedHabits: Record<string, string> = {};
         
         Object.entries(habits).forEach(([key, value]) => {
+          // Skip custom fields in the cleaned data if they've already been included
           if (key === "stressManagementCustom" || key === "studyPreferenceCustom") {
             return;
           }
           cleanedHabits[key] = value.trim();
         });
         
+        // Create a readable message for chat from the habits
         let userMessage = "";
         Object.entries(cleanedHabits).forEach(([key, value]) => {
           userMessage += `${key}: ${value}, `;
         });
-        userMessage = userMessage.slice(0, -2);
+        userMessage = userMessage.slice(0, -2); // Remove trailing comma
         
         setOnboardingData({ ...onboardingData, ...cleanedHabits });
         
+        // Get subjects based on selected exam goal
         const suggestedSubjects = onboardingData.goal 
           ? getSubjectsForGoal(onboardingData.goal)
           : [];
@@ -176,6 +190,7 @@ const StepHandler = ({
         setStep("interests");
       },
       handleInterestsSubmit: (interests: string) => {
+        // Clean and deduplicate interests
         const interestsList = Array.from(new Set(
           interests.split(",").map(i => i.trim()).filter(i => i.length > 0)
         ));

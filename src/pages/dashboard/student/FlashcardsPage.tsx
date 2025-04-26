@@ -1,343 +1,437 @@
+import React, { useState, useEffect } from 'react';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Progress } from "@/components/ui/progress";
+import { Textarea } from "@/components/ui/textarea";
+import { motion, AnimatePresence } from "framer-motion";
+import { AlertCircle, CheckCircle, ChevronLeft, ChevronRight, RotateCcw, Search, BookOpen, LucideProps } from "lucide-react";
 
-import React, { useState } from 'react';
-import MainLayout from '@/components/layouts/MainLayout';
-import { useUserStudyPlan } from '@/hooks/useUserStudyPlan';
-import { useUserProfile } from '@/hooks/useUserProfile';
-import FlashcardsFeature from '@/components/dashboard/student/FlashcardsFeature';
-import { Link } from 'react-router-dom';
-import { ArrowLeft, Brain, Search, Filter, BookOpen, Clock, Tag, Check, BookMarked, VolumeX, Volume2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Progress } from '@/components/ui/progress';
-import { Input } from '@/components/ui/input';
-
-const FlashcardsPage = () => {
-  const { conceptCards } = useUserStudyPlan();
-  const { userProfile } = useUserProfile();
-  const examGoal = userProfile?.goals?.[0]?.title || 'IIT-JEE';
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedSubjects, setSelectedSubjects] = useState<string[]>([]);
-  const [voiceEnabled, setVoiceEnabled] = useState(false);
-  const [activeTab, setActiveTab] = useState('all');
+const FlashcardsPage: React.FC = () => {
+  const [activeTab, setActiveTab] = useState("study");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [currentDeck, setCurrentDeck] = useState<string | null>(null);
+  const [currentCardIndex, setCurrentCardIndex] = useState(0);
   
-  // Get completed concepts to determine available flashcards
-  const completedConcepts = conceptCards.filter(card => card.completed);
-  
-  // Generate mock flashcard sets for demo
-  const flashcardSets = [
+  // Sample flashcard decks data
+  const flashcardDecks = [
     {
-      id: 'f1',
-      title: 'Physics: Mechanics Quick Recap',
-      cardsCount: 45,
-      mastery: 72,
-      subject: 'Physics',
-      topic: 'Mechanics',
-      linkedConcept: 'Newtons Laws',
-      status: 'In Progress',
-      isBookmarked: true,
-      updatedAt: '2d ago'
+      id: "physics-kinematics",
+      title: "Physics: Kinematics",
+      description: "Motion, velocity, acceleration",
+      progress: 65,
+      cardCount: 24,
+      timeEstimate: "20 min",
+      icon: BookOpen,
+      cards: [
+        {
+          id: "phys-1",
+          question: "What is the formula for calculating displacement when an object moves with constant acceleration?",
+          answer: "s = ut + (1/2)at²",
+          explanation: "Where s is displacement, u is initial velocity, t is time, and a is acceleration. This formula is derived from integrating the velocity-time function."
+        },
+        {
+          id: "phys-2",
+          question: "Define instantaneous velocity.",
+          answer: "The velocity of an object at a specific point in time, calculated as the derivative of position with respect to time.",
+          explanation: "Mathematically, it's represented as v = dx/dt, where x is position and t is time."
+        }
+      ]
     },
     {
-      id: 'f2',
-      title: 'Organic Chemistry Fundamentals',
-      cardsCount: 30,
-      mastery: 58,
-      subject: 'Chemistry',
-      topic: 'Organic Chemistry',
-      linkedConcept: 'Carbon Compounds',
-      status: 'Not Started',
-      isBookmarked: false,
-      updatedAt: '1w ago'
+      id: "chemistry-periodic",
+      title: "Chemistry: Periodic Table",
+      description: "Elements, properties, periodicity",
+      progress: 42,
+      cardCount: 18,
+      timeEstimate: "15 min",
+      icon: BookOpen,
+      cards: [
+        {
+          id: "chem-1",
+          question: "What is the atomic number of Oxygen?",
+          answer: "8",
+          explanation: "The atomic number represents the number of protons in an atom's nucleus. Oxygen has 8 protons."
+        }
+      ]
     },
     {
-      id: 'f3',
-      title: 'Calculus: Derivatives & Integrals',
-      cardsCount: 25,
-      mastery: 86,
-      subject: 'Mathematics',
-      topic: 'Calculus',
-      linkedConcept: 'Differentiation',
-      status: 'Completed',
-      isBookmarked: true,
-      updatedAt: '3d ago'
-    },
-    {
-      id: 'f4',
-      title: 'Modern Physics Concepts',
-      cardsCount: 32,
-      mastery: 45,
-      subject: 'Physics',
-      topic: 'Modern Physics',
-      linkedConcept: 'Quantum Theory',
-      status: 'In Progress',
-      isBookmarked: false,
-      updatedAt: '5d ago'
-    },
-    {
-      id: 'f5',
-      title: 'Chemistry: Periodic Table',
-      cardsCount: 20,
-      mastery: 65,
-      subject: 'Chemistry',
-      topic: 'Inorganic Chemistry',
-      linkedConcept: 'Elements',
-      status: 'In Progress',
-      isBookmarked: true,
-      updatedAt: '1d ago'
-    },
-    {
-      id: 'f6',
-      title: 'Algebra Essentials',
-      cardsCount: 40,
-      mastery: 75,
-      subject: 'Mathematics',
-      topic: 'Algebra',
-      linkedConcept: 'Equations',
-      status: 'Completed',
-      isBookmarked: false,
-      updatedAt: '2w ago'
-    },
-    {
-      id: 'f7',
-      title: 'Thermodynamics Review',
-      cardsCount: 28,
-      mastery: 60,
-      subject: 'Physics',
-      topic: 'Thermodynamics',
-      linkedConcept: 'Laws of Thermodynamics',
-      status: 'In Progress',
-      isBookmarked: true,
-      updatedAt: '4d ago'
-    },
-    {
-      id: 'f8',
-      title: 'Geometry & Trigonometry',
-      cardsCount: 35,
-      mastery: 55,
-      subject: 'Mathematics',
-      topic: 'Geometry',
-      linkedConcept: 'Triangles',
-      status: 'Not Started',
-      isBookmarked: false,
-      updatedAt: '3w ago'
-    },
+      id: "math-calculus",
+      title: "Mathematics: Calculus",
+      description: "Derivatives and integrals",
+      progress: 28,
+      cardCount: 30,
+      timeEstimate: "25 min",
+      icon: BookOpen,
+      cards: [
+        {
+          id: "math-1",
+          question: "What is the derivative of sin(x)?",
+          answer: "cos(x)",
+          explanation: "This can be proven using the limit definition of the derivative and trigonometric identities."
+        }
+      ]
+    }
   ];
   
-  const allSubjects = Array.from(new Set(flashcardSets.map(set => set.subject)));
-  const allTopics = Array.from(new Set(flashcardSets.map(set => set.topic)));
+  // Handle deck selection
+  const handleDeckSelect = (deckId: string) => {
+    setCurrentDeck(deckId);
+    setCurrentCardIndex(0);
+  };
   
-  const toggleSubjectFilter = (subject: string) => {
-    if (selectedSubjects.includes(subject)) {
-      setSelectedSubjects(selectedSubjects.filter(s => s !== subject));
-    } else {
-      setSelectedSubjects([...selectedSubjects, subject]);
+  // Get current card
+  const getCurrentCard = () => {
+    if (!currentDeck) return null;
+    const deck = flashcardDecks.find(d => d.id === currentDeck);
+    if (!deck || !deck.cards || deck.cards.length === 0) return null;
+    return deck.cards[currentCardIndex];
+  };
+  
+  // Navigation functions
+  const handleNextCard = () => {
+    if (!currentDeck) return;
+    const deck = flashcardDecks.find(d => d.id === currentDeck);
+    if (!deck || !deck.cards) return;
+    
+    if (currentCardIndex < deck.cards.length - 1) {
+      setCurrentCardIndex(currentCardIndex + 1);
     }
   };
   
-  const toggleVoice = () => {
-    setVoiceEnabled(!voiceEnabled);
+  const handlePrevCard = () => {
+    if (currentCardIndex > 0) {
+      setCurrentCardIndex(currentCardIndex - 1);
+    }
   };
   
-  // Filter flashcard sets
-  const filteredSets = flashcardSets.filter(set => {
-    // Filter by search query
-    if (searchQuery && !set.title.toLowerCase().includes(searchQuery.toLowerCase())) {
-      return false;
-    }
-    
-    // Filter by selected subjects
-    if (selectedSubjects.length > 0 && !selectedSubjects.includes(set.subject)) {
-      return false;
-    }
-    
-    // Filter by tab
-    switch (activeTab) {
-      case 'bookmarked':
-        return set.isBookmarked;
-      case 'completed':
-        return set.status === 'Completed';
-      case 'inprogress':
-        return set.status === 'In Progress';
-      case 'notstarted':
-        return set.status === 'Not Started';
-      default:
-        return true;
-    }
-  });
+  // Get current deck info
+  const getCurrentDeckInfo = () => {
+    if (!currentDeck) return null;
+    return flashcardDecks.find(d => d.id === currentDeck);
+  };
+  
+  const currentCard = getCurrentCard();
+  const currentDeckInfo = getCurrentDeckInfo();
   
   return (
-    <MainLayout>
-      <div className="container py-8">
-        <div className="space-y-6">
-          {/* Header Section */}
-          <div>
-            <div className="flex justify-between items-center mb-4">
-              <Link to="/dashboard/student/overview" className="inline-flex items-center text-blue-600 hover:text-blue-700">
-                <ArrowLeft size={16} className="mr-1" /> Back to Dashboard
-              </Link>
+    <div className="container mx-auto px-4 py-8">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold">Flashcards</h1>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm">
+            <Search className="h-4 w-4 mr-2" />
+            Search Cards
+          </Button>
+          <Button variant="outline" size="sm">
+            Create Card
+          </Button>
+        </div>
+      </div>
+
+      <Tabs defaultValue="study" className="w-full">
+        <TabsList className="mb-6">
+          <TabsTrigger value="study">Study</TabsTrigger>
+          <TabsTrigger value="revision">Revision</TabsTrigger>
+          <TabsTrigger value="mastered">Mastered</TabsTrigger>
+          <TabsTrigger value="all">All Cards</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="study" className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {flashcardDecks.map((deck) => (
+              <FlashcardDeck
+                key={deck.id}
+                title={deck.title}
+                description={deck.description}
+                progress={deck.progress}
+                cardCount={deck.cardCount}
+                timeEstimate={deck.timeEstimate}
+                icon={(props: LucideProps) => <BookOpen {...props} />}
+                onClick={() => handleDeckSelect(deck.id)}
+              />
+            ))}
+          </div>
+
+          {currentCard && currentDeckInfo && (
+            <Card className="mt-8">
+              <CardHeader>
+                <CardTitle>Active Flashcard Session</CardTitle>
+                <CardDescription>
+                  {currentDeckInfo.title} - Card {currentCardIndex + 1} of {currentDeckInfo.cardCount}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <AnimatePresence mode="wait">
+                  <FlashcardInteractive 
+                    key={currentCard.id}
+                    question={currentCard.question} 
+                    answer={currentCard.answer}
+                    explanation={currentCard.explanation}
+                  />
+                </AnimatePresence>
+              </CardContent>
+              <CardFooter className="flex justify-between">
+                <Button 
+                  variant="outline"
+                  onClick={handlePrevCard}
+                  disabled={currentCardIndex === 0}
+                >
+                  <ChevronLeft className="h-4 w-4 mr-2" />
+                  Previous
+                </Button>
+                <Button 
+                  onClick={handleNextCard}
+                  disabled={currentCardIndex === currentDeckInfo.cardCount - 1}
+                >
+                  Next
+                  <ChevronRight className="h-4 w-4 ml-2" />
+                </Button>
+              </CardFooter>
+            </Card>
+          )}
+        </TabsContent>
+
+        <TabsContent value="revision">
+          <div className="p-8 text-center text-gray-500">
+            <p>You have 18 cards due for revision today.</p>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="mastered">
+          <div className="p-8 text-center text-gray-500">
+            <p>You have mastered 42 cards so far.</p>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="all">
+          <div className="p-8 text-center text-gray-500">
+            <p>You have 120 cards in your collection.</p>
+          </div>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+};
+
+interface FlashcardDeckProps {
+  title: string;
+  description: string;
+  progress: number;
+  cardCount: number;
+  timeEstimate: string;
+  icon: React.FC<LucideProps>;
+  onClick?: () => void;
+}
+
+const FlashcardDeck: React.FC<FlashcardDeckProps> = ({
+  title,
+  description,
+  progress,
+  cardCount,
+  timeEstimate,
+  icon: Icon,
+  onClick
+}) => {
+  return (
+    <Card className="transition-all duration-200 hover:shadow-md">
+      <CardHeader className="pb-2">
+        <div className="flex justify-between items-start">
+          <div className="p-2 bg-blue-50 rounded-md">
+            <Icon className="h-5 w-5 text-blue-500" />
+          </div>
+          <span className="text-sm text-gray-500">{cardCount} cards</span>
+        </div>
+        <CardTitle className="text-lg mt-2">{title}</CardTitle>
+        <CardDescription>{description}</CardDescription>
+      </CardHeader>
+      <CardContent className="pb-2">
+        <div className="flex justify-between text-sm text-gray-500 mb-1">
+          <span>Progress</span>
+          <span>{progress}%</span>
+        </div>
+        <Progress value={progress} className="h-2" />
+      </CardContent>
+      <CardFooter className="pt-2">
+        <div className="flex justify-between items-center w-full">
+          <span className="text-sm text-gray-500">{timeEstimate}</span>
+          <Button size="sm" onClick={onClick}>Study Now</Button>
+        </div>
+      </CardFooter>
+    </Card>
+  );
+};
+
+interface FlashcardInteractiveProps {
+  question: string;
+  answer: string;
+  explanation?: string;
+}
+
+const FlashcardInteractive: React.FC<FlashcardInteractiveProps> = ({
+  question,
+  answer,
+  explanation,
+}) => {
+  const [isFlipped, setIsFlipped] = useState(false);
+  const [userAnswer, setUserAnswer] = useState("");
+  const [hasSubmitted, setHasSubmitted] = useState(false);
+  const [accuracy, setAccuracy] = useState(0);
+  const [showExplanation, setShowExplanation] = useState(false);
+
+  const handleSubmit = () => {
+    if (!userAnswer.trim()) return;
+    
+    const accuracy = calculateAccuracy(userAnswer, answer);
+    setAccuracy(accuracy);
+    setHasSubmitted(true);
+  };
+
+  const calculateAccuracy = (userAnswer: string, correctAnswer: string) => {
+    // Simple implementation - replace with more sophisticated algorithm if needed
+    if (userAnswer.toLowerCase() === correctAnswer.toLowerCase()) {
+      return 100;
+    }
+    
+    // Check if key terms are present
+    const correctTerms = correctAnswer.toLowerCase().split(/\s+/);
+    const userTerms = userAnswer.toLowerCase().split(/\s+/);
+    
+    let matchedTerms = 0;
+    correctTerms.forEach(term => {
+      if (userTerms.includes(term)) matchedTerms++;
+    });
+    
+    return Math.floor((matchedTerms / correctTerms.length) * 100);
+  };
+
+  const handleReset = () => {
+    setUserAnswer("");
+    setHasSubmitted(false);
+    setAccuracy(0);
+    setShowExplanation(false);
+  };
+
+  const handleFlip = () => {
+    if (!hasSubmitted) {
+      handleSubmit();
+    } else {
+      setIsFlipped(!isFlipped);
+      if (isFlipped) {
+        setShowExplanation(false);
+      }
+    }
+  };
+
+  const getAccuracyColor = () => {
+    if (accuracy >= 90) return "text-green-500";
+    if (accuracy >= 70) return "text-yellow-500";
+    return "text-red-500";
+  };
+
+  return (
+    <div className="w-full">
+      <motion.div
+        className="bg-white rounded-lg p-6 shadow-sm border border-gray-200 min-h-[200px]"
+        initial={false}
+        animate={{ rotateY: isFlipped ? 180 : 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        {!isFlipped ? (
+          <div className="space-y-4">
+            <h3 className="text-xl font-medium text-gray-800">{question}</h3>
+            
+            <Textarea
+              placeholder="Type your answer here..."
+              className="min-h-[100px] resize-none"
+              value={userAnswer}
+              onChange={(e) => setUserAnswer(e.target.value)}
+              disabled={hasSubmitted}
+            />
+            
+            {hasSubmitted && (
+              <div className="pt-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium">Accuracy:</span>
+                    <span className={`font-bold ${getAccuracyColor()}`}>
+                      {accuracy}%
+                    </span>
+                  </div>
+                  {accuracy < 90 && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleReset}
+                    >
+                      <RotateCcw className="h-4 w-4 mr-1" />
+                      Try Again
+                    </Button>
+                  )}
+                </div>
+              </div>
+            )}
+            
+            <div className="pt-2 flex justify-center gap-4">
+              {!hasSubmitted ? (
+                <Button onClick={handleSubmit}>Check Answer</Button>
+              ) : (
+                <Button onClick={handleFlip}>
+                  {accuracy >= 90 ? (
+                    <>
+                      <CheckCircle className="h-4 w-4 mr-2" />
+                      View Answer
+                    </>
+                  ) : (
+                    <>
+                      <AlertCircle className="h-4 w-4 mr-2" />
+                      View Answer
+                    </>
+                  )}
+                </Button>
+              )}
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-4 transform rotate-y-180">
+            <h3 className="text-xl font-medium text-gray-800">Answer:</h3>
+            <div className="p-4 rounded-md bg-blue-50 border border-blue-100">
+              <p className="text-blue-800">{answer}</p>
             </div>
             
-            <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
-              <div>
-                <h1 className="text-3xl font-bold flex items-center gap-2">
-                  <Brain className="text-blue-600" />
-                  Flashcards
-                </h1>
-                <p className="text-gray-600 mt-1">
-                  Quick Recaps for Your {examGoal} Preparation, Available Anytime
-                </p>
-              </div>
-              
-              <Button
-                variant="outline"
-                size="sm"
-                className="flex items-center gap-2"
-                onClick={toggleVoice}
-              >
-                {voiceEnabled ? (
-                  <>
-                    <Volume2 size={16} className="mr-1" />
-                    Voice Enabled
-                  </>
-                ) : (
-                  <>
-                    <VolumeX size={16} className="mr-1" />
-                    Enable Voice
-                  </>
+            {explanation && (
+              <>
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => setShowExplanation(!showExplanation)}
+                >
+                  {showExplanation ? "Hide Explanation" : "Show Explanation"}
+                </Button>
+                
+                {showExplanation && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    className="p-4 rounded-md bg-gray-50 border border-gray-200"
+                  >
+                    <h4 className="font-medium mb-1">Explanation:</h4>
+                    <p>{explanation}</p>
+                  </motion.div>
                 )}
+              </>
+            )}
+            
+            <div className="pt-2 flex justify-center">
+              <Button variant="outline" onClick={handleFlip}>
+                <ChevronLeft className="h-4 w-4 mr-2" />
+                Back to Question
               </Button>
             </div>
           </div>
-          
-          {/* Search and Filters */}
-          <Card>
-            <CardContent className="p-4 space-y-4">
-              <div className="flex flex-col sm:flex-row gap-4">
-                <div className="relative flex-grow">
-                  <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
-                  <Input
-                    placeholder="Search flashcard sets..."
-                    className="pl-9"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                  />
-                </div>
-                
-                <div className="flex flex-wrap gap-2">
-                  <Button variant="outline" size="sm" className="flex items-center gap-1">
-                    <Filter size={14} /> Filter
-                  </Button>
-                  <Button variant="outline" size="sm" className="flex items-center gap-1">
-                    <Clock size={14} /> Recent
-                  </Button>
-                </div>
-              </div>
-              
-              <div>
-                <span className="text-sm font-medium">Subjects:</span>
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {allSubjects.map(subject => (
-                    <Badge
-                      key={subject}
-                      variant={selectedSubjects.includes(subject) ? "default" : "outline"}
-                      className="cursor-pointer hover:bg-gray-100"
-                      onClick={() => toggleSubjectFilter(subject)}
-                    >
-                      {subject}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          {/* Tabs */}
-          <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid grid-cols-2 md:grid-cols-5 w-full">
-              <TabsTrigger value="all">All Sets</TabsTrigger>
-              <TabsTrigger value="bookmarked">Bookmarked</TabsTrigger>
-              <TabsTrigger value="completed">Completed</TabsTrigger>
-              <TabsTrigger value="inprogress">In Progress</TabsTrigger>
-              <TabsTrigger value="notstarted">Not Started</TabsTrigger>
-            </TabsList>
-          </Tabs>
-          
-          {/* Flashcard Sets Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {filteredSets.map(set => (
-              <Link key={set.id} to={`/dashboard/student/flashcards/${set.id}`}>
-                <Card className="h-full hover:shadow-md transition-shadow duration-200 border-l-4 border-l-blue-500 overflow-hidden group">
-                  <CardContent className="p-4 h-full flex flex-col">
-                    <div className="flex justify-between items-start mb-2">
-                      <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">{set.subject}</Badge>
-                      {set.isBookmarked && <BookMarked size={16} className="text-blue-600 fill-blue-600" />}
-                    </div>
-                    
-                    <h3 className="font-semibold text-lg mb-2 group-hover:text-blue-600">{set.title}</h3>
-                    
-                    <div className="flex flex-wrap gap-1.5 mb-3">
-                      <Badge variant="outline" className="text-xs bg-gray-50 text-gray-700 border-gray-200 flex items-center">
-                        <BookOpen size={10} className="mr-1" /> {set.topic}
-                      </Badge>
-                      <Badge variant="outline" className="text-xs bg-violet-50 text-violet-700 border-violet-200 flex items-center">
-                        <Tag size={10} className="mr-1" /> {set.linkedConcept}
-                      </Badge>
-                    </div>
-                    
-                    <div className="mt-auto space-y-3">
-                      <div className="text-sm text-gray-500">
-                        <div className="flex items-center justify-between">
-                          <span>{set.cardsCount} cards</span>
-                          <span className={`
-                            ${set.status === 'Completed' ? 'text-green-600' : 
-                              set.status === 'In Progress' ? 'text-amber-600' : 'text-gray-600'}
-                          `}>
-                            {set.status}
-                          </span>
-                        </div>
-                        <div className="flex items-center justify-between mb-1 mt-1">
-                          <span>Mastery:</span>
-                          <span>{set.mastery}%</span>
-                        </div>
-                        <Progress value={set.mastery} className="h-1.5" />
-                      </div>
-                      
-                      <div className="flex items-center justify-between pt-2 border-t border-gray-100 text-xs text-gray-500">
-                        <div className="flex items-center gap-1">
-                          {voiceEnabled && <Volume2 size={14} className="text-blue-600" />}
-                          <span>Updated {set.updatedAt}</span>
-                        </div>
-                        <Button variant="ghost" size="sm" className="h-7 px-2">
-                          Study Now
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-            ))}
-          </div>
-          
-          {filteredSets.length === 0 && (
-            <div className="text-center py-12 bg-gray-50 rounded-lg border">
-              <Brain size={40} className="mx-auto text-gray-400 mb-3" />
-              <h3 className="text-lg font-medium text-gray-700">No flashcard sets found</h3>
-              <p className="text-gray-500 mt-1">
-                Try adjusting your filters or search query
-              </p>
-            </div>
-          )}
-          
-          {/* Main Flashcards Feature */}
-          <div className="mt-8">
-            <h2 className="text-2xl font-bold mb-4">Continue Your Learning</h2>
-            <FlashcardsFeature />
-          </div>
-        </div>
-      </div>
-    </MainLayout>
+        )}
+      </motion.div>
+    </div>
   );
 };
 

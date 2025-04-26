@@ -1,3 +1,4 @@
+
 import { Location, NavigateFunction } from "react-router-dom";
 
 interface UserSessionResult {
@@ -10,50 +11,48 @@ export const handleNewUser = (
   navigate: NavigateFunction
 ): UserSessionResult => {
   const userData = localStorage.getItem("userData");
+  const searchParams = new URLSearchParams(location.search);
+  const completedOnboarding = searchParams.get('completedOnboarding');
+  const isNew = searchParams.get('new');
   
-  if (userData) {
+  let shouldShowOnboarding = false;
+  let shouldShowWelcomeTour = false;
+  
+  console.log("UserSessionManager - Current URL params:", location.search);
+  console.log("UserSessionManager - completedOnboarding param:", completedOnboarding);
+  console.log("UserSessionManager - isNew param:", isNew);
+  console.log("UserSessionManager - userData:", userData);
+  
+  // If first time login flow (coming from signup)
+  if (completedOnboarding === 'true' || isNew === 'true') {
+    console.log("UserSessionManager - New user detected from URL parameters");
+    shouldShowOnboarding = true;
+    // Clean the URL to remove the query param
+    navigate(location.pathname, { replace: true });
+  }
+  // Check if user data exists
+  else if (userData) {
     const parsedUserData = JSON.parse(userData);
+    console.log("UserSessionManager - parsedUserData:", parsedUserData);
     
-    // Completed onboarding users
-    if (parsedUserData.completedOnboarding) {
-      return {
-        shouldShowOnboarding: false,
-        shouldShowWelcomeTour: !parsedUserData.sawWelcomeTour
-      };
-    }
-    
-    // New users who haven't completed onboarding
-    if (parsedUserData.isNewUser) {
-      return {
-        shouldShowOnboarding: true,
-        shouldShowWelcomeTour: false
-      };
+    // For returning users who have completed onboarding, skip both flows
+    if (parsedUserData.completedOnboarding === true) {
+      shouldShowOnboarding = false;
+      shouldShowWelcomeTour = parsedUserData.sawWelcomeTour !== true; // Only show welcome tour if they haven't seen it
+    } 
+    // For new users who haven't completed onboarding, show onboarding
+    else {
+      shouldShowOnboarding = true;
     }
   }
-  
-  // Default for truly new users
-  return {
-    shouldShowOnboarding: true,
-    shouldShowWelcomeTour: false
-  };
-};
+  // First time user with no data
+  else {
+    shouldShowOnboarding = true;
+  }
 
-export const trackStudyActivity = (activity: {
-  type: string;
-  id?: string;
-  name: string;
-  description?: string;
-  progress?: number;
-}) => {
-  const userData = localStorage.getItem("userData");
-  if (userData) {
-    const parsedData = JSON.parse(userData);
-    parsedData.lastActivity = {
-      ...activity,
-      timestamp: new Date().toISOString()
-    };
-    localStorage.setItem("userData", JSON.stringify(parsedData));
-    return true;
-  }
-  return false;
+  console.log("UserSessionManager - Result:", { shouldShowOnboarding, shouldShowWelcomeTour });
+  return {
+    shouldShowOnboarding,
+    shouldShowWelcomeTour
+  };
 };

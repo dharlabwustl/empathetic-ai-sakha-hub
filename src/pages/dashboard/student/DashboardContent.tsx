@@ -1,9 +1,10 @@
 
 import React from 'react';
+import { UserProfileType } from "@/types/user";
+import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
 import { generateTabContents } from "@/components/dashboard/student/TabContentManager";
 import DashboardTabs from "@/components/dashboard/student/DashboardTabs";
 import ReturnUserRecap from "@/components/dashboard/student/ReturnUserRecap";
-import { TodaysPlanSection } from "@/components/dashboard/student/todays-plan";
 
 interface DashboardTabsProps {
   activeTab: string;
@@ -84,14 +85,19 @@ const DashboardContent = ({
         <DashboardTabs 
           activeTab={activeTab} 
           onTabChange={onTabChange} 
-          tabContents={tabContents}
+          tabContents={tabContents} // Pass tabContents to avoid regenerating
         />
       )}
 
       {/* Tab content */}
       <div className="mt-6 bg-white dark:bg-gray-800 rounded-lg shadow p-4 sm:p-6 flex-grow">
         {tabContents[activeTab] || (
-          <TodaysPlanSection />
+          <div className="text-center py-8">
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white">Coming Soon</h3>
+            <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+              This tab is not yet available. Check back later.
+            </p>
+          </div>
         )}
       </div>
     </div>

@@ -5,24 +5,12 @@ import OnboardingFlow from "@/components/dashboard/student/OnboardingFlow";
 import DashboardLoading from "@/pages/dashboard/student/DashboardLoading";
 import DashboardLayout from "@/pages/dashboard/student/DashboardLayout";
 import SplashScreen from "@/components/dashboard/student/SplashScreen";
-import { useLocation, useNavigate } from "react-router-dom";
-import ReturningUserPrompt from "@/components/dashboard/student/ReturningUserPrompt";
-import { MoodType } from "@/types/user/base";
-import DashboardContent from "./DashboardContent";
-import { useToast } from "@/hooks/use-toast";
+import { useLocation } from "react-router-dom";
 
 const StudentDashboard = () => {
-  const [showSplash, setShowSplash] = useState(false);
-  const [showReturningPrompt, setShowReturningPrompt] = useState(false);
-  const [currentMood, setCurrentMood] = useState<MoodType | undefined>(undefined);
-  const [lastActivity, setLastActivity] = useState<any>(null);
+  const [showSplash, setShowSplash] = useState(true);
+  const [currentMood, setCurrentMood] = useState<'sad' | 'neutral' | 'happy' | 'motivated' | undefined>(undefined);
   const location = useLocation();
-  const navigate = useNavigate();
-  const { toast } = useToast();
-  
-  // Get the active tab from the URL path
-  const pathSegments = location.pathname.split('/');
-  const currentTabFromPath = pathSegments[pathSegments.length - 1];
   
   const {
     loading,
@@ -30,13 +18,14 @@ const StudentDashboard = () => {
     activeTab,
     showWelcomeTour,
     showOnboarding,
+    currentTime,
     showStudyPlan,
     hideTabsNav,
     hideSidebar,
     kpis,
     nudges,
     features,
-    dashboardLastActivity,
+    lastActivity,
     suggestedNextAction,
     markNudgeAsRead,
     handleTabChange,
@@ -46,84 +35,65 @@ const StudentDashboard = () => {
     handleViewStudyPlan,
     handleCloseStudyPlan,
     toggleSidebar,
-    toggleTabsNav,
-    trackUserActivity
+    toggleTabsNav
   } = useStudentDashboard();
 
-  // Check for user state directly from localStorage
+  // Check URL parameters for onboarding status
   useEffect(() => {
-    console.log("StudentDashboard - Checking user state");
+    const params = new URLSearchParams(location.search);
+    const isNewUser = params.get('new') === 'true';
+    const completedOnboarding = params.get('completedOnboarding') === 'true';
     
-    const userData = localStorage.getItem("userData");
-    if (userData) {
-      const parsedData = JSON.parse(userData);
-      
-      // Set last activity from stored data if it exists
-      if (parsedData.lastActivity) {
-        setLastActivity(parsedData.lastActivity);
-        
-        // Show returning prompt only if user has logged in before and has activity
-        if (parsedData.isReturningUser && parsedData.loginCount > 1) {
-          setShowReturningPrompt(true);
-        }
-      }
-      
-      // Get saved mood from localStorage
+    console.log("URL params:", { isNewUser, completedOnboarding });
+    
+    // Don't show splash screen for new users coming from signup flow
+    if (isNewUser) {
+      setShowSplash(false);
+    } else {
+      // Check if the user has seen the splash screen in this session
+      const hasSeen = sessionStorage.getItem("hasSeenSplash");
+      setShowSplash(!hasSeen);
+    }
+    
+    // Try to get saved mood from local storage
+    const savedUserData = localStorage.getItem("userData");
+    if (savedUserData) {
+      const parsedData = JSON.parse(savedUserData);
       if (parsedData.mood) {
-        setCurrentMood(parsedData.mood as MoodType);
+        setCurrentMood(parsedData.mood);
       }
     }
-  }, []);
+  }, [location]);
   
-  // Handle tab changes based on URL path
-  useEffect(() => {
-    if (currentTabFromPath && currentTabFromPath !== activeTab && currentTabFromPath !== 'all') {
-      handleTabChange(currentTabFromPath);
-    }
-  }, [location.pathname, activeTab]);
-  
-  const handleContinueLastActivity = () => {
-    setShowReturningPrompt(false);
+  const handleSplashComplete = () => {
+    setShowSplash(false);
+    // Mark that the user has seen the splash screen in this session
+    sessionStorage.setItem("hasSeenSplash", "true");
     
-    if (lastActivity) {
-      switch (lastActivity.type) {
-        case 'concept':
-          navigate(`/dashboard/student/concepts/${lastActivity.id}`);
-          break;
-        case 'flashcard':
-          navigate('/dashboard/student/flashcards');
-          break;
-        case 'exam':
-          navigate(`/dashboard/student/exams/${lastActivity.id}`);
-          break;
-        default:
-          navigate('/dashboard/student/overview');
+    // Save a default optimistic mood if none is set
+    if (!currentMood) {
+      setCurrentMood('motivated');
+      const userData = localStorage.getItem("userData");
+      if (userData) {
+        const parsedData = JSON.parse(userData);
+        parsedData.mood = 'motivated';
+        localStorage.setItem("userData", JSON.stringify(parsedData));
       }
     }
-  };
-  
-  const handleSkipLastActivity = () => {
-    setShowReturningPrompt(false);
-    navigate('/dashboard/student/overview');
   };
 
-  // Returning user prompt handling
-  if (showReturningPrompt && lastActivity) {
-    return (
-      <ReturningUserPrompt 
-        lastActivity={lastActivity} 
-        onContinue={handleContinueLastActivity}
-        onSkip={handleSkipLastActivity}
-      />
-    );
+  // Show splash screen if needed
+  if (showSplash) {
+    return <SplashScreen onComplete={handleSplashComplete} mood={currentMood} />;
   }
 
   if (loading || !userProfile) {
     return <DashboardLoading />;
   }
 
-  // Onboarding flow for new users
+  // Show onboarding flow only for users who haven't completed it
   if (showOnboarding) {
+    // Make sure we have a goal to work with
     const defaultGoal = "IIT-JEE";
     const goalTitle = userProfile?.goals?.[0]?.title || defaultGoal;
     
@@ -154,26 +124,10 @@ const StudentDashboard = () => {
       onCompleteTour={handleCompleteTour}
       showStudyPlan={showStudyPlan}
       onCloseStudyPlan={handleCloseStudyPlan}
-      lastActivity={dashboardLastActivity}
+      lastActivity={lastActivity}
       suggestedNextAction={suggestedNextAction}
       currentMood={currentMood}
-    >
-      <DashboardContent 
-        activeTab={activeTab}
-        onTabChange={handleTabChange}
-        userProfile={userProfile}
-        kpis={kpis}
-        nudges={nudges}
-        markNudgeAsRead={markNudgeAsRead}
-        features={features}
-        showWelcomeTour={showWelcomeTour}
-        handleSkipTour={handleSkipTour}
-        handleCompleteTour={handleCompleteTour}
-        hideTabsNav={hideTabsNav}
-        lastActivity={dashboardLastActivity}
-        suggestedNextAction={suggestedNextAction}
-      />
-    </DashboardLayout>
+    />
   );
 };
 

@@ -1,4 +1,3 @@
-
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
@@ -20,9 +19,7 @@ import {
   Bell, 
   Heart, 
   Target, 
-  User,
-  Folder,
-  Activity 
+  User 
 } from "lucide-react";
 import { NavigationRoute, UserRouteMap } from "./types/sidebar";
 
@@ -38,15 +35,12 @@ const tooltipDescriptions: Record<string, string> = {
   "Academic Advisor": "Plan and track your academic journey",
   Progress: "View detailed analytics of your performance",
   Flashcards: "Practice with smart flashcards",
-  "Concept Cards": "Master key concepts for your exams",
   "Materials Vault": "Access your study materials and resources",
   "Live Tutors": "Connect with expert tutors in real-time",
   Forum: "Discuss and learn with your peers",
   "Video Library": "Watch educational content and lectures",
   Notifications: "Stay updated with important alerts",
   Wellness: "Track and maintain your study-life balance",
-  Motivation: "Stay motivated with personalized content",
-  "Mental Health": "Resources for maintaining mental wellbeing",
   Profile: "Manage your account settings and preferences"
 };
 
@@ -57,23 +51,19 @@ export const SidebarNavRoutes = ({
 }: SidebarNavRoutesProps) => {
   const location = useLocation();
   
-  // Standardized route paths for student dashboard
   const userTypeRoutes: UserRouteMap = {
     student: [
-      { name: "Dashboard", path: "/dashboard/student/overview", icon: <LayoutDashboard size={20} /> },
-      { name: "Today's Plan", path: "/dashboard/student/today", icon: <Calendar size={20} /> },
+      { name: "Dashboard", path: "/dashboard/student", icon: <LayoutDashboard size={20} /> },
+      { name: "24/7 Tutor", path: "/dashboard/student/tutor", icon: <MessageSquare size={20} /> },
       { name: "Academic Advisor", path: "/dashboard/student/academic", icon: <Calendar size={20} /> },
-      { name: "Concept Cards", path: "/dashboard/student/concepts/all", icon: <BookOpen size={20} /> },
+      { name: "Progress", path: "/dashboard/student/progress", icon: <LineChart size={20} /> },
       { name: "Flashcards", path: "/dashboard/student/flashcards", icon: <Brain size={20} /> },
-      { name: "Practice Exams", path: "/dashboard/student/exams", icon: <BookOpen size={20} /> },
-      { name: "Materials Vault", path: "/dashboard/student/materials", icon: <Folder size={20} /> },
-      { name: "Live Tutors", path: "/dashboard/student/tutor", icon: <Video size={20} /> },
+      { name: "Materials Vault", path: "/dashboard/student/materials", icon: <BookOpen size={20} /> },
+      { name: "Live Tutors", path: "/dashboard/student/live-tutors", icon: <Video size={20} /> },
       { name: "Forum", path: "/dashboard/student/forum", icon: <Users size={20} /> },
       { name: "Video Library", path: "/dashboard/student/videos", icon: <Video size={20} /> },
-      { name: "Progress", path: "/dashboard/student/progress", icon: <LineChart size={20} /> },
-      { name: "Motivation", path: "/dashboard/student/motivation", icon: <Activity size={20} /> },
-      { name: "Wellness", path: "/dashboard/student/wellness", icon: <Heart size={20} /> },
-      { name: "Notifications", path: "/dashboard/student/notifications", icon: <Bell size={20} /> }
+      { name: "Notifications", path: "/dashboard/student/notifications", icon: <Bell size={20} /> },
+      { name: "Wellness", path: "/dashboard/student/wellness", icon: <Heart size={20} /> }
     ],
     employee: [
       { name: "Dashboard", path: "/dashboard/employee", icon: <LayoutDashboard size={20} /> },
@@ -81,7 +71,7 @@ export const SidebarNavRoutes = ({
       { name: "Productivity", path: "/dashboard/employee/productivity", icon: <LineChart size={20} /> },
       { name: "Training", path: "/dashboard/employee/training", icon: <Calendar size={20} /> },
       { name: "Career Guide", path: "/dashboard/employee/career", icon: <Target size={20} /> },
-      { name: "Motivation", path: "/dashboard/employee/motivation", icon: <Activity size={20} /> }
+      { name: "Motivation", path: "/dashboard/employee/motivation", icon: <Heart size={20} /> }
     ],
     doctor: [
       { name: "Dashboard", path: "/dashboard/doctor", icon: <LayoutDashboard size={20} /> },
@@ -121,7 +111,7 @@ export const SidebarNavRoutes = ({
                     to={route.path}
                     className={cn(
                       "flex items-center gap-3 px-3 py-2 rounded-md transition-all duration-200",
-                      (location.pathname === route.path || location.pathname.startsWith(route.path + '/'))
+                      location.pathname === route.path
                         ? "bg-gradient-to-r from-sky-500 to-violet-500 text-white shadow-lg"
                         : "hover:bg-accent hover:shadow-md",
                       collapsed && "justify-center"
@@ -161,7 +151,8 @@ export const SidebarNavRoutes = ({
                       to={route.path}
                       className={cn(
                         "flex items-center gap-3 px-3 py-2 rounded-md transition-all duration-200",
-                        (location.pathname === route.path || location.pathname.startsWith(route.path + '/'))
+                        (location.pathname === route.path || 
+                         (route.path === "/dashboard/student/profile" && location.pathname === "/dashboard/student/profile"))
                           ? "bg-gradient-to-r from-sky-500 to-violet-500 text-white"
                           : "hover:bg-accent hover:shadow-md",
                         collapsed && "justify-center"

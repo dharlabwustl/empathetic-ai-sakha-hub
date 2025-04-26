@@ -1,23 +1,9 @@
 
-import React, { createContext, useContext, ReactNode, useState, useEffect } from 'react';
-import { UserRole } from '@/types/user/base';
-
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  role: UserRole;
-}
-
-export interface AuthContextProps {
-  user: User | null;
-  isAuthenticated: boolean;
-  isLoading: boolean;
-  login: (email: string, password: string) => Promise<boolean>;
-  adminLogin: (email: string, password: string) => Promise<boolean>;
-  register: (name: string, email: string, phoneNumber: string, password: string, role?: string) => Promise<boolean>;
-  logout: () => Promise<void>;
-}
+import React, { createContext, useContext, ReactNode } from 'react';
+import { AuthContextProps } from './types';
+import { useAuthUtils } from './authUtils';
+import { useAuthInitializer } from './useAuthInitializer';
+import authService from '@/services/auth/authService';
 
 // Create the context
 const AuthContext = createContext<AuthContextProps | undefined>(undefined);
@@ -29,109 +15,41 @@ interface AuthProviderProps {
 
 // Auth provider component
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    // Check if the user is already logged in
-    const checkAuth = () => {
-      setIsLoading(true);
-      
-      const storedUser = localStorage.getItem('user');
-      if (storedUser) {
-        setUser(JSON.parse(storedUser));
-      }
-      
-      setIsLoading(false);
-    };
-    
-    checkAuth();
-  }, []);
-
+  const { user, setUser, isLoading, setIsLoading } = useAuthInitializer();
+  const { handleLogin, handleAdminLogin, handleRegister, handleLogout } = useAuthUtils();
+  
   // Login function
   const login = async (email: string, password: string): Promise<boolean> => {
     setIsLoading(true);
+    const success = await handleLogin(email, password);
     
-    try {
-      // Simple validation - in a real app, this would verify with a server
-      if (email && password) {
-        // Mock successful login
-        const newUser: User = {
-          id: '1',
-          name: email.split('@')[0],
-          email: email,
-          role: UserRole.Student
-        };
-        
-        // Store user in state and localStorage
-        setUser(newUser);
-        localStorage.setItem('user', JSON.stringify(newUser));
-        
-        // Track login activity in userData
-        const userData = localStorage.getItem("userData") ? 
-          JSON.parse(localStorage.getItem("userData")!) : {};
-        
-        // Increment login count
-        userData.loginCount = (userData.loginCount || 0) + 1;
-        userData.lastLoginTime = new Date().toISOString();
-        userData.isReturningUser = true;
-        
-        // Simple mock last activity if none exists
-        if (!userData.lastActivity) {
-          userData.lastActivity = {
-            type: 'concept',
-            id: 'concept-123',
-            name: 'Introduction to Physics',
-            timestamp: new Date().toISOString(),
-            progress: 35
-          };
-        }
-        
-        localStorage.setItem("userData", JSON.stringify(userData));
-        
-        setIsLoading(false);
-        return true;
+    if (success) {
+      // Update local state after successful login
+      const currentUser = authService.getCurrentUser();
+      if (currentUser) {
+        setUser(currentUser);
       }
-      
-      setIsLoading(false);
-      return false;
-    } catch (error) {
-      console.error("Login error:", error);
-      setIsLoading(false);
-      return false;
     }
+    
+    setIsLoading(false);
+    return success;
   };
 
   // Admin login function
   const adminLogin = async (email: string, password: string): Promise<boolean> => {
     setIsLoading(true);
+    const success = await handleAdminLogin(email, password);
     
-    try {
-      // Simple validation for admin - in a real app, this would verify with a server
-      if (email && password && email.includes('admin')) {
-        // Mock successful admin login
-        const adminUser: User = {
-          id: 'admin-1',
-          name: 'Admin User',
-          email: email,
-          role: UserRole.Admin
-        };
-        
-        // Store user in state and localStorage
-        setUser(adminUser);
-        localStorage.setItem('user', JSON.stringify(adminUser));
-        
-        setIsLoading(false);
-        return true;
+    if (success) {
+      // Update local state after successful admin login
+      const currentUser = authService.getCurrentUser();
+      if (currentUser) {
+        setUser(currentUser);
       }
-      
-      setIsLoading(false);
-      return false;
-    } catch (error) {
-      console.error("Admin login error:", error);
-      setIsLoading(false);
-      return false;
     }
+    
+    setIsLoading(false);
+    return success;
   };
 
   // Register function
@@ -143,81 +61,45 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     role: string = 'student'
   ): Promise<boolean> => {
     setIsLoading(true);
+    const success = await handleRegister(name, email, phoneNumber, password, role);
     
-    try {
-      // Simple validation - in a real app, this would create a new user on the server
-      if (name && email && password) {
-        // Mock successful registration
-        const newUser: User = {
-          id: Date.now().toString(),
-          name: name,
-          email: email,
-          role: role as UserRole
-        };
-        
-        // Store user in state and localStorage
-        setUser(newUser);
-        localStorage.setItem('user', JSON.stringify(newUser));
-        
-        // Initialize user data for first-time users
-        const userData = {
-          name: name,
-          email: email,
-          phoneNumber: phoneNumber,
-          role: role,
-          isNewUser: true,
-          completedOnboarding: false,
-          sawWelcomeTour: false,
-          firstLogin: new Date().toISOString(),
-          lastLoginTime: new Date().toISOString(),
-          loginCount: 1
-        };
-        
-        localStorage.setItem("userData", JSON.stringify(userData));
-        
-        setIsLoading(false);
-        return true;
+    if (success) {
+      // Update local state after successful registration
+      const currentUser = authService.getCurrentUser();
+      if (currentUser) {
+        setUser(currentUser);
       }
-      
-      setIsLoading(false);
-      return false;
-    } catch (error) {
-      console.error("Registration error:", error);
-      setIsLoading(false);
-      return false;
     }
+    
+    setIsLoading(false);
+    return success;
   };
 
   // Logout function
   const logout = async (): Promise<void> => {
-    // Clear user data
+    await handleLogout();
     setUser(null);
-    localStorage.removeItem('user');
   };
 
   // Context value
-  const contextValue: AuthContextProps = {
+  const value = {
     user,
     isAuthenticated: !!user,
     isLoading,
     login,
     adminLogin,
     register,
-    logout
+    logout,
   };
 
-  return (
-    <AuthContext.Provider value={contextValue}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
 // Custom hook to use auth context
 export const useAuth = (): AuthContextProps => {
   const context = useContext(AuthContext);
   
-  if (!context) {
+  if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   

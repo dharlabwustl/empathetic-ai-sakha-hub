@@ -1,5 +1,16 @@
 
 import React, { ReactNode } from 'react';
+import TutorCard from '@/components/dashboard/student/TutorCard';
+import StudyPlannerCard from '@/components/dashboard/student/StudyPlannerCard';
+import AcademicAdvisorCard from '@/components/dashboard/student/AcademicAdvisorCard';
+import MotivationCard from '@/components/dashboard/student/MotivationCard';
+import ProgressCard from '@/components/dashboard/student/ProgressCard';
+import ProjectsCard from '@/components/dashboard/student/ProjectsCard';
+import { LiveTutorSection } from '@/components/dashboard/student/LiveTutorSection';
+import { CollaborativeForumSection } from '@/components/dashboard/student/CollaborativeForumSection';
+import { VideoLibrarySection } from '@/components/dashboard/student/VideoLibrarySection';
+import { SmartNotificationSection } from '@/components/dashboard/student/SmartNotificationSection';
+import TodayStudyPlan from '@/components/dashboard/student/TodayStudyPlan';
 import DashboardOverview from '@/components/dashboard/student/DashboardOverview';
 import WelcomeTour from '@/components/dashboard/student/WelcomeTour';
 import AIChatTutor from '@/pages/dashboard/student/AIChatTutor';
@@ -8,12 +19,12 @@ import { UserProfileType } from '@/types/user';
 import { KpiData, NudgeData } from '@/hooks/useKpiTracking';
 import FlashcardsFeature from '@/components/dashboard/student/FlashcardsFeature';
 import FeelGoodCorner from '@/components/dashboard/student/FeelGoodCorner';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { TodayPlanView, FlashcardsView, PracticeExamsView, MicroConceptView } from '@/pages/dashboard/student/TabContentViews';
+import ConceptCardView from '@/components/dashboard/student/concept-cards/ConceptCardView';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
-import { TodayPlanView, FlashcardsView, PracticeExamsView } from '@/pages/dashboard/student/TabContentViews';
-import ConceptCardView from '@/components/dashboard/student/concept-cards/ConceptCardView';
-import { MicroConceptView } from '@/pages/dashboard/student/TabContentViews';
 
 interface TabContentManagerProps {
   userProfile: UserProfileType;
@@ -39,9 +50,15 @@ export const generateTabContents = ({
   handleCompleteTour,
   lastActivity,
   suggestedNextAction
-}: TabContentManagerProps): Record<string, React.ReactNode> => {
+}: TabContentManagerProps): Record<string, ReactNode> => {
   const isFirstTimeUser = (userProfile?.loginCount ?? 0) < 3 || !(userProfile?.completedOnboarding ?? false);
   const loginCount = userProfile?.loginCount ?? 0;
+
+  console.log('generateTabContents - Active User Profile:', {
+    loginCount,
+    isFirstTimeUser,
+    completedOnboarding: userProfile?.completedOnboarding
+  });
 
   return {
     overview: (
@@ -82,25 +99,19 @@ export const generateTabContents = ({
             </Button>
           </Link>
         </div>
-        <ConceptCardView 
-          title="Study Concepts" 
-          limit={6}
-          showViewAll={true}
-        />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <ConceptCardView 
+            title="Today's Concepts" 
+            limit={6}
+            showViewAll={true}
+          />
+        </div>
       </div>
     ),
     flashcards: <FlashcardsView />,
     'practice-exam': <PracticeExamsView />,
     'feel-good': <FeelGoodCorner />,
-    notifications: (
-      <div>
-        <h2 className="text-2xl font-bold">Notifications</h2>
-        <p className="text-gray-600 mb-4">Your latest updates and notifications.</p>
-        <div className="p-8 text-center bg-gray-100 rounded-lg">
-          <p className="text-gray-500">You have no new notifications.</p>
-        </div>
-      </div>
-    ),
+    notifications: <SmartNotificationSection />,
     tutor: <AIChatTutor userProfile={userProfile} />
   };
 };
