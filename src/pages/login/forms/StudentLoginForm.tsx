@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -43,11 +44,7 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
           description: "Welcome back to Sakha AI"
         });
         
-        // Get user data to determine if they're a returning user
-        const userData = localStorage.getItem("userData") ? 
-          JSON.parse(localStorage.getItem("userData")!) : {};
-        
-        // Always add returning=true to dashboard navigation
+        // Always direct returning users to dashboard with returning=true parameter
         const dashboardUrl = "/dashboard/student/overview?returning=true";
         
         navigate(dashboardUrl);

@@ -1,3 +1,4 @@
+
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
@@ -76,7 +77,8 @@ const StepHandler = ({
           description: "Let's create your personalized study plan.",
         });
         
-        navigate("/dashboard/student?new=true&completedOnboarding=false");
+        // For new users, direct to dashboard with new=true parameter to trigger onboarding
+        navigate("/dashboard/student/overview?new=true&completedOnboarding=false");
       } else {
         throw new Error("Registration failed");
       }
