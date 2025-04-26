@@ -1,109 +1,99 @@
 
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Clock, BookOpen, ChartBar, Brain, Tag } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Play, FileText } from 'lucide-react';
 
 export interface PracticeExam {
   id: string;
   title: string;
   subject: string;
-  topic?: string;
-  linkedConcept?: string;
+  topic: string;
   questionCount: number;
-  duration: number; // in minutes
+  duration: number;
   difficulty: 'easy' | 'medium' | 'hard';
   status: 'not-started' | 'in-progress' | 'completed';
   score?: number;
   completedAt?: string;
 }
 
-const PracticeExamCard: React.FC<{ exam: PracticeExam }> = ({ exam }) => {
-  const getDifficultyColor = (difficulty: string) => {
-    switch(difficulty) {
-      case 'easy': return 'bg-green-50 text-green-700 border-green-200';
-      case 'medium': return 'bg-amber-50 text-amber-700 border-amber-200';
-      case 'hard': return 'bg-red-50 text-red-700 border-red-200';
+interface Props {
+  exam: PracticeExam;
+}
+
+const PracticeExamCard: React.FC<Props> = ({ exam }) => {
+  const navigate = useNavigate();
+  
+  const handleStartExam = () => {
+    navigate(`/dashboard/student/exams/${exam.id}`);
+  };
+  
+  const handleReviewExam = () => {
+    navigate(`/dashboard/student/exams/${exam.id}/results`);
+  };
+  
+  const getDifficultyColor = () => {
+    switch (exam.difficulty) {
+      case 'easy': return 'bg-green-100 text-green-700 border-green-200';
+      case 'medium': return 'bg-yellow-100 text-yellow-700 border-yellow-200';
+      case 'hard': return 'bg-red-100 text-red-700 border-red-200';
       default: return '';
     }
   };
 
-  const getStatusBadge = () => {
-    switch(exam.status) {
-      case 'completed':
-        return <Badge variant="outline" className="bg-green-50 text-green-700">Completed</Badge>;
-      case 'in-progress':
-        return <Badge variant="outline" className="bg-blue-50 text-blue-700">In Progress</Badge>;
-      default:
-        return <Badge variant="outline">Not Started</Badge>;
-    }
-  };
-
   return (
-    <Card className="h-full hover:shadow-md transition-shadow duration-200">
-      <CardContent className="p-4">
-        <div className="flex justify-between items-start mb-2">
-          <h3 className="font-medium text-lg">{exam.title}</h3>
-          {getStatusBadge()}
-        </div>
-        
-        <div className="flex flex-wrap gap-2 mb-3">
-          <Badge variant="outline" className="flex items-center gap-1">
-            <BookOpen className="h-3 w-3" />
+    <Card className="h-full">
+      <CardContent className="p-4 h-full flex flex-col">
+        <div className="flex items-center justify-between gap-2 mb-2">
+          <span className="text-sm text-gray-500">
             {exam.subject}
-          </Badge>
-          
-          {exam.topic && (
-            <Badge variant="outline" className="flex items-center gap-1">
-              <Tag className="h-3 w-3" />
-              {exam.topic}
-            </Badge>
-          )}
-          
-          {exam.linkedConcept && (
-            <Badge variant="outline" className="flex items-center gap-1">
-              <Brain className="h-3 w-3" />
-              {exam.linkedConcept}
-            </Badge>
-          )}
-          
-          <Badge variant="outline" className={getDifficultyColor(exam.difficulty)}>
+          </span>
+          <Badge 
+            variant="outline" 
+            className={getDifficultyColor()}
+          >
             {exam.difficulty}
           </Badge>
         </div>
         
-        <div className="flex gap-x-4 text-sm text-gray-500 mb-4">
-          <div className="flex items-center">
-            <Clock className="h-4 w-4 mr-1" />
-            {exam.duration} min
-          </div>
-          <div>
+        <h3 className="font-semibold text-lg mb-2">{exam.title}</h3>
+        
+        <div className="flex flex-wrap gap-2 mt-1 mb-3">
+          <Badge variant="outline" className="text-xs">
             {exam.questionCount} questions
-          </div>
+          </Badge>
+          <Badge variant="outline" className="text-xs">
+            {exam.duration} min
+          </Badge>
         </div>
         
-        {exam.status === 'completed' ? (
-          <div className="space-y-3">
-            <div className="text-sm">
-              <span className="text-gray-500">Score: </span>
-              <span className="font-medium">{exam.score}%</span>
-            </div>
-            <Link to={`/dashboard/student/exams/${exam.id}/review`}>
-              <Button className="w-full" variant="outline">
-                <ChartBar className="h-4 w-4 mr-2" />
-                View Result
+        <div className="mt-auto space-y-2">
+          {exam.status === 'completed' ? (
+            <>
+              <div className="text-sm text-gray-500 mb-2">
+                Score: {exam.score}%
+              </div>
+              <Button 
+                variant="outline" 
+                className="w-full"
+                onClick={handleReviewExam}
+              >
+                <FileText className="h-4 w-4 mr-2" />
+                Review Exam
               </Button>
-            </Link>
-          </div>
-        ) : (
-          <Link to={`/dashboard/student/exams/${exam.id}`}>
-            <Button className="w-full">
-              Start Test
+            </>
+          ) : (
+            <Button 
+              className="w-full" 
+              onClick={handleStartExam}
+            >
+              <Play className="h-4 w-4 mr-2" />
+              Start Exam
             </Button>
-          </Link>
-        )}
+          )}
+        </div>
       </CardContent>
     </Card>
   );
