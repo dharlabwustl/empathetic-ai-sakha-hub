@@ -1,19 +1,34 @@
 
-import { UserProfileType, UserRole } from "./base";
+import { BaseUserProfile, UserRole, SubscriptionType } from "./base";
 
-export interface StudentProfile extends UserProfileType {
+export interface Subject {
+  id: string;
+  name: string;
+  progress: number;
+}
+
+export interface StudentProfile extends BaseUserProfile {
   role: UserRole.Student;
-  studyHours?: number;
-  studyPace?: string;
-  preferredStudyTime?: string;
-  schoolName?: string;
-  grade?: string;
-  parentContact?: string;
-  lastExamScore?: number;
-  targetExam?: string;
-  examDate?: string;
-  strengths?: string[];
-  weaknesses?: string[];
-  preferredLearningStyle?: string;
-  lastActive?: string;
+  subjects: Subject[];
+  studyStreak: number;
+  quizzesTaken: number;
+  flashcardsCreated: number;
+  examPreparation: string;
+  studyHoursToday: number;
+  subjectsCovered: number;
+  quizPerformance: number;
+  syllabusCoverage: number;
+  strongSubjects: string[];
+  weakSubjects: string[];
+  educationLevel: string;
+}
+
+export interface TeacherProfile extends BaseUserProfile {
+  role: UserRole.Teacher;
+  subjects: string[];
+  school?: string;
+  grades: string[];
+  teachingExperience: number;
+  certifications?: string[];
+  specializations?: string[];
 }

@@ -1,25 +1,24 @@
 
-import React, { createContext, useState, useEffect, ReactNode, useContext } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 interface AdminUser {
   id: string;
-  name: string;
-  email: string;
-  role: string;
+  username: string;
+  role: 'admin' | 'super_admin';
 }
 
 interface AdminAuthContextProps {
-  isAuthenticated: boolean;
-  user: AdminUser | null;
-  login: (email: string, password: string) => Promise<void>;
-  logout: () => void;
+  isAdminAuthenticated: boolean;
+  adminUser: AdminUser | null;
+  adminLogin: (username: string, password: string) => Promise<void>;
+  adminLogout: () => void;
 }
 
-export const AdminAuthContext = createContext<AdminAuthContextProps>({
-  isAuthenticated: false,
-  user: null,
-  login: async () => {},
-  logout: () => {}
+const AdminAuthContext = createContext<AdminAuthContextProps>({
+  isAdminAuthenticated: false,
+  adminUser: null,
+  adminLogin: async () => {},
+  adminLogout: () => {},
 });
 
 export const useAdminAuth = () => useContext(AdminAuthContext);
@@ -28,51 +27,63 @@ interface AdminAuthProviderProps {
   children: ReactNode;
 }
 
-export const AdminAuthProvider = ({ children }: AdminAuthProviderProps) => {
-  const [user, setUser] = useState<AdminUser | null>(null);
-  const [loading, setLoading] = useState(true);
+export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }) => {
+  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState<boolean>(false);
+  const [adminUser, setAdminUser] = useState<AdminUser | null>(null);
 
   useEffect(() => {
-    // Check for existing session
-    const checkAuth = () => {
-      // For development purposes, always authenticated
-      if (process.env.NODE_ENV === 'development') {
-        setUser({
-          id: '1',
-          name: 'Admin User',
-          email: 'admin@example.com',
-          role: 'admin'
-        });
+    // Check if admin is logged in from localStorage or sessionStorage
+    const storedAdminData = localStorage.getItem('adminAuth');
+    if (storedAdminData) {
+      try {
+        const parsedData = JSON.parse(storedAdminData);
+        if (parsedData?.isAuthenticated) {
+          setIsAdminAuthenticated(true);
+          setAdminUser(parsedData.user || {
+            id: '1',
+            username: 'admin',
+            role: 'super_admin'
+          });
+        }
+      } catch (error) {
+        console.error('Error parsing admin auth data', error);
       }
-      setLoading(false);
-    };
-    
-    checkAuth();
+    }
   }, []);
 
-  const login = async (email: string, password: string) => {
-    // Mock login
-    setUser({
-      id: '1',
-      name: 'Admin User',
-      email: email,
-      role: 'admin'
-    });
+  const adminLogin = async (username: string, password: string) => {
+    // Simulate API call
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    
+    // In a real app, you would validate credentials with your API
+    if (username === 'admin' && password === 'password') {
+      const adminData = {
+        id: '1',
+        username: 'admin',
+        role: 'super_admin' as const
+      };
+      
+      setIsAdminAuthenticated(true);
+      setAdminUser(adminData);
+      
+      // Store in localStorage
+      localStorage.setItem('adminAuth', JSON.stringify({
+        isAuthenticated: true,
+        user: adminData
+      }));
+    } else {
+      throw new Error('Invalid credentials');
+    }
   };
 
-  const logout = () => {
-    setUser(null);
+  const adminLogout = () => {
+    setIsAdminAuthenticated(false);
+    setAdminUser(null);
+    localStorage.removeItem('adminAuth');
   };
 
   return (
-    <AdminAuthContext.Provider
-      value={{
-        isAuthenticated: !!user,
-        user,
-        login,
-        logout
-      }}
-    >
+    <AdminAuthContext.Provider value={{ isAdminAuthenticated, adminUser, adminLogin, adminLogout }}>
       {children}
     </AdminAuthContext.Provider>
   );

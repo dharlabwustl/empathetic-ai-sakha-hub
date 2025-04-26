@@ -1,8 +1,9 @@
+
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, Mail, Shield } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { GroupSetupFormData } from './batch/types';
 import PlanSummaryCard from './group-plan/PlanSummaryCard';

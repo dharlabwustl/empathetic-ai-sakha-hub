@@ -5,8 +5,8 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 
 interface PersonalityStepProps {
-  onNext: (personality: string) => void;
-  onPersonalitySelect?: (personality: string) => void; // Added missing prop
+  onNext?: (personality: string) => void;
+  onPersonalitySelect?: (personality: string) => void; 
 }
 
 const PersonalityStep = ({ onNext, onPersonalitySelect }: PersonalityStepProps) => {
@@ -20,7 +20,7 @@ const PersonalityStep = ({ onNext, onPersonalitySelect }: PersonalityStepProps) 
   };
 
   const handleContinue = () => {
-    if (selectedPersonality) {
+    if (selectedPersonality && onNext) {
       onNext(selectedPersonality);
     }
   };

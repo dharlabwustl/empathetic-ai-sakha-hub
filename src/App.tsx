@@ -55,7 +55,7 @@ import ConceptCardDetailPage from "./pages/dashboard/student/ConceptCardDetailPa
 
 import FlashcardBrowserPage from '@/pages/dashboard/student/FlashcardBrowserPage';
 
-import ConceptCardsListingPage from "./pages/dashboard/student/practice-exams/ConceptCardsListingPage";
+import ConceptCardsListingPage from "./pages/dashboard/student/ConceptCardsListingPage";
 import PracticeExamPage from "./components/dashboard/student/practice-exams/PracticeExamPage";
 import ExamResultsPage from "./components/dashboard/student/practice-exams/ExamResultsPage";
 
