@@ -1,263 +1,347 @@
 
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Calendar, FileText, Clock, ChevronRight, AlertTriangle, Play, BarChart2 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+  FileText, Clock, AlertCircle, Check, BookOpen, Brain, Filter,
+  Search, BarChart, Play, TrendingUp, Flag, ClipboardList
+} from "lucide-react";
+import { SharedPageLayout } from '../SharedPageLayout';
+import { Input } from '@/components/ui/input';
 
-const PracticeExamSection: React.FC = () => {
-  const [activeTab, setActiveTab] = useState('today');
-  
-  // Sample data for practice tests
-  const practiceTests = [
-    {
-      id: 'test-1',
-      title: 'Algebra Level 1 Mini Test',
-      subject: 'Math',
-      topic: 'Algebra',
-      linkedConcept: 'Linear Equations',
-      questionCount: 20,
-      priority: 'High',
-      duration: 30,
-      status: 'Not Started',
-      timeframe: 'today'
-    },
-    {
-      id: 'test-2',
-      title: 'Physics Mechanics Quiz',
-      subject: 'Physics',
-      topic: 'Mechanics',
-      linkedConcept: 'Newton\'s Laws',
-      questionCount: 15,
-      priority: 'Medium',
-      duration: 25,
-      status: 'Completed',
-      timeframe: 'today'
-    },
-    {
-      id: 'test-3',
-      title: 'Chemistry Periodic Table Assessment',
-      subject: 'Chemistry',
-      topic: 'General Chemistry',
-      linkedConcept: 'Element Properties',
-      questionCount: 18,
-      priority: 'Low',
-      duration: 20,
-      status: 'In Progress',
-      timeframe: 'week'
-    },
-    {
-      id: 'test-4',
-      title: 'World War II Events Quiz',
-      subject: 'History',
-      topic: 'Modern History',
-      linkedConcept: 'World War II Causes',
-      questionCount: 25,
-      priority: 'Medium',
-      duration: 35,
-      status: 'Not Started',
-      timeframe: 'week'
-    },
-    {
-      id: 'test-5',
-      title: 'Biology Cell Functions Assessment',
-      subject: 'Biology',
-      topic: 'Cell Biology',
-      linkedConcept: 'Cell Structure',
-      questionCount: 22,
-      priority: 'High',
-      duration: 45,
-      status: 'Not Started',
-      timeframe: 'month'
-    }
-  ];
-  
-  // Filter tests based on selected timeframe
-  const filteredTests = practiceTests.filter(test => {
-    if (activeTab === 'all') return true;
-    return test.timeframe === activeTab;
-  });
-  
-  return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 p-4 rounded-lg border border-purple-100 dark:border-purple-800/30">
-        <div>
-          <h2 className="text-xl font-bold flex items-center">
-            <FileText className="h-5 w-5 mr-2 text-purple-600" />
-            Practice Tests – Sharpen Your Skills
-          </h2>
-          <p className="text-sm text-muted-foreground mt-1">
-            Test your knowledge and track your progress with our adaptive practice exams
-          </p>
-        </div>
-        
-        <div className="flex flex-wrap gap-3">
-          <Badge variant="outline" className="bg-white">8 Tests Available</Badge>
-          <Badge variant="outline" className="bg-white">73% Average Score</Badge>
-        </div>
-      </div>
-      
-      {/* Time Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="today" className="flex items-center gap-2">
-            <Calendar className="h-4 w-4" />
-            <span>🔹 Today</span>
-          </TabsTrigger>
-          <TabsTrigger value="week" className="flex items-center gap-2">
-            <Calendar className="h-4 w-4" />
-            <span>🔹 This Week</span>
-          </TabsTrigger>
-          <TabsTrigger value="month" className="flex items-center gap-2">
-            <Calendar className="h-4 w-4" />
-            <span>🔹 This Month</span>
-          </TabsTrigger>
-        </TabsList>
-        
-        {/* Tab Contents */}
-        <TabsContent value="today" className="mt-6">
-          <PracticeTestGrid tests={filteredTests} />
-        </TabsContent>
-        
-        <TabsContent value="week" className="mt-6">
-          <PracticeTestGrid tests={filteredTests} />
-        </TabsContent>
-        
-        <TabsContent value="month" className="mt-6">
-          <PracticeTestGrid tests={filteredTests} />
-        </TabsContent>
-      </Tabs>
-      
-      {/* View All Button */}
-      <div className="flex justify-end">
-        <Link to="/dashboard/student/practice-exam">
-          <Button variant="outline" className="flex items-center gap-2">
-            🔍 View All Practice Tests
-            <ChevronRight size={16} />
-          </Button>
-        </Link>
-      </div>
-    </div>
-  );
-};
-
-interface PracticeTestGridProps {
-  tests: any[];
-}
-
-const PracticeTestGrid: React.FC<PracticeTestGridProps> = ({ tests }) => {
-  if (tests.length === 0) {
-    return (
-      <Card className="p-6 text-center">
-        <CardContent>
-          <p className="text-muted-foreground">No practice tests available for this time period.</p>
-        </CardContent>
-      </Card>
-    );
+// Mock data for practice exams
+const practiceExams = [
+  {
+    id: "e1",
+    title: "Algebra Level 1 Mini Test",
+    subject: "Mathematics",
+    topic: "Algebra",
+    linkedConcept: "Linear Equations",
+    questionCount: 20,
+    priority: "high",
+    duration: 30,
+    status: "not-started",
+    difficulty: "medium"
+  },
+  {
+    id: "e2",
+    title: "Physics Mechanics Quiz",
+    subject: "Physics",
+    topic: "Mechanics",
+    linkedConcept: "Newton's Laws",
+    questionCount: 15,
+    priority: "medium",
+    duration: 25,
+    status: "completed",
+    difficulty: "hard",
+    score: 85
+  },
+  {
+    id: "e3",
+    title: "Organic Chemistry Test",
+    subject: "Chemistry",
+    topic: "Organic Chemistry",
+    linkedConcept: "Functional Groups",
+    questionCount: 25,
+    priority: "low",
+    duration: 45,
+    status: "in-progress",
+    difficulty: "hard",
+    completedQuestions: 10
+  },
+  {
+    id: "e4",
+    title: "Cell Biology Assessment",
+    subject: "Biology",
+    topic: "Cell Biology",
+    linkedConcept: "Cell Division",
+    questionCount: 18,
+    priority: "high",
+    duration: 30,
+    status: "not-started",
+    difficulty: "medium"
+  },
+  {
+    id: "e5",
+    title: "Calculus Practice Test",
+    subject: "Mathematics",
+    topic: "Calculus",
+    linkedConcept: "Derivatives",
+    questionCount: 15,
+    priority: "medium",
+    duration: 35,
+    status: "completed",
+    difficulty: "hard",
+    score: 72
+  },
+  {
+    id: "e6",
+    title: "Chemistry Periodic Table Test",
+    subject: "Chemistry",
+    topic: "Periodic Table",
+    linkedConcept: "Element Properties",
+    questionCount: 20,
+    priority: "medium",
+    duration: 30,
+    status: "not-started",
+    difficulty: "easy"
   }
-  
-  return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-      {tests.map((test) => (
-        <PracticeTestCard key={test.id} test={test} />
-      ))}
-    </div>
-  );
+];
+
+// Filter exams by time period
+const filterExamsByTimePeriod = (period: string) => {
+  switch (period) {
+    case "today":
+      return practiceExams.filter(exam => exam.priority === "high");
+    case "week":
+      return practiceExams.filter(exam => exam.priority === "high" || exam.priority === "medium");
+    case "month":
+      return practiceExams;
+    default:
+      return practiceExams;
+  }
 };
 
-interface PracticeTestCardProps {
-  test: any;
+// Get status badge color and text
+const getStatusInfo = (status: string) => {
+  switch (status) {
+    case "completed":
+      return { color: "bg-emerald-100 text-emerald-800 border-emerald-200", icon: Check, text: "Completed" };
+    case "in-progress":
+      return { color: "bg-blue-100 text-blue-800 border-blue-200", icon: Clock, text: "In Progress" };
+    case "not-started":
+      return { color: "bg-gray-100 text-gray-800 border-gray-200", icon: FileText, text: "Not Started" };
+    default:
+      return { color: "bg-gray-100 text-gray-800 border-gray-200", icon: FileText, text: "Unknown" };
+  }
+};
+
+// Get difficulty badge color and text
+const getDifficultyInfo = (difficulty: string) => {
+  switch (difficulty) {
+    case "easy":
+      return { color: "bg-green-100 text-green-800 border-green-200", text: "Easy" };
+    case "medium":
+      return { color: "bg-yellow-100 text-yellow-800 border-yellow-200", text: "Medium" };
+    case "hard":
+      return { color: "bg-red-100 text-red-800 border-red-200", text: "Hard" };
+    default:
+      return { color: "bg-gray-100 text-gray-800 border-gray-200", text: "Unknown" };
+  }
+};
+
+// Get priority badge color and text
+const getPriorityInfo = (priority: string) => {
+  switch (priority) {
+    case "high":
+      return { color: "bg-red-100 text-red-800 border-red-200", text: "High Priority" };
+    case "medium":
+      return { color: "bg-yellow-100 text-yellow-800 border-yellow-200", text: "Medium Priority" };
+    case "low":
+      return { color: "bg-green-100 text-green-800 border-green-200", text: "Low Priority" };
+    default:
+      return { color: "bg-gray-100 text-gray-800 border-gray-200", text: "Unknown" };
+  }
+};
+
+interface ExamCardProps {
+  exam: typeof practiceExams[0];
 }
 
-const PracticeTestCard: React.FC<PracticeTestCardProps> = ({ test }) => {
+const ExamCard: React.FC<ExamCardProps> = ({ exam }) => {
+  const statusInfo = getStatusInfo(exam.status);
+  const difficultyInfo = getDifficultyInfo(exam.difficulty);
+  const priorityInfo = getPriorityInfo(exam.priority);
+  const StatusIcon = statusInfo.icon;
+
   return (
-    <motion.div
-      whileHover={{ scale: 1.02 }}
-      transition={{ duration: 0.2 }}
-    >
-      <Card className="h-full">
-        <CardHeader className="pb-2">
-          <div className="flex justify-between items-start mb-2">
-            <Badge 
-              variant="outline" 
-              className={getPriorityClass(test.priority)}
-            >
-              {test.priority} Priority
-            </Badge>
-            <Badge 
-              variant={getStatusVariant(test.status)} 
-              className={test.status === 'Completed' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' : ''}
-            >
-              {test.status}
-            </Badge>
-          </div>
-          <CardTitle className="text-lg">{test.title}</CardTitle>
-          <CardDescription>{test.subject} - {test.topic}</CardDescription>
-        </CardHeader>
+    <Card className="h-full flex flex-col transform hover:scale-[1.01] transition-all duration-200 hover:shadow-md">
+      <CardHeader className="pb-2">
+        <div className="flex justify-between items-start">
+          <CardTitle className="text-lg font-bold">{exam.title}</CardTitle>
+          <Badge variant="outline" className={priorityInfo.color}>
+            {priorityInfo.text}
+          </Badge>
+        </div>
+        <CardDescription className="flex flex-wrap gap-2 mt-1">
+          <Badge variant="outline" className="bg-purple-100 text-purple-800 border-purple-200">
+            {exam.subject}
+          </Badge>
+          <Badge variant="outline" className="bg-violet-100 text-violet-800 border-violet-200">
+            {exam.topic}
+          </Badge>
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="flex-grow pb-2">
+        <div className="flex justify-between items-center mb-3">
+          <Badge variant="outline" className={statusInfo.color}>
+            <StatusIcon className="h-3 w-3 mr-1" />
+            {statusInfo.text}
+          </Badge>
+          <Badge variant="outline" className={difficultyInfo.color}>
+            {difficultyInfo.text}
+          </Badge>
+        </div>
         
-        <CardContent className="space-y-3 pb-2">
-          <div className="grid grid-cols-2 gap-2 text-sm">
-            <div className="flex items-center gap-1 text-muted-foreground">
-              <FileText size={14} />
-              <span>Questions: {test.questionCount}</span>
-            </div>
-            <div className="flex items-center gap-1 text-muted-foreground">
-              <Clock size={14} />
-              <span>Duration: {test.duration} min</span>
-            </div>
+        <div className="space-y-2">
+          <div className="flex items-center text-sm text-gray-600">
+            <BookOpen className="h-4 w-4 mr-2" />
+            <span>Linked Concept: {exam.linkedConcept}</span>
           </div>
           
-          <div className="bg-blue-50 dark:bg-blue-900/20 p-2 rounded-md text-xs">
-            <span className="font-medium text-blue-700 dark:text-blue-400">🧠 Linked Concept:</span>
-            <span className="text-blue-600 dark:text-blue-300 ml-1">{test.linkedConcept}</span>
+          <div className="flex items-center text-sm text-gray-600">
+            <ClipboardList className="h-4 w-4 mr-2" />
+            <span>{exam.questionCount} Questions</span>
           </div>
-        </CardContent>
+          
+          <div className="flex items-center text-sm text-gray-600">
+            <Clock className="h-4 w-4 mr-2" />
+            <span>Duration: {exam.duration} min</span>
+          </div>
+        </div>
         
-        <CardFooter className="pt-2">
-          <Link to={`/dashboard/student/practice-exam/${test.id}`} className="w-full">
-            <Button 
-              variant="default" 
-              className="w-full flex items-center justify-center gap-2"
-              disabled={test.status === 'Completed'}
-            >
-              {test.status === 'Completed' ? (
-                <>
-                  <BarChart2 size={16} /> View Result
-                </>
-              ) : (
-                <>
-                  <Play size={16} /> Start Test
-                </>
-              )}
-            </Button>
-          </Link>
-        </CardFooter>
-      </Card>
-    </motion.div>
+        {exam.status === "completed" && (
+          <div className="mt-3">
+            <div className="flex justify-between text-sm mb-1">
+              <span className="text-gray-600">Score</span>
+              <span className={exam.score! >= 80 ? "text-emerald-600 font-medium" : exam.score! >= 60 ? "text-yellow-600 font-medium" : "text-red-600 font-medium"}>
+                {exam.score}%
+              </span>
+            </div>
+            <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+              <div 
+                className={`h-full rounded-full ${
+                  exam.score! >= 80 ? "bg-emerald-500" : 
+                  exam.score! >= 60 ? "bg-yellow-500" : "bg-red-500"
+                }`}
+                style={{ width: `${exam.score}%` }}
+              ></div>
+            </div>
+          </div>
+        )}
+        
+        {exam.status === "in-progress" && (
+          <div className="mt-3">
+            <div className="flex justify-between text-sm mb-1">
+              <span className="text-gray-600">Progress</span>
+              <span>{exam.completedQuestions}/{exam.questionCount} Questions</span>
+            </div>
+            <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+              <div 
+                className="h-full rounded-full bg-blue-500"
+                style={{ width: `${(exam.completedQuestions! / exam.questionCount) * 100}%` }}
+              ></div>
+            </div>
+          </div>
+        )}
+      </CardContent>
+      <CardFooter className="pt-2">
+        <Button className="w-full bg-indigo-600 hover:bg-indigo-700 flex items-center gap-2">
+          {exam.status === "completed" ? (
+            <>
+              <BarChart className="h-4 w-4" />
+              View Results
+            </>
+          ) : exam.status === "in-progress" ? (
+            <>
+              <Play className="h-4 w-4" />
+              Continue Test
+            </>
+          ) : (
+            <>
+              <Play className="h-4 w-4" />
+              Start Test
+            </>
+          )}
+        </Button>
+      </CardFooter>
+    </Card>
   );
 };
 
-// Helper functions
-function getStatusVariant(status: string): "default" | "destructive" | "outline" {
-  switch (status) {
-    case 'Completed': return 'outline';
-    case 'In Progress': return 'default';
-    case 'Not Started': return 'outline';
-    default: return 'outline';
-  }
-}
-
-function getPriorityClass(priority: string): string {
-  switch (priority) {
-    case 'High': return 'bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400';
-    case 'Medium': return 'bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400';
-    case 'Low': return 'bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400';
-    default: return '';
-  }
-}
+const PracticeExamSection = () => {
+  const [timePeriod, setTimePeriod] = useState("today");
+  const filteredExams = filterExamsByTimePeriod(timePeriod);
+  
+  return (
+    <SharedPageLayout
+      title="Practice Tests — Sharpen Your Skills"
+      subtitle="Test your knowledge and track your progress with personalized assessments"
+    >
+      <div className="space-y-6">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="relative w-full sm:w-64">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <Input placeholder="Search tests..." className="pl-9" />
+          </div>
+          
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" className="flex items-center gap-1">
+              <Filter className="h-4 w-4" />
+              <span className="hidden sm:inline">Filter</span>
+            </Button>
+            <Button variant="outline" size="sm" className="flex items-center gap-1">
+              <Flag className="h-4 w-4" />
+              <span className="hidden sm:inline">Flagged</span>
+            </Button>
+            <Button variant="outline" size="sm" className="flex items-center gap-1">
+              <TrendingUp className="h-4 w-4" />
+              <span className="hidden sm:inline">Analytics</span>
+            </Button>
+          </div>
+        </div>
+      
+        <Tabs defaultValue="today" value={timePeriod} onValueChange={setTimePeriod} className="space-y-6">
+          <div className="flex items-center justify-between mb-4">
+            <TabsList className="bg-gray-100 dark:bg-gray-800">
+              <TabsTrigger value="today" className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white">
+                Today
+              </TabsTrigger>
+              <TabsTrigger value="week" className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white">
+                This Week
+              </TabsTrigger>
+              <TabsTrigger value="month" className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white">
+                This Month
+              </TabsTrigger>
+            </TabsList>
+          </div>
+          
+          <TabsContent value="today" className="m-0">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredExams.map(exam => (
+                <ExamCard key={exam.id} exam={exam} />
+              ))}
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="week" className="m-0">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredExams.map(exam => (
+                <ExamCard key={exam.id} exam={exam} />
+              ))}
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="month" className="m-0">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredExams.map(exam => (
+                <ExamCard key={exam.id} exam={exam} />
+              ))}
+            </div>
+          </TabsContent>
+        </Tabs>
+        
+        <div className="flex justify-center mt-6">
+          <Button variant="outline" className="flex items-center gap-1">
+            <Search className="h-4 w-4 mr-1" />
+            View All Practice Tests
+          </Button>
+        </div>
+      </div>
+    </SharedPageLayout>
+  );
+};
 
 export default PracticeExamSection;

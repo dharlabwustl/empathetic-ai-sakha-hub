@@ -4,8 +4,16 @@ import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { Phone, Lock, Loader2 } from "lucide-react";
+import { Phone, Lock, Loader2, Mail } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 interface StudentLoginFormProps {
   activeTab: string;
@@ -15,6 +23,12 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPasswordReset, setShowPasswordReset] = useState(false);
+  const [resetMethod, setResetMethod] = useState<"email" | "phone">("email");
+  const [resetIdentifier, setResetIdentifier] = useState("");
+  const [otpSent, setOtpSent] = useState(false);
+  const [otp, setOtp] = useState("");
+  const [newPassword, setNewPassword] = useState("");
   const navigate = useNavigate();
   const { toast } = useToast();
   const { login } = useAuth();
@@ -39,8 +53,38 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
       const success = await login(email, password);
       
       if (success) {
-        // Redirect based on role
-        navigate("/dashboard/student");
+        // Check for last activity to redirect to appropriate page
+        const userData = localStorage.getItem("userData");
+        let redirectPath = "/dashboard/student";
+        
+        if (userData) {
+          const parsedData = JSON.parse(userData);
+          
+          if (parsedData.lastActivity) {
+            const { type, id } = parsedData.lastActivity;
+            
+            if (type === "concept") {
+              redirectPath = `/dashboard/student/concepts/${id}`;
+            } else if (type === "flashcard") {
+              redirectPath = `/dashboard/student/flashcards/${id}`;
+            } else if (type === "practice-exam") {
+              redirectPath = `/dashboard/student/practice-exam/${id}`;
+            }
+            
+            toast({
+              title: "Welcome back!",
+              description: "Redirecting you to where you left off"
+            });
+          } else {
+            toast({
+              title: "Login successful",
+              description: "Welcome to your dashboard"
+            });
+          }
+        }
+        
+        // Redirect based on last activity or to default dashboard
+        navigate(redirectPath);
       } else {
         throw new Error("Login failed");
       }
@@ -55,71 +99,210 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
       setLoading(false);
     }
   };
+  
+  const handleResetRequest = () => {
+    if (!resetIdentifier) {
+      toast({
+        title: "Error",
+        description: "Please provide your email or phone number",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    // Simulate OTP sending
+    setOtpSent(true);
+    toast({
+      title: "OTP Sent",
+      description: `Verification code sent to your ${resetMethod}`,
+    });
+  };
+  
+  const handleResetComplete = () => {
+    if (!otp || !newPassword) {
+      toast({
+        title: "Error",
+        description: "Please enter both OTP and new password",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    // Simulate password reset
+    toast({
+      title: "Password Reset Successful",
+      description: "You can now login with your new password",
+    });
+    
+    // Reset form and close dialog
+    setShowPasswordReset(false);
+    setOtpSent(false);
+    setResetIdentifier("");
+    setOtp("");
+    setNewPassword("");
+  };
 
   return (
-    <form onSubmit={handleLogin} className="space-y-6">
-      <div className="space-y-4">
-        <div className="relative">
-          <Phone className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-          <Input 
-            type="text" 
-            placeholder="Mobile Number or Email"
-            value={identifier}
-            onChange={(e) => setIdentifier(e.target.value)}
-            className="pl-10"
-          />
+    <>
+      <form onSubmit={handleLogin} className="space-y-6">
+        <div className="space-y-4">
+          <div className="relative">
+            <Phone className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+            <Input 
+              type="text" 
+              placeholder="Mobile Number or Email"
+              value={identifier}
+              onChange={(e) => setIdentifier(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+          <div className="relative">
+            <Lock className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+            <Input 
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="pl-10"
+            />
+          </div>
         </div>
-        <div className="relative">
-          <Lock className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-          <Input 
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="pl-10"
-          />
+        
+        <div className="flex items-center justify-between">
+          <div className="flex items-center">
+            <input
+              id="remember-me"
+              name="remember-me"
+              type="checkbox"
+              className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+            />
+            <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900 dark:text-gray-300">
+              Remember me
+            </label>
+          </div>
+          <div className="text-sm">
+            <button
+              type="button"
+              className="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400"
+              onClick={() => setShowPasswordReset(true)}
+            >
+              Forgot password?
+            </button>
+          </div>
         </div>
-      </div>
+        
+        <Button type="submit" className="w-full" disabled={loading}>
+          {loading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Signing In...
+            </>
+          ) : (
+            "Sign In"
+          )}
+        </Button>
+        
+        <div className="text-center mt-4">
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            Don't have an account yet?{" "}
+            <Link to="/signup" className="font-semibold text-indigo-600 hover:text-indigo-500 dark:text-indigo-400">
+              Sign up
+            </Link>
+          </p>
+        </div>
+      </form>
       
-      <div className="flex items-center justify-between">
-        <div className="flex items-center">
-          <input
-            id="remember-me"
-            name="remember-me"
-            type="checkbox"
-            className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-          />
-          <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900 dark:text-gray-300">
-            Remember me
-          </label>
-        </div>
-        <div className="text-sm">
-          <a href="#" className="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400">
-            Forgot password?
-          </a>
-        </div>
-      </div>
-      
-      <Button type="submit" className="w-full" disabled={loading}>
-        {loading ? (
-          <>
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Signing In...
-          </>
-        ) : (
-          "Sign In"
-        )}
-      </Button>
-      
-      <div className="text-center mt-4">
-        <p className="text-sm text-gray-600 dark:text-gray-400">
-          Don't have an account yet?{" "}
-          <Link to="/signup" className="font-semibold text-indigo-600 hover:text-indigo-500 dark:text-indigo-400">
-            Sign up
-          </Link>
-        </p>
-      </div>
-    </form>
+      {/* Password Reset Dialog */}
+      <Dialog open={showPasswordReset} onOpenChange={setShowPasswordReset}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>{otpSent ? "Enter OTP" : "Reset Password"}</DialogTitle>
+            <DialogDescription>
+              {otpSent
+                ? "Enter the verification code sent to your email or phone"
+                : "We'll send you a verification code to reset your password"}
+            </DialogDescription>
+          </DialogHeader>
+          
+          {!otpSent ? (
+            <div className="space-y-4">
+              <div className="flex items-center space-x-2">
+                <Button
+                  variant={resetMethod === "email" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setResetMethod("email")}
+                  className={resetMethod === "email" ? "bg-indigo-600" : ""}
+                >
+                  <Mail className="h-4 w-4 mr-1" />
+                  Email
+                </Button>
+                <Button
+                  variant={resetMethod === "phone" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setResetMethod("phone")}
+                  className={resetMethod === "phone" ? "bg-indigo-600" : ""}
+                >
+                  <Phone className="h-4 w-4 mr-1" />
+                  Phone
+                </Button>
+              </div>
+              
+              <Input
+                placeholder={resetMethod === "email" ? "Enter your email" : "Enter your phone number"}
+                value={resetIdentifier}
+                onChange={(e) => setResetIdentifier(e.target.value)}
+              />
+              
+              <DialogFooter className="sm:justify-end">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowPasswordReset(false)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleResetRequest}
+                  className="bg-indigo-600"
+                >
+                  Send OTP
+                </Button>
+              </DialogFooter>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <Input
+                placeholder="Enter OTP"
+                value={otp}
+                onChange={(e) => setOtp(e.target.value)}
+              />
+              <Input
+                type="password"
+                placeholder="New Password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+              />
+              <DialogFooter className="sm:justify-end">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setOtpSent(false);
+                    setOtp("");
+                  }}
+                >
+                  Back
+                </Button>
+                <Button
+                  onClick={handleResetComplete}
+                  className="bg-indigo-600"
+                >
+                  Reset Password
+                </Button>
+              </DialogFooter>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
 

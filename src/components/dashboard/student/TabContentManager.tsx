@@ -61,7 +61,7 @@ export const generateTabContents = ({
       </>
     ),
     "today": (
-      <TodaysPlanView userProfile={userProfile} />
+      <TodaysPlanView />
     ),
     "academic": (
       <AcademicAdvisorSection />

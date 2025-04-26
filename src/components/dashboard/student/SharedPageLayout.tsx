@@ -1,35 +1,32 @@
 
 import React from 'react';
-import { QuickAccess } from "./QuickAccess";
-import { Card } from "@/components/ui/card";
-import { SectionHeader } from "@/components/ui/section-header";
+import { QuickAccess } from './QuickAccess';
 
 interface SharedPageLayoutProps {
-  title?: string;
-  subtitle?: string;
-  children: React.ReactNode;
+  title: string;
+  subtitle: string;
   showQuickAccess?: boolean;
+  children: React.ReactNode;
 }
 
 export const SharedPageLayout: React.FC<SharedPageLayoutProps> = ({
   title,
   subtitle,
-  children,
-  showQuickAccess = true
+  showQuickAccess = true,
+  children
 }) => {
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {showQuickAccess && <QuickAccess />}
       
-      {(title || subtitle) && (
-        <div className="mb-6">
-          <SectionHeader title={title || ""} subtitle={subtitle} />
-        </div>
-      )}
-      
-      <Card className="p-6">
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold tracking-tight mb-1">{title}</h1>
+        <p className="text-muted-foreground">{subtitle}</p>
+      </div>
+
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 sm:p-6">
         {children}
-      </Card>
+      </div>
     </div>
   );
 };

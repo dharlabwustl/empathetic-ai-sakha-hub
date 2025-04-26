@@ -7,7 +7,7 @@ import { Brain, BookOpen, Book } from 'lucide-react';
 export const QuickAccess = () => {
   return (
     <div className="flex flex-wrap gap-2 mb-4">
-      <Link to="/dashboard/student/academic-advisor">
+      <Link to="/dashboard/student/academic">
         <Button variant="default" size="sm" className="bg-gradient-to-r from-purple-500 to-violet-600 hover:from-purple-600 hover:to-violet-700 text-white shadow-md">
           <Brain className="h-4 w-4 mr-1" />
           Academic Advisor

@@ -2,10 +2,9 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { School, User, Lock, Building2 } from "lucide-react";
+import { School, Lock } from "lucide-react";
 import SakhaLogo from "@/components/common/SakhaLogo";
 import StudentLoginForm from "./forms/StudentLoginForm";
-import TutorLoginForm from "./forms/TutorLoginForm";
 import AdminLoginRedirect from "./forms/AdminLoginRedirect";
 
 const LoginPage = () => {
@@ -35,14 +34,10 @@ const LoginPage = () => {
         </div>
         
         <Tabs defaultValue="student" value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid grid-cols-3 mb-8">
+          <TabsList className="grid grid-cols-2 mb-8">
             <TabsTrigger value="student" className="flex items-center gap-2">
               <School size={16} />
               Student
-            </TabsTrigger>
-            <TabsTrigger value="tutor" className="flex items-center gap-2">
-              <User size={16} />
-              Tutor
             </TabsTrigger>
             <TabsTrigger value="admin" className="flex items-center gap-2">
               <Lock size={16} />
@@ -52,10 +47,6 @@ const LoginPage = () => {
           
           <TabsContent value="student">
             <StudentLoginForm activeTab={activeTab} />
-          </TabsContent>
-          
-          <TabsContent value="tutor">
-            <TutorLoginForm activeTab={activeTab} />
           </TabsContent>
           
           <TabsContent value="admin">

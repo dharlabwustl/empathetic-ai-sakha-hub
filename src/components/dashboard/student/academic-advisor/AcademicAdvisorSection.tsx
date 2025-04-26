@@ -1,289 +1,175 @@
 
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { GraduationCap, BookOpen, Calendar, MessagesSquare, ChevronRight, Lightbulb, BarChart } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Brain, Book, Calendar, MessageCircle, BookOpen, Lightbulb, Trophy, TrendingUp } from 'lucide-react';
+import { SharedPageLayout } from '../SharedPageLayout';
 
-const AcademicAdvisorSection: React.FC = () => {
-  const recommendations = [
-    {
-      id: 'rec-1',
-      title: 'Focus on Algebra Fundamentals',
-      description: 'Based on your recent quiz performance, we recommend strengthening your algebra skills',
-      priority: 'High',
-      type: 'concept',
-      linkedItems: ['Quadratic Equations', 'Factorization']
-    },
-    {
-      id: 'rec-2',
-      title: 'Practice Test: Physics Mechanics',
-      description: 'You\'re making good progress in physics. Take this test to solidify your knowledge',
-      priority: 'Medium',
-      type: 'practice-test',
-      linkedItems: ['Newton\'s Laws', 'Kinematics']
-    },
-    {
-      id: 'rec-3',
-      title: 'Review Flashcards: Chemical Bonding',
-      description: 'Your mastery of chemical bonding concepts has decreased. Review these flashcards',
-      priority: 'Medium',
-      type: 'flashcard',
-      linkedItems: ['Ionic Bonds', 'Covalent Bonds']
-    }
-  ];
-  
-  const insights = [
-    {
-      id: 'insight-1',
-      title: 'Strong in Physics, Weak in Chemistry',
-      description: 'Your performance across subjects shows a pattern',
-      type: 'performance'
-    },
-    {
-      id: 'insight-2',
-      title: 'Best Study Time: Morning',
-      description: 'You complete more tasks with better retention before noon',
-      type: 'habit'
-    },
-    {
-      id: 'insight-3',
-      title: 'Test Taking Strategy Needs Work',
-      description: 'You often change correct answers to incorrect ones',
-      type: 'strategy'
-    }
-  ];
-  
+const AcademicAdvisorSection = () => {
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 bg-gradient-to-r from-indigo-50 to-violet-50 dark:from-indigo-900/20 dark:to-violet-900/20 p-4 rounded-lg border border-indigo-100 dark:border-indigo-800/30">
-        <div>
-          <h2 className="text-xl font-bold flex items-center">
-            <GraduationCap className="h-5 w-5 mr-2 text-indigo-600" />
-            Academic Advisor
-          </h2>
-          <p className="text-sm text-muted-foreground mt-1">
-            Personalized guidance and recommendations for your academic journey
-          </p>
-        </div>
-        
-        <Button asChild>
-          <Link to="/dashboard/student/academic-advisor">
-            Get Personalized Plan
-          </Link>
-        </Button>
-      </div>
-      
-      {/* Recommendations Section */}
-      <div>
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-medium flex items-center">
-            <Lightbulb className="h-4 w-4 mr-2 text-amber-500" />
-            Smart Recommendations
-          </h3>
-          <Link to="/dashboard/student/academic-advisor/recommendations">
-            <Button variant="ghost" size="sm" className="flex items-center gap-1">
-              View All
-              <ChevronRight size={16} />
-            </Button>
-          </Link>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {recommendations.map((recommendation) => (
-            <RecommendationCard key={recommendation.id} recommendation={recommendation} />
-          ))}
-        </div>
-      </div>
-      
-      {/* Insights Section */}
-      <div>
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-medium flex items-center">
-            <BarChart className="h-4 w-4 mr-2 text-blue-500" />
-            Learning Insights
-          </h3>
-          <Link to="/dashboard/student/academic-advisor/insights">
-            <Button variant="ghost" size="sm" className="flex items-center gap-1">
-              View All
-              <ChevronRight size={16} />
-            </Button>
-          </Link>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {insights.map((insight) => (
-            <InsightCard key={insight.id} insight={insight} />
-          ))}
-        </div>
-      </div>
-      
-      {/* AI Chat Section */}
-      <Card className="bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/10 dark:to-blue-900/10 border-purple-200 dark:border-purple-800/30">
-        <CardHeader>
-          <CardTitle className="text-lg flex items-center">
-            <MessagesSquare className="h-5 w-5 mr-2 text-purple-600" />
-            Ask Your Academic Advisor
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm text-muted-foreground mb-4">
-            Have questions about your study plan or need advice? Chat with your AI academic advisor.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3">
-            <Button className="flex-1" variant="outline">
-              How can I improve my math score?
-            </Button>
-            <Button className="flex-1" variant="outline">
-              Create a study plan for physics
-            </Button>
-            <Button className="flex-1" variant="outline">
-              What should I focus on today?
-            </Button>
-          </div>
-          <div className="mt-4">
-            <Button className="w-full" asChild>
-              <Link to="/dashboard/student/academic-advisor/chat">
-                Start Conversation
-              </Link>
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
-};
-
-interface RecommendationCardProps {
-  recommendation: any;
-}
-
-const RecommendationCard: React.FC<RecommendationCardProps> = ({ recommendation }) => {
-  return (
-    <motion.div
-      whileHover={{ scale: 1.02 }}
-      transition={{ duration: 0.2 }}
+    <SharedPageLayout
+      title="Academic Advisor"
+      subtitle="Get personalized guidance for your academic journey"
     >
-      <Card className="h-full">
-        <CardHeader className="pb-2">
-          <div className="flex justify-between items-start mb-2">
-            <Badge 
-              variant="outline" 
-              className={getPriorityClass(recommendation.priority)}
-            >
-              {recommendation.priority} Priority
-            </Badge>
-            <Badge variant="outline" className="bg-white">
-              {getTypeLabel(recommendation.type)}
-            </Badge>
-          </div>
-          <CardTitle className="text-base">{recommendation.title}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm text-muted-foreground mb-3">
-            {recommendation.description}
-          </p>
-          
-          {recommendation.linkedItems.length > 0 && (
-            <div className="mb-4">
-              <p className="text-xs font-medium text-muted-foreground mb-1">Related Topics:</p>
-              <div className="flex flex-wrap gap-2">
-                {recommendation.linkedItems.map((item: string, index: number) => (
-                  <Badge key={index} variant="secondary" className="bg-gray-100 text-gray-700">
-                    {item}
-                  </Badge>
-                ))}
+      <Tabs defaultValue="insights" className="space-y-6">
+        <TabsList className="grid grid-cols-4 md:w-[400px]">
+          <TabsTrigger value="insights" className="flex items-center gap-1">
+            <Brain className="h-4 w-4" />
+            <span className="hidden sm:inline">Insights</span>
+          </TabsTrigger>
+          <TabsTrigger value="plan" className="flex items-center gap-1">
+            <Calendar className="h-4 w-4" />
+            <span className="hidden sm:inline">Plan</span>
+          </TabsTrigger>
+          <TabsTrigger value="resources" className="flex items-center gap-1">
+            <Book className="h-4 w-4" />
+            <span className="hidden sm:inline">Resources</span>
+          </TabsTrigger>
+          <TabsTrigger value="ask" className="flex items-center gap-1">
+            <MessageCircle className="h-4 w-4" />
+            <span className="hidden sm:inline">Ask</span>
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="insights" className="space-y-6">
+          <div className="bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 p-6 rounded-xl border border-indigo-100 dark:border-indigo-800/30">
+            <div className="flex items-start gap-4">
+              <div className="bg-indigo-100 dark:bg-indigo-800/30 p-3 rounded-full">
+                <Brain className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
+              </div>
+              <div className="space-y-1">
+                <h3 className="text-xl font-semibold">Your Learning Insights</h3>
+                <p className="text-gray-600 dark:text-gray-400">Based on your recent activity and progress, here are some insights to help you improve.</p>
               </div>
             </div>
-          )}
-          
-          <Button size="sm" className="w-full" asChild>
-            <Link to={`/dashboard/student/${recommendation.type}/${recommendation.id}`}>
-              {recommendation.type === 'concept' ? 'View Concept' : 
-               recommendation.type === 'flashcard' ? 'Review Flashcards' : 
-               'Start Practice Test'}
-            </Link>
-          </Button>
-        </CardContent>
-      </Card>
-    </motion.div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-md flex items-center">
+                  <Lightbulb className="h-4 w-4 mr-2 text-yellow-500" />
+                  Learning Style
+                </CardTitle>
+                <CardDescription>Visual-Spatial Learner</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  You learn best with diagrams, charts, and spatial relationships.
+                </p>
+              </CardContent>
+              <CardFooter>
+                <Button variant="link" className="px-0 text-indigo-600">View Recommendations</Button>
+              </CardFooter>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-md flex items-center">
+                  <TrendingUp className="h-4 w-4 mr-2 text-emerald-500" />
+                  Progress Analysis
+                </CardTitle>
+                <CardDescription>Making steady progress</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Your consistency in Physics has improved by 23% this week.
+                </p>
+              </CardContent>
+              <CardFooter>
+                <Button variant="link" className="px-0 text-indigo-600">View Details</Button>
+              </CardFooter>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-md flex items-center">
+                  <Trophy className="h-4 w-4 mr-2 text-amber-500" />
+                  Achievements
+                </CardTitle>
+                <CardDescription>Recent milestones</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  You've completed 5 practice tests with scores above 80%.
+                </p>
+              </CardContent>
+              <CardFooter>
+                <Button variant="link" className="px-0 text-indigo-600">View All Achievements</Button>
+              </CardFooter>
+            </Card>
+          </div>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Learning Recommendations</CardTitle>
+              <CardDescription>Personalized suggestions based on your progress</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-start gap-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                <BookOpen className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5" />
+                <div>
+                  <h4 className="font-medium">Focus on Physics Mechanics</h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                    Your performance shows room for improvement in Newton's Laws and Momentum concepts.
+                  </p>
+                  <Button variant="link" className="px-0 text-blue-600 mt-1">View Related Concepts</Button>
+                </div>
+              </div>
+              
+              <div className="flex items-start gap-3 p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+                <Calendar className="h-5 w-5 text-purple-600 dark:text-purple-400 mt-0.5" />
+                <div>
+                  <h4 className="font-medium">Schedule Regular Chemistry Practice</h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                    Your retention improves with spaced repetition. Try 20-minute daily sessions.
+                  </p>
+                  <Button variant="link" className="px-0 text-purple-600 mt-1">Adjust Study Plan</Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="plan">
+          <Card>
+            <CardHeader>
+              <CardTitle>Your Academic Plan</CardTitle>
+              <CardDescription>Long-term study strategy and milestones</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p>Academic planning content will appear here.</p>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="resources">
+          <Card>
+            <CardHeader>
+              <CardTitle>Recommended Resources</CardTitle>
+              <CardDescription>Personalized learning materials for your needs</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p>Resources content will appear here.</p>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="ask">
+          <Card>
+            <CardHeader>
+              <CardTitle>Ask Your Academic Advisor</CardTitle>
+              <CardDescription>Get personalized answers to your academic questions</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p>Question and answer interface will appear here.</p>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+    </SharedPageLayout>
   );
 };
-
-interface InsightCardProps {
-  insight: any;
-}
-
-const InsightCard: React.FC<InsightCardProps> = ({ insight }) => {
-  return (
-    <motion.div
-      whileHover={{ scale: 1.02 }}
-      transition={{ duration: 0.2 }}
-    >
-      <Card className="h-full">
-        <CardHeader className="pb-2">
-          <Badge 
-            variant="outline" 
-            className={getInsightTypeClass(insight.type)}
-          >
-            {getInsightTypeLabel(insight.type)}
-          </Badge>
-          <CardTitle className="text-base mt-2">{insight.title}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm text-muted-foreground mb-4">
-            {insight.description}
-          </p>
-          
-          <Button size="sm" variant="outline" className="w-full" asChild>
-            <Link to={`/dashboard/student/academic-advisor/insights/${insight.id}`}>
-              Learn More
-            </Link>
-          </Button>
-        </CardContent>
-      </Card>
-    </motion.div>
-  );
-};
-
-// Helper functions
-function getTypeLabel(type: string): string {
-  switch (type) {
-    case 'concept': return 'Concept Card';
-    case 'practice-test': return 'Practice Test';
-    case 'flashcard': return 'Flashcard Deck';
-    default: return type;
-  }
-}
-
-function getPriorityClass(priority: string): string {
-  switch (priority) {
-    case 'High': return 'bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400';
-    case 'Medium': return 'bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400';
-    case 'Low': return 'bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400';
-    default: return '';
-  }
-}
-
-function getInsightTypeClass(type: string): string {
-  switch (type) {
-    case 'performance': return 'bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400';
-    case 'habit': return 'bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400';
-    case 'strategy': return 'bg-purple-50 text-purple-700 dark:bg-purple-900/20 dark:text-purple-400';
-    default: return '';
-  }
-}
-
-function getInsightTypeLabel(type: string): string {
-  switch (type) {
-    case 'performance': return 'Performance Insight';
-    case 'habit': return 'Study Habit';
-    case 'strategy': return 'Test Strategy';
-    default: return type;
-  }
-}
 
 export default AcademicAdvisorSection;
