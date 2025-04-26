@@ -1,4 +1,3 @@
-
 import { DifficultyLevel } from './dashboard';
 
 export type TaskStatus = '✅ completed' | '🔄 in-progress' | '🕒 viewed' | '🔴 pending';
@@ -93,3 +92,43 @@ export interface TodaysPlanData {
     }[];
   };
 }
+
+export interface SubjectTaskBreakdown {
+  type: 'concept' | 'flashcard' | 'practice-exam';
+  assigned: {
+    count: number;
+    description: string;
+  };
+  pending: {
+    count: number;
+    description: string;
+  };
+  timeEstimate: number; // in minutes
+}
+
+export interface SubjectBreakdownData {
+  name: string;
+  tasks: {
+    concepts: SubjectTaskBreakdown[];
+    flashcards: SubjectTaskBreakdown[];
+    practiceTests: SubjectTaskBreakdown[];
+  };
+  totalTime: number;
+}
+
+export interface PendingTask {
+  id: string;
+  subject: string;
+  type: 'concept' | 'flashcard' | 'practice-exam';
+  title: string;
+  details: string;
+}
+
+export interface TimeAllocationSummary {
+  concepts: number;
+  flashcards: number;
+  practiceExams: number;
+  total: number;
+}
+
+export type MoodType = 'happy' | 'focused' | 'tired' | 'anxious' | 'stressed';
