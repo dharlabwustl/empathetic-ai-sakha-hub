@@ -21,15 +21,16 @@ export const QuickAccess = () => {
         </Button>
       </Link>
       
-      <Button 
-        variant="outline" 
-        size="sm" 
-        className="border-violet-200 hover:bg-violet-50 hover:text-violet-700"
-        onClick={() => window.location.href = '/dashboard/student/study-plan'}
-      >
-        <Book className="h-4 w-4 mr-1" />
-        View Study Plan
-      </Button>
+      <Link to="/dashboard/student/study-plan">
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="border-violet-200 hover:bg-violet-50 hover:text-violet-700"
+        >
+          <Book className="h-4 w-4 mr-1" />
+          View Study Plan
+        </Button>
+      </Link>
     </div>
   );
 };

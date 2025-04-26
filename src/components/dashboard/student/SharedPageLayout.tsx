@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { QuickAccessButtons } from "./QuickAccessButtons";
+import { QuickAccess } from "./QuickAccess";
 import { Card } from "@/components/ui/card";
 import { SectionHeader } from "@/components/ui/section-header";
 
@@ -19,13 +19,13 @@ export const SharedPageLayout: React.FC<SharedPageLayoutProps> = ({
 }) => {
   return (
     <div className="space-y-6">
-      {showQuickAccess && <QuickAccessButtons />}
+      {showQuickAccess && <QuickAccess />}
       
       {(title || subtitle) && (
-        <SectionHeader 
-          title={title}
-          subtitle={subtitle}
-        />
+        <div className="mb-6">
+          {title && <h1 className="text-2xl font-bold">{title}</h1>}
+          {subtitle && <p className="text-gray-600 mt-1">{subtitle}</p>}
+        </div>
       )}
       
       <Card className="p-6">
