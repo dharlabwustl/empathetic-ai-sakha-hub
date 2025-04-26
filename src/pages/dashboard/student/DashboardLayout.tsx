@@ -131,9 +131,6 @@ const DashboardLayout = ({
           onOpenTour={handleOpenTour}
         />
 
-        {/* Quick Access Buttons - Now appears on all pages */}
-        <QuickAccessButtons />
-        
         <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
           <DashboardHeader 
             userProfile={userProfile}
@@ -144,57 +141,6 @@ const DashboardLayout = ({
             onMoodChange={onMoodChange}
           />
         </div>
-
-        {/* Enhanced Quick Access Navigation Bar - Only show if not in overview tab */}
-        {activeTab !== "overview" && (
-          <motion.div 
-            className="flex flex-wrap items-center gap-2 mb-4 p-2 bg-white/80 dark:bg-gray-800/50 backdrop-blur-sm rounded-lg shadow-md border border-gray-100 dark:border-gray-700"
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            {navigationButtons.map((button, index) => (
-              <motion.div
-                key={button.name}
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.1, duration: 0.3 }}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <Link to={button.path}>
-                  <Button 
-                    variant={button.variant} 
-                    size="sm" 
-                    className={`flex items-center ${button.className}`}
-                  >
-                    {button.icon}
-                    {button.name}
-                  </Button>
-                </Link>
-              </motion.div>
-            ))}
-            
-            <motion.div
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.3, duration: 0.3 }}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="ml-auto"
-            >
-              <Button 
-                variant="outline"
-                size="sm"
-                className="bg-gradient-to-r hover:from-violet-500 hover:to-indigo-500 hover:text-white border-violet-200"
-                onClick={onViewStudyPlan}
-              >
-                <BookOpen className="h-4 w-4 mr-1" />
-                View Study Plan
-              </Button>
-            </motion.div>
-          </motion.div>
-        )}
 
         {/* Surrounding Influences Section */}
         <SurroundingInfluencesSection 

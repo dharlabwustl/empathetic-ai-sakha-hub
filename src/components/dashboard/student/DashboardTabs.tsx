@@ -22,14 +22,14 @@ import {
 interface DashboardTabsProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
-  tabContents: Record<string, ReactNode>;
+  tabContents?: Record<string, ReactNode>;
   hideTabsNav?: boolean;
 }
 
 export default function DashboardTabs({
   activeTab,
   onTabChange,
-  tabContents,
+  tabContents = {},
   hideTabsNav = false
 }: DashboardTabsProps) {
   const isMobile = useIsMobile();
@@ -79,12 +79,6 @@ export default function DashboardTabs({
             ))}
           </TabsList>
         )}
-        
-        {Object.entries(tabContents).map(([key, content]) => (
-          <TabsContent key={key} value={key} className={activeTab === key ? "block" : "hidden"}>
-            {content}
-          </TabsContent>
-        ))}
       </Tabs>
     </TooltipProvider>
   );

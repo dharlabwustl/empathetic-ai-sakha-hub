@@ -23,8 +23,7 @@ export const SharedPageLayout: React.FC<SharedPageLayoutProps> = ({
       
       {(title || subtitle) && (
         <div className="mb-6">
-          {title && <h1 className="text-2xl font-bold">{title}</h1>}
-          {subtitle && <p className="text-gray-600 mt-1">{subtitle}</p>}
+          <SectionHeader title={title || ""} subtitle={subtitle} />
         </div>
       )}
       

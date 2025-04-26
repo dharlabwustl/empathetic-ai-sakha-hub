@@ -6,10 +6,10 @@ import { Button } from '@/components/ui/button';
 import { PracticeExamCard } from './PracticeExamCard';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
+import { SectionHeader } from '@/components/ui/section-header';
 
 export const PracticeExamSection = () => {
   const [timeView, setTimeView] = useState<'today' | 'week' | 'month'>('today');
-  const [subject, setSubject] = useState<string>('all');
 
   const mockExams = [
     {
@@ -21,6 +21,7 @@ export const PracticeExamSection = () => {
       questionCount: 15,
       duration: "30 mins",
       difficulty: "Medium" as const,
+      priority: "High" as const,
       completed: false
     },
     {
@@ -32,61 +33,93 @@ export const PracticeExamSection = () => {
       questionCount: 10,
       duration: "20 mins",
       difficulty: "Easy" as const,
+      priority: "Medium" as const,
       completed: true,
       score: 85
     },
+    {
+      id: "3",
+      title: "History Modern India Test",
+      subject: "History",
+      topic: "Modern India",
+      linkedConcept: "Freedom Struggle",
+      questionCount: 20,
+      duration: "45 mins",
+      difficulty: "Hard" as const,
+      priority: "Medium" as const,
+      completed: false
+    },
+    {
+      id: "4",
+      title: "Biology Cell Structure Quiz",
+      subject: "Biology",
+      topic: "Cell Biology",
+      linkedConcept: "Cell Components",
+      questionCount: 15,
+      duration: "25 mins",
+      difficulty: "Medium" as const,
+      priority: "High" as const,
+      completed: false
+    }
   ];
-
-  const subjects = Array.from(new Set(mockExams.map(exam => exam.subject)));
 
   return (
     <Card className="p-6">
-      <div className="mb-6">
-        <h2 className="text-2xl font-bold">🧪 Practice Tests – Sharpen Your Skills</h2>
-        <p className="text-gray-600">Challenge yourself with curated tests aligned with your study plan</p>
-      </div>
+      <SectionHeader 
+        title="🧪 Practice Tests – Sharpen Your Skills" 
+        subtitle="Challenge yourself with curated tests aligned with your study plan"
+      />
 
       <Tabs value={timeView} onValueChange={(value) => setTimeView(value as typeof timeView)}>
         <TabsList className="mb-4">
-          <TabsTrigger value="today">Today</TabsTrigger>
+          <TabsTrigger 
+            value="today"
+            className="data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 data-[state=active]:shadow-sm"
+          >
+            Today
+          </TabsTrigger>
           <TabsTrigger value="week">This Week</TabsTrigger>
           <TabsTrigger value="month">This Month</TabsTrigger>
         </TabsList>
 
-        <div className="mb-4">
-          <TabsList>
-            <TabsTrigger value="all" onClick={() => setSubject('all')}>
-              All Subjects
-            </TabsTrigger>
-            {subjects.map((subj) => (
-              <TabsTrigger 
-                key={subj} 
-                value={subj.toLowerCase()}
-                onClick={() => setSubject(subj)}
-              >
-                {subj}
-              </TabsTrigger>
+        <TabsContent value="today" className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {mockExams.map(exam => (
+              <PracticeExamCard
+                key={exam.id}
+                {...exam}
+                onStart={(id) => console.log('Starting test:', id)}
+                onViewResult={(id) => console.log('Viewing result:', id)}
+              />
             ))}
-          </TabsList>
-        </div>
+          </div>
+        </TabsContent>
 
-        {['today', 'week', 'month'].map((view) => (
-          <TabsContent key={view} value={view} className="space-y-4">
-            {mockExams
-              .filter(exam => 
-                (subject === 'all' || exam.subject === subject)
-              )
-              .map(exam => (
-                <PracticeExamCard
-                  key={exam.id}
-                  {...exam}
-                  onStart={(id) => console.log('Starting test:', id)}
-                  onViewResult={(id) => console.log('Viewing result:', id)}
-                />
-              ))
-            }
-          </TabsContent>
-        ))}
+        <TabsContent value="week" className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {mockExams.filter(exam => exam.id === "3" || exam.id === "4").map(exam => (
+              <PracticeExamCard
+                key={exam.id}
+                {...exam}
+                onStart={(id) => console.log('Starting test:', id)}
+                onViewResult={(id) => console.log('Viewing result:', id)}
+              />
+            ))}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="month" className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {mockExams.filter(exam => exam.id === "2").map(exam => (
+              <PracticeExamCard
+                key={exam.id}
+                {...exam}
+                onStart={(id) => console.log('Starting test:', id)}
+                onViewResult={(id) => console.log('Viewing result:', id)}
+              />
+            ))}
+          </div>
+        </TabsContent>
       </Tabs>
 
       <div className="mt-6 flex justify-end">

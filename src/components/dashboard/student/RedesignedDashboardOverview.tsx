@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStudentDashboardData } from '@/hooks/useStudentDashboardData';
@@ -13,7 +12,6 @@ import {
   Brain, FileText, Bell, TrendingUp
 } from 'lucide-react';
 
-// Import all the section components
 import StudyStatsSection from './dashboard-sections/StudyStatsSection';
 import SubjectBreakdownSection from './dashboard-sections/SubjectBreakdownSection';
 import TodaysPlanSection from './dashboard-sections/TodaysPlanSection';
@@ -34,7 +32,6 @@ export default function RedesignedDashboardOverview({ userProfile, kpis }: Redes
   const [currentMood, setCurrentMood] = useState<MoodType>();
   const navigate = useNavigate();
 
-  // Navigation tabs
   const navigationTabs = [
     { id: "overview", label: "Overview", icon: LayoutDashboard, path: "/dashboard/student/overview" },
     { id: "today", label: "Today's Plan", icon: CalendarDays, path: "/dashboard/student/today" },
@@ -45,7 +42,6 @@ export default function RedesignedDashboardOverview({ userProfile, kpis }: Redes
     { id: "notifications", label: "Notifications", icon: Bell, path: "/dashboard/student/notifications" },
   ];
 
-  // Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -72,9 +68,6 @@ export default function RedesignedDashboardOverview({ userProfile, kpis }: Redes
 
   const handleMoodSelect = (mood: MoodType) => {
     setCurrentMood(mood);
-    // In a real app, this would be persisted to backend
-    
-    // Save to localStorage for demo purposes
     const userData = localStorage.getItem("userData");
     if (userData) {
       const parsedData = JSON.parse(userData);
@@ -105,7 +98,6 @@ export default function RedesignedDashboardOverview({ userProfile, kpis }: Redes
       initial="hidden"
       animate="visible"
     >
-      {/* Horizontal Navigation Menu */}
       <motion.div 
         variants={itemVariants}
         className="p-3 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 sticky top-0 z-10"
@@ -142,7 +134,6 @@ export default function RedesignedDashboardOverview({ userProfile, kpis }: Redes
         </div>
       </motion.div>
 
-      {/* Header with Exam Goal */}
       <motion.div variants={itemVariants}>
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
           <div>
@@ -157,7 +148,6 @@ export default function RedesignedDashboardOverview({ userProfile, kpis }: Redes
         </div>
       </motion.div>
 
-      {/* Daily Mood Check-in and Smart Suggestions - Top Section */}
       <motion.div 
         variants={itemVariants}
         className="grid grid-cols-1 lg:grid-cols-2 gap-6"
@@ -173,12 +163,10 @@ export default function RedesignedDashboardOverview({ userProfile, kpis }: Redes
         />
       </motion.div>
 
-      {/* Study Stats Section (KPIs) */}
       <motion.div variants={itemVariants}>
         <StudyStatsSection subjects={dashboardData.subjects} conceptCards={dashboardData.conceptCards} />
       </motion.div>
 
-      {/* Personalized AI Study Plan & Today's Plan */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <motion.div variants={itemVariants}>
           <Card>
@@ -214,7 +202,7 @@ export default function RedesignedDashboardOverview({ userProfile, kpis }: Redes
                   </ul>
                 </div>
                 
-                <Button className="w-full bg-gradient-to-r from-violet-600 to-indigo-600">
+                <Button className="w-full bg-gradient-to-r from-violet-600 to-indigo-600" onClick={() => navigate('/dashboard/student/study-plan')}>
                   View Complete Study Strategy
                 </Button>
               </div>
@@ -227,17 +215,14 @@ export default function RedesignedDashboardOverview({ userProfile, kpis }: Redes
         </motion.div>
       </div>
 
-      {/* Subject Breakdown */}
       <motion.div variants={itemVariants}>
         <SubjectBreakdownSection subjects={dashboardData.subjects} />
       </motion.div>
 
-      {/* Progress Tracker */}
       <motion.div variants={itemVariants}>
         <ProgressTrackerSection progressTracker={dashboardData.progressTracker} />
       </motion.div>
 
-      {/* Bottom Sections */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <motion.div variants={itemVariants}>
           <RevisionLoopSection revisionStats={dashboardData.revisionStats} />

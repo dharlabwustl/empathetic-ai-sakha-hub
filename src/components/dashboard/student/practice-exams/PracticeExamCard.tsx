@@ -14,6 +14,7 @@ interface PracticeExamCardProps {
   questionCount: number;
   duration: string;
   difficulty: 'Easy' | 'Medium' | 'Hard';
+  priority: 'High' | 'Medium' | 'Low';
   completed?: boolean;
   score?: number;
   onStart: (id: string) => void;
@@ -29,6 +30,7 @@ export const PracticeExamCard: React.FC<PracticeExamCardProps> = ({
   questionCount,
   duration,
   difficulty,
+  priority,
   completed,
   score,
   onStart,
@@ -43,15 +45,29 @@ export const PracticeExamCard: React.FC<PracticeExamCardProps> = ({
     }
   };
 
+  const getPriorityColor = () => {
+    switch(priority) {
+      case 'High': return 'bg-red-50 text-red-600';
+      case 'Medium': return 'bg-orange-50 text-orange-600';
+      case 'Low': return 'bg-blue-50 text-blue-600';
+      default: return 'bg-gray-50 text-gray-600';
+    }
+  };
+
   return (
-    <Card className="hover:shadow-md transition-shadow duration-200">
+    <Card className={`hover:shadow-md transition-shadow duration-200 ${completed ? 'border-green-200' : 'border-blue-200'}`}>
       <CardContent className="p-4">
         <div className="space-y-4">
           <div className="flex items-start justify-between">
             <h3 className="font-semibold text-lg">{title}</h3>
-            <Badge className={getDifficultyColor()}>
-              {difficulty}
-            </Badge>
+            <div className="flex gap-2">
+              <Badge className={getDifficultyColor()}>
+                {difficulty}
+              </Badge>
+              <Badge className={getPriorityColor()}>
+                {priority}
+              </Badge>
+            </div>
           </div>
 
           <div className="flex flex-wrap gap-2 text-sm">

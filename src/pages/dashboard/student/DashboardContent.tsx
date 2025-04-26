@@ -6,6 +6,7 @@ import { generateTabContents } from "@/components/dashboard/student/TabContentMa
 import DashboardTabs from "@/components/dashboard/student/DashboardTabs";
 import ReturnUserRecap from "@/components/dashboard/student/ReturnUserRecap";
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
+import { QuickAccess } from '@/components/dashboard/student/QuickAccess';
 
 interface DashboardTabsProps {
   activeTab: string;
@@ -85,6 +86,9 @@ const DashboardContent = ({
           />
         )}
   
+        {/* Quick Access Buttons for all pages */}
+        <QuickAccess />
+  
         {/* Tabs navigation */}
         {!hideTabsNav && (
           <DashboardTabs 
@@ -134,6 +138,9 @@ const DashboardContent = ({
 
   return (
     <div className="h-full flex flex-col">
+      {/* Quick Access Buttons for all pages */}
+      <QuickAccess />
+      
       {!hideTabsNav && (
         <DashboardTabs 
           activeTab={activeTab} 

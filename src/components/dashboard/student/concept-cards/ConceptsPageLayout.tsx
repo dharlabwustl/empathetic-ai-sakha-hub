@@ -5,6 +5,7 @@ import { Card } from '@/components/ui/card';
 import { ChevronLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { QuickAccess } from '@/components/dashboard/student/QuickAccess';
+import { SectionHeader } from '@/components/ui/section-header';
 
 interface ConceptsPageLayoutProps {
   children: React.ReactNode;
@@ -34,10 +35,7 @@ export const ConceptsPageLayout: React.FC<ConceptsPageLayoutProps> = ({
         )}
         
         {title && (
-          <div>
-            <h2 className="text-2xl font-bold">{title}</h2>
-            {subtitle && <p className="text-muted-foreground">{subtitle}</p>}
-          </div>
+          <SectionHeader title={title} subtitle={subtitle} />
         )}
       </div>
       
