@@ -1,10 +1,8 @@
 import React from 'react';
-import { UserProfileType } from "@/types/user";
-import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
 import { generateTabContents } from "@/components/dashboard/student/TabContentManager";
 import DashboardTabs from "@/components/dashboard/student/DashboardTabs";
 import ReturnUserRecap from "@/components/dashboard/student/ReturnUserRecap";
-import TodaysPlanSection from "@/components/dashboard/student/TodaysPlanSection";
+import TodaysPlanSection from "@/components/dashboard/student/todays-plan/TodaysPlanSection";
 
 interface DashboardTabsProps {
   activeTab: string;
