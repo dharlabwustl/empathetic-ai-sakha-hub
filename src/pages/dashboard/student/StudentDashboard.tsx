@@ -6,10 +6,12 @@ import DashboardLoading from "@/pages/dashboard/student/DashboardLoading";
 import DashboardLayout from "@/pages/dashboard/student/DashboardLayout";
 import SplashScreen from "@/components/dashboard/student/SplashScreen";
 import { useLocation } from "react-router-dom";
+import RedesignedDashboardOverview from "@/components/dashboard/student/RedesignedDashboardOverview";
+import { MoodType } from "@/types/user/base";
 
 const StudentDashboard = () => {
   const [showSplash, setShowSplash] = useState(true);
-  const [currentMood, setCurrentMood] = useState<'sad' | 'neutral' | 'happy' | 'motivated' | undefined>(undefined);
+  const [currentMood, setCurrentMood] = useState<MoodType | undefined>(undefined);
   const location = useLocation();
   
   const {
@@ -78,7 +80,21 @@ const StudentDashboard = () => {
         const parsedData = JSON.parse(userData);
         parsedData.mood = 'motivated';
         localStorage.setItem("userData", JSON.stringify(parsedData));
+      } else {
+        localStorage.setItem("userData", JSON.stringify({ mood: 'motivated' }));
       }
+    }
+  };
+
+  const handleMoodChange = (mood: MoodType) => {
+    setCurrentMood(mood);
+    const userData = localStorage.getItem("userData");
+    if (userData) {
+      const parsedData = JSON.parse(userData);
+      parsedData.mood = mood;
+      localStorage.setItem("userData", JSON.stringify(parsedData));
+    } else {
+      localStorage.setItem("userData", JSON.stringify({ mood }));
     }
   };
 
@@ -106,6 +122,16 @@ const StudentDashboard = () => {
     );
   }
 
+  // Custom content based on active tab
+  const getTabContent = () => {
+    if (activeTab === "overview") {
+      return <RedesignedDashboardOverview userProfile={userProfile} kpis={kpis} />;
+    }
+    
+    // For other tabs, use the default tab content
+    return null;
+  };
+
   return (
     <DashboardLayout
       userProfile={userProfile}
@@ -127,7 +153,10 @@ const StudentDashboard = () => {
       lastActivity={lastActivity}
       suggestedNextAction={suggestedNextAction}
       currentMood={currentMood}
-    />
+      onMoodChange={handleMoodChange}
+    >
+      {getTabContent()}
+    </DashboardLayout>
   );
 };
 

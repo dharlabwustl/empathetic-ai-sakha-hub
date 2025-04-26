@@ -3,14 +3,57 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { StudyPlan } from '@/types/student/dashboard';
+import { Link } from 'react-router-dom';
 import { AlertCircle, BookOpen, Calendar, Check, Clock, FileText } from 'lucide-react';
+import { MoodType } from '@/types/user/base';
 
 interface TodaysPlanSectionProps {
-  studyPlan: StudyPlan;
+  studyPlan: any; // Replace with proper type
+  currentMood?: MoodType;
 }
 
-const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ studyPlan }) => {
+const getMoodBasedPlan = (mood: MoodType | undefined, defaultPlan: any) => {
+  if (!mood) return defaultPlan;
+
+  switch (mood) {
+    case 'happy':
+      return {
+        ...defaultPlan,
+        concepts: [...defaultPlan.todaysFocus.concepts, "Bonus: Advanced Topic"],
+        message: "You're in a great mood! Added a bonus advanced topic to challenge you.",
+        estimatedTime: defaultPlan.todaysFocus.estimatedTime * 1.1
+      };
+    case 'focused':
+      return {
+        ...defaultPlan,
+        message: "You're focused today! Fast-track mode activated with additional flashcards.",
+        estimatedTime: defaultPlan.todaysFocus.estimatedTime * 1.1
+      };
+    case 'tired':
+      return {
+        ...defaultPlan,
+        concepts: defaultPlan.todaysFocus.concepts.slice(0, 2),
+        message: "Taking it easy today. Simplified plan with just the essential concepts.",
+        estimatedTime: defaultPlan.todaysFocus.estimatedTime * 0.7
+      };
+    case 'stressed':
+      return {
+        ...defaultPlan,
+        concepts: defaultPlan.todaysFocus.concepts.slice(0, 1),
+        message: "Stress-relief mode: Just 1 simple concept and quick flashcards today.",
+        estimatedTime: defaultPlan.todaysFocus.estimatedTime * 0.5
+      };
+    default:
+      return {
+        ...defaultPlan,
+        message: "Your plan has been adjusted based on your current mood."
+      };
+  }
+};
+
+export default function TodaysPlanSection({ studyPlan, currentMood }: TodaysPlanSectionProps) {
+  const adaptedPlan = getMoodBasedPlan(currentMood, studyPlan);
+
   return (
     <Card className="h-full border-t-4 border-t-violet-500">
       <CardHeader>
@@ -28,6 +71,19 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ studyPlan }) => {
             </Badge>
           </div>
           
+          {/* Mood-based message */}
+          {currentMood && adaptedPlan.message && (
+            <div className={`p-3 rounded-lg ${
+              currentMood === 'happy' ? 'bg-amber-50 text-amber-700 border border-amber-200' :
+              currentMood === 'focused' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' :
+              currentMood === 'tired' ? 'bg-blue-50 text-blue-700 border border-blue-200' :
+              currentMood === 'stressed' ? 'bg-red-50 text-red-700 border border-red-200' :
+              'bg-purple-50 text-purple-700 border border-purple-200'
+            } mb-3`}>
+              <p className="text-sm">{adaptedPlan.message}</p>
+            </div>
+          )}
+          
           <div className="bg-gray-50 dark:bg-gray-800 rounded-md p-3 space-y-3">
             <div>
               <p className="text-sm font-medium mb-1 flex items-center">
@@ -35,10 +91,12 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ studyPlan }) => {
                 Concepts
               </p>
               <div className="flex flex-wrap gap-1">
-                {studyPlan.todaysFocus.concepts.map((concept, i) => (
-                  <Badge key={i} variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-700">
-                    {concept}
-                  </Badge>
+                {(adaptedPlan.concepts || studyPlan.todaysFocus.concepts).map((concept: string, i: number) => (
+                  <Link to={`/dashboard/student/concepts/${encodeURIComponent(concept.toLowerCase().replace(/\s+/g, '-'))}`} key={i}>
+                    <Badge key={i} variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-700 hover:bg-blue-100 transition-colors cursor-pointer">
+                      {concept}
+                    </Badge>
+                  </Link>
                 ))}
               </div>
             </div>
@@ -49,7 +107,9 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ studyPlan }) => {
                 <p className="text-sm font-medium">Flashcards:</p>
               </div>
               <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/20 dark:text-amber-300 dark:border-amber-700">
-                {studyPlan.todaysFocus.flashcardsCount}
+                {currentMood === 'focused' ? studyPlan.todaysFocus.flashcardsCount + 5 : 
+                 currentMood === 'tired' || currentMood === 'stressed' ? Math.max(5, Math.floor(studyPlan.todaysFocus.flashcardsCount / 2)) : 
+                 studyPlan.todaysFocus.flashcardsCount}
               </Badge>
             </div>
             
@@ -58,10 +118,15 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ studyPlan }) => {
                 <AlertCircle className="h-4 w-4 mr-1 text-purple-500" />
                 <p className="text-sm font-medium">Practice Exam:</p>
               </div>
-              <Badge variant="outline" className={`${studyPlan.todaysFocus.hasPracticeExam 
-                ? "bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-900/20 dark:text-purple-300 dark:border-purple-700"
-                : "bg-gray-50 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700"}`}>
-                {studyPlan.todaysFocus.hasPracticeExam ? "Yes" : "No"}
+              <Badge variant="outline" className={`${
+                (currentMood === 'tired' || currentMood === 'stressed' || currentMood === 'anxious') ? 
+                "bg-gray-50 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700" :
+                studyPlan.todaysFocus.hasPracticeExam ? 
+                "bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-900/20 dark:text-purple-300 dark:border-purple-700" :
+                "bg-gray-50 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700"
+              }`}>
+                {(currentMood === 'tired' || currentMood === 'stressed' || currentMood === 'anxious') ? 
+                "Optional" : studyPlan.todaysFocus.hasPracticeExam ? "Yes" : "No"}
               </Badge>
             </div>
             
@@ -71,7 +136,9 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ studyPlan }) => {
                 <p className="text-sm font-medium">Estimated Time:</p>
               </div>
               <Badge variant="outline" className="bg-indigo-50 text-indigo-700 border-indigo-200 dark:bg-indigo-900/20 dark:text-indigo-300 dark:border-indigo-700">
-                {Math.floor(studyPlan.todaysFocus.estimatedTime / 60)}h {studyPlan.todaysFocus.estimatedTime % 60}m
+                {currentMood ? 
+                  `${Math.floor(adaptedPlan.estimatedTime / 60)}h ${Math.round(adaptedPlan.estimatedTime % 60)}m` : 
+                  `${Math.floor(studyPlan.todaysFocus.estimatedTime / 60)}h ${studyPlan.todaysFocus.estimatedTime % 60}m`}
               </Badge>
             </div>
           </div>
@@ -81,15 +148,12 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({ studyPlan }) => {
         <Button variant="default" className="w-full sm:w-auto bg-gradient-to-r from-violet-500 to-purple-600">
           <Check className="h-4 w-4 mr-1" /> Start Study
         </Button>
-        <Button variant="outline" className="w-full sm:w-auto">
-          <FileText className="h-4 w-4 mr-1" /> Review Past Tasks
-        </Button>
-        <Button variant="outline" className="w-full sm:w-auto">
-          <Calendar className="h-4 w-4 mr-1" /> Preview Tomorrow
-        </Button>
+        <Link to="/dashboard/student/today" className="w-full sm:w-auto">
+          <Button variant="outline" className="w-full">
+            <Calendar className="h-4 w-4 mr-1" /> Full Plan Details
+          </Button>
+        </Link>
       </CardFooter>
     </Card>
   );
-};
-
-export default TodaysPlanSection;
+}

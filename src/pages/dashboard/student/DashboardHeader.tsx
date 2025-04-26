@@ -1,6 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { UserProfileType } from "@/types/user";
+import { UserProfileType, MoodType } from "@/types/user/base";
 import { Eye } from "lucide-react";
 import MoodLogButton from "@/components/dashboard/student/MoodLogButton";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -12,6 +12,8 @@ interface DashboardHeaderProps {
   formattedTime: string;
   formattedDate: string;
   onViewStudyPlan: () => void;
+  currentMood?: MoodType;
+  onMoodChange?: (mood: MoodType) => void;
 }
 
 // Extend the userProfile type locally to handle the streak property
@@ -23,7 +25,9 @@ const DashboardHeader = ({
   userProfile,
   formattedTime,
   formattedDate,
-  onViewStudyPlan
+  onViewStudyPlan,
+  currentMood,
+  onMoodChange
 }: DashboardHeaderProps) => {
   const isMobile = useIsMobile();
   // Cast to our extended type
@@ -65,6 +69,12 @@ const DashboardHeader = ({
       opacity: 1,
       y: 0,
       transition: { duration: 0.5 }
+    }
+  };
+
+  const handleMoodSelect = (mood: MoodType) => {
+    if (onMoodChange) {
+      onMoodChange(mood);
     }
   };
 
@@ -128,7 +138,11 @@ const DashboardHeader = ({
           className="flex gap-2 items-start justify-start md:justify-end w-full sm:w-auto"
           variants={itemVariants}
         >
-          <MoodLogButton className={`${isMobile ? 'text-xs px-3 py-1' : ''} whitespace-nowrap`} />
+          <MoodLogButton 
+            currentMood={currentMood} 
+            onMoodChange={handleMoodSelect} 
+            className={`${isMobile ? 'text-xs px-3 py-1' : ''} whitespace-nowrap`} 
+          />
         </motion.div>
       </div>
       

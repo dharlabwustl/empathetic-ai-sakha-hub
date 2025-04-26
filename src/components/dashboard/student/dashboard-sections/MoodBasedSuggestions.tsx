@@ -64,11 +64,11 @@ export default function MoodBasedSuggestions({ currentMood, onMoodSelect }: Mood
             ))}
           </div>
           
-          {currentMood && (
-            <div className={`p-4 rounded-lg ${moodConfig[currentMood].color} mt-4`}>
+          {currentMood && moodConfig[currentMood as keyof typeof moodConfig] && (
+            <div className={`p-4 rounded-lg ${moodConfig[currentMood as keyof typeof moodConfig].color} mt-4`}>
               <div className="flex items-start gap-3">
-                {moodConfig[currentMood].icon}
-                <p className="text-sm">{moodConfig[currentMood].suggestion}</p>
+                {moodConfig[currentMood as keyof typeof moodConfig].icon}
+                <p className="text-sm">{moodConfig[currentMood as keyof typeof moodConfig].suggestion}</p>
               </div>
             </div>
           )}
