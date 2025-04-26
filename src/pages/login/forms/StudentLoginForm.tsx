@@ -48,9 +48,7 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
           JSON.parse(localStorage.getItem("userData")!) : {};
         
         // Always add returning=true to dashboard navigation
-        const dashboardUrl = userData.lastActivity 
-          ? "/dashboard/student/overview?returning=true" 
-          : "/dashboard/student/overview?returning=true";
+        const dashboardUrl = "/dashboard/student/overview?returning=true";
         
         navigate(dashboardUrl);
       } else {
