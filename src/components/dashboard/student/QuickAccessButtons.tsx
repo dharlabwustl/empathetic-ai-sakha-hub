@@ -9,25 +9,25 @@ export function QuickAccessButtons() {
     {
       name: "24/7 AI Tutor",
       icon: <MessageSquare className="h-4 w-4 mr-1" />,
-      path: "/dashboard/student/tutor",
+      path: "/dashboard/student/overview?feature=tutor",
       className: "bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white"
     },
     {
       name: "Academic Advisor",
       icon: <Brain className="h-4 w-4 mr-1" />,
-      path: "/dashboard/student/academic",
+      path: "/dashboard/student/overview?feature=advisor",
       className: "bg-gradient-to-r from-purple-500 to-violet-600 hover:from-purple-600 hover:to-violet-700 text-white"
     },
     {
       name: "Feel Good Corner",
       icon: <BookOpen className="h-4 w-4 mr-1" />,
-      path: "/dashboard/student/feel-good",
+      path: "/dashboard/student/overview?feature=feel-good",
       className: "bg-gradient-to-r from-pink-500 to-rose-600 hover:from-pink-600 hover:to-rose-700 text-white"
     },
     {
       name: "View Study Plan",
       icon: <CalendarDays className="h-4 w-4 mr-1" />,
-      path: "/dashboard/student/study-plan",
+      path: "/dashboard/student/overview?feature=study-plan",
       className: "bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white"
     }
   ];
