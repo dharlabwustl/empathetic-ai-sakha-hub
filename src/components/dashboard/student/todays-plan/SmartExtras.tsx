@@ -23,7 +23,7 @@ export default function SmartExtras() {
     toast({
       title: "Study session complete",
       description: "Your progress has been recorded. Great work today!",
-      variant: "success"
+      variant: "default"
     });
   };
 
