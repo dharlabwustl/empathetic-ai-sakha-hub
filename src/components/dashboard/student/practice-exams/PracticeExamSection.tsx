@@ -1,135 +1,263 @@
 
 import React, { useState } from 'react';
-import { Card } from '@/components/ui/card';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { Button } from '@/components/ui/button';
-import { PracticeExamCard } from './PracticeExamCard';
 import { Link } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
-import { SectionHeader } from '@/components/ui/section-header';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Calendar, FileText, Clock, ChevronRight, AlertTriangle, Play, BarChart2 } from 'lucide-react';
+import { motion } from 'framer-motion';
 
-export const PracticeExamSection = () => {
-  const [timeView, setTimeView] = useState<'today' | 'week' | 'month'>('today');
-
-  const mockExams = [
+const PracticeExamSection: React.FC = () => {
+  const [activeTab, setActiveTab] = useState('today');
+  
+  // Sample data for practice tests
+  const practiceTests = [
     {
-      id: "1",
-      title: "Algebra Level 1 Mini Test",
-      subject: "Mathematics",
-      topic: "Algebra",
-      linkedConcept: "Linear Equations",
-      questionCount: 15,
-      duration: "30 mins",
-      difficulty: "Medium" as const,
-      priority: "High" as const,
-      completed: false
-    },
-    {
-      id: "2",
-      title: "Physics Mechanics Quiz",
-      subject: "Physics",
-      topic: "Mechanics",
-      linkedConcept: "Newton's Laws",
-      questionCount: 10,
-      duration: "20 mins",
-      difficulty: "Easy" as const,
-      priority: "Medium" as const,
-      completed: true,
-      score: 85
-    },
-    {
-      id: "3",
-      title: "History Modern India Test",
-      subject: "History",
-      topic: "Modern India",
-      linkedConcept: "Freedom Struggle",
+      id: 'test-1',
+      title: 'Algebra Level 1 Mini Test',
+      subject: 'Math',
+      topic: 'Algebra',
+      linkedConcept: 'Linear Equations',
       questionCount: 20,
-      duration: "45 mins",
-      difficulty: "Hard" as const,
-      priority: "Medium" as const,
-      completed: false
+      priority: 'High',
+      duration: 30,
+      status: 'Not Started',
+      timeframe: 'today'
     },
     {
-      id: "4",
-      title: "Biology Cell Structure Quiz",
-      subject: "Biology",
-      topic: "Cell Biology",
-      linkedConcept: "Cell Components",
+      id: 'test-2',
+      title: 'Physics Mechanics Quiz',
+      subject: 'Physics',
+      topic: 'Mechanics',
+      linkedConcept: 'Newton\'s Laws',
       questionCount: 15,
-      duration: "25 mins",
-      difficulty: "Medium" as const,
-      priority: "High" as const,
-      completed: false
+      priority: 'Medium',
+      duration: 25,
+      status: 'Completed',
+      timeframe: 'today'
+    },
+    {
+      id: 'test-3',
+      title: 'Chemistry Periodic Table Assessment',
+      subject: 'Chemistry',
+      topic: 'General Chemistry',
+      linkedConcept: 'Element Properties',
+      questionCount: 18,
+      priority: 'Low',
+      duration: 20,
+      status: 'In Progress',
+      timeframe: 'week'
+    },
+    {
+      id: 'test-4',
+      title: 'World War II Events Quiz',
+      subject: 'History',
+      topic: 'Modern History',
+      linkedConcept: 'World War II Causes',
+      questionCount: 25,
+      priority: 'Medium',
+      duration: 35,
+      status: 'Not Started',
+      timeframe: 'week'
+    },
+    {
+      id: 'test-5',
+      title: 'Biology Cell Functions Assessment',
+      subject: 'Biology',
+      topic: 'Cell Biology',
+      linkedConcept: 'Cell Structure',
+      questionCount: 22,
+      priority: 'High',
+      duration: 45,
+      status: 'Not Started',
+      timeframe: 'month'
     }
   ];
-
+  
+  // Filter tests based on selected timeframe
+  const filteredTests = practiceTests.filter(test => {
+    if (activeTab === 'all') return true;
+    return test.timeframe === activeTab;
+  });
+  
   return (
-    <Card className="p-6">
-      <SectionHeader 
-        title="🧪 Practice Tests – Sharpen Your Skills" 
-        subtitle="Challenge yourself with curated tests aligned with your study plan"
-      />
-
-      <Tabs value={timeView} onValueChange={(value) => setTimeView(value as typeof timeView)}>
-        <TabsList className="mb-4">
-          <TabsTrigger 
-            value="today"
-            className="data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 data-[state=active]:shadow-sm"
-          >
-            Today
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 p-4 rounded-lg border border-purple-100 dark:border-purple-800/30">
+        <div>
+          <h2 className="text-xl font-bold flex items-center">
+            <FileText className="h-5 w-5 mr-2 text-purple-600" />
+            Practice Tests – Sharpen Your Skills
+          </h2>
+          <p className="text-sm text-muted-foreground mt-1">
+            Test your knowledge and track your progress with our adaptive practice exams
+          </p>
+        </div>
+        
+        <div className="flex flex-wrap gap-3">
+          <Badge variant="outline" className="bg-white">8 Tests Available</Badge>
+          <Badge variant="outline" className="bg-white">73% Average Score</Badge>
+        </div>
+      </div>
+      
+      {/* Time Tabs */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="today" className="flex items-center gap-2">
+            <Calendar className="h-4 w-4" />
+            <span>🔹 Today</span>
           </TabsTrigger>
-          <TabsTrigger value="week">This Week</TabsTrigger>
-          <TabsTrigger value="month">This Month</TabsTrigger>
+          <TabsTrigger value="week" className="flex items-center gap-2">
+            <Calendar className="h-4 w-4" />
+            <span>🔹 This Week</span>
+          </TabsTrigger>
+          <TabsTrigger value="month" className="flex items-center gap-2">
+            <Calendar className="h-4 w-4" />
+            <span>🔹 This Month</span>
+          </TabsTrigger>
         </TabsList>
-
-        <TabsContent value="today" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {mockExams.map(exam => (
-              <PracticeExamCard
-                key={exam.id}
-                {...exam}
-                onStart={(id) => console.log('Starting test:', id)}
-                onViewResult={(id) => console.log('Viewing result:', id)}
-              />
-            ))}
-          </div>
+        
+        {/* Tab Contents */}
+        <TabsContent value="today" className="mt-6">
+          <PracticeTestGrid tests={filteredTests} />
         </TabsContent>
-
-        <TabsContent value="week" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {mockExams.filter(exam => exam.id === "3" || exam.id === "4").map(exam => (
-              <PracticeExamCard
-                key={exam.id}
-                {...exam}
-                onStart={(id) => console.log('Starting test:', id)}
-                onViewResult={(id) => console.log('Viewing result:', id)}
-              />
-            ))}
-          </div>
+        
+        <TabsContent value="week" className="mt-6">
+          <PracticeTestGrid tests={filteredTests} />
         </TabsContent>
-
-        <TabsContent value="month" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {mockExams.filter(exam => exam.id === "2").map(exam => (
-              <PracticeExamCard
-                key={exam.id}
-                {...exam}
-                onStart={(id) => console.log('Starting test:', id)}
-                onViewResult={(id) => console.log('Viewing result:', id)}
-              />
-            ))}
-          </div>
+        
+        <TabsContent value="month" className="mt-6">
+          <PracticeTestGrid tests={filteredTests} />
         </TabsContent>
       </Tabs>
-
-      <div className="mt-6 flex justify-end">
-        <Link to="/dashboard/student/practice-exams">
-          <Button className="flex items-center gap-2">
+      
+      {/* View All Button */}
+      <div className="flex justify-end">
+        <Link to="/dashboard/student/practice-exam">
+          <Button variant="outline" className="flex items-center gap-2">
             🔍 View All Practice Tests
-            <ArrowRight className="h-4 w-4" />
+            <ChevronRight size={16} />
           </Button>
         </Link>
       </div>
-    </Card>
+    </div>
   );
 };
+
+interface PracticeTestGridProps {
+  tests: any[];
+}
+
+const PracticeTestGrid: React.FC<PracticeTestGridProps> = ({ tests }) => {
+  if (tests.length === 0) {
+    return (
+      <Card className="p-6 text-center">
+        <CardContent>
+          <p className="text-muted-foreground">No practice tests available for this time period.</p>
+        </CardContent>
+      </Card>
+    );
+  }
+  
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      {tests.map((test) => (
+        <PracticeTestCard key={test.id} test={test} />
+      ))}
+    </div>
+  );
+};
+
+interface PracticeTestCardProps {
+  test: any;
+}
+
+const PracticeTestCard: React.FC<PracticeTestCardProps> = ({ test }) => {
+  return (
+    <motion.div
+      whileHover={{ scale: 1.02 }}
+      transition={{ duration: 0.2 }}
+    >
+      <Card className="h-full">
+        <CardHeader className="pb-2">
+          <div className="flex justify-between items-start mb-2">
+            <Badge 
+              variant="outline" 
+              className={getPriorityClass(test.priority)}
+            >
+              {test.priority} Priority
+            </Badge>
+            <Badge 
+              variant={getStatusVariant(test.status)} 
+              className={test.status === 'Completed' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' : ''}
+            >
+              {test.status}
+            </Badge>
+          </div>
+          <CardTitle className="text-lg">{test.title}</CardTitle>
+          <CardDescription>{test.subject} - {test.topic}</CardDescription>
+        </CardHeader>
+        
+        <CardContent className="space-y-3 pb-2">
+          <div className="grid grid-cols-2 gap-2 text-sm">
+            <div className="flex items-center gap-1 text-muted-foreground">
+              <FileText size={14} />
+              <span>Questions: {test.questionCount}</span>
+            </div>
+            <div className="flex items-center gap-1 text-muted-foreground">
+              <Clock size={14} />
+              <span>Duration: {test.duration} min</span>
+            </div>
+          </div>
+          
+          <div className="bg-blue-50 dark:bg-blue-900/20 p-2 rounded-md text-xs">
+            <span className="font-medium text-blue-700 dark:text-blue-400">🧠 Linked Concept:</span>
+            <span className="text-blue-600 dark:text-blue-300 ml-1">{test.linkedConcept}</span>
+          </div>
+        </CardContent>
+        
+        <CardFooter className="pt-2">
+          <Link to={`/dashboard/student/practice-exam/${test.id}`} className="w-full">
+            <Button 
+              variant="default" 
+              className="w-full flex items-center justify-center gap-2"
+              disabled={test.status === 'Completed'}
+            >
+              {test.status === 'Completed' ? (
+                <>
+                  <BarChart2 size={16} /> View Result
+                </>
+              ) : (
+                <>
+                  <Play size={16} /> Start Test
+                </>
+              )}
+            </Button>
+          </Link>
+        </CardFooter>
+      </Card>
+    </motion.div>
+  );
+};
+
+// Helper functions
+function getStatusVariant(status: string): "default" | "destructive" | "outline" {
+  switch (status) {
+    case 'Completed': return 'outline';
+    case 'In Progress': return 'default';
+    case 'Not Started': return 'outline';
+    default: return 'outline';
+  }
+}
+
+function getPriorityClass(priority: string): string {
+  switch (priority) {
+    case 'High': return 'bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400';
+    case 'Medium': return 'bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400';
+    case 'Low': return 'bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400';
+    default: return '';
+  }
+}
+
+export default PracticeExamSection;

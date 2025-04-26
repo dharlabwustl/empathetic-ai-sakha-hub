@@ -17,6 +17,7 @@ export interface UserProfileBase {
   createdAt?: string;
   updatedAt?: string;
   mood?: MoodType;
+  subscription?: SubscriptionType | UserSubscription;
 }
 
 export enum UserRole {
@@ -47,3 +48,28 @@ export enum UserPermission {
   ViewReports = 'view_reports',
   AdminAccess = 'admin_access'
 }
+
+export enum SubscriptionType {
+  Basic = 'basic',
+  Premium = 'premium',
+  Enterprise = 'enterprise'
+}
+
+export interface UserSubscription {
+  planType: SubscriptionType;
+  startDate: string;
+  expiryDate: string;
+  isActive: boolean;
+  features?: string[];
+}
+
+export type SubscriptionPlan = {
+  id: string;
+  name: string;
+  description: string;
+  type: SubscriptionType;
+  price: number;
+  billingCycle: 'monthly' | 'yearly';
+  features: string[];
+  isPopular?: boolean;
+};

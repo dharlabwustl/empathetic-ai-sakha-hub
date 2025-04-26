@@ -21,7 +21,7 @@ export const ConceptsPageLayout: React.FC<ConceptsPageLayoutProps> = ({
   subtitle
 }) => {
   return (
-    <div className="container py-6 space-y-6">
+    <div className="space-y-6">
       <QuickAccess />
       
       <div className="flex items-center justify-between">

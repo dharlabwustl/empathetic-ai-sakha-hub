@@ -1,8 +1,11 @@
 
-// Re-export everything from the individual files
-export * from './base';
-export * from './exam';
-export * from './student';
-export * from './professional';
-export * from './onboarding';
-export * from './institutional';
+import { UserProfileBase, UserRole, UserGoal, UserPermission, MoodType } from './base';
+
+export type UserProfileType = UserProfileBase;
+
+export {
+  UserRole,
+  UserGoal,
+  UserPermission,
+  MoodType
+};

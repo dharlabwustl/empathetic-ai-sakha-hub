@@ -1,7 +1,8 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStudentDashboardData } from '@/hooks/useStudentDashboardData';
-import { UserProfileType } from '@/types/user';
+import { UserProfileBase as UserProfileType } from '@/types/user/base';
 import { KpiData } from '@/hooks/useKpiTracking';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -202,7 +203,10 @@ export default function RedesignedDashboardOverview({ userProfile, kpis }: Redes
                   </ul>
                 </div>
                 
-                <Button className="w-full bg-gradient-to-r from-violet-600 to-indigo-600" onClick={() => navigate('/dashboard/student/study-plan')}>
+                <Button 
+                  className="w-full bg-gradient-to-r from-violet-600 to-indigo-600" 
+                  onClick={() => navigate('/dashboard/student/study-plan')}
+                >
                   View Complete Study Strategy
                 </Button>
               </div>

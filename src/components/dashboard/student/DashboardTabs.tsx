@@ -18,6 +18,7 @@ import {
   TooltipProvider, 
   TooltipTrigger 
 } from "@/components/ui/tooltip";
+import { QuickAccess } from './QuickAccess';
 
 interface DashboardTabsProps {
   activeTab: string;
@@ -79,6 +80,13 @@ export default function DashboardTabs({
             ))}
           </TabsList>
         )}
+        
+        {/* Display selected tab content */}
+        {Object.entries(tabContents).map(([tabId, content]) => (
+          <TabsContent key={tabId} value={tabId} className="mt-6">
+            {content}
+          </TabsContent>
+        ))}
       </Tabs>
     </TooltipProvider>
   );
