@@ -11,7 +11,7 @@ import { MoodType } from "@/types/user/base";
 import DashboardContent from "./DashboardContent";
 
 const StudentDashboard = () => {
-  const [showSplash, setShowSplash] = useState(true);
+  const [showSplash, setShowSplash] = useState(false);
   const [showReturningPrompt, setShowReturningPrompt] = useState(false);
   const [currentMood, setCurrentMood] = useState<MoodType | undefined>(undefined);
   const [lastActivity, setLastActivity] = useState<any>(null);
@@ -24,7 +24,6 @@ const StudentDashboard = () => {
     activeTab,
     showWelcomeTour,
     showOnboarding,
-    currentTime,
     showStudyPlan,
     hideTabsNav,
     hideSidebar,
@@ -45,18 +44,18 @@ const StudentDashboard = () => {
     trackUserActivity
   } = useStudentDashboard();
 
-  // Check URL parameters and localStorage for user status
+  // Enhanced URL parameter handling
   useEffect(() => {
     const params = new URLSearchParams(location.search);
-    const isNewUser = params.get('new') === 'true';
-    const completedOnboarding = params.get('completedOnboarding') === 'true';
     const isReturningUser = params.get('returning') === 'true';
+    const isNewUser = params.get('new') === 'true';
     
-    console.log("URL params:", { isNewUser, completedOnboarding, isReturningUser });
+    console.log("Dashboard URL params:", { 
+      isReturningUser, 
+      isNewUser 
+    });
     
-    // For returning users, show continuation prompt
     if (isReturningUser) {
-      // Get user data from localStorage
       const userData = localStorage.getItem("userData");
       if (userData) {
         const parsedData = JSON.parse(userData);
@@ -67,73 +66,33 @@ const StudentDashboard = () => {
           setShowReturningPrompt(true);
         }
         
-        // Don't show splash for returning users
-        setShowSplash(false);
-        
         // Get saved mood from localStorage
         if (parsedData.mood) {
           setCurrentMood(parsedData.mood as MoodType);
         }
       }
     } else if (isNewUser) {
-      // New users from signup should see onboarding
+      // Direct to onboarding for new users
       setShowSplash(false);
-    } else {
-      // Regular session start
-      const hasSeen = sessionStorage.getItem("hasSeenSplash");
-      setShowSplash(!hasSeen);
-    }
-    
-    // Try to get saved mood from local storage
-    const savedUserData = localStorage.getItem("userData");
-    if (savedUserData) {
-      const parsedData = JSON.parse(savedUserData);
-      if (parsedData.mood) {
-        setCurrentMood(parsedData.mood as MoodType);
-      }
-      
-      // Check for last activity
-      if (parsedData.lastActivity) {
-        setLastActivity(parsedData.lastActivity);
-      }
     }
   }, [location]);
-  
-  const handleMoodChange = (mood: MoodType) => {
-    setCurrentMood(mood);
-    
-    // Save mood to localStorage
-    const userData = localStorage.getItem("userData") ? 
-      JSON.parse(localStorage.getItem("userData")!) : {};
-    
-    userData.mood = mood;
-    localStorage.setItem("userData", JSON.stringify(userData));
-  };
-  
-  const handleSplashComplete = () => {
-    setShowSplash(false);
-    // Mark that the user has seen the splash screen in this session
-    sessionStorage.setItem("hasSeenSplash", "true");
-    
-    // Save a default optimistic mood if none is set
-    if (!currentMood) {
-      handleMoodChange('motivated');
-    }
-  };
   
   const handleContinueLastActivity = () => {
     setShowReturningPrompt(false);
     
     if (lastActivity) {
-      if (lastActivity.type === 'concept') {
-        navigate(`/dashboard/student/concepts/${lastActivity.id}`);
-      } else if (lastActivity.type === 'flashcard') {
-        navigate('/dashboard/student/flashcards');
-      } else if (lastActivity.type === 'exam') {
-        navigate(`/dashboard/student/exams/${lastActivity.id}`);
-      } else {
-        // Default to main dashboard
-        navigate('/dashboard/student/overview');
+      switch (lastActivity.type) {
+        case 'concept':
+          navigate(`/dashboard/student/concepts/${lastActivity.id}`);
+          break;
+        case 'flashcard':
+          navigate('/dashboard/student/flashcards');
+          break;
+        case 'exam':
+          navigate(`/dashboard/student/exams/${lastActivity.id}`);
+          break;
+        default:
+          navigate('/dashboard/student/overview');
       }
     }
   };
@@ -143,7 +102,7 @@ const StudentDashboard = () => {
     navigate('/dashboard/student/overview');
   };
 
-  // Show returning user prompt if needed
+  // Returning user prompt handling
   if (showReturningPrompt && lastActivity) {
     return (
       <ReturningUserPrompt 
@@ -154,18 +113,12 @@ const StudentDashboard = () => {
     );
   }
 
-  // Show splash screen if needed
-  if (showSplash) {
-    return <SplashScreen onComplete={handleSplashComplete} mood={currentMood} />;
-  }
-
   if (loading || !userProfile) {
     return <DashboardLoading />;
   }
 
-  // Show onboarding flow only for users who haven't completed it
+  // Onboarding flow for new users
   if (showOnboarding) {
-    // Make sure we have a goal to work with
     const defaultGoal = "IIT-JEE";
     const goalTitle = userProfile?.goals?.[0]?.title || defaultGoal;
     
@@ -200,7 +153,7 @@ const StudentDashboard = () => {
       suggestedNextAction={suggestedNextAction}
       currentMood={currentMood}
     >
-      <DashboardContent
+      <DashboardContent 
         activeTab={activeTab}
         onTabChange={handleTabChange}
         userProfile={userProfile}

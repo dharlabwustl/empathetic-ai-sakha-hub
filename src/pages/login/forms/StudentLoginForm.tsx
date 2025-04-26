@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -48,14 +47,12 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
         const userData = localStorage.getItem("userData") ? 
           JSON.parse(localStorage.getItem("userData")!) : {};
         
-        // Check for last activity to show returning user prompt
-        if (userData.lastActivity) {
-          // Navigate to dashboard with returning user flag to show prompt
-          navigate("/dashboard/student/overview?returning=true");
-        } else {
-          // For users without tracked activity, go straight to dashboard
-          navigate("/dashboard/student/overview");
-        }
+        // Always add returning=true to dashboard navigation
+        const dashboardUrl = userData.lastActivity 
+          ? "/dashboard/student/overview?returning=true" 
+          : "/dashboard/student/overview?returning=true";
+        
+        navigate(dashboardUrl);
       } else {
         throw new Error("Login failed");
       }

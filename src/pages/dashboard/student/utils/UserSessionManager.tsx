@@ -12,47 +12,58 @@ export const handleNewUser = (
 ): UserSessionResult => {
   const userData = localStorage.getItem("userData");
   const searchParams = new URLSearchParams(location.search);
-  const completedOnboarding = searchParams.get('completedOnboarding');
-  const isNew = searchParams.get('new');
   
-  let shouldShowOnboarding = false;
-  let shouldShowWelcomeTour = false;
+  // Always prioritize URL parameters
+  const returningParam = searchParams.get('returning');
+  const completedOnboardingParam = searchParams.get('completedOnboarding');
+  const isNewParam = searchParams.get('new');
   
-  console.log("UserSessionManager - Current URL params:", location.search);
-  console.log("UserSessionManager - completedOnboarding param:", completedOnboarding);
-  console.log("UserSessionManager - isNew param:", isNew);
-  console.log("UserSessionManager - userData:", userData);
+  console.log("UserSessionManager - URL Params:", {
+    returning: returningParam,
+    completedOnboarding: completedOnboardingParam,
+    isNew: isNewParam
+  });
   
-  // If first time login flow (coming from signup)
-  if (completedOnboarding === 'true' || isNew === 'true') {
-    console.log("UserSessionManager - New user detected from URL parameters");
-    shouldShowOnboarding = true;
-    // Clean the URL to remove the query param
-    navigate(location.pathname, { replace: true });
+  // Returning user flow
+  if (returningParam === 'true') {
+    return {
+      shouldShowOnboarding: false,
+      shouldShowWelcomeTour: false
+    };
   }
-  // Check if user data exists
-  else if (userData) {
+  
+  // New user flow
+  if (isNewParam === 'true') {
+    return {
+      shouldShowOnboarding: true,
+      shouldShowWelcomeTour: false
+    };
+  }
+  
+  // If no URL params, check localStorage
+  if (userData) {
     const parsedUserData = JSON.parse(userData);
-    console.log("UserSessionManager - parsedUserData:", parsedUserData);
     
-    // For returning users who have completed onboarding, skip both flows
-    if (parsedUserData.completedOnboarding === true) {
-      shouldShowOnboarding = false;
-      shouldShowWelcomeTour = parsedUserData.sawWelcomeTour !== true; // Only show welcome tour if they haven't seen it
-    } 
-    // For new users who haven't completed onboarding, show onboarding
-    else {
-      shouldShowOnboarding = true;
+    // Completed onboarding users
+    if (parsedUserData.completedOnboarding) {
+      return {
+        shouldShowOnboarding: false,
+        shouldShowWelcomeTour: !parsedUserData.sawWelcomeTour
+      };
+    }
+    
+    // New users who haven't completed onboarding
+    if (parsedUserData.isNewUser) {
+      return {
+        shouldShowOnboarding: true,
+        shouldShowWelcomeTour: false
+      };
     }
   }
-  // First time user with no data
-  else {
-    shouldShowOnboarding = true;
-  }
-
-  console.log("UserSessionManager - Result:", { shouldShowOnboarding, shouldShowWelcomeTour });
+  
+  // Default for truly new users
   return {
-    shouldShowOnboarding,
-    shouldShowWelcomeTour
+    shouldShowOnboarding: true,
+    shouldShowWelcomeTour: false
   };
 };
