@@ -41,9 +41,9 @@ export default function DashboardTabs({
     { id: "overview", label: "Overview", icon: LayoutDashboard, description: "Your personalized dashboard summary", path: "/dashboard/student/overview" },
     { id: "today", label: "Today's Plan", icon: CalendarDays, description: "Daily tasks and schedule", path: "/dashboard/student/today" },
     { id: "academic", label: "Academic Advisor", icon: GraduationCap, description: "Personalized academic guidance", path: "/dashboard/student/academic" },
-    { id: "concepts", label: "Concept Cards", icon: BookOpen, description: "Key learning concepts and explanations", path: "/dashboard/student/concepts" },
+    { id: "concepts", label: "Concept Cards", icon: BookOpen, description: "Key learning concepts and explanations", path: "/dashboard/student/concepts/all" },
     { id: "flashcards", label: "Flashcards", icon: Brain, description: "Smart revision and memorization", path: "/dashboard/student/flashcards" },
-    { id: "practice-exam", label: "Practice Exams", icon: FileText, description: "Mock tests and exam preparation", path: "/dashboard/student/practice-exam" },
+    { id: "exams", label: "Practice Exams", icon: FileText, description: "Mock tests and exam preparation", path: "/dashboard/student/exams" },
     { id: "notifications", label: "Notifications", icon: Bell, description: "Important updates and alerts", path: "/dashboard/student/notifications" }
   ];
 
@@ -104,6 +104,12 @@ export default function DashboardTabs({
             ))}
           </TabsList>
         )}
+        
+        {Object.entries(tabContents).map(([key, content]) => (
+          <TabsContent key={key} value={key} className="mt-0 focus-visible:outline-none focus-visible:ring-0">
+            {content}
+          </TabsContent>
+        ))}
       </Tabs>
     </TooltipProvider>
   );

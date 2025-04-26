@@ -18,8 +18,8 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import MobileNavigation from "./MobileNavigation";
 import { getFeatures } from "./utils/FeatureManager";
 import { Button } from "@/components/ui/button";
-import { BookOpen, MessageSquareText, Brain } from "lucide-react";
-import ProfileCard from "@/components/dashboard/ProfileCard";
+import { BookOpen, MessageSquareText, Brain, Heart } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import WelcomeTour from "@/components/dashboard/student/WelcomeTour";
 
 interface DashboardLayoutProps {
@@ -42,7 +42,7 @@ interface DashboardLayoutProps {
   lastActivity?: { type: string; description: string } | null;
   suggestedNextAction?: string | null;
   currentMood?: MoodType;
-  children?: React.ReactNode; // Add support for children
+  children?: React.ReactNode;
 }
 
 const DashboardLayout = ({
@@ -65,17 +65,17 @@ const DashboardLayout = ({
   lastActivity,
   suggestedNextAction,
   currentMood,
-  children // Now we use children
+  children
 }: DashboardLayoutProps) => {
   const currentTime = new Date();
   const formattedTime = formatTime(currentTime);
   const formattedDate = formatDate(currentTime);
   const isMobile = useIsMobile();
   const [influenceMeterCollapsed, setInfluenceMeterCollapsed] = useState(true);
-  
+  const navigate = useNavigate();
   const features = getFeatures();
 
-  // Navigation buttons for quick access - moved from inside the render
+  // Define navigation buttons for quick access
   const navigationButtons = [
     { 
       name: "24/7 AI Tutor", 
@@ -93,8 +93,8 @@ const DashboardLayout = ({
     },
     { 
       name: "Feel Good Corner", 
-      icon: <BookOpen className="h-4 w-4 mr-1" />, 
-      path: "/dashboard/student/feel-good", 
+      icon: <Heart className="h-4 w-4 mr-1" />, 
+      path: "/dashboard/student/wellness", 
       variant: "default" as const,
       className: "bg-gradient-to-r from-pink-500 to-rose-600 hover:from-pink-600 hover:to-rose-700 text-white shadow-md"
     }
@@ -138,7 +138,7 @@ const DashboardLayout = ({
           />
         </div>
 
-        {/* Enhanced Quick Access Navigation Bar */}
+        {/* Quick Access Navigation Bar */}
         <motion.div 
           className="flex flex-wrap items-center gap-2 mb-4 p-2 bg-white/80 dark:bg-gray-800/50 backdrop-blur-sm rounded-lg shadow-md border border-gray-100 dark:border-gray-700"
           initial={{ opacity: 0, y: -10 }}
@@ -166,44 +166,27 @@ const DashboardLayout = ({
               </Link>
             </motion.div>
           ))}
-          
-          <motion.div
-            initial={{ opacity: 0, x: -10 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.3, duration: 0.3 }}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="ml-auto"
-          >
-            <Button 
-              variant="outline"
-              size="sm"
-              className="bg-gradient-to-r hover:from-violet-500 hover:to-indigo-500 hover:text-white border-violet-200"
-              onClick={onViewStudyPlan}
-            >
-              <BookOpen className="h-4 w-4 mr-1" />
-              View Study Plan
-            </Button>
-          </motion.div>
         </motion.div>
 
-        {/* Surrounding Influences Section - Enhanced with our redesigned component */}
+        {/* Surrounding Influences Section */}
         <SurroundingInfluencesSection 
           influenceMeterCollapsed={influenceMeterCollapsed}
           setInfluenceMeterCollapsed={setInfluenceMeterCollapsed}
         />
         
+        {/* Mobile Navigation */}
         {isMobile && (
           <div className="mb-6">
             <MobileNavigation activeTab={activeTab} onTabChange={onTabChange} />
           </div>
         )}
         
-        {/* Either render children or the default dashboard content */}
+        {/* Main Content */}
         {children ? (
           <div>{children}</div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 mt-4 sm:mt-6">
+            {/* Sidebar Navigation */}
             {!hideSidebar && !isMobile && (
               <SidebarNavigation 
                 activeTab={activeTab} 
@@ -211,6 +194,7 @@ const DashboardLayout = ({
               />
             )}
             
+            {/* Main Content Area */}
             <div className="lg:col-span-9 xl:col-span-10">
               {!isMobile && (
                 <NavigationToggleButton 

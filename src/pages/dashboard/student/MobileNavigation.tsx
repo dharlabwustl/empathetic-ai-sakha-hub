@@ -1,8 +1,22 @@
 
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { Home, Calendar, BookMarked, MessageSquare, Brain, BookOpen, LineChart, Activity, Heart, Folder, Video, Users, Bell } from "lucide-react";
+import { 
+  Home, 
+  Calendar, 
+  BookMarked, 
+  MessageSquare, 
+  Brain, 
+  BookOpen, 
+  LineChart, 
+  Activity, 
+  Heart, 
+  Folder, 
+  Video, 
+  Users, 
+  Bell 
+} from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 interface MobileNavigationProps {
@@ -12,6 +26,7 @@ interface MobileNavigationProps {
 
 const MobileNavigation = ({ activeTab, onTabChange }: MobileNavigationProps) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const isMobile = useIsMobile();
   
   const navItems = [
@@ -38,9 +53,9 @@ const MobileNavigation = ({ activeTab, onTabChange }: MobileNavigationProps) => 
         {navItems.map((item) => (
           <Button
             key={item.tab}
-            variant={activeTab === item.tab ? "default" : "outline"}
+            variant={activeTab === item.tab || location.pathname.includes(item.path) ? "default" : "outline"}
             className={`flex-shrink-0 shadow-sm ${
-              activeTab === item.tab 
+              activeTab === item.tab || location.pathname.includes(item.path)
                 ? "bg-gradient-to-r from-sky-500 to-violet-500 hover:from-sky-600 hover:to-violet-600" 
                 : "hover:bg-gray-100 dark:hover:bg-gray-800 border-gray-200 dark:border-gray-700"
             }`}

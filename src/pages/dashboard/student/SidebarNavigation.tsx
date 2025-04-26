@@ -2,8 +2,23 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Separator } from "@/components/ui/separator";
-import { Home, Calendar, BookMarked, MessageSquare, Brain, BookOpen, LineChart, 
-  Activity, Heart, Folder, Video, Users, Bell, LogOut, ChevronRight } from "lucide-react";
+import { 
+  Home, 
+  Calendar, 
+  BookMarked, 
+  MessageSquare, 
+  Brain, 
+  BookOpen, 
+  LineChart, 
+  Activity, 
+  Heart, 
+  Folder, 
+  Video, 
+  Users, 
+  Bell, 
+  LogOut, 
+  ChevronRight 
+} from "lucide-react";
 
 interface SidebarNavigationProps {
   activeTab: string;
