@@ -5,6 +5,8 @@ import DashboardTabs from "@/components/dashboard/student/DashboardTabs";
 import ReturnUserRecap from "@/components/dashboard/student/ReturnUserRecap";
 import { TodaysPlanSection } from "@/components/dashboard/student/todays-plan";
 import { useNavigate } from 'react-router-dom';
+import { KpiData, NudgeData } from '@/hooks/useKpiTracking';
+import { UserProfileType } from '@/types/user';
 
 interface DashboardTabsProps {
   activeTab: string;
@@ -47,7 +49,7 @@ const DashboardContent = ({
   
   // State to track whether the returning user recap has been closed
   const [showReturnRecap, setShowReturnRecap] = React.useState(
-    Boolean(userProfile.loginCount && userProfile.loginCount > 1 && lastActivity)
+    Boolean(userProfile?.loginCount && userProfile.loginCount > 1 && lastActivity)
   );
 
   // Generate tab contents once
@@ -79,7 +81,7 @@ const DashboardContent = ({
         navigate('/dashboard/student/academic-advisor');
         break;
       case 'feel-good':
-        onTabChange('feel-good');
+        navigate('/dashboard/student/feel-good-corner');
         break;
       default:
         // Do nothing
@@ -92,11 +94,11 @@ const DashboardContent = ({
       {/* Returning User Recap - Show for users with login count > 1 */}
       {showReturnRecap && activeTab === "overview" && !showWelcomeTour && (
         <ReturnUserRecap
-          userName={userProfile.name}
+          userName={userProfile?.name || "Student"}
           lastLoginDate={lastActivity?.description || "recently"}
           suggestedNextTasks={suggestedNextAction ? [suggestedNextAction] : undefined}
           onClose={handleCloseRecap}
-          loginCount={userProfile.loginCount}
+          loginCount={userProfile?.loginCount || 0}
           onNavigateToSection={handleNavigateToSection}
         />
       )}

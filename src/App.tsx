@@ -10,6 +10,8 @@ import { AdminAuthProvider } from "@/contexts/AdminAuthContext";
 import { AuthProvider } from "@/contexts/auth/AuthContext";
 import AdminRouteGuard from "@/components/admin/AdminRouteGuard";
 import ProtectedRoute from "@/components/common/ProtectedRoute";
+
+// Pages
 import Index from "./pages/Index";
 import About from "./pages/About";
 import Features from "./pages/Features";
@@ -39,7 +41,6 @@ import AIChatTutor from "./pages/dashboard/student/AIChatTutor";
 import AcademicAdvisor from "./pages/dashboard/student/AcademicAdvisor";
 import SubscriptionPage from "./pages/dashboard/student/SubscriptionPage";
 import NotFound from "./pages/NotFound";
-import "./styles/animations.css";
 
 import StudentProfilePage from "./pages/dashboard/student/ProfilePage";
 import StudentSettingsPage from "./pages/dashboard/student/SettingsPage";
@@ -62,6 +63,8 @@ import PracticeExamPage from "./components/dashboard/student/practice-exams/Prac
 import ExamResultsPage from "./components/dashboard/student/practice-exams/ExamResultsPage";
 import PracticeExamsListPage from "./pages/dashboard/student/PracticeExamsListPage";
 import FeelGoodPage from "./pages/dashboard/student/FeelGoodPage";
+
+import "./styles/animations.css";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -118,6 +121,7 @@ const App = () => {
                     <Route path="/dashboard/student/concepts" element={<StudentDashboard />} />
                     <Route path="/dashboard/student/flashcards" element={<StudentDashboard />} />
                     <Route path="/dashboard/student/practice-exam" element={<StudentDashboard />} />
+                    <Route path="/dashboard/student/feel-good" element={<StudentDashboard />} />
                     <Route path="/dashboard/student/notifications" element={<StudentDashboard />} />
                     <Route path="/dashboard/student/tutor" element={<StudentDashboard />} />
                     <Route path="/dashboard/student/progress" element={<StudentDashboard />} />
@@ -126,7 +130,6 @@ const App = () => {
                     <Route path="/dashboard/student/materials" element={<StudentDashboard />} />
                     <Route path="/dashboard/student/videos" element={<StudentDashboard />} />
                     <Route path="/dashboard/student/forum" element={<StudentDashboard />} />
-                    <Route path="/dashboard/student/feel-good" element={<StudentDashboard />} />
                     
                     <Route path="/dashboard/student/concepts/all" element={<ConceptCardsListingPage />} />
                     <Route path="/dashboard/student/concepts/:conceptId" element={<ConceptCardDetailPage />} />

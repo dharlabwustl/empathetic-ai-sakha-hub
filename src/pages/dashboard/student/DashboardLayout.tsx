@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import SidebarNav from "@/components/dashboard/SidebarNav";
@@ -79,21 +80,21 @@ const DashboardLayout = ({
     { 
       name: "24/7 AI Tutor", 
       icon: <MessageSquare className="h-4 w-4 mr-1" />, 
-      path: "/dashboard/student/tutor", 
+      path: "/dashboard/student/ai-tutor", 
       variant: "default" as const,
       className: "bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white shadow-md"
     },
     { 
       name: "Academic Advisor", 
       icon: <Brain className="h-4 w-4 mr-1" />, 
-      path: "/dashboard/student/academic", 
+      path: "/dashboard/student/academic-advisor", 
       variant: "default" as const,
       className: "bg-gradient-to-r from-purple-500 to-violet-600 hover:from-purple-600 hover:to-violet-700 text-white shadow-md"
     },
     { 
       name: "Feel Good Corner", 
       icon: <Heart className="h-4 w-4 mr-1" />, 
-      path: "/dashboard/student/feel-good", 
+      path: "/dashboard/student/feel-good-corner", 
       variant: "default" as const,
       className: "bg-gradient-to-r from-pink-500 to-rose-600 hover:from-pink-600 hover:to-rose-700 text-white shadow-md"
     }
@@ -118,14 +119,22 @@ const DashboardLayout = ({
   // Handler for navigation button clicks
   const handleNavigateToSection = (path: string) => {
     navigate(path);
-    // Update the active tab based on the path
+    // Extract tab from path
     const tabFromPath = path.split('/').pop() || 'overview';
-    onTabChange(tabFromPath);
+    if (tabFromPath === 'ai-tutor') {
+      onTabChange('tutor');
+    } else if (tabFromPath === 'academic-advisor') {
+      onTabChange('academic');
+    } else if (tabFromPath === 'feel-good-corner') {
+      onTabChange('feel-good');
+    } else {
+      onTabChange(tabFromPath);
+    }
   };
 
   return (
     <div className={`min-h-screen bg-gradient-to-br from-sky-100/10 via-white to-violet-100/10 dark:from-sky-900/10 dark:via-gray-900 dark:to-violet-900/10 ${currentMood ? `mood-${currentMood}` : ''}`}>
-      <SidebarNav userType="student" userName={userProfile.name} />
+      <SidebarNav userType="student" userName={userProfile?.name || "Student"} />
       
       <main className={`transition-all duration-300 ${hideSidebar ? 'md:ml-0' : 'md:ml-64'} p-4 sm:p-6 pb-20 md:pb-6`}>
         <TopNavigationControls 
@@ -257,10 +266,10 @@ const DashboardLayout = ({
       <WelcomeTour
         onSkipTour={handleCloseTour}
         onCompleteTour={handleCompleteTourAndClose}
-        isFirstTimeUser={!userProfile.loginCount || userProfile.loginCount <= 1}
+        isFirstTimeUser={!userProfile?.loginCount || userProfile.loginCount <= 1}
         lastActivity={lastActivity}
         suggestedNextAction={suggestedNextAction}
-        loginCount={userProfile.loginCount}
+        loginCount={userProfile?.loginCount || 0}
         open={showTour}
         onOpenChange={setShowTour}
       />

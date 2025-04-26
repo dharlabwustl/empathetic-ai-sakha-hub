@@ -11,10 +11,8 @@ import FeelGoodCorner from '@/components/dashboard/student/FeelGoodCorner';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
-import { TodayPlanView, FlashcardsView, PracticeExamsView } from '@/pages/dashboard/student/TabContentViews';
+import { TodayPlanView, FlashcardsView, PracticeExamsView, MicroConceptView } from '@/pages/dashboard/student/TabContentViews';
 import ConceptCardView from '@/components/dashboard/student/concept-cards/ConceptCardView';
-import { MicroConceptView } from '@/pages/dashboard/student/TabContentViews';
-import PracticeExamsSection from './practice-exams/PracticeExamsSection';
 
 interface TabContentManagerProps {
   userProfile: UserProfileType;
@@ -68,48 +66,27 @@ export const generateTabContents = ({
     ),
     today: <TodayPlanView />,
     academic: <AcademicAdvisor userProfile={userProfile} />,
-    concepts: (
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-2xl font-bold">Concept Cards</h2>
-            <p className="text-gray-600">
-              Browse through your learning concepts and master the fundamentals.
-            </p>
-          </div>
-          <Link to="/dashboard/student/concepts/all">
-            <Button variant="outline" className="flex items-center gap-2">
-              View All <ArrowRight size={16} />
-            </Button>
-          </Link>
-        </div>
-        <ConceptCardView 
-          title="Study Concepts" 
-          limit={6}
-          showViewAll={true}
-        />
-      </div>
-    ),
+    concepts: <MicroConceptView />,
     flashcards: <FlashcardsView />,
-    'practice-exam': (
+    'practice-exam': <PracticeExamsView />,
+    'feel-good': (
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-2xl font-bold">Practice Tests</h2>
+            <h2 className="text-2xl font-bold">Feel Good Corner</h2>
             <p className="text-gray-600">
-              Test your knowledge with practice exams
+              Take a break and boost your mood with our feel-good activities.
             </p>
           </div>
-          <Link to="/dashboard/student/exams">
+          <Link to="/dashboard/student/feel-good-corner">
             <Button variant="outline" className="flex items-center gap-2">
-              View All <ArrowRight size={16} />
+              Full Experience <ArrowRight size={16} />
             </Button>
           </Link>
         </div>
-        <PracticeExamsSection />
+        <FeelGoodCorner />
       </div>
     ),
-    'feel-good': <FeelGoodCorner />,
     notifications: (
       <div>
         <h2 className="text-2xl font-bold">Notifications</h2>

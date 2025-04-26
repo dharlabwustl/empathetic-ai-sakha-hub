@@ -6,6 +6,10 @@ import PracticeExamsSection from "@/components/dashboard/student/practice-exams/
 import ExamAnalysisSection from "@/components/dashboard/student/practice-exams/ExamAnalysisSection";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { FileText, BarChart3 } from 'lucide-react';
+import ConceptCardView from '@/components/dashboard/student/concept-cards/ConceptCardView';
+import { Link } from 'react-router-dom';
+import { Button } from "@/components/ui/button";
+import { ArrowRight } from 'lucide-react';
 
 // Today's Plan Tab View
 export const TodayPlanView = () => {
@@ -14,7 +18,24 @@ export const TodayPlanView = () => {
 
 // Flashcards Tab View
 export const FlashcardsView = () => {
-  return <FlashcardsFeature />;
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold">Flashcards</h2>
+          <p className="text-gray-600">
+            Review and memorize key concepts with interactive flashcards.
+          </p>
+        </div>
+        <Link to="/dashboard/student/flashcards/all">
+          <Button variant="outline" className="flex items-center gap-2">
+            View All <ArrowRight size={16} />
+          </Button>
+        </Link>
+      </div>
+      <FlashcardsFeature />
+    </div>
+  );
 };
 
 // Practice Exams Tab View with Analysis Tab
@@ -36,11 +57,36 @@ export const PracticeExamsView = () => {
         </TabsList>
         
         <TabsContent value="exams">
-          <PracticeExamsSection />
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-2xl font-bold">Practice Exams</h2>
+                <p className="text-gray-600">
+                  Test your knowledge with comprehensive practice exams
+                </p>
+              </div>
+              <Link to="/dashboard/student/exams">
+                <Button variant="outline" className="flex items-center gap-2">
+                  View All <ArrowRight size={16} />
+                </Button>
+              </Link>
+            </div>
+            <PracticeExamsSection />
+          </div>
         </TabsContent>
         
         <TabsContent value="analysis">
-          <ExamAnalysisSection />
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-2xl font-bold">Exam Analysis</h2>
+                <p className="text-gray-600">
+                  Review your performance analytics
+                </p>
+              </div>
+            </div>
+            <ExamAnalysisSection />
+          </div>
         </TabsContent>
       </Tabs>
     </div>
@@ -49,5 +95,26 @@ export const PracticeExamsView = () => {
 
 // Micro-Concept Tab View
 export const MicroConceptView = () => {
-  return <div className="text-center p-10">Micro-Concepts Content Coming Soon</div>;
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold">Concept Cards</h2>
+          <p className="text-gray-600">
+            Browse through your learning concepts and master the fundamentals.
+          </p>
+        </div>
+        <Link to="/dashboard/student/concepts/all">
+          <Button variant="outline" className="flex items-center gap-2">
+            View All <ArrowRight size={16} />
+          </Button>
+        </Link>
+      </div>
+      <ConceptCardView 
+        title="Study Concepts" 
+        limit={6}
+        showViewAll={true}
+      />
+    </div>
+  );
 };
