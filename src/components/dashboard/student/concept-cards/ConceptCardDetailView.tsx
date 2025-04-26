@@ -1,11 +1,10 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { 
   BookOpen, ChevronLeft, Book, Clock, Tag, Star, Bookmark, BookmarkCheck, Play, Pause,
-  PencilRuler, AlertTriangle, FileText, VolumeX, Volume2
+  PencilRuler, AlertTriangle, FileText, VolumeX, Volume2, Brain
 } from 'lucide-react';
 import { ConceptCard } from '@/hooks/useUserStudyPlan';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -61,6 +60,11 @@ const ConceptCardDetailView: React.FC<ConceptCardDetailViewProps> = ({ concept, 
   const [isPlaying, setIsPlaying] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [activeTab, setActiveTab] = useState<string>("explanation");
+  const [relatedContent, setRelatedContent] = useState({
+    concepts: concept.relatedConcepts || [],
+    flashcards: concept.relatedFlashcards || [],
+    practiceExams: concept.relatedExams || []
+  });
 
   const toggleVoice = () => {
     setIsVoiceEnabled(!isVoiceEnabled);
@@ -85,7 +89,6 @@ const ConceptCardDetailView: React.FC<ConceptCardDetailViewProps> = ({ concept, 
 
   return (
     <div className="space-y-6">
-      {/* Navigation and Actions Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <Link to="/dashboard/student/concepts/all" className="flex items-center text-blue-600 hover:text-blue-800">
           <ChevronLeft size={16} className="mr-1" />
@@ -123,7 +126,6 @@ const ConceptCardDetailView: React.FC<ConceptCardDetailViewProps> = ({ concept, 
         </div>
       </div>
 
-      {/* Concept Card Header */}
       <Card>
         <CardHeader className="pb-2">
           <div className="flex flex-wrap gap-2 mb-2">
@@ -168,13 +170,24 @@ const ConceptCardDetailView: React.FC<ConceptCardDetailViewProps> = ({ concept, 
             )}
           </div>
 
-          {/* Main Content Tabs */}
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-4">
-            <TabsList className="grid grid-cols-4">
-              <TabsTrigger value="explanation">Explanation</TabsTrigger>
-              <TabsTrigger value="examples">Examples</TabsTrigger>
-              <TabsTrigger value="mistakes">Common Mistakes</TabsTrigger>
-              <TabsTrigger value="relevance">Exam Relevance</TabsTrigger>
+          <Tabs defaultValue="explanation" className="mt-4">
+            <TabsList className="grid w-full grid-cols-4 lg:w-auto">
+              <TabsTrigger value="explanation" className="flex items-center gap-2">
+                <Book className="h-4 w-4" />
+                <span>Explanation</span>
+              </TabsTrigger>
+              <TabsTrigger value="examples" className="flex items-center gap-2">
+                <FileText className="h-4 w-4" />
+                <span>Examples</span>
+              </TabsTrigger>
+              <TabsTrigger value="mistakes" className="flex items-center gap-2">
+                <AlertTriangle className="h-4 w-4" />
+                <span>Common Mistakes</span>
+              </TabsTrigger>
+              <TabsTrigger value="relevance" className="flex items-center gap-2">
+                <Star className="h-4 w-4" />
+                <span>Exam Relevance</span>
+              </TabsTrigger>
             </TabsList>
             
             <TabsContent value="explanation" className="pt-4">
@@ -225,29 +238,71 @@ const ConceptCardDetailView: React.FC<ConceptCardDetailViewProps> = ({ concept, 
         </CardContent>
       </Card>
 
-      {/* Related Concepts */}
-      <div>
-        <h3 className="text-xl font-semibold mb-4">Related Concepts</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {concept.relatedConcepts.map((conceptId: string, index: number) => (
-            <Link key={index} to={`/dashboard/student/concepts/${conceptId}`}>
-              <Card className="hover:shadow-md transition-all duration-200">
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <BookOpen className="text-blue-500" size={16} />
-                    <span className="text-sm text-gray-500">Related Concept</span>
-                  </div>
-                  <h4 className="font-medium">
-                    {index === 0 ? 'Force and Motion' : index === 1 ? 'Energy Conservation' : 'Work and Power'}
-                  </h4>
-                </CardContent>
-              </Card>
-            </Link>
-          ))}
-        </div>
+      <div className="grid gap-6">
+        {relatedContent.concepts.length > 0 && (
+          <div>
+            <h3 className="text-xl font-semibold mb-4">Related Concepts</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {relatedContent.concepts.map((relatedConcept) => (
+                <Link key={relatedConcept.id} to={`/dashboard/student/concepts/${relatedConcept.id}`}>
+                  <Card className="hover:shadow-md transition-all duration-200">
+                    <CardContent className="p-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Book className="text-blue-500" size={16} />
+                        <span className="text-sm text-gray-500">Related Concept</span>
+                      </div>
+                      <h4 className="font-medium">{relatedConcept.title}</h4>
+                    </CardContent>
+                  </Card>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {relatedContent.flashcards.length > 0 && (
+          <div>
+            <h3 className="text-xl font-semibold mb-4">Related Flashcards</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {relatedContent.flashcards.map((flashcard) => (
+                <Link key={flashcard.id} to={`/dashboard/student/flashcards/${flashcard.id}`}>
+                  <Card className="hover:shadow-md transition-all duration-200">
+                    <CardContent className="p-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Brain className="text-violet-500" size={16} />
+                        <span className="text-sm text-gray-500">Flashcard Set</span>
+                      </div>
+                      <h4 className="font-medium">{flashcard.title}</h4>
+                    </CardContent>
+                  </Card>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {relatedContent.practiceExams.length > 0 && (
+          <div>
+            <h3 className="text-xl font-semibold mb-4">Related Practice Exams</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {relatedContent.practiceExams.map((exam) => (
+                <Link key={exam.id} to={`/dashboard/student/practice-exams/${exam.id}`}>
+                  <Card className="hover:shadow-md transition-all duration-200">
+                    <CardContent className="p-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <FileText className="text-green-500" size={16} />
+                        <span className="text-sm text-gray-500">Practice Exam</span>
+                      </div>
+                      <h4 className="font-medium">{exam.title}</h4>
+                    </CardContent>
+                  </Card>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* Progress Tracking */}
       <Card>
         <CardHeader>
           <CardTitle className="text-lg">Your Progress</CardTitle>
