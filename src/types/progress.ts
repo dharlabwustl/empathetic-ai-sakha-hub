@@ -13,4 +13,12 @@ export interface ProgressItem {
   timeSpent?: string;
   cardsCount?: number;
   masteredCards?: number;
+  subject?: string;
+  topic?: string;
+  difficulty?: 'easy' | 'medium' | 'hard';
+  priority?: 'high' | 'medium' | 'low';
+  estimatedTime?: number;
+  tags?: string[];
+  examGoal?: string;
+  chapter?: string;
 }

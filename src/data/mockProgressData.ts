@@ -1,4 +1,3 @@
-
 import { ProgressItem } from "@/types/progress";
 
 export const mockProgressData: ProgressItem[] = [
@@ -10,7 +9,13 @@ export const mockProgressData: ProgressItem[] = [
     lastPracticed: "2023-10-15",
     score: 95,
     completed: true,
-    masteryLevel: 4
+    masteryLevel: 4,
+    subject: "Physics",
+    topic: "Electrostatics",
+    difficulty: "medium",
+    priority: "high",
+    tags: ["IIT-JEE", "NEET", "Advanced"],
+    chapter: "Chapter 1: Electric Charges and Fields"
   },
   {
     id: "c2",

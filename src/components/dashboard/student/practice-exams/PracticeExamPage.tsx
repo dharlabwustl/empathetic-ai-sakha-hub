@@ -49,7 +49,7 @@ const PracticeExamPage = () => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [flaggedQuestions, setFlaggedQuestions] = useState<Set<string>>(new Set());
-  const [timeLeft, setTimeLeft] = useState(exam.duration * 60); // Convert to seconds
+  const [timeLeft, setTimeLeft] = useState(exam.duration * 60);
   const [examSubmitted, setExamSubmitted] = useState(false);
 
   useEffect(() => {
@@ -112,7 +112,8 @@ const PracticeExamPage = () => {
         timeSpent: exam.duration * 60 - timeLeft,
         totalQuestions,
         attempted,
-        correct
+        correct,
+        exam // Pass the exam data for review
       }
     });
   };

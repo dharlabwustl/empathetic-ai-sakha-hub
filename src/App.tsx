@@ -58,6 +58,8 @@ import FlashcardBrowserPage from '@/pages/dashboard/student/FlashcardBrowserPage
 import ConceptCardsListingPage from "./pages/dashboard/student/ConceptCardsListingPage";
 import PracticeExamPage from "./components/dashboard/student/practice-exams/PracticeExamPage";
 import ExamResultsPage from "./components/dashboard/student/practice-exams/ExamResultsPage";
+import FlashcardDetailPage from "./pages/dashboard/student/FlashcardDetailPage";
+import PracticeExamsListPage from "./pages/dashboard/student/PracticeExamsListPage";
 
 const queryClient = new QueryClient({
   defaultOptions: {
