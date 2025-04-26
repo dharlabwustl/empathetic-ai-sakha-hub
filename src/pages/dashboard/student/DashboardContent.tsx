@@ -4,6 +4,7 @@ import { generateTabContents } from "@/components/dashboard/student/TabContentMa
 import DashboardTabs from "@/components/dashboard/student/DashboardTabs";
 import ReturnUserRecap from "@/components/dashboard/student/ReturnUserRecap";
 import { TodaysPlanSection } from "@/components/dashboard/student/todays-plan";
+import { Link, useNavigate } from 'react-router-dom';
 
 interface DashboardTabsProps {
   activeTab: string;
@@ -42,6 +43,8 @@ const DashboardContent = ({
   lastActivity,
   suggestedNextAction
 }: DashboardContentProps) => {
+  const navigate = useNavigate();
+  
   // State to track whether the returning user recap has been closed
   const [showReturnRecap, setShowReturnRecap] = React.useState(
     Boolean(userProfile.loginCount && userProfile.loginCount > 1 && lastActivity)
@@ -65,6 +68,24 @@ const DashboardContent = ({
   const handleCloseRecap = () => {
     setShowReturnRecap(false);
   };
+  
+  // Handle navigation to external sections
+  const handleNavigateToSection = (section: string) => {
+    switch(section) {
+      case 'ai-tutor':
+        navigate('/dashboard/student/ai-tutor');
+        break;
+      case 'academic-advisor':
+        navigate('/dashboard/student/academic-advisor');
+        break;
+      case 'feel-good':
+        onTabChange('feel-good');
+        break;
+      default:
+        // Do nothing
+        break;
+    }
+  };
 
   return (
     <div className="h-full flex flex-col">
@@ -76,6 +97,7 @@ const DashboardContent = ({
           suggestedNextTasks={suggestedNextAction ? [suggestedNextAction] : undefined}
           onClose={handleCloseRecap}
           loginCount={userProfile.loginCount}
+          onNavigateToSection={handleNavigateToSection}
         />
       )}
 

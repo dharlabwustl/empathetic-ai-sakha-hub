@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { toast } from "@/components/ui/toast";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import ConceptCardDetailView from "@/components/dashboard/student/concept-cards/ConceptCardDetailView";
 import MainLayout from "@/components/layouts/MainLayout";
@@ -20,6 +20,8 @@ interface ConceptDetail extends ConceptCard {
   commonMistakes: string[];
   examRelevance: string;
   relatedConcepts: string[];
+  linkedFlashcards: string[];
+  linkedExams: string[];
 }
 
 const ConceptCardDetailPage = () => {
@@ -60,6 +62,12 @@ const ConceptCardDetailPage = () => {
           examRelevance: "Kinematics is highly important for competitive exams, appearing in approximately 70% of mechanics questions. You'll encounter problems involving free fall, projectile motion, relative motion, and graphical analysis of motion. Mastering these concepts is crucial as they form the foundation for more complex topics like Newton's laws and energy conservation.",
           relatedConcepts: [
             "c2", "c3", "c4" // IDs of related concept cards
+          ],
+          linkedFlashcards: [
+            "f1", "f2", "f3" // IDs of linked flashcard sets
+          ],
+          linkedExams: [
+            "1", "2" // IDs of practice exams
           ]
         };
         
@@ -68,8 +76,7 @@ const ConceptCardDetailPage = () => {
         // If concept not found, show an error toast
         toast({
           title: "Concept not found",
-          description: "The requested concept could not be found",
-          variant: "destructive"
+          description: "The requested concept could not be found"
         });
         
         // Navigate back to all concepts
@@ -97,7 +104,7 @@ const ConceptCardDetailPage = () => {
     // Show success message
     toast({
       title: "Concept completed!",
-      description: "Your progress has been updated",
+      description: "Your progress has been updated"
     });
   };
 

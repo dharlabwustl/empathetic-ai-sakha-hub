@@ -1,11 +1,13 @@
+
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { Brain, Search, ChevronRight } from 'lucide-react';
+import { Brain, Search, ChevronRight, Target } from 'lucide-react';
 import { motion } from 'framer-motion';
 import PracticeExamCard, { PracticeExam } from './PracticeExamCard';
+import PracticeExamAnalysis from './PracticeExamAnalysis';
 
 // Sample data - in production this would come from an API
 const mockExams: PracticeExam[] = [
@@ -50,11 +52,13 @@ const mockExams: PracticeExam[] = [
 ];
 
 const PracticeExamsSection: React.FC = () => {
-  const [selectedTab, setSelectedTab] = useState<'today' | 'week' | 'month'>('today');
+  const [selectedTab, setSelectedTab] = useState<'today' | 'week' | 'month' | 'analysis'>('today');
   
   // Filter exams based on the selected tab
   // In a real implementation, this would use dates to filter properly
   const getFilteredExams = () => {
+    if (selectedTab === 'analysis') return [];
+    
     switch(selectedTab) {
       case 'today':
         return mockExams.slice(0, 2);
@@ -81,44 +85,54 @@ const PracticeExamsSection: React.FC = () => {
       <CardContent>
         <Tabs 
           value={selectedTab} 
-          onValueChange={(value) => setSelectedTab(value as 'today' | 'week' | 'month')}
+          onValueChange={(value) => setSelectedTab(value as 'today' | 'week' | 'month' | 'analysis')}
           className="w-full"
         >
           <TabsList className="mb-4">
             <TabsTrigger value="today">Today</TabsTrigger>
             <TabsTrigger value="week">This Week</TabsTrigger>
             <TabsTrigger value="month">This Month</TabsTrigger>
+            <TabsTrigger value="analysis" className="flex items-center gap-1">
+              <Target className="h-4 w-4" />
+              Analysis
+            </TabsTrigger>
           </TabsList>
           
           <TabsContent value={selectedTab} className="mt-0">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filteredExams.map((exam) => (
-                <motion.div
-                  key={exam.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <PracticeExamCard exam={exam} />
-                </motion.div>
-              ))}
-            </div>
-            
-            {filteredExams.length === 0 && (
-              <div className="text-center py-8 bg-gray-50 rounded-lg">
-                <p className="text-gray-500">No practice tests scheduled for this period</p>
-              </div>
+            {selectedTab === 'analysis' ? (
+              <PracticeExamAnalysis />
+            ) : (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {filteredExams.map((exam) => (
+                    <motion.div
+                      key={exam.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      <PracticeExamCard exam={exam} />
+                    </motion.div>
+                  ))}
+                </div>
+                
+                {filteredExams.length === 0 && (
+                  <div className="text-center py-8 bg-gray-50 rounded-lg">
+                    <p className="text-gray-500">No practice tests scheduled for this period</p>
+                  </div>
+                )}
+                
+                <div className="mt-6 flex justify-center">
+                  <Link to="/dashboard/student/exams">
+                    <Button variant="outline" className="flex items-center gap-2">
+                      <Search className="h-4 w-4" />
+                      View All Practice Tests
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </Link>
+                </div>
+              </>
             )}
-            
-            <div className="mt-6 flex justify-center">
-              <Link to="/dashboard/student/exams">
-                <Button variant="outline" className="flex items-center gap-2">
-                  <Search className="h-4 w-4" />
-                  View All Practice Tests
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
-              </Link>
-            </div>
           </TabsContent>
         </Tabs>
       </CardContent>

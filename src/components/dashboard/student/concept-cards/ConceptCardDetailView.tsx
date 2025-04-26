@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/componen
 import { Badge } from '@/components/ui/badge';
 import { 
   BookOpen, ChevronLeft, Book, Clock, Tag, Star, Bookmark, BookmarkCheck, Play, Pause,
-  PencilRuler, AlertTriangle, FileText, VolumeX, Volume2
+  PencilRuler, AlertTriangle, FileText, VolumeX, Volume2, Brain, FileCheck
 } from 'lucide-react';
 import { ConceptCard } from '@/hooks/useUserStudyPlan';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -247,6 +247,63 @@ const ConceptCardDetailView: React.FC<ConceptCardDetailViewProps> = ({ concept, 
         </div>
       </div>
 
+      {/* Linked Flashcards */}
+      <div>
+        <h3 className="text-xl font-semibold mb-4">Linked Flashcards</h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {(concept.linkedFlashcards || []).map((flashcardId: string, index: number) => (
+            <Link key={index} to={`/dashboard/student/flashcards/${flashcardId}`}>
+              <Card className="hover:shadow-md transition-all duration-200 border-l-4 border-l-blue-500">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Brain className="text-blue-500" size={16} />
+                    <span className="text-sm text-gray-500">Flashcard Set</span>
+                  </div>
+                  <h4 className="font-medium">
+                    {index === 0 ? 'Mechanics Quick Review' : index === 1 ? 'Force & Motion Cards' : 'Energy Concepts'}
+                  </h4>
+                  <div className="mt-2 flex items-center text-sm text-gray-500">
+                    <Badge variant="outline" className="text-xs bg-gray-50">
+                      {index === 0 ? '45 cards' : index === 1 ? '32 cards' : '28 cards'}
+                    </Badge>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+          ))}
+        </div>
+      </div>
+
+      {/* Linked Practice Exams */}
+      <div>
+        <h3 className="text-xl font-semibold mb-4">Practice Tests</h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {(concept.linkedExams || []).map((examId: string, index: number) => (
+            <Link key={index} to={`/dashboard/student/exams/${examId}`}>
+              <Card className="hover:shadow-md transition-all duration-200">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <FileCheck className="text-green-500" size={16} />
+                    <span className="text-sm text-gray-500">Practice Exam</span>
+                  </div>
+                  <h4 className="font-medium">
+                    {index === 0 ? 'Physics Mechanics Test' : 'Motion & Laws Exam'}
+                  </h4>
+                  <div className="mt-2 flex items-center gap-2 text-sm text-gray-500">
+                    <Badge variant="outline" className="text-xs bg-blue-50 text-blue-600">
+                      20 questions
+                    </Badge>
+                    <Badge variant="outline" className="text-xs bg-purple-50 text-purple-600">
+                      45 min
+                    </Badge>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+          ))}
+        </div>
+      </div>
+
       {/* Progress Tracking */}
       <Card>
         <CardHeader>
@@ -281,8 +338,16 @@ const ConceptCardDetailView: React.FC<ConceptCardDetailViewProps> = ({ concept, 
         </CardContent>
         <CardFooter>
           <div className="flex gap-2 w-full">
-            <Button variant="outline" className="flex-1">Go to Flashcards</Button>
-            <Button variant="outline" className="flex-1">Practice Questions</Button>
+            <Button variant="outline" className="flex-1">
+              <Link to="/dashboard/student/flashcards" className="flex w-full justify-center">
+                Go to Flashcards
+              </Link>
+            </Button>
+            <Button variant="outline" className="flex-1">
+              <Link to="/dashboard/student/exams" className="flex w-full justify-center">
+                Practice Questions
+              </Link>
+            </Button>
           </div>
         </CardFooter>
       </Card>

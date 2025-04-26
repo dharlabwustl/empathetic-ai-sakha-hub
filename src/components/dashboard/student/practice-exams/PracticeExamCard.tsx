@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
@@ -91,7 +92,7 @@ const PracticeExamCard: React.FC<Props> = ({ exam }) => {
               onClick={handleStartExam}
             >
               <Play className="h-4 w-4 mr-2" />
-              Start Exam
+              {exam.status === 'in-progress' ? 'Continue Exam' : 'Start Exam'}
             </Button>
           )}
         </div>
