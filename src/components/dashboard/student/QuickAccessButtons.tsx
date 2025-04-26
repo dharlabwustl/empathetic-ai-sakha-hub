@@ -2,7 +2,7 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { MessageSquare, Brain, BookOpen, CalendarDays } from "lucide-react";
+import { MessageSquare, GraduationCap, Heart, BookOpen } from "lucide-react";
 
 export function QuickAccessButtons() {
   const buttons = [
@@ -14,19 +14,19 @@ export function QuickAccessButtons() {
     },
     {
       name: "Academic Advisor",
-      icon: <Brain className="h-4 w-4 mr-1" />,
+      icon: <GraduationCap className="h-4 w-4 mr-1" />,
       path: "/dashboard/student/overview?feature=advisor",
       className: "bg-gradient-to-r from-purple-500 to-violet-600 hover:from-purple-600 hover:to-violet-700 text-white"
     },
     {
       name: "Feel Good Corner",
-      icon: <BookOpen className="h-4 w-4 mr-1" />,
+      icon: <Heart className="h-4 w-4 mr-1" />,
       path: "/dashboard/student/overview?feature=feel-good",
       className: "bg-gradient-to-r from-pink-500 to-rose-600 hover:from-pink-600 hover:to-rose-700 text-white"
     },
     {
       name: "View Study Plan",
-      icon: <CalendarDays className="h-4 w-4 mr-1" />,
+      icon: <BookOpen className="h-4 w-4 mr-1" />,
       path: "/dashboard/student/overview?feature=study-plan",
       className: "bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white"
     }
