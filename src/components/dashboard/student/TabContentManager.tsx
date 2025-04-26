@@ -1,3 +1,4 @@
+
 import React, { ReactNode } from 'react';
 import DashboardOverview from '@/components/dashboard/student/DashboardOverview';
 import WelcomeTour from '@/components/dashboard/student/WelcomeTour';
@@ -89,7 +90,24 @@ export const generateTabContents = ({
         />
       </div>
     ),
-    flashcards: <FlashcardsView />,
+    flashcards: (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-2xl font-bold">Flashcards</h2>
+            <p className="text-gray-600">
+              Review and practice with our smart flashcard system
+            </p>
+          </div>
+          <Link to="/dashboard/student/flashcards">
+            <Button variant="outline" className="flex items-center gap-2">
+              View All <ArrowRight size={16} />
+            </Button>
+          </Link>
+        </div>
+        <FlashcardsView />
+      </div>
+    ),
     'practice-exam': (
       <div className="space-y-6">
         <div className="flex items-center justify-between">

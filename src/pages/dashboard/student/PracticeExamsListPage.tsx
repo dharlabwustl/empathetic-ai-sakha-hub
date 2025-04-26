@@ -1,401 +1,322 @@
 
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
 import MainLayout from '@/components/layouts/MainLayout';
-import { Card, CardContent } from '@/components/ui/card';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Progress } from '@/components/ui/progress';
-import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Search, Clock, Calendar, FileText, CheckCircle, Award, BookOpen, Tag, Filter, Clock3 } from 'lucide-react';
-import { motion } from 'framer-motion';
-import { PracticeExam } from '@/components/dashboard/student/practice-exams/PracticeExamCard';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Link } from 'react-router-dom';
+import { ArrowLeft, Filter, Search, FileText, PieChart } from 'lucide-react';
+import PracticeExamCard, { PracticeExam } from '@/components/dashboard/student/practice-exams/PracticeExamCard';
 
-// Mock data
+// Sample data - in production this would come from an API
 const mockExams: PracticeExam[] = [
   {
-    id: '1',
-    title: 'JEE Physics Mock Test',
+    id: 'exam1',
+    title: 'Physics Mechanics Test',
     subject: 'Physics',
     topic: 'Mechanics',
-    linkedConcept: 'Newton\'s Laws',
-    questionCount: 30,
-    duration: 60,
-    difficulty: 'medium',
-    status: 'not-started'
+    questionCount: 15,
+    duration: 30,
+    difficulty: 'easy',
+    status: 'not-started',
   },
   {
-    id: '2',
-    title: 'NEET Biology Full Test',
-    subject: 'Biology',
-    topic: 'Human Physiology',
-    linkedConcept: 'Circulatory System',
-    questionCount: 90,
-    duration: 120,
-    difficulty: 'hard',
-    status: 'completed',
-    score: 76,
-    completedAt: '2025-04-10'
-  },
-  {
-    id: '3',
-    title: 'JEE Chemistry: Organic',
+    id: 'exam2',
+    title: 'Organic Chemistry Quiz',
     subject: 'Chemistry',
     topic: 'Organic Chemistry',
-    linkedConcept: 'Functional Groups',
     questionCount: 20,
     duration: 45,
-    difficulty: 'easy',
-    status: 'not-started'
-  },
-  {
-    id: '4',
-    title: 'Full Mock Test 1',
-    subject: 'Combined',
-    topic: 'Multiple Topics',
-    questionCount: 90,
-    duration: 180,
-    difficulty: 'hard',
+    difficulty: 'medium',
     status: 'completed',
-    score: 68,
-    completedAt: '2025-04-05'
+    score: 85,
+    completedAt: '2025-04-20',
   },
   {
-    id: '5',
-    title: 'Mathematics: Calculus',
+    id: 'exam3',
+    title: 'Calculus Practice Test',
     subject: 'Mathematics',
     topic: 'Calculus',
-    linkedConcept: 'Limits and Derivatives',
+    questionCount: 25,
+    duration: 60,
+    difficulty: 'hard',
+    status: 'in-progress',
+  },
+  {
+    id: 'exam4',
+    title: 'Electrostatics Quiz',
+    subject: 'Physics',
+    topic: 'Electrostatics',
     questionCount: 15,
     duration: 30,
     difficulty: 'medium',
-    status: 'in-progress'
-  }
+    status: 'not-started',
+  },
+  {
+    id: 'exam5',
+    title: 'Algebra Test',
+    subject: 'Mathematics',
+    topic: 'Algebra',
+    questionCount: 20,
+    duration: 45,
+    difficulty: 'easy',
+    status: 'completed',
+    score: 92,
+    completedAt: '2025-04-15',
+  },
 ];
 
 const PracticeExamsListPage: React.FC = () => {
-  const [tab, setTab] = useState<'upcoming' | 'completed' | 'all'>('upcoming');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
-  const [selectedDifficulty, setSelectedDifficulty] = useState<string | null>(null);
+  const [filters, setFilters] = useState({
+    subject: '',
+    topic: '',
+    difficulty: '',
+    status: '',
+    search: ''
+  });
   
-  // Filter exams based on tab, search, subject, and difficulty
-  const filteredExams = mockExams
-    .filter(exam => {
-      if (tab === 'upcoming') return exam.status !== 'completed';
-      if (tab === 'completed') return exam.status === 'completed';
-      return true;
-    })
-    .filter(exam => {
-      if (!searchQuery) return true;
-      return exam.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-             exam.subject.toLowerCase().includes(searchQuery.toLowerCase()) ||
-             exam.topic?.toLowerCase().includes(searchQuery.toLowerCase());
-    })
-    .filter(exam => {
-      if (!selectedSubject) return true;
-      return exam.subject === selectedSubject;
-    })
-    .filter(exam => {
-      if (!selectedDifficulty) return true;
-      return exam.difficulty === selectedDifficulty;
-    });
-  
-  // Get unique subjects
-  const subjects = Array.from(new Set(mockExams
-    .map(exam => exam.subject)
-  ));
-  
-  // Stats
-  const totalExams = mockExams.length;
-  const completedExams = mockExams.filter(exam => exam.status === 'completed').length;
-  const completionRate = totalExams > 0 ? (completedExams / totalExams) * 100 : 0;
-  const averageScore = mockExams
-    .filter(exam => exam.status === 'completed' && exam.score !== undefined)
-    .reduce((sum, exam) => sum + (exam.score || 0), 0) / completedExams || 0;
-  
-  const getDifficultyColor = (difficulty: string) => {
-    switch(difficulty) {
-      case 'easy': return 'bg-green-100 text-green-800';
-      case 'medium': return 'bg-yellow-100 text-yellow-800';
-      case 'hard': return 'bg-red-100 text-red-800';
-      default: return 'bg-blue-100 text-blue-800';
-    }
+  const [activeTab, setActiveTab] = useState<'all' | 'analysis'>('all');
+
+  const handleFilterChange = (key: string, value: string) => {
+    setFilters(prev => ({ ...prev, [key]: value }));
   };
-  
+
+  const filteredExams = mockExams.filter(exam => {
+    if (filters.subject && exam.subject !== filters.subject) return false;
+    if (filters.topic && exam.topic !== filters.topic) return false;
+    if (filters.difficulty && exam.difficulty !== filters.difficulty) return false;
+    if (filters.status && exam.status !== filters.status) return false;
+    if (filters.search && !exam.title.toLowerCase().includes(filters.search.toLowerCase())) return false;
+    return true;
+  });
+
+  // Compute some analytics for the analysis tab
+  const totalExams = mockExams.length;
+  const completedExams = mockExams.filter(e => e.status === 'completed').length;
+  const averageScore = mockExams
+    .filter(e => e.status === 'completed' && e.score)
+    .reduce((sum, exam) => sum + (exam.score || 0), 0) / 
+    (mockExams.filter(e => e.status === 'completed' && e.score).length || 1);
+
+  // Extract unique subjects for analysis
+  const subjects = [...new Set(mockExams.map(e => e.subject))];
+  const subjectStats = subjects.map(subject => {
+    const subjectExams = mockExams.filter(e => e.subject === subject);
+    const completed = subjectExams.filter(e => e.status === 'completed').length;
+    const avgScore = subjectExams
+      .filter(e => e.status === 'completed' && e.score)
+      .reduce((sum, exam) => sum + (exam.score || 0), 0) / 
+      (subjectExams.filter(e => e.status === 'completed' && e.score).length || 1);
+    
+    return {
+      subject,
+      total: subjectExams.length,
+      completed,
+      avgScore: Math.round(avgScore),
+      percentCompleted: Math.round((completed / subjectExams.length) * 100)
+    };
+  });
+
   return (
     <MainLayout>
-      <div className="container py-8">
-        <div className="space-y-6">
-          {/* Header */}
-          <div>
-            <Link to="/dashboard/student/overview" className="inline-flex items-center text-blue-600 hover:text-blue-700 mb-4">
-              <ArrowLeft size={16} className="mr-1" /> Back to Dashboard
+      <div className="container py-6">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-4">
+            <Link to="/dashboard/student/practice-exam" className="hover:text-blue-600">
+              <ArrowLeft className="h-6 w-6" />
             </Link>
-            
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
-              <div>
-                <h1 className="text-3xl font-bold">Practice Tests</h1>
-                <p className="text-gray-600">Sharpen your skills with targeted practice tests</p>
+            <div>
+              <h1 className="text-2xl font-bold flex items-center gap-2">
+                <FileText className="text-blue-600" />
+                Practice Tests
+              </h1>
+              <p className="text-gray-500">Browse and filter all available practice tests</p>
+            </div>
+          </div>
+        </div>
+
+        <Tabs 
+          value={activeTab} 
+          onValueChange={(value) => setActiveTab(value as 'all' | 'analysis')}
+          className="w-full"
+        >
+          <TabsList className="mb-6 w-full flex justify-start">
+            <TabsTrigger value="all" className="flex-1 max-w-[200px]">All Tests</TabsTrigger>
+            <TabsTrigger value="analysis" className="flex-1 max-w-[200px]">Analysis</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="all">
+            {/* Filters Section */}
+            <Card className="p-4 mb-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-2">Search</label>
+                  <Input
+                    placeholder="Search tests..."
+                    value={filters.search}
+                    onChange={(e) => handleFilterChange('search', e.target.value)}
+                    icon={<Search className="h-4 w-4" />}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2">Subject</label>
+                  <Select onValueChange={(value) => handleFilterChange('subject', value)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="All Subjects" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">All Subjects</SelectItem>
+                      <SelectItem value="Physics">Physics</SelectItem>
+                      <SelectItem value="Chemistry">Chemistry</SelectItem>
+                      <SelectItem value="Mathematics">Mathematics</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2">Difficulty</label>
+                  <Select onValueChange={(value) => handleFilterChange('difficulty', value)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="All Difficulties" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">All Difficulties</SelectItem>
+                      <SelectItem value="easy">Easy</SelectItem>
+                      <SelectItem value="medium">Medium</SelectItem>
+                      <SelectItem value="hard">Hard</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2">Status</label>
+                  <Select onValueChange={(value) => handleFilterChange('status', value)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="All Status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">All Status</SelectItem>
+                      <SelectItem value="completed">Completed</SelectItem>
+                      <SelectItem value="in-progress">In Progress</SelectItem>
+                      <SelectItem value="not-started">Not Started</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
-              <Button className="mt-2 sm:mt-0">Create Custom Test</Button>
-            </div>
-          </div>
-          
-          {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <Card>
-              <CardContent className="pt-6">
-                <div className="text-center">
-                  <p className="text-sm text-gray-500 mb-1">Total Tests</p>
-                  <p className="text-4xl font-bold">{totalExams}</p>
-                </div>
-              </CardContent>
             </Card>
-            
-            <Card>
-              <CardContent className="pt-6">
-                <div className="text-center">
-                  <p className="text-sm text-gray-500 mb-1">Completion Rate</p>
-                  <p className="text-4xl font-bold">{completionRate.toFixed(0)}%</p>
-                  <Progress value={completionRate} className="mt-2" />
-                </div>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardContent className="pt-6">
-                <div className="text-center">
-                  <p className="text-sm text-gray-500 mb-1">Average Score</p>
-                  <p className="text-4xl font-bold">{averageScore.toFixed(0)}%</p>
-                </div>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardContent className="pt-6">
-                <div className="text-center">
-                  <p className="text-sm text-gray-500 mb-1">Coming Up</p>
-                  <p className="text-4xl font-bold">{mockExams.filter(exam => exam.status !== 'completed').length}</p>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-          
-          {/* Search and Filters */}
-          <div className="flex flex-col md:flex-row gap-3 items-center">
-            <div className="relative w-full md:w-auto md:flex-grow">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-              <Input 
-                placeholder="Search tests..." 
-                className="pl-10"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
-            
-            <div className="flex gap-2 overflow-x-auto w-full md:w-auto pb-1">
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className={!selectedSubject ? "bg-blue-50 text-blue-600 border-blue-200" : ""} 
-                onClick={() => setSelectedSubject(null)}
-              >
-                All Subjects
-              </Button>
-              {subjects.map(subject => (
-                <Button
-                  key={subject}
-                  variant="outline"
-                  size="sm"
-                  className={selectedSubject === subject ? "bg-blue-50 text-blue-600 border-blue-200" : ""}
-                  onClick={() => setSelectedSubject(subject)}
-                >
-                  {subject}
-                </Button>
-              ))}
-            </div>
-          </div>
-          
-          {/* Difficulty Filter */}
-          <div className="flex gap-2 overflow-x-auto pb-1">
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className={!selectedDifficulty ? "bg-blue-50 text-blue-600 border-blue-200" : ""} 
-              onClick={() => setSelectedDifficulty(null)}
-            >
-              All Difficulty
-            </Button>
-            {['easy', 'medium', 'hard'].map(difficulty => (
-              <Button
-                key={difficulty}
-                variant="outline"
-                size="sm"
-                className={selectedDifficulty === difficulty ? `${getDifficultyColor(difficulty)}` : ""}
-                onClick={() => setSelectedDifficulty(difficulty)}
-              >
-                {difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}
-              </Button>
-            ))}
-            
-            <div className="ml-auto">
-              <Button variant="outline" size="sm" className="flex items-center gap-1">
-                <Filter size={14} />
-                More Filters
-              </Button>
-            </div>
-          </div>
-          
-          {/* Tabs and Exams List */}
-          <Tabs value={tab} onValueChange={(value) => setTab(value as 'upcoming' | 'completed' | 'all')}>
-            <TabsList>
-              <TabsTrigger value="upcoming">Upcoming</TabsTrigger>
-              <TabsTrigger value="completed">Completed</TabsTrigger>
-              <TabsTrigger value="all">All Tests</TabsTrigger>
-            </TabsList>
-            
-            <div className="mt-6">
+
+            {/* Exams Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {filteredExams.length === 0 ? (
-                <Card>
-                  <CardContent className="py-8 text-center">
-                    <FileText className="mx-auto text-gray-300 mb-3" size={48} />
-                    <h3 className="text-xl font-medium mb-1">No tests found</h3>
-                    <p className="text-gray-500">
-                      {tab === 'upcoming' ? "You don't have any upcoming tests matching your search." : 
-                       tab === 'completed' ? "You haven't completed any tests matching your search yet." :
-                       "No tests match your search criteria."}
-                    </p>
-                  </CardContent>
-                </Card>
-              ) : (
-                <div className="grid gap-4">
-                  {filteredExams.map((exam) => (
-                    <ExamCard key={exam.id} exam={exam} />
-                  ))}
+                <div className="col-span-full text-center py-8">
+                  <p className="text-gray-500">No practice tests found</p>
                 </div>
+              ) : (
+                filteredExams.map((exam) => (
+                  <PracticeExamCard key={exam.id} exam={exam} />
+                ))
               )}
             </div>
-          </Tabs>
-        </div>
+          </TabsContent>
+          
+          <TabsContent value="analysis">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {/* Overall Stats */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Overall Progress</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div>
+                      <p className="text-sm font-medium">Total Tests</p>
+                      <p className="text-3xl font-bold">{totalExams}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium">Completed</p>
+                      <div className="flex items-center">
+                        <p className="text-3xl font-bold mr-2">{completedExams}</p>
+                        <span className="text-sm text-gray-500">
+                          ({Math.round((completedExams / totalExams) * 100)}%)
+                        </span>
+                      </div>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium">Average Score</p>
+                      <p className="text-3xl font-bold">{Math.round(averageScore)}%</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              {/* Subject-wise Analysis */}
+              <Card className="md:col-span-2">
+                <CardHeader>
+                  <CardTitle>Subject Analysis</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {subjectStats.map(stat => (
+                      <div key={stat.subject} className="border-b pb-4 last:border-0 last:pb-0">
+                        <div className="flex justify-between mb-1">
+                          <p className="font-medium">{stat.subject}</p>
+                          <p className="text-sm">{stat.completed}/{stat.total} completed</p>
+                        </div>
+                        <div className="w-full bg-gray-200 rounded-full h-2.5">
+                          <div 
+                            className="bg-blue-600 h-2.5 rounded-full" 
+                            style={{ width: `${stat.percentCompleted}%` }}
+                          ></div>
+                        </div>
+                        <div className="flex justify-between mt-1">
+                          <p className="text-sm text-gray-500">Progress: {stat.percentCompleted}%</p>
+                          <p className="text-sm text-gray-500">Avg. Score: {stat.avgScore}%</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+              
+              {/* Difficulty Analysis */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Difficulty Breakdown</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {['easy', 'medium', 'hard'].map(difficulty => {
+                      const tests = mockExams.filter(e => e.difficulty === difficulty);
+                      const completed = tests.filter(e => e.status === 'completed').length;
+                      return (
+                        <div key={difficulty} className="border-b pb-4 last:border-0 last:pb-0">
+                          <div className="flex justify-between">
+                            <p className="font-medium capitalize">{difficulty}</p>
+                            <p className="text-sm">{completed}/{tests.length} tests</p>
+                          </div>
+                          <div className="w-full bg-gray-200 rounded-full h-2.5 mt-1">
+                            <div 
+                              className={`h-2.5 rounded-full ${
+                                difficulty === 'easy' ? 'bg-green-500' :
+                                difficulty === 'medium' ? 'bg-yellow-500' : 'bg-red-500'
+                              }`}
+                              style={{ width: tests.length ? `${(completed / tests.length) * 100}%` : '0%' }}
+                            ></div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
     </MainLayout>
-  );
-};
-
-const ExamCard = ({ exam }: { exam: PracticeExam }) => {
-  // Format functions
-  const formatDate = (dateString?: string) => {
-    if (!dateString) return 'No date';
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
-  };
-  
-  const getDifficultyColor = (difficulty: string) => {
-    switch (difficulty) {
-      case 'easy': return 'bg-green-50 text-green-600 border-green-200';
-      case 'medium': return 'bg-amber-50 text-amber-600 border-amber-200';
-      case 'hard': return 'bg-red-50 text-red-600 border-red-200';
-      default: return 'bg-purple-50 text-purple-600 border-purple-200';
-    }
-  };
-  
-  return (
-    <motion.div 
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
-    >
-      <Card className={`transition-shadow hover:shadow-md ${exam.status === 'completed' ? 'bg-gray-50' : ''}`}>
-        <CardContent className="p-4 sm:p-6">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-            <div className="space-y-2">
-              <div className="flex flex-wrap gap-2 mb-1">
-                <Badge variant={exam.status === 'completed' ? "outline" : "default"}>
-                  {exam.status === 'completed' ? "Completed" : 
-                   exam.status === 'in-progress' ? "In Progress" : "Not Started"}
-                </Badge>
-                
-                <Badge variant="outline" className={getDifficultyColor(exam.difficulty)}>
-                  {exam.difficulty.charAt(0).toUpperCase() + exam.difficulty.slice(1)}
-                </Badge>
-                
-                {exam.subject && (
-                  <Badge variant="outline" className="flex items-center gap-1">
-                    <BookOpen size={12} />
-                    {exam.subject}
-                  </Badge>
-                )}
-                
-                {exam.topic && (
-                  <Badge variant="outline" className="flex items-center gap-1">
-                    <Tag size={12} />
-                    {exam.topic}
-                  </Badge>
-                )}
-              </div>
-              
-              <h3 className="text-lg font-medium">{exam.title}</h3>
-              
-              <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-gray-500">
-                <div className="flex items-center gap-1">
-                  <Clock size={14} />
-                  <span>{exam.duration} minutes</span>
-                </div>
-                
-                {exam.status === 'completed' && exam.completedAt && (
-                  <div className="flex items-center gap-1">
-                    <Calendar size={14} />
-                    <span>Completed {formatDate(exam.completedAt)}</span>
-                  </div>
-                )}
-                
-                <div className="flex items-center gap-1">
-                  <FileText size={14} />
-                  <span>{exam.questionCount} questions</span>
-                </div>
-                
-                {exam.status === 'completed' && exam.score !== undefined && (
-                  <div className="flex items-center gap-1">
-                    <Award size={14} />
-                    <span>Score: {exam.score}%</span>
-                  </div>
-                )}
-                
-                {exam.status !== 'completed' && (
-                  <div className="flex items-center gap-1">
-                    <CheckCircle size={14} />
-                    <span>Attempts available: 3</span>
-                  </div>
-                )}
-              </div>
-            </div>
-            
-            <div>
-              {exam.status === 'completed' ? (
-                <div className="flex gap-2">
-                  <Link to={`/dashboard/student/exams/${exam.id}/review`}>
-                    <Button variant="outline" size="sm">Review</Button>
-                  </Link>
-                  <Link to={`/dashboard/student/exams/${exam.id}`}>
-                    <Button size="sm">Retry</Button>
-                  </Link>
-                </div>
-              ) : (
-                <Link to={`/dashboard/student/exams/${exam.id}`}>
-                  <Button size="sm">Start Test</Button>
-                </Link>
-              )}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    </motion.div>
   );
 };
 
