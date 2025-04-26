@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useStudentDashboard } from "@/hooks/useStudentDashboard";
 import OnboardingFlow from "@/components/dashboard/student/OnboardingFlow";
@@ -7,11 +6,13 @@ import DashboardLayout from "@/pages/dashboard/student/DashboardLayout";
 import SplashScreen from "@/components/dashboard/student/SplashScreen";
 import { useLocation, useNavigate } from "react-router-dom";
 import ReturningUserPrompt from "@/components/dashboard/student/ReturningUserPrompt";
+import { MoodType } from "@/types/user/base";
+import DashboardContent from "./DashboardContent";
 
 const StudentDashboard = () => {
-  const [showSplash, setShowSplash] = useState(true);
+  const [showSplash, setShowSplash] = useState(false);
   const [showReturningPrompt, setShowReturningPrompt] = useState(false);
-  const [currentMood, setCurrentMood] = useState<'sad' | 'neutral' | 'happy' | 'motivated' | undefined>(undefined);
+  const [currentMood, setCurrentMood] = useState<MoodType | undefined>(undefined);
   const [lastActivity, setLastActivity] = useState<any>(null);
   const location = useLocation();
   const navigate = useNavigate();
@@ -22,7 +23,6 @@ const StudentDashboard = () => {
     activeTab,
     showWelcomeTour,
     showOnboarding,
-    currentTime,
     showStudyPlan,
     hideTabsNav,
     hideSidebar,
@@ -39,95 +39,85 @@ const StudentDashboard = () => {
     handleViewStudyPlan,
     handleCloseStudyPlan,
     toggleSidebar,
-    toggleTabsNav
+    toggleTabsNav,
+    trackUserActivity
   } = useStudentDashboard();
 
-  // Check URL parameters for onboarding status and returning user status
   useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const isNewUser = params.get('new') === 'true';
-    const completedOnboarding = params.get('completedOnboarding') === 'true';
-    const isReturningUser = params.get('returning') === 'true';
+    console.log("StudentDashboard - Initializing dashboard");
     
-    console.log("URL params:", { isNewUser, completedOnboarding, isReturningUser });
-    
-    // For returning users, show the continuation prompt
-    if (isReturningUser) {
-      // Get user data from localStorage
-      const userData = localStorage.getItem("userData");
-      if (userData) {
-        const parsedData = JSON.parse(userData);
+    const initDashboard = async () => {
+      try {
+        setLoading(true);
         
-        // Set last activity from stored data
-        if (parsedData.lastActivity) {
-          setLastActivity(parsedData.lastActivity);
-          setShowReturningPrompt(true);
+        // Simply check userData for user state
+        const userData = localStorage.getItem("userData");
+        if (userData) {
+          const parsedData = JSON.parse(userData);
+          
+          // Show onboarding for new users who haven't completed it
+          if (parsedData.isNewUser && !parsedData.completedOnboarding) {
+            setShowOnboarding(true);
+          }
+          
+          // Welcome tour for users who haven't seen it
+          if (!parsedData.sawWelcomeTour) {
+            setShowWelcomeTour(true);
+          }
+          
+          // Get last activity and mood
+          if (parsedData.lastActivity) {
+            setLastActivity(parsedData.lastActivity);
+          }
+          
+          if (parsedData.mood) {
+            setCurrentMood(parsedData.mood);
+          }
         }
         
-        // Don't show splash for returning users
-        setShowSplash(false);
+      } catch (error) {
+        console.error("Dashboard initialization error:", error);
+        toast({
+          title: "Error",
+          description: "Failed to initialize dashboard",
+          variant: "destructive",
+        });
+      } finally {
+        if (!profileLoading) {
+          setLoading(false);
+        }
       }
-    } else if (isNewUser) {
-      // Don't show splash screen for new users coming from signup flow
-      setShowSplash(false);
-    } else {
-      // Check if the user has seen the splash screen in this session
-      const hasSeen = sessionStorage.getItem("hasSeenSplash");
-      setShowSplash(!hasSeen);
-    }
+    };
     
-    // Try to get saved mood from local storage
-    const savedUserData = localStorage.getItem("userData");
-    if (savedUserData) {
-      const parsedData = JSON.parse(savedUserData);
-      if (parsedData.mood) {
-        setCurrentMood(parsedData.mood);
-      }
-      
-      // Check for last activity
-      if (parsedData.lastActivity) {
-        setLastActivity(parsedData.lastActivity);
-      }
-    }
-  }, [location]);
-  
-  const handleSplashComplete = () => {
-    setShowSplash(false);
-    // Mark that the user has seen the splash screen in this session
-    sessionStorage.setItem("hasSeenSplash", "true");
-    
-    // Save a default optimistic mood if none is set
-    if (!currentMood) {
-      setCurrentMood('motivated');
-      const userData = localStorage.getItem("userData");
-      if (userData) {
-        const parsedData = JSON.parse(userData);
-        parsedData.mood = 'motivated';
-        localStorage.setItem("userData", JSON.stringify(parsedData));
-      }
-    }
-  };
+    initDashboard();
+  }, []);
   
   const handleContinueLastActivity = () => {
     setShowReturningPrompt(false);
     
     if (lastActivity) {
-      if (lastActivity.type === 'concept') {
-        navigate(`/dashboard/student/concepts/${lastActivity.id}`);
-      } else if (lastActivity.type === 'flashcard') {
-        navigate('/dashboard/student/flashcards');
-      } else {
-        // Default to main dashboard
-        navigate('/dashboard/student/overview');
+      switch (lastActivity.type) {
+        case 'concept':
+          navigate(`/dashboard/student/concepts/${lastActivity.id}`);
+          break;
+        case 'flashcard':
+          navigate('/dashboard/student/flashcards');
+          break;
+        case 'exam':
+          navigate(`/dashboard/student/exams/${lastActivity.id}`);
+          break;
+        default:
+          navigate('/dashboard/student/overview');
       }
     }
   };
   
   const handleSkipLastActivity = () => {
     setShowReturningPrompt(false);
+    navigate('/dashboard/student/overview');
   };
 
-  // Show returning user prompt if needed
+  // Returning user prompt handling
   if (showReturningPrompt && lastActivity) {
     return (
       <ReturningUserPrompt 
@@ -138,18 +128,12 @@ const StudentDashboard = () => {
     );
   }
 
-  // Show splash screen if needed
-  if (showSplash) {
-    return <SplashScreen onComplete={handleSplashComplete} mood={currentMood} />;
-  }
-
   if (loading || !userProfile) {
     return <DashboardLoading />;
   }
 
-  // Show onboarding flow only for users who haven't completed it
+  // Onboarding flow for new users
   if (showOnboarding) {
-    // Make sure we have a goal to work with
     const defaultGoal = "IIT-JEE";
     const goalTitle = userProfile?.goals?.[0]?.title || defaultGoal;
     
@@ -183,7 +167,23 @@ const StudentDashboard = () => {
       lastActivity={dashboardLastActivity}
       suggestedNextAction={suggestedNextAction}
       currentMood={currentMood}
-    />
+    >
+      <DashboardContent 
+        activeTab={activeTab}
+        onTabChange={handleTabChange}
+        userProfile={userProfile}
+        kpis={kpis}
+        nudges={nudges}
+        markNudgeAsRead={markNudgeAsRead}
+        features={features}
+        showWelcomeTour={showWelcomeTour}
+        handleSkipTour={handleSkipTour}
+        handleCompleteTour={handleCompleteTour}
+        hideTabsNav={hideTabsNav}
+        lastActivity={dashboardLastActivity}
+        suggestedNextAction={suggestedNextAction}
+      />
+    </DashboardLayout>
   );
 };
 
