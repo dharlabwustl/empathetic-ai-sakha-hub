@@ -1,10 +1,9 @@
-
 export interface BatchMember {
   id: string;
   name: string;
   email: string;
   role: "member" | "leader" | "school_admin" | "corporate_admin";
-  status: "active" | "inactive" | "pending";
+  status: "active" | "pending" | "inactive";
   joinedDate?: string;
   invitationCode?: string;
   avatar?: string;
@@ -19,10 +18,21 @@ export interface BatchDetails {
   id: string;
   name: string;
   createdAt: string;
-  expiryDate?: string;
-  planType: 'group' | 'school' | 'corporate';
-  maxMembers: number;
+  owner: BatchMember;
   members: BatchMember[];
+  maxMembers: number;
+  planType: "group" | "school" | "corporate";
+  institutionName?: string;
+  expiryDate?: string;
+}
+
+export interface BatchProgress {
+  id: string;
+  batchId: string;
+  averageCompletion: number;
+  activeMembers: number;
+  totalMembers: number;
+  lastUpdateDate: string;
 }
 
 export interface GroupSetupFormData {

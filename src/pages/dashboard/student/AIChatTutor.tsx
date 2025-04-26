@@ -1,319 +1,293 @@
 
 import React, { useState } from 'react';
-import MainLayout from '@/components/layouts/MainLayout';
-import { Button } from '@/components/ui/button';
-import { ArrowLeft, Send, Zap, FileText, Trash2, Clock, CheckCircle2, BookOpen, Brain } from 'lucide-react';
-import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Textarea } from '@/components/ui/textarea';
+import { UserProfileType } from '@/types/user/base';
+import { Send, BookOpen, History, Sparkles, Brain, LayoutList } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { motion } from 'framer-motion';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface AIChatTutorProps {
-  userProfile: any;
+  userProfile: UserProfileType;
+}
+
+interface ChatMessage {
+  id: string;
+  type: 'user' | 'ai';
+  content: string;
+  timestamp: Date;
 }
 
 const AIChatTutor: React.FC<AIChatTutorProps> = ({ userProfile }) => {
-  const [activeTab, setActiveTab] = useState('chat');
-  const [messageInput, setMessageInput] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  
-  // Sample chat data
-  const [chatMessages, setChatMessages] = useState([
-    { id: 1, role: 'system', content: 'Hello! I\'m your 24/7 AI Tutor. How can I help you with your studies today?', timestamp: new Date().toISOString() },
-    { id: 2, role: 'user', content: 'Can you explain the concept of kinetic energy?', timestamp: new Date().toISOString() },
-    { id: 3, role: 'system', content: 'Kinetic energy is the energy that an object possesses due to its motion. The formula for kinetic energy is KE = (1/2)mv², where m is mass and v is velocity. This means that the kinetic energy of an object is directly proportional to its mass and the square of its velocity. If the velocity of an object doubles, its kinetic energy quadruples. This concept is fundamental in physics and is especially important when studying mechanics, thermodynamics, and conservation of energy. Would you like me to provide some examples or go deeper into the mathematical derivation?', timestamp: new Date().toISOString() }
+  const [message, setMessage] = useState('');
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
+    {
+      id: '1',
+      type: 'ai',
+      content: `Hello ${userProfile.name}! I'm your 24/7 AI tutor. How can I help you with your studies today?`,
+      timestamp: new Date()
+    }
   ]);
-  
+
+  // Extract exam goal from user profile
+  const examGoal = userProfile.examPreparation || userProfile.goals?.[0]?.title || 'JEE';
+
+  // Sample subjects based on exam type
+  const subjects = examGoal.includes('JEE') 
+    ? ['Physics', 'Chemistry', 'Mathematics'] 
+    : examGoal.includes('NEET') 
+      ? ['Physics', 'Chemistry', 'Biology'] 
+      : ['English', 'Mathematics', 'Science', 'Social Studies'];
+
+  // Sample topics for each subject
+  const topics = {
+    'Physics': ['Mechanics', 'Thermodynamics', 'Electromagnetism', 'Optics', 'Modern Physics'],
+    'Chemistry': ['Physical Chemistry', 'Organic Chemistry', 'Inorganic Chemistry', 'Analytical Chemistry'],
+    'Mathematics': ['Algebra', 'Calculus', 'Trigonometry', 'Geometry', 'Statistics'],
+    'Biology': ['Human Physiology', 'Cell Biology', 'Genetics', 'Ecology', 'Evolution'],
+    'English': ['Grammar', 'Comprehension', 'Writing', 'Literature'],
+    'Science': ['Physics', 'Chemistry', 'Biology'],
+    'Social Studies': ['History', 'Geography', 'Civics', 'Economics']
+  };
+
   const handleSendMessage = () => {
-    if (!messageInput.trim()) return;
+    if (!message.trim()) return;
     
     // Add user message
-    const newUserMessage = {
-      id: chatMessages.length + 1,
-      role: 'user',
-      content: messageInput,
-      timestamp: new Date().toISOString()
+    const userMessage: ChatMessage = {
+      id: Date.now().toString(),
+      type: 'user',
+      content: message,
+      timestamp: new Date()
     };
     
-    setChatMessages([...chatMessages, newUserMessage]);
-    setMessageInput('');
-    setIsLoading(true);
+    setChatMessages([...chatMessages, userMessage]);
+    setMessage('');
     
-    // Simulate AI response
+    // Simulate AI response (in a real app, this would come from an API call)
     setTimeout(() => {
-      const newSystemMessage = {
-        id: chatMessages.length + 2,
-        role: 'system',
-        content: `Here's my response to your question about "${messageInput}"...`,
-        timestamp: new Date().toISOString()
+      const aiResponse: ChatMessage = {
+        id: (Date.now() + 1).toString(),
+        type: 'ai',
+        content: `I understand your question about "${message}". Here's how I can explain it...`,
+        timestamp: new Date()
       };
       
-      setChatMessages(prevMessages => [...prevMessages, newSystemMessage]);
-      setIsLoading(false);
-    }, 1500);
+      setChatMessages(prev => [...prev, aiResponse]);
+    }, 1000);
   };
-  
-  // Quick topics for students to ask about
-  const quickTopics = [
-    "Explain Newton's Laws of Motion",
-    "Help with solving quadratic equations",
-    "Explain the concept of chemical equilibrium",
-    "What is the difference between ionic and covalent bonds?",
-    "How do I solve integration by parts problems?",
-    "Explain the structure of DNA"
-  ];
-  
-  // Chat history examples
-  const chatHistory = [
-    { id: 1, title: "Physics Mechanics Help", date: "Today", preview: "Help with solving physics problems..." },
-    { id: 2, title: "Chemistry Bonding", date: "Yesterday", preview: "Explaining chemical bonding concepts..." },
-    { id: 3, title: "Math Integration", date: "2 days ago", preview: "Tutorial on integration techniques..." }
-  ];
-  
-  // Learning paths
-  const learningPaths = [
-    { 
-      title: "Mechanics Master", 
-      description: "Complete guide to mastering mechanical physics concepts",
-      progress: 35,
-      topics: ['Newton\'s Laws', 'Kinematics', 'Energy Conservation']
-    },
-    { 
-      title: "Chemistry Fundamentals", 
-      description: "Essential chemistry concepts every student should know",
-      progress: 60,
-      topics: ['Periodic Table', 'Chemical Bonding', 'Stoichiometry'] 
-    },
-    { 
-      title: "Calculus Deep Dive", 
-      description: "Advanced calculus concepts and problem solving",
-      progress: 20,
-      topics: ['Limits', 'Derivatives', 'Integration'] 
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
     }
-  ];
-  
+  };
+
   return (
-    <MainLayout>
-      <div className="container py-6">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center space-x-4">
-            <Link to="/dashboard/student/overview" className="text-blue-600 hover:text-blue-800">
-              <ArrowLeft className="h-5 w-5" />
-            </Link>
-            <div>
-              <h1 className="text-2xl font-bold">24/7 AI Tutor</h1>
-              <p className="text-gray-600">Your personal learning assistant, available anytime</p>
-            </div>
-          </div>
+    <div className="space-y-6 pb-8">
+      <motion.div 
+        className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <div>
+          <h1 className="text-3xl font-bold">24/7 AI Tutor</h1>
+          <p className="text-gray-500 dark:text-gray-400">
+            Get instant help with your questions and doubts
+          </p>
         </div>
-        
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* Sidebar */}
-          <div className="lg:col-span-3">
-            <Card className="h-full">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg">Learning Assistant</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                  <TabsList className="grid w-full grid-cols-3">
-                    <TabsTrigger value="chat">Chat</TabsTrigger>
-                    <TabsTrigger value="history">History</TabsTrigger>
-                    <TabsTrigger value="paths">Paths</TabsTrigger>
-                  </TabsList>
-                  
-                  <TabsContent value="chat" className="space-y-4 mt-4">
-                    <div>
-                      <h3 className="text-sm font-medium mb-2">Quick Topics</h3>
-                      <div className="space-y-2">
-                        {quickTopics.map((topic, index) => (
-                          <Button 
-                            key={index} 
-                            variant="ghost" 
-                            className="w-full justify-start text-left h-auto py-2"
-                            onClick={() => setMessageInput(topic)}
-                          >
-                            <Zap className="h-4 w-4 mr-2 flex-shrink-0" />
-                            <span className="line-clamp-1">{topic}</span>
-                          </Button>
-                        ))}
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <h3 className="text-sm font-medium mb-2">Tools</h3>
-                      <div className="space-y-2">
-                        <Button variant="outline" className="w-full justify-start">
-                          <FileText className="h-4 w-4 mr-2" /> Upload Study Material
-                        </Button>
-                        <Button variant="outline" className="w-full justify-start">
-                          <Brain className="h-4 w-4 mr-2" /> Concept Explainer
-                        </Button>
-                        <Button variant="outline" className="w-full justify-start">
-                          <BookOpen className="h-4 w-4 mr-2" /> Create Flashcards
-                        </Button>
-                      </div>
-                    </div>
-                  </TabsContent>
-                  
-                  <TabsContent value="history" className="mt-4">
+      </motion.div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-7 gap-6">
+        {/* Left sidebar with subjects and topics */}
+        <motion.div 
+          className="lg:col-span-2"
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
+          <Card className="h-[600px] overflow-hidden">
+            <CardHeader className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white">
+              <CardTitle className="text-lg">Study Resources</CardTitle>
+            </CardHeader>
+            <CardContent className="p-0 overflow-hidden h-full flex flex-col">
+              <Tabs defaultValue="subjects" className="w-full h-full flex flex-col">
+                <TabsList className="grid w-full grid-cols-3">
+                  <TabsTrigger value="subjects" className="text-xs">
+                    <BookOpen className="h-4 w-4 mr-1" /> Subjects
+                  </TabsTrigger>
+                  <TabsTrigger value="topics" className="text-xs">
+                    <LayoutList className="h-4 w-4 mr-1" /> Topics
+                  </TabsTrigger>
+                  <TabsTrigger value="history" className="text-xs">
+                    <History className="h-4 w-4 mr-1" /> History
+                  </TabsTrigger>
+                </TabsList>
+                
+                <div className="flex-grow overflow-y-auto p-4">
+                  <TabsContent value="subjects" className="m-0">
                     <div className="space-y-2">
-                      <div className="flex justify-between items-center mb-2">
-                        <h3 className="text-sm font-medium">Recent Conversations</h3>
-                        <Button variant="ghost" size="sm" className="h-8 px-2">
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                      
-                      {chatHistory.map(chat => (
-                        <Button 
-                          key={chat.id} 
-                          variant="ghost" 
-                          className="w-full justify-start text-left h-auto py-2"
+                      <h3 className="font-medium text-sm text-gray-500">
+                        For {examGoal}
+                      </h3>
+                      {subjects.map(subject => (
+                        <Button
+                          key={subject}
+                          variant="outline"
+                          className="w-full justify-start"
+                          onClick={() => setMessage(`Help me understand ${subject} concepts for ${examGoal}`)}
                         >
-                          <div className="flex-1 min-w-0">
-                            <div className="flex justify-between">
-                              <span className="font-medium line-clamp-1">{chat.title}</span>
-                              <span className="text-xs text-gray-500">{chat.date}</span>
-                            </div>
-                            <p className="text-xs text-gray-500 line-clamp-1">{chat.preview}</p>
-                          </div>
+                          {subject}
                         </Button>
                       ))}
                     </div>
                   </TabsContent>
                   
-                  <TabsContent value="paths" className="mt-4">
+                  <TabsContent value="topics" className="m-0">
                     <div className="space-y-4">
-                      {learningPaths.map((path, index) => (
-                        <Card key={index} className="overflow-hidden">
-                          <div className="h-2 bg-gradient-to-r from-blue-400 to-purple-500"></div>
-                          <CardContent className="pt-4">
-                            <h3 className="font-medium">{path.title}</h3>
-                            <p className="text-xs text-gray-500 mb-2">{path.description}</p>
-                            <div className="space-y-1">
-                              <div className="flex justify-between text-xs">
-                                <span>Progress</span>
-                                <span>{path.progress}%</span>
-                              </div>
-                              <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
-                                <div 
-                                  className="h-full bg-blue-500 rounded-full" 
-                                  style={{ width: `${path.progress}%` }}
-                                ></div>
-                              </div>
-                            </div>
-                            <div className="mt-2 flex flex-wrap gap-1">
-                              {path.topics.map((topic, i) => (
-                                <Badge key={i} variant="outline" className="text-xs">{topic}</Badge>
-                              ))}
-                            </div>
-                          </CardContent>
-                        </Card>
+                      {subjects.map(subject => (
+                        <div key={subject} className="space-y-2">
+                          <h3 className="font-medium text-sm text-gray-500">{subject}</h3>
+                          <div className="flex flex-wrap gap-2">
+                            {topics[subject as keyof typeof topics]?.map(topic => (
+                              <Badge 
+                                key={topic} 
+                                variant="outline"
+                                className="cursor-pointer hover:bg-gray-100"
+                                onClick={() => setMessage(`Explain ${topic} in ${subject}`)}
+                              >
+                                {topic}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
                       ))}
                     </div>
                   </TabsContent>
-                </Tabs>
-              </CardContent>
-            </Card>
-          </div>
-          
-          {/* Main chat area */}
-          <div className="lg:col-span-9">
-            <Card className="h-full flex flex-col">
-              <CardHeader className="pb-3">
-                <div className="flex items-center space-x-4">
+                  
+                  <TabsContent value="history" className="m-0">
+                    <div className="space-y-2 text-sm text-gray-500">
+                      <p>Your recent chat history will appear here</p>
+                      <div className="py-8 text-center">
+                        <History className="h-12 w-12 mx-auto text-gray-300" />
+                        <p className="mt-2">No recent history</p>
+                      </div>
+                    </div>
+                  </TabsContent>
+                </div>
+              </Tabs>
+            </CardContent>
+          </Card>
+        </motion.div>
+        
+        {/* Main chat area */}
+        <motion.div 
+          className="lg:col-span-5"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+        >
+          <Card className="h-[600px] overflow-hidden">
+            <CardHeader className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-4">
+              <div className="flex justify-between items-center">
+                <div className="flex items-center gap-3">
                   <Avatar>
-                    <AvatarImage src="/images/ai-tutor-avatar.png" />
+                    <AvatarImage src="/lovable-uploads/ffd1ed0a-7a25-477e-bc91-1da9aca3497f.png" alt="AI Tutor" />
                     <AvatarFallback>AI</AvatarFallback>
                   </Avatar>
                   <div>
-                    <CardTitle>AI Learning Assistant</CardTitle>
-                    <p className="text-sm text-gray-500">Online</p>
+                    <CardTitle className="text-lg">AI Tutor</CardTitle>
+                    <p className="text-xs text-blue-100">Always online</p>
                   </div>
                 </div>
-              </CardHeader>
-              
-              <CardContent className="flex-grow overflow-hidden flex flex-col">
-                <ScrollArea className="flex-grow mb-4 pr-4">
-                  <div className="space-y-4">
-                    {chatMessages.map((message) => (
-                      <motion.div
-                        key={message.id}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.3 }}
-                        className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
-                      >
-                        <div className={`max-w-[80%] ${message.role === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-800'} rounded-lg p-3`}>
-                          {message.content}
-                          <div className={`text-xs mt-1 ${message.role === 'user' ? 'text-blue-100' : 'text-gray-500'}`}>
-                            <Clock className="h-3 w-3 inline mr-1" />
-                            {new Date(message.timestamp).toLocaleTimeString([], { 
-                              hour: '2-digit', 
-                              minute: '2-digit'
-                            })}
-                          </div>
-                        </div>
-                      </motion.div>
-                    ))}
-                    
-                    {isLoading && (
-                      <div className="flex justify-start">
-                        <div className="bg-gray-100 rounded-lg p-3 max-w-[80%]">
-                          <div className="flex items-center space-x-2">
-                            <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                            <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "0.2s" }}></div>
-                            <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "0.4s" }}></div>
-                            <span className="text-sm text-gray-500">AI is typing...</span>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </ScrollArea>
-                
-                <div className="mt-auto">
-                  <div className="flex items-center space-x-2">
-                    <Textarea
-                      placeholder="Ask me anything about your studies..."
-                      value={messageInput}
-                      onChange={(e) => setMessageInput(e.target.value)}
-                      className="flex-grow"
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' && !e.shiftKey) {
-                          e.preventDefault();
-                          handleSendMessage();
-                        }
-                      }}
-                    />
-                    <Button 
-                      onClick={handleSendMessage} 
-                      disabled={!messageInput.trim() || isLoading}
-                      className="flex-shrink-0"
+                <Button variant="ghost" size="sm" className="text-white hover:bg-blue-700">
+                  <Sparkles className="h-4 w-4 mr-1" />
+                  New Chat
+                </Button>
+              </div>
+            </CardHeader>
+            
+            <CardContent className="p-0 flex flex-col h-[calc(600px-56px)]">
+              {/* Chat messages */}
+              <div className="flex-grow overflow-y-auto p-4 space-y-4">
+                {chatMessages.map(msg => (
+                  <div 
+                    key={msg.id} 
+                    className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}
+                  >
+                    <div 
+                      className={`max-w-[80%] p-3 rounded-lg ${
+                        msg.type === 'user' 
+                          ? 'bg-indigo-600 text-white' 
+                          : 'bg-gray-100 text-gray-800'
+                      }`}
                     >
-                      <Send className="h-4 w-4" />
-                    </Button>
+                      {msg.content}
+                      <div 
+                        className={`text-xs mt-1 ${
+                          msg.type === 'user' ? 'text-indigo-200' : 'text-gray-500'
+                        }`}
+                      >
+                        {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex justify-between text-xs text-gray-500 mt-2">
-                    <span>Shift + Enter for new line</span>
-                    <span className="flex items-center">
-                      <CheckCircle2 className="h-3 w-3 mr-1 text-green-500" />
-                      AI tutor is ready to help
-                    </span>
-                  </div>
+                ))}
+              </div>
+              
+              {/* Input area */}
+              <div className="p-4 border-t border-gray-200">
+                <div className="flex gap-2">
+                  <Input 
+                    placeholder="Type your question here..." 
+                    value={message} 
+                    onChange={e => setMessage(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    className="flex-grow"
+                  />
+                  <Button onClick={handleSendMessage}>
+                    <Send className="h-4 w-4" />
+                  </Button>
                 </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
+                <div className="mt-2 flex gap-2 flex-wrap">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => setMessage("Help me solve this problem step by step")}
+                    className="text-xs"
+                  >
+                    <Brain className="h-3 w-3 mr-1" />
+                    Help me solve
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => setMessage("Explain this concept with examples")}
+                    className="text-xs"
+                  >
+                    <Sparkles className="h-3 w-3 mr-1" />
+                    Explain with examples
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => setMessage(`What topics should I focus on for ${examGoal}?`)}
+                    className="text-xs"
+                  >
+                    Study tips
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
       </div>
-    </MainLayout>
+    </div>
   );
 };
 

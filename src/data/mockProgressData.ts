@@ -1,112 +1,141 @@
-import { ProgressItem } from "@/types/progress";
 
-export const mockProgressData: ProgressItem[] = [
+import { SubjectProgress, StudyStreak } from "@/types/user";
+
+// Mock data for subject progress
+export const mockSubjectsProgress: SubjectProgress[] = [
   {
-    id: "c1",
-    name: "Electric Charges and Fields",
-    progress: 100,
-    status: "completed",
-    lastPracticed: "2023-10-15",
-    score: 95,
-    completed: true,
-    masteryLevel: 4,
-    subject: "Physics",
-    topic: "Electrostatics",
-    difficulty: "medium",
-    priority: "high",
-    tags: ["IIT-JEE", "NEET", "Advanced"],
-    chapter: "Chapter 1: Electric Charges and Fields"
+    id: "s1",
+    name: "Physics",
+    progress: 75,
+    lastWeekProgress: 68,
+    color: "#3b82f6", // blue
+    topics: [
+      { id: "t1", name: "Mechanics", completed: true, masteryLevel: 85, lastPracticed: "2025-05-10" },
+      { id: "t2", name: "Thermodynamics", completed: true, masteryLevel: 78, lastPracticed: "2025-05-08" },
+      { id: "t3", name: "Electromagnetism", completed: false, masteryLevel: 65, lastPracticed: "2025-05-05" },
+      { id: "t4", name: "Optics", completed: false, masteryLevel: 45, lastPracticed: "2025-05-01" },
+      { id: "t5", name: "Modern Physics", completed: false, masteryLevel: 30, lastPracticed: "2025-04-28" }
+    ],
+    quizScores: [
+      { id: "q1", title: "Mechanics Quiz", score: 42, maxScore: 50, date: "2025-05-09", timeTaken: 35 },
+      { id: "q2", title: "Thermodynamics Review", score: 28, maxScore: 40, date: "2025-05-04", timeTaken: 28 },
+      { id: "q3", title: "Weekly Assessment", score: 85, maxScore: 100, date: "2025-04-30", timeTaken: 55 }
+    ],
+    studyHours: [
+      { date: "2025-05-11", hours: 2.5 },
+      { date: "2025-05-10", hours: 1.5 },
+      { date: "2025-05-09", hours: 3 },
+      { date: "2025-05-08", hours: 2 },
+      { date: "2025-05-07", hours: 1 },
+      { date: "2025-05-06", hours: 2.5 },
+      { date: "2025-05-05", hours: 2 }
+    ]
   },
   {
-    id: "c2",
-    name: "Electrostatic Potential and Capacitance",
-    progress: 100,
-    status: "completed",
-    lastPracticed: "2023-10-12",
-    score: 82,
-    completed: true,
-    masteryLevel: 3
+    id: "s2",
+    name: "Mathematics",
+    progress: 60,
+    lastWeekProgress: 52,
+    color: "#8b5cf6", // purple
+    topics: [
+      { id: "t6", name: "Algebra", completed: true, masteryLevel: 90, lastPracticed: "2025-05-11" },
+      { id: "t7", name: "Calculus", completed: true, masteryLevel: 75, lastPracticed: "2025-05-09" },
+      { id: "t8", name: "Trigonometry", completed: false, masteryLevel: 60, lastPracticed: "2025-05-06" },
+      { id: "t9", name: "Coordinate Geometry", completed: false, masteryLevel: 40, lastPracticed: "2025-05-02" }
+    ],
+    quizScores: [
+      { id: "q4", title: "Algebra Test", score: 48, maxScore: 50, date: "2025-05-10", timeTaken: 32 },
+      { id: "q5", title: "Calculus Quiz", score: 35, maxScore: 50, date: "2025-05-05", timeTaken: 40 },
+      { id: "q6", title: "Monthly Assessment", score: 78, maxScore: 100, date: "2025-04-29", timeTaken: 60 }
+    ],
+    studyHours: [
+      { date: "2025-05-11", hours: 3 },
+      { date: "2025-05-10", hours: 2 },
+      { date: "2025-05-09", hours: 2.5 },
+      { date: "2025-05-08", hours: 1.5 },
+      { date: "2025-05-07", hours: 2 },
+      { date: "2025-05-06", hours: 1.5 },
+      { date: "2025-05-05", hours: 2.5 }
+    ]
   },
   {
-    id: "c3",
-    name: "Current Electricity",
-    progress: 65,
-    status: "in-progress",
-    lastPracticed: "2023-10-05",
-    score: 0,
-    completed: false,
-    masteryLevel: 2
+    id: "s3",
+    name: "Chemistry",
+    progress: 42,
+    lastWeekProgress: 35,
+    color: "#10b981", // green
+    topics: [
+      { id: "t10", name: "Organic Chemistry", completed: true, masteryLevel: 65, lastPracticed: "2025-05-08" },
+      { id: "t11", name: "Inorganic Chemistry", completed: false, masteryLevel: 40, lastPracticed: "2025-05-04" },
+      { id: "t12", name: "Physical Chemistry", completed: false, masteryLevel: 30, lastPracticed: "2025-04-30" }
+    ],
+    quizScores: [
+      { id: "q7", title: "Organic Chemistry Quiz", score: 32, maxScore: 50, date: "2025-05-07", timeTaken: 38 },
+      { id: "q8", title: "Weekly Assessment", score: 65, maxScore: 100, date: "2025-04-28", timeTaken: 55 }
+    ],
+    studyHours: [
+      { date: "2025-05-11", hours: 1.5 },
+      { date: "2025-05-10", hours: 1 },
+      { date: "2025-05-09", hours: 2 },
+      { date: "2025-05-08", hours: 2.5 },
+      { date: "2025-05-07", hours: 1 },
+      { date: "2025-05-06", hours: 1.5 },
+      { date: "2025-05-05", hours: 1 }
+    ]
   },
   {
-    id: "c4",
-    name: "Moving Charges and Magnetism",
-    progress: 25,
-    status: "in-progress",
-    lastPracticed: "2023-09-28",
-    score: 0,
-    completed: false,
-    masteryLevel: 1
-  },
-  {
-    id: "c5",
-    name: "Magnetism and Matter",
-    progress: 0,
-    status: "not-started",
-    lastPracticed: "",
-    score: 0,
-    completed: false,
-    masteryLevel: 0
-  },
-  {
-    id: "q1",
-    name: "Weekly Physics Quiz",
-    progress: 100,
-    status: "completed",
-    lastPracticed: "2023-10-17",
-    score: 88,
-    questionCount: 15,
-    correctAnswers: 13,
-    timeSpent: "00:25:30"
-  },
-  {
-    id: "q2",
-    name: "Magnetism Practice Test",
-    progress: 100,
-    status: "completed",
-    lastPracticed: "2023-10-10",
-    score: 75,
-    questionCount: 20,
-    correctAnswers: 15,
-    timeSpent: "00:35:45"
+    id: "s4",
+    name: "Biology",
+    progress: 28,
+    lastWeekProgress: 20,
+    color: "#f43f5e", // red
+    topics: [
+      { id: "t13", name: "Cell Biology", completed: true, masteryLevel: 70, lastPracticed: "2025-05-09" },
+      { id: "t14", name: "Genetics", completed: false, masteryLevel: 35, lastPracticed: "2025-05-03" },
+      { id: "t15", name: "Human Physiology", completed: false, masteryLevel: 25, lastPracticed: "2025-04-29" },
+      { id: "t16", name: "Ecology", completed: false, masteryLevel: 15, lastPracticed: "2025-04-25" }
+    ],
+    quizScores: [
+      { id: "q9", title: "Cell Biology Test", score: 38, maxScore: 50, date: "2025-05-08", timeTaken: 35 },
+      { id: "q10", title: "Monthly Assessment", score: 58, maxScore: 100, date: "2025-04-27", timeTaken: 60 }
+    ],
+    studyHours: [
+      { date: "2025-05-11", hours: 1 },
+      { date: "2025-05-10", hours: 0.5 },
+      { date: "2025-05-09", hours: 1.5 },
+      { date: "2025-05-08", hours: 1 },
+      { date: "2025-05-07", hours: 0.5 },
+      { date: "2025-05-06", hours: 1 },
+      { date: "2025-05-05", hours: 0.5 }
+    ]
   }
 ];
 
-export const mockFlashcardProgressData = [
-  {
-    id: "f1",
-    name: "Physics Fundamentals",
-    progress: 70,
-    status: "in-progress",
-    lastPracticed: "2023-10-16",
-    cardsCount: 50,
-    masteredCards: 35
-  },
-  {
-    id: "f2",
-    name: "Chemistry Formulas",
-    progress: 90,
-    status: "completed",
-    lastPracticed: "2023-10-14",
-    cardsCount: 30,
-    masteredCards: 27
-  },
-  {
-    id: "f3",
-    name: "Mathematics Formulas",
-    progress: 40,
-    status: "in-progress",
-    lastPracticed: "2023-10-08",
-    cardsCount: 45,
-    masteredCards: 18
-  }
-];
+// Mock data for study streak
+export const mockStudyStreak: StudyStreak = {
+  current: 5,
+  longest: 12,
+  thisWeek: [2.5, 3.5, 4, 3, 2, 4.5, 3],
+  lastMonth: [
+    2, 3, 2.5, 1.5, 2, 3, 4,
+    3, 2, 1.5, 3, 4, 3.5, 2,
+    0, 1, 3, 4, 3, 2.5, 3,
+    2, 3, 4, 3.5, 4, 3, 2.5, 3, 2
+  ]
+};
+
+// Helper function to get progress data for a specific subject
+export function getSubjectProgressById(subjectId: string): SubjectProgress | undefined {
+  return mockSubjectsProgress.find(subject => subject.id === subjectId);
+}
+
+// Helper function to get all subjects
+export function getAllSubjectsProgress(): SubjectProgress[] {
+  return mockSubjectsProgress;
+}
+
+// Helper function to get study streak data
+export function getStudyStreak(): StudyStreak {
+  return mockStudyStreak;
+}
+

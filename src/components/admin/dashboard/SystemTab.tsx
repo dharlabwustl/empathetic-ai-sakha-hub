@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -15,10 +14,7 @@ const SystemTab = () => {
       message: 'Database connection failed',
       source: 'backend',
       timestamp: new Date('2025-04-15T12:30:00').toISOString(),
-      resolved: false,
-      type: 'system_error',
-      details: { server: 'db-main', error: 'connection timeout' },
-      severity: 'error'
+      resolved: false
     },
     {
       id: '2',
@@ -26,10 +22,7 @@ const SystemTab = () => {
       message: 'User authentication successful',
       source: 'auth',
       timestamp: new Date('2025-04-15T13:45:00').toISOString(),
-      resolved: true,
-      type: 'authentication',
-      details: { userId: 'user123' },
-      severity: 'info'
+      resolved: true
     },
     {
       id: '3',
@@ -37,10 +30,7 @@ const SystemTab = () => {
       message: 'Rate limit approaching',
       source: 'api',
       timestamp: new Date('2025-04-15T14:20:00').toISOString(),
-      resolved: false,
-      type: 'rate_limit',
-      details: { endpoint: '/api/users', current: 950, limit: 1000 },
-      severity: 'warning'
+      resolved: false
     }
   ]);
 

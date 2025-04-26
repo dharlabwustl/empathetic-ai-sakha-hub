@@ -1,69 +1,50 @@
 
-import { BaseUserProfile, UserRole, SubscriptionType } from "./base";
+import { UserProfileType, UserRole } from "./base";
 
-export interface DoctorProfile extends BaseUserProfile {
+export interface ProfessionalProfile extends UserProfileType {
+  lastActive?: string;
+}
+
+export interface EmployeeProfile extends ProfessionalProfile {
+  role: UserRole.Employee;
+  jobTitle?: string;
+  workExperience?: number;
+  skills?: string[];
+  company?: string;
+  industry?: string;
+  careerGoal?: string;
+  projectsCompleted?: number;
+  trainingCompleted?: number;
+  experienceLevel?: string;
+  skillsToGrow?: string[];
+  productivityScore?: number;
+}
+
+export interface DoctorProfile extends ProfessionalProfile {
   role: UserRole.Doctor;
-  specialization: string;
-  qualifications: string[];
-  researchInterests: string[];
-  publications: number;
-  institution: string;
-  yearsOfPractice: number;
-  certifications: string[];
-  researchTopic: string;
-  thesisTitle: string;
-  clinicalInterest: string;
-  researchPhase: string;
-}
-
-export interface LawyerProfile extends BaseUserProfile {
-  role: UserRole.Lawyer;
-  specialization: string;
-  firmName?: string;
-  barAssociation: string;
-  yearsOfPractice: number;
-  casesHandled?: number;
-  notableAchievements?: string[];
-  publications?: string[];
-}
-
-export interface EngineerProfile extends BaseUserProfile {
-  role: UserRole.Engineer;
-  discipline: string;
-  company?: string;
-  projects?: string[];
-  technologies: string[];
+  specialty?: string;
+  hospital?: string;
+  licenseNumber?: string;
+  patientsServed?: number;
+  yearsOfPractice?: number;
+  consultationHours?: string;
+  researchPublications?: number;
   certifications?: string[];
-  patents?: number;
-  publications?: string[];
+  educationalInterests?: string[];
 }
 
-export interface ProfessionalProfile extends BaseUserProfile {
-  role: UserRole.Professional;
-  industry: string;
-  company?: string;
-  position: string;
-  yearsOfExperience: number;
-  skills: string[];
-  certifications?: string[];
-}
-
-export interface BusinessownerProfile extends BaseUserProfile {
-  role: UserRole.Businessowner;
-  businessName: string;
-  industry: string;
-  companySize: string;
-  yearsInBusiness: number;
-  location?: string;
-  annualRevenue?: string;
-}
-
-export interface FounderProfile extends BaseUserProfile {
+export interface FounderProfile extends ProfessionalProfile {
   role: UserRole.Founder;
-  startupName: string;
-  industry: string;
-  fundingStage: string;
-  teamSize: number;
-  foundedYear: number;
-  mission?: string;
+  startupName?: string;
+  industry?: string;
+  foundingYear?: string;
+  teamSize?: number;
+  funding?: string;
+  stage?: string;
+  mvpStatus?: number;
+  pitchDeckReady?: boolean;
+  startupStage?: string;
+  startupGoal?: string;
+  mvpCompletion?: number;
+  pitchDeckStatus?: number;
 }

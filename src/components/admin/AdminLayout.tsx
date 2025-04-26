@@ -18,40 +18,48 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAdminAuth } from '@/contexts/AdminAuthContext';
-import { ThemeToggle } from '@/components/theme-toggle';
+import { cn } from '@/lib/utils';
+import { Badge } from '@/components/ui/badge';
 
 interface AdminLayoutProps {
   children: ReactNode;
 }
 
+interface SidebarItem {
+  name: string;
+  icon: ReactNode;
+  path: string;
+}
+
 const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
-  const { isAdminAuthenticated, adminLogout } = useAdminAuth();
-  const location = useLocation();
+  const { adminUser, logout } = useAdminAuth();
   const navigate = useNavigate();
-  
-  const toggleSidebar = () => {
-    setSidebarOpen(!sidebarOpen);
-  };
-  
-  const handleLogout = () => {
-    adminLogout();
-    navigate('/admin/login');
-  };
-  
-  const menuItems = [
-    { path: '/admin/dashboard', icon: <BarChart2 size={20} />, label: 'Dashboard' },
-    { path: '/admin/students', icon: <Users size={20} />, label: 'Students' },
-    { path: '/admin/ai', icon: <Brain size={20} />, label: 'AI Personalization' },
-    { path: '/admin/content', icon: <BookOpen size={20} />, label: 'Content' },
-    { path: '/admin/features', icon: <Layers size={20} />, label: 'Features' },
-    { path: '/admin/engagement', icon: <MessageSquare size={20} />, label: 'Engagement' },
-    { path: '/admin/subscriptions', icon: <CreditCard size={20} />, label: 'Subscriptions' },
-    { path: '/admin/issues', icon: <AlertCircle size={20} />, label: 'Issues' },
-    { path: '/admin/notifications', icon: <Bell size={20} />, label: 'Notifications' },
-    { path: '/admin/documentation', icon: <FileText size={20} />, label: 'Documentation' },
-    { path: '/admin/system', icon: <Settings size={20} />, label: 'System' },
+  const location = useLocation();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+
+  const sidebarItems = [
+    { name: 'Dashboard', icon: <BarChart2 size={20} />, path: '/admin/dashboard' },
+    { name: 'Students', icon: <Users size={20} />, path: '/admin/students' },
+    { name: 'AI Personalization', icon: <Brain size={20} />, path: '/admin/ai' },
+    { name: 'Content', icon: <BookOpen size={20} />, path: '/admin/content' },
+    { name: 'Features', icon: <Layers size={20} />, path: '/admin/features' },
+    { name: 'Engagement', icon: <MessageSquare size={20} />, path: '/admin/engagement' },
+    { name: 'Subscriptions', icon: <CreditCard size={20} />, path: '/admin/subscriptions' },
+    { name: 'System', icon: <Settings size={20} />, path: '/admin/system' },
+    { name: 'Analytics', icon: <BarChart2 size={20} />, path: '/admin/analytics' },
+    { name: 'Issues', icon: <AlertCircle size={20} />, path: '/admin/issues' },
+    { name: 'Notifications', icon: <Bell size={20} />, path: '/admin/notifications' },
+    { name: 'Documentation', icon: <FileText size={20} />, path: '/admin/documentation' }
   ];
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/admin/login');
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
 
   return (
     <div className="flex h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
@@ -59,22 +67,22 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
       <aside
         className={cn(
           "fixed left-0 top-0 z-50 flex h-full w-64 flex-col border-r border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-950 transition-transform duration-300 ease-in-out",
-          sidebarOpen ? "translate-x-0" : "-translate-x-full",
+          isSidebarOpen ? "translate-x-0" : "-translate-x-full",
         )}
       >
         <div className="flex items-center justify-between px-4 py-3">
           <Link to="/admin/dashboard" className="font-bold text-lg">
             Admin Panel
           </Link>
-          <Button variant="ghost" size="icon" onClick={toggleSidebar} className="md:hidden">
-            {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
+          <Button variant="ghost" size="icon" onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="md:hidden">
+            {isSidebarOpen ? <X size={20} /> : <Menu size={20} />}
           </Button>
         </div>
 
         <nav className="flex-grow px-2 py-4">
           <ul>
-            {menuItems.map((item) => (
-              <li key={item.label}>
+            {sidebarItems.map((item) => (
+              <li key={item.name}>
                 <Link
                   to={item.path}
                   className={cn(
@@ -85,7 +93,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                   )}
                 >
                   {item.icon}
-                  <span>{item.label}</span>
+                  <span>{item.name}</span>
                 </Link>
               </li>
             ))}
@@ -117,8 +125,8 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
       {/* Main Content */}
       <div className="flex flex-col flex-1 md:pl-64">
         {/* Mobile Menu Button */}
-        <Button variant="ghost" size="icon" onClick={toggleSidebar} className="md:hidden fixed top-4 left-4 z-50">
-          {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
+        <Button variant="ghost" size="icon" onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="md:hidden fixed top-4 left-4 z-50">
+          {isSidebarOpen ? <X size={20} /> : <Menu size={20} />}
         </Button>
 
         <main className="flex-1 p-6">

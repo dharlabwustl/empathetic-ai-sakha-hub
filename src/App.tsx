@@ -1,4 +1,3 @@
-
 import * as React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -10,8 +9,6 @@ import { AdminAuthProvider } from "@/contexts/AdminAuthContext";
 import { AuthProvider } from "@/contexts/auth/AuthContext";
 import AdminRouteGuard from "@/components/admin/AdminRouteGuard";
 import ProtectedRoute from "@/components/common/ProtectedRoute";
-
-// Pages
 import Index from "./pages/Index";
 import About from "./pages/About";
 import Features from "./pages/Features";
@@ -41,6 +38,8 @@ import AIChatTutor from "./pages/dashboard/student/AIChatTutor";
 import AcademicAdvisor from "./pages/dashboard/student/AcademicAdvisor";
 import SubscriptionPage from "./pages/dashboard/student/SubscriptionPage";
 import NotFound from "./pages/NotFound";
+import "./styles/animations.css";
+import { UserRole } from "./types/user/base";
 
 import StudentProfilePage from "./pages/dashboard/student/ProfilePage";
 import StudentSettingsPage from "./pages/dashboard/student/SettingsPage";
@@ -55,16 +54,6 @@ import ConceptsPage from "./pages/dashboard/student/ConceptsPage";
 import ConceptCardDetailPage from "./pages/dashboard/student/ConceptCardDetailPage";
 
 import FlashcardBrowserPage from '@/pages/dashboard/student/FlashcardBrowserPage';
-import FlashcardDetailPage from './pages/dashboard/student/FlashcardDetailPage';
-import FlashcardsListingPage from './pages/dashboard/student/FlashcardsListingPage';
-
-import ConceptCardsListingPage from "./pages/dashboard/student/ConceptCardsListingPage";
-import PracticeExamPage from "./components/dashboard/student/practice-exams/PracticeExamPage";
-import ExamResultsPage from "./components/dashboard/student/practice-exams/ExamResultsPage";
-import PracticeExamsListPage from "./pages/dashboard/student/PracticeExamsListPage";
-import FeelGoodPage from "./pages/dashboard/student/FeelGoodPage";
-
-import "./styles/animations.css";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -121,7 +110,6 @@ const App = () => {
                     <Route path="/dashboard/student/concepts" element={<StudentDashboard />} />
                     <Route path="/dashboard/student/flashcards" element={<StudentDashboard />} />
                     <Route path="/dashboard/student/practice-exam" element={<StudentDashboard />} />
-                    <Route path="/dashboard/student/feel-good" element={<StudentDashboard />} />
                     <Route path="/dashboard/student/notifications" element={<StudentDashboard />} />
                     <Route path="/dashboard/student/tutor" element={<StudentDashboard />} />
                     <Route path="/dashboard/student/progress" element={<StudentDashboard />} />
@@ -131,23 +119,14 @@ const App = () => {
                     <Route path="/dashboard/student/videos" element={<StudentDashboard />} />
                     <Route path="/dashboard/student/forum" element={<StudentDashboard />} />
                     
-                    <Route path="/dashboard/student/concepts/all" element={<ConceptCardsListingPage />} />
+                    <Route path="/dashboard/student/concepts/all" element={<ConceptsPage />} />
                     <Route path="/dashboard/student/concepts/:conceptId" element={<ConceptCardDetailPage />} />
-                    
-                    <Route path="/dashboard/student/flashcards/all" element={<FlashcardsListingPage />} />
-                    <Route path="/dashboard/student/flashcards/:id" element={<FlashcardDetailPage />} />
-                    
-                    <Route path="/dashboard/student/exams" element={<PracticeExamsListPage />} />
-                    <Route path="/dashboard/student/exams/:examId" element={<PracticeExamPage />} />
-                    <Route path="/dashboard/student/exams/:examId/results" element={<ExamResultsPage />} />
-                    
+                    <Route path="/dashboard/student/exams" element={<PracticeExamsPage />} />
                     <Route path="/dashboard/student/profile" element={<StudentProfilePage />} />
                     <Route path="/dashboard/student/settings" element={<StudentSettingsPage />} />
                     <Route path="/dashboard/student/subscription" element={<SubscriptionPage />} />
                     
-                    <Route path="/dashboard/student/ai-tutor" element={<AIChatTutor userProfile={{} as any} />} />
-                    <Route path="/dashboard/student/academic-advisor" element={<AcademicAdvisor userProfile={{} as any} />} />
-                    <Route path="/dashboard/student/feel-good-corner" element={<FeelGoodPage />} />
+                    <Route path="/dashboard/student/flashcards/:id" element={<FlashcardBrowserPage />} />
                     
                     <Route path="/dashboard/doctor" element={<DoctorDashboard />} />
                     <Route path="/dashboard/employee" element={<EmployeeDashboard />} />

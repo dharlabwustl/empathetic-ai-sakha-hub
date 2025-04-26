@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { handleNewUser } from "@/pages/dashboard/student/utils/UserSessionManager";
@@ -54,7 +54,7 @@ export const useStudentDashboard = () => {
     if (tabFromPath && tabFromPath !== activeTab) {
       setActiveTab(tabFromPath);
     }
-  }, [location.pathname, activeTab]);
+  }, [location.pathname]);
   
   useEffect(() => {
     console.log("useStudentDashboard - Initializing dashboard");
@@ -117,7 +117,7 @@ export const useStudentDashboard = () => {
           }
         }
         
-        if (userProfile && !showOnboarding) {
+        if (userProfile && !shouldShowOnboarding) {
           const currentLoginCount = userProfile.loginCount || 0;
           
           if (!sessionStorage.getItem('session_active')) {
@@ -143,7 +143,7 @@ export const useStudentDashboard = () => {
     };
     
     initDashboard();
-  }, [location, navigate, profileLoading, userProfile, updateUserProfile, toast]);
+  }, [location, navigate, profileLoading, userProfile, updateUserProfile]);
   
   useEffect(() => {
     if (!profileLoading) {

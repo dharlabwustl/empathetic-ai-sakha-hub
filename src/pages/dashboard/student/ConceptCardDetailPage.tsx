@@ -2,14 +2,12 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { toast } from "sonner";
+import { toast } from "@/components/ui/toast";
 import { Button } from "@/components/ui/button";
 import ConceptCardDetailView from "@/components/dashboard/student/concept-cards/ConceptCardDetailView";
 import MainLayout from "@/components/layouts/MainLayout";
 import { ConceptCard } from "@/hooks/useUserStudyPlan";
 import { useUserStudyPlan } from "@/hooks/useUserStudyPlan";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BookOpen, Brain, FileText } from "lucide-react";
 
 interface ConceptDetail extends ConceptCard {
   content: {
@@ -22,8 +20,6 @@ interface ConceptDetail extends ConceptCard {
   commonMistakes: string[];
   examRelevance: string;
   relatedConcepts: string[];
-  linkedFlashcards: string[];
-  linkedExams: string[];
 }
 
 const ConceptCardDetailPage = () => {
@@ -64,12 +60,6 @@ const ConceptCardDetailPage = () => {
           examRelevance: "Kinematics is highly important for competitive exams, appearing in approximately 70% of mechanics questions. You'll encounter problems involving free fall, projectile motion, relative motion, and graphical analysis of motion. Mastering these concepts is crucial as they form the foundation for more complex topics like Newton's laws and energy conservation.",
           relatedConcepts: [
             "c2", "c3", "c4" // IDs of related concept cards
-          ],
-          linkedFlashcards: [
-            "f1", "f2", "f3" // IDs of linked flashcard sets
-          ],
-          linkedExams: [
-            "1", "2" // IDs of practice exams
           ]
         };
         
@@ -78,7 +68,8 @@ const ConceptCardDetailPage = () => {
         // If concept not found, show an error toast
         toast({
           title: "Concept not found",
-          description: "The requested concept could not be found"
+          description: "The requested concept could not be found",
+          variant: "destructive"
         });
         
         // Navigate back to all concepts
@@ -106,103 +97,8 @@ const ConceptCardDetailPage = () => {
     // Show success message
     toast({
       title: "Concept completed!",
-      description: "Your progress has been updated"
+      description: "Your progress has been updated",
     });
-  };
-
-  // Function to render linked resources
-  const renderLinkedResources = () => {
-    if (!concept) return null;
-
-    return (
-      <div className="mt-8 space-y-6">
-        <h2 className="text-2xl font-bold">Related Resources</h2>
-        
-        {/* Related Concepts */}
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg flex items-center">
-              <BookOpen className="mr-2 h-5 w-5 text-blue-600" />
-              Related Concepts
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {concept.relatedConcepts.length > 0 ? (
-                concept.relatedConcepts.map((conceptId, index) => (
-                  <Link 
-                    key={conceptId} 
-                    to={`/dashboard/student/concepts/${conceptId}`}
-                    className="p-4 border rounded-md hover:bg-blue-50 transition-colors flex items-center"
-                  >
-                    <BookOpen className="h-4 w-4 mr-2 text-blue-600" />
-                    <span>Related Concept {index + 1}</span>
-                  </Link>
-                ))
-              ) : (
-                <p className="text-gray-500">No related concepts available.</p>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-        
-        {/* Linked Flashcards */}
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg flex items-center">
-              <Brain className="mr-2 h-5 w-5 text-purple-600" />
-              Practice with Flashcards
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {concept.linkedFlashcards.length > 0 ? (
-                concept.linkedFlashcards.map((flashcardId, index) => (
-                  <Link 
-                    key={flashcardId} 
-                    to={`/dashboard/student/flashcards/${flashcardId}`}
-                    className="p-4 border rounded-md hover:bg-purple-50 transition-colors flex items-center"
-                  >
-                    <Brain className="h-4 w-4 mr-2 text-purple-600" />
-                    <span>Flashcard Set {index + 1}</span>
-                  </Link>
-                ))
-              ) : (
-                <p className="text-gray-500">No linked flashcards available.</p>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-        
-        {/* Linked Practice Exams */}
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg flex items-center">
-              <FileText className="mr-2 h-5 w-5 text-green-600" />
-              Test Your Knowledge
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {concept.linkedExams.length > 0 ? (
-                concept.linkedExams.map((examId, index) => (
-                  <Link 
-                    key={examId} 
-                    to={`/dashboard/student/exams/${examId}`}
-                    className="p-4 border rounded-md hover:bg-green-50 transition-colors flex items-center"
-                  >
-                    <FileText className="h-4 w-4 mr-2 text-green-600" />
-                    <span>Practice Exam {index + 1}</span>
-                  </Link>
-                ))
-              ) : (
-                <p className="text-gray-500">No linked practice exams available.</p>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
   };
 
   if (loading) {
@@ -225,13 +121,10 @@ const ConceptCardDetailPage = () => {
           className="w-full"
         >
           {concept ? (
-            <>
-              <ConceptCardDetailView 
-                concept={concept} 
-                onMarkCompleted={handleMarkCompleted}
-              />
-              {renderLinkedResources()}
-            </>
+            <ConceptCardDetailView 
+              concept={concept} 
+              onMarkCompleted={handleMarkCompleted}
+            />
           ) : (
             <div className="p-8 text-center">
               <h2 className="text-2xl font-bold">Concept not found</h2>

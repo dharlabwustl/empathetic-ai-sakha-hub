@@ -4,9 +4,6 @@ import { generateTabContents } from "@/components/dashboard/student/TabContentMa
 import DashboardTabs from "@/components/dashboard/student/DashboardTabs";
 import ReturnUserRecap from "@/components/dashboard/student/ReturnUserRecap";
 import { TodaysPlanSection } from "@/components/dashboard/student/todays-plan";
-import { useNavigate } from 'react-router-dom';
-import { KpiData, NudgeData } from '@/hooks/useKpiTracking';
-import { UserProfileType } from '@/types/user';
 
 interface DashboardTabsProps {
   activeTab: string;
@@ -45,11 +42,9 @@ const DashboardContent = ({
   lastActivity,
   suggestedNextAction
 }: DashboardContentProps) => {
-  const navigate = useNavigate();
-  
   // State to track whether the returning user recap has been closed
   const [showReturnRecap, setShowReturnRecap] = React.useState(
-    Boolean(userProfile?.loginCount && userProfile.loginCount > 1 && lastActivity)
+    Boolean(userProfile.loginCount && userProfile.loginCount > 1 && lastActivity)
   );
 
   // Generate tab contents once
@@ -70,36 +65,17 @@ const DashboardContent = ({
   const handleCloseRecap = () => {
     setShowReturnRecap(false);
   };
-  
-  // Handle navigation to external sections
-  const handleNavigateToSection = (section: string) => {
-    switch(section) {
-      case 'ai-tutor':
-        navigate('/dashboard/student/ai-tutor');
-        break;
-      case 'academic-advisor':
-        navigate('/dashboard/student/academic-advisor');
-        break;
-      case 'feel-good':
-        navigate('/dashboard/student/feel-good-corner');
-        break;
-      default:
-        // Do nothing
-        break;
-    }
-  };
 
   return (
     <div className="h-full flex flex-col">
       {/* Returning User Recap - Show for users with login count > 1 */}
       {showReturnRecap && activeTab === "overview" && !showWelcomeTour && (
         <ReturnUserRecap
-          userName={userProfile?.name || "Student"}
+          userName={userProfile.name}
           lastLoginDate={lastActivity?.description || "recently"}
           suggestedNextTasks={suggestedNextAction ? [suggestedNextAction] : undefined}
           onClose={handleCloseRecap}
-          loginCount={userProfile?.loginCount || 0}
-          onNavigateToSection={handleNavigateToSection}
+          loginCount={userProfile.loginCount}
         />
       )}
 

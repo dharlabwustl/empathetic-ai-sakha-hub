@@ -14,7 +14,7 @@ import {
   Settings,
   Layers
 } from "lucide-react";
-import { AdminDashboardStats } from "@/types/admin/index";
+import { AdminDashboardStats } from "@/types/admin";
 import { SystemLog } from "@/types/admin/systemLog";
 import { StudentData } from "@/types/admin/studentData";
 

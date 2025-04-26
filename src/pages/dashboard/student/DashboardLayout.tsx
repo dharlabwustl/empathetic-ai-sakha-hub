@@ -1,6 +1,6 @@
 
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import SidebarNav from "@/components/dashboard/SidebarNav";
 import ChatAssistant from "@/components/dashboard/ChatAssistant";
 import DashboardHeader from "./DashboardHeader";
@@ -18,7 +18,8 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import MobileNavigation from "./MobileNavigation";
 import { getFeatures } from "./utils/FeatureManager";
 import { Button } from "@/components/ui/button";
-import { BookOpen, MessageSquare, Brain, Heart } from "lucide-react";
+import { BookOpen, MessageSquareText, Brain } from "lucide-react";
+import ProfileCard from "@/components/dashboard/ProfileCard";
 import WelcomeTour from "@/components/dashboard/student/WelcomeTour";
 
 interface DashboardLayoutProps {
@@ -41,7 +42,7 @@ interface DashboardLayoutProps {
   lastActivity?: { type: string; description: string } | null;
   suggestedNextAction?: string | null;
   currentMood?: MoodType;
-  children?: React.ReactNode;
+  children?: React.ReactNode; // Add support for children
 }
 
 const DashboardLayout = ({
@@ -64,9 +65,8 @@ const DashboardLayout = ({
   lastActivity,
   suggestedNextAction,
   currentMood,
-  children
+  children // Now we use children
 }: DashboardLayoutProps) => {
-  const navigate = useNavigate();
   const currentTime = new Date();
   const formattedTime = formatTime(currentTime);
   const formattedDate = formatDate(currentTime);
@@ -75,26 +75,26 @@ const DashboardLayout = ({
   
   const features = getFeatures();
 
-  // Navigation buttons for quick access
+  // Navigation buttons for quick access - moved from inside the render
   const navigationButtons = [
     { 
       name: "24/7 AI Tutor", 
-      icon: <MessageSquare className="h-4 w-4 mr-1" />, 
-      path: "/dashboard/student/ai-tutor", 
+      icon: <MessageSquareText className="h-4 w-4 mr-1" />, 
+      path: "/dashboard/student/tutor", 
       variant: "default" as const,
       className: "bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white shadow-md"
     },
     { 
       name: "Academic Advisor", 
       icon: <Brain className="h-4 w-4 mr-1" />, 
-      path: "/dashboard/student/academic-advisor", 
+      path: "/dashboard/student/academic", 
       variant: "default" as const,
       className: "bg-gradient-to-r from-purple-500 to-violet-600 hover:from-purple-600 hover:to-violet-700 text-white shadow-md"
     },
     { 
       name: "Feel Good Corner", 
-      icon: <Heart className="h-4 w-4 mr-1" />, 
-      path: "/dashboard/student/feel-good-corner", 
+      icon: <BookOpen className="h-4 w-4 mr-1" />, 
+      path: "/dashboard/student/feel-good", 
       variant: "default" as const,
       className: "bg-gradient-to-r from-pink-500 to-rose-600 hover:from-pink-600 hover:to-rose-700 text-white shadow-md"
     }
@@ -115,26 +115,10 @@ const DashboardLayout = ({
     setShowTour(false);
     onCompleteTour();
   };
-  
-  // Handler for navigation button clicks
-  const handleNavigateToSection = (path: string) => {
-    navigate(path);
-    // Extract tab from path
-    const tabFromPath = path.split('/').pop() || 'overview';
-    if (tabFromPath === 'ai-tutor') {
-      onTabChange('tutor');
-    } else if (tabFromPath === 'academic-advisor') {
-      onTabChange('academic');
-    } else if (tabFromPath === 'feel-good-corner') {
-      onTabChange('feel-good');
-    } else {
-      onTabChange(tabFromPath);
-    }
-  };
 
   return (
     <div className={`min-h-screen bg-gradient-to-br from-sky-100/10 via-white to-violet-100/10 dark:from-sky-900/10 dark:via-gray-900 dark:to-violet-900/10 ${currentMood ? `mood-${currentMood}` : ''}`}>
-      <SidebarNav userType="student" userName={userProfile?.name || "Student"} />
+      <SidebarNav userType="student" userName={userProfile.name} />
       
       <main className={`transition-all duration-300 ${hideSidebar ? 'md:ml-0' : 'md:ml-64'} p-4 sm:p-6 pb-20 md:pb-6`}>
         <TopNavigationControls 
@@ -170,15 +154,16 @@ const DashboardLayout = ({
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              <Button 
-                variant={button.variant} 
-                size="sm" 
-                className={`flex items-center ${button.className}`}
-                onClick={() => handleNavigateToSection(button.path)}
-              >
-                {button.icon}
-                {button.name}
-              </Button>
+              <Link to={button.path}>
+                <Button 
+                  variant={button.variant} 
+                  size="sm" 
+                  className={`flex items-center ${button.className}`}
+                >
+                  {button.icon}
+                  {button.name}
+                </Button>
+              </Link>
             </motion.div>
           ))}
           
@@ -266,10 +251,10 @@ const DashboardLayout = ({
       <WelcomeTour
         onSkipTour={handleCloseTour}
         onCompleteTour={handleCompleteTourAndClose}
-        isFirstTimeUser={!userProfile?.loginCount || userProfile.loginCount <= 1}
+        isFirstTimeUser={!userProfile.loginCount || userProfile.loginCount <= 1}
         lastActivity={lastActivity}
         suggestedNextAction={suggestedNextAction}
-        loginCount={userProfile?.loginCount || 0}
+        loginCount={userProfile.loginCount}
         open={showTour}
         onOpenChange={setShowTour}
       />

@@ -2,10 +2,8 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Separator } from "@/components/ui/separator";
-import { 
-  Home, Calendar, BookMarked, MessageSquare, Brain, BookOpen, LineChart, 
-  Activity, Heart, Folder, Video, Users, Bell, LogOut, ChevronRight 
-} from "lucide-react";
+import { Home, Calendar, BookMarked, MessageSquare, Brain, BookOpen, LineChart, 
+  Activity, Heart, Folder, Video, Users, Bell, LogOut, ChevronRight } from "lucide-react";
 
 interface SidebarNavigationProps {
   activeTab: string;
@@ -17,22 +15,22 @@ const SidebarNavigation = ({ activeTab, onTabChange }: SidebarNavigationProps) =
   const location = useLocation();
 
   const navItems = [
-    { icon: <Home size={20} />, title: "Dashboard", tab: "overview", path: "/dashboard/student/overview" },
-    { icon: <Calendar size={20} />, title: "Today's Plan", tab: "today", path: "/dashboard/student/today" },
-    { icon: <BookMarked size={20} />, title: "Academic Advisor", tab: "academic", path: "/dashboard/student/academic" },
-    { icon: <MessageSquare size={20} />, title: "24/7 AI Tutor", tab: "tutor", path: "/dashboard/student/tutor" },
-    { icon: <Brain size={20} />, title: "Flashcards", tab: "flashcards", path: "/dashboard/student/flashcards" },
-    { icon: <BookOpen size={20} />, title: "Practice Exams", tab: "practice-exam", path: "/dashboard/student/practice-exam" },
-    { icon: <LineChart size={20} />, title: "Progress", tab: "progress", path: "/dashboard/student/progress" },
-    { icon: <Activity size={20} />, title: "Motivation", tab: "motivation", path: "/dashboard/student/motivation" },
-    { icon: <Heart size={20} />, title: "Feel Good Corner", tab: "feel-good", path: "/dashboard/student/feel-good" },
-    { icon: <Folder size={20} />, title: "Materials", tab: "materials", path: "/dashboard/student/materials" },
-    { icon: <Video size={20} />, title: "Videos", tab: "videos", path: "/dashboard/student/videos" },
-    { icon: <Users size={20} />, title: "Study Groups", tab: "forum", path: "/dashboard/student/forum" },
-    { icon: <Bell size={20} />, title: "Notifications", tab: "notifications", path: "/dashboard/student/notifications" },
+    { icon: <Home size={20} />, title: "Dashboard", tab: "overview" },
+    { icon: <Calendar size={20} />, title: "Today's Plan", tab: "today" },
+    { icon: <BookMarked size={20} />, title: "Academic Advisor", tab: "academic" },
+    { icon: <MessageSquare size={20} />, title: "Tutor", tab: "tutor" },
+    { icon: <Brain size={20} />, title: "Flashcards", tab: "flashcards" },
+    { icon: <BookOpen size={20} />, title: "Practice Exams", tab: "exams" },
+    { icon: <LineChart size={20} />, title: "Progress", tab: "progress" },
+    { icon: <Activity size={20} />, title: "Motivation", tab: "motivation" },
+    { icon: <Heart size={20} />, title: "Mental Health", tab: "wellness" },
+    { icon: <Folder size={20} />, title: "Materials", tab: "materials" },
+    { icon: <Video size={20} />, title: "Videos", tab: "videos" },
+    { icon: <Users size={20} />, title: "Study Groups", tab: "forum" },
+    { icon: <Bell size={20} />, title: "Notifications", tab: "notifications" },
   ];
 
-  const handleTabChange = (tab: string, path: string) => {
+  const handleTabChange = (tab: string) => {
     // Preserve any query parameters that should be maintained between navigation
     const currentParams = new URLSearchParams(location.search);
     const persistParams = ['returning']; // Parameters to maintain between tabs
@@ -45,10 +43,10 @@ const SidebarNavigation = ({ activeTab, onTabChange }: SidebarNavigationProps) =
     });
     
     const queryString = params.toString();
-    const fullPath = queryString ? `${path}?${queryString}` : path;
+    const path = queryString ? `/dashboard/student/${tab}?${queryString}` : `/dashboard/student/${tab}`;
     
     onTabChange(tab);
-    navigate(fullPath);
+    navigate(path);
   };
   
   return (
@@ -62,7 +60,7 @@ const SidebarNavigation = ({ activeTab, onTabChange }: SidebarNavigationProps) =
           {navItems.map((item) => (
             <button
               key={item.tab}
-              onClick={() => handleTabChange(item.tab, item.path)}
+              onClick={() => handleTabChange(item.tab)}
               className={`w-full flex items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-all ${
                 activeTab === item.tab
                   ? "bg-gradient-to-r from-sky-500 to-violet-500 text-white shadow-sm"
