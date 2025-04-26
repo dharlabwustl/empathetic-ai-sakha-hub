@@ -11,7 +11,7 @@ import FeelGoodCorner from '@/components/dashboard/student/FeelGoodCorner';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
-import { TodayPlanView, FlashcardsView, PracticeExamsView } from '@/pages/dashboard/student/TabContentViews';
+import { TodayPlanView, FlashcardsView } from '@/pages/dashboard/student/TabContentViews';
 import ConceptCardView from '@/components/dashboard/student/concept-cards/ConceptCardView';
 import { MicroConceptView } from '@/pages/dashboard/student/TabContentViews';
 import PracticeExamsSection from './practice-exams/PracticeExamsSection';

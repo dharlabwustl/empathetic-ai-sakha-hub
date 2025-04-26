@@ -4,6 +4,8 @@ import { generateTabContents } from "@/components/dashboard/student/TabContentMa
 import DashboardTabs from "@/components/dashboard/student/DashboardTabs";
 import ReturnUserRecap from "@/components/dashboard/student/ReturnUserRecap";
 import { TodaysPlanSection } from "@/components/dashboard/student/todays-plan";
+import { UserProfileType } from '@/types/user';
+import { KpiData, NudgeData } from '@/hooks/useKpiTracking';
 
 interface DashboardTabsProps {
   activeTab: string;
