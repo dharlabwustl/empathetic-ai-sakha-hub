@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -20,6 +19,7 @@ export interface ConceptCardProps {
   isPremium?: boolean;
   onToggleComplete?: (id: string, completed: boolean) => void;
   onView?: (id: string) => void;
+  relatedConcepts?: string[];
 }
 
 const ConceptCard: React.FC<ConceptCardProps> = ({
@@ -33,11 +33,11 @@ const ConceptCard: React.FC<ConceptCardProps> = ({
   isLocked = false,
   isPremium = false,
   onToggleComplete,
-  onView
+  onView,
+  relatedConcepts = []
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   
-  // Get color based on difficulty
   const getDifficultyColor = () => {
     switch (difficulty) {
       case 'easy':
@@ -53,7 +53,6 @@ const ConceptCard: React.FC<ConceptCardProps> = ({
     }
   };
   
-  // Get color based on subject
   const getSubjectColor = () => {
     const colors: Record<string, string> = {
       'Physics': 'bg-indigo-100 text-indigo-700 border-indigo-200',
@@ -81,7 +80,6 @@ const ConceptCard: React.FC<ConceptCardProps> = ({
     }
   };
   
-  // Card animations
   const cardVariants = {
     initial: { opacity: 0, y: 20 },
     animate: { opacity: 1, y: 0, transition: { duration: 0.3 } },
@@ -100,7 +98,6 @@ const ConceptCard: React.FC<ConceptCardProps> = ({
         className={`relative ${completed ? 'border-l-4 border-green-500' : ''} ${isLocked ? 'opacity-80' : ''}`}
       >
         <Card className={`overflow-hidden h-full ${isLocked ? 'bg-gray-50 dark:bg-gray-800/50' : ''}`}>
-          {/* Premium Tag */}
           {isPremium && (
             <div className="absolute top-2 right-2 z-10">
               <Badge variant="outline" className="bg-gradient-to-r from-amber-100 to-amber-200 text-amber-700 border-amber-300">
@@ -109,7 +106,6 @@ const ConceptCard: React.FC<ConceptCardProps> = ({
             </div>
           )}
           
-          {/* Lock Overlay */}
           {isLocked && (
             <div className="absolute inset-0 bg-gray-200/60 dark:bg-gray-700/60 backdrop-blur-[1px] flex items-center justify-center z-20">
               <div className="text-center">
@@ -135,7 +131,6 @@ const ConceptCard: React.FC<ConceptCardProps> = ({
                 </Badge>
               </div>
               
-              {/* Completion Status */}
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
@@ -172,7 +167,7 @@ const ConceptCard: React.FC<ConceptCardProps> = ({
             </p>
           </CardContent>
           
-          <CardFooter className="pt-1 flex flex-col space-y-2">
+          <CardFooter className="flex flex-col space-y-4">
             <div className="w-full flex items-center justify-between">
               <div className="flex items-center text-xs text-muted-foreground">
                 <Brain className="h-3.5 w-3.5 mr-1" />
@@ -213,6 +208,28 @@ const ConceptCard: React.FC<ConceptCardProps> = ({
                 </>
               )}
             </Button>
+            
+            {relatedConcepts && relatedConcepts.length > 0 && (
+              <div className="w-full space-y-2">
+                <p className="text-sm font-medium text-muted-foreground">Related Concepts:</p>
+                <div className="flex flex-wrap gap-2">
+                  {relatedConcepts.map((conceptId) => (
+                    <Button
+                      key={conceptId}
+                      variant="outline"
+                      size="sm"
+                      className="text-xs hover:bg-muted"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onView?.(conceptId);
+                      }}
+                    >
+                      View Related
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            )}
           </CardFooter>
         </Card>
         
