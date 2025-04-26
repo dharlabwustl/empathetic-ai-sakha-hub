@@ -4,8 +4,9 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Brain, BookOpen, Clock, Tag, Book } from 'lucide-react';
+import { ArrowRight, Brain, BookOpen, Clock, Book } from 'lucide-react';
 import { useUserStudyPlan } from '@/hooks/useUserStudyPlan';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface ConceptCardViewProps {
   title?: string;
@@ -24,12 +25,19 @@ const ConceptCardView: React.FC<ConceptCardViewProps> = ({
 }) => {
   const { conceptCards, loading } = useUserStudyPlan();
   const [selectedView, setSelectedView] = useState<'today' | 'week' | 'month'>('today');
+  const [activeSubject, setActiveSubject] = useState<string>(subject || 'all');
+  const [showAllCards, setShowAllCards] = useState(false);
+  
+  // Get unique subjects
+  const subjects = React.useMemo(() => {
+    const subjectsSet = new Set(conceptCards.map(card => card.subject));
+    return Array.from(subjectsSet);
+  }, [conceptCards]);
   
   // Filter cards based on props and selected view
-  const filteredCards = conceptCards
-    .filter(card => !subject || card.subject === subject)
-    .filter(card => !chapter || card.chapter === chapter)
-    .filter(card => {
+  const filteredCards = React.useMemo(() => {
+    let filtered = conceptCards.filter(card => {
+      // Filter by time period
       if (selectedView === 'today') {
         return card.scheduledFor === 'today';
       } else if (selectedView === 'week') {
@@ -37,8 +45,27 @@ const ConceptCardView: React.FC<ConceptCardViewProps> = ({
       } else {
         return card.scheduledFor === 'month';
       }
-    })
-    .slice(0, limit);
+    });
+    
+    // Filter by subject if specified or if a subject is selected
+    if (subject) {
+      filtered = filtered.filter(card => card.subject === subject);
+    } else if (activeSubject !== 'all') {
+      filtered = filtered.filter(card => card.subject === activeSubject);
+    }
+    
+    // Filter by chapter if specified
+    if (chapter) {
+      filtered = filtered.filter(card => card.chapter === chapter);
+    }
+    
+    // Apply limit unless showAllCards is true
+    if (!showAllCards) {
+      return filtered.slice(0, limit);
+    }
+    
+    return filtered;
+  }, [conceptCards, selectedView, subject, activeSubject, chapter, limit, showAllCards]);
   
   if (loading) {
     return (
@@ -58,8 +85,9 @@ const ConceptCardView: React.FC<ConceptCardViewProps> = ({
     <div className="space-y-4">
       {title && <h3 className="text-xl font-medium">{title}</h3>}
       
-      {!subject && !chapter && (
-        <div className="flex items-center space-x-4 mb-4 overflow-x-auto pb-2">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-4 sm:space-y-0">
+        {/* Time Period Tabs */}
+        <div className="flex items-center space-x-4 overflow-x-auto pb-2">
           <Button 
             variant={selectedView === 'today' ? "default" : "outline"}
             size="sm"
@@ -85,12 +113,27 @@ const ConceptCardView: React.FC<ConceptCardViewProps> = ({
             This Month
           </Button>
         </div>
-      )}
+        
+        {/* Only show subject tabs if no specific subject is provided */}
+        {!subject && subjects.length > 1 && (
+          <Tabs value={activeSubject} onValueChange={setActiveSubject} className="flex-grow">
+            <TabsList className="flex flex-wrap h-auto">
+              <TabsTrigger value="all">All Subjects</TabsTrigger>
+              {subjects.map(subj => (
+                <TabsTrigger key={subj} value={subj}>{subj}</TabsTrigger>
+              ))}
+            </TabsList>
+          </Tabs>
+        )}
+      </div>
       
       {filteredCards.length === 0 ? (
         <Card className="bg-gray-50">
           <CardContent className="p-6 text-center">
-            <p className="text-gray-500">No concept cards found for {selectedView === 'today' ? "today" : selectedView === 'week' ? "this week" : "this month"}</p>
+            <p className="text-gray-500">
+              No concept cards found for {subject || activeSubject !== 'all' ? (subject || activeSubject) + ' ' : ''}
+              {selectedView === 'today' ? "today" : selectedView === 'week' ? "this week" : "this month"}
+            </p>
           </CardContent>
         </Card>
       ) : (
@@ -135,13 +178,15 @@ const ConceptCardView: React.FC<ConceptCardViewProps> = ({
         </div>
       )}
       
-      {showViewAll && filteredCards.length > 0 && (
+      {showViewAll && !showAllCards && filteredCards.length >= limit && (
         <div className="flex justify-center mt-4">
-          <Link to="/dashboard/student/concepts/all">
-            <Button variant="outline" className="flex items-center gap-2">
-              View All Concepts <ArrowRight size={16} />
-            </Button>
-          </Link>
+          <Button 
+            variant="outline" 
+            className="flex items-center gap-2"
+            onClick={() => setShowAllCards(true)}
+          >
+            View All Concepts <ArrowRight size={16} />
+          </Button>
         </div>
       )}
     </div>

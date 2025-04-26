@@ -1,4 +1,3 @@
-
 import React, { ReactNode } from 'react';
 import TutorCard from '@/components/dashboard/student/TutorCard';
 import StudyPlannerCard from '@/components/dashboard/student/StudyPlannerCard';
@@ -20,7 +19,7 @@ import { KpiData, NudgeData } from '@/hooks/useKpiTracking';
 import FlashcardsFeature from '@/components/dashboard/student/FlashcardsFeature';
 import FeelGoodCorner from '@/components/dashboard/student/FeelGoodCorner';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { TodayPlanView, FlashcardsView, PracticeExamsView, MicroConceptView } from '@/pages/dashboard/student/TabContentViews';
+import { TodayPlanView, FlashcardsView, PracticeExamsView, ConceptsView } from '@/pages/dashboard/student/TabContentViews';
 import ConceptCardView from '@/components/dashboard/student/concept-cards/ConceptCardView';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';

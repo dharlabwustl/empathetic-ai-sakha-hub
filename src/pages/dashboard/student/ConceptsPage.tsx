@@ -89,15 +89,37 @@ const ConceptsPage = () => {
           initial="hidden"
           animate="visible"
         >
-          {filteredCards.map((card) => (
-            <motion.div key={card.id} variants={itemVariants}>
-              <ConceptCard {...card} />
-            </motion.div>
-          ))}
+          {loading ? (
+            Array(6).fill(0).map((_, index) => (
+              <motion.div key={`skeleton-${index}`} variants={itemVariants}>
+                <div className="h-64 bg-gray-100 animate-pulse rounded-lg"></div>
+              </motion.div>
+            ))
+          ) : filteredCards.length === 0 ? (
+            <div className="col-span-full text-center py-10">
+              <p className="text-gray-500">No concept cards found for {activeSubject !== 'all' ? activeSubject : ''} {timeView === 'today' ? 'today' : timeView === 'week' ? 'this week' : 'this month'}</p>
+            </div>
+          ) : (
+            filteredCards.map((card) => (
+              <motion.div key={card.id} variants={itemVariants}>
+                <ConceptCard 
+                  id={card.id}
+                  title={card.title}
+                  description={card.description}
+                  subject={card.subject}
+                  difficulty={card.difficulty.toLowerCase() as any}
+                  completed={card.completed}
+                  progress={card.progress}
+                  relatedConcepts={card.relatedConcepts}
+                  onView={() => window.location.href = `/dashboard/student/concepts/${card.id}`}
+                />
+              </motion.div>
+            ))
+          )}
         </motion.div>
 
         {/* View All Button */}
-        {!showAllCards && filteredCards.length === 6 && (
+        {!showAllCards && filteredCards.length === 6 && filteredCards.length < conceptCards.filter(card => card.scheduledFor === timeView && (activeSubject === 'all' || card.subject === activeSubject)).length && (
           <div className="flex justify-center mt-6">
             <Button
               variant="outline"
