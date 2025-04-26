@@ -3,7 +3,7 @@ import React from 'react';
 import { Button } from "@/components/ui/button";
 import { useNavigate } from 'react-router-dom';
 import MoodLogButton from "@/components/dashboard/student/MoodLogButton";
-import { MoodType } from "@/types/user/base";
+import { MoodType, UserProfileType } from "@/types/user/base";
 
 interface DashboardHeaderProps {
   userProfile: UserProfileType;
@@ -53,6 +53,3 @@ const DashboardHeader = ({
 };
 
 export default DashboardHeader;
-
-// Import the UserProfileType
-import { UserProfileType } from "@/types/user/base";

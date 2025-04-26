@@ -4,11 +4,11 @@ import DashboardHeader from './DashboardHeader';
 import SidebarNavigation from './SidebarNavigation';
 import MobileNavigation from './MobileNavigation';
 import { Card } from '@/components/ui/card';
-import { MoodType } from '@/types/user/base';
+import { MoodType, UserProfileType } from '@/types/user/base';
 import { useToast } from '@/hooks/use-toast';
 
 interface DashboardLayoutProps {
-  userProfile: any;
+  userProfile: UserProfileType;
   hideSidebar: boolean;
   hideTabsNav: boolean;
   activeTab: string;
@@ -122,95 +122,53 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
       case "sad":
         suggestion = "It's okay to feel down sometimes. Chat with study buddies or try something easy today.";
         break;
+      case "okay":
+        suggestion = "Steady state is good! Pick a topic you're comfortable with to build momentum.";
+        break;
+      case "overwhelmed":
+        suggestion = "Take a step back and break your tasks into smaller, manageable chunks.";
+        break;
       default:
         suggestion = "What would you like to focus on today?";
     }
     
-    // Show smart suggestion
     toast({
       title: "Smart Suggestion",
-      description: suggestion,
-      duration: 5000
+      description: suggestion
     });
   };
 
   return (
-    <main className="flex min-h-screen bg-gray-50 dark:bg-gray-900">
-      {/* Sidebar */}
-      {!hideSidebar && (
-        <SidebarNavigation activeTab={activeTab} onTabChange={onTabChange} />
-      )}
+    <div className="flex flex-col md:flex-row h-screen bg-gray-50 dark:bg-gray-900">
+      {/* Sidebar navigation - desktop only */}
+      <SidebarNavigation 
+        activeTab={activeTab} 
+        onTabChange={onTabChange} 
+        hidden={hideSidebar} 
+      />
       
-      {/* Main Content Area */}
-      <div className="flex-1 flex flex-col">
-        <div className="container mx-auto px-4 py-6 max-w-7xl">
-          <DashboardHeader
-            userProfile={userProfile}
-            formattedTime={formattedTime}
-            formattedDate={formattedDate}
-            onViewStudyPlan={onViewStudyPlan}
-            currentMood={localMood}
-            onMoodChange={handleMoodChange}
-          />
-          
-          {!hideTabsNav && (
-            <MobileNavigation activeTab={activeTab} onTabChange={onTabChange} />
-          )}
-          
-          {/* Dashboard Content */}
-          <div className="space-y-6">
-            {/* Quick Actions */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              <Button 
-                onClick={onViewStudyPlan}
-                variant="outline" 
-                className="h-auto py-3 px-4 flex flex-col items-center justify-center bg-white dark:bg-gray-800 hover:bg-gray-50"
-              >
-                <span className="text-lg font-semibold">Study Plan</span>
-                <span className="text-xs text-muted-foreground">View your daily plan</span>
-              </Button>
-              
-              <Button 
-                variant="outline" 
-                className="h-auto py-3 px-4 flex flex-col items-center justify-center bg-white dark:bg-gray-800 hover:bg-gray-50"
-                onClick={() => handleNavigate("/dashboard/student/academic")}
-              >
-                <span className="text-lg font-semibold">AI Tutor</span>
-                <span className="text-xs text-muted-foreground">24/7 assistance</span>
-              </Button>
-              
-              <Button 
-                variant="outline" 
-                className="h-auto py-3 px-4 flex flex-col items-center justify-center bg-white dark:bg-gray-800 hover:bg-gray-50"
-                onClick={() => handleNavigate("/dashboard/student/academic")}
-              >
-                <span className="text-lg font-semibold">Academic</span>
-                <span className="text-xs text-muted-foreground">Get expert guidance</span>
-              </Button>
-              
-              <Button 
-                variant="outline" 
-                className="h-auto py-3 px-4 flex flex-col items-center justify-center bg-white dark:bg-gray-800 hover:bg-gray-50"
-                onClick={() => handleNavigate("/dashboard/student/wellness")}
-              >
-                <span className="text-lg font-semibold">Feel Good</span>
-                <span className="text-xs text-muted-foreground">Wellness corner</span>
-              </Button>
-            </div>
-            
-            {/* Main Content */}
-            <div>
-              {children || (
-                <Card className="p-6">
-                  <h2 className="text-xl font-semibold mb-4">Welcome to your dashboard</h2>
-                  <p>Select an option from the sidebar to get started.</p>
-                </Card>
-              )}
-            </div>
-          </div>
-        </div>
+      {/* Main content */}
+      <div className="flex-1 overflow-auto p-4 md:p-6">
+        {/* Mobile navigation tabs */}
+        <MobileNavigation 
+          activeTab={activeTab} 
+          onTabChange={onTabChange} 
+        />
+        
+        {/* Header section */}
+        <DashboardHeader 
+          userProfile={userProfile}
+          formattedTime={formattedTime}
+          formattedDate={formattedDate}
+          onViewStudyPlan={onViewStudyPlan}
+          currentMood={localMood}
+          onMoodChange={handleMoodChange}
+        />
+        
+        {/* Main dashboard content */}
+        {children}
       </div>
-    </main>
+    </div>
   );
 };
 

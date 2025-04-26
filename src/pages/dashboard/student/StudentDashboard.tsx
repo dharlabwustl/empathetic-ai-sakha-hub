@@ -8,6 +8,7 @@ import SplashScreen from "@/components/dashboard/student/SplashScreen";
 import { useLocation, useNavigate } from "react-router-dom";
 import ReturningUserPrompt from "@/components/dashboard/student/ReturningUserPrompt";
 import { MoodType } from "@/types/user/base";
+import DashboardContent from "./DashboardContent";
 
 const StudentDashboard = () => {
   const [showSplash, setShowSplash] = useState(true);
@@ -98,6 +99,17 @@ const StudentDashboard = () => {
     }
   }, [location]);
   
+  const handleMoodChange = (mood: MoodType) => {
+    setCurrentMood(mood);
+    
+    // Save mood to localStorage
+    const userData = localStorage.getItem("userData") ? 
+      JSON.parse(localStorage.getItem("userData")!) : {};
+    
+    userData.mood = mood;
+    localStorage.setItem("userData", JSON.stringify(userData));
+  };
+  
   const handleSplashComplete = () => {
     setShowSplash(false);
     // Mark that the user has seen the splash screen in this session
@@ -105,11 +117,7 @@ const StudentDashboard = () => {
     
     // Save a default optimistic mood if none is set
     if (!currentMood) {
-      setCurrentMood('motivated');
-      const userData = localStorage.getItem("userData") ? 
-        JSON.parse(localStorage.getItem("userData")!) : {};
-      userData.mood = 'motivated';
-      localStorage.setItem("userData", JSON.stringify(userData));
+      handleMoodChange('motivated');
     }
   };
   
@@ -191,7 +199,23 @@ const StudentDashboard = () => {
       lastActivity={dashboardLastActivity}
       suggestedNextAction={suggestedNextAction}
       currentMood={currentMood}
-    />
+    >
+      <DashboardContent
+        activeTab={activeTab}
+        onTabChange={handleTabChange}
+        userProfile={userProfile}
+        kpis={kpis}
+        nudges={nudges}
+        markNudgeAsRead={markNudgeAsRead}
+        features={features}
+        showWelcomeTour={showWelcomeTour}
+        handleSkipTour={handleSkipTour}
+        handleCompleteTour={handleCompleteTour}
+        hideTabsNav={hideTabsNav}
+        lastActivity={dashboardLastActivity}
+        suggestedNextAction={suggestedNextAction}
+      />
+    </DashboardLayout>
   );
 };
 
