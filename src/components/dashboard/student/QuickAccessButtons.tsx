@@ -1,51 +1,36 @@
 
 import React from 'react';
-import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
-import { MessageSquare, GraduationCap, Heart, BookOpen } from "lucide-react";
+import { Link } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { Book, BookOpen, FileText, MessageSquare } from 'lucide-react';
 
-export function QuickAccessButtons() {
-  const buttons = [
-    {
-      name: "24/7 AI Tutor",
-      icon: <MessageSquare className="h-4 w-4 mr-1" />,
-      path: "/dashboard/student/overview?feature=tutor",
-      className: "bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white"
-    },
-    {
-      name: "Academic Advisor",
-      icon: <GraduationCap className="h-4 w-4 mr-1" />,
-      path: "/dashboard/student/overview?feature=advisor",
-      className: "bg-gradient-to-r from-purple-500 to-violet-600 hover:from-purple-600 hover:to-violet-700 text-white"
-    },
-    {
-      name: "Feel Good Corner",
-      icon: <Heart className="h-4 w-4 mr-1" />,
-      path: "/dashboard/student/overview?feature=feel-good",
-      className: "bg-gradient-to-r from-pink-500 to-rose-600 hover:from-pink-600 hover:to-rose-700 text-white"
-    },
-    {
-      name: "View Study Plan",
-      icon: <BookOpen className="h-4 w-4 mr-1" />,
-      path: "/dashboard/student/overview?feature=study-plan",
-      className: "bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white"
-    }
-  ];
-
+export const QuickAccessButtons: React.FC = () => {
   return (
-    <div className="flex flex-wrap items-center gap-2 p-4 mb-4 bg-white/80 dark:bg-gray-800/50 backdrop-blur-sm rounded-lg shadow-sm border border-gray-100 dark:border-gray-700">
-      {buttons.map((button) => (
-        <Link key={button.name} to={button.path}>
-          <Button 
-            variant="default"
-            size="sm"
-            className={`flex items-center ${button.className}`}
-          >
-            {button.icon}
-            {button.name}
-          </Button>
-        </Link>
-      ))}
+    <div className="flex flex-wrap gap-2 mb-4">
+      <Link to="/dashboard/student/concepts">
+        <Button variant="outline" size="sm" className="flex items-center">
+          <Book className="h-4 w-4 mr-1" />
+          Concepts
+        </Button>
+      </Link>
+      <Link to="/dashboard/student/flashcards">
+        <Button variant="outline" size="sm" className="flex items-center">
+          <BookOpen className="h-4 w-4 mr-1" />
+          Flashcards
+        </Button>
+      </Link>
+      <Link to="/dashboard/student/practice-exam">
+        <Button variant="outline" size="sm" className="flex items-center">
+          <FileText className="h-4 w-4 mr-1" />
+          Practice Tests
+        </Button>
+      </Link>
+      <Link to="/dashboard/student/tutor">
+        <Button variant="outline" size="sm" className="flex items-center">
+          <MessageSquare className="h-4 w-4 mr-1" />
+          AI Tutor
+        </Button>
+      </Link>
     </div>
   );
-}
+};

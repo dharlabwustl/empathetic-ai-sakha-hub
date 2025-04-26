@@ -1,11 +1,12 @@
 
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Link } from 'react-router-dom';
-import { AlertCircle, BookOpen, Calendar, Check, Clock, FileText } from 'lucide-react';
-import { MoodType } from '@/types/user/base';
+import { Book, BookOpen, Calendar, Check, Clock, AlertCircle, BookCheck } from 'lucide-react';
+import { MoodType } from '@/types/student/todaysPlan';
+import { cn } from '@/lib/utils';
 
 interface TodaysPlanSectionProps {
   studyPlan: any; // Replace with proper type
@@ -43,6 +44,13 @@ const getMoodBasedPlan = (mood: MoodType | undefined, defaultPlan: any) => {
         message: "Stress-relief mode: Just 1 simple concept and quick flashcards today.",
         estimatedTime: defaultPlan.todaysFocus.estimatedTime * 0.5
       };
+    case 'anxious':
+      return {
+        ...defaultPlan,
+        concepts: defaultPlan.todaysFocus.concepts.slice(0, 1),
+        message: "Anxiety management mode: Focusing on simple topics to build confidence.",
+        estimatedTime: defaultPlan.todaysFocus.estimatedTime * 0.6
+      };
     default:
       return {
         ...defaultPlan,
@@ -78,6 +86,7 @@ export default function TodaysPlanSection({ studyPlan, currentMood }: TodaysPlan
               currentMood === 'focused' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' :
               currentMood === 'tired' ? 'bg-blue-50 text-blue-700 border border-blue-200' :
               currentMood === 'stressed' ? 'bg-red-50 text-red-700 border border-red-200' :
+              currentMood === 'anxious' ? 'bg-purple-50 text-purple-700 border border-purple-200' :
               'bg-purple-50 text-purple-700 border border-purple-200'
             } mb-3`}>
               <p className="text-sm">{adaptedPlan.message}</p>
@@ -103,12 +112,12 @@ export default function TodaysPlanSection({ studyPlan, currentMood }: TodaysPlan
             
             <div className="flex items-center justify-between">
               <div className="flex items-center">
-                <FileText className="h-4 w-4 mr-1 text-amber-500" />
+                <BookOpen className="h-4 w-4 mr-1 text-amber-500" />
                 <p className="text-sm font-medium">Flashcards:</p>
               </div>
               <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/20 dark:text-amber-300 dark:border-amber-700">
                 {currentMood === 'focused' ? studyPlan.todaysFocus.flashcardsCount + 5 : 
-                 currentMood === 'tired' || currentMood === 'stressed' ? Math.max(5, Math.floor(studyPlan.todaysFocus.flashcardsCount / 2)) : 
+                 (currentMood === 'tired' || currentMood === 'stressed' || currentMood === 'anxious') ? Math.max(5, Math.floor(studyPlan.todaysFocus.flashcardsCount / 2)) : 
                  studyPlan.todaysFocus.flashcardsCount}
               </Badge>
             </div>

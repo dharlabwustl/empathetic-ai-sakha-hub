@@ -1,3 +1,4 @@
+
 import React, { ReactNode } from 'react';
 import TutorCard from '@/components/dashboard/student/TutorCard';
 import StudyPlannerCard from '@/components/dashboard/student/StudyPlannerCard';
@@ -24,6 +25,7 @@ import ConceptCardView from '@/components/dashboard/student/concept-cards/Concep
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
+import RedesignedTodaysPlan from '@/components/dashboard/student/todays-plan/RedesignedTodaysPlan';
 
 interface TabContentManagerProps {
   userProfile: UserProfileType;
@@ -81,7 +83,7 @@ export const generateTabContents = ({
         />
       </>
     ),
-    today: <TodayPlanView />,
+    today: <RedesignedTodaysPlan userProfile={userProfile} />,
     academic: <AcademicAdvisor userProfile={userProfile} />,
     concepts: (
       <div className="space-y-6">

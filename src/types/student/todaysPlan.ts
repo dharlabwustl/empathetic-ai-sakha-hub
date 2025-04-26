@@ -1,3 +1,4 @@
+
 import { DifficultyLevel } from './dashboard';
 
 export type TaskStatus = '✅ completed' | '🔄 in-progress' | '🕒 viewed' | '🔴 pending';
@@ -131,4 +132,4 @@ export interface TimeAllocationSummary {
   total: number;
 }
 
-export type MoodType = 'happy' | 'focused' | 'tired' | 'anxious' | 'stressed';
+export type MoodType = 'happy' | 'focused' | 'tired' | 'anxious' | 'stressed' | 'motivated' | 'sad' | 'neutral' | 'overwhelmed' | 'curious' | 'okay';

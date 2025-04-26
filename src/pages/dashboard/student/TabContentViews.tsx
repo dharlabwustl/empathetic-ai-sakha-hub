@@ -1,8 +1,10 @@
+
 import React from 'react';
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
 import { SubjectTasksBreakdown } from '@/components/dashboard/student/todays-plan/SubjectTasksBreakdown';
 import { HistoryAndBacklog } from '@/components/dashboard/student/todays-plan/HistoryAndBacklog';
 import { Card } from "@/components/ui/card";
+import RedesignedTodaysPlan from '@/components/dashboard/student/todays-plan/RedesignedTodaysPlan';
 
 export function TodayPlanView() {
   return (
