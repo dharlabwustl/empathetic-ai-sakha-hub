@@ -9,6 +9,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import ReturningUserPrompt from "@/components/dashboard/student/ReturningUserPrompt";
 import { MoodType } from "@/types/user/base";
 import DashboardContent from "./DashboardContent";
+import { useToast } from "@/hooks/use-toast";
 
 const StudentDashboard = () => {
   const [showSplash, setShowSplash] = useState(false);
@@ -17,6 +18,11 @@ const StudentDashboard = () => {
   const [lastActivity, setLastActivity] = useState<any>(null);
   const location = useLocation();
   const navigate = useNavigate();
+  const { toast } = useToast();
+  
+  // Get the active tab from the URL path
+  const pathSegments = location.pathname.split('/');
+  const currentTabFromPath = pathSegments[pathSegments.length - 1];
   
   const {
     loading,
@@ -68,6 +74,13 @@ const StudentDashboard = () => {
       }
     }
   }, []);
+  
+  // Handle tab changes based on URL path
+  useEffect(() => {
+    if (currentTabFromPath && currentTabFromPath !== activeTab && currentTabFromPath !== 'all') {
+      handleTabChange(currentTabFromPath);
+    }
+  }, [location.pathname, activeTab]);
   
   const handleContinueLastActivity = () => {
     setShowReturningPrompt(false);

@@ -57,6 +57,7 @@ export const SidebarNavRoutes = ({
 }: SidebarNavRoutesProps) => {
   const location = useLocation();
   
+  // Standardized route paths for student dashboard
   const userTypeRoutes: UserRouteMap = {
     student: [
       { name: "Dashboard", path: "/dashboard/student/overview", icon: <LayoutDashboard size={20} /> },
@@ -160,8 +161,7 @@ export const SidebarNavRoutes = ({
                       to={route.path}
                       className={cn(
                         "flex items-center gap-3 px-3 py-2 rounded-md transition-all duration-200",
-                        (location.pathname === route.path || 
-                         (route.path === "/dashboard/student/profile" && location.pathname === "/dashboard/student/profile"))
+                        (location.pathname === route.path || location.pathname.startsWith(route.path + '/'))
                           ? "bg-gradient-to-r from-sky-500 to-violet-500 text-white"
                           : "hover:bg-accent hover:shadow-md",
                         collapsed && "justify-center"

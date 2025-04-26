@@ -23,12 +23,16 @@ export const useStudentDashboard = () => {
   const location = useLocation();
   const { toast } = useToast();
   
-  // Get tab from URL or default to overview
-  const path = location.pathname;
-  const pathSegments = path.split('/');
-  const initialTab = pathSegments[pathSegments.length - 1] || 'overview';
+  // Extract tab from the URL path correctly
+  const pathSegments = location.pathname.split('/');
+  let tabFromPath = pathSegments[pathSegments.length - 1];
   
-  const [activeTab, setActiveTab] = useState(initialTab);
+  // Handle nested paths like concepts/all
+  if (tabFromPath === 'all' && pathSegments.length > 3) {
+    tabFromPath = pathSegments[pathSegments.length - 2]; // Get parent segment like "concepts"
+  }
+  
+  const [activeTab, setActiveTab] = useState(tabFromPath || 'overview');
   
   const now = new Date();
   const hour = now.getHours();
@@ -48,12 +52,22 @@ export const useStudentDashboard = () => {
     settings: true,
   };
   
+  // Update active tab when URL path changes
   useEffect(() => {
-    // Update active tab when URL path changes
     const pathSegments = location.pathname.split('/');
-    const tabFromPath = pathSegments[pathSegments.length - 1];
-    if (tabFromPath && tabFromPath !== activeTab) {
-      setActiveTab(tabFromPath);
+    let newTab = pathSegments[pathSegments.length - 1];
+    
+    // Handle nested paths like concepts/all
+    if (newTab === 'all' && pathSegments.length > 3) {
+      newTab = pathSegments[pathSegments.length - 2]; // Get parent segment
+    }
+    
+    // Don't update if it's a detail view (typically has an ID)
+    const isDetailView = !isNaN(Number(newTab));
+    
+    if (newTab && newTab !== activeTab && !isDetailView) {
+      console.log(`Tab changed from URL: ${activeTab} -> ${newTab}`);
+      setActiveTab(newTab);
     }
   }, [location.pathname]);
   
@@ -139,10 +153,30 @@ export const useStudentDashboard = () => {
     }
   }, [profileLoading]);
   
-  // Enhanced tab change handler to maintain URL query parameters
+  // Enhanced tab change handler with standardized URLs for each tab
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
-    navigate(`/dashboard/student/${tab}`);
+    
+    // Map tabs to their standardized routes
+    const tabToRoute: Record<string, string> = {
+      overview: "/dashboard/student/overview",
+      today: "/dashboard/student/today",
+      academic: "/dashboard/student/academic",
+      concepts: "/dashboard/student/concepts/all",
+      flashcards: "/dashboard/student/flashcards",
+      exams: "/dashboard/student/exams",
+      progress: "/dashboard/student/progress",
+      notifications: "/dashboard/student/notifications",
+      wellness: "/dashboard/student/wellness",
+      materials: "/dashboard/student/materials",
+      videos: "/dashboard/student/videos",
+      forum: "/dashboard/student/forum",
+      motivation: "/dashboard/student/motivation"
+    };
+    
+    // Navigate to the standard route for this tab
+    const route = tabToRoute[tab] || `/dashboard/student/${tab}`;
+    navigate(route);
   };
   
   const toggleSidebar = () => {

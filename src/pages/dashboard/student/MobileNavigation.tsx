@@ -28,6 +28,7 @@ const MobileNavigation = ({ activeTab, onTabChange }: MobileNavigationProps) => 
   const location = useLocation();
   const isMobile = useIsMobile();
   
+  // Define consistent routes for mobile navigation - ensuring alignment with other navigation components
   const navItems = [
     { icon: <Home size={16} />, title: "Dashboard", tab: "overview", path: "/dashboard/student/overview" },
     { icon: <Calendar size={16} />, title: "Today's Plan", tab: "today", path: "/dashboard/student/today" },

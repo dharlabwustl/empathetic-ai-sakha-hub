@@ -23,12 +23,14 @@ import {
 interface SidebarNavigationProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
+  hidden?: boolean;
 }
 
-const SidebarNavigation = ({ activeTab, onTabChange }: SidebarNavigationProps) => {
+const SidebarNavigation = ({ activeTab, onTabChange, hidden }: SidebarNavigationProps) => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  // Define consistent navigation items with same paths used in other nav components
   const navItems = [
     { icon: <Home size={20} />, title: "Dashboard", tab: "overview", path: "/dashboard/student/overview" },
     { icon: <Calendar size={20} />, title: "Today's Plan", tab: "today", path: "/dashboard/student/today" },
@@ -46,22 +48,8 @@ const SidebarNavigation = ({ activeTab, onTabChange }: SidebarNavigationProps) =
   ];
 
   const handleTabChange = (tab: string, path: string) => {
-    // Preserve any query parameters that should be maintained between navigation
-    const currentParams = new URLSearchParams(location.search);
-    const persistParams = ['returning']; // Parameters to maintain between tabs
-    
-    const params = new URLSearchParams();
-    persistParams.forEach(param => {
-      if (currentParams.has(param)) {
-        params.set(param, currentParams.get(param)!);
-      }
-    });
-    
-    const queryString = params.toString();
-    const navigatePath = queryString ? `${path}?${queryString}` : path;
-    
     onTabChange(tab);
-    navigate(navigatePath);
+    navigate(path);
   };
 
   const handleLogout = () => {
@@ -72,6 +60,10 @@ const SidebarNavigation = ({ activeTab, onTabChange }: SidebarNavigationProps) =
     // Redirect to login page
     navigate('/login');
   };
+  
+  if (hidden) {
+    return null;
+  }
   
   return (
     <div className="hidden lg:block lg:col-span-3 xl:col-span-2">

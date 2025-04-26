@@ -36,7 +36,7 @@ export default function DashboardTabs({
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   
-  // Updated main navigation tabs with more focused menu items and consistent URLs
+  // Define consistent routes for all dashboard navigation
   const tabs = [
     { id: "overview", label: "Overview", icon: LayoutDashboard, description: "Your personalized dashboard summary", path: "/dashboard/student/overview" },
     { id: "today", label: "Today's Plan", icon: CalendarDays, description: "Daily tasks and schedule", path: "/dashboard/student/today" },
@@ -51,21 +51,7 @@ export default function DashboardTabs({
   const handleTabChange = (tabId: string) => {
     const tab = tabs.find(t => t.id === tabId);
     if (tab) {
-      // Preserve any query parameters that should be maintained between tab changes
-      const currentParams = new URLSearchParams(window.location.search);
-      const persistParams = ['returning']; // Parameters to maintain between tabs
-      
-      const params = new URLSearchParams();
-      persistParams.forEach(param => {
-        if (currentParams.has(param)) {
-          params.set(param, currentParams.get(param)!);
-        }
-      });
-      
-      const queryString = params.toString();
-      const path = queryString ? `${tab.path}?${queryString}` : tab.path;
-      
-      navigate(path);
+      navigate(tab.path);
       onTabChange(tabId);
     }
   };
