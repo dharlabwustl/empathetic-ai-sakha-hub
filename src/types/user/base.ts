@@ -43,7 +43,7 @@ export type SubscriptionDetails = {
 
 export type UserProfileType = UserProfileBase & StudentProfile;
 
-// Add MoodType enumeration
+// Comprehensive MoodType with all possible moods
 export type MoodType = 'sad' | 'neutral' | 'happy' | 'motivated' | 'focused' | 'tired' | 'confused' | 'anxious' | 'stressed' | 'overwhelmed' | 'curious' | 'okay';
 
 export enum SubscriptionType {

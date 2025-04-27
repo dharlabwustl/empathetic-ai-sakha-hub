@@ -21,7 +21,7 @@ import {
   Video, 
   Lightbulb, 
   PencilLine, 
-  MessageCircle,
+  MessageSquare,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { AnimatePresence } from "framer-motion";
@@ -83,7 +83,7 @@ const FeelGoodCorner: React.FC = () => {
                 <PencilLine size={14} /> Doodle
               </TabsTrigger>
               <TabsTrigger value="chat" className="flex-1 gap-1 rounded-none">
-                <MessageCircle size={14} /> Sakha
+                <MessageSquare size={14} /> Sakha
               </TabsTrigger>
             </TabsList>
             

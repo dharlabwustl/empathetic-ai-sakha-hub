@@ -7,6 +7,7 @@ interface SharedPageLayoutProps {
   showQuickAccess?: boolean;
   children: React.ReactNode;
   className?: string;
+  withMarginTop?: boolean;
 }
 
 export const SharedPageLayout: React.FC<SharedPageLayoutProps> = ({
@@ -14,10 +15,11 @@ export const SharedPageLayout: React.FC<SharedPageLayoutProps> = ({
   subtitle,
   showQuickAccess = true,
   children,
-  className = ""
+  className = "",
+  withMarginTop = false
 }) => {
   return (
-    <div className={`space-y-4 ${className}`}>
+    <div className={`space-y-4 ${withMarginTop ? 'mt-6' : ''} ${className}`}>
       <div className="mb-6">
         <h1 className="text-2xl font-bold tracking-tight mb-1">{title}</h1>
         <p className="text-muted-foreground">{subtitle}</p>

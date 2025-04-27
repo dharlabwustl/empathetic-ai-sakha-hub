@@ -9,6 +9,7 @@ import StudyPlanView from '@/components/dashboard/student/studyplan/StudyPlanVie
 import ProfileView from '@/pages/dashboard/student/ProfilePage';
 import BatchManagementView from '@/pages/dashboard/student/BatchManagementView';
 import SubscriptionView from '@/pages/dashboard/student/SubscriptionPage';
+import FeelGoodCornerPage from '@/pages/dashboard/student/FeelGoodCornerPage';
 
 export default function StudentRoutes() {
   return (
@@ -22,6 +23,7 @@ export default function StudentRoutes() {
       <Route path="/profile" element={<ProfileView />} />
       <Route path="/batch" element={<BatchManagementView />} />
       <Route path="/subscription" element={<SubscriptionView />} />
+      <Route path="/wellness" element={<FeelGoodCornerPage />} />
     </Routes>
   );
 }

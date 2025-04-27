@@ -4,12 +4,9 @@ import { Link, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { 
   CalendarDays, 
-  GraduationCap, 
-  FileText, 
-  BookOpen,
-  Clock, 
-  User,
-  Brain
+  GraduationCap,
+  MessageSquare,
+  Heart
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -19,34 +16,10 @@ export const QuickAccess = () => {
   
   const quickLinks = [
     {
-      path: '/dashboard/student/studyplan',
+      path: '/dashboard/student/today',
       icon: <CalendarDays className="h-5 w-5" />,
       label: 'Study Plan',
-      description: 'Review your complete study schedule'
-    },
-    {
-      path: '/dashboard/student/todays-plan',
-      icon: <Clock className="h-5 w-5" />,
-      label: 'Today\'s Plan',
       description: 'See what to study today'
-    },
-    {
-      path: '/dashboard/student/concepts',
-      icon: <BookOpen className="h-5 w-5" />,
-      label: 'Concepts',
-      description: 'Browse study concepts'
-    },
-    {
-      path: '/dashboard/student/flashcards',
-      icon: <Brain className="h-5 w-5" />,
-      label: 'Flashcards',
-      description: 'Review with flashcards'
-    },
-    {
-      path: '/dashboard/student/practice-exam',
-      icon: <FileText className="h-5 w-5" />,
-      label: 'Practice Exams',
-      description: 'Test your knowledge'
     },
     {
       path: '/dashboard/student/academic',
@@ -55,11 +28,17 @@ export const QuickAccess = () => {
       description: 'Get personalized guidance'
     },
     {
-      path: '/dashboard/student/profile',
-      icon: <User className="h-5 w-5" />,
-      label: 'Profile',
-      description: 'View your profile'
+      path: '/dashboard/student/tutor',
+      icon: <MessageSquare className="h-5 w-5" />,
+      label: '24/7 AI Tutor',
+      description: 'Get help anytime'
     },
+    {
+      path: '/dashboard/student/wellness',
+      icon: <Heart className="h-5 w-5" />,
+      label: 'Feel Good Corner',
+      description: 'Boost your mood'
+    }
   ];
   
   return (

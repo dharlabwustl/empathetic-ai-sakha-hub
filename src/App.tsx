@@ -1,3 +1,4 @@
+
 import * as React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -117,7 +118,7 @@ const App = () => {
                     <Route path="/dashboard/student/settings" element={<StudentSettingsPage />} />
                     <Route path="/dashboard/student/wellness" element={<FeelGoodCornerPage />} />
                     <Route path="/dashboard/student/study-groups" element={<StudyGroupsPage />} />
-                    <Route path="/dashboard/student/profile" element={<ProfilePage />} />
+                    <Route path="/dashboard/student/profile" element={<ProfileView />} />
                     <Route path="/dashboard/student/studyplan" element={<StudyPlanView />} />
                     <Route path="/dashboard/student/todays-plan" element={<TodaysPlanView />} />
                     
@@ -131,6 +132,9 @@ const App = () => {
                     <Route path="/dashboard/student/academic" element={<AcademicAdvisor userProfile={{
                       examPreparation: "IIT-JEE"
                     }} />} />
+                    <Route path="/dashboard/student/concepts/detail/:id" element={<ConceptCardDetailPage />} />
+                    <Route path="/dashboard/student/flashcards/detail/:id" element={<FlashcardDetailsPage />} />
+                    <Route path="/dashboard/student/practice/exam/:id" element={<ExamDetailPage />} />
                     
                     <Route path="/dashboard/doctor" element={<DoctorDashboard />} />
                     <Route path="/dashboard/employee" element={<EmployeeDashboard />} />

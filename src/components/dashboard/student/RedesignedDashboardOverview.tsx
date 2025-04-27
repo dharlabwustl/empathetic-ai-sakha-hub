@@ -22,6 +22,8 @@ import UpcomingMilestonesSection from './dashboard-sections/UpcomingMilestonesSe
 import MoodBasedSuggestions from './dashboard-sections/MoodBasedSuggestions';
 import SmartSuggestionsCenter from './dashboard-sections/SmartSuggestionsCenter';
 import { MoodType } from '@/types/user/base';
+import ExamReadinessMeter from './metrics/ExamReadinessMeter';
+import DailyMoodTracker from './mood-tracking/DailyMoodTracker';
 
 interface RedesignedDashboardOverviewProps {
   userProfile: UserProfileType;
@@ -77,6 +79,19 @@ export default function RedesignedDashboardOverview({ userProfile, kpis }: Redes
     } else {
       localStorage.setItem("userData", JSON.stringify({ mood }));
     }
+  };
+
+  // Mock readiness data - in a real app, this would come from props or an API
+  const readinessData = {
+    conceptCompletion: 75,
+    flashcardAccuracy: 82,
+    examScores: {
+      physics: 78,
+      chemistry: 85,
+      mathematics: 80
+    },
+    overallReadiness: 78,
+    timestamp: new Date().toISOString()
   };
 
   if (loading || !dashboardData) {
@@ -149,11 +164,46 @@ export default function RedesignedDashboardOverview({ userProfile, kpis }: Redes
         </div>
       </motion.div>
 
+      {/* KPIs Section */}
+      <motion.div 
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8"
+        variants={itemVariants}
+      >
+        {kpis.map((kpi, index) => (
+          <Card key={index} className="border-t-4 border-t-blue-500">
+            <CardContent className="p-4">
+              <div className="flex flex-col">
+                <span className="text-sm text-muted-foreground">{kpi.label}</span>
+                <span className="text-2xl font-bold">{kpi.value}</span>
+                <span className={`text-xs mt-1 ${kpi.trend > 0 ? 'text-green-500' : kpi.trend < 0 ? 'text-red-500' : 'text-gray-500'}`}>
+                  {kpi.trend > 0 ? '↑' : kpi.trend < 0 ? '↓' : '•'} {kpi.trendLabel || ''}
+                </span>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </motion.div>
+
+      {/* Exam Readiness Meter - Added as requested */}
+      <motion.div variants={itemVariants}>
+        <Card className="mb-6">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-medium">Exam Readiness Meter</h3>
+              <Button variant="outline" size="sm" onClick={() => navigate('/dashboard/student/progress')}>
+                View Details
+              </Button>
+            </div>
+            <ExamReadinessMeter readinessData={readinessData} />
+          </CardContent>
+        </Card>
+      </motion.div>
+
       <motion.div 
         variants={itemVariants}
         className="grid grid-cols-1 lg:grid-cols-2 gap-6"
       >
-        <MoodBasedSuggestions currentMood={currentMood} onMoodSelect={handleMoodSelect} />
+        <DailyMoodTracker currentMood={currentMood} onMoodChange={handleMoodSelect} />
         <SmartSuggestionsCenter 
           performance={{
             accuracy: 85,
