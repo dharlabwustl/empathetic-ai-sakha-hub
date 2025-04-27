@@ -1,188 +1,143 @@
 
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { useParams, Link } from 'react-router-dom';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Progress } from '@/components/ui/progress';
+import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, ArrowRight, Flag, Clock, AlertCircle } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Save, Timer, AlertCircle, Flag, CheckCircle, Clock } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
 
 interface ExamQuestion {
   id: string;
-  question: string;
-  options: string[];
-  correctAnswer: number;
-  explanation: string;
+  text: string;
+  type: 'multiple-choice' | 'checkbox' | 'short-answer' | 'long-answer';
+  options?: string[];
+  correctAnswer?: string | string[];
+  points: number;
+  isBookmarked: boolean;
 }
 
-interface Exam {
+interface ExamData {
   id: string;
   title: string;
-  subject: string;
   description: string;
-  duration: number; // minutes
-  totalQuestions: number;
+  subject: string;
+  topic: string;
+  duration: number; // in minutes
+  totalPoints: number;
   questions: ExamQuestion[];
 }
 
 const ExamAttemptPage = () => {
-  const { examId } = useParams<{ examId: string }>();
-  const navigate = useNavigate();
+  const { examId } = useParams();
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
-  const [exam, setExam] = useState<Exam | null>(null);
+  const [exam, setExam] = useState<ExamData | null>(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [selectedAnswers, setSelectedAnswers] = useState<Record<string, number>>({});
-  const [flaggedQuestions, setFlaggedQuestions] = useState<string[]>([]);
-  const [timeLeft, setTimeLeft] = useState<number>(60); // Default 60 minutes
-  const [examStarted, setExamStarted] = useState(false);
+  const [answers, setAnswers] = useState<Record<string, any>>({});
+  const [bookmarked, setBookmarked] = useState<string[]>([]);
+  const [timeRemaining, setTimeRemaining] = useState(0); // in seconds
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Generate mock exam based on exam ID
   useEffect(() => {
-    setLoading(true);
-    
-    setTimeout(() => {
-      const mockExam = generateMockExam(examId || '');
-      setExam(mockExam);
-      setTimeLeft(mockExam.duration * 60); // Convert to seconds
-      setLoading(false);
-    }, 800);
-  }, [examId]);
-
-  // Timer effect
-  useEffect(() => {
-    if (!examStarted || timeLeft <= 0) return;
-    
-    const timer = setInterval(() => {
-      setTimeLeft(prev => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          toast({
-            title: "Time's Up!",
-            description: "Your exam is being submitted automatically.",
-            variant: "destructive"
-          });
-          setTimeout(() => handleSubmitExam(), 2000);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-    
-    return () => clearInterval(timer);
-  }, [examStarted, timeLeft]);
-
-  const generateMockExam = (id: string): Exam => {
-    const formattedExamName = formatExamName(id);
-    const subject = determineSubject(id);
-    
-    return {
-      id,
-      title: formattedExamName,
-      subject,
-      description: `This exam tests your knowledge of ${formattedExamName}.`,
-      duration: 60, // 60 minutes
-      totalQuestions: 5,
-      questions: [
-        {
-          id: "q1",
-          question: `What is the primary focus of ${formattedExamName}?`,
-          options: [
-            "Understanding key theoretical concepts",
-            "Applying mathematical formulas",
-            "Memorizing important definitions",
-            "Analyzing experimental data"
-          ],
-          correctAnswer: 0,
-          explanation: "The primary focus is on understanding the underlying theoretical concepts that form the foundation of the subject."
-        },
-        {
-          id: "q2",
-          question: `Which of the following is NOT a characteristic of ${formattedExamName}?`,
-          options: [
-            "Systematic approach to problem-solving",
-            "Reliance on empirical evidence",
-            "Subjective interpretation of results",
-            "Application of scientific principles"
-          ],
-          correctAnswer: 2,
-          explanation: "Subjective interpretation contradicts the objective nature of scientific inquiry in this field."
-        },
-        {
-          id: "q3",
-          question: `How does ${formattedExamName} relate to real-world applications?`,
-          options: [
-            "It has no practical applications",
-            "It is used only in theoretical research",
-            "It has widespread applications in industry and technology",
-            "It is primarily used in academic settings"
-          ],
-          correctAnswer: 2,
-          explanation: "This subject has numerous practical applications across various industries and technological developments."
-        },
-        {
-          id: "q4",
-          question: `What is the historical significance of ${formattedExamName}?`,
-          options: [
-            "It emerged in the 21st century",
-            "It has roots dating back to ancient civilizations",
-            "It was developed exclusively in Western Europe",
-            "It has no historical significance"
-          ],
-          correctAnswer: 1,
-          explanation: "Many of the key concepts can be traced back to early scientific discoveries in ancient civilizations."
-        },
-        {
-          id: "q5",
-          question: `Which scientist made the most significant contribution to ${formattedExamName}?`,
-          options: [
-            "Albert Einstein",
-            "Marie Curie",
-            "Isaac Newton",
-            "Depends on the specific area of focus"
-          ],
-          correctAnswer: 3,
-          explanation: "Different scientists made significant contributions to different aspects of this field."
-        }
-      ]
-    };
-  };
-
-  // Helper functions to format names
-  const formatExamName = (slug: string): string => {
-    return slug
-      .split('-')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ');
-  };
-
-  const determineSubject = (topic: string): string => {
-    const topics = {
-      Physics: ["physics", "newton", "motion", "gravity", "force", "energy", "wave", "optics"],
-      Chemistry: ["chemistry", "acid", "element", "compound", "reaction", "bond", "periodic"],
-      Mathematics: ["math", "algebra", "calculus", "geometry", "trigonometry", "equation"],
-      Biology: ["biology", "cell", "gene", "evolution", "ecosystem", "dna", "organ"]
-    };
-
-    for (const [subject, keywords] of Object.entries(topics)) {
-      if (keywords.some(keyword => topic.toLowerCase().includes(keyword))) {
-        return subject;
+    const fetchExam = async () => {
+      setLoading(true);
+      try {
+        // In a real application, fetch from API
+        // For now, we're using mock data
+        setTimeout(() => {
+          const mockExam: ExamData = {
+            id: examId || '1',
+            title: "Classical Mechanics - Mid-term Practice Test",
+            description: "This practice test covers Newton's laws, kinematics, and forces. Complete all questions to get your score.",
+            subject: "Physics",
+            topic: "Classical Mechanics",
+            duration: 30, // 30 minutes
+            totalPoints: 50,
+            questions: [
+              {
+                id: "q1",
+                text: "A 2 kg object experiences a net force of 10 N. What is its acceleration according to Newton's Second Law?",
+                type: "multiple-choice",
+                options: ["2 m/s²", "5 m/s²", "10 m/s²", "20 m/s²"],
+                correctAnswer: "5 m/s²",
+                points: 5,
+                isBookmarked: false
+              },
+              {
+                id: "q2",
+                text: "Which of the following are examples of Newton's Third Law? Select all that apply.",
+                type: "checkbox",
+                options: [
+                  "A book resting on a table",
+                  "A rocket pushing exhaust gases backward",
+                  "A person walking forward",
+                  "An object falling due to gravity"
+                ],
+                correctAnswer: ["A book resting on a table", "A rocket pushing exhaust gases backward", "A person walking forward"],
+                points: 10,
+                isBookmarked: false
+              },
+              {
+                id: "q3",
+                text: "Briefly explain the principle of conservation of momentum.",
+                type: "short-answer",
+                points: 15,
+                isBookmarked: false
+              },
+              {
+                id: "q4",
+                text: "A projectile is launched at an angle of 45° with an initial velocity of 20 m/s. Calculate its maximum height and range. Assume g = 10 m/s².",
+                type: "long-answer",
+                points: 20,
+                isBookmarked: false
+              }
+            ]
+          };
+          
+          setExam(mockExam);
+          setTimeRemaining(mockExam.duration * 60);
+          setLoading(false);
+        }, 800);
+      } catch (error) {
+        console.error('Error fetching exam:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load exam data",
+          variant: "destructive"
+        });
+        setLoading(false);
       }
-    }
-    return "General Science";
-  };
+    };
 
-  const handleStartExam = () => {
-    setExamStarted(true);
-    toast({
-      title: "Exam Started",
-      description: `You have ${exam?.duration} minutes to complete this exam.`,
-      duration: 3000
-    });
+    fetchExam();
+  }, [examId, toast]);
+
+  useEffect(() => {
+    // Timer countdown
+    if (timeRemaining > 0 && !loading && !isSubmitting) {
+      const timer = setTimeout(() => {
+        setTimeRemaining(prev => prev - 1);
+      }, 1000);
+      
+      return () => clearTimeout(timer);
+    } else if (timeRemaining === 0 && !loading && !isSubmitting) {
+      // Auto submit when time is up
+      handleSubmitExam();
+    }
+  }, [timeRemaining, loading, isSubmitting]);
+
+  const formatTime = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
   };
 
   const handleNextQuestion = () => {
@@ -197,296 +152,255 @@ const ExamAttemptPage = () => {
     }
   };
 
-  const handleSelectAnswer = (questionId: string, optionIndex: number) => {
-    setSelectedAnswers({
-      ...selectedAnswers,
-      [questionId]: optionIndex
-    });
+  const handleChangeAnswer = (questionId: string, value: any) => {
+    setAnswers(prev => ({ ...prev, [questionId]: value }));
   };
 
-  const handleToggleFlag = (questionId: string) => {
-    if (flaggedQuestions.includes(questionId)) {
-      setFlaggedQuestions(flaggedQuestions.filter(id => id !== questionId));
+  const handleToggleBookmark = (questionId: string) => {
+    if (bookmarked.includes(questionId)) {
+      setBookmarked(bookmarked.filter(id => id !== questionId));
     } else {
-      setFlaggedQuestions([...flaggedQuestions, questionId]);
+      setBookmarked([...bookmarked, questionId]);
     }
+    
+    toast({
+      title: bookmarked.includes(questionId) ? 'Bookmark removed' : 'Question bookmarked',
+      description: bookmarked.includes(questionId) 
+        ? 'This question has been removed from your bookmarks' 
+        : 'You can review this question later',
+      duration: 2000
+    });
   };
 
   const handleSubmitExam = () => {
-    // Calculate score
-    if (!exam) return;
-    
-    const totalQuestions = exam.questions.length;
-    const answeredQuestions = Object.keys(selectedAnswers).length;
-    
-    if (answeredQuestions < totalQuestions) {
-      const unanswered = totalQuestions - answeredQuestions;
-      
-      if (window.confirm(`You have ${unanswered} unanswered ${unanswered === 1 ? 'question' : 'questions'}. Are you sure you want to submit?`)) {
-        navigateToReview();
-      }
-    } else {
-      navigateToReview();
-    }
-  };
-  
-  const navigateToReview = () => {
-    // In a real application, we would save the exam results to the server
-    // For now, we'll just navigate to the review page
+    setIsSubmitting(true);
     toast({
-      title: "Exam Submitted",
-      description: "Your answers have been recorded. Redirecting to review...",
-      duration: 2000
+      title: "Submitting Your Answers",
+      description: "Please wait while we process your exam submission..."
     });
     
+    // In a real application, would submit to an API
     setTimeout(() => {
-      navigate(`/dashboard/student/exams/review/${examId}`, {
-        state: {
-          exam,
-          selectedAnswers,
-          timeSpent: exam?.duration ? (exam.duration * 60) - timeLeft : 0
-        }
+      toast({
+        title: "Exam Submitted",
+        description: "Your answers have been recorded successfully!"
       });
-    }, 1000);
-  };
-
-  const handleGoBack = () => {
-    if (examStarted) {
-      if (window.confirm("Are you sure you want to exit? Your progress will be lost.")) {
-        navigate(-1);
-      }
-    } else {
-      navigate(-1);
-    }
-  };
-
-  const formatTime = (seconds: number): string => {
-    const minutes = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+      
+      // Redirect to review page
+      window.location.href = `/dashboard/student/exams/review/${examId}`;
+    }, 1500);
   };
 
   if (loading) {
     return (
-      <SharedPageLayout title="Loading Exam" subtitle="Please wait while we prepare your exam">
-        <div className="space-y-6 animate-pulse">
-          <div className="h-12 bg-gray-200 rounded-lg w-2/3 mx-auto"></div>
-          <div className="h-64 bg-gray-200 rounded-lg"></div>
-          <div className="h-32 bg-gray-200 rounded-lg"></div>
-        </div>
-      </SharedPageLayout>
+      <div className="max-w-4xl mx-auto p-6">
+        <Card>
+          <CardHeader className="animate-pulse">
+            <div className="h-8 bg-gray-200 dark:bg-gray-800 rounded w-3/4 mb-4"></div>
+            <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-1/2"></div>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-full"></div>
+              <div className="h-20 bg-gray-200 dark:bg-gray-800 rounded w-full"></div>
+              <div className="h-10 bg-gray-200 dark:bg-gray-800 rounded w-full"></div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     );
   }
 
   if (!exam) {
     return (
-      <SharedPageLayout title="Exam Not Found" subtitle="We couldn't find the requested exam">
-        <Card className="text-center">
-          <CardContent className="pt-6">
-            <p>Sorry, the exam you're looking for doesn't seem to exist.</p>
-            <Button onClick={handleGoBack} className="mt-4">Go Back</Button>
-          </CardContent>
-        </Card>
-      </SharedPageLayout>
-    );
-  }
-
-  // Show exam intro if not started
-  if (!examStarted) {
-    return (
-      <SharedPageLayout 
-        title={exam.title}
-        subtitle={`${exam.subject} Exam`}
-        backButton={true}
-        onBack={handleGoBack}
-      >
-        <Card className="max-w-2xl mx-auto shadow-lg">
-          <CardHeader>
-            <CardTitle className="text-2xl text-center">{exam.title}</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="p-6 bg-blue-50 rounded-lg">
-              <h3 className="font-semibold mb-2">Exam Details:</h3>
-              <ul className="space-y-2">
-                <li className="flex items-center">
-                  <span className="font-medium mr-2">Subject:</span> {exam.subject}
-                </li>
-                <li className="flex items-center">
-                  <span className="font-medium mr-2">Total Questions:</span> {exam.totalQuestions}
-                </li>
-                <li className="flex items-center">
-                  <Clock className="h-4 w-4 mr-2 text-blue-600" />
-                  <span className="font-medium mr-2">Duration:</span> {exam.duration} minutes
-                </li>
-              </ul>
-            </div>
-            
-            <div className="p-6 bg-amber-50 rounded-lg">
-              <h3 className="font-semibold mb-2 flex items-center">
-                <AlertCircle className="h-4 w-4 mr-2 text-amber-600" />
-                Important Instructions:
-              </h3>
-              <ul className="list-disc pl-5 space-y-1 text-sm text-amber-800">
-                <li>Once started, the timer cannot be paused.</li>
-                <li>You can navigate between questions using the previous and next buttons.</li>
-                <li>Flag questions for review if you want to revisit them later.</li>
-                <li>Click "Submit Exam" when you're finished, or the exam will be automatically submitted when time expires.</li>
-                <li>After submission, you'll be redirected to a review page to see your results.</li>
-              </ul>
-            </div>
-            
-            <div className="flex justify-center pt-4">
-              <Button onClick={handleStartExam} size="lg" className="w-full max-w-xs">
-                Start Exam
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </SharedPageLayout>
+      <div className="max-w-4xl mx-auto p-6 text-center">
+        <h2 className="text-2xl font-bold">Exam Not Found</h2>
+        <p className="text-muted-foreground mt-2">The requested exam could not be found.</p>
+        <Link to="/dashboard/student/practice">
+          <Button variant="outline" className="mt-4">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to Practice Exams
+          </Button>
+        </Link>
+      </div>
     );
   }
 
   const currentQuestion = exam.questions[currentQuestionIndex];
-  const isAnswered = selectedAnswers[currentQuestion.id] !== undefined;
-  const isFlagged = flaggedQuestions.includes(currentQuestion.id);
-  const progress = ((currentQuestionIndex + 1) / exam.questions.length) * 100;
+  const questionsAnswered = Object.keys(answers).length;
+  const progress = (questionsAnswered / exam.questions.length) * 100;
+  
+  const isTimeWarning = timeRemaining < 300; // Less than 5 minutes
   
   return (
-    <SharedPageLayout 
-      title={exam.title}
-      subtitle={`${exam.subject} Exam`}
-      backButton={true}
-      onBack={handleGoBack}
+    <motion.div 
+      className="max-w-4xl mx-auto p-6 space-y-6"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
     >
-      <div className="space-y-6">
-        {/* Timer and progress */}
-        <Card className="bg-white shadow">
-          <CardContent className="p-4">
-            <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-              <div className="flex items-center">
-                <Clock className="h-5 w-5 mr-2 text-red-500" />
-                <span className="font-bold text-xl">{formatTime(timeLeft)}</span>
-                <span className="ml-2 text-muted-foreground text-sm">remaining</span>
-              </div>
-              
-              <div className="flex items-center gap-3">
-                <span className="text-sm text-muted-foreground">
-                  Question {currentQuestionIndex + 1} of {exam.questions.length}
-                </span>
-                <div className="w-24">
-                  <Progress value={progress} className="h-2" />
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-2xl font-bold">{exam.title}</h1>
+          <p className="text-muted-foreground">{exam.subject} • {exam.topic}</p>
+        </div>
+        <div className={`flex items-center gap-2 ${isTimeWarning ? 'text-red-500' : ''}`}>
+          <Timer className={`h-5 w-5 ${isTimeWarning ? 'animate-pulse' : ''}`} />
+          <span className="font-mono text-lg">{formatTime(timeRemaining)}</span>
+        </div>
+      </div>
+      
+      <div className="flex items-center justify-between">
+        <div className="text-sm text-muted-foreground">
+          Question {currentQuestionIndex + 1} of {exam.questions.length}
+        </div>
+        <Badge variant="outline">
+          {questionsAnswered} of {exam.questions.length} answered
+        </Badge>
+      </div>
+      
+      <Progress value={progress} className="h-2" />
+      
+      <Card className="border-t-4" style={{ borderTopColor: bookmarked.includes(currentQuestion.id) ? '#f59e0b' : '#6366f1' }}>
+        <CardHeader>
+          <div className="flex items-center justify-between mb-2">
+            <Badge variant="outline" className="px-2 py-0.5">
+              {currentQuestion.points} points
+            </Badge>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => handleToggleBookmark(currentQuestion.id)}
+              className={bookmarked.includes(currentQuestion.id) ? "text-amber-500" : ""}
+            >
+              <Flag className="h-4 w-4 mr-1" />
+              {bookmarked.includes(currentQuestion.id) ? "Bookmarked" : "Bookmark"}
+            </Button>
+          </div>
+          <CardTitle className="text-lg">{currentQuestion.text}</CardTitle>
+        </CardHeader>
+        
+        <CardContent>
+          {currentQuestion.type === 'multiple-choice' && (
+            <RadioGroup 
+              value={answers[currentQuestion.id] || ''}
+              onValueChange={(value) => handleChangeAnswer(currentQuestion.id, value)}
+              className="space-y-3"
+            >
+              {currentQuestion.options?.map((option, index) => (
+                <div key={index} className="flex items-center space-x-2">
+                  <RadioGroupItem value={option} id={`option-${index}`} />
+                  <Label htmlFor={`option-${index}`} className="cursor-pointer">{option}</Label>
                 </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        {/* Question card */}
-        <motion.div
-          key={currentQuestion.id}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-        >
-          <Card className="shadow-lg">
-            <CardHeader>
-              <CardTitle className="flex items-start gap-3">
-                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-primary-foreground text-sm">
-                  {currentQuestionIndex + 1}
-                </span>
-                <span>{currentQuestion.question}</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <RadioGroup 
-                value={selectedAnswers[currentQuestion.id]?.toString()} 
-                onValueChange={(value) => handleSelectAnswer(currentQuestion.id, parseInt(value))}
-                className="space-y-3"
-              >
-                {currentQuestion.options.map((option, index) => (
-                  <div key={index} className="flex items-center space-x-2">
-                    <RadioGroupItem value={index.toString()} id={`q${currentQuestionIndex}-opt${index}`} />
-                    <Label htmlFor={`q${currentQuestionIndex}-opt${index}`} className="flex-1 py-2">
-                      {option}
-                    </Label>
-                  </div>
-                ))}
-              </RadioGroup>
-            </CardContent>
-            <CardFooter className="flex flex-col sm:flex-row justify-between gap-4">
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  onClick={handlePreviousQuestion}
-                  disabled={currentQuestionIndex === 0}
-                >
-                  <ArrowLeft className="h-4 w-4 mr-2" />
-                  Previous
-                </Button>
-                
-                <Button
-                  variant={isFlagged ? "destructive" : "outline"}
-                  onClick={() => handleToggleFlag(currentQuestion.id)}
-                >
-                  <Flag className="h-4 w-4 mr-2" />
-                  {isFlagged ? "Unflag" : "Flag"}
-                </Button>
-              </div>
-              
-              <div className="flex gap-2 w-full sm:w-auto justify-end">
-                {currentQuestionIndex === exam.questions.length - 1 ? (
-                  <Button onClick={handleSubmitExam}>
-                    Submit Exam
-                  </Button>
-                ) : (
-                  <Button onClick={handleNextQuestion}>
-                    Next
-                    <ArrowRight className="h-4 w-4 ml-2" />
-                  </Button>
-                )}
-              </div>
-            </CardFooter>
-          </Card>
-        </motion.div>
-        
-        {/* Navigation grid */}
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm">Question Navigator</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-5 sm:grid-cols-10 gap-2">
-              {exam.questions.map((q, index) => {
-                const isCurrentQuestion = index === currentQuestionIndex;
-                const isQuestionAnswered = selectedAnswers[q.id] !== undefined;
-                const isQuestionFlagged = flaggedQuestions.includes(q.id);
-                
+              ))}
+            </RadioGroup>
+          )}
+          
+          {currentQuestion.type === 'checkbox' && (
+            <div className="space-y-3">
+              {currentQuestion.options?.map((option, index) => {
+                const checked = Array.isArray(answers[currentQuestion.id]) && 
+                  answers[currentQuestion.id]?.includes(option);
+                  
                 return (
-                  <Button
-                    key={q.id}
-                    variant={isCurrentQuestion ? "default" : "outline"}
-                    className={`h-10 w-10 p-0 ${
-                      isQuestionAnswered ? "bg-green-100 border-green-300" : ""
-                    } ${
-                      isQuestionFlagged ? "!border-red-500 border-2" : ""
-                    }`}
-                    onClick={() => setCurrentQuestionIndex(index)}
-                  >
-                    {index + 1}
-                  </Button>
+                  <div key={index} className="flex items-center space-x-2">
+                    <Checkbox 
+                      id={`option-${index}`} 
+                      checked={checked}
+                      onCheckedChange={(isChecked) => {
+                        const currentAnswers = Array.isArray(answers[currentQuestion.id]) 
+                          ? [...answers[currentQuestion.id]] 
+                          : [];
+                          
+                        if (isChecked) {
+                          handleChangeAnswer(currentQuestion.id, [...currentAnswers, option]);
+                        } else {
+                          handleChangeAnswer(
+                            currentQuestion.id, 
+                            currentAnswers.filter(ans => ans !== option)
+                          );
+                        }
+                      }}
+                    />
+                    <Label htmlFor={`option-${index}`} className="cursor-pointer">{option}</Label>
+                  </div>
                 );
               })}
             </div>
-            
-            <div className="mt-4 flex justify-end">
-              <Button onClick={handleSubmitExam}>
-                Submit Exam
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+          )}
+          
+          {currentQuestion.type === 'short-answer' && (
+            <Input 
+              value={answers[currentQuestion.id] || ''}
+              onChange={(e) => handleChangeAnswer(currentQuestion.id, e.target.value)}
+              placeholder="Type your answer here"
+              className="w-full"
+            />
+          )}
+          
+          {currentQuestion.type === 'long-answer' && (
+            <Textarea 
+              value={answers[currentQuestion.id] || ''}
+              onChange={(e) => handleChangeAnswer(currentQuestion.id, e.target.value)}
+              placeholder="Write your answer here"
+              className="w-full min-h-[150px]"
+            />
+          )}
+        </CardContent>
+        
+        <CardFooter className="flex justify-between">
+          <Button 
+            variant="outline" 
+            onClick={handlePreviousQuestion}
+            disabled={currentQuestionIndex === 0}
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" /> Previous
+          </Button>
+          
+          {currentQuestionIndex < exam.questions.length - 1 ? (
+            <Button onClick={handleNextQuestion}>
+              Next <ArrowRight className="h-4 w-4 ml-2" />
+            </Button>
+          ) : (
+            <Button onClick={handleNextQuestion} variant="outline">
+              Review Answers <CheckCircle className="h-4 w-4 ml-2" />
+            </Button>
+          )}
+        </CardFooter>
+      </Card>
+      
+      <div className="flex justify-between items-center">
+        <div className="flex items-center gap-1 text-sm text-muted-foreground">
+          <Clock className="h-4 w-4" />
+          <span>Started at {new Date().toLocaleTimeString()}</span>
+        </div>
+        
+        <Button 
+          onClick={handleSubmitExam}
+          disabled={questionsAnswered === 0 || isSubmitting}
+          className="gap-2"
+        >
+          {isSubmitting ? "Submitting..." : "Submit Exam"}
+          {!isSubmitting && <Save className="h-4 w-4" />}
+        </Button>
       </div>
-    </SharedPageLayout>
+      
+      {isTimeWarning && (
+        <div className="fixed bottom-6 right-6">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-red-500 text-white px-4 py-3 rounded-lg shadow-lg flex items-center gap-2"
+          >
+            <AlertCircle className="h-5 w-5" />
+            <div>
+              <p className="font-semibold">Time is running out!</p>
+              <p className="text-sm">Less than 5 minutes remaining</p>
+            </div>
+          </motion.div>
+        </div>
+      )}
+    </motion.div>
   );
 };
 

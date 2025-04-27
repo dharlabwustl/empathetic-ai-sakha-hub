@@ -1,454 +1,378 @@
 
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { useParams, Link } from 'react-router-dom';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { BookmarkIcon, Share2, Mic, RefreshCw, ArrowLeft, Check, Calculator, Flag } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
+import { ArrowLeft, BookmarkIcon, Share2, Mic, RefreshCw, ThumbsUp, ThumbsDown, CheckCircle, XCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Progress } from '@/components/ui/progress';
-import { Badge } from '@/components/ui/badge';
-import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
 
-interface Flashcard {
+interface FlashcardData {
   id: string;
   question: string;
   answer: string;
-  imageUrl?: string;
+  subject: string;
+  topic: string;
   difficulty: 'easy' | 'medium' | 'hard';
+  imageUrl?: string;
+  attempts: {
+    date: string;
+    correct: boolean;
+  }[];
+  isBookmarked: boolean;
+  relatedCards: {
+    id: string;
+    question: string;
+  }[];
 }
 
 const FlashcardPracticePage = () => {
-  const { topicName } = useParams<{ topicName: string }>();
-  const navigate = useNavigate();
+  const { cardId } = useParams();
   const { toast } = useToast();
   const [isFlipped, setIsFlipped] = useState(false);
   const [answer, setAnswer] = useState('');
+  const [hasAnswered, setHasAnswered] = useState(false);
+  const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
   const [isListening, setIsListening] = useState(false);
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [showCalculator, setShowCalculator] = useState(false);
-  const [accuracy, setAccuracy] = useState<number | null>(null);
-  const [cards, setCards] = useState<Flashcard[]>([]);
+  const [card, setCard] = useState<FlashcardData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [cardIndex, setCardIndex] = useState(0);
+  const [cards, setCards] = useState<FlashcardData[]>([]);
 
-  // Generate mock flashcards based on topic name
   useEffect(() => {
-    setLoading(true);
-    
-    setTimeout(() => {
-      const mockCards = generateMockFlashcards(topicName || '');
-      setCards(mockCards);
-      setLoading(false);
-    }, 800);
-  }, [topicName]);
-
-  const generateMockFlashcards = (topic: string): Flashcard[] => {
-    const formattedTopic = formatTopicName(topic);
-    const topicArea = determineSubject(topic);
-    
-    if (topicArea === 'Math') {
-      return [
-        {
-          id: '1',
-          question: `What is the derivative of x² in the context of ${formattedTopic}?`,
-          answer: '2x',
-          difficulty: 'easy'
-        },
-        {
-          id: '2',
-          question: `Solve for x: 3x + 7 = 22 in the context of ${formattedTopic}`,
-          answer: 'x = 5',
-          difficulty: 'medium'
-        },
-        {
-          id: '3', 
-          question: `What is the integral of 2x with respect to x in the context of ${formattedTopic}?`,
-          answer: 'x² + C, where C is the constant of integration',
-          difficulty: 'hard'
-        }
-      ];
-    } else if (topicArea === 'Physics') {
-      return [
-        {
-          id: '1',
-          question: `What is the formula for force in ${formattedTopic}?`,
-          answer: 'F = ma (Force = mass × acceleration)',
-          difficulty: 'easy'
-        },
-        {
-          id: '2',
-          question: `State Newton's Third Law as it applies to ${formattedTopic}`,
-          answer: 'For every action, there is an equal and opposite reaction',
-          difficulty: 'medium'
-        },
-        {
-          id: '3',
-          question: `How does gravity affect objects in ${formattedTopic}?`,
-          answer: 'All objects are attracted to each other with a force proportional to their masses and inversely proportional to the square of the distance between them',
-          difficulty: 'hard'
-        }
-      ];
-    } else {
-      return [
-        {
-          id: '1',
-          question: `Define the concept of ${formattedTopic}`,
-          answer: `${formattedTopic} is a fundamental concept in ${topicArea} that deals with...`,
-          difficulty: 'easy'
-        },
-        {
-          id: '2',
-          question: `Explain the significance of ${formattedTopic} in modern ${topicArea}`,
-          answer: `${formattedTopic} is significant because it allows us to understand...`,
-          difficulty: 'medium'
-        },
-        {
-          id: '3',
-          question: `What are the key applications of ${formattedTopic}?`,
-          answer: `${formattedTopic} is applied in various fields such as...`,
-          difficulty: 'hard'
-        }
-      ];
-    }
-  };
-
-  // Helper functions to format topic names
-  const formatTopicName = (slug: string): string => {
-    return slug
-      .split('-')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ');
-  };
-
-  const determineSubject = (topic: string): string => {
-    const topics = {
-      Physics: ["newton", "motion", "gravity", "force", "energy", "wave", "light", "optics", "electricity"],
-      Chemistry: ["acid", "base", "element", "compound", "reaction", "bond", "molecule", "periodic"],
-      Math: ["algebra", "calculus", "geometry", "trigonometry", "equation", "function", "matrix", "vector"],
-      Biology: ["cell", "gene", "evolution", "ecosystem", "protein", "dna", "organ", "tissue"]
+    const fetchFlashcard = async () => {
+      setLoading(true);
+      try {
+        // In a real application, fetch from API
+        // For now, we're using mock data
+        setTimeout(() => {
+          const mockCards = [
+            {
+              id: "1",
+              question: "What is Newton's First Law of Motion?",
+              answer: "An object at rest stays at rest, and an object in motion stays in motion with the same speed and direction, unless acted upon by an unbalanced force.",
+              subject: "Physics",
+              topic: "Laws of Motion",
+              difficulty: "medium" as const,
+              attempts: [],
+              isBookmarked: false,
+              relatedCards: [
+                { id: "2", question: "What is Newton's Second Law of Motion?" },
+                { id: "3", question: "What is Newton's Third Law of Motion?" }
+              ]
+            },
+            {
+              id: "2",
+              question: "What is Newton's Second Law of Motion?",
+              answer: "The acceleration of an object is directly proportional to the net force acting on it and inversely proportional to its mass. F = ma.",
+              subject: "Physics",
+              topic: "Laws of Motion",
+              difficulty: "medium" as const,
+              attempts: [],
+              isBookmarked: false,
+              relatedCards: [
+                { id: "1", question: "What is Newton's First Law of Motion?" },
+                { id: "3", question: "What is Newton's Third Law of Motion?" }
+              ]
+            },
+            {
+              id: "3",
+              question: "What is Newton's Third Law of Motion?",
+              answer: "For every action, there is an equal and opposite reaction.",
+              subject: "Physics",
+              topic: "Laws of Motion",
+              difficulty: "easy" as const,
+              attempts: [],
+              isBookmarked: true,
+              relatedCards: [
+                { id: "1", question: "What is Newton's First Law of Motion?" },
+                { id: "2", question: "What is Newton's Second Law of Motion?" }
+              ]
+            }
+          ];
+          
+          setCards(mockCards);
+          const foundCard = mockCards.find(c => c.id === cardId) || mockCards[0];
+          setCard(foundCard);
+          setCardIndex(mockCards.findIndex(c => c.id === foundCard.id));
+          setLoading(false);
+        }, 800);
+      } catch (error) {
+        console.error('Error fetching flashcard:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load flashcard data",
+          variant: "destructive"
+        });
+        setLoading(false);
+      }
     };
 
-    for (const [subject, keywords] of Object.entries(topics)) {
-      if (keywords.some(keyword => topic.toLowerCase().includes(keyword))) {
-        return subject;
-      }
+    fetchFlashcard();
+  }, [cardId, toast]);
+
+  const handleFlip = () => {
+    if (!isFlipped && !hasAnswered) {
+      setIsFlipped(true);
     }
-    return "General Science";
   };
 
-  const handleSubmit = () => {
-    if (answer.trim() === '') {
-      toast({
-        title: "Empty Answer",
-        description: "Please provide an answer or click 'Show Answer'",
-        variant: "destructive"
-      });
-      return;
-    }
+  const handleCheckAnswer = () => {
+    setHasAnswered(true);
     
-    // Simple string similarity check
-    const userAnswer = answer.toLowerCase().trim();
-    const correctAnswer = cards[currentIndex]?.answer.toLowerCase();
+    if (!card) return;
     
-    let similarity = 0;
-    if (correctAnswer.includes(userAnswer) || userAnswer.includes(correctAnswer)) {
-      // If one is substring of the other
-      similarity = Math.min(userAnswer.length, correctAnswer.length) / Math.max(userAnswer.length, correctAnswer.length);
-    } else {
-      // Basic word match count
-      const userWords = userAnswer.split(/\s+/);
-      const correctWords = correctAnswer.split(/\s+/);
-      
-      let matchCount = 0;
-      for (const word of userWords) {
-        if (word.length > 2 && correctWords.some(correct => correct.includes(word))) {
-          matchCount++;
-        }
-      }
-      
-      similarity = matchCount / Math.max(userWords.length, correctWords.length);
-    }
+    // Simple check - in a real app would use more sophisticated comparison
+    const userAnswerLower = answer.toLowerCase().trim();
+    const correctAnswerLower = card.answer.toLowerCase();
     
-    const accuracyScore = Math.round(similarity * 100);
-    setAccuracy(accuracyScore);
+    // Check if the answer contains key terms
+    const isAnswerCorrect = userAnswerLower.includes(correctAnswerLower.substring(0, 15)) || 
+                          correctAnswerLower.includes(userAnswerLower.substring(0, 10));
+    
+    setIsCorrect(isAnswerCorrect);
+    setIsFlipped(true);
     
     toast({
-      title: accuracyScore > 70 ? "Great job!" : "Nice try!",
-      description: `Your answer is approximately ${accuracyScore}% accurate.`,
-      variant: accuracyScore > 70 ? "default" : "destructive"
+      title: isAnswerCorrect ? "Correct!" : "Not Quite Right",
+      description: isAnswerCorrect 
+        ? "Great job! You got it right." 
+        : "Review the correct answer and try again.",
+      variant: isAnswerCorrect ? "default" : "destructive"
     });
+  };
+
+  const handleNextCard = () => {
+    if (cardIndex < cards.length - 1) {
+      setCardIndex(cardIndex + 1);
+      setCard(cards[cardIndex + 1]);
+    } else {
+      // Loop back to the beginning if at the end
+      setCardIndex(0);
+      setCard(cards[0]);
+    }
     
-    setIsFlipped(true);
+    // Reset states for the new card
+    setIsFlipped(false);
+    setHasAnswered(false);
+    setIsCorrect(null);
+    setAnswer('');
   };
 
   const toggleSpeechRecognition = () => {
     setIsListening(!isListening);
     toast({
       title: isListening ? "Speech Recognition Stopped" : "Listening...",
-      description: isListening ? undefined : "Speak clearly to capture your answer",
       duration: 2000
     });
-    
-    // Mock speech recognition
-    if (!isListening) {
-      setTimeout(() => {
-        setAnswer(prev => prev + " [speech input would appear here]");
-        setIsListening(false);
-      }, 3000);
-    }
-  };
-
-  const handleNextCard = () => {
-    if (currentIndex < cards.length - 1) {
-      setIsFlipped(false);
-      setAnswer('');
-      setAccuracy(null);
-      setCurrentIndex(currentIndex + 1);
-    } else {
-      toast({
-        title: "Flashcard Set Complete!",
-        description: "You've reviewed all flashcards in this set.",
-        duration: 3000
-      });
-    }
-  };
-
-  const handlePreviousCard = () => {
-    if (currentIndex > 0) {
-      setIsFlipped(false);
-      setAnswer('');
-      setAccuracy(null);
-      setCurrentIndex(currentIndex - 1);
-    }
-  };
-
-  const handleGoBack = () => {
-    navigate(-1);
-  };
-
-  const toggleCalculator = () => {
-    setShowCalculator(!showCalculator);
   };
 
   if (loading) {
     return (
-      <SharedPageLayout title="Loading Flashcards" subtitle="Please wait while we prepare your practice materials">
-        <div className="space-y-6 animate-pulse">
-          <div className="h-64 bg-gray-200 rounded-lg"></div>
-          <div className="h-24 bg-gray-200 rounded-lg"></div>
-        </div>
-      </SharedPageLayout>
-    );
-  }
-
-  if (!cards || cards.length === 0) {
-    return (
-      <SharedPageLayout title="Flashcards Not Found" subtitle="We couldn't find flashcards for this topic">
-        <Card className="text-center">
-          <CardContent className="pt-6">
-            <p>Sorry, the flashcards you're looking for don't seem to exist.</p>
-            <Button onClick={handleGoBack} className="mt-4">Go Back</Button>
+      <div className="max-w-4xl mx-auto p-6">
+        <Card>
+          <CardHeader className="animate-pulse">
+            <div className="h-8 bg-gray-200 dark:bg-gray-800 rounded w-3/4 mb-4"></div>
+          </CardHeader>
+          <CardContent>
+            <div className="h-32 bg-gray-200 dark:bg-gray-800 rounded w-full"></div>
           </CardContent>
         </Card>
-      </SharedPageLayout>
+      </div>
     );
   }
 
-  const currentCard = cards[currentIndex];
-  const formattedTopic = formatTopicName(topicName || '');
+  if (!card) {
+    return (
+      <div className="max-w-4xl mx-auto p-6 text-center">
+        <h2 className="text-2xl font-bold">Flashcard Not Found</h2>
+        <p className="text-muted-foreground mt-2">The requested flashcard could not be found.</p>
+        <Link to="/dashboard/student/flashcards">
+          <Button variant="outline" className="mt-4">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to Flashcards
+          </Button>
+        </Link>
+      </div>
+    );
+  }
+
+  const difficultyColor = {
+    'easy': 'bg-green-100 text-green-800 border-green-200',
+    'medium': 'bg-amber-100 text-amber-800 border-amber-200',
+    'hard': 'bg-red-100 text-red-800 border-red-200'
+  };
 
   return (
-    <SharedPageLayout
-      title={`${formattedTopic} Flashcards`}
-      subtitle={`Practice and memorize key concepts from ${determineSubject(topicName || '')}`}
-      backButton={true}
-      onBack={handleGoBack}
+    <motion.div 
+      className="max-w-4xl mx-auto p-6 space-y-6"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
     >
-      <div className="space-y-6">
-        {/* Progress indicator */}
-        <div className="flex items-center justify-between">
-          <span className="text-sm text-muted-foreground">
-            Card {currentIndex + 1} of {cards.length}
-          </span>
-          <Badge variant={
-            currentCard.difficulty === 'easy' ? 'outline' : 
-            currentCard.difficulty === 'medium' ? 'secondary' : 
-            'destructive'
-          }>
-            {currentCard.difficulty.charAt(0).toUpperCase() + currentCard.difficulty.slice(1)}
-          </Badge>
+      <div className="flex justify-between items-center">
+        <Link to="/dashboard/student/flashcards">
+          <Button variant="ghost" size="sm" className="gap-1">
+            <ArrowLeft className="h-4 w-4" /> Back to Flashcards
+          </Button>
+        </Link>
+        <div className="text-sm text-muted-foreground">
+          Card {cardIndex + 1} of {cards.length}
         </div>
-        <Progress value={(currentIndex + 1) / cards.length * 100} className="h-1" />
+      </div>
 
-        {/* Flashcard */}
-        <Card className="shadow-lg border-2">
-          <AnimatePresence mode="wait">
-            {!isFlipped ? (
-              <motion.div
-                key="front"
-                initial={{ rotateY: 90, opacity: 0 }}
-                animate={{ rotateY: 0, opacity: 1 }}
-                exit={{ rotateY: -90, opacity: 0 }}
-                transition={{ duration: 0.3 }}
-                className="p-6"
-              >
-                <CardHeader className="px-0 pt-0">
-                  <CardTitle className="text-xl text-center mb-4">Question</CardTitle>
-                </CardHeader>
-                <CardContent className="px-0 pb-0">
-                  <div className="min-h-[150px] flex items-center justify-center text-lg text-center p-4 bg-gray-50 rounded-lg">
-                    {currentCard.question}
-                  </div>
-                  
-                  {currentCard.imageUrl && (
-                    <div className="mt-4 flex justify-center">
-                      <div className="bg-gray-200 rounded-lg w-full h-40 flex items-center justify-center">
-                        [Image for this flashcard would appear here]
-                      </div>
-                    </div>
-                  )}
-                  
-                  <div className="mt-6 space-y-4">
-                    <Textarea
-                      placeholder="Type your answer here..."
-                      value={answer}
-                      onChange={(e) => setAnswer(e.target.value)}
-                      className="min-h-[80px]"
-                    />
-                    
-                    <div className="flex flex-wrap gap-2">
-                      <Button onClick={toggleSpeechRecognition} variant={isListening ? "destructive" : "outline"}>
-                        <Mic className="h-4 w-4 mr-2" />
-                        {isListening ? "Stop" : "Voice Input"}
-                      </Button>
-                      
-                      <Button onClick={toggleCalculator} variant="outline">
-                        <Calculator className="h-4 w-4 mr-2" />
-                        Calculator
-                      </Button>
-                      
-                      <Button onClick={() => setIsFlipped(true)} variant="outline">
-                        Show Answer
-                      </Button>
-                      
-                      <Button onClick={handleSubmit} variant="default">
-                        Submit
-                      </Button>
-                    </div>
-                    
-                    {showCalculator && (
-                      <div className="p-4 border rounded-md">
-                        <p className="text-center text-muted-foreground">Calculator would be displayed here</p>
-                        <div className="grid grid-cols-4 gap-2 mt-2">
-                          {[7, 8, 9, '+', 4, 5, 6, '-', 1, 2, 3, '*', 0, '.', '=', '/'].map((btn) => (
-                            <Button key={btn} variant="outline" size="sm" className="h-10">
-                              {btn}
-                            </Button>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-              </motion.div>
-            ) : (
-              <motion.div
-                key="back"
-                initial={{ rotateY: -90, opacity: 0 }}
-                animate={{ rotateY: 0, opacity: 1 }}
-                exit={{ rotateY: 90, opacity: 0 }}
-                transition={{ duration: 0.3 }}
-                className="p-6"
-              >
-                <CardHeader className="px-0 pt-0">
-                  <CardTitle className="text-xl text-center mb-4">Answer</CardTitle>
-                </CardHeader>
-                <CardContent className="px-0 pb-0">
-                  <div className="bg-green-50 border border-green-200 p-4 rounded-lg min-h-[150px] flex flex-col items-center justify-center">
-                    <p className="text-lg text-center">{currentCard.answer}</p>
-                    
-                    {accuracy !== null && (
-                      <div className="mt-4 w-full">
-                        <p className="text-center mb-1">Your Answer Accuracy</p>
-                        <Progress value={accuracy} className="h-2" />
-                        <p className="text-center mt-1 text-sm">
-                          {accuracy}% - {
-                            accuracy > 80 ? "Excellent! 🌟" :
-                            accuracy > 60 ? "Good! 👍" :
-                            accuracy > 40 ? "Getting there 🤔" :
-                            "Keep studying 📚"
-                          }
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                  
-                  <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-                    <p className="font-medium">Your answer:</p>
-                    <p className="mt-1">{answer || "(No answer provided)"}</p>
-                  </div>
-                  
-                  <div className="flex justify-center mt-6">
-                    <Button onClick={() => setIsFlipped(false)} className="w-full max-w-xs">
-                      <RefreshCw className="h-4 w-4 mr-2" />
-                      Try Again
-                    </Button>
-                  </div>
-                </CardContent>
-              </motion.div>
-            )}
-          </AnimatePresence>
-          
-          <CardFooter className="flex justify-between mt-6">
-            <div>
-              <Button 
-                variant="outline" 
-                onClick={handlePreviousCard} 
-                disabled={currentIndex === 0}
-              >
-                Previous
-              </Button>
+      <Progress value={((cardIndex + 1) / cards.length) * 100} className="h-2" />
+
+      <Card className="overflow-hidden">
+        <CardHeader>
+          <div className="flex justify-between items-start">
+            <div className="flex items-center gap-2">
+              <CardTitle>Flashcard Practice</CardTitle>
+              <div className={`text-xs px-2 py-1 rounded-full ${difficultyColor[card.difficulty]}`}>
+                {card.difficulty.charAt(0).toUpperCase() + card.difficulty.slice(1)}
+              </div>
             </div>
-            
             <div className="flex gap-2">
-              <Button variant="outline" onClick={() => {
-                toast({
-                  title: "Card Flagged for Review",
-                  duration: 2000
-                });
-              }}>
-                <Flag className="h-4 w-4 mr-2" />
-                Flag
+              <Button variant={card.isBookmarked ? "secondary" : "outline"} size="icon" title="Bookmark">
+                <BookmarkIcon className="h-4 w-4" />
               </Button>
-              
-              <Button 
-                variant="default" 
-                onClick={handleNextCard} 
-                disabled={currentIndex === cards.length - 1}
-              >
-                Next
+              <Button variant="outline" size="icon" title="Share">
+                <Share2 className="h-4 w-4" />
               </Button>
             </div>
-          </CardFooter>
-        </Card>
-        
-        {/* Card set complete message */}
-        {currentIndex === cards.length - 1 && (
-          <Card className="bg-green-50 border-green-200">
-            <CardContent className="pt-6 text-center">
-              <h3 className="font-semibold text-green-800">End of flashcard set!</h3>
-              <p className="text-green-700 mt-2">You've reached the end of this set. Great job!</p>
-              <div className="mt-4">
-                <Button onClick={handleGoBack} variant="default">
-                  <Check className="h-4 w-4 mr-2" /> Complete Practice
+          </div>
+          <CardDescription className="flex items-center gap-1">
+            <span>{card.subject}</span>
+            <span className="mx-1">•</span>
+            <span>{card.topic}</span>
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={card.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+            >
+              <div 
+                className={`relative bg-white dark:bg-gray-800 rounded-lg p-6 border shadow-sm 
+                  min-h-[200px] flex items-center justify-center cursor-pointer mb-4
+                  ${isFlipped ? "border-green-300 dark:border-green-700" : "hover:border-blue-300 dark:hover:border-blue-700"}`}
+                onClick={handleFlip}
+              >
+                {!isFlipped ? (
+                  <div className="text-center text-lg font-medium">
+                    <h3>{card.question}</h3>
+                    {card.imageUrl && (
+                      <div className="mt-4">
+                        <img 
+                          src={card.imageUrl} 
+                          alt="Flashcard illustration" 
+                          className="max-h-40 mx-auto rounded-md"
+                        />
+                      </div>
+                    )}
+                    <p className="text-xs text-muted-foreground mt-4">Click to reveal answer</p>
+                  </div>
+                ) : (
+                  <div className="text-center">
+                    <p className="font-medium">{card.answer}</p>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          </AnimatePresence>
+
+          {!hasAnswered && !isFlipped && (
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <Textarea
+                  value={answer}
+                  onChange={(e) => setAnswer(e.target.value)}
+                  placeholder="Type your answer here..."
+                  className="min-h-[100px] w-full"
+                />
+                <Button 
+                  variant="outline" 
+                  size="icon" 
+                  onClick={toggleSpeechRecognition} 
+                  className={isListening ? "bg-blue-100" : ""}
+                >
+                  <Mic className="h-4 w-4" />
                 </Button>
               </div>
-            </CardContent>
-          </Card>
-        )}
-      </div>
-    </SharedPageLayout>
+              <Button 
+                onClick={handleCheckAnswer} 
+                className="w-full"
+                disabled={!answer.trim()}
+              >
+                Check Answer
+              </Button>
+            </div>
+          )}
+
+          {hasAnswered && (
+            <div className="space-y-4">
+              <div className={`p-4 rounded-lg ${isCorrect ? 'bg-green-50 dark:bg-green-900/20' : 'bg-red-50 dark:bg-red-900/20'}`}>
+                <div className="flex items-center gap-2">
+                  {isCorrect ? (
+                    <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />
+                  ) : (
+                    <XCircle className="h-5 w-5 text-red-600 dark:text-red-400" />
+                  )}
+                  <h3 className="font-medium">{isCorrect ? 'Correct!' : 'Not Quite Right'}</h3>
+                </div>
+                <p className="mt-2 text-sm">
+                  {isCorrect 
+                    ? "Great job! Your answer matches what we were looking for." 
+                    : "Your answer didn't quite match what we were looking for. Review the correct answer above."}
+                </p>
+              </div>
+              
+              <div className="flex gap-2">
+                <Button 
+                  variant={isCorrect ? "default" : "outline"} 
+                  className="flex-1"
+                  onClick={() => {
+                    setIsCorrect(true);
+                    toast({ title: "Marked as correct" });
+                  }}
+                >
+                  <ThumbsUp className="h-4 w-4 mr-2" />
+                  I Got It Right
+                </Button>
+                <Button 
+                  variant={isCorrect === false ? "default" : "outline"} 
+                  className="flex-1"
+                  onClick={() => {
+                    setIsCorrect(false);
+                    toast({ title: "Marked as incorrect" });
+                  }}
+                >
+                  <ThumbsDown className="h-4 w-4 mr-2" />
+                  I Got It Wrong
+                </Button>
+              </div>
+            </div>
+          )}
+          
+          <div className="pt-4 border-t">
+            <Button 
+              variant="outline" 
+              className="w-full"
+              onClick={handleNextCard}
+            >
+              <RefreshCw className="h-4 w-4 mr-2" />
+              Next Flashcard
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    </motion.div>
   );
 };
 

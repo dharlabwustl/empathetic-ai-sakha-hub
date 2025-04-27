@@ -20,17 +20,20 @@ export default function StudentRoutes() {
     <Routes>
       <Route path="/today" element={<TodaysPlanView />} />
       <Route path="/studyplan" element={<StudyPlanView />} />
-      <Route path="/concepts/:subject?" element={<ConceptsView />} />
-      <Route path="/flashcards/:subject?" element={<FlashcardsView />} />
-      <Route path="/practice/:subject?" element={<PracticeView />} />
+      <Route path="/concepts" element={<ConceptsView />} />
+      <Route path="/concepts/:subject" element={<ConceptsView />} />
+      <Route path="/flashcards" element={<FlashcardsView />} />
+      <Route path="/flashcards/:subject" element={<FlashcardsView />} />
+      <Route path="/practice" element={<PracticeView />} />
+      <Route path="/practice/:subject" element={<PracticeView />} />
       <Route path="/backlog" element={<BacklogView />} />
       <Route path="/profile" element={<ProfilePage />} />
       <Route path="/batch" element={<BatchManagementView />} />
       <Route path="/subscription" element={<SubscriptionPage />} />
       
       {/* Landing pages with topic-based routing */}
-      <Route path="/concepts/study/:topicName" element={<ConceptStudyPage />} />
-      <Route path="/flashcards/practice/:topicName" element={<FlashcardPracticePage />} />
+      <Route path="/concepts/study/:conceptId" element={<ConceptStudyPage />} />
+      <Route path="/flashcards/practice/:cardId" element={<FlashcardPracticePage />} />
       <Route path="/exams/attempt/:examId" element={<ExamAttemptPage />} />
       <Route path="/exams/review/:examId" element={<ExamReviewPage />} />
       
