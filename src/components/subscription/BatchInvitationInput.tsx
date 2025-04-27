@@ -1,10 +1,8 @@
 
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { useToast } from '@/hooks/use-toast';
+import { Input } from '@/components/ui/input';
+import { Key } from 'lucide-react';
 
 interface BatchInvitationInputProps {
   onJoinBatch: (code: string) => Promise<void>;
@@ -12,69 +10,60 @@ interface BatchInvitationInputProps {
 
 const BatchInvitationInput: React.FC<BatchInvitationInputProps> = ({ onJoinBatch }) => {
   const [inviteCode, setInviteCode] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (!inviteCode.trim()) {
-      toast({
-        title: "Error",
-        description: "Please enter a valid invitation code.",
-        variant: "destructive",
-      });
+      setError('Please enter an invite code');
       return;
     }
-    
-    setIsLoading(true);
-    
+
+    setIsSubmitting(true);
+    setError(null);
+
     try {
       await onJoinBatch(inviteCode.trim());
-      setInviteCode('');
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to join batch. Please check your code and try again.",
-        variant: "destructive",
-      });
-      console.error("Error joining batch:", error);
+    } catch (err) {
+      setError('An error occurred. Please try again later.');
+      console.error('Error submitting invite code:', err);
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Join a Batch</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="invite-code">Enter Invitation Code</Label>
-            <Input
-              id="invite-code"
-              placeholder="e.g., SAKHA-123456"
-              value={inviteCode}
-              onChange={(e) => setInviteCode(e.target.value)}
-              disabled={isLoading}
-            />
-          </div>
-          
-          <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? (
-              <>
-                <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-b-transparent"></span>
-                Joining...
-              </>
-            ) : (
-              'Join Batch'
-            )}
-          </Button>
-        </form>
-      </CardContent>
-    </Card>
+    <div>
+      <h3 className="text-lg font-medium mb-3 flex items-center">
+        <Key size={18} className="text-blue-600 mr-1.5" />
+        Join a Study Batch
+      </h3>
+      <p className="text-sm text-muted-foreground mb-3">
+        Enter the invite code provided by your batch leader to join their study group.
+      </p>
+      
+      <form onSubmit={handleSubmit} className="space-y-3">
+        <div>
+          <Input
+            id="invite-code-input"
+            placeholder="Enter invite code (e.g., SAKHA-ABC123)"
+            value={inviteCode}
+            onChange={(e) => setInviteCode(e.target.value)}
+            className={error ? 'border-red-500' : ''}
+          />
+          {error && <p className="text-sm text-red-500 mt-1">{error}</p>}
+        </div>
+        
+        <Button 
+          type="submit" 
+          className="w-full"
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? 'Processing...' : 'Join Batch'}
+        </Button>
+      </form>
+    </div>
   );
 };
 

@@ -1,3 +1,4 @@
+
 import * as React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -56,6 +57,7 @@ import AllConceptCardsPage from "./pages/dashboard/student/AllConceptCardsPage";
 import FlashcardDetailsPage from "./pages/dashboard/student/FlashcardDetailsPage";
 import ExamDetailPage from "./pages/dashboard/student/ExamDetailPage";
 import FeelGoodCornerPage from "./pages/dashboard/student/FeelGoodCornerPage";
+import StudentRoutes from "./routes/studentRoutes";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -108,20 +110,10 @@ const App = () => {
                     <Route path="/dashboard/student" element={<Navigate to="/dashboard/student/overview" replace />} />
                     <Route path="/dashboard/student/:tab" element={<StudentDashboard />} />
                     
-                    <Route path="/dashboard/student/studyplan" element={<StudyPlanView />} />
-                    <Route path="/dashboard/student/today" element={<TodaysPlanView />} />
-                    
-                    <Route path="/dashboard/student/concepts/all" element={<AllConceptCardsPage />} />
-                    <Route path="/dashboard/student/concepts/:conceptId" element={<ConceptCardDetailPage />} />
-                    
-                    <Route path="/dashboard/student/flashcards/:flashcardId" element={<FlashcardDetailsPage />} />
-                    
-                    <Route path="/dashboard/student/practice-exam/:examId" element={<ExamDetailPage />} />
+                    <Route path="/dashboard/student/*" element={<StudentRoutes />} />
                     
                     <Route path="/dashboard/student/progress" element={<StudyProgress />} />
-                    <Route path="/dashboard/student/profile" element={<StudentProfilePage />} />
                     <Route path="/dashboard/student/settings" element={<StudentSettingsPage />} />
-                    <Route path="/dashboard/student/subscription" element={<SubscriptionPage />} />
                     <Route path="/dashboard/student/wellness" element={<FeelGoodCornerPage />} />
                     <Route path="/dashboard/student/study-groups" element={<StudyGroupsPage />} />
                     

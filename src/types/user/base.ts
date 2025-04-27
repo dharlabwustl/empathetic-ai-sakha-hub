@@ -1,67 +1,87 @@
 
 export enum UserRole {
   Student = 'student',
+  Admin = 'admin',
   Employee = 'employee',
   Doctor = 'doctor',
-  Founder = 'founder',
-  Admin = 'admin'
+  Founder = 'founder'
 }
 
 export enum SubscriptionType {
+  Free = 'free',
   Basic = 'basic',
   Premium = 'premium',
   Enterprise = 'enterprise',
-  Free = 'free',
   School = 'school',
   Corporate = 'corporate'
 }
 
-export type MoodType = 'sad' | 'neutral' | 'happy' | 'motivated' | 'anxious' | 'stressed' | 'tired' | 'focused' | 'overwhelmed' | 'curious' | 'okay';
-
-export interface UserGoal {
+export interface Goal {
   id: string;
   title: string;
-  targetDate?: string;
-  progress?: number;
+  description?: string;
+  progress: number;
+  deadline?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
-export interface UserPermission {
-  resource: string;
-  actions: string[];
+export interface Education {
+  level: string;
+  institution: string;
+  fieldOfStudy: string;
+  graduationYear?: number;
+}
+
+export interface Address {
+  street: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  country: string;
 }
 
 export interface UserSubscription {
+  planId?: string;
   planType: SubscriptionType;
-  startDate: string;
-  endDate: string;
-  isActive: boolean;
+  isActive?: boolean;
+  startDate?: string;
+  endDate?: string;
   expiryDate?: string;
   features?: string[];
+  batchName?: string;
+  batchCode?: string;
+  role?: 'leader' | 'member' | 'school_admin' | 'corporate_admin';
 }
 
-export interface UserProfileBase {
+export interface SubscriptionPlan {
+  id: string;
+  name: string;
+  price: number;
+  features: string[];
+  type: string | SubscriptionType;
+  maxMembers?: number;
+}
+
+export interface UserProfileType {
   id: string;
   name?: string;
   email?: string;
-  phone?: string;
-  role?: UserRole;
+  role: UserRole;
   avatar?: string;
-  createdAt?: string;
-  goals?: UserGoal[];
-  permissions?: UserPermission[];
-  subscription?: UserSubscription | SubscriptionType;
-  loginCount?: number;
-  lastLogin?: string;
-  streakDays?: number;
-  mood?: MoodType;
-  school?: string;
-  grade?: string;
   bio?: string;
-  socialLinks?: {
-    [platform: string]: string;
-  };
+  phoneNumber?: string;
+  gender?: 'male' | 'female' | 'other';
+  profession?: string;
   joinDate?: string;
+  lastActive?: string;
+  goals?: Goal[];
+  subscription?: SubscriptionType | UserSubscription;
+  address?: Address;
+  education?: Education;
+  skills?: string[];
+  interests?: string[];
   personalityType?: string;
+  examPreparation?: string;
 }
 
-export type UserProfileType = UserProfileBase;
