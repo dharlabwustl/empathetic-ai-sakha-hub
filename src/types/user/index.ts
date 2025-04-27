@@ -1,11 +1,16 @@
 
-import { UserProfileBase, UserRole, UserGoal, UserPermission, MoodType } from './base';
+export * from './base';
 
-export type UserProfileType = UserProfileBase;
+// Add missing type definitions
+export interface SubjectProgress {
+  subject: string;
+  completedTopics: number;
+  totalTopics: number;
+  progress: number;
+}
 
-export {
-  UserRole,
-  UserGoal,
-  UserPermission,
-  MoodType
-};
+export interface StudyStreak {
+  currentStreak: number;
+  longestStreak: number;
+  lastStudyDate: string;
+}

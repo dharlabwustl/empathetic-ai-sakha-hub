@@ -1,58 +1,44 @@
 
-export type MoodType = 'sad' | 'neutral' | 'happy' | 'motivated' | 'anxious' | 'stressed' | 'tired' | 'focused' | 'overwhelmed' | 'curious' | 'okay';
-
 export interface TodaysPlanData {
-  date: string;
-  totalCompletedTasks: number;
-  totalTasks: number;
-  concepts: ConceptTask[];
-  flashcards: FlashcardTask[];
-  practiceExams: PracticeExamTask[];
+  userName?: string;
+  examGoal?: string;
+  subjectBreakdown?: {
+    [subject: string]: {
+      concepts?: Array<{
+        id: string;
+        title: string;
+        status: string;
+        timeEstimate: number;
+      }>;
+      flashcards?: Array<{
+        id: string;
+        title: string;
+        status: string;
+        timeEstimate: number;
+      }>;
+      practiceExams?: Array<{
+        id: string;
+        title: string;
+        status: string;
+        timeEstimate: number;
+      }>;
+    }
+  };
+  pastDays?: Array<{
+    date: string;
+    status?: string;
+    completedTasks?: number;
+    totalTasks?: number;
+  }>;
+  tasks?: Array<{
+    id: string;
+    title: string;
+    subject: string;
+    type: 'concept' | 'flashcard' | 'practice-exam';
+    status: string;
+    timeEstimate: number;
+  }>;
 }
 
-export interface ConceptTask {
-  id: string;
-  name: string;
-  subject: string;
-  topicId: string;
-  topic: string;
-  estimatedMinutes: number;
-  isCompleted: boolean;
-  priority: 'high' | 'medium' | 'low';
-  dueDate?: string;
-}
-
-export interface FlashcardTask {
-  id: string;
-  deckName: string;
-  subject: string;
-  topicId: string;
-  topic: string;
-  cardCount: number;
-  cardsReviewed: number;
-  estimatedMinutes: number;
-  isCompleted: boolean;
-  priority: 'high' | 'medium' | 'low';
-  dueDate?: string;
-}
-
-export interface PracticeExamTask {
-  id: string;
-  name: string;
-  subject: string;
-  topicIds: string[];
-  topics: string[];
-  questionCount: number;
-  estimatedMinutes: number;
-  isCompleted: boolean;
-  priority: 'high' | 'medium' | 'low';
-  dueDate?: string;
-}
-
-export interface PastDayRecord {
-  date: string;
-  completionPercentage: number;
-  tasksCompleted: number;
-  totalTasks: number;
-  mood?: MoodType;
-}
+export type TimelineView = 'daily' | 'weekly' | 'monthly';
+export type SubjectTaskBreakdown = TodaysPlanData['subjectBreakdown'];
