@@ -10,6 +10,9 @@ import ProfileView from '@/pages/dashboard/student/ProfilePage';
 import BatchManagementView from '@/pages/dashboard/student/BatchManagementView';
 import SubscriptionView from '@/pages/dashboard/student/SubscriptionPage';
 import ConceptCardDetailPage from '@/components/dashboard/student/concepts/ConceptCardDetailPage';
+import TutorView from '@/pages/dashboard/student/TutorView';
+import AcademicAdvisorView from '@/pages/dashboard/student/AcademicAdvisorView';
+import FeelGoodCornerView from '@/pages/dashboard/student/FeelGoodCornerView';
 
 export default function StudentRoutes() {
   return (
@@ -24,9 +27,9 @@ export default function StudentRoutes() {
       <Route path="/profile" element={<ProfileView />} />
       <Route path="/batch" element={<BatchManagementView />} />
       <Route path="/subscription" element={<SubscriptionView />} />
-      <Route path="/tutor" element={<div>24/7 AI Tutor</div>} />
-      <Route path="/academic" element={<div>Academic Advisor</div>} />
-      <Route path="/wellness" element={<div>Feel Good Corner</div>} />
+      <Route path="/tutor" element={<TutorView />} />
+      <Route path="/academic" element={<AcademicAdvisorView />} />
+      <Route path="/wellness" element={<FeelGoodCornerView />} />
     </Routes>
   );
 }

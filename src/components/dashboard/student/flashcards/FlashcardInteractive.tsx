@@ -1,321 +1,307 @@
 
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
-import { Badge } from '@/components/ui/badge';
-import { SectionHeader } from '@/components/ui/section-header';
-import { Clock, ThumbsUp, ThumbsDown, ArrowLeft, ArrowRight, Flag, BookOpen, Brain } from 'lucide-react';
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { Check, X, ArrowLeft, ArrowRight, Bookmark, RefreshCw, ExternalLink } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
+import { cn } from '@/lib/utils';
+import { useToast } from '@/hooks/use-toast';
 
-// Mock flashcard data
-const mockFlashcards = [
-  {
-    id: '1',
-    front: "What is Newton's First Law of Motion?",
-    back: "An object at rest stays at rest and an object in motion stays in motion with the same speed and direction unless acted upon by an unbalanced force.",
-    difficulty: "medium",
-    subject: "Physics",
-    topic: "Laws of Motion"
-  },
-  {
-    id: '2',
-    front: "Define Atomic Number",
-    back: "The atomic number of an element is the number of protons in the nucleus of each atom of that element.",
-    difficulty: "easy",
-    subject: "Chemistry",
-    topic: "Atomic Structure"
-  },
-  {
-    id: '3',
-    front: "What is the Pythagorean Theorem?",
-    back: "In a right-angled triangle, the square of the length of the hypotenuse equals the sum of squares of the other two sides. a² + b² = c²",
-    difficulty: "medium",
-    subject: "Mathematics",
-    topic: "Geometry"
-  },
-  {
-    id: '4',
-    front: "What are the primary functions of mitochondria?",
-    back: "Mitochondria are primarily responsible for producing energy through cellular respiration. They convert nutrients into ATP, the energy currency of the cell.",
-    difficulty: "hard",
-    subject: "Biology",
-    topic: "Cell Biology"
-  },
-  {
-    id: '5',
-    front: "What was the main cause of World War I?",
-    back: "The assassination of Archduke Franz Ferdinand of Austria-Hungary in June 1914 is considered the immediate trigger, but underlying causes included militarism, alliances, imperialism, and nationalism.",
-    difficulty: "medium",
-    subject: "History",
-    topic: "World Wars"
-  }
-];
+interface Flashcard {
+  id: string;
+  front: string;
+  back: string;
+  difficulty: 'easy' | 'medium' | 'hard';
+  tags: string[];
+  imageUrl?: string;
+}
 
-// Mock deck data
-const mockDeckInfo = {
-  "physics": {
-    name: "Physics Fundamentals",
-    cardCount: 42,
-    masteryLevel: 65,
-    lastStudied: "2025-04-25"
-  },
-  "chemistry": {
-    name: "Chemistry Basics",
-    cardCount: 38,
-    masteryLevel: 78,
-    lastStudied: "2025-04-26"
-  },
-  "mathematics": {
-    name: "Advanced Mathematics",
-    cardCount: 56,
-    masteryLevel: 59,
-    lastStudied: "2025-04-24"
-  },
-  "biology": {
-    name: "Biology Concepts",
-    cardCount: 45,
-    masteryLevel: 71,
-    lastStudied: "2025-04-23"
-  },
-  "history": {
-    name: "Important Historical Events",
-    cardCount: 34,
-    masteryLevel: 62,
-    lastStudied: "2025-04-22"
-  }
-};
-
-export default function FlashcardInteractive() {
+const FlashcardInteractive: React.FC = () => {
   const { deckId } = useParams<{ deckId: string }>();
   const navigate = useNavigate();
-  const [currentCardIndex, setCurrentCardIndex] = useState(0);
-  const [isFlipped, setIsFlipped] = useState(false);
-  const [cardsStatus, setCardsStatus] = useState<Record<string, 'correct' | 'incorrect' | 'skipped' | null>>({});
-  const [reviewMode, setReviewMode] = useState<'all' | 'incorrect' | 'marked'>('all');
+  const { toast } = useToast();
   
-  const deckInfo = deckId ? mockDeckInfo[deckId as keyof typeof mockDeckInfo] : null;
-  const totalCards = mockFlashcards.length;
-  const progress = (currentCardIndex / totalCards) * 100;
-  const currentCard = mockFlashcards[currentCardIndex];
+  // Mock flashcard data
+  const [flashcards, setFlashcards] = useState<Flashcard[]>([
+    {
+      id: '1',
+      front: "What is Newton's First Law of Motion?",
+      back: "An object at rest stays at rest, and an object in motion stays in motion with the same speed and direction unless acted upon by an unbalanced force.",
+      difficulty: 'medium',
+      tags: ['physics', 'mechanics', 'newton']
+    },
+    {
+      id: '2',
+      front: "What is Newton's Second Law of Motion?",
+      back: "The acceleration of an object is directly proportional to the net force acting on it and inversely proportional to its mass. F = ma",
+      difficulty: 'medium',
+      tags: ['physics', 'mechanics', 'newton']
+    },
+    {
+      id: '3',
+      front: "What is Newton's Third Law of Motion?",
+      back: "For every action, there is an equal and opposite reaction.",
+      difficulty: 'easy',
+      tags: ['physics', 'mechanics', 'newton']
+    },
+    {
+      id: '4',
+      front: "What is the formula for kinetic energy?",
+      back: "Kinetic Energy (KE) = ½mv², where m is mass and v is velocity.",
+      difficulty: 'medium',
+      tags: ['physics', 'energy', 'formulas']
+    },
+    {
+      id: '5',
+      front: "What is the formula for gravitational potential energy?",
+      back: "Gravitational Potential Energy (GPE) = mgh, where m is mass, g is gravitational acceleration, and h is height.",
+      difficulty: 'medium',
+      tags: ['physics', 'energy', 'formulas']
+    },
+  ]);
+
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [flipped, setFlipped] = useState(false);
+  const [showAnswer, setShowAnswer] = useState(false);
+  const [reviewMode, setReviewMode] = useState(false);
+  const [shuffleMode, setShuffleMode] = useState(false);
+  const [knownCards, setKnownCards] = useState<Record<string, boolean>>({});
   
-  const goToNextCard = () => {
-    if (currentCardIndex < totalCards - 1) {
-      setCurrentCardIndex(prev => prev + 1);
-      setIsFlipped(false);
-    } else {
-      // Session complete logic
-      setReviewMode('incorrect');
-      // Could navigate to a results page here
+  const currentCard = flashcards[currentIndex];
+  const progress = ((currentIndex + 1) / flashcards.length) * 100;
+  
+  // Count of cards marked as "known"
+  const knownCount = Object.values(knownCards).filter(Boolean).length;
+  
+  const handleFlip = () => {
+    setShowAnswer(false);
+    setFlipped(!flipped);
+  };
+  
+  const handleRevealAnswer = () => {
+    setShowAnswer(true);
+  };
+  
+  const handleMarkKnown = () => {
+    setKnownCards(prev => ({ ...prev, [currentCard.id]: true }));
+    handleNext();
+    
+    if (currentIndex === flashcards.length - 1) {
+      toast({
+        title: "Deck completed!",
+        description: `You've finished studying this deck.`,
+      });
     }
   };
   
-  const goToPrevCard = () => {
-    if (currentCardIndex > 0) {
-      setCurrentCardIndex(prev => prev - 1);
-      setIsFlipped(false);
+  const handleMarkUnknown = () => {
+    setKnownCards(prev => ({ ...prev, [currentCard.id]: false }));
+    handleNext();
+  };
+  
+  const handleNext = () => {
+    if (currentIndex < flashcards.length - 1) {
+      setCurrentIndex(currentIndex + 1);
+      setFlipped(false);
+      setShowAnswer(false);
     }
   };
   
-  const handleCardFlip = () => {
-    setIsFlipped(!isFlipped);
+  const handlePrevious = () => {
+    if (currentIndex > 0) {
+      setCurrentIndex(currentIndex - 1);
+      setFlipped(false);
+      setShowAnswer(false);
+    }
   };
   
-  const markCard = (status: 'correct' | 'incorrect' | 'skipped') => {
-    if (!currentCard) return;
+  const handleShuffle = () => {
+    const shuffledCards = [...flashcards].sort(() => Math.random() - 0.5);
+    setFlashcards(shuffledCards);
+    setCurrentIndex(0);
+    setFlipped(false);
+    setShowAnswer(false);
+    setShuffleMode(true);
     
-    setCardsStatus(prev => ({
-      ...prev,
-      [currentCard.id]: status
-    }));
+    toast({
+      title: "Cards shuffled",
+      description: "Flashcards have been randomly reordered.",
+    });
+  };
+  
+  const handleToggleReviewMode = () => {
+    setReviewMode(!reviewMode);
+    setCurrentIndex(0);
+    setFlipped(false);
+    setShowAnswer(false);
     
-    // Auto advance to next card
-    goToNextCard();
+    toast({
+      title: reviewMode ? "Normal mode activated" : "Review mode activated",
+      description: reviewMode 
+        ? "Studying all cards in sequence." 
+        : "Now focusing only on cards you marked as difficult.",
+    });
   };
   
-  const getCompletedCount = () => {
-    return Object.values(cardsStatus).filter(status => status !== null).length;
-  };
-  
-  const getCorrectCount = () => {
-    return Object.values(cardsStatus).filter(status => status === 'correct').length;
+  const deckInfo = {
+    title: `Physics Concepts: ${deckId}`,
+    totalCards: flashcards.length,
+    description: "Key concepts and formulas in classical mechanics focusing on Newton's laws."
   };
   
   return (
-    <SharedPageLayout 
-      title={deckInfo?.name || "Interactive Flashcards"}
-      subtitle={`Study and master ${totalCards} flashcards with interactive learning`}
+    <SharedPageLayout
+      title={deckInfo.title}
+      subtitle={`Flashcards • ${deckInfo.totalCards} cards • Interactive mode`}
+      showBackButton
+      backButtonUrl="/dashboard/student/flashcards"
     >
       <div className="space-y-6">
-        {/* Status and Controls Bar */}
-        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border shadow-sm flex flex-col md:flex-row justify-between items-center gap-4">
-          {/* Progress */}
-          <div className="w-full md:w-1/3 space-y-2">
-            <div className="flex justify-between items-center text-sm">
-              <span>Progress: {Math.round(progress)}%</span>
-              <span className="text-muted-foreground">{currentCardIndex + 1}/{totalCards} Cards</span>
-            </div>
-            <Progress value={progress} className="h-2" />
-          </div>
-          
-          {/* Stats */}
-          <div className="flex gap-3 flex-wrap justify-center">
-            <Badge variant="outline" className="bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-300">
-              <ThumbsUp className="h-3.5 w-3.5 mr-1" /> {getCorrectCount()} Correct
-            </Badge>
-            <Badge variant="outline" className="bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-300">
-              <ThumbsDown className="h-3.5 w-3.5 mr-1" /> {Object.values(cardsStatus).filter(s => s === 'incorrect').length} Incorrect
-            </Badge>
-            <Badge variant="outline" className="bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300">
-              <Clock className="h-3.5 w-3.5 mr-1" /> {getCompletedCount()}/{totalCards} Completed
-            </Badge>
-          </div>
-          
-          {/* Controls */}
-          <div className="flex gap-2">
+        {/* Progress and controls */}
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+          <div className="flex items-center gap-2 w-full sm:w-auto">
             <Button 
               variant="outline" 
-              size="sm"
-              onClick={() => navigate(-1)}
+              size="sm" 
+              onClick={handleShuffle}
+              className="gap-1"
             >
-              Exit Session
+              <RefreshCw className="h-3.5 w-3.5" />
+              <span>{shuffleMode ? 'Reshuffle' : 'Shuffle'}</span>
             </Button>
             <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => setReviewMode('incorrect')}
+              variant={reviewMode ? "default" : "outline"} 
+              size="sm" 
+              onClick={handleToggleReviewMode}
+              className="gap-1"
             >
-              Review Incorrect
+              <ExternalLink className="h-3.5 w-3.5" />
+              <span>Review Mode</span>
             </Button>
+          </div>
+          <div className="text-sm text-muted-foreground">
+            Card {currentIndex + 1} of {flashcards.length}
           </div>
         </div>
         
+        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5 mb-6">
+          <div 
+            className="bg-green-500 h-1.5 rounded-full transition-all duration-300" 
+            style={{ width: `${progress}%` }}
+          ></div>
+        </div>
+
         {/* Flashcard */}
-        {currentCard && (
-          <div className="flex flex-col items-center">
-            <motion.div 
-              className="w-full max-w-2xl cursor-pointer"
-              onClick={handleCardFlip}
-              initial={false}
-              animate={{ rotateY: isFlipped ? 180 : 0 }}
-              transition={{ duration: 0.6 }}
-            >
-              <div className="relative w-full min-h-[300px]">
-                {/* Front of Card */}
-                <div 
-                  className={`absolute w-full h-full bg-gradient-to-r from-violet-50 to-blue-50 dark:from-violet-950/40 dark:to-blue-950/40 rounded-xl p-6 shadow-lg border-2 border-violet-100 dark:border-violet-800/30 flex flex-col ${isFlipped ? 'backface-hidden' : ''}`}
-                >
-                  <div className="flex justify-between">
-                    <Badge variant="outline" className="mb-2 bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
-                      <BookOpen className="h-3 w-3 mr-1" /> {currentCard.subject}
-                    </Badge>
-                    <Badge variant="outline" className="mb-2 bg-violet-50 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300">
-                      <Brain className="h-3 w-3 mr-1" /> {currentCard.topic}
-                    </Badge>
+        <div className="flex justify-center mb-6">
+          <div 
+            className="w-full max-w-2xl perspective h-[350px] sm:h-[400px] cursor-pointer"
+            onClick={handleFlip}
+          >
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={flipped ? 'back' : 'front'}
+                initial={{ rotateY: flipped ? -90 : 90, opacity: 0 }}
+                animate={{ rotateY: 0, opacity: 1 }}
+                exit={{ rotateY: flipped ? 90 : -90, opacity: 0 }}
+                transition={{ duration: 0.4 }}
+                className={cn(
+                  "w-full h-full rounded-xl shadow-lg flex flex-col items-center justify-center p-8 sm:p-10 text-center",
+                  flipped 
+                    ? "bg-indigo-50 dark:bg-indigo-950/30 border border-indigo-100 dark:border-indigo-900/50" 
+                    : "bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700"
+                )}
+              >
+                {flipped ? (
+                  <div className="space-y-6">
+                    <p className="text-lg sm:text-xl font-medium text-indigo-700 dark:text-indigo-300">{currentCard.back}</p>
+                    
+                    {!showAnswer && (
+                      <Button variant="outline" onClick={handleRevealAnswer} className="mt-4">
+                        Show Answer Details
+                      </Button>
+                    )}
+                    
+                    {showAnswer && (
+                      <div className="opacity-animation mt-4 text-sm text-gray-700 dark:text-gray-300">
+                        <p>Additional explanation would appear here...</p>
+                      </div>
+                    )}
                   </div>
-                  <div className="flex-grow flex items-center justify-center">
-                    <h3 className="text-xl font-medium text-center">{currentCard.front}</h3>
+                ) : (
+                  <div className="space-y-2">
+                    <h3 className="text-xl sm:text-2xl font-medium">{currentCard.front}</h3>
+                    <div className="flex flex-wrap justify-center gap-2 mt-4">
+                      {currentCard.tags.map(tag => (
+                        <span 
+                          key={tag}
+                          className="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded text-xs text-gray-600 dark:text-gray-300"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                    <p className="text-sm text-muted-foreground mt-4">Tap to see answer</p>
                   </div>
-                  <div className="text-center mt-4 text-sm text-muted-foreground">
-                    <p>Click to reveal answer</p>
-                  </div>
-                </div>
-                
-                {/* Back of Card */}
-                <div 
-                  className={`absolute w-full h-full bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/40 dark:to-orange-950/40 rounded-xl p-6 shadow-lg border-2 border-amber-100 dark:border-amber-800/30 flex flex-col ${!isFlipped ? 'backface-hidden' : ''}`}
-                  style={{ transform: 'rotateY(180deg)' }}
-                >
-                  <div className="flex justify-between">
-                    <Badge variant="outline" className="mb-2 bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300">
-                      Answer
-                    </Badge>
-                    <Badge 
-                      variant="outline" 
-                      className={`mb-2 ${
-                        currentCard.difficulty === 'easy' 
-                          ? 'bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-300' 
-                          : currentCard.difficulty === 'medium'
-                            ? 'bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300'
-                            : 'bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-300'
-                      }`}
-                    >
-                      {currentCard.difficulty.charAt(0).toUpperCase() + currentCard.difficulty.slice(1)}
-                    </Badge>
-                  </div>
-                  <div className="flex-grow flex items-center justify-center">
-                    <p className="text-lg text-center">{currentCard.back}</p>
-                  </div>
-                  <div className="text-center mt-4 text-sm text-muted-foreground">
-                    <p>How well did you know this?</p>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-            
-            {/* Card Navigation & Response Controls */}
-            <div className="mt-6 w-full max-w-2xl">
-              {/* Navigation Arrows */}
-              <div className="flex justify-between mb-4">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={goToPrevCard}
-                  disabled={currentCardIndex === 0}
-                >
-                  <ArrowLeft className="h-4 w-4 mr-1" /> Previous
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={goToNextCard}
-                >
-                  Next <ArrowRight className="h-4 w-4 ml-1" />
-                </Button>
-              </div>
-              
-              {/* Response Buttons - Only shown when card is flipped */}
-              <div className={`grid grid-cols-3 gap-4 transition-opacity duration-300 ${isFlipped ? 'opacity-100' : 'opacity-0'}`}>
-                <Button 
-                  variant="outline" 
-                  className="border-red-200 bg-red-50 text-red-700 hover:bg-red-100 dark:border-red-700/30 dark:bg-red-900/30 dark:text-red-300 dark:hover:bg-red-900/50"
-                  onClick={() => markCard('incorrect')}
-                >
-                  <ThumbsDown className="h-4 w-4 mr-2" /> Didn't Know
-                </Button>
-                <Button 
-                  variant="outline"
-                  className="border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100 dark:border-amber-700/30 dark:bg-amber-900/30 dark:text-amber-300 dark:hover:bg-amber-900/50"
-                  onClick={() => markCard('skipped')}
-                >
-                  <Flag className="h-4 w-4 mr-2" /> Partially Knew
-                </Button>
-                <Button 
-                  variant="outline"
-                  className="border-green-200 bg-green-50 text-green-700 hover:bg-green-100 dark:border-green-700/30 dark:bg-green-900/30 dark:text-green-300 dark:hover:bg-green-900/50"
-                  onClick={() => markCard('correct')}
-                >
-                  <ThumbsUp className="h-4 w-4 mr-2" /> Knew It
-                </Button>
-              </div>
+                )}
+              </motion.div>
+            </AnimatePresence>
+          </div>
+        </div>
+        
+        {/* Control buttons */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <Button variant="outline" onClick={handlePrevious} disabled={currentIndex === 0} className="gap-2">
+            <ArrowLeft className="h-4 w-4" />
+            Previous
+          </Button>
+          
+          <Button variant="outline" onClick={handleNext} disabled={currentIndex === flashcards.length - 1} className="gap-2">
+            Next
+            <ArrowRight className="h-4 w-4" />
+          </Button>
+          
+          <Button 
+            variant="outline" 
+            onClick={handleMarkUnknown} 
+            className="bg-red-50 hover:bg-red-100 text-red-600 border-red-100 dark:bg-red-900/20 dark:border-red-900/30 dark:text-red-400 dark:hover:bg-red-900/30 gap-2"
+          >
+            <X className="h-4 w-4" />
+            Don't Know
+          </Button>
+          
+          <Button 
+            variant="outline" 
+            onClick={handleMarkKnown} 
+            className="bg-green-50 hover:bg-green-100 text-green-600 border-green-100 dark:bg-green-900/20 dark:border-green-900/30 dark:text-green-400 dark:hover:bg-green-900/30 gap-2"
+          >
+            <Check className="h-4 w-4" />
+            Know It
+          </Button>
+        </div>
+        
+        {/* Summary Card */}
+        <Card className="bg-muted/50 mt-6">
+          <div className="p-4">
+            <div className="flex justify-between items-center mb-2">
+              <h3 className="text-sm font-medium">Study Progress</h3>
+              <span className="text-sm">{knownCount} of {flashcards.length} mastered</span>
+            </div>
+            <Progress value={(knownCount / flashcards.length) * 100} className="h-2" />
+            <div className="mt-4 text-sm text-muted-foreground">
+              {knownCount === flashcards.length ? (
+                <p>Great job! You've mastered all cards in this deck.</p>
+              ) : (
+                <p>Keep going! You're making good progress.</p>
+              )}
             </div>
           </div>
-        )}
-        
-        {/* Study Tips */}
-        <Card className="bg-blue-50/50 dark:bg-blue-950/30 border-blue-100 dark:border-blue-800/30">
-          <CardContent className="p-4 space-y-2">
-            <h3 className="font-medium">Study Tips</h3>
-            <ul className="text-sm space-y-1">
-              <li>• Try to answer each card before flipping it</li>
-              <li>• If you're struggling with a card, mark it for review</li>
-              <li>• Take breaks every 20-25 minutes for better retention</li>
-            </ul>
-          </CardContent>
         </Card>
       </div>
     </SharedPageLayout>
   );
-}
+};
+
+export default FlashcardInteractive;

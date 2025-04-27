@@ -1,589 +1,422 @@
 
-import React, { useState, useEffect, useRef } from 'react';
-import { Link, useParams, useNavigate } from 'react-router-dom';
-import { useConceptCardDetails } from '@/hooks/useUserStudyPlan';
-import MainLayout from '@/components/layouts/MainLayout';
+import React, { useState } from 'react';
+import { useParams, Link } from 'react-router-dom';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { 
-  ArrowLeft, 
+  Bookmark, 
   BookOpen, 
-  Book, 
-  Clock, 
-  Tag, 
-  MessageSquare, 
-  Volume2, 
-  VolumeX, 
-  Loader2, 
-  Brain, 
-  AlertTriangle, 
-  CheckCircle2, 
-  Lightbulb,
-  Bookmark,
-  BookmarkCheck,
-  Play,
-  LinkIcon,
-  FileText,
-  FileVideo
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { Separator } from '@/components/ui/separator';
+  Play, 
+  ExternalLink, 
+  CheckCircle,
+  AlertTriangle,
+  Monitor,
+  List,
+  Video
+} from "lucide-react";
+import { motion } from "framer-motion";
+import ConceptExplanationContent from '@/components/dashboard/student/concept-cards/ConceptExplanationContent';
+import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
 import { useToast } from '@/hooks/use-toast';
-import ConceptExplanationContent from '../concept-cards/ConceptExplanationContent';
 
 const ConceptCardDetailPage = () => {
-  const { conceptId } = useParams<{ conceptId: string }>();
-  const { conceptCard, loading } = useConceptCardDetails(conceptId || '');
-  const [detailLevel, setDetailLevel] = useState<'basic' | 'detailed' | 'simplified' | 'advanced'>('basic');
-  const [isReading, setIsReading] = useState(false);
-  const [isSpeechSupported, setIsSpeechSupported] = useState(false);
+  const { conceptId } = useParams();
+  const [activeTab, setActiveTab] = useState("explanation");
   const [isBookmarked, setIsBookmarked] = useState(false);
-  const speechSynthesisRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const [isNarrating, setIsNarrating] = useState(false);
+  const [completionStatus, setCompletionStatus] = useState(70); // Example progress percentage
   const { toast } = useToast();
-  const navigate = useNavigate();
 
-  useEffect(() => {
-    // Check if speech synthesis is supported
-    if ('speechSynthesis' in window) {
-      setIsSpeechSupported(true);
-    }
-
-    // Check if the concept is bookmarked (from localStorage for demo)
-    const bookmarks = JSON.parse(localStorage.getItem('conceptBookmarks') || '[]');
-    setIsBookmarked(bookmarks.includes(conceptId));
-
-    // Stop speech when component unmounts
-    return () => {
-      if (speechSynthesisRef.current && window.speechSynthesis) {
-        window.speechSynthesis.cancel();
+  // For demo purposes only - would fetch from API in real app
+  const conceptData = {
+    id: conceptId || '1',
+    title: "Newton's Laws of Motion",
+    subject: "Physics",
+    category: "Classical Mechanics",
+    difficulty: "Intermediate",
+    estimatedTime: "15 minutes",
+    completionStatus: 70,
+    relatedConcepts: [
+      { id: "2", title: "Conservation of Momentum", subject: "Physics" },
+      { id: "3", title: "Work and Energy", subject: "Physics" },
+      { id: "4", title: "Circular Motion", subject: "Physics" }
+    ],
+    relatedFlashcards: [
+      { id: "f1", title: "Newton's Laws Flashcards", count: 15 },
+      { id: "f2", title: "Force and Motion Concepts", count: 10 }
+    ],
+    relatedPracticeTests: [
+      { id: "p1", title: "Newton's Laws Quiz", questions: 10 },
+      { id: "p2", title: "Mechanics Practice Test", questions: 25 }
+    ],
+    examples: [
+      {
+        title: "Car Braking",
+        description: "When a car suddenly brakes, passengers feel pushed forward. This demonstrates Newton's First Law as their bodies resist the change in motion, continuing to move forward while the car slows down.",
+        image: "/images/car-braking.jpg"
+      },
+      {
+        title: "Rocket Propulsion",
+        description: "Rockets demonstrate Newton's Third Law. As the engine expels gas downward (action), the rocket is propelled upward (reaction).",
+        image: "/images/rocket.jpg"
+      },
+      {
+        title: "Pushing Objects of Different Mass",
+        description: "Pushing a shopping cart versus pushing a car demonstrates Newton's Second Law. The same force causes different accelerations due to different masses.",
+        image: "/images/pushing-objects.jpg"
       }
-    };
-  }, [conceptId]);
+    ],
+    commonMistakes: [
+      {
+        title: "Confusing Mass and Weight",
+        description: "Mass is the amount of matter in an object and doesn't change. Weight is the force of gravity acting on that mass and depends on location.",
+        solution: "Remember that mass is measured in kilograms (kg), while weight is measured in newtons (N)."
+      },
+      {
+        title: "Ignoring Other Forces",
+        description: "Forgetting to account for friction or other forces when analyzing a problem.",
+        solution: "Always identify ALL forces acting on an object when solving physics problems."
+      },
+      {
+        title: "Misinterpreting the Third Law",
+        description: "Thinking action-reaction pairs act on the same object.",
+        solution: "Remember that action-reaction forces always act on DIFFERENT objects."
+      }
+    ],
+    examRelevance: {
+      importance: "High",
+      frequency: "Very Common",
+      questionTypes: ["Conceptual", "Numerical", "Application"],
+      typicalQuestions: [
+        "Explain how Newton's laws apply to an elevator accelerating upward.",
+        "Calculate the force needed to accelerate a 1500kg car from rest to 60km/h in 10 seconds.",
+        "Describe the forces acting on a book resting on a table."
+      ]
+    },
+    videoAnalysis: [
+      {
+        title: "Newton's Laws Explained",
+        url: "https://www.example.com/video1",
+        duration: "8:24",
+        description: "Clear explanation of all three laws with animated examples."
+      },
+      {
+        title: "Problem Solving with Newton's Laws",
+        url: "https://www.example.com/video2",
+        duration: "12:15",
+        description: "Step-by-step approaches to solve typical exam questions."
+      }
+    ]
+  };
 
-  const toggleBookmark = () => {
-    const bookmarks = JSON.parse(localStorage.getItem('conceptBookmarks') || '[]');
-    
-    if (isBookmarked) {
-      const updatedBookmarks = bookmarks.filter((id: string) => id !== conceptId);
-      localStorage.setItem('conceptBookmarks', JSON.stringify(updatedBookmarks));
-      setIsBookmarked(false);
+  const handleToggleBookmark = () => {
+    setIsBookmarked(!isBookmarked);
+    toast({
+      title: isBookmarked ? "Bookmark removed" : "Concept bookmarked",
+      description: isBookmarked ? "Removed from your saved items" : "Added to your saved items for quick access later",
+      variant: isBookmarked ? "default" : "success",
+    });
+  };
+
+  const handleToggleNarration = () => {
+    setIsNarrating(!isNarrating);
+    if (!isNarrating) {
       toast({
-        title: "Bookmark removed",
-        description: "Concept removed from your bookmarks."
+        title: "Voice narration started",
+        description: "Listening to explanation of " + conceptData.title,
       });
     } else {
-      bookmarks.push(conceptId);
-      localStorage.setItem('conceptBookmarks', JSON.stringify(bookmarks));
-      setIsBookmarked(true);
       toast({
-        title: "Bookmarked!",
-        description: "Concept added to your bookmarks for easy access."
+        title: "Voice narration stopped",
       });
     }
   };
 
-  const toggleSpeech = () => {
-    if (!isSpeechSupported) {
-      toast({
-        title: "Speech synthesis not supported",
-        description: "Your browser doesn't support the speech synthesis API.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    if (isReading) {
-      // Stop reading
-      if (window.speechSynthesis) {
-        window.speechSynthesis.cancel();
-        setIsReading(false);
-      }
-    } else {
-      // Start reading
-      if (!conceptCard) return;
-
-      // Get text based on active tab
-      let textToRead = "";
-      const activeTab = document.querySelector('[role="tabpanel"]:not([hidden])');
-      
-      if (activeTab) {
-        textToRead = activeTab.textContent || "";
-      } else {
-        textToRead = `${conceptCard.title}. ${getContentByDetailLevel(detailLevel)}`;
-      }
-
-      const utterance = new SpeechSynthesisUtterance(textToRead);
-      utterance.rate = 0.9; // Slightly slower than default
-      utterance.onend = () => setIsReading(false);
-      utterance.onerror = () => {
-        setIsReading(false);
-        toast({
-          title: "Error occurred",
-          description: "There was a problem with the speech synthesis.",
-          variant: "destructive"
-        });
-      };
-      
-      speechSynthesisRef.current = utterance;
-      window.speechSynthesis.speak(utterance);
-      setIsReading(true);
-    }
-  };
-
-  const markAsComplete = () => {
+  const handleMarkAsComplete = () => {
+    setCompletionStatus(100);
     toast({
-      title: conceptCard?.completed ? "Already completed" : "Concept marked as completed",
-      description: conceptCard?.completed 
-        ? "This concept is already marked as completed" 
-        : "Your progress has been updated and the next recommended items are now available!",
-    });
-    
-    // In a real app, you would make an API call here to update the completion status
-  };
-
-  // Helper function to get content based on detail level
-  const getContentByDetailLevel = (level: string) => {
-    if (!conceptCard?.content) return "";
-    switch (level) {
-      case 'basic':
-        return conceptCard.content.split('.').slice(0, 2).join('.') + '.';
-      case 'detailed':
-        return conceptCard.content;
-      case 'simplified':
-        return `Simplified explanation: ${conceptCard.content.split('.').slice(0, 1).join('.')}. This is the core idea.`;
-      case 'advanced':
-        return `Advanced explanation: ${conceptCard.content}. Additionally, this concept extends to more complex scenarios and has numerous applications in the field.`;
-      default:
-        return conceptCard.content;
-    }
-  };
-
-  const navigateToRelatedConcept = (conceptId: string) => {
-    navigate(`/dashboard/student/concepts/card/${conceptId}`);
-  };
-
-  const navigateToFlashcards = () => {
-    navigate(`/dashboard/student/flashcards/${conceptCard?.subject?.toLowerCase()}`);
-    toast({
-      title: "Flashcards loaded",
-      description: `Loaded flashcards related to ${conceptCard?.title}`,
+      title: "Concept marked as complete!",
+      description: "Great job on learning " + conceptData.title,
+      variant: "success",
     });
   };
-
-  const navigateToPracticeTests = () => {
-    navigate(`/dashboard/student/practice/${conceptCard?.subject?.toLowerCase()}`);
-    toast({
-      title: "Practice tests loaded",
-      description: `Loaded practice tests related to ${conceptCard?.title}`,
-    });
-  };
-
-  const watchVideo = () => {
-    toast({
-      title: "Video analysis",
-      description: "Loading video analysis for this concept...",
-    });
-    // In a real app, this would open a video player or redirect to a video page
-  };
-
-  if (loading) {
-    return (
-      <MainLayout>
-        <div className="container py-8">
-          <div className="flex items-center justify-center h-64">
-            <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
-          </div>
-        </div>
-      </MainLayout>
-    );
-  }
-
-  if (!conceptCard) {
-    return (
-      <MainLayout>
-        <div className="container py-8">
-          <div className="flex flex-col items-center justify-center h-64">
-            <AlertTriangle className="h-12 w-12 text-amber-500 mb-4" />
-            <h1 className="text-xl font-semibold mb-2">Concept not found</h1>
-            <p className="text-gray-600 mb-4">The concept you're looking for doesn't exist or has been removed.</p>
-            <Link to="/dashboard/student/concepts/all">
-              <Button>Back to all concepts</Button>
-            </Link>
-          </div>
-        </div>
-      </MainLayout>
-    );
-  }
 
   return (
-    <MainLayout>
-      <div className="container py-8">
-        <div className="space-y-6">
-          {/* Navigation */}
-          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-            <div>
-              <Link to="/dashboard/student/concepts/all" className="inline-flex items-center text-blue-600 hover:text-blue-700 mb-1">
-                <ArrowLeft size={16} className="mr-1" /> Back to all concepts
-              </Link>
+    <SharedPageLayout 
+      title={conceptData.title} 
+      subtitle={`${conceptData.subject} > ${conceptData.category} • ${conceptData.difficulty} • Est. time: ${conceptData.estimatedTime}`}
+      showBackButton 
+      backButtonUrl={`/dashboard/student/concepts/${conceptData.subject.toLowerCase()}`}
+    >
+      <div className="space-y-6">
+        {/* Main Card with Tabs */}
+        <Card className="shadow-md">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <div className="flex justify-between items-center border-b p-3">
+              <TabsList className="grid grid-cols-5">
+                <TabsTrigger value="explanation" className="flex items-center gap-2 text-xs md:text-sm">
+                  <BookOpen className="h-4 w-4 hidden sm:inline" />
+                  <span>Explanations</span>
+                </TabsTrigger>
+                <TabsTrigger value="examples" className="flex items-center gap-2 text-xs md:text-sm">
+                  <List className="h-4 w-4 hidden sm:inline" />
+                  <span>Examples</span>
+                </TabsTrigger>
+                <TabsTrigger value="mistakes" className="flex items-center gap-2 text-xs md:text-sm">
+                  <AlertTriangle className="h-4 w-4 hidden sm:inline" />
+                  <span>Mistakes</span>
+                </TabsTrigger>
+                <TabsTrigger value="exams" className="flex items-center gap-2 text-xs md:text-sm">
+                  <Monitor className="h-4 w-4 hidden sm:inline" />
+                  <span>Exam Tips</span>
+                </TabsTrigger>
+                <TabsTrigger value="videos" className="flex items-center gap-2 text-xs md:text-sm">
+                  <Video className="h-4 w-4 hidden sm:inline" />
+                  <span>Videos</span>
+                </TabsTrigger>
+              </TabsList>
               <div className="flex items-center gap-2">
-                <h1 className="text-2xl sm:text-3xl font-bold">{conceptCard.title}</h1>
-                <Badge 
-                  variant={conceptCard.completed ? "outline" : "default"}
-                  className="ml-2"
+                <Button 
+                  size="sm" 
+                  variant="ghost" 
+                  onClick={handleToggleBookmark}
+                  className={`gap-1 ${isBookmarked ? 'text-yellow-600 hover:text-yellow-700' : ''}`}
                 >
-                  {conceptCard.completed ? "Completed" : "Pending"}
-                </Badge>
+                  <Bookmark className={`h-4 w-4 ${isBookmarked ? 'fill-yellow-600' : ''}`} />
+                  <span className="hidden sm:inline">Bookmark</span>
+                </Button>
+                <Button 
+                  size="sm" 
+                  variant="ghost" 
+                  onClick={handleToggleNarration}
+                  className={`gap-1 ${isNarrating ? 'text-green-600 hover:text-green-700' : ''}`}
+                >
+                  <Play className="h-4 w-4" />
+                  <span className="hidden sm:inline">{isNarrating ? 'Stop' : 'Narrate'}</span>
+                </Button>
               </div>
             </div>
-            
-            <div className="flex items-center gap-3 flex-wrap justify-end">
-              <Button 
-                variant="outline" 
-                size="sm"
-                className={isBookmarked ? "bg-yellow-50 text-yellow-700" : ""}
-                onClick={toggleBookmark}
-              >
-                {isBookmarked ? (
-                  <>
-                    <BookmarkCheck className="mr-1 h-4 w-4" /> Bookmarked
-                  </>
-                ) : (
-                  <>
-                    <Bookmark className="mr-1 h-4 w-4" /> Bookmark
-                  </>
-                )}
-              </Button>
-              
-              <Button 
-                variant="outline" 
-                size="sm"
-                className={isReading ? "bg-blue-50" : ""}
-                onClick={toggleSpeech}
-              >
-                {isReading ? (
-                  <>
-                    <VolumeX className="mr-1 h-4 w-4" /> Stop Narration
-                  </>
-                ) : (
-                  <>
-                    <Volume2 className="mr-1 h-4 w-4" /> Read Aloud
-                  </>
-                )}
-              </Button>
-              
-              <Button 
-                variant={conceptCard.completed ? "outline" : "default"}
-                size="sm" 
-                onClick={markAsComplete}
-              >
-                {conceptCard.completed ? (
-                  <>
-                    <CheckCircle2 className="mr-1 h-4 w-4" /> Completed
-                  </>
-                ) : (
-                  <>
-                    <CheckCircle2 className="mr-1 h-4 w-4" /> Mark as Complete
-                  </>
-                )}
-              </Button>
-            </div>
-          </div>
-          
-          {/* Metadata Card */}
-          <Card>
-            <CardContent className="p-4">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="flex items-center gap-2">
-                  <div className="bg-blue-100 p-2 rounded-full">
-                    <Book className="h-4 w-4 text-blue-600" />
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-500">Subject</p>
-                    <p className="font-medium">{conceptCard.subject}</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-center gap-2">
-                  <div className="bg-purple-100 p-2 rounded-full">
-                    <BookOpen className="h-4 w-4 text-purple-600" />
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-500">Chapter</p>
-                    <p className="font-medium">{conceptCard.chapter}</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-center gap-2">
-                  <div className="bg-amber-100 p-2 rounded-full">
-                    <Clock className="h-4 w-4 text-amber-600" />
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-500">Est. Time</p>
-                    <p className="font-medium">{conceptCard.estimatedTime} minutes</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-center gap-2">
-                  <div className={`p-2 rounded-full ${
-                    conceptCard.difficulty.toLowerCase() === 'easy' ? 'bg-green-100' :
-                    conceptCard.difficulty.toLowerCase() === 'medium' ? 'bg-amber-100' : 'bg-red-100'
-                  }`}>
-                    <Tag className={`h-4 w-4 ${
-                      conceptCard.difficulty.toLowerCase() === 'easy' ? 'text-green-600' :
-                      conceptCard.difficulty.toLowerCase() === 'medium' ? 'text-amber-600' : 'text-red-600'
-                    }`} />
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-500">Difficulty</p>
-                    <p className="font-medium">{conceptCard.difficulty}</p>
-                  </div>
-                </div>
+
+            <TabsContent value="explanation" className="m-0 p-0">
+              <div className="p-6">
+                <ConceptExplanationContent conceptTitle={conceptData.title} />
               </div>
-            </CardContent>
-          </Card>
-          
-          {/* Main Content Tabs */}
-          <Tabs defaultValue="explanation">
-            <TabsList className="grid w-full grid-cols-5">
-              <TabsTrigger value="explanation">Explanation</TabsTrigger>
-              <TabsTrigger value="examples">Real World Examples</TabsTrigger>
-              <TabsTrigger value="mistakes">Common Mistakes</TabsTrigger>
-              <TabsTrigger value="exam-relevance">Exam Relevance</TabsTrigger>
-              <TabsTrigger value="video">Video Analysis</TabsTrigger>
-            </TabsList>
-            
-            {/* Explanation Tab */}
-            <TabsContent value="explanation" className="mt-4">
-              <Card>
-                <CardHeader className="pb-2">
-                  <div className="flex justify-between items-center">
-                    <CardTitle className="text-xl">Explanation</CardTitle>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <ConceptExplanationContent conceptTitle={conceptCard.title} />
-                </CardContent>
-              </Card>
-            </TabsContent>
-            
-            {/* Real World Examples Tab */}
-            <TabsContent value="examples" className="mt-4">
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-xl">Real World Examples</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="prose max-w-none">
-                    {conceptCard.examples && conceptCard.examples.length > 0 ? (
-                      <ul className="space-y-4">
-                        {conceptCard.examples.map((example, index) => (
-                          <li key={index} className="bg-blue-50 p-4 rounded-lg border border-blue-100">
-                            <div className="flex gap-3">
-                              <div className="bg-blue-100 p-2 h-8 w-8 rounded-full flex items-center justify-center">
-                                <span className="font-medium text-blue-700">{index + 1}</span>
-                              </div>
-                              <p>{example}</p>
-                            </div>
-                          </li>
-                        ))}
-                      </ul>
-                    ) : (
-                      <p className="text-gray-500 text-center py-6">No examples available for this concept.</p>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-            
-            {/* Common Mistakes Tab */}
-            <TabsContent value="mistakes" className="mt-4">
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-xl">Common Mistakes</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="prose max-w-none">
-                    {conceptCard.commonMistakes && conceptCard.commonMistakes.length > 0 ? (
-                      <ul className="space-y-4">
-                        {conceptCard.commonMistakes.map((mistake, index) => (
-                          <li key={index} className="bg-red-50 p-4 rounded-lg border border-red-100">
-                            <div className="flex gap-3">
-                              <div className="bg-red-100 p-2 h-8 w-8 rounded-full flex items-center justify-center">
-                                <AlertTriangle className="h-4 w-4 text-red-600" />
-                              </div>
-                              <p>{mistake}</p>
-                            </div>
-                          </li>
-                        ))}
-                      </ul>
-                    ) : (
-                      <p className="text-gray-500 text-center py-6">No common mistakes listed for this concept.</p>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-            
-            {/* Exam Relevance Tab */}
-            <TabsContent value="exam-relevance" className="mt-4">
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-xl">Exam Relevance</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="prose max-w-none">
-                    {conceptCard.examRelevance ? (
-                      <div className="bg-purple-50 p-4 rounded-lg border border-purple-100">
-                        <div className="flex gap-3">
-                          <div className="bg-purple-100 p-2 rounded-full h-8 w-8 flex items-center justify-center">
-                            <Brain className="h-4 w-4 text-purple-600" />
-                          </div>
-                          <p>{conceptCard.examRelevance}</p>
-                        </div>
-                      </div>
-                    ) : (
-                      <p className="text-gray-500 text-center py-6">No exam relevance information available.</p>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
             </TabsContent>
 
-            {/* Video Analysis Tab */}
-            <TabsContent value="video" className="mt-4">
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-xl">Video Analysis</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex flex-col items-center justify-center p-6">
-                    <div className="bg-gray-100 w-full aspect-video rounded-lg flex items-center justify-center mb-4">
-                      <FileVideo className="h-16 w-16 text-gray-400" />
+            <TabsContent value="examples" className="m-0 p-0">
+              <div className="p-6">
+                <h3 className="text-lg font-semibold mb-4">Real-World Examples</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {conceptData.examples.map((example, index) => (
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                      className="bg-card rounded-lg overflow-hidden border shadow-sm"
+                    >
+                      <div className="h-40 bg-gray-200 flex items-center justify-center">
+                        <div className="text-gray-400">Example Image</div>
+                      </div>
+                      <div className="p-4">
+                        <h4 className="font-medium mb-2">{example.title}</h4>
+                        <p className="text-sm text-muted-foreground">{example.description}</p>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="mistakes" className="m-0 p-0">
+              <div className="p-6">
+                <h3 className="text-lg font-semibold mb-4">Common Mistakes to Avoid</h3>
+                <div className="space-y-6">
+                  {conceptData.commonMistakes.map((mistake, index) => (
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                      className="bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/20 rounded-lg p-4"
+                    >
+                      <h4 className="font-medium text-red-700 dark:text-red-400 mb-2 flex items-center gap-2">
+                        <AlertTriangle className="h-4 w-4" />
+                        {mistake.title}
+                      </h4>
+                      <p className="text-sm text-gray-700 dark:text-gray-300 mb-3">{mistake.description}</p>
+                      <div className="bg-green-50 dark:bg-green-900/10 border border-green-100 dark:border-green-800/20 rounded p-3">
+                        <p className="text-sm text-green-700 dark:text-green-400 font-medium mb-1">Solution:</p>
+                        <p className="text-sm">{mistake.solution}</p>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="exams" className="m-0 p-0">
+              <div className="p-6">
+                <h3 className="text-lg font-semibold mb-4">Exam Relevance</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <div className="bg-blue-50 dark:bg-blue-900/10 rounded-lg p-4 border border-blue-100 dark:border-blue-900/20">
+                      <h4 className="font-medium mb-2">Importance Level</h4>
+                      <div className="flex items-center">
+                        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
+                          <div className={`bg-blue-600 h-2.5 rounded-full ${
+                            conceptData.examRelevance.importance === 'High' ? 'w-full' : 
+                            conceptData.examRelevance.importance === 'Medium' ? 'w-2/3' : 'w-1/3'
+                          }`}></div>
+                        </div>
+                        <span className="ml-2 text-sm font-medium">{conceptData.examRelevance.importance}</span>
+                      </div>
                     </div>
-                    <p className="text-gray-600 mb-4 text-center">Visual explanation of {conceptCard.title} through expert video analysis</p>
-                    <Button onClick={watchVideo} className="flex items-center">
-                      <Play className="mr-2 h-4 w-4" /> Watch Video Analysis
-                    </Button>
+                    
+                    <div className="bg-violet-50 dark:bg-violet-900/10 rounded-lg p-4 border border-violet-100 dark:border-violet-900/20">
+                      <h4 className="font-medium mb-2">Question Types</h4>
+                      <div className="flex flex-wrap gap-2">
+                        {conceptData.examRelevance.questionTypes.map((type, index) => (
+                          <span key={index} className="px-2 py-1 bg-violet-100 dark:bg-violet-800/30 text-violet-800 dark:text-violet-300 rounded text-xs">
+                            {type}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
                   </div>
-                </CardContent>
-              </Card>
+                  
+                  <div className="bg-amber-50 dark:bg-amber-900/10 rounded-lg p-4 border border-amber-100 dark:border-amber-900/20">
+                    <h4 className="font-medium mb-3">Sample Exam Questions</h4>
+                    <ul className="space-y-3">
+                      {conceptData.examRelevance.typicalQuestions.map((question, index) => (
+                        <li key={index} className="text-sm flex items-start gap-2">
+                          <span className="text-amber-600 dark:text-amber-400 font-bold">Q{index + 1}.</span>
+                          <span>{question}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="videos" className="m-0 p-0">
+              <div className="p-6">
+                <h3 className="text-lg font-semibold mb-4">Video Analysis</h3>
+                <div className="space-y-4">
+                  {conceptData.videoAnalysis.map((video, index) => (
+                    <Card key={index}>
+                      <CardContent className="p-4 flex flex-col sm:flex-row gap-4">
+                        <div className="w-full sm:w-1/3 h-40 bg-gray-200 flex items-center justify-center rounded">
+                          <Play className="h-8 w-8 text-gray-500" />
+                        </div>
+                        <div className="w-full sm:w-2/3">
+                          <h4 className="font-medium mb-2">{video.title}</h4>
+                          <p className="text-sm text-muted-foreground mb-2">{video.description}</p>
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs text-muted-foreground">Duration: {video.duration}</span>
+                            <Button variant="outline" size="sm" className="gap-1">
+                              <ExternalLink className="h-3 w-3" />
+                              <span className="text-xs">Watch Video</span>
+                            </Button>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </div>
             </TabsContent>
           </Tabs>
+          <CardFooter className="border-t p-4 bg-muted/30 flex justify-between">
+            <div className="flex items-center gap-2">
+              <div className="w-full max-w-xs bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
+                <div 
+                  className="bg-green-600 h-2.5 rounded-full transition-all duration-500" 
+                  style={{ width: `${completionStatus}%` }}
+                ></div>
+              </div>
+              <span className="text-sm font-medium">{completionStatus}% complete</span>
+            </div>
+            <Button 
+              onClick={handleMarkAsComplete}
+              disabled={completionStatus === 100}
+              variant="outline"
+              className="gap-1"
+            >
+              <CheckCircle className="h-4 w-4" />
+              <span>{completionStatus === 100 ? 'Completed' : 'Mark Complete'}</span>
+            </Button>
+          </CardFooter>
+        </Card>
+        
+        {/* Related Content Section */}
+        <div className="space-y-6">
+          <h3 className="text-lg font-semibold">Related Content</h3>
           
-          {/* Connected Resources */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
-            <Card className="hover:shadow-md transition-shadow duration-200">
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="bg-green-100 p-2 rounded-full">
-                    <FileText className="h-5 w-5 text-green-600" />
-                  </div>
-                  <h3 className="font-semibold text-lg">Practice Tests</h3>
-                </div>
-                <p className="text-sm text-gray-600 mb-3">
-                  Practice what you've learned with targeted questions on {conceptCard.title}.
-                </p>
-                <Button variant="outline" className="w-full" onClick={navigateToPracticeTests}>
-                  <LinkIcon className="mr-2 h-4 w-4" /> Open Practice Tests
-                </Button>
-              </CardContent>
-            </Card>
-
-            <Card className="hover:shadow-md transition-shadow duration-200">
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="bg-amber-100 p-2 rounded-full">
-                    <MessageSquare className="h-5 w-5 text-amber-600" />
-                  </div>
-                  <h3 className="font-semibold text-lg">Flashcards</h3>
-                </div>
-                <p className="text-sm text-gray-600 mb-3">
-                  Reinforce your memory with flashcards specifically designed for {conceptCard.title}.
-                </p>
-                <Button variant="outline" className="w-full" onClick={navigateToFlashcards}>
-                  <LinkIcon className="mr-2 h-4 w-4" /> Open Flashcards
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
-          
-          {/* Related Concepts Section */}
-          <div className="mt-8">
-            <h2 className="text-xl font-bold mb-4">Related Concepts</h2>
-            {conceptCard.relatedConcepts && conceptCard.relatedConcepts.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {conceptCard.relatedConcepts.map((relatedId) => (
-                  <Card 
-                    key={relatedId} 
-                    className="hover:shadow-md transition-shadow duration-200 cursor-pointer"
-                    onClick={() => navigateToRelatedConcept(relatedId)}
-                  >
+          {/* Related Flashcards */}
+          <div className="space-y-3">
+            <h4 className="text-sm font-medium flex items-center gap-2">
+              <BookOpen className="h-4 w-4 text-amber-500" />
+              Related Flashcards
+            </h4>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+              {conceptData.relatedFlashcards.map((deck) => (
+                <Link key={deck.id} to={`/dashboard/student/flashcards/${deck.id}/interactive`}>
+                  <Card className="hover:shadow-md transition-shadow">
                     <CardContent className="p-4">
-                      <div className="flex items-center gap-3">
-                        <div className="bg-indigo-100 p-2 rounded-full">
-                          <Lightbulb className="h-4 w-4 text-indigo-600" />
-                        </div>
-                        <div>
-                          <p className="font-medium">
-                            {relatedId === 'c1' ? "Newton's Third Law of Motion" : 
-                             relatedId === 'c4' ? "Integration by Parts" : 
-                             relatedId === 'c7' ? "Organic Chemistry Nomenclature" : 
-                             "Related Concept"}
-                          </p>
-                          <p className="text-sm text-gray-500">
-                            {relatedId === 'c1' ? "Physics" : 
-                             relatedId === 'c4' ? "Mathematics" : 
-                             relatedId === 'c7' ? "Chemistry" : 
-                             "Subject"}
-                          </p>
-                        </div>
-                      </div>
+                      <h5 className="font-medium">{deck.title}</h5>
+                      <p className="text-sm text-muted-foreground">{deck.count} cards</p>
                     </CardContent>
                   </Card>
-                ))}
-              </div>
-            ) : (
-              <p className="text-gray-500 text-center py-6">No related concepts available.</p>
-            )}
+                </Link>
+              ))}
+            </div>
           </div>
-
-          {/* Progress and Next Steps */}
-          <Card className="mt-8">
-            <CardContent className="p-4">
-              <div className="flex flex-col md:flex-row justify-between items-center">
-                <div className="mb-4 md:mb-0">
-                  <h3 className="font-semibold">Your Learning Journey</h3>
-                  <p className="text-sm text-gray-600">Progress: {conceptCard.progress}% completed</p>
-                  <div className="w-48 h-2 bg-gray-100 rounded-full mt-2 overflow-hidden">
-                    <div 
-                      className="h-full bg-green-500 rounded-full" 
-                      style={{ width: `${conceptCard.progress}%` }}
-                    ></div>
-                  </div>
-                </div>
-
-                <div className="flex gap-2">
-                  <Button variant="outline" onClick={() => navigate('/dashboard/student/concepts/all')}>
-                    Back to Concepts
-                  </Button>
-                  {conceptCard.progress < 100 && (
-                    <Button onClick={markAsComplete}>
-                      Mark as Complete
-                    </Button>
-                  )}
-                  {conceptCard.progress === 100 && (
-                    <Button onClick={navigateToFlashcards}>
-                      Continue to Flashcards
-                    </Button>
-                  )}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          
+          {/* Related Practice Tests */}
+          <div className="space-y-3">
+            <h4 className="text-sm font-medium flex items-center gap-2">
+              <Monitor className="h-4 w-4 text-violet-500" />
+              Practice Tests
+            </h4>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+              {conceptData.relatedPracticeTests.map((test) => (
+                <Link key={test.id} to={`/dashboard/student/practice-exam/${test.id}/start`}>
+                  <Card className="hover:shadow-md transition-shadow">
+                    <CardContent className="p-4">
+                      <h5 className="font-medium">{test.title}</h5>
+                      <p className="text-sm text-muted-foreground">{test.questions} questions</p>
+                    </CardContent>
+                  </Card>
+                </Link>
+              ))}
+            </div>
+          </div>
+          
+          {/* Related Concept Cards */}
+          <div className="space-y-3">
+            <h4 className="text-sm font-medium flex items-center gap-2">
+              <BookOpen className="h-4 w-4 text-blue-500" />
+              Related Concept Cards
+            </h4>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+              {conceptData.relatedConcepts.map((concept) => (
+                <Link key={concept.id} to={`/dashboard/student/concepts/card/${concept.id}`}>
+                  <Card className="hover:shadow-md transition-shadow">
+                    <CardContent className="p-4">
+                      <h5 className="font-medium">{concept.title}</h5>
+                      <p className="text-sm text-muted-foreground">{concept.subject}</p>
+                    </CardContent>
+                  </Card>
+                </Link>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
-    </MainLayout>
+    </SharedPageLayout>
   );
 };
 
