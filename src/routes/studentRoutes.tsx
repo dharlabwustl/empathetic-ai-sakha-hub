@@ -6,6 +6,9 @@ import FlashcardsView from '@/components/dashboard/student/flashcards/Flashcards
 import PracticeView from '@/components/dashboard/student/practice/PracticeView';
 import BacklogView from '@/components/dashboard/student/backlog/BacklogView';
 import StudyPlanView from '@/components/dashboard/student/studyplan/StudyPlanView';
+import ProfileView from '@/pages/dashboard/student/ProfilePage';
+import BatchManagementView from '@/pages/dashboard/student/BatchManagementView';
+import SubscriptionView from '@/pages/dashboard/student/SubscriptionPage';
 
 export default function StudentRoutes() {
   return (
@@ -16,6 +19,9 @@ export default function StudentRoutes() {
       <Route path="/flashcards/:subject?" element={<FlashcardsView />} />
       <Route path="/practice/:subject?" element={<PracticeView />} />
       <Route path="/backlog" element={<BacklogView />} />
+      <Route path="/profile" element={<ProfileView />} />
+      <Route path="/batch" element={<BatchManagementView />} />
+      <Route path="/subscription" element={<SubscriptionView />} />
     </Routes>
   );
 }

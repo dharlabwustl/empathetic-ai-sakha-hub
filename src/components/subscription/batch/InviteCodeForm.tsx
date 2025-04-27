@@ -1,70 +1,72 @@
 
 import React, { useState } from 'react';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Users } from "lucide-react";
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Key } from 'lucide-react';
 
 interface InviteCodeFormProps {
   onSubmit: (code: string) => Promise<boolean>;
 }
 
 const InviteCodeForm: React.FC<InviteCodeFormProps> = ({ onSubmit }) => {
-  const [code, setCode] = useState("");
-  const [isProcessing, setIsProcessing] = useState(false);
-  
+  const [inviteCode, setInviteCode] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!code.trim()) return;
-    
-    setIsProcessing(true);
-    
+    if (!inviteCode.trim()) {
+      setError('Please enter an invite code');
+      return;
+    }
+
+    setIsSubmitting(true);
+    setError(null);
+
     try {
-      await onSubmit(code.trim());
+      const success = await onSubmit(inviteCode.trim());
+      if (!success) {
+        setError('Invalid invite code. Please check and try again.');
+      }
+    } catch (err) {
+      setError('An error occurred. Please try again later.');
+      console.error('Error submitting invite code:', err);
     } finally {
-      setIsProcessing(false);
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div>
-        <Label htmlFor="invite-code-input">
-          Enter your batch invitation code
-        </Label>
-        <div className="flex mt-1">
+    <div>
+      <h3 className="text-lg font-medium mb-3 flex items-center">
+        <Key size={18} className="text-blue-600 mr-1.5" />
+        Join a Study Batch
+      </h3>
+      <p className="text-sm text-muted-foreground mb-3">
+        Enter the invite code provided by your batch leader to join their study group.
+      </p>
+      
+      <form onSubmit={handleSubmit} className="space-y-3">
+        <div>
           <Input
             id="invite-code-input"
-            placeholder="e.g., SAKHA-ABC123"
-            value={code}
-            onChange={(e) => setCode(e.target.value)}
-            className="flex-1"
+            placeholder="Enter invite code (e.g., SAKHA-ABC123)"
+            value={inviteCode}
+            onChange={(e) => setInviteCode(e.target.value)}
+            className={error ? 'border-red-500' : ''}
           />
+          {error && <p className="text-sm text-red-500 mt-1">{error}</p>}
         </div>
-        <p className="text-xs text-muted-foreground mt-2">
-          Enter the code you received in your invitation email
-        </p>
-      </div>
-      
-      <Button
-        type="submit"
-        className="w-full"
-        disabled={!code.trim() || isProcessing}
-      >
-        {isProcessing ? (
-          <>
-            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-            Verifying...
-          </>
-        ) : (
-          <>
-            <Users className="mr-2 h-4 w-4" />
-            Join Batch
-          </>
-        )}
-      </Button>
-    </form>
+        
+        <Button 
+          type="submit" 
+          className="w-full"
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? 'Processing...' : 'Join Batch'}
+        </Button>
+      </form>
+    </div>
   );
 };
 

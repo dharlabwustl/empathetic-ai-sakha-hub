@@ -4,9 +4,10 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Camera, Trophy, Users, Star, Calendar, CreditCard, CheckCircle } from "lucide-react";
+import { Camera, Trophy, Users, Star, CreditCard, Award, ArrowUp, Check } from "lucide-react";
 import { SubscriptionType, UserSubscription } from "@/types/user/base";
 import { useState } from "react";
+import { Progress } from "@/components/ui/progress";
 import { useNavigate } from "react-router-dom";
 
 interface EnhancedProfileCardProps {
@@ -51,6 +52,24 @@ export default function EnhancedProfileCard({
     return sub;
   };
 
+  // Check if the subscription is active
+  const isSubscriptionActive = (): boolean => {
+    if (!profile.subscription) return false;
+    
+    if (isSubscriptionObject(profile.subscription)) {
+      // Check if current date is before expiryDate
+      if (profile.subscription.expiryDate) {
+        const now = new Date();
+        const expiry = new Date(profile.subscription.expiryDate);
+        return now < expiry && profile.subscription.isActive;
+      }
+      return profile.subscription.isActive === true;
+    }
+    
+    // If it's just a subscription enum, assume it's active if it's not Free
+    return profile.subscription !== SubscriptionType.Free;
+  };
+
   // Get the subscription plan name
   const getSubscriptionPlanName = (): string => {
     const subscriptionType = getSubscriptionType(profile.subscription);
@@ -87,30 +106,6 @@ export default function EnhancedProfileCard({
     return badgeColors[subscriptionType] || "bg-gray-500 hover:bg-gray-600";
   };
 
-  // Is this a group/batch subscription?
-  const isGroupPlan = (): boolean => {
-    const subscriptionType = getSubscriptionType(profile.subscription);
-    return (
-      subscriptionType === SubscriptionType.School ||
-      subscriptionType === SubscriptionType.Corporate ||
-      (isSubscriptionObject(profile.subscription) && 
-       profile.subscription.planType === SubscriptionType.Premium && 
-       profile.subscription.features?.includes("group"))
-    );
-  };
-
-  // Get subscription end date
-  const getSubscriptionEndDate = (): string => {
-    if (isSubscriptionObject(profile.subscription) && profile.subscription.expiryDate) {
-      return new Date(profile.subscription.expiryDate).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric'
-      });
-    }
-    return 'N/A';
-  };
-
   // Get formatted join date
   const getJoinDate = (): string => {
     return profile.joinDate
@@ -121,28 +116,30 @@ export default function EnhancedProfileCard({
         })
       : 'N/A';
   };
-
-  // Get the last payment date (mock)
-  const getLastPaymentDate = (): string => {
-    // In a real app, this would come from subscription data
-    return new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
+  
+  // Get exam goal from profile
+  const getExamGoal = (): string | null => {
+    if (profile.goals && profile.goals.length > 0) {
+      return profile.goals[0].title;
+    }
+    return null;
   };
-
-  const handleUpgradePlan = () => {
+  
+  // Get target year from profile goals
+  const getTargetYear = (): string | null => {
+    if (profile.goals && profile.goals.length > 0 && profile.goals[0].targetDate) {
+      return new Date(profile.goals[0].targetDate).getFullYear().toString();
+    }
+    return new Date().getFullYear().toString();
+  };
+  
+  const handleUpgradeClick = () => {
     navigate('/dashboard/student/subscription');
   };
 
-  const handleViewBillingHistory = () => {
-    navigate('/dashboard/student/billing-history');
-  };
-
-  const handleManageBatch = () => {
-    navigate('/dashboard/student/batch');
-  };
+  const examGoal = getExamGoal();
+  const targetYear = getTargetYear();
+  const isActive = isSubscriptionActive();
 
   return (
     <Card className="h-full">
@@ -154,7 +151,7 @@ export default function EnhancedProfileCard({
           </Badge>
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-5">
+      <CardContent>
         <div className="flex flex-col items-center pb-3 relative">
           <div
             className="relative"
@@ -218,94 +215,59 @@ export default function EnhancedProfileCard({
           )}
         </div>
         
-        {/* Subscription Details */}
-        <div className="border border-gray-100 dark:border-gray-800 rounded-md p-3 bg-gray-50 dark:bg-gray-900">
-          <h4 className="text-sm font-medium flex items-center mb-2">
-            <Star size={14} className="mr-1.5 text-amber-500" />
-            Subscription Details
-          </h4>
+        {/* Subscription Status Section */}
+        <div className="border-t pt-3 space-y-4">
+          <div className="flex justify-between items-center">
+            <span className="text-muted-foreground text-sm">Plan Status</span>
+            <Badge variant={isActive ? "default" : "destructive"} className="text-xs">
+              {isActive ? "Active" : "Expired"}
+            </Badge>
+          </div>
           
-          <div className="space-y-1.5 text-sm">
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Plan Status:</span>
-              <span className="font-medium flex items-center">
-                {isSubscriptionObject(profile.subscription) && profile.subscription.isActive ? (
-                  <>
-                    <CheckCircle size={14} className="mr-1 text-green-500" />
-                    Active
-                  </>
-                ) : (
-                  'Inactive'
-                )}
+          {isSubscriptionObject(profile.subscription) && profile.subscription.expiryDate && (
+            <div className="flex justify-between items-center">
+              <span className="text-muted-foreground text-sm">Valid Until</span>
+              <span className="text-sm">
+                {new Date(profile.subscription.expiryDate).toLocaleDateString()}
               </span>
             </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Renewal Date:</span>
-              <span className="font-medium">{getSubscriptionEndDate()}</span>
-            </div>
-            {isGroupPlan() && (
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Plan Type:</span>
-                <span className="font-medium flex items-center">
-                  <Users size={14} className="mr-1" />
-                  Group Plan
-                </span>
-              </div>
-            )}
-          </div>
+          )}
           
-          <div className="mt-3 pt-2 border-t border-gray-200 dark:border-gray-700">
-            {isGroupPlan() ? (
-              <Button 
-                size="sm" 
-                className="w-full" 
-                onClick={handleManageBatch}
-              >
-                <Users size={14} className="mr-2" /> Manage Batch
-              </Button>
-            ) : (
-              <Button 
-                size="sm" 
-                className="w-full" 
-                onClick={handleUpgradePlan}
-              >
-                <Star size={14} className="mr-2" /> Upgrade Plan
-              </Button>
-            )}
-          </div>
-        </div>
-        
-        {/* Billing Information */}
-        <div className="border border-gray-100 dark:border-gray-800 rounded-md p-3 bg-gray-50 dark:bg-gray-900">
-          <h4 className="text-sm font-medium flex items-center mb-2">
-            <CreditCard size={14} className="mr-1.5 text-blue-500" />
-            Billing Information
-          </h4>
-          
-          <div className="space-y-1.5 text-sm">
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Last Payment:</span>
-              <span className="font-medium">{getLastPaymentDate()}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Payment Method:</span>
-              <span className="font-medium">Visa •••• 4242</span>
-            </div>
-          </div>
-          
-          <div className="mt-3">
+          {getSubscriptionType(profile.subscription) === SubscriptionType.Free && (
             <Button 
-              variant="outline" 
-              size="sm" 
-              className="w-full text-xs" 
-              onClick={handleViewBillingHistory}
+              className="w-full mt-2 bg-gradient-to-r from-purple-500 to-indigo-500 text-white"
+              size="sm"
+              onClick={handleUpgradeClick}
             >
-              <Calendar size={14} className="mr-2" /> View Billing History
+              <ArrowUp size={16} className="mr-1" /> Upgrade Plan
             </Button>
-          </div>
+          )}
         </div>
         
-        <div className="border-t pt-3 space-y-2">
+        {/* Exam Goal Section */}
+        {examGoal && (
+          <div className="border-t mt-4 pt-3 space-y-2">
+            <div className="flex items-center">
+              <Award size={16} className="text-amber-500 mr-1.5" />
+              <span className="text-sm font-medium">Exam Goal</span>
+            </div>
+            
+            <div className="flex justify-between items-center">
+              <span className="text-base font-medium">{examGoal}</span>
+              <Badge variant="outline">{targetYear}</Badge>
+            </div>
+            
+            <div className="space-y-1">
+              <div className="flex justify-between text-xs">
+                <span>Progress</span>
+                <span>65%</span>
+              </div>
+              <Progress value={65} className="h-2" />
+            </div>
+          </div>
+        )}
+        
+        <div className="border-t mt-4 pt-3 space-y-2">
           <div className="flex justify-between items-center">
             <span className="text-muted-foreground text-sm">Role</span>
             <span className="font-medium">{profile.role}</span>
@@ -322,14 +284,54 @@ export default function EnhancedProfileCard({
               <span>{profile.personalityType}</span>
             </div>
           )}
-          
-          {profile.goals && profile.goals.length > 0 && (
-            <div className="flex justify-between items-center">
-              <span className="text-muted-foreground text-sm">Goal</span>
-              <span>{profile.goals[0].title}</span>
-            </div>
-          )}
         </div>
+        
+        {/* Billing Information Button */}
+        <div className="border-t mt-4 pt-3">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="w-full flex items-center justify-center"
+            onClick={handleUpgradeClick}
+          >
+            <CreditCard size={16} className="mr-2" /> 
+            {getSubscriptionType(profile.subscription) === SubscriptionType.Free 
+              ? "View Subscription Plans" 
+              : "Manage Subscription"}
+          </Button>
+        </div>
+        
+        {/* Group/Batch Information */}
+        {isSubscriptionObject(profile.subscription) && 
+         profile.subscription.features?.includes('batch_leader') && (
+          <div className="border-t mt-4 pt-3">
+            <Button 
+              variant="default" 
+              size="sm" 
+              className="w-full flex items-center justify-center"
+              onClick={() => navigate('/dashboard/student/batch')}
+            >
+              <Users size={16} className="mr-2" /> 
+              Manage Your Batch
+            </Button>
+          </div>
+        )}
+        
+        {isSubscriptionObject(profile.subscription) && 
+         profile.subscription.features?.includes('batch_member') &&
+         !profile.subscription.features?.includes('batch_leader') && (
+          <div className="border-t mt-4 pt-3">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="w-full flex items-center justify-center"
+              onClick={() => navigate('/dashboard/student/batch')}
+            >
+              <Users size={16} className="mr-2" /> 
+              View Batch Details
+            </Button>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
