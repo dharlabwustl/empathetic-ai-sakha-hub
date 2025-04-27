@@ -7,7 +7,7 @@ import { Calendar, LineChart, CheckSquare } from "lucide-react";
 import { SharedPageLayout } from '../SharedPageLayout';
 import DailyPlanBreakdown from "./DailyPlanBreakdown";
 import TimeAllocationWidget from "./TimeAllocationWidget";
-import BacklogTasksList from "./BacklogTasksList";
+import { BacklogTasksList } from "./BacklogTasksList";
 import QuickAccessPanel from "./QuickAccessPanel";
 
 const NewTodaysPlanView: React.FC = () => {
@@ -36,7 +36,7 @@ const NewTodaysPlanView: React.FC = () => {
           <QuickAccessPanel />
           <DailyPlanBreakdown />
           <TimeAllocationWidget />
-          <BacklogTasksList />
+          <BacklogTasksList planData={null} isLoading={false} />
         </TabsContent>
         
         <TabsContent value="weekly" className="space-y-4">
