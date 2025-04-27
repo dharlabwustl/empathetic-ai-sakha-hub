@@ -96,14 +96,14 @@ const getMoodIconBackground = (mood: MoodType): string => {
 
 const getMoodMessage = (mood: MoodType): string => {
   switch (mood) {
-    case 'happy': return 'You're feeling happy today!';
-    case 'focused': return 'You're in a focused state of mind!';
-    case 'motivated': return 'You're feeling motivated today!';
-    case 'tired': return 'You're feeling a bit tired today.';
-    case 'stressed': return 'You're feeling stressed right now.';
-    case 'anxious': return 'You're feeling anxious today.';
-    case 'okay': return 'You're feeling okay today.';
-    default: return 'How are you feeling today?';
+    case 'happy': return "You're feeling happy today!";
+    case 'focused': return "You're in a focused state of mind!";
+    case 'motivated': return "You're feeling motivated today!";
+    case 'tired': return "You're feeling a bit tired today.";
+    case 'stressed': return "You're feeling stressed right now.";
+    case 'anxious': return "You're feeling anxious today.";
+    case 'okay': return "You're feeling okay today.";
+    default: return "How are you feeling today?";
   }
 };
 
@@ -120,9 +120,9 @@ const getMoodAdvice = (mood: MoodType): string => {
     case 'stressed':
       return 'Take some deep breaths and consider a quick break. Maybe try a short mindfulness exercise to calm your mind.';
     case 'anxious':
-      return 'It's okay to feel anxious before exams. Try breaking your work into smaller, manageable parts.';
+      return "It's okay to feel anxious before exams. Try breaking your work into smaller, manageable parts.";
     case 'okay':
-      return 'You're in a balanced state - good for steady progress through your study materials.';
+      return "You're in a balanced state - good for steady progress through your study materials.";
     default:
       return 'Based on your mood, here are some personalized suggestions.';
   }
