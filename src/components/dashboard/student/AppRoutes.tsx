@@ -6,6 +6,7 @@ import ExamTakingPage from '@/components/dashboard/student/practice-exam/ExamTak
 import ExamReviewPage from '@/components/dashboard/student/practice-exam/ExamReviewPage';
 import RedesignedTodaysPlan from '@/components/dashboard/student/todays-plan/RedesignedTodaysPlan';
 import { useStudentDashboardData } from '@/hooks/useStudentDashboardData';
+import ConceptCardDetailPage from '@/components/dashboard/student/concepts/ConceptCardDetailPage';
 
 export default function AppRoutes() {
   const { dashboardData } = useStudentDashboardData();
@@ -16,6 +17,7 @@ export default function AppRoutes() {
       <Route path="/dashboard/student/flashcards/:deckId/interactive" element={<FlashcardInteractive />} />
       <Route path="/dashboard/student/practice-exam/:examId/start" element={<ExamTakingPage />} />
       <Route path="/dashboard/student/practice-exam/:examId/review" element={<ExamReviewPage />} />
+      <Route path="/dashboard/student/concepts/card/:conceptId" element={<ConceptCardDetailPage />} />
     </Routes>
   );
 }

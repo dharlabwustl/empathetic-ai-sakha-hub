@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import MainLayout from '@/components/layouts/MainLayout';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -54,7 +55,7 @@ const ConceptsView: React.FC = () => {
     : conceptCards;
   
   const handleViewAll = () => {
-    navigate('/dashboard/student/concepts-all');
+    navigate('/dashboard/student/concepts/all');
   };
   
   const handlePrioritize = () => {
@@ -81,6 +82,7 @@ const ConceptsView: React.FC = () => {
   };
   
   const handleOpenConcept = (id: number) => {
+    // Navigate to the detailed concept card page
     navigate(`/dashboard/student/concepts/card/${id}`);
   };
   

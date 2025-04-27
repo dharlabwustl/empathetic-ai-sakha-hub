@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
@@ -10,6 +10,8 @@ interface ConceptExplanationContentProps {
 }
 
 const ConceptExplanationContent: React.FC<ConceptExplanationContentProps> = ({ conceptTitle }) => {
+  const [activeTab, setActiveTab] = useState("basic");
+
   const explanationTypes = [
     { 
       id: "basic", 
@@ -146,7 +148,7 @@ const ConceptExplanationContent: React.FC<ConceptExplanationContentProps> = ({ c
   return (
     <Card className="overflow-hidden">
       <div className="p-5">
-        <Tabs defaultValue="basic" className="w-full">
+        <Tabs defaultValue="basic" className="w-full" onValueChange={(value) => setActiveTab(value)}>
           <TabsList className="w-full grid grid-cols-4 mb-4">
             {explanationTypes.map((type) => (
               <TabsTrigger
