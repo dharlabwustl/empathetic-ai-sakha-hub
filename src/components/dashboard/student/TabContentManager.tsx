@@ -1,18 +1,18 @@
 
 import React from 'react';
-import { UserProfileType } from "@/types/user";
+import { UserProfileBase } from "@/types/user/base";
 import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
 import DashboardOverview from "@/components/dashboard/student/DashboardOverview";
-import WelcomeTour from "@/components/dashboard/student/WelcomeTour";
+import RedesignedDashboardOverview from "@/components/dashboard/student/RedesignedDashboardOverview";
 import TodaysPlanView from "@/components/dashboard/student/todays-plan/TodaysPlanView";
-import ConceptCardsSection from "@/components/dashboard/student/concepts/ConceptCardsSection";
-import FlashcardsSection from "@/components/dashboard/student/flashcards/FlashcardsSection";
-import PracticeExamSection from "@/components/dashboard/student/practice-exams/PracticeExamSection";
-import NudgePanel from "@/components/dashboard/NudgePanel";
-import AcademicAdvisorSection from "@/components/dashboard/student/academic-advisor/AcademicAdvisorSection";
+import { AcademicAdvisorView } from "@/components/dashboard/student/academic-advisor/AcademicAdvisorView";
+import UserWelcomeSection from "@/components/dashboard/student/UserWelcomeSection";
+import ConceptsOverviewSection from "@/components/dashboard/student/concepts/ConceptsOverviewSection";
+import FlashcardsOverviewSection from "@/components/dashboard/student/flashcards/FlashcardsOverviewSection";
+import ExamsOverviewSection from "@/components/dashboard/student/exams/ExamsOverviewSection";
 
-export interface GenerateTabContentsProps {
-  userProfile: UserProfileType;
+interface TabContentGeneratorProps {
+  userProfile: UserProfileBase;
   kpis: KpiData[];
   nudges: NudgeData[];
   markNudgeAsRead: (id: string) => void;
@@ -35,57 +35,47 @@ export const generateTabContents = ({
   handleCompleteTour,
   lastActivity,
   suggestedNextAction
-}: GenerateTabContentsProps) => {
-  // Create a map of tab IDs to their React component content
-  const tabContents: Record<string, React.ReactNode> = {
+}: TabContentGeneratorProps) => {
+  return {
+    // Overview tab shows dashboard overview
     "overview": (
       <>
         {showWelcomeTour && (
-          <WelcomeTour
-            onSkipTour={handleSkipTour}
-            onCompleteTour={handleCompleteTour}
-            isFirstTimeUser={!userProfile.loginCount || userProfile.loginCount <= 1}
-            lastActivity={lastActivity}
-            suggestedNextAction={suggestedNextAction}
-            loginCount={userProfile.loginCount}
-            open={true}
-            onOpenChange={() => {}}
+          <UserWelcomeSection
+            userName={userProfile.name || "Student"}
+            onSkip={handleSkipTour}
+            onComplete={handleCompleteTour}
           />
         )}
-        
-        <DashboardOverview
-          userProfile={userProfile}
-          kpis={kpis}
-          nudges={nudges}
-          markNudgeAsRead={markNudgeAsRead}
-          features={features}
-        />
+        <RedesignedDashboardOverview userProfile={userProfile} kpis={kpis} />
       </>
     ),
+    
+    // Today's plan tab shows study plan for today
     "today": (
       <TodaysPlanView userProfile={userProfile} />
     ),
+    
+    // Academic advisor tab
     "academic": (
-      <AcademicAdvisorSection />
+      <AcademicAdvisorView userProfile={userProfile} />
     ),
+    
+    // Concepts tab
     "concepts": (
-      <ConceptCardsSection />
+      <ConceptsOverviewSection />
     ),
+    
+    // Flashcards tab
     "flashcards": (
-      <FlashcardsSection />
+      <FlashcardsOverviewSection />
     ),
+    
+    // Practice Exam tab
     "practice-exam": (
-      <PracticeExamSection />
+      <ExamsOverviewSection />
     ),
-    "notifications": (
-      <NudgePanel
-        nudges={nudges}
-        markAsRead={markNudgeAsRead}
-        showAll={true}
-      />
-    )
+
+    // More tabs can be added here as needed
   };
-  
-  // Return the tab contents map
-  return tabContents;
 };

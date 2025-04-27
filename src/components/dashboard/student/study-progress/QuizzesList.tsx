@@ -1,70 +1,126 @@
 
 import React from 'react';
-import { Button } from "@/components/ui/button";
-import { BookOpen } from 'lucide-react';
-import { SubjectProgress } from "@/types/user";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { ArrowUpRight } from 'lucide-react';
 
-interface QuizzesListProps {
-  selectedSubject: SubjectProgress | null;
-  subjects: SubjectProgress[];
-  selectSubject: (id: string) => void;
+interface Quiz {
+  id: string;
+  title: string;
+  date: string;
+  timeTaken: string;
+  score: number;
+  maxScore: number;
+  subject: string;
 }
 
-export const QuizzesList: React.FC<QuizzesListProps> = ({
-  selectedSubject,
-  subjects,
-  selectSubject
+interface QuizzesListProps {
+  quizzes: Quiz[];
+  title?: string;
+  limit?: number;
+  showViewAll?: boolean;
+  onViewAll?: () => void;
+}
+
+const QuizzesList: React.FC<QuizzesListProps> = ({
+  quizzes = [],
+  title = "Recent Quizzes",
+  limit = 5,
+  showViewAll = true,
+  onViewAll
 }) => {
-  if (!selectedSubject) {
-    return (
-      <div className="text-center py-8">
-        <BookOpen className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-        <h3 className="font-medium text-lg">Select a subject to view quizzes</h3>
-        <div className="flex flex-wrap gap-2 justify-center mt-4">
-          {subjects.map(subject => (
-            <Button 
-              key={subject.id}
-              variant="outline"
-              onClick={() => selectSubject(subject.id)}
-            >
-              {subject.name}
-            </Button>
-          ))}
-        </div>
-      </div>
-    );
-  }
+  // If no quizzes provided, use mock data
+  const displayQuizzes = quizzes.length > 0 ? quizzes : [
+    {
+      id: "quiz1",
+      title: "Electricity and Magnetism",
+      date: "2 days ago",
+      timeTaken: "18:45",
+      score: 85,
+      maxScore: 100,
+      subject: "Physics"
+    },
+    {
+      id: "quiz2",
+      title: "Organic Chemistry Reactions",
+      date: "4 days ago",
+      timeTaken: "22:30",
+      score: 72,
+      maxScore: 100,
+      subject: "Chemistry"
+    },
+    {
+      id: "quiz3",
+      title: "Calculus: Integration",
+      date: "1 week ago",
+      timeTaken: "25:15",
+      score: 90,
+      maxScore: 100,
+      subject: "Mathematics"
+    }
+  ];
+  
+  const limitedQuizzes = displayQuizzes.slice(0, limit);
+  
+  // Get badge color based on score percentage
+  const getBadgeColor = (score: number, maxScore: number) => {
+    const percentage = (score / maxScore) * 100;
+    if (percentage >= 90) return "bg-green-100 text-green-800 border-green-200";
+    if (percentage >= 75) return "bg-emerald-100 text-emerald-800 border-emerald-200";
+    if (percentage >= 60) return "bg-amber-100 text-amber-800 border-amber-200";
+    return "bg-red-100 text-red-800 border-red-200";
+  };
 
   return (
-    <div className="space-y-6">
-      <h3 className="font-medium">Recent Quiz Performance</h3>
-      
-      <div className="space-y-4">
-        {selectedSubject.quizScores.map(quiz => (
-          <div key={quiz.id} className="border rounded-lg p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <h4 className="font-medium">{quiz.title}</h4>
-                <p className="text-sm text-muted-foreground">
-                  {quiz.date} • {quiz.timeTaken} min
-                </p>
-              </div>
-              <div className="text-right">
-                <div className="text-lg font-semibold">
-                  {quiz.score}/{quiz.maxScore}
-                </div>
-                <div className={`text-sm ${
-                  (quiz.score / quiz.maxScore) * 100 > 70 ? 'text-green-600' :
-                  (quiz.score / quiz.maxScore) * 100 > 40 ? 'text-amber-600' :
-                  'text-red-600'
-                }`}>
-                  {Math.round((quiz.score / quiz.maxScore) * 100)}%
-                </div>
-              </div>
-            </div>
+    <Card>
+      <CardHeader className="pb-3">
+        <CardTitle className="text-lg">{title}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        {limitedQuizzes.length === 0 ? (
+          <div className="text-center py-6">
+            <p className="text-muted-foreground">No quizzes taken yet</p>
           </div>
-        ))}
-      </div>
-    </div>
+        ) : (
+          <div className="space-y-3">
+            {limitedQuizzes.map((quiz) => (
+              <div key={quiz.id} className="flex justify-between items-center p-3 border rounded-md hover:bg-gray-50">
+                <div>
+                  <h3 className="font-medium">{quiz.title}</h3>
+                  <div className="flex items-center text-sm text-muted-foreground mt-1">
+                    <span className="mr-2">{quiz.date}</span>
+                    <span>•</span>
+                    <span className="ml-2">{quiz.timeTaken}</span>
+                  </div>
+                </div>
+                <div className="flex flex-col items-end">
+                  <Badge variant="outline" className={getBadgeColor(quiz.score, quiz.maxScore)}>
+                    {quiz.score} / {quiz.maxScore}
+                  </Badge>
+                  <span className="text-xs text-muted-foreground mt-1">
+                    {Math.round((quiz.score / quiz.maxScore) * 100)}%
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+        
+        {showViewAll && displayQuizzes.length > 0 && (
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="w-full mt-3 text-sm" 
+            onClick={onViewAll}
+          >
+            View all quizzes
+            <ArrowUpRight className="ml-1 h-4 w-4" />
+          </Button>
+        )}
+      </CardContent>
+    </Card>
   );
 };
+
+export default QuizzesList;
