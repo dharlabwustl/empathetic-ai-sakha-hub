@@ -1,5 +1,6 @@
+
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { 
@@ -7,18 +8,60 @@ import {
   ChevronLeft,
   ChevronRight,
   Menu,
-  X
+  X,
+  Home,
+  Calendar,
+  BookMarked,
+  MessageSquare,
+  Brain,
+  BookOpen,
+  LineChart, 
+  Activity,
+  Heart,
+  Folder,
+  Video,
+  Users,
+  Bell
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { SidebarNavProps } from "./types/sidebar";
 import { SidebarAvatar } from "./SidebarAvatar";
-import { SidebarNavRoutes } from "./SidebarNavRoutes";
 import { useIsMobile } from "@/hooks/use-mobile";
 
-const SidebarNav = ({ userType, userName = "User" }: SidebarNavProps) => {
+interface SidebarNavProps {
+  userType: string;
+  userName?: string;
+  activeTab?: string;
+  onTabChange?: (tab: string) => void;
+}
+
+const SidebarNav = ({ 
+  userType, 
+  userName = "User",
+  activeTab,
+  onTabChange
+}: SidebarNavProps) => {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
+
+  const navItems = [
+    { icon: <Home size={20} />, title: "Dashboard", tab: "overview" },
+    { icon: <Calendar size={20} />, title: "Today's Plan", tab: "today" },
+    { icon: <BookMarked size={20} />, title: "Academic Advisor", tab: "academic" },
+    { icon: <Brain size={20} />, title: "Concept Cards", tab: "concepts" },
+    { icon: <BookOpen size={20} />, title: "Flashcards", tab: "flashcards" },
+    { icon: <LineChart size={20} />, title: "Practice Exams", tab: "practice-exam" },
+    { icon: <Bell size={20} />, title: "Notifications", tab: "notifications" }
+  ];
+
+  const handleTabChange = (tab: string) => {
+    if (onTabChange) {
+      onTabChange(tab);
+    }
+    setMobileOpen(false);
+    navigate(`/dashboard/student/${tab}`);
+  };
 
   return (
     <>
@@ -82,11 +125,25 @@ const SidebarNav = ({ userType, userName = "User" }: SidebarNavProps) => {
             collapsed={collapsed} 
           />
           
-          <SidebarNavRoutes 
-            userType={userType} 
-            collapsed={collapsed}
-            onMobileClose={() => setMobileOpen(false)} 
-          />
+          {/* Main navigation items */}
+          <div className="px-3 py-2">
+            <div className="space-y-1">
+              {navItems.map((item) => (
+                <button
+                  key={item.tab}
+                  onClick={() => handleTabChange(item.tab)}
+                  className={`w-full flex items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-all ${
+                    activeTab === item.tab
+                      ? "bg-gradient-to-r from-sky-500 to-violet-500 text-white shadow-sm"
+                      : "hover:bg-gray-100 dark:hover:bg-gray-700"
+                  }`}
+                >
+                  <span className="flex-shrink-0">{item.icon}</span>
+                  {!collapsed && <span>{item.title}</span>}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
         
         <div className="p-4 border-t border-sidebar-border">

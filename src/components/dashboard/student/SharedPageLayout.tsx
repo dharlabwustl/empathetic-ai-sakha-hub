@@ -1,25 +1,23 @@
 
 import React from 'react';
-import { QuickAccess } from './QuickAccess';
 
 interface SharedPageLayoutProps {
   title: string;
   subtitle: string;
   showQuickAccess?: boolean;
   children: React.ReactNode;
+  className?: string;
 }
 
 export const SharedPageLayout: React.FC<SharedPageLayoutProps> = ({
   title,
   subtitle,
   showQuickAccess = true,
-  children
+  children,
+  className = ""
 }) => {
   return (
-    <div className="space-y-4">
-      {/* Place QuickAccess at the top */}
-      {showQuickAccess && <QuickAccess className="mb-2" />}
-      
+    <div className={`space-y-4 ${className}`}>
       <div className="mb-6">
         <h1 className="text-2xl font-bold tracking-tight mb-1">{title}</h1>
         <p className="text-muted-foreground">{subtitle}</p>

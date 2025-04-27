@@ -93,7 +93,7 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
     }
   };
   
-  const handleResetRequest = () => {
+  const handleResetRequest = async () => {
     if (!resetIdentifier) {
       toast({
         title: "Error",
@@ -103,14 +103,31 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
       return;
     }
     
-    setOtpSent(true);
-    toast({
-      title: "OTP Sent",
-      description: `Verification code sent to your ${resetMethod}`,
-    });
+    try {
+      setLoading(true);
+      // This would be an API call in production
+      // await api.sendPasswordResetOTP(resetMethod, resetIdentifier);
+      
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      setOtpSent(true);
+      toast({
+        title: "OTP Sent",
+        description: `Verification code sent to your ${resetMethod === "email" ? "email" : "phone number"}`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to send OTP. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
   };
   
-  const handleResetComplete = () => {
+  const handleResetComplete = async () => {
     if (!otp || !newPassword) {
       toast({
         title: "Error",
@@ -120,16 +137,33 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
       return;
     }
     
-    toast({
-      title: "Password Reset Successful",
-      description: "You can now login with your new password",
-    });
-    
-    setShowPasswordReset(false);
-    setOtpSent(false);
-    setResetIdentifier("");
-    setOtp("");
-    setNewPassword("");
+    try {
+      setLoading(true);
+      // This would be an API call in production
+      // await api.resetPassword(resetMethod, resetIdentifier, otp, newPassword);
+      
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      toast({
+        title: "Password Reset Successful",
+        description: "You can now login with your new password",
+      });
+      
+      setShowPasswordReset(false);
+      setOtpSent(false);
+      setResetIdentifier("");
+      setOtp("");
+      setNewPassword("");
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to reset password. Please check your OTP and try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -246,14 +280,23 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
                 <Button
                   variant="outline"
                   onClick={() => setShowPasswordReset(false)}
+                  disabled={loading}
                 >
                   Cancel
                 </Button>
                 <Button
                   onClick={handleResetRequest}
                   className="bg-indigo-600"
+                  disabled={loading}
                 >
-                  Send OTP
+                  {loading ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                      Sending...
+                    </>
+                  ) : (
+                    "Send OTP"
+                  )}
                 </Button>
               </DialogFooter>
             </div>
@@ -277,14 +320,23 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
                     setOtpSent(false);
                     setOtp("");
                   }}
+                  disabled={loading}
                 >
                   Back
                 </Button>
                 <Button
                   onClick={handleResetComplete}
                   className="bg-indigo-600"
+                  disabled={loading}
                 >
-                  Reset Password
+                  {loading ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                      Resetting...
+                    </>
+                  ) : (
+                    "Reset Password"
+                  )}
                 </Button>
               </DialogFooter>
             </div>
