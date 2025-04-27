@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { UserProfileType } from "@/types/user";
 import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
@@ -9,6 +10,9 @@ import TodayStudyPlan from "@/components/dashboard/student/TodayStudyPlan";
 import FeelGoodCorner from "@/components/dashboard/student/FeelGoodCorner";
 import ExamReadinessMeter from './metrics/ExamReadinessMeter';
 import { motion } from "framer-motion";
+import { Coffee, BookOpen, AlertCircle } from 'lucide-react';
+import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { SubscriptionType } from "@/types/user/base";
 
 interface DashboardOverviewProps {
   userProfile: UserProfileType;
@@ -16,7 +20,7 @@ interface DashboardOverviewProps {
   nudges: NudgeData[];
   markNudgeAsRead: (id: string) => void;
   features: {
-    icon?: ReactNode;
+    icon?: React.ReactNode;
     title: string;
     description: string;
     path: string;
@@ -31,7 +35,7 @@ export default function DashboardOverview({
   markNudgeAsRead,
   features
 }: DashboardOverviewProps) {
-  const isMobile = useIsMobile();
+  const isMobile = useMediaQuery("(max-width: 640px)");
   
   // Animation variants
   const containerVariants = {
@@ -130,6 +134,17 @@ export default function DashboardOverview({
         ))}
       </motion.div>
       
+      {/* Exam Readiness Meter */}
+      <motion.div 
+        className="mb-6"
+        variants={itemVariants}
+      >
+        <ExamReadinessMeter 
+          userAvatar={userProfile.avatar} 
+          readinessData={readinessData}
+        />
+      </motion.div>
+      
       {/* Study Plan and Profile - Only show study plan here, not duplicated */}
       <motion.div 
         className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8"
@@ -161,17 +176,6 @@ export default function DashboardOverview({
         <motion.div variants={itemVariants}>
           <NudgePanel nudges={nudges} markAsRead={markNudgeAsRead} />
         </motion.div>
-      </motion.div>
-      
-      {/* Exam Readiness Meter */}
-      <motion.div 
-        className="mb-6"
-        variants={itemVariants}
-      >
-        <ExamReadinessMeter 
-          userAvatar={userProfile.avatar} 
-          readinessData={readinessData}
-        />
       </motion.div>
       
       {/* Feature Cards */}
