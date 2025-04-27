@@ -3,7 +3,7 @@ import React from 'react';
 import MainLayout from '@/components/layouts/MainLayout';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Calendar as CalendarIcon, BookOpen, Clock, Calendar, Check } from 'lucide-react';
+import { Calendar as CalendarIcon, BookOpen, Clock, Check } from 'lucide-react';
 import { Calendar } from '@/components/ui/calendar';
 
 const StudyPlanView: React.FC = () => {
@@ -75,7 +75,7 @@ const StudyPlanView: React.FC = () => {
                 </div>
               ) : (
                 <div className="text-center py-8">
-                  <Calendar className="h-10 w-10 mx-auto text-muted-foreground" />
+                  <CalendarIcon className="h-10 w-10 mx-auto text-muted-foreground" />
                   <p className="mt-2 text-muted-foreground">
                     No study sessions scheduled for this date
                   </p>
