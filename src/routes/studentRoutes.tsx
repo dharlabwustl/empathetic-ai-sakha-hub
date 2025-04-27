@@ -1,3 +1,4 @@
+
 import { Routes, Route } from 'react-router-dom';
 import TodaysPlanView from '@/components/dashboard/student/todays-plan/TodaysPlanView';
 import ConceptsView from '@/components/dashboard/student/concepts/ConceptsView';
@@ -27,11 +28,11 @@ export default function StudentRoutes() {
       <Route path="/batch" element={<BatchManagementView />} />
       <Route path="/subscription" element={<SubscriptionPage />} />
       
-      {/* Study pages with topic-based routing */}
+      {/* Landing pages with topic-based routing */}
       <Route path="/concepts/study/:topicName" element={<ConceptStudyPage />} />
       <Route path="/flashcards/practice/:topicName" element={<FlashcardPracticePage />} />
-      <Route path="/exams/attempt/:topicName" element={<ExamAttemptPage />} />
-      <Route path="/exams/review/:topicName" element={<ExamReviewPage />} />
+      <Route path="/exams/attempt/:examId" element={<ExamAttemptPage />} />
+      <Route path="/exams/review/:examId" element={<ExamReviewPage />} />
       
       {/* Feel Good Corner with enhanced sections */}
       <Route path="/wellness" element={<FeelGoodCornerPage />} />

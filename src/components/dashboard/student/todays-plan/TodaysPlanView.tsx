@@ -1,30 +1,36 @@
 
-import React from 'react';
-import MainLayout from '@/components/layouts/MainLayout';
+import React, { useState } from 'react';
+import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
+import RedesignedTodaysPlan from '@/components/dashboard/student/todays-plan/RedesignedTodaysPlan';
+import TodayStudyPlan from '@/components/dashboard/student/TodayStudyPlan';
+import { useStudentProfile } from '@/hooks/useStudentProfile';
 
 const TodaysPlanView: React.FC = () => {
+  const { userProfile, loading } = useStudentProfile();
+
   return (
-    <MainLayout>
-      <div className="container py-8">
-        <h1 className="text-3xl font-bold mb-6">Today's Plan</h1>
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-          <div className="md:col-span-8">
-            <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
-              <h2 className="text-xl font-semibold mb-4">Your Schedule for Today</h2>
-              <p className="text-muted-foreground">
-                Your daily plan content will appear here. This page is still being enhanced.
-              </p>
-            </div>
-          </div>
-          <div className="md:col-span-4">
-            <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
-              <h3 className="text-lg font-semibold mb-4">Quick Progress</h3>
-              <p className="text-muted-foreground">Progress tracking will appear here.</p>
-            </div>
-          </div>
+    <SharedPageLayout
+      title="Today's Study Plan"
+      subtitle="Your personalized daily learning schedule to keep you on track"
+    >
+      {loading ? (
+        <div className="animate-pulse space-y-6">
+          <div className="h-12 bg-gray-200 rounded-md w-48"></div>
+          <div className="h-32 bg-gray-200 rounded-md"></div>
+          <div className="h-32 bg-gray-200 rounded-md"></div>
         </div>
-      </div>
-    </MainLayout>
+      ) : userProfile ? (
+        <div className="space-y-8">
+          <TodayStudyPlan />
+        </div>
+      ) : (
+        <div className="text-center py-8">
+          <p className="text-muted-foreground">
+            Please log in to view your personalized study plan.
+          </p>
+        </div>
+      )}
+    </SharedPageLayout>
   );
 };
 
