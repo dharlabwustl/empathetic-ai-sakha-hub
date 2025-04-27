@@ -2,16 +2,15 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { MessageSquare, Calendar, Brain, Users, Heart, BookMarked, BookOpen } from 'lucide-react';
+import { MessageSquare, Calendar, Brain, Users, Heart } from 'lucide-react';
 
 export function QuickAccess() {
   const navigate = useNavigate();
 
   const quickItems = [
     { icon: <MessageSquare className="h-4 w-4" />, text: "24/7 AI Tutor", path: "/dashboard/student/tutor" },
-    { icon: <BookMarked className="h-4 w-4" />, text: "Academic Advisor", path: "/dashboard/student/academic" },
-    { icon: <Calendar className="h-4 w-4" />, text: "Today's Plan", path: "/dashboard/student/today" },
-    { icon: <Brain className="h-4 w-4" />, text: "Study Plan", path: "/dashboard/student/study-plan" },
+    { icon: <Calendar className="h-4 w-4" />, text: "Academic Advisor", path: "/dashboard/student/academic" },
+    { icon: <Brain className="h-4 w-4" />, text: "Study Plan", path: "/dashboard/student/today" },
     { icon: <Users className="h-4 w-4" />, text: "Study Groups", path: "/dashboard/student/study-groups" },
     { icon: <Heart className="h-4 w-4" />, text: "Feel Good Corner", path: "/dashboard/student/wellness" },
   ];

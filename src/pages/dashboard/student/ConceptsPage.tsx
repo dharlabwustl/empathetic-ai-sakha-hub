@@ -7,21 +7,13 @@ import { Button } from '@/components/ui/button';
 import { useUserStudyPlan } from '@/hooks/useUserStudyPlan';
 import ConceptCard from '@/components/dashboard/student/ConceptCard';
 import { motion } from 'framer-motion';
-import { ChevronLeft, ArrowRight, BarChart3, Filter, Sparkles, Plus } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { Badge } from '@/components/ui/badge';
-import { useToast } from '@/hooks/use-toast';
-import CreateConceptDialog from '@/components/dashboard/student/concept-cards/CreateConceptDialog';
+import { ChevronLeft, ArrowRight } from 'lucide-react';
 
 const ConceptsPage = () => {
   const { conceptCards, loading } = useUserStudyPlan();
   const [timeView, setTimeView] = useState<'today' | 'week' | 'month'>('today');
   const [activeSubject, setActiveSubject] = useState('all');
   const [showAllCards, setShowAllCards] = useState(false);
-  const [priorityFilter, setPriorityFilter] = useState<string | null>(null);
-  const [showCreateDialog, setShowCreateDialog] = useState(false);
-  const navigate = useNavigate();
-  const { toast } = useToast();
 
   // Get unique subjects from concept cards
   const subjects = useMemo(() => {
@@ -37,7 +29,7 @@ const ConceptsPage = () => {
     }, {} as Record<string, number>);
   }, [conceptCards]);
 
-  // Filter cards based on time view, subject, priority filter, and show all state
+  // Filter cards based on time view, subject, and show all state
   const filteredCards = useMemo(() => {
     let filtered = conceptCards.filter(card => card.scheduledFor === timeView);
     
@@ -45,16 +37,12 @@ const ConceptsPage = () => {
       filtered = filtered.filter(card => card.subject === activeSubject);
     }
     
-    if (priorityFilter) {
-      filtered = filtered.filter(card => card.difficulty.toLowerCase() === priorityFilter.toLowerCase());
-    }
-    
     if (!showAllCards) {
       filtered = filtered.slice(0, 6);
     }
     
     return filtered;
-  }, [conceptCards, timeView, activeSubject, priorityFilter, showAllCards]);
+  }, [conceptCards, timeView, activeSubject, showAllCards]);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -74,82 +62,8 @@ const ConceptsPage = () => {
     }
   };
 
-  const handlePriorityFilter = () => {
-    // Cycle through priority filters: null -> high -> medium -> low -> null
-    if (!priorityFilter) setPriorityFilter('hard');
-    else if (priorityFilter === 'hard') setPriorityFilter('medium');
-    else if (priorityFilter === 'medium') setPriorityFilter('easy');
-    else setPriorityFilter(null);
-  };
-
-  const handleCreateConcept = (data: any) => {
-    toast({
-      title: "Concept Created",
-      description: `Your new concept for ${data.subject} has been created successfully.`
-    });
-    setShowCreateDialog(false);
-  };
-
-  const handleViewAll = () => {
-    navigate('/dashboard/student/concepts/all');
-  };
-
-  const handleAnalytics = () => {
-    navigate('/dashboard/student/concepts/analytics');
-  };
-
   return (
     <ConceptsPageLayout>
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold">Concept Cards</h1>
-          <p className="text-muted-foreground">Master key concepts through interactive learning</p>
-        </div>
-        <div className="flex gap-2">
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={handleViewAll}
-            className="flex items-center gap-1"
-          >
-            View All
-            <ArrowRight className="h-4 w-4" />
-          </Button>
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={handlePriorityFilter}
-            className="flex items-center gap-1"
-          >
-            <Filter className="h-4 w-4" />
-            Prioritize
-            {priorityFilter && (
-              <Badge variant="secondary" className="ml-1">
-                {priorityFilter}
-              </Badge>
-            )}
-          </Button>
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={handleAnalytics}
-            className="flex items-center gap-1"
-          >
-            <BarChart3 className="h-4 w-4" />
-            Analytics
-          </Button>
-          <Button 
-            variant="default" 
-            size="sm" 
-            onClick={() => setShowCreateDialog(true)}
-            className="flex items-center gap-1"
-          >
-            <Plus className="h-4 w-4" />
-            Create Concept
-          </Button>
-        </div>
-      </div>
-
       <div className="space-y-6">
         {/* Time-based Tabs */}
         <Tabs value={timeView} onValueChange={(v) => setTimeView(v as typeof timeView)}>
@@ -197,7 +111,7 @@ const ConceptsPage = () => {
                   completed={card.completed}
                   progress={card.progress}
                   relatedConcepts={card.relatedConcepts}
-                  onView={() => navigate(`/dashboard/student/concepts/${card.id}`)}
+                  onView={() => window.location.href = `/dashboard/student/concepts/${card.id}`}
                 />
               </motion.div>
             ))
@@ -212,19 +126,12 @@ const ConceptsPage = () => {
               onClick={() => setShowAllCards(true)}
               className="group"
             >
-              View More Concepts
+              View All Concepts
               <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
             </Button>
           </div>
         )}
       </div>
-      
-      {/* Create Concept Dialog */}
-      <CreateConceptDialog 
-        open={showCreateDialog} 
-        onOpenChange={setShowCreateDialog}
-        onSubmit={handleCreateConcept}
-      />
     </ConceptsPageLayout>
   );
 };
