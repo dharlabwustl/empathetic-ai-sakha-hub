@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { UserProfileBase } from '@/types/user/base';
 import { KpiData, NudgeData } from '@/hooks/useKpiTracking';
@@ -53,7 +52,7 @@ export const generateTabContents = ({
     ),
     
     // Today's Plan tab
-    "today": <TodayPlanView />,
+    "today": <RedesignedTodaysPlan userProfile={userProfile} />,
     
     // Study Plan tab
     "study-plan": <StudyPlanView />,

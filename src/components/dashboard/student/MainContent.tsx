@@ -1,13 +1,13 @@
 
 import React from 'react';
-import { UserProfileType } from "@/types/user";
-import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
+import { UserProfileBase } from '@/types/user/base';
+import { KpiData, NudgeData } from '@/hooks/useKpiTracking';
 import DashboardContent from "@/pages/dashboard/student/DashboardContent";
 
 interface MainContentProps {
   hideTabsNav: boolean;
   activeTab: string;
-  userProfile: UserProfileType;
+  userProfile: UserProfileBase;
   kpis: KpiData[];
   nudges: NudgeData[];
   markNudgeAsRead: (id: string) => void;

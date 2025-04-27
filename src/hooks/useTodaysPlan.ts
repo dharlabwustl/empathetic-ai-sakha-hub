@@ -1,6 +1,5 @@
-
 import { useState, useEffect } from 'react';
-import { TodaysPlanData } from '@/types/student/todaysPlan';
+import { TodaysPlanData, TimelineView } from '@/types/student/todaysPlan';
 
 // Mock data for today's plan
 const mockTodayPlan: TodaysPlanData = {
@@ -134,6 +133,7 @@ export const useTodaysPlan = (examGoal: string, userName: string) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [planData, setPlanData] = useState<TodaysPlanData | null>(null);
+  const [activeView, setActiveView] = useState<TimelineView>('daily');
 
   // Fetch today's plan data
   useEffect(() => {
@@ -309,6 +309,8 @@ export const useTodaysPlan = (examGoal: string, userName: string) => {
     loading,
     error,
     planData,
+    activeView,
+    setActiveView,
     refreshData,
     markTaskCompleted,
     addBookmark,

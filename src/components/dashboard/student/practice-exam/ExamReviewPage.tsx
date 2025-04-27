@@ -1,578 +1,382 @@
-
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle, XCircle, AlertCircle, Clock, CheckSquare, Calendar, ArrowRight } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
+import { BookOpen, ArrowRight, ArrowLeft, Check, X, Clock, Flag, MoveRight, PieChart } from 'lucide-react';
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { SectionHeader } from '@/components/ui/section-header';
+import { cn } from '@/lib/utils';
 
-// Mock exams (same as ExamTakingPage)
+// Mock question data - same as in ExamTakingPage
 const mockExams = {
-  "physics-101": {
-    id: "physics-101",
-    title: "Physics Basics Assessment",
-    subject: "Physics",
-    totalQuestions: 10,
-    timeLimit: 30, // minutes
+  "physics": {
+    id: "physics",
+    title: "Physics - Mechanics and Thermodynamics",
+    description: "Test your knowledge of basic physics concepts",
+    timeLimit: 45, // in minutes
     questions: [
       {
         id: "q1",
-        text: "What is Newton's second law of motion?",
+        text: "What is Newton's First Law of Motion?",
         options: [
-          "An object at rest stays at rest unless acted upon by an external force.",
-          "Force equals mass times acceleration (F=ma).",
-          "For every action, there is an equal and opposite reaction.",
-          "Objects with mass attract each other with a force proportional to their masses."
+          "An object at rest stays at rest, and an object in motion stays in motion unless acted upon by an external force",
+          "Force equals mass times acceleration",
+          "For every action, there is an equal and opposite reaction",
+          "Energy can neither be created nor destroyed, only transformed"
         ],
-        correctAnswer: 1
+        correctOption: 0,
+        explanation: "Newton's First Law, also known as the Law of Inertia, states that an object will remain at rest or in uniform motion in a straight line unless acted upon by an external force."
       },
       {
         id: "q2",
-        text: "Which of the following is a unit of force?",
+        text: "Which of the following is the SI unit of energy?",
         options: [
-          "Watt",
-          "Joule",
           "Newton",
+          "Joule",
+          "Watt",
           "Pascal"
         ],
-        correctAnswer: 2
+        correctOption: 1,
+        explanation: "The joule (J) is the SI unit of energy. It is equal to the energy transferred when applying a force of one newton through a distance of one meter."
       },
       {
         id: "q3",
-        text: "What is the formula for calculating kinetic energy?",
+        text: "The principle of conservation of energy states that:",
         options: [
-          "KE = mgh",
-          "KE = 1/2mv²",
-          "KE = F×d",
-          "KE = P×V"
+          "Energy is always lost in any process",
+          "Energy can be created but not destroyed",
+          "Energy can neither be created nor destroyed, only transformed",
+          "Energy is proportional to mass"
         ],
-        correctAnswer: 1
+        correctOption: 2,
+        explanation: "The principle of conservation of energy states that energy cannot be created or destroyed, only transformed from one form to another. The total energy of an isolated system remains constant."
       },
-      // More questions would be added here...
       {
         id: "q4",
-        text: "Which law of thermodynamics states that energy cannot be created or destroyed?",
+        text: "What does the Second Law of Thermodynamics state?",
         options: [
-          "Zeroth law",
-          "First law",
-          "Second law",
-          "Third law"
+          "Heat naturally flows from cold to hot",
+          "Entropy of an isolated system always decreases",
+          "Energy is conserved in all processes",
+          "The entropy of an isolated system always increases over time"
         ],
-        correctAnswer: 1
+        correctOption: 3,
+        explanation: "The Second Law of Thermodynamics states that the entropy (disorder) of an isolated system always increases over time. Heat naturally flows from hot to cold, not the reverse."
       },
       {
         id: "q5",
-        text: "What is the SI unit of electric current?",
+        text: "Which of these is NOT a form of energy?",
         options: [
-          "Volt",
-          "Watt",
-          "Ampere",
-          "Ohm"
+          "Kinetic energy",
+          "Nuclear energy",
+          "Mass energy",
+          "Momentum energy"
         ],
-        correctAnswer: 2
+        correctOption: 3,
+        explanation: "Momentum energy is not a type of energy. Momentum (p = mv) is the product of mass and velocity, while kinetic energy, nuclear energy, and mass energy (E = mc²) are all valid forms of energy."
       }
-    ],
-    difficulty: "medium"
+    ]
   },
-  "chemistry-fundamentals": {
-    id: "chemistry-fundamentals",
-    title: "Chemistry Fundamentals",
-    subject: "Chemistry",
-    totalQuestions: 8,
-    timeLimit: 25, // minutes
+  "chemistry": {
+    id: "chemistry",
+    title: "Chemistry - Periodic Table and Reactions",
+    description: "Test your knowledge of basic chemistry concepts",
+    timeLimit: 30,
     questions: [
-      {
-        id: "q1",
-        text: "What is the chemical symbol for gold?",
-        options: [
-          "Go",
-          "Au",
-          "Ag",
-          "Gd"
-        ],
-        correctAnswer: 1
-      },
-      {
-        id: "q2",
-        text: "Which is NOT a state of matter?",
-        options: [
-          "Solid",
-          "Liquid",
-          "Gas",
-          "Energy"
-        ],
-        correctAnswer: 3
-      },
-      {
-        id: "q3",
-        text: "What is the pH of a neutral solution?",
-        options: [
-          "0",
-          "7",
-          "10",
-          "14"
-        ],
-        correctAnswer: 1
-      },
-      // More questions would be added here...
-      {
-        id: "q4",
-        text: "What is the main component of natural gas?",
-        options: [
-          "Ethane",
-          "Propane",
-          "Methane",
-          "Butane"
-        ],
-        correctAnswer: 2
-      },
-      {
-        id: "q5",
-        text: "Which element has the atomic number 1?",
-        options: [
-          "Oxygen",
-          "Carbon",
-          "Hydrogen",
-          "Helium"
-        ],
-        correctAnswer: 2
-      }
-    ],
-    difficulty: "easy"
+      
+    ]
   }
-};
-
-// Mock historical data for performance trends
-const mockHistoricalPerformance = {
-  "physics-101": [
-    { date: "2025-04-20", score: 65 },
-    { date: "2025-04-15", score: 60 },
-    { date: "2025-04-10", score: 55 },
-    { date: "2025-04-05", score: 50 },
-  ],
-  "chemistry-fundamentals": [
-    { date: "2025-04-22", score: 75 },
-    { date: "2025-04-17", score: 70 },
-    { date: "2025-04-12", score: 65 },
-    { date: "2025-04-07", score: 60 },
-  ]
-};
-
-// Mock topic breakdown data
-const mockTopicBreakdown = {
-  "physics-101": [
-    { topic: "Newton's Laws", score: 85 },
-    { topic: "Energy & Work", score: 70 },
-    { topic: "Kinematics", score: 60 },
-    { topic: "Thermodynamics", score: 75 },
-    { topic: "Electromagnetism", score: 55 },
-  ],
-  "chemistry-fundamentals": [
-    { topic: "Periodic Table", score: 90 },
-    { topic: "Chemical Bonds", score: 75 },
-    { topic: "Acids & Bases", score: 80 },
-    { topic: "Organic Chemistry", score: 65 },
-    { topic: "Redox Reactions", score: 70 },
-  ]
 };
 
 export default function ExamReviewPage() {
   const { examId } = useParams<{ examId: string }>();
+  const location = useLocation();
   const navigate = useNavigate();
+  const [currentExam, setCurrentExam] = useState<any>(null);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   
-  const [currentExam, setCurrentExam] = useState<any | null>(null);
-  const [examResult, setExamResult] = useState<any | null>(null);
-  const [activeTab, setActiveTab] = useState("summary");
-  const [selectedQuestion, setSelectedQuestion] = useState<number | null>(null);
+  // Get results from state or use defaults
+  const answers = location.state?.answers || {};
+  const flagged = location.state?.flagged || {};
+  const score = location.state?.score || 0;
+  const totalQuestions = location.state?.totalQuestions || 0;
   
   useEffect(() => {
     if (examId && mockExams[examId as keyof typeof mockExams]) {
-      const exam = mockExams[examId as keyof typeof mockExams];
-      setCurrentExam(exam);
-      
-      // Get the results from localStorage
-      const storedResult = localStorage.getItem(`exam-result-${examId}`);
-      if (storedResult) {
-        setExamResult(JSON.parse(storedResult));
-      } else {
-        // If no result found, create mock result
-        const mockResult = {
-          examId: exam.id,
-          answers: {
-            "q1": 1, // correct
-            "q2": 1, // incorrect
-            "q3": 1, // correct
-            "q4": 0, // incorrect
-            "q5": 2, // correct
-          },
-          score: 60,
-          correctAnswers: 3,
-          totalQuestions: 5,
-          timeSpent: 720, // 12 minutes
-          date: new Date().toISOString(),
-          markedQuestions: ["q2"]
-        };
-        setExamResult(mockResult);
-      }
+      setCurrentExam(mockExams[examId as keyof typeof mockExams]);
     }
   }, [examId]);
   
-  if (!currentExam || !examResult) {
+  const handleNext = () => {
+    if (currentQuestionIndex < (currentExam?.questions?.length || 0) - 1) {
+      setCurrentQuestionIndex(prev => prev + 1);
+    }
+  };
+  
+  const handlePrevious = () => {
+    if (currentQuestionIndex > 0) {
+      setCurrentQuestionIndex(prev => prev - 1);
+    }
+  };
+  
+  const getPercentageScore = () => {
+    return Math.round((score / totalQuestions) * 100);
+  };
+  
+  const getScoreColor = () => {
+    const percentage = getPercentageScore();
+    if (percentage >= 80) return "text-green-600 dark:text-green-400";
+    if (percentage >= 60) return "text-amber-600 dark:text-amber-400";
+    return "text-red-600 dark:text-red-400";
+  };
+  
+  const getScoreLabel = () => {
+    const percentage = getPercentageScore();
+    if (percentage >= 80) return "Excellent!";
+    if (percentage >= 60) return "Good";
+    if (percentage >= 40) return "Fair";
+    return "Needs Improvement";
+  };
+  
+  if (!currentExam) {
     return (
-      <SharedPageLayout title="Exam Review" subtitle="Loading review data...">
-        <div className="flex items-center justify-center h-64">
-          <p>Loading exam review data...</p>
+      <SharedPageLayout 
+        title="Exam Review"
+        subtitle="Loading exam results..."
+      >
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
         </div>
       </SharedPageLayout>
     );
   }
   
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}m ${secs}s`;
-  };
-  
-  const getScoreColor = (score: number) => {
-    if (score >= 80) return "text-green-600 dark:text-green-400";
-    if (score >= 60) return "text-amber-600 dark:text-amber-400";
-    return "text-red-600 dark:text-red-400";
-  };
-  
-  const getScoreBg = (score: number) => {
-    if (score >= 80) return "bg-green-50 dark:bg-green-950/30";
-    if (score >= 60) return "bg-amber-50 dark:bg-amber-950/30";
-    return "bg-red-50 dark:bg-red-950/30";
-  };
-  
-  const getResultMessage = (score: number) => {
-    if (score >= 80) return "Excellent work! You've mastered this content.";
-    if (score >= 60) return "Good job! Some areas could use more practice.";
-    return "Keep practicing! Review the topics you struggled with.";
-  };
-  
-  // Improvement from previous attempt
-  const previousAttempts = mockHistoricalPerformance[examId as keyof typeof mockHistoricalPerformance] || [];
-  const previousScore = previousAttempts.length > 0 ? previousAttempts[0].score : null;
-  const improvement = previousScore !== null ? examResult.score - previousScore : null;
+  const currentQuestion = currentExam.questions[currentQuestionIndex];
+  const selectedAnswer = answers[currentQuestion.id];
+  const isCorrect = selectedAnswer === currentQuestion.correctOption;
   
   return (
     <SharedPageLayout 
-      title="Exam Results & Analysis"
-      subtitle={currentExam.title}
+      title="Exam Review"
+      subtitle={`Results for ${currentExam.title}`}
     >
       <div className="space-y-6">
-        {/* Score Summary Card */}
-        <Card className={`border-t-4 ${
-          examResult.score >= 80 ? "border-t-green-500" : 
-          examResult.score >= 60 ? "border-t-amber-500" : 
-          "border-t-red-500"
-        }`}>
-          <CardHeader className="pb-2">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-              <CardTitle>{currentExam.title} - Results</CardTitle>
-              <Badge className={`${getScoreBg(examResult.score)} ${getScoreColor(examResult.score)} text-base px-3 py-1`}>
-                Score: {examResult.score}%
-              </Badge>
-            </div>
+        {/* Score summary */}
+        <Card className="border-t-4 border-t-purple-500">
+          <CardHeader>
+            <CardTitle>Your Results</CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="space-y-6">
-              {/* Overall Performance */}
-              <div className="p-4 rounded-lg bg-gradient-to-r from-violet-50 to-blue-50 dark:from-violet-950/20 dark:to-blue-950/20 border border-violet-100 dark:border-violet-800/30">
-                <h3 className="font-medium mb-3">Exam Overview</h3>
-                <div className="space-y-3">
-                  <div>
-                    <div className="flex justify-between text-sm mb-1">
-                      <span className="font-medium">Performance</span>
-                      <span className={getScoreColor(examResult.score)}>
-                        {examResult.correctAnswers}/{examResult.totalQuestions} correct
-                      </span>
-                    </div>
-                    <Progress value={examResult.score} className="h-2" />
-                  </div>
-                  
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-2">
-                    <div className="flex flex-col">
-                      <span className="text-xs text-muted-foreground">Date Taken</span>
-                      <span className="flex items-center">
-                        <Calendar className="h-3.5 w-3.5 mr-1.5 text-violet-500" />
-                        {new Date(examResult.date).toLocaleDateString()}
-                      </span>
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-xs text-muted-foreground">Time Spent</span>
-                      <span className="flex items-center">
-                        <Clock className="h-3.5 w-3.5 mr-1.5 text-violet-500" />
-                        {formatTime(examResult.timeSpent)}
-                      </span>
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-xs text-muted-foreground">Questions</span>
-                      <span className="flex items-center">
-                        <CheckSquare className="h-3.5 w-3.5 mr-1.5 text-violet-500" />
-                        {examResult.totalQuestions} total
-                      </span>
-                    </div>
-                    {improvement !== null && (
-                      <div className="flex flex-col">
-                        <span className="text-xs text-muted-foreground">Improvement</span>
-                        <span className={`flex items-center ${improvement >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                          {improvement >= 0 
-                            ? <ArrowRight className="h-3.5 w-3.5 mr-1.5 text-green-500" /> 
-                            : <ArrowRight className="h-3.5 w-3.5 mr-1.5 text-red-500" />
-                          }
-                          {improvement > 0 ? '+' : ''}{improvement}%
-                        </span>
-                      </div>
-                    )}
-                  </div>
+          <CardContent className="pb-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+              <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border text-center">
+                <h3 className="text-sm text-muted-foreground mb-1">Score</h3>
+                <p className={`text-3xl font-bold ${getScoreColor()}`}>
+                  {score}/{totalQuestions}
+                </p>
+                <p className="text-sm mt-1">{getScoreLabel()}</p>
+              </div>
+              
+              <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border text-center">
+                <h3 className="text-sm text-muted-foreground mb-1">Percentage</h3>
+                <p className={`text-3xl font-bold ${getScoreColor()}`}>
+                  {getPercentageScore()}%
+                </p>
+                <div className="mt-2 h-1.5">
+                  <Progress value={getPercentageScore()} />
                 </div>
               </div>
               
-              {/* Performance Feedback */}
-              <div className={`p-4 rounded-lg ${getScoreBg(examResult.score)} border`}>
-                <h3 className="font-medium mb-2">Performance Feedback</h3>
-                <p className="text-sm">{getResultMessage(examResult.score)}</p>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                  <div className="bg-white/70 dark:bg-gray-800/70 p-3 rounded-lg border">
-                    <h4 className="text-sm font-medium mb-2 flex items-center">
-                      <CheckCircle className="h-4 w-4 mr-1.5 text-green-500" />
-                      Strengths
-                    </h4>
-                    <ul className="space-y-1 text-sm">
-                      {mockTopicBreakdown[examId as keyof typeof mockTopicBreakdown]
-                        .filter(item => item.score >= 75)
-                        .slice(0, 2)
-                        .map((item, idx) => (
-                          <li key={idx} className="ml-6 list-disc">
-                            {item.topic} ({item.score}%)
-                          </li>
-                        ))
-                      }
-                    </ul>
-                  </div>
-                  
-                  <div className="bg-white/70 dark:bg-gray-800/70 p-3 rounded-lg border">
-                    <h4 className="text-sm font-medium mb-2 flex items-center">
-                      <XCircle className="h-4 w-4 mr-1.5 text-red-500" />
-                      Areas to Improve
-                    </h4>
-                    <ul className="space-y-1 text-sm">
-                      {mockTopicBreakdown[examId as keyof typeof mockTopicBreakdown]
-                        .filter(item => item.score < 75)
-                        .slice(0, 2)
-                        .map((item, idx) => (
-                          <li key={idx} className="ml-6 list-disc">
-                            {item.topic} ({item.score}%)
-                          </li>
-                        ))
-                      }
-                    </ul>
-                  </div>
-                </div>
+              <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border text-center">
+                <h3 className="text-sm text-muted-foreground mb-1">Time Taken</h3>
+                <p className="text-3xl font-bold">
+                  {Math.floor(currentExam.timeLimit * 0.8)}:{Math.floor(Math.random() * 60).toString().padStart(2, '0')}
+                </p>
+                <p className="text-sm mt-1">of {currentExam.timeLimit} minutes</p>
               </div>
-              
-              {/* Action Buttons */}
-              <div className="flex flex-col sm:flex-row gap-3 justify-end">
-                <Button variant="outline" onClick={() => navigate(`/dashboard/student/practice-exam/${examId}/start`)}>
-                  <AlertCircle className="h-4 w-4 mr-1.5" />
-                  Retake Exam
-                </Button>
-                <Button onClick={() => navigate('/dashboard/student/practice-exam')}>
-                  <CheckSquare className="h-4 w-4 mr-1.5" />
-                  View All Practice Exams
-                </Button>
+            </div>
+            
+            <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border">
+              <h3 className="font-medium mb-2">Question Analysis</h3>
+              <div className="flex flex-wrap gap-2 md:gap-4">
+                <div className="flex items-center gap-1.5">
+                  <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                  <span className="text-sm">Correct: {score}</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                  <span className="text-sm">Incorrect: {totalQuestions - score}</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <Flag className="w-3.5 h-3.5 text-amber-500" />
+                  <span className="text-sm">Flagged: {Object.values(flagged).filter(Boolean).length}</span>
+                </div>
               </div>
             </div>
           </CardContent>
         </Card>
         
-        {/* Detailed Review Tabs */}
-        <div>
-          <SectionHeader title="Detailed Analysis" />
+        {/* Review navigation */}
+        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border flex flex-wrap justify-between items-center">
+          <div className="text-sm">
+            Reviewing Question {currentQuestionIndex + 1} of {currentExam.questions.length}
+          </div>
           
-          <Tabs defaultValue="summary" className="mt-4" onValueChange={setActiveTab}>
-            <TabsList className="grid grid-cols-3 mb-4">
-              <TabsTrigger value="summary">Performance Summary</TabsTrigger>
-              <TabsTrigger value="questions">Question Analysis</TabsTrigger>
-              <TabsTrigger value="topics">Topic Breakdown</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="summary" className="space-y-4">
-              {/* Performance Over Time */}
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-lg">Performance Trend</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="h-64 flex items-center justify-center">
-                    <p>Performance chart will be displayed here</p>
-                  </div>
-                </CardContent>
-              </Card>
-              
-              {/* Recommendations */}
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-lg">Personalized Recommendations</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="p-3 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/30">
-                    <h4 className="font-medium mb-2">Suggested Study Materials</h4>
-                    <ul className="space-y-2">
-                      {mockTopicBreakdown[examId as keyof typeof mockTopicBreakdown]
-                        .filter(item => item.score < 75)
-                        .slice(0, 2)
-                        .map((item, idx) => (
-                          <li key={idx} className="flex items-center">
-                            <BookOpen className="h-4 w-4 mr-2 text-blue-500" />
-                            <span>{item.topic} Concept Review</span>
-                          </li>
-                        ))
-                      }
-                    </ul>
-                  </div>
-                  
-                  <div className="p-3 rounded-lg bg-violet-50 dark:bg-violet-900/20 border border-violet-100 dark:border-violet-800/30">
-                    <h4 className="font-medium mb-2">Practice Suggestions</h4>
-                    <ul className="space-y-2">
-                      {mockTopicBreakdown[examId as keyof typeof mockTopicBreakdown]
-                        .filter(item => item.score < 75)
-                        .slice(0, 2)
-                        .map((item, idx) => (
-                          <li key={idx} className="flex items-center">
-                            <CheckSquare className="h-4 w-4 mr-2 text-violet-500" />
-                            <span>Additional {item.topic} Practice Quiz</span>
-                          </li>
-                        ))
-                      }
-                    </ul>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-            
-            <TabsContent value="questions">
-              {/* Question-by-Question Review */}
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-lg">Question Review</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-6">
-                    {currentExam.questions.map((question: any, index: number) => {
-                      const userAnswer = examResult.answers[question.id] !== undefined ? examResult.answers[question.id] : null;
-                      const isCorrect = userAnswer === question.correctAnswer;
-                      const isExpanded = selectedQuestion === index;
-                      
-                      return (
-                        <div key={question.id} className="border rounded-lg overflow-hidden">
-                          {/* Question Header */}
-                          <div 
-                            className={`p-3 flex justify-between items-center cursor-pointer ${
-                              isCorrect 
-                                ? "bg-green-50 dark:bg-green-900/20 border-b border-green-100 dark:border-green-800/30" 
-                                : "bg-red-50 dark:bg-red-900/20 border-b border-red-100 dark:border-red-800/30"
-                            }`}
-                            onClick={() => setSelectedQuestion(isExpanded ? null : index)}
-                          >
-                            <div className="flex items-center">
-                              <span className="font-medium mr-3">Q{index + 1}.</span>
-                              <span className="text-sm">{question.text.substring(0, 40)}...</span>
-                            </div>
-                            <div className="flex items-center">
-                              {isCorrect ? (
-                                <Badge className="bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300">
-                                  <CheckCircle className="h-3.5 w-3.5 mr-1" /> Correct
-                                </Badge>
-                              ) : (
-                                <Badge className="bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300">
-                                  <XCircle className="h-3.5 w-3.5 mr-1" /> Incorrect
-                                </Badge>
-                              )}
-                            </div>
-                          </div>
-                          
-                          {/* Expanded Question Details */}
-                          {isExpanded && (
-                            <div className="p-4 bg-white dark:bg-gray-800">
-                              <div className="mb-4">
-                                <h4 className="font-medium mb-2">{question.text}</h4>
-                                <div className="space-y-2">
-                                  {question.options.map((option: string, idx: number) => (
-                                    <div 
-                                      key={idx}
-                                      className={`p-2 rounded ${
-                                        idx === question.correctAnswer
-                                          ? "bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800/30"
-                                          : idx === userAnswer
-                                            ? "bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30"
-                                            : "bg-gray-50 dark:bg-gray-800"
-                                      }`}
-                                    >
-                                      <div className="flex items-start">
-                                        <div className="mr-2">
-                                          {idx === question.correctAnswer ? (
-                                            <CheckCircle className="h-4 w-4 text-green-600" />
-                                          ) : idx === userAnswer ? (
-                                            <XCircle className="h-4 w-4 text-red-600" />
-                                          ) : (
-                                            <div className="h-4 w-4" />
-                                          )}
-                                        </div>
-                                        <span className="text-sm">{option}</span>
-                                      </div>
-                                    </div>
-                                  ))}
-                                </div>
-                              </div>
-                              
-                              <div className="text-sm border-t pt-3 text-muted-foreground">
-                                <p>
-                                  {isCorrect 
-                                    ? "Great job! You answered this question correctly." 
-                                    : `You selected option ${userAnswer !== null ? userAnswer + 1 : "none"}, but the correct answer was option ${question.correctAnswer + 1}.`
-                                  }
-                                </p>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-            
-            <TabsContent value="topics">
-              {/* Topic-wise Analysis */}
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-lg">Topics Analysis</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {mockTopicBreakdown[examId as keyof typeof mockTopicBreakdown].map((topic, index) => (
-                      <div key={index} className="space-y-1">
-                        <div className="flex justify-between items-center">
-                          <span className="font-medium">{topic.topic}</span>
-                          <span className={getScoreColor(topic.score)}>{topic.score}%</span>
-                        </div>
-                        <Progress value={topic.score} className="h-2" />
+          <div className="space-x-2">
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => navigate(`/dashboard/student/practice-exam/${examId}/start`)}
+            >
+              Retake Exam
+            </Button>
+            <Button 
+              variant="default" 
+              size="sm"
+            >
+              Review Learning Materials
+            </Button>
+          </div>
+        </div>
+        
+        {/* Question Review */}
+        <Card className="border-t-4 border-t-blue-500">
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between flex-wrap gap-2">
+              <CardTitle className="text-xl">
+                Question {currentQuestionIndex + 1}
+              </CardTitle>
+              <div className="flex items-center gap-2">
+                {flagged[currentQuestion.id] && (
+                  <Badge variant="outline" className="text-amber-500 border-amber-200 bg-amber-50 dark:text-amber-300 dark:border-amber-700 dark:bg-amber-900/20">
+                    <Flag className="h-3.5 w-3.5 mr-1" /> Flagged
+                  </Badge>
+                )}
+                <Badge 
+                  className={isCorrect ? 
+                    "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300" : 
+                    "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300"
+                  }
+                >
+                  {isCorrect ? 
+                    <Check className="h-3.5 w-3.5 mr-1" /> : 
+                    <X className="h-3.5 w-3.5 mr-1" />
+                  }
+                  {isCorrect ? "Correct" : "Incorrect"}
+                </Badge>
+              </div>
+            </div>
+            <p className="text-base mt-2">
+              {currentQuestion.text}
+            </p>
+          </CardHeader>
+          
+          <CardContent className="pb-6">
+            <div className="space-y-3">
+              {currentQuestion.options.map((option: string, index: number) => {
+                const isSelected = selectedAnswer === index;
+                const isCorrectOption = index === currentQuestion.correctOption;
+                
+                return (
+                  <div 
+                    key={index}
+                    className={`p-3 rounded-lg border ${
+                      isCorrectOption ? 
+                        "bg-green-50 border-green-300 dark:bg-green-900/10 dark:border-green-700" :
+                        isSelected ? 
+                          "bg-red-50 border-red-300 dark:bg-red-900/10 dark:border-red-700" :
+                          "border-gray-200 dark:border-gray-700"
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className={`w-6 h-6 flex items-center justify-center rounded-full border text-sm font-medium ${
+                        isCorrectOption ? 
+                          "bg-green-500 text-white border-green-500" :
+                          isSelected ? 
+                            "bg-red-500 text-white border-red-500" :
+                            "border-gray-300 text-gray-500"
+                      }`}>
+                        {String.fromCharCode(65 + index)}
                       </div>
-                    ))}
+                      <span>{option}</span>
+                      {isCorrectOption && <Check className="h-4 w-4 text-green-600 ml-auto" />}
+                      {!isCorrectOption && isSelected && <X className="h-4 w-4 text-red-600 ml-auto" />}
+                    </div>
                   </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
+                );
+              })}
+            </div>
+            
+            {/* Explanation */}
+            <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/10 border border-blue-200 dark:border-blue-800/30 rounded-lg">
+              <h4 className="font-medium flex items-center gap-1.5 mb-1.5">
+                <BookOpen className="h-4 w-4" /> Explanation
+              </h4>
+              <p className="text-sm">
+                {currentQuestion.explanation}
+              </p>
+            </div>
+          </CardContent>
+          
+          <CardFooter className="pt-2 border-t flex justify-between">
+            <Button 
+              variant="outline"
+              onClick={handlePrevious}
+              disabled={currentQuestionIndex === 0}
+            >
+              <ArrowLeft className="h-4 w-4 mr-1" /> Previous
+            </Button>
+            
+            {currentQuestionIndex < currentExam.questions.length - 1 ? (
+              <Button 
+                onClick={handleNext}
+              >
+                Next <ArrowRight className="h-4 w-4 ml-1" />
+              </Button>
+            ) : (
+              <Button 
+                onClick={() => navigate('/dashboard/student/practice-exam')}
+                className="bg-gradient-to-r from-purple-500 to-indigo-600"
+              >
+                Return to Exams <MoveRight className="h-4 w-4 ml-1" />
+              </Button>
+            )}
+          </CardFooter>
+        </Card>
+        
+        {/* Question Navigation */}
+        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border">
+          <h3 className="text-sm font-medium mb-3">Question Navigator</h3>
+          <div className="flex flex-wrap gap-2">
+            {currentExam.questions.map((question: any, index: number) => {
+              const questionAnswer = answers[question.id];
+              const isCorrect = questionAnswer === question.correctOption;
+              const isFlagged = flagged[question.id];
+              const isCurrent = index === currentQuestionIndex;
+              
+              return (
+                <Button 
+                  key={question.id}
+                  variant="outline"
+                  size="icon"
+                  className={`w-8 h-8 ${
+                    isCurrent ? "ring-2 ring-offset-2 ring-blue-500" : ""
+                  } ${
+                    questionAnswer !== undefined ? 
+                      isCorrect ? 
+                        "bg-green-100 border-green-200 text-green-800 dark:bg-green-900/30 dark:border-green-700 dark:text-green-300" : 
+                        "bg-red-100 border-red-200 text-red-800 dark:bg-red-900/30 dark:border-red-700 dark:text-red-300" :
+                      isFlagged ? 
+                        "bg-amber-100 border-amber-200 text-amber-800 dark:bg-amber-900/30 dark:border-amber-700 dark:text-amber-300" :
+                        ""
+                  }`}
+                  onClick={() => setCurrentQuestionIndex(index)}
+                >
+                  {index + 1}
+                </Button>
+              );
+            })}
+          </div>
         </div>
       </div>
     </SharedPageLayout>
