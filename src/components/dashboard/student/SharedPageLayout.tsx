@@ -3,6 +3,7 @@ import React, { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
+import { QuickAccessButtons } from './QuickAccessButtons';
 
 export interface SharedPageLayoutProps {
   title: string;
@@ -38,6 +39,13 @@ export const SharedPageLayout = ({
           {subtitle && <p className="text-muted-foreground">{subtitle}</p>}
         </div>
       </div>
+      
+      {/* Quick access buttons - only shown if requested */}
+      {showQuickAccess && (
+        <div className="my-4">
+          <QuickAccessButtons />
+        </div>
+      )}
       
       {/* Main content */}
       <div className="mt-2">

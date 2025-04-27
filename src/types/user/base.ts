@@ -23,6 +23,7 @@ export interface UserGoal {
   id: string;
   title: string;
   progress: number;
+  targetDate?: string;
 }
 
 export interface UserSubscription {
@@ -44,6 +45,7 @@ export interface UserProfileBase {
   examPreparation?: string;
   personalityType?: string;
   loginCount?: number;
+  joinDate?: string;
 }
 
 export type UserProfileType = UserProfileBase;

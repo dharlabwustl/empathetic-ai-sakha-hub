@@ -1,363 +1,387 @@
 
 import React from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, CheckCircle, Clock, Download, FileText, PieChart, Share2, XCircle } from "lucide-react";
-import { useParams, useNavigate } from 'react-router-dom';
-import { Separator } from '@/components/ui/separator';
-import { Progress } from '@/components/ui/progress';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Progress } from "@/components/ui/progress";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { ArrowLeft, CheckCircle, XCircle, Clock, Book, AlertTriangle, BarChart, PieChart, LineChart } from "lucide-react";
 
 // Mock exam result data
 const mockExamResult = {
-  id: 1,
+  examId: "1",
   title: "Physics Mock Test #1",
   subject: "Physics",
   topics: ["Mechanics", "Optics", "Waves"],
-  questionCount: 30,
-  timeLimit: 60,
-  difficulty: "medium",
   score: 78,
+  totalQuestions: 30,
   correctAnswers: 23,
   incorrectAnswers: 7,
-  completionTime: 48, // minutes
+  timeTaken: "48 minutes",
+  maxTime: "60 minutes",
+  completedOn: "2023-10-25T10:30:00Z",
   topicPerformance: [
-    { topic: "Mechanics", correct: 8, total: 10, percentage: 80 },
-    { topic: "Optics", correct: 7, total: 10, percentage: 70 },
-    { topic: "Waves", correct: 8, total: 10, percentage: 80 },
+    { name: "Mechanics", score: 85, questions: 12 },
+    { name: "Optics", score: 70, questions: 10 },
+    { name: "Waves", score: 75, questions: 8 }
   ],
   questions: [
     {
       id: 1,
-      question: "A body of mass m is thrown vertically upward with an initial velocity v. The work done by the gravitational force during the ascent of the body is:",
-      options: [
-        "mgv",
-        "-mgv",
-        "mgv²/2",
-        "-mgv²/2"
-      ],
-      correctAnswer: 1,
-      userAnswer: 1,
-      explanation: "When a body moves upward against gravity, the work done by the gravitational force is negative because the force and displacement are in opposite directions. The work is equal to -mgh, where h is the height. Since the initial velocity is v and the final velocity is 0, we can use v²/2g as the height (from v² = u² + 2as). This gives us -mg × v²/2g = -mgv²/2."
+      text: "Which of the following correctly describes Newton's First Law of Motion?",
+      userAnswer: "An object at rest stays at rest, and an object in motion stays in motion unless acted upon by an external force",
+      correctAnswer: "An object at rest stays at rest, and an object in motion stays in motion unless acted upon by an external force",
+      isCorrect: true,
+      explanation: "Newton's First Law of Motion states that an object will remain at rest or in uniform motion in a straight line unless acted upon by an external force."
     },
     {
       id: 2,
-      question: "When a ray of light passes from a denser to a rarer medium, which of the following changes?",
-      options: [
-        "Frequency",
-        "Wavelength",
-        "Speed",
-        "Both wavelength and speed"
-      ],
-      correctAnswer: 3,
-      userAnswer: 2,
-      explanation: "When light passes from a denser to a rarer medium, its frequency remains constant, but its speed increases and consequently its wavelength increases (since v = fλ). Therefore, both wavelength and speed change."
+      text: "What is the SI unit of electric current?",
+      userAnswer: "Watt",
+      correctAnswer: "Ampere",
+      isCorrect: false,
+      explanation: "The SI unit of electric current is the ampere (A), not the watt. The watt is the unit of power."
     },
     {
       id: 3,
-      question: "The principle of superposition of waves is applicable to:",
-      options: [
-        "Only mechanical waves",
-        "Only electromagnetic waves",
-        "Both mechanical and electromagnetic waves",
-        "Neither mechanical nor electromagnetic waves"
-      ],
-      correctAnswer: 2,
-      userAnswer: 2,
-      explanation: "The principle of superposition applies to all linear wave systems, which includes both mechanical waves (like sound waves, water waves) and electromagnetic waves (like light waves, radio waves). This principle states that when two or more waves overlap, the resultant displacement is the algebraic sum of the displacements of the individual waves."
+      text: "Which of the following are scalar quantities?",
+      userAnswer: ["Mass", "Temperature"],
+      correctAnswer: ["Mass", "Temperature"],
+      isCorrect: true,
+      explanation: "Mass and temperature are scalar quantities because they have only magnitude and no direction."
     }
-    // More questions would be here in a real app
+    // More questions would be here
+  ],
+  weakAreas: [
+    "Electric Current and Resistance",
+    "Lens Equations",
+    "Doppler Effect"
+  ],
+  recommendations: [
+    "Review the concepts of electric current and resistivity",
+    "Practice problems related to lens equations and image formation",
+    "Focus on wave mechanics, especially the Doppler effect"
   ]
 };
 
 const ExamReviewPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const [activeTab, setActiveTab] = React.useState("overview");
   
-  const examResult = mockExamResult; // In a real app, fetch results by ID
+  // In a real app, fetch results based on id
+  const examResult = mockExamResult;
   
-  const handleBackToExams = () => {
-    navigate('/dashboard/student/practice-exam');
+  const getScoreColor = (score: number) => {
+    if (score >= 80) return "text-green-600";
+    if (score >= 60) return "text-amber-600";
+    return "text-red-600";
   };
-
+  
+  const getProgressColor = (score: number) => {
+    if (score >= 80) return "bg-green-500";
+    if (score >= 60) return "bg-amber-500";
+    return "bg-red-500";
+  };
+  
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+  
   return (
     <SharedPageLayout
-      title={`${examResult.title} - Results`}
-      subtitle={`${examResult.subject} • Completed • Score: ${examResult.score}%`}
+      title={`Exam Result: ${examResult.title}`}
+      subtitle={`${examResult.subject} • Completed on ${formatDate(examResult.completedOn)}`}
+      showBackButton={true}
+      backButtonUrl="/dashboard/student/practice-exam"
+      showQuickAccess={false}
     >
-      <Button
-        variant="outline"
-        size="sm"
-        className="mb-4 flex items-center gap-1"
-        onClick={handleBackToExams}
-      >
-        <ArrowLeft className="h-4 w-4" />
-        <span>Back to Exams</span>
-      </Button>
-      
-      <Tabs defaultValue="summary" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="summary">Summary</TabsTrigger>
-          <TabsTrigger value="questions">Questions Review</TabsTrigger>
-          <TabsTrigger value="analysis">Detailed Analysis</TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="summary" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Performance Summary</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex flex-col items-center space-y-2">
-                  <div className="text-4xl font-bold">{examResult.score}%</div>
-                  <div className="text-muted-foreground">Your Score</div>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4 text-center">
-                  <div>
-                    <div className="text-2xl font-bold text-green-600">{examResult.correctAnswers}</div>
-                    <div className="text-sm text-muted-foreground">Correct</div>
-                  </div>
-                  <div>
-                    <div className="text-2xl font-bold text-red-600">{examResult.incorrectAnswers}</div>
-                    <div className="text-sm text-muted-foreground">Incorrect</div>
-                  </div>
-                </div>
-                
-                <Separator />
-                
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <span className="text-muted-foreground">Completion Time</span>
-                    <span className="font-medium">{examResult.completionTime} min</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-muted-foreground">Time Allowed</span>
-                    <span className="font-medium">{examResult.timeLimit} min</span>
-                  </div>
-                </div>
-              </CardContent>
-              <CardFooter>
-                <div className="w-full flex gap-2">
-                  <Button variant="outline" className="flex-1">
-                    <Share2 className="h-4 w-4 mr-2" />
-                    Share
-                  </Button>
-                  <Button variant="outline" className="flex-1">
-                    <Download className="h-4 w-4 mr-2" />
-                    Download
-                  </Button>
-                </div>
-              </CardFooter>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Topic Performance</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {examResult.topicPerformance.map((topic, index) => (
-                  <div key={index} className="space-y-2">
-                    <div className="flex justify-between">
-                      <span>{topic.topic}</span>
-                      <span className="font-medium">{topic.percentage}%</span>
-                    </div>
-                    <Progress value={topic.percentage} className="h-2" />
-                    <div className="text-sm text-muted-foreground">
-                      {topic.correct} out of {topic.total} questions correct
-                    </div>
-                  </div>
+      <div className="space-y-6">
+        {/* Score Overview */}
+        <Card className="overflow-hidden">
+          <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20">
+            <div className="flex flex-wrap justify-between items-center">
+              <CardTitle>Exam Performance</CardTitle>
+              <div className="flex items-center gap-2">
+                {examResult.topics.map(topic => (
+                  <Badge key={topic} variant="outline">
+                    {topic}
+                  </Badge>
                 ))}
-              </CardContent>
-            </Card>
-          </div>
-          
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Recommendations</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <p>Based on your performance, we recommend focusing on the following areas:</p>
-              <div className="space-y-2">
-                <div className="flex items-start gap-2">
-                  <FileText className="h-5 w-5 text-primary mt-0.5" />
-                  <div>
-                    <p className="font-medium">Review Optics concepts</p>
-                    <p className="text-sm text-muted-foreground">This was your lowest scoring topic. Focus particularly on refraction and reflection.</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-2">
-                  <Clock className="h-5 w-5 text-amber-500 mt-0.5" />
-                  <div>
-                    <p className="font-medium">Practice time management</p>
-                    <p className="text-sm text-muted-foreground">You used 80% of the available time. Try to improve your speed while maintaining accuracy.</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-2">
-                  <PieChart className="h-5 w-5 text-violet-500 mt-0.5" />
-                  <div>
-                    <p className="font-medium">Take another practice test</p>
-                    <p className="text-sm text-muted-foreground">We recommend taking the Physics Mock Test #2 to further improve your skills.</p>
-                  </div>
-                </div>
               </div>
-            </CardContent>
-            <CardFooter>
-              <Button className="w-full">Create Study Plan Based on Results</Button>
-            </CardFooter>
-          </Card>
-        </TabsContent>
-        
-        <TabsContent value="questions" className="space-y-4">
-          {examResult.questions.map((question, index) => (
-            <Card key={index}>
-              <CardHeader className="pb-2">
-                <div className="flex justify-between">
-                  <CardTitle className="text-md">Question {index + 1}</CardTitle>
-                  {question.userAnswer === question.correctAnswer ? (
-                    <Badge className="bg-green-100 text-green-800 border-green-200">
-                      <CheckCircle className="h-3 w-3 mr-1" />
-                      Correct
-                    </Badge>
-                  ) : (
-                    <Badge variant="destructive">
-                      <XCircle className="h-3 w-3 mr-1" />
-                      Incorrect
-                    </Badge>
-                  )}
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <p>{question.question}</p>
-                
-                <div className="space-y-2">
-                  {question.options.map((option, optIndex) => (
-                    <div 
-                      key={optIndex} 
-                      className={`p-3 rounded-md border ${
-                        optIndex === question.correctAnswer
-                          ? "bg-green-50 border-green-200"
-                          : optIndex === question.userAnswer && optIndex !== question.correctAnswer
-                            ? "bg-red-50 border-red-200"
-                            : ""
-                      }`}
-                    >
-                      <div className="flex justify-between">
-                        <span>{option}</span>
-                        {optIndex === question.correctAnswer && (
-                          <CheckCircle className="h-4 w-4 text-green-600" />
-                        )}
-                        {optIndex === question.userAnswer && optIndex !== question.correctAnswer && (
-                          <XCircle className="h-4 w-4 text-red-600" />
-                        )}
-                      </div>
+            </div>
+          </CardHeader>
+          <CardContent className="pt-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm">
+                    Overall Score
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  <div className={`text-4xl font-bold ${getScoreColor(examResult.score)}`}>
+                    {examResult.score}%
+                  </div>
+                  <Progress 
+                    value={examResult.score} 
+                    className={`h-2 mt-2 ${getProgressColor(examResult.score)}`} 
+                  />
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm">
+                    Questions
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1">
+                      <CheckCircle className="h-4 w-4 text-green-600" />
+                      <span className="text-sm">Correct: {examResult.correctAnswers}</span>
                     </div>
+                    <div className="flex items-center gap-1">
+                      <XCircle className="h-4 w-4 text-red-600" />
+                      <span className="text-sm">Incorrect: {examResult.incorrectAnswers}</span>
+                    </div>
+                  </div>
+                  <div className="mt-2 h-4 bg-gray-200 rounded-full overflow-hidden">
+                    <div 
+                      className="h-full bg-green-500" 
+                      style={{ width: `${(examResult.correctAnswers / examResult.totalQuestions) * 100}%` }}
+                    ></div>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm">
+                    Time Taken
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1">
+                      <Clock className="h-4 w-4 text-blue-600" />
+                      <span className="text-sm">{examResult.timeTaken}</span>
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      of {examResult.maxTime}
+                    </div>
+                  </div>
+                  <div className="mt-2 h-4 bg-gray-200 rounded-full overflow-hidden">
+                    <div 
+                      className="h-full bg-blue-500" 
+                      style={{ width: `${(parseInt(examResult.timeTaken) / parseInt(examResult.maxTime)) * 100}%` }}
+                    ></div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+            
+            <Tabs defaultValue={activeTab} onValueChange={setActiveTab} className="w-full">
+              <TabsList className="grid grid-cols-3 mb-4">
+                <TabsTrigger value="overview">Overview</TabsTrigger>
+                <TabsTrigger value="questions">Questions</TabsTrigger>
+                <TabsTrigger value="recommendations">Recommendations</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="overview">
+                <div className="space-y-6">
+                  <div>
+                    <h3 className="font-semibold mb-3 flex items-center gap-2">
+                      <PieChart className="h-5 w-5 text-indigo-500" />
+                      <span>Topic Performance</span>
+                    </h3>
+                    <div className="space-y-3">
+                      {examResult.topicPerformance.map((topic) => (
+                        <div key={topic.name}>
+                          <div className="flex justify-between mb-1">
+                            <div className="flex items-center gap-1">
+                              <span className="text-sm font-medium">{topic.name}</span>
+                              <span className="text-xs text-muted-foreground">({topic.questions} questions)</span>
+                            </div>
+                            <span className={`text-sm font-medium ${getScoreColor(topic.score)}`}>
+                              {topic.score}%
+                            </span>
+                          </div>
+                          <Progress value={topic.score} className={`h-2 ${getProgressColor(topic.score)}`} />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <h3 className="font-semibold mb-3 flex items-center gap-2">
+                        <AlertTriangle className="h-5 w-5 text-amber-500" />
+                        <span>Areas Needing Improvement</span>
+                      </h3>
+                      <Card>
+                        <CardContent className="p-4">
+                          <ul className="space-y-2">
+                            {examResult.weakAreas.map((area, index) => (
+                              <li key={index} className="flex items-start gap-2">
+                                <div className="h-5 w-5 rounded-full bg-amber-100 flex items-center justify-center mt-0.5">
+                                  <span className="text-xs font-bold text-amber-700">{index + 1}</span>
+                                </div>
+                                <span>{area}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </CardContent>
+                      </Card>
+                    </div>
+                    
+                    <div>
+                      <h3 className="font-semibold mb-3 flex items-center gap-2">
+                        <BarChart className="h-5 w-5 text-blue-500" />
+                        <span>Performance Trend</span>
+                      </h3>
+                      <Card>
+                        <CardContent className="p-4">
+                          <div className="h-40 flex items-center justify-center">
+                            <LineChart className="h-8 w-8 text-muted-foreground" />
+                            <p className="text-muted-foreground ml-2">Performance trend graph would appear here</p>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  </div>
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="questions">
+                <div className="space-y-4">
+                  {examResult.questions.map((question, index) => (
+                    <Card key={question.id} className={`border-l-4 ${question.isCorrect ? 'border-l-green-500' : 'border-l-red-500'}`}>
+                      <CardContent className="p-4">
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex items-start gap-2">
+                            <div className="h-6 w-6 rounded-full bg-gray-100 flex items-center justify-center">
+                              <span className="text-xs font-bold">{index + 1}</span>
+                            </div>
+                            <div>
+                              <p className="font-medium mb-2">{question.text}</p>
+                              <div className="space-y-2">
+                                <div className="flex items-start gap-2">
+                                  <span className="text-sm font-medium">Your answer:</span>
+                                  <span className={`text-sm ${question.isCorrect ? 'text-green-600' : 'text-red-600'}`}>
+                                    {Array.isArray(question.userAnswer) 
+                                      ? question.userAnswer.join(", ") 
+                                      : question.userAnswer
+                                    }
+                                  </span>
+                                </div>
+                                
+                                {!question.isCorrect && (
+                                  <div className="flex items-start gap-2">
+                                    <span className="text-sm font-medium">Correct answer:</span>
+                                    <span className="text-sm text-green-600">
+                                      {Array.isArray(question.correctAnswer) 
+                                        ? question.correctAnswer.join(", ") 
+                                        : question.correctAnswer
+                                      }
+                                    </span>
+                                  </div>
+                                )}
+                                
+                                <div className="pt-2 mt-2 border-t">
+                                  <p className="text-sm text-muted-foreground">
+                                    <span className="font-medium">Explanation:</span> {question.explanation}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          
+                          {question.isCorrect ? (
+                            <CheckCircle className="h-5 w-5 text-green-500 mt-1 flex-shrink-0" />
+                          ) : (
+                            <XCircle className="h-5 w-5 text-red-500 mt-1 flex-shrink-0" />
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
                   ))}
                 </div>
-                
-                <div className="bg-indigo-50 p-3 rounded-md border border-indigo-100">
-                  <p className="font-medium text-indigo-800">Explanation</p>
-                  <p className="text-indigo-700 mt-1">{question.explanation}</p>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </TabsContent>
-        
-        <TabsContent value="analysis" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Detailed Performance Analysis</CardTitle>
-              <CardDescription>
-                Insights into your exam performance and areas for improvement
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground mb-6">
-                This detailed analysis shows your performance across different dimensions such as
-                topics, difficulty levels, and question types.
-              </p>
+              </TabsContent>
               
-              <div className="space-y-8">
-                <div>
-                  <h3 className="font-medium mb-2">Performance by Question Type</h3>
-                  <div className="space-y-3">
-                    <div>
-                      <div className="flex justify-between mb-1">
-                        <span>Conceptual Questions</span>
-                        <span>85%</span>
+              <TabsContent value="recommendations">
+                <div className="space-y-4">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Book className="h-5 w-5 text-blue-500" />
+                        <span>Study Recommendations</span>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <ul className="space-y-4">
+                        {examResult.recommendations.map((recommendation, index) => (
+                          <li key={index} className="flex items-start gap-3">
+                            <div className="h-6 w-6 rounded-full bg-blue-100 flex items-center justify-center text-blue-700">
+                              <span className="text-xs font-bold">{index + 1}</span>
+                            </div>
+                            <div>
+                              <p>{recommendation}</p>
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                      
+                      <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <Button className="w-full">
+                          Create Study Plan
+                        </Button>
+                        <Button variant="outline" className="w-full">
+                          Practice Similar Questions
+                        </Button>
                       </div>
-                      <Progress value={85} className="h-2" />
-                    </div>
-                    <div>
-                      <div className="flex justify-between mb-1">
-                        <span>Numerical Problems</span>
-                        <span>70%</span>
+                    </CardContent>
+                  </Card>
+                  
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-lg flex items-center gap-2">
+                        <BarChart className="h-5 w-5 text-indigo-500" />
+                        <span>Comparative Analysis</span>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="h-64 flex items-center justify-center">
+                        <BarChart className="h-8 w-8 text-muted-foreground" />
+                        <p className="text-muted-foreground ml-2">Comparative analysis graph would appear here</p>
                       </div>
-                      <Progress value={70} className="h-2" />
-                    </div>
-                    <div>
-                      <div className="flex justify-between mb-1">
-                        <span>Application Based</span>
-                        <span>75%</span>
-                      </div>
-                      <Progress value={75} className="h-2" />
-                    </div>
-                  </div>
+                    </CardContent>
+                  </Card>
                 </div>
-                
-                <div>
-                  <h3 className="font-medium mb-2">Performance by Difficulty</h3>
-                  <div className="space-y-3">
-                    <div>
-                      <div className="flex justify-between mb-1">
-                        <span>Easy Questions</span>
-                        <span>90%</span>
-                      </div>
-                      <Progress value={90} className="h-2" />
-                    </div>
-                    <div>
-                      <div className="flex justify-between mb-1">
-                        <span>Medium Questions</span>
-                        <span>75%</span>
-                      </div>
-                      <Progress value={75} className="h-2" />
-                    </div>
-                    <div>
-                      <div className="flex justify-between mb-1">
-                        <span>Hard Questions</span>
-                        <span>60%</span>
-                      </div>
-                      <Progress value={60} className="h-2" />
-                    </div>
-                  </div>
-                </div>
-                
-                <div>
-                  <h3 className="font-medium mb-2">Time Distribution</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
-                    <Card className="p-4">
-                      <div className="text-2xl font-bold">1.2 min</div>
-                      <div className="text-sm text-muted-foreground">Average per Question</div>
-                    </Card>
-                    <Card className="p-4">
-                      <div className="text-2xl font-bold">2.5 min</div>
-                      <div className="text-sm text-muted-foreground">Longest on a Question</div>
-                    </Card>
-                    <Card className="p-4">
-                      <div className="text-2xl font-bold">0.5 min</div>
-                      <div className="text-sm text-muted-foreground">Shortest on a Question</div>
-                    </Card>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+        </Card>
+        
+        <div className="flex justify-between">
+          <Button variant="outline" onClick={() => navigate('/dashboard/student/practice-exam')}>
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Exams
+          </Button>
+          <Button onClick={() => navigate(`/dashboard/student/exams/${id}/start`)}>
+            Retake Exam
+          </Button>
+        </div>
+      </div>
     </SharedPageLayout>
   );
 };
