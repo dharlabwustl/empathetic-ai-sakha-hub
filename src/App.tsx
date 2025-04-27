@@ -43,6 +43,7 @@ import "./styles/animations.css";
 import { UserRole } from "./types/user/base";
 
 import StudentProfilePage from "./pages/dashboard/student/ProfilePage";
+import EnhancedProfilePage from "./pages/dashboard/student/EnhancedProfilePage";
 import StudentSettingsPage from "./pages/dashboard/student/SettingsPage";
 import FlashcardsPage from "./pages/dashboard/student/FlashcardsPage";
 import ExamPreparationPage from "./pages/dashboard/student/ExamPreparationPage";
@@ -58,6 +59,8 @@ import FlashcardDetailsPage from "./pages/dashboard/student/FlashcardDetailsPage
 import ExamDetailPage from "./pages/dashboard/student/ExamDetailPage";
 import FeelGoodCornerPage from "./pages/dashboard/student/FeelGoodCornerPage";
 import StudentRoutes from "./routes/studentRoutes";
+import StudyPlanView from "./components/dashboard/student/studyplan/StudyPlanView";
+import TodaysPlanView from "./components/dashboard/student/todays-plan/TodaysPlanView";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -116,6 +119,10 @@ const App = () => {
                     <Route path="/dashboard/student/settings" element={<StudentSettingsPage />} />
                     <Route path="/dashboard/student/wellness" element={<FeelGoodCornerPage />} />
                     <Route path="/dashboard/student/study-groups" element={<StudyGroupsPage />} />
+                    <Route path="/dashboard/student/profile" element={<ProfilePage />} /> 
+                    <Route path="/dashboard/student/enhanced-profile" element={<EnhancedProfilePage />} />
+                    <Route path="/dashboard/student/studyplan" element={<StudyPlanView />} />
+                    <Route path="/dashboard/student/todays-plan" element={<TodaysPlanView />} />
                     
                     <Route path="/dashboard/student/tutor" element={<AIChatTutor userProfile={{
                       id: "1",
