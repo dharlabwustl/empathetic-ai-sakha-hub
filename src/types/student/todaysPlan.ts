@@ -1,3 +1,4 @@
+
 // Types for today's plan
 
 export type TimelineView = 'daily' | 'weekly' | 'monthly';

@@ -40,12 +40,21 @@ export default function FlashcardCard({
     }
   };
 
+  const getBorderColorClass = (diff: string) => {
+    switch (diff) {
+      case 'easy': return 'border-l-green-500';
+      case 'medium': return 'border-l-amber-500';
+      case 'hard': return 'border-l-red-500';
+      default: return 'border-l-slate-500';
+    }
+  };
+
   return (
     <motion.div
       whileHover={{ scale: 1.02 }}
       transition={{ type: "spring", stiffness: 300 }}
     >
-      <Card className="overflow-hidden">
+      <Card className={`overflow-hidden border-l-4 ${getBorderColorClass(difficulty)}`}>
         <div className="bg-gradient-to-r from-violet-100 to-blue-100 dark:from-violet-950 dark:to-blue-950 p-4">
           <div className="flex items-start justify-between">
             <div>
@@ -90,7 +99,7 @@ export default function FlashcardCard({
             <Button variant="ghost" size="sm">
               View Details
             </Button>
-            <Link to={`/dashboard/student/flashcards/${id}`}>
+            <Link to={`/dashboard/student/flashcards/${id}/interactive`}>
               <Button>
                 Study Now
               </Button>
