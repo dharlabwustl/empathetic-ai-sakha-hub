@@ -1,4 +1,3 @@
-
 import * as React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -51,7 +50,6 @@ import StudyGroupsPage from "./pages/dashboard/student/StudyGroupsPage";
 import FeaturesManagementPage from "./pages/admin/FeaturesManagementPage";
 import BatchManagementPage from "./pages/admin/BatchManagementPage";
 
-// New imports for concept pages
 import ConceptsPage from "./pages/dashboard/student/ConceptsPage";
 import ConceptCardDetailPage from "./pages/dashboard/student/ConceptCardDetailPage";
 import AllConceptCardsPage from "./pages/dashboard/student/AllConceptCardsPage";
@@ -79,7 +77,6 @@ const App = () => {
               <Sonner />
               <BrowserRouter>
                 <Routes>
-                  {/* Landing pages */}
                   <Route path="/" element={<Index />} />
                   <Route path="/about" element={<About />} />
                   <Route path="/features" element={<Features />} />
@@ -88,10 +85,8 @@ const App = () => {
                   <Route path="/login" element={<LoginPage />} />
                   <Route path="/login/old" element={<Login />} />
                   
-                  {/* Admin routes */}
                   <Route path="/admin/login" element={<AdminLogin />} />
                   
-                  {/* Fix the AdminRouteGuard usage */}
                   <Route element={<AdminRouteGuard />}>
                     <Route path="/admin/dashboard" element={<AdminDashboard />} />
                     <Route path="/admin/students" element={<StudentsPage />} />
@@ -109,22 +104,20 @@ const App = () => {
                     <Route path="/admin/batch" element={<BatchManagementPage />} />
                   </Route>
                   
-                  {/* Student routes */}
                   <Route element={<ProtectedRoute />}>
                     <Route path="/dashboard/student" element={<Navigate to="/dashboard/student/overview" replace />} />
                     <Route path="/dashboard/student/:tab" element={<StudentDashboard />} />
                     
-                    {/* Concept card routes */}
+                    <Route path="/dashboard/student/studyplan" element={<StudyPlanView />} />
+                    <Route path="/dashboard/student/today" element={<TodaysPlanView />} />
+                    
                     <Route path="/dashboard/student/concepts/all" element={<AllConceptCardsPage />} />
                     <Route path="/dashboard/student/concepts/:conceptId" element={<ConceptCardDetailPage />} />
                     
-                    {/* Flashcard routes */}
                     <Route path="/dashboard/student/flashcards/:flashcardId" element={<FlashcardDetailsPage />} />
                     
-                    {/* Practice exam routes */}
                     <Route path="/dashboard/student/practice-exam/:examId" element={<ExamDetailPage />} />
                     
-                    {/* User profile */}
                     <Route path="/dashboard/student/progress" element={<StudyProgress />} />
                     <Route path="/dashboard/student/profile" element={<StudentProfilePage />} />
                     <Route path="/dashboard/student/settings" element={<StudentSettingsPage />} />
@@ -143,13 +136,11 @@ const App = () => {
                       examPreparation: "IIT-JEE"
                     }} />} />
                     
-                    {/* Other user type dashboards */}
                     <Route path="/dashboard/doctor" element={<DoctorDashboard />} />
                     <Route path="/dashboard/employee" element={<EmployeeDashboard />} />
                     <Route path="/dashboard/founder" element={<FounderDashboard />} />
                   </Route>
                   
-                  {/* 404 page */}
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </BrowserRouter>

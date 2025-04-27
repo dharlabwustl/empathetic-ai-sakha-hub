@@ -22,7 +22,8 @@ import {
   Video,
   Users,
   Bell,
-  User
+  User,
+  Target
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SidebarAvatar } from "./SidebarAvatar";
@@ -50,6 +51,7 @@ const SidebarNav = ({
   const navItems = [
     { icon: <Home size={20} />, title: "Dashboard", tab: "overview", path: "/dashboard/student/overview" },
     { icon: <Calendar size={20} />, title: "Today's Plan", tab: "today", path: "/dashboard/student/today" },
+    { icon: <Target size={20} />, title: "Study Plan", tab: "studyplan", path: "/dashboard/student/studyplan" },
     { icon: <BookMarked size={20} />, title: "Academic Advisor", tab: "academic", path: "/dashboard/student/academic" },
     { icon: <Brain size={20} />, title: "Concept Cards", tab: "concepts", path: "/dashboard/student/concepts" },
     { icon: <BookOpen size={20} />, title: "Flashcards", tab: "flashcards", path: "/dashboard/student/flashcards" },

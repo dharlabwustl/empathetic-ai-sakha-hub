@@ -20,6 +20,25 @@ export function TodayPlanView() {
   );
 }
 
+export function StudyPlanView() {
+  return (
+    <SharedPageLayout 
+      title="Complete Study Plan"
+      subtitle="Your comprehensive study calendar and exam preparation path"
+    >
+      <div className="space-y-6">
+        <h2 className="text-2xl font-bold">Exam Goal Study Plan</h2>
+        <div className="grid grid-cols-1 gap-4">
+          <Card className="p-6">
+            <p className="mb-4">This comprehensive study plan is specifically designed for your exam goal.</p>
+            <p>It includes a full calendar view of your preparation schedule, topic breakdowns, and milestone tracking.</p>
+          </Card>
+        </div>
+      </div>
+    </SharedPageLayout>
+  );
+}
+
 export function ConceptsView() {
   return (
     <SharedPageLayout 
