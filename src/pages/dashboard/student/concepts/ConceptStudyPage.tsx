@@ -8,6 +8,7 @@ import { BookmarkIcon, Share2, Mic, Volume2 } from 'lucide-react';
 import { ConceptStudyData } from '@/types/student/study';
 import { useToast } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
+import ConceptExplanationContent from '@/components/dashboard/student/concept-cards/ConceptExplanationContent';
 
 const ConceptStudyPage = () => {
   const { conceptId } = useParams();
@@ -40,7 +41,6 @@ const ConceptStudyPage = () => {
 
   const toggleVoiceRead = () => {
     setIsReading(!isReading);
-    // TODO: Implement text-to-speech
     toast({
       title: isReading ? "Voice Read Stopped" : "Voice Read Started",
       duration: 2000
@@ -73,20 +73,7 @@ const ConceptStudyPage = () => {
           </div>
         </CardHeader>
         <CardContent>
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-            <TabsList>
-              <TabsTrigger value="simple">Simple</TabsTrigger>
-              <TabsTrigger value="detailed">Detailed</TabsTrigger>
-              <TabsTrigger value="examples">Examples</TabsTrigger>
-              <TabsTrigger value="diagrams">Diagrams</TabsTrigger>
-              <TabsTrigger value="exam">Exam Tips</TabsTrigger>
-              <TabsTrigger value="mistakes">Common Mistakes</TabsTrigger>
-              <TabsTrigger value="video">Video</TabsTrigger>
-            </TabsList>
-
-            {/* Add tab content sections */}
-            {/* ... Implement each TabsContent section similarly */}
-          </Tabs>
+          <ConceptExplanationContent conceptTitle={concept.title} />
         </CardContent>
       </Card>
 
