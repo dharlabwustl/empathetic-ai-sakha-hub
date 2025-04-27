@@ -5,11 +5,8 @@ import { Button } from "@/components/ui/button";
 import { 
   CalendarDays, 
   GraduationCap, 
-  FileText, 
-  BookOpen,
-  Clock, 
-  User,
-  Brain
+  Heart,
+  MessageSquare
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -19,47 +16,25 @@ export const QuickAccess = () => {
   
   const quickLinks = [
     {
+      path: '/dashboard/student/tutor',
+      icon: <MessageSquare className="h-5 w-5" />,
+      label: '24/7 AI Tutor'
+    },
+    {
       path: '/dashboard/student/studyplan',
       icon: <CalendarDays className="h-5 w-5" />,
-      label: 'Study Plan',
-      description: 'Review your complete study schedule'
-    },
-    {
-      path: '/dashboard/student/todays-plan',
-      icon: <Clock className="h-5 w-5" />,
-      label: 'Today\'s Plan',
-      description: 'See what to study today'
-    },
-    {
-      path: '/dashboard/student/concepts',
-      icon: <BookOpen className="h-5 w-5" />,
-      label: 'Concepts',
-      description: 'Browse study concepts'
-    },
-    {
-      path: '/dashboard/student/flashcards',
-      icon: <Brain className="h-5 w-5" />,
-      label: 'Flashcards',
-      description: 'Review with flashcards'
-    },
-    {
-      path: '/dashboard/student/practice-exam',
-      icon: <FileText className="h-5 w-5" />,
-      label: 'Practice Exams',
-      description: 'Test your knowledge'
+      label: 'Study Plan'
     },
     {
       path: '/dashboard/student/academic',
       icon: <GraduationCap className="h-5 w-5" />,
-      label: 'Academic Advisor',
-      description: 'Get personalized guidance'
+      label: 'Academic Advisor'
     },
     {
-      path: '/dashboard/student/profile',
-      icon: <User className="h-5 w-5" />,
-      label: 'Profile',
-      description: 'View your profile'
-    },
+      path: '/dashboard/student/feel-good-corner',
+      icon: <Heart className="h-5 w-5" />,
+      label: 'Feel Good Corner'
+    }
   ];
   
   return (

@@ -12,6 +12,7 @@ import ExamReadinessMeter from './metrics/ExamReadinessMeter';
 import { motion } from "framer-motion";
 import { Coffee, BookOpen, AlertCircle } from 'lucide-react';
 import { useMediaQuery } from "@/hooks/useMediaQuery";
+import SubscriptionBanner from "@/components/dashboard/student/SubscriptionBanner";
 import { SubscriptionType } from "@/types/user/base";
 
 interface DashboardOverviewProps {
@@ -80,7 +81,7 @@ export default function DashboardOverview({
 
   // Helper function to determine user's subscription type
   const getUserSubscriptionType = (): string => {
-    if (!userProfile.subscription) return 'Basic';
+    if (!userProfile.subscription) return 'free';
     
     if (typeof userProfile.subscription === 'object') {
       return userProfile.subscription.planType;
@@ -108,6 +109,11 @@ export default function DashboardOverview({
       initial="hidden"
       animate="visible"
     >
+      {/* Subscription Banner */}
+      <motion.div variants={itemVariants} className="mb-6">
+        <SubscriptionBanner subscription={userProfile.subscription} />
+      </motion.div>
+
       {/* Study Tip Banner */}
       <motion.div
         variants={itemVariants}

@@ -163,9 +163,6 @@ const ConceptCard: React.FC<ConceptCardProps> = ({
             
             <div className="flex items-center gap-2">
               <h3 className="font-semibold truncate">{title}</h3>
-              <Badge variant="outline" className="text-xs">
-                {difficulty.toUpperCase()}
-              </Badge>
             </div>
           </CardHeader>
           

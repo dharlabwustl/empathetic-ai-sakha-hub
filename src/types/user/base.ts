@@ -1,54 +1,60 @@
 
-export enum UserRole {
-  Student = "student",
-  Employee = "employee",
-  Doctor = "doctor",
-  Founder = "founder",
-  Admin = "admin",
-}
-
-export enum SubscriptionPlan {
-  Free = "free",
-  Basic = "basic",
-  Premium = "premium",
-  Enterprise = "enterprise",
-}
-
-export type UserProfileBase = {
-  id: string;
-  name: string;
-  email: string;
-  role: UserRole;
-  avatar?: string;
-  loginCount?: number;
-};
-
-export type StudentProfile = {
-  goals?: { id: string; title: string; progress: number }[];
-  examPreparation?: string;
-  personalityType?: string;
-  studyHabits?: string;
-  learningPreferences?: string;
-  subscription?: SubscriptionType | SubscriptionDetails;
-};
-
-export type SubscriptionDetails = {
-  planId?: string;
-  planType: SubscriptionType | string;
-  isActive: boolean;
-  startDate: string;
-  expiryDate: string;
-  features: string[];
-};
-
-export type UserProfileType = UserProfileBase & StudentProfile;
-
-// Add MoodType enumeration
-export type MoodType = 'sad' | 'neutral' | 'happy' | 'motivated' | 'focused' | 'tired' | 'confused' | 'anxious' | 'stressed' | 'overwhelmed' | 'curious' | 'okay';
-
+// Define subscription types
 export enum SubscriptionType {
   Free = 'free',
   Basic = 'basic',
   Premium = 'premium',
-  Enterprise = 'enterprise'
+  Pro = 'pro',
+  Standard = 'standard',
+  School = 'school',
+  Corporate = 'corporate'
+}
+
+export type MoodType = 'happy' | 'focused' | 'tired' | 'stressed' | 'confused' | 'motivated' | undefined;
+
+export interface UserSubscription {
+  type: SubscriptionType;
+  isActive: boolean;
+  startDate: string;
+  expiryDate: string;
+}
+
+export interface SubscriptionDetails {
+  planType: string;
+  isActive: boolean;
+  startDate: string;
+  expiryDate: string;
+  features?: string[];
+}
+
+export interface UserProfileBase {
+  id: string;
+  name: string;
+  email: string;
+  phoneNumber?: string;
+  role: string;
+  subscription?: SubscriptionType | SubscriptionDetails;
+  avatar?: string;
+  bio?: string;
+  school?: string;
+  grade?: string | number;
+  goals?: { id: string; title: string; progress: number; targetDate?: string }[];
+  streak?: {
+    current: number;
+    max: number;
+    lastActive?: string;
+  };
+  stats?: {
+    [key: string]: number;
+  };
+  loginCount?: number;
+  lastLogin?: string;
+  joinDate?: string;
+  mood?: MoodType;
+}
+
+export interface UserAuthBase {
+  isLoggedIn: boolean;
+  token?: string;
+  user?: UserProfileBase | null;
 }
