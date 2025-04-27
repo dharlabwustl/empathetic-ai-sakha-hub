@@ -1,369 +1,330 @@
 
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
-import { Badge } from '@/components/ui/badge';
-import { Clock, AlertCircle, ArrowRight, ArrowLeft, Flag, Check } from 'lucide-react';
+import React, { useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { Timer, Flag, ChevronLeft, ChevronRight, Save } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
-import { Radio } from '@/components/ui/radio';
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
-// Mock question data
-const mockExams = {
-  "physics": {
-    id: "physics",
-    title: "Physics - Mechanics and Thermodynamics",
-    description: "Test your knowledge of basic physics concepts",
-    timeLimit: 45, // in minutes
+// Mock exam data
+const getMockExam = (examId: string) => {
+  return {
+    id: examId,
+    title: "Physics Mid-Term Exam",
+    subject: "Physics",
+    duration: 60, // minutes
+    totalQuestions: 5,
     questions: [
       {
         id: "q1",
-        text: "What is Newton's First Law of Motion?",
+        text: "Which of the following correctly describes Newton's First Law of Motion?",
+        type: "single",
         options: [
-          "An object at rest stays at rest, and an object in motion stays in motion unless acted upon by an external force",
-          "Force equals mass times acceleration",
-          "For every action, there is an equal and opposite reaction",
-          "Energy can neither be created nor destroyed, only transformed"
+          { id: "a", text: "Force equals mass times acceleration" },
+          { id: "b", text: "An object at rest stays at rest, and an object in motion stays in motion unless acted upon by an external force" },
+          { id: "c", text: "For every action, there is an equal and opposite reaction" },
+          { id: "d", text: "The acceleration of an object decreases as its mass increases" }
         ],
-        correctOption: 0
+        correctOption: "b",
+        explanation: "Newton's First Law states that an object will remain at rest or in uniform motion in a straight line unless acted upon by an external force."
       },
       {
         id: "q2",
-        text: "Which of the following is the SI unit of energy?",
+        text: "What is the SI unit of electric current?",
+        type: "single",
         options: [
-          "Newton",
-          "Joule",
-          "Watt",
-          "Pascal"
+          { id: "a", text: "Volt" },
+          { id: "b", text: "Watt" },
+          { id: "c", text: "Ampere" },
+          { id: "d", text: "Ohm" }
         ],
-        correctOption: 1
+        correctOption: "c",
+        explanation: "The ampere (A) is the SI unit of electric current."
       },
       {
         id: "q3",
-        text: "The principle of conservation of energy states that:",
+        text: "Which of the following are examples of scalar quantities? (Select all that apply)",
+        type: "multiple",
         options: [
-          "Energy is always lost in any process",
-          "Energy can be created but not destroyed",
-          "Energy can neither be created nor destroyed, only transformed",
-          "Energy is proportional to mass"
+          { id: "a", text: "Mass" },
+          { id: "b", text: "Velocity" },
+          { id: "c", text: "Temperature" },
+          { id: "d", text: "Displacement" }
         ],
-        correctOption: 2
+        correctOptions: ["a", "c"],
+        explanation: "Scalar quantities have only magnitude and no direction. Mass and temperature are scalar quantities, while velocity and displacement are vector quantities."
       },
       {
         id: "q4",
-        text: "What does the Second Law of Thermodynamics state?",
+        text: "What is the formula for calculating kinetic energy?",
+        type: "single",
         options: [
-          "Heat naturally flows from cold to hot",
-          "Entropy of an isolated system always decreases",
-          "Energy is conserved in all processes",
-          "The entropy of an isolated system always increases over time"
+          { id: "a", text: "KE = mgh" },
+          { id: "b", text: "KE = ½mv²" },
+          { id: "c", text: "KE = Fd" },
+          { id: "d", text: "KE = P/V" }
         ],
-        correctOption: 3
+        correctOption: "b",
+        explanation: "Kinetic energy (KE) is calculated using the formula KE = ½mv², where m is mass and v is velocity."
       },
       {
         id: "q5",
-        text: "Which of these is NOT a form of energy?",
+        text: "Which of the following statements about waves are correct? (Select all that apply)",
+        type: "multiple",
         options: [
-          "Kinetic energy",
-          "Nuclear energy",
-          "Mass energy",
-          "Momentum energy"
+          { id: "a", text: "Sound waves are longitudinal waves" },
+          { id: "b", text: "Light waves require a medium to travel" },
+          { id: "c", text: "The wavelength is the distance between consecutive crests or troughs" },
+          { id: "d", text: "The frequency of a wave is measured in meters" }
         ],
-        correctOption: 3
+        correctOptions: ["a", "c"],
+        explanation: "Sound waves are longitudinal waves, and wavelength is indeed the distance between consecutive crests or troughs. Light waves do not require a medium to travel, and frequency is measured in hertz (Hz), not meters."
       }
     ]
-  },
-  "chemistry": {
-    id: "chemistry",
-    title: "Chemistry - Periodic Table and Reactions",
-    description: "Test your knowledge of basic chemistry concepts",
-    timeLimit: 30,
-    questions: [
-      {
-        id: "q1",
-        text: "What is the atomic number of oxygen?",
-        options: [
-          "6",
-          "8",
-          "16",
-          "32"
-        ],
-        correctOption: 1
-      },
-      {
-        id: "q2",
-        text: "Which element has the highest electronegativity?",
-        options: [
-          "Oxygen",
-          "Chlorine",
-          "Fluorine",
-          "Nitrogen"
-        ],
-        correctOption: 2
-      },
-      {
-        id: "q3",
-        text: "What type of bond forms between atoms of similar electronegativity?",
-        options: [
-          "Ionic bond",
-          "Metallic bond",
-          "Covalent bond",
-          "Hydrogen bond"
-        ],
-        correctOption: 2
-      }
-    ]
-  }
+  };
 };
 
-export default function ExamTakingPage() {
+const ExamTakingPage = () => {
   const { examId } = useParams<{ examId: string }>();
   const navigate = useNavigate();
+  const exam = getMockExam(examId || "default");
   
-  const [currentExam, setCurrentExam] = useState<any>(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [selectedAnswers, setSelectedAnswers] = useState<Record<string, number>>({});
-  const [flaggedQuestions, setFlaggedQuestions] = useState<Record<string, boolean>>({});
-  const [remainingTime, setRemainingTime] = useState(0);
-  const [isExamSubmitted, setIsExamSubmitted] = useState(false);
+  const [answers, setAnswers] = useState<Record<string, string | string[]>>({});
+  const [flaggedQuestions, setFlaggedQuestions] = useState<string[]>([]);
+  const [timeRemaining, setTimeRemaining] = useState(exam.duration * 60); // in seconds
   
-  useEffect(() => {
-    if (examId && mockExams[examId as keyof typeof mockExams]) {
-      const exam = mockExams[examId as keyof typeof mockExams];
-      setCurrentExam(exam);
-      setRemainingTime(exam.timeLimit * 60); // Convert to seconds
-    }
-  }, [examId]);
+  const currentQuestion = exam.questions[currentQuestionIndex];
+  const progress = ((currentQuestionIndex + 1) / exam.questions.length) * 100;
   
-  useEffect(() => {
-    if (remainingTime <= 0) {
-      if (!isExamSubmitted) {
-        handleSubmitExam();
-      }
-      return;
-    }
-    
-    const timer = setInterval(() => {
-      setRemainingTime(prev => prev - 1);
-    }, 1000);
-    
-    return () => clearInterval(timer);
-  }, [remainingTime, isExamSubmitted]);
-  
-  const formatTime = (seconds: number) => {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
+  // Handle single choice selection
+  const handleSingleChoice = (value: string) => {
+    setAnswers({
+      ...answers,
+      [currentQuestion.id]: value
+    });
   };
   
-  const handleAnswerSelect = (questionId: string, optionIndex: number) => {
-    setSelectedAnswers(prev => ({
-      ...prev,
-      [questionId]: optionIndex
-    }));
-  };
-  
-  const handleFlagQuestion = () => {
-    if (!currentExam) return;
+  // Handle multiple choice selection
+  const handleMultipleChoice = (optionId: string) => {
+    const currentSelections = answers[currentQuestion.id] as string[] || [];
+    const updatedSelections = currentSelections.includes(optionId)
+      ? currentSelections.filter(id => id !== optionId)
+      : [...currentSelections, optionId];
     
-    const questionId = currentExam.questions[currentQuestionIndex].id;
-    setFlaggedQuestions(prev => ({
-      ...prev,
-      [questionId]: !prev[questionId]
-    }));
+    setAnswers({
+      ...answers,
+      [currentQuestion.id]: updatedSelections
+    });
   };
   
-  const handleNext = () => {
-    if (currentQuestionIndex < (currentExam?.questions?.length || 0) - 1) {
-      setCurrentQuestionIndex(prev => prev + 1);
+  // Navigate to the next question
+  const handleNextQuestion = () => {
+    if (currentQuestionIndex < exam.questions.length - 1) {
+      setCurrentQuestionIndex(currentQuestionIndex + 1);
     }
   };
   
-  const handlePrevious = () => {
+  // Navigate to the previous question
+  const handlePreviousQuestion = () => {
     if (currentQuestionIndex > 0) {
-      setCurrentQuestionIndex(prev => prev - 1);
+      setCurrentQuestionIndex(currentQuestionIndex - 1);
     }
   };
   
+  // Flag/unflag current question
+  const handleToggleFlag = () => {
+    if (flaggedQuestions.includes(currentQuestion.id)) {
+      setFlaggedQuestions(flaggedQuestions.filter(id => id !== currentQuestion.id));
+    } else {
+      setFlaggedQuestions([...flaggedQuestions, currentQuestion.id]);
+    }
+  };
+  
+  // Submit the exam
   const handleSubmitExam = () => {
-    setIsExamSubmitted(true);
-    // Calculate score
+    // Calculate the score based on answers
+    const score = calculateScore();
+    
+    // In a real app, save the results to backend
+    console.log("Exam submitted:", {
+      examId,
+      answers,
+      score
+    });
+    
+    // Navigate to the review page
+    navigate(`/dashboard/student/practice-exam/${examId}/review`);
+  };
+  
+  // Calculate the score
+  const calculateScore = () => {
     let score = 0;
-    currentExam?.questions.forEach((q: any) => {
-      if (selectedAnswers[q.id] === q.correctOption) {
-        score++;
+    
+    exam.questions.forEach(question => {
+      const userAnswer = answers[question.id];
+      
+      if (question.type === "single" && userAnswer === question.correctOption) {
+        score += 1;
+      } else if (question.type === "multiple") {
+        const userSelections = userAnswer as string[] || [];
+        const correctOptions = question.correctOptions || [];
+        
+        if (
+          userSelections.length === correctOptions.length &&
+          userSelections.every(selection => correctOptions.includes(selection))
+        ) {
+          score += 1;
+        }
       }
     });
     
-    // Navigate to results page
-    navigate(`/dashboard/student/practice-exam/${examId}/review`, { 
-      state: { 
-        answers: selectedAnswers,
-        flagged: flaggedQuestions,
-        score,
-        totalQuestions: currentExam?.questions.length
-      } 
-    });
+    return score;
   };
   
-  if (!currentExam) {
-    return (
-      <SharedPageLayout 
-        title="Practice Exam"
-        subtitle="Loading exam..."
-      >
-        <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-        </div>
-      </SharedPageLayout>
-    );
-  }
+  // Format the remaining time
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+  };
   
   return (
-    <SharedPageLayout 
-      title={currentExam.title}
-      subtitle={currentExam.description}
+    <SharedPageLayout
+      title={exam.title}
+      subtitle={`${exam.subject} · ${exam.questions.length} questions · ${exam.duration} minutes`}
+      showBackButton={true}
+      backButtonUrl="/dashboard/student/practice-exam"
     >
       <div className="space-y-6">
-        {/* Header with progress and timer */}
-        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border shadow-sm flex flex-wrap justify-between items-center gap-4">
-          <div className="flex items-center gap-3">
-            <Badge variant={remainingTime < 300 ? "destructive" : "outline"} className="flex items-center">
-              <Clock className="h-3.5 w-3.5 mr-1" />
-              {formatTime(remainingTime)}
-            </Badge>
-            <div className="text-sm">
-              Question {currentQuestionIndex + 1} of {currentExam.questions.length}
-            </div>
+        {/* Exam Info and Timer */}
+        <div className="flex justify-between items-center">
+          <div className="flex items-center gap-2">
+            <span className="font-medium">Question {currentQuestionIndex + 1} of {exam.questions.length}</span>
+            {flaggedQuestions.includes(currentQuestion.id) && (
+              <span className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300 text-xs py-0.5 px-2 rounded-full">
+                Flagged
+              </span>
+            )}
           </div>
-          
-          <div className="flex items-center gap-3">
-            <div className="text-sm">
-              {Object.keys(selectedAnswers).length} of {currentExam.questions.length} answered
-            </div>
-            <Button 
-              variant="destructive" 
-              size="sm"
-              onClick={handleSubmitExam}
-            >
-              Submit Exam
-            </Button>
+          <div className="flex items-center gap-2 bg-primary/5 px-3 py-1 rounded-full">
+            <Timer size={16} className="text-primary" />
+            <span className="font-medium">{formatTime(timeRemaining)}</span>
           </div>
         </div>
         
-        {/* Progress bar */}
-        <Progress 
-          value={(currentQuestionIndex / (currentExam.questions.length - 1)) * 100} 
-          className="h-1.5" 
-        />
+        {/* Progress Bar */}
+        <Progress value={progress} className="h-2" />
         
         {/* Question Card */}
-        <Card className="border-t-4 border-t-blue-500">
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-xl">
-                Question {currentQuestionIndex + 1}
+        <motion.div
+          key={currentQuestion.id}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          <Card className="shadow-md">
+            <CardHeader>
+              <CardTitle className="text-lg font-medium flex justify-between items-start">
+                <span>{currentQuestion.text}</span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className={`ml-2 ${flaggedQuestions.includes(currentQuestion.id) ? 'bg-yellow-100 dark:bg-yellow-900/30' : ''}`}
+                  onClick={handleToggleFlag}
+                >
+                  <Flag className="h-4 w-4" />
+                </Button>
               </CardTitle>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleFlagQuestion}
-                className={flaggedQuestions[currentExam.questions[currentQuestionIndex].id] ? "text-red-500" : ""}
-              >
-                <Flag className={`h-4 w-4 mr-1 ${flaggedQuestions[currentExam.questions[currentQuestionIndex].id] ? "fill-red-500 text-red-500" : ""}`} />
-                {flaggedQuestions[currentExam.questions[currentQuestionIndex].id] ? "Flagged" : "Flag for Review"}
-              </Button>
-            </div>
-            <p className="text-base mt-2">
-              {currentExam.questions[currentQuestionIndex].text}
-            </p>
-          </CardHeader>
-          
-          <CardContent className="pb-6">
-            <div className="space-y-3">
-              {currentExam.questions[currentQuestionIndex].options.map((option: string, index: number) => {
-                const isSelected = selectedAnswers[currentExam.questions[currentQuestionIndex].id] === index;
-                return (
-                  <div 
-                    key={index}
-                    className={`p-3 rounded-lg cursor-pointer border transition-colors ${
-                      isSelected ? "bg-blue-50 border-blue-300 dark:bg-blue-900/20 dark:border-blue-700" : "border-gray-200 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800/50"
-                    }`}
-                    onClick={() => handleAnswerSelect(currentExam.questions[currentQuestionIndex].id, index)}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className={`w-6 h-6 flex items-center justify-center rounded-full border text-sm font-medium ${
-                        isSelected ? "bg-blue-500 text-white border-blue-500" : "border-gray-300 text-gray-500"
-                      }`}>
-                        {String.fromCharCode(65 + index)}
-                      </div>
-                      <span>{option}</span>
+            </CardHeader>
+            <CardContent>
+              {currentQuestion.type === "single" ? (
+                <RadioGroup
+                  value={answers[currentQuestion.id] as string || ""}
+                  onValueChange={handleSingleChoice}
+                  className="space-y-3"
+                >
+                  {currentQuestion.options.map((option) => (
+                    <div key={option.id} className="flex items-center space-x-2">
+                      <RadioGroupItem value={option.id} id={`${currentQuestion.id}-${option.id}`} />
+                      <Label htmlFor={`${currentQuestion.id}-${option.id}`}>{option.text}</Label>
                     </div>
-                  </div>
-                );
-              })}
-            </div>
-          </CardContent>
-          
-          <CardFooter className="pt-2 border-t flex justify-between">
-            <Button 
-              variant="outline"
-              onClick={handlePrevious}
-              disabled={currentQuestionIndex === 0}
-            >
-              <ArrowLeft className="h-4 w-4 mr-1" /> Previous
-            </Button>
-            
-            {currentQuestionIndex < currentExam.questions.length - 1 ? (
-              <Button 
-                onClick={handleNext}
-              >
-                Next <ArrowRight className="h-4 w-4 ml-1" />
-              </Button>
-            ) : (
-              <Button 
-                onClick={handleSubmitExam}
-                className="bg-gradient-to-r from-green-500 to-emerald-600"
-              >
-                <Check className="h-4 w-4 mr-1" /> Complete Exam
-              </Button>
-            )}
-          </CardFooter>
-        </Card>
+                  ))}
+                </RadioGroup>
+              ) : (
+                <div className="space-y-3">
+                  {currentQuestion.options.map((option) => (
+                    <div key={option.id} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`${currentQuestion.id}-${option.id}`}
+                        checked={(answers[currentQuestion.id] as string[] || []).includes(option.id)}
+                        onCheckedChange={() => handleMultipleChoice(option.id)}
+                      />
+                      <Label htmlFor={`${currentQuestion.id}-${option.id}`}>{option.text}</Label>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+            <CardFooter className="flex justify-between">
+              <div>
+                <Button
+                  variant="outline"
+                  disabled={currentQuestionIndex === 0}
+                  onClick={handlePreviousQuestion}
+                >
+                  <ChevronLeft size={16} className="mr-1" /> Previous
+                </Button>
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => {}} // Save progress in a real implementation
+                >
+                  <Save size={16} className="mr-1" /> Save
+                </Button>
+                {currentQuestionIndex < exam.questions.length - 1 ? (
+                  <Button
+                    onClick={handleNextQuestion}
+                  >
+                    Next <ChevronRight size={16} className="ml-1" />
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={handleSubmitExam}
+                  >
+                    Submit Exam
+                  </Button>
+                )}
+              </div>
+            </CardFooter>
+          </Card>
+        </motion.div>
         
         {/* Question Navigation */}
-        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border">
-          <h3 className="text-sm font-medium mb-3">Questions</h3>
-          <div className="flex flex-wrap gap-2">
-            {currentExam.questions.map((question: any, index: number) => {
-              const isAnswered = selectedAnswers[question.id] !== undefined;
-              const isFlagged = flaggedQuestions[question.id];
-              const isCurrent = index === currentQuestionIndex;
-              
-              return (
-                <Button 
-                  key={question.id}
-                  variant="outline"
-                  size="icon"
-                  className={`w-8 h-8 ${
-                    isCurrent ? "ring-2 ring-offset-2 ring-blue-500" : ""
-                  } ${
-                    isAnswered ? 
-                      "bg-blue-100 border-blue-200 text-blue-800 dark:bg-blue-900/30 dark:border-blue-700 dark:text-blue-300" : 
-                      isFlagged ? 
-                        "bg-red-100 border-red-200 text-red-800 dark:bg-red-900/30 dark:border-red-700 dark:text-red-300" :
-                        ""
-                  }`}
-                  onClick={() => setCurrentQuestionIndex(index)}
-                >
-                  {index + 1}
-                </Button>
-              );
-            })}
-          </div>
+        <div className="flex flex-wrap gap-2">
+          {exam.questions.map((question, index) => (
+            <Button
+              key={question.id}
+              variant={currentQuestionIndex === index ? "default" : "outline"}
+              size="sm"
+              className={`w-10 h-10 p-0 ${answers[question.id] ? 'border-primary/40' : ''} ${
+                flaggedQuestions.includes(question.id) ? 'bg-yellow-100 dark:bg-yellow-900/30 border-yellow-300' : ''
+              }`}
+              onClick={() => setCurrentQuestionIndex(index)}
+            >
+              {index + 1}
+            </Button>
+          ))}
         </div>
       </div>
     </SharedPageLayout>
   );
-}
+};
+
+export default ExamTakingPage;
