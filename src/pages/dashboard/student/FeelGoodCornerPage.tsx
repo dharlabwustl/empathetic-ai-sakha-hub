@@ -1,34 +1,64 @@
 
-import React from 'react';
+import React, { useState } from 'react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card } from '@/components/ui/card';
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
-import FeelGoodCorner from '@/components/dashboard/student/feel-good-corner/FeelGoodCorner';
+import JokesTab from '@/components/dashboard/student/feel-good-corner/JokesTab';
+import VideosTab from '@/components/dashboard/student/feel-good-corner/VideosTab';
+import TeasersTab from '@/components/dashboard/student/feel-good-corner/TeasersTab';
+import DoodleTab from '@/components/dashboard/student/feel-good-corner/DoodleTab';
 
 const FeelGoodCornerPage = () => {
+  const [activeTab, setActiveTab] = useState("jokes");
+
   return (
     <SharedPageLayout
       title="Feel Good Corner"
-      subtitle="Take a moment to relax, reflect, and refresh your mind"
+      subtitle="Take a break, recharge, and boost your mood"
     >
-      <div className="max-w-3xl mx-auto">
-        <FeelGoodCorner />
-        
-        <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-100 dark:border-blue-800/30">
-          <h2 className="text-lg font-medium mb-2">Why Take Breaks?</h2>
-          <p className="text-sm mb-4">
-            Research shows that taking short mental breaks can improve focus, retention, and overall productivity.
-            It helps your brain process and consolidate information you've been studying.
-          </p>
+      <Card className="p-6">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          <TabsList className="grid grid-cols-5 gap-2">
+            <TabsTrigger value="jokes">Jokes</TabsTrigger>
+            <TabsTrigger value="videos">Videos</TabsTrigger>
+            <TabsTrigger value="teasers">Brain Teasers</TabsTrigger>
+            <TabsTrigger value="doodle">Doodle</TabsTrigger>
+            <TabsTrigger value="sakha">Sakha Chat</TabsTrigger>
+          </TabsList>
           
-          <h3 className="font-medium mb-2">Benefits of Mental Refreshers:</h3>
-          <ul className="list-disc pl-5 text-sm space-y-1">
-            <li>Reduced mental fatigue and stress</li>
-            <li>Improved information retention</li>
-            <li>Enhanced creative problem-solving</li>
-            <li>Better focus when you return to studying</li>
-            <li>Improved emotional well-being</li>
-          </ul>
-        </div>
-      </div>
+          <TabsContent value="jokes" className="space-y-4">
+            <JokesTab />
+          </TabsContent>
+          
+          <TabsContent value="videos" className="space-y-4">
+            <VideosTab />
+          </TabsContent>
+          
+          <TabsContent value="teasers" className="space-y-4">
+            <TeasersTab />
+          </TabsContent>
+          
+          <TabsContent value="doodle" className="space-y-4">
+            <DoodleTab />
+          </TabsContent>
+          
+          <TabsContent value="sakha" className="space-y-4">
+            <div className="space-y-6">
+              <div className="mb-6">
+                <h3 className="text-2xl font-bold mb-2">Sakha Chill Mode Chat</h3>
+                <p className="text-muted-foreground">
+                  Chat with your AI friend Sakha in chill mode to discuss anything non-academic.
+                </p>
+              </div>
+              
+              <div className="p-8 text-center border-2 border-dashed border-gray-300 rounded-lg">
+                <p className="text-muted-foreground">Sakha Chat feature will be coming soon!</p>
+                <p className="text-sm mt-2">Talk about movies, music, sports, or just have a friendly conversation</p>
+              </div>
+            </div>
+          </TabsContent>
+        </Tabs>
+      </Card>
     </SharedPageLayout>
   );
 };
