@@ -1,87 +1,53 @@
-
 export enum UserRole {
-  Student = 'student',
-  Admin = 'admin',
-  Employee = 'employee',
-  Doctor = 'doctor',
-  Founder = 'founder'
+  Student = "student",
+  Employee = "employee",
+  Doctor = "doctor",
+  Founder = "founder",
+  Admin = "admin",
 }
+
+export enum SubscriptionPlan {
+  Free = "free",
+  Basic = "basic",
+  Premium = "premium",
+  Enterprise = "enterprise",
+}
+
+export type UserProfileBase = {
+  id: string;
+  name: string;
+  email: string;
+  role: UserRole;
+  avatar?: string;
+  loginCount?: number;
+};
+
+export type StudentProfile = {
+  goals?: { id: string; title: string; progress: number }[];
+  examPreparation?: string;
+  personalityType?: string;
+  studyHabits?: string;
+  learningPreferences?: string;
+  subscription?: SubscriptionType | SubscriptionDetails;
+};
+
+export type SubscriptionDetails = {
+  planId?: string;
+  planType: SubscriptionType | string;
+  isActive: boolean;
+  startDate: string;
+  expiryDate: string;
+  features: string[];
+};
+
+export type UserProfileType = UserProfileBase & StudentProfile;
+
+// Add MoodType enumeration
+export type MoodType = 'sad' | 'neutral' | 'happy' | 'motivated' | 'focused' | 'tired' | 'confused';
 
 export enum SubscriptionType {
   Free = 'free',
   Basic = 'basic',
   Premium = 'premium',
-  Enterprise = 'enterprise',
-  School = 'school',
-  Corporate = 'corporate'
+  Enterprise = 'enterprise'
 }
-
-export interface Goal {
-  id: string;
-  title: string;
-  description?: string;
-  progress: number;
-  deadline?: string;
-  createdAt?: string;
-  updatedAt?: string;
-}
-
-export interface Education {
-  level: string;
-  institution: string;
-  fieldOfStudy: string;
-  graduationYear?: number;
-}
-
-export interface Address {
-  street: string;
-  city: string;
-  state: string;
-  zipCode: string;
-  country: string;
-}
-
-export interface UserSubscription {
-  planId?: string;
-  planType: SubscriptionType;
-  isActive?: boolean;
-  startDate?: string;
-  endDate?: string;
-  expiryDate?: string;
-  features?: string[];
-  batchName?: string;
-  batchCode?: string;
-  role?: 'leader' | 'member' | 'school_admin' | 'corporate_admin';
-}
-
-export interface SubscriptionPlan {
-  id: string;
-  name: string;
-  price: number;
-  features: string[];
-  type: string | SubscriptionType;
-  maxMembers?: number;
-}
-
-export interface UserProfileType {
-  id: string;
-  name?: string;
-  email?: string;
-  role: UserRole;
-  avatar?: string;
-  bio?: string;
-  phoneNumber?: string;
-  gender?: 'male' | 'female' | 'other';
-  profession?: string;
-  joinDate?: string;
-  lastActive?: string;
-  goals?: Goal[];
-  subscription?: SubscriptionType | UserSubscription;
-  address?: Address;
-  education?: Education;
-  skills?: string[];
-  interests?: string[];
-  personalityType?: string;
-  examPreparation?: string;
-}
-

@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import SidebarNav from "@/components/dashboard/SidebarNav";
@@ -17,6 +16,8 @@ import MobileNavigation from "./MobileNavigation";
 import { getFeatures } from "./utils/FeatureManager";
 import WelcomeTour from "@/components/dashboard/student/WelcomeTour";
 import { QuickAccess } from "@/components/dashboard/student/QuickAccess";
+import SubscriptionBanner from "@/components/dashboard/SubscriptionBanner";
+import { SubscriptionType } from "@/types/user/base";
 
 interface DashboardLayoutProps {
   userProfile: UserProfileType;
@@ -87,6 +88,34 @@ const DashboardLayout = ({
     onCompleteTour();
   };
 
+  const getSubscriptionDetails = () => {
+    if (!userProfile.subscription) {
+      return {
+        planType: 'free',
+        isExpired: false
+      };
+    }
+    
+    if (typeof userProfile.subscription === 'object') {
+      const isExpired = userProfile.subscription.expiryDate 
+        ? new Date(userProfile.subscription.expiryDate) < new Date()
+        : false;
+        
+      return {
+        planType: userProfile.subscription.planType || 'free',
+        expiryDate: userProfile.subscription.expiryDate,
+        isExpired
+      };
+    }
+    
+    return {
+      planType: userProfile.subscription as string,
+      isExpired: false
+    };
+  };
+  
+  const subscriptionDetails = getSubscriptionDetails();
+
   return (
     <div className={`min-h-screen bg-gradient-to-br from-sky-100/10 via-white to-violet-100/10 dark:from-sky-900/10 dark:via-gray-900 dark:to-violet-900/10 ${currentMood ? `mood-${currentMood}` : ''}`}>
       {/* Single Sidebar Navigation */}
@@ -104,6 +133,13 @@ const DashboardLayout = ({
           formattedDate={formattedDate}
           formattedTime={formattedTime}
           onOpenTour={handleOpenTour}
+        />
+
+        {/* Subscription Banner - Add at the top of dashboard */}
+        <SubscriptionBanner 
+          planType={subscriptionDetails.planType}
+          expiryDate={subscriptionDetails.expiryDate}
+          isExpired={subscriptionDetails.isExpired}
         />
 
         <div className="flex flex-wrap items-center justify-between gap-4 mb-6">

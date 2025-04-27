@@ -14,15 +14,15 @@ import {
   User, Settings, CreditCard, Users, BookOpen, 
   GraduationCap, Calendar, Bell, Shield, Edit
 } from "lucide-react";
-import { UserRole } from "@/types/user/base";
+import { UserRole, SubscriptionType } from "@/types/user/base";
 import ProfileDetails from "@/pages/dashboard/student/ProfileDetails";
 import BatchManagementContent from "@/components/subscription/batch/BatchManagementContent";
 import SettingsTabContent from "@/components/dashboard/student/SettingsTabContent";
 import InviteCodeForm from "@/components/subscription/batch/InviteCodeForm";
 import SubscriptionPlans from "@/components/subscription/SubscriptionPlans";
-import { SubscriptionPlan } from "@/types/user/base";
+import ExamReadinessMeter from "@/components/dashboard/student/metrics/ExamReadinessMeter";
 
-const EnhancedProfilePage = () => {
+const ProfilePage = () => {
   const navigate = useNavigate();
   const { userProfile, loading, updateUserProfile } = useUserProfile();
   const { toast } = useToast();
@@ -146,7 +146,7 @@ const EnhancedProfilePage = () => {
     return userProfile.subscription;
   };
   
-  const handleSelectPlan = (plan: SubscriptionPlan) => {
+  const handleSelectPlan = (plan: any) => {
     toast({
       title: "Subscription Selected",
       description: `You've selected the ${plan.name} plan. Redirecting to checkout...`,
@@ -164,6 +164,19 @@ const EnhancedProfilePage = () => {
   
   const handleManageSubscription = () => {
     navigate('/dashboard/student/subscription');
+  };
+  
+  // Mock readiness data - in a real app, this would come from props or an API
+  const readinessData = {
+    conceptCompletion: 75,
+    flashcardAccuracy: 82,
+    examScores: {
+      physics: 78,
+      chemistry: 85,
+      mathematics: 80
+    },
+    overallReadiness: 78,
+    timestamp: new Date().toISOString()
   };
   
   if (loading) {
@@ -271,6 +284,16 @@ const EnhancedProfilePage = () => {
                     </div>
                   ))}
                 </div>
+              </CardContent>
+            </Card>
+            
+            {/* Exam Readiness Meter */}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg">Exam Readiness</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ExamReadinessMeter readinessData={readinessData} />
               </CardContent>
             </Card>
             
@@ -560,4 +583,4 @@ const EnhancedProfilePage = () => {
   );
 };
 
-export default EnhancedProfilePage;
+export default ProfilePage;
