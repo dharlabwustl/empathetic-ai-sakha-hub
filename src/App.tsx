@@ -13,7 +13,6 @@ import PracticeExamReviewPage from '@/pages/dashboard/student/PracticeExamReview
 import ProfilePage from '@/pages/dashboard/student/ProfilePage';
 import StudyPlanPage from '@/pages/dashboard/student/StudyPlanPage';
 import FeelGoodCornerPage from '@/pages/dashboard/student/FeelGoodCornerPage';
-import StudyGroupPage from '@/pages/dashboard/student/StudyGroupPage'; // Added import
 
 function App() {
   return (
@@ -42,7 +41,6 @@ function App() {
         <Route path="/dashboard/student/study-plan" element={<StudyPlanPage />} />
         <Route path="/dashboard/student/profile" element={<ProfilePage />} />
         <Route path="/dashboard/student/wellness" element={<FeelGoodCornerPage />} />
-        <Route path="/dashboard/student/study-groups" element={<StudyGroupPage />} /> {/* Added route */}
         
         {/* Admin Routes */}
         <Route path="/admin/*" element={<div>Admin Dashboard</div>} />

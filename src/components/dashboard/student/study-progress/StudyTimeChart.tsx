@@ -1,41 +1,68 @@
 
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip } from 'recharts';
+import { Clock } from 'lucide-react';
+import { Button } from "@/components/ui/button";
+import { BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip, Legend, Bar } from 'recharts';
+import { SubjectProgress, StudyStreak } from "@/types/user";
 
-const StudyTimeChart = () => {
-  // Mock data for study time
-  const data = [
-    { day: 'Mon', hours: 2.5 },
-    { day: 'Tue', hours: 3.2 },
-    { day: 'Wed', hours: 1.8 },
-    { day: 'Thu', hours: 4.0 },
-    { day: 'Fri', hours: 2.7 },
-    { day: 'Sat', hours: 5.1 },
-    { day: 'Sun', hours: 3.5 },
-  ];
+interface StudyTimeChartProps {
+  selectedSubject: SubjectProgress | null;
+  subjects: SubjectProgress[];
+  selectSubject: (id: string) => void;
+  studyStreak: StudyStreak | null;
+}
+
+export const StudyTimeChart: React.FC<StudyTimeChartProps> = ({
+  selectedSubject,
+  subjects,
+  selectSubject,
+  studyStreak
+}) => {
+  const totalWeeklyHours = studyStreak?.thisWeek.reduce((a, b) => a + b, 0) || 0;
+
+  if (!selectedSubject) {
+    return (
+      <div className="text-center py-8">
+        <Clock className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+        <h3 className="font-medium text-lg">Select a subject to view study time</h3>
+        <div className="flex flex-wrap gap-2 justify-center mt-4">
+          {subjects.map(subject => (
+            <Button 
+              key={subject.id}
+              variant="outline"
+              onClick={() => selectSubject(subject.id)}
+            >
+              {subject.name}
+            </Button>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Weekly Study Time</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={data}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="day" />
-            <YAxis />
-            <Tooltip 
-              formatter={(value) => [`${value} hrs`, 'Study Time']}
-              labelFormatter={(label) => `${label}`}
-            />
-            <Bar dataKey="hours" fill="#8884d8" radius={[4, 4, 0, 0]} />
-          </BarChart>
-        </ResponsiveContainer>
-      </CardContent>
-    </Card>
+    <div className="space-y-6">
+      <h3 className="font-medium">Study Hours Distribution</h3>
+      
+      <ResponsiveContainer width="100%" height={300}>
+        <BarChart data={selectedSubject.studyHours}>
+          <XAxis dataKey="date" />
+          <YAxis />
+          <Tooltip />
+          <Legend />
+          <Bar dataKey="hours" fill="#0ea5e9" name="Hours Studied" />
+        </BarChart>
+      </ResponsiveContainer>
+      
+      <div className="border-t pt-4 mt-4">
+        <h3 className="font-medium mb-4">Total Study Hours This Week</h3>
+        <div className="text-3xl font-bold">
+          {totalWeeklyHours} hours
+        </div>
+        <p className="text-sm text-muted-foreground">
+          <span className="text-green-500 font-medium">↑ 3 hours</span> from last week
+        </p>
+      </div>
+    </div>
   );
 };
-
-export default StudyTimeChart;

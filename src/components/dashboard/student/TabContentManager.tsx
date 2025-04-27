@@ -1,16 +1,18 @@
 
 import React from 'react';
-import { UserProfileBase } from "@/types/user/base";
+import { UserProfileType } from "@/types/user";
 import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
 import DashboardOverview from "@/components/dashboard/student/DashboardOverview";
-import RedesignedDashboardOverview from "@/components/dashboard/student/RedesignedDashboardOverview";
+import WelcomeTour from "@/components/dashboard/student/WelcomeTour";
 import TodaysPlanView from "@/components/dashboard/student/todays-plan/TodaysPlanView";
+import ConceptCardsSection from "@/components/dashboard/student/concepts/ConceptCardsSection";
+import FlashcardsSection from "@/components/dashboard/student/flashcards/FlashcardsSection";
+import PracticeExamSection from "@/components/dashboard/student/practice-exams/PracticeExamSection";
+import NudgePanel from "@/components/dashboard/NudgePanel";
 import AcademicAdvisorSection from "@/components/dashboard/student/academic-advisor/AcademicAdvisorSection";
-import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
-import { Card } from "@/components/ui/card";
 
-interface TabContentGeneratorProps {
-  userProfile: UserProfileBase;
+export interface GenerateTabContentsProps {
+  userProfile: UserProfileType;
   kpis: KpiData[];
   nudges: NudgeData[];
   markNudgeAsRead: (id: string) => void;
@@ -33,92 +35,57 @@ export const generateTabContents = ({
   handleCompleteTour,
   lastActivity,
   suggestedNextAction
-}: TabContentGeneratorProps) => {
-  return {
-    // Overview tab shows dashboard overview
+}: GenerateTabContentsProps) => {
+  // Create a map of tab IDs to their React component content
+  const tabContents: Record<string, React.ReactNode> = {
     "overview": (
       <>
         {showWelcomeTour && (
-          <div className="mb-6">
-            <Card className="p-6">
-              <h2 className="text-xl font-semibold mb-2">Welcome to Sakha Learning</h2>
-              <p className="mb-4">Hi {userProfile.name || "Student"}, we're excited to help you achieve your learning goals!</p>
-              <div className="flex gap-4">
-                <button onClick={handleSkipTour} className="text-sm text-muted-foreground hover:text-primary">
-                  Skip tour
-                </button>
-                <button onClick={handleCompleteTour} className="text-sm text-primary font-medium hover:underline">
-                  Start your journey
-                </button>
-              </div>
-            </Card>
-          </div>
+          <WelcomeTour
+            onSkipTour={handleSkipTour}
+            onCompleteTour={handleCompleteTour}
+            isFirstTimeUser={!userProfile.loginCount || userProfile.loginCount <= 1}
+            lastActivity={lastActivity}
+            suggestedNextAction={suggestedNextAction}
+            loginCount={userProfile.loginCount}
+            open={true}
+            onOpenChange={() => {}}
+          />
         )}
-        <RedesignedDashboardOverview userProfile={userProfile} kpis={kpis} />
+        
+        <DashboardOverview
+          userProfile={userProfile}
+          kpis={kpis}
+          nudges={nudges}
+          markNudgeAsRead={markNudgeAsRead}
+          features={features}
+        />
       </>
     ),
-    
-    // Today's plan tab shows study plan for today
     "today": (
-      <TodaysPlanView />
+      <TodaysPlanView userProfile={userProfile} />
     ),
-    
-    // Academic advisor tab
     "academic": (
       <AcademicAdvisorSection />
     ),
-    
-    // Concepts tab
     "concepts": (
-      <SharedPageLayout
-        title="Concept Cards"
-        subtitle="Master key concepts through interactive learning"
-      >
-        <div className="space-y-6">
-          <h2 className="text-2xl font-bold">Your Concept Cards</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <Card className="p-6">
-              <p>Your concept cards will appear here.</p>
-            </Card>
-          </div>
-        </div>
-      </SharedPageLayout>
+      <ConceptCardsSection />
     ),
-    
-    // Flashcards tab
     "flashcards": (
-      <SharedPageLayout
-        title="Flashcards"
-        subtitle="Review and reinforce your knowledge"
-      >
-        <div className="space-y-6">
-          <h2 className="text-2xl font-bold">Your Flashcards</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Card className="p-6">
-              <p>Your flashcards will appear here.</p>
-            </Card>
-          </div>
-        </div>
-      </SharedPageLayout>
+      <FlashcardsSection />
     ),
-    
-    // Practice Exam tab
     "practice-exam": (
-      <SharedPageLayout
-        title="Practice Exams"
-        subtitle="Test your knowledge and track progress"
-      >
-        <div className="space-y-6">
-          <h2 className="text-2xl font-bold">Practice Exams</h2>
-          <div className="grid grid-cols-1 gap-4">
-            <Card className="p-6">
-              <p>Your practice exams will appear here.</p>
-            </Card>
-          </div>
-        </div>
-      </SharedPageLayout>
+      <PracticeExamSection />
     ),
-
-    // More tabs can be added here as needed
+    "notifications": (
+      <NudgePanel
+        nudges={nudges}
+        markAsRead={markNudgeAsRead}
+        showAll={true}
+      />
+    )
   };
+  
+  // Return the tab contents map
+  return tabContents;
 };

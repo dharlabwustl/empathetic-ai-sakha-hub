@@ -62,8 +62,6 @@ export interface UserProfileBase {
   };
   joinDate?: string;
   personalityType?: string;
-  location?: string; // Added location property
-  gender?: string; // Added gender property
 }
 
 export type UserProfileType = UserProfileBase;

@@ -1,109 +1,43 @@
 
-import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
-
-interface MoodDataPoint {
-  date: string;
-  mood: number;
-  moodLabel: string;
-  note?: string;
-}
-
-interface MoodTheme {
-  name: string;
-  primary: string;
-  secondary: string;
-  background: string;
-  textColor: string;
-  colors?: {
-    line: string;
-    dot: string;
-    grid: string;
-  };
-}
+import React from "react";
+import { MoodType } from "@/types/user/base";
+import { Card } from "@/components/ui/card";
+import { getMoodTheme } from "./moodThemes";
+import { motion } from "framer-motion";
 
 interface MoodTimelineProps {
-  moodData: MoodDataPoint[];
-  theme?: MoodTheme;
+  moodHistory: Array<{
+    mood: MoodType;
+    timestamp: Date;
+  }>;
 }
 
-const defaultTheme: MoodTheme = {
-  name: 'default',
-  primary: '#8B5CF6',
-  secondary: '#C4B5FD',
-  background: '#F5F3FF',
-  textColor: '#4C1D95',
-  colors: {
-    line: '#8B5CF6',
-    dot: '#6D28D9',
-    grid: '#E5E7EB'
-  }
-};
-
-const MoodTimeline: React.FC<MoodTimelineProps> = ({ 
-  moodData,
-  theme = defaultTheme
-}) => {
-  // Ensure theme.colors exists
-  const colors = theme.colors || defaultTheme.colors;
+const MoodTimeline: React.FC<MoodTimelineProps> = ({ moodHistory }) => {
+  const lastSevenDays = moodHistory.slice(0, 7).reverse();
   
-  const chartData = moodData.map(point => ({
-    date: new Date(point.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-    mood: point.mood,
-    moodLabel: point.moodLabel,
-    note: point.note
-  }));
-
-  const CustomTooltip = ({ active, payload, label }: any) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="bg-white p-2 border border-gray-200 shadow-md rounded-md">
-          <p className="text-sm text-gray-700">{`${label}`}</p>
-          <p className="text-sm font-medium">{`Mood: ${payload[0].payload.moodLabel}`}</p>
-          {payload[0].payload.note && (
-            <p className="text-xs text-gray-600 max-w-[200px]">{payload[0].payload.note}</p>
-          )}
-        </div>
-      );
-    }
-    return null;
-  };
-
   return (
-    <Card className="h-full">
-      <CardHeader className="pb-2">
-        <CardTitle className="text-lg">Mood Timeline</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="h-[200px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={chartData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
-              <XAxis 
-                dataKey="date" 
-                tick={{ fontSize: 12 }} 
-                tickLine={false} 
-                axisLine={{ stroke: colors.grid }}
-              />
-              <YAxis 
-                domain={[1, 5]} 
-                tick={false} 
-                axisLine={false} 
-                tickLine={false}
-              />
-              <Tooltip content={<CustomTooltip />} />
-              <Line 
-                type="monotone" 
-                dataKey="mood" 
-                stroke={colors.line}
-                strokeWidth={2}
-                dot={{ fill: colors.dot, r: 4 }}
-                activeDot={{ r: 6 }}
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-      </CardContent>
+    <Card className="p-4">
+      <h4 className="text-sm font-medium mb-4">Your Mood Timeline</h4>
+      <div className="flex items-center justify-between space-x-2">
+        {lastSevenDays.map((entry, index) => (
+          <motion.div
+            key={index}
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ delay: index * 0.1 }}
+            className="flex flex-col items-center"
+          >
+            <div 
+              className={`w-8 h-8 rounded-full flex items-center justify-center ${getMoodTheme(entry.mood).colors.background}`}
+              title={`${entry.mood} on ${entry.timestamp.toLocaleDateString()}`}
+            >
+              <span className="text-xs">{entry.timestamp.getDate()}</span>
+            </div>
+            <div className="w-1 h-1 rounded-full mt-1 bg-current" 
+                 style={{ color: getMoodTheme(entry.mood).colors.text }} />
+          </motion.div>
+        ))}
+      </div>
     </Card>
   );
 };

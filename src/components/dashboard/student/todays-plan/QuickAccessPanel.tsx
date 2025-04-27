@@ -1,34 +1,43 @@
 
-import React from 'react';
+import React from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { BookOpen, Brain, Calendar, LineChart, Video } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { Book, BookOpen, FileText, Clock, Brain, MessageSquare, Calendar } from "lucide-react";
 
-const QuickAccessPanel = () => {
+const QuickAccessPanel: React.FC = () => {
+  const navigate = useNavigate();
+  
   const quickLinks = [
-    { icon: <BookOpen className="w-5 h-5" />, label: "Study Plan", path: "/dashboard/student/study-plan" },
-    { icon: <Brain className="w-5 h-5" />, label: "Concepts", path: "/dashboard/student/concepts" },
-    { icon: <Calendar className="w-5 h-5" />, label: "Flashcards", path: "/dashboard/student/flashcards" },
-    { icon: <LineChart className="w-5 h-5" />, label: "Practice Exam", path: "/dashboard/student/practice-exam" },
-    { icon: <Video className="w-5 h-5" />, label: "Video Library", path: "/dashboard/student/videos" },
+    { icon: <Book className="mr-2 h-4 w-4" />, text: "All Concepts", path: "/dashboard/student/concepts/all" },
+    { icon: <BookOpen className="mr-2 h-4 w-4" />, text: "All Flashcards", path: "/dashboard/student/flashcards" },
+    { icon: <FileText className="mr-2 h-4 w-4" />, text: "All Practice Tests", path: "/dashboard/student/practice-exam" },
+    { icon: <Clock className="mr-2 h-4 w-4" />, text: "My Backlogs", path: "/dashboard/student/today?view=backlog" },
+    { icon: <Brain className="mr-2 h-4 w-4" />, text: "Academic Advisor", path: "/dashboard/student/academic" },
+    { icon: <MessageSquare className="mr-2 h-4 w-4" />, text: "24/7 AI Tutor", path: "/dashboard/student/tutor" },
+    { icon: <Calendar className="mr-2 h-4 w-4" />, text: "Study Plan", path: "/dashboard/student/today" },
   ];
 
   return (
-    <div className="flex items-center justify-between flex-wrap gap-2">
-      {quickLinks.map((link, index) => (
-        <Button 
-          key={index} 
-          variant="outline" 
-          asChild
-          className="flex gap-2 items-center"
-        >
-          <Link to={link.path}>
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-sm">Quick Access</CardTitle>
+      </CardHeader>
+      <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+        {quickLinks.map((link, index) => (
+          <Button 
+            key={index} 
+            variant="outline" 
+            size="sm" 
+            className="justify-start"
+            onClick={() => navigate(link.path)}
+          >
             {link.icon}
-            <span>{link.label}</span>
-          </Link>
-        </Button>
-      ))}
-    </div>
+            {link.text}
+          </Button>
+        ))}
+      </CardContent>
+    </Card>
   );
 };
 

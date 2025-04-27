@@ -1,131 +1,142 @@
+import React, { useState } from 'react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { SystemLog } from '@/types/admin/systemLog';
+import { Button } from '@/components/ui/button';
+import { format } from 'date-fns';
 
-import React from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { SystemLog } from "@/types/admin/systemLog";
+const SystemTab = () => {
+  const [activeTab, setActiveTab] = useState('overview');
+  const [systemLogs, setSystemLogs] = useState<SystemLog[]>([
+    {
+      id: '1',
+      level: 'error',
+      message: 'Database connection failed',
+      source: 'backend',
+      timestamp: new Date('2025-04-15T12:30:00'),
+      resolved: false
+    },
+    {
+      id: '2',
+      level: 'info',
+      message: 'User authentication successful',
+      source: 'auth',
+      timestamp: new Date('2025-04-15T13:45:00'),
+      resolved: true
+    },
+    {
+      id: '3',
+      level: 'warning',
+      message: 'Rate limit approaching',
+      source: 'api',
+      timestamp: new Date('2025-04-15T14:20:00'),
+      resolved: false
+    }
+  ]);
 
-// Mock system logs
-const systemLogs: SystemLog[] = [
-  {
-    id: "log1",
-    level: "info",
-    message: "System started successfully",
-    timestamp: new Date().toISOString(), // Convert to string
-    source: "system",
-    details: { version: "1.2.3" }
-  },
-  {
-    id: "log2",
-    level: "warning",
-    message: "High memory usage detected",
-    timestamp: new Date().toISOString(), // Convert to string
-    source: "monitoring",
-    details: { usage: "85%" }
-  },
-  {
-    id: "log3",
-    level: "error",
-    message: "Database connection failed",
-    timestamp: new Date().toISOString(), // Convert to string
-    source: "database",
-    details: { error: "Connection timeout" }
-  }
-];
+  // Rest of the component logic...
+  
+  const resolveLog = (id: string) => {
+    setSystemLogs(prev => 
+      prev.map(log => 
+        log.id === id ? { ...log, resolved: true } : log
+      )
+    );
+  };
 
-const getStatusColor = (level: string) => {
-  switch (level) {
-    case 'error':
-      return 'bg-red-100 text-red-800 border-red-200';
-    case 'warning':
-      return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-    case 'info':
-      return 'bg-blue-100 text-blue-800 border-blue-200';
-    case 'debug':
-      return 'bg-gray-100 text-gray-800 border-gray-200';
-    default:
-      return 'bg-gray-100 text-gray-800 border-gray-200';
-  }
-};
+  // Convert string timestamp to Date if necessary
+  const formatTimestamp = (timestamp: Date | string) => {
+    // If timestamp is already a Date object, use it directly
+    // Otherwise parse it as a Date
+    const date = timestamp instanceof Date ? timestamp : new Date(timestamp);
+    return format(date, 'MMM dd, yyyy HH:mm:ss');
+  };
 
-const SystemTab: React.FC = () => {
+  // ... rest of the component
+
   return (
-    <div className="space-y-4">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">System Status</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">Healthy</div>
-            <p className="text-xs text-muted-foreground">All systems operational</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Last Updated</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">10 minutes ago</div>
-            <p className="text-xs text-muted-foreground">Regular checks run every 5 min</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">System Version</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">v2.5.0</div>
-            <p className="text-xs text-muted-foreground">Released 2 weeks ago</p>
-          </CardContent>
-        </Card>
-      </div>
-      
-      <Card>
-        <CardHeader>
-          <CardTitle>System Logs</CardTitle>
-          <CardDescription>Recent system events and notifications</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Level</TableHead>
-                <TableHead>Message</TableHead>
-                <TableHead>Source</TableHead>
-                <TableHead>Timestamp</TableHead>
-                <TableHead>Details</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {systemLogs.map((log) => (
-                <TableRow key={log.id}>
-                  <TableCell>
-                    <Badge variant="outline" className={getStatusColor(log.level)}>
-                      {log.level.toUpperCase()}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>{log.message}</TableCell>
-                  <TableCell>{log.source}</TableCell>
-                  <TableCell>{new Date(log.timestamp).toLocaleString()}</TableCell>
-                  <TableCell>
-                    <Button variant="outline" size="sm">
-                      View Details
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-          
-          <div className="flex justify-end mt-4">
-            <Button variant="outline">View All Logs</Button>
-          </div>
-        </CardContent>
-      </Card>
+    <div className="space-y-6">
+      <Tabs defaultValue={activeTab} onValueChange={setActiveTab}>
+        <TabsList className="grid grid-cols-3 mb-4">
+          <TabsTrigger value="overview">System Overview</TabsTrigger>
+          <TabsTrigger value="logs">System Logs</TabsTrigger>
+          <TabsTrigger value="performance">Performance</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="overview">
+          <Card>
+            <CardHeader>
+              <CardTitle>System Health</CardTitle>
+              <CardDescription>Current system status and health metrics</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {/* Content for system health overview */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {/* System health content... */}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="logs">
+          <Card>
+            <CardHeader>
+              <CardTitle>System Logs</CardTitle>
+              <CardDescription>Recent system events and logs</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {systemLogs.map(log => (
+                  <div key={log.id} className={`p-4 rounded-md ${
+                    log.level === 'error' ? 'bg-red-50 dark:bg-red-900/20' : 
+                    log.level === 'warning' ? 'bg-yellow-50 dark:bg-yellow-900/20' : 
+                    'bg-blue-50 dark:bg-blue-900/20'
+                  }`}>
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h4 className={`font-medium ${
+                          log.level === 'error' ? 'text-red-700 dark:text-red-400' :
+                          log.level === 'warning' ? 'text-yellow-700 dark:text-yellow-400' :
+                          'text-blue-700 dark:text-blue-400'
+                        }`}>
+                          {log.level.toUpperCase()}: {log.message}
+                        </h4>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          Source: {log.source} | Time: {formatTimestamp(log.timestamp)}
+                        </p>
+                      </div>
+                      {!log.resolved && (
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => resolveLog(log.id)}
+                        >
+                          Resolve
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="performance">
+          <Card>
+            <CardHeader>
+              <CardTitle>System Performance</CardTitle>
+              <CardDescription>Performance metrics and analytics</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {/* Performance metrics content */}
+              <div className="space-y-6">
+                {/* Performance metrics... */}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
