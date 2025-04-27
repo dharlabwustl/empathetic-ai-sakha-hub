@@ -1,86 +1,78 @@
 
-import React from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
+import React from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { TodaysPlanData } from "@/types/student/todaysPlan";
+import { Clock } from "lucide-react";
 
-interface TimeAllocationProps {
-  conceptsTime: number;
-  flashcardsTime: number;
-  examsTime: number;
-  className?: string;
+interface TimeAllocationWidgetProps {
+  planData?: TodaysPlanData;
+  isLoading: boolean;
 }
 
-const TimeAllocationWidget: React.FC<TimeAllocationProps> = ({
-  conceptsTime,
-  flashcardsTime,
-  examsTime,
-  className
-}) => {
-  const totalTime = conceptsTime + flashcardsTime + examsTime;
-  
-  if (totalTime === 0) return null;
-  
-  const data = [
-    { name: 'Concepts', value: conceptsTime, color: '#8b5cf6' },
-    { name: 'Flashcards', value: flashcardsTime, color: '#3b82f6' },
-    { name: 'Practice Exams', value: examsTime, color: '#10b981' },
-  ];
-
-  const formatTime = (minutes: number): string => {
-    const hours = Math.floor(minutes / 60);
-    const mins = minutes % 60;
-    
-    if (hours > 0) {
-      return `${hours}h ${mins > 0 ? `${mins}m` : ''}`;
-    }
-    return `${mins}m`;
-  };
-
-  return (
-    <Card className={`overflow-hidden ${className || ''}`}>
-      <CardContent className="p-4">
-        <h3 className="text-sm font-medium mb-3">Study Time Allocation</h3>
-        
-        <div className="flex items-center">
-          <div className="w-1/2 h-[100px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={data}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={25}
-                  outerRadius={40}
-                  paddingAngle={2}
-                  dataKey="value"
-                >
-                  {data.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip 
-                  formatter={(value: number) => formatTime(value)} 
-                  labelFormatter={() => ''}
-                />
-              </PieChart>
-            </ResponsiveContainer>
+const TimeAllocationWidget: React.FC<TimeAllocationWidgetProps> = ({ planData, isLoading }) => {
+  if (isLoading) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-sm">Time Allocation</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-2">
+            <div className="h-4 bg-gray-100 rounded animate-pulse"></div>
+            <div className="h-4 bg-gray-100 rounded animate-pulse"></div>
+            <div className="h-4 bg-gray-100 rounded animate-pulse"></div>
           </div>
-          
-          <div className="w-1/2">
-            <div className="space-y-2 text-xs">
-              {data.map((item) => (
-                <div key={item.name} className="flex items-center justify-between">
-                  <div className="flex items-center">
-                    <div className="w-2 h-2 rounded-full mr-1.5" style={{ backgroundColor: item.color }}></div>
-                    <span>{item.name}</span>
-                  </div>
-                  <span className="font-medium">{formatTime(item.value)}</span>
-                </div>
-              ))}
-              <div className="pt-1 flex items-center justify-between border-t text-xs font-medium">
-                <span>Total</span>
-                <span>{formatTime(totalTime)}</span>
-              </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  const timeAllocation = planData?.timeAllocation;
+  
+  if (!timeAllocation) return null;
+  
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-sm flex items-center gap-2">
+          <Clock className="h-4 w-4 text-primary" />
+          Time Allocation
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-3">
+          <div className="grid grid-cols-1 gap-2">
+            <div>
+              <p className="text-xs text-muted-foreground">Concepts</p>
+              <p className="text-sm font-medium">
+                {Math.floor(timeAllocation.conceptCards / 60) > 0 ? 
+                  `${Math.floor(timeAllocation.conceptCards / 60)}h ${timeAllocation.conceptCards % 60}m` : 
+                  `${timeAllocation.conceptCards}m`}
+              </p>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">Flashcards</p>
+              <p className="text-sm font-medium">
+                {Math.floor(timeAllocation.flashcards / 60) > 0 ? 
+                  `${Math.floor(timeAllocation.flashcards / 60)}h ${timeAllocation.flashcards % 60}m` : 
+                  `${timeAllocation.flashcards}m`}
+              </p>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">Practice Tests</p>
+              <p className="text-sm font-medium">
+                {Math.floor(timeAllocation.practiceTests / 60) > 0 ? 
+                  `${Math.floor(timeAllocation.practiceTests / 60)}h ${timeAllocation.practiceTests % 60}m` : 
+                  `${timeAllocation.practiceTests}m`}
+              </p>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">Total Time</p>
+              <p className="text-sm font-medium">
+                {Math.floor(timeAllocation.total / 60) > 0 ? 
+                  `${Math.floor(timeAllocation.total / 60)}h ${timeAllocation.total % 60}m` : 
+                  `${timeAllocation.total}m`}
+              </p>
             </div>
           </div>
         </div>

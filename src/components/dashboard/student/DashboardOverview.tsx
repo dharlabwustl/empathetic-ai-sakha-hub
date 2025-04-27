@@ -19,7 +19,7 @@ interface DashboardOverviewProps {
   nudges: NudgeData[];
   markNudgeAsRead: (id: string) => void;
   features: {
-    icon: ReactNode;
+    icon?: ReactNode;
     title: string;
     description: string;
     path: string;

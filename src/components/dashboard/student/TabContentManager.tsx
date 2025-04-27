@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { UserProfileBase as UserProfileType } from "@/types/user/base";
+import { UserProfileType } from "@/types/user";
 import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
 import DashboardOverview from "@/components/dashboard/student/DashboardOverview";
 import WelcomeTour from "@/components/dashboard/student/WelcomeTour";
@@ -48,6 +48,8 @@ export const generateTabContents = ({
             lastActivity={lastActivity}
             suggestedNextAction={suggestedNextAction}
             loginCount={userProfile.loginCount}
+            open={true}
+            onOpenChange={() => {}}
           />
         )}
         
