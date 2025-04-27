@@ -33,6 +33,8 @@ interface KpiCardProps {
 export default function KpiCard({ kpi, delay = 0 }: KpiCardProps) {
   // Map icon string to Lucide component
   const IconComponent = () => {
+    if (!kpi.icon) return <Clock className="text-sky-500" size={24} />;
+    
     switch (kpi.icon) {
       case "Clock": return <Clock className="text-sky-500" size={24} />;
       case "BookOpen": return <BookOpen className="text-violet-500" size={24} />;
@@ -47,16 +49,22 @@ export default function KpiCard({ kpi, delay = 0 }: KpiCardProps) {
       case "PieChart": return <PieChart className="text-cyan-500" size={24} />;
       case "Users": return <Users className="text-red-500" size={24} />;
       case "Battery": return <Battery className="text-green-500" size={24} />;
+      case "🔥": return <span className="text-2xl">🔥</span>;
+      case "📚": return <span className="text-2xl">📚</span>;
+      case "✅": return <span className="text-2xl">✅</span>;
+      case "⏱️": return <span className="text-2xl">⏱️</span>;
       default: return <Clock className="text-sky-500" size={24} />;
     }
   };
   
   const getTrendColor = () => {
-    if (kpi.trend === "up") {
-      return kpi.id.includes("burnout") || kpi.id.includes("risk") ? 
+    const trendType = kpi.trend || (kpi.change && kpi.change > 0 ? "up" : kpi.change && kpi.change < 0 ? "down" : "neutral");
+    
+    if (trendType === "up") {
+      return kpi.id && (kpi.id.includes("burnout") || kpi.id.includes("risk")) ? 
         "text-red-600" : "text-green-600";
-    } else if (kpi.trend === "down") {
-      return kpi.id.includes("burnout") || kpi.id.includes("risk") ? 
+    } else if (trendType === "down") {
+      return kpi.id && (kpi.id.includes("burnout") || kpi.id.includes("risk")) ? 
         "text-green-600" : "text-red-600";
     }
     return "text-gray-600";
@@ -64,6 +72,8 @@ export default function KpiCard({ kpi, delay = 0 }: KpiCardProps) {
 
   // Get gradient based on KPI type
   const getGradient = () => {
+    if (!kpi.id) return "from-violet-500/5 to-sky-500/5";
+    
     if (kpi.id.includes("progress")) return "from-sky-500/10 to-indigo-500/10";
     if (kpi.id.includes("streak") || kpi.id.includes("completion")) return "from-emerald-500/10 to-teal-500/10";
     if (kpi.id.includes("score") || kpi.id.includes("performance")) return "from-violet-500/10 to-purple-500/10";
@@ -82,7 +92,7 @@ export default function KpiCard({ kpi, delay = 0 }: KpiCardProps) {
       <Card className={`overflow-hidden bg-gradient-to-br ${getGradient()} hover:shadow-lg transition-all`}>
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-300">
-            {kpi.label}
+            {kpi.label || kpi.title || "Metric"}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -116,15 +126,15 @@ export default function KpiCard({ kpi, delay = 0 }: KpiCardProps) {
             animate={{ opacity: 1 }}
             transition={{ duration: 0.3, delay: delay * 0.1 + 0.4 }}
           >
-            {kpi.trend === "up" && <ArrowUpIcon className="h-3 w-3 mr-1" />}
-            {kpi.trend === "down" && <ArrowDownIcon className="h-3 w-3 mr-1" />}
+            {(kpi.trend === "up" || (kpi.change && kpi.change > 0)) && <ArrowUpIcon className="h-3 w-3 mr-1" />}
+            {(kpi.trend === "down" || (kpi.change && kpi.change < 0)) && <ArrowDownIcon className="h-3 w-3 mr-1" />}
             {kpi.change !== 0 && (
               <>
-                {kpi.change > 0 ? "+" : ""}
+                {kpi.change && kpi.change > 0 ? "+" : ""}
                 {kpi.change}% from {kpi.id === "mood" ? "yesterday" : "last week"}
               </>
             )}
-            {kpi.change === 0 && "No change"}
+            {(kpi.change === 0 || kpi.change === undefined) && (kpi.trendLabel || "No change")}
           </motion.p>
         </CardContent>
       </Card>

@@ -24,6 +24,7 @@ import SmartSuggestionsCenter from './dashboard-sections/SmartSuggestionsCenter'
 import { MoodType } from '@/types/user/base';
 import ExamReadinessMeter from './metrics/ExamReadinessMeter';
 import DailyMoodTracker from './mood-tracking/DailyMoodTracker';
+import KpiCard from '@/components/dashboard/KpiCard';
 
 interface RedesignedDashboardOverviewProps {
   userProfile: UserProfileType;
@@ -129,7 +130,7 @@ export default function RedesignedDashboardOverview({ userProfile, kpis }: Redes
                 <Button
                   variant={tab.id === "overview" ? "default" : "ghost"}
                   size="sm"
-                  className="flex items-center gap-1 whitespace-nowrap text-xs md:text-sm"
+                  className={`flex items-center gap-1 whitespace-nowrap text-xs md:text-sm`}
                   onClick={() => navigate(tab.path)}
                 >
                   <tab.icon className="h-4 w-4 mr-1" />
@@ -170,17 +171,7 @@ export default function RedesignedDashboardOverview({ userProfile, kpis }: Redes
         variants={itemVariants}
       >
         {kpis.map((kpi, index) => (
-          <Card key={index} className="border-t-4 border-t-blue-500">
-            <CardContent className="p-4">
-              <div className="flex flex-col">
-                <span className="text-sm text-muted-foreground">{kpi.label}</span>
-                <span className="text-2xl font-bold">{kpi.value}</span>
-                <span className={`text-xs mt-1 ${kpi.trend > 0 ? 'text-green-500' : kpi.trend < 0 ? 'text-red-500' : 'text-gray-500'}`}>
-                  {kpi.trend > 0 ? '↑' : kpi.trend < 0 ? '↓' : '•'} {kpi.trendLabel || ''}
-                </span>
-              </div>
-            </CardContent>
-          </Card>
+          <KpiCard key={kpi.id} kpi={kpi} delay={index} />
         ))}
       </motion.div>
 
@@ -203,7 +194,7 @@ export default function RedesignedDashboardOverview({ userProfile, kpis }: Redes
         variants={itemVariants}
         className="grid grid-cols-1 lg:grid-cols-2 gap-6"
       >
-        <DailyMoodTracker currentMood={currentMood} onMoodChange={handleMoodSelect} />
+        <DailyMoodTracker currentMood={currentMood as any} onMoodChange={handleMoodSelect} />
         <SmartSuggestionsCenter 
           performance={{
             accuracy: 85,
@@ -265,7 +256,7 @@ export default function RedesignedDashboardOverview({ userProfile, kpis }: Redes
         </motion.div>
 
         <motion.div variants={itemVariants}>
-          <TodaysPlanSection studyPlan={dashboardData.studyPlan} currentMood={currentMood} />
+          <TodaysPlanSection studyPlan={dashboardData.studyPlan} currentMood={currentMood as any} />
         </motion.div>
       </div>
 

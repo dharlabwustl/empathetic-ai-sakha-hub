@@ -2,108 +2,133 @@
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ThumbsUp, ThumbsDown, RefreshCcw } from "lucide-react";
-import { motion } from "framer-motion";
+import { Smile, RefreshCw, ThumbsUp, ThumbsDown } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
-const JokesTab = () => {
-  const [currentJoke, setCurrentJoke] = useState({
-    setup: "Why did the student eat his homework?",
-    punchline: "Because the teacher said it was a piece of cake!"
-  });
+const jokes = [
+  {
+    setup: "Why don't scientists trust atoms?",
+    punchline: "Because they make up everything!"
+  },
+  {
+    setup: "Why did the physics student break up with the biology student?",
+    punchline: "There was no chemistry!"
+  },
+  {
+    setup: "What did the scientist say when he found 2 isotopes of helium?",
+    punchline: "HeHe"
+  },
+  {
+    setup: "Why was the equal sign so humble?",
+    punchline: "Because it knew it wasn't less than or greater than anyone else."
+  },
+  {
+    setup: "What's a math teacher's favorite kind of tree?",
+    punchline: "Geometry!"
+  },
+  {
+    setup: "Did you hear about the mathematician who's afraid of negative numbers?",
+    punchline: "He'll stop at nothing to avoid them!"
+  }
+];
+
+const JokesTab: React.FC = () => {
+  const [currentJoke, setCurrentJoke] = useState(0);
   const [showPunchline, setShowPunchline] = useState(false);
-  const [liked, setLiked] = useState<boolean | null>(null);
-
-  const jokes = [
-    {
-      setup: "Why couldn't the math book solve its own problems?",
-      punchline: "It had too many X's!"
-    },
-    {
-      setup: "What do you call a fish that wears a crown?",
-      punchline: "King mackerel!"
-    },
-    {
-      setup: "What's a computer's favorite snack?",
-      punchline: "Microchips!"
-    },
-    {
-      setup: "Why don't scientists trust atoms?",
-      punchline: "Because they make up everything!"
-    },
-    {
-      setup: "What did one wall say to the other wall?",
-      punchline: "I'll meet you at the corner!"
-    }
-  ];
-
-  const getNewJoke = () => {
-    const randomJoke = jokes[Math.floor(Math.random() * jokes.length)];
-    setCurrentJoke(randomJoke);
+  const [likedJokes, setLikedJokes] = useState<number[]>([]);
+  
+  const handleNextJoke = () => {
+    const nextJoke = (currentJoke + 1) % jokes.length;
+    setCurrentJoke(nextJoke);
     setShowPunchline(false);
-    setLiked(null);
   };
-
+  
+  const handleTogglePunchline = () => {
+    setShowPunchline(!showPunchline);
+  };
+  
+  const handleLikeJoke = () => {
+    if (!likedJokes.includes(currentJoke)) {
+      setLikedJokes([...likedJokes, currentJoke]);
+    }
+  };
+  
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.3 }}
-    >
-      <Card className="bg-gradient-to-br from-amber-50 to-yellow-50 dark:from-amber-900/20 dark:to-yellow-900/20 p-4 mb-4">
-        <div className="text-center">
-          <h3 className="text-lg font-medium mb-2">{currentJoke.setup}</h3>
-          
-          {showPunchline ? (
-            <motion.p 
-              initial={{ opacity: 0, y: 10 }} 
-              animate={{ opacity: 1, y: 0 }}
-              className="text-xl font-bold my-4 text-amber-800 dark:text-amber-300"
-            >
-              {currentJoke.punchline}
-            </motion.p>
-          ) : (
-            <Button 
-              variant="outline" 
-              className="my-4"
-              onClick={() => setShowPunchline(true)}
-            >
-              Reveal Punchline
-            </Button>
-          )}
-
-          {showPunchline && (
-            <div className="flex justify-center gap-2 mt-4">
-              <Button
-                variant="ghost"
-                size="sm"
-                className={`${liked === true ? 'bg-green-100 text-green-700' : ''}`}
-                onClick={() => setLiked(true)}
-              >
-                <ThumbsUp className="h-4 w-4 mr-1" />
-                Funny
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                className={`${liked === false ? 'bg-red-100 text-red-700' : ''}`}
-                onClick={() => setLiked(false)}
-              >
-                <ThumbsDown className="h-4 w-4 mr-1" />
-                Not funny
-              </Button>
-            </div>
-          )}
-        </div>
-      </Card>
-      
-      <div className="flex justify-center">
-        <Button onClick={getNewJoke} variant="outline" size="sm">
-          <RefreshCcw className="h-4 w-4 mr-1" />
-          Another Joke
+    <div className="space-y-4">
+      <div className="flex items-center justify-between mb-2">
+        <h3 className="text-lg font-medium flex items-center gap-2">
+          <Smile className="h-5 w-5 text-amber-500" /> Study Jokes
+        </h3>
+        <Button variant="ghost" size="sm" onClick={handleNextJoke}>
+          <RefreshCw className="h-4 w-4 mr-1" /> Next Joke
         </Button>
       </div>
-    </motion.div>
+      
+      <Card className="p-6 bg-gradient-to-r from-amber-50 to-amber-100/50 dark:from-amber-950/20 dark:to-amber-900/20 border-amber-200 dark:border-amber-800/30">
+        <motion.div
+          key={currentJoke}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="text-center"
+        >
+          <p className="text-lg font-medium mb-4">{jokes[currentJoke].setup}</p>
+          
+          <AnimatePresence>
+            {showPunchline ? (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <p className="text-xl font-bold text-amber-600 dark:text-amber-400 my-4">
+                  {jokes[currentJoke].punchline}
+                </p>
+                
+                <div className="flex justify-center gap-3 mt-6">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    className="border-amber-300 hover:bg-amber-100"
+                    onClick={handleLikeJoke}
+                  >
+                    <ThumbsUp className="h-4 w-4 mr-1 text-amber-600" />
+                    {likedJokes.includes(currentJoke) ? 'Liked!' : 'Like'}
+                  </Button>
+                  <Button 
+                    variant="outline"
+                    size="sm"
+                    className="border-gray-200"
+                    onClick={handleNextJoke}
+                  >
+                    <ThumbsDown className="h-4 w-4 mr-1" />
+                    Next
+                  </Button>
+                </div>
+              </motion.div>
+            ) : (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+              >
+                <Button
+                  className="bg-amber-500 hover:bg-amber-600 text-white"
+                  onClick={handleTogglePunchline}
+                >
+                  Reveal Punchline
+                </Button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
+      </Card>
+      
+      <div className="text-center text-sm text-gray-500">
+        <p>A good laugh helps reduce stress and improves cognition!</p>
+      </div>
+    </div>
   );
 };
 

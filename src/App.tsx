@@ -118,7 +118,7 @@ const App = () => {
                     <Route path="/dashboard/student/settings" element={<StudentSettingsPage />} />
                     <Route path="/dashboard/student/wellness" element={<FeelGoodCornerPage />} />
                     <Route path="/dashboard/student/study-groups" element={<StudyGroupsPage />} />
-                    <Route path="/dashboard/student/profile" element={<ProfileView />} />
+                    <Route path="/dashboard/student/profile" element={<ProfilePage />} />
                     <Route path="/dashboard/student/studyplan" element={<StudyPlanView />} />
                     <Route path="/dashboard/student/todays-plan" element={<TodaysPlanView />} />
                     
