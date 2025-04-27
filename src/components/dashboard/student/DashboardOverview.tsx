@@ -7,7 +7,7 @@ import NudgePanel from "@/components/dashboard/NudgePanel";
 import ProfileCard from "@/components/dashboard/ProfileCard";
 import FeatureCard from "@/components/dashboard/FeatureCard";
 import TodayStudyPlan from "@/components/dashboard/student/TodayStudyPlan";
-import FeelGoodCorner from "@/components/dashboard/student/FeelGoodCorner";
+import FeelGoodCorner from "@/components/dashboard/student/feel-good-corner/FeelGoodCorner";
 import ExamReadinessMeter from './metrics/ExamReadinessMeter';
 import { motion } from "framer-motion";
 import { Coffee, BookOpen, AlertCircle } from 'lucide-react';
@@ -79,8 +79,8 @@ export default function DashboardOverview({
   }
 
   // Helper function to determine user's subscription type
-  const getUserSubscriptionType = (): SubscriptionType => {
-    if (!userProfile.subscription) return SubscriptionType.Basic;
+  const getUserSubscriptionType = (): string => {
+    if (!userProfile.subscription) return 'Basic';
     
     if (typeof userProfile.subscription === 'object') {
       return userProfile.subscription.planType;
@@ -139,10 +139,7 @@ export default function DashboardOverview({
         className="mb-6"
         variants={itemVariants}
       >
-        <ExamReadinessMeter 
-          userAvatar={userProfile.avatar} 
-          readinessData={readinessData}
-        />
+        <ExamReadinessMeter readinessData={readinessData} />
       </motion.div>
       
       {/* Study Plan and Profile - Only show study plan here, not duplicated */}

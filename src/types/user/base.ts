@@ -1,3 +1,4 @@
+
 export enum UserRole {
   Student = "student",
   Employee = "employee",
@@ -43,7 +44,7 @@ export type SubscriptionDetails = {
 export type UserProfileType = UserProfileBase & StudentProfile;
 
 // Add MoodType enumeration
-export type MoodType = 'sad' | 'neutral' | 'happy' | 'motivated' | 'focused' | 'tired' | 'confused';
+export type MoodType = 'sad' | 'neutral' | 'happy' | 'motivated' | 'focused' | 'tired' | 'confused' | 'anxious' | 'stressed' | 'overwhelmed' | 'curious' | 'okay';
 
 export enum SubscriptionType {
   Free = 'free',
