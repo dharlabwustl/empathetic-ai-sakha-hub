@@ -3,10 +3,10 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { 
-  CalendarDays, 
-  GraduationCap, 
-  Heart,
-  MessageSquare
+  MessageSquare, 
+  Calendar,
+  GraduationCap,
+  Heart
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -22,7 +22,7 @@ export const QuickAccess = () => {
     },
     {
       path: '/dashboard/student/studyplan',
-      icon: <CalendarDays className="h-5 w-5" />,
+      icon: <Calendar className="h-5 w-5" />,
       label: 'Study Plan'
     },
     {
@@ -31,7 +31,7 @@ export const QuickAccess = () => {
       label: 'Academic Advisor'
     },
     {
-      path: '/dashboard/student/feel-good-corner',
+      path: '/dashboard/student/wellness',
       icon: <Heart className="h-5 w-5" />,
       label: 'Feel Good Corner'
     }
