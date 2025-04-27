@@ -30,6 +30,7 @@ export interface SubjectTaskBreakdown {
       deckName: string;
       status: string;
       timeEstimate: string;
+      cardCount?: number;
     }[];
     practiceExams: {
       id: string;
@@ -52,6 +53,9 @@ export interface TomorrowPreview {
   totalTasks: number;
   focusArea: string;
   difficulty: 'easy' | 'moderate' | 'challenging';
+  concepts: number;
+  flashcards: number;
+  practiceExams: number;
 }
 
 export interface SmartExtras {
@@ -82,6 +86,18 @@ export interface TodaysPlanData {
     practiceExams: any[];
     revision: any[];
   };
+  streak: number;
+  completedTasks: number;
+  totalTasks: number;
+  backlogTasks: {
+    id: string;
+    subject: string;
+    title: string;
+    type: 'concept' | 'flashcard' | 'practice-exam';
+    timeEstimate: number;
+    status: string;
+    daysOverdue: number;
+  }[];
 }
 
 export interface MoodTheme {

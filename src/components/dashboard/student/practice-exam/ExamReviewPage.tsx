@@ -1,687 +1,626 @@
 
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { 
-  Clock, Home, CheckCircle2, XCircle, HelpCircle,
-  BarChart3, Check, ArrowLeft, ArrowRight, BookOpen
+import { useParams, useLocation, useNavigate } from 'react-router-dom';
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import {
+  CheckCircle,
+  XCircle,
+  ArrowLeft,
+  RefreshCw,
+  BarChart,
+  Clock,
+  BookOpen,
+  FileText,
+  Download,
+  Share2,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react';
-import { Link, useParams, useLocation } from 'react-router-dom';
-import { Progress } from "@/components/ui/progress";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PieChart, Pie, Cell, BarChart as ReBarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
-// Reusing the Question interface and mockExams from ExamTakingPage
-interface Question {
+interface ExamQuestion {
   id: string;
   text: string;
-  options: string[];
-  correctOptionIndex: number;
+  options: {
+    id: string;
+    text: string;
+  }[];
+  correctOptionId: string;
+  explanation: string;
+  subject: string;
+  topic: string;
+  difficulty: 'easy' | 'medium' | 'hard';
 }
 
-interface ExamData {
+interface Exam {
   id: string;
   title: string;
-  subject: string;
   description: string;
+  subject: string;
   duration: number; // in minutes
-  questions: Question[];
+  totalMarks: number;
+  questions: ExamQuestion[];
 }
 
-// Mock data for the exam
-const mockExams: Record<string, ExamData> = {
-  "physics-mechanics": {
-    id: "physics-mechanics",
-    title: "Physics Mechanics Exam",
-    subject: "Physics",
-    description: "Test your knowledge of classical mechanics concepts",
-    duration: 30,
-    questions: [
-      {
-        id: "q1",
-        text: "Which of Newton's laws states that an object at rest stays at rest, and an object in motion stays in motion unless acted upon by an external force?",
-        options: [
-          "Newton's First Law",
-          "Newton's Second Law",
-          "Newton's Third Law",
-          "Newton's Law of Gravitation"
-        ],
-        correctOptionIndex: 0
-      },
-      {
-        id: "q2",
-        text: "What is the formula for force?",
-        options: [
-          "F = mv",
-          "F = ma",
-          "F = m/a",
-          "F = a/m"
-        ],
-        correctOptionIndex: 1
-      },
-      {
-        id: "q3",
-        text: "For every action, there is an equal and opposite reaction. This is:",
-        options: [
-          "Newton's First Law",
-          "Newton's Second Law",
-          "Newton's Third Law",
-          "Law of Conservation of Energy"
-        ],
-        correctOptionIndex: 2
-      },
-      {
-        id: "q4",
-        text: "What is momentum?",
-        options: [
-          "The resistance of an object to changes in its motion",
-          "The product of mass and velocity",
-          "The rate of change of velocity",
-          "The sum of all forces acting on an object"
-        ],
-        correctOptionIndex: 1
-      },
-      {
-        id: "q5",
-        text: "Which of the following is a unit of force?",
-        options: [
-          "Joule",
-          "Watt",
-          "Newton",
-          "Pascal"
-        ],
-        correctOptionIndex: 2
-      }
-    ]
-  },
-  "chemistry-organic": {
-    id: "chemistry-organic",
-    title: "Organic Chemistry Quiz",
-    subject: "Chemistry",
-    description: "Test your knowledge of organic chemistry fundamentals",
-    duration: 20,
-    questions: [
-      {
-        id: "q1",
-        text: "What are alkanes?",
-        options: [
-          "Hydrocarbons with double bonds",
-          "Hydrocarbons with triple bonds",
-          "Saturated hydrocarbons with single bonds",
-          "Cyclic hydrocarbons with aromatic rings"
-        ],
-        correctOptionIndex: 2
-      },
-      {
-        id: "q2",
-        text: "What is a functional group in organic chemistry?",
-        options: [
-          "A specific group of atoms responsible for characteristic reactions",
-          "The longest carbon chain in a molecule",
-          "The central carbon atom in a molecule",
-          "A group of compounds with similar properties"
-        ],
-        correctOptionIndex: 0
-      },
-      {
-        id: "q3",
-        text: "What is isomerism?",
-        options: [
-          "The property of having the same number of atoms",
-          "Compounds with the same molecular formula but different structures",
-          "The property of having the same physical properties",
-          "Compounds with different molecular formulas"
-        ],
-        correctOptionIndex: 1
-      }
-    ]
-  }
-};
-
-// Mock explanations for questions
-const explanations: Record<string, Record<string, string>> = {
-  "physics-mechanics": {
-    "q1": "Newton's First Law states that an object at rest stays at rest, and an object in motion stays in motion with the same speed and direction unless acted upon by an unbalanced force. This is also known as the law of inertia.",
-    "q2": "The formula for force is F = ma, where F is force, m is mass, and a is acceleration. This is Newton's Second Law of Motion.",
-    "q3": "Newton's Third Law states that for every action, there is an equal and opposite reaction.",
-    "q4": "Momentum is defined as the product of an object's mass and velocity. The formula is p = mv.",
-    "q5": "The unit of force in the International System of Units (SI) is the Newton (N)."
-  },
-  "chemistry-organic": {
-    "q1": "Alkanes are saturated hydrocarbons that contain only carbon-carbon single bonds and carbon-hydrogen bonds. The general formula for alkanes is CnH2n+2.",
-    "q2": "A functional group is a specific group of atoms within a molecule that is responsible for the characteristic chemical reactions of that molecule. Examples include hydroxyl (-OH), carbonyl (C=O), and carboxyl (-COOH) groups.",
-    "q3": "Isomerism is the phenomenon where two or more compounds have the same molecular formula but different structural arrangements or configurations of atoms. Types include structural isomerism and stereoisomerism."
-  }
-};
-
 export default function ExamReviewPage() {
-  const { examId } = useParams<{ examId: string }>();
+  const { examId } = useParams();
   const location = useLocation();
-  
-  // Get user answers and score from location state, or use defaults
-  const userAnswers = location.state?.userAnswers || [];
-  const score = location.state?.score || 0;
-  const timeSpent = location.state?.timeSpent || 0;
-  const incomplete = location.state?.incomplete || false;
-  
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [activeTab, setActiveTab] = useState<string>("results");
-  const [categoryPerformance, setCategoryPerformance] = useState<Record<string, { correct: number, total: number }>>({});
-  
-  const examData = examId && mockExams[examId] ? mockExams[examId] : null;
-  
-  // Calculate performance by category (mock data)
+  const navigate = useNavigate();
+
+  // States
+  const [loading, setLoading] = useState(true);
+  const [exam, setExam] = useState<Exam | null>(null);
+  const [activeTab, setActiveTab] = useState('questions');
+  const [expandedQuestions, setExpandedQuestions] = useState<string[]>([]);
+
+  // Retrieve results from location state
+  const results = location.state || {
+    answers: {},
+    score: 0,
+    totalQuestions: 0,
+    timeSpent: 0,
+    flaggedQuestions: [],
+    bookmarkedQuestions: []
+  };
+
+  // Mock data loading
   useEffect(() => {
-    if (examData && userAnswers.length > 0) {
-      const categories: Record<string, { correct: number, total: number }> = {
-        "Mechanics": { correct: 0, total: 0 },
-        "Energy": { correct: 0, total: 0 },
-        "Kinematics": { correct: 0, total: 0 }
+    // Simulate API call
+    setTimeout(() => {
+      const mockExam: Exam = {
+        id: examId || '1',
+        title: "Physics: Mechanics and Motion",
+        description: "Test your understanding of basic mechanics concepts including Newton's laws and kinematics.",
+        subject: "Physics",
+        duration: 30, // 30 minutes
+        totalMarks: 50,
+        questions: [
+          {
+            id: "q1",
+            text: "According to Newton's First Law of Motion, an object at rest will remain at rest and an object in motion will remain in motion with the same speed and in the same direction unless acted upon by...",
+            options: [
+              { id: "a1", text: "Gravitational force only" },
+              { id: "a2", text: "An unbalanced force" },
+              { id: "a3", text: "Another object of equal mass" },
+              { id: "a4", text: "Frictional force only" }
+            ],
+            correctOptionId: "a2",
+            explanation: "Newton's First Law of Motion states that an object will remain at rest or in uniform motion in a straight line unless acted upon by an unbalanced force. This property of objects is called inertia.",
+            subject: "Physics",
+            topic: "Newton's Laws",
+            difficulty: "medium"
+          },
+          {
+            id: "q2",
+            text: "What is the formula for calculating kinetic energy?",
+            options: [
+              { id: "a1", text: "KE = mv" },
+              { id: "a2", text: "KE = mv²" },
+              { id: "a3", text: "KE = (1/2)mv²" },
+              { id: "a4", text: "KE = (1/2)m²v" }
+            ],
+            correctOptionId: "a3",
+            explanation: "The formula for kinetic energy is KE = (1/2)mv², where m is mass and v is velocity.",
+            subject: "Physics",
+            topic: "Energy",
+            difficulty: "easy"
+          },
+          {
+            id: "q3",
+            text: "A 2 kg object accelerates at 5 m/s². What is the force applied to it according to Newton's Second Law?",
+            options: [
+              { id: "a1", text: "2.5 N" },
+              { id: "a2", text: "7 N" },
+              { id: "a3", text: "10 N" },
+              { id: "a4", text: "0.4 N" }
+            ],
+            correctOptionId: "a3",
+            explanation: "Using Newton's Second Law: F = ma, where F is force, m is mass, and a is acceleration. F = 2 kg × 5 m/s² = 10 N",
+            subject: "Physics",
+            topic: "Newton's Laws",
+            difficulty: "medium"
+          },
+          {
+            id: "q4",
+            text: "A car accelerates from rest to 20 m/s in 10 seconds. What is its acceleration?",
+            options: [
+              { id: "a1", text: "0.5 m/s²" },
+              { id: "a2", text: "2 m/s²" },
+              { id: "a3", text: "10 m/s²" },
+              { id: "a4", text: "20 m/s²" }
+            ],
+            correctOptionId: "a2",
+            explanation: "Acceleration = change in velocity / time taken. Acceleration = (20 m/s - 0 m/s) / 10 s = 2 m/s²",
+            subject: "Physics",
+            topic: "Kinematics",
+            difficulty: "easy"
+          },
+          {
+            id: "q5",
+            text: "Which of the following is NOT conserved in an elastic collision?",
+            options: [
+              { id: "a1", text: "Momentum" },
+              { id: "a2", text: "Kinetic energy" },
+              { id: "a3", text: "Mechanical energy" },
+              { id: "a4", text: "Mass" }
+            ],
+            correctOptionId: "a3",
+            explanation: "In an elastic collision, both momentum and kinetic energy are conserved. Mechanical energy (which includes potential energy) is not necessarily conserved if there's a change in potential energy.",
+            subject: "Physics",
+            topic: "Conservation Laws",
+            difficulty: "hard"
+          }
+        ]
       };
-      
-      // Assign questions to mock categories
-      examData.questions.forEach((question, index) => {
-        let category = "Mechanics";
-        if (index % 3 === 1) category = "Energy";
-        if (index % 3 === 2) category = "Kinematics";
-        
-        categories[category].total += 1;
-        if (userAnswers[index] === question.correctOptionIndex) {
-          categories[category].correct += 1;
-        }
-      });
-      
-      setCategoryPerformance(categories);
-    }
-  }, [examData, userAnswers]);
-  
-  if (!examData) {
+
+      setExam(mockExam);
+      setLoading(false);
+    }, 1200);
+  }, [examId]);
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins} min ${secs} sec`;
+  };
+
+  const percentageScore = results.totalQuestions > 0 ? 
+    Math.round((results.score / results.totalQuestions) * 100) : 0;
+
+  const getScoreColor = (percentage: number) => {
+    if (percentage >= 80) return "text-green-600";
+    if (percentage >= 60) return "text-amber-600";
+    return "text-red-600";
+  };
+
+  const getScoreGradient = (percentage: number) => {
+    if (percentage >= 80) return "from-green-200 to-emerald-100 dark:from-green-900/20 dark:to-emerald-900/20";
+    if (percentage >= 60) return "from-amber-200 to-yellow-100 dark:from-amber-900/20 dark:to-yellow-900/20";
+    return "from-red-200 to-rose-100 dark:from-red-900/20 dark:to-rose-900/20";
+  };
+
+  const toggleQuestionExpansion = (questionId: string) => {
+    setExpandedQuestions(prev => {
+      if (prev.includes(questionId)) {
+        return prev.filter(id => id !== questionId);
+      } else {
+        return [...prev, questionId];
+      }
+    });
+  };
+
+  const isQuestionExpanded = (questionId: string) => expandedQuestions.includes(questionId);
+
+  const getResultFeedback = () => {
+    if (percentageScore >= 90) return "Excellent! You've mastered this subject.";
+    if (percentageScore >= 80) return "Great job! Just a few concepts to review.";
+    if (percentageScore >= 70) return "Good work. Consider reviewing the topics you missed.";
+    if (percentageScore >= 60) return "You're on the right track. Focus on strengthening weak areas.";
+    return "Keep practicing. Review the topics you missed and try again.";
+  };
+
+  const handleRetakeExam = () => {
+    navigate(`/dashboard/student/practice-exam/${examId}/start`);
+  };
+
+  // Data for pie chart
+  const pieChartData = [
+    { name: 'Correct', value: results.score },
+    { name: 'Incorrect', value: results.totalQuestions - results.score }
+  ];
+  const COLORS = ['#10b981', '#ef4444'];
+
+  if (!exam && loading) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <Card className="p-8 text-center">
-          <h2 className="text-2xl font-bold">Exam Not Found</h2>
-          <p className="mt-2 text-gray-500">The exam you're looking for doesn't exist.</p>
-          <Link to="/dashboard/student/practice-exam" className="mt-4 inline-block">
-            <Button>Back to Practice Exams</Button>
-          </Link>
+      <div className="container max-w-4xl mx-auto p-4">
+        <Card className="w-full h-[400px] flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mb-4 mx-auto"></div>
+            <p className="text-xl font-medium mb-2">Loading Results</p>
+            <p className="text-muted-foreground">Preparing your exam analysis...</p>
+          </div>
         </Card>
       </div>
     );
   }
-  
-  const currentQuestion = examData.questions[currentQuestionIndex];
-  const correctAnswers = userAnswers.reduce((count, answer, index) => {
-    return count + (answer === examData.questions[index].correctOptionIndex ? 1 : 0);
-  }, 0);
-  
-  const incorrectAnswers = userAnswers.reduce((count, answer, index) => {
-    return count + (answer !== null && answer !== examData.questions[index].correctOptionIndex ? 1 : 0);
-  }, 0);
-  
-  const unansweredCount = examData.questions.length - correctAnswers - incorrectAnswers;
-  
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
-  };
-  
-  const getPerformanceColor = (score: number) => {
-    if (score >= 80) return "text-green-600 dark:text-green-400";
-    if (score >= 60) return "text-amber-600 dark:text-amber-400";
-    return "text-red-600 dark:text-red-400";
-  };
-  
+
+  // Topic performance analysis
+  const topicPerformance = exam?.questions.reduce((acc, question) => {
+    const isCorrect = results.answers[question.id] === question.correctOptionId;
+    if (!acc[question.topic]) {
+      acc[question.topic] = { total: 0, correct: 0 };
+    }
+    acc[question.topic].total += 1;
+    if (isCorrect) acc[question.topic].correct += 1;
+    return acc;
+  }, {} as Record<string, { total: number, correct: number }>);
+
+  // Difficulty breakdown
+  const difficultyBreakdown = exam?.questions.reduce((acc, question) => {
+    const isCorrect = results.answers[question.id] === question.correctOptionId;
+    if (!acc[question.difficulty]) {
+      acc[question.difficulty] = { total: 0, correct: 0 };
+    }
+    acc[question.difficulty].total += 1;
+    if (isCorrect) acc[question.difficulty].correct += 1;
+    return acc;
+  }, {} as Record<string, { total: number, correct: number }>);
+
+  // Format data for bar chart
+  const topicPerformanceData = Object.entries(topicPerformance || {}).map(([topic, data]) => ({
+    topic,
+    percentage: Math.round((data.correct / data.total) * 100)
+  }));
+
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-        <div>
-          <div className="flex items-center gap-2">
-            <Link to="/dashboard/student/practice-exam" className="text-blue-600">
-              <Home className="h-4 w-4" />
-            </Link>
-            <h1 className="text-2xl font-bold">{examData.title} - Results</h1>
+    <div className="container max-w-4xl mx-auto p-4">
+      <Card className="mb-6 shadow-md">
+        <CardHeader className={`bg-gradient-to-r ${getScoreGradient(percentageScore)}`}>
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+            <div>
+              <CardTitle className="text-xl">{exam?.title || 'Exam Results'}</CardTitle>
+              <p className="text-sm text-muted-foreground mt-1">{exam?.subject}</p>
+            </div>
+            <div className={`text-2xl font-bold ${getScoreColor(percentageScore)}`}>
+              {percentageScore}%
+            </div>
           </div>
-          <p className="text-muted-foreground">{examData.subject}</p>
-        </div>
-        
-        <div className="flex items-center gap-4">
-          <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
-            <Clock className="h-3.5 w-3.5 mr-1" /> Time Taken: {formatTime(timeSpent)}
-          </Badge>
-          <Badge variant={!incomplete ? "default" : "outline"} className={
-            !incomplete ? "bg-green-500" : "bg-amber-100 text-amber-800 border-amber-200"
-          }>
-            {!incomplete ? "Completed" : "In Progress"}
-          </Badge>
-        </div>
-      </div>
-      
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="grid w-full grid-cols-2 md:grid-cols-3 lg:w-[600px]">
-          <TabsTrigger value="results">Results Summary</TabsTrigger>
-          <TabsTrigger value="questions">Question Analysis</TabsTrigger>
-          <TabsTrigger value="performance">Performance Details</TabsTrigger>
-        </TabsList>
-        
-        {/* Results Tab */}
-        <TabsContent value="results" className="space-y-6">
-          <Card className="overflow-hidden">
-            <CardHeader className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20">
-              <CardTitle className="text-xl">Exam Results</CardTitle>
-            </CardHeader>
-            <CardContent className="pt-6">
-              <div className="flex flex-col items-center justify-center">
-                <div className="relative w-48 h-48">
-                  <svg viewBox="0 0 100 100" className="w-full h-full">
-                    <circle
-                      cx="50"
-                      cy="50"
-                      r="45"
-                      fill="none"
-                      stroke="#e2e8f0"
-                      strokeWidth="10"
-                    />
-                    <circle
-                      cx="50"
-                      cy="50"
-                      r="45"
-                      fill="none"
-                      stroke={score >= 80 ? "#4ade80" : score >= 60 ? "#fbbf24" : "#ef4444"}
-                      strokeWidth="10"
-                      strokeDasharray={`${score * 2.83} ${283 - score * 2.83}`}
-                      strokeDashoffset={70.75}
-                      strokeLinecap="round"
-                    />
-                  </svg>
-                  <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <span className={`text-4xl font-bold ${getPerformanceColor(score)}`}>
-                      {score}%
-                    </span>
-                    <span className="text-sm text-gray-500">Score</span>
-                  </div>
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8 w-full">
-                  <Card className="bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-900">
-                    <CardContent className="p-4 text-center">
-                      <CheckCircle2 className="h-8 w-8 text-green-600 dark:text-green-400 mx-auto mb-2" />
-                      <h3 className="font-medium">Correct</h3>
-                      <p className="text-2xl font-bold text-green-600 dark:text-green-400">
-                        {correctAnswers}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        ({Math.round((correctAnswers / examData.questions.length) * 100)}%)
-                      </p>
-                    </CardContent>
-                  </Card>
-                  
-                  <Card className="bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-900">
-                    <CardContent className="p-4 text-center">
-                      <XCircle className="h-8 w-8 text-red-600 dark:text-red-400 mx-auto mb-2" />
-                      <h3 className="font-medium">Incorrect</h3>
-                      <p className="text-2xl font-bold text-red-600 dark:text-red-400">
-                        {incorrectAnswers}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        ({Math.round((incorrectAnswers / examData.questions.length) * 100)}%)
-                      </p>
-                    </CardContent>
-                  </Card>
-                  
-                  <Card className="bg-gray-50 dark:bg-gray-900/20 border-gray-200 dark:border-gray-900">
-                    <CardContent className="p-4 text-center">
-                      <HelpCircle className="h-8 w-8 text-gray-600 dark:text-gray-400 mx-auto mb-2" />
-                      <h3 className="font-medium">Unanswered</h3>
-                      <p className="text-2xl font-bold text-gray-600 dark:text-gray-400">
-                        {unansweredCount}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        ({Math.round((unansweredCount / examData.questions.length) * 100)}%)
-                      </p>
-                    </CardContent>
-                  </Card>
-                </div>
-                
-                <div className="mt-8 w-full">
-                  <h3 className="text-lg font-medium mb-4">Performance by Category</h3>
-                  <div className="space-y-4">
-                    {Object.entries(categoryPerformance).map(([category, data]) => (
-                      <div key={category}>
-                        <div className="flex justify-between text-sm mb-1">
-                          <span>{category}</span>
-                          <span>
-                            {data.correct}/{data.total} ({Math.round((data.correct / data.total) * 100)}%)
-                          </span>
-                        </div>
-                        <Progress value={(data.correct / data.total) * 100} className="h-2" />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+        </CardHeader>
+        <CardContent className="py-4 space-y-4">
+          <Progress value={percentageScore} className="h-3" />
           
-          <div className="flex flex-col sm:flex-row gap-4">
-            <Button 
-              onClick={() => setActiveTab("questions")} 
-              className="flex items-center"
-            >
-              <Check className="mr-2 h-4 w-4" />
-              Review Questions
-            </Button>
-            <Link to={`/dashboard/student/practice-exam/${examId}/start`} className="w-full sm:w-auto">
-              <Button variant="outline" className="w-full">
-                <Refresh className="mr-2 h-4 w-4" />
-                Retake Exam
-              </Button>
-            </Link>
-          </div>
-        </TabsContent>
-        
-        {/* Questions Tab */}
-        <TabsContent value="questions">
-          <Card className="mb-4">
-            <CardHeader className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 py-4 flex flex-row items-center justify-between">
-              <div>
-                <CardTitle className="text-lg mb-1">Question {currentQuestionIndex + 1} of {examData.questions.length}</CardTitle>
-                <Badge variant="outline" className={
-                  userAnswers[currentQuestionIndex] === examData.questions[currentQuestionIndex].correctOptionIndex
-                    ? "bg-green-100 text-green-800 border-green-200"
-                    : userAnswers[currentQuestionIndex] !== null
-                    ? "bg-red-100 text-red-800 border-red-200"
-                    : "bg-gray-100 text-gray-800 border-gray-200"
-                }>
-                  {userAnswers[currentQuestionIndex] === examData.questions[currentQuestionIndex].correctOptionIndex
-                    ? "Correct"
-                    : userAnswers[currentQuestionIndex] !== null
-                    ? "Incorrect"
-                    : "Unanswered"}
-                </Badge>
-              </div>
-              <div className="flex gap-2">
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={() => setCurrentQuestionIndex(prevIndex => Math.max(0, prevIndex - 1))}
-                  disabled={currentQuestionIndex === 0}
-                >
-                  <ArrowLeft className="h-4 w-4" />
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={() => setCurrentQuestionIndex(prevIndex => Math.min(examData.questions.length - 1, prevIndex + 1))}
-                  disabled={currentQuestionIndex === examData.questions.length - 1}
-                >
-                  <ArrowRight className="h-4 w-4" />
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent className="p-4">
-              <h3 className="text-lg font-medium mb-4">{currentQuestion.text}</h3>
-              <div className="space-y-3">
-                {currentQuestion.options.map((option, index) => (
-                  <div
-                    key={index}
-                    className={`p-3 rounded-md border ${
-                      userAnswers[currentQuestionIndex] === index && index === currentQuestion.correctOptionIndex
-                        ? "bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-900"
-                        : userAnswers[currentQuestionIndex] === index
-                        ? "bg-red-50 border-red-200 dark:bg-red-900/20 dark:border-red-900"
-                        : index === currentQuestion.correctOptionIndex
-                        ? "bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-900"
-                        : "bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700"
-                    }`}
-                  >
-                    <div className="flex items-start">
-                      <div className="mr-3">
-                        {userAnswers[currentQuestionIndex] === index && index === currentQuestion.correctOptionIndex ? (
-                          <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-400" />
-                        ) : userAnswers[currentQuestionIndex] === index ? (
-                          <XCircle className="h-5 w-5 text-red-600 dark:text-red-400" />
-                        ) : index === currentQuestion.correctOptionIndex ? (
-                          <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-400" />
-                        ) : (
-                          <div className="h-5 w-5 rounded-full border border-gray-300 dark:border-gray-600" />
-                        )}
-                      </div>
-                      <div className="flex-1">
-                        <p className="font-medium">{option}</p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              
-              <div className="mt-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-900 rounded-md p-4">
-                <h4 className="flex items-center text-blue-800 dark:text-blue-300 font-medium mb-2">
-                  <BookOpen className="h-4 w-4 mr-2" />
-                  Explanation
-                </h4>
-                <p className="text-sm">
-                  {explanations[examId!]?.[currentQuestion.id] || "No explanation available for this question."}
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-          
-          {/* Question navigation */}
-          <div className="mb-6">
-            <h3 className="text-sm font-medium mb-3">All Questions</h3>
-            <div className="grid grid-cols-5 sm:grid-cols-10 gap-2">
-              {examData.questions.map((_, index) => (
-                <Button
-                  key={index}
-                  variant="outline"
-                  size="sm"
-                  className={`w-full h-10 ${
-                    index === currentQuestionIndex ? 'border-2 border-blue-500' : ''
-                  } ${
-                    userAnswers[index] === examData.questions[index].correctOptionIndex 
-                      ? 'bg-green-100 dark:bg-green-900/30' 
-                      : userAnswers[index] !== null 
-                      ? 'bg-red-100 dark:bg-red-900/30' 
-                      : 'bg-gray-100 dark:bg-gray-800'
-                  }`}
-                  onClick={() => setCurrentQuestionIndex(index)}
-                >
-                  {index + 1}
-                </Button>
-              ))}
+          <div className="flex flex-wrap justify-between mt-2 text-sm">
+            <div className="flex items-center gap-2">
+              <CheckCircle className="h-4 w-4 text-green-600" />
+              <span>Correct: {results.score}/{results.totalQuestions}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Clock className="h-4 w-4 text-blue-600" />
+              <span>Time spent: {formatTime(results.timeSpent)}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <BookOpen className="h-4 w-4 text-purple-600" />
+              <span>Topic: {exam?.subject}</span>
             </div>
           </div>
           
-          <div className="flex flex-col sm:flex-row gap-4">
-            <Link to="/dashboard/student/practice-exam">
-              <Button variant="outline" className="flex items-center">
-                <Home className="mr-2 h-4 w-4" />
-                Back to Exams
-              </Button>
-            </Link>
-            <Link to={`/dashboard/student/practice-exam/${examId}/start`}>
-              <Button className="flex items-center">
-                <Refresh className="mr-2 h-4 w-4" />
-                Retake Exam
-              </Button>
-            </Link>
+          <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-md border border-blue-100 dark:border-blue-800/50">
+            <p className="font-medium mb-1">Feedback:</p>
+            <p className="text-sm">{getResultFeedback()}</p>
           </div>
+        </CardContent>
+      </Card>
+
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+        <TabsList className="grid grid-cols-3 mb-4">
+          <TabsTrigger value="questions" className="flex items-center gap-1">
+            <FileText className="h-4 w-4" />
+            <span>Questions</span>
+          </TabsTrigger>
+          <TabsTrigger value="analytics" className="flex items-center gap-1">
+            <BarChart className="h-4 w-4" />
+            <span>Analytics</span>
+          </TabsTrigger>
+          <TabsTrigger value="recommendations" className="flex items-center gap-1">
+            <BookOpen className="h-4 w-4" />
+            <span>Recommendations</span>
+          </TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="questions" className="space-y-4">
+          {exam?.questions.map(question => (
+            <Card key={question.id} className={`border-l-4 ${
+              results.answers[question.id] === question.correctOptionId ? 
+              'border-l-green-500' : 'border-l-red-500'
+            }`}>
+              <CardHeader className="py-4">
+                <div className="flex justify-between items-start">
+                  <div className="space-y-1">
+                    <Badge className={
+                      question.difficulty === 'easy' ? 'bg-green-100 text-green-800' :
+                      question.difficulty === 'medium' ? 'bg-amber-100 text-amber-800' :
+                      'bg-red-100 text-red-800'
+                    }>
+                      {question.difficulty}
+                    </Badge>
+                    <h3 className="font-medium">{question.text}</h3>
+                  </div>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => toggleQuestionExpansion(question.id)}
+                    className="ml-2"
+                  >
+                    {isQuestionExpanded(question.id) ? 
+                      <ChevronUp className="h-4 w-4" /> : 
+                      <ChevronDown className="h-4 w-4" />}
+                  </Button>
+                </div>
+              </CardHeader>
+              
+              {isQuestionExpanded(question.id) && (
+                <CardContent className="py-2">
+                  <div className="space-y-3">
+                    <div className="space-y-2">
+                      {question.options.map(option => {
+                        const isSelected = results.answers[question.id] === option.id;
+                        const isCorrect = option.id === question.correctOptionId;
+                        
+                        return (
+                          <div 
+                            key={option.id} 
+                            className={`p-3 border rounded-md ${
+                              isSelected && isCorrect ? 'bg-green-50 border-green-300 dark:bg-green-900/20 dark:border-green-700' :
+                              isSelected && !isCorrect ? 'bg-red-50 border-red-300 dark:bg-red-900/20 dark:border-red-700' :
+                              isCorrect ? 'bg-blue-50 border-blue-300 dark:bg-blue-900/20 dark:border-blue-700' :
+                              ''
+                            }`}
+                          >
+                            <div className="flex items-start">
+                              <div className="flex-shrink-0 mt-0.5">
+                                {isSelected && isCorrect && <CheckCircle className="h-5 w-5 text-green-600" />}
+                                {isSelected && !isCorrect && <XCircle className="h-5 w-5 text-red-600" />}
+                                {!isSelected && isCorrect && <CheckCircle className="h-5 w-5 text-blue-600" />}
+                                {!isSelected && !isCorrect && <div className="w-5 h-5"></div>}
+                              </div>
+                              <span className="ml-2">{option.text}</span>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                    
+                    <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-md border border-blue-100 dark:border-blue-800/50">
+                      <p className="font-medium mb-1">Explanation:</p>
+                      <p className="text-sm">{question.explanation}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              )}
+            </Card>
+          ))}
         </TabsContent>
         
-        {/* Performance Tab */}
-        <TabsContent value="performance">
-          <Card className="mb-6">
-            <CardHeader className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20">
-              <CardTitle className="text-xl">Performance Analysis</CardTitle>
+        <TabsContent value="analytics" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Performance Overview</CardTitle>
             </CardHeader>
-            <CardContent className="pt-6">
-              <div className="space-y-6">
-                {/* Time Analysis */}
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Pie Chart */}
                 <div>
-                  <h3 className="text-lg font-medium mb-3 flex items-center">
-                    <Clock className="h-5 w-5 mr-2 text-blue-600" />
-                    Time Analysis
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <Card className="bg-gray-50 dark:bg-gray-800/50">
-                      <CardContent className="p-4">
-                        <h4 className="text-sm font-medium text-gray-500">Total Time</h4>
-                        <p className="text-2xl font-bold">{formatTime(timeSpent)}</p>
-                        <p className="text-xs text-muted-foreground">
-                          Out of {examData.duration} min allowed
-                        </p>
-                      </CardContent>
-                    </Card>
-                    <Card className="bg-gray-50 dark:bg-gray-800/50">
-                      <CardContent className="p-4">
-                        <h4 className="text-sm font-medium text-gray-500">Avg. Time per Question</h4>
-                        <p className="text-2xl font-bold">
-                          {formatTime(Math.round(timeSpent / examData.questions.length))}
-                        </p>
-                      </CardContent>
-                    </Card>
-                    <Card className="bg-gray-50 dark:bg-gray-800/50">
-                      <CardContent className="p-4">
-                        <h4 className="text-sm font-medium text-gray-500">Time Management</h4>
-                        <p className="text-2xl font-bold">
-                          {timeSpent < examData.duration * 60 * 0.8 ? "Good" : "Rushed"}
-                        </p>
-                      </CardContent>
-                    </Card>
+                  <h3 className="text-base font-medium mb-3 text-center">Score Distribution</h3>
+                  <div className="h-64">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={pieChartData}
+                          cx="50%"
+                          cy="50%"
+                          labelLine={false}
+                          outerRadius={80}
+                          fill="#8884d8"
+                          dataKey="value"
+                          label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                        >
+                          {pieChartData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                          ))}
+                        </Pie>
+                        <Tooltip />
+                      </PieChart>
+                    </ResponsiveContainer>
                   </div>
                 </div>
                 
-                {/* Strength & Weaknesses */}
+                {/* Topic Performance Bar Chart */}
                 <div>
-                  <h3 className="text-lg font-medium mb-3 flex items-center">
-                    <BarChart3 className="h-5 w-5 mr-2 text-blue-600" />
-                    Strengths & Weaknesses
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <Card className="bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-900">
-                      <CardContent className="p-4">
-                        <h4 className="text-base font-medium text-green-700 dark:text-green-300 mb-2">Strengths</h4>
-                        <ul className="space-y-2">
-                          {correctAnswers > 0 ? (
-                            <>
-                              <li className="flex items-start">
-                                <CheckCircle2 className="h-4 w-4 mr-2 text-green-600 dark:text-green-400 mt-0.5" />
-                                <span>You performed well in {Object.keys(categoryPerformance).filter(
-                                  cat => categoryPerformance[cat].correct / categoryPerformance[cat].total >= 0.7
-                                ).join(", ") || "some categories"}</span>
-                              </li>
-                              <li className="flex items-start">
-                                <CheckCircle2 className="h-4 w-4 mr-2 text-green-600 dark:text-green-400 mt-0.5" />
-                                <span>You answered {correctAnswers} questions correctly</span>
-                              </li>
-                            </>
-                          ) : (
-                            <li className="text-sm text-muted-foreground">
-                              Practice more to develop strengths in this subject.
-                            </li>
-                          )}
-                        </ul>
-                      </CardContent>
-                    </Card>
-                    <Card className="bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-900">
-                      <CardContent className="p-4">
-                        <h4 className="text-base font-medium text-red-700 dark:text-red-300 mb-2">Areas to Improve</h4>
-                        <ul className="space-y-2">
-                          {incorrectAnswers > 0 ? (
-                            <>
-                              <li className="flex items-start">
-                                <XCircle className="h-4 w-4 mr-2 text-red-600 dark:text-red-400 mt-0.5" />
-                                <span>You need to work on {Object.keys(categoryPerformance).filter(
-                                  cat => categoryPerformance[cat].correct / categoryPerformance[cat].total < 0.6
-                                ).join(", ") || "some categories"}</span>
-                              </li>
-                              <li className="flex items-start">
-                                <XCircle className="h-4 w-4 mr-2 text-red-600 dark:text-red-400 mt-0.5" />
-                                <span>You answered {incorrectAnswers} questions incorrectly</span>
-                              </li>
-                            </>
-                          ) : (
-                            <li className="text-sm text-muted-foreground">
-                              Great job! Keep practicing to maintain your performance.
-                            </li>
-                          )}
-                          {unansweredCount > 0 && (
-                            <li className="flex items-start">
-                              <XCircle className="h-4 w-4 mr-2 text-red-600 dark:text-red-400 mt-0.5" />
-                              <span>You left {unansweredCount} questions unanswered</span>
-                            </li>
-                          )}
-                        </ul>
-                      </CardContent>
-                    </Card>
+                  <h3 className="text-base font-medium mb-3 text-center">Topic Performance</h3>
+                  <div className="h-64">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <ReBarChart
+                        data={topicPerformanceData}
+                        margin={{
+                          top: 5,
+                          right: 30,
+                          left: 0,
+                          bottom: 5,
+                        }}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="topic" />
+                        <YAxis />
+                        <Tooltip />
+                        <Bar dataKey="percentage" fill="#3b82f6" name="Percentage Correct" />
+                      </ReBarChart>
+                    </ResponsiveContainer>
                   </div>
                 </div>
-                
-                {/* Recommended Actions */}
-                <div>
-                  <h3 className="text-lg font-medium mb-3">Recommended Actions</h3>
-                  <Card className="bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-900">
-                    <CardContent className="p-4">
-                      <ul className="space-y-3">
-                        <li className="flex items-start">
-                          <div className="bg-blue-100 dark:bg-blue-800/50 p-1 rounded-full mr-3">
-                            <BookOpen className="h-4 w-4 text-blue-600 dark:text-blue-300" />
-                          </div>
-                          <div>
-                            <p className="font-medium">Review Weak Areas</p>
-                            <p className="text-sm text-muted-foreground">
-                              Focus on the topics where you scored less than 60%
-                            </p>
-                          </div>
-                        </li>
-                        <li className="flex items-start">
-                          <div className="bg-blue-100 dark:bg-blue-800/50 p-1 rounded-full mr-3">
-                            <Check className="h-4 w-4 text-blue-600 dark:text-blue-300" />
-                          </div>
-                          <div>
-                            <p className="font-medium">Practice More Questions</p>
-                            <p className="text-sm text-muted-foreground">
-                              Try similar questions to reinforce your understanding
-                            </p>
-                          </div>
-                        </li>
-                        <li className="flex items-start">
-                          <div className="bg-blue-100 dark:bg-blue-800/50 p-1 rounded-full mr-3">
-                            <Clock className="h-4 w-4 text-blue-600 dark:text-blue-300" />
-                          </div>
-                          <div>
-                            <p className="font-medium">Improve Time Management</p>
-                            <p className="text-sm text-muted-foreground">
-                              Practice answering questions within time limits
-                            </p>
-                          </div>
-                        </li>
-                      </ul>
-                    </CardContent>
-                  </Card>
+              </div>
+              
+              {/* Difficulty Breakdown */}
+              <div className="mt-8">
+                <h3 className="text-base font-medium mb-4">Difficulty Breakdown</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  {Object.entries(difficultyBreakdown || {}).map(([difficulty, data]) => (
+                    <Card key={difficulty} className={`border ${
+                      difficulty === 'easy' ? 'border-green-200 dark:border-green-700' :
+                      difficulty === 'medium' ? 'border-amber-200 dark:border-amber-700' :
+                      'border-red-200 dark:border-red-700'
+                    }`}>
+                      <CardContent className="pt-4">
+                        <h4 className={`font-medium text-center mb-2 ${
+                          difficulty === 'easy' ? 'text-green-600 dark:text-green-400' :
+                          difficulty === 'medium' ? 'text-amber-600 dark:text-amber-400' :
+                          'text-red-600 dark:text-red-400'
+                        }`}>
+                          {difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}
+                        </h4>
+                        <div className="flex justify-center text-2xl font-bold mb-2">
+                          {Math.round((data.correct / data.total) * 100)}%
+                        </div>
+                        <div className="text-center text-sm text-muted-foreground">
+                          {data.correct} / {data.total} correct
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
                 </div>
               </div>
             </CardContent>
           </Card>
           
-          <div className="flex flex-col sm:flex-row gap-4">
-            <Button 
-              onClick={() => setActiveTab("questions")} 
-              className="flex items-center"
-            >
-              <Check className="mr-2 h-4 w-4" />
-              Review Questions
-            </Button>
-            <Link to={`/dashboard/student/practice-exam/${examId}/start`} className="w-full sm:w-auto">
-              <Button variant="outline" className="w-full">
-                <Refresh className="mr-2 h-4 w-4" />
-                Retake Exam
-              </Button>
-            </Link>
-          </div>
+          {/* Time Analysis */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Time Analysis</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+                  <h4 className="text-sm font-medium text-blue-700 dark:text-blue-300">Time Spent</h4>
+                  <div className="text-2xl font-bold mt-1">{formatTime(results.timeSpent)}</div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    vs {exam?.duration || 30} minutes allocated
+                  </p>
+                </div>
+                
+                <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+                  <h4 className="text-sm font-medium text-blue-700 dark:text-blue-300">Time per Question</h4>
+                  <div className="text-2xl font-bold mt-1">
+                    {Math.round(results.timeSpent / results.totalQuestions)} sec
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Average time spent on each question
+                  </p>
+                </div>
+                
+                <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+                  <h4 className="text-sm font-medium text-blue-700 dark:text-blue-300">Time Efficiency</h4>
+                  <div className="text-2xl font-bold mt-1">
+                    {Math.round((results.score / results.timeSpent) * 100)} %
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Correct answers per time spent
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="recommendations" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Areas to Improve</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {Object.entries(topicPerformance || {})
+                  .filter(([_, data]) => (data.correct / data.total) < 0.7) // Less than 70% correct
+                  .map(([topic, data]) => (
+                    <div key={topic} className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/50 p-4 rounded-lg">
+                      <h3 className="font-medium text-amber-800 dark:text-amber-300 mb-1">{topic}</h3>
+                      <div className="flex justify-between text-sm mb-1">
+                        <span>Performance</span>
+                        <span>{Math.round((data.correct / data.total) * 100)}%</span>
+                      </div>
+                      <Progress value={Math.round((data.correct / data.total) * 100)} className="h-2 mb-3" />
+                      <div className="text-sm space-y-2">
+                        <p>Review the following concepts:</p>
+                        <ul className="list-disc pl-5 space-y-1">
+                          {exam?.questions
+                            .filter(q => q.topic === topic && results.answers[q.id] !== q.correctOptionId)
+                            .map(q => (
+                              <li key={q.id}>{q.text.split('?')[0]}?</li>
+                            ))}
+                        </ul>
+                      </div>
+                    </div>
+                  ))}
+                
+                {Object.entries(topicPerformance || {}).filter(([_, data]) => (data.correct / data.total) < 0.7).length === 0 && (
+                  <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800/50 p-4 rounded-lg">
+                    <h3 className="font-medium text-green-800 dark:text-green-300 mb-1">Great Job!</h3>
+                    <p className="text-sm">You performed well across all topics. Consider taking more challenging exams to continue your progress.</p>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Recommended Resources</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="bg-white dark:bg-gray-800 p-4 border rounded-lg">
+                    <div className="flex items-start">
+                      <BookOpen className="h-6 w-6 text-blue-600 mr-3 mt-1" />
+                      <div>
+                        <h3 className="font-medium">Concept Review</h3>
+                        <p className="text-sm text-muted-foreground mb-3">
+                          Review related concepts with interactive learning materials
+                        </p>
+                        <Button variant="outline" size="sm">
+                          Go to Concepts
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-white dark:bg-gray-800 p-4 border rounded-lg">
+                    <div className="flex items-start">
+                      <FileText className="h-6 w-6 text-purple-600 mr-3 mt-1" />
+                      <div>
+                        <h3 className="font-medium">Practice Problems</h3>
+                        <p className="text-sm text-muted-foreground mb-3">
+                          Try additional practice problems focused on your weak areas
+                        </p>
+                        <Button variant="outline" size="sm">
+                          Practice More
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                {percentageScore < 70 && (
+                  <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800/50 p-4 rounded-lg">
+                    <h3 className="font-medium text-blue-800 dark:text-blue-300 mb-1">Study Plan Suggestion</h3>
+                    <p className="text-sm mb-3">We've created a personalized study plan to help improve your score.</p>
+                    <Button size="sm">View Study Plan</Button>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
+      
+      <div className="flex justify-between mt-6">
+        <Button variant="outline" onClick={() => navigate('/dashboard/student/practice-exam')}>
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back to Exams
+        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline">
+            <Download className="h-4 w-4 mr-2" />
+            Download Results
+          </Button>
+          <Button onClick={handleRetakeExam}>
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Retake Exam
+          </Button>
+        </div>
+      </div>
     </div>
   );
 }

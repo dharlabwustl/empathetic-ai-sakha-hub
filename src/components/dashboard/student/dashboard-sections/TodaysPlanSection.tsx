@@ -107,14 +107,14 @@ export default function TodaysPlanSection({ studyPlan, currentMood }: TodaysPlan
       <CardContent className="space-y-4 p-4">
         {/* Personal Greeting Section */}
         <div className="p-3 rounded-lg bg-blue-50/50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/30">
-          <h3 className="font-medium text-base">Good {getTimeOfDay()}, {studyPlan?.userName || 'Student'}! 🌟</h3>
+          <h3 className="font-medium text-base">Good {getTimeOfDay()}, Student! 🌟</h3>
           <p className="text-sm mt-1">
             Let's conquer the day with a personalized study plan tailored for you!
           </p>
         </div>
         
         {/* Mood-based Smart Suggestion */}
-        {currentMood && adaptedPlan.message && (
+        {currentMood && (
           <div className={`p-3 rounded-lg ${
             currentMood === 'happy' ? 'bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-900/20 dark:text-amber-300 dark:border-amber-800/30' :
             currentMood === 'focused' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-300 dark:border-emerald-800/30' :
@@ -123,7 +123,7 @@ export default function TodaysPlanSection({ studyPlan, currentMood }: TodaysPlan
             currentMood === 'anxious' ? 'bg-purple-50 text-purple-700 border border-purple-200 dark:bg-purple-900/20 dark:text-purple-300 dark:border-purple-800/30' :
             'bg-purple-50 text-purple-700 border border-purple-200 dark:bg-purple-900/20 dark:text-purple-300 dark:border-purple-800/30'
           }`}>
-            <p className="text-sm">{adaptedPlan.message}</p>
+            <p className="text-sm">{getMoodBasedPlan(currentMood, {})?.message}</p>
           </div>
         )}
         
@@ -295,13 +295,13 @@ export default function TodaysPlanSection({ studyPlan, currentMood }: TodaysPlan
         <div className="mt-4">
           <h3 className="font-medium text-base flex items-center">
             <Flag className="h-4 w-4 mr-1.5 text-red-500" /> 
-            Backlogs – Let's Clear Yesterday's Challenges!
+            ⚡ Backlogs – Let's Clear Yesterday's Challenges!
           </h3>
           <div className="mt-2 overflow-x-auto">
             <table className="w-full text-sm">
               <thead className="bg-gray-50 dark:bg-gray-800/50 text-xs">
                 <tr>
-                  <th className="px-3 py-2 text-left">Subject</th>
+                  <th className="px-3 py-2 text-left">📌 Subject</th>
                   <th className="px-3 py-2 text-left">Concept/Task</th>
                   <th className="px-3 py-2 text-left">Time</th>
                   <th className="px-3 py-2 text-left">Action</th>
@@ -315,7 +315,7 @@ export default function TodaysPlanSection({ studyPlan, currentMood }: TodaysPlan
                   <td className="px-3 py-2">
                     <Link to="/dashboard/student/flashcards/history/revolt-1857">
                       <Button size="sm" variant="link" className="h-7 p-0 text-blue-600 dark:text-blue-400">
-                        Complete Now
+                        📎 Complete Now
                       </Button>
                     </Link>
                   </td>
@@ -327,7 +327,7 @@ export default function TodaysPlanSection({ studyPlan, currentMood }: TodaysPlan
                   <td className="px-3 py-2">
                     <Link to="/dashboard/student/concepts/math/quadratic-equations">
                       <Button size="sm" variant="link" className="h-7 p-0 text-blue-600 dark:text-blue-400">
-                        Complete Now
+                        📎 Complete Now
                       </Button>
                     </Link>
                   </td>

@@ -1,471 +1,512 @@
 
-import React, { useState, useEffect, useRef } from 'react';
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
+import { useToast } from '@/hooks/use-toast';
 import { 
-  Clock, X, Flag, ChevronRight, ChevronLeft, 
-  Check, AlertCircle, Home, Save 
+  Clock, 
+  AlertCircle, 
+  ChevronLeft, 
+  ChevronRight, 
+  Flag, 
+  Bookmark, 
+  ArrowLeft, 
+  Check
 } from 'lucide-react';
-import { Link, useParams, useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Dialog, DialogContent, DialogDescription, 
-  DialogFooter, DialogHeader, DialogTitle 
-} from "@/components/ui/dialog";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
+import { motion } from 'framer-motion';
 
-interface Question {
+interface ExamQuestion {
   id: string;
   text: string;
-  options: string[];
-  correctOptionIndex: number;
+  options: {
+    id: string;
+    text: string;
+  }[];
+  correctOptionId?: string;
+  explanation?: string;
+  subject: string;
+  topic: string;
+  difficulty: 'easy' | 'medium' | 'hard';
 }
 
-interface ExamData {
+interface Exam {
   id: string;
   title: string;
-  subject: string;
   description: string;
+  subject: string;
   duration: number; // in minutes
-  questions: Question[];
+  totalMarks: number;
+  questions: ExamQuestion[];
 }
 
-// Mock data for the exam
-const mockExams: Record<string, ExamData> = {
-  "physics-mechanics": {
-    id: "physics-mechanics",
-    title: "Physics Mechanics Exam",
-    subject: "Physics",
-    description: "Test your knowledge of classical mechanics concepts",
-    duration: 30,
-    questions: [
-      {
-        id: "q1",
-        text: "Which of Newton's laws states that an object at rest stays at rest, and an object in motion stays in motion unless acted upon by an external force?",
-        options: [
-          "Newton's First Law",
-          "Newton's Second Law",
-          "Newton's Third Law",
-          "Newton's Law of Gravitation"
-        ],
-        correctOptionIndex: 0
-      },
-      {
-        id: "q2",
-        text: "What is the formula for force?",
-        options: [
-          "F = mv",
-          "F = ma",
-          "F = m/a",
-          "F = a/m"
-        ],
-        correctOptionIndex: 1
-      },
-      {
-        id: "q3",
-        text: "For every action, there is an equal and opposite reaction. This is:",
-        options: [
-          "Newton's First Law",
-          "Newton's Second Law",
-          "Newton's Third Law",
-          "Law of Conservation of Energy"
-        ],
-        correctOptionIndex: 2
-      },
-      {
-        id: "q4",
-        text: "What is momentum?",
-        options: [
-          "The resistance of an object to changes in its motion",
-          "The product of mass and velocity",
-          "The rate of change of velocity",
-          "The sum of all forces acting on an object"
-        ],
-        correctOptionIndex: 1
-      },
-      {
-        id: "q5",
-        text: "Which of the following is a unit of force?",
-        options: [
-          "Joule",
-          "Watt",
-          "Newton",
-          "Pascal"
-        ],
-        correctOptionIndex: 2
-      }
-    ]
-  },
-  "chemistry-organic": {
-    id: "chemistry-organic",
-    title: "Organic Chemistry Quiz",
-    subject: "Chemistry",
-    description: "Test your knowledge of organic chemistry fundamentals",
-    duration: 20,
-    questions: [
-      {
-        id: "q1",
-        text: "What are alkanes?",
-        options: [
-          "Hydrocarbons with double bonds",
-          "Hydrocarbons with triple bonds",
-          "Saturated hydrocarbons with single bonds",
-          "Cyclic hydrocarbons with aromatic rings"
-        ],
-        correctOptionIndex: 2
-      },
-      {
-        id: "q2",
-        text: "What is a functional group in organic chemistry?",
-        options: [
-          "A specific group of atoms responsible for characteristic reactions",
-          "The longest carbon chain in a molecule",
-          "The central carbon atom in a molecule",
-          "A group of compounds with similar properties"
-        ],
-        correctOptionIndex: 0
-      },
-      {
-        id: "q3",
-        text: "What is isomerism?",
-        options: [
-          "The property of having the same number of atoms",
-          "Compounds with the same molecular formula but different structures",
-          "The property of having the same physical properties",
-          "Compounds with different molecular formulas"
-        ],
-        correctOptionIndex: 1
-      }
-    ]
-  }
-};
-
 export default function ExamTakingPage() {
-  const { examId } = useParams<{ examId: string }>();
+  const { examId } = useParams();
   const navigate = useNavigate();
-  
+  const { toast } = useToast();
+
+  // States
+  const [loading, setLoading] = useState(true);
+  const [exam, setExam] = useState<Exam | null>(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [userAnswers, setUserAnswers] = useState<(number | null)[]>([]);
-  const [timeRemaining, setTimeRemaining] = useState(0);
-  const [isSubmitDialogOpen, setIsSubmitDialogOpen] = useState(false);
-  const [isTimeUpDialogOpen, setIsTimeUpDialogOpen] = useState(false);
-  const [flaggedQuestions, setFlaggedQuestions] = useState<Set<number>>(new Set());
-  
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
-  
-  const examData = examId && mockExams[examId] ? mockExams[examId] : null;
-  
-  // Initialize the exam state
+  const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [flaggedQuestions, setFlaggedQuestions] = useState<string[]>([]);
+  const [bookmarkedQuestions, setBookmarkedQuestions] = useState<string[]>([]);
+  const [timer, setTimer] = useState<number | null>(null);
+  const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Mock data loading
   useEffect(() => {
-    if (examData) {
-      // Initialize user answers array with nulls
-      setUserAnswers(new Array(examData.questions.length).fill(null));
-      // Set initial timer value
-      setTimeRemaining(examData.duration * 60);
-    }
-  }, [examData]);
-  
+    // Simulate API call
+    setTimeout(() => {
+      const mockExam: Exam = {
+        id: examId || '1',
+        title: "Physics: Mechanics and Motion",
+        description: "Test your understanding of basic mechanics concepts including Newton's laws and kinematics.",
+        subject: "Physics",
+        duration: 30, // 30 minutes
+        totalMarks: 50,
+        questions: [
+          {
+            id: "q1",
+            text: "According to Newton's First Law of Motion, an object at rest will remain at rest and an object in motion will remain in motion with the same speed and in the same direction unless acted upon by...",
+            options: [
+              { id: "a1", text: "Gravitational force only" },
+              { id: "a2", text: "An unbalanced force" },
+              { id: "a3", text: "Another object of equal mass" },
+              { id: "a4", text: "Frictional force only" }
+            ],
+            correctOptionId: "a2",
+            explanation: "Newton's First Law of Motion states that an object will remain at rest or in uniform motion in a straight line unless acted upon by an unbalanced force. This property of objects is called inertia.",
+            subject: "Physics",
+            topic: "Newton's Laws",
+            difficulty: "medium"
+          },
+          {
+            id: "q2",
+            text: "What is the formula for calculating kinetic energy?",
+            options: [
+              { id: "a1", text: "KE = mv" },
+              { id: "a2", text: "KE = mv²" },
+              { id: "a3", text: "KE = (1/2)mv²" },
+              { id: "a4", text: "KE = (1/2)m²v" }
+            ],
+            correctOptionId: "a3",
+            explanation: "The formula for kinetic energy is KE = (1/2)mv², where m is mass and v is velocity.",
+            subject: "Physics",
+            topic: "Energy",
+            difficulty: "easy"
+          },
+          {
+            id: "q3",
+            text: "A 2 kg object accelerates at 5 m/s². What is the force applied to it according to Newton's Second Law?",
+            options: [
+              { id: "a1", text: "2.5 N" },
+              { id: "a2", text: "7 N" },
+              { id: "a3", text: "10 N" },
+              { id: "a4", text: "0.4 N" }
+            ],
+            correctOptionId: "a3",
+            explanation: "Using Newton's Second Law: F = ma, where F is force, m is mass, and a is acceleration. F = 2 kg × 5 m/s² = 10 N",
+            subject: "Physics",
+            topic: "Newton's Laws",
+            difficulty: "medium"
+          },
+          {
+            id: "q4",
+            text: "A car accelerates from rest to 20 m/s in 10 seconds. What is its acceleration?",
+            options: [
+              { id: "a1", text: "0.5 m/s²" },
+              { id: "a2", text: "2 m/s²" },
+              { id: "a3", text: "10 m/s²" },
+              { id: "a4", text: "20 m/s²" }
+            ],
+            correctOptionId: "a2",
+            explanation: "Acceleration = change in velocity / time taken. Acceleration = (20 m/s - 0 m/s) / 10 s = 2 m/s²",
+            subject: "Physics",
+            topic: "Kinematics",
+            difficulty: "easy"
+          },
+          {
+            id: "q5",
+            text: "Which of the following is NOT conserved in an elastic collision?",
+            options: [
+              { id: "a1", text: "Momentum" },
+              { id: "a2", text: "Kinetic energy" },
+              { id: "a3", text: "Mechanical energy" },
+              { id: "a4", text: "Mass" }
+            ],
+            correctOptionId: "a3",
+            explanation: "In an elastic collision, both momentum and kinetic energy are conserved. Mechanical energy (which includes potential energy) is not necessarily conserved if there's a change in potential energy.",
+            subject: "Physics",
+            topic: "Conservation Laws",
+            difficulty: "hard"
+          }
+        ]
+      };
+
+      setExam(mockExam);
+      setTimer(mockExam.duration * 60); // Convert minutes to seconds
+      setTimeRemaining(mockExam.duration * 60);
+      setLoading(false);
+    }, 1500);
+  }, [examId]);
+
   // Timer effect
   useEffect(() => {
-    if (timeRemaining > 0) {
-      timerRef.current = setInterval(() => {
-        setTimeRemaining(prev => {
-          if (prev <= 1) {
-            clearInterval(timerRef.current!);
-            setIsTimeUpDialogOpen(true);
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-    }
+    if (loading || timeRemaining === null) return;
     
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
-    };
+    const interval = setInterval(() => {
+      setTimeRemaining(prev => {
+        if (prev === null || prev <= 0) {
+          clearInterval(interval);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    
+    return () => clearInterval(interval);
+  }, [loading, timeRemaining]);
+
+  // Time warning effects
+  useEffect(() => {
+    if (timeRemaining === 300) { // 5 minutes warning
+      toast({
+        title: "Time Alert",
+        description: "5 minutes remaining! Please start finalizing your answers.",
+        variant: "warning",
+      });
+    } else if (timeRemaining === 60) { // 1 minute warning
+      toast({
+        title: "Time Alert",
+        description: "Only 1 minute remaining!",
+        variant: "destructive",
+      });
+    } else if (timeRemaining === 0) {
+      toast({
+        title: "Time's Up!",
+        description: "Your exam is being submitted automatically.",
+        variant: "destructive",
+      });
+      handleSubmit();
+    }
   }, [timeRemaining]);
-  
-  if (!examData) {
+
+  const handleSelectAnswer = (questionId: string, optionId: string) => {
+    setAnswers(prev => ({
+      ...prev,
+      [questionId]: optionId
+    }));
+  };
+
+  const handleNextQuestion = () => {
+    if (!exam) return;
+    
+    if (currentQuestionIndex < exam.questions.length - 1) {
+      setCurrentQuestionIndex(prev => prev + 1);
+    }
+  };
+
+  const handlePreviousQuestion = () => {
+    if (currentQuestionIndex > 0) {
+      setCurrentQuestionIndex(prev => prev - 1);
+    }
+  };
+
+  const handleFlagQuestion = (questionId: string) => {
+    setFlaggedQuestions(prev => {
+      if (prev.includes(questionId)) {
+        return prev.filter(id => id !== questionId);
+      } else {
+        return [...prev, questionId];
+      }
+    });
+  };
+
+  const handleBookmarkQuestion = (questionId: string) => {
+    setBookmarkedQuestions(prev => {
+      if (prev.includes(questionId)) {
+        return prev.filter(id => id !== questionId);
+      } else {
+        return [...prev, questionId];
+      }
+    });
+    
+    toast({
+      title: "Question Bookmarked",
+      description: "This question has been saved for later review.",
+    });
+  };
+
+  const handleSubmit = () => {
+    if (!exam) return;
+    
+    setIsSubmitting(true);
+    
+    // Calculate score
+    let score = 0;
+    exam.questions.forEach(question => {
+      if (answers[question.id] === question.correctOptionId) {
+        score++;
+      }
+    });
+    
+    // Simulate API call
+    setTimeout(() => {
+      setIsSubmitting(false);
+      navigate(`/dashboard/student/practice-exam/${examId}/review`, { 
+        state: { 
+          answers,
+          score,
+          totalQuestions: exam.questions.length,
+          timeSpent: timer ? timer - (timeRemaining || 0) : 0,
+          flaggedQuestions,
+          bookmarkedQuestions
+        } 
+      });
+    }, 1500);
+  };
+
+  const formatTime = (seconds: number | null) => {
+    if (seconds === null) return "--:--";
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const calculateProgress = () => {
+    if (!exam) return 0;
+    const answeredCount = Object.keys(answers).length;
+    return (answeredCount / exam.questions.length) * 100;
+  };
+
+  const currentQuestion = exam?.questions[currentQuestionIndex];
+
+  if (loading || !exam || !currentQuestion) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <Card className="p-8 text-center">
-          <h2 className="text-2xl font-bold">Exam Not Found</h2>
-          <p className="mt-2 text-gray-500">The exam you're looking for doesn't exist.</p>
-          <Link to="/dashboard/student/practice-exam" className="mt-4 inline-block">
-            <Button>Back to Practice Exams</Button>
-          </Link>
+      <div className="container max-w-4xl mx-auto p-4">
+        <Card className="w-full h-[400px] flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mb-4 mx-auto"></div>
+            <p className="text-xl font-medium mb-2">Loading Exam</p>
+            <p className="text-muted-foreground">Preparing your practice exam...</p>
+          </div>
         </Card>
       </div>
     );
   }
-  
-  const currentQuestion = examData.questions[currentQuestionIndex];
-  
-  const handleAnswerSelect = (optionIndex: number) => {
-    const newAnswers = [...userAnswers];
-    newAnswers[currentQuestionIndex] = optionIndex;
-    setUserAnswers(newAnswers);
-  };
-  
-  const handlePrevQuestion = () => {
-    if (currentQuestionIndex > 0) {
-      setCurrentQuestionIndex(currentQuestionIndex - 1);
-    }
-  };
-  
-  const handleNextQuestion = () => {
-    if (currentQuestionIndex < examData.questions.length - 1) {
-      setCurrentQuestionIndex(currentQuestionIndex + 1);
-    }
-  };
-  
-  const handleFlagQuestion = () => {
-    setFlaggedQuestions(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(currentQuestionIndex)) {
-        newSet.delete(currentQuestionIndex);
-      } else {
-        newSet.add(currentQuestionIndex);
-      }
-      return newSet;
-    });
-  };
-  
-  const handleSubmitExam = () => {
-    // Stop the timer
-    if (timerRef.current) clearInterval(timerRef.current);
-    
-    // Calculate score
-    let correctAnswers = 0;
-    examData.questions.forEach((question, index) => {
-      if (userAnswers[index] === question.correctOptionIndex) {
-        correctAnswers++;
-      }
-    });
-    
-    const score = Math.round((correctAnswers / examData.questions.length) * 100);
-    
-    // Navigate to the review page with result data
-    navigate(`/dashboard/student/practice-exam/${examId}/review`, { 
-      state: { 
-        userAnswers,
-        score,
-        timeSpent: examData.duration * 60 - timeRemaining
-      } 
-    });
-  };
-  
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
-  };
-  
-  const answeredCount = userAnswers.filter(answer => answer !== null).length;
-  const progress = (answeredCount / examData.questions.length) * 100;
-  
+
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-        <div>
-          <div className="flex items-center gap-2">
-            <Link to="/dashboard/student/practice-exam" className="text-blue-600">
-              <Home className="h-4 w-4" />
-            </Link>
-            <h1 className="text-2xl font-bold">{examData.title}</h1>
+    <div className="container max-w-4xl mx-auto p-4">
+      <Card className="mb-6 shadow-md">
+        <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+            <div>
+              <CardTitle className="text-xl">{exam.title}</CardTitle>
+              <p className="text-sm text-muted-foreground mt-1">{exam.subject}</p>
+            </div>
+            <div className="flex items-center gap-2 mt-2 md:mt-0">
+              <Badge variant="outline" className="flex items-center">
+                <Clock className="h-3 w-3 mr-1" />
+                Time: {formatTime(timeRemaining)}
+              </Badge>
+              <Badge variant="outline">
+                {currentQuestionIndex + 1}/{exam.questions.length}
+              </Badge>
+            </div>
           </div>
-          <p className="text-muted-foreground">{examData.subject}</p>
-        </div>
-        
-        <div className="flex items-center gap-4">
-          <Badge variant="outline" className={`${
-            timeRemaining < 60 ? 'bg-red-50 text-red-700 border-red-200' :
-            timeRemaining < 300 ? 'bg-amber-50 text-amber-700 border-amber-200' :
-            'bg-blue-50 text-blue-700 border-blue-200'
-          }`}>
-            <Clock className="h-3.5 w-3.5 mr-1" /> {formatTime(timeRemaining)}
-          </Badge>
-          <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">
-            Question {currentQuestionIndex + 1} of {examData.questions.length}
-          </Badge>
-        </div>
-      </div>
-      
-      <div className="mb-6">
-        <div className="flex justify-between text-sm mb-1">
-          <span>Answered: {answeredCount}/{examData.questions.length}</span>
-          <span>Flagged: {flaggedQuestions.size}</span>
-        </div>
-        <Progress value={progress} className="h-2" />
-      </div>
-      
-      <Card className="mb-8 shadow-lg">
-        <div className="p-6 border-b">
-          <div className="flex justify-between items-center">
-            <Badge className={flaggedQuestions.has(currentQuestionIndex) ? 
-              "bg-amber-100 text-amber-800 border-amber-200" : 
-              "bg-gray-100 text-gray-800 border-gray-200"
-            }>
-              Question {currentQuestionIndex + 1}
-            </Badge>
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={handleFlagQuestion}
-              className={`flex items-center gap-1 ${
-                flaggedQuestions.has(currentQuestionIndex) ? 'text-amber-600' : ''
-              }`}
-            >
-              <Flag className="h-4 w-4" />
-              {flaggedQuestions.has(currentQuestionIndex) ? 'Unflag' : 'Flag'} for review
-            </Button>
+        </CardHeader>
+        <CardContent className="p-4 space-y-2">
+          <div className="flex justify-between items-center text-sm text-muted-foreground mb-1">
+            <span>Progress: {Math.round(calculateProgress())}% complete</span>
+            <span>{Object.keys(answers).length}/{exam.questions.length} answered</span>
           </div>
-          
-          <h2 className="text-xl font-medium mt-4">{currentQuestion.text}</h2>
-        </div>
-        
-        <div className="p-6">
-          <RadioGroup 
-            value={userAnswers[currentQuestionIndex] !== null ? 
-              userAnswers[currentQuestionIndex]!.toString() : undefined
-            }
-            onValueChange={(value) => handleAnswerSelect(parseInt(value, 10))}
-          >
-            <div className="space-y-4">
-              {currentQuestion.options.map((option, index) => (
-                <div key={index} className="flex items-center space-x-2">
-                  <RadioGroupItem value={index.toString()} id={`option-${index}`} />
-                  <Label 
-                    htmlFor={`option-${index}`}
-                    className="flex-grow p-3 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
-                  >
-                    {option}
-                  </Label>
-                </div>
+          <Progress value={calculateProgress()} className="h-2 mb-4" />
+        </CardContent>
+      </Card>
+
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        {/* Question navigation panel - shown on larger screens */}
+        <Card className="hidden lg:block h-fit">
+          <CardHeader>
+            <CardTitle className="text-base">Questions</CardTitle>
+          </CardHeader>
+          <CardContent className="p-3">
+            <div className="grid grid-cols-5 gap-2">
+              {exam.questions.map((q, index) => (
+                <Button 
+                  key={q.id}
+                  variant={currentQuestionIndex === index ? "default" : answers[q.id] ? "secondary" : "outline"}
+                  size="sm"
+                  className={`min-w-8 h-8 p-0 relative ${
+                    flaggedQuestions.includes(q.id) ? "border-red-500 border-2" : ""
+                  }`}
+                  onClick={() => setCurrentQuestionIndex(index)}
+                >
+                  {index + 1}
+                  {flaggedQuestions.includes(q.id) && (
+                    <div className="absolute -top-1 -right-1 bg-red-500 rounded-full w-2 h-2"></div>
+                  )}
+                  {bookmarkedQuestions.includes(q.id) && (
+                    <div className="absolute -top-1 -left-1 bg-amber-500 rounded-full w-2 h-2"></div>
+                  )}
+                </Button>
               ))}
             </div>
-          </RadioGroup>
-        </div>
-      </Card>
-      
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Button
-          variant="outline"
-          onClick={handlePrevQuestion}
-          disabled={currentQuestionIndex === 0}
-          className="flex items-center justify-center"
-        >
-          <ChevronLeft className="mr-1 h-5 w-5" />
-          Previous
-        </Button>
-        
-        <Button
-          variant="outline" 
-          onClick={handleNextQuestion}
-          disabled={currentQuestionIndex === examData.questions.length - 1}
-          className="flex items-center justify-center"
-        >
-          Next
-          <ChevronRight className="ml-1 h-5 w-5" />
-        </Button>
-        
-        <Button
-          variant="default"
-          onClick={() => navigate(`/dashboard/student/practice-exam/${examId}/review`, { 
-            state: { 
-              userAnswers, 
-              timeSpent: examData.duration * 60 - timeRemaining,
-              incomplete: true
-            } 
-          })}
-          className="flex items-center justify-center bg-amber-600 hover:bg-amber-700"
-        >
-          <Save className="mr-1 h-5 w-5" />
-          Save Progress
-        </Button>
-        
-        <Button
-          variant="default"
-          onClick={() => setIsSubmitDialogOpen(true)}
-          className="flex items-center justify-center bg-green-600 hover:bg-green-700"
-        >
-          <Check className="mr-1 h-5 w-5" />
-          Submit Exam
-        </Button>
-      </div>
-      
-      {/* Question navigation */}
-      <div className="mt-8">
-        <h3 className="text-sm font-medium mb-3">Question Navigation</h3>
-        <div className="grid grid-cols-5 sm:grid-cols-8 md:grid-cols-10 gap-2">
-          {examData.questions.map((_, index) => (
-            <Button
-              key={index}
-              variant="outline"
-              size="sm"
-              className={`w-full h-10 ${
-                index === currentQuestionIndex ? 'border-2 border-blue-500' : ''
-              } ${
-                userAnswers[index] !== null ? 'bg-green-100 dark:bg-green-900/30' : 'bg-gray-100 dark:bg-gray-800'
-              } ${
-                flaggedQuestions.has(index) ? 'border-amber-500' : ''
-              }`}
-              onClick={() => setCurrentQuestionIndex(index)}
-            >
-              {index + 1}
-              {flaggedQuestions.has(index) && (
-                <Flag className="h-3 w-3 text-amber-600 absolute top-1 right-1" />
-              )}
-            </Button>
-          ))}
-        </div>
-      </div>
-      
-      {/* Submit confirmation dialog */}
-      <Dialog open={isSubmitDialogOpen} onOpenChange={setIsSubmitDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Submit Exam</DialogTitle>
-            <DialogDescription>
-              Are you sure you want to submit this exam? You have answered {answeredCount} out of {examData.questions.length} questions.
-              {answeredCount < examData.questions.length && (
-                <div className="mt-2 text-amber-600 flex items-center">
-                  <AlertCircle className="h-4 w-4 mr-1" />
-                  You still have {examData.questions.length - answeredCount} unanswered questions.
+            
+            <div className="mt-4 space-y-1">
+              <div className="flex items-center gap-2 text-xs">
+                <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                <span>Flagged: {flaggedQuestions.length}</span>
+              </div>
+              <div className="flex items-center gap-2 text-xs">
+                <div className="w-3 h-3 bg-amber-500 rounded-full"></div>
+                <span>Bookmarked: {bookmarkedQuestions.length}</span>
+              </div>
+              <div className="flex items-center gap-2 text-xs">
+                <div className="w-3 h-3 bg-primary rounded-full"></div>
+                <span>Answered: {Object.keys(answers).length}</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Main question card */}
+        <Card className="lg:col-span-3 shadow-md">
+          <CardHeader>
+            <div className="flex justify-between items-start">
+              <div>
+                <Badge 
+                  className={`mb-2 ${
+                    currentQuestion.difficulty === 'easy' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' :
+                    currentQuestion.difficulty === 'medium' ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300' :
+                    'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
+                  }`}
+                >
+                  {currentQuestion.difficulty} difficulty
+                </Badge>
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="text-lg font-medium">Question {currentQuestionIndex + 1}</span>
+                  <Badge variant="outline" className="text-xs">{currentQuestion.topic}</Badge>
                 </div>
-              )}
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsSubmitDialogOpen(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleSubmitExam}>
-              Submit Exam
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+              </div>
+              <div className="flex gap-1">
+                <Button 
+                  size="sm" 
+                  variant="ghost" 
+                  className="text-red-500 hover:text-red-600 hover:bg-red-100"
+                  onClick={() => handleFlagQuestion(currentQuestion.id)}
+                >
+                  <Flag className={`h-4 w-4 ${flaggedQuestions.includes(currentQuestion.id) ? 'fill-red-500' : ''}`} />
+                </Button>
+                <Button 
+                  size="sm" 
+                  variant="ghost" 
+                  className="text-amber-500 hover:text-amber-600 hover:bg-amber-100"
+                  onClick={() => handleBookmarkQuestion(currentQuestion.id)}
+                >
+                  <Bookmark className={`h-4 w-4 ${bookmarkedQuestions.includes(currentQuestion.id) ? 'fill-amber-500' : ''}`} />
+                </Button>
+              </div>
+            </div>
+            <p className="text-base">{currentQuestion.text}</p>
+          </CardHeader>
+          
+          <CardContent className="p-4">
+            <div className="space-y-2">
+              {currentQuestion.options.map(option => (
+                <motion.div 
+                  key={option.id}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <label 
+                    htmlFor={option.id}
+                    className={`flex items-start p-3 border rounded-md cursor-pointer transition-all ${
+                      answers[currentQuestion.id] === option.id 
+                        ? 'bg-primary/10 border-primary' 
+                        : 'hover:bg-gray-50 hover:dark:bg-gray-800/50'
+                    }`}
+                  >
+                    <input 
+                      type="radio" 
+                      id={option.id}
+                      name={`question-${currentQuestion.id}`}
+                      checked={answers[currentQuestion.id] === option.id}
+                      onChange={() => handleSelectAnswer(currentQuestion.id, option.id)}
+                      className="mt-1 mr-3"
+                    />
+                    <span>{option.text}</span>
+                  </label>
+                </motion.div>
+              ))}
+            </div>
+            
+            {answers[currentQuestion.id] && (
+              <div className="flex items-center gap-2 text-green-600 dark:text-green-400 mt-4">
+                <Check className="h-4 w-4" />
+                <span className="text-sm">Answer selected</span>
+              </div>
+            )}
+          </CardContent>
+          
+          <CardFooter className="p-4 border-t flex flex-wrap justify-between items-center bg-gray-50 dark:bg-gray-800/50">
+            <div className="flex gap-2">
+              <Button 
+                variant="outline" 
+                onClick={handlePreviousQuestion}
+                disabled={currentQuestionIndex === 0}
+              >
+                <ChevronLeft className="h-4 w-4 mr-1" />
+                Previous
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={handleNextQuestion}
+                disabled={currentQuestionIndex === exam.questions.length - 1}
+              >
+                Next
+                <ChevronRight className="h-4 w-4 ml-1" />
+              </Button>
+            </div>
+            
+            <div className="flex gap-2 mt-2 sm:mt-0">
+              <Button variant="outline" onClick={() => navigate('/dashboard/student/practice-exam')}>
+                <ArrowLeft className="h-4 w-4 mr-1" />
+                Exit
+              </Button>
+              <Button 
+                variant="default" 
+                onClick={handleSubmit}
+                disabled={isSubmitting || Object.keys(answers).length === 0}
+              >
+                {isSubmitting ? (
+                  <>
+                    <div className="animate-spin h-4 w-4 border-2 border-current border-t-transparent rounded-full mr-2"></div>
+                    Submitting...
+                  </>
+                ) : (
+                  'Submit Answers'
+                )}
+              </Button>
+            </div>
+          </CardFooter>
+        </Card>
+      </div>
       
-      {/* Time's up dialog */}
-      <Dialog open={isTimeUpDialogOpen} onOpenChange={setIsTimeUpDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Time's Up!</DialogTitle>
-            <DialogDescription>
-              Your exam time has ended. Your answers will be submitted automatically.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button onClick={handleSubmitExam}>
-              View Results
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {/* Time warning */}
+      {timeRemaining !== null && timeRemaining < 300 && (
+        <div className="fixed bottom-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-md shadow-md flex items-center">
+          <AlertCircle className="h-5 w-5 mr-2" />
+          <div>
+            <p className="font-medium">Time running out!</p>
+            <p className="text-sm">{formatTime(timeRemaining)} remaining</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
