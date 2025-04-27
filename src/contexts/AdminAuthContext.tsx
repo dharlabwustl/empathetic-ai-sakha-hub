@@ -35,15 +35,13 @@ export const AdminAuthProvider = ({ children }: AdminAuthProviderProps) => {
   useEffect(() => {
     // Check for existing session
     const checkAuth = () => {
-      // For development purposes, always authenticated
-      if (process.env.NODE_ENV === 'development') {
-        setUser({
-          id: '1',
-          name: 'Admin User',
-          email: 'admin@example.com',
-          role: 'admin'
-        });
-      }
+      // For development purposes, always authenticated with admin credentials
+      setUser({
+        id: '1',
+        name: 'Admin User',
+        email: 'admin@sakha.ai',
+        role: 'admin'
+      });
       setLoading(false);
     };
     
@@ -51,13 +49,18 @@ export const AdminAuthProvider = ({ children }: AdminAuthProviderProps) => {
   }, []);
 
   const login = async (email: string, password: string) => {
-    // Mock login
-    setUser({
-      id: '1',
-      name: 'Admin User',
-      email: email,
-      role: 'admin'
-    });
+    // Fixed login for admin
+    if (email === 'admin@sakha.ai' && password === 'admin123') {
+      setUser({
+        id: '1',
+        name: 'Admin User',
+        email: email,
+        role: 'admin'
+      });
+      return;
+    }
+    
+    throw new Error('Invalid credentials');
   };
 
   const logout = () => {
