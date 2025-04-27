@@ -4,13 +4,27 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { BookOpen, Check, Clock, Star, Flag, Brain, BarChart } from "lucide-react";
-import { SharedPageLayout } from '../SharedPageLayout';
+import { BookOpen, Check, Clock, Star, Flag, Brain, BarChart, Plus } from "lucide-react";
+import { motion } from "framer-motion";
+import { useToast } from "@/hooks/use-toast";
+import { Video } from "./types";
+import { useNavigate } from "react-router-dom";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-// For demonstration purposes - in a real app, fetch this data from API
+// Mock data
+const mockVideos = [
+  { id: 1, title: "When Physics Goes Wrong", thumbnail: "https://source.unsplash.com/random/300x200?comedy", duration: "0:30" },
+  { id: 2, title: "Funny Animal Bloopers", thumbnail: "https://source.unsplash.com/random/300x200?animals", duration: "0:27" },
+  { id: 3, title: "Study Break Comedy", thumbnail: "https://source.unsplash.com/random/300x200?laugh", duration: "0:30" },
+];
+
+// Mock data
 const conceptCards = [
   {
-    id: "c1",
+    id: 1,
     title: "Newton's Laws of Motion",
     subject: "Physics",
     chapter: "Mechanics",
@@ -23,7 +37,7 @@ const conceptCards = [
     isRecommended: true
   },
   {
-    id: "c2",
+    id: 2,
     title: "Chemical Bonding",
     subject: "Chemistry",
     chapter: "Chemical Bonds",
@@ -36,7 +50,7 @@ const conceptCards = [
     isRecommended: false
   },
   {
-    id: "c3",
+    id: 3,
     title: "Quadratic Equations",
     subject: "Mathematics",
     chapter: "Algebra",
@@ -49,7 +63,7 @@ const conceptCards = [
     isRecommended: true
   },
   {
-    id: "c4",
+    id: 4,
     title: "Cell Structure and Function",
     subject: "Biology",
     chapter: "Cell Biology",
@@ -62,7 +76,7 @@ const conceptCards = [
     isRecommended: false
   },
   {
-    id: "c5",
+    id: 5,
     title: "Acid-Base Reactions",
     subject: "Chemistry",
     chapter: "Equilibrium",
@@ -75,7 +89,7 @@ const conceptCards = [
     isRecommended: false
   },
   {
-    id: "c6",
+    id: 6,
     title: "Derivatives and Integration",
     subject: "Mathematics",
     chapter: "Calculus",
@@ -139,6 +153,11 @@ const ConceptCard: React.FC<ConceptCardProps> = ({ concept }) => {
   const statusInfo = getStatusInfo(concept.status);
   const difficultyInfo = getDifficultyInfo(concept.difficulty);
   const StatusIcon = statusInfo.icon;
+  const navigate = useNavigate();
+
+  const handleOpenConceptCard = () => {
+    navigate(`/dashboard/student/concepts/${concept.id}`);
+  };
 
   return (
     <Card className="h-full flex flex-col transform hover:scale-[1.01] transition-all duration-200 hover:shadow-md">
@@ -200,7 +219,10 @@ const ConceptCard: React.FC<ConceptCardProps> = ({ concept }) => {
         </div>
       </CardContent>
       <CardFooter className="pt-2">
-        <Button className="w-full bg-indigo-600 hover:bg-indigo-700">
+        <Button 
+          className="w-full bg-indigo-600 hover:bg-indigo-700"
+          onClick={handleOpenConceptCard}
+        >
           {concept.status === "completed" 
             ? "Review Again" 
             : concept.status === "in-progress" 
@@ -215,64 +237,162 @@ const ConceptCard: React.FC<ConceptCardProps> = ({ concept }) => {
 
 const ConceptCardsSection = () => {
   const [timePeriod, setTimePeriod] = useState("today");
+  const [activeSubject, setActiveSubject] = useState('all');
+  const [showAllCards, setShowAllCards] = useState(false);
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const { toast } = useToast();
+  const navigate = useNavigate();
+
   const filteredConcepts = filterConceptsByTimePeriod(timePeriod);
+
+  const handleViewAllConcepts = () => {
+    navigate('/dashboard/student/concepts-all');
+  };
+
+  const handlePrioritize = () => {
+    toast({
+      title: "Concepts prioritized",
+      description: "Your concept cards have been sorted by exam importance and relevance.",
+    });
+  };
+
+  const handleAnalytics = () => {
+    toast({
+      title: "Concept Analytics",
+      description: "Analyzing your concept card progress and completion patterns.",
+    });
+  };
+
+  const handleCreateConcept = () => {
+    setShowCreateDialog(false);
+    toast({
+      title: "Concept Card Created",
+      description: "Your new concept card has been added to your study plan.",
+    });
+  };
   
   return (
-    <SharedPageLayout
-      title="Concept Cards"
-      subtitle="Master key concepts through interactive cards"
+    <motion.div 
+      key="concepts"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
     >
-      <Tabs defaultValue="today" value={timePeriod} onValueChange={setTimePeriod} className="space-y-6">
-        <div className="flex items-center justify-between mb-4">
-          <TabsList className="bg-gray-100 dark:bg-gray-800">
-            <TabsTrigger value="today" className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white">
-              Today
-            </TabsTrigger>
-            <TabsTrigger value="week" className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white">
-              This Week
-            </TabsTrigger>
-            <TabsTrigger value="month" className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white">
-              This Month
-            </TabsTrigger>
-          </TabsList>
+      <div className="space-y-4">
+        <Tabs defaultValue="today" value={timePeriod} onValueChange={setTimePeriod} className="space-y-6">
+          <div className="flex items-center justify-between mb-4">
+            <TabsList className="bg-gray-100 dark:bg-gray-800">
+              <TabsTrigger value="today" className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white">
+                Today
+              </TabsTrigger>
+              <TabsTrigger value="week" className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white">
+                This Week
+              </TabsTrigger>
+              <TabsTrigger value="month" className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white">
+                This Month
+              </TabsTrigger>
+            </TabsList>
+            
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" className="flex items-center gap-1" onClick={handleViewAllConcepts}>
+                <BookOpen className="h-4 w-4" />
+                <span>View All</span>
+              </Button>
+              <Button variant="outline" size="sm" className="flex items-center gap-1" onClick={handlePrioritize}>
+                <Flag className="h-4 w-4" />
+                <span className="hidden sm:inline">Prioritize</span>
+              </Button>
+              <Button variant="outline" size="sm" className="flex items-center gap-1" onClick={handleAnalytics}>
+                <BarChart className="h-4 w-4" />
+                <span className="hidden sm:inline">Analytics</span>
+              </Button>
+              <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
+                <DialogTrigger asChild>
+                  <Button size="sm" className="flex items-center gap-1">
+                    <Plus className="h-4 w-4" />
+                    <span className="hidden sm:inline">Create Concept</span>
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Create New Concept Card</DialogTitle>
+                    <DialogDescription>
+                      Generate a new concept card for your study plan.
+                      <Badge className="ml-2 bg-violet-100 text-violet-800 border-violet-200">PRO</Badge>
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-4 py-2">
+                    <div className="space-y-2">
+                      <Label htmlFor="subject">Subject</Label>
+                      <Select defaultValue="physics">
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select subject" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="physics">Physics</SelectItem>
+                          <SelectItem value="chemistry">Chemistry</SelectItem>
+                          <SelectItem value="mathematics">Mathematics</SelectItem>
+                          <SelectItem value="biology">Biology</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="topic">Topic</Label>
+                      <Input id="topic" placeholder="Enter topic" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="difficulty">Difficulty</Label>
+                      <Select defaultValue="medium">
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select difficulty" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="easy">Easy</SelectItem>
+                          <SelectItem value="medium">Medium</SelectItem>
+                          <SelectItem value="hard">Hard</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="tags">Tags (comma separated)</Label>
+                      <Input id="tags" placeholder="e.g., important, exam, revision" />
+                    </div>
+                  </div>
+                  <DialogFooter>
+                    <Button variant="outline" onClick={() => setShowCreateDialog(false)}>Cancel</Button>
+                    <Button onClick={handleCreateConcept}>Create Concept</Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            </div>
+          </div>
           
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" className="flex items-center gap-1">
-              <Brain className="h-4 w-4" />
-              <span className="hidden sm:inline">Prioritize</span>
-            </Button>
-            <Button variant="outline" size="sm" className="flex items-center gap-1">
-              <BarChart className="h-4 w-4" />
-              <span className="hidden sm:inline">Analytics</span>
-            </Button>
-          </div>
-        </div>
-        
-        <TabsContent value="today" className="m-0">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredConcepts.map(concept => (
-              <ConceptCard key={concept.id} concept={concept} />
-            ))}
-          </div>
-        </TabsContent>
-        
-        <TabsContent value="week" className="m-0">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredConcepts.map(concept => (
-              <ConceptCard key={concept.id} concept={concept} />
-            ))}
-          </div>
-        </TabsContent>
-        
-        <TabsContent value="month" className="m-0">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredConcepts.map(concept => (
-              <ConceptCard key={concept.id} concept={concept} />
-            ))}
-          </div>
-        </TabsContent>
-      </Tabs>
-    </SharedPageLayout>
+          <TabsContent value="today" className="m-0">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredConcepts.map(concept => (
+                <ConceptCard key={concept.id} concept={concept} />
+              ))}
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="week" className="m-0">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredConcepts.map(concept => (
+                <ConceptCard key={concept.id} concept={concept} />
+              ))}
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="month" className="m-0">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredConcepts.map(concept => (
+                <ConceptCard key={concept.id} concept={concept} />
+              ))}
+            </div>
+          </TabsContent>
+        </Tabs>
+      </div>
+    </motion.div>
   );
 };
 

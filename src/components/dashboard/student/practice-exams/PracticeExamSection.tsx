@@ -1,344 +1,326 @@
 
 import React, { useState } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import {
-  FileText, Clock, AlertCircle, Check, BookOpen, Brain, Filter,
-  Search, BarChart, Play, TrendingUp, Flag, ClipboardList
-} from "lucide-react";
+import { AlertCircle, BarChart, BookOpen, CheckCircle, Clock, FileText, Plus, Timer } from "lucide-react";
+import { motion } from "framer-motion";
+import { useToast } from "@/hooks/use-toast";
+import { Progress } from "@/components/ui/progress";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useNavigate } from 'react-router-dom';
 import { SharedPageLayout } from '../SharedPageLayout';
-import { Input } from '@/components/ui/input';
 
-// Mock data for practice exams
-const practiceExams = [
+// Mock data for exams
+const mockExams = [
   {
-    id: "e1",
-    title: "Algebra Level 1 Mini Test",
-    subject: "Mathematics",
-    topic: "Algebra",
-    linkedConcept: "Linear Equations",
-    questionCount: 20,
-    priority: "high",
-    duration: 30,
-    status: "not-started",
-    difficulty: "medium"
-  },
-  {
-    id: "e2",
-    title: "Physics Mechanics Quiz",
+    id: 1,
+    title: "Physics Mock Test #1",
     subject: "Physics",
-    topic: "Mechanics",
-    linkedConcept: "Newton's Laws",
-    questionCount: 15,
-    priority: "medium",
-    duration: 25,
-    status: "completed",
-    difficulty: "hard",
-    score: 85
-  },
-  {
-    id: "e3",
-    title: "Organic Chemistry Test",
-    subject: "Chemistry",
-    topic: "Organic Chemistry",
-    linkedConcept: "Functional Groups",
-    questionCount: 25,
-    priority: "low",
-    duration: 45,
-    status: "in-progress",
-    difficulty: "hard",
-    completedQuestions: 10
-  },
-  {
-    id: "e4",
-    title: "Cell Biology Assessment",
-    subject: "Biology",
-    topic: "Cell Biology",
-    linkedConcept: "Cell Division",
-    questionCount: 18,
-    priority: "high",
-    duration: 30,
+    topic: "Mechanics & Optics",
+    questionCount: 30,
+    timeLimit: 60,
+    difficulty: "medium",
     status: "not-started",
-    difficulty: "medium"
+    description: "Comprehensive test covering Newton's Laws, Optics, and Wave Theory",
+    lastScore: null
   },
   {
-    id: "e5",
-    title: "Calculus Practice Test",
+    id: 2,
+    title: "Chemistry Final Prep",
+    subject: "Chemistry",
+    topic: "Organic & Inorganic",
+    questionCount: 45,
+    timeLimit: 90,
+    difficulty: "hard",
+    status: "completed",
+    description: "Full-length practice exam for final chemistry preparation",
+    lastScore: 78
+  },
+  {
+    id: 3,
+    title: "Mathematics Quiz",
     subject: "Mathematics",
     topic: "Calculus",
-    linkedConcept: "Derivatives",
-    questionCount: 15,
-    priority: "medium",
-    duration: 35,
-    status: "completed",
-    difficulty: "hard",
-    score: 72
+    questionCount: 20,
+    timeLimit: 40,
+    difficulty: "medium",
+    status: "in-progress",
+    description: "Quick test covering differentiation and integration",
+    lastScore: null
   },
   {
-    id: "e6",
-    title: "Chemistry Periodic Table Test",
-    subject: "Chemistry",
-    topic: "Periodic Table",
-    linkedConcept: "Element Properties",
-    questionCount: 20,
-    priority: "medium",
-    duration: 30,
+    id: 4,
+    title: "Biology Chapter Review",
+    subject: "Biology",
+    topic: "Cell Biology",
+    questionCount: 25,
+    timeLimit: 50,
+    difficulty: "easy",
     status: "not-started",
-    difficulty: "easy"
+    description: "Review test for cell biology chapter",
+    lastScore: null
   }
 ];
 
-// Filter exams by time period
-const filterExamsByTimePeriod = (period: string) => {
-  switch (period) {
-    case "today":
-      return practiceExams.filter(exam => exam.priority === "high");
-    case "week":
-      return practiceExams.filter(exam => exam.priority === "high" || exam.priority === "medium");
-    case "month":
-      return practiceExams;
-    default:
-      return practiceExams;
-  }
-};
-
-// Get status badge color and text
-const getStatusInfo = (status: string) => {
-  switch (status) {
-    case "completed":
-      return { color: "bg-emerald-100 text-emerald-800 border-emerald-200", icon: Check, text: "Completed" };
-    case "in-progress":
-      return { color: "bg-blue-100 text-blue-800 border-blue-200", icon: Clock, text: "In Progress" };
-    case "not-started":
-      return { color: "bg-gray-100 text-gray-800 border-gray-200", icon: FileText, text: "Not Started" };
-    default:
-      return { color: "bg-gray-100 text-gray-800 border-gray-200", icon: FileText, text: "Unknown" };
-  }
-};
-
-// Get difficulty badge color and text
-const getDifficultyInfo = (difficulty: string) => {
-  switch (difficulty) {
-    case "easy":
-      return { color: "bg-green-100 text-green-800 border-green-200", text: "Easy" };
-    case "medium":
-      return { color: "bg-yellow-100 text-yellow-800 border-yellow-200", text: "Medium" };
-    case "hard":
-      return { color: "bg-red-100 text-red-800 border-red-200", text: "Hard" };
-    default:
-      return { color: "bg-gray-100 text-gray-800 border-gray-200", text: "Unknown" };
-  }
-};
-
-// Get priority badge color and text
-const getPriorityInfo = (priority: string) => {
-  switch (priority) {
-    case "high":
-      return { color: "bg-red-100 text-red-800 border-red-200", text: "High Priority" };
-    case "medium":
-      return { color: "bg-yellow-100 text-yellow-800 border-yellow-200", text: "Medium Priority" };
-    case "low":
-      return { color: "bg-green-100 text-green-800 border-green-200", text: "Low Priority" };
-    default:
-      return { color: "bg-gray-100 text-gray-800 border-gray-200", text: "Unknown" };
-  }
-};
-
 interface ExamCardProps {
-  exam: typeof practiceExams[0];
+  exam: typeof mockExams[0];
 }
 
 const ExamCard: React.FC<ExamCardProps> = ({ exam }) => {
-  const statusInfo = getStatusInfo(exam.status);
-  const difficultyInfo = getDifficultyInfo(exam.difficulty);
-  const priorityInfo = getPriorityInfo(exam.priority);
-  const StatusIcon = statusInfo.icon;
-
+  const navigate = useNavigate();
+  
+  const handleStartExam = () => {
+    navigate(`/dashboard/student/exams/${exam.id}/start`);
+  };
+  
+  const handleReviewExam = () => {
+    navigate(`/dashboard/student/exams/${exam.id}/review`);
+  };
+  
+  const getStatusInfo = () => {
+    switch (exam.status) {
+      case "completed":
+        return { 
+          icon: <CheckCircle className="h-4 w-4 text-emerald-500" />, 
+          text: "Completed", 
+          color: "bg-emerald-100 text-emerald-800 border-emerald-200" 
+        };
+      case "in-progress":
+        return { 
+          icon: <Clock className="h-4 w-4 text-blue-500" />, 
+          text: "In Progress", 
+          color: "bg-blue-100 text-blue-800 border-blue-200" 
+        };
+      default:
+        return { 
+          icon: <AlertCircle className="h-4 w-4 text-gray-500" />, 
+          text: "Not Started", 
+          color: "bg-gray-100 text-gray-800 border-gray-200" 
+        };
+    }
+  };
+  
+  const getDifficultyInfo = () => {
+    switch (exam.difficulty) {
+      case "easy":
+        return { color: "bg-green-100 text-green-800 border-green-200", text: "Easy" };
+      case "medium":
+        return { color: "bg-yellow-100 text-yellow-800 border-yellow-200", text: "Medium" };
+      case "hard":
+        return { color: "bg-red-100 text-red-800 border-red-200", text: "Hard" };
+      default:
+        return { color: "bg-gray-100 text-gray-800 border-gray-200", text: "Unknown" };
+    }
+  };
+  
+  const statusInfo = getStatusInfo();
+  const difficultyInfo = getDifficultyInfo();
+  
   return (
-    <Card className="h-full flex flex-col transform hover:scale-[1.01] transition-all duration-200 hover:shadow-md">
+    <Card className="h-full flex flex-col hover:shadow-md transition-all">
       <CardHeader className="pb-2">
-        <div className="flex justify-between items-start">
-          <CardTitle className="text-lg font-bold">{exam.title}</CardTitle>
-          <Badge variant="outline" className={priorityInfo.color}>
-            {priorityInfo.text}
-          </Badge>
-        </div>
-        <CardDescription className="flex flex-wrap gap-2 mt-1">
-          <Badge variant="outline" className="bg-purple-100 text-purple-800 border-purple-200">
-            {exam.subject}
-          </Badge>
-          <Badge variant="outline" className="bg-violet-100 text-violet-800 border-violet-200">
-            {exam.topic}
-          </Badge>
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="flex-grow pb-2">
-        <div className="flex justify-between items-center mb-3">
-          <Badge variant="outline" className={statusInfo.color}>
-            <StatusIcon className="h-3 w-3 mr-1" />
-            {statusInfo.text}
-          </Badge>
+        <div className="flex justify-between">
+          <CardTitle>{exam.title}</CardTitle>
           <Badge variant="outline" className={difficultyInfo.color}>
             {difficultyInfo.text}
           </Badge>
         </div>
-        
-        <div className="space-y-2">
-          <div className="flex items-center text-sm text-gray-600">
-            <BookOpen className="h-4 w-4 mr-2" />
-            <span>Linked Concept: {exam.linkedConcept}</span>
-          </div>
+        <CardDescription className="flex gap-2 items-center">
+          <Badge variant="outline">{exam.subject}</Badge>
+          <Badge variant="outline" className="bg-gray-50">{exam.topic}</Badge>
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="flex-grow pb-2">
+        <div className="mb-4">
+          <Badge variant="outline" className={statusInfo.color}>
+            {statusInfo.icon}
+            <span className="ml-1">{statusInfo.text}</span>
+          </Badge>
           
-          <div className="flex items-center text-sm text-gray-600">
-            <ClipboardList className="h-4 w-4 mr-2" />
-            <span>{exam.questionCount} Questions</span>
-          </div>
-          
-          <div className="flex items-center text-sm text-gray-600">
-            <Clock className="h-4 w-4 mr-2" />
-            <span>Duration: {exam.duration} min</span>
-          </div>
+          {exam.status === "completed" && (
+            <div className="mt-3">
+              <div className="flex justify-between text-sm mb-1">
+                <span>Last Score</span>
+                <span>{exam.lastScore}%</span>
+              </div>
+              <Progress value={exam.lastScore || 0} className="h-2" />
+            </div>
+          )}
         </div>
         
-        {exam.status === "completed" && (
-          <div className="mt-3">
-            <div className="flex justify-between text-sm mb-1">
-              <span className="text-gray-600">Score</span>
-              <span className={exam.score! >= 80 ? "text-emerald-600 font-medium" : exam.score! >= 60 ? "text-yellow-600 font-medium" : "text-red-600 font-medium"}>
-                {exam.score}%
-              </span>
-            </div>
-            <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
-              <div 
-                className={`h-full rounded-full ${
-                  exam.score! >= 80 ? "bg-emerald-500" : 
-                  exam.score! >= 60 ? "bg-yellow-500" : "bg-red-500"
-                }`}
-                style={{ width: `${exam.score}%` }}
-              ></div>
-            </div>
-          </div>
-        )}
+        <p className="text-sm text-muted-foreground mb-3">{exam.description}</p>
         
-        {exam.status === "in-progress" && (
-          <div className="mt-3">
-            <div className="flex justify-between text-sm mb-1">
-              <span className="text-gray-600">Progress</span>
-              <span>{exam.completedQuestions}/{exam.questionCount} Questions</span>
-            </div>
-            <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
-              <div 
-                className="h-full rounded-full bg-blue-500"
-                style={{ width: `${(exam.completedQuestions! / exam.questionCount) * 100}%` }}
-              ></div>
-            </div>
+        <div className="grid grid-cols-2 gap-2 text-sm text-muted-foreground">
+          <div className="flex items-center gap-1">
+            <FileText className="h-4 w-4" />
+            <span>{exam.questionCount} questions</span>
           </div>
-        )}
+          <div className="flex items-center gap-1 justify-end">
+            <Timer className="h-4 w-4" />
+            <span>{exam.timeLimit} minutes</span>
+          </div>
+        </div>
       </CardContent>
-      <CardFooter className="pt-2">
-        <Button className="w-full bg-indigo-600 hover:bg-indigo-700 flex items-center gap-2">
-          {exam.status === "completed" ? (
-            <>
-              <BarChart className="h-4 w-4" />
-              View Results
-            </>
-          ) : exam.status === "in-progress" ? (
-            <>
-              <Play className="h-4 w-4" />
-              Continue Test
-            </>
-          ) : (
-            <>
-              <Play className="h-4 w-4" />
-              Start Test
-            </>
-          )}
-        </Button>
+      <CardFooter className="gap-2">
+        {exam.status === "completed" ? (
+          <Button 
+            className="w-full bg-indigo-600 hover:bg-indigo-700" 
+            onClick={handleReviewExam}
+          >
+            Review Exam
+          </Button>
+        ) : (
+          <Button 
+            className="w-full bg-indigo-600 hover:bg-indigo-700" 
+            onClick={handleStartExam}
+          >
+            {exam.status === "in-progress" ? "Continue Exam" : "Start Exam"}
+          </Button>
+        )}
       </CardFooter>
     </Card>
   );
 };
 
 const PracticeExamSection = () => {
-  const [timePeriod, setTimePeriod] = useState("today");
-  const filteredExams = filterExamsByTimePeriod(timePeriod);
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const { toast } = useToast();
   
+  const handleCreateExam = () => {
+    setShowCreateDialog(false);
+    toast({
+      title: "Practice Exam Created",
+      description: "Your new exam has been added to your study plan.",
+    });
+  };
+
   return (
     <SharedPageLayout
-      title="Practice Tests — Sharpen Your Skills"
-      subtitle="Test your knowledge and track your progress with personalized assessments"
+      title="Practice Exams"
+      subtitle="Test your knowledge with comprehensive practice exams"
     >
       <div className="space-y-6">
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="relative w-full sm:w-64">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" />
-            <Input placeholder="Search tests..." className="pl-9" />
-          </div>
+        <div className="flex flex-wrap justify-between items-center">
+          <h3 className="text-lg font-medium">Your Practice Exams</h3>
           
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" className="flex items-center gap-1">
-              <Filter className="h-4 w-4" />
-              <span className="hidden sm:inline">Filter</span>
+          <div className="flex gap-2 mt-2 sm:mt-0">
+            <Button variant="outline" size="sm">
+              <BarChart className="h-4 w-4 mr-1" />
+              Exam Analytics
             </Button>
-            <Button variant="outline" size="sm" className="flex items-center gap-1">
-              <Flag className="h-4 w-4" />
-              <span className="hidden sm:inline">Flagged</span>
-            </Button>
-            <Button variant="outline" size="sm" className="flex items-center gap-1">
-              <TrendingUp className="h-4 w-4" />
-              <span className="hidden sm:inline">Analytics</span>
-            </Button>
+            
+            <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
+              <DialogTrigger asChild>
+                <Button size="sm">
+                  <Plus className="h-4 w-4 mr-1" />
+                  Create Exam
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Create New Practice Exam</DialogTitle>
+                  <DialogDescription>
+                    Generate a custom practice exam for your study plan.
+                    <Badge className="ml-2 bg-violet-100 text-violet-800 border-violet-200">PRO</Badge>
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4 py-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="examTitle">Exam Title</Label>
+                    <Input id="examTitle" placeholder="e.g., Physics Mock Test" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="subject">Subject</Label>
+                    <Select defaultValue="physics">
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select subject" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="physics">Physics</SelectItem>
+                        <SelectItem value="chemistry">Chemistry</SelectItem>
+                        <SelectItem value="mathematics">Mathematics</SelectItem>
+                        <SelectItem value="biology">Biology</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="topic">Topics (comma separated)</Label>
+                    <Input id="topic" placeholder="e.g., Mechanics, Optics, Waves" />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="questionCount">Question Count</Label>
+                      <Select defaultValue="30">
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select count" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="15">15 Questions</SelectItem>
+                          <SelectItem value="30">30 Questions</SelectItem>
+                          <SelectItem value="45">45 Questions</SelectItem>
+                          <SelectItem value="60">60 Questions</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="timeLimit">Time Limit (minutes)</Label>
+                      <Select defaultValue="60">
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select time" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="30">30 minutes</SelectItem>
+                          <SelectItem value="60">60 minutes</SelectItem>
+                          <SelectItem value="90">90 minutes</SelectItem>
+                          <SelectItem value="120">120 minutes</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="difficulty">Difficulty</Label>
+                    <Select defaultValue="medium">
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select difficulty" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="easy">Easy</SelectItem>
+                        <SelectItem value="medium">Medium</SelectItem>
+                        <SelectItem value="hard">Hard</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setShowCreateDialog(false)}>Cancel</Button>
+                  <Button onClick={handleCreateExam}>Create Exam</Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
-      
-        <Tabs defaultValue="today" value={timePeriod} onValueChange={setTimePeriod} className="space-y-6">
-          <div className="flex items-center justify-between mb-4">
-            <TabsList className="bg-gray-100 dark:bg-gray-800">
-              <TabsTrigger value="today" className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white">
-                Today
-              </TabsTrigger>
-              <TabsTrigger value="week" className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white">
-                This Week
-              </TabsTrigger>
-              <TabsTrigger value="month" className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white">
-                This Month
-              </TabsTrigger>
-            </TabsList>
-          </div>
-          
-          <TabsContent value="today" className="m-0">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filteredExams.map(exam => (
-                <ExamCard key={exam.id} exam={exam} />
-              ))}
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="week" className="m-0">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filteredExams.map(exam => (
-                <ExamCard key={exam.id} exam={exam} />
-              ))}
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="month" className="m-0">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filteredExams.map(exam => (
-                <ExamCard key={exam.id} exam={exam} />
-              ))}
-            </div>
-          </TabsContent>
-        </Tabs>
         
-        <div className="flex justify-center mt-6">
-          <Button variant="outline" className="flex items-center gap-1">
-            <Search className="h-4 w-4 mr-1" />
-            View All Practice Tests
-          </Button>
-        </div>
+        <motion.div 
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ staggerChildren: 0.05 }}
+        >
+          {mockExams.map((exam) => (
+            <motion.div
+              key={exam.id}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <ExamCard exam={exam} />
+            </motion.div>
+          ))}
+        </motion.div>
       </div>
     </SharedPageLayout>
   );
