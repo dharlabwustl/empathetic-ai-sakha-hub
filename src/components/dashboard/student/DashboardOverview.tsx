@@ -1,17 +1,14 @@
-
+import React from 'react';
 import { UserProfileType } from "@/types/user";
 import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
-import { SubscriptionType } from "@/types/user/base";
 import KpiCard from "@/components/dashboard/KpiCard";
 import NudgePanel from "@/components/dashboard/NudgePanel";
 import ProfileCard from "@/components/dashboard/ProfileCard";
 import FeatureCard from "@/components/dashboard/FeatureCard";
 import TodayStudyPlan from "@/components/dashboard/student/TodayStudyPlan";
 import FeelGoodCorner from "@/components/dashboard/student/FeelGoodCorner";
-import { ReactNode } from "react";
+import ExamReadinessMeter from './metrics/ExamReadinessMeter';
 import { motion } from "framer-motion";
-import { AlertCircle, BookOpen, Coffee } from "lucide-react";
-import { useIsMobile } from "@/hooks/use-mobile";
 
 interface DashboardOverviewProps {
   userProfile: UserProfileType;
@@ -88,6 +85,19 @@ export default function DashboardOverview({
     return userProfile.subscription;
   };
 
+  // Mock readiness data - in a real app, this would come from props or an API
+  const readinessData = {
+    conceptCompletion: 75,
+    flashcardAccuracy: 82,
+    examScores: {
+      physics: 78,
+      chemistry: 85,
+      mathematics: 80
+    },
+    overallReadiness: 78,
+    timestamp: new Date().toISOString()
+  };
+
   return (
     <motion.div
       variants={containerVariants}
@@ -151,6 +161,17 @@ export default function DashboardOverview({
         <motion.div variants={itemVariants}>
           <NudgePanel nudges={nudges} markAsRead={markNudgeAsRead} />
         </motion.div>
+      </motion.div>
+      
+      {/* Exam Readiness Meter */}
+      <motion.div 
+        className="mb-6"
+        variants={itemVariants}
+      >
+        <ExamReadinessMeter 
+          userAvatar={userProfile.avatar} 
+          readinessData={readinessData}
+        />
       </motion.div>
       
       {/* Feature Cards */}
