@@ -1,72 +1,66 @@
 
-import { useState, useEffect } from "react";
-import { UserProfileType } from "@/types/user";
-import apiClient from "@/services/api/apiClient";
-import { API_ENDPOINTS } from "@/services/api/apiConfig";
+import { useState, useEffect } from 'react';
+import { UserProfileType } from '@/types/user';
 
-interface StudentProfileHook {
-  userProfile: UserProfileType | null;
-  loading: boolean;
-  error: string | null;
-  refreshProfile: () => Promise<void>;
-}
-
-export const useStudentProfile = (): StudentProfileHook => {
+export const useStudentProfile = () => {
   const [userProfile, setUserProfile] = useState<UserProfileType | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const fetchStudentProfile = async () => {
-    setLoading(true);
-    setError(null);
-    
-    try {
-      // Attempt to fetch from API
-      const response = await apiClient.get(API_ENDPOINTS.STUDENTS.PROFILE);
-      setUserProfile(response.data);
-    } catch (err) {
-      console.error("Error fetching student profile:", err);
-      
-      // Fallback to mock data if API fails
-      setUserProfile({
-        id: "student-1",
-        name: "Alex Student",
-        email: "alex@student.com",
-        role: "student",
-        avatar: "/avatars/student.png",
-        batch: "IIT-JEE-2025",
-        examGoal: "IIT-JEE",
-        streak: {
-          current: 5,
-          longest: 12
-        },
-        joinedOn: "2023-09-15",
-        subscription: "basic",
-        lastLogin: new Date().toISOString(),
-        loginCount: 42,
-        studyTime: {
-          today: 120, // minutes
-          thisWeek: 540, // minutes
-          total: 5400 // minutes
-        },
-        completedTopics: 24,
-        completedPracticeTests: 7,
-        averageScore: 78
-      });
-      
-      // No error message for fallback data
-    } finally {
-      setLoading(false);
+  useEffect(() => {
+    const fetchProfile = async () => {
+      setLoading(true);
+      // Simulating API fetch with mock data
+      try {
+        // Check if user data exists in local storage
+        const savedUserData = localStorage.getItem("userData");
+        
+        if (savedUserData) {
+          setUserProfile(JSON.parse(savedUserData));
+        } else {
+          // Create mock profile if none exists
+          const mockProfile: UserProfileType = {
+            id: '1',
+            name: 'Demo Student',
+            email: 'student@example.com',
+            role: 'student',
+            avatar: '',
+            personalityType: 'Visual Learner',
+            examPreparation: 'JEE Advanced',
+            goals: [
+              {
+                id: '1',
+                title: 'IIT-JEE',
+                progress: 35,
+              }
+            ],
+            subscription: 'basic',
+            completedTasks: 24,
+            performanceScore: 78,
+            streakDays: 7,
+            timeSpent: 42
+          };
+          
+          // Save to local storage for persistence
+          localStorage.setItem("userData", JSON.stringify(mockProfile));
+          setUserProfile(mockProfile);
+        }
+      } catch (error) {
+        console.error('Error fetching profile:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProfile();
+  }, []);
+
+  const updateUserProfile = (updates: Partial<UserProfileType>) => {
+    if (userProfile) {
+      const updatedProfile = { ...userProfile, ...updates };
+      setUserProfile(updatedProfile);
+      localStorage.setItem("userData", JSON.stringify(updatedProfile));
     }
   };
 
-  useEffect(() => {
-    fetchStudentProfile();
-  }, []);
-
-  const refreshProfile = async (): Promise<void> => {
-    await fetchStudentProfile();
-  };
-
-  return { userProfile, loading, error, refreshProfile };
+  return { userProfile, loading, updateUserProfile };
 };
