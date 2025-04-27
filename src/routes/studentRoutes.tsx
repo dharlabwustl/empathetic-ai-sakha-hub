@@ -1,4 +1,3 @@
-
 import { Routes, Route } from 'react-router-dom';
 import TodaysPlanView from '@/components/dashboard/student/todays-plan/TodaysPlanView';
 import ConceptsView from '@/components/dashboard/student/concepts/ConceptsView';
@@ -10,6 +9,10 @@ import ProfilePage from '@/pages/dashboard/student/ProfilePage';
 import BatchManagementView from '@/pages/dashboard/student/BatchManagementView';
 import SubscriptionPage from '@/pages/dashboard/student/SubscriptionPage';
 import FeelGoodCornerPage from '@/pages/dashboard/student/FeelGoodCornerPage';
+import ConceptStudyPage from '@/components/dashboard/student/concepts/ConceptStudyPage';
+import FlashcardPracticePage from '@/components/dashboard/student/flashcards/FlashcardPracticePage';
+import ExamAttemptPage from '@/components/dashboard/student/exams/ExamAttemptPage';
+import ExamReviewPage from '@/components/dashboard/student/exams/ExamReviewPage';
 
 export default function StudentRoutes() {
   return (
@@ -24,6 +27,12 @@ export default function StudentRoutes() {
       <Route path="/batch" element={<BatchManagementView />} />
       <Route path="/subscription" element={<SubscriptionPage />} />
       <Route path="/wellness" element={<FeelGoodCornerPage />} />
+      
+      {/* New study pages */}
+      <Route path="/concepts/:conceptId/study" element={<ConceptStudyPage />} />
+      <Route path="/flashcards/:cardId/practice" element={<FlashcardPracticePage />} />
+      <Route path="/exams/:examId/attempt" element={<ExamAttemptPage />} />
+      <Route path="/exams/:examId/review" element={<ExamReviewPage />} />
     </Routes>
   );
 }
