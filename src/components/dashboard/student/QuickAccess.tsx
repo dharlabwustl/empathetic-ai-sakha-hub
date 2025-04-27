@@ -3,10 +3,13 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { 
-  MessageSquare, 
-  Calendar,
-  GraduationCap,
-  Heart
+  CalendarDays, 
+  GraduationCap, 
+  FileText, 
+  BookOpen,
+  Clock, 
+  User,
+  Brain
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -14,28 +17,49 @@ export const QuickAccess = () => {
   const location = useLocation();
   const currentPath = location.pathname;
   
-  // Updated quick links as per requirements - only these 4 items
   const quickLinks = [
     {
-      path: '/dashboard/student/tutor',
-      icon: <MessageSquare className="h-5 w-5" />,
-      label: '24/7 AI Tutor'
+      path: '/dashboard/student/studyplan',
+      icon: <CalendarDays className="h-5 w-5" />,
+      label: 'Study Plan',
+      description: 'Review your complete study schedule'
     },
     {
-      path: '/dashboard/student/studyplan',
-      icon: <Calendar className="h-5 w-5" />,
-      label: 'Study Plan'
+      path: '/dashboard/student/todays-plan',
+      icon: <Clock className="h-5 w-5" />,
+      label: 'Today\'s Plan',
+      description: 'See what to study today'
+    },
+    {
+      path: '/dashboard/student/concepts',
+      icon: <BookOpen className="h-5 w-5" />,
+      label: 'Concepts',
+      description: 'Browse study concepts'
+    },
+    {
+      path: '/dashboard/student/flashcards',
+      icon: <Brain className="h-5 w-5" />,
+      label: 'Flashcards',
+      description: 'Review with flashcards'
+    },
+    {
+      path: '/dashboard/student/practice-exam',
+      icon: <FileText className="h-5 w-5" />,
+      label: 'Practice Exams',
+      description: 'Test your knowledge'
     },
     {
       path: '/dashboard/student/academic',
       icon: <GraduationCap className="h-5 w-5" />,
-      label: 'Academic Advisor'
+      label: 'Academic Advisor',
+      description: 'Get personalized guidance'
     },
     {
-      path: '/dashboard/student/wellness',
-      icon: <Heart className="h-5 w-5" />,
-      label: 'Feel Good Corner'
-    }
+      path: '/dashboard/student/profile',
+      icon: <User className="h-5 w-5" />,
+      label: 'Profile',
+      description: 'View your profile'
+    },
   ];
   
   return (

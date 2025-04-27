@@ -1,282 +1,234 @@
-
 import React from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
+import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
-import { CheckCircle, Circle, Book, BookOpen, FileText } from 'lucide-react';
+import { Book, BookOpen, FileText } from 'lucide-react';
+import { useTodaysPlan } from '@/hooks/useTodaysPlan';
+import { MoodType } from '@/types/student/todaysPlan';
 
-export function SubjectTasksBreakdown() {
-  // Mock data for subjects
-  const subjects = [
-    {
-      name: "Physics",
-      color: "blue",
-      totalTime: 90,
-      progress: 35,
-      tasks: {
-        concepts: [
-          { id: "c1", title: "Newton's Laws", timeEstimate: 25, completed: false },
-          { id: "c2", title: "Motion Kinematics", timeEstimate: 20, completed: true }
-        ],
-        flashcards: [
-          { id: "f1", title: "Force & Motion", cardCount: 10, timeEstimate: 15, progress: 30, completed: false }
-        ],
-        practiceTests: [
-          { id: "pt1", title: "Mini Test", timeEstimate: 30, completed: false }
-        ]
-      }
-    },
-    {
-      name: "Chemistry",
-      color: "green",
-      totalTime: 75,
-      progress: 20,
-      tasks: {
-        concepts: [
-          { id: "c3", title: "Periodic Table", timeEstimate: 25, completed: false }
-        ],
-        flashcards: [
-          { id: "f2", title: "Elements", cardCount: 5, timeEstimate: 10, progress: 60, completed: false }
-        ],
-        practiceTests: [
-          { id: "pt2", title: "Quick Quiz", timeEstimate: 15, completed: false }
-        ]
-      }
-    },
-    {
-      name: "Mathematics",
-      color: "violet",
-      totalTime: 65,
-      progress: 10,
-      tasks: {
-        concepts: [
-          { id: "c4", title: "Calculus Basics", timeEstimate: 30, completed: false }
-        ],
-        flashcards: [
-          { id: "f3", title: "Math Formulas", cardCount: 8, timeEstimate: 15, progress: 0, completed: false }
-        ],
-        practiceTests: [
-          { id: "pt3", title: "Practice Problems", timeEstimate: 20, completed: false }
-        ]
-      }
+interface SubjectTasksBreakdownProps {
+  currentMood?: MoodType;
+}
+
+export const SubjectTasksBreakdown: React.FC<SubjectTasksBreakdownProps> = ({ currentMood }) => {
+  const { planData, loading, markTaskCompleted } = useTodaysPlan(
+    "IIT-JEE", // This should come from context in a real app
+    "Student" // This should come from context in a real app
+  );
+
+  const getMoodBasedTip = () => {
+    switch (currentMood) {
+      case 'happy':
+        return "Perfect day to tackle a challenging concept! Try completing an extra task.";
+      case 'focused':
+        return "Great focus! Consider tackling some backlog items today.";
+      case 'tired':
+        return "Take it easy today. Focus on review tasks first.";
+      case 'anxious':
+        return "Start with something familiar to build confidence.";
+      case 'stressed':
+        return "Let's keep it light. Pick your most comfortable subject.";
+      default:
+        return null;
     }
-  ];
-
-  // Helper function to get color classes for a subject
-  const getColorClasses = (color: string) => {
-    const colorMap: Record<string, {
-      bg: string,
-      border: string,
-      darkBg: string, 
-      darkBorder: string,
-      text: string,
-      darkText: string
-    }> = {
-      blue: {
-        bg: "bg-blue-50/70", 
-        border: "border-blue-200",
-        darkBg: "dark:bg-blue-900/20",
-        darkBorder: "dark:border-blue-800/30",
-        text: "text-blue-700",
-        darkText: "dark:text-blue-300"
-      },
-      green: {
-        bg: "bg-green-50/70",
-        border: "border-green-200",
-        darkBg: "dark:bg-green-900/20",
-        darkBorder: "dark:border-green-800/30",
-        text: "text-green-700",
-        darkText: "dark:text-green-300"
-      },
-      violet: {
-        bg: "bg-violet-50/70",
-        border: "border-violet-200",
-        darkBg: "dark:bg-violet-900/20", 
-        darkBorder: "dark:border-violet-800/30",
-        text: "text-violet-700",
-        darkText: "dark:text-violet-300"
-      },
-      amber: {
-        bg: "bg-amber-50/70",
-        border: "border-amber-200", 
-        darkBg: "dark:bg-amber-900/20",
-        darkBorder: "dark:border-amber-800/30",
-        text: "text-amber-700", 
-        darkText: "dark:text-amber-300"
-      }
-    };
-
-    return colorMap[color] || colorMap.blue;
   };
 
-  // Helper function to toggle task completion status
-  const handleTaskCompletion = (subjectName: string, taskType: string, taskId: string) => {
-    console.log(`Toggle completion: ${subjectName} - ${taskType} - ${taskId}`);
-    // In a real app, this would update state or call an API
+  if (loading) {
+    return (
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold">Subject Breakdown</h3>
+        {[1, 2, 3].map((i) => (
+          <Card key={i} className="mb-4">
+            <CardHeader>
+              <div className="h-6 bg-gray-200 animate-pulse rounded w-1/3"></div>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-3 gap-2">
+                {[1, 2, 3].map((j) => (
+                  <div key={j} className="space-y-2">
+                    <div className="h-4 bg-gray-200 animate-pulse rounded w-2/3"></div>
+                    <div className="h-8 bg-gray-200 animate-pulse rounded w-1/2"></div>
+                    <div className="h-8 bg-gray-200 animate-pulse rounded w-full"></div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    );
+  }
+
+  if (!planData) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-muted-foreground">No subject data available.</p>
+      </div>
+    );
+  }
+
+  // Mood-based adjustments to tasks
+  const adjustTasksForMood = (subject: any) => {
+    if (!currentMood) return subject;
+
+    let adjustedSubject = { ...subject };
+
+    switch (currentMood) {
+      case 'tired':
+      case 'stressed':
+        // Reduce concepts to just the essential ones
+        adjustedSubject.concepts = subject.concepts.slice(0, Math.max(1, Math.floor(subject.concepts.length / 2)));
+        break;
+      case 'focused':
+        // No reduction, keep all tasks
+        break;
+      case 'happy':
+        // Maybe add a bonus task if we had that capability
+        break;
+      default:
+        // No adjustments for other moods
+        break;
+    }
+
+    return adjustedSubject;
   };
 
   return (
-    <div className="space-y-6">
-      <h2 className="text-xl font-semibold">Today's Subject Breakdown</h2>
-      
-      <div className="space-y-6">
-        {subjects.map(subject => {
-          const colorClasses = getColorClasses(subject.color);
-          
-          return (
-            <Card key={subject.name} className={`border ${colorClasses.border} ${colorClasses.darkBorder}`}>
-              <CardHeader className={`${colorClasses.bg} ${colorClasses.darkBg}`}>
-                <div className="flex justify-between items-center">
-                  <CardTitle className={`text-lg ${colorClasses.text} ${colorClasses.darkText}`}>
-                    {subject.name}
-                  </CardTitle>
-                  
-                  <div className="flex items-center gap-2">
-                    <Badge className={`${colorClasses.bg} ${colorClasses.text} ${colorClasses.border}`}>
-                      {subject.progress}% Complete
-                    </Badge>
-                    <Badge variant="outline">
-                      {Math.floor(subject.totalTime / 60) > 0 ? 
-                        `${Math.floor(subject.totalTime / 60)}h ${subject.totalTime % 60}m` : 
-                        `${subject.totalTime}m`}
-                    </Badge>
-                  </div>
-                </div>
-                <Progress value={subject.progress} className="h-2 mt-2" />
-              </CardHeader>
-              
-              <CardContent className="p-4">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {/* Concepts section */}
-                  <div>
-                    <h3 className="text-sm font-medium mb-2 flex items-center">
-                      <BookOpen className="h-4 w-4 mr-1 text-blue-500" />
-                      Concepts
-                    </h3>
-                    
-                    <div className="space-y-2">
-                      {subject.tasks.concepts.map(concept => (
-                        <div 
-                          key={concept.id} 
-                          className="p-2 border rounded-md flex items-center justify-between bg-white dark:bg-gray-800"
-                        >
-                          <div>
-                            <div className="flex items-center">
-                              {concept.completed ? (
-                                <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
-                              ) : (
-                                <Circle 
-                                  className="h-4 w-4 text-gray-300 mr-2 cursor-pointer hover:text-gray-400"
-                                  onClick={() => handleTaskCompletion(subject.name, 'concepts', concept.id)} 
-                                />
-                              )}
-                              <span className="font-medium text-sm">{concept.title}</span>
-                            </div>
-                            <div className="ml-6 text-xs text-muted-foreground mt-1">
-                              {concept.timeEstimate} minutes
-                            </div>
-                          </div>
-                          
-                          <Link to={`/dashboard/student/concepts/${subject.name.toLowerCase()}/${concept.id}`}>
-                            <Button variant="ghost" size="sm">Study</Button>
+    <div className="space-y-4">
+      <h3 className="text-lg font-semibold">Subject Breakdown</h3>
+
+      {/* Mood-based Tip */}
+      {currentMood && getMoodBasedTip() && (
+        <div className={`p-3 rounded-lg mb-4 ${
+          currentMood === 'happy' ? "bg-green-50 border border-green-200 text-green-800" :
+          currentMood === 'focused' ? "bg-blue-50 border border-blue-200 text-blue-800" :
+          currentMood === 'tired' ? "bg-amber-50 border border-amber-200 text-amber-800" :
+          currentMood === 'anxious' ? "bg-purple-50 border border-purple-200 text-purple-800" :
+          currentMood === 'stressed' ? "bg-red-50 border border-red-200 text-red-800" :
+          "bg-gray-50 border border-gray-200 text-gray-800"
+        }`}>
+          <p className="text-sm">{getMoodBasedTip()}</p>
+        </div>
+      )}
+
+      {Object.keys(planData.subjectBreakdown).map((subject) => {
+        const subjectData = adjustTasksForMood(planData.subjectBreakdown[subject]);
+        
+        return (
+          <Card key={subject} className="mb-4">
+            <CardHeader>
+              <CardTitle className="text-md">{subject}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b">
+                      <th className="text-left py-2">Task Type</th>
+                      <th className="text-left py-2">Assigned</th>
+                      <th className="text-left py-2">Pending</th>
+                      <th className="text-right py-2">Time</th>
+                      <th className="text-right py-2">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {/* Concepts Row */}
+                    {subjectData.concepts.length > 0 && (
+                      <tr className="border-b">
+                        <td className="py-2 flex items-center gap-2">
+                          <Book className="h-4 w-4 text-blue-500" />
+                          <span>Concepts</span>
+                        </td>
+                        <td className="py-2">
+                          {subjectData.concepts.length} {subjectData.concepts.length === 1 ? 'concept' : 'concepts'}
+                        </td>
+                        <td className="py-2">
+                          {subjectData.concepts.filter(c => c.status !== '✅ completed').length > 0 ? (
+                            <Badge variant="destructive">
+                              {subjectData.concepts.filter(c => c.status !== '✅ completed').length} pending
+                            </Badge>
+                          ) : (
+                            <Badge variant="outline">None</Badge>
+                          )}
+                        </td>
+                        <td className="py-2 text-right">
+                          {subjectData.concepts.reduce((acc, c) => acc + c.timeEstimate, 0)} min
+                        </td>
+                        <td className="py-2 text-right">
+                          <Link to={`/dashboard/student/concepts/${subject.toLowerCase()}`}>
+                            <Button size="sm" variant="ghost">Go to Concepts</Button>
                           </Link>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                  
-                  {/* Flashcards section */}
-                  <div>
-                    <h3 className="text-sm font-medium mb-2 flex items-center">
-                      <Book className="h-4 w-4 mr-1 text-amber-500" />
-                      Flashcards
-                    </h3>
+                        </td>
+                      </tr>
+                    )}
                     
-                    <div className="space-y-2">
-                      {subject.tasks.flashcards.map(flashcard => (
-                        <div 
-                          key={flashcard.id} 
-                          className="p-2 border rounded-md bg-white dark:bg-gray-800"
-                        >
-                          <div className="flex items-center justify-between mb-1">
-                            <div className="flex items-center">
-                              {flashcard.completed ? (
-                                <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
-                              ) : (
-                                <Circle 
-                                  className="h-4 w-4 text-gray-300 mr-2 cursor-pointer hover:text-gray-400"
-                                  onClick={() => handleTaskCompletion(subject.name, 'flashcards', flashcard.id)} 
-                                />
-                              )}
-                              <span className="font-medium text-sm">{flashcard.title}</span>
-                            </div>
-                            <span className="text-xs">{flashcard.cardCount} cards</span>
-                          </div>
-                          
-                          <div className="ml-6 mb-2">
-                            <div className="flex justify-between text-xs text-muted-foreground">
-                              <span>Progress</span>
-                              <span>{flashcard.progress}%</span>
-                            </div>
-                            <Progress value={flashcard.progress} className="h-1 mt-1" />
-                          </div>
-                          
-                          <div className="flex justify-between items-center ml-6">
-                            <span className="text-xs text-muted-foreground">{flashcard.timeEstimate} min</span>
-                            <Link to={`/dashboard/student/flashcards/${subject.name.toLowerCase()}/${flashcard.id}`}>
-                              <Button variant="ghost" size="sm">Review</Button>
-                            </Link>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                  
-                  {/* Practice Tests section */}
-                  <div>
-                    <h3 className="text-sm font-medium mb-2 flex items-center">
-                      <FileText className="h-4 w-4 mr-1 text-purple-500" />
-                      Practice Tests
-                    </h3>
-                    
-                    <div className="space-y-2">
-                      {subject.tasks.practiceTests.map(test => (
-                        <div 
-                          key={test.id} 
-                          className="p-2 border rounded-md flex items-center justify-between bg-white dark:bg-gray-800"
-                        >
-                          <div>
-                            <div className="flex items-center">
-                              {test.completed ? (
-                                <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
-                              ) : (
-                                <Circle 
-                                  className="h-4 w-4 text-gray-300 mr-2 cursor-pointer hover:text-gray-400"
-                                  onClick={() => handleTaskCompletion(subject.name, 'practiceTests', test.id)} 
-                                />
-                              )}
-                              <span className="font-medium text-sm">{test.title}</span>
-                            </div>
-                            <div className="ml-6 text-xs text-muted-foreground mt-1">
-                              {test.timeEstimate} minutes
-                            </div>
-                          </div>
-                          
-                          <Link to={`/dashboard/student/practice-exam/${test.id}/start`}>
-                            <Button variant="ghost" size="sm">Take Test</Button>
+                    {/* Flashcards Row */}
+                    {subjectData.flashcards.length > 0 && (
+                      <tr className="border-b">
+                        <td className="py-2 flex items-center gap-2">
+                          <BookOpen className="h-4 w-4 text-amber-500" />
+                          <span>Flashcards</span>
+                        </td>
+                        <td className="py-2">
+                          {subjectData.flashcards.reduce((acc, f) => acc + (f.cardCount || 0), 0)} cards
+                        </td>
+                        <td className="py-2">
+                          {subjectData.flashcards.filter(f => f.status !== '✅ completed').length > 0 ? (
+                            <Badge variant="destructive">
+                              {subjectData.flashcards.filter(f => f.status !== '✅ completed').length} pending
+                            </Badge>
+                          ) : (
+                            <Badge variant="outline">None</Badge>
+                          )}
+                        </td>
+                        <td className="py-2 text-right">
+                          {subjectData.flashcards.reduce((acc, f) => acc + f.timeEstimate, 0)} min
+                        </td>
+                        <td className="py-2 text-right">
+                          <Link to={`/dashboard/student/flashcards/${subject.toLowerCase()}`}>
+                            <Button size="sm" variant="ghost">Review</Button>
                           </Link>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
+                        </td>
+                      </tr>
+                    )}
+                    
+                    {/* Practice Exams Row */}
+                    {subjectData.practiceExams.length > 0 && (
+                      <tr className="border-b last:border-0">
+                        <td className="py-2 flex items-center gap-2">
+                          <FileText className="h-4 w-4 text-purple-500" />
+                          <span>Practice Test</span>
+                        </td>
+                        <td className="py-2">
+                          {subjectData.practiceExams.length} {subjectData.practiceExams.length === 1 ? 'test' : 'tests'}
+                        </td>
+                        <td className="py-2">
+                          {subjectData.practiceExams.filter(p => p.status !== '✅ completed').length > 0 ? (
+                            <Badge variant="destructive">
+                              {subjectData.practiceExams.filter(p => p.status !== '✅ completed').length} pending
+                            </Badge>
+                          ) : (
+                            <Badge variant="outline">None</Badge>
+                          )}
+                        </td>
+                        <td className="py-2 text-right">
+                          {subjectData.practiceExams.reduce((acc, p) => acc + p.timeEstimate, 0)} min
+                        </td>
+                        <td className="py-2 text-right">
+                          <Link to={`/dashboard/student/practice-exam/${subject.toLowerCase()}`}>
+                            <Button size="sm" variant="ghost">Take Test</Button>
+                          </Link>
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </CardContent>
+          </Card>
+        );
+      })}
     </div>
   );
-}
+};

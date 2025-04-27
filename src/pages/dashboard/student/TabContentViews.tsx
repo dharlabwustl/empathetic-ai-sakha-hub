@@ -1,20 +1,21 @@
 
 import React from 'react';
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
+import { SubjectTasksBreakdown } from '@/components/dashboard/student/todays-plan/SubjectTasksBreakdown';
 import { HistoryAndBacklog } from '@/components/dashboard/student/todays-plan/HistoryAndBacklog';
 import { Card } from "@/components/ui/card";
 import RedesignedTodaysPlan from '@/components/dashboard/student/todays-plan/RedesignedTodaysPlan';
-import { useStudentDashboardData } from '@/hooks/useStudentDashboardData';
 
 export function TodayPlanView() {
-  const { dashboardData } = useStudentDashboardData();
-  
   return (
     <SharedPageLayout 
       title="Today's Study Plan"
       subtitle="Your personalized daily learning path"
     >
-      <RedesignedTodaysPlan userProfile={dashboardData?.userProfile} />
+      <div className="space-y-8">
+        <SubjectTasksBreakdown />
+        <HistoryAndBacklog />
+      </div>
     </SharedPageLayout>
   );
 }
