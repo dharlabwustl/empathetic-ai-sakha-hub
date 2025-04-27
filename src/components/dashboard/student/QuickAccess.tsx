@@ -1,36 +1,34 @@
 
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Brain, BookOpen, Book } from 'lucide-react';
+import { MessageSquare, Calendar, Brain, Users, Heart } from 'lucide-react';
 
-export const QuickAccess = () => {
+export function QuickAccess() {
+  const navigate = useNavigate();
+
+  const quickItems = [
+    { icon: <MessageSquare className="h-4 w-4" />, text: "24/7 AI Tutor", path: "/dashboard/student/tutor" },
+    { icon: <Calendar className="h-4 w-4" />, text: "Academic Advisor", path: "/dashboard/student/academic" },
+    { icon: <Brain className="h-4 w-4" />, text: "Study Plan", path: "/dashboard/student/today" },
+    { icon: <Users className="h-4 w-4" />, text: "Study Groups", path: "/dashboard/student/study-groups" },
+    { icon: <Heart className="h-4 w-4" />, text: "Feel Good Corner", path: "/dashboard/student/wellness" },
+  ];
+
   return (
-    <div className="flex flex-wrap gap-2 mb-4">
-      <Link to="/dashboard/student/academic">
-        <Button variant="default" size="sm" className="bg-gradient-to-r from-purple-500 to-violet-600 hover:from-purple-600 hover:to-violet-700 text-white shadow-md">
-          <Brain className="h-4 w-4 mr-1" />
-          Academic Advisor
-        </Button>
-      </Link>
-      
-      <Link to="/dashboard/student/feel-good">
-        <Button variant="default" size="sm" className="bg-gradient-to-r from-pink-500 to-rose-600 hover:from-pink-600 hover:to-rose-700 text-white shadow-md">
-          <BookOpen className="h-4 w-4 mr-1" />
-          Feel Good Corner
-        </Button>
-      </Link>
-      
-      <Link to="/dashboard/student/study-plan">
+    <div className="flex items-center gap-2 overflow-x-auto pb-2 mb-4">
+      {quickItems.map((item, index) => (
         <Button 
+          key={index} 
           variant="outline" 
           size="sm" 
-          className="border-violet-200 hover:bg-violet-50 hover:text-violet-700"
+          className="whitespace-nowrap flex items-center gap-2 shadow-sm"
+          onClick={() => navigate(item.path)}
         >
-          <Book className="h-4 w-4 mr-1" />
-          View Study Plan
+          {item.icon}
+          <span>{item.text}</span>
         </Button>
-      </Link>
+      ))}
     </div>
   );
-};
+}

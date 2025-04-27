@@ -3,41 +3,41 @@ import { UserRole } from '@/types/user';
 
 export interface KpiData {
   id: string;
-  label: string;
+  title: string;
   value: number;
-  unit: string;
-  change: number; // percentage change
-  trend: 'up' | 'down' | 'neutral';
-  icon: string;
+  previousValue?: number;
+  change?: number;
+  status?: 'increase' | 'decrease' | 'neutral';
+  target?: number;
+  unit?: string;
 }
 
 export interface NudgeData {
   id: string;
-  type: 'motivation' | 'reminder' | 'celebration' | 'suggestion' | 'warning';
   title: string;
   message: string;
-  actionLabel?: string;
+  type: 'tip' | 'alert' | 'suggestion';
+  isRead: boolean;
+  actionText?: string;
   actionUrl?: string;
-  timestamp: string;
-  read: boolean;
+  priority?: 'low' | 'medium' | 'high';
+  description?: string;
+  createdAt?: string;
 }
 
-export function useKpiTracking(role: UserRole) {
+export const useKpiTracking = (role: UserRole) => {
   const [kpis, setKpis] = useState<KpiData[]>([]);
   const [nudges, setNudges] = useState<NudgeData[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Simulate API call to fetch KPIs and nudges
     const fetchKpisAndNudges = () => {
       setLoading(true);
       
       setTimeout(() => {
-        // Set role-specific KPIs
         const roleSpecificKpis = getRoleSpecificKpis(role);
         setKpis(roleSpecificKpis);
         
-        // Set role-specific nudges
         const roleSpecificNudges = getRoleSpecificNudges(role);
         setNudges(roleSpecificNudges);
         
@@ -51,7 +51,7 @@ export function useKpiTracking(role: UserRole) {
   const markNudgeAsRead = (nudgeId: string) => {
     setNudges(prev => 
       prev.map(nudge => 
-        nudge.id === nudgeId ? { ...nudge, read: true } : nudge
+        nudge.id === nudgeId ? { ...nudge, isRead: true } : nudge
       )
     );
   };
@@ -59,163 +59,178 @@ export function useKpiTracking(role: UserRole) {
   return { kpis, nudges, loading, markNudgeAsRead };
 }
 
-// Helper functions to get role-specific data
 function getRoleSpecificKpis(role: UserRole): KpiData[] {
   switch (role) {
     case UserRole.Student:
       return [
         {
           id: "study-time",
-          label: "Study Time Today",
+          title: "Study Time Today",
           value: 2.5,
           unit: "hours",
           change: 25,
-          trend: "up",
-          icon: "Clock",
+          status: "increase",
+          target: 3,
+          previousValue: 2,
         },
         {
           id: "subjects-covered",
-          label: "Subjects Covered",
+          title: "Subjects Covered",
           value: 3,
           unit: "subjects",
           change: 0,
-          trend: "neutral",
-          icon: "BookOpen",
+          status: "neutral",
+          target: 4,
+          previousValue: 2,
         },
         {
           id: "quiz-performance",
-          label: "Quiz Performance",
+          title: "Quiz Performance",
           value: 82,
           unit: "%",
           change: -3,
-          trend: "down",
-          icon: "Brain",
+          status: "decrease",
+          target: 85,
+          previousValue: 85,
         },
         {
           id: "mood",
-          label: "Mood Today",
+          title: "Mood Today",
           value: 4,
           unit: "",
           change: 1,
-          trend: "up",
-          icon: "Smile",
+          status: "increase",
+          target: 5,
+          previousValue: 3,
         },
       ];
     case UserRole.Employee:
       return [
         {
           id: "productivity-score",
-          label: "Productivity Score",
+          title: "Productivity Score",
           value: 85,
           unit: "%",
           change: 5,
-          trend: "up",
-          icon: "LineChart",
+          status: "increase",
+          target: 90,
+          previousValue: 80,
         },
         {
           id: "tasks-completed",
-          label: "Tasks Completed",
+          title: "Tasks Completed",
           value: 6,
           unit: "tasks",
           change: 2,
-          trend: "up",
-          icon: "CheckSquare",
+          status: "increase",
+          target: 8,
+          previousValue: 6,
         },
         {
           id: "work-hours",
-          label: "Work Hours Today",
+          title: "Work Hours Today",
           value: 7.5,
           unit: "hours",
           change: 0,
-          trend: "neutral",
-          icon: "Clock",
+          status: "neutral",
+          target: 8,
+          previousValue: 7,
         },
         {
           id: "wellness-score",
-          label: "Wellness Score",
+          title: "Wellness Score",
           value: 75,
           unit: "%",
           change: -5,
-          trend: "down",
-          icon: "Heart",
+          status: "decrease",
+          target: 80,
+          previousValue: 80,
         },
       ];
     case UserRole.Doctor:
       return [
         {
           id: "research-hours",
-          label: "Research Hours Today",
+          title: "Research Hours Today",
           value: 6.5,
           unit: "hours",
           change: 10,
-          trend: "up",
-          icon: "Clock",
+          status: "increase",
+          target: 7,
+          previousValue: 6,
         },
         {
           id: "literature-reviewed",
-          label: "Literature Reviewed",
+          title: "Literature Reviewed",
           value: 23,
           unit: "papers",
           change: 15,
-          trend: "up",
-          icon: "FileText",
+          status: "increase",
+          target: 25,
+          previousValue: 20,
         },
         {
           id: "research-progress",
-          label: "Research Progress",
+          title: "Research Progress",
           value: 65,
           unit: "%",
           change: 5,
-          trend: "up",
-          icon: "TrendingUp",
+          status: "increase",
+          target: 70,
+          previousValue: 60,
         },
         {
           id: "wellness-score",
-          label: "Wellness Score",
+          title: "Wellness Score",
           value: 65,
           unit: "%",
           change: -10,
-          trend: "down",
-          icon: "Heart",
+          status: "decrease",
+          target: 70,
+          previousValue: 70,
         },
       ];
     case UserRole.Founder:
       return [
         {
           id: "mvp-completion",
-          label: "MVP Completion",
+          title: "MVP Completion",
           value: 75,
           unit: "%",
           change: 15,
-          trend: "up",
-          icon: "Code",
+          status: "increase",
+          target: 80,
+          previousValue: 70,
         },
         {
           id: "pitch-deck",
-          label: "Pitch Deck Status",
+          title: "Pitch Deck Status",
           value: 90,
           unit: "%",
           change: 5,
-          trend: "up",
-          icon: "PieChart",
+          status: "increase",
+          target: 95,
+          previousValue: 85,
         },
         {
           id: "investor-meetings",
-          label: "Investor Meetings",
+          title: "Investor Meetings",
           value: 8,
           unit: "",
           change: 3,
-          trend: "up",
-          icon: "Users",
+          status: "increase",
+          target: 10,
+          previousValue: 7,
         },
         {
           id: "burnout-risk",
-          label: "Burnout Risk",
+          title: "Burnout Risk",
           value: 35,
           unit: "%",
           change: 10,
-          trend: "down",
-          icon: "Battery",
+          status: "decrease",
+          target: 40,
+          previousValue: 45,
         },
       ];
     default:
@@ -231,129 +246,156 @@ function getRoleSpecificNudges(role: UserRole): NudgeData[] {
       return [
         {
           id: "n1",
-          type: "motivation",
           title: "Keep up the momentum!",
           message: "You've been consistent with your Physics studies. Great job maintaining your streak!",
-          actionLabel: "Continue Learning",
+          type: "tip",
+          isRead: false,
+          actionText: "Continue Learning",
           actionUrl: "/dashboard/student/tutor",
-          timestamp: now,
-          read: false,
+          priority: "medium",
+          description: "Your Physics studies are on track.",
+          createdAt: now,
         },
         {
           id: "n2",
-          type: "reminder",
           title: "Chemistry quiz tomorrow",
           message: "Your scheduled Chemistry quiz on Organic Chemistry is tomorrow. Time to review!",
-          actionLabel: "Start Review",
+          type: "alert",
+          isRead: false,
+          actionText: "Start Review",
           actionUrl: "/dashboard/student/planner",
-          timestamp: now,
-          read: false,
+          priority: "high",
+          description: "Review your Chemistry quiz materials.",
+          createdAt: now,
         },
         {
           id: "n3",
-          type: "celebration",
           title: "Achievement unlocked!",
           message: "You've completed 75% of your Physics syllabus. You're making excellent progress!",
-          timestamp: now,
-          read: true,
+          type: "suggestion",
+          isRead: true,
+          priority: "low",
+          description: "Keep up the momentum!",
+          createdAt: now,
         },
         {
           id: "n4",
-          type: "suggestion",
           title: "Study break recommended",
           message: "You've been studying for 2 hours straight. Consider taking a short break to refresh your mind.",
-          actionLabel: "Start Break Timer",
-          timestamp: now,
-          read: false,
+          type: "tip",
+          isRead: false,
+          actionText: "Start Break Timer",
+          priority: "medium",
+          description: "Take a short break to refresh your mind.",
+          createdAt: now,
         },
       ];
     case UserRole.Employee:
       return [
         {
           id: "n1",
-          type: "reminder",
           title: "Project deadline approaching",
           message: "Your Data Analytics project is due in 3 days. Make sure you're on track!",
-          actionLabel: "View Project",
-          timestamp: now,
-          read: false,
+          type: "alert",
+          isRead: false,
+          actionText: "View Project",
+          priority: "high",
+          description: "Review your project progress.",
+          createdAt: now,
         },
         {
           id: "n2",
-          type: "suggestion",
           title: "Skill recommendation",
           message: "Based on your interests, you might enjoy our new Python for Data Analysis course.",
-          actionLabel: "Explore Course",
-          timestamp: now,
-          read: false,
+          type: "suggestion",
+          isRead: false,
+          actionText: "Explore Course",
+          priority: "medium",
+          description: "Explore the new Python for Data Analysis course.",
+          createdAt: now,
         },
         {
           id: "n3",
-          type: "warning",
           title: "Burnout risk detected",
           message: "You've been working long hours for the past week. Consider scheduling some downtime.",
-          actionLabel: "View Wellness Tips",
-          timestamp: now,
-          read: false,
+          type: "tip",
+          isRead: false,
+          actionText: "View Wellness Tips",
+          priority: "low",
+          description: "Schedule some downtime to avoid burnout.",
+          createdAt: now,
         },
       ];
     case UserRole.Doctor:
       return [
         {
           id: "n1",
-          type: "reminder",
           title: "Research checkpoint",
           message: "Your monthly research review is scheduled for tomorrow. Prepare your progress report.",
-          actionLabel: "Prepare Report",
-          timestamp: now,
-          read: false,
+          type: "tip",
+          isRead: false,
+          actionText: "Prepare Report",
+          priority: "medium",
+          description: "Prepare your research progress report.",
+          createdAt: now,
         },
         {
           id: "n2",
-          type: "suggestion",
           title: "New relevant research",
           message: "3 new papers related to your COVID-19 research were published this week.",
-          actionLabel: "View Papers",
-          timestamp: now,
-          read: false,
+          type: "alert",
+          isRead: false,
+          actionText: "View Papers",
+          priority: "high",
+          description: "Review the new COVID-19 research papers.",
+          createdAt: now,
         },
         {
           id: "n3",
-          type: "warning",
           title: "Wellness check",
           message: "Your wellness score has been declining. Consider scheduling some self-care time.",
-          actionLabel: "Wellness Tips",
-          timestamp: now,
-          read: false,
+          type: "tip",
+          isRead: false,
+          actionText: "Wellness Tips",
+          priority: "low",
+          description: "Schedule some self-care time to improve your wellness.",
+          createdAt: now,
         },
       ];
     case UserRole.Founder:
       return [
         {
           id: "n1",
-          type: "reminder",
           title: "Investor meeting tomorrow",
           message: "You have a meeting with Angel Investors at 2 PM tomorrow. Review your pitch deck.",
-          actionLabel: "Review Pitch",
-          timestamp: now,
-          read: false,
+          type: "alert",
+          isRead: false,
+          actionText: "Review Pitch",
+          priority: "high",
+          description: "Review your pitch deck.",
+          createdAt: now,
         },
         {
           id: "n2",
-          type: "celebration",
           title: "MVP milestone reached!",
           message: "Congratulations! Your MVP is 75% complete. Keep up the great work!",
-          timestamp: now,
-          read: false,
+          type: "suggestion",
+          isRead: false,
+          actionText: "Celebrate",
+          priority: "low",
+          description: "Celebrate your MVP milestone.",
+          createdAt: now,
         },
         {
           id: "n3",
-          type: "suggestion",
           title: "Team check-in recommended",
           message: "It's been a week since your last team sync. Consider scheduling a quick check-in.",
-          actionLabel: "Schedule Meeting",
-          timestamp: now,
-          read: false,
+          type: "tip",
+          isRead: false,
+          actionText: "Schedule Meeting",
+          priority: "medium",
+          description: "Schedule a quick team check-in.",
+          createdAt: now,
         },
       ];
     default:

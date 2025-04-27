@@ -1,3 +1,4 @@
+
 import * as React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -45,6 +46,7 @@ import StudentProfilePage from "./pages/dashboard/student/ProfilePage";
 import StudentSettingsPage from "./pages/dashboard/student/SettingsPage";
 import FlashcardsPage from "./pages/dashboard/student/FlashcardsPage";
 import ExamPreparationPage from "./pages/dashboard/student/ExamPreparationPage";
+import StudyGroupsPage from "./pages/dashboard/student/StudyGroupsPage";
 
 import FeaturesManagementPage from "./pages/admin/FeaturesManagementPage";
 import BatchManagementPage from "./pages/admin/BatchManagementPage";
@@ -52,6 +54,10 @@ import BatchManagementPage from "./pages/admin/BatchManagementPage";
 // New imports for concept pages
 import ConceptsPage from "./pages/dashboard/student/ConceptsPage";
 import ConceptCardDetailPage from "./pages/dashboard/student/ConceptCardDetailPage";
+import AllConceptCardsPage from "./pages/dashboard/student/AllConceptCardsPage";
+import FlashcardDetailsPage from "./pages/dashboard/student/FlashcardDetailsPage";
+import ExamDetailPage from "./pages/dashboard/student/ExamDetailPage";
+import FeelGoodCornerPage from "./pages/dashboard/student/FeelGoodCornerPage";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -109,15 +115,23 @@ const App = () => {
                     <Route path="/dashboard/student/:tab" element={<StudentDashboard />} />
                     
                     {/* Concept card routes */}
-                    <Route path="/dashboard/student/concepts/all" element={<ConceptsPage />} />
+                    <Route path="/dashboard/student/concepts/all" element={<AllConceptCardsPage />} />
                     <Route path="/dashboard/student/concepts/:conceptId" element={<ConceptCardDetailPage />} />
                     
+                    {/* Flashcard routes */}
+                    <Route path="/dashboard/student/flashcards/:flashcardId" element={<FlashcardDetailsPage />} />
+                    
+                    {/* Practice exam routes */}
+                    <Route path="/dashboard/student/practice-exam/:examId" element={<ExamDetailPage />} />
+                    
+                    {/* User profile */}
                     <Route path="/dashboard/student/progress" element={<StudyProgress />} />
                     <Route path="/dashboard/student/profile" element={<StudentProfilePage />} />
                     <Route path="/dashboard/student/settings" element={<StudentSettingsPage />} />
                     <Route path="/dashboard/student/subscription" element={<SubscriptionPage />} />
-                    <Route path="/dashboard/student/flashcards" element={<FlashcardsPage />} />
-                    <Route path="/dashboard/student/exams" element={<ExamPreparationPage />} />
+                    <Route path="/dashboard/student/wellness" element={<FeelGoodCornerPage />} />
+                    <Route path="/dashboard/student/study-groups" element={<StudyGroupsPage />} />
+                    
                     <Route path="/dashboard/student/tutor" element={<AIChatTutor userProfile={{
                       id: "1",
                       name: "Student",

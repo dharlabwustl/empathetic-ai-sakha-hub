@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { 
@@ -21,7 +21,8 @@ import {
   Folder,
   Video,
   Users,
-  Bell
+  Bell,
+  User
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SidebarAvatar } from "./SidebarAvatar";
@@ -44,23 +45,29 @@ const SidebarNav = ({
   const [mobileOpen, setMobileOpen] = useState(false);
   const isMobile = useIsMobile();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const navItems = [
-    { icon: <Home size={20} />, title: "Dashboard", tab: "overview" },
-    { icon: <Calendar size={20} />, title: "Today's Plan", tab: "today" },
-    { icon: <BookMarked size={20} />, title: "Academic Advisor", tab: "academic" },
-    { icon: <Brain size={20} />, title: "Concept Cards", tab: "concepts" },
-    { icon: <BookOpen size={20} />, title: "Flashcards", tab: "flashcards" },
-    { icon: <LineChart size={20} />, title: "Practice Exams", tab: "practice-exam" },
-    { icon: <Bell size={20} />, title: "Notifications", tab: "notifications" }
+    { icon: <Home size={20} />, title: "Dashboard", tab: "overview", path: "/dashboard/student/overview" },
+    { icon: <Calendar size={20} />, title: "Today's Plan", tab: "today", path: "/dashboard/student/today" },
+    { icon: <BookMarked size={20} />, title: "Academic Advisor", tab: "academic", path: "/dashboard/student/academic" },
+    { icon: <Brain size={20} />, title: "Concept Cards", tab: "concepts", path: "/dashboard/student/concepts" },
+    { icon: <BookOpen size={20} />, title: "Flashcards", tab: "flashcards", path: "/dashboard/student/flashcards" },
+    { icon: <LineChart size={20} />, title: "Practice Exams", tab: "practice-exam", path: "/dashboard/student/practice-exam" },
+    { icon: <Users size={20} />, title: "Study Groups", tab: "study-groups", path: "/dashboard/student/study-groups" },
+    { icon: <Bell size={20} />, title: "Notifications", tab: "notifications", path: "/dashboard/student/notifications" }
   ];
 
-  const handleTabChange = (tab: string) => {
+  const handleTabChange = (tab: string, path: string) => {
     if (onTabChange) {
       onTabChange(tab);
     }
     setMobileOpen(false);
-    navigate(`/dashboard/student/${tab}`);
+    navigate(path);
+  };
+
+  const isActive = (path: string) => {
+    return location.pathname === path || location.pathname.startsWith(path + '/');
   };
 
   return (
@@ -131,9 +138,9 @@ const SidebarNav = ({
               {navItems.map((item) => (
                 <button
                   key={item.tab}
-                  onClick={() => handleTabChange(item.tab)}
+                  onClick={() => handleTabChange(item.tab, item.path)}
                   className={`w-full flex items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-all ${
-                    activeTab === item.tab
+                    isActive(item.path)
                       ? "bg-gradient-to-r from-sky-500 to-violet-500 text-white shadow-sm"
                       : "hover:bg-gray-100 dark:hover:bg-gray-700"
                   }`}
@@ -153,24 +160,32 @@ const SidebarNav = ({
               variant="ghost" 
               size="icon"
               className="text-muted-foreground hover:text-destructive"
-              asChild
+              onClick={() => navigate("/dashboard/student/profile")}
             >
-              <Link to="/login">
-                <LogOut size={18} />
-              </Link>
+              <User size={18} />
             </Button>
           </div>
           {!collapsed && (
-            <Button 
-              variant="ghost" 
-              className="w-full text-muted-foreground hover:text-destructive flex items-center gap-2"
-              asChild
-            >
-              <Link to="/login">
-                <LogOut size={18} />
-                <span>Logout</span>
-              </Link>
-            </Button>
+            <>
+              <Button 
+                variant="ghost" 
+                className="w-full text-muted-foreground hover:text-primary flex items-center gap-2 mb-2"
+                onClick={() => navigate("/dashboard/student/profile")}
+              >
+                <User size={18} />
+                <span>Profile</span>
+              </Button>
+              <Button 
+                variant="ghost" 
+                className="w-full text-muted-foreground hover:text-destructive flex items-center gap-2"
+                asChild
+              >
+                <Link to="/login">
+                  <LogOut size={18} />
+                  <span>Logout</span>
+                </Link>
+              </Button>
+            </>
           )}
         </div>
       </div>

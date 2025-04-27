@@ -10,7 +10,10 @@ export enum UserRole {
 export enum SubscriptionType {
   Basic = 'basic',
   Premium = 'premium',
-  Enterprise = 'enterprise'
+  Enterprise = 'enterprise',
+  Free = 'free',
+  School = 'school',
+  Corporate = 'corporate'
 }
 
 export type MoodType = 'sad' | 'neutral' | 'happy' | 'motivated' | 'anxious' | 'stressed' | 'tired' | 'focused' | 'overwhelmed' | 'curious' | 'okay';
@@ -32,6 +35,8 @@ export interface UserSubscription {
   startDate: string;
   endDate: string;
   isActive: boolean;
+  expiryDate?: string;
+  features?: string[];
 }
 
 export interface UserProfileBase {
@@ -55,6 +60,8 @@ export interface UserProfileBase {
   socialLinks?: {
     [platform: string]: string;
   };
+  joinDate?: string;
+  personalityType?: string;
 }
 
 export type UserProfileType = UserProfileBase;
