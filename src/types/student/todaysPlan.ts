@@ -1,9 +1,8 @@
-
 // Types for today's plan
 
 export type TimelineView = 'daily' | 'weekly' | 'monthly';
 
-export type MoodType = 'happy' | 'focused' | 'tired' | 'stressed' | 'confused' | 'motivated' | undefined;
+export type MoodType = 'happy' | 'focused' | 'tired' | 'stressed' | 'confused' | 'motivated' | 'anxious' | 'overwhelmed' | 'sad' | 'curious' | 'neutral' | 'okay' | undefined;
 
 export interface SubjectTaskBreakdown {
   [subject: string]: {
