@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,6 +7,7 @@ import { motion } from "framer-motion";
 import { CheckCircle2, BookOpen, Tag, Brain, Star, Lock, CheckCircle } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Progress } from "@/components/ui/progress";
+import { useNavigate } from "react-router-dom";
 
 export interface ConceptCardProps {
   id: string;
@@ -37,6 +39,7 @@ const ConceptCard: React.FC<ConceptCardProps> = ({
   relatedConcepts = []
 }) => {
   const [isHovered, setIsHovered] = useState(false);
+  const navigate = useNavigate();
   
   const getDifficultyColor = () => {
     switch (difficulty) {
@@ -75,8 +78,13 @@ const ConceptCard: React.FC<ConceptCardProps> = ({
   };
   
   const handleView = () => {
-    if (onView && !isLocked) {
+    if (isLocked) return;
+    
+    if (onView) {
       onView(id);
+    } else {
+      // Navigate to the existing concept page using the ID
+      navigate(`/dashboard/student/concepts/${id}`);
     }
   };
   
@@ -221,7 +229,11 @@ const ConceptCard: React.FC<ConceptCardProps> = ({
                       className="text-xs hover:bg-muted"
                       onClick={(e) => {
                         e.stopPropagation();
-                        onView?.(conceptId);
+                        if (onView) {
+                          onView(conceptId);
+                        } else {
+                          navigate(`/dashboard/student/concepts/${conceptId}`);
+                        }
                       }}
                     >
                       View Related

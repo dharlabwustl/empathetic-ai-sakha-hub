@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { BookOpen, BarChart, Flag, Plus, Book, ArrowRight, ChevronRight } from 'lucide-react';
+import { BookOpen, BarChart, Flag, Plus, Book, ArrowRight, ChevronRight, Clock } from 'lucide-react';
 
 const conceptCards = [
   {

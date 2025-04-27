@@ -7,19 +7,12 @@ import { Badge } from "@/components/ui/badge";
 import { BookOpen, Check, Clock, Star, Flag, Brain, BarChart, Plus } from "lucide-react";
 import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
-import { Video } from "./types";
 import { useNavigate } from "react-router-dom";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-
-// Mock data
-const mockVideos = [
-  { id: 1, title: "When Physics Goes Wrong", thumbnail: "https://source.unsplash.com/random/300x200?comedy", duration: "0:30" },
-  { id: 2, title: "Funny Animal Bloopers", thumbnail: "https://source.unsplash.com/random/300x200?animals", duration: "0:27" },
-  { id: 3, title: "Study Break Comedy", thumbnail: "https://source.unsplash.com/random/300x200?laugh", duration: "0:30" },
-];
+import { Textarea } from "@/components/ui/textarea";
 
 // Mock data
 const conceptCards = [
@@ -240,6 +233,14 @@ const ConceptCardsSection = () => {
   const [activeSubject, setActiveSubject] = useState('all');
   const [showAllCards, setShowAllCards] = useState(false);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [conceptForm, setConceptForm] = useState({
+    subject: "physics",
+    topic: "",
+    title: "",
+    description: "",
+    difficulty: "medium",
+    tags: ""
+  });
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -263,11 +264,41 @@ const ConceptCardsSection = () => {
     });
   };
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { id, value } = e.target;
+    setConceptForm(prev => ({ ...prev, [id]: value }));
+  };
+
+  const handleSelectChange = (name: string, value: string) => {
+    setConceptForm(prev => ({ ...prev, [name]: value }));
+  };
+
   const handleCreateConcept = () => {
+    // Validation
+    if (!conceptForm.title.trim() || !conceptForm.topic.trim() || !conceptForm.description.trim()) {
+      toast({
+        title: "Missing information",
+        description: "Please fill in all required fields.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // In a real app, this would send the data to the backend
     setShowCreateDialog(false);
     toast({
       title: "Concept Card Created",
       description: "Your new concept card has been added to your study plan.",
+    });
+
+    // Reset form
+    setConceptForm({
+      subject: "physics",
+      topic: "",
+      title: "",
+      description: "",
+      difficulty: "medium",
+      tags: ""
     });
   };
   
@@ -324,7 +355,10 @@ const ConceptCardsSection = () => {
                   <div className="space-y-4 py-2">
                     <div className="space-y-2">
                       <Label htmlFor="subject">Subject</Label>
-                      <Select defaultValue="physics">
+                      <Select 
+                        value={conceptForm.subject} 
+                        onValueChange={(value) => handleSelectChange("subject", value)}
+                      >
                         <SelectTrigger>
                           <SelectValue placeholder="Select subject" />
                         </SelectTrigger>
@@ -338,11 +372,37 @@ const ConceptCardsSection = () => {
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="topic">Topic</Label>
-                      <Input id="topic" placeholder="Enter topic" />
+                      <Input 
+                        id="topic" 
+                        placeholder="Enter topic"
+                        value={conceptForm.topic}
+                        onChange={handleInputChange}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="title">Concept Title</Label>
+                      <Input 
+                        id="title" 
+                        placeholder="Enter concept title"
+                        value={conceptForm.title}
+                        onChange={handleInputChange}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="description">Description</Label>
+                      <Textarea 
+                        id="description" 
+                        placeholder="Enter concept description"
+                        value={conceptForm.description}
+                        onChange={handleInputChange}
+                      />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="difficulty">Difficulty</Label>
-                      <Select defaultValue="medium">
+                      <Select 
+                        value={conceptForm.difficulty} 
+                        onValueChange={(value) => handleSelectChange("difficulty", value)}
+                      >
                         <SelectTrigger>
                           <SelectValue placeholder="Select difficulty" />
                         </SelectTrigger>
@@ -355,7 +415,12 @@ const ConceptCardsSection = () => {
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="tags">Tags (comma separated)</Label>
-                      <Input id="tags" placeholder="e.g., important, exam, revision" />
+                      <Input 
+                        id="tags" 
+                        placeholder="e.g., important, exam, revision"
+                        value={conceptForm.tags}
+                        onChange={handleInputChange}
+                      />
                     </div>
                   </div>
                   <DialogFooter>

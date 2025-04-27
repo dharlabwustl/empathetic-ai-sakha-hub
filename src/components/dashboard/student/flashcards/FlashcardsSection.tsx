@@ -4,7 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Brain, BarChart, Plus, Lightning, BookOpen, Clock, ChevronRight } from "lucide-react";
+import { Brain, BarChart, Plus, BookOpen, Clock, ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 import { Progress } from "@/components/ui/progress";
@@ -14,11 +14,12 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useNavigate } from 'react-router-dom';
 import { SharedPageLayout } from '../SharedPageLayout';
+import { Textarea } from "@/components/ui/textarea";
 
 // Mock data for flashcard decks
 const mockFlashcards = [
   {
-    id: 1,
+    id: "physics-kinematics",
     title: "Physics Formulas",
     subject: "Physics",
     topic: "Core Formulas",
@@ -29,7 +30,7 @@ const mockFlashcards = [
     priority: "high"
   },
   {
-    id: 2,
+    id: "chemistry-periodic",
     title: "Organic Chemistry Reactions",
     subject: "Chemistry",
     topic: "Organic",
@@ -40,7 +41,7 @@ const mockFlashcards = [
     priority: "medium"
   },
   {
-    id: 3,
+    id: "mathematics-theorems",
     title: "Mathematical Theorems",
     subject: "Mathematics",
     topic: "Theorems",
@@ -51,7 +52,7 @@ const mockFlashcards = [
     priority: "low"
   },
   {
-    id: 4,
+    id: "biology-terms",
     title: "Biology Terms",
     subject: "Biology",
     topic: "Terminology",
@@ -81,7 +82,7 @@ const FlashcardDeck: React.FC<FlashcardDeckProps> = ({ deck }) => {
   const navigate = useNavigate();
   
   const handleOpenDeck = () => {
-    navigate(`/dashboard/student/flashcards/${deck.id}`);
+    navigate(`/dashboard/student/flashcard/${deck.id}`);
   };
   
   return (
@@ -183,7 +184,6 @@ const FlashcardChallengeCard = () => {
     <Card className="bg-gradient-to-r from-indigo-50 to-blue-50">
       <CardHeader className="pb-2">
         <CardTitle className="flex items-center gap-2">
-          <Lightning className="h-5 w-5 text-yellow-500" />
           Daily Flash Challenge
         </CardTitle>
       </CardHeader>
@@ -203,14 +203,52 @@ const FlashcardChallengeCard = () => {
 const FlashcardsSection = () => {
   const [activeTab, setActiveTab] = useState("all");
   const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [deckForm, setDeckForm] = useState({
+    name: "",
+    subject: "physics",
+    topic: "",
+    difficulty: "medium",
+    cardCount: "20",
+    tags: ""
+  });
   const { toast } = useToast();
   const navigate = useNavigate();
   
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { id, value } = e.target;
+    setDeckForm(prev => ({ ...prev, [id]: value }));
+  };
+
+  const handleSelectChange = (name: string, value: string) => {
+    setDeckForm(prev => ({ ...prev, [name]: value }));
+  };
+  
   const handleCreateDeck = () => {
+    // Validation
+    if (!deckForm.name.trim() || !deckForm.topic.trim()) {
+      toast({
+        title: "Missing information",
+        description: "Please fill in all required fields.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // In a real application, this would create the deck
     setShowCreateDialog(false);
     toast({
       title: "Flashcard Deck Created",
       description: "Your new flashcard deck has been added to your study plan.",
+    });
+    
+    // Reset form
+    setDeckForm({
+      name: "",
+      subject: "physics",
+      topic: "",
+      difficulty: "medium",
+      cardCount: "20",
+      tags: ""
     });
   };
   
@@ -260,12 +298,20 @@ const FlashcardsSection = () => {
                 </DialogHeader>
                 <div className="space-y-4 py-2">
                   <div className="space-y-2">
-                    <Label htmlFor="deckName">Deck Name</Label>
-                    <Input id="deckName" placeholder="e.g., Physics Formulas" />
+                    <Label htmlFor="name">Deck Name</Label>
+                    <Input 
+                      id="name" 
+                      placeholder="e.g., Physics Formulas" 
+                      value={deckForm.name}
+                      onChange={handleInputChange}
+                    />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="subject">Subject</Label>
-                    <Select defaultValue="physics">
+                    <Select 
+                      value={deckForm.subject}
+                      onValueChange={(value) => handleSelectChange("subject", value)}
+                    >
                       <SelectTrigger>
                         <SelectValue placeholder="Select subject" />
                       </SelectTrigger>
@@ -279,11 +325,19 @@ const FlashcardsSection = () => {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="topic">Topic</Label>
-                    <Input id="topic" placeholder="e.g., Mechanics, Organic Chemistry" />
+                    <Input 
+                      id="topic" 
+                      placeholder="e.g., Mechanics, Organic Chemistry" 
+                      value={deckForm.topic}
+                      onChange={handleInputChange}
+                    />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="difficulty">Difficulty</Label>
-                    <Select defaultValue="medium">
+                    <Select 
+                      value={deckForm.difficulty}
+                      onValueChange={(value) => handleSelectChange("difficulty", value)}
+                    >
                       <SelectTrigger>
                         <SelectValue placeholder="Select difficulty" />
                       </SelectTrigger>
@@ -295,8 +349,18 @@ const FlashcardsSection = () => {
                     </Select>
                   </div>
                   <div className="space-y-2">
+                    <Label htmlFor="description">Description (Optional)</Label>
+                    <Textarea 
+                      id="description" 
+                      placeholder="Add a description for your flashcard deck"
+                    />
+                  </div>
+                  <div className="space-y-2">
                     <Label htmlFor="cardCount">Number of Cards</Label>
-                    <Select defaultValue="20">
+                    <Select 
+                      value={deckForm.cardCount}
+                      onValueChange={(value) => handleSelectChange("cardCount", value)}
+                    >
                       <SelectTrigger>
                         <SelectValue placeholder="Select card count" />
                       </SelectTrigger>
@@ -307,6 +371,15 @@ const FlashcardsSection = () => {
                         <SelectItem value="40">40 Cards</SelectItem>
                       </SelectContent>
                     </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="tags">Tags (comma separated)</Label>
+                    <Input 
+                      id="tags" 
+                      placeholder="e.g., exam, revision, important"
+                      value={deckForm.tags}
+                      onChange={handleInputChange}
+                    />
                   </div>
                 </div>
                 <DialogFooter>
