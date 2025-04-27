@@ -1,512 +1,506 @@
 
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
-import { useToast } from '@/hooks/use-toast';
-import { 
-  Clock, 
-  AlertCircle, 
-  ChevronLeft, 
-  ChevronRight, 
-  Flag, 
-  Bookmark, 
-  ArrowLeft, 
-  Check
-} from 'lucide-react';
 import { motion } from 'framer-motion';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
+import { Badge } from '@/components/ui/badge';
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
+import { AlertCircle, Clock, CheckCircle, AlertTriangle } from 'lucide-react';
+import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
+import { useToast } from "@/hooks/use-toast";
 
-interface ExamQuestion {
-  id: string;
-  text: string;
-  options: {
-    id: string;
-    text: string;
-  }[];
-  correctOptionId?: string;
-  explanation?: string;
-  subject: string;
-  topic: string;
-  difficulty: 'easy' | 'medium' | 'hard';
-}
-
-interface Exam {
-  id: string;
-  title: string;
-  description: string;
-  subject: string;
-  duration: number; // in minutes
-  totalMarks: number;
-  questions: ExamQuestion[];
-}
+// Mock exam data
+const mockExams = {
+  "physics-101": {
+    id: "physics-101",
+    title: "Physics Basics Assessment",
+    subject: "Physics",
+    totalQuestions: 10,
+    timeLimit: 30, // minutes
+    questions: [
+      {
+        id: "q1",
+        text: "What is Newton's second law of motion?",
+        options: [
+          "An object at rest stays at rest unless acted upon by an external force.",
+          "Force equals mass times acceleration (F=ma).",
+          "For every action, there is an equal and opposite reaction.",
+          "Objects with mass attract each other with a force proportional to their masses."
+        ],
+        correctAnswer: 1
+      },
+      {
+        id: "q2",
+        text: "Which of the following is a unit of force?",
+        options: [
+          "Watt",
+          "Joule",
+          "Newton",
+          "Pascal"
+        ],
+        correctAnswer: 2
+      },
+      {
+        id: "q3",
+        text: "What is the formula for calculating kinetic energy?",
+        options: [
+          "KE = mgh",
+          "KE = 1/2mv²",
+          "KE = F×d",
+          "KE = P×V"
+        ],
+        correctAnswer: 1
+      },
+      // More questions would be added here...
+      {
+        id: "q4",
+        text: "Which law of thermodynamics states that energy cannot be created or destroyed?",
+        options: [
+          "Zeroth law",
+          "First law",
+          "Second law",
+          "Third law"
+        ],
+        correctAnswer: 1
+      },
+      {
+        id: "q5",
+        text: "What is the SI unit of electric current?",
+        options: [
+          "Volt",
+          "Watt",
+          "Ampere",
+          "Ohm"
+        ],
+        correctAnswer: 2
+      }
+    ],
+    difficulty: "medium"
+  },
+  "chemistry-fundamentals": {
+    id: "chemistry-fundamentals",
+    title: "Chemistry Fundamentals",
+    subject: "Chemistry",
+    totalQuestions: 8,
+    timeLimit: 25, // minutes
+    questions: [
+      {
+        id: "q1",
+        text: "What is the chemical symbol for gold?",
+        options: [
+          "Go",
+          "Au",
+          "Ag",
+          "Gd"
+        ],
+        correctAnswer: 1
+      },
+      {
+        id: "q2",
+        text: "Which is NOT a state of matter?",
+        options: [
+          "Solid",
+          "Liquid",
+          "Gas",
+          "Energy"
+        ],
+        correctAnswer: 3
+      },
+      {
+        id: "q3",
+        text: "What is the pH of a neutral solution?",
+        options: [
+          "0",
+          "7",
+          "10",
+          "14"
+        ],
+        correctAnswer: 1
+      },
+      // More questions would be added here...
+      {
+        id: "q4",
+        text: "What is the main component of natural gas?",
+        options: [
+          "Ethane",
+          "Propane",
+          "Methane",
+          "Butane"
+        ],
+        correctAnswer: 2
+      },
+      {
+        id: "q5",
+        text: "Which element has the atomic number 1?",
+        options: [
+          "Oxygen",
+          "Carbon",
+          "Hydrogen",
+          "Helium"
+        ],
+        correctAnswer: 2
+      }
+    ],
+    difficulty: "easy"
+  }
+};
 
 export default function ExamTakingPage() {
-  const { examId } = useParams();
+  const { examId } = useParams<{ examId: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
-
-  // States
-  const [loading, setLoading] = useState(true);
-  const [exam, setExam] = useState<Exam | null>(null);
+  
+  const [currentExam, setCurrentExam] = useState<any | null>(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [answers, setAnswers] = useState<Record<string, string>>({});
-  const [flaggedQuestions, setFlaggedQuestions] = useState<string[]>([]);
-  const [bookmarkedQuestions, setBookmarkedQuestions] = useState<string[]>([]);
-  const [timer, setTimer] = useState<number | null>(null);
-  const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // Mock data loading
+  const [answers, setAnswers] = useState<Record<string, number>>({});
+  const [timeRemaining, setTimeRemaining] = useState(0);
+  const [examStarted, setExamStarted] = useState(false);
+  const [markedForReview, setMarkedForReview] = useState<string[]>([]);
+  
   useEffect(() => {
-    // Simulate API call
-    setTimeout(() => {
-      const mockExam: Exam = {
-        id: examId || '1',
-        title: "Physics: Mechanics and Motion",
-        description: "Test your understanding of basic mechanics concepts including Newton's laws and kinematics.",
-        subject: "Physics",
-        duration: 30, // 30 minutes
-        totalMarks: 50,
-        questions: [
-          {
-            id: "q1",
-            text: "According to Newton's First Law of Motion, an object at rest will remain at rest and an object in motion will remain in motion with the same speed and in the same direction unless acted upon by...",
-            options: [
-              { id: "a1", text: "Gravitational force only" },
-              { id: "a2", text: "An unbalanced force" },
-              { id: "a3", text: "Another object of equal mass" },
-              { id: "a4", text: "Frictional force only" }
-            ],
-            correctOptionId: "a2",
-            explanation: "Newton's First Law of Motion states that an object will remain at rest or in uniform motion in a straight line unless acted upon by an unbalanced force. This property of objects is called inertia.",
-            subject: "Physics",
-            topic: "Newton's Laws",
-            difficulty: "medium"
-          },
-          {
-            id: "q2",
-            text: "What is the formula for calculating kinetic energy?",
-            options: [
-              { id: "a1", text: "KE = mv" },
-              { id: "a2", text: "KE = mv²" },
-              { id: "a3", text: "KE = (1/2)mv²" },
-              { id: "a4", text: "KE = (1/2)m²v" }
-            ],
-            correctOptionId: "a3",
-            explanation: "The formula for kinetic energy is KE = (1/2)mv², where m is mass and v is velocity.",
-            subject: "Physics",
-            topic: "Energy",
-            difficulty: "easy"
-          },
-          {
-            id: "q3",
-            text: "A 2 kg object accelerates at 5 m/s². What is the force applied to it according to Newton's Second Law?",
-            options: [
-              { id: "a1", text: "2.5 N" },
-              { id: "a2", text: "7 N" },
-              { id: "a3", text: "10 N" },
-              { id: "a4", text: "0.4 N" }
-            ],
-            correctOptionId: "a3",
-            explanation: "Using Newton's Second Law: F = ma, where F is force, m is mass, and a is acceleration. F = 2 kg × 5 m/s² = 10 N",
-            subject: "Physics",
-            topic: "Newton's Laws",
-            difficulty: "medium"
-          },
-          {
-            id: "q4",
-            text: "A car accelerates from rest to 20 m/s in 10 seconds. What is its acceleration?",
-            options: [
-              { id: "a1", text: "0.5 m/s²" },
-              { id: "a2", text: "2 m/s²" },
-              { id: "a3", text: "10 m/s²" },
-              { id: "a4", text: "20 m/s²" }
-            ],
-            correctOptionId: "a2",
-            explanation: "Acceleration = change in velocity / time taken. Acceleration = (20 m/s - 0 m/s) / 10 s = 2 m/s²",
-            subject: "Physics",
-            topic: "Kinematics",
-            difficulty: "easy"
-          },
-          {
-            id: "q5",
-            text: "Which of the following is NOT conserved in an elastic collision?",
-            options: [
-              { id: "a1", text: "Momentum" },
-              { id: "a2", text: "Kinetic energy" },
-              { id: "a3", text: "Mechanical energy" },
-              { id: "a4", text: "Mass" }
-            ],
-            correctOptionId: "a3",
-            explanation: "In an elastic collision, both momentum and kinetic energy are conserved. Mechanical energy (which includes potential energy) is not necessarily conserved if there's a change in potential energy.",
-            subject: "Physics",
-            topic: "Conservation Laws",
-            difficulty: "hard"
-          }
-        ]
-      };
-
-      setExam(mockExam);
-      setTimer(mockExam.duration * 60); // Convert minutes to seconds
-      setTimeRemaining(mockExam.duration * 60);
-      setLoading(false);
-    }, 1500);
-  }, [examId]);
-
-  // Timer effect
-  useEffect(() => {
-    if (loading || timeRemaining === null) return;
-    
-    const interval = setInterval(() => {
-      setTimeRemaining(prev => {
-        if (prev === null || prev <= 0) {
-          clearInterval(interval);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-    
-    return () => clearInterval(interval);
-  }, [loading, timeRemaining]);
-
-  // Time warning effects
-  useEffect(() => {
-    if (timeRemaining === 300) { // 5 minutes warning
-      toast({
-        title: "Time Alert",
-        description: "5 minutes remaining! Please start finalizing your answers.",
-        variant: "warning",
-      });
-    } else if (timeRemaining === 60) { // 1 minute warning
-      toast({
-        title: "Time Alert",
-        description: "Only 1 minute remaining!",
-        variant: "destructive",
-      });
-    } else if (timeRemaining === 0) {
-      toast({
-        title: "Time's Up!",
-        description: "Your exam is being submitted automatically.",
-        variant: "destructive",
-      });
-      handleSubmit();
+    if (examId && mockExams[examId as keyof typeof mockExams]) {
+      const exam = mockExams[examId as keyof typeof mockExams];
+      setCurrentExam(exam);
+      setTimeRemaining(exam.timeLimit * 60); // Convert to seconds
     }
-  }, [timeRemaining]);
-
-  const handleSelectAnswer = (questionId: string, optionId: string) => {
+  }, [examId]);
+  
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (examStarted && timeRemaining > 0) {
+      timer = setInterval(() => {
+        setTimeRemaining(prev => {
+          if (prev <= 1) {
+            clearInterval(timer);
+            handleSubmitExam();
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    
+    return () => {
+      if (timer) clearInterval(timer);
+    };
+  }, [examStarted, timeRemaining]);
+  
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+  
+  const startExam = () => {
+    setExamStarted(true);
+    toast({
+      title: "Exam Started",
+      description: `You have ${currentExam.timeLimit} minutes to complete this exam.`,
+    });
+  };
+  
+  const handleAnswerSelect = (questionId: string, optionIndex: number) => {
     setAnswers(prev => ({
       ...prev,
-      [questionId]: optionId
+      [questionId]: optionIndex
     }));
   };
-
+  
   const handleNextQuestion = () => {
-    if (!exam) return;
-    
-    if (currentQuestionIndex < exam.questions.length - 1) {
+    if (currentQuestionIndex < currentExam.questions.length - 1) {
       setCurrentQuestionIndex(prev => prev + 1);
     }
   };
-
+  
   const handlePreviousQuestion = () => {
     if (currentQuestionIndex > 0) {
       setCurrentQuestionIndex(prev => prev - 1);
     }
   };
-
-  const handleFlagQuestion = (questionId: string) => {
-    setFlaggedQuestions(prev => {
-      if (prev.includes(questionId)) {
-        return prev.filter(id => id !== questionId);
-      } else {
-        return [...prev, questionId];
-      }
-    });
+  
+  const toggleMarkForReview = (questionId: string) => {
+    if (markedForReview.includes(questionId)) {
+      setMarkedForReview(prev => prev.filter(id => id !== questionId));
+    } else {
+      setMarkedForReview(prev => [...prev, questionId]);
+    }
   };
-
-  const handleBookmarkQuestion = (questionId: string) => {
-    setBookmarkedQuestions(prev => {
-      if (prev.includes(questionId)) {
-        return prev.filter(id => id !== questionId);
-      } else {
-        return [...prev, questionId];
-      }
-    });
+  
+  const handleSubmitExam = () => {
+    // Calculate results
+    const totalQuestions = currentExam.questions.length;
+    let correctAnswers = 0;
     
-    toast({
-      title: "Question Bookmarked",
-      description: "This question has been saved for later review.",
-    });
-  };
-
-  const handleSubmit = () => {
-    if (!exam) return;
-    
-    setIsSubmitting(true);
-    
-    // Calculate score
-    let score = 0;
-    exam.questions.forEach(question => {
-      if (answers[question.id] === question.correctOptionId) {
-        score++;
+    currentExam.questions.forEach((question: any) => {
+      if (answers[question.id] === question.correctAnswer) {
+        correctAnswers++;
       }
     });
     
-    // Simulate API call
-    setTimeout(() => {
-      setIsSubmitting(false);
-      navigate(`/dashboard/student/practice-exam/${examId}/review`, { 
-        state: { 
-          answers,
-          score,
-          totalQuestions: exam.questions.length,
-          timeSpent: timer ? timer - (timeRemaining || 0) : 0,
-          flaggedQuestions,
-          bookmarkedQuestions
-        } 
-      });
-    }, 1500);
+    const score = Math.round((correctAnswers / totalQuestions) * 100);
+    
+    // Store results in localStorage for review page
+    const results = {
+      examId: currentExam.id,
+      answers,
+      score,
+      correctAnswers,
+      totalQuestions,
+      timeSpent: currentExam.timeLimit * 60 - timeRemaining,
+      date: new Date().toISOString(),
+      markedQuestions: markedForReview
+    };
+    
+    localStorage.setItem(`exam-result-${currentExam.id}`, JSON.stringify(results));
+    
+    // Navigate to the review page
+    navigate(`/dashboard/student/practice-exam/${examId}/review`);
   };
-
-  const formatTime = (seconds: number | null) => {
-    if (seconds === null) return "--:--";
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-  };
-
-  const calculateProgress = () => {
-    if (!exam) return 0;
-    const answeredCount = Object.keys(answers).length;
-    return (answeredCount / exam.questions.length) * 100;
-  };
-
-  const currentQuestion = exam?.questions[currentQuestionIndex];
-
-  if (loading || !exam || !currentQuestion) {
+  
+  const currentQuestion = currentExam?.questions?.[currentQuestionIndex];
+  const progress = currentExam ? ((currentQuestionIndex + 1) / currentExam.questions.length) * 100 : 0;
+  const answeredCount = Object.keys(answers).length;
+  const unansweredCount = currentExam ? currentExam.questions.length - answeredCount : 0;
+  
+  if (!currentExam) {
     return (
-      <div className="container max-w-4xl mx-auto p-4">
-        <Card className="w-full h-[400px] flex items-center justify-center">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mb-4 mx-auto"></div>
-            <p className="text-xl font-medium mb-2">Loading Exam</p>
-            <p className="text-muted-foreground">Preparing your practice exam...</p>
-          </div>
-        </Card>
-      </div>
+      <SharedPageLayout title="Practice Exam" subtitle="Loading exam content...">
+        <div className="flex items-center justify-center h-64">
+          <p>Loading exam content...</p>
+        </div>
+      </SharedPageLayout>
     );
   }
-
-  return (
-    <div className="container max-w-4xl mx-auto p-4">
-      <Card className="mb-6 shadow-md">
-        <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-            <div>
-              <CardTitle className="text-xl">{exam.title}</CardTitle>
-              <p className="text-sm text-muted-foreground mt-1">{exam.subject}</p>
-            </div>
-            <div className="flex items-center gap-2 mt-2 md:mt-0">
-              <Badge variant="outline" className="flex items-center">
-                <Clock className="h-3 w-3 mr-1" />
-                Time: {formatTime(timeRemaining)}
-              </Badge>
-              <Badge variant="outline">
-                {currentQuestionIndex + 1}/{exam.questions.length}
-              </Badge>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent className="p-4 space-y-2">
-          <div className="flex justify-between items-center text-sm text-muted-foreground mb-1">
-            <span>Progress: {Math.round(calculateProgress())}% complete</span>
-            <span>{Object.keys(answers).length}/{exam.questions.length} answered</span>
-          </div>
-          <Progress value={calculateProgress()} className="h-2 mb-4" />
-        </CardContent>
-      </Card>
-
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        {/* Question navigation panel - shown on larger screens */}
-        <Card className="hidden lg:block h-fit">
-          <CardHeader>
-            <CardTitle className="text-base">Questions</CardTitle>
-          </CardHeader>
-          <CardContent className="p-3">
-            <div className="grid grid-cols-5 gap-2">
-              {exam.questions.map((q, index) => (
-                <Button 
-                  key={q.id}
-                  variant={currentQuestionIndex === index ? "default" : answers[q.id] ? "secondary" : "outline"}
-                  size="sm"
-                  className={`min-w-8 h-8 p-0 relative ${
-                    flaggedQuestions.includes(q.id) ? "border-red-500 border-2" : ""
-                  }`}
-                  onClick={() => setCurrentQuestionIndex(index)}
-                >
-                  {index + 1}
-                  {flaggedQuestions.includes(q.id) && (
-                    <div className="absolute -top-1 -right-1 bg-red-500 rounded-full w-2 h-2"></div>
-                  )}
-                  {bookmarkedQuestions.includes(q.id) && (
-                    <div className="absolute -top-1 -left-1 bg-amber-500 rounded-full w-2 h-2"></div>
-                  )}
-                </Button>
-              ))}
-            </div>
-            
-            <div className="mt-4 space-y-1">
-              <div className="flex items-center gap-2 text-xs">
-                <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                <span>Flagged: {flaggedQuestions.length}</span>
-              </div>
-              <div className="flex items-center gap-2 text-xs">
-                <div className="w-3 h-3 bg-amber-500 rounded-full"></div>
-                <span>Bookmarked: {bookmarkedQuestions.length}</span>
-              </div>
-              <div className="flex items-center gap-2 text-xs">
-                <div className="w-3 h-3 bg-primary rounded-full"></div>
-                <span>Answered: {Object.keys(answers).length}</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Main question card */}
-        <Card className="lg:col-span-3 shadow-md">
-          <CardHeader>
-            <div className="flex justify-between items-start">
-              <div>
-                <Badge 
-                  className={`mb-2 ${
-                    currentQuestion.difficulty === 'easy' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' :
-                    currentQuestion.difficulty === 'medium' ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300' :
-                    'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
-                  }`}
-                >
-                  {currentQuestion.difficulty} difficulty
-                </Badge>
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="text-lg font-medium">Question {currentQuestionIndex + 1}</span>
-                  <Badge variant="outline" className="text-xs">{currentQuestion.topic}</Badge>
-                </div>
-              </div>
-              <div className="flex gap-1">
-                <Button 
-                  size="sm" 
-                  variant="ghost" 
-                  className="text-red-500 hover:text-red-600 hover:bg-red-100"
-                  onClick={() => handleFlagQuestion(currentQuestion.id)}
-                >
-                  <Flag className={`h-4 w-4 ${flaggedQuestions.includes(currentQuestion.id) ? 'fill-red-500' : ''}`} />
-                </Button>
-                <Button 
-                  size="sm" 
-                  variant="ghost" 
-                  className="text-amber-500 hover:text-amber-600 hover:bg-amber-100"
-                  onClick={() => handleBookmarkQuestion(currentQuestion.id)}
-                >
-                  <Bookmark className={`h-4 w-4 ${bookmarkedQuestions.includes(currentQuestion.id) ? 'fill-amber-500' : ''}`} />
-                </Button>
-              </div>
-            </div>
-            <p className="text-base">{currentQuestion.text}</p>
-          </CardHeader>
-          
-          <CardContent className="p-4">
+  
+  if (!examStarted) {
+    return (
+      <SharedPageLayout 
+        title={currentExam.title}
+        subtitle={`${currentExam.subject} Practice Exam`}
+      >
+        <Card className="max-w-3xl mx-auto">
+          <CardContent className="p-6 space-y-6">
             <div className="space-y-2">
-              {currentQuestion.options.map(option => (
-                <motion.div 
-                  key={option.id}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  <label 
-                    htmlFor={option.id}
-                    className={`flex items-start p-3 border rounded-md cursor-pointer transition-all ${
-                      answers[currentQuestion.id] === option.id 
-                        ? 'bg-primary/10 border-primary' 
-                        : 'hover:bg-gray-50 hover:dark:bg-gray-800/50'
-                    }`}
-                  >
-                    <input 
-                      type="radio" 
-                      id={option.id}
-                      name={`question-${currentQuestion.id}`}
-                      checked={answers[currentQuestion.id] === option.id}
-                      onChange={() => handleSelectAnswer(currentQuestion.id, option.id)}
-                      className="mt-1 mr-3"
-                    />
-                    <span>{option.text}</span>
-                  </label>
-                </motion.div>
-              ))}
+              <h2 className="text-2xl font-bold">{currentExam.title}</h2>
+              <p className="text-muted-foreground">{currentExam.subject}</p>
             </div>
             
-            {answers[currentQuestion.id] && (
-              <div className="flex items-center gap-2 text-green-600 dark:text-green-400 mt-4">
-                <Check className="h-4 w-4" />
-                <span className="text-sm">Answer selected</span>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="p-4 bg-blue-50/50 dark:bg-blue-950/30 rounded-lg border border-blue-100 dark:border-blue-800/30">
+                <h3 className="font-medium mb-2">Exam Details</h3>
+                <ul className="space-y-2">
+                  <li className="flex items-center text-sm">
+                    <AlertCircle className="h-4 w-4 mr-2 text-blue-500" />
+                    <span>{currentExam.totalQuestions} Questions</span>
+                  </li>
+                  <li className="flex items-center text-sm">
+                    <Clock className="h-4 w-4 mr-2 text-blue-500" />
+                    <span>Time Limit: {currentExam.timeLimit} minutes</span>
+                  </li>
+                  <li className="flex items-center text-sm">
+                    <AlertTriangle className="h-4 w-4 mr-2 text-amber-500" />
+                    <span>Difficulty: {currentExam.difficulty}</span>
+                  </li>
+                </ul>
               </div>
-            )}
-          </CardContent>
-          
-          <CardFooter className="p-4 border-t flex flex-wrap justify-between items-center bg-gray-50 dark:bg-gray-800/50">
-            <div className="flex gap-2">
-              <Button 
-                variant="outline" 
-                onClick={handlePreviousQuestion}
-                disabled={currentQuestionIndex === 0}
-              >
-                <ChevronLeft className="h-4 w-4 mr-1" />
-                Previous
-              </Button>
-              <Button 
-                variant="outline" 
-                onClick={handleNextQuestion}
-                disabled={currentQuestionIndex === exam.questions.length - 1}
-              >
-                Next
-                <ChevronRight className="h-4 w-4 ml-1" />
-              </Button>
+              
+              <div className="p-4 bg-amber-50/50 dark:bg-amber-950/30 rounded-lg border border-amber-100 dark:border-amber-800/30">
+                <h3 className="font-medium mb-2">Instructions</h3>
+                <ul className="space-y-1 text-sm">
+                  <li>• Read each question carefully</li>
+                  <li>• You can mark questions for review</li>
+                  <li>• Submit before the time runs out</li>
+                  <li>• You will see your results immediately after submission</li>
+                </ul>
+              </div>
             </div>
             
-            <div className="flex gap-2 mt-2 sm:mt-0">
-              <Button variant="outline" onClick={() => navigate('/dashboard/student/practice-exam')}>
-                <ArrowLeft className="h-4 w-4 mr-1" />
-                Exit
-              </Button>
+            <div className="flex justify-center pt-4">
               <Button 
-                variant="default" 
-                onClick={handleSubmit}
-                disabled={isSubmitting || Object.keys(answers).length === 0}
+                size="lg"
+                className="bg-gradient-to-r from-violet-600 to-indigo-600"
+                onClick={startExam}
               >
-                {isSubmitting ? (
-                  <>
-                    <div className="animate-spin h-4 w-4 border-2 border-current border-t-transparent rounded-full mr-2"></div>
-                    Submitting...
-                  </>
-                ) : (
-                  'Submit Answers'
-                )}
+                Start Exam
               </Button>
             </div>
-          </CardFooter>
+          </CardContent>
         </Card>
-      </div>
-      
-      {/* Time warning */}
-      {timeRemaining !== null && timeRemaining < 300 && (
-        <div className="fixed bottom-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-md shadow-md flex items-center">
-          <AlertCircle className="h-5 w-5 mr-2" />
-          <div>
-            <p className="font-medium">Time running out!</p>
-            <p className="text-sm">{formatTime(timeRemaining)} remaining</p>
+      </SharedPageLayout>
+    );
+  }
+  
+  return (
+    <SharedPageLayout 
+      title={currentExam.title}
+      subtitle={`${currentExam.subject} Practice Exam`}
+    >
+      <div className="space-y-6">
+        {/* Status Bar */}
+        <div className="sticky top-0 z-10 bg-white dark:bg-gray-800 p-4 rounded-lg border shadow-sm">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            {/* Progress */}
+            <div className="w-full md:w-1/3 space-y-2">
+              <div className="flex justify-between items-center text-sm">
+                <span>Question {currentQuestionIndex + 1}/{currentExam.questions.length}</span>
+                <Badge variant="outline" className="bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
+                  {unansweredCount} Unanswered
+                </Badge>
+              </div>
+              <Progress value={progress} className="h-2" />
+            </div>
+            
+            {/* Timer */}
+            <div className="flex items-center">
+              <Badge variant={timeRemaining < 300 ? "destructive" : "outline"} className="flex items-center">
+                <Clock className="h-4 w-4 mr-1.5" />
+                Time Remaining: {formatTime(timeRemaining)}
+              </Badge>
+            </div>
+            
+            {/* Submit Button */}
+            <Button 
+              onClick={handleSubmitExam}
+              className="bg-gradient-to-r from-emerald-500 to-teal-600"
+            >
+              <CheckCircle className="h-4 w-4 mr-1.5" />
+              Submit Exam
+            </Button>
           </div>
         </div>
-      )}
-    </div>
+        
+        {/* Question Card */}
+        {currentQuestion && (
+          <motion.div
+            key={currentQuestion.id}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <Card className="p-4">
+              <CardContent className="pt-4 space-y-6">
+                {/* Question */}
+                <div className="flex items-start justify-between">
+                  <div className="space-y-2">
+                    <Badge variant="outline" className="mb-2">Question {currentQuestionIndex + 1}</Badge>
+                    <h3 className="text-lg font-medium">{currentQuestion.text}</h3>
+                  </div>
+                  
+                  <Button 
+                    variant="outline"
+                    size="sm"
+                    onClick={() => toggleMarkForReview(currentQuestion.id)}
+                    className={markedForReview.includes(currentQuestion.id) 
+                      ? "border-amber-300 bg-amber-50 text-amber-700 hover:bg-amber-100" 
+                      : ""
+                    }
+                  >
+                    {markedForReview.includes(currentQuestion.id) ? "Marked for Review" : "Mark for Review"}
+                  </Button>
+                </div>
+                
+                {/* Answer Options */}
+                <div className="py-4">
+                  <RadioGroup 
+                    value={answers[currentQuestion.id]?.toString()} 
+                    onValueChange={(value) => handleAnswerSelect(currentQuestion.id, parseInt(value, 10))}
+                  >
+                    <div className="space-y-3">
+                      {currentQuestion.options.map((option: string, index: number) => (
+                        <div 
+                          key={index} 
+                          className={`flex items-start space-x-2 p-3 rounded-lg border ${
+                            answers[currentQuestion.id] === index 
+                              ? "bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-800/50" 
+                              : "hover:bg-gray-50 dark:hover:bg-gray-800/50"
+                          }`}
+                        >
+                          <RadioGroupItem value={index.toString()} id={`option-${index}`} />
+                          <Label htmlFor={`option-${index}`} className="flex-1 cursor-pointer">
+                            {option}
+                          </Label>
+                        </div>
+                      ))}
+                    </div>
+                  </RadioGroup>
+                </div>
+                
+                {/* Navigation Buttons */}
+                <div className="flex justify-between pt-4">
+                  <Button 
+                    variant="outline"
+                    onClick={handlePreviousQuestion}
+                    disabled={currentQuestionIndex === 0}
+                  >
+                    Previous Question
+                  </Button>
+                  
+                  {currentQuestionIndex < currentExam.questions.length - 1 ? (
+                    <Button onClick={handleNextQuestion}>
+                      Next Question
+                    </Button>
+                  ) : (
+                    <Button 
+                      className="bg-gradient-to-r from-emerald-500 to-teal-600"
+                      onClick={handleSubmitExam}
+                    >
+                      <CheckCircle className="h-4 w-4 mr-1.5" />
+                      Submit Exam
+                    </Button>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
+        
+        {/* Question Navigation */}
+        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border">
+          <h3 className="text-sm font-medium mb-3">Question Navigation</h3>
+          <div className="grid grid-cols-5 sm:grid-cols-10 gap-2">
+            {currentExam.questions.map((question: any, index: number) => (
+              <Button
+                key={question.id}
+                variant="outline"
+                size="sm"
+                className={`h-10 w-10 p-0 ${
+                  index === currentQuestionIndex 
+                    ? "border-violet-500 bg-violet-50 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300" 
+                    : answers[question.id] !== undefined
+                      ? "border-green-500 bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-300"
+                      : markedForReview.includes(question.id)
+                        ? "border-amber-500 bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300"
+                        : ""
+                }`}
+                onClick={() => setCurrentQuestionIndex(index)}
+              >
+                {index + 1}
+              </Button>
+            ))}
+          </div>
+          <div className="flex flex-wrap gap-4 mt-4">
+            <div className="flex items-center">
+              <div className="w-4 h-4 bg-violet-100 border border-violet-500 rounded-sm mr-2"></div>
+              <span className="text-xs">Current</span>
+            </div>
+            <div className="flex items-center">
+              <div className="w-4 h-4 bg-green-100 border border-green-500 rounded-sm mr-2"></div>
+              <span className="text-xs">Answered</span>
+            </div>
+            <div className="flex items-center">
+              <div className="w-4 h-4 bg-amber-100 border border-amber-500 rounded-sm mr-2"></div>
+              <span className="text-xs">Marked</span>
+            </div>
+            <div className="flex items-center">
+              <div className="w-4 h-4 bg-white border rounded-sm mr-2"></div>
+              <span className="text-xs">Unanswered</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </SharedPageLayout>
   );
 }

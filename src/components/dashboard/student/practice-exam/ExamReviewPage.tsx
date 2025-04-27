@@ -1,626 +1,580 @@
 
 import React, { useState, useEffect } from 'react';
-import { useParams, useLocation, useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { useParams, useNavigate } from 'react-router-dom';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import {
-  CheckCircle,
-  XCircle,
-  ArrowLeft,
-  RefreshCw,
-  BarChart,
-  Clock,
-  BookOpen,
-  FileText,
-  Download,
-  Share2,
-  ChevronDown,
-  ChevronUp,
-} from 'lucide-react';
-import { PieChart, Pie, Cell, BarChart as ReBarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { Badge } from '@/components/ui/badge';
+import { CheckCircle, XCircle, AlertCircle, Clock, CheckSquare, Calendar, ArrowRight } from 'lucide-react';
+import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { SectionHeader } from '@/components/ui/section-header';
 
-interface ExamQuestion {
-  id: string;
-  text: string;
-  options: {
-    id: string;
-    text: string;
-  }[];
-  correctOptionId: string;
-  explanation: string;
-  subject: string;
-  topic: string;
-  difficulty: 'easy' | 'medium' | 'hard';
-}
+// Mock exams (same as ExamTakingPage)
+const mockExams = {
+  "physics-101": {
+    id: "physics-101",
+    title: "Physics Basics Assessment",
+    subject: "Physics",
+    totalQuestions: 10,
+    timeLimit: 30, // minutes
+    questions: [
+      {
+        id: "q1",
+        text: "What is Newton's second law of motion?",
+        options: [
+          "An object at rest stays at rest unless acted upon by an external force.",
+          "Force equals mass times acceleration (F=ma).",
+          "For every action, there is an equal and opposite reaction.",
+          "Objects with mass attract each other with a force proportional to their masses."
+        ],
+        correctAnswer: 1
+      },
+      {
+        id: "q2",
+        text: "Which of the following is a unit of force?",
+        options: [
+          "Watt",
+          "Joule",
+          "Newton",
+          "Pascal"
+        ],
+        correctAnswer: 2
+      },
+      {
+        id: "q3",
+        text: "What is the formula for calculating kinetic energy?",
+        options: [
+          "KE = mgh",
+          "KE = 1/2mv²",
+          "KE = F×d",
+          "KE = P×V"
+        ],
+        correctAnswer: 1
+      },
+      // More questions would be added here...
+      {
+        id: "q4",
+        text: "Which law of thermodynamics states that energy cannot be created or destroyed?",
+        options: [
+          "Zeroth law",
+          "First law",
+          "Second law",
+          "Third law"
+        ],
+        correctAnswer: 1
+      },
+      {
+        id: "q5",
+        text: "What is the SI unit of electric current?",
+        options: [
+          "Volt",
+          "Watt",
+          "Ampere",
+          "Ohm"
+        ],
+        correctAnswer: 2
+      }
+    ],
+    difficulty: "medium"
+  },
+  "chemistry-fundamentals": {
+    id: "chemistry-fundamentals",
+    title: "Chemistry Fundamentals",
+    subject: "Chemistry",
+    totalQuestions: 8,
+    timeLimit: 25, // minutes
+    questions: [
+      {
+        id: "q1",
+        text: "What is the chemical symbol for gold?",
+        options: [
+          "Go",
+          "Au",
+          "Ag",
+          "Gd"
+        ],
+        correctAnswer: 1
+      },
+      {
+        id: "q2",
+        text: "Which is NOT a state of matter?",
+        options: [
+          "Solid",
+          "Liquid",
+          "Gas",
+          "Energy"
+        ],
+        correctAnswer: 3
+      },
+      {
+        id: "q3",
+        text: "What is the pH of a neutral solution?",
+        options: [
+          "0",
+          "7",
+          "10",
+          "14"
+        ],
+        correctAnswer: 1
+      },
+      // More questions would be added here...
+      {
+        id: "q4",
+        text: "What is the main component of natural gas?",
+        options: [
+          "Ethane",
+          "Propane",
+          "Methane",
+          "Butane"
+        ],
+        correctAnswer: 2
+      },
+      {
+        id: "q5",
+        text: "Which element has the atomic number 1?",
+        options: [
+          "Oxygen",
+          "Carbon",
+          "Hydrogen",
+          "Helium"
+        ],
+        correctAnswer: 2
+      }
+    ],
+    difficulty: "easy"
+  }
+};
 
-interface Exam {
-  id: string;
-  title: string;
-  description: string;
-  subject: string;
-  duration: number; // in minutes
-  totalMarks: number;
-  questions: ExamQuestion[];
-}
+// Mock historical data for performance trends
+const mockHistoricalPerformance = {
+  "physics-101": [
+    { date: "2025-04-20", score: 65 },
+    { date: "2025-04-15", score: 60 },
+    { date: "2025-04-10", score: 55 },
+    { date: "2025-04-05", score: 50 },
+  ],
+  "chemistry-fundamentals": [
+    { date: "2025-04-22", score: 75 },
+    { date: "2025-04-17", score: 70 },
+    { date: "2025-04-12", score: 65 },
+    { date: "2025-04-07", score: 60 },
+  ]
+};
+
+// Mock topic breakdown data
+const mockTopicBreakdown = {
+  "physics-101": [
+    { topic: "Newton's Laws", score: 85 },
+    { topic: "Energy & Work", score: 70 },
+    { topic: "Kinematics", score: 60 },
+    { topic: "Thermodynamics", score: 75 },
+    { topic: "Electromagnetism", score: 55 },
+  ],
+  "chemistry-fundamentals": [
+    { topic: "Periodic Table", score: 90 },
+    { topic: "Chemical Bonds", score: 75 },
+    { topic: "Acids & Bases", score: 80 },
+    { topic: "Organic Chemistry", score: 65 },
+    { topic: "Redox Reactions", score: 70 },
+  ]
+};
 
 export default function ExamReviewPage() {
-  const { examId } = useParams();
-  const location = useLocation();
+  const { examId } = useParams<{ examId: string }>();
   const navigate = useNavigate();
-
-  // States
-  const [loading, setLoading] = useState(true);
-  const [exam, setExam] = useState<Exam | null>(null);
-  const [activeTab, setActiveTab] = useState('questions');
-  const [expandedQuestions, setExpandedQuestions] = useState<string[]>([]);
-
-  // Retrieve results from location state
-  const results = location.state || {
-    answers: {},
-    score: 0,
-    totalQuestions: 0,
-    timeSpent: 0,
-    flaggedQuestions: [],
-    bookmarkedQuestions: []
-  };
-
-  // Mock data loading
+  
+  const [currentExam, setCurrentExam] = useState<any | null>(null);
+  const [examResult, setExamResult] = useState<any | null>(null);
+  const [activeTab, setActiveTab] = useState("summary");
+  const [selectedQuestion, setSelectedQuestion] = useState<number | null>(null);
+  
   useEffect(() => {
-    // Simulate API call
-    setTimeout(() => {
-      const mockExam: Exam = {
-        id: examId || '1',
-        title: "Physics: Mechanics and Motion",
-        description: "Test your understanding of basic mechanics concepts including Newton's laws and kinematics.",
-        subject: "Physics",
-        duration: 30, // 30 minutes
-        totalMarks: 50,
-        questions: [
-          {
-            id: "q1",
-            text: "According to Newton's First Law of Motion, an object at rest will remain at rest and an object in motion will remain in motion with the same speed and in the same direction unless acted upon by...",
-            options: [
-              { id: "a1", text: "Gravitational force only" },
-              { id: "a2", text: "An unbalanced force" },
-              { id: "a3", text: "Another object of equal mass" },
-              { id: "a4", text: "Frictional force only" }
-            ],
-            correctOptionId: "a2",
-            explanation: "Newton's First Law of Motion states that an object will remain at rest or in uniform motion in a straight line unless acted upon by an unbalanced force. This property of objects is called inertia.",
-            subject: "Physics",
-            topic: "Newton's Laws",
-            difficulty: "medium"
+    if (examId && mockExams[examId as keyof typeof mockExams]) {
+      const exam = mockExams[examId as keyof typeof mockExams];
+      setCurrentExam(exam);
+      
+      // Get the results from localStorage
+      const storedResult = localStorage.getItem(`exam-result-${examId}`);
+      if (storedResult) {
+        setExamResult(JSON.parse(storedResult));
+      } else {
+        // If no result found, create mock result
+        const mockResult = {
+          examId: exam.id,
+          answers: {
+            "q1": 1, // correct
+            "q2": 1, // incorrect
+            "q3": 1, // correct
+            "q4": 0, // incorrect
+            "q5": 2, // correct
           },
-          {
-            id: "q2",
-            text: "What is the formula for calculating kinetic energy?",
-            options: [
-              { id: "a1", text: "KE = mv" },
-              { id: "a2", text: "KE = mv²" },
-              { id: "a3", text: "KE = (1/2)mv²" },
-              { id: "a4", text: "KE = (1/2)m²v" }
-            ],
-            correctOptionId: "a3",
-            explanation: "The formula for kinetic energy is KE = (1/2)mv², where m is mass and v is velocity.",
-            subject: "Physics",
-            topic: "Energy",
-            difficulty: "easy"
-          },
-          {
-            id: "q3",
-            text: "A 2 kg object accelerates at 5 m/s². What is the force applied to it according to Newton's Second Law?",
-            options: [
-              { id: "a1", text: "2.5 N" },
-              { id: "a2", text: "7 N" },
-              { id: "a3", text: "10 N" },
-              { id: "a4", text: "0.4 N" }
-            ],
-            correctOptionId: "a3",
-            explanation: "Using Newton's Second Law: F = ma, where F is force, m is mass, and a is acceleration. F = 2 kg × 5 m/s² = 10 N",
-            subject: "Physics",
-            topic: "Newton's Laws",
-            difficulty: "medium"
-          },
-          {
-            id: "q4",
-            text: "A car accelerates from rest to 20 m/s in 10 seconds. What is its acceleration?",
-            options: [
-              { id: "a1", text: "0.5 m/s²" },
-              { id: "a2", text: "2 m/s²" },
-              { id: "a3", text: "10 m/s²" },
-              { id: "a4", text: "20 m/s²" }
-            ],
-            correctOptionId: "a2",
-            explanation: "Acceleration = change in velocity / time taken. Acceleration = (20 m/s - 0 m/s) / 10 s = 2 m/s²",
-            subject: "Physics",
-            topic: "Kinematics",
-            difficulty: "easy"
-          },
-          {
-            id: "q5",
-            text: "Which of the following is NOT conserved in an elastic collision?",
-            options: [
-              { id: "a1", text: "Momentum" },
-              { id: "a2", text: "Kinetic energy" },
-              { id: "a3", text: "Mechanical energy" },
-              { id: "a4", text: "Mass" }
-            ],
-            correctOptionId: "a3",
-            explanation: "In an elastic collision, both momentum and kinetic energy are conserved. Mechanical energy (which includes potential energy) is not necessarily conserved if there's a change in potential energy.",
-            subject: "Physics",
-            topic: "Conservation Laws",
-            difficulty: "hard"
-          }
-        ]
-      };
-
-      setExam(mockExam);
-      setLoading(false);
-    }, 1200);
+          score: 60,
+          correctAnswers: 3,
+          totalQuestions: 5,
+          timeSpent: 720, // 12 minutes
+          date: new Date().toISOString(),
+          markedQuestions: ["q2"]
+        };
+        setExamResult(mockResult);
+      }
+    }
   }, [examId]);
-
+  
+  if (!currentExam || !examResult) {
+    return (
+      <SharedPageLayout title="Exam Review" subtitle="Loading review data...">
+        <div className="flex items-center justify-center h-64">
+          <p>Loading exam review data...</p>
+        </div>
+      </SharedPageLayout>
+    );
+  }
+  
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${mins} min ${secs} sec`;
+    return `${mins}m ${secs}s`;
   };
-
-  const percentageScore = results.totalQuestions > 0 ? 
-    Math.round((results.score / results.totalQuestions) * 100) : 0;
-
-  const getScoreColor = (percentage: number) => {
-    if (percentage >= 80) return "text-green-600";
-    if (percentage >= 60) return "text-amber-600";
-    return "text-red-600";
+  
+  const getScoreColor = (score: number) => {
+    if (score >= 80) return "text-green-600 dark:text-green-400";
+    if (score >= 60) return "text-amber-600 dark:text-amber-400";
+    return "text-red-600 dark:text-red-400";
   };
-
-  const getScoreGradient = (percentage: number) => {
-    if (percentage >= 80) return "from-green-200 to-emerald-100 dark:from-green-900/20 dark:to-emerald-900/20";
-    if (percentage >= 60) return "from-amber-200 to-yellow-100 dark:from-amber-900/20 dark:to-yellow-900/20";
-    return "from-red-200 to-rose-100 dark:from-red-900/20 dark:to-rose-900/20";
+  
+  const getScoreBg = (score: number) => {
+    if (score >= 80) return "bg-green-50 dark:bg-green-950/30";
+    if (score >= 60) return "bg-amber-50 dark:bg-amber-950/30";
+    return "bg-red-50 dark:bg-red-950/30";
   };
-
-  const toggleQuestionExpansion = (questionId: string) => {
-    setExpandedQuestions(prev => {
-      if (prev.includes(questionId)) {
-        return prev.filter(id => id !== questionId);
-      } else {
-        return [...prev, questionId];
-      }
-    });
+  
+  const getResultMessage = (score: number) => {
+    if (score >= 80) return "Excellent work! You've mastered this content.";
+    if (score >= 60) return "Good job! Some areas could use more practice.";
+    return "Keep practicing! Review the topics you struggled with.";
   };
-
-  const isQuestionExpanded = (questionId: string) => expandedQuestions.includes(questionId);
-
-  const getResultFeedback = () => {
-    if (percentageScore >= 90) return "Excellent! You've mastered this subject.";
-    if (percentageScore >= 80) return "Great job! Just a few concepts to review.";
-    if (percentageScore >= 70) return "Good work. Consider reviewing the topics you missed.";
-    if (percentageScore >= 60) return "You're on the right track. Focus on strengthening weak areas.";
-    return "Keep practicing. Review the topics you missed and try again.";
-  };
-
-  const handleRetakeExam = () => {
-    navigate(`/dashboard/student/practice-exam/${examId}/start`);
-  };
-
-  // Data for pie chart
-  const pieChartData = [
-    { name: 'Correct', value: results.score },
-    { name: 'Incorrect', value: results.totalQuestions - results.score }
-  ];
-  const COLORS = ['#10b981', '#ef4444'];
-
-  if (!exam && loading) {
-    return (
-      <div className="container max-w-4xl mx-auto p-4">
-        <Card className="w-full h-[400px] flex items-center justify-center">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mb-4 mx-auto"></div>
-            <p className="text-xl font-medium mb-2">Loading Results</p>
-            <p className="text-muted-foreground">Preparing your exam analysis...</p>
-          </div>
-        </Card>
-      </div>
-    );
-  }
-
-  // Topic performance analysis
-  const topicPerformance = exam?.questions.reduce((acc, question) => {
-    const isCorrect = results.answers[question.id] === question.correctOptionId;
-    if (!acc[question.topic]) {
-      acc[question.topic] = { total: 0, correct: 0 };
-    }
-    acc[question.topic].total += 1;
-    if (isCorrect) acc[question.topic].correct += 1;
-    return acc;
-  }, {} as Record<string, { total: number, correct: number }>);
-
-  // Difficulty breakdown
-  const difficultyBreakdown = exam?.questions.reduce((acc, question) => {
-    const isCorrect = results.answers[question.id] === question.correctOptionId;
-    if (!acc[question.difficulty]) {
-      acc[question.difficulty] = { total: 0, correct: 0 };
-    }
-    acc[question.difficulty].total += 1;
-    if (isCorrect) acc[question.difficulty].correct += 1;
-    return acc;
-  }, {} as Record<string, { total: number, correct: number }>);
-
-  // Format data for bar chart
-  const topicPerformanceData = Object.entries(topicPerformance || {}).map(([topic, data]) => ({
-    topic,
-    percentage: Math.round((data.correct / data.total) * 100)
-  }));
-
+  
+  // Improvement from previous attempt
+  const previousAttempts = mockHistoricalPerformance[examId as keyof typeof mockHistoricalPerformance] || [];
+  const previousScore = previousAttempts.length > 0 ? previousAttempts[0].score : null;
+  const improvement = previousScore !== null ? examResult.score - previousScore : null;
+  
   return (
-    <div className="container max-w-4xl mx-auto p-4">
-      <Card className="mb-6 shadow-md">
-        <CardHeader className={`bg-gradient-to-r ${getScoreGradient(percentageScore)}`}>
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-            <div>
-              <CardTitle className="text-xl">{exam?.title || 'Exam Results'}</CardTitle>
-              <p className="text-sm text-muted-foreground mt-1">{exam?.subject}</p>
+    <SharedPageLayout 
+      title="Exam Results & Analysis"
+      subtitle={currentExam.title}
+    >
+      <div className="space-y-6">
+        {/* Score Summary Card */}
+        <Card className={`border-t-4 ${
+          examResult.score >= 80 ? "border-t-green-500" : 
+          examResult.score >= 60 ? "border-t-amber-500" : 
+          "border-t-red-500"
+        }`}>
+          <CardHeader className="pb-2">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+              <CardTitle>{currentExam.title} - Results</CardTitle>
+              <Badge className={`${getScoreBg(examResult.score)} ${getScoreColor(examResult.score)} text-base px-3 py-1`}>
+                Score: {examResult.score}%
+              </Badge>
             </div>
-            <div className={`text-2xl font-bold ${getScoreColor(percentageScore)}`}>
-              {percentageScore}%
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent className="py-4 space-y-4">
-          <Progress value={percentageScore} className="h-3" />
-          
-          <div className="flex flex-wrap justify-between mt-2 text-sm">
-            <div className="flex items-center gap-2">
-              <CheckCircle className="h-4 w-4 text-green-600" />
-              <span>Correct: {results.score}/{results.totalQuestions}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Clock className="h-4 w-4 text-blue-600" />
-              <span>Time spent: {formatTime(results.timeSpent)}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <BookOpen className="h-4 w-4 text-purple-600" />
-              <span>Topic: {exam?.subject}</span>
-            </div>
-          </div>
-          
-          <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-md border border-blue-100 dark:border-blue-800/50">
-            <p className="font-medium mb-1">Feedback:</p>
-            <p className="text-sm">{getResultFeedback()}</p>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="grid grid-cols-3 mb-4">
-          <TabsTrigger value="questions" className="flex items-center gap-1">
-            <FileText className="h-4 w-4" />
-            <span>Questions</span>
-          </TabsTrigger>
-          <TabsTrigger value="analytics" className="flex items-center gap-1">
-            <BarChart className="h-4 w-4" />
-            <span>Analytics</span>
-          </TabsTrigger>
-          <TabsTrigger value="recommendations" className="flex items-center gap-1">
-            <BookOpen className="h-4 w-4" />
-            <span>Recommendations</span>
-          </TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="questions" className="space-y-4">
-          {exam?.questions.map(question => (
-            <Card key={question.id} className={`border-l-4 ${
-              results.answers[question.id] === question.correctOptionId ? 
-              'border-l-green-500' : 'border-l-red-500'
-            }`}>
-              <CardHeader className="py-4">
-                <div className="flex justify-between items-start">
-                  <div className="space-y-1">
-                    <Badge className={
-                      question.difficulty === 'easy' ? 'bg-green-100 text-green-800' :
-                      question.difficulty === 'medium' ? 'bg-amber-100 text-amber-800' :
-                      'bg-red-100 text-red-800'
-                    }>
-                      {question.difficulty}
-                    </Badge>
-                    <h3 className="font-medium">{question.text}</h3>
-                  </div>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    onClick={() => toggleQuestionExpansion(question.id)}
-                    className="ml-2"
-                  >
-                    {isQuestionExpanded(question.id) ? 
-                      <ChevronUp className="h-4 w-4" /> : 
-                      <ChevronDown className="h-4 w-4" />}
-                  </Button>
-                </div>
-              </CardHeader>
-              
-              {isQuestionExpanded(question.id) && (
-                <CardContent className="py-2">
-                  <div className="space-y-3">
-                    <div className="space-y-2">
-                      {question.options.map(option => {
-                        const isSelected = results.answers[question.id] === option.id;
-                        const isCorrect = option.id === question.correctOptionId;
-                        
-                        return (
-                          <div 
-                            key={option.id} 
-                            className={`p-3 border rounded-md ${
-                              isSelected && isCorrect ? 'bg-green-50 border-green-300 dark:bg-green-900/20 dark:border-green-700' :
-                              isSelected && !isCorrect ? 'bg-red-50 border-red-300 dark:bg-red-900/20 dark:border-red-700' :
-                              isCorrect ? 'bg-blue-50 border-blue-300 dark:bg-blue-900/20 dark:border-blue-700' :
-                              ''
-                            }`}
-                          >
-                            <div className="flex items-start">
-                              <div className="flex-shrink-0 mt-0.5">
-                                {isSelected && isCorrect && <CheckCircle className="h-5 w-5 text-green-600" />}
-                                {isSelected && !isCorrect && <XCircle className="h-5 w-5 text-red-600" />}
-                                {!isSelected && isCorrect && <CheckCircle className="h-5 w-5 text-blue-600" />}
-                                {!isSelected && !isCorrect && <div className="w-5 h-5"></div>}
-                              </div>
-                              <span className="ml-2">{option.text}</span>
-                            </div>
-                          </div>
-                        );
-                      })}
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-6">
+              {/* Overall Performance */}
+              <div className="p-4 rounded-lg bg-gradient-to-r from-violet-50 to-blue-50 dark:from-violet-950/20 dark:to-blue-950/20 border border-violet-100 dark:border-violet-800/30">
+                <h3 className="font-medium mb-3">Exam Overview</h3>
+                <div className="space-y-3">
+                  <div>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span className="font-medium">Performance</span>
+                      <span className={getScoreColor(examResult.score)}>
+                        {examResult.correctAnswers}/{examResult.totalQuestions} correct
+                      </span>
                     </div>
-                    
-                    <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-md border border-blue-100 dark:border-blue-800/50">
-                      <p className="font-medium mb-1">Explanation:</p>
-                      <p className="text-sm">{question.explanation}</p>
-                    </div>
-                  </div>
-                </CardContent>
-              )}
-            </Card>
-          ))}
-        </TabsContent>
-        
-        <TabsContent value="analytics" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Performance Overview</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Pie Chart */}
-                <div>
-                  <h3 className="text-base font-medium mb-3 text-center">Score Distribution</h3>
-                  <div className="h-64">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <PieChart>
-                        <Pie
-                          data={pieChartData}
-                          cx="50%"
-                          cy="50%"
-                          labelLine={false}
-                          outerRadius={80}
-                          fill="#8884d8"
-                          dataKey="value"
-                          label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                        >
-                          {pieChartData.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                          ))}
-                        </Pie>
-                        <Tooltip />
-                      </PieChart>
-                    </ResponsiveContainer>
-                  </div>
-                </div>
-                
-                {/* Topic Performance Bar Chart */}
-                <div>
-                  <h3 className="text-base font-medium mb-3 text-center">Topic Performance</h3>
-                  <div className="h-64">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <ReBarChart
-                        data={topicPerformanceData}
-                        margin={{
-                          top: 5,
-                          right: 30,
-                          left: 0,
-                          bottom: 5,
-                        }}
-                      >
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="topic" />
-                        <YAxis />
-                        <Tooltip />
-                        <Bar dataKey="percentage" fill="#3b82f6" name="Percentage Correct" />
-                      </ReBarChart>
-                    </ResponsiveContainer>
-                  </div>
-                </div>
-              </div>
-              
-              {/* Difficulty Breakdown */}
-              <div className="mt-8">
-                <h3 className="text-base font-medium mb-4">Difficulty Breakdown</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  {Object.entries(difficultyBreakdown || {}).map(([difficulty, data]) => (
-                    <Card key={difficulty} className={`border ${
-                      difficulty === 'easy' ? 'border-green-200 dark:border-green-700' :
-                      difficulty === 'medium' ? 'border-amber-200 dark:border-amber-700' :
-                      'border-red-200 dark:border-red-700'
-                    }`}>
-                      <CardContent className="pt-4">
-                        <h4 className={`font-medium text-center mb-2 ${
-                          difficulty === 'easy' ? 'text-green-600 dark:text-green-400' :
-                          difficulty === 'medium' ? 'text-amber-600 dark:text-amber-400' :
-                          'text-red-600 dark:text-red-400'
-                        }`}>
-                          {difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}
-                        </h4>
-                        <div className="flex justify-center text-2xl font-bold mb-2">
-                          {Math.round((data.correct / data.total) * 100)}%
-                        </div>
-                        <div className="text-center text-sm text-muted-foreground">
-                          {data.correct} / {data.total} correct
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          {/* Time Analysis */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Time Analysis</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
-                  <h4 className="text-sm font-medium text-blue-700 dark:text-blue-300">Time Spent</h4>
-                  <div className="text-2xl font-bold mt-1">{formatTime(results.timeSpent)}</div>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    vs {exam?.duration || 30} minutes allocated
-                  </p>
-                </div>
-                
-                <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
-                  <h4 className="text-sm font-medium text-blue-700 dark:text-blue-300">Time per Question</h4>
-                  <div className="text-2xl font-bold mt-1">
-                    {Math.round(results.timeSpent / results.totalQuestions)} sec
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Average time spent on each question
-                  </p>
-                </div>
-                
-                <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
-                  <h4 className="text-sm font-medium text-blue-700 dark:text-blue-300">Time Efficiency</h4>
-                  <div className="text-2xl font-bold mt-1">
-                    {Math.round((results.score / results.timeSpent) * 100)} %
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Correct answers per time spent
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-        
-        <TabsContent value="recommendations" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Areas to Improve</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {Object.entries(topicPerformance || {})
-                  .filter(([_, data]) => (data.correct / data.total) < 0.7) // Less than 70% correct
-                  .map(([topic, data]) => (
-                    <div key={topic} className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/50 p-4 rounded-lg">
-                      <h3 className="font-medium text-amber-800 dark:text-amber-300 mb-1">{topic}</h3>
-                      <div className="flex justify-between text-sm mb-1">
-                        <span>Performance</span>
-                        <span>{Math.round((data.correct / data.total) * 100)}%</span>
-                      </div>
-                      <Progress value={Math.round((data.correct / data.total) * 100)} className="h-2 mb-3" />
-                      <div className="text-sm space-y-2">
-                        <p>Review the following concepts:</p>
-                        <ul className="list-disc pl-5 space-y-1">
-                          {exam?.questions
-                            .filter(q => q.topic === topic && results.answers[q.id] !== q.correctOptionId)
-                            .map(q => (
-                              <li key={q.id}>{q.text.split('?')[0]}?</li>
-                            ))}
-                        </ul>
-                      </div>
-                    </div>
-                  ))}
-                
-                {Object.entries(topicPerformance || {}).filter(([_, data]) => (data.correct / data.total) < 0.7).length === 0 && (
-                  <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800/50 p-4 rounded-lg">
-                    <h3 className="font-medium text-green-800 dark:text-green-300 mb-1">Great Job!</h3>
-                    <p className="text-sm">You performed well across all topics. Consider taking more challenging exams to continue your progress.</p>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Recommended Resources</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="bg-white dark:bg-gray-800 p-4 border rounded-lg">
-                    <div className="flex items-start">
-                      <BookOpen className="h-6 w-6 text-blue-600 mr-3 mt-1" />
-                      <div>
-                        <h3 className="font-medium">Concept Review</h3>
-                        <p className="text-sm text-muted-foreground mb-3">
-                          Review related concepts with interactive learning materials
-                        </p>
-                        <Button variant="outline" size="sm">
-                          Go to Concepts
-                        </Button>
-                      </div>
-                    </div>
+                    <Progress value={examResult.score} className="h-2" />
                   </div>
                   
-                  <div className="bg-white dark:bg-gray-800 p-4 border rounded-lg">
-                    <div className="flex items-start">
-                      <FileText className="h-6 w-6 text-purple-600 mr-3 mt-1" />
-                      <div>
-                        <h3 className="font-medium">Practice Problems</h3>
-                        <p className="text-sm text-muted-foreground mb-3">
-                          Try additional practice problems focused on your weak areas
-                        </p>
-                        <Button variant="outline" size="sm">
-                          Practice More
-                        </Button>
-                      </div>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-2">
+                    <div className="flex flex-col">
+                      <span className="text-xs text-muted-foreground">Date Taken</span>
+                      <span className="flex items-center">
+                        <Calendar className="h-3.5 w-3.5 mr-1.5 text-violet-500" />
+                        {new Date(examResult.date).toLocaleDateString()}
+                      </span>
                     </div>
+                    <div className="flex flex-col">
+                      <span className="text-xs text-muted-foreground">Time Spent</span>
+                      <span className="flex items-center">
+                        <Clock className="h-3.5 w-3.5 mr-1.5 text-violet-500" />
+                        {formatTime(examResult.timeSpent)}
+                      </span>
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-xs text-muted-foreground">Questions</span>
+                      <span className="flex items-center">
+                        <CheckSquare className="h-3.5 w-3.5 mr-1.5 text-violet-500" />
+                        {examResult.totalQuestions} total
+                      </span>
+                    </div>
+                    {improvement !== null && (
+                      <div className="flex flex-col">
+                        <span className="text-xs text-muted-foreground">Improvement</span>
+                        <span className={`flex items-center ${improvement >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                          {improvement >= 0 
+                            ? <ArrowRight className="h-3.5 w-3.5 mr-1.5 text-green-500" /> 
+                            : <ArrowRight className="h-3.5 w-3.5 mr-1.5 text-red-500" />
+                          }
+                          {improvement > 0 ? '+' : ''}{improvement}%
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </div>
-                
-                {percentageScore < 70 && (
-                  <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800/50 p-4 rounded-lg">
-                    <h3 className="font-medium text-blue-800 dark:text-blue-300 mb-1">Study Plan Suggestion</h3>
-                    <p className="text-sm mb-3">We've created a personalized study plan to help improve your score.</p>
-                    <Button size="sm">View Study Plan</Button>
-                  </div>
-                )}
               </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
-      
-      <div className="flex justify-between mt-6">
-        <Button variant="outline" onClick={() => navigate('/dashboard/student/practice-exam')}>
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Exams
-        </Button>
-        <div className="flex gap-2">
-          <Button variant="outline">
-            <Download className="h-4 w-4 mr-2" />
-            Download Results
-          </Button>
-          <Button onClick={handleRetakeExam}>
-            <RefreshCw className="h-4 w-4 mr-2" />
-            Retake Exam
-          </Button>
+              
+              {/* Performance Feedback */}
+              <div className={`p-4 rounded-lg ${getScoreBg(examResult.score)} border`}>
+                <h3 className="font-medium mb-2">Performance Feedback</h3>
+                <p className="text-sm">{getResultMessage(examResult.score)}</p>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                  <div className="bg-white/70 dark:bg-gray-800/70 p-3 rounded-lg border">
+                    <h4 className="text-sm font-medium mb-2 flex items-center">
+                      <CheckCircle className="h-4 w-4 mr-1.5 text-green-500" />
+                      Strengths
+                    </h4>
+                    <ul className="space-y-1 text-sm">
+                      {mockTopicBreakdown[examId as keyof typeof mockTopicBreakdown]
+                        .filter(item => item.score >= 75)
+                        .slice(0, 2)
+                        .map((item, idx) => (
+                          <li key={idx} className="ml-6 list-disc">
+                            {item.topic} ({item.score}%)
+                          </li>
+                        ))
+                      }
+                    </ul>
+                  </div>
+                  
+                  <div className="bg-white/70 dark:bg-gray-800/70 p-3 rounded-lg border">
+                    <h4 className="text-sm font-medium mb-2 flex items-center">
+                      <XCircle className="h-4 w-4 mr-1.5 text-red-500" />
+                      Areas to Improve
+                    </h4>
+                    <ul className="space-y-1 text-sm">
+                      {mockTopicBreakdown[examId as keyof typeof mockTopicBreakdown]
+                        .filter(item => item.score < 75)
+                        .slice(0, 2)
+                        .map((item, idx) => (
+                          <li key={idx} className="ml-6 list-disc">
+                            {item.topic} ({item.score}%)
+                          </li>
+                        ))
+                      }
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Action Buttons */}
+              <div className="flex flex-col sm:flex-row gap-3 justify-end">
+                <Button variant="outline" onClick={() => navigate(`/dashboard/student/practice-exam/${examId}/start`)}>
+                  <AlertCircle className="h-4 w-4 mr-1.5" />
+                  Retake Exam
+                </Button>
+                <Button onClick={() => navigate('/dashboard/student/practice-exam')}>
+                  <CheckSquare className="h-4 w-4 mr-1.5" />
+                  View All Practice Exams
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        
+        {/* Detailed Review Tabs */}
+        <div>
+          <SectionHeader title="Detailed Analysis" />
+          
+          <Tabs defaultValue="summary" className="mt-4" onValueChange={setActiveTab}>
+            <TabsList className="grid grid-cols-3 mb-4">
+              <TabsTrigger value="summary">Performance Summary</TabsTrigger>
+              <TabsTrigger value="questions">Question Analysis</TabsTrigger>
+              <TabsTrigger value="topics">Topic Breakdown</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="summary" className="space-y-4">
+              {/* Performance Over Time */}
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg">Performance Trend</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-64 flex items-center justify-center">
+                    <p>Performance chart will be displayed here</p>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              {/* Recommendations */}
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg">Personalized Recommendations</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="p-3 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/30">
+                    <h4 className="font-medium mb-2">Suggested Study Materials</h4>
+                    <ul className="space-y-2">
+                      {mockTopicBreakdown[examId as keyof typeof mockTopicBreakdown]
+                        .filter(item => item.score < 75)
+                        .slice(0, 2)
+                        .map((item, idx) => (
+                          <li key={idx} className="flex items-center">
+                            <BookOpen className="h-4 w-4 mr-2 text-blue-500" />
+                            <span>{item.topic} Concept Review</span>
+                          </li>
+                        ))
+                      }
+                    </ul>
+                  </div>
+                  
+                  <div className="p-3 rounded-lg bg-violet-50 dark:bg-violet-900/20 border border-violet-100 dark:border-violet-800/30">
+                    <h4 className="font-medium mb-2">Practice Suggestions</h4>
+                    <ul className="space-y-2">
+                      {mockTopicBreakdown[examId as keyof typeof mockTopicBreakdown]
+                        .filter(item => item.score < 75)
+                        .slice(0, 2)
+                        .map((item, idx) => (
+                          <li key={idx} className="flex items-center">
+                            <CheckSquare className="h-4 w-4 mr-2 text-violet-500" />
+                            <span>Additional {item.topic} Practice Quiz</span>
+                          </li>
+                        ))
+                      }
+                    </ul>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+            
+            <TabsContent value="questions">
+              {/* Question-by-Question Review */}
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg">Question Review</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-6">
+                    {currentExam.questions.map((question: any, index: number) => {
+                      const userAnswer = examResult.answers[question.id] !== undefined ? examResult.answers[question.id] : null;
+                      const isCorrect = userAnswer === question.correctAnswer;
+                      const isExpanded = selectedQuestion === index;
+                      
+                      return (
+                        <div key={question.id} className="border rounded-lg overflow-hidden">
+                          {/* Question Header */}
+                          <div 
+                            className={`p-3 flex justify-between items-center cursor-pointer ${
+                              isCorrect 
+                                ? "bg-green-50 dark:bg-green-900/20 border-b border-green-100 dark:border-green-800/30" 
+                                : "bg-red-50 dark:bg-red-900/20 border-b border-red-100 dark:border-red-800/30"
+                            }`}
+                            onClick={() => setSelectedQuestion(isExpanded ? null : index)}
+                          >
+                            <div className="flex items-center">
+                              <span className="font-medium mr-3">Q{index + 1}.</span>
+                              <span className="text-sm">{question.text.substring(0, 40)}...</span>
+                            </div>
+                            <div className="flex items-center">
+                              {isCorrect ? (
+                                <Badge className="bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300">
+                                  <CheckCircle className="h-3.5 w-3.5 mr-1" /> Correct
+                                </Badge>
+                              ) : (
+                                <Badge className="bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300">
+                                  <XCircle className="h-3.5 w-3.5 mr-1" /> Incorrect
+                                </Badge>
+                              )}
+                            </div>
+                          </div>
+                          
+                          {/* Expanded Question Details */}
+                          {isExpanded && (
+                            <div className="p-4 bg-white dark:bg-gray-800">
+                              <div className="mb-4">
+                                <h4 className="font-medium mb-2">{question.text}</h4>
+                                <div className="space-y-2">
+                                  {question.options.map((option: string, idx: number) => (
+                                    <div 
+                                      key={idx}
+                                      className={`p-2 rounded ${
+                                        idx === question.correctAnswer
+                                          ? "bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800/30"
+                                          : idx === userAnswer
+                                            ? "bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30"
+                                            : "bg-gray-50 dark:bg-gray-800"
+                                      }`}
+                                    >
+                                      <div className="flex items-start">
+                                        <div className="mr-2">
+                                          {idx === question.correctAnswer ? (
+                                            <CheckCircle className="h-4 w-4 text-green-600" />
+                                          ) : idx === userAnswer ? (
+                                            <XCircle className="h-4 w-4 text-red-600" />
+                                          ) : (
+                                            <div className="h-4 w-4" />
+                                          )}
+                                        </div>
+                                        <span className="text-sm">{option}</span>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                              
+                              <div className="text-sm border-t pt-3 text-muted-foreground">
+                                <p>
+                                  {isCorrect 
+                                    ? "Great job! You answered this question correctly." 
+                                    : `You selected option ${userAnswer !== null ? userAnswer + 1 : "none"}, but the correct answer was option ${question.correctAnswer + 1}.`
+                                  }
+                                </p>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+            
+            <TabsContent value="topics">
+              {/* Topic-wise Analysis */}
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg">Topics Analysis</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {mockTopicBreakdown[examId as keyof typeof mockTopicBreakdown].map((topic, index) => (
+                      <div key={index} className="space-y-1">
+                        <div className="flex justify-between items-center">
+                          <span className="font-medium">{topic.topic}</span>
+                          <span className={getScoreColor(topic.score)}>{topic.score}%</span>
+                        </div>
+                        <Progress value={topic.score} className="h-2" />
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
-    </div>
+    </SharedPageLayout>
   );
 }
