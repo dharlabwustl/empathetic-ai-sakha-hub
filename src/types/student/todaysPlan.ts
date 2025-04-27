@@ -15,8 +15,7 @@ export type MoodType =
   | 'sad' 
   | 'curious' 
   | 'neutral' 
-  | 'okay' 
-  | undefined;
+  | 'okay';
 
 export interface SubjectTaskBreakdown {
   [subject: string]: {
