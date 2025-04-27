@@ -26,13 +26,15 @@ export default function StudentRoutes() {
       <Route path="/profile" element={<ProfilePage />} />
       <Route path="/batch" element={<BatchManagementView />} />
       <Route path="/subscription" element={<SubscriptionPage />} />
-      <Route path="/wellness" element={<FeelGoodCornerPage />} />
       
-      {/* New study pages */}
-      <Route path="/concepts/:conceptId/study" element={<ConceptStudyPage />} />
-      <Route path="/flashcards/:cardId/practice" element={<FlashcardPracticePage />} />
-      <Route path="/exams/:examId/attempt" element={<ExamAttemptPage />} />
-      <Route path="/exams/:examId/review" element={<ExamReviewPage />} />
+      {/* Study pages with topic-based routing */}
+      <Route path="/concepts/study/:topicName" element={<ConceptStudyPage />} />
+      <Route path="/flashcards/practice/:topicName" element={<FlashcardPracticePage />} />
+      <Route path="/exams/attempt/:topicName" element={<ExamAttemptPage />} />
+      <Route path="/exams/review/:topicName" element={<ExamReviewPage />} />
+      
+      {/* Feel Good Corner with enhanced sections */}
+      <Route path="/wellness" element={<FeelGoodCornerPage />} />
     </Routes>
   );
 }

@@ -1,16 +1,15 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStudentDashboardData } from '@/hooks/useStudentDashboardData';
 import { UserProfileBase as UserProfileType } from '@/types/user/base';
 import { KpiData } from '@/hooks/useKpiTracking';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { motion } from 'framer-motion';
 import { 
   LayoutDashboard, CalendarDays, GraduationCap, BookOpen,
-  Brain, FileText, Bell, TrendingUp
+  Brain, FileText, Bell, TrendingUp, Book
 } from 'lucide-react';
 
 import StudyStatsSection from './dashboard-sections/StudyStatsSection';
@@ -25,13 +24,14 @@ import { MoodType } from '@/types/user/base';
 import ExamReadinessMeter from './metrics/ExamReadinessMeter';
 import DailyMoodTracker from './mood-tracking/DailyMoodTracker';
 import KpiCard from '@/components/dashboard/KpiCard';
+import QuickAccess from './QuickAccess';
 
 interface RedesignedDashboardOverviewProps {
   userProfile: UserProfileType;
   kpis: KpiData[];
 }
 
-export default function RedesignedDashboardOverview({ userProfile, kpis }: RedesignedDashboardOverviewProps) {
+const RedesignedDashboardOverview = ({ userProfile, kpis }: RedesignedDashboardOverviewProps) => {
   const { loading, dashboardData, refreshData } = useStudentDashboardData();
   const [currentMood, setCurrentMood] = useState<MoodType>();
   const navigate = useNavigate();
@@ -109,47 +109,83 @@ export default function RedesignedDashboardOverview({ userProfile, kpis }: Redes
   }
 
   return (
-    <motion.div
-      className="space-y-6"
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-    >
-      <motion.div 
-        variants={itemVariants}
-        className="p-3 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 sticky top-0 z-10"
+    <div className="space-y-6 p-6">
+      {/* Header Section with Welcome Message */}
+      <motion.div
+        className="relative overflow-hidden rounded-xl bg-gradient-to-r from-violet-500 to-purple-500 text-white p-6"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
       >
-        <div className="flex items-center justify-between overflow-x-auto">
-          <div className="flex space-x-1 md:space-x-2">
-            {navigationTabs.map((tab) => (
-              <motion.div
-                key={tab.id}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <Button
-                  variant={tab.id === "overview" ? "default" : "ghost"}
-                  size="sm"
-                  className={`flex items-center gap-1 whitespace-nowrap text-xs md:text-sm`}
-                  onClick={() => navigate(tab.path)}
-                >
-                  <tab.icon className="h-4 w-4 mr-1" />
-                  <span className="hidden md:inline">{tab.label}</span>
-                </Button>
-              </motion.div>
-            ))}
-          </div>
-          <Button 
-            size="sm" 
-            variant="outline"
-            className="hidden md:flex items-center"
-            onClick={refreshData}
-          >
-            <TrendingUp className="mr-2 h-4 w-4" />
-            Refresh Stats
-          </Button>
+        <div className="relative z-10">
+          <h1 className="text-2xl font-bold mb-2">
+            Welcome back, {userProfile.name}!
+          </h1>
+          <p className="text-violet-100">
+            Let's continue your learning journey today
+          </p>
+        </div>
+        <div className="absolute right-0 top-0 w-64 h-full opacity-10">
+          <Book className="w-full h-full" />
         </div>
       </motion.div>
+
+      {/* KPIs Grid */}
+      <motion.div 
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+      >
+        {kpis.map((kpi, index) => (
+          <motion.div
+            key={kpi.id}
+            variants={itemVariants}
+            custom={index}
+          >
+            <KpiCard kpi={kpi} />
+          </motion.div>
+        ))}
+      </motion.div>
+
+      {/* Main Grid Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Study Progress Section */}
+        <motion.div className="lg:col-span-2"
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.2 }}
+        >
+          <Card className="h-full bg-gradient-to-br from-white to-violet-50 dark:from-gray-900 dark:to-violet-900/20">
+            <CardHeader>
+              <CardTitle>Study Progress</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <StudyStatsSection 
+                subjects={dashboardData.subjects} 
+                conceptCards={dashboardData.conceptCards}
+              />
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        {/* Quick Actions */}
+        <motion.div
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.3 }}
+        >
+          <Card className="h-full bg-gradient-to-br from-white to-blue-50 dark:from-gray-900 dark:to-blue-900/20">
+            <CardHeader>
+              <CardTitle>Quick Actions</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <QuickAccess />
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </div>
 
       <motion.div variants={itemVariants}>
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
@@ -163,16 +199,6 @@ export default function RedesignedDashboardOverview({ userProfile, kpis }: Redes
             </div>
           </div>
         </div>
-      </motion.div>
-
-      {/* KPIs Section */}
-      <motion.div 
-        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8"
-        variants={itemVariants}
-      >
-        {kpis.map((kpi, index) => (
-          <KpiCard key={kpi.id} kpi={kpi} delay={index} />
-        ))}
       </motion.div>
 
       {/* Exam Readiness Meter - Added as requested */}
@@ -206,7 +232,7 @@ export default function RedesignedDashboardOverview({ userProfile, kpis }: Redes
       </motion.div>
 
       <motion.div variants={itemVariants}>
-        <StudyStatsSection subjects={dashboardData.subjects} conceptCards={dashboardData.conceptCards} />
+        
       </motion.div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -276,6 +302,8 @@ export default function RedesignedDashboardOverview({ userProfile, kpis }: Redes
           <UpcomingMilestonesSection milestones={dashboardData.upcomingMilestones} />
         </motion.div>
       </div>
-    </motion.div>
+    </div>
   );
-}
+};
+
+export default RedesignedDashboardOverview;
