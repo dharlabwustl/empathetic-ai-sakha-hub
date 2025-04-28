@@ -10,141 +10,82 @@ const PrivacyPage = () => {
       
       <main className="flex-grow container mx-auto px-4 py-12">
         <div className="max-w-3xl mx-auto">
-          <h1 className="text-4xl font-bold mb-6">Privacy Policy</h1>
-          <p className="text-gray-600 mb-8">Last updated: April 28, 2025</p>
-          
+          <h1 className="text-4xl font-bold text-center mb-6">Privacy Policy</h1>
           <div className="prose prose-purple max-w-none">
-            <section className="mb-8">
-              <h2 className="text-2xl font-bold mb-4">1. Introduction</h2>
-              <p>
-                At Sakha AI, operated by Greatwisdom India Pvt Ltd ("we", "our", "us"), we respect your privacy and are committed to protecting your personal data. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our services.
-              </p>
-              <p className="mt-2">
-                We use your data to provide and improve our services. By using our services, you agree to the collection and use of information in accordance with this policy.
-              </p>
-            </section>
+            <p className="mb-4">Last Updated: April 25, 2025</p>
             
-            <section className="mb-8">
-              <h2 className="text-2xl font-bold mb-4">2. Information We Collect</h2>
-              <h3 className="text-xl font-semibold mt-4 mb-2">Personal Data</h3>
-              <p>
-                While using our services, we may ask you to provide us with certain personally identifiable information that can be used to contact or identify you, including but not limited to:
-              </p>
-              <ul className="list-disc pl-6 mt-2">
-                <li>Name</li>
-                <li>Email address</li>
-                <li>Phone number</li>
-                <li>Educational information</li>
-                <li>Usage data and preferences</li>
-              </ul>
-              
-              <h3 className="text-xl font-semibold mt-4 mb-2">Learning and Mood Data</h3>
-              <p>
-                To provide personalized learning experiences, we collect:
-              </p>
-              <ul className="list-disc pl-6 mt-2">
-                <li>Study preferences and habits</li>
-                <li>Academic goals and progress</li>
-                <li>Test scores and performance metrics</li>
-                <li>Mood logs and emotional states during study sessions</li>
-                <li>Learning pace and knowledge gaps</li>
-              </ul>
-            </section>
+            <h2 className="text-2xl font-semibold mt-8 mb-4">1. Introduction</h2>
+            <p>At Sakha AI ("we," "our," or "us"), a product of Greatwisdom India Pvt Ltd, we respect your privacy and are committed to protecting your personal data. This Privacy Policy explains how we collect, use, and safeguard your information when you use our website, mobile applications, and services (collectively, the "Services").</p>
             
-            <section className="mb-8">
-              <h2 className="text-2xl font-bold mb-4">3. How We Use Your Information</h2>
-              <p>
-                We use the information we collect for various purposes, including:
-              </p>
-              <ul className="list-disc pl-6 mt-2">
-                <li>Providing, maintaining, and improving our services</li>
-                <li>Personalizing your learning experience</li>
-                <li>Generating adaptive study plans</li>
-                <li>Analyzing usage patterns to enhance our platform</li>
-                <li>Communicating with you about your account or subscription</li>
-                <li>Sending notifications, updates, and promotional content (with your consent)</li>
-                <li>Preventing fraud and ensuring the security of our platform</li>
-              </ul>
-            </section>
+            <h2 className="text-2xl font-semibold mt-8 mb-4">2. Information We Collect</h2>
+            <p>We collect information that you provide directly to us, information we collect automatically when you use our Services, and information from third-party sources. This may include:</p>
+            <ul className="list-disc pl-8 my-4">
+              <li><strong>Personal Information:</strong> Name, email address, phone number, and educational information.</li>
+              <li><strong>Usage Information:</strong> Information about how you use our Services, including learning patterns, test scores, and study habits.</li>
+              <li><strong>Device Information:</strong> Information about the device you use to access our Services, including IP address, device type, and operating system.</li>
+              <li><strong>Learning Data:</strong> Study progress, quiz results, flashcard usage, and other learning activities.</li>
+              <li><strong>Emotional State Data:</strong> If you choose to use our mood tracking features, we collect information about your self-reported emotional states.</li>
+            </ul>
             
-            <section className="mb-8">
-              <h2 className="text-2xl font-bold mb-4">4. AI Models and Data Processing</h2>
-              <p>
-                Sakha AI uses both proprietary in-house AI models and open-source AI engines to process your data and provide personalized learning experiences. This processing includes:
-              </p>
-              <ul className="list-disc pl-6 mt-2">
-                <li>Analyzing your learning patterns to identify strengths and weaknesses</li>
-                <li>Processing mood data to adapt content delivery based on emotional state</li>
-                <li>Generating personalized explanations and study materials</li>
-                <li>Creating adaptive question sequences based on your performance</li>
-              </ul>
-              <p className="mt-2">
-                We implement appropriate technical safeguards to protect your data during AI processing and ensure that our AI systems operate in compliance with applicable data protection laws.
-              </p>
-            </section>
+            <h2 className="text-2xl font-semibold mt-8 mb-4">3. How We Use Your Information</h2>
+            <p>We use the information we collect to:</p>
+            <ul className="list-disc pl-8 my-4">
+              <li>Provide, maintain, and improve our Services</li>
+              <li>Personalize your learning experience</li>
+              <li>Communicate with you about our Services</li>
+              <li>Develop new products and features</li>
+              <li>Generate and analyze aggregate statistics about our users</li>
+              <li>Detect, investigate, and prevent fraudulent transactions and other illegal activities</li>
+              <li>Comply with our legal obligations</li>
+            </ul>
             
-            <section className="mb-8">
-              <h2 className="text-2xl font-bold mb-4">5. Data Sharing and Disclosure</h2>
-              <p>
-                We may share your information with:
-              </p>
-              <ul className="list-disc pl-6 mt-2">
-                <li>Service providers who help us operate our platform</li>
-                <li>Educational institutions (only with your explicit consent)</li>
-                <li>Legal authorities when required by law</li>
-              </ul>
-              <p className="mt-2">
-                We do not sell your personal information to third parties.
-              </p>
-            </section>
+            <h2 className="text-2xl font-semibold mt-8 mb-4">4. AI Technology and Data Processing</h2>
+            <p>Our Services use artificial intelligence technologies, including both open-source AI engines and our proprietary in-house AI models. These technologies process your data to:</p>
+            <ul className="list-disc pl-8 my-4">
+              <li>Create personalized learning plans</li>
+              <li>Adapt content to your learning style</li>
+              <li>Provide tailored recommendations based on your progress</li>
+              <li>Analyze patterns to improve our educational offerings</li>
+            </ul>
+            <p>We implement technical and organizational measures to ensure a level of security appropriate to the risk of processing your personal data.</p>
             
-            <section className="mb-8">
-              <h2 className="text-2xl font-bold mb-4">6. Data Security</h2>
-              <p>
-                We implement appropriate security measures to protect your personal information from unauthorized access, alteration, disclosure, or destruction. However, no method of transmission over the internet or electronic storage is 100% secure, and we cannot guarantee absolute security.
-              </p>
-            </section>
+            <h2 className="text-2xl font-semibold mt-8 mb-4">5. Sharing Your Information</h2>
+            <p>We may share your information with:</p>
+            <ul className="list-disc pl-8 my-4">
+              <li><strong>Service Providers:</strong> Third-party vendors who perform services on our behalf, such as hosting, data analysis, and customer service.</li>
+              <li><strong>Educational Institutions:</strong> If you are using our Services through a school or institution, we may share information with that organization.</li>
+              <li><strong>Legal Requirements:</strong> When required by law or to protect our rights and safety or the rights and safety of others.</li>
+              <li><strong>Business Transfers:</strong> In connection with a merger, acquisition, or sale of assets.</li>
+            </ul>
+            <p>We do not sell your personal information to third parties.</p>
             
-            <section className="mb-8">
-              <h2 className="text-2xl font-bold mb-4">7. Your Data Protection Rights</h2>
-              <p>
-                Depending on your location, you may have the following rights regarding your personal data:
-              </p>
-              <ul className="list-disc pl-6 mt-2">
-                <li>Access your personal data</li>
-                <li>Correct inaccurate or incomplete data</li>
-                <li>Request deletion of your data</li>
-                <li>Object to or restrict processing of your data</li>
-                <li>Request transfer of your data</li>
-                <li>Withdraw consent at any time</li>
-              </ul>
-            </section>
+            <h2 className="text-2xl font-semibold mt-8 mb-4">6. Data Retention</h2>
+            <p>We retain your information for as long as necessary to provide you with our Services and for legitimate business purposes, such as maintaining the performance of our Services, making data-driven business decisions, and complying with our legal obligations.</p>
             
-            <section className="mb-8">
-              <h2 className="text-2xl font-bold mb-4">8. Children's Privacy</h2>
-              <p>
-                Our services are not intended for children under 13 years of age. We do not knowingly collect personal information from children under 13. If we discover that a child under 13 has provided us with personal information, we will promptly delete such information from our servers.
-              </p>
-            </section>
+            <h2 className="text-2xl font-semibold mt-8 mb-4">7. Your Rights</h2>
+            <p>Depending on your location, you may have certain rights regarding your personal information, including:</p>
+            <ul className="list-disc pl-8 my-4">
+              <li>The right to access your personal information</li>
+              <li>The right to rectify inaccurate or incomplete personal information</li>
+              <li>The right to delete your personal information</li>
+              <li>The right to restrict or object to processing of your personal information</li>
+              <li>The right to data portability</li>
+              <li>The right to withdraw consent at any time</li>
+            </ul>
+            <p>To exercise these rights, please contact us at <a href="mailto:hello@sakhaai.com" className="text-purple-600 hover:text-purple-800">hello@sakhaai.com</a>.</p>
             
-            <section className="mb-8">
-              <h2 className="text-2xl font-bold mb-4">9. Changes to This Privacy Policy</h2>
-              <p>
-                We may update our Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page and updating the "Last Updated" date. You are advised to review this Privacy Policy periodically for any changes.
-              </p>
-            </section>
+            <h2 className="text-2xl font-semibold mt-8 mb-4">8. Children's Privacy</h2>
+            <p>Our Services are designed for users of all ages, including children. We collect and process children's personal information only with appropriate parental consent and in compliance with applicable laws, such as the Children's Online Privacy Protection Act (COPPA) in the United States.</p>
             
-            <section className="mb-8">
-              <h2 className="text-2xl font-bold mb-4">10. Contact Us</h2>
-              <p>
-                If you have any questions about this Privacy Policy or our data practices, please contact us at:
-              </p>
-              <p className="mt-2">
-                Greatwisdom India Pvt Ltd<br/>
-                Email: hello@sakhaai.com<br/>
-                Address: Nasscom office Udyog Vihar, Gurgaon, India
-              </p>
-            </section>
+            <h2 className="text-2xl font-semibold mt-8 mb-4">9. Changes to This Privacy Policy</h2>
+            <p>We may update this Privacy Policy from time to time. The most current version will always be posted on our website. We encourage you to review this Privacy Policy periodically for any changes.</p>
+            
+            <h2 className="text-2xl font-semibold mt-8 mb-4">10. Contact Us</h2>
+            <p>If you have any questions about this Privacy Policy, please contact us at:</p>
+            <p>Greatwisdom India Pvt Ltd<br />
+            Email: <a href="mailto:hello@sakhaai.com" className="text-purple-600 hover:text-purple-800">hello@sakhaai.com</a><br />
+            Phone: +91-8007194747<br />
+            Address: Gurgaon Office: Nasscom office Udyog Vihar, India</p>
           </div>
         </div>
       </main>

@@ -24,24 +24,25 @@ export default function StudentRoutes() {
       <Route path="/studyplan" element={<StudyPlanView />} />
       <Route path="/concepts" element={<ConceptsView />} />
       <Route path="/concepts/:subject" element={<ConceptsView />} />
+      <Route path="/concepts/study/:conceptId" element={<ConceptStudyPage />} />
+      
       <Route path="/flashcards" element={<FlashcardsView />} />
       <Route path="/flashcards/:subject" element={<FlashcardsView />} />
+      <Route path="/flashcards/practice/:cardId" element={<FlashcardPracticePage />} />
+      <Route path="/flashcards/study/:deckId" element={<FlashcardStudyPage />} />
+      
       <Route path="/practice" element={<PracticeView />} />
       <Route path="/practice/:subject" element={<PracticeView />} />
+      <Route path="/practice-exam" element={<PracticeView />} />
+      <Route path="/exams/attempt/:examId" element={<ExamAttemptPage />} />
+      <Route path="/exams/review/:examId" element={<ExamReviewPage />} />
+      <Route path="/exams/start/:examId" element={<ExamStartPage />} />
+      
       <Route path="/backlog" element={<BacklogView />} />
       <Route path="/profile" element={<ProfilePage />} />
       <Route path="/batch" element={<BatchManagementView />} />
       <Route path="/subscription" element={<SubscriptionPage />} />
-      
-      {/* Study and practice specific routes */}
-      <Route path="/concepts/study/:conceptId" element={<ConceptStudyPage />} />
-      <Route path="/flashcards/practice/:cardId" element={<FlashcardPracticePage />} />
-      <Route path="/exams/attempt/:examId" element={<ExamAttemptPage />} />
-      <Route path="/exams/review/:examId" element={<ExamReviewPage />} />
-      
       <Route path="/wellness" element={<FeelGoodCornerPage />} />
-      <Route path="/flashcards/study/:deckId" element={<FlashcardStudyPage />} />
-      <Route path="/exams/start/:examId" element={<ExamStartPage />} />
     </Routes>
   );
 }

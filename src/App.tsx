@@ -1,3 +1,4 @@
+
 import * as React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -63,6 +64,11 @@ import TodaysPlanView from "@/components/dashboard/student/todays-plan/TodaysPla
 import FAQPage from "./pages/FAQPage";
 import TermsPage from "./pages/TermsPage";
 import PrivacyPage from "./pages/PrivacyPage";
+import ExamStartPage from "./pages/dashboard/student/exam/ExamStartPage";
+import ExamReviewPage from "./pages/dashboard/student/exam/ExamReviewPage";
+import FlashcardStudyPage from "@/components/dashboard/student/flashcards/FlashcardStudyPage";
+import FlashcardPracticePage from "@/components/dashboard/student/flashcards/FlashcardPracticePage";
+import ExamAttemptPage from "@/components/dashboard/student/exams/ExamAttemptPage";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -142,6 +148,13 @@ const App = () => {
                     <Route path="/dashboard/student/concepts/detail/:id" element={<ConceptCardDetailPage />} />
                     <Route path="/dashboard/student/flashcards/detail/:id" element={<FlashcardDetailsPage />} />
                     <Route path="/dashboard/student/practice/exam/:id" element={<ExamDetailPage />} />
+                    
+                    {/* Exam and Flashcard specific routes */}
+                    <Route path="/dashboard/student/flashcards/practice/:cardId" element={<FlashcardPracticePage />} />
+                    <Route path="/dashboard/student/flashcards/study/:deckId" element={<FlashcardStudyPage />} />
+                    <Route path="/dashboard/student/exams/start/:examId" element={<ExamStartPage />} />
+                    <Route path="/dashboard/student/exams/attempt/:examId" element={<ExamAttemptPage />} />
+                    <Route path="/dashboard/student/exams/review/:examId" element={<ExamReviewPage />} />
                     
                     <Route path="/dashboard/doctor" element={<DoctorDashboard />} />
                     <Route path="/dashboard/employee" element={<EmployeeDashboard />} />
