@@ -1,335 +1,310 @@
 
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { useToast } from '@/hooks/use-toast';
+import { CirclePlus, Check, X, ChevronLeft, ChevronRight, RefreshCw } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Progress } from '@/components/ui/progress';
-import { ArrowLeft, ArrowRight, Timer, ThumbsUp, ThumbsDown, RotateCw } from 'lucide-react';
-import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
 
 interface Flashcard {
   id: string;
   front: string;
   back: string;
-  image?: string;
+  difficulty: 'easy' | 'medium' | 'hard';
+  lastReviewed?: string;
 }
 
 interface FlashcardDeck {
   id: string;
   title: string;
   subject: string;
-  cards: Flashcard[];
+  topic: string;
+  description: string;
   totalCards: number;
+  cards: Flashcard[];
 }
 
 const FlashcardStudyPage = () => {
   const { deckId } = useParams();
-  const navigate = useNavigate();
+  const { toast } = useToast();
   const [deck, setDeck] = useState<FlashcardDeck | null>(null);
   const [loading, setLoading] = useState(true);
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
-  const [flipped, setFlipped] = useState(false);
-  const [studyTime, setStudyTime] = useState(0);
-  const [known, setKnown] = useState<string[]>([]);
-  const [unknown, setUnknown] = useState<string[]>([]);
+  const [isFlipped, setIsFlipped] = useState(false);
+  const [studyResults, setStudyResults] = useState({
+    correct: 0,
+    incorrect: 0,
+    skipped: 0
+  });
+  const [cardsRemaining, setCardsRemaining] = useState<Flashcard[]>([]);
+  const [cardsCompleted, setCardsCompleted] = useState<Flashcard[]>([]);
+  const [isCompleted, setIsCompleted] = useState(false);
 
   useEffect(() => {
-    const fetchDeck = async () => {
-      // In a real app, this would be an API call
+    // Mock data fetch
+    const fetchData = async () => {
       setLoading(true);
-      
-      // Mock data
+      // Simulate API call
       setTimeout(() => {
-        const mockDeck = {
-          id: deckId,
-          title: 'Organic Chemistry Reactions',
-          subject: 'Chemistry',
-          totalCards: 20,
-          cards: [
-            {
-              id: '1',
-              front: 'What is a nucleophilic substitution reaction?',
-              back: 'A reaction in which a nucleophile replaces a leaving group in an organic molecule. Common types include SN1 and SN2 reactions.',
-              image: 'https://example.com/nucleophilic-substitution.jpg'
-            },
-            {
-              id: '2',
-              front: 'What is the difference between SN1 and SN2 reactions?',
-              back: 'SN1 reactions proceed in two steps with a carbocation intermediate, while SN2 reactions occur in a single step with inversion of stereochemistry.',
-              image: 'https://example.com/sn1-sn2.jpg'
-            },
-            {
-              id: '3',
-              front: 'What is the Grignard reagent?',
-              back: 'An organomagnesium compound with the formula R-Mg-X (where X is a halide) that is highly useful for forming carbon-carbon bonds.',
-              image: 'https://example.com/grignard.jpg'
-            },
-            {
-              id: '4',
-              front: 'What is the Diels-Alder reaction?',
-              back: 'A cycloaddition reaction between a conjugated diene and a substituted alkene (dienophile) to form a cyclohexene system.',
-              image: 'https://example.com/diels-alder.jpg'
-            },
-            {
-              id: '5',
-              front: 'What is the Wittig reaction used for?',
-              back: 'The Wittig reaction is used to convert aldehydes or ketones to alkenes using phosphonium ylides.',
-              image: null
-            }
-          ]
+        const mockDeck: FlashcardDeck = {
+          id: deckId || '1',
+          title: "Newton's Laws of Motion",
+          subject: "Physics",
+          topic: "Mechanics",
+          description: "Key concepts related to Newton's three laws of motion",
+          totalCards: 10,
+          cards: Array.from({ length: 10 }, (_, i) => ({
+            id: `card-${i}`,
+            front: `Question ${i+1}: What is an important aspect of Newton's ${(i % 3) + 1} law of motion?`,
+            back: `Newton's ${(i % 3) + 1} law states that ${
+              i % 3 === 0 
+                ? "an object at rest tends to stay at rest, and an object in motion tends to stay in motion unless acted upon by an external force."
+                : i % 3 === 1 
+                  ? "the acceleration of an object depends on the force applied and the mass of the object (F = ma)."
+                  : "for every action, there is an equal and opposite reaction."
+            }`,
+            difficulty: i % 3 === 0 ? 'easy' : i % 3 === 1 ? 'medium' : 'hard'
+          }))
         };
-        
         setDeck(mockDeck);
+        setCardsRemaining(mockDeck.cards);
         setLoading(false);
-      }, 1000);
+      }, 500);
     };
     
-    fetchDeck();
-    
-    // Start the study timer
-    const timer = setInterval(() => {
-      setStudyTime(prev => prev + 1);
-    }, 1000);
-    
-    return () => clearInterval(timer);
+    fetchData();
   }, [deckId]);
-  
+
+  const handleFlipCard = () => {
+    setIsFlipped(!isFlipped);
+  };
+
+  const handleNextCard = () => {
+    if (cardsRemaining.length <= 1) {
+      setIsCompleted(true);
+      return;
+    }
+
+    setIsFlipped(false);
+    // Wait for flip animation to complete
+    setTimeout(() => {
+      if (currentCardIndex < cardsRemaining.length - 1) {
+        setCurrentCardIndex(currentCardIndex + 1);
+      } else {
+        setCurrentCardIndex(0);
+      }
+    }, 150);
+  };
+
+  const handleCardResponse = (response: 'correct' | 'incorrect' | 'skip') => {
+    if (!deck || !cardsRemaining.length) return;
+    
+    const currentCard = cardsRemaining[currentCardIndex];
+    
+    // Update study results
+    setStudyResults(prev => ({
+      ...prev,
+      [response]: prev[response as keyof typeof prev] + (response === 'skip' ? 0 : 1),
+      skipped: prev.skipped + (response === 'skip' ? 1 : 0)
+    }));
+    
+    // Move card to completed pile
+    if (response !== 'skip') {
+      setCardsCompleted(prev => [...prev, currentCard]);
+      setCardsRemaining(prev => prev.filter((_, idx) => idx !== currentCardIndex));
+      
+      if (currentCardIndex >= cardsRemaining.length - 1) {
+        setCurrentCardIndex(0);
+      }
+    } else {
+      handleNextCard();
+    }
+    
+    // If all cards have been reviewed
+    if (response !== 'skip' && cardsRemaining.length === 1) {
+      setIsCompleted(true);
+      toast({
+        title: "Deck Completed!",
+        description: `You've finished studying this flashcard deck.`
+      });
+    }
+  };
+
+  const resetStudySession = () => {
+    if (!deck) return;
+    setIsFlipped(false);
+    setCurrentCardIndex(0);
+    setCardsRemaining(deck.cards);
+    setCardsCompleted([]);
+    setStudyResults({
+      correct: 0,
+      incorrect: 0,
+      skipped: 0
+    });
+    setIsCompleted(false);
+  };
+
   if (loading) {
     return (
-      <SharedPageLayout 
-        title="Loading Flashcards..." 
-        subtitle="Please wait while we retrieve your study materials"
-      >
-        <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-        </div>
-      </SharedPageLayout>
+      <div className="max-w-4xl mx-auto p-6 space-y-8 animate-pulse">
+        <div className="h-8 bg-gray-200 rounded w-1/3"></div>
+        <div className="h-40 bg-gray-200 rounded"></div>
+      </div>
     );
   }
-  
-  if (!deck) {
+
+  if (!deck) return (
+    <div className="max-w-4xl mx-auto p-6">
+      <p className="text-center text-muted-foreground">Flashcard deck not found</p>
+    </div>
+  );
+
+  if (isCompleted) {
     return (
-      <SharedPageLayout 
-        title="Flashcard Deck Not Found" 
-        subtitle="The requested deck could not be found"
-      >
-        <Button 
-          onClick={() => navigate('/dashboard/student/flashcards')}
-          className="flex items-center gap-2"
-        >
-          <ArrowLeft size={16} />
-          Back to Flashcards
-        </Button>
-      </SharedPageLayout>
+      <div className="max-w-4xl mx-auto p-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Study Session Complete</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="text-center py-6">
+              <h3 className="text-xl font-medium mb-2">Great job!</h3>
+              <p className="text-muted-foreground">You've completed all flashcards in this deck</p>
+            </div>
+            
+            <div className="grid grid-cols-3 gap-4 text-center">
+              <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                <p className="text-2xl font-bold text-green-600 dark:text-green-400">{studyResults.correct}</p>
+                <p className="text-sm text-green-600 dark:text-green-400">Correct</p>
+              </div>
+              <div className="p-4 bg-red-50 dark:bg-red-900/20 rounded-lg">
+                <p className="text-2xl font-bold text-red-600 dark:text-red-400">{studyResults.incorrect}</p>
+                <p className="text-sm text-red-600 dark:text-red-400">Incorrect</p>
+              </div>
+              <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">{cardsCompleted.length}</p>
+                <p className="text-sm text-blue-600 dark:text-blue-400">Total Reviewed</p>
+              </div>
+            </div>
+            
+            <div className="flex justify-center mt-6">
+              <Button onClick={resetStudySession} className="flex items-center">
+                <RefreshCw className="h-4 w-4 mr-2" /> Study Again
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     );
   }
-  
-  const currentCard = deck.cards[currentCardIndex];
-  const progress = ((currentCardIndex + 1) / deck.cards.length) * 100;
-  
-  const handleFlip = () => {
-    setFlipped(!flipped);
-  };
-  
-  const handleNext = () => {
-    if (currentCardIndex < deck.cards.length - 1) {
-      setCurrentCardIndex(currentCardIndex + 1);
-      setFlipped(false);
-    }
-  };
-  
-  const handlePrev = () => {
-    if (currentCardIndex > 0) {
-      setCurrentCardIndex(currentCardIndex - 1);
-      setFlipped(false);
-    }
-  };
-  
-  const handleKnown = () => {
-    if (currentCard) {
-      setKnown(prev => [...prev, currentCard.id]);
-      handleNext();
-    }
-  };
-  
-  const handleUnknown = () => {
-    if (currentCard) {
-      setUnknown(prev => [...prev, currentCard.id]);
-      handleNext();
-    }
-  };
-  
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-  };
-  
-  const isLastCard = currentCardIndex === deck.cards.length - 1;
+
+  const currentCard = cardsRemaining[currentCardIndex];
+  const progress = cardsCompleted.length / deck.totalCards * 100;
 
   return (
-    <SharedPageLayout
-      title={deck.title}
-      subtitle={`${deck.subject} • ${deck.cards.length} flashcards`}
-      showQuickAccess={false}
-    >
-      <div className="mb-4">
-        <Button 
-          variant="outline" 
-          size="sm"
-          className="flex items-center gap-2"
-          onClick={() => navigate('/dashboard/student/flashcards')}
-        >
-          <ArrowLeft size={16} />
-          Back to Flashcards
-        </Button>
-      </div>
-      
-      <div className="flex justify-between items-center mb-2">
-        <div>
-          <span className="text-sm font-medium">Card {currentCardIndex + 1} of {deck.cards.length}</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <Timer size={16} className="text-muted-foreground" />
-          <span className="text-sm font-medium">{formatTime(studyTime)}</span>
-        </div>
-      </div>
-      
-      <Progress value={progress} className="mb-6" />
-      
-      <div className="flex justify-center mb-8">
-        <div 
-          className="w-full max-w-2xl h-64 perspective-1000 cursor-pointer"
-          onClick={handleFlip}
-        >
-          <div className={`relative w-full h-full transition-all duration-500 ${flipped ? 'rotate-y-180' : ''}`}>
-            <Card className={`absolute w-full h-full backface-hidden ${flipped ? 'hidden' : ''}`}>
-              <CardContent className="flex flex-col items-center justify-center h-full p-6 text-center">
-                <h3 className="text-xl font-semibold mb-4">{currentCard?.front}</h3>
-                {currentCard?.image && (
-                  <img 
-                    src={currentCard.image} 
-                    alt="Flashcard illustration" 
-                    className="max-h-32 object-contain mb-4"
-                  />
-                )}
-                <p className="text-sm text-muted-foreground mt-4">Tap to flip</p>
-              </CardContent>
-            </Card>
-            
-            <Card className={`absolute w-full h-full backface-hidden ${!flipped ? 'hidden' : ''}`}>
-              <CardContent className="flex flex-col items-center justify-center h-full p-6 text-center">
-                <h3 className="text-xl font-semibold mb-4">{currentCard?.back}</h3>
-                <div className="flex gap-4 mt-4">
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    className="flex items-center gap-2 text-red-500 hover:text-red-600 hover:bg-red-50"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleUnknown();
-                    }}
-                  >
-                    <ThumbsDown size={16} />
-                    Still Learning
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    className="flex items-center gap-2 text-green-500 hover:text-green-600 hover:bg-green-50"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleKnown();
-                    }}
-                  >
-                    <ThumbsUp size={16} />
-                    I Know This
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </div>
-      
-      <div className="flex justify-between">
-        <Button 
-          variant="outline" 
-          onClick={handlePrev}
-          disabled={currentCardIndex === 0}
-          className="flex items-center gap-2"
-        >
-          <ArrowLeft size={16} />
-          Previous
-        </Button>
-        
-        <Button 
-          variant="outline"
-          onClick={() => {
-            setCurrentCardIndex(0);
-            setFlipped(false);
-            setKnown([]);
-            setUnknown([]);
-          }}
-          className="flex items-center gap-2"
-        >
-          <RotateCw size={16} />
-          Restart
-        </Button>
-        
-        <Button 
-          variant="outline" 
-          onClick={handleNext}
-          disabled={isLastCard}
-          className="flex items-center gap-2"
-        >
-          Next
-          <ArrowRight size={16} />
-        </Button>
-      </div>
-      
-      {isLastCard && flipped && (
-        <div className="mt-6">
-          <div className="p-4 bg-green-50 border border-green-100 rounded-lg mb-4">
-            <h3 className="text-lg font-semibold text-green-800 mb-2">Study Session Complete!</h3>
-            <p className="text-sm text-green-700">
-              You've completed this flashcard deck. Here's your progress:
-            </p>
-            <div className="mt-2">
-              <div className="flex justify-between text-sm mb-1">
-                <span>I Know: {known.length} cards</span>
-                <span>Still Learning: {unknown.length} cards</span>
-              </div>
-              <Progress 
-                value={(known.length / deck.cards.length) * 100} 
-                className="h-2 bg-red-100"
-              />
+    <div className="max-w-4xl mx-auto p-6">
+      <Card className="mb-6">
+        <CardHeader>
+          <div className="flex justify-between items-center">
+            <CardTitle className="text-2xl">{deck.title}</CardTitle>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-600 dark:text-gray-400">
+                {cardsCompleted.length}/{deck.totalCards} Cards
+              </span>
             </div>
           </div>
+        </CardHeader>
+        <CardContent>
+          {/* Progress bar */}
+          <div className="mb-6">
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-sm text-gray-600 dark:text-gray-400">
+                Progress
+              </span>
+              <span className="text-sm font-medium">{Math.round(progress)}%</span>
+            </div>
+            <Progress value={progress} className="h-2" />
+          </div>
           
-          <div className="flex gap-4">
+          {/* Flashcard */}
+          {currentCard && (
+            <div className="min-h-[300px] mb-6">
+              <div 
+                className="w-full h-64 cursor-pointer"
+                onClick={handleFlipCard}
+              >
+                <AnimatePresence initial={false} mode="wait">
+                  <motion.div
+                    key={isFlipped ? 'back' : 'front'}
+                    initial={{ rotateY: isFlipped ? -90 : 90, opacity: 0 }}
+                    animate={{ rotateY: 0, opacity: 1 }}
+                    exit={{ rotateY: isFlipped ? 90 : -90, opacity: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="w-full h-full"
+                  >
+                    <Card className="w-full h-full flex items-center justify-center p-6 shadow-lg">
+                      <div className="text-center">
+                        <div className="text-sm text-gray-500 mb-4">
+                          {isFlipped ? 'Answer' : 'Question'}
+                        </div>
+                        <div className="text-xl font-medium">
+                          {isFlipped ? currentCard.back : currentCard.front}
+                        </div>
+                        <div className="mt-6 text-sm text-gray-400">
+                          Click to {isFlipped ? 'see question' : 'reveal answer'}
+                        </div>
+                      </div>
+                    </Card>
+                  </motion.div>
+                </AnimatePresence>
+              </div>
+            </div>
+          )}
+          
+          {/* Control buttons */}
+          <div className="grid grid-cols-3 gap-4">
             <Button 
-              onClick={() => navigate('/dashboard/student/flashcards')}
-              variant="outline"
-              className="flex-1"
+              variant="outline" 
+              className="border-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600"
+              onClick={() => handleCardResponse('incorrect')}
             >
-              Back to All Flashcards
+              <X className="h-4 w-4 mr-2" />
+              Incorrect
             </Button>
-            <Button
-              onClick={() => {
-                setCurrentCardIndex(0);
-                setFlipped(false);
-                setKnown([]);
-                setUnknown([]);
-              }}
-              className="flex-1 bg-gradient-to-r from-purple-600 to-indigo-600"
+            <Button 
+              variant="outline"
+              onClick={() => handleCardResponse('skip')}
             >
-              Practice Again
+              <CirclePlus className="h-4 w-4 mr-2" />
+              Skip
+            </Button>
+            <Button 
+              variant="outline" 
+              className="border-green-300 hover:bg-green-50 dark:hover:bg-green-900/20 text-green-600"
+              onClick={() => handleCardResponse('correct')}
+            >
+              <Check className="h-4 w-4 mr-2" />
+              Correct
             </Button>
           </div>
-        </div>
-      )}
-    </SharedPageLayout>
+        </CardContent>
+      </Card>
+      
+      <Card>
+        <CardHeader>
+          <CardTitle>Deck Info</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-2">
+            <p><strong>Subject:</strong> {deck.subject}</p>
+            <p><strong>Topic:</strong> {deck.topic}</p>
+            <p className="text-gray-600 dark:text-gray-400">{deck.description}</p>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 

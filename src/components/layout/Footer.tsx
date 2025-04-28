@@ -36,103 +36,61 @@ const Footer = () => {
           </div>
 
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold mb-4 text-white relative inline-block">
-              Company
-              <span className="absolute -bottom-1 left-0 w-12 h-0.5 bg-purple-400"></span>
-            </h3>
-            <ul className="space-y-3">
+            <h3 className="text-lg font-semibold text-white">Resources</h3>
+            <ul className="space-y-2">
               <li>
-                <Link to="/about" className="text-purple-200 hover:text-white transition-colors flex items-center gap-1.5 group">
-                  <span className="w-1 h-1 bg-purple-400 rounded-full transition-all group-hover:w-2 group-hover:bg-white"></span>
-                  About Us
-                </Link>
+                <Link to="/" className="text-purple-200 hover:text-white transition-colors">Home</Link>
               </li>
               <li>
-                <Link to="/features" className="text-purple-200 hover:text-white transition-colors flex items-center gap-1.5 group">
-                  <span className="w-1 h-1 bg-purple-400 rounded-full transition-all group-hover:w-2 group-hover:bg-white"></span>
-                  Features
-                </Link>
+                <Link to="/features" className="text-purple-200 hover:text-white transition-colors">Features</Link>
               </li>
               <li>
-                <Link to="/pricing" className="text-purple-200 hover:text-white transition-colors flex items-center gap-1.5 group">
-                  <span className="w-1 h-1 bg-purple-400 rounded-full transition-all group-hover:w-2 group-hover:bg-white"></span>
-                  Pricing
-                </Link>
+                <Link to="/about" className="text-purple-200 hover:text-white transition-colors">About Us</Link>
               </li>
               <li>
-                <Link to="/careers" className="text-purple-200 hover:text-white transition-colors flex items-center gap-1.5 group">
-                  <span className="w-1 h-1 bg-purple-400 rounded-full transition-all group-hover:w-2 group-hover:bg-white"></span>
-                  Careers
-                </Link>
+                <Link to="/pricing" className="text-purple-200 hover:text-white transition-colors">Pricing</Link>
+              </li>
+              <li>
+                <Link to="/faq" className="text-purple-200 hover:text-white transition-colors">FAQ</Link>
               </li>
             </ul>
           </div>
 
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold mb-4 text-white relative inline-block">
-              Resources
-              <span className="absolute -bottom-1 left-0 w-12 h-0.5 bg-purple-400"></span>
-            </h3>
-            <ul className="space-y-3">
+            <h3 className="text-lg font-semibold text-white">Legal</h3>
+            <ul className="space-y-2">
               <li>
-                <Link to="/blog" className="text-purple-200 hover:text-white transition-colors flex items-center gap-1.5 group">
-                  <span className="w-1 h-1 bg-purple-400 rounded-full transition-all group-hover:w-2 group-hover:bg-white"></span>
-                  Blog
-                </Link>
+                <Link to="/terms" className="text-purple-200 hover:text-white transition-colors">Terms & Conditions</Link>
               </li>
               <li>
-                <Link to="/faq" className="text-purple-200 hover:text-white transition-colors flex items-center gap-1.5 group">
-                  <span className="w-1 h-1 bg-purple-400 rounded-full transition-all group-hover:w-2 group-hover:bg-white"></span>
-                  FAQ
-                </Link>
-              </li>
-              <li>
-                <Link to="/terms" className="text-purple-200 hover:text-white transition-colors flex items-center gap-1.5 group">
-                  <span className="w-1 h-1 bg-purple-400 rounded-full transition-all group-hover:w-2 group-hover:bg-white"></span>
-                  Terms & Conditions
-                </Link>
-              </li>
-              <li>
-                <Link to="/privacy" className="text-purple-200 hover:text-white transition-colors flex items-center gap-1.5 group">
-                  <span className="w-1 h-1 bg-purple-400 rounded-full transition-all group-hover:w-2 group-hover:bg-white"></span>
-                  Privacy Policy
-                </Link>
+                <Link to="/privacy" className="text-purple-200 hover:text-white transition-colors">Privacy Policy</Link>
               </li>
             </ul>
           </div>
 
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold mb-4 text-white relative inline-block">
-              Contact Us
-              <span className="absolute -bottom-1 left-0 w-12 h-0.5 bg-purple-400"></span>
-            </h3>
+            <h3 className="text-lg font-semibold text-white">Contact</h3>
             <ul className="space-y-3">
-              <li className="text-purple-200 flex items-center gap-2">
-                <Mail size={16} className="text-purple-300" />
-                <span>hello@sakhaai.com</span>
+              <li className="flex items-start space-x-3">
+                <Mail size={18} className="flex-shrink-0 text-purple-300" />
+                <a href="mailto:hello@sakhaai.com" className="text-purple-200 hover:text-white transition-colors">hello@sakhaai.com</a>
               </li>
-              <li className="text-purple-200 flex items-center gap-2">
-                <Phone size={16} className="text-purple-300" />
-                <span>+91-8007194747</span>
+              <li className="flex items-start space-x-3">
+                <Phone size={18} className="flex-shrink-0 text-purple-300" />
+                <a href="tel:+918007194747" className="text-purple-200 hover:text-white transition-colors">+91-8007194747</a>
               </li>
-              <li className="text-purple-200 flex items-start gap-2">
-                <MapPin size={16} className="text-purple-300 mt-1 flex-shrink-0" />
-                <div>
-                  <p className="mb-1">Gurgaon Office: Nasscom office Udyog Vihar, India</p>
-                  <p>Patna Office: Boring Road, Patna, Bihar</p>
-                </div>
+              <li className="flex items-start space-x-3">
+                <MapPin size={18} className="flex-shrink-0 text-purple-300" />
+                <span className="text-purple-200">Nasscom office Udyog Vihar, Gurgaon, India</span>
               </li>
             </ul>
           </div>
         </div>
 
-        <div className="border-t border-purple-700/50 mt-10 pt-6 flex flex-col md:flex-row justify-between items-center">
-          <p className="text-purple-200 mb-4 md:mb-0">© 2025 Greatwisdom India Pvt Ltd. All rights reserved.</p>
-          <div className="flex space-x-6">
-            <Link to="/terms" className="text-purple-200 hover:text-white transition-colors">Terms</Link>
-            <Link to="/privacy" className="text-purple-200 hover:text-white transition-colors">Privacy</Link>
-            <Link to="/faq" className="text-purple-200 hover:text-white transition-colors">FAQ</Link>
-          </div>
+        <div className="mt-12 pt-8 border-t border-purple-800/50 text-center">
+          <p className="text-purple-200 text-sm">
+            © {new Date().getFullYear()} Greatwisdom India Pvt Ltd. All rights reserved.
+          </p>
         </div>
       </div>
     </footer>

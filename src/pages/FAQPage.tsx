@@ -3,48 +3,45 @@ import React from 'react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { ArrowRight } from 'lucide-react';
 
 const FAQPage = () => {
   const faqs = [
     {
       question: "What is Sakha AI?",
-      answer: "Sakha AI is India's first emotionally intelligent study partner. It's an AI-powered platform that helps students prepare for competitive exams by providing personalized learning experiences. Sakha understands your personality, mood, and learning style to create the most effective study plans."
+      answer: "Sakha AI is an AI-powered learning companion that helps students prepare for their exams effectively. It adapts to your learning style, mood, and habits to create personalized study plans and provide relevant content."
     },
     {
-      question: "How does Sakha AI personalize my learning?",
-      answer: "Sakha AI uses advanced machine learning to understand your learning style, track your progress, identify knowledge gaps, and adapt to your emotional state. It creates personalized study plans based on your goals, strengths, weaknesses, and preferences."
+      question: "How does Sakha AI personalize my learning experience?",
+      answer: "Sakha AI uses a combination of open-source AI engines and proprietary in-house AI models to understand your learning patterns, strengths, weaknesses, and emotional states. It then creates personalized study plans, recommends relevant content, and adapts to your progress in real-time."
     },
     {
-      question: "Which exams does Sakha AI support?",
-      answer: "Currently, Sakha AI supports preparation for major competitive exams including IIT-JEE, NEET, UPSC, and other entrance examinations. We're continuously expanding our content library to include more exams."
+      question: "What exams does Sakha AI support?",
+      answer: "Sakha AI currently supports preparation for several competitive exams including IIT-JEE, NEET, and more. We're constantly adding support for additional exams based on user demand."
     },
     {
-      question: "What features are included in the free plan?",
-      answer: "The free plan includes limited access to features like 24/7 Tutor, Academic Advisor, Flashcards & Revision, Practice Exams, Goal Tracking, Video Library, and Smart Notifications. Premium features are available with our paid subscriptions."
+      question: "Is there a free trial available?",
+      answer: "Yes, Sakha AI offers a free tier with limited features so you can experience the platform before deciding on a paid subscription. This includes access to basic study planning and content features."
     },
     {
-      question: "How accurate is Sakha AI's concept explanation?",
-      answer: "Sakha AI's explanations are based on high-quality educational content verified by subject matter experts. Our AI models are trained on extensive academic materials to ensure accuracy and clarity in concept explanations."
+      question: "How secure is my data with Sakha AI?",
+      answer: "We take data privacy and security very seriously. All user data is encrypted and stored securely. We do not share your personal information with third parties without your consent. For more details, please refer to our Privacy Policy."
     },
     {
-      question: "Can I use Sakha AI on my mobile device?",
-      answer: "Yes, Sakha AI is fully responsive and can be accessed on any device with a web browser, including smartphones and tablets. We optimize the experience for all screen sizes."
+      question: "Can I use Sakha AI on multiple devices?",
+      answer: "Yes, Sakha AI is a web-based platform that you can access from any device with an internet connection. Your progress syncs across all your devices automatically."
     },
     {
-      question: "How does the mood tracking feature work?",
-      answer: "Sakha AI's mood tracking feature allows you to log how you're feeling before studying. Based on your mood, Sakha adjusts its approach—offering encouragement when you're feeling low, challenging you when you're confident, or recommending breaks when you're stressed."
+      question: "How does the AI tutor feature work?",
+      answer: "Our AI tutor uses natural language processing to understand your questions and provide detailed explanations on various subjects. It can break down complex topics, provide examples, and guide you through step-by-step solutions."
     },
     {
-      question: "What happens to my data? Is it secure?",
-      answer: "We take data privacy very seriously. All your personal data is encrypted and stored securely. We do not sell user data to third parties. Your study progress, mood logs, and personal information are used only to improve your learning experience."
+      question: "What should I do if I encounter technical issues?",
+      answer: "If you encounter any technical issues, you can reach out to our support team at hello@sakhaai.com. We typically respond within 24 hours and are committed to resolving your issues as quickly as possible."
     },
     {
-      question: "Can I cancel my subscription anytime?",
-      answer: "Yes, you can cancel your subscription at any time from your account settings. If you cancel before the end of your billing cycle, you'll retain access to premium features until the period ends."
-    },
-    {
-      question: "How can I contact support?",
-      answer: "You can reach our support team by emailing hello@sakhaai.com. We aim to respond to all inquiries within 24 hours during business days."
+      question: "Are there any system requirements for using Sakha AI?",
+      answer: "Sakha AI works on any modern web browser (Chrome, Firefox, Safari, Edge) with an internet connection. We recommend using the latest version of your browser for the best experience."
     }
   ];
 
@@ -54,31 +51,28 @@ const FAQPage = () => {
       
       <main className="flex-grow container mx-auto px-4 py-12">
         <div className="max-w-3xl mx-auto">
-          <h1 className="text-4xl font-bold text-center mb-2">Frequently Asked Questions</h1>
-          <p className="text-gray-600 text-center mb-12">Everything you need to know about Sakha AI</p>
+          <h1 className="text-4xl font-bold text-center mb-10">Frequently Asked Questions</h1>
           
-          <Accordion type="single" collapsible className="w-full">
+          <Accordion type="single" collapsible className="space-y-4">
             {faqs.map((faq, index) => (
-              <AccordionItem key={index} value={`item-${index}`} className="border-b border-purple-100">
-                <AccordionTrigger className="text-lg font-medium py-4 hover:text-purple-700">
-                  {faq.question}
+              <AccordionItem key={index} value={`item-${index}`} className="border border-purple-100 dark:border-purple-900 rounded-lg overflow-hidden">
+                <AccordionTrigger className="px-6 py-4 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-all">
+                  <div className="flex items-start">
+                    <div className="flex-1 text-left font-medium text-lg">{faq.question}</div>
+                  </div>
                 </AccordionTrigger>
-                <AccordionContent className="text-gray-700 pb-6">
-                  {faq.answer}
+                <AccordionContent className="px-6 pb-4 pt-2">
+                  <p className="text-gray-600 dark:text-gray-300">{faq.answer}</p>
                 </AccordionContent>
               </AccordionItem>
             ))}
           </Accordion>
           
-          <div className="mt-12 p-6 bg-purple-50 rounded-lg border border-purple-100">
-            <h2 className="text-xl font-semibold mb-3">Still have questions?</h2>
-            <p className="text-gray-700 mb-4">We're here to help! Reach out to us and we'll get back to you as soon as possible.</p>
-            <a 
-              href="mailto:hello@sakhaai.com" 
-              className="inline-block px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
-            >
-              Contact Support
-            </a>
+          <div className="mt-12 text-center">
+            <h2 className="text-xl font-semibold mb-4">Still have questions?</h2>
+            <p className="text-gray-600 dark:text-gray-400 mb-6">
+              Our team is ready to help! Contact us at <a href="mailto:hello@sakhaai.com" className="text-purple-600 hover:underline">hello@sakhaai.com</a>
+            </p>
           </div>
         </div>
       </main>

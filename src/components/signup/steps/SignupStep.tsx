@@ -172,7 +172,7 @@ const SignupStep: React.FC<SignupStepProps> = ({ onSubmit, isLoading }) => {
             className="mt-1"
           />
           <Label htmlFor="terms" className="text-sm leading-tight">
-            I agree to the <Link to="/terms" className="text-purple-600 hover:underline font-medium">Terms & Conditions</Link> and <Link to="/privacy" className="text-purple-600 hover:underline font-medium">Privacy Policy</Link> of Sakha AI (Greatwisdom India Pvt Ltd).
+            I agree to the <Link to="/terms" className="text-purple-600 hover:underline font-medium" target="_blank">Terms & Conditions</Link> and <Link to="/privacy" className="text-purple-600 hover:underline font-medium" target="_blank">Privacy Policy</Link> of Sakha AI (Greatwisdom India Pvt Ltd).
           </Label>
         </div>
         

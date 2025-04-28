@@ -1,176 +1,235 @@
 
-import React, { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { AlertTriangle, Clock, FileText, CheckCircle, ChevronRight, Brain, Timer } from 'lucide-react';
-import DashboardContainer from '@/components/dashboard/student/DashboardContainer';
+import { Badge } from '@/components/ui/badge';
+import { Clock, FileCheck, CheckSquare, Timer, AlertTriangle, HelpCircle } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+
+interface ExamInfo {
+  id: string;
+  title: string;
+  subject: string;
+  description: string;
+  totalQuestions: number;
+  duration: number; // in minutes
+  difficulty: 'easy' | 'medium' | 'hard';
+  topics: string[];
+  instructions: string[];
+}
 
 const ExamStartPage = () => {
-  const { examId } = useParams<{ examId: string }>();
+  const { examId } = useParams();
   const navigate = useNavigate();
-  const [isLoading, setIsLoading] = useState(false);
-  
-  // This would be fetched from an API in a real application
-  const examData = {
-    id: examId,
-    title: "JEE Advanced Physics Mock Test",
-    description: "Comprehensive practice test covering mechanics, electromagnetism, optics, and modern physics.",
-    subject: "Physics",
-    duration: 180,
-    totalQuestions: 60,
-    totalPoints: 180,
-    difficulty: "advanced",
-    topics: ["Mechanics", "Electromagnetism", "Optics", "Modern Physics"],
-    instructions: [
-      "Each question carries 3 marks for correct answer.",
-      "There is a negative marking of 1 mark for each wrong answer.",
-      "Questions can be attempted in any order.",
-      "Use the calculator for complex calculations.",
-      "Submit before the timer ends to ensure your answers are saved."
-    ],
-    previousAttempts: 2,
-    highestScore: 78,
-    averageScore: 65,
-    recommendedTime: 3
-  };
-  
-  const startExam = () => {
-    setIsLoading(true);
-    // In a real application, you would make an API call to start the exam session
-    setTimeout(() => {
+  const { toast } = useToast();
+  const [examInfo, setExamInfo] = useState<ExamInfo | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
+
+  useEffect(() => {
+    // Mock data fetch
+    const fetchData = async () => {
+      setLoading(true);
+      // Simulate API call
+      setTimeout(() => {
+        setExamInfo({
+          id: examId || '1',
+          title: "Physics Mock Test: Mechanics",
+          subject: "Physics",
+          description: "This test covers Newton's Laws of Motion, Work, Energy, and Momentum Conservation",
+          totalQuestions: 30,
+          duration: 60,
+          difficulty: 'medium',
+          topics: ["Newton's Laws", "Work & Energy", "Momentum", "Circular Motion"],
+          instructions: [
+            "Read all questions carefully before answering.",
+            "Each question has only one correct answer.",
+            "All questions carry equal marks.",
+            "No negative marking for wrong answers.",
+            "You can review and change answers during the test duration.",
+            "Submit your test before the timer ends.",
+            "Once submitted, you cannot modify your answers."
+          ]
+        });
+        setLoading(false);
+      }, 500);
+    };
+    
+    fetchData();
+  }, [examId]);
+
+  const handleStartExam = () => {
+    if (!acceptedTerms) {
+      toast({
+        title: "Please accept the terms",
+        description: "You must accept the exam terms before starting",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    toast({
+      title: "Starting Exam",
+      description: "Good luck!"
+    });
+    
+    // Navigate to the exam attempt page
+    if (examId) {
       navigate(`/dashboard/student/exams/attempt/${examId}`);
-    }, 1000);
+    }
   };
-  
-  return (
-    <DashboardContainer>
-      <div className="max-w-3xl mx-auto">
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold">{examData.title}</h1>
-          <p className="text-gray-500 mt-1">{examData.description}</p>
-        </div>
-        
-        <div className="grid gap-6">
-          <Card>
-            <CardHeader>
-              <div className="flex justify-between items-center">
-                <div>
-                  <CardTitle className="text-xl">Exam Information</CardTitle>
-                  <CardDescription>Important details about this test</CardDescription>
-                </div>
-                <Badge variant={examData.difficulty === "advanced" ? "destructive" : (examData.difficulty === "intermediate" ? "warning" : "outline")}>
-                  {examData.difficulty.charAt(0).toUpperCase() + examData.difficulty.slice(1)}
-                </Badge>
-              </div>
-            </CardHeader>
-            <CardContent className="grid gap-6">
-              <div className="grid md:grid-cols-2 gap-4">
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-lg bg-blue-100 flex items-center justify-center">
-                    <FileText className="h-5 w-5 text-blue-600" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium">Subject</p>
-                    <p className="text-lg">{examData.subject}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-lg bg-amber-100 flex items-center justify-center">
-                    <Clock className="h-5 w-5 text-amber-600" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium">Duration</p>
-                    <p className="text-lg">{Math.floor(examData.duration / 60)} hours {examData.duration % 60} minutes</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-lg bg-purple-100 flex items-center justify-center">
-                    <Brain className="h-5 w-5 text-purple-600" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium">Questions</p>
-                    <p className="text-lg">{examData.totalQuestions} questions ({examData.totalPoints} points)</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-lg bg-green-100 flex items-center justify-center">
-                    <Timer className="h-5 w-5 text-green-600" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium">Recommended Time</p>
-                    <p className="text-lg">{examData.recommendedTime} minutes per question</p>
-                  </div>
-                </div>
-              </div>
-              
-              <div>
-                <h3 className="font-semibold mb-2">Topics Covered</h3>
-                <div className="flex flex-wrap gap-2">
-                  {examData.topics.map((topic, index) => (
-                    <Badge key={index} variant="secondary">{topic}</Badge>
-                  ))}
-                </div>
-              </div>
-              
-              <Separator />
-              
-              <div>
-                <h3 className="font-semibold mb-3">Instructions</h3>
-                <ul className="space-y-2">
-                  {examData.instructions.map((instruction, index) => (
-                    <li key={index} className="flex gap-2 text-sm">
-                      <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0" />
-                      <span>{instruction}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              
-              {examData.previousAttempts > 0 && (
-                <>
-                  <Separator />
-                  <div>
-                    <h3 className="font-semibold mb-3">Your Statistics</h3>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="bg-slate-50 p-3 rounded-lg">
-                        <p className="text-sm text-gray-500">Previous Attempts</p>
-                        <p className="text-xl font-medium">{examData.previousAttempts}</p>
-                      </div>
-                      <div className="bg-slate-50 p-3 rounded-lg">
-                        <p className="text-sm text-gray-500">Highest Score</p>
-                        <p className="text-xl font-medium">{examData.highestScore}%</p>
-                      </div>
-                    </div>
-                  </div>
-                </>
-              )}
-            </CardContent>
-            <CardFooter>
-              <div className="w-full">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-2 text-amber-600">
-                    <AlertTriangle className="h-5 w-5" />
-                    <span className="text-sm font-medium">Once started, the timer cannot be paused</span>
-                  </div>
-                </div>
-                <Button 
-                  className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
-                  size="lg"
-                  onClick={startExam}
-                  disabled={isLoading}
-                >
-                  {isLoading ? 'Starting...' : 'Start Exam'}
-                  {!isLoading && <ChevronRight className="ml-2 h-4 w-4" />}
-                </Button>
-              </div>
-            </CardFooter>
-          </Card>
-        </div>
+
+  if (loading) {
+    return (
+      <div className="max-w-4xl mx-auto p-6 space-y-8 animate-pulse">
+        <div className="h-8 bg-gray-200 rounded w-1/3"></div>
+        <div className="h-40 bg-gray-200 rounded"></div>
       </div>
-    </DashboardContainer>
+    );
+  }
+
+  if (!examInfo) return (
+    <div className="max-w-4xl mx-auto p-6">
+      <p className="text-center text-muted-foreground">Exam not found</p>
+    </div>
+  );
+
+  const getDifficultyColor = (difficulty: string) => {
+    switch (difficulty) {
+      case 'easy':
+        return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400';
+      case 'medium':
+        return 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400';
+      case 'hard':
+        return 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400';
+      default:
+        return 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400';
+    }
+  };
+
+  return (
+    <div className="max-w-4xl mx-auto p-6">
+      <Card className="mb-6">
+        <CardHeader className="pb-3">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <CardTitle className="text-2xl">{examInfo.title}</CardTitle>
+            <Badge className={getDifficultyColor(examInfo.difficulty)} variant="outline">
+              {examInfo.difficulty.charAt(0).toUpperCase() + examInfo.difficulty.slice(1)} Difficulty
+            </Badge>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="mb-8">
+            <p className="text-gray-600 dark:text-gray-400 mb-6">{examInfo.description}</p>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              <div className="flex items-center gap-3">
+                <div className="rounded-full p-2 bg-purple-100 dark:bg-purple-900/30">
+                  <CheckSquare className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Questions</p>
+                  <p className="font-medium">{examInfo.totalQuestions}</p>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-3">
+                <div className="rounded-full p-2 bg-blue-100 dark:bg-blue-900/30">
+                  <Clock className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Duration</p>
+                  <p className="font-medium">{examInfo.duration} minutes</p>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-3">
+                <div className="rounded-full p-2 bg-green-100 dark:bg-green-900/30">
+                  <FileCheck className="h-5 w-5 text-green-600 dark:text-green-400" />
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Subject</p>
+                  <p className="font-medium">{examInfo.subject}</p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="mb-8">
+              <h3 className="font-medium mb-2">Topics Covered</h3>
+              <div className="flex flex-wrap gap-2">
+                {examInfo.topics.map((topic, index) => (
+                  <Badge key={index} variant="outline" className="bg-gray-100 dark:bg-gray-800">
+                    {topic}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+            
+            <Separator className="my-6" />
+            
+            <div className="mb-6">
+              <div className="flex items-center gap-2 mb-4">
+                <AlertTriangle className="h-5 w-5 text-orange-500" />
+                <h3 className="font-medium">Exam Instructions</h3>
+              </div>
+              <ul className="space-y-2 list-disc pl-6">
+                {examInfo.instructions.map((instruction, index) => (
+                  <li key={index} className="text-gray-600 dark:text-gray-400">
+                    {instruction}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            
+            <Separator className="my-6" />
+            
+            <div className="flex items-start space-x-2 mb-8">
+              <input 
+                type="checkbox" 
+                id="accept-terms" 
+                checked={acceptedTerms}
+                onChange={(e) => setAcceptedTerms(e.target.checked)}
+                className="mt-1"
+              />
+              <label htmlFor="accept-terms" className="text-sm text-gray-600 dark:text-gray-400">
+                I understand and agree to follow the exam instructions. I will not use unauthorized resources or assistance during the test.
+              </label>
+            </div>
+            
+            <div className="flex justify-center">
+              <Button 
+                onClick={handleStartExam} 
+                size="lg"
+                className="gap-2 px-8"
+                disabled={!acceptedTerms}
+              >
+                <Timer className="h-4 w-4" />
+                Start Exam Now
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+      
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <HelpCircle className="h-5 w-5 text-blue-500" />
+            <CardTitle>Need Help?</CardTitle>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <p className="text-gray-600 dark:text-gray-400 mb-4">
+            If you encounter any issues during the exam or have questions, our support team is available to assist you.
+          </p>
+          <Button variant="outline" className="w-full sm:w-auto">
+            Contact Support
+          </Button>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 
