@@ -1,3 +1,4 @@
+
 // Study progress types
 export interface SubjectProgress {
   id: string;

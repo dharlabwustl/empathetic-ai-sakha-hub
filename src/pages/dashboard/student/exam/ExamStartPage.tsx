@@ -1,297 +1,138 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import MainLayout from '@/components/layouts/MainLayout';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Separator } from '@/components/ui/separator';
-import { Progress } from '@/components/ui/progress';
-import { BookOpen, Clock, CheckCircle, AlertCircle, ChevronLeft } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-
-// Mock exam data
-const mockExams = {
-  "physics-mechanics": {
-    id: "physics-mechanics",
-    title: "Physics: Mechanics Final",
-    subject: "Physics",
-    topic: "Mechanics",
-    description: "Comprehensive test covering Newton's Laws, energy conservation, momentum and simple harmonic motion.",
-    totalQuestions: 30,
-    timeLimit: 60, // in minutes
-    difficulty: "Medium",
-    requiredScore: 70, // percentage to pass
-    instructions: [
-      "Read each question carefully before answering.",
-      "All questions carry equal marks.",
-      "Negative marking applies for incorrect answers.",
-      "Calculator allowed for complex calculations.",
-      "You may not return to previous questions once answered."
-    ],
-    sections: [
-      { title: "Multiple Choice", questions: 15 },
-      { title: "Numerical Problems", questions: 10 },
-      { title: "Short Answer", questions: 5 }
-    ]
-  },
-  "chemistry-organic": {
-    id: "chemistry-organic",
-    title: "Organic Chemistry Exam",
-    subject: "Chemistry",
-    topic: "Organic Chemistry",
-    description: "Evaluation of organic compounds, reactions, and mechanisms.",
-    totalQuestions: 25,
-    timeLimit: 45,
-    difficulty: "Hard",
-    requiredScore: 65,
-    instructions: [
-      "Draw chemical structures clearly.",
-      "Show all reaction steps where asked.",
-      "You may use the periodic table provided.",
-      "Your handwriting must be legible."
-    ],
-    sections: [
-      { title: "Nomenclature", questions: 8 },
-      { title: "Reaction Mechanisms", questions: 12 },
-      { title: "Compound Properties", questions: 5 }
-    ]
-  }
-};
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Timer, Clock, FileText, HelpCircle, AlertTriangle, Check } from "lucide-react";
+import { motion } from "framer-motion";
+import { useToast } from "@/hooks/use-toast";
 
 const ExamStartPage = () => {
-  const { examId } = useParams<{ examId: string }>();
+  const { examId } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [isLoading, setIsLoading] = useState(true);
-  const [exam, setExam] = useState<any>(null);
-  const [readyToStart, setReadyToStart] = useState(false);
-  
-  useEffect(() => {
-    // Simulating API fetch
-    const fetchExam = async () => {
-      setIsLoading(true);
-      
-      try {
-        // In a real app, this would be an API call
-        if (examId && examId in mockExams) {
-          setExam(mockExams[examId as keyof typeof mockExams]);
-        }
-      } catch (error) {
-        toast({
-          title: "Error loading exam",
-          description: "There was a problem loading the exam details. Please try again.",
-          variant: "destructive"
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    
-    fetchExam();
-  }, [examId, toast]);
-  
+  const [loading, setLoading] = useState(false);
+
+  // Mock exam data (in a real app, this would be fetched)
+  const examData = {
+    id: examId,
+    title: "Physics Midterm Exam",
+    description: "Test your understanding of Mechanics and Thermodynamics",
+    totalQuestions: 50,
+    totalMarks: 100,
+    timeLimit: 90, // minutes
+    difficulty: "Medium",
+    instructions: [
+      "Read all questions carefully before answering",
+      "Each question has only one correct answer unless specified otherwise",
+      "No negative marking for wrong answers",
+      "You can flag questions to review later"
+    ]
+  };
+
   const handleStartExam = () => {
-    if (!readyToStart) {
-      setReadyToStart(true);
-      return;
-    }
-    
-    // In a real app, this would start the actual exam
+    setLoading(true);
     toast({
-      title: "Exam started",
-      description: `Your ${exam.title} exam is now in progress. Good luck!`
+      title: "Exam Started",
+      description: "Good luck!"
     });
-    
-    // Navigate to the actual exam taking page
-    navigate(`/dashboard/student/exam/${examId}/take`);
+    // Simulate loading and then redirect to the exam page
+    setTimeout(() => {
+      navigate(`/dashboard/student/exams/attempt/${examId}`);
+    }, 1000);
   };
-  
-  const handleGoBack = () => {
-    navigate('/dashboard/student/practice-exams');
-  };
-  
-  if (isLoading) {
-    return (
-      <MainLayout>
-        <div className="container py-8 animate-pulse">
-          <div className="h-8 bg-gray-200 rounded w-1/4 mb-4"></div>
-          <div className="h-6 bg-gray-200 rounded w-1/3 mb-8"></div>
-          <div className="h-64 bg-gray-200 rounded mb-6"></div>
-        </div>
-      </MainLayout>
-    );
-  }
-  
-  if (!exam) {
-    return (
-      <MainLayout>
-        <div className="container py-8">
-          <Button variant="outline" onClick={handleGoBack}>
-            <ChevronLeft className="h-4 w-4 mr-2" />
-            Back to Exam List
-          </Button>
-          <div className="mt-6 text-center">
-            <h1 className="text-2xl font-bold mb-2">Exam Not Found</h1>
-            <p className="text-gray-600 mb-6">The exam you're looking for doesn't exist or has been removed.</p>
-            <Button onClick={handleGoBack}>Return to Exam List</Button>
-          </div>
-        </div>
-      </MainLayout>
-    );
-  }
-  
+
   return (
-    <MainLayout>
-      <div className="container py-8">
-        <div className="flex items-center justify-between mb-6">
-          <Button variant="outline" onClick={handleGoBack}>
-            <ChevronLeft className="h-4 w-4 mr-2" />
-            Back to Exam List
-          </Button>
-        </div>
-        
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">{exam.title}</h1>
-          <div className="flex flex-wrap gap-2">
-            <Badge variant="outline" className="bg-indigo-100 text-indigo-800 border-indigo-200">
-              {exam.subject}
-            </Badge>
-            <Badge variant="outline" className="bg-violet-100 text-violet-800 border-violet-200">
-              {exam.topic}
-            </Badge>
-            <Badge variant="outline" className={
-              exam.difficulty === "Easy" 
-                ? "bg-green-100 text-green-700 border-green-200" 
-                : exam.difficulty === "Medium"
-                  ? "bg-yellow-100 text-yellow-700 border-yellow-200"
-                  : "bg-red-100 text-red-700 border-red-200"
-            }>
-              {exam.difficulty} Difficulty
-            </Badge>
-          </div>
-        </div>
-        
-        <div className="grid gap-6 md:grid-cols-3">
-          <div className="md:col-span-2">
-            <Card>
-              <CardHeader>
-                <CardTitle>Exam Overview</CardTitle>
-                <CardDescription>{exam.description}</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <h3 className="text-lg font-medium mb-2">Instructions</h3>
-                  <ul className="list-disc pl-5 space-y-1">
-                    {exam.instructions.map((instruction: string, index: number) => (
-                      <li key={index}>{instruction}</li>
-                    ))}
-                  </ul>
-                </div>
-                
-                <div>
-                  <h3 className="text-lg font-medium mb-2">Exam Format</h3>
-                  <div className="space-y-2">
-                    {exam.sections.map((section: { title: string, questions: number }, index: number) => (
-                      <div key={index} className="flex justify-between items-center">
-                        <span>{section.title}</span>
-                        <Badge variant="outline">{section.questions} Questions</Badge>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                
-                {readyToStart && (
-                  <Alert className="bg-blue-50 border-blue-200">
-                    <AlertCircle className="h-4 w-4 text-blue-600" />
-                    <AlertTitle>Ready to start?</AlertTitle>
-                    <AlertDescription>
-                      Once you begin the exam, the timer will start and cannot be paused. Make sure you're ready and won't be disturbed.
-                    </AlertDescription>
-                  </Alert>
-                )}
-                
-                {!readyToStart && (
-                  <Alert className="bg-amber-50 border-amber-200">
-                    <AlertCircle className="h-4 w-4 text-amber-600" />
-                    <AlertTitle>Before you begin</AlertTitle>
-                    <AlertDescription>
-                      Please review all exam details and make sure you have enough time to complete the exam.
-                    </AlertDescription>
-                  </Alert>
-                )}
-              </CardContent>
-              <CardFooter>
-                <Button className="w-full" onClick={handleStartExam}>
-                  {readyToStart ? "Start Exam Now" : "I'm Ready to Start"}
-                </Button>
-              </CardFooter>
-            </Card>
-          </div>
+    <div className="max-w-4xl mx-auto p-6">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="text-2xl">{examData.title}</CardTitle>
+                <CardDescription>{examData.description}</CardDescription>
+              </div>
+              <div className="flex items-center text-amber-600 bg-amber-50 p-2 rounded-md">
+                <Timer className="h-5 w-5 mr-2" />
+                <span className="font-medium">{examData.timeLimit} minutes</span>
+              </div>
+            </div>
+          </CardHeader>
           
-          <div className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Exam Details</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600">Questions</span>
-                  <span className="font-medium">{exam.totalQuestions}</span>
-                </div>
-                <Separator />
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600">Time Limit</span>
-                  <span className="font-medium">{exam.timeLimit} mins</span>
-                </div>
-                <Separator />
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600">Passing Score</span>
-                  <span className="font-medium">{exam.requiredScore}%</span>
-                </div>
-                <Separator />
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600">Time per Question</span>
-                  <span className="font-medium">{Math.round(exam.timeLimit / exam.totalQuestions * 60)} sec</span>
-                </div>
-              </CardContent>
-            </Card>
+          <CardContent className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="bg-slate-50 p-4 rounded-lg flex flex-col items-center justify-center">
+                <FileText className="h-8 w-8 text-slate-600 mb-2" />
+                <div className="text-2xl font-bold">{examData.totalQuestions}</div>
+                <div className="text-sm text-muted-foreground">Questions</div>
+              </div>
+              
+              <div className="bg-slate-50 p-4 rounded-lg flex flex-col items-center justify-center">
+                <Check className="h-8 w-8 text-slate-600 mb-2" />
+                <div className="text-2xl font-bold">{examData.totalMarks}</div>
+                <div className="text-sm text-muted-foreground">Total Marks</div>
+              </div>
+              
+              <div className="bg-slate-50 p-4 rounded-lg flex flex-col items-center justify-center">
+                <Clock className="h-8 w-8 text-slate-600 mb-2" />
+                <div className="text-2xl font-bold">{examData.timeLimit}</div>
+                <div className="text-sm text-muted-foreground">Minutes</div>
+              </div>
+            </div>
             
-            <Card>
-              <CardHeader>
-                <CardTitle>Your Readiness</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
+            <div className="border-t pt-4">
+              <h3 className="text-lg font-medium mb-3 flex items-center">
+                <HelpCircle className="h-5 w-5 mr-2 text-blue-500" />
+                Instructions
+              </h3>
+              <ul className="list-disc list-inside space-y-2">
+                {examData.instructions.map((instruction, index) => (
+                  <li key={index} className="text-sm text-slate-700">{instruction}</li>
+                ))}
+              </ul>
+            </div>
+            
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+              <div className="flex items-start">
+                <AlertTriangle className="h-5 w-5 text-amber-500 mr-2 mt-0.5" />
                 <div>
-                  <div className="flex justify-between text-sm mb-1">
-                    <span>Topic Mastery</span>
-                    <span>75%</span>
-                  </div>
-                  <Progress value={75} className="h-2" />
+                  <h4 className="font-medium text-amber-800">Important</h4>
+                  <p className="text-sm text-amber-700">
+                    Once you start the exam, the timer will begin counting down. Make sure you have a stable internet connection and won't be disturbed for the next {examData.timeLimit} minutes.
+                  </p>
                 </div>
-                
-                <div>
-                  <div className="flex justify-between text-sm mb-1">
-                    <span>Concept Coverage</span>
-                    <span>82%</span>
-                  </div>
-                  <Progress value={82} className="h-2" />
-                </div>
-                
-                <div>
-                  <div className="flex justify-between text-sm mb-1">
-                    <span>Practice Question Accuracy</span>
-                    <span>68%</span>
-                  </div>
-                  <Progress value={68} className="h-2" />
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </div>
-    </MainLayout>
+              </div>
+            </div>
+          </CardContent>
+          
+          <CardFooter className="flex justify-between border-t pt-4">
+            <Button variant="outline" onClick={() => navigate('/dashboard/student/practice')}>
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleStartExam} 
+              className="gap-2" 
+              disabled={loading}
+            >
+              {loading ? (
+                <>
+                  <div className="h-4 w-4 rounded-full border-2 border-current border-r-transparent animate-spin" />
+                  Starting...
+                </>
+              ) : (
+                <>
+                  Start Exam
+                </>
+              )}
+            </Button>
+          </CardFooter>
+        </Card>
+      </motion.div>
+    </div>
   );
 };
 

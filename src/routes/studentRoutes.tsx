@@ -1,3 +1,4 @@
+
 import { Routes, Route } from 'react-router-dom';
 import TodaysPlanView from '@/components/dashboard/student/todays-plan/TodaysPlanView';
 import ConceptsView from '@/components/dashboard/student/concepts/ConceptsView';
@@ -32,6 +33,7 @@ export default function StudentRoutes() {
       <Route path="/batch" element={<BatchManagementView />} />
       <Route path="/subscription" element={<SubscriptionPage />} />
       
+      {/* Study and practice specific routes */}
       <Route path="/concepts/study/:conceptId" element={<ConceptStudyPage />} />
       <Route path="/flashcards/practice/:cardId" element={<FlashcardPracticePage />} />
       <Route path="/exams/attempt/:examId" element={<ExamAttemptPage />} />
@@ -39,7 +41,6 @@ export default function StudentRoutes() {
       
       <Route path="/wellness" element={<FeelGoodCornerPage />} />
       <Route path="/flashcards/study/:deckId" element={<FlashcardStudyPage />} />
-      <Route path="/flashcards/practice/:cardId" element={<FlashcardPracticePage />} />
       <Route path="/exams/start/:examId" element={<ExamStartPage />} />
     </Routes>
   );

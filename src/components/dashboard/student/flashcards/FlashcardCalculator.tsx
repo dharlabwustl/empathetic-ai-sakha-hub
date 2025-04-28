@@ -18,7 +18,8 @@ const FlashcardCalculator = () => {
 
   const calculate = () => {
     try {
-      const result = eval(equation + display);
+      // Using Function instead of eval for safer execution
+      const result = new Function('return ' + equation + display)();
       setDisplay(result.toString());
       setEquation('');
     } catch (error) {
