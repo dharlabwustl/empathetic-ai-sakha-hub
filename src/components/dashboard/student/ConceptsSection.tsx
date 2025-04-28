@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
@@ -41,7 +40,7 @@ const ConceptsSection = () => {
   return (
     <>
       {todaysCards.map((card) => (
-        <Link key={card.id} to={`/dashboard/student/concepts/${card.id}`}>
+        <Link key={card.id} to={`/dashboard/student/concepts/study/${card.id}`}>
           <Card className="h-full hover:shadow-md transition-shadow duration-200 overflow-hidden group border-l-4" style={{ borderLeftColor: getDifficultyColor(card.difficulty) }}>
             <CardContent className="p-4 h-full flex flex-col">
               <div className="flex items-start justify-between mb-2">

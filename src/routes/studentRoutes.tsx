@@ -1,21 +1,9 @@
-
 import { Routes, Route } from 'react-router-dom';
-import TodaysPlanView from '@/components/dashboard/student/todays-plan/TodaysPlanView';
-import ConceptsView from '@/components/dashboard/student/concepts/ConceptsView';
-import FlashcardsView from '@/components/dashboard/student/flashcards/FlashcardsView';
-import PracticeView from '@/components/dashboard/student/practice/PracticeView';
-import BacklogView from '@/components/dashboard/student/backlog/BacklogView';
-import StudyPlanView from '@/components/dashboard/student/studyplan/StudyPlanView';
-import ProfilePage from '@/pages/dashboard/student/ProfilePage';
-import BatchManagementView from '@/pages/dashboard/student/BatchManagementView';
-import SubscriptionPage from '@/pages/dashboard/student/SubscriptionPage';
-import FeelGoodCornerPage from '@/pages/dashboard/student/FeelGoodCornerPage';
-import ConceptStudyPage from '@/pages/dashboard/student/concepts/ConceptStudyPage';
-import FlashcardPracticePage from '@/components/dashboard/student/flashcards/FlashcardPracticePage';
-import ExamAttemptPage from '@/components/dashboard/student/exams/ExamAttemptPage';
-import ExamReviewPage from '@/pages/dashboard/student/exam/ExamReviewPage';
-import FlashcardStudyPage from '@/components/dashboard/student/flashcards/FlashcardStudyPage';
+import { TodaysPlanView } from '@/components/dashboard/student/TabContentViews';
+import ConceptStudyPage from '@/pages/dashboard/student/ConceptStudyPage';
+import FlashcardStudyPage from '@/pages/dashboard/student/FlashcardStudyPage';
 import ExamStartPage from '@/pages/dashboard/student/exam/ExamStartPage';
+import ExamReviewPage from '@/pages/dashboard/student/exam/ExamReviewPage';
 
 export default function StudentRoutes() {
   return (
