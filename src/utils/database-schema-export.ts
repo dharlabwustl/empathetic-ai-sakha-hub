@@ -55,7 +55,12 @@ export const exportDatabaseSchemaToCSV = (): void => {
     'notifications': 'User notification preferences and history',
     'employees': 'Employee user profiles',
     'founders': 'Founder user profiles',
-    'doctors': 'Doctor user profiles'
+    'doctors': 'Doctor user profiles',
+    'exams': 'Practice and mock examinations',
+    'exam_questions': 'Individual questions within exams',
+    'exam_attempts': 'Student attempts at exams',
+    'exam_answers': 'Student answers to exam questions',
+    'flashcard_decks': 'Collections of flashcards for study'
   };
 
   // Dictionary to store field descriptions based on field name patterns
@@ -117,7 +122,7 @@ export const exportDatabaseSchemaToCSV = (): void => {
       const tableToModuleMap = {
         'User Management': ['users', 'admin_users', 'login_history', 'user_settings'],
         'Student Management': ['students', 'student_goals', 'student_subjects', 'subject_topics', 'quiz_scores', 'study_hours', 'study_streaks'],
-        'Learning Content': ['concept_cards', 'flashcards', 'questions', 'exam_papers', 'study_plans', 'study_sessions', 'content_item_references'],
+        'Learning Content': ['concept_cards', 'flashcards', 'flashcard_decks', 'questions', 'exams', 'exam_questions', 'exam_attempts', 'exam_answers', 'study_plans', 'study_sessions', 'content_item_references'],
         'Personalization': ['mood_logs', 'feel_good_content', 'surrounding_influences', 'user_doubts', 'tutor_chats'],
         'System Management': ['ai_model_settings', 'system_logs', 'notifications'],
         'Employee Management': ['employees', 'founders', 'doctors'],
@@ -161,4 +166,3 @@ export const exportDatabaseSchemaToCSV = (): void => {
 export const downloadDatabaseSchemaCSV = () => {
   exportDatabaseSchemaToCSV();
 };
-

@@ -1,4 +1,3 @@
-
 import * as React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -61,6 +60,10 @@ import StudentRoutes from "./routes/studentRoutes";
 import StudyPlanView from "@/components/dashboard/student/studyplan/StudyPlanView";
 import TodaysPlanView from "@/components/dashboard/student/todays-plan/TodaysPlanView";
 
+import FAQPage from "./pages/FAQPage";
+import TermsPage from "./pages/TermsPage";
+import PrivacyPage from "./pages/PrivacyPage";
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -88,6 +91,10 @@ const App = () => {
                   <Route path="/signup" element={<SignUp />} />
                   <Route path="/login" element={<LoginPage />} />
                   <Route path="/login/old" element={<Login />} />
+                  
+                  <Route path="/faq" element={<FAQPage />} />
+                  <Route path="/terms" element={<TermsPage />} />
+                  <Route path="/privacy" element={<PrivacyPage />} />
                   
                   <Route path="/admin/login" element={<AdminLogin />} />
                   

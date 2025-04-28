@@ -212,9 +212,9 @@ export const featureService = {
       return response.data;
     } catch (error) {
       console.log("API not available for schema export", error);
-      // Import from apiConfig
-      const { getSchemaForDownload } = await import('./api/apiConfig');
-      return getSchemaForDownload();
+      // Import from schemaExport
+      const { generateDatabaseSchema } = await import('../utils/schemaExport');
+      return generateDatabaseSchema();
     }
   }
 };

@@ -87,9 +87,9 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/support" className="text-purple-200 hover:text-white transition-colors flex items-center gap-1.5 group">
+                <Link to="/terms" className="text-purple-200 hover:text-white transition-colors flex items-center gap-1.5 group">
                   <span className="w-1 h-1 bg-purple-400 rounded-full transition-all group-hover:w-2 group-hover:bg-white"></span>
-                  Support
+                  Terms & Conditions
                 </Link>
               </li>
               <li>
@@ -127,11 +127,11 @@ const Footer = () => {
         </div>
 
         <div className="border-t border-purple-700/50 mt-10 pt-6 flex flex-col md:flex-row justify-between items-center">
-          <p className="text-purple-200 mb-4 md:mb-0">© 2025 Sakha AI. All rights reserved.</p>
+          <p className="text-purple-200 mb-4 md:mb-0">© 2025 Greatwisdom India Pvt Ltd. All rights reserved.</p>
           <div className="flex space-x-6">
             <Link to="/terms" className="text-purple-200 hover:text-white transition-colors">Terms</Link>
             <Link to="/privacy" className="text-purple-200 hover:text-white transition-colors">Privacy</Link>
-            <Link to="/cookies" className="text-purple-200 hover:text-white transition-colors">Cookies</Link>
+            <Link to="/faq" className="text-purple-200 hover:text-white transition-colors">FAQ</Link>
           </div>
         </div>
       </div>

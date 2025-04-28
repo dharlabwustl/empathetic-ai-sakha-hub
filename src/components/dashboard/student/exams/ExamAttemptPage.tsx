@@ -1,79 +1,104 @@
 
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Progress } from "@/components/ui/progress";
-import { ExamQuestion } from "@/types/user/exam";
-import { useToast } from "@/hooks/use-toast";
-import { Flag, ArrowLeft, ArrowRight, CheckSquare, Timer, HelpCircle } from "lucide-react";
-import { motion } from "framer-motion";
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
+import { Progress } from '@/components/ui/progress';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Badge } from '@/components/ui/badge';
+import { 
+  Timer, Flag, CheckSquare, ArrowLeft, ArrowRight, 
+  AlertTriangle, CheckCircle, HelpCircle, Send
+} from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { toast } from '@/hooks/use-toast';
+import DashboardContainer from '@/components/dashboard/student/DashboardContainer';
+import { ExamQuestion } from '@/types/user/exam';
+import FlashcardCalculator from '../flashcards/FlashcardCalculator';
 
 const ExamAttemptPage = () => {
-  const { examId } = useParams();
+  const { examId } = useParams<{ examId: string }>();
   const navigate = useNavigate();
-  const { toast } = useToast();
   
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [answers, setAnswers] = useState<Record<string, any>>({});
-  const [flaggedQuestions, setFlaggedQuestions] = useState<string[]>([]);
-  const [timeRemaining, setTimeRemaining] = useState(5400); // 90 minutes in seconds
-  const [showSubmitDialog, setShowSubmitDialog] = useState(false);
+  // Exam details - would be fetched from API in a real app
+  const [examDetails, setExamDetails] = useState({
+    id: examId || '',
+    title: "JEE Advanced Physics Mock Test",
+    duration: 180, // minutes
+    totalQuestions: 10,
+  });
   
-  // Mock questions data
-  const questions: ExamQuestion[] = [
+  // Sample questions for demo
+  const [questions, setQuestions] = useState<ExamQuestion[]>([
     {
       id: "q1",
-      question: "What is Newton's Second Law of Motion?",
-      type: "short-answer",
-      points: 2,
-      explanation: "Newton's Second Law states that Force equals mass times acceleration (F = ma)."
+      question: "A body of mass 'm' is thrown with a velocity 'v' at an angle 'θ' with the horizontal. The horizontal range of the projectile will be:",
+      options: [
+        "v²sin(2θ)/g", 
+        "2v²sin(θ)/g", 
+        "v²sin(2θ)/2g", 
+        "v²sin²(θ)/g"
+      ],
+      correctAnswer: "v²sin(2θ)/g",
+      explanation: "The horizontal range of a projectile is given by the formula R = v²sin(2θ)/g, where v is the initial velocity, θ is the angle with the horizontal, and g is the acceleration due to gravity.",
+      type: "multiple-choice",
+      points: 4
     },
     {
       id: "q2",
-      question: "Which of the following are fundamental forces in physics?",
-      options: ["Gravity", "Electromagnetic Force", "Strong Nuclear Force", "Centripetal Force"],
+      question: "Which of the following phenomena demonstrate the wave nature of light? (Select all that apply)",
+      options: [
+        "Interference", 
+        "Photoelectric effect", 
+        "Diffraction", 
+        "Compton effect"
+      ],
+      correctAnswer: ["Interference", "Diffraction"],
+      explanation: "Interference and diffraction are phenomena that can only be explained by the wave nature of light. The photoelectric effect and Compton effect demonstrate the particle nature of light.",
       type: "checkbox",
-      correctAnswer: ["option1", "option2", "option3"],
-      points: 3,
-      explanation: "The four fundamental forces are gravity, electromagnetic force, strong nuclear force, and weak nuclear force. Centripetal force is not a fundamental force."
+      points: 4
     },
     {
       id: "q3",
-      question: "Which law of thermodynamics states that energy cannot be created or destroyed?",
-      options: ["Zeroth Law", "First Law", "Second Law", "Third Law"],
-      type: "multiple-choice",
-      correctAnswer: "option2",
-      points: 2,
-      explanation: "The First Law of Thermodynamics states that energy cannot be created or destroyed, only transferred or converted from one form to another."
-    },
-    {
-      id: "q4",
-      question: "Explain the principle of conservation of momentum.",
+      question: "Define Faraday's law of electromagnetic induction and explain its significance in modern electrical devices.",
+      correctAnswer: "Faraday's law states that the magnitude of EMF induced in a circuit is proportional to the rate of change of magnetic flux through the circuit. This is fundamental for transformers and generators.",
+      explanation: "A complete answer should mention the mathematical formulation (EMF = -dΦ/dt), discuss flux linkage, and explain applications in transformers, generators, and inductors.",
       type: "long-answer",
-      points: 5,
-      explanation: "The principle of conservation of momentum states that in an isolated system, the total momentum remains constant if no external forces act on the system."
-    },
-    {
-      id: "q5",
-      question: "Which of these is not a vector quantity?",
-      options: ["Velocity", "Force", "Energy", "Displacement"],
-      type: "multiple-choice",
-      correctAnswer: "option3",
-      points: 2,
-      explanation: "Energy is a scalar quantity. The other options (velocity, force, and displacement) are all vector quantities."
+      points: 8
     }
-  ];
-
-  // Timer effect
+  ]);
+  
+  // State for exam attempt
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [answers, setAnswers] = useState<{[key: string]: any}>({});
+  const [flaggedQuestions, setFlaggedQuestions] = useState<string[]>([]);
+  const [timeLeft, setTimeLeft] = useState(examDetails.duration * 60); // in seconds
+  const [isSubmitDialogOpen, setIsSubmitDialogOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  const currentQuestion = questions[currentQuestionIndex];
+  const isLastQuestion = currentQuestionIndex === questions.length - 1;
+  const isFirstQuestion = currentQuestionIndex === 0;
+  
+  // Handle timer
   useEffect(() => {
     const timer = setInterval(() => {
-      setTimeRemaining((prev) => {
-        if (prev <= 0) {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
           clearInterval(timer);
           handleSubmitExam();
           return 0;
@@ -81,144 +106,162 @@ const ExamAttemptPage = () => {
         return prev - 1;
       });
     }, 1000);
-
+    
     return () => clearInterval(timer);
   }, []);
-
+  
+  // Format time display
   const formatTime = (seconds: number) => {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
-    const remainingSeconds = seconds % 60;
-    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
-  };
-
-  const currentQuestion = questions[currentQuestionIndex];
-  const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
-  
-  const handleNextQuestion = () => {
-    if (currentQuestionIndex < questions.length - 1) {
-      setCurrentQuestionIndex((prev) => prev + 1);
-    }
+    const secs = seconds % 60;
+    
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
   
-  const handlePreviousQuestion = () => {
-    if (currentQuestionIndex > 0) {
-      setCurrentQuestionIndex((prev) => prev - 1);
-    }
+  // Calculate progress percentage
+  const calculateProgress = () => {
+    return (Object.keys(answers).length / examDetails.totalQuestions) * 100;
   };
   
+  // Handle answer change
   const handleAnswerChange = (value: any) => {
-    setAnswers((prev) => ({
-      ...prev,
+    setAnswers({
+      ...answers,
       [currentQuestion.id]: value
-    }));
-  };
-  
-  const handleCheckboxChange = (optionIndex: number) => {
-    const optionValue = `option${optionIndex + 1}`;
-    const currentAnswer = answers[currentQuestion.id] || [];
-    
-    if (currentAnswer.includes(optionValue)) {
-      handleAnswerChange(currentAnswer.filter((v: string) => v !== optionValue));
-    } else {
-      handleAnswerChange([...currentAnswer, optionValue]);
-    }
-  };
-  
-  const handleFlagQuestion = () => {
-    if (flaggedQuestions.includes(currentQuestion.id)) {
-      setFlaggedQuestions((prev) => prev.filter(id => id !== currentQuestion.id));
-      toast({
-        title: "Question unflagged",
-        description: "You've removed the flag from this question."
-      });
-    } else {
-      setFlaggedQuestions((prev) => [...prev, currentQuestion.id]);
-      toast({
-        title: "Question flagged",
-        description: "You've flagged this question for review."
-      });
-    }
-  };
-  
-  const handleSubmitExam = () => {
-    // In a real app, submit answers to the backend
-    toast({
-      title: "Exam submitted",
-      description: "Your answers have been recorded."
     });
+  };
+  
+  // Handle multiple choice selection
+  const handleMultipleChoiceChange = (value: string) => {
+    handleAnswerChange(value);
+  };
+  
+  // Handle checkbox selection
+  const handleCheckboxChange = (value: string, checked: boolean) => {
+    const currentAnswer = answers[currentQuestion.id] || [];
+    let newAnswer;
     
-    // Navigate to the review page
-    navigate(`/dashboard/student/exams/review/${examId}`);
+    if (checked) {
+      newAnswer = [...currentAnswer, value];
+    } else {
+      newAnswer = currentAnswer.filter((item: string) => item !== value);
+    }
+    
+    handleAnswerChange(newAnswer);
   };
   
-  const isQuestionAnswered = (questionId: string) => {
-    return answers[questionId] !== undefined && 
-           (typeof answers[questionId] === 'string' ? 
-            answers[questionId].trim() !== '' : 
-            answers[questionId].length > 0);
+  // Check if an option is selected for checkbox
+  const isOptionChecked = (option: string) => {
+    const currentAnswer = answers[currentQuestion.id] || [];
+    return currentAnswer.includes(option);
   };
   
-  const renderQuestionInput = () => {
+  // Handle text input change
+  const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    handleAnswerChange(e.target.value);
+  };
+  
+  // Navigate to next question
+  const goToNextQuestion = () => {
+    if (!isLastQuestion) {
+      setCurrentQuestionIndex(currentQuestionIndex + 1);
+    }
+  };
+  
+  // Navigate to previous question
+  const goToPreviousQuestion = () => {
+    if (!isFirstQuestion) {
+      setCurrentQuestionIndex(currentQuestionIndex - 1);
+    }
+  };
+  
+  // Toggle question flag
+  const toggleFlagQuestion = () => {
+    const questionId = currentQuestion.id;
+    
+    if (flaggedQuestions.includes(questionId)) {
+      setFlaggedQuestions(flaggedQuestions.filter(id => id !== questionId));
+    } else {
+      setFlaggedQuestions([...flaggedQuestions, questionId]);
+    }
+  };
+  
+  // Handle exam submission
+  const handleSubmitExam = async () => {
+    setIsSubmitting(true);
+    
+    try {
+      // This would be an API call in a real application
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // Calculate how many questions were answered
+      const answeredCount = Object.keys(answers).length;
+      
+      if (answeredCount < questions.length) {
+        toast({
+          title: `You've answered ${answeredCount} out of ${questions.length} questions`,
+          description: "We'll submit your current answers."
+        });
+      }
+      
+      // Navigate to review page
+      navigate(`/dashboard/student/exams/review/${examId}`);
+    } catch (error) {
+      toast({
+        title: "Error submitting exam",
+        description: "Please try again",
+        variant: "destructive"
+      });
+      setIsSubmitting(false);
+    }
+  };
+  
+  // Render answer input based on question type
+  const renderAnswerInput = () => {
+    if (!currentQuestion) return null;
+    
     switch (currentQuestion.type) {
-      case "multiple-choice":
+      case 'multiple-choice':
         return (
           <RadioGroup
-            value={answers[currentQuestion.id] || ""}
-            onValueChange={handleAnswerChange}
+            value={answers[currentQuestion.id] || ''}
+            onValueChange={handleMultipleChoiceChange}
             className="space-y-3"
           >
             {currentQuestion.options?.map((option, index) => (
-              <div key={index} className="flex items-center space-x-2 bg-gray-50 p-3 rounded-md">
-                <RadioGroupItem value={`option${index + 1}`} id={`option${index + 1}`} />
-                <Label htmlFor={`option${index + 1}`} className="flex-grow cursor-pointer">
-                  {option}
-                </Label>
+              <div key={index} className="flex items-center space-x-2">
+                <RadioGroupItem value={option} id={`option-${index}`} />
+                <Label htmlFor={`option-${index}`} className="text-base">{option}</Label>
               </div>
             ))}
           </RadioGroup>
         );
         
-      case "checkbox":
+      case 'checkbox':
         return (
           <div className="space-y-3">
-            {currentQuestion.options?.map((option, index) => {
-              const optionValue = `option${index + 1}`;
-              const isChecked = (answers[currentQuestion.id] || []).includes(optionValue);
-              
-              return (
-                <div key={index} className="flex items-center space-x-2 bg-gray-50 p-3 rounded-md">
-                  <Checkbox 
-                    id={optionValue}
-                    checked={isChecked}
-                    onCheckedChange={() => handleCheckboxChange(index)}
-                  />
-                  <Label htmlFor={optionValue} className="flex-grow cursor-pointer">
-                    {option}
-                  </Label>
-                </div>
-              );
-            })}
+            {currentQuestion.options?.map((option, index) => (
+              <div key={index} className="flex items-center space-x-2">
+                <Checkbox 
+                  id={`checkbox-${index}`} 
+                  checked={isOptionChecked(option)}
+                  onCheckedChange={(checked) => handleCheckboxChange(option, checked === true)}
+                />
+                <Label htmlFor={`checkbox-${index}`} className="text-base">{option}</Label>
+              </div>
+            ))}
           </div>
         );
         
-      case "short-answer":
+      case 'short-answer':
+      case 'long-answer':
         return (
-          <Textarea
-            placeholder="Enter your answer here..."
-            value={answers[currentQuestion.id] || ""}
-            onChange={(e) => handleAnswerChange(e.target.value)}
-            className="min-h-[100px]"
-          />
-        );
-        
-      case "long-answer":
-        return (
-          <Textarea
-            placeholder="Write your detailed answer here..."
-            value={answers[currentQuestion.id] || ""}
-            onChange={(e) => handleAnswerChange(e.target.value)}
-            className="min-h-[200px]"
+          <Textarea 
+            value={answers[currentQuestion.id] || ''}
+            onChange={handleTextChange}
+            placeholder="Type your answer here..."
+            className="min-h-[150px]"
           />
         );
         
@@ -226,181 +269,154 @@ const ExamAttemptPage = () => {
         return null;
     }
   };
-
+  
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Exam in Progress</h1>
-        <div className="flex items-center bg-amber-50 text-amber-800 px-3 py-1 rounded-md">
-          <Timer className="h-4 w-4 mr-2" />
-          <span className="font-medium">{formatTime(timeRemaining)}</span>
-        </div>
-      </div>
-      
-      <div className="mb-6">
-        <div className="flex justify-between text-sm mb-1">
-          <span>Question {currentQuestionIndex + 1} of {questions.length}</span>
-          <span>{progress.toFixed(0)}% Complete</span>
-        </div>
-        <Progress value={progress} className="h-2" />
-      </div>
-      
-      <motion.div
-        key={currentQuestion.id}
-        initial={{ opacity: 0, x: 20 }}
-        animate={{ opacity: 1, x: 0 }}
-        exit={{ opacity: 0, x: -20 }}
-        transition={{ duration: 0.3 }}
-      >
-        <Card>
-          <CardHeader>
-            <div className="flex justify-between">
-              <CardTitle className="text-lg">
-                Question {currentQuestionIndex + 1}
-                <span className="text-sm font-normal ml-2 text-muted-foreground">
-                  ({currentQuestion.points} {currentQuestion.points === 1 ? "point" : "points"})
-                </span>
-              </CardTitle>
-              <Button 
-                variant="ghost" 
-                size="sm"
-                onClick={handleFlagQuestion}
-                className={`gap-1 ${flaggedQuestions.includes(currentQuestion.id) ? "text-amber-600" : ""}`}
-              >
-                <Flag className={`h-4 w-4 ${flaggedQuestions.includes(currentQuestion.id) ? "fill-amber-500" : ""}`} />
-                {flaggedQuestions.includes(currentQuestion.id) ? "Flagged" : "Flag"}
-              </Button>
+    <DashboardContainer>
+      <div className="max-w-4xl mx-auto">
+        {/* Header with timer and progress */}
+        <div className="sticky top-0 z-10 bg-background pb-4">
+          <div className="flex justify-between items-center mb-2">
+            <h1 className="text-xl font-bold">{examDetails.title}</h1>
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 bg-amber-50 text-amber-700 px-3 py-1 rounded-full">
+                <Timer className="h-4 w-4" />
+                <span className="font-medium">{formatTime(timeLeft)}</span>
+              </div>
+              
+              <AlertDialog open={isSubmitDialogOpen} onOpenChange={setIsSubmitDialogOpen}>
+                <AlertDialogTrigger asChild>
+                  <Button variant="default">Submit Exam</Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Submit your exam?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      You've answered {Object.keys(answers).length} out of {questions.length} questions.
+                      {Object.keys(answers).length < questions.length && 
+                        " Some questions are still unanswered. Are you sure you want to submit?"}
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleSubmitExam} disabled={isSubmitting}>
+                      {isSubmitting ? "Submitting..." : "Yes, Submit"}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
-          </CardHeader>
+          </div>
           
-          <CardContent className="space-y-6">
-            <div className="text-base">{currentQuestion.question}</div>
-            {renderQuestionInput()}
-            
-            <div className="pt-2">
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="gap-1"
-                onClick={() => toast({
-                  title: "Need help?",
-                  description: "Remember to read the question carefully and review your course notes."
-                })}
-              >
-                <HelpCircle className="h-4 w-4" /> Need a hint?
-              </Button>
+          <div className="flex justify-between items-center mb-2">
+            <div className="text-sm text-gray-500">
+              Question {currentQuestionIndex + 1} of {questions.length}
             </div>
-          </CardContent>
+            <div className="text-sm text-gray-500">
+              {Object.keys(answers).length} of {questions.length} answered
+            </div>
+          </div>
           
-          <CardFooter className="flex justify-between border-t pt-4">
-            <div>
-              <Button 
-                variant="outline" 
-                onClick={handlePreviousQuestion} 
-                disabled={currentQuestionIndex === 0}
-                className="gap-1"
-              >
-                <ArrowLeft className="h-4 w-4" /> Previous
-              </Button>
-            </div>
-            <div className="flex gap-2">
-              {currentQuestionIndex === questions.length - 1 ? (
-                <Button onClick={() => setShowSubmitDialog(true)} className="gap-1">
-                  <CheckSquare className="h-4 w-4" /> Submit Exam
-                </Button>
-              ) : (
-                <Button onClick={handleNextQuestion} className="gap-1">
-                  Next <ArrowRight className="h-4 w-4" />
-                </Button>
-              )}
-            </div>
-          </CardFooter>
-        </Card>
-      </motion.div>
-      
-      {/* Question navigation */}
-      <div className="mt-6">
-        <h3 className="font-medium mb-3">Question Navigator</h3>
-        <div className="grid grid-cols-5 sm:grid-cols-10 gap-2">
-          {questions.map((q, index) => (
-            <Button
-              key={index}
-              variant="outline"
-              size="sm"
-              className={`h-10 ${
-                index === currentQuestionIndex ? "border-2 border-primary" : ""
-              } ${
-                isQuestionAnswered(q.id) ? "bg-green-50" : ""
-              } ${
-                flaggedQuestions.includes(q.id) ? "border-amber-500" : ""
-              }`}
-              onClick={() => setCurrentQuestionIndex(index)}
-            >
-              {index + 1}
-            </Button>
-          ))}
+          <Progress value={calculateProgress()} className="h-2" />
         </div>
         
-        <div className="flex flex-wrap gap-4 mt-4">
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 bg-green-100 border border-green-500 rounded-sm"></div>
-            <span className="text-sm">Answered</span>
+        <div className="grid md:grid-cols-3 gap-6">
+          <div className="md:col-span-2">
+            {/* Question card */}
+            <Card className="mb-6">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-lg font-medium">
+                  Question {currentQuestionIndex + 1}
+                  <span className="ml-2 text-sm text-gray-500">
+                    ({currentQuestion?.points} points)
+                  </span>
+                </CardTitle>
+                <div className="flex items-center gap-2">
+                  <Badge variant={flaggedQuestions.includes(currentQuestion?.id) ? "destructive" : "outline"}>
+                    {flaggedQuestions.includes(currentQuestion?.id) ? "Flagged" : "Flag"} for Review
+                  </Badge>
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    onClick={toggleFlagQuestion}
+                    className={flaggedQuestions.includes(currentQuestion?.id) ? "text-destructive" : ""}
+                  >
+                    <Flag className="h-5 w-5" />
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="mb-6 text-base">
+                  {currentQuestion?.question}
+                </div>
+                <Separator className="mb-4" />
+                {renderAnswerInput()}
+              </CardContent>
+              <CardFooter className="flex justify-between">
+                <Button
+                  variant="outline"
+                  onClick={goToPreviousQuestion}
+                  disabled={isFirstQuestion}
+                >
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  Previous
+                </Button>
+                <Button
+                  variant="default"
+                  onClick={goToNextQuestion}
+                  disabled={isLastQuestion}
+                >
+                  Next
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </CardFooter>
+            </Card>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 bg-white border border-gray-300 rounded-sm"></div>
-            <span className="text-sm">Unanswered</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 bg-white border-2 border-amber-500 rounded-sm"></div>
-            <span className="text-sm">Flagged</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 bg-white border-2 border-primary rounded-sm"></div>
-            <span className="text-sm">Current</span>
+          
+          <div className="space-y-6">
+            {/* Question navigation panel */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-sm">Question Navigator</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-5 gap-2">
+                  {questions.map((q, index) => (
+                    <Button
+                      key={q.id}
+                      variant={currentQuestionIndex === index ? "default" : 
+                        (answers[q.id] ? "secondary" : "outline")}
+                      size="sm"
+                      className={`h-9 w-9 p-0 ${flaggedQuestions.includes(q.id) ? "border-red-500" : ""}`}
+                      onClick={() => setCurrentQuestionIndex(index)}
+                    >
+                      {index + 1}
+                    </Button>
+                  ))}
+                </div>
+                
+                <div className="mt-4 space-y-2">
+                  <div className="flex items-center gap-2 text-sm">
+                    <div className="h-3 w-3 rounded-full bg-primary"></div>
+                    <span>Current</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <div className="h-3 w-3 rounded-full bg-secondary"></div>
+                    <span>Answered</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <div className="h-3 w-3 rounded-full border border-red-500"></div>
+                    <span>Flagged for review</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            
+            {/* Tool box */}
+            <FlashcardCalculator />
           </div>
         </div>
       </div>
-      
-      {showSubmitDialog && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <Card className="w-full max-w-md mx-4">
-            <CardHeader>
-              <CardTitle>Submit Exam</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p>Are you sure you want to submit your exam? You won't be able to change your answers after submission.</p>
-              
-              <div className="mt-4 space-y-2">
-                <div className="flex justify-between">
-                  <span>Total Questions:</span>
-                  <span>{questions.length}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Answered:</span>
-                  <span>{Object.keys(answers).filter(id => isQuestionAnswered(id)).length}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Unanswered:</span>
-                  <span>{questions.length - Object.keys(answers).filter(id => isQuestionAnswered(id)).length}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Flagged for Review:</span>
-                  <span>{flaggedQuestions.length}</span>
-                </div>
-              </div>
-            </CardContent>
-            <CardFooter className="flex justify-end gap-3">
-              <Button variant="outline" onClick={() => setShowSubmitDialog(false)}>
-                Cancel
-              </Button>
-              <Button onClick={handleSubmitExam}>
-                Submit Exam
-              </Button>
-            </CardFooter>
-          </Card>
-        </div>
-      )}
-    </div>
+    </DashboardContainer>
   );
 };
 
