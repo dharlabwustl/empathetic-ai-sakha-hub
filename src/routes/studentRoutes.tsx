@@ -30,13 +30,11 @@ export default function StudentRoutes() {
       <Route path="/batch" element={<BatchManagementView />} />
       <Route path="/subscription" element={<SubscriptionPage />} />
       
-      {/* Landing pages with topic-based routing */}
       <Route path="/concepts/study/:conceptId" element={<ConceptStudyPage />} />
       <Route path="/flashcards/practice/:cardId" element={<FlashcardPracticePage />} />
       <Route path="/exams/attempt/:examId" element={<ExamAttemptPage />} />
       <Route path="/exams/review/:examId" element={<ExamReviewPage />} />
       
-      {/* Feel Good Corner with enhanced sections */}
       <Route path="/wellness" element={<FeelGoodCornerPage />} />
     </Routes>
   );

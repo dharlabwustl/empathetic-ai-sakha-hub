@@ -1,8 +1,8 @@
 import React from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { BookOpen, Check, Clock, Star } from "lucide-react";
+import { BookOpen, Check, Clock } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 interface ConceptCardProps {
@@ -15,14 +15,17 @@ interface ConceptCardProps {
     difficulty: "easy" | "medium" | "hard";
     timeEstimate: number;
     mastery: number;
-    priority: number;
     cardCount: number;
-    isRecommended: boolean;
+    isRecommended?: boolean;
   };
 }
 
 const ConceptCard: React.FC<ConceptCardProps> = ({ concept }) => {
   const navigate = useNavigate();
+
+  const handleOpenConceptStudy = (conceptId: string) => {
+    navigate(`/concepts/study/${conceptId}`);
+  };
 
   const getStatusInfo = (status: string) => {
     switch (status) {
@@ -61,14 +64,6 @@ const ConceptCard: React.FC<ConceptCardProps> = ({ concept }) => {
     }
   };
 
-  const handleOpenConceptStudy = (conceptId: string) => {
-    navigate(`/dashboard/student/concepts/${conceptId}/study`);
-  };
-
-  const statusInfo = getStatusInfo(concept.status);
-  const difficultyInfo = getDifficultyInfo(concept.difficulty);
-  const StatusIcon = statusInfo.icon;
-
   return (
     <Card className="h-full flex flex-col transform hover:scale-[1.01] transition-all duration-200 hover:shadow-md">
       <CardHeader className="pb-2">
@@ -76,7 +71,6 @@ const ConceptCard: React.FC<ConceptCardProps> = ({ concept }) => {
           <CardTitle className="text-lg font-bold">{concept.title}</CardTitle>
           {concept.isRecommended && (
             <Badge variant="outline" className="bg-indigo-100 text-indigo-800 border-indigo-200">
-              <Star className="h-3 w-3 mr-1 text-yellow-500 fill-yellow-500" />
               Recommended
             </Badge>
           )}
@@ -92,40 +86,12 @@ const ConceptCard: React.FC<ConceptCardProps> = ({ concept }) => {
       </CardHeader>
       <CardContent className="flex-grow pb-2">
         <div className="flex justify-between items-center mb-2">
-          <Badge variant="outline" className={statusInfo.color}>
-            <StatusIcon className="h-3 w-3 mr-1" />
-            {statusInfo.text}
+          <Badge variant="outline" className={getStatusInfo(concept.status).color}>
+            {getStatusInfo(concept.status).text}
           </Badge>
-          <Badge variant="outline" className={difficultyInfo.color}>
-            {difficultyInfo.text}
+          <Badge variant="outline" className={getDifficultyInfo(concept.difficulty).color}>
+            {getDifficultyInfo(concept.difficulty).text}
           </Badge>
-        </div>
-        
-        <div className="mt-3">
-          <div className="flex justify-between text-sm text-gray-500 mb-1">
-            <span>Mastery</span>
-            <span>{concept.mastery}%</span>
-          </div>
-          <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
-            <div 
-              className={`h-full rounded-full ${
-                concept.mastery >= 80 
-                  ? "bg-emerald-500" 
-                  : concept.mastery >= 40 
-                    ? "bg-yellow-500" 
-                    : "bg-red-500"
-              }`} 
-              style={{ width: `${concept.mastery}%` }}
-            ></div>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2 mt-3 text-sm text-gray-500">
-          <Clock className="h-4 w-4" />
-          <span>{concept.timeEstimate} min</span>
-          <span className="mx-2">•</span>
-          <BookOpen className="h-4 w-4" />
-          <span>{concept.cardCount} cards</span>
         </div>
       </CardContent>
       <CardFooter className="pt-2">
