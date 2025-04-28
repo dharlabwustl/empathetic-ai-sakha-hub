@@ -14,6 +14,8 @@ import FlashcardPracticePage from '@/components/dashboard/student/flashcards/Fla
 import ExamAttemptPage from '@/components/dashboard/student/exams/ExamAttemptPage';
 import ExamReviewPage from '@/components/dashboard/student/exams/ExamReviewPage';
 
+import FlashcardStudyPage from '@/components/dashboard/student/flashcards/FlashcardStudyPage';
+
 export default function StudentRoutes() {
   return (
     <Routes>
@@ -36,6 +38,8 @@ export default function StudentRoutes() {
       <Route path="/exams/review/:examId" element={<ExamReviewPage />} />
       
       <Route path="/wellness" element={<FeelGoodCornerPage />} />
+      <Route path="/flashcards/study/:deckId" element={<FlashcardStudyPage />} />
+      <Route path="/flashcards/practice/:cardId" element={<FlashcardPracticePage />} />
     </Routes>
   );
 }
