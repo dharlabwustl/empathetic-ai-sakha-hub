@@ -1,14 +1,13 @@
 
 import React from 'react';
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
-import RedesignedTodaysPlan from '@/components/dashboard/student/todays-plan/RedesignedTodaysPlan';
 import TodayStudyPlan from '@/components/dashboard/student/TodayStudyPlan';
 import { useStudentProfile } from '@/hooks/useStudentProfile';
 import { Card, CardContent } from '@/components/ui/card';
 import { motion } from 'framer-motion';
 import { CalendarDays, Brain, Clock, Book } from 'lucide-react';
 
-const TodaysPlanView: React.FC = () => {
+const TodaysPlanView = () => {
   const { userProfile, loading } = useStudentProfile();
 
   const containerVariants = {
@@ -48,7 +47,7 @@ const TodaysPlanView: React.FC = () => {
           <div className="h-32 bg-gray-200 dark:bg-gray-800 rounded-md"></div>
         </div>
       ) : userProfile ? (
-        <motion.div 
+        <motion.div
           className="space-y-8"
           variants={containerVariants}
           initial="hidden"
@@ -66,6 +65,7 @@ const TodaysPlanView: React.FC = () => {
                       Learning Schedule
                     </h3>
                   </div>
+                  
                   <TodayStudyPlan />
                 </div>
                 <div className="bg-gradient-to-r from-violet-100 to-indigo-100 dark:from-violet-900/40 dark:to-indigo-900/40 px-6 py-3 flex justify-between items-center">

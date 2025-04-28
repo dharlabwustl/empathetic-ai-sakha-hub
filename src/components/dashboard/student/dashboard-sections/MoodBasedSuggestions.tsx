@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { MoodType } from '@/types/student/todaysPlan';
 import { Card } from '@/components/ui/card';
@@ -19,7 +18,6 @@ interface SuggestionItem {
 }
 
 const MoodBasedSuggestions: React.FC<MoodBasedSuggestionsProps> = ({ currentMood }) => {
-  // If no mood is set, provide general suggestions
   if (!currentMood) {
     return (
       <div className="text-center p-6">
@@ -33,7 +31,6 @@ const MoodBasedSuggestions: React.FC<MoodBasedSuggestionsProps> = ({ currentMood
     );
   }
 
-  // Define suggestions based on mood
   const suggestions = getMoodBasedSuggestions(currentMood);
 
   return (
@@ -67,7 +64,6 @@ const MoodBasedSuggestions: React.FC<MoodBasedSuggestionsProps> = ({ currentMood
   );
 };
 
-// Helper functions
 const getMoodBackgroundClass = (mood: MoodType): string => {
   switch (mood) {
     case 'happy': return 'bg-green-50 border border-green-200 text-green-800';
