@@ -1,4 +1,3 @@
-
 // Study progress types
 export interface SubjectProgress {
   id: string;
@@ -57,4 +56,33 @@ export interface StudyStreak {
     minutes: number;
   }[];
   thisWeek: number[]; // Added missing property
+}
+
+export interface ExamQuestion {
+  id: string;
+  question: string;
+  options?: string[];
+  correctAnswer?: string | string[];
+  explanation: string;
+  type: 'multiple-choice' | 'checkbox' | 'short-answer' | 'long-answer';
+  points: number;
+  feedback?: string;
+}
+
+export interface ExamAttempt {
+  id: string;
+  examId: string;
+  startedAt: string;
+  completedAt: string;
+  score: number;
+  totalPoints: number;
+  timeSpent: number; // in seconds
+  answers: {
+    questionId: string;
+    userAnswer: any;
+    correct: boolean;
+    points: number;
+    feedback?: string;
+  }[];
+  percentile?: number;
 }

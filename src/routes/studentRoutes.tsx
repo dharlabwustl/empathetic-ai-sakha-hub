@@ -12,9 +12,9 @@ import FeelGoodCornerPage from '@/pages/dashboard/student/FeelGoodCornerPage';
 import ConceptStudyPage from '@/pages/dashboard/student/concepts/ConceptStudyPage';
 import FlashcardPracticePage from '@/components/dashboard/student/flashcards/FlashcardPracticePage';
 import ExamAttemptPage from '@/components/dashboard/student/exams/ExamAttemptPage';
-import ExamReviewPage from '@/components/dashboard/student/exams/ExamReviewPage';
-
+import ExamReviewPage from '@/pages/dashboard/student/exam/ExamReviewPage';
 import FlashcardStudyPage from '@/components/dashboard/student/flashcards/FlashcardStudyPage';
+import ExamStartPage from '@/pages/dashboard/student/exam/ExamStartPage';
 
 export default function StudentRoutes() {
   return (
@@ -40,6 +40,7 @@ export default function StudentRoutes() {
       <Route path="/wellness" element={<FeelGoodCornerPage />} />
       <Route path="/flashcards/study/:deckId" element={<FlashcardStudyPage />} />
       <Route path="/flashcards/practice/:cardId" element={<FlashcardPracticePage />} />
+      <Route path="/exams/start/:examId" element={<ExamStartPage />} />
     </Routes>
   );
 }
