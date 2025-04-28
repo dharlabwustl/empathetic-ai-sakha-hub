@@ -1,4 +1,3 @@
-
 import { Routes, Route } from 'react-router-dom';
 import TodaysPlanView from '@/components/dashboard/student/todays-plan/TodaysPlanView';
 import ConceptsView from '@/components/dashboard/student/concepts/ConceptsView';
@@ -10,7 +9,7 @@ import ProfilePage from '@/pages/dashboard/student/ProfilePage';
 import BatchManagementView from '@/pages/dashboard/student/BatchManagementView';
 import SubscriptionPage from '@/pages/dashboard/student/SubscriptionPage';
 import FeelGoodCornerPage from '@/pages/dashboard/student/FeelGoodCornerPage';
-import ConceptStudyPage from '@/components/dashboard/student/concepts/ConceptStudyPage';
+import ConceptStudyPage from '@/pages/dashboard/student/concepts/ConceptStudyPage';
 import FlashcardPracticePage from '@/components/dashboard/student/flashcards/FlashcardPracticePage';
 import ExamAttemptPage from '@/components/dashboard/student/exams/ExamAttemptPage';
 import ExamReviewPage from '@/components/dashboard/student/exams/ExamReviewPage';

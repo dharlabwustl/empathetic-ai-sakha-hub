@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -83,7 +82,6 @@ const ConceptCard: React.FC<ConceptCardProps> = ({
     if (onView) {
       onView(id);
     } else {
-      // Navigate to the existing concept page using the ID
       navigate(`/dashboard/student/concepts/${id}`);
     }
   };
