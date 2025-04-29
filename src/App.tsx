@@ -1,4 +1,3 @@
-
 import * as React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -6,10 +5,11 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "@/providers/ThemeProvider";
-import { AdminAuthProvider } from "@/contexts/AdminAuthContext";
 import { AuthProvider } from "@/contexts/auth/AuthContext";
+import { AdminAuthProvider } from "@/contexts/AdminAuthContext";
 import AdminRouteGuard from "@/components/admin/AdminRouteGuard";
 import ProtectedRoute from "@/components/common/ProtectedRoute";
+
 import Index from "./pages/Index";
 import About from "./pages/About";
 import Features from "./pages/Features";
@@ -84,11 +84,11 @@ const App = () => {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <TooltipProvider>
-          <AuthProvider>
-            <AdminAuthProvider>
-              <Toaster />
-              <Sonner />
-              <BrowserRouter>
+          <BrowserRouter>
+            <AuthProvider>
+              <AdminAuthProvider>
+                <Toaster />
+                <Sonner />
                 <Routes>
                   <Route path="/" element={<Index />} />
                   <Route path="/about" element={<About />} />
@@ -149,7 +149,6 @@ const App = () => {
                     <Route path="/dashboard/student/flashcards/detail/:id" element={<FlashcardDetailsPage />} />
                     <Route path="/dashboard/student/practice/exam/:id" element={<ExamDetailPage />} />
                     
-                    {/* Exam and Flashcard specific routes */}
                     <Route path="/dashboard/student/flashcards/practice/:cardId" element={<FlashcardPracticePage />} />
                     <Route path="/dashboard/student/flashcards/study/:deckId" element={<FlashcardStudyPage />} />
                     <Route path="/dashboard/student/exams/start/:examId" element={<ExamStartPage />} />
@@ -163,9 +162,9 @@ const App = () => {
                   
                   <Route path="*" element={<NotFound />} />
                 </Routes>
-              </BrowserRouter>
-            </AdminAuthProvider>
-          </AuthProvider>
+              </AdminAuthProvider>
+            </AuthProvider>
+          </BrowserRouter>
         </TooltipProvider>
       </ThemeProvider>
     </QueryClientProvider>

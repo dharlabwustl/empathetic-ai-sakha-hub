@@ -1,6 +1,5 @@
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import authService, { AuthUser } from '@/services/auth/authService';
 
@@ -18,7 +17,6 @@ const AdminAuthContext = createContext<AdminAuthContextProps | undefined>(undefi
 export function AdminAuthProvider({ children }: { children: ReactNode }) {
   const [adminUser, setAdminUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const navigate = useNavigate();
   const { toast } = useToast();
   
   // Check if there is an authenticated admin user on initial load
@@ -80,14 +78,16 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
     }
   };
   
-  // Logout function
+  // Logout function - no longer using navigate directly
   const logout = async () => {
     try {
       await authService.logout();
       setAdminUser(null);
-      navigate('/admin/login', { replace: true });
+      // Navigation will be handled by the component that calls this function
+      return Promise.resolve();
     } catch (error) {
       console.error('Admin logout error:', error);
+      return Promise.reject(error);
     }
   };
   
