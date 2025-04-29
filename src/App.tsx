@@ -66,9 +66,9 @@ import TermsPage from "./pages/TermsPage";
 import PrivacyPage from "./pages/PrivacyPage";
 import ExamStartPage from "./pages/dashboard/student/exam/ExamStartPage";
 import ExamReviewPage from "./pages/dashboard/student/exam/ExamReviewPage";
-import FlashcardStudyPage from "@/components/dashboard/student/flashcards/FlashcardStudyPage";
-import FlashcardPracticePage from "@/components/dashboard/student/flashcards/FlashcardPracticePage";
-import ExamAttemptPage from "@/components/dashboard/student/exams/ExamAttemptPage";
+import FlashcardStudyPage from "@/pages/dashboard/student/FlashcardStudyPage";
+import FlashcardPracticePage from "@/pages/dashboard/student/FlashcardPracticePage";
+import ExamAttemptPage from "@/pages/dashboard/student/exam/ExamAttemptPage";
 
 const queryClient = new QueryClient({
   defaultOptions: {

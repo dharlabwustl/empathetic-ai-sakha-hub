@@ -1,130 +1,281 @@
 
-import React, { useState } from 'react';
-import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
-import { useParams } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useParams, Link } from 'react-router-dom';
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Card } from '@/components/ui/card';
-import { ChevronLeft, ChevronRight, RotateCw, Check, X } from 'lucide-react';
+import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
+
+interface Flashcard {
+  id: string;
+  question: string;
+  answer: string;
+  difficulty: 'easy' | 'medium' | 'hard';
+}
+
+interface FlashcardDeck {
+  id: string;
+  title: string;
+  subject: string;
+  topic: string;
+  totalCards: number;
+  mastered: number;
+  cards: Flashcard[];
+}
 
 const FlashcardStudyPage = () => {
   const { deckId } = useParams();
-  const [currentCard, setCurrentCard] = useState(0);
-  const [flipped, setFlipped] = useState(false);
-  const [progress, setProgress] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [deck, setDeck] = useState<FlashcardDeck | null>(null);
+  const [currentCardIndex, setCurrentCardIndex] = useState(0);
+  const [isFlipped, setIsFlipped] = useState(false);
+  const [masteredCards, setMasteredCards] = useState<Record<string, boolean>>({});
   
-  // Mock data for flashcards
-  const flashcards = [
-    {
-      id: '1',
-      question: 'What is the formula for the Pythagorean theorem?',
-      answer: 'a² + b² = c²'
-    },
-    {
-      id: '2',
-      question: 'What is the quadratic formula?',
-      answer: 'x = (-b ± √(b² - 4ac)) / 2a'
-    },
-    {
-      id: '3',
-      question: 'What is Newton\'s second law of motion?',
-      answer: 'F = ma (Force equals mass times acceleration)'
-    }
-  ];
-  
-  const totalCards = flashcards.length;
-  
-  const handleNext = () => {
-    if (currentCard < totalCards - 1) {
-      setCurrentCard(currentCard + 1);
-      setFlipped(false);
-      setProgress(((currentCard + 1) / (totalCards - 1)) * 100);
-    }
-  };
-  
-  const handlePrevious = () => {
-    if (currentCard > 0) {
-      setCurrentCard(currentCard - 1);
-      setFlipped(false);
-      setProgress(((currentCard - 1) / (totalCards - 1)) * 100);
-    }
-  };
-  
+  useEffect(() => {
+    // Mock data fetch
+    const fetchData = () => {
+      setLoading(true);
+      
+      // Simulate API delay
+      setTimeout(() => {
+        const mockDeck: FlashcardDeck = {
+          id: deckId || '1',
+          title: "Physics Fundamentals",
+          subject: "Physics",
+          topic: "Classical Mechanics",
+          totalCards: 10,
+          mastered: 3,
+          cards: Array.from({ length: 10 }, (_, i) => ({
+            id: `card-${i+1}`,
+            question: `Question ${i+1}: ${
+              i % 3 === 0 ? "What is Newton's Third Law of Motion?" :
+              i % 3 === 1 ? "Define kinetic energy and explain its formula." :
+              "Explain the principle of conservation of momentum."
+            }`,
+            answer: `Answer ${i+1}: ${
+              i % 3 === 0 ? "For every action, there is an equal and opposite reaction." :
+              i % 3 === 1 ? "Kinetic energy is the energy possessed by an object due to its motion. It is calculated using the formula E = (1/2)mv², where m is mass and v is velocity." :
+              "The principle of conservation of momentum states that the total momentum of an isolated system remains constant if there are no external forces acting on the system."
+            }`,
+            difficulty: i % 3 === 0 ? 'easy' : i % 3 === 1 ? 'medium' : 'hard'
+          }))
+        };
+
+        setDeck(mockDeck);
+        setLoading(false);
+      }, 500);
+    };
+    
+    fetchData();
+  }, [deckId]);
+
   const handleFlip = () => {
-    setFlipped(!flipped);
+    setIsFlipped(!isFlipped);
   };
 
+  const handleNextCard = () => {
+    if (!deck) return;
+    
+    if (currentCardIndex < deck.cards.length - 1) {
+      setCurrentCardIndex(currentCardIndex + 1);
+      setIsFlipped(false);
+    }
+  };
+
+  const handlePrevCard = () => {
+    if (currentCardIndex > 0) {
+      setCurrentCardIndex(currentCardIndex - 1);
+      setIsFlipped(false);
+    }
+  };
+
+  const toggleMastered = () => {
+    if (!deck) return;
+    
+    const cardId = deck.cards[currentCardIndex].id;
+    
+    setMasteredCards(prev => {
+      const newState = { ...prev, [cardId]: !prev[cardId] };
+      return newState;
+    });
+  };
+  
+  if (loading) {
+    return (
+      <SharedPageLayout
+        title="Loading Flashcards"
+        subtitle="Please wait..."
+      >
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        </div>
+      </SharedPageLayout>
+    );
+  }
+  
+  if (!deck) {
+    return (
+      <SharedPageLayout
+        title="Flashcard Deck Not Found"
+        subtitle="The requested flashcard deck could not be found"
+      >
+        <div className="text-center py-8">
+          <Link to="/dashboard/student/flashcards">
+            <Button>Back to Flashcards</Button>
+          </Link>
+        </div>
+      </SharedPageLayout>
+    );
+  }
+
+  const currentCard = deck.cards[currentCardIndex];
+  const masteredCount = Object.values(masteredCards).filter(Boolean).length;
+  const progressPercentage = (masteredCount / deck.cards.length) * 100;
+
   return (
-    <SharedPageLayout 
-      title="Flashcard Study" 
-      subtitle="Mathematics Deck"
-      showQuickAccess={false}
+    <SharedPageLayout
+      title={deck.title}
+      subtitle={`Study ${deck.cards.length} flashcards on ${deck.topic}`}
     >
-      <div className="max-w-3xl mx-auto">
-        <div className="flex justify-between items-center mb-6">
-          <div className="text-sm text-gray-500">
-            Card {currentCard + 1} of {totalCards}
+      <div className="max-w-4xl mx-auto">
+        <div className="mb-6 space-y-4">
+          <div className="flex gap-4 flex-wrap">
+            <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-400">
+              {deck.subject}
+            </Badge>
+            <Badge className="bg-purple-100 text-purple-700 hover:bg-purple-200 dark:bg-purple-900/30 dark:text-purple-400">
+              {deck.topic}
+            </Badge>
           </div>
-          <div className="w-1/2">
-            <Progress value={progress} className="h-2" />
+          
+          {/* Progress bar */}
+          <div className="space-y-2">
+            <div className="flex justify-between">
+              <span className="text-sm font-medium">
+                Progress: {masteredCount} of {deck.cards.length} mastered
+              </span>
+              <span className="text-sm font-medium">
+                {Math.round(progressPercentage)}%
+              </span>
+            </div>
+            
+            <Progress value={progressPercentage} className="h-2" />
+            
+            <div className="flex justify-between text-sm">
+              <span>Card {currentCardIndex + 1} of {deck.cards.length}</span>
+              
+              <div className="flex gap-1 items-center">
+                <span className="w-3 h-3 inline-block rounded-full bg-green-500"></span>
+                <span className="text-green-700 dark:text-green-400">
+                  Mastered: {masteredCount}
+                </span>
+                
+                <span className="w-3 h-3 inline-block rounded-full bg-gray-300 ml-2"></span>
+                <span className="text-gray-700 dark:text-gray-400">
+                  Remaining: {deck.cards.length - masteredCount}
+                </span>
+              </div>
+            </div>
           </div>
-          <Button variant="outline" size="sm">End Session</Button>
         </div>
         
+        {/* Flashcard */}
         <div 
-          className="relative w-full h-[400px] cursor-pointer"
+          className={`relative w-full h-96 cursor-pointer perspective-1000 transition-transform duration-700 transform-style-preserve-3d ${
+            isFlipped ? 'rotate-y-180' : ''
+          }`}
           onClick={handleFlip}
         >
-          <Card className={`absolute inset-0 p-8 flex flex-col items-center justify-center transition-opacity duration-300 ${flipped ? 'opacity-0' : 'opacity-100'}`}>
-            <p className="text-sm text-gray-500 mb-4">Question:</p>
-            <h3 className="text-2xl font-bold text-center mb-8">{flashcards[currentCard].question}</h3>
-            <p className="text-gray-500 italic">Click to flip</p>
+          {/* Front side */}
+          <Card 
+            className={`absolute w-full h-full backface-hidden ${
+              isFlipped ? 'opacity-0' : 'opacity-100'
+            } transition-opacity duration-300`}
+          >
+            <CardHeader className={`py-6 text-white ${
+              masteredCards[currentCard.id] 
+              ? 'bg-gradient-to-r from-green-500 to-green-600' 
+              : 'bg-gradient-to-r from-blue-500 to-blue-600'
+            }`}>
+              <div className="flex justify-between items-center">
+                <CardTitle className="text-xl">Question</CardTitle>
+                <Badge className={`${
+                  currentCard.difficulty === 'easy' ? 'bg-green-100 text-green-800' :
+                  currentCard.difficulty === 'medium' ? 'bg-yellow-100 text-yellow-800' :
+                  'bg-red-100 text-red-800'
+                }`}>
+                  {currentCard.difficulty.charAt(0).toUpperCase() + currentCard.difficulty.slice(1)}
+                </Badge>
+              </div>
+            </CardHeader>
+            <CardContent className="p-6 text-lg flex items-center justify-center h-64">
+              <p className="text-center">{currentCard.question}</p>
+            </CardContent>
+            <CardFooter className="text-center text-sm text-muted-foreground">
+              Click to flip card
+            </CardFooter>
           </Card>
           
-          <Card className={`absolute inset-0 p-8 flex flex-col items-center justify-center transition-opacity duration-300 ${flipped ? 'opacity-100' : 'opacity-0'}`}>
-            <p className="text-sm text-gray-500 mb-4">Answer:</p>
-            <h3 className="text-2xl font-bold text-center mb-8">{flashcards[currentCard].answer}</h3>
-            <p className="text-gray-500 italic">Click to flip</p>
+          {/* Back side */}
+          <Card 
+            className={`absolute w-full h-full backface-hidden rotate-y-180 ${
+              isFlipped ? 'opacity-100' : 'opacity-0'
+            } transition-opacity duration-300`}
+          >
+            <CardHeader className="bg-gradient-to-r from-green-500 to-green-600 text-white py-6">
+              <CardTitle className="text-xl">Answer</CardTitle>
+            </CardHeader>
+            <CardContent className="p-6 text-lg flex items-center justify-center h-64">
+              <p className="text-center">{currentCard.answer}</p>
+            </CardContent>
+            <CardFooter className="text-center text-sm text-muted-foreground">
+              Click to flip back
+            </CardFooter>
           </Card>
         </div>
         
-        <div className="mt-8 flex justify-between items-center">
-          <Button variant="outline" onClick={handlePrevious} disabled={currentCard === 0}>
-            <ChevronLeft size={18} className="mr-1" />
-            Previous
-          </Button>
-          
-          <div className="flex gap-3">
-            <Button variant="outline" onClick={handleFlip}>
-              <RotateCw size={18} className="mr-2" />
-              Flip
+        {/* Controls */}
+        <div className="mt-6 flex justify-between flex-wrap gap-4">
+          <div className="flex gap-2">
+            <Button 
+              variant="outline" 
+              onClick={handlePrevCard}
+              disabled={currentCardIndex === 0}
+            >
+              Previous Card
             </Button>
             
-            <Button variant="outline" className="text-red-500 border-red-200">
-              <X size={18} className="mr-2" />
-              Didn't Know
-            </Button>
-            
-            <Button variant="outline" className="text-green-500 border-green-200">
-              <Check size={18} className="mr-2" />
-              Knew It
+            <Button 
+              onClick={handleNextCard}
+              disabled={currentCardIndex === deck.cards.length - 1}
+            >
+              Next Card
             </Button>
           </div>
           
-          <Button variant="outline" onClick={handleNext} disabled={currentCard === totalCards - 1}>
-            Next
-            <ChevronRight size={18} className="ml-1" />
-          </Button>
+          <div className="flex gap-2">
+            <Button 
+              variant={masteredCards[currentCard.id] ? "default" : "outline"}
+              onClick={toggleMastered}
+              className={masteredCards[currentCard.id] ? "bg-green-600 hover:bg-green-700" : ""}
+            >
+              {masteredCards[currentCard.id] ? "Mastered ✓" : "Mark as Mastered"}
+            </Button>
+            
+            <Link to={`/dashboard/student/flashcards/practice/${currentCard.id}`}>
+              <Button variant="outline">Practice Mode</Button>
+            </Link>
+          </div>
         </div>
         
-        <div className="mt-12 bg-blue-50 p-6 rounded-lg">
-          <h3 className="text-lg font-semibold mb-2">Study Tips</h3>
-          <ul className="list-disc list-inside space-y-2 text-gray-700">
-            <li>Try to recall the answer before flipping the card</li>
-            <li>Space out your study sessions for better retention</li>
-            <li>Review cards you struggled with more frequently</li>
-            <li>Try explaining the concepts in your own words</li>
-          </ul>
+        {/* Bottom navigation */}
+        <div className="mt-8 flex justify-between">
+          <Link to="/dashboard/student/flashcards">
+            <Button variant="outline">Back to All Flashcards</Button>
+          </Link>
+          
+          <Button disabled>Shuffle Cards</Button>
         </div>
       </div>
     </SharedPageLayout>

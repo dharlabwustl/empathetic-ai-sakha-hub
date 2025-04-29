@@ -1,32 +1,50 @@
 
-export type MoodType = 'sad' | 'neutral' | 'happy' | 'motivated' | 'anxious' | 'stressed' | 'tired' | 'focused' | 'overwhelmed' | 'curious' | 'okay';
+export enum UserRole {
+  Student = "student",
+  Educator = "educator",
+  Admin = "admin",
+  Employee = "employee",
+  Doctor = "doctor",
+  Founder = "founder"
+}
+
+export enum SubscriptionType {
+  free = "free",
+  premium = "premium",
+  pro_student = "pro_student",
+  pro_educator = "pro_educator"
+}
+
+export interface UserSubscription {
+  type: SubscriptionType;
+  startDate: string;
+  endDate: string;
+  isActive: boolean;
+  features: string[];
+}
+
+export interface UserGoal {
+  id: string;
+  title: string;
+  progress: number;
+  targetDate?: string;
+}
 
 export interface UserProfileBase {
   id: string;
   name: string;
   email: string;
-  role: string;
-  avatar?: string;
+  phoneNumber?: string;
+  role: UserRole;
+  profileImage?: string;
   loginCount?: number;
-  goals?: Array<{
-    id: string;
-    title: string;
-    progress: number;
-  }>;
-  subscriptionType?: SubscriptionType | SubscriptionDetails;
+  lastLogin?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  goals?: UserGoal[];
+  subscription?: UserSubscription;
+  examPreparation?: string;
+  preferences?: Record<string, any>;
 }
 
-export enum SubscriptionType {
-  Free = 'free',
-  Premium = 'premium',
-  ProStudent = 'pro_student',
-  ProEducator = 'pro_educator'
-}
-
-export interface SubscriptionDetails {
-  type: SubscriptionType;
-  startDate: string;
-  expiryDate?: string;
-  isActive: boolean;
-  features?: string[];
-}
+export type UserAuthStatus = "authenticated" | "unauthenticated" | "loading";

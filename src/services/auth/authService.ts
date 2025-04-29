@@ -28,8 +28,8 @@ export interface AuthUser {
 }
 
 // Local storage keys
-const AUTH_TOKEN_KEY = 'sakha_auth_token';
-const AUTH_USER_KEY = 'sakha_auth_user';
+const AUTH_TOKEN_KEY = 'prepzr_auth_token';
+const AUTH_USER_KEY = 'prepzr_auth_user';
 
 // Authentication service
 const authService = {
@@ -89,7 +89,29 @@ const authService = {
   async adminLogin(credentials: LoginCredentials): Promise<ApiResponse<AuthUser>> {
     console.log("Admin login with:", credentials);
     
-    // For demo, validate against admin accounts only
+    // Special case for the default admin account to make sure it always works
+    if (credentials.email === "admin@sakha.ai" && credentials.password === "admin123") {
+      const adminUser: AuthUser = {
+        id: "admin_default",
+        name: "Admin User",
+        email: "admin@sakha.ai",
+        role: "admin",
+        token: `admin_token_${Date.now()}`,
+        permissions: ["all"]
+      };
+      
+      // Set the auth data
+      this.setAuthData(adminUser);
+      
+      // Return success response
+      return {
+        success: true,
+        data: adminUser,
+        error: null
+      };
+    }
+    
+    // For other admin accounts, validate against mock accounts
     const user = validateCredentials(credentials.email, credentials.password);
     
     if (user && user.role === 'admin') {

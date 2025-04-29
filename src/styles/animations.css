@@ -1,54 +1,97 @@
 
-@keyframes pulse-subtle {
+/* Base animations for UI elements */
+@keyframes fade-in {
   0% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.7;
+    opacity: 0;
+    transform: translateY(10px);
   }
   100% {
     opacity: 1;
+    transform: translateY(0);
   }
 }
 
-.animate-pulse-subtle {
-  animation: pulse-subtle 2s ease-in-out infinite;
-}
-
-.avatar-pulse {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  background-color: rgba(59, 130, 246, 0.2); /* blue */
-  z-index: 0;
-  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-@keyframes pulse {
-  0%, 100% {
-    transform: scale(1);
-    opacity: 0.3;
-  }
-  50% {
-    transform: scale(1.5);
+@keyframes scale-in {
+  0% {
+    transform: scale(0.95);
     opacity: 0;
   }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
+@keyframes glow {
+  0% {
+    box-shadow: 0 0 5px rgba(24, 94, 255, 0.3);
+  }
+  100% {
+    box-shadow: 0 0 15px rgba(24, 94, 255, 0.6);
+  }
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+/* Utility classes */
+.animate-fade-in {
+  animation: fade-in 0.4s ease-out forwards;
+}
+
+.animate-scale-in {
+  animation: scale-in 0.3s ease-out forwards;
+}
+
+.animate-glow {
+  animation: glow 2s ease-in-out infinite alternate;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* Special effect for logo */
+.avatar-eyes .eye {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background-color: white;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+/* PREPZR specific animations */
 .gradient-text {
-  background-clip: text;
+  background-image: linear-gradient(to right, #185eff, #447eff);
   -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
   color: transparent;
-  background-image: linear-gradient(to right, #3b82f6, #8b5cf6);
 }
 
-/* Colors for Sakha AI */
-:root {
-  --sakha-blue: #3b82f6;
-  --sakha-purple: #8b5cf6;
-  --sakha-light-blue: #93c5fd;
-  --sakha-lavender: #c4b5fd;
+/* Card flip animations */
+.perspective-1000 {
+  perspective: 1000px;
+}
+
+.backface-hidden {
+  backface-visibility: hidden;
+}
+
+.transform-style-preserve-3d {
+  transform-style: preserve-3d;
+}
+
+.rotate-y-180 {
+  transform: rotateY(180deg);
 }

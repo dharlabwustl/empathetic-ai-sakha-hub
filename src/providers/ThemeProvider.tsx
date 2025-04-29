@@ -1,48 +1,58 @@
 
-import * as React from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
 
 type Theme = "light" | "dark";
 
 interface ThemeContextType {
   theme: Theme;
+  setTheme: (theme: Theme) => void;
   toggleTheme: () => void;
 }
 
-const ThemeContext = React.createContext<ThemeContextType | undefined>(undefined);
+const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = React.useState<Theme>(() => {
-    if (typeof window !== 'undefined') {
-      const savedTheme = localStorage.getItem("theme");
-      return (savedTheme as Theme) || "light";
-    }
-    return "light";
+interface ThemeProviderProps {
+  children: React.ReactNode;
+  defaultTheme?: Theme;
+}
+
+export function ThemeProvider({
+  children,
+  defaultTheme = "light",
+}: ThemeProviderProps) {
+  const [theme, setTheme] = useState<Theme>(() => {
+    // Check for saved theme in localStorage
+    const savedTheme = localStorage.getItem("prepzr-theme");
+    return (savedTheme as Theme) || defaultTheme;
   });
 
-  React.useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const root = window.document.documentElement;
-      root.classList.remove("light", "dark");
-      root.classList.add(theme);
-      localStorage.setItem("theme", theme);
-    }
+  // Update theme class on document body
+  useEffect(() => {
+    const root = window.document.documentElement;
+    root.classList.remove("light", "dark");
+    root.classList.add(theme);
+    localStorage.setItem("prepzr-theme", theme);
   }, [theme]);
 
+  // Toggle theme function
   const toggleTheme = () => {
-    setTheme((prev) => (prev === "light" ? "dark" : "light"));
+    setTheme(theme === "light" ? "dark" : "light");
   };
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+    <ThemeContext.Provider value={{ theme, setTheme, toggleTheme }}>
       {children}
     </ThemeContext.Provider>
   );
 }
 
+// Custom hook for using the theme context
 export function useTheme() {
-  const context = React.useContext(ThemeContext);
+  const context = useContext(ThemeContext);
+  
   if (context === undefined) {
     throw new Error("useTheme must be used within a ThemeProvider");
   }
+  
   return context;
 }

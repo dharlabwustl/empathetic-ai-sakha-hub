@@ -1,167 +1,61 @@
 
-@layer base {
-  :root {
-    --background: 210 40% 98%;
-    --foreground: 222.2 84% 4.9%;
-
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-
-    --primary: 210 100% 50%;
-    --primary-foreground: 210 40% 98%;
-
-    --secondary: 210 95% 55%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-
-    --accent: 210 95% 95%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 210 100% 50%;
-
-    --radius: 0.75rem;
-
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 210 100% 50%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 210 100% 50%;
-    
-    /* Updated PREPZR colors for a more vibrant blue theme */
-    --prepzr-light-blue: 210 100% 85%;
-    --prepzr-blue: 210 95% 55%;
-    --prepzr-dark-blue: 210 100% 50%;
-    --prepzr-electric-blue: 195 100% 50%;
-    --prepzr-navy: 218 70% 30%;
-    --prepzr-cool-blue: 200 70% 94%;
-  }
-
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 210 100% 50%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-
-    --secondary: 210 95% 55%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 210 30% 25%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 210 100% 50%;
-
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 210 100% 50%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 210 100% 50%;
-    
-    /* Updated PREPZR colors for dark mode */
-    --prepzr-light-blue: 210 80% 75%;
-    --prepzr-blue: 210 95% 55%;
-    --prepzr-dark-blue: 210 100% 50%;
-    --prepzr-electric-blue: 195 100% 50%;
-    --prepzr-navy: 218 70% 30%;
-    --prepzr-cool-blue: 200 70% 24%;
-  }
+:root {
+  /* PREPZR Brand Colors */
+  --prepzr-blue-100: #e3efff;
+  --prepzr-blue-200: #c7dfff;
+  --prepzr-blue-300: #9bbeff;
+  --prepzr-blue-400: #709eff;
+  --prepzr-blue-500: #447eff;
+  --prepzr-blue-600: #185eff;
+  --prepzr-blue-700: #0044e0;
+  --prepzr-blue-800: #0035b0;
+  --prepzr-blue-900: #002680;
+  
+  /* Accent colors */
+  --prepzr-purple: #9b87f5;
+  --prepzr-purple-dark: #6E59A5;
+  
+  /* Functional colors */
+  --prepzr-success: #22c55e;
+  --prepzr-warning: #f59e0b;
+  --prepzr-error: #ef4444;
+  --prepzr-info: #0ea5e9;
 }
 
-.glass-card {
-  @apply bg-white/80 dark:bg-black/50 backdrop-blur-md border border-white/20 dark:border-white/10 shadow-lg;
+/* Update primary color to use PREPZR blue */
+.light {
+  --primary: 218 100% 55%;
+  --primary-foreground: 0 0% 100%;
 }
 
-.gradient-text {
-  @apply bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-blue-600;
+.dark {
+  --primary: 218 100% 60%;
+  --primary-foreground: 0 0% 100%;
 }
 
-/* Avatar glow effect */
-.avatar-glow {
-  @apply relative;
+/* Custom utility classes for PREPZR branding */
+.text-prepzr-gradient {
+  background: linear-gradient(to right, #185eff, #447eff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
 }
 
-.avatar-glow::before {
-  content: '';
-  @apply absolute -inset-0.5 rounded-full bg-gradient-to-r from-blue-500 to-blue-500 opacity-75 blur-sm animate-pulse;
-  z-index: -1;
+.bg-prepzr-gradient {
+  background: linear-gradient(to right, #185eff, #447eff);
 }
 
-/* Micro animations */
-@keyframes float-subtle {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-5px);
-  }
-}
-
-.animate-float-subtle {
-  animation: float-subtle 3s ease-in-out infinite;
+/* Animation utilities */
+.animate-glow {
+  animation: glow 2s ease-in-out infinite alternate;
 }
 
 @keyframes glow {
-  0%, 100% {
-    box-shadow: 0 0 5px 2px rgba(3, 138, 255, 0.4);
+  from {
+    box-shadow: 0 0 5px rgba(24, 94, 255, 0.5);
   }
-  50% {
-    box-shadow: 0 0 15px 5px rgba(3, 138, 255, 0.7);
+  to {
+    box-shadow: 0 0 15px rgba(24, 94, 255, 0.8);
   }
-}
-
-.animate-glow {
-  animation: glow 4s ease-in-out infinite;
-}
-
-/* Smooth transitions */
-.transition-smooth {
-  @apply transition-all duration-300 ease-in-out;
-}
-
-/* New student-focused styles */
-.exam-card {
-  @apply bg-white rounded-xl p-6 border border-blue-100 hover:border-blue-300 hover:shadow-lg transition-all cursor-pointer;
-}
-
-.feature-highlight {
-  @apply relative overflow-hidden rounded-xl bg-gradient-to-br from-blue-600 to-blue-700 p-6 text-white;
-}
-
-.feature-highlight::before {
-  content: '';
-  @apply absolute -right-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-xl;
-}
-
-.student-badge {
-  @apply bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded-full inline-flex items-center;
 }
