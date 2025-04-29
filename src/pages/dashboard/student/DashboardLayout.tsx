@@ -21,7 +21,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Link, useNavigate } from "react-router-dom";
 import { Moon, Sun, Menu, X } from "lucide-react";
-import { useTheme } from "@/components/providers/ThemeProvider";
+import { useTheme } from "@/providers/ThemeProvider";
 import { DashboardTabsProps } from "@/pages/dashboard/student/DashboardContent";
 
 interface DashboardLayoutProps {
