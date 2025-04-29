@@ -2,21 +2,21 @@
 import React from 'react';
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
 
-const ExamReviewPage = () => {
+const ExamAttemptPage = () => {
   return (
     <SharedPageLayout 
-      title="Exam Review" 
-      subtitle="Review your exam results and learn from your mistakes"
+      title="Attempt Exam" 
+      subtitle="Good luck on your exam!"
       showQuickAccess={false}
     >
       <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
         <h2 className="text-xl font-semibold mb-4">Coming Soon</h2>
         <p className="text-gray-500">
-          The ExamReviewPage component is under development. Check back later to review your exam results.
+          The ExamAttemptPage component is under development. Check back later to attempt your exams.
         </p>
       </div>
     </SharedPageLayout>
   );
 };
 
-export default ExamReviewPage;
+export default ExamAttemptPage;

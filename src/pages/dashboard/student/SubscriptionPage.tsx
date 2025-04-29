@@ -1,38 +1,22 @@
 
 import React from 'react';
-import MainLayout from '@/components/layouts/MainLayout';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { useNavigate } from 'react-router-dom';
+import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
 
-const SubscriptionPage: React.FC = () => {
-  const navigate = useNavigate();
-  
+const SubscriptionPage = () => {
   return (
-    <MainLayout>
-      <div className="container py-8">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold">Subscription Management</h1>
-          <Button onClick={() => navigate('/dashboard/student/profile')}>
-            Back to Profile
-          </Button>
+    <SharedPageLayout 
+      title="Subscription" 
+      subtitle="Manage your subscription details"
+    >
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+          <h2 className="text-xl font-semibold mb-4">Coming Soon</h2>
+          <p className="text-gray-500">
+            The SubscriptionPage component is under development. Check back later to manage your subscription.
+          </p>
         </div>
-        
-        <Card>
-          <CardHeader>
-            <CardTitle>Your Subscription</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-muted-foreground mb-4">
-              Manage your subscription, upgrade your plan, or change your billing information here.
-            </p>
-            <p className="text-muted-foreground">
-              This page is being enhanced with additional subscription management functionality.
-            </p>
-          </CardContent>
-        </Card>
       </div>
-    </MainLayout>
+    </SharedPageLayout>
   );
 };
 

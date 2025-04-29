@@ -15,6 +15,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { Eye, EyeOff, Lock, Mail, ArrowRight } from "lucide-react";
 import { useAdminAuth } from "@/contexts/AdminAuthContext";
+import PrepzrLogo from "@/components/common/PrepzrLogo";
 
 const AdminLogin = () => {
   const navigate = useNavigate();
@@ -48,22 +49,17 @@ const AdminLogin = () => {
     
     try {
       // For demo purposes, use these fixed credentials
-      if (formData.email === "admin@sakha.ai" && formData.password === "admin123") {
-        // Call the login function from AdminAuthContext
-        await login(formData.email, formData.password);
-        
-        toast({
-          title: "Login successful",
-          description: "Welcome to the admin dashboard"
-        });
-        
-        // Use a small delay to ensure state is updated before redirect
-        setTimeout(() => {
-          navigate("/admin/dashboard", { replace: true });
-        }, 100);
-      } else {
-        throw new Error("Invalid credentials");
-      }
+      await login(formData.email, formData.password);
+      
+      toast({
+        title: "Login successful",
+        description: "Welcome to the admin dashboard"
+      });
+      
+      // Use a small delay to ensure state is updated before redirect
+      setTimeout(() => {
+        navigate("/admin/dashboard", { replace: true });
+      }, 100);
     } catch (error) {
       toast({
         title: "Login Failed",
@@ -77,24 +73,20 @@ const AdminLogin = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-100/30 via-white to-violet-100/30 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-blue-100/30 via-white to-blue-100/30 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex items-center gap-2">
-            <img 
-              src="/lovable-uploads/6bd65589-a748-4b63-a28b-12521c233a7e.png" 
-              alt="Sakha AI Logo" 
-              className="w-16 h-16 object-contain"
-            />
+            <PrepzrLogo width={64} height={64} />
           </Link>
           <h1 className="mt-4 text-4xl font-display font-bold gradient-text">Admin Portal</h1>
-          <p className="mt-2 text-gray-600">Login to access the Sakha AI administration panel</p>
+          <p className="mt-2 text-gray-600">Login to access the PREPZR administration panel</p>
         </div>
         
         <Card className="shadow-xl border-gray-200 overflow-hidden animate-fade-in">
-          <CardHeader className="bg-gradient-to-r from-purple-600 to-violet-700 text-white">
+          <CardHeader className="bg-gradient-to-r from-blue-600 to-blue-700 text-white">
             <CardTitle className="text-2xl font-semibold">Admin Sign In</CardTitle>
-            <CardDescription className="text-purple-100">
+            <CardDescription className="text-blue-100">
               Enter your admin credentials to access the dashboard
             </CardDescription>
           </CardHeader>
@@ -115,7 +107,7 @@ const AdminLogin = () => {
                       onChange={handleInputChange}
                       placeholder="admin@sakha.ai"
                       type="email"
-                      className="pl-9 border-purple-200 focus:ring-purple-500 focus:border-purple-500"
+                      className="pl-9 border-blue-200 focus:ring-blue-500 focus:border-blue-500"
                     />
                   </div>
                 </div>
@@ -133,7 +125,7 @@ const AdminLogin = () => {
                       onChange={handleInputChange}
                       placeholder="admin123"
                       type={showPassword ? "text" : "password"}
-                      className="pl-9 border-purple-200 focus:ring-purple-500 focus:border-purple-500 pr-10"
+                      className="pl-9 border-blue-200 focus:ring-blue-500 focus:border-blue-500 pr-10"
                     />
                     <Button 
                       variant="ghost"
@@ -151,7 +143,7 @@ const AdminLogin = () => {
                 </div>
                 
                 <Button 
-                  className="w-full bg-gradient-to-r from-purple-600 to-violet-700 hover:from-purple-700 hover:to-violet-800 text-white shadow-md"
+                  className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-md"
                   type="submit"
                   disabled={isLoading}
                 >
@@ -174,7 +166,7 @@ const AdminLogin = () => {
           <CardFooter className="flex justify-center pb-6 border-t pt-6">
             <p className="text-sm text-gray-600">
               Not an admin?{" "}
-              <Link to="/login" className="text-purple-600 hover:text-purple-700 font-medium hover:underline">
+              <Link to="/login" className="text-blue-600 hover:text-blue-700 font-medium hover:underline">
                 Go to Student Login
               </Link>
             </p>
@@ -182,7 +174,7 @@ const AdminLogin = () => {
         </Card>
         
         <div className="mt-6 text-center text-sm text-gray-500">
-          <p>Need help? <a href="#" className="text-purple-600 hover:underline">Contact Support</a></p>
+          <p>Need help? <a href="#" className="text-blue-600 hover:underline">Contact Support</a></p>
         </div>
       </div>
     </div>

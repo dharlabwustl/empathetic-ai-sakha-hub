@@ -14,13 +14,13 @@
 
 /* Motivated mood */
 .mood-motivated {
-  --accent-color: 147, 51, 234;  /* Purple-600 */
-  --accent-light: 216, 180, 254;  /* Purple-200 */
-  --accent-gradient: linear-gradient(135deg, rgba(147, 51, 234, 0.15), rgba(126, 34, 206, 0.05));
+  --accent-color: 59, 130, 246;  /* Blue-500 */
+  --accent-light: 191, 219, 254;  /* Blue-200 */
+  --accent-gradient: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(37, 99, 235, 0.05));
 }
 
 .mood-motivated .bg-gradient-to-br {
-  background-image: linear-gradient(to bottom right, rgba(147, 51, 234, 0.1), rgba(126, 34, 206, 0.05), rgba(255, 255, 255, 0.7));
+  background-image: linear-gradient(to bottom right, rgba(59, 130, 246, 0.1), rgba(37, 99, 235, 0.05), rgba(255, 255, 255, 0.7));
 }
 
 /* Focused mood */
@@ -58,46 +58,46 @@
 
 /* Tired mood */
 .mood-tired {
-  --accent-color: 249, 115, 22;  /* Orange-500 */
-  --accent-light: 254, 215, 170;  /* Orange-200 */
-  --accent-gradient: linear-gradient(135deg, rgba(249, 115, 22, 0.15), rgba(234, 88, 12, 0.05));
+  --accent-color: 59, 130, 246;  /* Blue-500 */
+  --accent-light: 191, 219, 254;  /* Blue-200 */
+  --accent-gradient: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(37, 99, 235, 0.05));
 }
 
 .mood-tired .bg-gradient-to-br {
-  background-image: linear-gradient(to bottom right, rgba(249, 115, 22, 0.1), rgba(234, 88, 12, 0.05), rgba(255, 255, 255, 0.7));
+  background-image: linear-gradient(to bottom right, rgba(59, 130, 246, 0.1), rgba(37, 99, 235, 0.05), rgba(255, 255, 255, 0.7));
 }
 
 /* Stressed mood */
 .mood-stressed {
-  --accent-color: 220, 38, 38;  /* Red-600 */
-  --accent-light: 254, 202, 202;  /* Red-200 */
-  --accent-gradient: linear-gradient(135deg, rgba(220, 38, 38, 0.15), rgba(185, 28, 28, 0.05));
+  --accent-color: 59, 130, 246;  /* Blue-500 */
+  --accent-light: 191, 219, 254;  /* Blue-200 */
+  --accent-gradient: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(37, 99, 235, 0.05));
 }
 
 .mood-stressed .bg-gradient-to-br {
-  background-image: linear-gradient(to bottom right, rgba(220, 38, 38, 0.1), rgba(185, 28, 28, 0.05), rgba(255, 255, 255, 0.7));
+  background-image: linear-gradient(to bottom right, rgba(59, 130, 246, 0.1), rgba(37, 99, 235, 0.05), rgba(255, 255, 255, 0.7));
 }
 
 /* Sad mood */
 .mood-sad {
-  --accent-color: 79, 70, 229;  /* Indigo-600 */
-  --accent-light: 199, 210, 254;  /* Indigo-200 */
-  --accent-gradient: linear-gradient(135deg, rgba(79, 70, 229, 0.15), rgba(99, 102, 241, 0.05));
+  --accent-color: 59, 130, 246;  /* Blue-500 */
+  --accent-light: 191, 219, 254;  /* Blue-200 */
+  --accent-gradient: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(37, 99, 235, 0.05));
 }
 
 .mood-sad .bg-gradient-to-br {
-  background-image: linear-gradient(to bottom right, rgba(79, 70, 229, 0.1), rgba(99, 102, 241, 0.05), rgba(255, 255, 255, 0.7));
+  background-image: linear-gradient(to bottom right, rgba(59, 130, 246, 0.1), rgba(37, 99, 235, 0.05), rgba(255, 255, 255, 0.7));
 }
 
 /* Overwhelmed mood */
 .mood-overwhelmed {
-  --accent-color: 168, 85, 247;  /* Purple-500 */
-  --accent-light: 233, 213, 255;  /* Purple-200 */
-  --accent-gradient: linear-gradient(135deg, rgba(168, 85, 247, 0.15), rgba(147, 51, 234, 0.05));
+  --accent-color: 59, 130, 246;  /* Blue-500 */
+  --accent-light: 191, 219, 254;  /* Blue-200 */
+  --accent-gradient: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(37, 99, 235, 0.05));
 }
 
 .mood-overwhelmed .bg-gradient-to-br {
-  background-image: linear-gradient(to bottom right, rgba(168, 85, 247, 0.1), rgba(147, 51, 234, 0.05), rgba(255, 255, 255, 0.7));
+  background-image: linear-gradient(to bottom right, rgba(59, 130, 246, 0.1), rgba(37, 99, 235, 0.05), rgba(255, 255, 255, 0.7));
 }
 
 /* Apply mood-based styling to UI components */

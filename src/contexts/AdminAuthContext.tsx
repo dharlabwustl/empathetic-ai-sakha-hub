@@ -35,13 +35,10 @@ export const AdminAuthProvider = ({ children }: AdminAuthProviderProps) => {
   useEffect(() => {
     // Check for existing session
     const checkAuth = () => {
-      // For development purposes, always authenticated with admin credentials
-      setUser({
-        id: '1',
-        name: 'Admin User',
-        email: 'admin@sakha.ai',
-        role: 'admin'
-      });
+      const storedUser = localStorage.getItem("admin_user");
+      if (storedUser) {
+        setUser(JSON.parse(storedUser));
+      }
       setLoading(false);
     };
     
@@ -51,12 +48,15 @@ export const AdminAuthProvider = ({ children }: AdminAuthProviderProps) => {
   const login = async (email: string, password: string) => {
     // Fixed login for admin
     if (email === 'admin@sakha.ai' && password === 'admin123') {
-      setUser({
+      const adminUser = {
         id: '1',
         name: 'Admin User',
         email: email,
         role: 'admin'
-      });
+      };
+      
+      setUser(adminUser);
+      localStorage.setItem("admin_user", JSON.stringify(adminUser));
       return;
     }
     
@@ -65,6 +65,7 @@ export const AdminAuthProvider = ({ children }: AdminAuthProviderProps) => {
 
   const logout = () => {
     setUser(null);
+    localStorage.removeItem("admin_user");
   };
 
   return (

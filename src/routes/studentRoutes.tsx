@@ -1,12 +1,21 @@
 
 import { Routes, Route } from 'react-router-dom';
-import { TodaysPlanView } from '@/components/dashboard/student/TabContentViews';
+import TodayStudyPlan from '@/components/dashboard/student/TodayStudyPlan';
 import ConceptStudyPage from '@/pages/dashboard/student/ConceptStudyPage';
 import FlashcardStudyPage from '@/pages/dashboard/student/FlashcardStudyPage';
 import ExamStartPage from '@/pages/dashboard/student/exam/ExamStartPage';
 import ExamReviewPage from '@/pages/dashboard/student/exam/ExamReviewPage';
 import FlashcardDetailsPage from '@/pages/dashboard/student/FlashcardDetailsPage';
-import TodayStudyPlan from '@/components/dashboard/student/TodayStudyPlan';
+import StudyPlanView from '@/pages/dashboard/student/StudyPlanView';
+import ConceptsView from '@/pages/dashboard/student/ConceptsView';
+import FlashcardsView from '@/pages/dashboard/student/FlashcardsView';
+import PracticeView from '@/pages/dashboard/student/PracticeView';
+import BacklogView from '@/pages/dashboard/student/BacklogView';
+import ProfilePage from '@/pages/dashboard/student/ProfilePage';
+import BatchManagementView from '@/pages/dashboard/student/BatchManagementView';
+import SubscriptionPage from '@/pages/dashboard/student/SubscriptionPage';
+import FeelGoodCornerPage from '@/pages/dashboard/student/FeelGoodCornerPage';
+import ExamAttemptPage from '@/pages/dashboard/student/exam/ExamAttemptPage';
 
 export default function StudentRoutes() {
   return (
@@ -37,17 +46,3 @@ export default function StudentRoutes() {
     </Routes>
   );
 }
-
-// Import views that were referenced but not imported above
-import {
-  StudyPlanView,
-  ConceptsView,
-  FlashcardsView,
-  PracticeView,
-  BacklogView,
-  ProfilePage,
-  BatchManagementView,
-  SubscriptionPage,
-  FeelGoodCornerPage,
-  ExamAttemptPage
-} from '@/components/dashboard/student/TabContentViews';
