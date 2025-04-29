@@ -1,13 +1,12 @@
 
 import React, { useState } from 'react';
-import { UserProfileBase as UserProfileType } from "@/types/user/base";
+import { UserProfileType, MoodType } from "@/types/user/base";
 import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
 import { generateTabContents } from "@/components/dashboard/student/TabContentManager";
 import DashboardTabs from "@/components/dashboard/student/DashboardTabs";
 import ReturnUserRecap from "@/components/dashboard/student/ReturnUserRecap";
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
 import { QuickAccess } from '@/components/dashboard/student/QuickAccess';
-import { MoodType } from '@/types/user/base';
 
 interface DashboardTabsProps {
   activeTab: string;

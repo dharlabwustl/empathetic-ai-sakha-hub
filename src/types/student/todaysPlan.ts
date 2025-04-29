@@ -1,77 +1,44 @@
 
-export type MoodType = 'sad' | 'neutral' | 'happy' | 'motivated' | 'anxious' | 'stressed' | 'tired' | 'focused' | 'overwhelmed' | 'curious' | 'okay';
+import { MoodType } from "@/types/user/base";
 
-export interface TodaysPlanData {
-  userName?: string;
-  examGoal?: string;
-  subjectBreakdown?: {
-    [subject: string]: {
-      concepts?: Array<{
-        id: string;
-        title: string;
-        status: string;
-        timeEstimate: number;
-        cardCount?: number;
-        questionCount?: number;
-      }>;
-      flashcards?: Array<{
-        id: string;
-        title: string;
-        status: string;
-        timeEstimate: number;
-        cardCount?: number;
-      }>;
-      practiceExams?: Array<{
-        id: string;
-        title: string;
-        status: string;
-        timeEstimate: number;
-        questionCount?: number;
-      }>;
-    }
-  };
-  pastDays?: Array<{
-    date: string;
-    status?: string;
-    completedTasks?: number;
-    totalTasks?: number;
-    conceptsCompleted?: number;
-    conceptsTotal?: number;
-    flashcardsCompleted?: number;
-    flashcardsTotal?: number;
-    practiceCompleted?: number;
-    practiceTotal?: number;
-    mood?: MoodType;
-  }>;
-  tasks?: Array<{
-    id: string;
-    title: string;
-    subject: string;
-    type: 'concept' | 'flashcard' | 'practice-exam';
-    status: string;
-    timeEstimate: number;
-  }>;
-  timeAllocation?: {
-    conceptCards: number;
-    flashcards: number;
-    practiceTests: number;
-    total: number;
-  };
-  tomorrowPreview?: {
-    concepts: number;
-    flashcards: number;
-    practiceExams: number;
-  };
-  smartExtras?: {
-    bookmarks: string[];
-    notes: {
-      id: string;
-      date: string;
-      content: string;
-    }[];
+export type TaskType = 'concept' | 'flashcard' | 'practice-exam';
+
+export interface TaskCount {
+  count: number;
+  description: string;
+}
+
+export interface SubjectTask {
+  type: TaskType;
+  assigned: TaskCount;
+  pending: TaskCount;
+  timeEstimate: number;
+}
+
+export interface SubjectBreakdownData {
+  name: string;
+  tasks: {
+    concepts?: SubjectTask[];
+    flashcards?: SubjectTask[];
+    practiceExams?: SubjectTask[];
   };
 }
 
-export type PastDayRecord = TodaysPlanData['pastDays'][0];
-export type TimelineView = 'daily' | 'weekly' | 'monthly';
-export type SubjectTaskBreakdown = TodaysPlanData['subjectBreakdown'];
+export interface PendingTask {
+  id: string;
+  name: string;
+  subject: string;
+  type: TaskType;
+  dueDate: string;
+  completionTime: number;
+  difficultyLevel: 'easy' | 'medium' | 'hard';
+}
+
+export interface TimeAllocationSummary {
+  concepts: number;
+  flashcards: number;
+  practiceExams: number;
+  total: number;
+}
+
+export { MoodType };

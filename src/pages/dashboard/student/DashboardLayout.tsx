@@ -1,5 +1,6 @@
+
 import React from "react";
-import { UserProfileType, UserRole } from "@/types/user";
+import { UserProfileType, UserRole, MoodType } from "@/types/user/base";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,7 +21,7 @@ import {
 } from "@/components/ui/sheet";
 import { Switch } from "@/components/ui/switch";
 import { Link, useNavigate } from "react-router-dom";
-import { Moon, Sun, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { useTheme } from "@/providers/ThemeProvider";
 import { DashboardTabsProps } from "@/pages/dashboard/student/DashboardContent";
 
@@ -45,7 +46,8 @@ interface DashboardLayoutProps {
   onToggleTabsNav: () => void;
   lastActivity?: { type: string; description: string } | null;
   suggestedNextAction?: string | null;
-  currentMood?: 'sad' | 'neutral' | 'happy' | 'motivated' | undefined;
+  currentMood?: MoodType;
+  onMoodChange?: (mood: MoodType) => void;
 }
 
 const DashboardLayout = ({ 
@@ -69,7 +71,8 @@ const DashboardLayout = ({
   onToggleTabsNav,
   lastActivity,
   suggestedNextAction,
-  currentMood
+  currentMood,
+  onMoodChange
 }: DashboardLayoutProps) => {
   const navigate = useNavigate();
   const { theme, setTheme } = useTheme();
@@ -99,7 +102,7 @@ const DashboardLayout = ({
             </SheetContent>
           </Sheet>
           <Link to="/" className="ml-auto font-bold">
-            Sakha AI
+            PREPZR
           </Link>
           <DropdownMenu className="ml-auto">
             <DropdownMenuTrigger asChild>

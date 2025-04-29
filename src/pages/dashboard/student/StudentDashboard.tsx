@@ -154,6 +154,7 @@ const StudentDashboard = () => {
       suggestedNextAction={suggestedNextAction}
       currentMood={currentMood}
       onMoodChange={handleMoodChange}
+      features={[]}
     >
       {getTabContent()}
     </DashboardLayout>

@@ -15,6 +15,8 @@ export enum SubscriptionType {
   pro_educator = "pro_educator"
 }
 
+export type MoodType = 'happy' | 'focused' | 'tired' | 'anxious' | 'stressed' | 'motivated' | 'neutral' | 'sad';
+
 export interface UserSubscription {
   type: SubscriptionType;
   startDate: string;
@@ -46,5 +48,7 @@ export interface UserProfileBase {
   examPreparation?: string;
   preferences?: Record<string, any>;
 }
+
+export type UserProfileType = UserProfileBase;
 
 export type UserAuthStatus = "authenticated" | "unauthenticated" | "loading";
