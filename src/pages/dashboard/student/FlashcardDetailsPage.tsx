@@ -5,14 +5,15 @@ import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayou
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { ChevronLeft, ChevronRight, ThumbsUp, ThumbsDown, BookOpen, RotateCcw } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ThumbsUp, ThumbsDown, BookOpen, RotateCcw, Bookmark, Volume2 } from 'lucide-react';
 
 const FlashcardDetailsPage = () => {
-  const { flashcardId } = useParams<{ flashcardId: string }>();
+  const { cardId } = useParams<{ cardId: string }>();
   const navigate = useNavigate();
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [isBookmarked, setIsBookmarked] = useState(false);
   const [flashcardDeck, setFlashcardDeck] = useState<any>(null);
   
   // Mock data for the flashcard deck
@@ -20,7 +21,7 @@ const FlashcardDetailsPage = () => {
     // This would be an API call in a real application
     setTimeout(() => {
       setFlashcardDeck({
-        id: flashcardId,
+        id: cardId,
         title: 'Organic Chemistry Reactions',
         subject: 'Chemistry',
         totalCards: 20,
@@ -30,21 +31,21 @@ const FlashcardDetailsPage = () => {
             front: 'What is the product of the reaction between an alkene and Br₂?',
             back: 'A vicinal dibromide (1,2-dibromide). This is an example of an electrophilic addition reaction.',
             difficulty: 'medium',
-            image: 'https://example.com/alkene-bromine.jpg'
+            image: null
           },
           {
             id: '2',
             front: 'What reagent is used for the hydroboration-oxidation of alkenes?',
             back: 'BH₃·THF followed by H₂O₂/NaOH. This reaction results in the anti-Markovnikov addition of an OH group.',
             difficulty: 'hard',
-            image: 'https://example.com/hydroboration.jpg'
+            image: null
           },
           {
             id: '3',
             front: 'What is the Grignard reagent?',
             back: 'An organomagnesium compound with the general formula R-Mg-X, where X is a halogen. It\'s used to form new carbon-carbon bonds.',
             difficulty: 'medium',
-            image: 'https://example.com/grignard.jpg'
+            image: null
           },
           {
             id: '4',
@@ -64,7 +65,7 @@ const FlashcardDetailsPage = () => {
       });
       setLoading(false);
     }, 1000);
-  }, [flashcardId]);
+  }, [cardId]);
   
   const handleNextCard = () => {
     if (currentCardIndex < (flashcardDeck?.cards.length || 0) - 1) {
@@ -97,6 +98,11 @@ const FlashcardDetailsPage = () => {
   const handleRestart = () => {
     setCurrentCardIndex(0);
     setFlipped(false);
+  };
+  
+  const handleBookmark = () => {
+    setIsBookmarked(!isBookmarked);
+    // In a real app, save bookmark status to user data
   };
   
   if (loading) {
@@ -161,75 +167,71 @@ const FlashcardDetailsPage = () => {
       </div>
       
       <div className="flex justify-center">
-        <div className="w-full max-w-3xl perspective-1000">
+        <div className="w-full max-w-3xl">
           <div 
-            className={`relative transition-transform duration-500 transform-style-3d cursor-pointer ${flipped ? 'rotate-y-180' : ''}`}
-            style={{ height: '400px' }}
+            className="relative cursor-pointer bg-white border rounded-lg shadow-md transition-all duration-300"
+            style={{ minHeight: '400px' }}
             onClick={handleFlip}
           >
             {/* Front of card */}
-            <Card className={`absolute inset-0 backface-hidden p-6 flex flex-col items-center justify-center ${flipped ? 'hidden' : ''}`}>
-              <CardContent className="text-center p-6 flex-1 flex flex-col justify-center items-center">
-                <div className="text-2xl font-semibold mb-6">
-                  {currentCard.front}
+            <div className={`absolute inset-0 p-6 flex flex-col items-center justify-center transition-opacity duration-300 ${flipped ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+              <div className="text-2xl font-semibold mb-6 text-center">
+                {currentCard.front}
+              </div>
+              {currentCard.image && (
+                <div className="mt-4 max-w-full">
+                  <img 
+                    src={currentCard.image} 
+                    alt="Flashcard illustration" 
+                    className="max-h-40 rounded-lg object-contain"
+                  />
                 </div>
-                {currentCard.image && (
-                  <div className="mt-4 max-w-full">
-                    <img 
-                      src={currentCard.image} 
-                      alt="Flashcard illustration" 
-                      className="max-h-40 rounded-lg object-contain"
-                    />
-                  </div>
-                )}
-                <p className="text-sm text-muted-foreground mt-8">
-                  Click the card to flip it and see the answer
-                </p>
-              </CardContent>
-            </Card>
+              )}
+              <p className="text-sm text-muted-foreground mt-8">
+                Click the card to flip it and see the answer
+              </p>
+            </div>
             
             {/* Back of card */}
-            <Card className={`absolute inset-0 backface-hidden p-6 flex flex-col items-center justify-center rotate-y-180 ${!flipped ? 'hidden' : ''}`}>
-              <CardContent className="text-center p-6 flex-1 flex flex-col justify-center items-center">
-                <div className="text-xl mb-6">
-                  {currentCard.back}
+            <div className={`absolute inset-0 p-6 flex flex-col items-center justify-center transition-opacity duration-300 ${!flipped ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+              <div className="text-xl mb-6 text-center">
+                {currentCard.back}
+              </div>
+              {currentCard.image && (
+                <div className="mt-4 max-w-full">
+                  <img 
+                    src={currentCard.image} 
+                    alt="Flashcard explanation" 
+                    className="max-h-40 rounded-lg object-contain"
+                  />
                 </div>
-                {currentCard.image && (
-                  <div className="mt-4 max-w-full">
-                    <img 
-                      src={currentCard.image} 
-                      alt="Flashcard explanation" 
-                      className="max-h-40 rounded-lg object-contain"
-                    />
-                  </div>
-                )}
-                <div className="mt-8 flex justify-center gap-4">
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="flex items-center gap-2 text-red-500 hover:bg-red-50 hover:text-red-600" 
-                    onClick={(e) => { e.stopPropagation(); handleStudyAgain(); }}
-                  >
-                    <ThumbsDown className="h-4 w-4" />
-                    Study Again
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="flex items-center gap-2 text-green-500 hover:bg-green-50 hover:text-green-600" 
-                    onClick={(e) => { e.stopPropagation(); handleKnowIt(); }}
-                  >
-                    <ThumbsUp className="h-4 w-4" />
-                    I Know It
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+              )}
+              <div className="mt-8 flex justify-center gap-4">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="flex items-center gap-2 text-red-500 hover:bg-red-50 hover:text-red-600" 
+                  onClick={(e) => { e.stopPropagation(); handleStudyAgain(); }}
+                >
+                  <ThumbsDown className="h-4 w-4" />
+                  Study Again
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="flex items-center gap-2 text-green-500 hover:bg-green-50 hover:text-green-600" 
+                  onClick={(e) => { e.stopPropagation(); handleKnowIt(); }}
+                >
+                  <ThumbsUp className="h-4 w-4" />
+                  I Know It
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
       
-      <div className="mt-8 flex justify-center gap-4">
+      <div className="mt-8 flex flex-wrap justify-center gap-4">
         <Button 
           variant="outline" 
           size="icon"
@@ -238,6 +240,16 @@ const FlashcardDetailsPage = () => {
         >
           <ChevronLeft className="h-6 w-6" />
         </Button>
+        
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={(e) => { e.stopPropagation(); handleBookmark(); }}
+          className={isBookmarked ? "text-amber-500 border-amber-200" : ""}
+        >
+          <Bookmark className="h-5 w-5" />
+        </Button>
+        
         <Button 
           variant="outline" 
           onClick={handleRestart}
@@ -246,6 +258,7 @@ const FlashcardDetailsPage = () => {
           <RotateCcw className="h-4 w-4" />
           Restart
         </Button>
+        
         <Button 
           variant="outline" 
           size="icon"

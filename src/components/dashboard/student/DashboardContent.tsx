@@ -7,6 +7,7 @@ import DashboardTabs from "@/components/dashboard/student/DashboardTabs";
 import ReturnUserRecap from "@/components/dashboard/student/ReturnUserRecap";
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
 import { QuickAccess } from '@/components/dashboard/student/QuickAccess';
+import { MoodType } from '@/types/user/base';
 
 interface DashboardTabsProps {
   activeTab: string;
@@ -28,6 +29,8 @@ interface DashboardContentProps {
   hideTabsNav: boolean;
   lastActivity?: { type: string; description: string } | null;
   suggestedNextAction?: string | null;
+  currentMood?: MoodType;
+  onMoodChange?: (mood: MoodType) => void;
   children?: React.ReactNode;
 }
 
@@ -45,6 +48,8 @@ const DashboardContent = ({
   hideTabsNav,
   lastActivity,
   suggestedNextAction,
+  currentMood,
+  onMoodChange,
   children
 }: DashboardContentProps) => {
   // State to track whether the returning user recap has been closed
@@ -63,7 +68,9 @@ const DashboardContent = ({
     handleSkipTour,
     handleCompleteTour,
     lastActivity,
-    suggestedNextAction
+    suggestedNextAction,
+    currentMood,
+    onMoodChange
   });
   
   // Handle closing the recap

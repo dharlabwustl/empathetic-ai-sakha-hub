@@ -1,54 +1,32 @@
 
-export enum UserRole {
-  Student = "student",
-  Employee = "employee",
-  Doctor = "doctor",
-  Founder = "founder",
-  Admin = "admin",
-}
+export type MoodType = 'sad' | 'neutral' | 'happy' | 'motivated' | 'anxious' | 'stressed' | 'tired' | 'focused' | 'overwhelmed' | 'curious' | 'okay';
 
-export enum SubscriptionPlan {
-  Free = "free",
-  Basic = "basic",
-  Premium = "premium",
-  Enterprise = "enterprise",
-}
-
-export type UserProfileBase = {
+export interface UserProfileBase {
   id: string;
   name: string;
   email: string;
-  role: UserRole;
+  role: string;
   avatar?: string;
   loginCount?: number;
-};
-
-export type StudentProfile = {
-  goals?: { id: string; title: string; progress: number }[];
-  examPreparation?: string;
-  personalityType?: string;
-  studyHabits?: string;
-  learningPreferences?: string;
-  subscription?: SubscriptionType | SubscriptionDetails;
-};
-
-export type SubscriptionDetails = {
-  planId?: string;
-  planType: SubscriptionType | string;
-  isActive: boolean;
-  startDate: string;
-  expiryDate: string;
-  features: string[];
-};
-
-export type UserProfileType = UserProfileBase & StudentProfile;
-
-// Comprehensive MoodType with all possible moods
-export type MoodType = 'sad' | 'neutral' | 'happy' | 'motivated' | 'focused' | 'tired' | 'confused' | 'anxious' | 'stressed' | 'overwhelmed' | 'curious' | 'okay';
+  goals?: Array<{
+    id: string;
+    title: string;
+    progress: number;
+  }>;
+  subscriptionType?: SubscriptionType | SubscriptionDetails;
+}
 
 export enum SubscriptionType {
   Free = 'free',
-  Basic = 'basic',
   Premium = 'premium',
-  Enterprise = 'enterprise'
+  ProStudent = 'pro_student',
+  ProEducator = 'pro_educator'
+}
+
+export interface SubscriptionDetails {
+  type: SubscriptionType;
+  startDate: string;
+  expiryDate?: string;
+  isActive: boolean;
+  features?: string[];
 }

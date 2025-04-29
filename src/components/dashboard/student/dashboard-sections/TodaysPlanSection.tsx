@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -100,7 +101,10 @@ export default function TodaysPlanSection({ studyPlan, currentMood }: TodaysPlan
               </p>
               <div className="flex flex-wrap gap-1">
                 {(adaptedPlan.concepts || studyPlan.todaysFocus.concepts).map((concept: string, i: number) => {
-                  const conceptId = concept.toLowerCase().replace(/\s+/g, '-');
+                  const conceptId = typeof concept === 'string' 
+                    ? concept.toLowerCase().replace(/\s+/g, '-') 
+                    : `concept-${i}`;
+                  
                   return (
                     <Link to={`/dashboard/student/concepts/study/${conceptId}`} key={i}>
                       <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-700 hover:bg-blue-100 transition-colors cursor-pointer">

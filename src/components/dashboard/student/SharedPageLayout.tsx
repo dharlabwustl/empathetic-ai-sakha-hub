@@ -1,50 +1,30 @@
 
 import React from 'react';
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { QuickAccess } from '@/components/dashboard/student/QuickAccess';
 
 interface SharedPageLayoutProps {
   title: string;
   subtitle?: string;
-  icon?: React.ReactNode;
   children: React.ReactNode;
-  stats?: {
-    label: string;
-    value: string;
-  }[];
+  showQuickAccess?: boolean;
 }
 
-export function SharedPageLayout({ title, subtitle, icon, children, stats }: SharedPageLayoutProps) {
+export const SharedPageLayout: React.FC<SharedPageLayoutProps> = ({ 
+  title, 
+  subtitle, 
+  children,
+  showQuickAccess = true
+}) => {
   return (
-    <div className="space-y-6 pb-10">
-      {/* Header Section */}
-      <div className="space-y-3 pb-2">
-        <div className="flex items-center space-x-2">
-          {icon && <span>{icon}</span>}
-          <h1 className="text-2xl font-semibold">{title}</h1>
-        </div>
-        
-        {subtitle && (
-          <h3 className="text-base text-muted-foreground">
-            {subtitle}
-          </h3>
-        )}
-        
-        {stats && (
-          <div className="flex flex-wrap gap-4">
-            {stats.map((stat, index) => (
-              <Badge key={index} variant="outline" className="font-normal">
-                {stat.label}: {stat.value}
-              </Badge>
-            ))}
-          </div>
-        )}
+    <div className="container mx-auto max-w-7xl p-4 md:p-6">
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold">{title}</h1>
+        {subtitle && <p className="text-muted-foreground mt-1">{subtitle}</p>}
       </div>
-
-      {/* Main Content */}
-      <div>
-        {children}
-      </div>
+      
+      {showQuickAccess && <QuickAccess className="mb-6" />}
+      
+      {children}
     </div>
   );
-}
+};

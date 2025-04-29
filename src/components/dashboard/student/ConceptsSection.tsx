@@ -1,9 +1,11 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Book, BookOpen, Clock } from 'lucide-react';
 import { useUserStudyPlan } from '@/hooks/useUserStudyPlan';
+import { Button } from '@/components/ui/button';
 
 const ConceptsSection = () => {
   const { conceptCards, loading } = useUserStudyPlan();
@@ -40,41 +42,51 @@ const ConceptsSection = () => {
   return (
     <>
       {todaysCards.map((card) => (
-        <Link key={card.id} to={`/dashboard/student/concepts/study/${card.id}`}>
-          <Card className="h-full hover:shadow-md transition-shadow duration-200 overflow-hidden group border-l-4" style={{ borderLeftColor: getDifficultyColor(card.difficulty) }}>
-            <CardContent className="p-4 h-full flex flex-col">
-              <div className="flex items-start justify-between mb-2">
-                <Badge variant={card.completed ? "outline" : "default"} className="mb-2">
-                  {card.completed ? "Completed" : "Pending"}
-                </Badge>
-                <Badge variant="outline" className={getDifficultyClass(card.difficulty)}>
-                  {card.difficulty}
-                </Badge>
+        <Card 
+          key={card.id} 
+          className="h-full hover:shadow-md transition-shadow duration-200 overflow-hidden group border-l-4" 
+          style={{ borderLeftColor: getDifficultyColor(card.difficulty) }}
+        >
+          <CardContent className="p-4 h-full flex flex-col">
+            <div className="flex items-start justify-between mb-2">
+              <Badge variant={card.completed ? "outline" : "default"} className="mb-2">
+                {card.completed ? "Completed" : "Pending"}
+              </Badge>
+              <Badge variant="outline" className={getDifficultyClass(card.difficulty)}>
+                {card.difficulty}
+              </Badge>
+            </div>
+            
+            <h3 className="font-semibold text-lg mb-1 group-hover:text-blue-600 transition-colors duration-200">
+              {card.title}
+            </h3>
+            
+            <div className="mt-auto pt-2 space-y-1 text-sm text-gray-500">
+              <div className="flex items-center gap-1">
+                <Book size={14} />
+                <span>{card.subject}</span>
               </div>
               
-              <h3 className="font-semibold text-lg mb-1 group-hover:text-blue-600 transition-colors duration-200">
-                {card.title}
-              </h3>
-              
-              <div className="mt-auto pt-2 space-y-1 text-sm text-gray-500">
-                <div className="flex items-center gap-1">
-                  <Book size={14} />
-                  <span>{card.subject}</span>
-                </div>
-                
-                <div className="flex items-center gap-1">
-                  <BookOpen size={14} />
-                  <span>{card.chapter}</span>
-                </div>
-                
-                <div className="flex items-center gap-1">
-                  <Clock size={14} />
-                  <span>{card.estimatedTime} min</span>
-                </div>
+              <div className="flex items-center gap-1">
+                <BookOpen size={14} />
+                <span>{card.chapter}</span>
               </div>
-            </CardContent>
-          </Card>
-        </Link>
+              
+              <div className="flex items-center gap-1">
+                <Clock size={14} />
+                <span>{card.estimatedTime} min</span>
+              </div>
+            </div>
+            
+            <div className="mt-3 pt-3 border-t border-gray-100">
+              <Link to={`/dashboard/student/concepts/study/${card.id}`}>
+                <Button className="w-full" variant="outline">
+                  {card.completed ? "Review Again" : "Start Learning"}
+                </Button>
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
       ))}
     </>
   );
