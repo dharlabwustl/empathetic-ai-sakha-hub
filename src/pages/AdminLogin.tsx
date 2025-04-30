@@ -66,7 +66,7 @@ const AdminLogin = () => {
           description: "Redirecting to admin dashboard",
         });
         
-        // Redirect to admin dashboard
+        // Redirect to admin dashboard with a slight delay to allow toast to show
         setTimeout(() => {
           navigate("/admin/dashboard");
         }, 500);

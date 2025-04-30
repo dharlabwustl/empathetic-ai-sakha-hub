@@ -3,6 +3,8 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import KpiStats from "../home/hero/feature-highlights/KpiStats";
+import ExtendedKpiStats from "../home/hero/feature-highlights/ExtendedKpiStats";
+import ExamNamesBadge from "../home/hero/ExamNamesBadge";
 
 const HeroSection: React.FC = () => {
   return (
@@ -29,13 +31,22 @@ const HeroSection: React.FC = () => {
         <div className="absolute -right-32 top-56 h-64 w-64 rounded-full bg-indigo-300 opacity-20 blur-3xl filter"></div>
       </div>
 
-      {/* KPI Stats moved right after the main hero content */}
-      <div className="mt-8 mb-16">
+      {/* Exam Names Badge */}
+      <div className="mt-8 mb-8">
+        <ExamNamesBadge />
+      </div>
+
+      {/* KPI Stats Section */}
+      <div className="mt-8 mb-8 px-4 sm:px-6 md:px-12">
         <KpiStats />
+      </div>
+      
+      {/* Extended KPI Stats Section */}
+      <div className="mt-8 mb-16 px-4 sm:px-6 md:px-12">
+        <ExtendedKpiStats />
       </div>
     </div>
   );
 };
 
 export default HeroSection;
-

@@ -1,37 +1,46 @@
 
-export interface StudyPlanSubject {
-  id: string;
+export interface StudyPlanTopic {
+  id?: string;
   name: string;
-  color: string;
-  hoursPerWeek: number;
-  priority: 'high' | 'medium' | 'low';
-  proficiency?: 'strong' | 'weak' | 'medium';
-  topics?: Array<{
-    id: string;
-    name: string;
-    difficulty: 'easy' | 'medium' | 'hard';
-    completed: boolean;
-    status?: 'pending' | 'in-progress' | 'completed' | 'skipped';
-  }>;
+  status: 'pending' | 'in-progress' | 'completed' | 'skipped';
+  priority?: 'high' | 'medium' | 'low';
+  difficulty?: 'easy' | 'medium' | 'hard';
+  completed?: boolean;
 }
 
-export type NewStudyPlanSubject = StudyPlanSubject;
-export type Subject = StudyPlanSubject;
+export interface StudyPlanSubject {
+  id?: string;
+  name: string;
+  progress: number;
+  proficiency: 'strong' | 'weak' | 'moderate';
+  topics: StudyPlanTopic[];
+  color?: string;
+  hoursPerWeek?: number;
+  priority?: 'high' | 'medium' | 'low';
+}
 
 export interface StudyPlan {
   id: string;
-  userId: string;
-  goal: string;
-  examGoal?: string;
-  examDate?: string;
+  examGoal: string;
+  examDate: string;
+  daysLeft: number;
   createdAt: string;
-  updatedAt: string;
+  status: 'active' | 'completed' | 'paused';
+  progressPercentage: number;
   subjects: StudyPlanSubject[];
-  weeklyHours: number;
-  status: 'active' | 'archived' | 'completed';
-  studyHoursPerDay?: number;
-  preferredStudyTime?: 'morning' | 'afternoon' | 'evening' | 'night';
-  learningPace?: 'slow' | 'moderate' | 'fast';
+  studyHoursPerDay: number;
+  preferredStudyTime: 'morning' | 'afternoon' | 'evening' | 'night';
+  learningPace: 'slow' | 'moderate' | 'fast';
 }
 
-export type NewStudyPlan = Omit<StudyPlan, 'id' | 'userId' | 'createdAt' | 'updatedAt'>;
+export interface NewStudyPlan {
+  examGoal: string;
+  examDate: Date;
+  subjects: {
+    name: string;
+    proficiency: 'strong' | 'weak' | 'moderate';
+  }[];
+  studyHoursPerDay: number;
+  preferredStudyTime: 'morning' | 'afternoon' | 'evening' | 'night';
+  learningPace: 'slow' | 'moderate' | 'fast';
+}

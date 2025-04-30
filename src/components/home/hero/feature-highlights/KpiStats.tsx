@@ -7,7 +7,9 @@ const stats = [
   { id: 1, value: 10000, label: "Students", prefix: "+", suffix: "", decimals: 0 },
   { id: 2, value: 95, label: "Success Rate", prefix: "", suffix: "%", decimals: 0 },
   { id: 3, value: 500000, label: "Practice Questions", prefix: "+", suffix: "", decimals: 0 },
-  { id: 4, value: 850, label: "Concepts Mastered", prefix: "Avg ", suffix: "", decimals: 0 }
+  { id: 4, value: 850, label: "Concepts Mastered", prefix: "Avg ", suffix: "", decimals: 0 },
+  { id: 5, value: 250000, label: "Cards Generated", prefix: "+", suffix: "", decimals: 0 },
+  { id: 6, value: 78, label: "Students Exam Ready", prefix: "", suffix: "%", decimals: 0 }
 ];
 
 export const KpiStats = () => {
@@ -70,7 +72,7 @@ export const KpiStats = () => {
         variants={containerVariants}
         initial="hidden"
         animate={inView ? "visible" : "hidden"}
-        className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-10 max-w-6xl mx-auto"
+        className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 max-w-6xl mx-auto"
       >
         {stats.map((stat) => (
           <motion.div 

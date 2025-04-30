@@ -7,7 +7,7 @@ import StudyPlanDetail from '@/components/dashboard/student/academic/StudyPlanDe
 import { useToast } from '@/hooks/use-toast';
 import { v4 as uuidv4 } from 'uuid';
 import { format, differenceInCalendarDays } from 'date-fns';
-import type { StudyPlan, NewStudyPlan } from '@/types/user/studyPlan';
+import type { StudyPlan, NewStudyPlan, StudyPlanTopic } from '@/types/user/studyPlan';
 
 interface AcademicAdvisorProps {
   userProfile: {
@@ -79,7 +79,7 @@ const AcademicAdvisor: React.FC<AcademicAdvisorProps> = ({ userProfile }) => {
       {
         name: "Physics",
         progress: 65,
-        proficiency: 'weak',
+        proficiency: 'moderate',
         topics: [
           { name: "Mechanics", status: 'completed', priority: 'high' },
           { name: "Waves", status: 'completed', priority: 'medium' }
@@ -119,38 +119,38 @@ const AcademicAdvisor: React.FC<AcademicAdvisorProps> = ({ userProfile }) => {
   };
 
   // Function to generate topics based on subject
-  const generateTopicsForSubject = (subject: string, proficiency: 'weak' | 'moderate' | 'strong') => {
-    let topics = [];
-    const priorities = ['high', 'medium', 'low'];
-    const statuses = ['pending', 'in-progress'];
+  const generateTopicsForSubject = (subject: string, proficiency: 'strong' | 'weak' | 'moderate'): StudyPlanTopic[] => {
+    let topics: StudyPlanTopic[] = [];
+    const priorities = ['high', 'medium', 'low'] as const;
+    const statuses = ['pending', 'in-progress'] as const;
     
     // Generate topics based on subject
     switch(subject.toLowerCase()) {
       case 'physics':
         topics = [
-          { name: "Mechanics", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low' },
-          { name: "Thermodynamics", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low' },
-          { name: "Electrostatics", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low' }
+          { name: "Mechanics", status: statuses[Math.floor(Math.random() * statuses.length)], priority: priorities[Math.floor(Math.random() * priorities.length)] },
+          { name: "Thermodynamics", status: statuses[Math.floor(Math.random() * statuses.length)], priority: priorities[Math.floor(Math.random() * priorities.length)] },
+          { name: "Electrostatics", status: statuses[Math.floor(Math.random() * statuses.length)], priority: priorities[Math.floor(Math.random() * priorities.length)] }
         ];
         break;
       case 'chemistry':
         topics = [
-          { name: "Organic Chemistry", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low' },
-          { name: "Inorganic Chemistry", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low' },
-          { name: "Physical Chemistry", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low' }
+          { name: "Organic Chemistry", status: statuses[Math.floor(Math.random() * statuses.length)], priority: priorities[Math.floor(Math.random() * priorities.length)] },
+          { name: "Inorganic Chemistry", status: statuses[Math.floor(Math.random() * statuses.length)], priority: priorities[Math.floor(Math.random() * priorities.length)] },
+          { name: "Physical Chemistry", status: statuses[Math.floor(Math.random() * statuses.length)], priority: priorities[Math.floor(Math.random() * priorities.length)] }
         ];
         break;
       case 'mathematics':
         topics = [
-          { name: "Calculus", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low' },
-          { name: "Algebra", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low' },
-          { name: "Geometry", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low' }
+          { name: "Calculus", status: statuses[Math.floor(Math.random() * statuses.length)], priority: priorities[Math.floor(Math.random() * priorities.length)] },
+          { name: "Algebra", status: statuses[Math.floor(Math.random() * statuses.length)], priority: priorities[Math.floor(Math.random() * priorities.length)] },
+          { name: "Geometry", status: statuses[Math.floor(Math.random() * statuses.length)], priority: priorities[Math.floor(Math.random() * priorities.length)] }
         ];
         break;
       default:
         topics = [
-          { name: "Fundamentals", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low' },
-          { name: "Advanced Topics", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low' }
+          { name: "Fundamentals", status: statuses[Math.floor(Math.random() * statuses.length)], priority: priorities[Math.floor(Math.random() * priorities.length)] },
+          { name: "Advanced Topics", status: statuses[Math.floor(Math.random() * statuses.length)], priority: priorities[Math.floor(Math.random() * priorities.length)] }
         ];
     }
     
@@ -213,7 +213,7 @@ const AcademicAdvisor: React.FC<AcademicAdvisorProps> = ({ userProfile }) => {
       />
 
       <CreateStudyPlanWizard
-        isOpen={showCreateDialog}
+        open={showCreateDialog}
         onClose={() => setShowCreateDialog(false)}
         examGoal={userProfile?.examPreparation}
         onCreatePlan={handleNewPlanCreated}

@@ -29,6 +29,54 @@ interface RedesignedDashboardOverviewProps {
   kpis: KpiData[];
 }
 
+// Sample data for revision items and milestones
+const sampleRevisionItems = [
+  {
+    id: '1',
+    title: 'Physics: Mechanics',
+    category: 'Concept',
+    dueDate: '2023-05-15',
+    priority: 'high' as const
+  },
+  {
+    id: '2',
+    title: 'Chemistry: Organic Compounds',
+    category: 'Flashcards',
+    dueDate: '2023-05-16',
+    priority: 'medium' as const
+  },
+  {
+    id: '3',
+    title: 'Mathematics: Integration',
+    category: 'Practice',
+    dueDate: '2023-05-17',
+    priority: 'low' as const
+  }
+];
+
+const sampleMilestones = [
+  {
+    id: '1',
+    title: 'Mock Exam 1',
+    date: '2023-05-20',
+    completed: false,
+    description: 'Full-length practice exam'
+  },
+  {
+    id: '2',
+    title: 'Complete Biology Module',
+    date: '2023-05-25',
+    completed: false
+  },
+  {
+    id: '3',
+    title: 'Revise Chemistry',
+    date: '2023-05-15',
+    completed: true,
+    description: 'Chapters 1-5'
+  }
+];
+
 export default function RedesignedDashboardOverview({ userProfile, kpis }: RedesignedDashboardOverviewProps) {
   const { loading, dashboardData, refreshData } = useStudentDashboardData();
   const [currentMood, setCurrentMood] = useState<MoodType>();
@@ -283,10 +331,10 @@ export default function RedesignedDashboardOverview({ userProfile, kpis }: Redes
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <motion.div variants={itemVariants}>
-          <RevisionLoopSection revisionItems={dashboardData.revisionItems} />
+          <RevisionLoopSection items={sampleRevisionItems} />
         </motion.div>
         <motion.div variants={itemVariants}>
-          <UpcomingMilestonesSection milestones={dashboardData.milestones} />
+          <UpcomingMilestonesSection milestones={sampleMilestones} />
         </motion.div>
       </div>
     </motion.div>
