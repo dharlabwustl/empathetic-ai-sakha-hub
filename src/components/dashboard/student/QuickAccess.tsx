@@ -14,7 +14,7 @@ export const QuickAccess = () => {
   const location = useLocation();
   const currentPath = location.pathname;
   
-  // Updated quick links as per requirements - only these 4 items
+  // Restored original quick links
   const quickLinks = [
     {
       path: '/dashboard/student/tutor',

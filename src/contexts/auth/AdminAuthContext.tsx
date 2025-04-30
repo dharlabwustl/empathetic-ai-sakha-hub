@@ -1,5 +1,5 @@
 
-import React, { createContext, useState, useContext, ReactNode } from 'react';
+import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
 import { AuthUser } from '@/services/auth/authService';
 
 interface AdminAuthContextProps {
@@ -19,7 +19,7 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
   const [adminUser, setAdminUser] = useState<AuthUser | null>(null);
 
   // Check for existing admin session
-  React.useEffect(() => {
+  useEffect(() => {
     const storedAdminUser = localStorage.getItem('admin_user');
     if (storedAdminUser) {
       try {
@@ -54,6 +54,7 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
   const logout = async (): Promise<void> => {
     localStorage.removeItem('admin_user');
     setAdminUser(null);
+    // Don't navigate here - let the component that calls logout handle navigation
   };
 
   const value = {

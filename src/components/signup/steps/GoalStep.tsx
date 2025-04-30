@@ -1,8 +1,6 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { UserGoal, UserRole } from "../OnboardingContext";
 
 interface GoalStepProps {
@@ -17,13 +15,6 @@ const GoalStep: React.FC<GoalStepProps> = ({ role, onGoalSelect }) => {
     "NEET",
     "UPSC"
   ];
-
-  const handleCustomGoalSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const formData = new FormData(e.target as HTMLFormElement);
-    const goal = formData.get("goal") as string;
-    onGoalSelect(goal);
-  };
 
   return (
     <div className="space-y-4">

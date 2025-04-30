@@ -37,31 +37,36 @@ const Login = () => {
       if (response.success && response.data) {
         toast({
           title: "Login successful",
-          description: "Welcome back to Prepzr"
+          description: "Welcome back to PREPZR"
         });
 
-        // Check user's role to direct to appropriate dashboard
+        // Save last visited page if exists
+        const lastPage = localStorage.getItem('lastVisitedPage');
+
+        // Check user's role to direct to appropriate page
         const userRole = response.data.role.toLowerCase();
         
-        // Redirect based on role
-        switch (userRole) {
-          case 'student':
-            navigate("/dashboard/student");
-            break;
-          case 'employee':
-            navigate("/dashboard/employee");
-            break;
-          case 'doctor':
-            navigate("/dashboard/doctor");
-            break;
-          case 'founder':
-            navigate("/dashboard/founder");
-            break;
-          case 'admin':
-            navigate("/admin/dashboard");
-            break;
-          default:
-            navigate("/dashboard/student");
+        // Redirect to post-login prompt for students
+        if (userRole === 'student') {
+          navigate("/welcome-back?returnTo=" + (lastPage ? 'lastPage' : 'dashboard'));
+        } else {
+          // Redirect other roles based on role
+          switch (userRole) {
+            case 'employee':
+              navigate("/dashboard/employee");
+              break;
+            case 'doctor':
+              navigate("/dashboard/doctor");
+              break;
+            case 'founder':
+              navigate("/dashboard/founder");
+              break;
+            case 'admin':
+              navigate("/admin/dashboard");
+              break;
+            default:
+              navigate("/welcome-back");
+          }
         }
       } else {
         toast({
@@ -104,7 +109,7 @@ const Login = () => {
             </div>
             <CardTitle className="text-2xl font-bold text-center">Welcome Back</CardTitle>
             <CardDescription className="text-blue-100 text-center">
-              Log in to your Prepzr account
+              Log in to your PREPZR account
             </CardDescription>
           </CardHeader>
           <CardContent className="p-6">
@@ -131,7 +136,7 @@ const Login = () => {
                       e.preventDefault(); 
                       toast({
                         title: "Password Reset",
-                        description: "Password reset functionality is not available in the demo."
+                        description: "Password reset functionality will be available soon."
                       });
                     }}
                   >

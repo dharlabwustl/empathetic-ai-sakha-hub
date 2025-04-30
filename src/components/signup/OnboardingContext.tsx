@@ -1,209 +1,74 @@
 
-import React, { createContext, useState, useContext, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
-import { useToast } from "@/hooks/use-toast";
-import { MoodType } from "@/types/user/base";
+import React, { createContext, useContext, ReactNode, useState } from "react";
+import { UserRole, MoodType, PersonalityType } from "@/types/user/base";
 
-// Export UserRole enum for use in other components
-export enum UserRole {
-  Student = "student",
-  Employee = "employee",
-  Doctor = "doctor",
-  Founder = "founder",
-  Admin = "admin"
-}
-
-// Define types for the step management
-export type OnboardingStep = 
-  | "role"
-  | "goal"
-  | "demographics" 
-  | "personality" 
-  | "sentiment" 
-  | "habits" 
-  | "interests" 
-  | "signup";
-
-// Define the type for user goals
+// Define types
 export type UserGoal = string;
 
-// Define personality types
-export enum PersonalityType {
-  Analytical = "analytical",
-  Creative = "creative",
-  Practical = "practical",
-  Social = "social"
+export interface OnboardingData {
+  role?: UserRole;
+  goal?: UserGoal;
+  demographics?: Record<string, string>;
+  personality?: PersonalityType;
+  mood?: MoodType;
+  habits?: Record<string, string>;
+  interests?: string;
+  targetExamDate?: string;
+  name?: string;
+  mobile?: string;
 }
 
-// Define the types for the form data
-export interface OnboardingFormData {
-  examType: string;
-  examDate: Date | undefined;
-  studyHours: number;
-  studyTime: string;
-  studyPace: string;
-  subjects: string[];
-  interests: string[];
+interface OnboardingContextType {
+  onboardingData: OnboardingData;
+  setOnboardingData: React.Dispatch<React.SetStateAction<OnboardingData>>;
+  currentStep: string;
+  goToNextStep: () => void;
+  goToPrevStep: () => void;
 }
 
-// Define the context state type
-export interface OnboardingContextState {
-  step: OnboardingStep; // Changed from number to OnboardingStep
-  totalSteps: number;
-  formData: OnboardingFormData;
-  // Additional properties needed by components
-  onboardingData: any;
-  setOnboardingData: (data: any) => void;
-  messages: { content: string; isBot: boolean }[];
-  setMessages: (messages: { content: string; isBot: boolean }[]) => void;
-  setStep: (step: OnboardingStep) => void; // Changed from number to OnboardingStep
-  nextStep: () => void;
-  prevStep: () => void;
-  updateFormData: (data: Partial<OnboardingFormData>) => void;
-  completeOnboarding: () => void;
-  loading: boolean;
-}
+// Define steps in order
+const steps = ["role", "goal", "demographics", "personality", "mood", "habits", "interests", "signup"];
 
-// Create the context with a default value
-const OnboardingContext = createContext<OnboardingContextState | undefined>(
-  undefined
-);
+// Create the context
+const OnboardingContext = createContext<OnboardingContextType | undefined>(undefined);
 
-// Custom hook to use the onboarding context
-export const useOnboarding = () => {
-  const context = useContext(OnboardingContext);
-  if (!context) {
-    throw new Error(
-      "useOnboarding must be used within a OnboardingContextProvider"
-    );
-  }
-  return context;
-};
+// Provider component
+export const OnboardingProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const [onboardingData, setOnboardingData] = useState<OnboardingData>({});
+  const [currentStepIndex, setCurrentStepIndex] = useState(0);
 
-// Map numeric step to OnboardingStep type
-const stepMap: Record<number, OnboardingStep> = {
-  1: "role",
-  2: "goal",
-  3: "demographics",
-  4: "personality",
-  5: "sentiment",
-  6: "habits",
-  7: "interests",
-  8: "signup"
-};
-
-// Map OnboardingStep type to numeric value
-const stepNumberMap: Record<OnboardingStep, number> = {
-  role: 1,
-  goal: 2,
-  demographics: 3,
-  personality: 4,
-  sentiment: 5,
-  habits: 6,
-  interests: 7,
-  signup: 8
-};
-
-// Create the context provider component
-export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
-  const [currentStep, setCurrentStep] = useState<number>(1);
-  const step = stepMap[currentStep] as OnboardingStep;
-  const totalSteps = 7;
-  
-  const [formData, setFormData] = useState<OnboardingFormData>({
-    examType: "",
-    examDate: undefined,
-    studyHours: 4,
-    studyTime: "morning",
-    studyPace: "balanced",
-    subjects: [],
-    interests: [],
-  });
-  
-  // Add additional state for onboarding data and messages
-  const [onboardingData, setOnboardingData] = useState<any>({});
-  const [messages, setMessages] = useState<{ content: string; isBot: boolean }[]>([
-    { content: "Hi! I'm Prepzr AI. Let's set up your personalized learning experience. What best describes you?", isBot: true }
-  ]);
-  const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
-  const { toast } = useToast();
-
-  // Function to set step by OnboardingStep type
-  const setStep = useCallback((newStep: OnboardingStep) => {
-    setCurrentStep(stepNumberMap[newStep]);
-  }, []);
-
-  // Function to go to the next step
-  const nextStep = useCallback(() => {
-    setCurrentStep((prev) => Math.min(prev + 1, totalSteps));
-  }, [totalSteps]);
-
-  // Function to go to the previous step
-  const prevStep = useCallback(() => {
-    setCurrentStep((prev) => Math.max(prev - 1, 1));
-  }, []);
-
-  // Function to update the form data
-  const updateFormData = useCallback(
-    (data: Partial<OnboardingFormData>) => {
-      setFormData((prev) => ({ ...prev, ...data }));
-    },
-    []
-  );
-
-  // Function to complete the onboarding process
-  const completeOnboarding = useCallback(async () => {
-    setLoading(true);
-    try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      // Store data in local storage
-      localStorage.setItem("onboardingData", JSON.stringify(formData));
-
-      // Show success message
-      toast({
-        title: "Onboarding Complete!",
-        description: "Your preferences have been saved.",
-      });
-
-      // Redirect to dashboard
-      navigate("/dashboard/student");
-    } catch (error) {
-      console.error("Onboarding failed:", error);
-      toast({
-        title: "Error",
-        description: "Failed to complete onboarding.",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
+  const goToNextStep = () => {
+    if (currentStepIndex < steps.length - 1) {
+      setCurrentStepIndex(currentStepIndex + 1);
     }
-  }, [formData, navigate, toast]);
+  };
 
-  // Provide the context value
+  const goToPrevStep = () => {
+    if (currentStepIndex > 0) {
+      setCurrentStepIndex(currentStepIndex - 1);
+    }
+  };
+
   return (
     <OnboardingContext.Provider
       value={{
-        step,
-        totalSteps,
-        formData,
         onboardingData,
         setOnboardingData,
-        messages,
-        setMessages,
-        setStep,
-        nextStep,
-        prevStep,
-        updateFormData,
-        completeOnboarding,
-        loading,
+        currentStep: steps[currentStepIndex],
+        goToNextStep,
+        goToPrevStep,
       }}
     >
       {children}
     </OnboardingContext.Provider>
   );
+};
+
+// Custom hook to use the context
+export const useOnboarding = () => {
+  const context = useContext(OnboardingContext);
+  if (context === undefined) {
+    throw new Error("useOnboarding must be used within an OnboardingProvider");
+  }
+  return context;
 };

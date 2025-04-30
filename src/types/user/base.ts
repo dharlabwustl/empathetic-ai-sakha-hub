@@ -13,7 +13,10 @@ export enum MoodType {
   Neutral = "neutral",
   Tired = "tired",
   Stressed = "stressed",
-  Confused = "confused"
+  Confused = "confused",
+  Focused = "focused",
+  Anxious = "anxious",
+  Sad = "sad"
 }
 
 export enum PersonalityType {
@@ -32,3 +35,18 @@ export enum SubscriptionType {
   Enterprise = "enterprise",
   Trial = "trial"
 }
+
+// Base user profile type
+export interface UserProfileBase {
+  id: string;
+  name: string;
+  email: string;
+  role: UserRole;
+  goals?: { id: string; title: string }[];
+  subscription?: SubscriptionType | { planType: string; expiryDate?: string };
+  loginCount?: number;
+  lastLogin?: string;
+  createdAt?: string;
+}
+
+export type UserProfileType = UserProfileBase;
