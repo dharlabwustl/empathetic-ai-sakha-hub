@@ -1,4 +1,5 @@
 
+
 export enum MoodType {
   Happy = 'happy',
   Focused = 'focused',
@@ -9,7 +10,17 @@ export enum MoodType {
   Anxious = 'anxious',
   Overwhelmed = 'overwhelmed',
   Curious = 'curious',
-  Bored = 'bored'
+  Bored = 'bored',
+  Neutral = 'neutral',
+  Okay = 'okay',
+  Sad = 'sad'
+}
+
+export enum UserRole {
+  Student = 'student',
+  Teacher = 'teacher',
+  Parent = 'parent',
+  Admin = 'admin'
 }
 
 export type SubscriptionType = 'free' | 'basic' | 'premium' | 'pro';
@@ -41,6 +52,12 @@ export interface UserProfileBase {
   studyHours?: number;
   conceptsLearned?: number;
   testsCompleted?: number;
+  goals?: {
+    id: string;
+    title: string;
+    targetDate?: string;
+  }[];
+  mood?: MoodType;
 }
 
 export interface UserPreferencesBase {

@@ -1,9 +1,11 @@
+
 import React from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { UserProfileBase, SubscriptionType } from "@/types/user/base";
 import { formatDistanceToNow } from "date-fns";
+import { getInitials } from "@/lib/utils";
 
 interface ProfileCardProps {
   userProfile: UserProfileBase;
@@ -55,17 +57,7 @@ export function ProfileCard({ userProfile, onLevelUp, className = "" }: ProfileC
     ? `Last active ${formatDistanceToNow(new Date(userProfile.lastActive), { addSuffix: true })}` 
     : "Never logged in";
   
-  // Get initials for avatar fallback
-  const getInitials = (name: string) => {
-    return name
-      .split(' ')
-      .map(part => part[0])
-      .join('')
-      .toUpperCase()
-      .substring(0, 2);
-  };
-  
-  const avatarUrl = userProfile.avatarUrl || userProfile.avatar || '';
+  const avatarUrl = userProfile.avatar || '';
   
   return (
     <Card>

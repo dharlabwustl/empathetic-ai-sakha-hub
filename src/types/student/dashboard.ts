@@ -20,3 +20,30 @@ export interface SubjectMastery {
   mastery: number;
   color: string;
 }
+
+export interface StudyStreak {
+  current: number;
+  longest: number;
+  daysThisMonth: string[];
+  lastStudyDate?: string;
+}
+
+export interface SubjectProgress {
+  id: string;
+  name: string;
+  progress: number;
+  lastStudied?: string;
+  color: string;
+  topicsCount: {
+    total: number;
+    completed: number;
+  };
+  quizzesCount: {
+    total: number;
+    completed: number;
+  };
+  flashcardsCount: {
+    total: number;
+    completed: number;
+  };
+}

@@ -2,44 +2,39 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { CheckCircle } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 
-interface CompletionStepProps {
-  onNext?: () => void;
-}
-
-const CompletionStep: React.FC<CompletionStepProps> = ({ onNext }) => {
+const CompletionStep: React.FC = () => {
+  const navigate = useNavigate();
+  
   return (
-    <motion.div 
-      className="text-center py-4"
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-    >
-      <div className="flex justify-center mb-6">
-        <div className="w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-          <CheckCircle className="h-10 w-10 text-green-600 dark:text-green-400" />
-        </div>
+    <div className="flex flex-col items-center text-center py-8">
+      <div className="flex items-center justify-center w-20 h-20 rounded-full bg-green-100 mb-6">
+        <CheckCircle className="h-10 w-10 text-green-600" />
       </div>
       
-      <h3 className="text-xl font-bold mb-2">Registration Complete!</h3>
-      <p className="text-muted-foreground mb-6">
-        Your account has been created successfully. You can now access all features and start your learning journey.
+      <h2 className="text-2xl font-bold mb-2">Registration Complete!</h2>
+      <p className="text-muted-foreground mb-8 max-w-md">
+        Your account has been successfully created. You're all set to start your learning journey!
       </p>
       
-      <div className="space-y-4">
-        <Button onClick={onNext} className="w-full">
+      <div className="space-x-4">
+        <Button 
+          size="lg"
+          onClick={() => navigate('/dashboard/student')}
+        >
           Go to Dashboard
         </Button>
-        <div className="text-sm text-muted-foreground">
-          <span>Want to explore first? </span>
-          <Link to="/" className="text-primary hover:underline">
-            Visit our homepage
-          </Link>
-        </div>
+        
+        <Button 
+          variant="outline"
+          size="lg"
+          onClick={() => navigate('/profile/setup')}
+        >
+          Complete Your Profile
+        </Button>
       </div>
-    </motion.div>
+    </div>
   );
 };
 

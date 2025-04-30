@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
@@ -12,7 +13,7 @@ const PerformanceTabs: React.FC<PerformanceTabsProps> = ({ studentId }) => {
   return (
     <Card>
       <CardContent className="p-0">
-        <Tabs defaultvalue="grades" className="w-full">
+        <Tabs defaultValue="grades" className="w-full">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="grades">Grades Overview</TabsTrigger>
             <TabsTrigger value="subjects">Subjects Overview</TabsTrigger>
@@ -24,7 +25,7 @@ const PerformanceTabs: React.FC<PerformanceTabsProps> = ({ studentId }) => {
           </TabsContent>
           <TabsContent value="subjects">
             <div className="p-4">
-              <SubjectOverview studentId={studentId} />
+              <SubjectOverview />
             </div>
           </TabsContent>
         </Tabs>

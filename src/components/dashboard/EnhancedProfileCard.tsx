@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -94,7 +95,7 @@ const EnhancedProfileCard: React.FC<EnhancedProfileCardProps> = ({ userProfile, 
         
         <div>
           <h3 className="text-sm font-medium mb-2">How are you feeling today?</h3>
-          <MoodSelector currentMood={currentMood} onMoodSelect={onMoodChange} />
+          <MoodSelector currentMood={currentMood} onMoodSelect={onMoodChange!} />
         </div>
       </CardContent>
       
