@@ -1,22 +1,15 @@
 
-export interface StudyPlanTopic {
-  id?: string;
+export interface Topic {
   name: string;
-  status: 'pending' | 'in-progress' | 'completed' | 'skipped';
-  priority?: 'high' | 'medium' | 'low';
-  difficulty?: 'easy' | 'medium' | 'hard';
-  completed?: boolean;
+  status: 'pending' | 'in-progress' | 'completed';
+  priority: 'high' | 'medium' | 'low';
 }
 
-export interface StudyPlanSubject {
-  id?: string;
+export interface Subject {
   name: string;
   progress: number;
-  proficiency: 'strong' | 'weak' | 'moderate';
-  topics: StudyPlanTopic[];
-  color?: string;
-  hoursPerWeek?: number;
-  priority?: 'high' | 'medium' | 'low';
+  proficiency: 'weak' | 'moderate' | 'strong';
+  topics: Topic[];
 }
 
 export interface StudyPlan {
@@ -25,21 +18,23 @@ export interface StudyPlan {
   examDate: string;
   daysLeft: number;
   createdAt: string;
-  status: 'active' | 'completed' | 'paused';
+  status: 'active' | 'completed' | 'expired';
   progressPercentage: number;
-  subjects: StudyPlanSubject[];
+  subjects: Subject[];
   studyHoursPerDay: number;
   preferredStudyTime: 'morning' | 'afternoon' | 'evening' | 'night';
   learningPace: 'slow' | 'moderate' | 'fast';
 }
 
+export interface NewStudyPlanSubject {
+  name: string;
+  proficiency: 'weak' | 'moderate' | 'strong';
+}
+
 export interface NewStudyPlan {
   examGoal: string;
   examDate: Date;
-  subjects: {
-    name: string;
-    proficiency: 'strong' | 'weak' | 'moderate';
-  }[];
+  subjects: NewStudyPlanSubject[];
   studyHoursPerDay: number;
   preferredStudyTime: 'morning' | 'afternoon' | 'evening' | 'night';
   learningPace: 'slow' | 'moderate' | 'fast';

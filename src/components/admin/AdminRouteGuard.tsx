@@ -1,44 +1,29 @@
 
-import React, { useEffect } from 'react';
-import { Navigate, useNavigate } from 'react-router-dom';
+import React from 'react';
+import { Navigate, Outlet } from 'react-router-dom';
 import { useAdminAuth } from '@/contexts/auth/AdminAuthContext';
 import LoadingScreen from '@/components/common/LoadingScreen';
-import { useToast } from "@/hooks/use-toast";
 
 interface AdminRouteGuardProps {
   children?: React.ReactNode;
 }
 
 const AdminRouteGuard: React.FC<AdminRouteGuardProps> = ({ children }) => {
-  const { isAdminAuthenticated, isAdminLoading } = useAdminAuth();
-  const navigate = useNavigate();
-  const { toast } = useToast();
+  const { isAuthenticated, loading } = useAdminAuth();
   
-  useEffect(() => {
-    console.log("AdminRouteGuard - Authentication status:", { 
-      isAdminAuthenticated, 
-      isAdminLoading 
-    });
-    
-    if (!isAdminLoading && !isAdminAuthenticated) {
-      toast({
-        title: "Authentication Required",
-        description: "Please login to access the admin dashboard",
-        variant: "destructive"
-      });
-      navigate("/admin/login", { replace: true });
-    }
-  }, [isAdminAuthenticated, isAdminLoading, navigate, toast]);
-  
-  if (isAdminLoading) {
-    return <LoadingScreen message="Checking admin credentials..." />;
+  if (loading) {
+    return <LoadingScreen />;
   }
   
-  if (!isAdminAuthenticated) {
+  if (!isAuthenticated) {
     return <Navigate to="/admin/login" replace />;
   }
   
-  return <>{children}</>;
+  return (
+    <>
+      {children || <Outlet />}
+    </>
+  );
 };
 
 export default AdminRouteGuard;

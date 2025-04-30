@@ -1,144 +1,147 @@
 
 import React from 'react';
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Clock, BookOpen, BookMarked, GraduationCap } from "lucide-react";
-import { ConceptTask, FlashcardTask, PracticeExamTask, TaskStatus } from "@/types/student/todaysPlans";
+import { ConceptTask, FlashcardTask, PracticeExamTask } from "@/types/student/todaysPlan";
+import { BookOpen, FileText, Clock, Bookmark, CheckCircle, AlertCircle, MessageSquare } from "lucide-react";
+import { cn } from "@/lib/utils";
 
-interface SubjectTaskItemProps {
+interface TaskItemProps {
   task: ConceptTask | FlashcardTask | PracticeExamTask;
-  type: 'concept' | 'flashcard' | 'practice-exam';
+  onComplete: (taskId: string, taskType: 'concept' | 'flashcard' | 'practice-exam') => void;
+  onBookmark: (taskId: string) => void;
+  className?: string;
 }
 
-const SubjectTaskItem: React.FC<SubjectTaskItemProps> = ({ task, type }) => {
-  // Helper function to format duration in minutes to a readable format
-  const formatDuration = (minutes: number) => {
-    if (minutes < 60) {
-      return `${minutes} min`;
-    } else {
-      const hours = Math.floor(minutes / 60);
-      const remainingMinutes = minutes % 60;
-      return remainingMinutes > 0 ? `${hours}h ${remainingMinutes}m` : `${hours}h`;
+export function TaskItem({ task, onComplete, onBookmark, className }: TaskItemProps) {
+  const getIcon = () => {
+    switch(task.type) {
+      case 'concept': return <BookOpen className="h-4 w-4 text-blue-500" />;
+      case 'flashcard': return <FileText className="h-4 w-4 text-amber-500" />;
+      case 'practice-exam': return <AlertCircle className="h-4 w-4 text-violet-500" />;
     }
   };
   
-  // Get status badge component
-  const getStatusBadge = (status: TaskStatus) => {
-    if (status === "completed") {
-      return <Badge variant="outline" className="bg-green-50 border-green-200 text-green-700">Completed</Badge>;
-    } else if (status === "in-progress") {
-      return <Badge variant="outline" className="bg-blue-50 border-blue-200 text-blue-700">In Progress</Badge>;
-    } else if (status === "viewed") {
-      return <Badge variant="outline" className="bg-yellow-50 border-yellow-200 text-yellow-700">Viewed</Badge>;
-    } else {
-      return <Badge variant="outline" className="bg-gray-50 border-gray-200 text-gray-700">Pending</Badge>;
+  const getStatusClass = () => {
+    switch(task.status) {
+      case '✅ completed': return "border-l-green-500";
+      case '🔄 in-progress': return "border-l-blue-500";
+      case '🕒 viewed': return "border-l-gray-400";
+      case '🔴 pending': return "border-l-red-500";
+      default: return "";
     }
   };
   
-  // Get type-specific details for the task
-  const getTaskDetails = () => {
-    if (type === 'flashcard') {
-      const flashcardTask = task as FlashcardTask;
+  const getPriorityClass = () => {
+    switch(task.priority) {
+      case 'high': return "bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400";
+      case 'medium': return "bg-amber-50 text-amber-600 dark:bg-amber-900/20 dark:text-amber-400";
+      case 'low': return "bg-green-50 text-green-600 dark:bg-green-900/20 dark:text-green-400";
+    }
+  };
+  
+  // Additional details based on task type
+  const renderTaskDetails = () => {
+    if (task.type === 'flashcard') {
       return (
-        <div className="flex items-center gap-2 text-sm text-gray-500">
-          <span>{flashcardTask.cardCount || 0} cards</span>
-          {flashcardTask.recallAccuracy !== undefined && (
-            <>
-              <span>•</span>
-              <span>{flashcardTask.recallAccuracy}% recall</span>
-            </>
+        <div className="flex items-center text-sm text-muted-foreground">
+          <span className="mr-2">{task.cardCount} cards</span>
+          {task.recallAccuracy !== undefined && (
+            <Badge variant="outline" className="bg-sky-50 text-sky-600 dark:bg-sky-900/20 dark:text-sky-400">
+              {task.recallAccuracy}% recall
+            </Badge>
           )}
         </div>
       );
-    } else if (type === 'practice-exam') {
-      const examTask = task as PracticeExamTask;
+    } else if (task.type === 'practice-exam') {
       return (
-        <div className="flex items-center gap-2 text-sm text-gray-500">
-          <span>{examTask.questionCount || 10} questions</span>
-          <span>•</span>
-          <span>{examTask.timeLimit || 30} min</span>
-          {examTask.lastScore !== undefined && (
-            <>
-              <span>•</span>
-              <span>Last score: {examTask.lastScore}%</span>
-            </>
-          )}
-        </div>
-      );
-    } else {
-      // Concept task details (default)
-      return (
-        <div className="flex items-center gap-2 text-sm text-gray-500">
-          <span>{formatDuration(task.duration)}</span>
-          {task.difficulty && (
-            <>
-              <span>•</span>
-              <span>{task.difficulty}</span>
-            </>
+        <div className="flex items-center text-sm text-muted-foreground">
+          <span className="mr-2">{task.questionCount} Qs</span>
+          <Clock className="h-3 w-3 mr-1" />
+          <span>{task.timeLimit} mins</span>
+          {task.lastScore !== undefined && (
+            <Badge variant="outline" className="ml-2 bg-purple-50 text-purple-600 dark:bg-purple-900/20 dark:text-purple-400">
+              Score: {task.lastScore}%
+            </Badge>
           )}
         </div>
       );
     }
+    return null;
   };
   
-  // Get icon component based on task type
-  const getTaskIcon = () => {
-    if (type === 'concept') {
-      return <BookOpen className="h-4 w-4 text-blue-500" />;
-    } else if (type === 'flashcard') {
-      return <BookMarked className="h-4 w-4 text-amber-500" />;
-    } else {
-      return <GraduationCap className="h-4 w-4 text-green-500" />;
-    }
-  };
-
   return (
-    <div className="border border-gray-200 rounded-lg hover:border-blue-200 transition-colors p-3">
-      <div className="flex justify-between items-start">
-        <div className="flex items-start gap-3">
-          <div className="mt-1">{getTaskIcon()}</div>
-          
-          <div>
-            <div className="flex items-center gap-2">
-              <h4 className="font-medium">{task.title}</h4>
+    <Card 
+      className={cn(
+        "border-l-4 mb-2 hover:shadow-md transition-shadow duration-200", 
+        getStatusClass(),
+        className
+      )}
+    >
+      <CardContent className="p-3">
+        <div className="space-y-1">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              {getIcon()}
+              <span className="ml-2 font-medium">{task.title}</span>
               {task.chapter && (
-                <Badge variant="outline" className="bg-gray-50 text-gray-600 border-gray-200">
-                  Ch. {task.chapter}
+                <Badge variant="outline" className="ml-2 text-xs">
+                  {task.chapter}
                 </Badge>
               )}
             </div>
+            <Badge className={cn("text-xs", getPriorityClass())}>
+              {task.priority}
+            </Badge>
+          </div>
+          
+          {renderTaskDetails()}
+          
+          <div className="flex items-center justify-between mt-2">
+            <div className="flex-1 mr-4">
+              <Progress 
+                value={task.completionPercent} 
+                className="h-2" 
+                indicatorClassName={task.status === '✅ completed' ? 'bg-green-500' : undefined}
+              />
+            </div>
             
-            {getTaskDetails()}
-            
-            {/* Progress bar for tasks in progress */}
-            {'completionPercent' in task && task.status !== "completed" && (
-              <div className="mt-3">
-                <Progress 
-                  value={task.completionPercent} 
-                  className="h-2"
-                />
-              </div>
-            )}
+            <div className="flex items-center gap-1">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="h-7 px-2"
+                onClick={() => onBookmark(task.id)}
+              >
+                <Bookmark className="h-3 w-3" />
+              </Button>
+              
+              {task.status !== '✅ completed' ? (
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="h-7 px-2"
+                  onClick={() => onComplete(task.id, task.type)}
+                >
+                  <CheckCircle className="h-3 w-3 mr-1" />
+                  <span className="text-xs">Complete</span>
+                </Button>
+              ) : (
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="h-7 px-2 bg-green-50 border-green-200 text-green-700 hover:bg-green-100"
+                >
+                  <MessageSquare className="h-3 w-3 mr-1" />
+                  <span className="text-xs">Revisit</span>
+                </Button>
+              )}
+            </div>
           </div>
         </div>
-        
-        <div className="flex flex-col items-end gap-2">
-          {getStatusBadge(task.status)}
-          
-          {task.status !== "completed" ? (
-            <Button variant="outline" size="sm" className="h-8 mt-1">
-              {task.status === "in-progress" ? "Continue" : "Start"}
-            </Button>
-          ) : (
-            <Button variant="ghost" size="sm" className="h-8 mt-1">
-              Review
-            </Button>
-          )}
-        </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
-};
-
-export default SubjectTaskItem;
+}

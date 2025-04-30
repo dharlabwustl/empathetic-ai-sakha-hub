@@ -1,108 +1,97 @@
 
-import React, { createContext, useContext, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { createContext, useState, useContext } from "react";
+import { Goal } from "@/types/user/base";
 
 interface OnboardingContextType {
   currentStep: number;
-  formData: {
-    name: string;
-    email: string;
-    password: string;
-    examGoal: string;
-    mobile?: string;
-    agreeToTerms: boolean;
-    [key: string]: any; // For additional data
-  };
-  updateFormData: (data: Partial<any>) => void;
-  nextStep: () => void;
-  prevStep: () => void;
-  resetForm: () => void;
-  submitForm: () => void;
-  isSubmitting: boolean;
+  setCurrentStep: (step: number) => void;
+  steps: string[];
+  userType: string;
+  setUserType: (type: string) => void;
+  goalTitle: string;
+  setGoalTitle: (goal: string) => void;
+  examGoal: string;
+  setExamGoal: (exam: string) => void;
+  formData: any;
+  updateFormData: (data: any) => void;
+  onboardingData: any;
+  handleSubmit: () => Promise<void>;
 }
 
-const defaultFormData = {
-  name: '',
-  email: '',
-  password: '',
-  examGoal: '',
-  agreeToTerms: false,
+const defaultOnboardingContext: OnboardingContextType = {
+  currentStep: 0,
+  setCurrentStep: () => {},
+  steps: ["welcome", "userType", "goal", "registration", "study", "complete"],
+  userType: "",
+  setUserType: () => {},
+  goalTitle: "",
+  setGoalTitle: () => {},
+  examGoal: "",
+  setExamGoal: () => {},
+  formData: {},
+  updateFormData: () => {},
+  onboardingData: {},
+  handleSubmit: async () => {},
 };
 
-const OnboardingContext = createContext<OnboardingContextType>({
-  currentStep: 1,
-  formData: defaultFormData,
-  updateFormData: () => {},
-  nextStep: () => {},
-  prevStep: () => {},
-  resetForm: () => {},
-  submitForm: () => {},
-  isSubmitting: false,
-});
+const OnboardingContext = createContext<OnboardingContextType>(defaultOnboardingContext);
 
-export const useOnboarding = () => useContext(OnboardingContext);
+export const useOnboardingContext = () => useContext(OnboardingContext);
 
 export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [currentStep, setCurrentStep] = useState(1);
-  const [formData, setFormData] = useState(defaultFormData);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const navigate = useNavigate();
-
-  const updateFormData = (data: Partial<typeof formData>) => {
-    setFormData({ ...formData, ...data });
+  const [currentStep, setCurrentStep] = useState(0);
+  const [userType, setUserType] = useState("");
+  const [goalTitle, setGoalTitle] = useState("");
+  const [examGoal, setExamGoal] = useState("");
+  const [formData, setFormData] = useState<any>({});
+  
+  const steps = ["welcome", "userType", "goal", "registration", "study", "complete"];
+  
+  const updateFormData = (data: any) => {
+    setFormData((prev: any) => ({ ...prev, ...data }));
+  };
+  
+  const onboardingData = {
+    userType,
+    goalTitle,
+    examGoal,
+    ...formData
   };
 
-  const nextStep = () => {
-    setCurrentStep((prev) => Math.min(prev + 1, 3));
-  };
-
-  const prevStep = () => {
-    setCurrentStep((prev) => Math.max(prev - 1, 1));
-  };
-
-  const resetForm = () => {
-    setCurrentStep(1);
-    setFormData(defaultFormData);
-  };
-
-  const submitForm = async () => {
-    setIsSubmitting(true);
-    try {
-      // Here you would typically call your API to register the user
-      
-      // Mock successful registration
-      // Store user data in localStorage for demo
-      localStorage.setItem('userData', JSON.stringify({
-        id: `user-${Math.random().toString(36).substr(2, 9)}`,
-        name: formData.name || 'New User',
-        email: formData.email,
-        role: 'student',
-        examGoal: formData.examGoal || 'IIT-JEE',
-        isActive: true,
-        loginCount: 1,
-        createdAt: new Date().toISOString()
-      }));
-      
-      // Navigate directly to the study plan creation animation screen
-      navigate('/study-plan-creation?new=true');
-    } catch (error) {
-      console.error('Error registering user:', error);
-    } finally {
-      setIsSubmitting(false);
-    }
+  const handleSubmit = async () => {
+    // Mock submission - in a real app, this would send data to your API
+    console.log("Submitting onboarding data:", onboardingData);
+    
+    return new Promise<void>((resolve) => {
+      setTimeout(() => {
+        // Save to localStorage for demo purposes
+        localStorage.setItem("userData", JSON.stringify({
+          ...onboardingData,
+          completedOnboarding: true,
+          registerDate: new Date().toISOString(),
+        }));
+        
+        resolve();
+      }, 1000);
+    });
   };
 
   return (
     <OnboardingContext.Provider
       value={{
         currentStep,
+        setCurrentStep,
+        steps,
+        userType,
+        setUserType,
+        goalTitle,
+        setGoalTitle,
+        examGoal,
+        setExamGoal,
         formData,
         updateFormData,
-        nextStep,
-        prevStep,
-        resetForm,
-        submitForm,
-        isSubmitting,
+        onboardingData,
+        handleSubmit,
       }}
     >
       {children}

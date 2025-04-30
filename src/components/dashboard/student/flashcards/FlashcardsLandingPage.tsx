@@ -1,332 +1,245 @@
 
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
+import { Link } from 'react-router-dom';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Book, Search, Brain, Clock, Calendar, ChevronRight, Tag, BarChart } from 'lucide-react';
-import { Progress } from '@/components/ui/progress';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { BookOpen, Search, Brain, Clock, ArrowRight, Star, BarChart } from 'lucide-react';
+import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
 
-interface FlashcardDeck {
-  id: string;
-  title: string;
-  subject: string;
-  chapter: string;
-  description: string;
-  cardCount: number;
-  difficulty: 'Easy' | 'Medium' | 'Hard';
-  timeEstimate: number;
-  tags: string[];
-  masteredCards: number;
-  lastReviewed?: string;
-  dueDate?: string;
-  isRecommended?: boolean;
-  accuracy?: number;
-}
+// Mock data for flashcard decks
+const MOCK_FLASHCARD_DECKS = [
+  {
+    id: 'deck1',
+    title: "Physics Formulas",
+    subject: "Physics",
+    topic: "Mechanics & Waves",
+    cardCount: 42,
+    difficulty: "intermediate",
+    estimatedTime: 15,
+    progress: 65,
+    mastery: 58,
+    lastReviewed: "2023-06-10T14:23:00Z"
+  },
+  {
+    id: 'deck2',
+    title: "Periodic Table Elements",
+    subject: "Chemistry",
+    topic: "Elements & Properties",
+    cardCount: 118,
+    difficulty: "advanced",
+    estimatedTime: 30,
+    progress: 25,
+    mastery: 22,
+    lastReviewed: "2023-06-08T08:45:00Z"
+  },
+  {
+    id: 'deck3',
+    title: "Integration Rules",
+    subject: "Mathematics",
+    topic: "Calculus",
+    cardCount: 24,
+    difficulty: "advanced",
+    estimatedTime: 20,
+    progress: 100,
+    mastery: 92,
+    lastReviewed: "2023-06-09T16:10:00Z"
+  },
+  {
+    id: 'deck4',
+    title: "Cell Organelles",
+    subject: "Biology",
+    topic: "Cell Biology",
+    cardCount: 15,
+    difficulty: "beginner",
+    estimatedTime: 10,
+    progress: 45,
+    mastery: 38,
+    lastReviewed: "2023-06-07T11:30:00Z"
+  },
+  {
+    id: 'deck5',
+    title: "Chemical Bonds",
+    subject: "Chemistry",
+    topic: "Molecular Structure",
+    cardCount: 18,
+    difficulty: "intermediate",
+    estimatedTime: 15,
+    progress: 0,
+    mastery: 0,
+    lastReviewed: null
+  },
+  {
+    id: 'deck6',
+    title: "Geometric Proofs",
+    subject: "Mathematics",
+    topic: "Geometry",
+    cardCount: 32,
+    difficulty: "intermediate",
+    estimatedTime: 25,
+    progress: 75,
+    mastery: 68,
+    lastReviewed: "2023-06-05T14:15:00Z"
+  }
+];
 
 const FlashcardsLandingPage = () => {
-  const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
-
-  // Mock data for flashcard decks
-  const flashcardDecks: FlashcardDeck[] = [
-    {
-      id: 'deck-1',
-      title: "Physics Formulas",
-      subject: "Physics",
-      chapter: "Mechanics",
-      description: "Core formulas and equations for mechanics problems",
-      cardCount: 25,
-      difficulty: "Medium",
-      timeEstimate: 20,
-      tags: ["Mechanics", "Formulas", "Equations"],
-      masteredCards: 12,
-      lastReviewed: "yesterday",
-      dueDate: "today",
-      isRecommended: true,
-      accuracy: 72
-    },
-    {
-      id: 'deck-2',
-      title: "Periodic Table Elements",
-      subject: "Chemistry",
-      chapter: "Elements",
-      description: "Learn properties and facts about periodic table elements",
-      cardCount: 30,
-      difficulty: "Medium",
-      timeEstimate: 25,
-      tags: ["Elements", "Properties", "Periodic Table"],
-      masteredCards: 20,
-      lastReviewed: "3 days ago",
-      dueDate: "today",
-      accuracy: 85
-    },
-    {
-      id: 'deck-3',
-      title: "Calculus Definitions",
-      subject: "Mathematics",
-      chapter: "Calculus",
-      description: "Key definitions and theorems in calculus",
-      cardCount: 15,
-      difficulty: "Hard",
-      timeEstimate: 15,
-      tags: ["Calculus", "Definitions", "Theorems"],
-      masteredCards: 5,
-      lastReviewed: "5 days ago",
-      dueDate: "tomorrow",
-      isRecommended: true,
-      accuracy: 64
-    },
-    {
-      id: 'deck-4',
-      title: "Biology Cell Functions",
-      subject: "Biology",
-      chapter: "Cell Biology",
-      description: "Flashcards on cell structures and their functions",
-      cardCount: 20,
-      difficulty: "Easy",
-      timeEstimate: 18,
-      tags: ["Cells", "Organelles", "Functions"],
-      masteredCards: 20,
-      lastReviewed: "1 week ago",
-      accuracy: 100
-    },
-    {
-      id: 'deck-5',
-      title: "Organic Chemistry Reactions",
-      subject: "Chemistry",
-      chapter: "Organic Chemistry",
-      description: "Key organic chemistry reaction mechanisms",
-      cardCount: 35,
-      difficulty: "Hard",
-      timeEstimate: 30,
-      tags: ["Organic", "Reactions", "Mechanisms"],
-      masteredCards: 14,
-      lastReviewed: "2 days ago",
-      accuracy: 68
-    },
-    {
-      id: 'deck-6',
-      title: "Physics Laws",
-      subject: "Physics",
-      chapter: "Modern Physics",
-      description: "Fundamental laws of physics with their applications",
-      cardCount: 18,
-      difficulty: "Medium",
-      timeEstimate: 15,
-      tags: ["Laws", "Applications", "Modern Physics"],
-      masteredCards: 0,
-      accuracy: 0
-    }
-  ];
-
-  // Filter decks based on tab and search
-  const getFilteredDecks = () => {
-    let filtered = flashcardDecks;
+  const [activeTab, setActiveTab] = useState('all');
+  
+  // Filter flashcard decks based on search and active tab
+  const filteredDecks = MOCK_FLASHCARD_DECKS.filter(deck => {
+    // Filter by search query
+    const matchesSearch = searchQuery === '' || 
+      deck.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      deck.subject.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      deck.topic.toLowerCase().includes(searchQuery.toLowerCase());
     
     // Filter by tab
-    if (activeTab === 'due-today') {
-      filtered = filtered.filter(deck => deck.dueDate === 'today');
-    } else if (activeTab === 'mastered') {
-      filtered = filtered.filter(deck => deck.masteredCards === deck.cardCount && deck.cardCount > 0);
-    } else if (activeTab === 'in-progress') {
-      filtered = filtered.filter(deck => deck.masteredCards > 0 && deck.masteredCards < deck.cardCount);
-    } else if (activeTab === 'not-started') {
-      filtered = filtered.filter(deck => deck.masteredCards === 0);
-    } else if (activeTab === 'recommended') {
-      filtered = filtered.filter(deck => deck.isRecommended);
-    } else if (activeTab !== 'all') {
-      // Filter by subject
-      filtered = filtered.filter(deck => deck.subject.toLowerCase() === activeTab);
-    }
+    const matchesTab = activeTab === 'all' || 
+      (activeTab === 'in-progress' && deck.progress > 0 && deck.progress < 100) ||
+      (activeTab === 'mastered' && deck.mastery >= 80) ||
+      (activeTab === 'not-started' && deck.progress === 0);
     
-    // Apply search filter
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(deck => 
-        deck.title.toLowerCase().includes(query) || 
-        deck.subject.toLowerCase().includes(query) ||
-        deck.tags.some(tag => tag.toLowerCase().includes(query))
-      );
-    }
-    
-    return filtered;
-  };
-
-  const filteredDecks = getFilteredDecks();
+    return matchesSearch && matchesTab;
+  });
   
-  // Get list of unique subjects
-  const subjects = Array.from(new Set(flashcardDecks.map(deck => deck.subject.toLowerCase())));
-  
-  // Handle card click to navigate to flashcard interactive page
-  const handleDeckClick = (deckId: string) => {
-    navigate(`/dashboard/student/flashcards/${deckId}/interactive`);
-  };
-
-  // Difficulty badge color
   const getDifficultyColor = (difficulty: string) => {
-    switch (difficulty) {
-      case 'Easy': return 'bg-green-100 text-green-800 border-green-200';
-      case 'Medium': return 'bg-amber-100 text-amber-800 border-amber-200';
-      case 'Hard': return 'bg-red-100 text-red-800 border-red-200';
-      default: return 'bg-blue-100 text-blue-800 border-blue-200';
+    switch(difficulty) {
+      case 'beginner': return 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400';
+      case 'intermediate': return 'bg-amber-100 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400';
+      case 'advanced': return 'bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-400';
+      default: return 'bg-gray-100 text-gray-700 dark:bg-gray-900/20 dark:text-gray-400';
     }
   };
-
-  // Get mastery status
-  const getMasteryStatus = (deck: FlashcardDeck) => {
-    if (deck.masteredCards === 0) return { label: 'Not Started', color: 'text-gray-500' };
-    if (deck.masteredCards === deck.cardCount) return { label: 'Mastered', color: 'text-green-600' };
-    
-    const percentage = (deck.masteredCards / deck.cardCount) * 100;
-    if (percentage < 30) return { label: 'Just Started', color: 'text-blue-600' };
-    if (percentage < 70) return { label: 'Learning', color: 'text-amber-600' };
-    return { label: 'Almost Mastered', color: 'text-emerald-600' };
+  
+  const getMasteryColor = (mastery: number) => {
+    if (mastery >= 80) return 'text-green-600 dark:text-green-400';
+    if (mastery >= 50) return 'text-amber-600 dark:text-amber-400';
+    return 'text-blue-600 dark:text-blue-400';
   };
 
   return (
     <SharedPageLayout
       title="Flashcards"
-      subtitle="Reinforce your memory with smart, adaptive flashcards"
+      subtitle="Review and memorize with smart flashcards"
     >
       <div className="space-y-6">
-        {/* Search and filter bar */}
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-          <Input 
-            placeholder="Search flashcards by title, subject, or tag..." 
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9 w-full"
-          />
+        {/* Search and filter */}
+        <div className="flex flex-col sm:flex-row gap-4 items-center">
+          <div className="relative w-full">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
+            <Input
+              type="text"
+              placeholder="Search flashcards, subjects or topics..."
+              className="pl-9"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+          <div className="flex items-center gap-2 text-sm">
+            <span className="text-gray-500">Sort by:</span>
+            <select className="border rounded bg-background px-2 py-1 text-sm">
+              <option>Latest</option>
+              <option>Mastery</option>
+              <option>Card Count</option>
+            </select>
+          </div>
         </div>
-
+        
         {/* Tabs for filtering */}
-        <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="w-full overflow-x-auto flex flex-nowrap justify-start">
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsList>
             <TabsTrigger value="all">All Decks</TabsTrigger>
-            <TabsTrigger value="due-today">Due Today</TabsTrigger>
-            <TabsTrigger value="recommended">Recommended</TabsTrigger>
             <TabsTrigger value="in-progress">In Progress</TabsTrigger>
-            <TabsTrigger value="not-started">Not Started</TabsTrigger>
             <TabsTrigger value="mastered">Mastered</TabsTrigger>
-            {subjects.map(subject => (
-              <TabsTrigger key={subject} value={subject} className="capitalize">
-                {subject}
-              </TabsTrigger>
-            ))}
+            <TabsTrigger value="not-started">Not Started</TabsTrigger>
           </TabsList>
-
-          <TabsContent value={activeTab} className="mt-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredDecks.map(deck => {
-                const masteryStatus = getMasteryStatus(deck);
-                const masteryPercentage = deck.cardCount > 0 ? Math.round((deck.masteredCards / deck.cardCount) * 100) : 0;
-                
-                return (
-                  <Card 
-                    key={deck.id}
-                    className={`cursor-pointer transition-all hover:shadow-md overflow-hidden border-l-4 ${
-                      masteryPercentage === 100 
-                        ? 'border-l-green-500' 
-                        : masteryPercentage > 0 
-                          ? 'border-l-blue-500' 
-                          : deck.isRecommended 
-                            ? 'border-l-violet-500' 
-                            : 'border-l-gray-300'
-                    }`}
-                    onClick={() => handleDeckClick(deck.id)}
-                  >
+          
+          <TabsContent value={activeTab} className="mt-6">
+            {filteredDecks.length === 0 ? (
+              <div className="text-center py-8">
+                <Brain className="h-10 w-10 text-gray-400 mb-2 mx-auto" />
+                <h3 className="text-lg font-medium text-gray-900 dark:text-white">No flashcard decks found</h3>
+                <p className="mt-1 text-gray-500 dark:text-gray-400">
+                  {searchQuery ? 'Try a different search term' : 'No flashcard decks in this category yet'}
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {filteredDecks.map((deck) => (
+                  <Card key={deck.id} className="h-full hover:shadow-md transition-shadow cursor-pointer flex flex-col">
                     <CardHeader className="pb-2">
-                      <div className="flex justify-between items-start mb-1">
-                        <Badge variant="outline" className={getDifficultyColor(deck.difficulty)}>
-                          {deck.difficulty}
+                      <div className="flex items-center justify-between mb-1">
+                        <Badge variant="outline" className="bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300">
+                          {deck.subject}
                         </Badge>
-                        {deck.dueDate === 'today' && (
-                          <Badge variant="outline" className="bg-blue-50 text-blue-800 border-blue-200">
-                            Due Today
-                          </Badge>
-                        )}
+                        <Badge variant="outline" className={getDifficultyColor(deck.difficulty)}>
+                          {deck.difficulty.charAt(0).toUpperCase() + deck.difficulty.slice(1)}
+                        </Badge>
                       </div>
-                      <CardTitle className="text-lg">{deck.title}</CardTitle>
+                      <CardTitle className="text-lg font-semibold">{deck.title}</CardTitle>
+                      <CardDescription>{deck.topic}</CardDescription>
                     </CardHeader>
-                    
-                    <CardContent className="pb-2">
-                      <div className="text-sm text-muted-foreground line-clamp-2 mb-3">
-                        {deck.description}
-                      </div>
-                      
-                      <div className="flex flex-wrap gap-1 mb-3">
-                        {deck.tags.map(tag => (
-                          <Badge key={tag} variant="secondary" className="text-xs">
-                            <Tag className="h-3 w-3 mr-1" />
-                            {tag}
-                          </Badge>
-                        ))}
-                      </div>
-                      
-                      <div className="grid grid-cols-2 gap-2 text-sm text-muted-foreground">
-                        <div className="flex items-center">
-                          <Book className="h-4 w-4 mr-1" />
-                          <span>{deck.subject}</span>
-                        </div>
-                        <div className="flex items-center">
-                          <Brain className="h-4 w-4 mr-1" />
-                          <span>{deck.cardCount} cards</span>
-                        </div>
-                        <div className="flex items-center">
-                          <Clock className="h-4 w-4 mr-1" />
-                          <span>~{deck.timeEstimate} min</span>
-                        </div>
-                        {deck.accuracy > 0 && (
+                    <CardContent className="flex-grow">
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
                           <div className="flex items-center">
-                            <BarChart className="h-4 w-4 mr-1" />
-                            <span>{deck.accuracy}% accuracy</span>
+                            <BookOpen className="h-4 w-4 mr-1" />
+                            <span>{deck.cardCount} cards</span>
+                          </div>
+                          <div className="flex items-center">
+                            <Clock className="h-4 w-4 mr-1" />
+                            <span>{deck.estimatedTime} min</span>
+                          </div>
+                        </div>
+                        
+                        {deck.mastery >= 80 && (
+                          <div className="flex items-center text-sm">
+                            <Star className="h-4 w-4 text-amber-500 mr-1" />
+                            <span className="text-amber-600 dark:text-amber-400">Mastered!</span>
+                          </div>
+                        )}
+                        
+                        <div className="space-y-1">
+                          <div className="flex justify-between text-sm">
+                            <span>Progress</span>
+                            <span>{deck.progress}%</span>
+                          </div>
+                          <div className="w-full bg-gray-200 dark:bg-gray-700 h-1.5 rounded-full overflow-hidden">
+                            <div 
+                              className={`h-full rounded-full ${deck.progress === 100 ? 'bg-green-500' : 'bg-blue-500'}`} 
+                              style={{ width: `${deck.progress}%` }}
+                            />
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-center text-sm">
+                          <BarChart className={`h-4 w-4 mr-1 ${getMasteryColor(deck.mastery)}`} />
+                          <span className={getMasteryColor(deck.mastery)}>
+                            Mastery: {deck.mastery}%
+                          </span>
+                        </div>
+                        
+                        {deck.lastReviewed && (
+                          <div className="text-xs text-gray-500 dark:text-gray-400">
+                            Last reviewed: {new Date(deck.lastReviewed).toLocaleDateString()}
                           </div>
                         )}
                       </div>
-                      
-                      <div className="mt-3">
-                        <div className="flex justify-between text-xs mb-1">
-                          <span className={masteryStatus.color}>{masteryStatus.label}</span>
-                          <span>{deck.masteredCards}/{deck.cardCount} cards</span>
-                        </div>
-                        <Progress value={masteryPercentage} className="h-1.5" />
-                      </div>
-                      
-                      {deck.lastReviewed && (
-                        <div className="mt-2 text-xs text-muted-foreground flex items-center">
-                          <Calendar className="h-3 w-3 mr-1" />
-                          <span>Last reviewed: {deck.lastReviewed}</span>
-                        </div>
-                      )}
                     </CardContent>
-                    
                     <CardFooter>
-                      <Button variant="outline" className="w-full">
-                        {masteryPercentage === 100 
-                          ? 'Review Again' 
-                          : masteryPercentage > 0 
-                            ? 'Continue Learning' 
-                            : 'Start Learning'
-                        }
-                        <ChevronRight className="h-4 w-4 ml-1" />
-                      </Button>
+                      <Link to={`/dashboard/student/flashcards/${deck.id}/interactive`} className="w-full">
+                        <Button className="w-full">
+                          Study Flashcards
+                          <ArrowRight className="h-4 w-4 ml-1" />
+                        </Button>
+                      </Link>
                     </CardFooter>
                   </Card>
-                );
-              })}
-            </div>
-            
-            {filteredDecks.length === 0 && (
-              <div className="text-center py-12 text-muted-foreground">
-                <Brain className="h-12 w-12 mx-auto mb-3 text-muted-foreground opacity-20" />
-                <h3 className="text-lg font-medium mb-1">No flashcard decks found</h3>
-                <p>Try adjusting your filter or search criteria</p>
+                ))}
               </div>
             )}
           </TabsContent>

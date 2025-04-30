@@ -9,11 +9,11 @@ interface AdminLayoutProps {
 }
 
 const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
-  const { adminUser, adminLogout } = useAdminAuth();
+  const { user, logout } = useAdminAuth();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
-    await adminLogout();
+    await logout();
     navigate('/admin/login');
   };
 
@@ -25,9 +25,9 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
             <h1 className="font-bold text-xl">Admin Portal</h1>
           </div>
           <div className="flex items-center space-x-4">
-            {adminUser && (
+            {user && (
               <>
-                <span className="text-sm">{adminUser.name}</span>
+                <span className="text-sm">{user.name}</span>
                 <Button variant="ghost" size="sm" onClick={handleLogout}>Logout</Button>
               </>
             )}

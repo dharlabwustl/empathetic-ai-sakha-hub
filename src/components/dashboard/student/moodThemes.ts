@@ -138,6 +138,28 @@ export const moodThemes: MoodThemes = {
     emoji: "😵",
     message: "You're feeling overwhelmed today.",
     studyTip: "Break work into the smallest possible tasks. Focus on one thing at a time."
+  },
+  [MoodType.Confused]: {
+    backgroundColor: "#F3E8FF", 
+    textColor: "#6D28D9",
+    borderColor: "#DDD6FE",
+    darkBackgroundColor: "rgba(139, 92, 246, 0.2)",
+    darkTextColor: "#A78BFA",
+    darkBorderColor: "#7C3AED",
+    emoji: "🤔",
+    message: "You're feeling confused today.",
+    studyTip: "Focus on clarity. Review fundamental concepts and seek explanations from different sources."
+  },
+  [MoodType.Bored]: {
+    backgroundColor: "#E5E7EB",
+    textColor: "#374151",
+    borderColor: "#D1D5DB",
+    darkBackgroundColor: "rgba(75, 85, 99, 0.2)",
+    darkTextColor: "#9CA3AF",
+    darkBorderColor: "#4B5563",
+    emoji: "🥱",
+    message: "You're feeling bored today.",
+    studyTip: "Try a new learning approach or change your study environment to renew interest."
   }
 };
 

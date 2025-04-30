@@ -1,128 +1,133 @@
 
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
-import { Clock } from 'lucide-react';
-
-interface TimeAllocation {
-  concepts: number;
-  flashcards: number;
-  practiceExams: number;
-}
+import { Progress } from "@/components/ui/progress";
+import { TodaysPlanData } from "@/types/student/todaysPlan";
+import { BookOpen, FileText, Clock, Timer, AlertCircle } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface TimeAllocationSectionProps {
-  timeAllocation: TimeAllocation;
+  planData: TodaysPlanData | null;
+  isLoading: boolean;
 }
 
-const TimeAllocationSection: React.FC<TimeAllocationSectionProps> = ({ timeAllocation }) => {
-  // Calculate the total time
-  const totalTime = timeAllocation.concepts + timeAllocation.flashcards + timeAllocation.practiceExams;
+export default function TimeAllocationSection({
+  planData,
+  isLoading
+}: TimeAllocationSectionProps) {
+  if (isLoading) {
+    return (
+      <Card>
+        <CardHeader className="pb-2">
+          <Skeleton className="h-6 w-2/3" />
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {[1, 2, 3, 4].map(i => (
+              <div key={i} className="grid grid-cols-12 gap-2">
+                <Skeleton className="col-span-3 h-5" />
+                <Skeleton className="col-span-2 h-5" />
+                <Skeleton className="col-span-7 h-5" />
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
   
-  // Prepare data for the pie chart
-  const data = [
-    {
-      name: "Concepts",
-      value: timeAllocation.concepts,
-      color: "#3b82f6" // blue
-    },
-    {
-      name: "Flashcards",
-      value: timeAllocation.flashcards,
-      color: "#f59e0b" // amber
-    },
-    {
-      name: "Practice Tests",
-      value: timeAllocation.practiceExams,
-      color: "#10b981" // green
-    }
-  ].filter(item => item.value > 0);
+  if (!planData) return null;
+
+  const { timeAllocation } = planData;
+  const totalTime = timeAllocation.total;
   
-  // Format minutes to readable time
-  const formatMinutes = (minutes: number) => {
-    if (minutes < 60) {
-      return `${minutes} min`;
-    } else {
-      const hours = Math.floor(minutes / 60);
-      const mins = minutes % 60;
-      return mins > 0 ? `${hours}h ${mins}m` : `${hours}h`;
-    }
+  // Calculate percentages for progress bars
+  const conceptsPercentage = Math.round((timeAllocation.conceptCards / totalTime) * 100);
+  const flashcardsPercentage = Math.round((timeAllocation.flashcards / totalTime) * 100);
+  const practiceTestsPercentage = Math.round((timeAllocation.practiceTests / totalTime) * 100);
+  
+  // Format time helper
+  const formatTime = (minutes: number) => {
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    return hours > 0 ? `${hours} hr ${mins} min` : `${mins} min`;
   };
+  
+  const allocationItems = [
+    {
+      type: "Concept Cards",
+      minutes: timeAllocation.conceptCards,
+      icon: <BookOpen className="h-4 w-4 text-blue-500" />,
+      bgColor: "bg-blue-100 dark:bg-blue-900/30",
+      progressColor: "bg-blue-500"
+    },
+    {
+      type: "Flashcards",
+      minutes: timeAllocation.flashcards,
+      icon: <FileText className="h-4 w-4 text-amber-500" />,
+      bgColor: "bg-amber-100 dark:bg-amber-900/30",
+      progressColor: "bg-amber-500"
+    },
+    {
+      type: "Practice Tests",
+      minutes: timeAllocation.practiceTests,
+      icon: <AlertCircle className="h-4 w-4 text-violet-500" />,
+      bgColor: "bg-violet-100 dark:bg-violet-900/30",
+      progressColor: "bg-violet-500"
+    },
+    {
+      type: "Total",
+      minutes: totalTime,
+      icon: <Clock className="h-4 w-4 text-gray-500" />,
+      bgColor: "bg-gray-100 dark:bg-gray-800/50",
+      progressColor: "bg-gray-500",
+      isTotal: true
+    }
+  ];
 
   return (
     <Card>
       <CardHeader className="pb-2">
-        <CardTitle className="text-lg font-medium flex items-center">
-          <Clock className="h-4 w-4 mr-2" />
-          Time Allocation
+        <CardTitle className="flex items-center text-lg">
+          <Timer className="h-5 w-5 mr-2 text-indigo-600" />
+          Time Allocation & Study Flow
         </CardTitle>
       </CardHeader>
-      
       <CardContent>
-        {totalTime > 0 ? (
-          <div className="space-y-4">
-            <div className="h-48">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={data}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={50}
-                    outerRadius={80}
-                    paddingAngle={2}
-                    dataKey="value"
-                  >
-                    {data.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip
-                    formatter={(value: number) => [formatMinutes(value), "Time"]}
-                    contentStyle={{
-                      borderRadius: "4px",
-                      border: "none",
-                      boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)"
-                    }}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-            
-            <div className="grid grid-cols-1 gap-2">
-              <div className="flex justify-between items-center">
-                <div className="flex items-center">
-                  <span className="h-3 w-3 rounded-full bg-blue-500 mr-2" />
-                  <span className="text-sm">Concepts</span>
+        <div className="space-y-3">
+          {allocationItems.map((item) => (
+            <div key={item.type} className={`p-2 rounded-md ${item.isTotal ? 'mt-6 border' : item.bgColor}`}>
+              <div className="grid grid-cols-12 gap-2 items-center">
+                <div className="col-span-4 sm:col-span-3 flex items-center">
+                  {item.icon}
+                  <span className="ml-2 text-sm font-medium">{item.type}</span>
                 </div>
-                <span className="text-sm font-medium">{formatMinutes(timeAllocation.concepts)}</span>
-              </div>
-              
-              <div className="flex justify-between items-center">
-                <div className="flex items-center">
-                  <span className="h-3 w-3 rounded-full bg-amber-500 mr-2" />
-                  <span className="text-sm">Flashcards</span>
+                <div className="col-span-2 text-center text-sm font-medium">
+                  {formatTime(item.minutes)}
                 </div>
-                <span className="text-sm font-medium">{formatMinutes(timeAllocation.flashcards)}</span>
-              </div>
-              
-              <div className="flex justify-between items-center">
-                <div className="flex items-center">
-                  <span className="h-3 w-3 rounded-full bg-green-500 mr-2" />
-                  <span className="text-sm">Practice Tests</span>
+                <div className="col-span-6 sm:col-span-7">
+                  {!item.isTotal ? (
+                    <Progress 
+                      value={100} 
+                      className="h-2" 
+                      indicatorClassName={item.progressColor} 
+                    />
+                  ) : (
+                    <div className="text-sm text-muted-foreground text-center sm:text-right">
+                      Total Study Time
+                    </div>
+                  )}
                 </div>
-                <span className="text-sm font-medium">{formatMinutes(timeAllocation.practiceExams)}</span>
               </div>
             </div>
+          ))}
+          
+          <div className="text-sm text-muted-foreground mt-2 flex items-center">
+            <Clock className="h-4 w-4 mr-1 text-green-500" />
+            AI-recommended breaks: Every 25 mins (5 min break)
           </div>
-        ) : (
-          <div className="py-4 text-center text-gray-500">
-            <p className="mb-2">No time data available</p>
-            <p className="text-sm">Complete tasks to see time allocation</p>
-          </div>
-        )}
+        </div>
       </CardContent>
     </Card>
   );
-};
-
-export default TimeAllocationSection;
+}

@@ -1,204 +1,169 @@
 
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
-import { ChevronDown, ChevronUp } from "lucide-react";
-import { ConceptTask, FlashcardTask, PracticeExamTask } from "@/types/student/todaysPlans";
-import SubjectTaskItem from './SubjectTaskItem';
+import { TaskItem } from "./SubjectTaskItem";
+import { TodaysPlanData } from "@/types/student/todaysPlan";
+import { Skeleton } from "@/components/ui/skeleton";
+import { ArrowRight } from "lucide-react";
 
 interface SubjectBreakdownProps {
-  concepts: ConceptTask[];
-  flashcards: FlashcardTask[];
-  practiceExams: PracticeExamTask[];
-  showAllTasks?: boolean;
+  planData: TodaysPlanData | null;
+  isLoading: boolean;
+  onMarkCompleted: (taskId: string, taskType: 'concept' | 'flashcard' | 'practice-exam') => void;
+  onBookmark: (taskId: string) => void;
 }
 
-const SubjectBreakdown: React.FC<SubjectBreakdownProps> = ({ 
-  concepts, 
-  flashcards, 
-  practiceExams,
-  showAllTasks = false
-}) => {
-  const [expandedSubject, setExpandedSubject] = useState<string | null>(null);
+export default function SubjectBreakdown({
+  planData,
+  isLoading,
+  onMarkCompleted,
+  onBookmark
+}: SubjectBreakdownProps) {
+  const [expandedSubjects, setExpandedSubjects] = useState<string[]>([]);
   
-  // Group tasks by subject
-  const subjectGroups = useMemo(() => {
-    const groups: {[key: string]: {
-      concepts: ConceptTask[];
-      flashcards: FlashcardTask[];
-      practiceExams: PracticeExamTask[];
-    }} = {};
-    
-    // Group concepts by subject
-    concepts.forEach(concept => {
-      const subject = concept.subject;
-      if (!groups[subject]) {
-        groups[subject] = {
-          concepts: [],
-          flashcards: [],
-          practiceExams: []
-        };
-      }
-      groups[subject].concepts.push(concept);
-    });
-    
-    // Group flashcards by subject
-    flashcards.forEach(flashcard => {
-      const subject = flashcard.subject;
-      if (!groups[subject]) {
-        groups[subject] = {
-          concepts: [],
-          flashcards: [],
-          practiceExams: []
-        };
-      }
-      groups[subject].flashcards.push(flashcard);
-    });
-    
-    // Group practice exams by subject
-    practiceExams.forEach(exam => {
-      const subject = exam.subject;
-      if (!groups[subject]) {
-        groups[subject] = {
-          concepts: [],
-          flashcards: [],
-          practiceExams: []
-        };
-      }
-      groups[subject].practiceExams.push(exam);
-    });
-    
-    return groups;
-  }, [concepts, flashcards, practiceExams]);
-
-  // Toggle expansion for a subject
   const toggleSubject = (subject: string) => {
-    if (expandedSubject === subject) {
-      setExpandedSubject(null);
-    } else {
-      setExpandedSubject(subject);
-    }
+    setExpandedSubjects(prev => {
+      if (prev.includes(subject)) {
+        return prev.filter(s => s !== subject);
+      } else {
+        return [...prev, subject];
+      }
+    });
   };
   
-  // Calculate completion stats for a subject
-  const getSubjectStats = (subject: string) => {
-    const group = subjectGroups[subject];
-    
-    const conceptsTotal = group.concepts.length;
-    const flashcardsTotal = group.flashcards.length;
-    const examsTotal = group.practiceExams.length;
-    
-    const conceptsCompleted = group.concepts.filter(c => c.status === "completed").length;
-    const flashcardsCompleted = group.flashcards.filter(f => f.status === "completed").length;
-    const examsCompleted = group.practiceExams.filter(e => e.status === "completed").length;
-    
-    return {
-      total: conceptsTotal + flashcardsTotal + examsTotal,
-      completed: conceptsCompleted + flashcardsCompleted + examsCompleted,
-      conceptsTotal,
-      conceptsCompleted,
-      flashcardsTotal,
-      flashcardsCompleted,
-      examsTotal,
-      examsCompleted
-    };
-  };
+  if (isLoading) {
+    return (
+      <div className="space-y-4">
+        <Skeleton className="h-8 w-1/3 mb-2" />
+        {[1, 2, 3].map((i) => (
+          <Card key={i}>
+            <CardHeader className="py-3">
+              <Skeleton className="h-5 w-1/4" />
+            </CardHeader>
+            <CardContent className="py-2">
+              <div className="space-y-2">
+                {[1, 2].map((j) => (
+                  <Skeleton key={j} className="h-16 w-full" />
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    );
+  }
+  
+  if (!planData) return null;
 
   return (
-    <Card>
-      <CardHeader className="pb-2">
-        <CardTitle className="text-lg font-medium">Subjects Breakdown</CardTitle>
-      </CardHeader>
+    <div className="space-y-4">
+      <h3 className="text-lg font-semibold">Subject-Wise Breakdown</h3>
       
-      <CardContent>
-        <div className="space-y-4">
-          {/* Subject Cards */}
-          {Object.keys(subjectGroups).map((subject) => {
-            const stats = getSubjectStats(subject);
-            const isExpanded = expandedSubject === subject;
-            const completionPercentage = stats.total > 0 ? Math.round((stats.completed / stats.total) * 100) : 0;
-            
-            return (
-              <div key={subject} className="border rounded-lg overflow-hidden">
-                {/* Subject Header */}
-                <div 
-                  className={`p-4 flex justify-between items-center cursor-pointer ${isExpanded ? 'bg-blue-50 border-b' : 'hover:bg-gray-50'}`}
-                  onClick={() => toggleSubject(subject)}
-                >
-                  <div className="flex items-center space-x-4">
-                    <h3 className="font-medium">{subject}</h3>
-                    <span className="text-sm text-gray-500">
-                      {stats.completed}/{stats.total} tasks completed
-                    </span>
-                  </div>
-                  
-                  <div className="flex items-center space-x-2">
-                    <span className="text-sm font-medium">{completionPercentage}%</span>
-                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                      {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-                    </Button>
+      <Accordion type="multiple" value={expandedSubjects} className="space-y-3">
+        {planData && Object.entries(planData.subjectBreakdown).map(([subject, tasks]) => {
+          // Calculate total tasks and completed tasks for this subject
+          const totalTasks = 
+            tasks.concepts.length + 
+            tasks.flashcards.length + 
+            tasks.practiceExams.length;
+          
+          const completedTasks = 
+            tasks.concepts.filter(t => t.status === '✅ completed').length +
+            tasks.flashcards.filter(t => t.status === '✅ completed').length +
+            tasks.practiceExams.filter(t => t.status === '✅ completed').length;
+          
+          // Skip rendering empty subjects
+          if (totalTasks === 0) return null;
+          
+          const completionPercentage = Math.round((completedTasks / totalTasks) * 100);
+          
+          // Determine overall subject status
+          let statusIndicator = '';
+          if (completionPercentage === 100) statusIndicator = '✅';
+          else if (completionPercentage >= 75) statusIndicator = '🟡';
+          else if (completionPercentage >= 50) statusIndicator = '🟠';
+          else statusIndicator = '🔴';
+          
+          return (
+            <AccordionItem 
+              key={subject} 
+              value={subject}
+              className="border rounded-lg shadow-sm"
+            >
+              <AccordionTrigger className="px-4 py-2 hover:no-underline">
+                <div className="flex items-center">
+                  <div className="text-lg mr-2">{statusIndicator}</div>
+                  <div>
+                    <div className="font-semibold">{subject}</div>
+                    <div className="text-sm text-muted-foreground">
+                      {completedTasks} of {totalTasks} tasks completed ({completionPercentage}%)
+                    </div>
                   </div>
                 </div>
-                
-                {/* Expanded Content */}
-                {isExpanded && (
-                  <div className="p-4 space-y-6">
-                    {/* Concepts Section */}
-                    {stats.conceptsTotal > 0 && (
-                      <div>
-                        <h4 className="font-medium mb-2 text-sm text-gray-500">Concepts ({stats.conceptsCompleted}/{stats.conceptsTotal})</h4>
-                        <div className="space-y-2">
-                          {subjectGroups[subject].concepts.map((concept) => (
-                            <SubjectTaskItem 
-                              key={concept.id} 
-                              task={concept} 
-                              type="concept" 
-                            />
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                    
-                    {/* Flashcards Section */}
-                    {stats.flashcardsTotal > 0 && (
-                      <div>
-                        <h4 className="font-medium mb-2 text-sm text-gray-500">Flashcards ({stats.flashcardsCompleted}/{stats.flashcardsTotal})</h4>
-                        <div className="space-y-2">
-                          {subjectGroups[subject].flashcards.map((flashcard) => (
-                            <SubjectTaskItem 
-                              key={flashcard.id} 
-                              task={flashcard} 
-                              type="flashcard" 
-                            />
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                    
-                    {/* Practice Exams Section */}
-                    {stats.examsTotal > 0 && (
-                      <div>
-                        <h4 className="font-medium mb-2 text-sm text-gray-500">Practice Tests ({stats.examsCompleted}/{stats.examsTotal})</h4>
-                        <div className="space-y-2">
-                          {subjectGroups[subject].practiceExams.map((exam) => (
-                            <SubjectTaskItem 
-                              key={exam.id} 
-                              task={exam} 
-                              type="practice-exam" 
-                            />
-                          ))}
-                        </div>
-                      </div>
-                    )}
+              </AccordionTrigger>
+              <AccordionContent className="px-4 pb-4">
+                {/* Concept Cards Section */}
+                {tasks.concepts.length > 0 && (
+                  <div className="mb-3">
+                    <h4 className="text-sm font-medium mb-2">Concept Cards:</h4>
+                    <div className="space-y-2">
+                      {tasks.concepts.map(concept => (
+                        <TaskItem 
+                          key={concept.id} 
+                          task={concept}
+                          onComplete={onMarkCompleted}
+                          onBookmark={onBookmark}
+                        />
+                      ))}
+                    </div>
                   </div>
                 )}
-              </div>
-            );
-          })}
-        </div>
-      </CardContent>
-    </Card>
+                
+                {/* Flashcards Section */}
+                {tasks.flashcards.length > 0 && (
+                  <div className="mb-3">
+                    <h4 className="text-sm font-medium mb-2">Flashcards:</h4>
+                    <div className="space-y-2">
+                      {tasks.flashcards.map(flashcard => (
+                        <TaskItem 
+                          key={flashcard.id} 
+                          task={flashcard}
+                          onComplete={onMarkCompleted}
+                          onBookmark={onBookmark}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
+                {/* Practice Exams Section */}
+                {tasks.practiceExams.length > 0 && (
+                  <div className="mb-3">
+                    <h4 className="text-sm font-medium mb-2">Practice Exams:</h4>
+                    <div className="space-y-2">
+                      {tasks.practiceExams.map(exam => (
+                        <TaskItem 
+                          key={exam.id} 
+                          task={exam}
+                          onComplete={onMarkCompleted}
+                          onBookmark={onBookmark}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
+                <Button variant="ghost" size="sm" className="mt-2">
+                  <span>View All {subject} Tasks</span>
+                  <ArrowRight className="h-4 w-4 ml-1" />
+                </Button>
+              </AccordionContent>
+            </AccordionItem>
+          );
+        })}
+      </Accordion>
+    </div>
   );
-};
-
-export default SubjectBreakdown;
+}

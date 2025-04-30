@@ -1,258 +1,91 @@
 
 import { useState, useEffect } from 'react';
-import { UserProfileType } from '@/types/user';
-import { DashboardData, Subject, ConceptCard, ProgressTracker, RevisionStats, Milestone } from '@/types/student/dashboard';
-import { useKpiTracking } from './useKpiTracking';
-import { useUserProfile } from './useUserProfile';
-import { UserRole } from '@/types/user/base';
+import { UserProfileBase } from '@/types/user/base';
+import { DashboardData } from '@/types/student/dashboard';
 
-// In a real application, this would fetch data from an API
-export function useStudentDashboardData(): {
-  loading: boolean;
-  dashboardData: DashboardData | null;
-  refreshData: () => void;
-} {
+export const useStudentDashboardData = () => {
   const [loading, setLoading] = useState(true);
-  const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
-  const { kpis } = useKpiTracking(UserRole.Student);
-  const { userProfile } = useUserProfile(UserRole.Student);
-
-  const fetchDashboardData = () => {
-    setLoading(true);
-    
-    // Simulate API fetch with timeout
-    setTimeout(() => {
-      if (userProfile) {
-        // This would be an API call in a real app
-        const mockData: DashboardData = generateMockDashboardData(userProfile);
-        setDashboardData(mockData);
-      }
-      setLoading(false);
-    }, 800);
-  };
-
-  useEffect(() => {
-    if (userProfile) {
-      fetchDashboardData();
-    }
-  }, [userProfile]);
-
-  const refreshData = () => {
-    fetchDashboardData();
-  };
-
-  return {
-    loading,
-    dashboardData,
-    refreshData
-  };
-}
-
-// Temporary mock data generator - this would be replaced by actual API calls
-function generateMockDashboardData(userProfile: UserProfileType): DashboardData {
-  // Extract exam goal from user profile if available
-  const examGoal = userProfile.goals && userProfile.goals.length > 0
-    ? userProfile.goals[0].title
-    : "IIT-JEE"; // Default goal
+  const [dashboardData, setDashboardData] = useState<DashboardData>({
+    recentActivity: [],
+    suggestedContent: [],
+    stats: {
+      studyTime: 0,
+      completedTasks: 0,
+      streak: 0,
+      accuracy: 0
+    },
+    upcomingEvents: [],
+    progressData: {}
+  });
   
-  // Generate subjects
-  const subjects: Subject[] = [
-    {
-      id: "math-101",
-      name: "Mathematics",
-      progress: 75,
-      priority: "High",
-      proficiency: 85,
-      status: "in-progress",
-      chapters: 12,
-      conceptsTotal: 60,
-      conceptsCompleted: 45,
-      flashcards: {
-        total: 150,
-        completed: 120,
-        accuracy: 78
-      },
-      practiceTests: {
-        total: 25,
-        completed: 20,
-        score: 85
-      },
-      quizAverage: 85,
-      recommendedStudyHours: 2.5
-    },
-    {
-      id: "hist-101",
-      name: "History",
-      progress: 50,
-      priority: "Medium",
-      proficiency: 65,
-      status: "in-progress",
-      chapters: 8,
-      conceptsTotal: 40,
-      conceptsCompleted: 20,
-      flashcards: {
-        total: 100,
-        completed: 90,
-        accuracy: 65
-      },
-      practiceTests: {
-        total: 15,
-        completed: 10,
-        score: 70
-      },
-      quizAverage: 70,
-      recommendedStudyHours: 1.5
-    },
-    {
-      id: "sci-101",
-      name: "Science",
-      progress: 100,
-      priority: "High",
-      proficiency: 92,
-      status: "completed",
-      chapters: 15,
-      conceptsTotal: 55,
-      conceptsCompleted: 55,
-      flashcards: {
-        total: 180,
-        completed: 180,
-        accuracy: 90
-      },
-      practiceTests: {
-        total: 25,
-        completed: 25,
-        score: 92
-      },
-      quizAverage: 92,
-      recommendedStudyHours: 0.5
-    }
-  ];
+  const [userProfile, setUserProfile] = useState<UserProfileBase>({
+    id: '1',
+    name: 'Student User',
+    email: 'student@example.com',
+    avatar: '/avatars/student-1.png',
+    level: 5,
+    xp: 1250,
+    role: 'student',
+    loginCount: 7,
+    lastActive: new Date().toISOString(),
+    subscription: 'premium',
+    streak: 5,
+    studyHours: 42,
+    conceptsLearned: 78,
+    testsCompleted: 12
+  });
 
-  // Generate concept cards
-  const conceptCards: ConceptCard[] = [
-    {
-      id: "concept-1",
-      title: "Quadratic Equations",
-      subject: "Mathematics",
-      topic: "Algebra",
-      completed: true,
-      masteryLevel: 85,
-      lastPracticed: "2025-04-24",
-      timeSuggestion: 45,
-      flashcardsTotal: 25,
-      flashcardsCompleted: 22,
-      examReady: true,
-      bookmarked: true
-    },
-    {
-      id: "concept-2",
-      title: "French Revolution",
-      subject: "History",
-      topic: "European History",
-      completed: false,
-      masteryLevel: 60,
-      lastPracticed: "2025-04-23",
-      timeSuggestion: 60,
-      flashcardsTotal: 30,
-      flashcardsCompleted: 18,
-      examReady: false
-    },
-    {
-      id: "concept-3",
-      title: "Electromagnetic Waves",
-      subject: "Science",
-      topic: "Physics",
-      completed: true,
-      masteryLevel: 92,
-      lastPracticed: "2025-04-25",
-      timeSuggestion: 30,
-      flashcardsTotal: 20,
-      flashcardsCompleted: 20,
-      examReady: true
-    }
-    // Add more concept cards as needed
-  ];
+  // Mock data fetch on component mount
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      
+      // Simulate API call with a delay
+      setTimeout(() => {
+        // Mock dashboard data
+        const data: DashboardData = {
+          recentActivity: [
+            { id: 'act1', type: 'quiz', title: 'Physics Quiz', date: new Date().toISOString(), score: 85 },
+            { id: 'act2', type: 'flashcard', title: 'Chemistry Flashcards', date: new Date(Date.now() - 86400000).toISOString() },
+            { id: 'act3', type: 'concept', title: 'Mathematics - Calculus', date: new Date(Date.now() - 172800000).toISOString() }
+          ],
+          suggestedContent: [
+            { id: 'sug1', type: 'concept', title: 'Newton\'s Laws of Motion', subject: 'Physics' },
+            { id: 'sug2', type: 'quiz', title: 'Chemical Bonding Quiz', subject: 'Chemistry' },
+            { id: 'sug3', type: 'flashcard', title: 'Periodic Table Elements', subject: 'Chemistry' }
+          ],
+          stats: {
+            studyTime: 12.5,
+            completedTasks: 32,
+            streak: 5,
+            accuracy: 78
+          },
+          upcomingEvents: [
+            { id: 'evt1', title: 'Practice Test', date: new Date(Date.now() + 86400000).toISOString(), type: 'test' },
+            { id: 'evt2', title: 'Study Session', date: new Date(Date.now() + 172800000).toISOString(), type: 'session' }
+          ],
+          progressData: {
+            physics: 65,
+            chemistry: 42,
+            mathematics: 78,
+            biology: 53
+          }
+        };
+        
+        setDashboardData(data);
+        setLoading(false);
+      }, 1000);
+    };
+    
+    fetchData();
+  }, []);
 
-  // Study plan
-  const studyPlan = {
-    id: "plan-1",
-    dailyStudyTarget: 3,
-    conceptsPerDay: 5,
-    flashcardsPerDay: 50,
-    testsPerWeek: 3,
-    todaysFocus: {
-      subject: "Mathematics",
-      concepts: ["Integrals", "Derivatives", "Limits"],
-      flashcardsCount: 30,
-      hasPracticeExam: true,
-      estimatedTime: 120
-    }
+  // Refresh data function
+  const refreshData = () => {
+    // Implement refresh logic
+    console.log("Refreshing dashboard data...");
+    // Could call the same fetchData function or a similar one
   };
 
-  // Progress tracker
-  const progressTracker: ProgressTracker = {
-    daily: {
-      conceptsDone: 3,
-      flashcardsDone: 25,
-      testsTaken: 1,
-      completionPercentage: 80
-    },
-    weekly: {
-      conceptsDone: 12,
-      flashcardsDone: 120,
-      testsTaken: 3,
-      completionPercentage: 75
-    },
-    monthly: {
-      conceptsDone: 45,
-      flashcardsDone: 350,
-      testsTaken: 10,
-      completionPercentage: 65
-    }
-  };
-
-  // Revision stats
-  const revisionStats: RevisionStats = {
-    pendingReviewConcepts: 8,
-    lowRetentionFlashcards: 15,
-    flaggedItems: 5
-  };
-
-  // Upcoming milestones
-  const upcomingMilestones: Milestone[] = [
-    {
-      id: "mile-1",
-      title: "Complete Calculus Section",
-      description: "Finish all concept cards in the Calculus section",
-      date: "2025-04-30",
-      type: "weekly-target",
-      completed: false
-    },
-    {
-      id: "mile-2",
-      title: "Physics Practice Exam",
-      description: "Complete the comprehensive Physics practice exam",
-      date: "2025-05-03",
-      type: "practice-exam",
-      completed: false
-    },
-    {
-      id: "mile-3",
-      title: "Monthly Performance Review",
-      description: "Review your progress and adjust your study plan",
-      date: "2025-05-05",
-      type: "performance-check",
-      completed: false
-    }
-  ];
-
-  return {
-    examGoal,
-    subjects,
-    conceptCards,
-    studyPlan,
-    progressTracker,
-    revisionStats,
-    upcomingMilestones
-  };
-}
+  return { loading, dashboardData, userProfile, refreshData };
+};

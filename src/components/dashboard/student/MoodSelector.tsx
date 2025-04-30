@@ -23,6 +23,7 @@ export const MoodSelector = ({ onMoodSelect, currentMood, className = '' }: Mood
     { type: MoodType.Overwhelmed, emoji: '😩', label: 'Overwhelmed' },
     { type: MoodType.Curious, emoji: '🤓', label: 'Curious' },
     { type: MoodType.Sad, emoji: '😔', label: 'Sad' },
+    { type: MoodType.Bored, emoji: '🥱', label: 'Bored' }
   ];
 
   return (

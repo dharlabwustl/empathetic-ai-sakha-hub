@@ -1,99 +1,111 @@
 
-export enum UserRole {
-  Student = "student",
-  Teacher = "teacher",
-  Parent = "parent",
-  Admin = "admin",
-  Employee = "employee",
-  Doctor = "doctor",
-  Founder = "founder"
-}
 
 export enum MoodType {
-  Happy = "happy",
-  Sad = "sad",
-  Motivated = "motivated",
-  Tired = "tired",
-  Stressed = "stressed",
-  Focused = "focused",
-  Curious = "curious",
-  Okay = "okay",
-  Overwhelmed = "overwhelmed",
-  Anxious = "anxious",
-  Confused = "confused",
-  Neutral = "neutral",
-  Calm = "calm"
+  Happy = 'happy',
+  Focused = 'focused',
+  Motivated = 'motivated',
+  Tired = 'tired',
+  Stressed = 'stressed',
+  Confused = 'confused',
+  Anxious = 'anxious',
+  Overwhelmed = 'overwhelmed',
+  Curious = 'curious',
+  Bored = 'bored',
+  Neutral = 'neutral',
+  Okay = 'okay',
+  Sad = 'sad'
 }
 
-export enum SubscriptionType {
-  FREE = "free",
-  TRIAL = "trial",
-  BASIC = "basic",
-  PREMIUM = "premium",
-  PRO_MONTHLY = "pro_monthly",
-  PRO_ANNUAL = "pro_annual",
-  GROUP_SMALL = "group_small",
-  GROUP_MEDIUM = "group_medium",
-  GROUP_LARGE = "group_large",
-  ENTERPRISE = "enterprise"
+export enum UserRole {
+  Student = 'student',
+  Teacher = 'teacher',
+  Parent = 'parent',
+  Admin = 'admin'
+}
+
+export type SubscriptionType = 'free' | 'basic' | 'premium' | 'pro';
+
+export interface SubscriptionDetails {
+  planType: SubscriptionType;
+  startDate?: string;
+  expiryDate?: string;
+  autoRenew?: boolean;
+  features?: string[];
 }
 
 export interface UserProfileBase {
-  id: string;
+  id?: string;
   name: string;
-  email: string;
-  role: UserRole;
-  goals?: UserGoal[];
-  subscription?: string | SubscriptionInfo;
-  loginCount?: number;
+  email?: string;
+  avatar?: string; 
+  role?: string;
+  level?: number;
+  xp?: number;
+  verified?: boolean;
+  subscription?: SubscriptionType | SubscriptionDetails;
+  onboardingComplete?: boolean;
   createdAt?: string;
-  lastLogin?: string;
-  image?: string;
-  avatar?: string;
-  pronouns?: string;
-  isActive?: boolean;
-  profile?: UserProfile;
+  updatedAt?: string;
+  loginCount?: number;
+  lastActive?: string;
+  streak?: number;
+  studyHours?: number;
+  conceptsLearned?: number;
+  testsCompleted?: number;
+  goals?: {
+    id: string;
+    title: string;
+    targetDate?: string;
+  }[];
   mood?: MoodType;
-  personalityType?: PersonalityType;
 }
 
-export interface UserGoal {
-  id: string;
-  title: string;
-  targetDate?: string;
-  progress?: number;
+export interface UserPreferencesBase {
+  theme?: 'light' | 'dark' | 'system';
+  notifications?: {
+    email?: boolean;
+    push?: boolean;
+    sms?: boolean;
+  };
+  studyReminders?: boolean;
+  weeklyReports?: boolean;
+  language?: string;
 }
 
-export interface UserProfile {
+export interface StudentProfile extends UserProfileBase {
+  school?: string;
+  grade?: string;
+  targetExams?: string[];
+  subjects?: string[];
+  studyPreferences?: {
+    preferredTimeOfDay?: 'morning' | 'afternoon' | 'evening' | 'night';
+    sessionDuration?: number;
+    breakFrequency?: number;
+    weeklyGoalHours?: number;
+  };
+}
+
+export interface TeacherProfile extends UserProfileBase {
+  school?: string;
+  department?: string;
+  subjects?: string[];
+  yearsOfExperience?: number;
   bio?: string;
-  location?: string;
-  interests?: string[];
-  skills?: string[];
-  education?: string[];
+  credentials?: string[];
+}
+
+export interface ParentProfile extends UserProfileBase {
+  children?: {
+    id: string;
+    name: string;
+    grade?: string;
+  }[];
+  accessLevel?: 'full' | 'limited' | 'reports-only';
 }
 
 export interface AdminUser {
   id: string;
   name: string;
   email: string;
-  role: "admin";
-  permissions: string[];
+  role: 'admin' | 'super_admin';
 }
-
-export interface SubscriptionInfo {
-  planType: string;
-  expiryDate?: string;
-  startDate?: string;
-  isActive?: boolean;
-  features?: string[];
-}
-
-export enum PersonalityType {
-  Visual = "visual",
-  Auditory = "auditory",
-  ReadWrite = "readwrite",
-  Kinesthetic = "kinesthetic",
-  Mixed = "mixed"
-}
-
-export type UserProfileType = UserProfileBase;

@@ -17,6 +17,8 @@ import ExamReviewPage from '@/components/dashboard/student/practice-exam/ExamRev
 import TutorView from '@/pages/dashboard/student/TutorView';
 import AcademicAdvisorView from '@/pages/dashboard/student/AcademicAdvisorView';
 import FeelGoodCornerView from '@/pages/dashboard/student/FeelGoodCornerView';
+import ConceptStudyPage from '@/pages/dashboard/student/ConceptStudyPage';
+import EnhancedFlashcardPage from '@/pages/dashboard/student/flashcards/EnhancedFlashcardPage';
 
 export default function StudentRoutes() {
   return (
@@ -26,9 +28,11 @@ export default function StudentRoutes() {
       <Route path="/concepts" element={<ConceptsLandingPage />} />
       <Route path="/concepts/:subject?" element={<ConceptsLandingPage />} />
       <Route path="/concepts/card/:conceptId" element={<ConceptCardDetailPage />} />
+      <Route path="/concepts/study/:conceptId" element={<ConceptStudyPage />} />
       <Route path="/flashcards" element={<FlashcardsLandingPage />} />
       <Route path="/flashcards/:subject?" element={<FlashcardsLandingPage />} />
       <Route path="/flashcards/:deckId/interactive" element={<FlashcardInteractivePage />} />
+      <Route path="/flashcards/enhanced" element={<EnhancedFlashcardPage />} />
       <Route path="/practice" element={<PracticeExamLandingPage />} />
       <Route path="/practice/:subject?" element={<PracticeExamLandingPage />} />
       <Route path="/practice-exam/:examId/start" element={<ExamTakingPage />} />

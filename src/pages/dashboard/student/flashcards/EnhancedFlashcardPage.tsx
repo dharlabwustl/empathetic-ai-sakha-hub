@@ -5,9 +5,9 @@ import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayou
 
 const EnhancedFlashcardPage = () => {
   return (
-    <SharedPageLayout
+    <SharedPageLayout 
       title="Interactive Flashcards"
-      subtitle="Master concepts with our enhanced flashcard learning system"
+      subtitle="Master concepts with advanced spaced repetition"
       showQuickAccess={false}
     >
       <EnhancedInteractiveFlashcard />

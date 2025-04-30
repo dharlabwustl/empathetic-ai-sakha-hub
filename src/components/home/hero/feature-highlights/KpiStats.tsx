@@ -1,114 +1,91 @@
 
-import { useState, useEffect } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
-import CountUp from 'react-countup';
+import { ChevronRight, Check, Clock, Calendar, Star, Heart, TrendingUp } from 'lucide-react';
 
 const stats = [
-  { id: 1, value: 10000, label: "Students", prefix: "+", suffix: "", decimals: 0 },
-  { id: 2, value: 95, label: "Success Rate", prefix: "", suffix: "%", decimals: 0 },
-  { id: 3, value: 500000, label: "Practice Questions", prefix: "+", suffix: "", decimals: 0 },
-  { id: 4, value: 850, label: "Concepts Mastered", prefix: "Avg ", suffix: "", decimals: 0 },
-  { id: 5, value: 250000, label: "Cards Generated", prefix: "+", suffix: "", decimals: 0 },
-  { id: 6, value: 78, label: "Students Exam Ready", prefix: "", suffix: "%", decimals: 0 }
+  {
+    value: '56%',
+    label: 'estimated of students said PREPZR helped reduce exam stress',
+    icon: Heart,
+    color: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300',
+  },
+  {
+    value: '5+ hours',
+    label: 'estimated saved weekly through personalized study plans',
+    icon: Clock,
+    color: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
+  },
+  {
+    value: '70%',
+    label: 'estimated of students built a consistent study habit in 2 weeks',
+    icon: Calendar,
+    color: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300',
+  },
+  {
+    value: '4 out of 5',
+    label: 'estimated students felt more confident before their exam',
+    icon: Star,
+    color: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300',
+  },
+  {
+    value: '70%+',
+    label: 'estimated of PREPZR users continued after their 1st month',
+    icon: Check,
+    color: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300',
+  },
+  {
+    value: '63%',
+    label: 'estimated use mood-based learning themes daily',
+    icon: TrendingUp,
+    color: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300',
+  },
 ];
 
-export const KpiStats = () => {
-  const [inView, setInView] = useState(false);
-  
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setInView(true);
-          observer.disconnect();
-        }
-      },
-      {
-        threshold: 0.2,
-      }
-    );
-    
-    const element = document.getElementById('kpi-stats-section');
-    if (element) {
-      observer.observe(element);
-    }
-    
-    return () => {
-      if (element) {
-        observer.unobserve(element);
-      }
-    };
-  }, []);
-  
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: { 
-      opacity: 1,
-      transition: { 
-        staggerChildren: 0.2,
-        delayChildren: 0.3,
-      } 
-    }
-  };
-  
-  const itemVariants = {
-    hidden: { y: 20, opacity: 0 },
-    visible: { 
-      y: 0, 
-      opacity: 1,
-      transition: { 
-        type: "spring", 
-        stiffness: 100 
-      } 
-    }
-  };
-
+const KpiStats = () => {
   return (
-    <div 
-      id="kpi-stats-section" 
-      className="bg-gradient-to-r from-purple-50 via-white to-blue-50 dark:from-purple-900/20 dark:via-gray-900 dark:to-blue-900/20 py-8 px-4 rounded-2xl shadow-sm border border-purple-100/50 dark:border-purple-900/50"
-    >
-      <motion.div
-        variants={containerVariants}
-        initial="hidden"
-        animate={inView ? "visible" : "hidden"}
-        className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 max-w-6xl mx-auto"
-      >
-        {stats.map((stat) => (
-          <motion.div 
-            key={stat.id} 
-            variants={itemVariants}
-            className="flex flex-col items-center text-center"
+    <div className="container mx-auto px-4 py-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {stats.map((stat, index) => (
+          <motion.div
+            key={index}
+            className="relative overflow-hidden"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ 
+              duration: 0.5, 
+              delay: index * 0.1,
+              type: "spring",
+              stiffness: 50
+            }}
           >
             <motion.div 
-              className="text-3xl md:text-4xl font-bold text-purple-600 dark:text-purple-400 mb-2 flex items-center"
-              whileHover={{ scale: 1.05 }}
-              transition={{ type: "spring", stiffness: 400 }}
+              className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 flex items-start gap-4 h-full"
+              whileHover={{ 
+                scale: 1.03,
+                boxShadow: "0 10px 30px rgba(0,0,0,0.1)",
+                transition: { duration: 0.2 } 
+              }}
             >
-              <span>{stat.prefix}</span>
-              {inView ? (
-                <CountUp 
-                  start={0} 
-                  end={stat.value} 
-                  duration={2.5} 
-                  separator="," 
-                  decimals={stat.decimals}
-                  decimal="."
-                />
-              ) : (
-                <span>0</span>
-              )}
-              <span>{stat.suffix}</span>
+              <div className={`p-3 rounded-full ${stat.color} flex-shrink-0`}>
+                <stat.icon className="h-6 w-6" />
+              </div>
+              <div>
+                <h3 className="text-2xl font-bold mb-2">{stat.value}</h3>
+                <p className="text-gray-600 dark:text-gray-300">{stat.label}</p>
+              </div>
+              <motion.div 
+                className="absolute bottom-0 right-0 w-full h-1 bg-gradient-to-r from-purple-400 to-blue-500"
+                initial={{ width: "0%" }}
+                whileInView={{ width: "100%" }}
+                viewport={{ once: true }}
+                transition={{ duration: 1.5, delay: 0.5 + index * 0.1 }}
+              />
             </motion.div>
-            <motion.p 
-              className="text-sm text-gray-600 dark:text-gray-300"
-              whileHover={{ color: "#8B5CF6" }}
-            >
-              {stat.label}
-            </motion.p>
           </motion.div>
         ))}
-      </motion.div>
+      </div>
     </div>
   );
 };
