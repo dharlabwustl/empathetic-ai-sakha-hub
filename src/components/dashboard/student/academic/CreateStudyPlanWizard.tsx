@@ -1,130 +1,328 @@
 
 import React, { useState } from 'react';
-import { Dialog, DialogContent, DialogFooter } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { getSubjectsForGoal } from "../../student/onboarding/SubjectData";
-import type { NewStudyPlan, NewStudyPlanSubject } from "@/types/user/studyPlan";
-import WizardHeader from './components/WizardHeader';
-import WizardProgress from './components/WizardProgress';
-import { useStudyPlanWizard } from './hooks/useStudyPlanWizard';
-import OnboardingStepContent from "../../student/onboarding/components/OnboardingStepContent";
-import { UserRole } from "@/components/signup/OnboardingContext";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { UserRole } from '@/types/user/base';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ArrowRight, Clock, Calendar, BookOpen } from 'lucide-react';
 
 interface CreateStudyPlanWizardProps {
-  isOpen: boolean;
-  onClose: () => void;
-  examGoal?: string;
-  onCreatePlan: (plan: NewStudyPlan) => void;
+  onComplete?: (plan: any) => void;
+  defaultExam?: string;
 }
 
-const CreateStudyPlanWizard: React.FC<CreateStudyPlanWizardProps> = ({
-  isOpen,
-  onClose,
-  examGoal = "",
-  onCreatePlan
-}) => {
-  const {
-    step,
-    formData,
-    setFormData,
-    strongSubjects,
-    weakSubjects,
-    handleToggleSubject,
-    handlePaceChange,
-    handleStudyTimeChange,
-    handleNext,
-    handleBack,
-    handleExamGoalSelect
-  } = useStudyPlanWizard({ examGoal, onCreatePlan, onClose });
-
-  // Convert string arrays to NewStudyPlanSubject arrays for type compatibility
-  const strongSubjectsTyped: NewStudyPlanSubject[] = strongSubjects.map(
-    subject => ({ name: subject, proficiency: 'strong' })
-  );
+const CreateStudyPlanWizard: React.FC<CreateStudyPlanWizardProps> = ({ onComplete, defaultExam }) => {
+  const [step, setStep] = useState(1);
+  const [planData, setPlanData] = useState({
+    examType: defaultExam || '',
+    examDate: '',
+    studyHoursPerDay: '2',
+    daysPerWeek: '5',
+    subjects: [] as string[],
+    preferences: {
+      learningStyle: 'visual',
+      studyTime: 'morning',
+      breakFrequency: 'moderate',
+    },
+    goals: '',
+    additionalNotes: ''
+  });
   
-  const weakSubjectsTyped: NewStudyPlanSubject[] = weakSubjects.map(
-    subject => ({ name: subject, proficiency: 'weak' })
-  );
-
-  // These are the same exam goals as defined in GoalStep.tsx
-  const studentGoals = [
-    "IIT JEE (Engineering Entrance)",
-    "NEET (Medical Entrance)",
-    "MBA (CAT, XAT, SNAP, CMAT, etc.)",
-    "CUET UG (Undergraduate Common Entrance Test)",
-    "UPSC (Civil Services – Prelims & Mains)",
-    "CLAT (Law Entrance)",
-    "BANK PO (Bank Probationary Officer Exams)"
-  ];
+  const handleChange = (field: string, value: string) => {
+    setPlanData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+  
+  const handlePreferenceChange = (field: string, value: string) => {
+    setPlanData(prev => ({
+      ...prev,
+      preferences: {
+        ...prev.preferences,
+        [field]: value
+      }
+    }));
+  };
+  
+  const handleSubjectToggle = (subject: string) => {
+    setPlanData(prev => {
+      if (prev.subjects.includes(subject)) {
+        return {
+          ...prev,
+          subjects: prev.subjects.filter(s => s !== subject)
+        };
+      } else {
+        return {
+          ...prev,
+          subjects: [...prev.subjects, subject]
+        };
+      }
+    });
+  };
+  
+  const handleNext = () => {
+    setStep(prev => prev + 1);
+  };
+  
+  const handleBack = () => {
+    setStep(prev => prev - 1);
+  };
+  
+  const handleComplete = () => {
+    if (onComplete) {
+      onComplete(planData);
+    }
+  };
+  
+  const renderStep = () => {
+    switch (step) {
+      case 1:
+        return (
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium mb-1">Exam Type</label>
+              <Select 
+                value={planData.examType} 
+                onValueChange={(value) => handleChange('examType', value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select your exam" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="jee">JEE</SelectItem>
+                  <SelectItem value="neet">NEET</SelectItem>
+                  <SelectItem value="gre">GRE</SelectItem>
+                  <SelectItem value="gmat">GMAT</SelectItem>
+                  <SelectItem value="custom">Other</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium mb-1">Exam Date</label>
+              <Input 
+                type="date" 
+                value={planData.examDate} 
+                onChange={(e) => handleChange('examDate', e.target.value)} 
+              />
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Study Hours/Day</label>
+                <Select 
+                  value={planData.studyHoursPerDay} 
+                  onValueChange={(value) => handleChange('studyHoursPerDay', value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="1">1 hour</SelectItem>
+                    <SelectItem value="2">2 hours</SelectItem>
+                    <SelectItem value="3">3 hours</SelectItem>
+                    <SelectItem value="4">4 hours</SelectItem>
+                    <SelectItem value="5">5+ hours</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Days/Week</label>
+                <Select 
+                  value={planData.daysPerWeek} 
+                  onValueChange={(value) => handleChange('daysPerWeek', value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="3">3 days</SelectItem>
+                    <SelectItem value="4">4 days</SelectItem>
+                    <SelectItem value="5">5 days</SelectItem>
+                    <SelectItem value="6">6 days</SelectItem>
+                    <SelectItem value="7">7 days</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </div>
+        );
+        
+      case 2:
+        return (
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium mb-2">Select Subjects to Focus On</label>
+              <div className="flex flex-wrap gap-2">
+                {['Mathematics', 'Physics', 'Chemistry', 'Biology', 'English', 'Computer Science'].map(subject => (
+                  <Button 
+                    key={subject}
+                    type="button"
+                    variant={planData.subjects.includes(subject) ? "default" : "outline"}
+                    onClick={() => handleSubjectToggle(subject)}
+                    className="text-sm"
+                  >
+                    {subject}
+                  </Button>
+                ))}
+              </div>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium mb-1">Your Learning Style</label>
+              <Tabs 
+                defaultValue={planData.preferences.learningStyle}
+                onValueChange={(value) => handlePreferenceChange('learningStyle', value)}
+              >
+                <TabsList className="grid grid-cols-3 mb-2">
+                  <TabsTrigger value="visual">Visual</TabsTrigger>
+                  <TabsTrigger value="auditory">Auditory</TabsTrigger>
+                  <TabsTrigger value="kinesthetic">Hands-on</TabsTrigger>
+                </TabsList>
+                <TabsContent value="visual" className="text-xs text-muted-foreground">
+                  You learn best through images, diagrams and visual aids.
+                </TabsContent>
+                <TabsContent value="auditory" className="text-xs text-muted-foreground">
+                  You learn best through listening and verbal explanations.
+                </TabsContent>
+                <TabsContent value="kinesthetic" className="text-xs text-muted-foreground">
+                  You learn best through physical activities and practicing.
+                </TabsContent>
+              </Tabs>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium mb-1">Preferred Study Time</label>
+              <div className="flex gap-2">
+                <Button 
+                  type="button" 
+                  variant={planData.preferences.studyTime === 'morning' ? "default" : "outline"} 
+                  size="sm"
+                  onClick={() => handlePreferenceChange('studyTime', 'morning')}
+                  className="flex-1"
+                >
+                  <Clock className="h-4 w-4 mr-1" />
+                  Morning
+                </Button>
+                <Button 
+                  type="button" 
+                  variant={planData.preferences.studyTime === 'afternoon' ? "default" : "outline"} 
+                  size="sm"
+                  onClick={() => handlePreferenceChange('studyTime', 'afternoon')}
+                  className="flex-1"
+                >
+                  <Clock className="h-4 w-4 mr-1" />
+                  Afternoon
+                </Button>
+                <Button 
+                  type="button" 
+                  variant={planData.preferences.studyTime === 'evening' ? "default" : "outline"} 
+                  size="sm"
+                  onClick={() => handlePreferenceChange('studyTime', 'evening')}
+                  className="flex-1"
+                >
+                  <Clock className="h-4 w-4 mr-1" />
+                  Evening
+                </Button>
+              </div>
+            </div>
+          </div>
+        );
+        
+      case 3:
+        return (
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium mb-1">Your Study Goals</label>
+              <Textarea 
+                placeholder="What do you want to achieve with this study plan?"
+                value={planData.goals}
+                onChange={(e) => handleChange('goals', e.target.value)}
+                rows={3}
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium mb-1">Additional Notes</label>
+              <Textarea 
+                placeholder="Any additional information that might help us create a better plan for you"
+                value={planData.additionalNotes}
+                onChange={(e) => handleChange('additionalNotes', e.target.value)}
+                rows={3}
+              />
+            </div>
+            
+            <div className="p-3 bg-muted rounded-md">
+              <h4 className="text-sm font-medium mb-2 flex items-center">
+                <Calendar className="h-4 w-4 mr-1" />
+                Study Plan Summary
+              </h4>
+              <ul className="space-y-1 text-sm">
+                <li className="flex justify-between">
+                  <span className="text-muted-foreground">Exam:</span>
+                  <span className="font-medium">{planData.examType.toUpperCase()}</span>
+                </li>
+                <li className="flex justify-between">
+                  <span className="text-muted-foreground">Date:</span>
+                  <span className="font-medium">{planData.examDate || 'Not specified'}</span>
+                </li>
+                <li className="flex justify-between">
+                  <span className="text-muted-foreground">Study time:</span>
+                  <span className="font-medium">{planData.studyHoursPerDay} hr/day, {planData.daysPerWeek} days/week</span>
+                </li>
+                <li className="flex justify-between">
+                  <span className="text-muted-foreground">Subjects:</span>
+                  <span className="font-medium">{planData.subjects.length} selected</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        );
+        
+      default:
+        return null;
+    }
+  };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-xl max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 shadow-lg">
-        <WizardHeader examGoal={formData.examGoal} />
-
-        <div className="py-4 text-gray-900 dark:text-gray-100">
-          <div className="mb-6">
-            <WizardProgress currentStep={step} />
-
-            {step === 1 && (
-              <div className="px-1 py-4">
-                <h2 className="text-xl font-semibold mb-4">Select Exam Goal</h2>
-                <div className="grid grid-cols-1 gap-3">
-                  {studentGoals.map((goal) => (
-                    <Button
-                      key={goal}
-                      onClick={() => handleExamGoalSelect(goal)}
-                      className={`bg-white hover:bg-blue-50 text-blue-700 border h-auto py-3 justify-start ${
-                        formData.examGoal === goal 
-                          ? "border-blue-500 bg-blue-50 shadow-sm" 
-                          : "border-blue-200"
-                      }`}
-                      variant="outline"
-                    >
-                      {goal}
-                    </Button>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {step > 1 && (
-              <OnboardingStepContent
-                currentStep={step - 1}
-                examDate={formData.examDate}
-                studyHours={formData.studyHoursPerDay}
-                strongSubjects={strongSubjectsTyped}
-                weakSubjects={weakSubjectsTyped}
-                studyPace={formData.learningPace === 'slow' ? 'Relaxed' : 
-                          formData.learningPace === 'moderate' ? 'Balanced' : 'Aggressive'}
-                studyTime={formData.preferredStudyTime.charAt(0).toUpperCase() + formData.preferredStudyTime.slice(1) as "Morning" | "Afternoon" | "Evening" | "Night"}
-                examGoal={formData.examGoal}
-                setExamDate={(date) => setFormData(prev => ({ ...prev, examDate: date || new Date() }))}
-                setStudyHours={(hours) => setFormData(prev => ({ ...prev, studyHoursPerDay: hours }))}
-                handleToggleSubject={handleToggleSubject}
-                setStudyPace={handlePaceChange}
-                setStudyTime={handleStudyTimeChange}
-              />
-            )}
-          </div>
-        </div>
-
-        <DialogFooter className="border-t border-gray-200 dark:border-gray-700 pt-4">
-          <div className="w-full flex justify-between">
-            <Button variant="outline" onClick={handleBack} className="min-w-[100px]">
-              {step === 1 ? 'Cancel' : 'Back'}
-            </Button>
-            <Button 
-              className="bg-indigo-600 hover:bg-indigo-700 text-white min-w-[100px]" 
-              onClick={handleNext}
-              disabled={step === 1 && !formData.examGoal}
-            >
-              {step === 6 ? 'Generate Plan' : 'Next'}
-            </Button>
-          </div>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-lg flex items-center">
+          <BookOpen className="h-5 w-5 mr-2 text-primary" />
+          Create Personalized Study Plan
+        </CardTitle>
+        <CardDescription>
+          Answer a few questions to build your customized study plan
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        {renderStep()}
+      </CardContent>
+      <CardFooter className="flex justify-between border-t pt-4">
+        {step > 1 ? (
+          <Button variant="outline" onClick={handleBack}>
+            Back
+          </Button>
+        ) : (
+          <div></div>
+        )}
+        
+        {step < 3 ? (
+          <Button onClick={handleNext}>
+            Next
+            <ArrowRight className="ml-1 h-4 w-4" />
+          </Button>
+        ) : (
+          <Button onClick={handleComplete}>
+            Create Plan
+          </Button>
+        )}
+      </CardFooter>
+    </Card>
   );
 };
 

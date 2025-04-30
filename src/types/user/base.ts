@@ -15,6 +15,11 @@ export interface UserProfileBase {
   progress?: number;
   preferences?: UserPreferences;
   subscription?: SubscriptionType | Subscription;
+  lastActive?: string;
+  streak?: number;
+  studyHours?: number;
+  conceptsLearned?: number;
+  testsCompleted?: number;
 }
 
 export interface Goal {
@@ -46,6 +51,9 @@ export enum MoodType {
   Curious = 'curious',
   Confused = 'confused',
   Overwhelmed = 'overwhelmed',
+  Neutral = 'neutral',
+  Okay = 'okay',
+  Sad = 'sad',
   Bored = 'bored',
 }
 
@@ -66,6 +74,12 @@ export interface Subscription {
   features?: string[];
   discount?: number;
   paymentMethod?: string;
+}
+
+export enum UserRole {
+  Student = 'student',
+  Instructor = 'instructor',
+  Admin = 'admin'
 }
 
 export type UserProfileType = UserProfileBase;

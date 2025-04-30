@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { UserProfileType } from '@/types/user';
 import { DashboardData, Subject, ConceptCard, ProgressTracker, RevisionStats, Milestone } from '@/types/student/dashboard';
@@ -11,6 +10,7 @@ export function useStudentDashboardData(): {
   loading: boolean;
   dashboardData: DashboardData | null;
   refreshData: () => void;
+  userProfile: UserProfileType | null;
 } {
   const [loading, setLoading] = useState(true);
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
@@ -44,7 +44,8 @@ export function useStudentDashboardData(): {
   return {
     loading,
     dashboardData,
-    refreshData
+    refreshData,
+    userProfile
   };
 }
 

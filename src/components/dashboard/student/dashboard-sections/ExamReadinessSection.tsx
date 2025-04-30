@@ -136,8 +136,7 @@ const ExamReadinessSection = ({
                 </div>
                 <Progress 
                   value={subject.readiness} 
-                  className="h-2" 
-                  indicatorClassName={subject.color} 
+                  className={`h-2 ${subject.color}`} 
                 />
               </motion.div>
             ))}

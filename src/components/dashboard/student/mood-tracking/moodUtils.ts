@@ -25,7 +25,9 @@ export const getMoodSuggestion = (mood: MoodType): string => {
     
     [MoodType.Curious]: "Great time to explore new concepts! Take advantage of your curiosity by diving into topics you're genuinely interested in.",
     
-    [MoodType.Sad]: "Light review sessions might be best today. Be gentle with yourself, focus on small wins, and consider subjects you enjoy to lift your spirits."
+    [MoodType.Sad]: "Light review sessions might be best today. Be gentle with yourself, focus on small wins, and consider subjects you enjoy to lift your spirits.",
+    
+    [MoodType.Bored]: "Try changing your study environment or approach. Gamify your learning or try a different format like videos, interactive quizzes, or group study."
   };
   
   return suggestions[mood] || "Select your current mood to receive personalized study suggestions.";
@@ -95,6 +97,17 @@ export const getMoodBasedTasks = (mood: MoodType, tasks: any[]): any[] => {
           return 0;
         })
         .slice(0, Math.min(tasks.length, 2)); // Very few tasks
+    
+    case MoodType.Bored:
+      // For bored mood, provide variety and engaging content
+      return tasks
+        .sort((a, b) => {
+          // Prioritize interactive content first
+          if (a.isInteractive && !b.isInteractive) return -1;
+          if (!a.isInteractive && b.isInteractive) return 1;
+          return Math.random() - 0.5; // Randomize the rest to add variety
+        })
+        .slice(0, Math.min(tasks.length, 4));
       
     default:
       // For neutral/okay moods, balanced approach

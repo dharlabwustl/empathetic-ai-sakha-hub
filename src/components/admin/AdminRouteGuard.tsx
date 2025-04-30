@@ -9,13 +9,13 @@ interface AdminRouteGuardProps {
 }
 
 const AdminRouteGuard: React.FC<AdminRouteGuardProps> = ({ children }) => {
-  const { isAdminAuthenticated, isAdminLoading } = useAdminAuth();
+  const { isAuthenticated, loading } = useAdminAuth();
   
-  if (isAdminLoading) {
+  if (loading) {
     return <LoadingScreen />;
   }
   
-  if (!isAdminAuthenticated) {
+  if (!isAuthenticated) {
     return <Navigate to="/admin/login" replace />;
   }
   

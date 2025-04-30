@@ -123,6 +123,14 @@ export const getMoodTheme = (mood?: MoodType): MoodTheme => {
         text: 'text-indigo-700 dark:text-indigo-300'
       }
     },
+    [MoodType.Bored]: {
+      emoji: '🥱',
+      label: 'Bored',
+      colors: {
+        background: 'bg-gray-100 dark:bg-gray-800',
+        text: 'text-gray-700 dark:text-gray-300'
+      }
+    }
   };
   
   return themes[mood];
