@@ -25,6 +25,8 @@ import SmartSuggestionsCenter from './dashboard-sections/SmartSuggestionsCenter'
 import ExamReadinessSection from './dashboard-sections/ExamReadinessSection';
 import TodaysPlanCompact from './dashboard-sections/TodaysPlanCompact';
 import { MoodType } from '@/types/user/base';
+import MoodLogButton from './mood-tracking/MoodLogButton';
+import { useToast } from '@/hooks/use-toast';
 
 interface RedesignedDashboardOverviewProps {
   userProfile: UserProfileBase;
@@ -40,8 +42,13 @@ export default function RedesignedDashboardOverview({
   onMoodChange 
 }: RedesignedDashboardOverviewProps) {
   const { loading, dashboardData, refreshData } = useStudentDashboardData();
-  const { planData, loading: planLoading } = useTodaysPlan(userProfile?.goals?.[0]?.title || "IIT-JEE", "Student");
+  const goalTitle = userProfile?.goals && userProfile.goals.length > 0 
+    ? userProfile.goals[0].title || "IIT-JEE" 
+    : "IIT-JEE";
+    
+  const { planData, loading: planLoading } = useTodaysPlan(goalTitle, "Student");
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   // Use current mood from props if available, otherwise use local state
   const [localMood, setLocalMood] = useState<MoodType | undefined>(currentMood);
@@ -57,176 +64,206 @@ export default function RedesignedDashboardOverview({
     setLocalMood(mood);
     if (onMoodChange) {
       onMoodChange(mood);
-    } else {
-      // Store in localStorage if no parent handler
+    }
+    
+    // Save to localStorage
+    try {
       const userData = localStorage.getItem("userData");
       if (userData) {
         const parsedData = JSON.parse(userData);
         parsedData.mood = mood;
         localStorage.setItem("userData", JSON.stringify(parsedData));
-      } else {
-        localStorage.setItem("userData", JSON.stringify({ mood }));
       }
+    } catch (error) {
+      console.error("Error saving mood to localStorage:", error);
     }
+    
+    toast({
+      title: "Mood Updated",
+      description: "Your study plan has been adjusted based on your mood",
+    });
   };
 
-  const navigationTabs = [
-    { id: "overview", label: "Overview", icon: LayoutDashboard, path: "/dashboard/student/overview" },
-    { id: "today", label: "Today's Plan", icon: CalendarDays, path: "/dashboard/student/today" },
-    { id: "academic", label: "Academic Advisor", icon: GraduationCap, path: "/dashboard/student/academic" },
-    { id: "concepts", label: "Concept Cards", icon: BookOpen, path: "/dashboard/student/concepts" },
-    { id: "flashcards", label: "Flashcards", icon: Brain, path: "/dashboard/student/flashcards" },
-    { id: "practice", label: "Practice Exams", icon: FileText, path: "/dashboard/student/practice-exam" },
-    { id: "notifications", label: "Notifications", icon: Bell, path: "/dashboard/student/notifications" },
-  ];
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        when: "beforeChildren",
-        staggerChildren: 0.1
-      }
-    }
+  // Mock exam readiness data
+  const examReadinessData = {
+    overall: 68,
+    conceptMastery: 75,
+    practiceCompletion: 60,
+    mockTestResults: 72,
+    cutoffTarget: 85,
+    examName: goalTitle
   };
 
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        type: "spring",
-        stiffness: 260,
-        damping: 20
-      }
-    }
+  // Function to navigate to Today's Plan
+  const handleGoToTodaysPlan = () => {
+    navigate("/dashboard/student/today");
   };
 
-  if (loading || !dashboardData) {
+  if (loading || planLoading) {
     return (
-      <div className="space-y-6">
-        <Skeleton className="h-12 w-3/4" />
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {[1, 2, 3, 4].map(i => (
-            <Skeleton key={i} className="h-32" />
-          ))}
-        </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {[1, 2, 3, 4, 5, 6].map((item) => (
+          <Card key={item}>
+            <CardContent className="p-6">
+              <Skeleton className="h-8 w-1/2 mb-4" />
+              <Skeleton className="h-16 w-full" />
+              <Skeleton className="h-8 w-3/4 mt-4" />
+            </CardContent>
+          </Card>
+        ))}
       </div>
     );
   }
 
-  // Calculate today's plan stats for compact view
-  const todaysTasks = planData?.studyBlocks?.flatMap(block => block.tasks || []) || [];
-  const completedCount = todaysTasks.filter(task => task.status === 'completed').length;
-  const topTasks = todaysTasks.filter(task => task.status !== 'completed').slice(0, 3);
-
   return (
-    <motion.div
-      className="space-y-6"
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-    >
-      <motion.div 
-        variants={itemVariants}
-        className="p-3 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 sticky top-0 z-10"
-      >
-        <div className="flex items-center justify-between overflow-x-auto">
-          <div className="flex space-x-1 md:space-x-2">
-            {navigationTabs.map((tab) => (
-              <motion.div
-                key={tab.id}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <Button
-                  variant={tab.id === "overview" ? "default" : "ghost"}
-                  size="sm"
-                  className="flex items-center gap-1 whitespace-nowrap text-xs md:text-sm"
-                  onClick={() => navigate(tab.path)}
-                >
-                  <tab.icon className="h-4 w-4 mr-1" />
-                  <span className="hidden md:inline">{tab.label}</span>
-                </Button>
-              </motion.div>
-            ))}
-          </div>
-          <Button 
-            size="sm" 
-            variant="outline"
-            className="hidden md:flex items-center"
-            onClick={refreshData}
-          >
-            <TrendingUp className="mr-2 h-4 w-4" />
-            Refresh Stats
-          </Button>
+    <div className="space-y-6">
+      {/* Mood Selection */}
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold flex items-center gap-2">
+          <LayoutDashboard className="text-primary h-6 w-6" />
+          Dashboard Overview
+        </h2>
+        
+        <div className="flex items-center gap-3">
+          <span className="text-sm text-muted-foreground">How are you feeling today?</span>
+          <MoodLogButton
+            currentMood={localMood}
+            onMoodChange={handleMoodSelect}
+            size="default"
+            showLabel={true}
+          />
         </div>
-      </motion.div>
-
-      <motion.div variants={itemVariants}>
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
-          <div>
-            <h2 className="text-2xl font-bold">Study Dashboard</h2>
-            <div className="flex items-center mt-1">
-              <span className="text-sm text-muted-foreground mr-2">Exam Goal:</span>
-              <span className="bg-violet-100 text-violet-800 dark:bg-violet-900/30 dark:text-violet-300 px-2 py-0.5 rounded-full text-sm">
-                {dashboardData.examGoal}
-              </span>
-            </div>
-          </div>
-        </div>
-      </motion.div>
-
-      {/* Exam Readiness Score Section */}
-      <motion.div variants={itemVariants}>
-        <ExamReadinessSection
-          examGoal={dashboardData.examGoal}
-          readinessScore={dashboardData.examReadiness?.overallScore || 68}
-          cutoffPercentage={dashboardData.examReadiness?.cutoffPercentage || 75}
-          lastAssessmentDate={dashboardData.examReadiness?.lastAssessmentDate || "2 days ago"}
-          progressBySubject={dashboardData.examReadiness?.subjectScores || [
-            { subject: "Physics", score: 72, improvement: 5 },
-            { subject: "Chemistry", score: 65, improvement: -2 },
-            { subject: "Mathematics", score: 78, improvement: 8 },
-          ]}
-        />
-      </motion.div>
-
-      <motion.div 
-        variants={itemVariants}
-        className="grid grid-cols-1 lg:grid-cols-2 gap-6"
-      >
-        <MoodBasedSuggestions currentMood={localMood} onMoodSelect={handleMoodSelect} />
-        <TodaysPlanCompact 
-          currentTasks={planData?.studyBlocks?.flatMap(block => block.tasks || []) || []}
-          completedCount={completedCount}
-          totalCount={todaysTasks.length}
-          currentMood={localMood}
-        />
-      </motion.div>
-
-      <motion.div variants={itemVariants}>
-        <StudyStatsSection subjects={dashboardData.subjects} conceptCards={dashboardData.conceptCards} />
-      </motion.div>
-
-      <motion.div variants={itemVariants}>
-        <SubjectBreakdownSection subjects={dashboardData.subjects} />
-      </motion.div>
-
-      <motion.div variants={itemVariants}>
-        <ProgressTrackerSection progressTracker={dashboardData.progressTracker} />
-      </motion.div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <motion.div variants={itemVariants}>
-          <RevisionLoopSection revisionStats={dashboardData.revisionStats} />
-        </motion.div>
-        <motion.div variants={itemVariants}>
-          <UpcomingMilestonesSection milestones={dashboardData.upcomingMilestones} />
-        </motion.div>
       </div>
-    </motion.div>
+      
+      {/* Main Dashboard Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-6 lg:grid-cols-12 gap-6">
+        {/* Study Stats Section */}
+        <div className="md:col-span-3 lg:col-span-4">
+          <StudyStatsSection
+            stats={dashboardData?.stats}
+            isLoading={loading}
+          />
+        </div>
+
+        {/* Today's Plan Section */}
+        <div className="md:col-span-3 lg:col-span-4">
+          <TodaysPlanCompact
+            planData={planData}
+            isLoading={planLoading}
+            currentMood={localMood}
+            onViewAll={handleGoToTodaysPlan}
+          />
+        </div>
+
+        {/* Mood-Based Suggestions */}
+        <div className="md:col-span-6 lg:col-span-4">
+          <MoodBasedSuggestions 
+            currentMood={localMood} 
+            onMoodChange={handleMoodSelect}
+          />
+        </div>
+
+        {/* Exam Readiness Section */}
+        <div className="md:col-span-6 lg:col-span-12">
+          <ExamReadinessSection examReadiness={examReadinessData} />
+        </div>
+
+        {/* Subject Breakdown */}
+        <div className="md:col-span-6">
+          <SubjectBreakdownSection
+            subjects={dashboardData?.subjectProgress}
+            isLoading={loading}
+          />
+        </div>
+
+        {/* Progress Tracker */}
+        <div className="md:col-span-6">
+          <ProgressTrackerSection
+            progressData={dashboardData?.progressData}
+            isLoading={loading}
+          />
+        </div>
+
+        {/* Smart Suggestions Center */}
+        <div className="md:col-span-6">
+          <SmartSuggestionsCenter
+            suggestions={dashboardData?.smartSuggestions}
+            isLoading={loading}
+          />
+        </div>
+
+        {/* Revision Loop */}
+        <div className="md:col-span-6">
+          <RevisionLoopSection
+            revisionItems={dashboardData?.revisionItems}
+            isLoading={loading}
+          />
+        </div>
+
+        {/* Upcoming Milestones */}
+        <div className="md:col-span-12">
+          <UpcomingMilestonesSection
+            milestones={dashboardData?.milestones}
+            isLoading={loading}
+          />
+        </div>
+      </div>
+
+      {/* Quick Access Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
+        {[
+          {
+            title: "Today's Plan",
+            description: "Your personalized study schedule",
+            icon: CalendarDays,
+            color: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300",
+            link: "/dashboard/student/today"
+          },
+          {
+            title: "Concept Cards",
+            description: "Master foundational concepts",
+            icon: BookOpen,
+            color: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300",
+            link: "/dashboard/student/concepts"
+          },
+          {
+            title: "Flashcards",
+            description: "Review and memorize key facts",
+            icon: Brain,
+            color: "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300",
+            link: "/dashboard/student/flashcards"
+          },
+          {
+            title: "Practice Exams",
+            description: "Test your knowledge and skills",
+            icon: FileText,
+            color: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300",
+            link: "/dashboard/student/practice-exam"
+          },
+        ].map((card, index) => (
+          <motion.div
+            key={card.title}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.1, duration: 0.5 }}
+            whileHover={{ y: -5, transition: { duration: 0.2 } }}
+          >
+            <Button
+              variant="ghost"
+              className="w-full h-full p-6 flex flex-col items-center justify-center gap-3 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 shadow-sm border border-gray-100 dark:border-gray-700 rounded-lg"
+              onClick={() => navigate(card.link)}
+            >
+              <div className={`p-3 rounded-full ${card.color}`}>
+                <card.icon className="h-6 w-6" />
+              </div>
+              <div className="text-center">
+                <h3 className="font-medium">{card.title}</h3>
+                <p className="text-xs text-muted-foreground mt-1">{card.description}</p>
+              </div>
+            </Button>
+          </motion.div>
+        ))}
+      </div>
+    </div>
   );
 }
