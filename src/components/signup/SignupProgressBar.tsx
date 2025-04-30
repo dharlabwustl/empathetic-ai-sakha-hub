@@ -1,23 +1,45 @@
 
-import React from 'react';
-import { Progress } from '@/components/ui/progress';
+import React from "react";
+import { OnboardingStep } from "./OnboardingContext";
 
 interface SignupProgressBarProps {
-  currentStep: string;
+  currentStep: OnboardingStep;
 }
 
 const SignupProgressBar: React.FC<SignupProgressBarProps> = ({ currentStep }) => {
-  const steps = ['role', 'goal', 'demographics', 'personality', 'mood', 'habits', 'interests', 'signup'];
-  const currentStepIndex = steps.indexOf(currentStep);
-  const progressPercentage = Math.min(Math.max((currentStepIndex / (steps.length - 1)) * 100, 0), 100);
+  const steps: OnboardingStep[] = [
+    "role",
+    "goal",
+    "demographics",
+    "personality",
+    "sentiment",
+    "studyTime",
+    "studyPace",
+    "studyHours",
+    "habits",
+    "interests",
+    "signup"
+  ];
+
+  const currentIndex = steps.indexOf(currentStep);
+  const progress = Math.round(((currentIndex + 1) / steps.length) * 100);
 
   return (
-    <div className="w-full space-y-2">
-      <div className="flex justify-between text-xs text-gray-500">
-        <span>{currentStepIndex + 1}/{steps.length}</span>
-        <span>{Math.round(progressPercentage)}% Complete</span>
+    <div className="w-full">
+      <div className="flex justify-between items-center mb-2">
+        <span className="text-xs font-medium text-indigo-600 dark:text-indigo-400">
+          Step {currentIndex + 1} of {steps.length}
+        </span>
+        <span className="text-xs font-medium text-indigo-600 dark:text-indigo-400">
+          {progress}% Complete
+        </span>
       </div>
-      <Progress value={progressPercentage} className="h-1" />
+      <div className="w-full h-2 bg-gray-200 rounded-full dark:bg-gray-700">
+        <div
+          className="h-2 bg-indigo-600 rounded-full transition-all duration-300 ease-in-out"
+          style={{ width: `${progress}%` }}
+        ></div>
+      </div>
     </div>
   );
 };

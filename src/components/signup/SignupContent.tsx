@@ -45,6 +45,21 @@ const SignupContent = () => {
     setOnboardingData({ ...onboardingData, mood });
     goToNextStep();
   };
+  
+  const handleStudyTimeSelect = (time: "Morning" | "Afternoon" | "Evening" | "Night") => {
+    setOnboardingData({ ...onboardingData, studyTime: time });
+    goToNextStep();
+  };
+  
+  const handleStudyPaceSelect = (pace: "Aggressive" | "Balanced" | "Relaxed") => {
+    setOnboardingData({ ...onboardingData, studyPace: pace });
+    goToNextStep();
+  };
+  
+  const handleStudyHoursSelect = (hours: number) => {
+    setOnboardingData({ ...onboardingData, dailyStudyHours: hours });
+    goToNextStep();
+  };
 
   const handleHabitsSubmit = (habits: Record<string, string>) => {
     setOnboardingData({ ...onboardingData, habits });
@@ -106,6 +121,9 @@ const SignupContent = () => {
     handleDemographicsSubmit,
     handlePersonalitySelect,
     handleMoodSelect,
+    handleStudyTimeSelect,
+    handleStudyPaceSelect,
+    handleStudyHoursSelect,
     handleHabitsSubmit,
     handleInterestsSubmit,
     handleSignupSubmit,

@@ -8,6 +8,9 @@ export type OnboardingStep =
   | "demographics" 
   | "personality" 
   | "sentiment"
+  | "studyTime"
+  | "studyPace"
+  | "studyHours"
   | "habits" 
   | "interests" 
   | "signup";
@@ -50,6 +53,9 @@ const STEPS: OnboardingStep[] = [
   "demographics", 
   "personality", 
   "sentiment", 
+  "studyTime",
+  "studyPace",
+  "studyHours",
   "habits", 
   "interests", 
   "signup"

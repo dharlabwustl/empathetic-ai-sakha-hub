@@ -18,7 +18,8 @@ export enum TaskType {
   Revision = 'revision',
   Practice = 'practice',
   Break = 'break',
-  Test = 'test'
+  Test = 'test',
+  Flashcard = 'flashcard'
 }
 
 export enum TaskStatus {
@@ -39,6 +40,7 @@ export interface Task {
   subject?: string;
   topic?: string;
   priority: 'low' | 'medium' | 'high';
+  deckName?: string;
 }
 
 export interface DailyMood {

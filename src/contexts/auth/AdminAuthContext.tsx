@@ -1,27 +1,33 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import adminAuthService from '@/services/auth/adminAuthService';
-import { AdminUser } from '@/types/user/base';
+import { useToast } from '@/hooks/use-toast';
 
-interface AdminAuthContextType {
-  adminUser: AdminUser | null;
-  isAdminAuthenticated: boolean;
-  isAdminLoading: boolean;
-  adminLoginError: string | null;
-  login: (email: string, password: string) => Promise<boolean>;
-  adminLogout: () => Promise<void>;
+interface AdminUser {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  permissions?: string[];
 }
 
-const AdminAuthContext = createContext<AdminAuthContextType>({
-  adminUser: null,
-  isAdminAuthenticated: false,
-  isAdminLoading: true,
-  adminLoginError: null,
-  login: async () => false,
-  adminLogout: async () => {},
-});
+interface AdminAuthContextValue {
+  adminUser: AdminUser | null;
+  isAuthenticated: boolean;
+  loading: boolean;
+  adminLoginError: string | null;
+  login: (email: string, password: string) => Promise<boolean>;
+  logout: () => Promise<void>;
+}
 
-export const useAdminAuth = () => useContext(AdminAuthContext);
+const AdminAuthContext = createContext<AdminAuthContextValue | undefined>(undefined);
+
+export const useAdminAuth = () => {
+  const context = useContext(AdminAuthContext);
+  if (!context) {
+    throw new Error('useAdminAuth must be used within an AdminAuthProvider');
+  }
+  return context;
+};
 
 interface AdminAuthProviderProps {
   children: ReactNode;
@@ -29,73 +35,98 @@ interface AdminAuthProviderProps {
 
 export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }) => {
   const [adminUser, setAdminUser] = useState<AdminUser | null>(null);
-  const [isAdminLoading, setIsAdminLoading] = useState<boolean>(true);
-  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState<boolean>(false);
+  const [loading, setLoading] = useState(true);
   const [adminLoginError, setAdminLoginError] = useState<string | null>(null);
+  const { toast } = useToast();
 
   useEffect(() => {
-    const checkAdminAuth = async () => {
-      setIsAdminLoading(true);
+    // Check for existing admin session
+    const storedAdmin = localStorage.getItem('adminUser');
+    if (storedAdmin) {
       try {
-        const user = await adminAuthService.getAdminUser();
-        if (user) {
-          setAdminUser(user);
-          setIsAdminAuthenticated(true);
-        }
+        setAdminUser(JSON.parse(storedAdmin));
       } catch (error) {
-        console.error('Admin auth check failed:', error);
-        localStorage.removeItem('adminToken');
-      } finally {
-        setIsAdminLoading(false);
+        console.error('Error parsing admin data:', error);
+        localStorage.removeItem('adminUser');
       }
-    };
-
-    checkAdminAuth();
+    }
+    setLoading(false);
   }, []);
 
   const login = async (email: string, password: string): Promise<boolean> => {
+    setLoading(true);
     setAdminLoginError(null);
+
     try {
-      const response = await adminAuthService.adminLogin({email, password});
-      if (response.success && response.data) {
-        setAdminUser(response.data);
-        setIsAdminAuthenticated(true);
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 800));
+
+      // Mock authentication logic
+      if (email === 'admin@prepzr.com' && password === 'admin123') {
+        const admin: AdminUser = {
+          id: 'admin_1',
+          name: 'Admin User',
+          email: email,
+          role: 'admin',
+          permissions: ['all']
+        };
+        
+        setAdminUser(admin);
+        localStorage.setItem('adminUser', JSON.stringify(admin));
+        
+        toast({
+          title: 'Login successful',
+          description: 'Welcome to the admin dashboard'
+        });
+        
+        setLoading(false);
         return true;
       } else {
-        setAdminLoginError(response.message || 'Login failed');
+        setAdminLoginError('Invalid email or password');
+        
+        toast({
+          title: 'Login failed',
+          description: 'Invalid email or password',
+          variant: 'destructive'
+        });
+        
+        setLoading(false);
         return false;
       }
     } catch (error) {
       console.error('Admin login error:', error);
       setAdminLoginError('An unexpected error occurred');
+      
+      toast({
+        title: 'Login error',
+        description: 'An unexpected error occurred',
+        variant: 'destructive'
+      });
+      
+      setLoading(false);
       return false;
     }
   };
 
-  // Updated logout function that doesn't use navigation
-  const adminLogout = async (): Promise<void> => {
-    try {
-      await adminAuthService.adminLogout();
-    } catch (error) {
-      console.error('Admin logout error:', error);
-    } finally {
-      setAdminUser(null);
-      setIsAdminAuthenticated(false);
-      localStorage.removeItem('adminToken');
-    }
-  };
-
-  const value = {
-    adminUser,
-    isAdminAuthenticated,
-    isAdminLoading,
-    adminLoginError,
-    login,
-    adminLogout,
+  const logout = async (): Promise<void> => {
+    localStorage.removeItem('adminUser');
+    setAdminUser(null);
+    
+    toast({
+      title: 'Logged out',
+      description: 'You have been logged out successfully'
+    });
   };
 
   return (
-    <AdminAuthContext.Provider value={value}>
+    <AdminAuthContext.Provider value={{
+      adminUser,
+      isAuthenticated: !!adminUser,
+      loading,
+      adminLoginError,
+      login,
+      logout
+    }}>
       {children}
     </AdminAuthContext.Provider>
   );

@@ -15,7 +15,9 @@ export enum MoodType {
   Overwhelmed = 'overwhelmed',
   Anxious = 'anxious',
   Motivated = 'motivated',
-  Confused = 'confused'
+  Confused = 'confused',
+  Neutral = 'neutral',
+  Sad = 'sad'
 }
 
 export enum PersonalityType {
@@ -26,6 +28,13 @@ export enum PersonalityType {
   Logical = 'logical',
   Social = 'social',
   Solitary = 'solitary'
+}
+
+export enum SubscriptionType {
+  Free = 'free',
+  Basic = 'basic',
+  Premium = 'premium',
+  Pro = 'pro'
 }
 
 export interface UserProfileBase {
@@ -42,4 +51,14 @@ export interface UserProfileBase {
   testsCompleted?: number;
   personality?: PersonalityType;
   mood?: MoodType;
+  subscription?: SubscriptionType | {
+    planType: string;
+    status: string;
+    expiresAt?: string;
+  };
+  loginCount?: number;
+  goals?: string[];
+  studyPace?: 'Aggressive' | 'Balanced' | 'Relaxed';
+  studyTime?: 'Morning' | 'Afternoon' | 'Evening' | 'Night';
+  dailyStudyHours?: number;
 }

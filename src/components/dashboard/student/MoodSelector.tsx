@@ -1,40 +1,40 @@
 
 import React from 'react';
-import { Button } from '@/components/ui/button';
 import { MoodType } from '@/types/user/base';
-import { Smile, Heart, Zap, Meh, Frown, AlertCircle, Clock, Coffee } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 interface MoodSelectorProps {
-  currentMood?: MoodType;
-  onMoodChange?: (mood: MoodType) => void;
+  onMoodSelect: (mood: MoodType) => void;
+  className?: string;
 }
 
-const moods = [
-  { type: MoodType.Happy, icon: <Smile className="h-5 w-5" />, label: 'Happy' },
-  { type: MoodType.Motivated, icon: <Zap className="h-5 w-5" />, label: 'Motivated' },
-  { type: MoodType.Focused, icon: <Heart className="h-5 w-5" />, label: 'Focused' },
-  { type: MoodType.Neutral, icon: <Meh className="h-5 w-5" />, label: 'Neutral' },
-  { type: MoodType.Tired, icon: <Coffee className="h-5 w-5" />, label: 'Tired' },
-  { type: MoodType.Anxious, icon: <Clock className="h-5 w-5" />, label: 'Anxious' },
-  { type: MoodType.Stressed, icon: <AlertCircle className="h-5 w-5" />, label: 'Stressed' },
-  { type: MoodType.Sad, icon: <Frown className="h-5 w-5" />, label: 'Sad' }
-];
+const MoodSelector = ({ onMoodSelect, className = '' }: MoodSelectorProps) => {
+  const moodOptions = [
+    { type: MoodType.Happy, emoji: '😊', label: 'Happy' },
+    { type: MoodType.Focused, emoji: '🧐', label: 'Focused' },
+    { type: MoodType.Motivated, emoji: '💪', label: 'Motivated' },
+    { type: MoodType.Tired, emoji: '😴', label: 'Tired' },
+    { type: MoodType.Stressed, emoji: '😓', label: 'Stressed' },
+    { type: MoodType.Confused, emoji: '🤔', label: 'Confused' },
+    { type: MoodType.Anxious, emoji: '😰', label: 'Anxious' },
+    { type: MoodType.Neutral, emoji: '😐', label: 'Neutral' },
+    { type: MoodType.Okay, emoji: '👍', label: 'Okay' },
+    { type: MoodType.Overwhelmed, emoji: '😩', label: 'Overwhelmed' },
+    { type: MoodType.Curious, emoji: '🤓', label: 'Curious' },
+    { type: MoodType.Sad, emoji: '😔', label: 'Sad' },
+  ];
 
-const MoodSelector: React.FC<MoodSelectorProps> = ({ currentMood, onMoodChange }) => {
-  if (!onMoodChange) return null;
-  
   return (
-    <div className="flex flex-wrap gap-2">
-      {moods.map((mood) => (
+    <div className={`flex flex-wrap gap-2 ${className}`}>
+      {moodOptions.map((mood) => (
         <Button
           key={mood.type}
-          size="sm"
-          variant={currentMood === mood.type ? "default" : "outline"}
-          onClick={() => onMoodChange(mood.type)}
-          className="flex items-center gap-1.5"
+          variant="outline"
+          onClick={() => onMoodSelect(mood.type)}
+          className="flex flex-col items-center p-2 h-auto"
         >
-          {mood.icon}
-          <span>{mood.label}</span>
+          <span className="text-xl mb-1">{mood.emoji}</span>
+          <span className="text-xs">{mood.label}</span>
         </Button>
       ))}
     </div>
