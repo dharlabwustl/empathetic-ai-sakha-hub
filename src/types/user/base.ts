@@ -1,8 +1,8 @@
 
 export enum UserRole {
+  Admin = "admin",
   Student = "student",
   Educator = "educator",
-  Admin = "admin",
   Employee = "employee",
   Doctor = "doctor",
   Founder = "founder"
@@ -15,40 +15,27 @@ export enum SubscriptionType {
   pro_educator = "pro_educator"
 }
 
-export type MoodType = 'happy' | 'focused' | 'tired' | 'anxious' | 'stressed' | 'motivated' | 'neutral' | 'sad';
+export type MoodType = 'happy' | 'motivated' | 'focused' | 'neutral' | 'tired' | 'anxious' | 'stressed' | 'sad';
 
 export interface UserSubscription {
   type: SubscriptionType;
-  startDate: string;
-  endDate: string;
-  isActive: boolean;
-  features: string[];
-}
-
-export interface UserGoal {
-  id: string;
-  title: string;
-  progress: number;
-  targetDate?: string;
+  startDate: Date;
+  endDate?: Date;
+  autoRenew?: boolean;
+  features?: string[];
 }
 
 export interface UserProfileBase {
   id: string;
   name: string;
-  email: string;
-  phoneNumber?: string;
+  email?: string;
   role: UserRole;
-  profileImage?: string;
+  photoUrl?: string;
+  subscription?: SubscriptionType | UserSubscription;
+  goals?: { id: string; title: string; progress: number }[];
   loginCount?: number;
-  lastLogin?: string;
-  createdAt?: string;
-  updatedAt?: string;
-  goals?: UserGoal[];
-  subscription?: UserSubscription;
-  examPreparation?: string;
-  preferences?: Record<string, any>;
+  lastLogin?: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
+  exams?: string[];
 }
-
-export type UserProfileType = UserProfileBase;
-
-export type UserAuthStatus = "authenticated" | "unauthenticated" | "loading";

@@ -2,8 +2,8 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Smile, Frown, Heart, Brain, Coffee, Award, Meh } from 'lucide-react';
 import { MoodType } from '@/types/user/base';
-import { Smile, BookOpen, Brain, FileText, Calendar, Clock } from 'lucide-react';
 
 interface MoodAdjustedPlanProps {
   currentMood: MoodType;
@@ -11,129 +11,103 @@ interface MoodAdjustedPlanProps {
 }
 
 export function MoodAdjustedPlan({ currentMood, onMoodChange }: MoodAdjustedPlanProps) {
-  const moodOptions: MoodType[] = ["happy", "focused", "tired", "stressed", "anxious", "motivated"];
-  
-  const getMoodEmoji = (mood: MoodType) => {
-    switch (mood) {
-      case "happy": return "😊";
-      case "focused": return "🧠";
-      case "tired": return "😴";
-      case "stressed": return "😰";
-      case "anxious": return "😟";
-      case "motivated": return "💪";
-      case "neutral": return "😐";
-      case "sad": return "😔";
-      default: return "😐";
+  // Mood options with their icons and descriptions
+  const moodOptions: { type: MoodType; icon: React.ReactNode; label: string; description: string }[] = [
+    { 
+      type: 'happy', 
+      icon: <Smile className="h-5 w-5 text-amber-500" />, 
+      label: 'Happy',
+      description: 'Feeling great! Ready to challenge yourself with extra topics.'
+    },
+    { 
+      type: 'motivated', 
+      icon: <Award className="h-5 w-5 text-emerald-500" />, 
+      label: 'Motivated',
+      description: 'Determined and ready to achieve your goals!'
+    },
+    { 
+      type: 'focused', 
+      icon: <Brain className="h-5 w-5 text-blue-500" />, 
+      label: 'Focused',
+      description: 'Deep concentration mode. Perfect for difficult concepts.'
+    },
+    { 
+      type: 'neutral', 
+      icon: <Meh className="h-5 w-5 text-gray-500" />, 
+      label: 'Neutral',
+      description: 'Standard study plan - balanced approach to your learning.'
+    },
+    { 
+      type: 'tired', 
+      icon: <Coffee className="h-5 w-5 text-orange-500" />, 
+      label: 'Tired',
+      description: 'Need rest? Your plan will focus on easier concepts today.'
+    },
+    { 
+      type: 'anxious', 
+      icon: <Heart className="h-5 w-5 text-purple-500" />, 
+      label: 'Anxious',
+      description: 'Simple tasks and confidence-building exercises recommended.'
+    },
+    { 
+      type: 'stressed', 
+      icon: <Frown className="h-5 w-5 text-red-500" />, 
+      label: 'Stressed',
+      description: 'Light workload with more breaks to reduce stress.'
     }
-  };
-  
-  const getMoodColor = (mood: MoodType) => {
-    switch (mood) {
-      case "happy": return "bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-900/20 dark:text-amber-300 dark:border-amber-800/50";
-      case "focused": return "bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-300 dark:border-emerald-800/50";
-      case "tired": return "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-800/50";
-      case "stressed": return "bg-red-100 text-red-800 border-red-200 dark:bg-red-900/20 dark:text-red-300 dark:border-red-800/50";
-      case "anxious": return "bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-900/20 dark:text-purple-300 dark:border-purple-800/50";
-      case "motivated": return "bg-indigo-100 text-indigo-800 border-indigo-200 dark:bg-indigo-900/20 dark:text-indigo-300 dark:border-indigo-800/50";
-      case "neutral": return "bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-900/20 dark:text-gray-300 dark:border-gray-800/50";
-      case "sad": return "bg-sky-100 text-sky-800 border-sky-200 dark:bg-sky-900/20 dark:text-sky-300 dark:border-sky-800/50";
-      default: return "bg-gray-100 text-gray-800 border-gray-200";
-    }
-  };
-  
-  const getMoodMessage = (mood: MoodType) => {
-    switch (mood) {
-      case "happy":
-        return "You're in a great mood! We've added a bonus advanced topic to challenge you.";
-      case "focused":
-        return "You're focused today! Fast-track mode activated with additional flashcards.";
-      case "tired":
-        return "Taking it easy today. Simplified plan with just the essential concepts.";
-      case "stressed":
-        return "Stress-relief mode: Just 1 simple concept and quick flashcards today.";
-      case "anxious":
-        return "Anxiety management mode: Focusing on simple topics to build confidence.";
-      case "motivated":
-        return "You're motivated! We've optimized your plan for maximum productivity.";
-      default:
-        return "Your plan has been adjusted based on your current mood.";
-    }
-  };
+  ];
+
+  // Find the current mood data
+  const currentMoodData = moodOptions.find(m => m.type === currentMood) || moodOptions[1]; // Default to motivated
 
   return (
-    <Card>
+    <Card className="border-t-4 border-t-indigo-500">
       <CardHeader className="pb-2">
         <CardTitle className="text-lg flex items-center gap-2">
-          <Smile className="text-violet-500" size={18} />
-          How are you feeling today?
+          <Heart className="text-indigo-500" size={18} />
+          Today's Mood
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="grid grid-cols-3 gap-2">
-          {moodOptions.map((mood) => (
-            <Button
-              key={mood}
-              variant="outline"
-              size="sm"
-              className={`flex flex-col items-center py-3 px-2 ${currentMood === mood ? 'ring-2 ring-violet-500 ring-offset-2' : ''}`}
-              onClick={() => onMoodChange(mood)}
-            >
-              <span className="text-xl mb-1">{getMoodEmoji(mood)}</span>
-              <span className="text-xs capitalize">{mood}</span>
-            </Button>
-          ))}
-        </div>
-        
-        {currentMood && (
-          <div className={`p-3 rounded-lg border ${getMoodColor(currentMood)}`}>
-            <p className="text-sm">{getMoodMessage(currentMood)}</p>
-          </div>
-        )}
-        
-        <div className="bg-gray-50 dark:bg-gray-800/50 rounded-md p-3 space-y-2">
-          <h4 className="text-sm font-medium">Today's Adjusted Plan:</h4>
-          <div className="flex items-center justify-between text-sm">
-            <div className="flex items-center">
-              <BookOpen size={14} className="mr-1 text-blue-500" />
-              <span>Concept Cards:</span>
+      <CardContent>
+        <div className="space-y-4">
+          <div className={`p-3 rounded-lg ${
+            currentMood === 'happy' ? 'bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-900/20 dark:text-amber-300 dark:border-amber-700/50' :
+            currentMood === 'motivated' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-300 dark:border-emerald-700/50' :
+            currentMood === 'focused' ? 'bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-700/50' :
+            currentMood === 'neutral' ? 'bg-gray-50 text-gray-700 border border-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700/50' :
+            currentMood === 'tired' ? 'bg-orange-50 text-orange-700 border border-orange-200 dark:bg-orange-900/20 dark:text-orange-300 dark:border-orange-700/50' :
+            currentMood === 'anxious' ? 'bg-purple-50 text-purple-700 border border-purple-200 dark:bg-purple-900/20 dark:text-purple-300 dark:border-purple-700/50' :
+            currentMood === 'stressed' ? 'bg-red-50 text-red-700 border border-red-200 dark:bg-red-900/20 dark:text-red-300 dark:border-red-700/50' :
+            'bg-gray-50 text-gray-700 border border-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700/50'
+          }`}>
+            <div className="flex items-center gap-2">
+              {currentMoodData.icon}
+              <span className="font-medium">{currentMoodData.label}</span>
             </div>
-            <span className="font-medium">
-              {currentMood === "tired" || currentMood === "stressed" || currentMood === "anxious" ? "2" : 
-               currentMood === "happy" || currentMood === "motivated" ? "4" : "3"}
-            </span>
+            <p className="text-sm mt-1">{currentMoodData.description}</p>
           </div>
-          <div className="flex items-center justify-between text-sm">
-            <div className="flex items-center">
-              <Brain size={14} className="mr-1 text-amber-500" />
-              <span>Flashcards:</span>
-            </div>
-            <span className="font-medium">
-              {currentMood === "tired" || currentMood === "stressed" || currentMood === "anxious" ? "10" :
-               currentMood === "focused" ? "25" : "20"}
-            </span>
-          </div>
-          <div className="flex items-center justify-between text-sm">
-            <div className="flex items-center">
-              <FileText size={14} className="mr-1 text-violet-500" />
-              <span>Practice Exam:</span>
-            </div>
-            <span className="font-medium">
-              {currentMood === "tired" || currentMood === "stressed" || currentMood === "anxious" ? "Optional" : "Yes"}
-            </span>
-          </div>
-          <div className="flex items-center justify-between text-sm">
-            <div className="flex items-center">
-              <Clock size={14} className="mr-1 text-indigo-500" />
-              <span>Est. Time:</span>
-            </div>
-            <span className="font-medium">
-              {currentMood === "tired" ? "45m" :
-               currentMood === "stressed" || currentMood === "anxious" ? "30m" :
-               currentMood === "focused" || currentMood === "motivated" ? "90m" : "60m"}
-            </span>
+
+          <div className="grid grid-cols-7 gap-1">
+            {moodOptions.map((mood) => (
+              <Button
+                key={mood.type}
+                size="sm"
+                variant={currentMood === mood.type ? "default" : "outline"}
+                className={`p-2 h-auto flex flex-col items-center justify-center ${
+                  currentMood === mood.type ? "bg-indigo-600" : ""
+                }`}
+                onClick={() => onMoodChange(mood.type)}
+                title={mood.label}
+              >
+                {mood.icon}
+                <span className="text-xs mt-1">{mood.label}</span>
+              </Button>
+            ))}
           </div>
         </div>
       </CardContent>
     </Card>
   );
 }
+
+export default MoodAdjustedPlan;

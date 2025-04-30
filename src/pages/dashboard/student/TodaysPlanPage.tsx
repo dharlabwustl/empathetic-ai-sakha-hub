@@ -1,7 +1,7 @@
 
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -43,12 +43,12 @@ export type TaskItem = {
 // Mock data for today's plan
 const mockTodayPlan = {
   date: new Date(),
-  totalConcepts: 5,
-  completedConcepts: 2,
+  totalTasks: 5,
+  completedTasks: 2,
   timeSpent: 45, // minutes
   targetTime: 120, // minutes
   streak: 7, // days
-  concepts: [
+  tasks: [
     {
       id: "c1",
       title: "Newton's Third Law of Motion",
@@ -124,23 +124,23 @@ export default function TodaysPlanPage() {
   
   const handleCompleteConcept = (id: string) => {
     setTodayPlan(prev => {
-      const updatedConcepts = prev.concepts.map(concept => 
-        concept.id === id ? {...concept, completed: true} : concept
+      const updatedTasks = prev.tasks.map(task => 
+        task.id === id ? {...task, completed: true} : task
       );
       
       return {
         ...prev,
-        concepts: updatedConcepts,
-        completedConcepts: updatedConcepts.filter(c => c.completed).length
+        tasks: updatedTasks,
+        completedTasks: updatedTasks.filter(t => t.completed).length
       };
     });
   };
   
   // Calculate progress percentage
-  const progressPercentage = Math.round((todayPlan.completedConcepts / todayPlan.totalConcepts) * 100);
+  const progressPercentage = Math.round((todayPlan.completedTasks / todayPlan.totalTasks) * 100);
   
-  // Filter concepts based on active tab
-  const filteredItems = todayPlan.concepts.filter(item => {
+  // Filter tasks based on active tab
+  const filteredItems = todayPlan.tasks.filter(item => {
     if (activeTab === "all") return true;
     if (activeTab === "pending") return !item.completed;
     if (activeTab === "completed") return item.completed;
@@ -149,11 +149,11 @@ export default function TodaysPlanPage() {
   
   // Time allocation data for the chart
   const timeAllocationData = {
-    concepts: todayPlan.concepts.filter(c => c.type === 'concept').reduce((sum, c) => sum + c.estimatedTime, 0),
-    flashcards: todayPlan.concepts.filter(c => c.type === 'flashcard').reduce((sum, c) => sum + c.estimatedTime, 0),
-    exams: todayPlan.concepts.filter(c => c.type === 'exam').reduce((sum, c) => sum + c.estimatedTime, 0)
+    concepts: todayPlan.tasks.filter(c => c.type === 'concept').reduce((sum, c) => sum + c.estimatedTime, 0),
+    flashcards: todayPlan.tasks.filter(c => c.type === 'flashcard').reduce((sum, c) => sum + c.estimatedTime, 0),
+    exams: todayPlan.tasks.filter(c => c.type === 'exam').reduce((sum, c) => sum + c.estimatedTime, 0),
+    get total() { return this.concepts + this.flashcards + this.exams; }
   };
-  timeAllocationData.total = timeAllocationData.concepts + timeAllocationData.flashcards + timeAllocationData.exams;
   
   return (
     <SharedPageLayout 
@@ -162,12 +162,12 @@ export default function TodaysPlanPage() {
       showQuickAccess={true}
     >
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-        <Card className="md:col-span-2">
+        <Card className="md:col-span-2 border-t-4 border-t-blue-500">
           <CardHeader className="bg-gradient-to-r from-sky-50 to-indigo-50 pb-3 dark:from-sky-900/30 dark:to-indigo-900/30">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between">
               <div>
                 <CardTitle className="text-xl flex items-center gap-2">
-                  <Calendar className="text-sky-500" size={20} />
+                  <Calendar className="text-blue-500" size={20} />
                   Today's Study Plan
                 </CardTitle>
                 <p className="text-sm text-muted-foreground">
@@ -190,7 +190,7 @@ export default function TodaysPlanPage() {
             <div className="mt-4 space-y-1">
               <div className="flex items-center justify-between text-sm">
                 <span>Progress: {progressPercentage}%</span>
-                <span>{todayPlan.completedConcepts}/{todayPlan.totalConcepts} Tasks</span>
+                <span>{todayPlan.completedTasks}/{todayPlan.totalTasks} Tasks</span>
               </div>
               <Progress value={progressPercentage} className="h-2" />
             </div>
@@ -246,8 +246,8 @@ export default function TodaysPlanPage() {
           <MoodAdjustedPlan currentMood={currentMood} onMoodChange={setCurrentMood} />
           <TimeAllocationChart data={timeAllocationData} />
           <CompletionSummary 
-            completed={todayPlan.completedConcepts}
-            total={todayPlan.totalConcepts}
+            completed={todayPlan.completedTasks}
+            total={todayPlan.totalTasks}
             timeSpent={todayPlan.timeSpent}
             targetTime={todayPlan.targetTime}
           />
