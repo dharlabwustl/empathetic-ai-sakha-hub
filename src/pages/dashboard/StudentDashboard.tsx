@@ -46,8 +46,6 @@ const StudentDashboard = () => {
     const isNewUser = params.get('new') === 'true';
     const completedOnboarding = params.get('completedOnboarding') === 'true';
     
-    console.log("URL params:", { isNewUser, completedOnboarding });
-    
     // Don't show splash screen for new users coming from signup flow
     if (isNewUser) {
       setShowSplash(false);

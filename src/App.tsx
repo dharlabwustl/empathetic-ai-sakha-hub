@@ -7,7 +7,7 @@ import SignUp from '@/pages/SignUp';
 import LoginPage from '@/pages/login/LoginPage';
 import Login from '@/pages/Login';
 import NotFound from '@/pages/NotFound';
-import StudentDashboard from '@/pages/dashboard/student/StudentDashboard';
+import StudentDashboard from '@/pages/dashboard/StudentDashboard';
 import FeelGoodCornerView from '@/pages/dashboard/student/FeelGoodCornerView';
 import { AdminAuthProvider } from '@/contexts/auth/AdminAuthContext';
 import AdminLogin from '@/pages/admin/AdminLogin';
