@@ -51,7 +51,7 @@ const SignupContent = () => {
   };
 
   const handleInterestsSubmit = (interests: string) => {
-    setOnboardingData({ ...onboardingData, interests });
+    setOnboardingData({ ...onboardingData, interests: interests.split(',').map(i => i.trim()) });
     goToNextStep();
   };
 
@@ -68,9 +68,6 @@ const SignupContent = () => {
 
       setOnboardingData(finalData);
 
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-
       // Store data in localStorage
       localStorage.setItem("userData", JSON.stringify({
         ...finalData,
@@ -84,9 +81,9 @@ const SignupContent = () => {
         description: "Redirecting to your personalized dashboard.",
       });
 
-      // Redirect to dashboard
+      // Redirect to welcome screen
       setTimeout(() => {
-        navigate("/dashboard/student?new=true&completedOnboarding=true");
+        navigate("/welcome");
       }, 1000);
     } catch (error) {
       console.error("Error creating account:", error);
@@ -127,13 +124,13 @@ const SignupContent = () => {
       localStorage.setItem("userData", JSON.stringify({
         name: "Google User",
         email: "googleuser@example.com",
-        role: "student",
+        role: UserRole.Student,
         loginCount: 1,
         createdAt: new Date().toISOString(),
         onboardingCompleted: false,
       }));
 
-      navigate("/dashboard/student?new=true");
+      navigate("/welcome");
     }, 2000);
   };
 
