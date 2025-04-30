@@ -1,16 +1,24 @@
 
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import PrepzrLogo from "@/components/common/PrepzrLogo";
 import { motion } from "framer-motion";
-import { ArrowRight, BookOpen, Calendar, Sparkles, Star } from "lucide-react";
+import { ArrowRight, BookOpen, Calendar, Sparkles, Star, BookMarked, Clock } from "lucide-react";
 
 const PostLoginPrompt = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [userName, setUserName] = useState("");
   const [animation, setAnimation] = useState(false);
+  const [pendingTask, setPendingTask] = useState<{
+    id: string;
+    title: string;
+    type: string;
+    subject: string;
+    progress: number;
+  } | null>(null);
 
   useEffect(() => {
     // Try to get user data from local storage
@@ -20,37 +28,76 @@ const PostLoginPrompt = () => {
       if (parsedData.name) {
         setUserName(parsedData.name);
       }
+      
+      // Check if there's a pending task
+      const mockPendingTask = {
+        id: "concept-123",
+        title: "Newton's Laws of Motion",
+        type: "concept",
+        subject: "Physics",
+        progress: 65
+      };
+      
+      setPendingTask(mockPendingTask);
     }
 
     // Start animation after a short delay
     setTimeout(() => setAnimation(true), 300);
   }, []);
+  
+  const isNewUser = searchParams.get('new') === 'true';
 
   const features = [
     {
       title: "Today's Study Plan",
       description: "Your personalized daily study schedule",
       icon: <Calendar className="h-5 w-5 text-purple-500" />,
+      path: "/dashboard/student/today"
     },
     {
       title: "Concept Cards",
       description: "Master key concepts with interactive learning cards",
       icon: <BookOpen className="h-5 w-5 text-blue-500" />,
+      path: "/dashboard/student/concepts"
     },
     {
       title: "Feel Good Corner",
       description: "Tools to help you manage stress and stay focused",
       icon: <Star className="h-5 w-5 text-amber-500" />,
+      path: "/dashboard/student/feel-good-corner"
     },
     {
-      title: "24/7 AI Tutor",
-      description: "Get help with any question, anytime",
+      title: "Academic Advisor",
+      description: "Get personalized academic guidance",
       icon: <Sparkles className="h-5 w-5 text-green-500" />,
+      path: "/dashboard/student/academic"
     },
   ];
 
   const handleContinue = () => {
     navigate("/dashboard/student");
+  };
+  
+  const handleContinueTask = () => {
+    if (pendingTask) {
+      switch (pendingTask.type) {
+        case "concept":
+          navigate(`/dashboard/student/concepts/card/${pendingTask.id}`);
+          break;
+        case "flashcard":
+          navigate(`/dashboard/student/flashcards/${pendingTask.id}/interactive`);
+          break;
+        case "practice-exam":
+          navigate(`/dashboard/student/practice-exam/${pendingTask.id}/start`);
+          break;
+        default:
+          navigate("/dashboard/student/today");
+      }
+    }
+  };
+  
+  const handleGoToTodaysPlan = () => {
+    navigate("/dashboard/student/today");
   };
 
   return (
@@ -97,10 +144,65 @@ const PostLoginPrompt = () => {
               </div>
             </motion.div>
             
+            {pendingTask && !isNewUser && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: animation ? 1 : 0, y: animation ? 0 : 20 }}
+                transition={{ duration: 0.5, delay: 0.3 }}
+                className="bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-900/20 dark:to-yellow-900/20 p-4 rounded-lg border border-amber-100 dark:border-amber-800"
+              >
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="h-8 w-8 rounded-full bg-amber-100 dark:bg-amber-900/50 flex items-center justify-center">
+                    <Clock className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                  </div>
+                  <h3 className="font-medium text-amber-800 dark:text-amber-400">Continue where you left off</h3>
+                </div>
+                
+                <div className="flex justify-between items-center">
+                  <div>
+                    <p className="font-medium">{pendingTask.title}</p>
+                    <p className="text-sm text-gray-500">{pendingTask.subject} • {pendingTask.progress}% completed</p>
+                  </div>
+                  <Button 
+                    variant="outline" 
+                    className="ml-4 border-amber-200 hover:bg-amber-100"
+                    onClick={handleContinueTask}
+                  >
+                    Continue Learning
+                  </Button>
+                </div>
+              </motion.div>
+            )}
+            
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: animation ? 1 : 0, y: animation ? 0 : 20 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+              className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-4 rounded-lg border border-blue-100 dark:border-blue-800"
+            >
+              <div className="flex items-center gap-3 mb-3">
+                <div className="h-8 w-8 rounded-full bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center">
+                  <Calendar className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                </div>
+                <h3 className="font-medium text-blue-800 dark:text-blue-400">Ready for today's learning?</h3>
+              </div>
+              
+              <div className="flex justify-between items-center">
+                <p className="text-sm text-gray-600">Your personalized study plan is ready with carefully curated concepts, flashcards, and practice tests.</p>
+                <Button 
+                  variant="outline" 
+                  className="ml-4 whitespace-nowrap border-blue-200 hover:bg-blue-100"
+                  onClick={handleGoToTodaysPlan}
+                >
+                  Today's Plan
+                </Button>
+              </div>
+            </motion.div>
+            
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: animation ? 1 : 0 }}
-              transition={{ duration: 0.7, delay: 0.4 }}
+              transition={{ duration: 0.7, delay: 0.5 }}
               className="space-y-4"
             >
               <h3 className="text-lg font-medium">Discover PREPZR Features</h3>
@@ -110,8 +212,9 @@ const PostLoginPrompt = () => {
                     key={index}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: animation ? 1 : 0, y: animation ? 0 : 20 }}
-                    transition={{ duration: 0.5, delay: 0.5 + index * 0.1 }}
-                    className="border rounded-lg p-4 hover:shadow-md transition-shadow"
+                    transition={{ duration: 0.5, delay: 0.6 + index * 0.1 }}
+                    className="border rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
+                    onClick={() => navigate(feature.path)}
                   >
                     <div className="flex items-center gap-3">
                       <div className="p-2 bg-gray-100 rounded-full">

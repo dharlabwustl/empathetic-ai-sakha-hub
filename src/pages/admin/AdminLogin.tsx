@@ -20,7 +20,7 @@ import PrepzrLogo from '@/components/common/PrepzrLogo';
 const AdminLogin = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { login, adminLoginError } = useAdminAuth();
+  const { adminLogin, adminLoginError } = useAdminAuth();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -48,7 +48,7 @@ const AdminLogin = () => {
     setIsLoading(true);
     
     try {
-      const success = await login(formData.email, formData.password);
+      const success = await adminLogin(formData.email, formData.password);
       
       if (success) {
         toast({

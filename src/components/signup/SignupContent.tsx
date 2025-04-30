@@ -100,9 +100,9 @@ const SignupContent = () => {
         description: "Redirecting to your personalized dashboard.",
       });
 
-      // Redirect to dashboard
+      // Redirect to the study plan screen, then to welcome screen
       setTimeout(() => {
-        navigate("/welcome-back?new=true&completedOnboarding=true");
+        navigate("/study-plan-creation?new=true&completedOnboarding=true");
       }, 1000);
     } catch (error) {
       console.error("Error creating account:", error);
@@ -152,7 +152,7 @@ const SignupContent = () => {
         onboardingCompleted: false,
       }));
 
-      navigate("/welcome-back?new=true");
+      navigate("/study-plan-creation?new=true");
     }, 2000);
   };
 
@@ -165,10 +165,11 @@ const SignupContent = () => {
       className="w-full max-w-md mx-auto"
     >
       <Card className="relative overflow-hidden bg-white dark:bg-gray-900 shadow-xl rounded-xl">
+        <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"></div>
         <div className="p-6 md:p-8">
           <div className="flex flex-col items-center mb-6">
             <PrepzrLogo width={120} height={120} />
-            <h1 className="mt-4 text-2xl font-bold">Join PREPZR</h1>
+            <h1 className="mt-4 text-2xl font-bold text-gray-800 dark:text-white">Join PREPZR</h1>
             <p className="text-gray-500 text-sm text-center mt-1">
               Create your personalized study partner
             </p>
@@ -198,7 +199,7 @@ const SignupContent = () => {
               <div className="mt-4">
                 <button
                   type="button"
-                  className="w-full flex justify-center items-center gap-2 bg-white border border-gray-300 rounded-md py-2 px-4 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                  className="w-full flex justify-center items-center gap-2 bg-white border border-gray-300 rounded-md py-2 px-4 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200"
                   onClick={handleGoogleSignup}
                 >
                   <img src="https://www.google.com/favicon.ico" alt="Google" className="h-4 w-4" />
@@ -209,6 +210,10 @@ const SignupContent = () => {
           )}
         </div>
       </Card>
+      
+      <div className="mt-6 text-center text-xs text-gray-500">
+        <p>By signing up, you agree to our <a href="#" className="text-blue-600 hover:underline">Terms of Service</a> and <a href="#" className="text-blue-600 hover:underline">Privacy Policy</a></p>
+      </div>
     </motion.div>
   );
 };

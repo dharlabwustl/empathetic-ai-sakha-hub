@@ -1,20 +1,33 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import adminAuthService from '@/services/auth/adminAuthService';
+
+// Define admin user type
+export interface AdminUser {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+}
 
 // Define the context types
-export interface AdminAuthContextValue {
+export interface AdminAuthContextProps {
   isAdminAuthenticated: boolean;
   isAdminLoading: boolean;
-  adminLogin: (username: string, password: string) => Promise<void>;
-  adminLogout: () => void;
+  adminUser: AdminUser | null;
+  adminLogin: (username: string, password: string) => Promise<boolean>;
+  adminLogout: () => Promise<void>;
+  adminLoginError: string | null;
 }
 
 // Create the context with a default value
-const AdminAuthContext = createContext<AdminAuthContextValue>({
+const AdminAuthContext = createContext<AdminAuthContextProps>({
   isAdminAuthenticated: false,
   isAdminLoading: true,
-  adminLogin: async () => {},
-  adminLogout: () => {}
+  adminUser: null,
+  adminLogin: async () => false,
+  adminLogout: async () => {},
+  adminLoginError: null
 });
 
 // Hook for using the admin auth context
@@ -24,46 +37,72 @@ export const useAdminAuth = () => useContext(AdminAuthContext);
 export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
   const [isAdminLoading, setIsAdminLoading] = useState(true);
+  const [adminUser, setAdminUser] = useState<AdminUser | null>(null);
+  const [adminLoginError, setAdminLoginError] = useState<string | null>(null);
 
   // Check if admin is authenticated on load
   useEffect(() => {
-    const checkAdminAuth = () => {
-      const adminToken = localStorage.getItem('adminToken');
-      setIsAdminAuthenticated(!!adminToken);
-      setIsAdminLoading(false);
+    const checkAdminAuth = async () => {
+      try {
+        setIsAdminLoading(true);
+        const isAuthenticated = adminAuthService.isAuthenticated();
+        const user = await adminAuthService.getAdminUser();
+        
+        setIsAdminAuthenticated(isAuthenticated);
+        setAdminUser(user);
+      } catch (error) {
+        console.error("Error checking admin auth:", error);
+      } finally {
+        setIsAdminLoading(false);
+      }
     };
 
     checkAdminAuth();
   }, []);
 
   // Admin login function
-  const adminLogin = async (username: string, password: string): Promise<void> => {
+  const adminLogin = async (email: string, password: string): Promise<boolean> => {
     try {
-      // Mock admin login - replace with actual API call
-      if (username === 'admin' && password === 'admin123') {
-        localStorage.setItem('adminToken', 'mock-admin-token-12345');
+      setIsAdminLoading(true);
+      setAdminLoginError(null);
+      
+      const response = await adminAuthService.adminLogin({ email, password });
+      
+      if (response.success && response.data) {
         setIsAdminAuthenticated(true);
-        return Promise.resolve();
+        setAdminUser(response.data);
+        return true;
       } else {
-        return Promise.reject(new Error('Invalid credentials'));
+        setAdminLoginError(response.message || "Invalid credentials");
+        return false;
       }
     } catch (error) {
-      console.error('Admin login error:', error);
-      return Promise.reject(error);
+      console.error("Admin login error:", error);
+      setAdminLoginError("An unexpected error occurred");
+      return false;
+    } finally {
+      setIsAdminLoading(false);
     }
   };
 
   // Admin logout function
-  const adminLogout = () => {
-    localStorage.removeItem('adminToken');
-    setIsAdminAuthenticated(false);
+  const adminLogout = async (): Promise<void> => {
+    try {
+      await adminAuthService.adminLogout();
+      setIsAdminAuthenticated(false);
+      setAdminUser(null);
+    } catch (error) {
+      console.error("Admin logout error:", error);
+    }
   };
 
-  const value: AdminAuthContextValue = {
+  const value: AdminAuthContextProps = {
     isAdminAuthenticated,
     isAdminLoading,
+    adminUser,
     adminLogin,
-    adminLogout
+    adminLogout,
+    adminLoginError
   };
 
   return (
