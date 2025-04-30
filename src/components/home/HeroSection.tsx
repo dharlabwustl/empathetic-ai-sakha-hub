@@ -1,3 +1,4 @@
+
 import React from 'react';
 import PainPoints from './hero/PainPoints';
 import ChatInterface from './hero/ChatInterface';
@@ -37,7 +38,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
             transition={{ duration: 0.8, ease: "easeOut" }}
           >
             <span className="bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-              Sakha AI – पहली बार, पढ़ाई से पहले, आपको समझने वाला साथी
+              पहली बार, पढ़ाई से पहले, आपको समझने वाला साथी
             </span>
           </motion.h1>
           <motion.p 
@@ -100,9 +101,6 @@ const HeroSection: React.FC<HeroSectionProps> = ({
         >
           <PlatformStrengths />
         </motion.div>
-        
-        {/* KPI Stats Section - New addition */}
-        
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center mt-12">
           <motion.div

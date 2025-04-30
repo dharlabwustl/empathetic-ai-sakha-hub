@@ -17,6 +17,9 @@ export type MoodType =
   | 'neutral' 
   | 'okay';
 
+export type TaskType = 'concept' | 'flashcard' | 'exam' | 'revision';
+export type TaskStatus = 'pending' | 'in-progress' | 'completed' | 'overdue';
+
 export interface SubjectTaskBreakdown {
   [subject: string]: {
     concepts: {
@@ -72,6 +75,19 @@ export interface SmartExtras {
   }[];
 }
 
+export interface TaskItem {
+  id: string;
+  title: string;
+  subject: string;
+  type: TaskType;
+  status: TaskStatus;
+  timeEstimate: number;
+  isBacklog: boolean;
+  priority: 'high' | 'medium' | 'low';
+  smartTip?: string;
+  completedAt?: string;
+}
+
 export interface TodaysPlanData {
   userName: string;
   examGoal: string;
@@ -80,12 +96,7 @@ export interface TodaysPlanData {
   timeAllocation: TimeAllocation;
   tomorrowPreview: TomorrowPreview;
   smartExtras: SmartExtras;
-  tasks: {
-    concepts: any[];
-    flashcards: any[];
-    practiceExams: any[];
-    revision: any[];
-  };
+  tasks: TaskItem[];
   streak: number;
   completedTasks: number;
   totalTasks: number;

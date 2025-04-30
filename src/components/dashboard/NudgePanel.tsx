@@ -1,92 +1,142 @@
 
-import { NudgeData } from "@/hooks/useKpiTracking";
-import { Bell, CheckCircle, AlertCircle } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import React from 'react';
+import { NudgeData } from '@/hooks/useKpiTracking';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Bell, CheckCircle, Clock, Info, AlertTriangle, MessageSquare } from 'lucide-react';
 
 interface NudgePanelProps {
   nudges: NudgeData[];
   markAsRead: (id: string) => void;
-  showAll?: boolean;
+  className?: string;
 }
 
-export default function NudgePanel({ nudges, markAsRead, showAll = false }: NudgePanelProps) {
-  const displayNudges = showAll ? nudges : nudges.slice(0, 3);
+const NudgePanel: React.FC<NudgePanelProps> = ({
+  nudges,
+  markAsRead,
+  className
+}) => {
+  const getNudgeIcon = (type: string) => {
+    switch (type) {
+      case 'reminder':
+        return <Clock className="h-4 w-4 text-blue-500" />;
+      case 'alert':
+        return <AlertTriangle className="h-4 w-4 text-amber-500" />;
+      case 'achievement':
+        return <CheckCircle className="h-4 w-4 text-emerald-500" />;
+      case 'message':
+        return <MessageSquare className="h-4 w-4 text-violet-500" />;
+      default:
+        return <Info className="h-4 w-4 text-gray-500" />;
+    }
+  };
   
-  if (!nudges.length) {
-    return (
-      <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-100 dark:border-gray-700">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="font-medium text-lg">Notifications</h3>
-          <Badge variant="outline">All clear</Badge>
-        </div>
-        <div className="p-6 text-center text-muted-foreground">
-          <Bell className="mx-auto h-8 w-8 mb-2 text-muted-foreground/50" />
-          <p>No new notifications</p>
-        </div>
-      </div>
-    );
-  }
-
+  const getNudgeBadgeStyle = (type: string, priorityLevel?: string) => {
+    if (priorityLevel === 'high') {
+      return "bg-red-100 text-red-800 border-red-200";
+    }
+    
+    switch (type) {
+      case 'reminder':
+        return "bg-blue-100 text-blue-800 border-blue-200";
+      case 'alert':
+        return "bg-amber-100 text-amber-800 border-amber-200";
+      case 'achievement':
+        return "bg-emerald-100 text-emerald-800 border-emerald-200";
+      case 'message':
+        return "bg-violet-100 text-violet-800 border-violet-200";
+      default:
+        return "bg-gray-100 text-gray-800 border-gray-200";
+    }
+  };
+  
   return (
-    <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-100 dark:border-gray-700">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="font-medium text-lg">Notifications</h3>
-        <Badge>{nudges.length} new</Badge>
-      </div>
-      <div className="space-y-3">
-        {displayNudges.map((nudge) => (
-          <div
-            key={nudge.id}
-            className={`p-3 rounded-md border ${
-              nudge.priority === "high"
-                ? "bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800/30"
-                : nudge.priority === "medium"
-                ? "bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800/30"
-                : "bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800/30"
-            } relative`}
-          >
-            <div className="flex items-start gap-3">
-              <div className="mt-1">
-                {nudge.priority === "high" ? (
-                  <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400" />
-                ) : (
-                  <Bell className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+    <Card className={className}>
+      <CardHeader className="pb-3">
+        <div className="flex justify-between items-center">
+          <CardTitle className="text-xl flex items-center gap-2">
+            <Bell className="h-5 w-5 text-primary" />
+            Notifications
+          </CardTitle>
+          {nudges.length > 0 && (
+            <Badge className="bg-primary">
+              {nudges.filter(n => !n.read).length} new
+            </Badge>
+          )}
+        </div>
+      </CardHeader>
+      <CardContent>
+        {nudges.length > 0 ? (
+          <div className="space-y-4">
+            {nudges.map((nudge) => (
+              <div
+                key={nudge.id}
+                className={`p-4 rounded-lg border ${nudge.read ? 'bg-muted/30 border-muted' : 'bg-white dark:bg-gray-800 border-primary/20'}`}
+              >
+                <div className="flex justify-between items-start">
+                  <div className="flex items-start gap-3">
+                    <div className={`mt-0.5 p-1.5 rounded-full ${nudge.read ? 'bg-muted' : 'bg-primary/10'}`}>
+                      {getNudgeIcon(nudge.type)}
+                    </div>
+                    <div>
+                      <h4 className={`font-medium ${nudge.read ? 'text-muted-foreground' : ''}`}>
+                        {nudge.title}
+                      </h4>
+                      <p className={`text-sm mt-1 ${nudge.read ? 'text-muted-foreground/70' : 'text-muted-foreground'}`}>
+                        {nudge.message}
+                      </p>
+                      {nudge.createdAt && (
+                        <p className="text-xs text-muted-foreground mt-2">
+                          {new Date(nudge.createdAt).toLocaleString()}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  <Badge
+                    variant="outline"
+                    className={`${getNudgeBadgeStyle(nudge.type)}`}
+                  >
+                    {nudge.type.charAt(0).toUpperCase() + nudge.type.slice(1)}
+                  </Badge>
+                </div>
+                
+                {!nudge.read && (
+                  <div className="mt-3 flex justify-end">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => markAsRead(nudge.id)}
+                    >
+                      Mark as read
+                    </Button>
+                    {nudge.actionLabel && nudge.actionUrl && (
+                      <Button
+                        variant="default"
+                        size="sm"
+                        className="ml-2"
+                        onClick={() => {
+                          markAsRead(nudge.id);
+                          window.location.href = nudge.actionUrl || '#';
+                        }}
+                      >
+                        {nudge.actionLabel}
+                      </Button>
+                    )}
+                  </div>
                 )}
               </div>
-              <div className="flex-grow min-w-0">
-                <h4 className="font-medium text-sm">{nudge.title}</h4>
-                <p className="text-sm text-muted-foreground line-clamp-2">
-                  {nudge.description}
-                </p>
-                <div className="flex items-center justify-between mt-2">
-                  <span className="text-xs text-muted-foreground">
-                    {new Date(nudge.createdAt).toLocaleTimeString([], {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </span>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="h-auto py-1 px-2"
-                    onClick={() => markAsRead(nudge.id)}
-                  >
-                    <CheckCircle className="h-4 w-4 mr-1" />
-                    <span className="text-xs">Mark as read</span>
-                  </Button>
-                </div>
-              </div>
-            </div>
+            ))}
           </div>
-        ))}
-        
-        {!showAll && nudges.length > 3 && (
-          <Button variant="ghost" className="w-full text-sm" asChild>
-            <a href="/dashboard/student/notifications">View all {nudges.length} notifications</a>
-          </Button>
+        ) : (
+          <div className="text-center py-8">
+            <Bell className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <p className="text-muted-foreground">No notifications at this time</p>
+          </div>
         )}
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
-}
+};
+
+export default NudgePanel;

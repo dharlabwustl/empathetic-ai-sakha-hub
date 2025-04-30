@@ -1,55 +1,67 @@
 
-import React, { Suspense, lazy } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import React, { Suspense } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { ThemeProvider } from '@/components/theme-provider';
+import { Toaster } from '@/components/ui/toaster';
+import Index from '@/pages/Index';
+import SignUp from '@/pages/SignUp';
+import Login from '@/pages/auth/Login';
+import Signup from '@/pages/auth/Signup';
+import NotFound from '@/pages/NotFound';
+import StudentDashboard from '@/pages/dashboard/student/StudentDashboard';
+import FeelGoodCornerView from '@/pages/dashboard/student/FeelGoodCornerView';
+import { AdminAuthProvider } from '@/contexts/auth/AdminAuthContext';
+import AdminLogin from '@/pages/admin/AdminLogin';
+import AdminRouteGuard from '@/components/admin/AdminRouteGuard';
+import { UserRole } from '@/types/user/base';
+import { AuthProvider } from '@/contexts/auth/AuthContext';
+import TodaysPlanView from '@/pages/dashboard/student/TodaysPlanView';
+import ConceptStudyPage from '@/pages/dashboard/student/concept/ConceptStudyPage';
+import FlashcardPracticePage from '@/pages/dashboard/student/flashcard/FlashcardPracticePage';
+import LoadingScreen from '@/components/common/LoadingScreen';
 
-// Auth & General Pages
-const Login = lazy(() => import('./pages/auth/Login'));
-const Signup = lazy(() => import('./pages/auth/Signup'));
-const NotFound = lazy(() => import('./pages/NotFound'));
-
-// Student Dashboard & Pages
-const StudentDashboard = lazy(() => import('./pages/dashboard/StudentDashboard'));
-const ConceptsPage = lazy(() => import('./pages/dashboard/student/ConceptsPage'));
-const ConceptStudyPage = lazy(() => import('./pages/dashboard/student/ConceptStudyPage'));
-const FlashcardsPage = lazy(() => import('./pages/dashboard/student/FlashcardsPage'));
-const FlashcardDetailsPage = lazy(() => import('./pages/dashboard/student/FlashcardDetailsPage'));
-const PracticeExamsList = lazy(() => import('./pages/dashboard/student/PracticeExamsList'));
-const ExamStartPage = lazy(() => import('./pages/dashboard/student/ExamStartPage'));
-const ExamReviewPage = lazy(() => import('./pages/dashboard/student/ExamReviewPage'));
-const TutorView = lazy(() => import('./pages/dashboard/student/TutorView'));
-const AcademicAdvisorView = lazy(() => import('./pages/dashboard/student/AcademicAdvisorView'));
-const FeelGoodCornerView = lazy(() => import('./pages/dashboard/student/FeelGoodCornerView'));
+const AdminDashboard = React.lazy(() => import('@/pages/admin/AdminDashboard'));
 
 function App() {
   return (
-    <Router>
-      <Suspense fallback={<div className="w-full h-screen flex items-center justify-center">Loading...</div>}>
-        <Routes>
-          {/* Auth Routes */}
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-          
-          {/* Student Dashboard Routes */}
-          <Route path="/dashboard/student" element={<StudentDashboard />} />
-          
-          {/* Student Content Routes */}
-          <Route path="/dashboard/student/concepts" element={<ConceptsPage />} />
-          <Route path="/dashboard/student/concepts/:conceptId" element={<ConceptStudyPage />} />
-          <Route path="/dashboard/student/flashcards" element={<FlashcardsPage />} />
-          <Route path="/dashboard/student/flashcards/:flashcardId" element={<FlashcardDetailsPage />} />
-          <Route path="/dashboard/student/practice-exam" element={<PracticeExamsList />} />
-          <Route path="/dashboard/student/exams/:id/start" element={<ExamStartPage />} />
-          <Route path="/dashboard/student/exams/:id/review" element={<ExamReviewPage />} />
-          <Route path="/dashboard/student/tutor" element={<TutorView />} />
-          <Route path="/dashboard/student/academic" element={<AcademicAdvisorView />} />
-          <Route path="/dashboard/student/wellness" element={<FeelGoodCornerView />} />
-          
-          {/* Default Routes */}
-          <Route path="/" element={<Navigate to="/dashboard/student" replace />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </Suspense>
-    </Router>
+    <ThemeProvider defaultTheme="light" storageKey="prepzr-ui-theme">
+      <BrowserRouter>
+        <AuthProvider>
+          <AdminAuthProvider>
+            <Routes>
+              {/* Public routes */}
+              <Route path="/" element={<Index />} />
+              <Route path="/signup" element={<SignUp />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Signup />} />
+
+              {/* Student routes */}
+              <Route path="/dashboard/student" element={<StudentDashboard />} />
+              <Route path="/dashboard/student/:tab" element={<StudentDashboard />} />
+              <Route path="/dashboard/student/today" element={<TodaysPlanView />} />
+              <Route path="/dashboard/student/feel-good-corner" element={<FeelGoodCornerView />} />
+              <Route path="/dashboard/student/concepts/card/:conceptId" element={<ConceptStudyPage />} />
+              <Route path="/dashboard/student/flashcards/:deckId/interactive" element={<FlashcardPracticePage />} />
+
+              {/* Admin routes - protected by AdminRouteGuard */}
+              <Route path="/admin/login" element={<AdminLogin />} />
+              <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
+              <Route element={<AdminRouteGuard />}>
+                <Route path="/admin/dashboard/*" element={
+                  <Suspense fallback={<LoadingScreen />}>
+                    <AdminDashboard />
+                  </Suspense>
+                } />
+              </Route>
+
+              {/* 404 Not Found */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </AdminAuthProvider>
+        </AuthProvider>
+        <Toaster />
+      </BrowserRouter>
+    </ThemeProvider>
   );
 }
 

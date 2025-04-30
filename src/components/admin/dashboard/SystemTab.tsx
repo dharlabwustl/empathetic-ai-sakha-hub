@@ -1,142 +1,100 @@
-import React, { useState } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+
+import React from 'react';
 import { SystemLog } from '@/types/admin/systemLog';
-import { Button } from '@/components/ui/button';
-import { format } from 'date-fns';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
-const SystemTab = () => {
-  const [activeTab, setActiveTab] = useState('overview');
-  const [systemLogs, setSystemLogs] = useState<SystemLog[]>([
-    {
-      id: '1',
-      level: 'error',
-      message: 'Database connection failed',
-      source: 'backend',
-      timestamp: new Date('2025-04-15T12:30:00'),
-      resolved: false
-    },
-    {
-      id: '2',
-      level: 'info',
-      message: 'User authentication successful',
-      source: 'auth',
-      timestamp: new Date('2025-04-15T13:45:00'),
-      resolved: true
-    },
-    {
-      id: '3',
-      level: 'warning',
-      message: 'Rate limit approaching',
-      source: 'api',
-      timestamp: new Date('2025-04-15T14:20:00'),
-      resolved: false
-    }
-  ]);
+// Sample data for demonstration
+const sampleLogs: SystemLog[] = [
+  {
+    id: '1',
+    event: 'Server Restart',
+    timestamp: new Date().toISOString(),
+    level: 'info',
+    details: { reason: 'Scheduled maintenance', duration: '5m' }
+  },
+  {
+    id: '2',
+    event: 'Database Backup',
+    timestamp: new Date(Date.now() - 3600000).toISOString(),
+    level: 'info',
+    details: { size: '1.2GB', location: 's3://backup' }
+  },
+  {
+    id: '3',
+    event: 'API Rate Limit Exceeded',
+    timestamp: new Date(Date.now() - 7200000).toISOString(),
+    level: 'warning',
+    details: { endpoint: '/api/data', user: 'user123' }
+  }
+];
 
-  // Rest of the component logic...
+interface SystemTabProps {
+  logs?: SystemLog[];
+}
+
+const SystemTab: React.FC<SystemTabProps> = ({ logs = sampleLogs }) => {
+  const formatDate = (dateStr: string) => {
+    const date = new Date(dateStr);
+    return new Intl.DateTimeFormat('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric'
+    }).format(date);
+  };
   
-  const resolveLog = (id: string) => {
-    setSystemLogs(prev => 
-      prev.map(log => 
-        log.id === id ? { ...log, resolved: true } : log
-      )
-    );
+  const getLevelBadgeClass = (level: string) => {
+    switch (level) {
+      case 'info':
+        return 'bg-blue-100 text-blue-800';
+      case 'warning':
+        return 'bg-amber-100 text-amber-800';
+      case 'error':
+        return 'bg-red-100 text-red-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
   };
-
-  // Convert string timestamp to Date if necessary
-  const formatTimestamp = (timestamp: Date | string) => {
-    // If timestamp is already a Date object, use it directly
-    // Otherwise parse it as a Date
-    const date = timestamp instanceof Date ? timestamp : new Date(timestamp);
-    return format(date, 'MMM dd, yyyy HH:mm:ss');
-  };
-
-  // ... rest of the component
 
   return (
     <div className="space-y-6">
-      <Tabs defaultValue={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid grid-cols-3 mb-4">
-          <TabsTrigger value="overview">System Overview</TabsTrigger>
-          <TabsTrigger value="logs">System Logs</TabsTrigger>
-          <TabsTrigger value="performance">Performance</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="overview">
-          <Card>
-            <CardHeader>
-              <CardTitle>System Health</CardTitle>
-              <CardDescription>Current system status and health metrics</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {/* Content for system health overview */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {/* System health content... */}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="logs">
-          <Card>
-            <CardHeader>
-              <CardTitle>System Logs</CardTitle>
-              <CardDescription>Recent system events and logs</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {systemLogs.map(log => (
-                  <div key={log.id} className={`p-4 rounded-md ${
-                    log.level === 'error' ? 'bg-red-50 dark:bg-red-900/20' : 
-                    log.level === 'warning' ? 'bg-yellow-50 dark:bg-yellow-900/20' : 
-                    'bg-blue-50 dark:bg-blue-900/20'
-                  }`}>
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <h4 className={`font-medium ${
-                          log.level === 'error' ? 'text-red-700 dark:text-red-400' :
-                          log.level === 'warning' ? 'text-yellow-700 dark:text-yellow-400' :
-                          'text-blue-700 dark:text-blue-400'
-                        }`}>
-                          {log.level.toUpperCase()}: {log.message}
-                        </h4>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                          Source: {log.source} | Time: {formatTimestamp(log.timestamp)}
-                        </p>
-                      </div>
-                      {!log.resolved && (
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          onClick={() => resolveLog(log.id)}
-                        >
-                          Resolve
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="performance">
-          <Card>
-            <CardHeader>
-              <CardTitle>System Performance</CardTitle>
-              <CardDescription>Performance metrics and analytics</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {/* Performance metrics content */}
-              <div className="space-y-6">
-                {/* Performance metrics... */}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+      <Card>
+        <CardHeader>
+          <CardTitle>System Logs</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Event</TableHead>
+                <TableHead>Level</TableHead>
+                <TableHead>Timestamp</TableHead>
+                <TableHead>Details</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {logs.map((log) => (
+                <TableRow key={log.id}>
+                  <TableCell className="font-medium">{log.event}</TableCell>
+                  <TableCell>
+                    <span className={`px-2 py-1 rounded-full text-xs ${getLevelBadgeClass(log.level)}`}>
+                      {log.level}
+                    </span>
+                  </TableCell>
+                  <TableCell>{formatDate(log.timestamp)}</TableCell>
+                  <TableCell>
+                    <pre className="text-xs bg-muted p-2 rounded overflow-x-auto">
+                      {JSON.stringify(log.details, null, 2)}
+                    </pre>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
     </div>
   );
 };
