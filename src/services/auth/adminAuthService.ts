@@ -1,71 +1,93 @@
 
-import { AdminUser } from '@/types/user/base';
+import { AdminUser } from "@/types/user/base";
 
 interface LoginResponse {
   success: boolean;
-  data?: AdminUser;
+  data: AdminUser | null;
   message?: string;
 }
 
+interface LoginCredentials {
+  email: string;
+  password: string;
+}
+
+// Mock admin user data
+const MOCK_ADMIN_USERS: AdminUser[] = [
+  {
+    id: "admin1",
+    name: "Admin User",
+    email: "admin@example.com",
+    role: "admin"
+  },
+  {
+    id: "admin2",
+    name: "Super Admin",
+    email: "super@example.com",
+    role: "admin"
+  }
+];
+
+// Admin auth service with mock functions
 const adminAuthService = {
-  adminLogin: async ({ email, password }: { email: string, password: string }): Promise<LoginResponse> => {
-    try {
-      // For demonstration purposes, we're mocking a successful login
-      if (email && password) {
-        const adminUser: AdminUser = {
-          id: '1',
-          name: 'Admin User',
-          email: email,
-          role: 'admin'
-        };
-        
-        localStorage.setItem('adminToken', 'mock-admin-token');
-        localStorage.setItem('adminUser', JSON.stringify(adminUser));
-        
-        return {
-          success: true,
-          data: adminUser
-        };
-      } else {
-        return {
-          success: false,
-          message: 'Email and password are required'
-        };
-      }
-    } catch (error) {
-      console.error('Admin login error:', error);
+  // Admin login function
+  async adminLogin(credentials: LoginCredentials): Promise<LoginResponse> {
+    console.log("Admin auth service: login attempt for", credentials.email);
+    
+    // For demo purposes, check against our mock data
+    const adminUser = MOCK_ADMIN_USERS.find(
+      user => user.email === credentials.email && 
+              // Simple password check for demo
+              (credentials.password === "admin123" || credentials.password === "password")
+    );
+    
+    if (adminUser) {
+      // Store token in localStorage
+      const mockToken = `admin_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
+      localStorage.setItem("adminToken", mockToken);
+      localStorage.setItem("adminUser", JSON.stringify(adminUser));
+      
+      return {
+        success: true,
+        data: adminUser,
+        message: "Login successful"
+      };
+    } else {
       return {
         success: false,
-        message: 'An unexpected error occurred'
+        data: null,
+        message: "Invalid email or password"
       };
     }
   },
   
-  adminLogout: async (): Promise<boolean> => {
+  // Admin logout function
+  async adminLogout(): Promise<void> {
+    console.log("Admin auth service: logging out");
+    localStorage.removeItem("adminToken");
+    localStorage.removeItem("adminUser");
+  },
+  
+  // Get current admin user
+  async getAdminUser(): Promise<AdminUser | null> {
+    const token = localStorage.getItem("adminToken");
+    const userJson = localStorage.getItem("adminUser");
+    
+    if (!token || !userJson) {
+      return null;
+    }
+    
     try {
-      localStorage.removeItem('adminToken');
-      localStorage.removeItem('adminUser');
-      return true;
+      return JSON.parse(userJson) as AdminUser;
     } catch (error) {
-      console.error('Admin logout error:', error);
-      return false;
+      console.error("Error parsing admin user:", error);
+      return null;
     }
   },
   
-  getAdminUser: async (): Promise<AdminUser | null> => {
-    try {
-      const adminToken = localStorage.getItem('adminToken');
-      const adminUserData = localStorage.getItem('adminUser');
-      
-      if (adminToken && adminUserData) {
-        return JSON.parse(adminUserData) as AdminUser;
-      } else {
-        return null;
-      }
-    } catch (error) {
-      console.error('Get admin user error:', error);
-      return null;
-    }
+  // Check if admin is authenticated
+  isAuthenticated(): boolean {
+    return !!localStorage.getItem("adminToken");
   }
 };
 

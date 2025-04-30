@@ -1,7 +1,7 @@
 
 import React from "react";
-import { UserGoal, UserRole, OnboardingData } from "./OnboardingContext";
-import { MoodType, PersonalityType } from "@/types/user/base";
+import { UserRole, MoodType, PersonalityType } from "@/types/user/base";
+import { OnboardingStep } from "./OnboardingContext";
 import RoleStep from "./steps/RoleStep";
 import GoalStep from "./steps/GoalStep";
 import DemographicsStep from "./steps/DemographicsStep";
@@ -12,11 +12,11 @@ import InterestsStep from "./steps/InterestsStep";
 import SignupStep from "./steps/SignupStep";
 
 interface StepRendererProps {
-  step: string;
-  onboardingData: OnboardingData;
+  step: OnboardingStep;
+  onboardingData: any;
   handlers: {
     handleRoleSelect: (role: UserRole) => void;
-    handleGoalSelect: (goal: UserGoal) => void;
+    handleGoalSelect: (goal: string) => void;
     handleDemographicsSubmit: (data: Record<string, string>) => void;
     handlePersonalitySelect: (personality: PersonalityType) => void;
     handleMoodSelect: (mood: MoodType) => void;
@@ -27,27 +27,54 @@ interface StepRendererProps {
   isLoading: boolean;
 }
 
-const StepRenderer: React.FC<StepRendererProps> = ({ step, onboardingData, handlers, isLoading }) => {
-  // Render the appropriate step based on the current step
+const StepRenderer: React.FC<StepRendererProps> = ({
+  step,
+  onboardingData,
+  handlers,
+  isLoading
+}) => {
   switch (step) {
     case "role":
       return <RoleStep onRoleSelect={handlers.handleRoleSelect} />;
+    
     case "goal":
-      return <GoalStep role={onboardingData.role} onGoalSelect={handlers.handleGoalSelect} />;
+      return <GoalStep onGoalSelect={handlers.handleGoalSelect} />;
+    
     case "demographics":
-      return <DemographicsStep onSubmit={handlers.handleDemographicsSubmit} />;
+      return (
+        <DemographicsStep 
+          examGoal={onboardingData.goal || ""} 
+          onSubmit={handlers.handleDemographicsSubmit} 
+        />
+      );
+    
     case "personality":
       return <PersonalityStep onPersonalitySelect={handlers.handlePersonalitySelect} />;
-    case "mood":
+    
+    case "sentiment":
       return <MoodStep onMoodSelect={handlers.handleMoodSelect} />;
+    
     case "habits":
       return <HabitsStep onSubmit={handlers.handleHabitsSubmit} />;
+    
     case "interests":
-      return <InterestsStep onSubmit={handlers.handleInterestsSubmit} />;
+      return (
+        <InterestsStep 
+          examGoal={onboardingData.goal} 
+          onSubmit={handlers.handleInterestsSubmit} 
+        />
+      );
+    
     case "signup":
-      return <SignupStep onSubmit={handlers.handleSignupSubmit} isLoading={isLoading} />;
+      return (
+        <SignupStep 
+          onSubmit={handlers.handleSignupSubmit}
+          isLoading={isLoading}
+        />
+      );
+    
     default:
-      return <div>Unknown step: {step}</div>;
+      return <div>Unknown step</div>;
   }
 };
 

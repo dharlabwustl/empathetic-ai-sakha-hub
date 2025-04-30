@@ -12,6 +12,7 @@ import CallToAction from '@/components/home/CallToAction';
 import FounderSection from '@/components/home/FounderSection';
 import VideoSection from '@/components/home/VideoSection';
 import { ExamReadinessAnalyzer } from '@/components/home/ExamReadinessAnalyzer';
+import FoundingTeamSection from '@/components/home/FoundingTeamSection';
 
 const Index = () => {
   const featuresRef = useRef<HTMLDivElement>(null);
@@ -65,11 +66,12 @@ const Index = () => {
         
         <StudentBenefitsSection />
         
-        {/* Both EcosystemAnimation and OnboardingSection are now in HeroSection */}
-        
         <VideoSection />
         
         <FounderSection />
+        
+        {/* Add the founding team section */}
+        <FoundingTeamSection />
         
         <CallToAction />
       </main>

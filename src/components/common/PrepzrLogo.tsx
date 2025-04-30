@@ -9,13 +9,13 @@ interface PrepzrLogoProps {
 
 const PrepzrLogo: React.FC<PrepzrLogoProps> = ({ 
   className = "", 
-  width = 40, 
+  width = 60, // Increased default size
   height = "auto"
 }) => {
   return (
     <div className={`flex items-center ${className}`}>
       <img 
-        src="/lovable-uploads/3de22e29-64fb-4767-8cd5-6a123ee6b8cb.png" 
+        src="/lovable-uploads/26db6370-4d7a-4e6a-a038-bae30c4c1f66.png" 
         alt="PREPZR Logo" 
         style={{ 
           width: typeof width === 'number' ? `${width}px` : width,

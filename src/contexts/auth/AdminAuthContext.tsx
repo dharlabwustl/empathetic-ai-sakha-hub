@@ -72,6 +72,7 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
     }
   };
 
+  // Updated logout function that doesn't use navigation
   const adminLogout = async (): Promise<void> => {
     try {
       await adminAuthService.adminLogout();
