@@ -1,478 +1,412 @@
+
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Progress } from "@/components/ui/progress";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Calendar } from "@/components/ui/calendar";
-import { DatePicker } from "@/components/ui/date-picker";
-import {
-  BarChart,
-  PieChart,
-  LineChart,
-  Clock,
-  Users,
-  BookOpen,
-  Target,
-  Calendar as CalendarIcon,
-  PlusCircle,
-  CheckCircle2,
-  BarChart2,
-  ChevronRight,
-  FileText,
-  ArrowRight,
-  ArrowUp,
-  ArrowDown,
-} from "lucide-react";
-import { cn } from "@/lib/utils";
-import { SharedPageLayout } from '../SharedPageLayout';
-import { useToast } from "@/hooks/use-toast";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Book, CalendarClock, Lightbulb, Clock, BarChart } from 'lucide-react';
 
 const AcademicAdvisorView = () => {
   const [activeTab, setActiveTab] = useState('overview');
-  const [isCreatePlanDialogOpen, setIsCreatePlanDialogOpen] = useState(false);
-  const [examDate, setExamDate] = useState<Date | undefined>(undefined);
-  const [formData, setFormData] = useState({
-    examType: '',
-    subjects: '',
-    studyHoursPerDay: '4',
-    preferredTime: 'morning',
-    studyStyle: 'balanced',
-    additionalGoals: ''
-  });
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleSelectChange = (name: string, value: string) => {
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log('Study plan created with:', { ...formData, examDate });
-    setIsCreatePlanDialogOpen(false);
-  };
-
+  const [showCreateStudyPlanModal, setShowCreateStudyPlanModal] = useState(false);
+  
   return (
-    <SharedPageLayout
-      title="Academic Advisor"
-      subtitle="Get personalized guidance for your academic journey"
-    >
-      <div className="space-y-6">
-        {/* Tabs for different advisor sections */}
-        <Tabs defaultValue="overview" value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid grid-cols-4 mb-4">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="study-plan">Study Plans</TabsTrigger>
-            <TabsTrigger value="recommendations">Recommendations</TabsTrigger>
-            <TabsTrigger value="progress">Progress Analysis</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="overview" className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Welcome Card */}
-              <Card>
-                <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20">
-                  <CardTitle>Welcome to Your Academic Advisor</CardTitle>
-                  <CardDescription>Your personalized guide to academic success</CardDescription>
-                </CardHeader>
-                <CardContent className="pt-4">
-                  <p className="text-gray-600 dark:text-gray-300">
-                    The Academic Advisor offers personalized guidance based on your goals, performance, and learning style. Get tailored study plans, subject recommendations, and progress tracking.
-                  </p>
-                </CardContent>
-                <CardFooter>
-                  <Dialog open={isCreatePlanDialogOpen} onOpenChange={setIsCreatePlanDialogOpen}>
-                    <DialogTrigger asChild>
-                      <Button>Create Study Plan</Button>
-                    </DialogTrigger>
-                    <DialogContent className="sm:max-w-[550px]">
-                      <DialogHeader>
-                        <DialogTitle>Create Personalized Study Plan</DialogTitle>
-                      </DialogHeader>
-                      <form onSubmit={handleSubmit} className="space-y-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="examType">Exam Type</Label>
-                          <Select 
-                            value={formData.examType} 
-                            onValueChange={(value) => handleSelectChange('examType', value)}
-                          >
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select exam type" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="neet">NEET</SelectItem>
-                              <SelectItem value="iitjee">IIT-JEE</SelectItem>
-                              <SelectItem value="upsc">UPSC</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        
-                        <div className="space-y-2">
-                          <Label>Exam Date</Label>
-                          <DatePicker date={examDate} setDate={setExamDate} />
-                        </div>
-                        
-                        <div className="space-y-2">
-                          <Label htmlFor="subjects">Key Subjects (comma separated)</Label>
-                          <Input 
-                            id="subjects"
-                            name="subjects"
-                            value={formData.subjects}
-                            onChange={handleInputChange}
-                            placeholder="E.g., Physics, Chemistry, Biology"
-                          />
-                        </div>
-                        
-                        <div className="grid grid-cols-2 gap-4">
-                          <div className="space-y-2">
-                            <Label htmlFor="studyHoursPerDay">Study Hours Per Day</Label>
-                            <Select 
-                              value={formData.studyHoursPerDay} 
-                              onValueChange={(value) => handleSelectChange('studyHoursPerDay', value)}
-                            >
-                              <SelectTrigger>
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="2">2 hours</SelectItem>
-                                <SelectItem value="4">4 hours</SelectItem>
-                                <SelectItem value="6">6 hours</SelectItem>
-                                <SelectItem value="8">8+ hours</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-                          
-                          <div className="space-y-2">
-                            <Label htmlFor="preferredTime">Preferred Study Time</Label>
-                            <Select 
-                              value={formData.preferredTime} 
-                              onValueChange={(value) => handleSelectChange('preferredTime', value)}
-                            >
-                              <SelectTrigger>
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="morning">Morning</SelectItem>
-                                <SelectItem value="afternoon">Afternoon</SelectItem>
-                                <SelectItem value="evening">Evening</SelectItem>
-                                <SelectItem value="night">Night</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-                        </div>
-                        
-                        <div className="space-y-2">
-                          <Label htmlFor="studyStyle">Study Style</Label>
-                          <Select 
-                            value={formData.studyStyle} 
-                            onValueChange={(value) => handleSelectChange('studyStyle', value)}
-                          >
-                            <SelectTrigger>
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="intensive">Intensive (deep focus)</SelectItem>
-                              <SelectItem value="balanced">Balanced (mixed approach)</SelectItem>
-                              <SelectItem value="spaced">Spaced (frequent breaks)</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        
-                        <div className="space-y-2">
-                          <Label htmlFor="additionalGoals">Additional Goals (optional)</Label>
-                          <Textarea 
-                            id="additionalGoals"
-                            name="additionalGoals"
-                            value={formData.additionalGoals}
-                            onChange={handleInputChange}
-                            placeholder="Any specific areas you want to focus on..."
-                            rows={3}
-                          />
-                        </div>
-                        
-                        <div className="flex justify-between pt-4">
-                          <Button 
-                            type="button" 
-                            variant="outline" 
-                            onClick={() => setIsCreatePlanDialogOpen(false)}
-                          >
-                            Cancel
-                          </Button>
-                          <Button type="submit">Generate Study Plan</Button>
-                        </div>
-                      </form>
-                    </DialogContent>
-                  </Dialog>
-                </CardFooter>
-              </Card>
-              
-              {/* Quick Actions Card */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Quick Actions</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-2 gap-2">
-                    <Button variant="outline" className="flex flex-col h-auto py-4 justify-start items-start text-left">
-                      <Book className="h-5 w-5 mb-2" />
-                      <div>
-                        <div className="font-medium">Study Resources</div>
-                        <div className="text-xs text-gray-500">Find recommended material</div>
-                      </div>
-                    </Button>
-                    <Button variant="outline" className="flex flex-col h-auto py-4 justify-start items-start text-left">
-                      <Calendar className="h-5 w-5 mb-2" />
-                      <div>
-                        <div className="font-medium">Schedule Review</div>
-                        <div className="text-xs text-gray-500">Optimize your timetable</div>
-                      </div>
-                    </Button>
-                    <Button variant="outline" className="flex flex-col h-auto py-4 justify-start items-start text-left">
-                      <Brain className="h-5 w-5 mb-2" />
-                      <div>
-                        <div className="font-medium">Learning Style</div>
-                        <div className="text-xs text-gray-500">Analyze your approach</div>
-                      </div>
-                    </Button>
-                    <Button variant="outline" className="flex flex-col h-auto py-4 justify-start items-start text-left">
-                      <Target className="h-5 w-5 mb-2" />
-                      <div>
-                        <div className="font-medium">Goal Setting</div>
-                        <div className="text-xs text-gray-500">Define your targets</div>
-                      </div>
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-            
-            {/* Current Study Plan Summary */}
+    <div className="container mx-auto p-4 space-y-6">
+      <div className="flex justify-between items-center mb-6">
+        <div>
+          <h1 className="text-3xl font-bold">Academic Advisor</h1>
+          <p className="text-muted-foreground">Get personalized guidance for your academic journey</p>
+        </div>
+        <Button onClick={() => setShowCreateStudyPlanModal(true)}>Create New Study Plan</Button>
+      </div>
+      
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="grid grid-cols-4 mb-6">
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="studyPlans">Study Plans</TabsTrigger>
+          <TabsTrigger value="performance">Performance</TabsTrigger>
+          <TabsTrigger value="resources">Resources</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="overview">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Card>
               <CardHeader>
                 <CardTitle>Current Study Plan</CardTitle>
-                <CardDescription>NEET Preparation Plan • 120 days remaining</CardDescription>
+                <CardDescription>Your active study plan</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="border rounded-lg p-4">
-                    <div className="text-sm font-medium text-gray-500">Today's Focus</div>
-                    <div className="mt-1 font-medium">Physics: Thermodynamics</div>
-                    <div className="text-sm text-gray-600">2 concepts • 3 practice sets</div>
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2">
+                    <Book className="h-5 w-5 text-primary" />
+                    <h3 className="font-medium">Physics Mastery Plan</h3>
                   </div>
-                  <div className="border rounded-lg p-4">
-                    <div className="text-sm font-medium text-gray-500">Weekly Target</div>
-                    <div className="mt-1 font-medium">15 concepts • 5 practice tests</div>
-                    <div className="text-sm text-gray-600">60% completed</div>
+                  <p className="text-sm text-muted-foreground">
+                    Focus on mechanics and electromagnetism for the upcoming NEET exam.
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <CalendarClock className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-xs">Started: June 1, 2023</span>
                   </div>
-                  <div className="border rounded-lg p-4">
-                    <div className="text-sm font-medium text-gray-500">Upcoming Milestone</div>
-                    <div className="mt-1 font-medium">Physics Full Revision</div>
-                    <div className="text-sm text-gray-600">Due in 7 days</div>
+                  <div className="flex items-center gap-2">
+                    <Clock className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-xs">2 hours daily</span>
                   </div>
                 </div>
               </CardContent>
               <CardFooter>
-                <Button variant="outline" className="w-full">View Complete Study Plan</Button>
+                <Button variant="outline" className="w-full">View Details</Button>
               </CardFooter>
             </Card>
-          </TabsContent>
-          
-          <TabsContent value="study-plan" className="space-y-4">
+            
             <Card>
               <CardHeader>
-                <CardTitle>Your Study Plans</CardTitle>
-                <CardDescription>Manage and view your personalized study plans</CardDescription>
+                <CardTitle>Recent Activity</CardTitle>
+                <CardDescription>Your recent academic activities</CardDescription>
               </CardHeader>
               <CardContent>
-                <p className="text-muted-foreground mb-4">This section will display all your created study plans.</p>
-                <div className="border rounded-md p-4">
-                  <div className="flex justify-between items-start mb-4">
-                    <div>
-                      <h3 className="font-medium text-lg">NEET Preparation Plan</h3>
-                      <p className="text-sm text-gray-500">Created on Sep 15, 2023</p>
-                    </div>
-                    <Badge variant="outline" className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">
-                      Active
-                    </Badge>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4 mb-4">
-                    <div>
-                      <p className="text-sm font-medium text-gray-500">Exam Date</p>
-                      <p>May 5, 2024</p>
+                <div className="space-y-4">
+                  <div className="flex items-start gap-2">
+                    <div className="mt-0.5">
+                      <Book className="h-4 w-4 text-primary" />
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-gray-500">Days Remaining</p>
-                      <p>120 days</p>
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-500">Key Subjects</p>
-                      <p>Physics, Chemistry, Biology</p>
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-500">Daily Target</p>
-                      <p>4 hours</p>
+                      <p className="text-sm font-medium">Completed Concept Card</p>
+                      <p className="text-xs text-muted-foreground">Newton's Laws of Motion</p>
+                      <p className="text-xs text-muted-foreground">2 hours ago</p>
                     </div>
                   </div>
-                  <div className="flex space-x-2">
-                    <Button size="sm">View Details</Button>
-                    <Button size="sm" variant="outline">Edit Plan</Button>
-                  </div>
-                </div>
-              </CardContent>
-              <CardFooter>
-                <Button onClick={() => setIsCreatePlanDialogOpen(true)}>
-                  Create New Study Plan
-                </Button>
-              </CardFooter>
-            </Card>
-          </TabsContent>
-          
-          <TabsContent value="recommendations" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Personalized Recommendations</CardTitle>
-                <CardDescription>Resources tailored to your learning journey</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">Based on your performance and goals, here are some recommended resources:</p>
-                
-                <div className="mt-4 space-y-4">
-                  <div className="border rounded-lg p-4">
-                    <div className="flex justify-between">
-                      <h3 className="font-medium">Advanced Physics Problem Solving</h3>
-                      <Badge>Concept Card</Badge>
-                    </div>
-                    <p className="text-sm text-gray-600 mt-1">Strengthen your physics problem solving with advanced techniques.</p>
-                    <Button size="sm" variant="link" className="p-0 h-auto mt-2">View Resource</Button>
-                  </div>
-                  
-                  <div className="border rounded-lg p-4">
-                    <div className="flex justify-between">
-                      <h3 className="font-medium">Organic Chemistry Flashcards</h3>
-                      <Badge>Flashcard Deck</Badge>
-                    </div>
-                    <p className="text-sm text-gray-600 mt-1">Master key organic chemistry concepts with this comprehensive flashcard set.</p>
-                    <Button size="sm" variant="link" className="p-0 h-auto mt-2">View Resource</Button>
-                  </div>
-                  
-                  <div className="border rounded-lg p-4">
-                    <div className="flex justify-between">
-                      <h3 className="font-medium">Biology Mock Test Series</h3>
-                      <Badge>Practice Exam</Badge>
-                    </div>
-                    <p className="text-sm text-gray-600 mt-1">Test your biology knowledge with these challenging practice exams.</p>
-                    <Button size="sm" variant="link" className="p-0 h-auto mt-2">View Resource</Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-          
-          <TabsContent value="progress" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Progress Analysis</CardTitle>
-                <CardDescription>Track your learning journey and identify areas for growth</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground mb-4">A comprehensive overview of your academic progress:</p>
-                
-                {/* Subject Progress */}
-                <div className="space-y-4 mb-6">
-                  <h3 className="font-medium">Subject Progress</h3>
-                  
-                  <div className="space-y-3">
-                    <div>
-                      <div className="flex justify-between text-sm mb-1">
-                        <span>Physics</span>
-                        <span>68%</span>
-                      </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
-                        <div className="bg-blue-600 h-2.5 rounded-full" style={{ width: '68%' }}></div>
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <div className="flex justify-between text-sm mb-1">
-                        <span>Chemistry</span>
-                        <span>75%</span>
-                      </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
-                        <div className="bg-green-600 h-2.5 rounded-full" style={{ width: '75%' }}></div>
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <div className="flex justify-between text-sm mb-1">
-                        <span>Biology</span>
-                        <span>52%</span>
-                      </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
-                        <div className="bg-yellow-500 h-2.5 rounded-full" style={{ width: '52%' }}></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Strengths and Weaknesses */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                  <div className="border rounded-lg p-4">
-                    <h3 className="font-medium mb-2 flex items-center">
-                      <span className="h-2 w-2 rounded-full bg-green-500 mr-2"></span>
-                      Strengths
-                    </h3>
-                    <ul className="space-y-1 text-sm">
-                      <li>Physics: Mechanics, Electricity</li>
-                      <li>Chemistry: Periodic Table, Chemical Bonding</li>
-                      <li>Biology: Human Physiology</li>
-                    </ul>
-                  </div>
-                  
-                  <div className="border rounded-lg p-4">
-                    <h3 className="font-medium mb-2 flex items-center">
-                      <span className="h-2 w-2 rounded-full bg-red-500 mr-2"></span>
-                      Areas for Improvement
-                    </h3>
-                    <ul className="space-y-1 text-sm">
-                      <li>Physics: Thermodynamics</li>
-                      <li>Chemistry: Organic Chemistry</li>
-                      <li>Biology: Genetics</li>
-                    </ul>
-                  </div>
-                </div>
-                
-                {/* Time Spent */}
-                <div className="border rounded-lg p-4">
-                  <h3 className="font-medium mb-2">Study Time Distribution</h3>
-                  <div className="grid grid-cols-3 gap-2 text-center">
-                    <div>
-                      <p className="text-2xl font-bold">28</p>
-                      <p className="text-xs text-gray-500">Hours This Week</p>
+                  <div className="flex items-start gap-2">
+                    <div className="mt-0.5">
+                      <BarChart className="h-4 w-4 text-primary" />
                     </div>
                     <div>
-                      <p className="text-2xl font-bold">98</p>
-                      <p className="text-xs text-gray-500">Hours This Month</p>
+                      <p className="text-sm font-medium">Practice Test Completed</p>
+                      <p className="text-xs text-muted-foreground">Physics - Mechanics</p>
+                      <p className="text-xs text-muted-foreground">Yesterday</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <div className="mt-0.5">
+                      <Lightbulb className="h-4 w-4 text-primary" />
                     </div>
                     <div>
-                      <p className="text-2xl font-bold">310</p>
-                      <p className="text-xs text-gray-500">Total Hours</p>
+                      <p className="text-sm font-medium">New Recommendations</p>
+                      <p className="text-xs text-muted-foreground">Based on your recent performance</p>
+                      <p className="text-xs text-muted-foreground">2 days ago</p>
                     </div>
                   </div>
                 </div>
               </CardContent>
               <CardFooter>
-                <Button variant="outline" className="w-full">View Detailed Analytics</Button>
+                <Button variant="outline" className="w-full">View All Activity</Button>
               </CardFooter>
             </Card>
-          </TabsContent>
-        </Tabs>
-      </div>
-    </SharedPageLayout>
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="studyPlans">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Physics Mastery Plan</CardTitle>
+                <CardDescription>Active</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm">Focus on mechanics and electromagnetism</p>
+                <div className="mt-4">
+                  <div className="flex justify-between text-xs text-muted-foreground">
+                    <span>Progress</span>
+                    <span>45%</span>
+                  </div>
+                  <div className="w-full h-2 bg-gray-200 rounded-full mt-1">
+                    <div className="h-2 bg-primary rounded-full w-[45%]"></div>
+                  </div>
+                </div>
+              </CardContent>
+              <CardFooter>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" className="w-full">View Details</Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Physics Mastery Plan</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                      <div>
+                        <Label htmlFor="plan-subject">Subject</Label>
+                        <Select value="physics" disabled>
+                          <SelectTrigger id="plan-subject" className="w-full">
+                            <SelectValue placeholder="Select subject" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="physics">Physics</SelectItem>
+                            <SelectItem value="chemistry">Chemistry</SelectItem>
+                            <SelectItem value="biology">Biology</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      
+                      <div>
+                        <Label htmlFor="plan-duration">Duration</Label>
+                        <Input id="plan-duration" value="8 weeks" readOnly />
+                      </div>
+                      
+                      <div>
+                        <div>
+                          <Label htmlFor="plan-goal">Goal</Label>
+                          <Input id="plan-goal" value="Master mechanics and electromagnetism concepts" readOnly />
+                        </div>
+                      </div>
+                      
+                      <div>
+                        <Label htmlFor="plan-difficulty">Difficulty Level</Label>
+                        <Select value="medium" disabled>
+                          <SelectTrigger id="plan-difficulty" className="w-full">
+                            <SelectValue placeholder="Select level" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="easy">Easy</SelectItem>
+                            <SelectItem value="medium">Medium</SelectItem>
+                            <SelectItem value="hard">Hard</SelectItem>
+                            <SelectItem value="expert">Expert</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      
+                      <div>
+                        <Label htmlFor="plan-schedule">Study Schedule</Label>
+                        <Select value="daily" disabled>
+                          <SelectTrigger id="plan-schedule" className="w-full">
+                            <SelectValue placeholder="Select schedule" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="daily">Daily</SelectItem>
+                            <SelectItem value="weekdays">Weekdays</SelectItem>
+                            <SelectItem value="weekends">Weekends</SelectItem>
+                            <SelectItem value="custom">Custom</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      
+                      <div>
+                        <Label htmlFor="plan-hours">Hours per Day</Label>
+                        <Select value="2" disabled>
+                          <SelectTrigger id="plan-hours" className="w-full">
+                            <SelectValue placeholder="Select hours" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="1">1 hour per day</SelectItem>
+                            <SelectItem value="2">2 hours per day</SelectItem>
+                            <SelectItem value="3">3 hours per day</SelectItem>
+                            <SelectItem value="4">4+ hours per day</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+              </CardFooter>
+            </Card>
+            
+            <Card>
+              <CardHeader>
+                <CardTitle>Chemistry Preparation</CardTitle>
+                <CardDescription>Draft</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm">Organic and inorganic chemistry focus</p>
+                <div className="mt-4">
+                  <div className="flex justify-between text-xs text-muted-foreground">
+                    <span>Progress</span>
+                    <span>Not Started</span>
+                  </div>
+                  <div className="w-full h-2 bg-gray-200 rounded-full mt-1">
+                    <div className="h-2 bg-primary rounded-full w-0"></div>
+                  </div>
+                </div>
+              </CardContent>
+              <CardFooter className="flex justify-between">
+                <Button variant="outline" className="flex-1 mr-2">Edit</Button>
+                <Button variant="default" className="flex-1">Start</Button>
+              </CardFooter>
+            </Card>
+            
+            <Card className="border-dashed border-2 flex flex-col items-center justify-center p-6 hover:border-primary/50 transition-colors cursor-pointer" onClick={() => setShowCreateStudyPlanModal(true)}>
+              <div className="rounded-full bg-primary/10 p-3 mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              </div>
+              <h3 className="font-medium">Create New Study Plan</h3>
+              <p className="text-sm text-muted-foreground text-center mt-2">Create a customized study plan based on your goals</p>
+            </Card>
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="performance">
+          <Card>
+            <CardHeader>
+              <CardTitle>Performance Analytics</CardTitle>
+              <CardDescription>Track your academic progress over time</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="h-[300px] flex items-center justify-center bg-muted/20 rounded-md">
+                <p className="text-muted-foreground">Performance charts will be displayed here</p>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="resources">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Recommended Books</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2">
+                  <li className="text-sm">• Understanding Physics by DC Pandey</li>
+                  <li className="text-sm">• Organic Chemistry by Morrison & Boyd</li>
+                  <li className="text-sm">• Biology by Trueman</li>
+                </ul>
+              </CardContent>
+              <CardFooter>
+                <Button variant="outline" className="w-full">View All</Button>
+              </CardFooter>
+            </Card>
+            
+            <Card>
+              <CardHeader>
+                <CardTitle>Video Resources</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2">
+                  <li className="text-sm">• Khan Academy - Calculus Series</li>
+                  <li className="text-sm">• MIT OpenCourseware - Physics I</li>
+                  <li className="text-sm">• Crash Course - Biology</li>
+                </ul>
+              </CardContent>
+              <CardFooter>
+                <Button variant="outline" className="w-full">View All</Button>
+              </CardFooter>
+            </Card>
+            
+            <Card>
+              <CardHeader>
+                <CardTitle>Practice Resources</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2">
+                  <li className="text-sm">• Previous Year Question Papers</li>
+                  <li className="text-sm">• Mock Tests</li>
+                  <li className="text-sm">• Topic-wise Practice Problems</li>
+                </ul>
+              </CardContent>
+              <CardFooter>
+                <Button variant="outline" className="w-full">View All</Button>
+              </CardFooter>
+            </Card>
+          </div>
+        </TabsContent>
+      </Tabs>
+      
+      {/* Create Study Plan Dialog */}
+      <Dialog open={showCreateStudyPlanModal} onOpenChange={setShowCreateStudyPlanModal}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Create New Study Plan</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div>
+              <Label htmlFor="new-plan-subject">Subject</Label>
+              <Select>
+                <SelectTrigger id="new-plan-subject" className="w-full">
+                  <SelectValue placeholder="Select subject" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="physics">Physics</SelectItem>
+                  <SelectItem value="chemistry">Chemistry</SelectItem>
+                  <SelectItem value="biology">Biology</SelectItem>
+                  <SelectItem value="mathematics">Mathematics</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div>
+              <Label htmlFor="new-plan-goal">Goal</Label>
+              <Input id="new-plan-goal" placeholder="E.g., Master mechanics concepts" />
+            </div>
+            
+            <div>
+              <Label htmlFor="new-plan-duration">Duration (weeks)</Label>
+              <Select>
+                <SelectTrigger id="new-plan-duration" className="w-full">
+                  <SelectValue placeholder="Select duration" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="4">4 weeks</SelectItem>
+                  <SelectItem value="8">8 weeks</SelectItem>
+                  <SelectItem value="12">12 weeks</SelectItem>
+                  <SelectItem value="16">16 weeks</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div>
+              <Label htmlFor="new-plan-difficulty">Difficulty Level</Label>
+              <Select>
+                <SelectTrigger id="new-plan-difficulty" className="w-full">
+                  <SelectValue placeholder="Select level" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="easy">Easy</SelectItem>
+                  <SelectItem value="medium">Medium</SelectItem>
+                  <SelectItem value="hard">Hard</SelectItem>
+                  <SelectItem value="expert">Expert</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div>
+              <Label htmlFor="new-plan-schedule">Study Schedule</Label>
+              <Select>
+                <SelectTrigger id="new-plan-schedule" className="w-full">
+                  <SelectValue placeholder="Select schedule" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="daily">Daily</SelectItem>
+                  <SelectItem value="weekdays">Weekdays</SelectItem>
+                  <SelectItem value="weekends">Weekends</SelectItem>
+                  <SelectItem value="custom">Custom</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div>
+              <Label htmlFor="new-plan-hours">Hours per Day</Label>
+              <Select>
+                <SelectTrigger id="new-plan-hours" className="w-full">
+                  <SelectValue placeholder="Select hours" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="1">1 hour per day</SelectItem>
+                  <SelectItem value="2">2 hours per day</SelectItem>
+                  <SelectItem value="3">3 hours per day</SelectItem>
+                  <SelectItem value="4">4+ hours per day</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" onClick={() => setShowCreateStudyPlanModal(false)}>Cancel</Button>
+            <Button>Create Study Plan</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </div>
   );
 };
 

@@ -1,65 +1,37 @@
 
-export interface AdminDashboardStats {
-  totalUsers: number;
-  monthlyActiveUsers: number;
-  totalStudents: number;
-  activeStudents: number;
-  subscriptionConversionRate: number;
-  churnRate: number;
-  averageStudyTimePerUser: number;
-  practiceAttemptsPerUser: number;
-  userSatisfactionScore: number;
-  referralRate: number;
-  paidUsers: {
-    total: number;
-    breakdown: {
-      free: number;
-      basic: number;
-      premium: number;
-      enterprise: number;
-      school: number;
-      corporate: number;
-    };
-  };
-  totalRevenue: number;
-  totalConcepts: number;
-  totalFlashcards: number;
-  totalQuestions: number;
-  verifiedMoodImprovement: number;
-  averageMoodScore: number;
-  averageTimeSavedPerWeek: number;
-  studyPlanEfficiencyImprovement: number;
-  studentsWithVerifiedConsistentHabits: number;
-  studentsWithConsistentHabits: number;
-  verifiedExamConfidenceImprovement: number;
-  averageConfidenceScore: number;
-  verifiedRetentionRate: number;
-  verifiedMoodFeatureUsage: number;
-  moodBasedSessionsCount: number;
-  totalSessions: number;
-  completedSurveys: number;
-}
-
-export interface StudentData {
-  id: string;
-  name: string;
-  email: string;
-  joinDate: string;
-  lastActive: string;
-  subscriptionTier: string;
-  studyTime: number;
-  completedLessons: number;
-  targetScore: number;
-  avatarUrl?: string;
-}
-
 export interface SystemLog {
   id: string;
   timestamp: string;
-  level: "info" | "warning" | "error" | "critical";
-  source: string;
+  level: 'info' | 'warning' | 'error' | 'debug';
   message: string;
-  details?: string;
-  resolved?: boolean;
-  assignedTo?: string;
+  source: string;
+  details?: Record<string, any>;
+}
+
+export interface AdminUser {
+  id: string;
+  name: string;
+  email: string;
+  role: 'super_admin' | 'admin' | 'moderator';
+  permissions: string[];
+  lastLogin?: string;
+}
+
+export interface SubscriptionPlan {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  billingCycle: 'monthly' | 'yearly';
+  features: string[];
+  isActive: boolean;
+}
+
+export interface DashboardStats {
+  totalUsers: number;
+  activeUsers: number;
+  newUsersToday: number;
+  totalRevenue: number;
+  subscriptionsByPlan: Record<string, number>;
+  dailyActiveUsers: { date: string; count: number }[];
 }

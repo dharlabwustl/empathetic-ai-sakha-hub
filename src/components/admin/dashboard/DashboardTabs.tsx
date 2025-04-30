@@ -1,52 +1,60 @@
 
-import React, { useState } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent } from '@/components/ui/card';
-import { UserProfileBase } from '@/types/user/base';
-import { SystemLog } from '@/types/admin/systemLog';
-import UsersTab from './UsersTab';
-import AnalyticsTab from './AnalyticsTab';
-import ContentTab from './ContentTab';
-import SystemTab from './SystemTab';
+import React from 'react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { SystemLog } from '@/types/admin';
+
+// Import components
+import Overview from './Overview';
+import UsersManagement from './UsersManagement';
+import ContentManagement from './ContentManagement';
+import SystemLogs from './SystemLogs';
+import SubscriptionPlans from './SubscriptionPlans';
 
 interface DashboardTabsProps {
-  users: UserProfileBase[];
-  logs: SystemLog[];
-  analyticsData?: any; // Replace with proper type
-  contentData?: any; // Replace with proper type
+  activeTab: string;
+  onTabChange: (tab: string) => void;
 }
 
-const DashboardTabs: React.FC<DashboardTabsProps> = ({ 
-  users, 
-  logs,
-  analyticsData = {}, 
-  contentData = {} 
-}) => {
-  const [activeTab, setActiveTab] = useState('users');
+const DashboardTabs: React.FC<DashboardTabsProps> = ({ activeTab, onTabChange }) => {
+  // Mock system logs data
+  const logs: SystemLog[] = [
+    { id: '1', timestamp: new Date().toISOString(), level: 'info', message: 'User login successful', source: 'auth' },
+    { id: '2', timestamp: new Date().toISOString(), level: 'error', message: 'Database connection failed', source: 'database' },
+    { id: '3', timestamp: new Date().toISOString(), level: 'warning', message: 'API rate limit exceeded', source: 'api' },
+  ];
 
   return (
-    <Tabs defaultValue="users" value={activeTab} onValueChange={setActiveTab}>
-      <TabsList className="grid grid-cols-4 mb-6">
+    <Tabs 
+      value={activeTab} 
+      onValueChange={onTabChange}
+      className="w-full"
+    >
+      <TabsList className="grid w-full grid-cols-5">
+        <TabsTrigger value="overview">Overview</TabsTrigger>
         <TabsTrigger value="users">Users</TabsTrigger>
-        <TabsTrigger value="analytics">Analytics</TabsTrigger>
         <TabsTrigger value="content">Content</TabsTrigger>
-        <TabsTrigger value="system">System</TabsTrigger>
+        <TabsTrigger value="subscriptions">Subscriptions</TabsTrigger>
+        <TabsTrigger value="logs">System Logs</TabsTrigger>
       </TabsList>
-      
-      <TabsContent value="users" className="mt-0">
-        <UsersTab users={users} />
+
+      <TabsContent value="overview" className="space-y-4 mt-4">
+        <Overview />
       </TabsContent>
       
-      <TabsContent value="analytics" className="mt-0">
-        <AnalyticsTab data={analyticsData} />
+      <TabsContent value="users" className="space-y-4 mt-4">
+        <UsersManagement />
       </TabsContent>
       
-      <TabsContent value="content" className="mt-0">
-        <ContentTab data={contentData} />
+      <TabsContent value="content" className="space-y-4 mt-4">
+        <ContentManagement />
       </TabsContent>
       
-      <TabsContent value="system" className="mt-0">
-        <SystemTab logs={logs} />
+      <TabsContent value="subscriptions" className="space-y-4 mt-4">
+        <SubscriptionPlans />
+      </TabsContent>
+      
+      <TabsContent value="logs" className="space-y-4 mt-4">
+        <SystemLogs logs={logs} />
       </TabsContent>
     </Tabs>
   );

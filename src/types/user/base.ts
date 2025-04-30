@@ -1,51 +1,61 @@
 
+// User roles enum
 export enum UserRole {
-  Admin = "admin",
   Student = "student",
-  Doctor = "doctor",
-  Founder = "founder",
-  Employee = "employee"
+  Teacher = "teacher",
+  Admin = "admin",
+  Moderator = "moderator",
+  Parent = "parent"
 }
 
-export enum SubscriptionType {
-  Free = "Free",
-  Basic = "Basic",
-  Premium = "Premium",
-  Pro = "Pro",
-  Enterprise = "Enterprise",
-  Trial = "Trial",
-  Custom = "Custom"
+// Mood tracking types
+export type MoodType = 'sad' | 'neutral' | 'happy' | 'motivated' | 'stressed' | 'confused';
+
+export interface MoodEntry {
+  mood: MoodType;
+  timestamp: Date;
+  note?: string;
 }
 
-export type MoodType = 'sad' | 'neutral' | 'happy' | 'motivated' | 'anxious' | 'tired' | 'stressed' | 'focused' | 'curious' | 'okay' | 'overwhelmed';
-
-export interface UserSubscription {
-  planType: SubscriptionType;
-  expiryDate?: string;
-  features?: string[];
-}
-
+// Base user profile interface that all user roles extend
 export interface UserProfileBase {
   id: string;
   name: string;
   email: string;
-  role?: UserRole;
+  role: UserRole;
   avatar?: string;
-  avatarUrl?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+  lastLogin?: Date;
   loginCount?: number;
-  subscription?: UserSubscription | SubscriptionType;
-  phone?: string;
-  goals?: { title: string; deadline?: string }[];
-  lastActive?: string;
-  createdAt?: string;
-  bio?: string;
-  streak?: number;
-  studyHours?: number;
-  conceptsLearned?: number;
-  testsCompleted?: number;
-  achievements?: string[];
-  verified?: boolean;
+  moodHistory?: MoodEntry[];
+  currentMood?: MoodType;
+  onboardingCompleted?: boolean;
+  goals?: UserGoal[];
+  timezone?: string;
+  preferences?: UserPreferences;
 }
 
-// For backward compatibility
-export type UserProfileType = UserProfileBase;
+// User goal interface
+export interface UserGoal {
+  id: string;
+  title: string;
+  description?: string;
+  targetDate?: Date;
+  progress?: number;
+  status: 'not_started' | 'in_progress' | 'completed' | 'abandoned';
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+// User preferences
+export interface UserPreferences {
+  theme?: 'light' | 'dark' | 'system';
+  emailNotifications?: boolean;
+  pushNotifications?: boolean;
+  studyReminders?: boolean;
+  language?: string;
+  focusMode?: boolean;
+  showMotivationalQuotes?: boolean;
+  studySessionDuration?: number; // in minutes
+}
