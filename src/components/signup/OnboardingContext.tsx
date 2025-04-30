@@ -1,102 +1,109 @@
 
 import React, { createContext, useContext, useState } from 'react';
-import { MoodType, PersonalityType, UserRole } from '@/types/user/base';
-
-export type OnboardingStep = 
-  | "role" 
-  | "goal" 
-  | "demographics" 
-  | "personality" 
-  | "sentiment"
-  | "studyTime"
-  | "studyPace"
-  | "studyHours"
-  | "habits" 
-  | "interests" 
-  | "signup";
-
-export { UserRole };
-
-export type UserGoal = 
-  | 'IIT-JEE' 
-  | 'NEET' 
-  | 'UPSC' 
-  | 'JEE-Main' 
-  | 'GATE' 
-  | 'CAT' 
-  | 'Banking' 
-  | 'SSC' 
-  | 'State-PCS'
-  | 'Other';
+import { useNavigate } from 'react-router-dom';
 
 interface OnboardingContextType {
-  currentStep: OnboardingStep;
-  goToNextStep: () => void;
-  goToPreviousStep: () => void;
-  setStep: (step: OnboardingStep) => void;
-  onboardingData: any;
-  setOnboardingData: React.Dispatch<React.SetStateAction<any>>;
+  currentStep: number;
+  formData: {
+    name: string;
+    email: string;
+    password: string;
+    examGoal: string;
+    agreeToTerms: boolean;
+  };
+  updateFormData: (data: Partial<OnboardingContextType['formData']>) => void;
+  nextStep: () => void;
+  prevStep: () => void;
+  resetForm: () => void;
+  submitForm: () => void;
+  isSubmitting: boolean;
 }
 
+const defaultFormData = {
+  name: '',
+  email: '',
+  password: '',
+  examGoal: '',
+  agreeToTerms: false,
+};
+
 const OnboardingContext = createContext<OnboardingContextType>({
-  currentStep: "role",
-  goToNextStep: () => {},
-  goToPreviousStep: () => {},
-  setStep: () => {},
-  onboardingData: {},
-  setOnboardingData: () => {},
+  currentStep: 1,
+  formData: defaultFormData,
+  updateFormData: () => {},
+  nextStep: () => {},
+  prevStep: () => {},
+  resetForm: () => {},
+  submitForm: () => {},
+  isSubmitting: false,
 });
 
-const STEPS: OnboardingStep[] = [
-  "role", 
-  "goal", 
-  "demographics", 
-  "personality", 
-  "sentiment", 
-  "studyTime",
-  "studyPace",
-  "studyHours",
-  "habits", 
-  "interests", 
-  "signup"
-];
+export const useOnboarding = () => useContext(OnboardingContext);
 
 export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [currentStep, setCurrentStep] = useState<OnboardingStep>("role");
-  const [onboardingData, setOnboardingData] = useState<any>({});
+  const [currentStep, setCurrentStep] = useState(1);
+  const [formData, setFormData] = useState(defaultFormData);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const navigate = useNavigate();
 
-  const goToNextStep = () => {
-    const currentIndex = STEPS.indexOf(currentStep);
-    if (currentIndex < STEPS.length - 1) {
-      setCurrentStep(STEPS[currentIndex + 1]);
-    }
+  const updateFormData = (data: Partial<typeof formData>) => {
+    setFormData({ ...formData, ...data });
   };
 
-  const goToPreviousStep = () => {
-    const currentIndex = STEPS.indexOf(currentStep);
-    if (currentIndex > 0) {
-      setCurrentStep(STEPS[currentIndex - 1]);
-    }
+  const nextStep = () => {
+    setCurrentStep((prev) => Math.min(prev + 1, 3));
   };
 
-  const setStep = (step: OnboardingStep) => {
-    setCurrentStep(step);
+  const prevStep = () => {
+    setCurrentStep((prev) => Math.max(prev - 1, 1));
+  };
+
+  const resetForm = () => {
+    setCurrentStep(1);
+    setFormData(defaultFormData);
+  };
+
+  const submitForm = async () => {
+    setIsSubmitting(true);
+    try {
+      // Here you would typically call your API to register the user
+      
+      // Mock successful registration
+      // Store user data in localStorage for demo
+      localStorage.setItem('userData', JSON.stringify({
+        id: `user-${Math.random().toString(36).substr(2, 9)}`,
+        name: formData.name,
+        email: formData.email,
+        role: 'student',
+        examGoal: formData.examGoal,
+        isActive: true,
+        loginCount: 1,
+        createdAt: new Date().toISOString()
+      }));
+      
+      // Redirect to post-signup flow instead of dashboard
+      navigate('/post-signup');
+    } catch (error) {
+      console.error('Error registering user:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
-    <OnboardingContext.Provider 
-      value={{ 
-        currentStep, 
-        goToNextStep, 
-        goToPreviousStep, 
-        setStep,
-        onboardingData,
-        setOnboardingData
+    <OnboardingContext.Provider
+      value={{
+        currentStep,
+        formData,
+        updateFormData,
+        nextStep,
+        prevStep,
+        resetForm,
+        submitForm,
+        isSubmitting,
       }}
     >
       {children}
     </OnboardingContext.Provider>
   );
 };
-
-export const useOnboarding = () => useContext(OnboardingContext);

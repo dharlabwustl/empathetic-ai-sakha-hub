@@ -26,6 +26,8 @@ import StudyPlanCreation from './pages/StudyPlanCreation';
 import ConceptCardStudyPage from './pages/dashboard/student/concept/ConceptCardStudyPage';
 import Login from './pages/Login';
 import EnhancedFlashcardPage from './pages/dashboard/student/flashcards/EnhancedFlashcardPage';
+import PostSignupFlow from './pages/signup/PostSignupFlow';
+import WelcomeToPrepr from './pages/signup/WelcomeToPrepr';
 
 const AdminDashboard = React.lazy(() => import('@/pages/admin/AdminDashboard'));
 
@@ -42,7 +44,9 @@ function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<SignUp />} />
 
-              {/* Post-signup & post-login routes */}
+              {/* Post-signup flow */}
+              <Route path="/welcome" element={<WelcomeToPrepr />} />
+              <Route path="/post-signup" element={<PostSignupFlow />} />
               <Route path="/study-plan-creation" element={<StudyPlanCreation />} />
               <Route path="/welcome-back" element={<PostLoginPrompt />} />
 

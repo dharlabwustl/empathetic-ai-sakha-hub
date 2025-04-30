@@ -25,6 +25,19 @@ export enum MoodType {
   Calm = "calm"
 }
 
+export enum SubscriptionType {
+  FREE = "free",
+  TRIAL = "trial",
+  BASIC = "basic",
+  PREMIUM = "premium",
+  PRO_MONTHLY = "pro_monthly",
+  PRO_ANNUAL = "pro_annual",
+  GROUP_SMALL = "group_small",
+  GROUP_MEDIUM = "group_medium",
+  GROUP_LARGE = "group_large",
+  ENTERPRISE = "enterprise"
+}
+
 export interface UserProfileBase {
   id: string;
   name: string;
@@ -36,6 +49,7 @@ export interface UserProfileBase {
   createdAt?: string;
   lastLogin?: string;
   image?: string;
+  avatar?: string;
   pronouns?: string;
   isActive?: boolean;
   profile?: UserProfile;

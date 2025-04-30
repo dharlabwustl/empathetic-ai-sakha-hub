@@ -47,7 +47,7 @@ const AcademicAdvisor: React.FC<AcademicAdvisorProps> = ({ userProfile }) => {
 
       {/* Study Plan Creation Dialog */}
       <CreateStudyPlanWizard
-        isOpen={showCreateDialog}
+        open={showCreateDialog}
         onClose={() => setShowCreateDialog(false)}
         examGoal={userProfile?.examPreparation}
         onCreatePlan={handleNewPlanCreated}
