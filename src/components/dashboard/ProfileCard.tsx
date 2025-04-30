@@ -1,129 +1,115 @@
 
 import React from 'react';
-import { UserProfileBase } from "@/types/user/base";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Trophy, Star, Clock, Zap } from 'lucide-react';
-import { SubscriptionType } from '@/types/user/base';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { UserProfileBase, SubscriptionType } from '@/types/user/base';
+import { formatDistanceToNow } from 'date-fns';
 
 interface ProfileCardProps {
-  profile: UserProfileBase;
+  userProfile: UserProfileBase;
+  className?: string;
 }
 
-const ProfileCard: React.FC<ProfileCardProps> = ({ profile }) => {
-  // Avatar initials
-  const nameInitials = profile.name
+export default function ProfileCard({ userProfile, className = '' }: ProfileCardProps) {
+  const initials = userProfile.name
     .split(' ')
-    .map(name => name[0])
+    .map(n => n[0])
     .join('')
     .toUpperCase();
-  
-  // Determine subscription tier
-  const getSubscriptionTier = () => {
-    if (!profile.subscription) {
-      return SubscriptionType.free;
+    
+  const getSubscriptionBadge = () => {
+    // Default to Free plan
+    let plan = SubscriptionType.Free;
+    
+    if (userProfile.subscription) {
+      if (typeof userProfile.subscription === 'object') {
+        plan = userProfile.subscription.planType;
+      } else {
+        plan = userProfile.subscription;
+      }
     }
     
-    if (typeof profile.subscription === 'string') {
-      return profile.subscription;
-    }
+    // Color mapping based on subscription type
+    const badgeColors: Record<SubscriptionType, string> = {
+      [SubscriptionType.Free]: 'bg-gray-100 text-gray-800 border-gray-200',
+      [SubscriptionType.Basic]: 'bg-blue-100 text-blue-800 border-blue-200',
+      [SubscriptionType.Premium]: 'bg-purple-100 text-purple-800 border-purple-200',
+      [SubscriptionType.Pro]: 'bg-indigo-100 text-indigo-800 border-indigo-200',
+      [SubscriptionType.Enterprise]: 'bg-emerald-100 text-emerald-800 border-emerald-200',
+      [SubscriptionType.Trial]: 'bg-amber-100 text-amber-800 border-amber-200',
+      [SubscriptionType.Custom]: 'bg-pink-100 text-pink-800 border-pink-200'
+    };
     
-    return profile.subscription.type || SubscriptionType.free;
+    // Label mapping based on subscription type
+    const badgeLabels: Record<SubscriptionType, string> = {
+      [SubscriptionType.Free]: 'Free Plan',
+      [SubscriptionType.Basic]: 'Basic Plan',
+      [SubscriptionType.Premium]: 'Premium',
+      [SubscriptionType.Pro]: 'Pro',
+      [SubscriptionType.Enterprise]: 'Enterprise',
+      [SubscriptionType.Trial]: 'Trial',
+      [SubscriptionType.Custom]: 'Custom Plan'
+    };
+    
+    return (
+      <Badge 
+        variant="outline" 
+        className={`${badgeColors[plan]} text-xs font-normal ml-2`}
+      >
+        {badgeLabels[plan]}
+      </Badge>
+    );
   };
   
-  const subscriptionTier = getSubscriptionTier();
-  
-  // Subscription display elements
-  const subscriptionColors: Record<SubscriptionType, string> = {
-    [SubscriptionType.free]: "bg-gray-100 text-gray-800",
-    [SubscriptionType.premium]: "bg-purple-100 text-purple-800",
-    [SubscriptionType.pro_student]: "bg-amber-100 text-amber-800",
-    [SubscriptionType.pro_educator]: "bg-emerald-100 text-emerald-800"
+  const formatLastActive = () => {
+    if (!userProfile.lastActive) return 'No activity yet';
+    try {
+      return `Last active ${formatDistanceToNow(new Date(userProfile.lastActive), { addSuffix: true })}`;
+    } catch (e) {
+      return 'Last active recently';
+    }
   };
-  
-  const subscriptionLabels: Record<SubscriptionType, string> = {
-    [SubscriptionType.free]: "Free Plan",
-    [SubscriptionType.premium]: "Premium",
-    [SubscriptionType.pro_student]: "Pro Student",
-    [SubscriptionType.pro_educator]: "Pro Educator"
-  };
-  
+
   return (
-    <Card>
-      <CardContent className="p-0">
-        {/* Header with gradient background */}
-        <div className="bg-gradient-to-r from-blue-50 to-violet-50 dark:from-blue-950/30 dark:to-violet-950/30 p-5 relative">
-          {/* Avatar and basic info */}
-          <div className="flex items-center gap-4">
-            <Avatar className="h-16 w-16 border-2 border-white">
-              <AvatarImage src={profile.avatarUrl} />
-              <AvatarFallback className="bg-primary text-primary-foreground text-lg">
-                {nameInitials}
-              </AvatarFallback>
-            </Avatar>
-            <div>
-              <h3 className="font-semibold text-lg">{profile.name}</h3>
-              <div className="flex items-center gap-2 mt-1">
-                <Badge 
-                  variant="outline"
-                  className={subscriptionColors[subscriptionTier] || "bg-gray-100 text-gray-800"}
-                >
-                  {subscriptionLabels[subscriptionTier] || "Free Plan"}
-                </Badge>
-              </div>
-            </div>
-          </div>
-          
-          {/* Decorative star */}
-          <div className="absolute right-5 top-5">
-            <Star className="h-5 w-5 text-amber-500 fill-amber-500" />
+    <Card className={`overflow-hidden ${className}`}>
+      <CardHeader className="bg-gradient-to-r from-violet-600 to-indigo-600 text-white py-4">
+        <div className="flex items-center space-x-4">
+          <Avatar className="h-12 w-12 border-2 border-white">
+            <AvatarImage src={userProfile.avatarUrl || userProfile.avatar} />
+            <AvatarFallback className="bg-violet-800 text-white">{initials}</AvatarFallback>
+          </Avatar>
+          <div>
+            <CardTitle className="text-white flex items-center">
+              {userProfile.name}
+              {getSubscriptionBadge()}
+            </CardTitle>
+            <CardDescription className="text-violet-100 mt-0.5">
+              {formatLastActive()}
+            </CardDescription>
           </div>
         </div>
-        
-        {/* Main content */}
-        <div className="p-5">
-          {/* Goal info */}
-          <div className="mb-4">
-            <div className="flex items-center text-sm text-muted-foreground">
-              <span>Goal: </span>
-              <Badge variant="secondary" className="ml-2">
-                {profile.goals?.[0]?.title || "Not set"}
-              </Badge>
-            </div>
+      </CardHeader>
+      <CardContent className="pt-4">
+        <div className="grid grid-cols-2 gap-4 text-sm">
+          <div>
+            <p className="text-muted-foreground">Study Streak</p>
+            <p className="font-medium">{userProfile.streak || 0} days</p>
           </div>
-          
-          {/* Stats */}
-          <div className="grid grid-cols-2 gap-3 mb-4">
-            <div className="bg-muted/40 p-3 rounded-lg">
-              <div className="flex items-center gap-2 mb-1">
-                <Zap className="h-4 w-4 text-primary" />
-                <span className="text-sm text-muted-foreground">Study Streak</span>
-              </div>
-              <p className="text-xl font-semibold">{profile.streak || 0}</p>
-            </div>
-            <div className="bg-muted/40 p-3 rounded-lg">
-              <div className="flex items-center gap-2 mb-1">
-                <Clock className="h-4 w-4 text-primary" />
-                <span className="text-sm text-muted-foreground">Hours Today</span>
-              </div>
-              <p className="text-xl font-semibold">{profile.dailyStudyHours || 0}</p>
-            </div>
+          <div>
+            <p className="text-muted-foreground">Study Hours</p>
+            <p className="font-medium">{userProfile.studyHours || 0} hours</p>
           </div>
-          
-          {/* Actions */}
-          <div className="flex flex-col space-y-2">
-            <Button variant="default" className="w-full">View Profile</Button>
-            <Button variant="outline" className="w-full flex items-center justify-center">
-              <Trophy className="mr-2 h-4 w-4" />
-              View Achievements
-            </Button>
+          <div>
+            <p className="text-muted-foreground">Concepts</p>
+            <p className="font-medium">{userProfile.conceptsLearned || 0} mastered</p>
+          </div>
+          <div>
+            <p className="text-muted-foreground">Tests</p>
+            <p className="font-medium">{userProfile.testsCompleted || 0} completed</p>
           </div>
         </div>
       </CardContent>
     </Card>
   );
-};
-
-export default ProfileCard;
+}

@@ -1,59 +1,54 @@
 
 import React from 'react';
-import { UserProfileType } from "@/types/user";
-import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
-import KpiCard from "@/components/dashboard/KpiCard";
-import NudgePanel from "@/components/dashboard/NudgePanel";
-import ProfileCard from "@/components/dashboard/ProfileCard";
-import FeatureCard from "@/components/dashboard/FeatureCard";
-import TodayStudyPlan from "@/components/dashboard/student/TodayStudyPlan";
-import ExamReadinessMeter from './metrics/ExamReadinessMeter';
-import { motion } from "framer-motion";
-import { Coffee, BookOpen, AlertCircle } from 'lucide-react';
-import { useMediaQuery } from "@/hooks/useMediaQuery";
-import SubscriptionBanner from "@/components/dashboard/student/SubscriptionBanner";
+import { useNavigate } from 'react-router-dom';
+import { useStudentDashboardData } from '@/hooks/useStudentDashboardData';
+import { UserProfileBase } from '@/types/user/base';
+import { KpiData } from '@/hooks/useKpiTracking';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
+import { motion } from 'framer-motion';
+import KpiCard from '@/components/dashboard/KpiCard';
+import FeatureHighlights from '@/components/dashboard/student/FeatureHighlights';
+import RecommendedResources from '@/components/dashboard/student/RecommendedResources';
+import UpcomingTasks from '@/components/dashboard/student/UpcomingTasks';
+import StudyProgress from '@/components/dashboard/student/StudyProgress';
+import SubjectPerformance from '@/components/dashboard/student/SubjectPerformance';
+import MoodTracking from '@/components/dashboard/student/MoodTracking';
+import { 
+  Layout, Calendar, BookOpen, FileCheck, FileSearch, 
+  ChevronRight, Lightbulb, Target, Clock
+} from 'lucide-react';
 
 interface DashboardOverviewProps {
-  userProfile: UserProfileType;
+  userProfile: UserProfileBase;
   kpis: KpiData[];
-  nudges: NudgeData[];
-  markNudgeAsRead: (id: string) => void;
-  features: {
-    icon?: React.ReactNode;
-    title: string;
-    description: string;
-    path: string;
-    isPremium: boolean;
-  }[];
 }
 
-export default function DashboardOverview({
-  userProfile,
-  kpis,
-  nudges,
-  markNudgeAsRead,
-  features
+export default function DashboardOverview({ 
+  userProfile, 
+  kpis 
 }: DashboardOverviewProps) {
-  const isMobile = useMediaQuery("(max-width: 640px)");
-  
-  // Animation variants
+  const { loading, dashboardData, refreshData } = useStudentDashboardData();
+  const navigate = useNavigate();
+
   const containerVariants = {
     hidden: { opacity: 0 },
-    visible: { 
+    visible: {
       opacity: 1,
-      transition: { 
+      transition: {
         when: "beforeChildren",
         staggerChildren: 0.1
       }
     }
   };
-  
+
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
-    visible: { 
-      opacity: 1, 
+    visible: {
+      opacity: 1,
       y: 0,
-      transition: { 
+      transition: {
         type: "spring",
         stiffness: 260,
         damping: 20
@@ -61,145 +56,150 @@ export default function DashboardOverview({
     }
   };
 
-  // Current time for personalized tip
-  const currentHour = new Date().getHours();
-  let studyTip = "";
-  let tipIcon = <Coffee className="text-amber-500" />;
-
-  if (currentHour < 12) {
-    studyTip = "Morning study sessions can boost retention. Take advantage of your fresh mind!";
-    tipIcon = <Coffee className="text-amber-500" />;
-  } else if (currentHour < 17) {
-    studyTip = "Afternoon slump? Try a 5-minute walk, then tackle your most challenging subject.";
-    tipIcon = <BookOpen className="text-emerald-500" />;
-  } else {
-    studyTip = "Evening review helps consolidate memory. Try summarizing today's key concepts.";
-    tipIcon = <AlertCircle className="text-violet-500" />;
+  if (loading || !dashboardData) {
+    return (
+      <div className="space-y-6">
+        <Skeleton className="h-12 w-3/4" />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {[1, 2, 3, 4].map(i => (
+            <Skeleton key={i} className="h-32" />
+          ))}
+        </div>
+      </div>
+    );
   }
-
-  // Helper function to determine user's subscription type
-  const getUserSubscriptionType = (): string => {
-    if (!userProfile.subscription) return 'free';
-    
-    if (typeof userProfile.subscription === 'object') {
-      return userProfile.subscription.planType;
-    }
-    
-    return userProfile.subscription;
-  };
-
-  // Mock readiness data - in a real app, this would come from props or an API
-  const readinessData = {
-    conceptCompletion: 75,
-    flashcardAccuracy: 82,
-    examScores: {
-      physics: 78,
-      chemistry: 85,
-      mathematics: 80
-    },
-    overallReadiness: 78,
-    timestamp: new Date().toISOString()
-  };
 
   return (
     <motion.div
+      className="space-y-6"
       variants={containerVariants}
       initial="hidden"
       animate="visible"
     >
-      {/* Subscription Banner */}
-      <motion.div variants={itemVariants} className="mb-6">
-        <SubscriptionBanner subscription={userProfile.subscription} />
+      <motion.div variants={itemVariants}>
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
+          <div>
+            <h2 className="text-2xl font-bold">Dashboard Overview</h2>
+            <p className="text-muted-foreground">
+              Your learning progress at a glance
+            </p>
+          </div>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="mt-2 sm:mt-0"
+            onClick={refreshData}
+          >
+            Refresh Data
+          </Button>
+        </div>
       </motion.div>
 
-      {/* Study Tip Banner */}
-      <motion.div
-        variants={itemVariants}
-        className="mb-6 bg-gradient-to-r from-amber-50 to-violet-50 dark:from-amber-900/20 dark:to-violet-900/20 p-4 rounded-xl border border-amber-100 dark:border-amber-700/30 shadow-sm"
-      >
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-white dark:bg-gray-800 shadow flex items-center justify-center">
-            {tipIcon}
+      <motion.div variants={itemVariants}>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {kpis.map((kpi, index) => (
+            <KpiCard 
+              key={kpi.id} 
+              title={kpi.title} 
+              value={kpi.value}
+              unit={kpi.unit}
+              icon={kpi.icon} 
+              change={kpi.change}
+              changeType={kpi.changeType}
+              delay={index * 0.1}
+            />
+          ))}
+        </div>
+      </motion.div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <motion.div variants={itemVariants} className="lg:col-span-2">
+          <StudyProgress progressData={dashboardData.progressData} />
+        </motion.div>
+        <motion.div variants={itemVariants}>
+          <MoodTracking />
+        </motion.div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <motion.div variants={itemVariants} className="lg:col-span-2">
+          <SubjectPerformance subjects={dashboardData.subjects} />
+        </motion.div>
+        <motion.div variants={itemVariants}>
+          <UpcomingTasks tasks={dashboardData.upcomingTasks} />
+        </motion.div>
+      </div>
+
+      <motion.div variants={itemVariants}>
+        <Card className="p-5">
+          <h3 className="text-lg font-medium flex items-center mb-4">
+            <Layout className="mr-2 h-5 w-5 text-primary" />
+            Quick Actions
+          </h3>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <Button variant="outline" className="h-auto py-4 flex flex-col items-center justify-center" onClick={() => navigate('/dashboard/student/today')}>
+              <Calendar className="h-6 w-6 mb-2" />
+              <span>Today's Plan</span>
+            </Button>
+            <Button variant="outline" className="h-auto py-4 flex flex-col items-center justify-center" onClick={() => navigate('/dashboard/student/concepts')}>
+              <BookOpen className="h-6 w-6 mb-2" />
+              <span>Concept Cards</span>
+            </Button>
+            <Button variant="outline" className="h-auto py-4 flex flex-col items-center justify-center" onClick={() => navigate('/dashboard/student/flashcards')}>
+              <FileCheck className="h-6 w-6 mb-2" />
+              <span>Flashcards</span>
+            </Button>
+            <Button variant="outline" className="h-auto py-4 flex flex-col items-center justify-center" onClick={() => navigate('/dashboard/student/practice-exam')}>
+              <FileSearch className="h-6 w-6 mb-2" />
+              <span>Practice Exams</span>
+            </Button>
           </div>
-          <div>
-            <h3 className="font-medium text-sm text-amber-800 dark:text-amber-300">Today's Study Tip</h3>
-            <p className="text-sm text-gray-700 dark:text-gray-300">{studyTip}</p>
+        </Card>
+      </motion.div>
+
+      <motion.div variants={itemVariants}>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <div className="lg:col-span-8">
+            <FeatureHighlights features={dashboardData.features} />
+          </div>
+          <div className="lg:col-span-4">
+            <RecommendedResources resources={dashboardData.recommendedResources} />
           </div>
         </div>
       </motion.div>
 
-      {/* KPI Cards */}
-      <motion.div 
-        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8"
-        variants={itemVariants}
-      >
-        {kpis.map((kpi, index) => (
-          <KpiCard key={kpi.id} kpi={kpi} delay={index} />
-        ))}
-      </motion.div>
-      
-      {/* Exam Readiness Meter - Moved here from profile page */}
-      <motion.div 
-        className="mb-6"
-        variants={itemVariants}
-      >
-        <ExamReadinessMeter readinessData={readinessData} />
-      </motion.div>
-      
-      {/* Study Plan and Profile */}
-      <motion.div 
-        className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8"
-        variants={itemVariants}
-      >
-        <motion.div 
-          className="lg:col-span-2"
-          whileHover={{ scale: isMobile ? 1.005 : 1.01, transition: { duration: 0.2 } }}
-          variants={itemVariants}
-        >
-          <TodayStudyPlan />
-        </motion.div>
-        <motion.div
-          whileHover={{ scale: isMobile ? 1.005 : 1.02, transition: { duration: 0.2 } }}
-          variants={itemVariants}
-        >
-          <ProfileCard profile={userProfile} />
-        </motion.div>
-      </motion.div>
-      
-      {/* Nudges */}
-      <motion.div 
-        variants={itemVariants}
-        className="mb-6"
-      >
-        <NudgePanel nudges={nudges} markAsRead={markNudgeAsRead} />
-      </motion.div>
-      
-      {/* Feature Cards */}
-      <motion.div 
-        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6"
-        variants={itemVariants}
-      >
-        {features.map((feature, index) => (
-          <motion.div
-            key={index}
-            variants={itemVariants}
-            custom={index}
-            whileHover={{ 
-              scale: isMobile ? 1.01 : 1.05, 
-              transition: { duration: 0.2 },
-              boxShadow: "0 10px 30px -10px rgba(0,0,0,0.1)"
-            }}
-          >
-            <FeatureCard
-              title={feature.title}
-              description={feature.description}
-              icon={feature.icon}
-              path={feature.path}
-              isPremium={feature.isPremium}
-              userSubscription={getUserSubscriptionType()}
-            />
-          </motion.div>
-        ))}
+      <motion.div variants={itemVariants}>
+        <Card className="bg-gradient-to-r from-violet-50 to-indigo-50 dark:from-violet-950/50 dark:to-indigo-950/50 border-violet-100 dark:border-violet-900/50">
+          <div className="p-6">
+            <div className="flex items-start justify-between">
+              <div>
+                <div className="flex items-center text-violet-600 dark:text-violet-300 mb-2">
+                  <Lightbulb className="h-5 w-5 mr-2" />
+                  <h3 className="text-lg font-medium">AI-Generated Study Tip</h3>
+                </div>
+                <p className="text-gray-700 dark:text-gray-300">
+                  Based on your recent activity, focus on "Newton's Laws of Motion" before moving to advanced topics in Physics. This foundation will help you better understand upcoming concepts.
+                </p>
+                <div className="flex flex-col sm:flex-row sm:items-center gap-3 mt-4">
+                  <div className="flex items-center text-sm text-violet-600 dark:text-violet-300">
+                    <Target className="h-4 w-4 mr-1" />
+                    <span>Recommended Practice: Force & Motion Flashcards</span>
+                  </div>
+                  <div className="flex items-center text-sm text-violet-600 dark:text-violet-300">
+                    <Clock className="h-4 w-4 mr-1" />
+                    <span>Estimated time: 30 minutes</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="mt-4 text-right">
+              <Button variant="ghost" size="sm" className="text-violet-600 dark:text-violet-300">
+                Start Practice
+                <ChevronRight className="h-4 w-4 ml-1" />
+              </Button>
+            </div>
+          </div>
+        </Card>
       </motion.div>
     </motion.div>
   );

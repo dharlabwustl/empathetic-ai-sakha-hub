@@ -1,256 +1,145 @@
 
-import React, { useState } from 'react';
-import { UserProfileBase } from "@/types/user/base";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Progress } from "@/components/ui/progress";
-import { 
-  Trophy, 
-  Star, 
-  Clock, 
-  Calendar, 
-  BookOpen, 
-  FileText, 
-  Brain, 
-  Award, 
-  Zap, 
-  ChevronRight,
-  User,
-  Sparkles
-} from 'lucide-react';
-import { SubscriptionType } from '@/types/user/base';
+import React from 'react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { UserProfileBase, SubscriptionType } from '@/types/user/base';
+import { formatDistanceToNow } from 'date-fns';
+import { Award, Clock, Flame, Star } from 'lucide-react';
 
 interface EnhancedProfileCardProps {
-  profile: UserProfileBase;
-  showDetails?: boolean;
+  userProfile: UserProfileBase;
   className?: string;
 }
 
-export function EnhancedProfileCard({ profile, showDetails = false, className }: EnhancedProfileCardProps) {
-  const [activeTab, setActiveTab] = useState("stats");
-  
-  // Avatar initials
-  const nameInitials = profile.name
+export default function EnhancedProfileCard({ userProfile, className = '' }: EnhancedProfileCardProps) {
+  const initials = userProfile.name
     .split(' ')
-    .map(name => name[0])
+    .map(n => n[0])
     .join('')
     .toUpperCase();
-  
-  // Determine subscription tier
-  const getSubscriptionTier = () => {
-    if (!profile.subscription) {
-      return SubscriptionType.free;
+    
+  const getSubscriptionBadge = () => {
+    // Default to Free plan
+    let plan = SubscriptionType.Free;
+    
+    if (userProfile.subscription) {
+      if (typeof userProfile.subscription === 'object') {
+        plan = userProfile.subscription.planType;
+      } else {
+        plan = userProfile.subscription;
+      }
     }
     
-    if (typeof profile.subscription === 'string') {
-      return profile.subscription;
-    }
+    // Color mapping based on subscription type
+    const badgeColors: Record<SubscriptionType, string> = {
+      [SubscriptionType.Free]: 'bg-gray-100 text-gray-800 border-gray-200',
+      [SubscriptionType.Basic]: 'bg-blue-100 text-blue-800 border-blue-200',
+      [SubscriptionType.Premium]: 'bg-purple-100 text-purple-800 border-purple-200',
+      [SubscriptionType.Pro]: 'bg-indigo-100 text-indigo-800 border-indigo-200',
+      [SubscriptionType.Enterprise]: 'bg-emerald-100 text-emerald-800 border-emerald-200',
+      [SubscriptionType.Trial]: 'bg-amber-100 text-amber-800 border-amber-200',
+      [SubscriptionType.Custom]: 'bg-pink-100 text-pink-800 border-pink-200'
+    };
     
-    return profile.subscription.type || SubscriptionType.free;
+    // Label mapping based on subscription type
+    const badgeLabels: Record<SubscriptionType, string> = {
+      [SubscriptionType.Free]: 'Free Plan',
+      [SubscriptionType.Basic]: 'Basic Plan',
+      [SubscriptionType.Premium]: 'Premium',
+      [SubscriptionType.Pro]: 'Pro',
+      [SubscriptionType.Enterprise]: 'Enterprise',
+      [SubscriptionType.Trial]: 'Trial',
+      [SubscriptionType.Custom]: 'Custom Plan'
+    };
+    
+    return (
+      <Badge 
+        variant="outline" 
+        className={`${badgeColors[plan]} text-xs font-normal ml-2`}
+      >
+        {badgeLabels[plan]}
+      </Badge>
+    );
   };
   
-  const subscriptionTier = getSubscriptionTier();
+  const formatLastActive = () => {
+    if (!userProfile.lastActive) return 'No activity yet';
+    try {
+      return `Last active ${formatDistanceToNow(new Date(userProfile.lastActive), { addSuffix: true })}`;
+    } catch (e) {
+      return 'Last active recently';
+    }
+  };
 
-  // Subscription display elements
-  const subscriptionColors: Record<SubscriptionType, string> = {
-    [SubscriptionType.free]: "bg-gray-100 text-gray-800",
-    [SubscriptionType.premium]: "bg-purple-100 text-purple-800",
-    [SubscriptionType.pro_student]: "bg-amber-100 text-amber-800",
-    [SubscriptionType.pro_educator]: "bg-emerald-100 text-emerald-800"
-  };
-  
-  const subscriptionLabels: Record<SubscriptionType, string> = {
-    [SubscriptionType.free]: "Free Plan",
-    [SubscriptionType.premium]: "Premium",
-    [SubscriptionType.pro_student]: "Pro Student",
-    [SubscriptionType.pro_educator]: "Pro Educator"
-  };
-  
-  const subscriptionBadgeColor = subscriptionColors[subscriptionTier] || "bg-gray-100 text-gray-800";
-  const subscriptionLabel = subscriptionLabels[subscriptionTier] || "Free Plan";
-  
-  // Engagement metrics (mock data for UI demonstration)
-  const engagementStats = [
-    { label: "Study Streak", value: profile.streak || 0, icon: Zap },
-    { label: "Hours Studied", value: profile.studyHours || 0, icon: Clock },
-    { label: "Concepts Learned", value: profile.conceptsLearned || 0, icon: BookOpen },
-    { label: "Tests Completed", value: profile.testsCompleted || 0, icon: FileText }
-  ];
-  
-  // Achievements (mock data)
-  const achievements = [
-    { name: "7-Day Study Streak", icon: Zap, description: "Studied for 7 consecutive days" },
-    { name: "Concept Master", icon: BookOpen, description: "Completed 50 concept cards" },
-    { name: "Quiz Champion", icon: Trophy, description: "Scored 90%+ in 5 quizzes" },
-    { name: "Early Bird", icon: Calendar, description: "Studied before 8 AM for 5 days" }
-  ];
-  
-  // Subject progress (mock data)
-  const subjectProgress = [
-    { subject: "Physics", progress: 65 },
-    { subject: "Chemistry", progress: 78 },
-    { subject: "Mathematics", progress: 42 }
-  ];
-  
+  const goalText = userProfile.goals && userProfile.goals.length > 0 
+    ? userProfile.goals[0].title
+    : "No goal set";
+
   return (
     <Card className={`overflow-hidden ${className}`}>
-      <CardContent className="p-0">
-        {/* Header with avatar and basic info */}
-        <div className="bg-gradient-to-r from-blue-50 to-violet-50 dark:from-blue-950/30 dark:to-violet-950/30 p-5 relative">
-          <div className="flex items-center gap-4 mb-2">
-            <Avatar className="h-16 w-16 border-2 border-white">
-              <AvatarImage src={profile.avatarUrl} />
-              <AvatarFallback className="bg-primary text-lg">
-                {nameInitials}
-              </AvatarFallback>
-            </Avatar>
-            <div>
-              <h3 className="font-semibold text-lg">{profile.name}</h3>
-              <div className="flex items-center gap-2 mt-1">
-                <Badge variant="outline" className={subscriptionBadgeColor}>
-                  {subscriptionLabel}
-                </Badge>
-                {profile.verified && (
-                  <Badge variant="outline" className="bg-emerald-100 text-emerald-800">Verified</Badge>
-                )}
-              </div>
-            </div>
-          </div>
-          
-          {/* User goal info */}
-          <div className="pl-20">
-            <div className="flex items-center text-sm text-muted-foreground">
-              <span>Goal: </span>
-              <Badge variant="secondary" className="ml-2">
-                {profile.goals?.[0]?.title || "Not set"}
+      <CardHeader className="bg-gradient-to-r from-violet-600 to-indigo-600 text-white py-4">
+        <div className="flex items-center space-x-4">
+          <Avatar className="h-16 w-16 border-2 border-white">
+            <AvatarImage src={userProfile.avatarUrl || userProfile.avatar} />
+            <AvatarFallback className="bg-violet-800 text-white text-xl">{initials}</AvatarFallback>
+          </Avatar>
+          <div>
+            <CardTitle className="text-white flex items-center text-xl">
+              {userProfile.name}
+              {getSubscriptionBadge()}
+            </CardTitle>
+            <CardDescription className="text-violet-100 mt-0.5 flex items-center">
+              <Clock className="h-3 w-3 mr-1 opacity-70" />
+              {formatLastActive()}
+            </CardDescription>
+            <div className="mt-2 flex items-center">
+              <Badge variant="secondary" className="bg-white/20 text-white border-none">
+                {goalText}
               </Badge>
-            </div>
-            {profile.loginCount && profile.loginCount > 1 && (
-              <div className="text-xs mt-1 text-muted-foreground">Last login: 2 days ago</div>
-            )}
-          </div>
-          
-          {/* Decorative elements */}
-          <div className="absolute right-5 top-5">
-            <div className="relative">
-              <Star className="h-5 w-5 text-amber-500" />
-              <span className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full text-xs h-4 w-4 flex items-center justify-center">
-                5
-              </span>
             </div>
           </div>
         </div>
-        
-        {/* Content tabs - only show if showDetails is true */}
-        {showDetails && (
-          <>
-            <Tabs defaultValue="stats" value={activeTab} onValueChange={setActiveTab}>
-              <div className="px-5 border-b">
-                <TabsList className="grid grid-cols-3">
-                  <TabsTrigger value="stats">Stats</TabsTrigger>
-                  <TabsTrigger value="subjects">Subjects</TabsTrigger>
-                  <TabsTrigger value="achievements">Achievements</TabsTrigger>
-                </TabsList>
-              </div>
-              
-              <TabsContent value="stats" className="m-0 p-5 space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  {engagementStats.map((stat, idx) => (
-                    <div key={idx} className="bg-muted/40 p-3 rounded-lg">
-                      <div className="flex items-center gap-2 mb-1">
-                        <stat.icon className="h-4 w-4 text-primary" />
-                        <span className="text-sm text-muted-foreground">{stat.label}</span>
-                      </div>
-                      <p className="text-xl font-semibold">{stat.value}</p>
-                    </div>
-                  ))}
-                </div>
-              </TabsContent>
-              
-              <TabsContent value="subjects" className="m-0 p-5 space-y-4">
-                <div className="space-y-3">
-                  {subjectProgress.map((subject, idx) => (
-                    <div key={idx}>
-                      <div className="flex justify-between text-sm mb-1">
-                        <span>{subject.subject}</span>
-                        <span>{subject.progress}%</span>
-                      </div>
-                      <Progress value={subject.progress} className="h-2" />
-                    </div>
-                  ))}
-                </div>
-              </TabsContent>
-              
-              <TabsContent value="achievements" className="m-0 p-5 space-y-2">
-                {achievements.map((achievement, idx) => (
-                  <div key={idx} className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50">
-                    <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
-                      <achievement.icon className="h-4 w-4 text-primary" />
-                    </div>
-                    <div className="flex-grow">
-                      <p className="font-medium text-sm">{achievement.name}</p>
-                      <p className="text-xs text-muted-foreground">{achievement.description}</p>
-                    </div>
-                    <Award className="h-5 w-5 text-yellow-500" />
-                  </div>
-                ))}
-              </TabsContent>
-            </Tabs>
-            
-            <div className="p-5 pt-2 flex justify-between items-center">
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <div className="flex items-center gap-1">
-                  <Sparkles className="h-3 w-3" />
-                  <span>Points: 450</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <Trophy className="h-3 w-3" />
-                  <span>Rank: 234</span>
-                </div>
-              </div>
-              <Button variant="ghost" size="sm" className="text-xs">
-                View Profile
-                <ChevronRight className="ml-1 h-3 w-3" />
-              </Button>
+      </CardHeader>
+      <CardContent className="pt-4">
+        <div className="grid grid-cols-2 gap-6 text-sm">
+          <div className="flex items-center">
+            <div className="h-8 w-8 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center mr-3">
+              <Flame className="h-4 w-4 text-orange-600 dark:text-orange-400" />
             </div>
-          </>
-        )}
-        
-        {/* Simplified view for non-detailed cards */}
-        {!showDetails && (
-          <div className="p-5">
-            <div className="grid grid-cols-2 gap-3 mb-4">
-              <div className="bg-muted/40 p-3 rounded-lg">
-                <div className="flex items-center gap-2 mb-1">
-                  <Zap className="h-4 w-4 text-primary" />
-                  <span className="text-sm text-muted-foreground">Study Streak</span>
-                </div>
-                <p className="text-xl font-semibold">{profile.streak || 0}</p>
-              </div>
-              <div className="bg-muted/40 p-3 rounded-lg">
-                <div className="flex items-center gap-2 mb-1">
-                  <Clock className="h-4 w-4 text-primary" />
-                  <span className="text-sm text-muted-foreground">Study Hours</span>
-                </div>
-                <p className="text-xl font-semibold">{profile.studyHours || 0}</p>
-              </div>
-            </div>
-            
-            <div className="flex justify-between items-center">
-              <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                <Trophy className="h-3 w-3" />
-                <span>{profile.achievements?.length || 0} achievements</span>
-              </div>
-              <Button variant="ghost" size="sm" className="text-xs">
-                <User className="mr-1 h-3 w-3" />
-                View Profile
-              </Button>
+            <div>
+              <p className="text-muted-foreground text-xs">Study Streak</p>
+              <p className="font-medium text-base">{userProfile.streak || 0} days</p>
             </div>
           </div>
-        )}
+          <div className="flex items-center">
+            <div className="h-8 w-8 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mr-3">
+              <Clock className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+            </div>
+            <div>
+              <p className="text-muted-foreground text-xs">Study Hours</p>
+              <p className="font-medium text-base">{userProfile.studyHours || 0} hours</p>
+            </div>
+          </div>
+          <div className="flex items-center">
+            <div className="h-8 w-8 rounded-full bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center mr-3">
+              <Star className="h-4 w-4 text-violet-600 dark:text-violet-400" />
+            </div>
+            <div>
+              <p className="text-muted-foreground text-xs">Concepts</p>
+              <p className="font-medium text-base">{userProfile.conceptsLearned || 0} mastered</p>
+            </div>
+          </div>
+          <div className="flex items-center">
+            <div className="h-8 w-8 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center mr-3">
+              <Award className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+            </div>
+            <div>
+              <p className="text-muted-foreground text-xs">Tests</p>
+              <p className="font-medium text-base">{userProfile.testsCompleted || 0} completed</p>
+            </div>
+          </div>
+        </div>
       </CardContent>
     </Card>
   );

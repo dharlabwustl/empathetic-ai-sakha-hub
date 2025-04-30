@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStudentDashboardData } from '@/hooks/useStudentDashboardData';
-import { UserProfileBase as UserProfileType } from '@/types/user/base';
+import { UserProfileBase } from '@/types/user/base';
 import { KpiData } from '@/hooks/useKpiTracking';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -24,7 +24,7 @@ import SmartSuggestionsCenter from './dashboard-sections/SmartSuggestionsCenter'
 import { MoodType } from '@/types/user/base';
 
 interface RedesignedDashboardOverviewProps {
-  userProfile: UserProfileType;
+  userProfile: UserProfileBase;
   kpis: KpiData[];
 }
 

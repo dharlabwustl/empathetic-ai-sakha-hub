@@ -2,7 +2,7 @@
 import React, { createContext, useState, useContext, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { MoodType, PersonalityType } from "@/types/user/base";
+import { MoodType } from "@/types/user/base";
 
 // Export UserRole enum for use in other components
 export enum UserRole {
@@ -26,6 +26,14 @@ export type OnboardingStep =
 
 // Define the type for user goals
 export type UserGoal = string;
+
+// Define personality types
+export enum PersonalityType {
+  Analytical = "analytical",
+  Creative = "creative",
+  Practical = "practical",
+  Social = "social"
+}
 
 // Define the types for the form data
 export interface OnboardingFormData {
@@ -117,7 +125,7 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({
   // Add additional state for onboarding data and messages
   const [onboardingData, setOnboardingData] = useState<any>({});
   const [messages, setMessages] = useState<{ content: string; isBot: boolean }[]>([
-    { content: "Hi! I'm Sakha AI. Let's set up your personalized learning experience. What best describes you?", isBot: true }
+    { content: "Hi! I'm Prepzr AI. Let's set up your personalized learning experience. What best describes you?", isBot: true }
   ]);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();

@@ -3,7 +3,7 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
-import { ThemeProvider } from './providers/ThemeProvider.tsx';
+import { ThemeProvider } from './components/theme-provider';
 
 // Add mood-based theme styles
 import './mood-themes.css';
@@ -13,7 +13,7 @@ if (!rootElement) throw new Error('Root element not found');
 
 createRoot(rootElement).render(
   <React.StrictMode>
-    <ThemeProvider>
+    <ThemeProvider defaultTheme="light" storageKey="prepzr-ui-theme">
       <App />
     </ThemeProvider>
   </React.StrictMode>

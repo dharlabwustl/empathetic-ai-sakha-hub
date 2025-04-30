@@ -1,28 +1,31 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
-import { Badge } from '@/components/ui/badge';
-import { Textarea } from '@/components/ui/textarea';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
-  ArrowLeft,
-  ArrowRight,
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle
+} from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
+import {
+  ChevronLeft,
+  ChevronRight,
   Bookmark,
-  Calculator,
-  Clock,
+  BookmarkPlus,
+  Check,
+  X,
+  ArrowRight,
+  FlipHorizontal,
   Dices,
   Mic,
-  Refresh,
+  RefreshCw,
   RotateCcw,
   Save,
-  ThumbsDown,
-  ThumbsUp,
   Volume2
 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 interface Flashcard {
   id: string;
@@ -364,7 +367,7 @@ export default function FlashcardPracticePage() {
               ) : (
                 <>
                   <Button variant="outline" onClick={retryCard}>
-                    <Refresh className="mr-2 h-4 w-4" />
+                    <RefreshCw className="mr-2 h-4 w-4" />
                     Try Again
                   </Button>
                   <Button onClick={goToNextCard}>

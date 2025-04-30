@@ -17,6 +17,8 @@ export enum SubscriptionType {
   Custom = "Custom"
 }
 
+export type MoodType = 'sad' | 'neutral' | 'happy' | 'motivated' | 'anxious' | 'tired' | 'stressed' | 'focused';
+
 export interface UserSubscription {
   planType: SubscriptionType;
   expiryDate?: string;
@@ -44,3 +46,6 @@ export interface UserProfileBase {
   achievements?: string[];
   verified?: boolean;
 }
+
+// For backward compatibility
+export type UserProfileType = UserProfileBase;

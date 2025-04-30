@@ -13,7 +13,7 @@ export default function AppRoutes() {
   
   return (
     <Routes>
-      <Route path="/dashboard/student/today" element={<RedesignedTodaysPlan userProfile={dashboardData?.userProfile} />} />
+      <Route path="/dashboard/student/today" element={<RedesignedTodaysPlan />} />
       <Route path="/dashboard/student/flashcards/:deckId/interactive" element={<FlashcardInteractive />} />
       <Route path="/dashboard/student/practice-exam/:examId/start" element={<ExamTakingPage />} />
       <Route path="/dashboard/student/practice-exam/:examId/review" element={<ExamReviewPage />} />

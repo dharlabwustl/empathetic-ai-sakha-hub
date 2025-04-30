@@ -24,44 +24,42 @@ const AdminDashboard = React.lazy(() => import('@/pages/admin/AdminDashboard'));
 
 function App() {
   return (
-    <ThemeProvider defaultTheme="light" storageKey="prepzr-ui-theme">
-      <BrowserRouter>
-        <AuthProvider>
-          <AdminAuthProvider>
-            <Routes>
-              {/* Public routes */}
-              <Route path="/" element={<Index />} />
-              <Route path="/signup" element={<SignUp />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Signup />} />
+    <BrowserRouter>
+      <AuthProvider>
+        <AdminAuthProvider>
+          <Routes>
+            {/* Public routes */}
+            <Route path="/" element={<Index />} />
+            <Route path="/signup" element={<SignUp />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Signup />} />
 
-              {/* Student routes */}
-              <Route path="/dashboard/student" element={<StudentDashboard />} />
-              <Route path="/dashboard/student/:tab" element={<StudentDashboard />} />
-              <Route path="/dashboard/student/today" element={<TodaysPlanView />} />
-              <Route path="/dashboard/student/feel-good-corner" element={<FeelGoodCornerView />} />
-              <Route path="/dashboard/student/concepts/card/:conceptId" element={<ConceptStudyPage />} />
-              <Route path="/dashboard/student/flashcards/:deckId/interactive" element={<FlashcardPracticePage />} />
+            {/* Student routes */}
+            <Route path="/dashboard/student" element={<StudentDashboard />} />
+            <Route path="/dashboard/student/:tab" element={<StudentDashboard />} />
+            <Route path="/dashboard/student/today" element={<TodaysPlanView />} />
+            <Route path="/dashboard/student/feel-good-corner" element={<FeelGoodCornerView />} />
+            <Route path="/dashboard/student/concepts/card/:conceptId" element={<ConceptStudyPage />} />
+            <Route path="/dashboard/student/flashcards/:deckId/interactive" element={<FlashcardPracticePage />} />
 
-              {/* Admin routes - protected by AdminRouteGuard */}
-              <Route path="/admin/login" element={<AdminLogin />} />
-              <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
-              <Route element={<AdminRouteGuard />}>
-                <Route path="/admin/dashboard/*" element={
-                  <Suspense fallback={<LoadingScreen />}>
-                    <AdminDashboard />
-                  </Suspense>
-                } />
-              </Route>
+            {/* Admin routes - protected by AdminRouteGuard */}
+            <Route path="/admin/login" element={<AdminLogin />} />
+            <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
+            <Route element={<AdminRouteGuard />}>
+              <Route path="/admin/dashboard/*" element={
+                <Suspense fallback={<LoadingScreen />}>
+                  <AdminDashboard />
+                </Suspense>
+              } />
+            </Route>
 
-              {/* 404 Not Found */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </AdminAuthProvider>
-        </AuthProvider>
-        <Toaster />
-      </BrowserRouter>
-    </ThemeProvider>
+            {/* 404 Not Found */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+          <Toaster />
+        </AdminAuthProvider>
+      </AuthProvider>
+    </BrowserRouter>
   );
 }
 
