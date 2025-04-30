@@ -71,7 +71,7 @@ export default function WelcomeTour({
       <DialogContent className="sm:max-w-[600px] p-6">
         <DialogHeader>
           <div className="flex justify-center mb-4">
-            <PrepzrLogo width={60} height={60} />
+            <PrepzrLogo width={120} height={120} /> {/* Increased logo size */}
           </div>
           <DialogTitle className="text-2xl font-bold text-center">
             Welcome to PREPZR

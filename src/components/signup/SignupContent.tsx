@@ -148,7 +148,7 @@ const SignupContent = () => {
       <Card className="relative overflow-hidden bg-white dark:bg-gray-900 shadow-xl rounded-xl">
         <div className="p-6 md:p-8">
           <div className="flex flex-col items-center mb-6">
-            <PrepzrLogo width={60} height={60} />
+            <PrepzrLogo width={120} height={120} /> {/* Increased logo size */}
             <h1 className="mt-4 text-2xl font-bold">Join PREPZR</h1>
             <p className="text-gray-500 text-sm text-center mt-1">
               Create your personalized study partner

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -16,6 +15,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Eye, EyeOff, Lock, Mail, ArrowRight } from "lucide-react";
 import { adminService } from "@/services/adminService";
 import { useAdminAuth } from "@/contexts/AdminAuthContext";
+import PrepzrLogo from "@/components/common/PrepzrLogo";
 
 const AdminLogin = () => {
   const navigate = useNavigate();
@@ -78,14 +78,10 @@ const AdminLogin = () => {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex items-center gap-2">
-            <img 
-              src="/lovable-uploads/6bd65589-a748-4b63-a28b-12521c233a7e.png" 
-              alt="Sakha AI Logo" 
-              className="w-16 h-16 object-contain"
-            />
+            <PrepzrLogo width={120} height={120} /> {/* Updated logo */}
           </Link>
           <h1 className="mt-4 text-4xl font-display font-bold gradient-text">Admin Portal</h1>
-          <p className="mt-2 text-gray-600">Login to access the Sakha AI administration panel</p>
+          <p className="mt-2 text-gray-600">Login to access the PREPZR administration panel</p>
         </div>
         
         <Card className="shadow-xl border-gray-200 overflow-hidden animate-fade-in">
