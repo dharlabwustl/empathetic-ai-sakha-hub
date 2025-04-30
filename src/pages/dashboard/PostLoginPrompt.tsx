@@ -64,7 +64,7 @@ const PostLoginPrompt = () => {
         <Card className="shadow-lg border-gray-200 overflow-hidden">
           <CardHeader className="bg-gradient-to-r from-blue-600 to-purple-600 text-white text-center py-8">
             <div className="flex justify-center mb-3">
-              <PrepzrLogo width={150} />
+              <PrepzrLogo width={180} />
             </div>
             <CardTitle className="text-3xl font-display">
               Welcome{userName ? ` back, ${userName}` : ""}!

@@ -3,26 +3,45 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Slider } from "@/components/ui/slider";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { motion } from "framer-motion";
+import { Textarea } from "@/components/ui/textarea";
 
 interface StudyHabitsStepProps {
   onSubmit: (habits: Record<string, string>) => void;
 }
 
 const StudyHabitsStep: React.FC<StudyHabitsStepProps> = ({ onSubmit }) => {
-  const [studyTime, setStudyTime] = useState("morning");
-  const [studyPace, setStudyPace] = useState("balanced");
-  const [studyHours, setStudyHours] = useState(2);
-  
+  const [studyTime, setStudyTime] = useState<string>("");
+  const [studyPace, setStudyPace] = useState<string>("");
+  const [dailyStudyHours, setDailyStudyHours] = useState<string>("");
+  const [breakFrequency, setBreakFrequency] = useState<string>("");
+  const [stressManagement, setStressManagement] = useState<string>("");
+  const [studyPreference, setStudyPreference] = useState<string>("");
+  const [stressManagementCustom, setStressManagementCustom] = useState<string>("");
+  const [studyPreferenceCustom, setStudyPreferenceCustom] = useState<string>("");
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit({
-      preferredStudyTime: studyTime,
-      preferredStudyPace: studyPace,
-      dailyStudyHours: studyHours.toString()
-    });
+    
+    // Prepare habits data
+    const habitsData: Record<string, string> = {
+      studyTime,
+      studyPace,
+      dailyStudyHours,
+      breakFrequency,
+      stressManagement: stressManagement === "other" ? stressManagementCustom : stressManagement,
+      studyPreference: studyPreference === "other" ? studyPreferenceCustom : studyPreference,
+    };
+    
+    onSubmit(habitsData);
   };
+
+  // Ensure all required fields are filled
+  const isFormValid = studyTime && studyPace && dailyStudyHours && breakFrequency && 
+    stressManagement && studyPreference &&
+    (stressManagement !== "other" || stressManagementCustom) &&
+    (studyPreference !== "other" || studyPreferenceCustom);
 
   return (
     <motion.form
@@ -30,172 +49,182 @@ const StudyHabitsStep: React.FC<StudyHabitsStepProps> = ({ onSubmit }) => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
-      className="space-y-6"
+      className="space-y-5"
     >
-      <div className="space-y-4">
-        <h3 className="text-lg font-medium">Your Study Habits</h3>
-        <p className="text-sm text-gray-500">
-          These details help us create a study plan that fits your lifestyle
+      <div>
+        <h3 className="text-lg font-medium mb-1">Study Preferences</h3>
+        <p className="text-sm text-gray-500 mb-4">
+          Let us understand your study habits to personalize your learning experience.
         </p>
-        
-        <div className="mt-6">
-          <Label className="font-medium">Preferred Study Time</Label>
-          <p className="text-sm text-gray-500 mb-3">When are you most productive?</p>
+      </div>
+
+      <div className="space-y-4">
+        {/* Preferred Study Time */}
+        <div>
+          <Label className="text-base font-medium">Preferred Study Time</Label>
           <RadioGroup
             value={studyTime}
             onValueChange={setStudyTime}
-            className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2"
+            className="grid grid-cols-2 gap-3 mt-2"
           >
             <Label
-              htmlFor="morning"
-              className={`flex p-3 cursor-pointer items-center justify-between rounded-lg border ${
-                studyTime === "morning"
-                  ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
-                  : "border-gray-200"
+              htmlFor="study-morning"
+              className={`flex items-center space-x-2 border rounded-lg p-3 cursor-pointer transition-colors ${
+                studyTime === "morning" ? "bg-blue-50 border-blue-300" : "hover:bg-gray-50"
               }`}
             >
-              <div className="flex items-center gap-3">
-                <RadioGroupItem value="morning" id="morning" />
-                <div>
-                  <p className="font-medium">Morning</p>
-                  <p className="text-xs text-gray-500">5 AM - 11 AM</p>
-                </div>
-              </div>
+              <RadioGroupItem value="morning" id="study-morning" />
+              <span>Morning</span>
             </Label>
             <Label
-              htmlFor="afternoon"
-              className={`flex p-3 cursor-pointer items-center justify-between rounded-lg border ${
-                studyTime === "afternoon"
-                  ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
-                  : "border-gray-200"
+              htmlFor="study-afternoon"
+              className={`flex items-center space-x-2 border rounded-lg p-3 cursor-pointer transition-colors ${
+                studyTime === "afternoon" ? "bg-blue-50 border-blue-300" : "hover:bg-gray-50"
               }`}
             >
-              <div className="flex items-center gap-3">
-                <RadioGroupItem value="afternoon" id="afternoon" />
-                <div>
-                  <p className="font-medium">Afternoon</p>
-                  <p className="text-xs text-gray-500">12 PM - 5 PM</p>
-                </div>
-              </div>
+              <RadioGroupItem value="afternoon" id="study-afternoon" />
+              <span>Afternoon</span>
             </Label>
             <Label
-              htmlFor="evening"
-              className={`flex p-3 cursor-pointer items-center justify-between rounded-lg border ${
-                studyTime === "evening"
-                  ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
-                  : "border-gray-200"
+              htmlFor="study-evening"
+              className={`flex items-center space-x-2 border rounded-lg p-3 cursor-pointer transition-colors ${
+                studyTime === "evening" ? "bg-blue-50 border-blue-300" : "hover:bg-gray-50"
               }`}
             >
-              <div className="flex items-center gap-3">
-                <RadioGroupItem value="evening" id="evening" />
-                <div>
-                  <p className="font-medium">Evening</p>
-                  <p className="text-xs text-gray-500">6 PM - 9 PM</p>
-                </div>
-              </div>
+              <RadioGroupItem value="evening" id="study-evening" />
+              <span>Evening</span>
             </Label>
             <Label
-              htmlFor="night"
-              className={`flex p-3 cursor-pointer items-center justify-between rounded-lg border ${
-                studyTime === "night"
-                  ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
-                  : "border-gray-200"
+              htmlFor="study-night"
+              className={`flex items-center space-x-2 border rounded-lg p-3 cursor-pointer transition-colors ${
+                studyTime === "night" ? "bg-blue-50 border-blue-300" : "hover:bg-gray-50"
               }`}
             >
-              <div className="flex items-center gap-3">
-                <RadioGroupItem value="night" id="night" />
-                <div>
-                  <p className="font-medium">Night</p>
-                  <p className="text-xs text-gray-500">10 PM - 4 AM</p>
-                </div>
-              </div>
+              <RadioGroupItem value="night" id="study-night" />
+              <span>Night</span>
             </Label>
           </RadioGroup>
         </div>
-        
-        <div className="mt-6">
-          <Label className="font-medium">Preferred Study Pace</Label>
-          <p className="text-sm text-gray-500 mb-3">How intensely do you want to study?</p>
-          <RadioGroup
-            value={studyPace}
-            onValueChange={setStudyPace}
-            className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-2"
-          >
-            <Label
-              htmlFor="relaxed"
-              className={`flex p-3 cursor-pointer items-center justify-between rounded-lg border ${
-                studyPace === "relaxed"
-                  ? "border-green-500 bg-green-50 dark:bg-green-900/20"
-                  : "border-gray-200"
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                <RadioGroupItem value="relaxed" id="relaxed" />
-                <div>
-                  <p className="font-medium">Relaxed</p>
-                  <p className="text-xs text-gray-500">Steady progress</p>
-                </div>
-              </div>
-            </Label>
-            <Label
-              htmlFor="balanced"
-              className={`flex p-3 cursor-pointer items-center justify-between rounded-lg border ${
-                studyPace === "balanced"
-                  ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
-                  : "border-gray-200"
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                <RadioGroupItem value="balanced" id="balanced" />
-                <div>
-                  <p className="font-medium">Balanced</p>
-                  <p className="text-xs text-gray-500">Moderate intensity</p>
-                </div>
-              </div>
-            </Label>
-            <Label
-              htmlFor="aggressive"
-              className={`flex p-3 cursor-pointer items-center justify-between rounded-lg border ${
-                studyPace === "aggressive"
-                  ? "border-purple-500 bg-purple-50 dark:bg-purple-900/20"
-                  : "border-gray-200"
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                <RadioGroupItem value="aggressive" id="aggressive" />
-                <div>
-                  <p className="font-medium">Aggressive</p>
-                  <p className="text-xs text-gray-500">Maximum intensity</p>
-                </div>
-              </div>
-            </Label>
-          </RadioGroup>
+
+        {/* Study Pace */}
+        <div>
+          <Label htmlFor="studyPace" className="text-base font-medium">
+            Preferred Study Pace
+          </Label>
+          <Select value={studyPace} onValueChange={setStudyPace}>
+            <SelectTrigger id="studyPace" className="mt-2">
+              <SelectValue placeholder="Select your preferred pace" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="slow">Slow and thorough</SelectItem>
+              <SelectItem value="moderate">Moderate pace</SelectItem>
+              <SelectItem value="fast">Fast-paced</SelectItem>
+              <SelectItem value="variable">Variable (depends on subject)</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
-        
-        <div className="mt-6">
-          <Label className="font-medium">Daily Study Hours</Label>
-          <p className="text-sm text-gray-500 mb-3">
-            How many hours can you dedicate to studying each day?
-          </p>
-          <div className="px-2">
-            <Slider
-              value={[studyHours]}
-              min={1}
-              max={8}
-              step={0.5}
-              onValueChange={(value) => setStudyHours(value[0])}
-              className="mt-6"
+
+        {/* Daily Study Hours */}
+        <div>
+          <Label htmlFor="dailyStudyHours" className="text-base font-medium">
+            Daily Study Hours
+          </Label>
+          <Select value={dailyStudyHours} onValueChange={setDailyStudyHours}>
+            <SelectTrigger id="dailyStudyHours" className="mt-2">
+              <SelectValue placeholder="Select hours per day" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="1-2">1-2 hours</SelectItem>
+              <SelectItem value="3-4">3-4 hours</SelectItem>
+              <SelectItem value="5-6">5-6 hours</SelectItem>
+              <SelectItem value="7+">7+ hours</SelectItem>
+              <SelectItem value="variable">Variable (depends on day)</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Break Frequency */}
+        <div>
+          <Label htmlFor="breakFrequency" className="text-base font-medium">
+            Break Frequency
+          </Label>
+          <Select value={breakFrequency} onValueChange={setBreakFrequency}>
+            <SelectTrigger id="breakFrequency" className="mt-2">
+              <SelectValue placeholder="How often do you take breaks?" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="frequently">Frequently (every 30 mins)</SelectItem>
+              <SelectItem value="occasionally">Occasionally (every 1-2 hours)</SelectItem>
+              <SelectItem value="rarely">Rarely (study for 3+ hours straight)</SelectItem>
+              <SelectItem value="pomodoro">Pomodoro technique</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Stress Management */}
+        <div>
+          <Label htmlFor="stressManagement" className="text-base font-medium">
+            How do you manage study stress?
+          </Label>
+          <Select value={stressManagement} onValueChange={setStressManagement}>
+            <SelectTrigger id="stressManagement" className="mt-2">
+              <SelectValue placeholder="Select stress management technique" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="exercise">Physical exercise</SelectItem>
+              <SelectItem value="meditation">Meditation/Breathing techniques</SelectItem>
+              <SelectItem value="music">Listening to music</SelectItem>
+              <SelectItem value="breaks">Taking frequent breaks</SelectItem>
+              <SelectItem value="talking">Talking to friends/family</SelectItem>
+              <SelectItem value="other">Other (please specify)</SelectItem>
+            </SelectContent>
+          </Select>
+          
+          {stressManagement === "other" && (
+            <Textarea
+              value={stressManagementCustom}
+              onChange={(e) => setStressManagementCustom(e.target.value)}
+              placeholder="Please specify your stress management technique"
+              className="mt-2"
             />
-            <div className="flex justify-between mt-2 text-sm text-gray-500">
-              <span>1 hour</span>
-              <span className="font-medium text-blue-600">{studyHours} hours</span>
-              <span>8 hours</span>
-            </div>
-          </div>
+          )}
+        </div>
+
+        {/* Study Environment Preference */}
+        <div>
+          <Label htmlFor="studyPreference" className="text-base font-medium">
+            Study Environment Preference
+          </Label>
+          <Select value={studyPreference} onValueChange={setStudyPreference}>
+            <SelectTrigger id="studyPreference" className="mt-2">
+              <SelectValue placeholder="Select preferred environment" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="quiet">Quiet environment</SelectItem>
+              <SelectItem value="background">Background noise/music</SelectItem>
+              <SelectItem value="group">Group study</SelectItem>
+              <SelectItem value="library">Library/Study room</SelectItem>
+              <SelectItem value="outdoors">Outdoor setting</SelectItem>
+              <SelectItem value="other">Other (please specify)</SelectItem>
+            </SelectContent>
+          </Select>
+          
+          {studyPreference === "other" && (
+            <Textarea
+              value={studyPreferenceCustom}
+              onChange={(e) => setStudyPreferenceCustom(e.target.value)}
+              placeholder="Please specify your study environment preference"
+              className="mt-2"
+            />
+          )}
         </div>
       </div>
 
-      <Button type="submit" className="w-full bg-gradient-to-r from-blue-500 to-blue-600">
+      <Button
+        type="submit"
+        className="w-full mt-6 bg-gradient-to-r from-blue-500 to-blue-600"
+        disabled={!isFormValid}
+      >
         Continue
       </Button>
     </motion.form>
