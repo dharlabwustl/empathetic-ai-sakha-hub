@@ -1,90 +1,51 @@
 
-import React, { Suspense } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { Toaster } from '@/components/ui/toaster';
-import Index from '@/pages/Index';
-import SignUp from '@/pages/SignUp';
-import NotFound from '@/pages/NotFound';
-import StudentDashboard from '@/pages/dashboard/student/StudentDashboard';
-import FeelGoodCornerView from '@/pages/dashboard/student/FeelGoodCornerView';
-import { AdminAuthProvider } from '@/contexts/auth/AdminAuthContext';
-import AdminLogin from '@/pages/admin/AdminLogin';
-import AdminRouteGuard from '@/components/admin/AdminRouteGuard';
-import { AuthProvider } from '@/contexts/auth/AuthContext';
-import TodaysPlanView from '@/pages/dashboard/student/TodaysPlanView';
-import ConceptStudyPage from '@/pages/dashboard/student/concept/ConceptStudyPage';
-import FlashcardPracticePage from '@/pages/dashboard/student/flashcard/FlashcardPracticePage';
-import LoadingScreen from '@/components/common/LoadingScreen';
-import { ThemeProvider } from './components/theme-provider';
-import AppRoutes from './components/dashboard/student/AppRoutes';
-import ConceptCardDetailPage from './components/dashboard/student/concepts/ConceptCardDetailPage';
-import ExamTakingPage from './components/dashboard/student/practice-exam/ExamTakingPage';
-import ExamReviewPage from './components/dashboard/student/practice-exam/ExamReviewPage';
-import FlashcardInteractivePage from './pages/dashboard/student/flashcard/FlashcardInteractivePage';
-import PostLoginPrompt from './pages/dashboard/PostLoginPrompt';
-import StudyPlanCreation from './pages/StudyPlanCreation';
-import ConceptCardStudyPage from './pages/dashboard/student/concept/ConceptCardStudyPage';
-import Login from './pages/Login';
-import EnhancedFlashcardPage from './pages/dashboard/student/flashcards/EnhancedFlashcardPage';
-import PostSignupFlow from './pages/signup/PostSignupFlow';
-import WelcomeToPrepr from './pages/signup/WelcomeToPrepr';
+import { Routes, Route, Navigate } from "react-router-dom";
+import Index from "@/pages/Index";
+import SignUp from "@/pages/SignUp";
+import Login from "@/pages/Login";
+import StudentDashboard from "@/pages/dashboard/student/StudentDashboard";
+import AdminDashboard from "@/pages/dashboard/admin/AdminDashboard";
+import MagicLink from "@/pages/auth/MagicLink";
+import ResetPassword from "@/pages/auth/ResetPassword";
+import ForgotPassword from "@/pages/auth/ForgotPassword";
+import ExamPrep from "@/pages/ExamPrep";
+import StudyMaterial from "@/pages/content/StudyMaterial";
+import ConceptCardStudy from "@/pages/content/ConceptCardStudy";
 
-const AdminDashboard = React.lazy(() => import('@/pages/admin/AdminDashboard'));
+import StudyPlanCreation from "@/pages/StudyPlanCreation";
+import Welcome from "@/pages/Welcome";
 
 function App() {
   return (
-    <ThemeProvider defaultTheme="light" storageKey="prepzr-ui-theme">
-      <BrowserRouter>
-        <AuthProvider>
-          <AdminAuthProvider>
-            <Routes>
-              {/* Public routes */}
-              <Route path="/" element={<Index />} />
-              <Route path="/signup" element={<SignUp />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<SignUp />} />
+    <Routes>
+      {/* Public Routes */}
+      <Route path="/" element={<Index />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/signup" element={<SignUp />} />
+      <Route path="/magic-link" element={<MagicLink />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/exam-prep/:examType" element={<ExamPrep />} />
 
-              {/* Post-signup flow */}
-              <Route path="/welcome" element={<WelcomeToPrepr />} />
-              <Route path="/post-signup" element={<PostSignupFlow />} />
-              <Route path="/study-plan-creation" element={<StudyPlanCreation />} />
-              <Route path="/welcome-back" element={<PostLoginPrompt />} />
+      {/* Post-signup flow */}
+      <Route path="/study-plan-creation" element={<StudyPlanCreation />} />
+      <Route path="/welcome" element={<Welcome />} />
 
-              {/* Student routes */}
-              <Route path="/dashboard/student" element={<StudentDashboard />} />
-              <Route path="/dashboard/student/:tab" element={<StudentDashboard />} />
-              <Route path="/dashboard/student/today" element={<TodaysPlanView />} />
-              <Route path="/dashboard/student/feel-good-corner" element={<FeelGoodCornerView />} />
-              <Route path="/dashboard/student/concepts/card/:conceptId" element={<ConceptCardDetailPage />} />
-              <Route path="/dashboard/student/concepts/study/:conceptId" element={<ConceptCardStudyPage />} />
-              <Route path="/dashboard/student/concepts/study" element={<ConceptCardStudyPage />} />
-              <Route path="/dashboard/student/flashcards/:deckId/interactive" element={<FlashcardInteractivePage />} />
-              <Route path="/dashboard/student/flashcards/enhanced" element={<EnhancedFlashcardPage />} />
-              <Route path="/dashboard/student/practice-exam/:examId/start" element={<ExamTakingPage />} />
-              <Route path="/dashboard/student/practice-exam/:examId/review" element={<ExamReviewPage />} />
+      {/* Student Routes */}
+      <Route path="/dashboard/student" element={<StudentDashboard />} />
+      <Route path="/dashboard/student/:tab" element={<StudentDashboard />} />
+      
+      {/* Content Routes */}
+      <Route path="/study/:contentType/:id" element={<StudyMaterial />} />
+      <Route path="/concept-card/:id" element={<ConceptCardStudy />} />
 
-              {/* Additional student dashboard routes */}
-              <Route path="/dashboard/student/*" element={<AppRoutes />} />
+      {/* Admin Routes */}
+      <Route path="/dashboard/admin" element={<AdminDashboard />} />
+      <Route path="/dashboard/admin/:tab" element={<AdminDashboard />} />
 
-              {/* Admin routes - protected by AdminRouteGuard */}
-              <Route path="/admin/login" element={<AdminLogin />} />
-              <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
-              <Route path="/admin/dashboard/*" element={
-                <AdminRouteGuard>
-                  <Suspense fallback={<LoadingScreen />}>
-                    <AdminDashboard />
-                  </Suspense>
-                </AdminRouteGuard>
-              } />
-
-              {/* 404 Not Found */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-            <Toaster />
-          </AdminAuthProvider>
-        </AuthProvider>
-      </BrowserRouter>
-    </ThemeProvider>
+      {/* Fallback Route */}
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
   );
 }
 

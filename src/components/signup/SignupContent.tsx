@@ -13,106 +13,55 @@ import { MoodType, PersonalityType, UserRole } from "@/types/user/base";
 const SignupContent = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
-  const { onboardingData, setOnboardingData, currentStep, goToNextStep } = useOnboarding();
-  const [isLoading, setIsLoading] = useState(false);
+  const { 
+    currentStep, 
+    formData, 
+    updateFormData, 
+    nextStep, 
+    prevStep, 
+    resetForm,
+    submitForm,
+    isSubmitting 
+  } = useOnboarding();
 
   const handleRoleSelect = (role: UserRole) => {
     // Only allow student role
-    setOnboardingData({ ...onboardingData, role: UserRole.Student });
-    goToNextStep();
+    updateFormData({ role: UserRole.Student });
+    nextStep();
   };
 
   const handleGoalSelect = (goal: string) => {
-    setOnboardingData({ ...onboardingData, examGoal: goal });
-    goToNextStep();
+    updateFormData({ examGoal: goal });
+    nextStep();
   };
 
   const handleDemographicsSubmit = (data: Record<string, string>) => {
-    setOnboardingData({ 
-      ...onboardingData, 
+    updateFormData({ 
       demographics: data,
       targetExamDate: data.examDate // Save exam date specifically
     });
-    goToNextStep();
+    nextStep();
   };
 
   const handlePersonalitySelect = (personality: PersonalityType) => {
-    setOnboardingData({ ...onboardingData, personalityType: personality });
-    goToNextStep();
+    updateFormData({ personalityType: personality });
+    nextStep();
   };
 
   const handleMoodSelect = (mood: MoodType) => {
-    setOnboardingData({ ...onboardingData, mood });
-    goToNextStep();
-  };
-  
-  const handleStudyTimeSelect = (time: "Morning" | "Afternoon" | "Evening" | "Night") => {
-    setOnboardingData({ ...onboardingData, studyTime: time });
-    goToNextStep();
-  };
-  
-  const handleStudyPaceSelect = (pace: "Aggressive" | "Balanced" | "Relaxed") => {
-    setOnboardingData({ ...onboardingData, studyPace: pace });
-    goToNextStep();
-  };
-  
-  const handleStudyHoursSelect = (hours: number) => {
-    setOnboardingData({ ...onboardingData, dailyStudyHours: hours });
-    goToNextStep();
-  };
-
-  const handleHabitsSubmit = (habits: Record<string, string>) => {
-    setOnboardingData({ ...onboardingData, habits });
-    goToNextStep();
-  };
-
-  const handleInterestsSubmit = (interests: string) => {
-    setOnboardingData({ ...onboardingData, interests });
-    goToNextStep();
+    updateFormData({ mood });
+    nextStep();
   };
 
   const handleSignupSubmit = async (formValues: { name: string; mobile: string; otp: string; agreeTerms: boolean }) => {
-    setIsLoading(true);
-
-    try {
-      // Set name from form data
-      const finalData = {
-        ...onboardingData,
-        name: formValues.name,
-        mobile: formValues.mobile,
-      };
-
-      setOnboardingData(finalData);
-
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-
-      // Store data in localStorage
-      localStorage.setItem("userData", JSON.stringify({
-        ...finalData,
-        loginCount: 1,
-        createdAt: new Date().toISOString(),
-      }));
-
-      // Show success message
-      toast({
-        title: "Account created successfully!",
-        description: "Redirecting to your personalized dashboard.",
-      });
-
-      // Redirect to the study plan screen, then to welcome screen
-      setTimeout(() => {
-        navigate("/study-plan-creation?new=true&completedOnboarding=true");
-      }, 1000);
-    } catch (error) {
-      console.error("Error creating account:", error);
-      toast({
-        title: "Account creation failed",
-        description: "Please try again later.",
-        variant: "destructive"
-      });
-      setIsLoading(false);
-    }
+    // Update form data with name and mobile before submitting
+    updateFormData({ 
+      name: formValues.name,
+      mobile: formValues.mobile 
+    });
+    
+    // Submit the form (this will trigger navigation to the welcome screen)
+    submitForm();
   };
 
   const handlers = {
@@ -121,11 +70,6 @@ const SignupContent = () => {
     handleDemographicsSubmit,
     handlePersonalitySelect,
     handleMoodSelect,
-    handleStudyTimeSelect,
-    handleStudyPaceSelect,
-    handleStudyHoursSelect,
-    handleHabitsSubmit,
-    handleInterestsSubmit,
     handleSignupSubmit,
   };
 
@@ -149,7 +93,7 @@ const SignupContent = () => {
         role: "student",
         loginCount: 1,
         createdAt: new Date().toISOString(),
-        onboardingCompleted: false,
+        examGoal: "IIT-JEE",
       }));
 
       navigate("/study-plan-creation?new=true");
@@ -180,13 +124,12 @@ const SignupContent = () => {
           <div className="mt-6">
             <StepRenderer 
               step={currentStep}
-              onboardingData={onboardingData}
               handlers={handlers}
-              isLoading={isLoading}
+              isLoading={isSubmitting}
             />
           </div>
 
-          {currentStep === "role" && (
+          {currentStep === 1 && (
             <div className="mt-6">
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">

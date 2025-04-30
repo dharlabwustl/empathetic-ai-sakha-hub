@@ -1,75 +1,102 @@
 
 import React from 'react';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, LucideIcon } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Check, X } from 'lucide-react';
 import { SubscriptionType } from '@/types/user/base';
+
+interface FeatureItem {
+  name: string;
+  free: boolean;
+  pro: boolean;
+}
 
 interface FeatureCardProps {
   title: string;
   description: string;
-  icon: LucideIcon;
-  isPremium?: boolean;
-  isNew?: boolean;
-  path: string;
-  onClick?: () => void;
-  className?: string;
-  userSubscription?: SubscriptionType | { planType: SubscriptionType };
+  icon: React.ReactNode;
+  features: FeatureItem[];
+  buttonText: string;
+  currentPlan?: string;
+  recommended?: boolean;
+  onSelect: () => void;
 }
 
-export default function FeatureCard({
+const FeatureCard: React.FC<FeatureCardProps> = ({
   title,
   description,
-  icon: Icon,
-  isPremium = false,
-  isNew = false,
-  path,
-  onClick,
-  className = '',
-  userSubscription
-}: FeatureCardProps) {
-  const handleClick = (e: React.MouseEvent) => {
-    if (isPremium && (!userSubscription || 
-        (typeof userSubscription === 'string' && userSubscription === SubscriptionType.Free) ||
-        (typeof userSubscription === 'object' && userSubscription.planType === SubscriptionType.Free))) {
-      e.preventDefault();
-      onClick && onClick();
-    }
-  };
+  icon,
+  features,
+  buttonText,
+  currentPlan,
+  recommended = false,
+  onSelect,
+}) => {
+  const isCurrentPlan = currentPlan === title.toLowerCase();
+
+  // Helper to handle SubscriptionType enum
+  const isFreePlan = title.toLowerCase() === SubscriptionType.FREE.toLowerCase();
 
   return (
-    <Card className={`overflow-hidden hover:shadow-md transition-shadow ${className}`}>
-      <CardHeader className="p-4">
-        <div className="flex justify-between">
-          <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
-            <Icon className="h-4 w-4 text-primary" />
-          </div>
-          <div>
-            {isNew && (
-              <Badge variant="outline" className="bg-green-100 text-green-800 border-green-200 text-xs">
-                New
-              </Badge>
-            )}
-            {isPremium && (
-              <Badge variant="outline" className="bg-amber-100 text-amber-800 border-amber-200 text-xs">
-                Premium
-              </Badge>
-            )}
+    <Card className={`relative overflow-hidden transition-all duration-200 ${
+      recommended ? 'border-primary shadow-lg' : 'border-border'
+    }`}>
+      {recommended && (
+        <div className="absolute top-0 right-0">
+          <div className="bg-primary text-primary-foreground text-xs font-medium py-1 px-3 rounded-bl">
+            Recommended
           </div>
         </div>
-        <CardTitle className="text-lg mt-3">{title}</CardTitle>
-        <CardDescription>{description}</CardDescription>
-      </CardHeader>
-      <CardFooter className="p-4 pt-0">
-        <Button variant="ghost" asChild className="w-full justify-between p-2">
-          <Link to={path} onClick={handleClick}>
-            Explore Feature
-            <ArrowRight className="h-4 w-4 ml-2" />
-          </Link>
+      )}
+      
+      <div className="p-6">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center">
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+              recommended ? 'bg-primary/20' : 'bg-muted'
+            }`}>
+              {icon}
+            </div>
+            <h3 className="ml-3 text-lg font-semibold">{title}</h3>
+          </div>
+        </div>
+        
+        <p className="text-muted-foreground text-sm mb-6">{description}</p>
+        
+        <div className="space-y-3 mb-6">
+          {features.map((feature, index) => (
+            <div key={index} className="flex items-center">
+              {isFreePlan ? (
+                feature.free ? (
+                  <Check className="h-4 w-4 text-green-500 mr-2 flex-shrink-0" />
+                ) : (
+                  <X className="h-4 w-4 text-gray-300 mr-2 flex-shrink-0" />
+                )
+              ) : (
+                feature.pro ? (
+                  <Check className="h-4 w-4 text-green-500 mr-2 flex-shrink-0" />
+                ) : (
+                  <X className="h-4 w-4 text-gray-300 mr-2 flex-shrink-0" />
+                )
+              )}
+              <span className={`text-sm ${!feature.free && isFreePlan ? 'text-muted-foreground' : ''}`}>
+                {feature.name}
+              </span>
+            </div>
+          ))}
+        </div>
+        
+        <Button
+          onClick={onSelect}
+          className="w-full"
+          variant={isCurrentPlan ? "outline" : recommended ? "default" : "outline"}
+          disabled={isCurrentPlan}
+        >
+          {isCurrentPlan ? "Current Plan" : buttonText}
         </Button>
-      </CardFooter>
+      </div>
     </Card>
   );
-}
+};
+
+export default FeatureCard;

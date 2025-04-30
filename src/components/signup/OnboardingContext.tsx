@@ -9,9 +9,11 @@ interface OnboardingContextType {
     email: string;
     password: string;
     examGoal: string;
+    mobile?: string;
     agreeToTerms: boolean;
+    [key: string]: any; // For additional data
   };
-  updateFormData: (data: Partial<OnboardingContextType['formData']>) => void;
+  updateFormData: (data: Partial<any>) => void;
   nextStep: () => void;
   prevStep: () => void;
   resetForm: () => void;
@@ -72,17 +74,17 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       // Store user data in localStorage for demo
       localStorage.setItem('userData', JSON.stringify({
         id: `user-${Math.random().toString(36).substr(2, 9)}`,
-        name: formData.name,
+        name: formData.name || 'New User',
         email: formData.email,
         role: 'student',
-        examGoal: formData.examGoal,
+        examGoal: formData.examGoal || 'IIT-JEE',
         isActive: true,
         loginCount: 1,
         createdAt: new Date().toISOString()
       }));
       
-      // Redirect to post-signup flow instead of dashboard
-      navigate('/post-signup');
+      // Navigate directly to the study plan creation animation screen
+      navigate('/study-plan-creation?new=true');
     } catch (error) {
       console.error('Error registering user:', error);
     } finally {

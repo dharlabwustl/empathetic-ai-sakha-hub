@@ -39,7 +39,7 @@ const ExamNamesBadge = () => {
         variants={textVariants}
         initial="hidden"
         animate="visible"
-        className="font-bold text-lg text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-indigo-600 px-3 py-1 rounded-full border-2 border-purple-200 dark:border-purple-900 hover:shadow-md transition-all duration-300 transform hover:scale-105"
+        className="font-bold text-lg text-white bg-gradient-to-r from-purple-600 to-indigo-600 px-4 py-1.5 rounded-full border-2 border-purple-200 dark:border-purple-900 shadow-md transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
       >
         UPSC
       </motion.span>
@@ -49,7 +49,7 @@ const ExamNamesBadge = () => {
         variants={textVariants}
         initial="hidden"
         animate="visible"
-        className="font-bold text-lg text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-cyan-500 px-3 py-1 rounded-full border-2 border-blue-200 dark:border-blue-900 hover:shadow-md transition-all duration-300 transform hover:scale-105"
+        className="font-bold text-lg text-white bg-gradient-to-r from-blue-500 to-cyan-500 px-4 py-1.5 rounded-full border-2 border-blue-200 dark:border-blue-900 shadow-md transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
       >
         NEET
       </motion.span>
@@ -59,7 +59,7 @@ const ExamNamesBadge = () => {
         variants={textVariants}
         initial="hidden"
         animate="visible"
-        className="font-bold text-lg text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-600 to-pink-600 px-3 py-1 rounded-full border-2 border-pink-200 dark:border-pink-900 hover:shadow-md transition-all duration-300 transform hover:scale-105"
+        className="font-bold text-lg text-white bg-gradient-to-r from-fuchsia-600 to-pink-600 px-4 py-1.5 rounded-full border-2 border-pink-200 dark:border-pink-900 shadow-md transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
       >
         IIT-JEE
       </motion.span>
