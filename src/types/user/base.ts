@@ -17,7 +17,7 @@ export enum SubscriptionType {
   Custom = "Custom"
 }
 
-export type MoodType = 'sad' | 'neutral' | 'happy' | 'motivated' | 'anxious' | 'tired' | 'stressed' | 'focused';
+export type MoodType = 'sad' | 'neutral' | 'happy' | 'motivated' | 'anxious' | 'tired' | 'stressed' | 'focused' | 'curious' | 'okay' | 'overwhelmed';
 
 export interface UserSubscription {
   planType: SubscriptionType;

@@ -20,16 +20,8 @@ const Header = () => {
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <Link to="/" className="flex items-center space-x-2">
-              <PrepzrLogo width={40} />
-              <div>
-                <h1 className="font-bold text-xl sm:text-2xl font-display gradient-text">
-                  पहली बार, पढ़ाई से पहले, आपको समझने वाला साथी
-                </h1>
-                <p className="hidden sm:block text-xs text-gray-500 dark:text-gray-400">
-                  India's 1st Emotionally Intelligent Study Partner – Tuned to Your Mood, Habits, Mind & Mission to Crack Exams.
-                </p>
-              </div>
+            <Link to="/" className="flex items-center gap-2">
+              <PrepzrLogo width={40} showText={false} />
             </Link>
           </div>
           
