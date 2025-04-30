@@ -1,17 +1,33 @@
-
 import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
-import { DatePicker } from '@/components/ui/date-picker';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { Calendar, Book, Brain, Target, Clock, Calendar as CalendarIcon } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Progress } from "@/components/ui/progress";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Calendar } from "@/components/ui/calendar";
+import { DatePicker } from "@/components/ui/date-picker";
+import {
+  BarChart,
+  PieChart,
+  LineChart,
+  Clock,
+  Users,
+  BookOpen,
+  Target,
+  Calendar as CalendarIcon,
+  PlusCircle,
+  CheckCircle2,
+  BarChart2,
+  ChevronRight,
+  FileText,
+  ArrowRight,
+  ArrowUp,
+  ArrowDown,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
 import { SharedPageLayout } from '../SharedPageLayout';
-import { format } from 'date-fns';
+import { useToast } from "@/hooks/use-toast";
 
 const AcademicAdvisorView = () => {
   const [activeTab, setActiveTab] = useState('overview');

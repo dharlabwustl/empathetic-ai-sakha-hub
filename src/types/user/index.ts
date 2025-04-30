@@ -1,29 +1,31 @@
+import { UserProfileBase } from './base';
 
-export * from './base';
-
-// Add missing type definitions
+// Student dashboard types
 export interface SubjectProgress {
   id: string;
   name: string;
-  subject: string;
-  completedTopics: number;
-  totalTopics: number;
   progress: number;
-  color?: string;
-  topics?: Array<{
+  studyHours: { date: string; hours: number }[];
+  quizScores: {
+    id: string;
+    title: string;
+    score: number;
+    maxScore: number;
+    date: string;
+    timeTaken: number;
+  }[];
+  topics: {
     id: string;
     name: string;
     completed: boolean;
     progress: number;
-  }>;
-  studyHours?: number[];
-  quizScores?: number[];
+    masteryLevel: number;
+    lastPracticed?: string;
+  }[];
 }
 
 export interface StudyStreak {
   currentStreak: number;
   longestStreak: number;
-  lastStudyDate: string;
-  current?: number;
-  thisWeek?: number;
+  thisWeek: number[];
 }

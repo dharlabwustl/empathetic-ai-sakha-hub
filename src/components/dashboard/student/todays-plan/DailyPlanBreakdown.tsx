@@ -1,179 +1,154 @@
-
-import React from 'react';
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import React, { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
-import { Book, BookOpen, FileText, BookCheck } from "lucide-react";
-import { TodaysPlanData } from "@/types/student/todaysPlan";
+import { Progress } from "@/components/ui/progress";
+import { CheckCircle, Clock, BookOpen, Brain, FileText } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { TaskType, TaskStatus } from "@/types/student/todaysPlan";
 
 interface DailyPlanBreakdownProps {
-  planData?: TodaysPlanData;
-  isLoading: boolean;
-  onMarkCompleted: (id: string, type: 'concept' | 'flashcard' | 'practice-exam') => void;
-  onBookmark: (content: string) => void;
+  subject: string;
+  concepts: { id: string; title: string; status: string; timeEstimate: number }[];
+  flashcards: { id: string; title: string; status: string; timeEstimate: number }[];
+  practiceExams: { id: string; title: string; status: string; timeEstimate: number }[];
+  onTaskComplete: (subject: string, taskId: string, taskType: TaskType) => void;
 }
 
-const DailyPlanBreakdown: React.FC<DailyPlanBreakdownProps> = ({
-  planData,
-  isLoading,
-  onMarkCompleted,
-  onBookmark
-}) => {
-  if (isLoading) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Today's Study Plan</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div className="h-24 bg-gray-100 rounded animate-pulse"></div>
-            <div className="h-24 bg-gray-100 rounded animate-pulse"></div>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-  
-  if (!planData || !planData.subjectBreakdown) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Today's Study Plan</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-center py-8">
-            <p className="text-muted-foreground">No study plan available for today.</p>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-  
-  return (
-    <div className="space-y-4">
-      {Object.keys(planData.subjectBreakdown).map((subject) => (
-        <Card key={subject}>
-          <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2">
-              <BookCheck className="h-5 w-5 text-primary" />
-              {subject}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {/* Tasks Breakdown Table */}
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b">
-                      <th className="text-left py-2">Task Type</th>
-                      <th className="text-left py-2">Assigned</th>
-                      <th className="text-left py-2">Pending</th>
-                      <th className="text-right py-2">Time</th>
-                      <th className="text-right py-2">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {/* Concepts Row */}
-                    {planData.subjectBreakdown[subject].concepts && planData.subjectBreakdown[subject].concepts.length > 0 && (
-                      <tr className="border-b">
-                        <td className="py-2 flex items-center gap-2">
-                          <Book className="h-4 w-4 text-blue-500" />
-                          <span>Concepts</span>
-                        </td>
-                        <td className="py-2">
-                          {planData.subjectBreakdown[subject].concepts.length} {planData.subjectBreakdown[subject].concepts.length === 1 ? 'concept' : 'concepts'}
-                        </td>
-                        <td className="py-2">
-                          {planData.subjectBreakdown[subject].concepts.filter(c => c.status !== '✅ completed').length > 0 ? (
-                            <Badge variant="destructive">
-                              {planData.subjectBreakdown[subject].concepts.filter(c => c.status !== '✅ completed').length} pending
-                            </Badge>
-                          ) : (
-                            <Badge variant="outline">None</Badge>
-                          )}
-                        </td>
-                        <td className="py-2 text-right">
-                          {planData.subjectBreakdown[subject].concepts.reduce((acc, c) => acc + c.timeEstimate, 0)} min
-                        </td>
-                        <td className="py-2 text-right">
-                          <Link to={`/dashboard/student/concepts/${subject.toLowerCase()}`}>
-                            <Button size="sm" variant="ghost">Start</Button>
-                          </Link>
-                        </td>
-                      </tr>
-                    )}
-                    
-                    {/* Flashcards Row */}
-                    {planData.subjectBreakdown[subject].flashcards && planData.subjectBreakdown[subject].flashcards.length > 0 && (
-                      <tr className="border-b">
-                        <td className="py-2 flex items-center gap-2">
-                          <BookOpen className="h-4 w-4 text-amber-500" />
-                          <span>Flashcards</span>
-                        </td>
-                        <td className="py-2">
-                          {planData.subjectBreakdown[subject].flashcards.reduce((acc, f) => acc + (f.cardCount || 0), 0)} cards
-                        </td>
-                        <td className="py-2">
-                          {planData.subjectBreakdown[subject].flashcards.filter(f => f.status !== '✅ completed').length > 0 ? (
-                            <Badge variant="destructive">
-                              {planData.subjectBreakdown[subject].flashcards.filter(f => f.status !== '✅ completed').length} pending
-                            </Badge>
-                          ) : (
-                            <Badge variant="outline">None</Badge>
-                          )}
-                        </td>
-                        <td className="py-2 text-right">
-                          {planData.subjectBreakdown[subject].flashcards.reduce((acc, f) => acc + f.timeEstimate, 0)} min
-                        </td>
-                        <td className="py-2 text-right">
-                          <Link to={`/dashboard/student/flashcards/${subject.toLowerCase()}`}>
-                            <Button size="sm" variant="ghost">Review</Button>
-                          </Link>
-                        </td>
-                      </tr>
-                    )}
-                    
-                    {/* Practice Exams Row */}
-                    {planData.subjectBreakdown[subject].practiceExams && planData.subjectBreakdown[subject].practiceExams.length > 0 && (
-                      <tr className="border-b last:border-0">
-                        <td className="py-2 flex items-center gap-2">
-                          <FileText className="h-4 w-4 text-purple-500" />
-                          <span>Practice Test</span>
-                        </td>
-                        <td className="py-2">
-                          {planData.subjectBreakdown[subject].practiceExams.length} {planData.subjectBreakdown[subject].practiceExams.length === 1 ? 'test' : 'tests'}
-                        </td>
-                        <td className="py-2">
-                          {planData.subjectBreakdown[subject].practiceExams.filter(p => p.status !== '✅ completed').length > 0 ? (
-                            <Badge variant="destructive">
-                              {planData.subjectBreakdown[subject].practiceExams.filter(p => p.status !== '✅ completed').length} pending
-                            </Badge>
-                          ) : (
-                            <Badge variant="outline">None</Badge>
-                          )}
-                        </td>
-                        <td className="py-2 text-right">
-                          {planData.subjectBreakdown[subject].practiceExams.reduce((acc, p) => acc + p.timeEstimate, 0)} min
-                        </td>
-                        <td className="py-2 text-right">
-                          <Link to={`/dashboard/student/practice-exam/${subject.toLowerCase()}`}>
-                            <Button size="sm" variant="ghost">Take Test</Button>
-                          </Link>
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      ))}
-    </div>
-  );
-};
+export function DailyPlanBreakdown({
+  subject,
+  concepts,
+  flashcards,
+  practiceExams,
+  onTaskComplete
+}: DailyPlanBreakdownProps) {
+  const [totalMinutes, setTotalMinutes] = useState(0);
+  const [completedTasks, setCompletedTasks] = useState(0);
 
-export default DailyPlanBreakdown;
+  useEffect(() => {
+    // Simulate loading time
+    setTimeout(() => {
+      const totalMinutes = concepts.reduce((total, task) => total + task.timeEstimate, 0) +
+        flashcards.reduce((total, task) => total + task.timeEstimate, 0) +
+        practiceExams.reduce((total, task) => total + task.timeEstimate, 0);
+
+      setTotalMinutes(totalMinutes);
+
+      const completed = concepts.filter(task => task.status === '✅ completed').length +
+        flashcards.filter(task => task.status === '✅ completed').length +
+        practiceExams.filter(task => task.status === '✅ completed').length;
+
+      setCompletedTasks(completed);
+    }, 100);
+  }, [concepts, flashcards, practiceExams]);
+
+  const totalTasks = concepts.length + flashcards.length + practiceExams.length;
+  const progress = totalTasks === 0 ? 0 : Math.round((completedTasks / totalTasks) * 100);
+
+  const handleTaskComplete = (taskId: string, taskType: TaskType) => {
+    onTaskComplete(subject, taskId, taskType);
+  };
+
+  const getTaskIcon = (type: TaskType) => {
+    switch (type) {
+      case 'concept':
+        return <BookOpen className="h-4 w-4 mr-2 text-blue-500" />;
+      case 'flashcard':
+        return <Brain className="h-4 w-4 mr-2 text-violet-500" />;
+      case 'practice-exam':
+        return <FileText className="h-4 w-4 mr-2 text-emerald-500" />;
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <Card className="shadow-md">
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-lg">{subject}</CardTitle>
+          <Badge variant="secondary">{totalTasks} tasks</Badge>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <p className="text-sm font-medium">Progress</p>
+            <p className="text-sm text-muted-foreground">{completedTasks} / {totalTasks}</p>
+          </div>
+          <Progress value={progress} />
+        </div>
+
+        <div className="text-sm text-muted-foreground flex items-center justify-between">
+          <Clock className="h-4 w-4 mr-1" />
+          <span>{totalMinutes} minutes</span>
+          <span>{progress}% completed</span>
+        </div>
+
+        <div className="space-y-3">
+          {concepts.length > 0 && (
+            <div className="space-y-1">
+              <h4 className="text-sm font-semibold flex items-center">
+                {getTaskIcon('concept')}
+                Concepts
+              </h4>
+              {concepts.map((task) => (
+                <div key={task.id} className="flex items-center justify-between p-2 rounded-lg border hover:bg-accent transition-colors">
+                  <span className="text-sm">{task.title}</span>
+                  {task.status === '✅ completed' ? (
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                  ) : (
+                    <button onClick={() => handleTaskComplete(task.id, 'concept')} className="text-blue-500 hover:underline">
+                      Mark Complete
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+
+          {flashcards.length > 0 && (
+            <div className="space-y-1">
+              <h4 className="text-sm font-semibold flex items-center">
+                {getTaskIcon('flashcard')}
+                Flashcards
+              </h4>
+              {flashcards.map((task) => (
+                <div key={task.id} className="flex items-center justify-between p-2 rounded-lg border hover:bg-accent transition-colors">
+                  <span className="text-sm">{task.title}</span>
+                  {task.status === '✅ completed' ? (
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                  ) : (
+                    <button onClick={() => handleTaskComplete(task.id, 'flashcard')} className="text-blue-500 hover:underline">
+                      Mark Complete
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+
+          {practiceExams.length > 0 && (
+            <div className="space-y-1">
+              <h4 className="text-sm font-semibold flex items-center">
+                {getTaskIcon('practice-exam')}
+                Practice Exams
+              </h4>
+              {practiceExams.map((task) => (
+                <div key={task.id} className="flex items-center justify-between p-2 rounded-lg border hover:bg-accent transition-colors">
+                  <span className="text-sm">{task.title}</span>
+                  {task.status === '✅ completed' ? (
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                  ) : (
+                    <button onClick={() => handleTaskComplete(task.id, 'practice-exam')} className="text-blue-500 hover:underline">
+                      Mark Complete
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}

@@ -21,6 +21,7 @@ import AppRoutes from './components/dashboard/student/AppRoutes';
 import ConceptCardDetailPage from './components/dashboard/student/concepts/ConceptCardDetailPage';
 import ExamTakingPage from './components/dashboard/student/practice-exam/ExamTakingPage';
 import ExamReviewPage from './components/dashboard/student/practice-exam/ExamReviewPage';
+import FlashcardInteractive from './components/dashboard/student/flashcards/FlashcardInteractive';
 
 const AdminDashboard = React.lazy(() => import('@/pages/admin/AdminDashboard'));
 

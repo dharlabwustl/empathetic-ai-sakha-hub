@@ -1,14 +1,12 @@
-
 import { useState, useEffect } from 'react';
 
 export interface KpiData {
   id: string;
-  name: string;
   value: number;
   unit: string;
-  change: number;
-  trend: 'up' | 'down' | 'neutral';
-  label: string;
+  change?: number;
+  changeType?: 'increase' | 'decrease' | 'neutral';
+  title: string;
   icon?: React.ReactNode;
 }
 
@@ -16,13 +14,10 @@ export interface NudgeData {
   id: string;
   title: string;
   description: string;
-  type: 'info' | 'warning' | 'success' | 'error';
-  timestamp: string;
+  type: 'alert' | 'reminder' | 'info' | 'success';
   read: boolean;
-  action?: {
-    label: string;
-    url: string;
-  };
+  priority: 'high' | 'medium' | 'low';
+  createdAt: string;
 }
 
 export const useKpiTracking = () => {
@@ -37,42 +32,38 @@ export const useKpiTracking = () => {
       const mockKpis: KpiData[] = [
         {
           id: '1',
-          name: 'Study Time',
           value: 4.5,
           unit: 'hours',
           change: 0.5,
-          trend: 'up',
-          label: 'Today',
+          changeType: 'increase',
+          title: 'Study Time',
           icon: null
         },
         {
           id: '2',
-          name: 'Completion',
           value: 68,
           unit: '%',
           change: 5,
-          trend: 'up',
-          label: 'This week',
+          changeType: 'increase',
+          title: 'Completion',
           icon: null
         },
         {
           id: '3',
-          name: 'Questions',
           value: 42,
           unit: '',
           change: -3,
-          trend: 'down',
-          label: 'This week',
+          changeType: 'decrease',
+          title: 'Questions',
           icon: null
         },
         {
           id: '4',
-          name: 'Accuracy',
           value: 81,
           unit: '%',
           change: 2,
-          trend: 'up',
-          label: 'Last 30 days',
+          changeType: 'increase',
+          title: 'Accuracy',
           icon: null
         },
       ];
@@ -83,9 +74,10 @@ export const useKpiTracking = () => {
           id: 'n1',
           title: 'Study reminder',
           description: "You haven't studied Physics in 3 days. Would you like to continue where you left off?",
-          type: 'info',
-          timestamp: new Date().toISOString(),
+          type: 'alert',
           read: false,
+          priority: 'high',
+          createdAt: new Date().toISOString(),
           action: {
             label: 'Continue studying',
             url: '/dashboard/student/study/physics',
@@ -95,9 +87,10 @@ export const useKpiTracking = () => {
           id: 'n2',
           title: 'Practice exam available',
           description: "A new practice exam for Chemistry has been prepared based on your study progress.",
-          type: 'success',
-          timestamp: new Date(Date.now() - 3600000).toISOString(),
+          type: 'reminder',
           read: false,
+          priority: 'medium',
+          createdAt: new Date(Date.now() - 3600000).toISOString(),
           action: {
             label: 'Take practice exam',
             url: '/dashboard/student/practice-exams',
@@ -107,9 +100,10 @@ export const useKpiTracking = () => {
           id: 'n3',
           title: 'Deadline approaching',
           description: "Your assignment 'Quantum Mechanics Essay' is due in 2 days.",
-          type: 'warning',
-          timestamp: new Date(Date.now() - 7200000).toISOString(),
+          type: 'info',
           read: true,
+          priority: 'low',
+          createdAt: new Date(Date.now() - 7200000).toISOString(),
         },
       ];
 

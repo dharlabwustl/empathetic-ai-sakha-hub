@@ -1,9 +1,17 @@
-
 import React from "react";
 import { MoodType } from "@/types/user/base";
 import { Card } from "@/components/ui/card";
 import { getMoodTheme } from "./moodThemes";
 import { motion } from "framer-motion";
+
+interface MoodTheme {
+  emoji: string;
+  label: string;
+  colors: {
+    light: string;
+    dark: string;
+  };
+}
 
 interface MoodTimelineProps {
   moodHistory: Array<{
