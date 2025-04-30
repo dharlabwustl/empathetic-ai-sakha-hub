@@ -1,19 +1,69 @@
-import React from 'react';
-import { Badge } from "@/components/ui/badge";
 
-const ExamNamesBadge: React.FC = () => {
-  // Only keep UPSC, NEET, IIT-JEE exams
-  const examNames = ["UPSC", "NEET", "IIT-JEE"];
-  
+import { motion } from 'framer-motion';
+
+const ExamNamesBadge = () => {
+  const badgeVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: { 
+        duration: 0.5 
+      }
+    }
+  };
+
+  const textVariants = {
+    hidden: { opacity: 0, scale: 0.9 },
+    visible: (i: number) => ({
+      opacity: 1,
+      scale: 1,
+      transition: {
+        delay: i * 0.2,
+        duration: 0.5
+      }
+    })
+  };
+
   return (
-    <div className="flex flex-wrap justify-center gap-2 mb-8">
-      <span className="text-sm font-medium text-gray-500">Trusted by students preparing for:</span>
-      {examNames.map(exam => (
-        <Badge key={exam} variant="outline" className="bg-white/80 text-gray-700 border-gray-200 px-3 py-1">
-          {exam}
-        </Badge>
-      ))}
-    </div>
+    <motion.div
+      variants={badgeVariants}
+      initial="hidden"
+      animate="visible"
+      className="max-w-lg mx-auto bg-white/80 dark:bg-gray-800/80 backdrop-blur rounded-full py-2 px-4 shadow-md flex flex-wrap justify-center items-center gap-3"
+    >
+      <span className="text-sm text-gray-500 dark:text-gray-400 font-medium">Trusted by students preparing for:</span>
+      
+      <motion.span 
+        custom={1}
+        variants={textVariants}
+        initial="hidden"
+        animate="visible"
+        className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-indigo-600 px-3 py-1 rounded-full border-2 border-purple-200 dark:border-purple-900 hover:shadow-md transition-all duration-300 transform hover:scale-105"
+      >
+        UPSC
+      </motion.span>
+      
+      <motion.span 
+        custom={2}
+        variants={textVariants}
+        initial="hidden"
+        animate="visible"
+        className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-cyan-500 px-3 py-1 rounded-full border-2 border-blue-200 dark:border-blue-900 hover:shadow-md transition-all duration-300 transform hover:scale-105"
+      >
+        NEET
+      </motion.span>
+      
+      <motion.span 
+        custom={3}
+        variants={textVariants}
+        initial="hidden"
+        animate="visible"
+        className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-600 to-pink-600 px-3 py-1 rounded-full border-2 border-pink-200 dark:border-pink-900 hover:shadow-md transition-all duration-300 transform hover:scale-105"
+      >
+        IIT-JEE
+      </motion.span>
+    </motion.div>
   );
 };
 

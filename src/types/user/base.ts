@@ -1,44 +1,28 @@
 
-export enum MoodType {
-  Happy = "happy",
-  Focused = "focused",
-  Tired = "tired",
-  Stressed = "stressed",
-  Okay = "okay",
-  Overwhelmed = "overwhelmed",
-  Anxious = "anxious",
-  Motivated = "motivated",
-  Confused = "confused",
-  Calm = "calm",
-  Neutral = "neutral",
-  Sad = "sad",
-  Curious = "curious"
-}
-
 export enum UserRole {
   Student = "student",
   Teacher = "teacher",
   Parent = "parent",
-  Admin = "admin"
+  Admin = "admin",
+  Employee = "employee",
+  Doctor = "doctor",
+  Founder = "founder"
 }
 
-export enum TaskStatus {
-  Pending = "pending",
-  InProgress = "in-progress",
-  Completed = "completed",
-  Missed = "missed",
-  Partial = "partial"
-}
-
-export type SubscriptionType = 'free' | 'basic' | 'premium' | 'pro_monthly' | 'pro_annual' | 'enterprise' | 'trial' | 'custom';
-
-export interface UserSubscription {
-  planType: SubscriptionType;
-  startDate?: string;
-  expiryDate?: string;
-  features?: string[];
-  status?: 'active' | 'expired' | 'pending';
-  autoRenew?: boolean;
+export enum MoodType {
+  Happy = "happy",
+  Sad = "sad",
+  Motivated = "motivated",
+  Tired = "tired",
+  Stressed = "stressed",
+  Focused = "focused",
+  Curious = "curious",
+  Okay = "okay",
+  Overwhelmed = "overwhelmed",
+  Anxious = "anxious",
+  Confused = "confused",
+  Neutral = "neutral",
+  Calm = "calm"
 }
 
 export interface UserProfileBase {
@@ -46,45 +30,56 @@ export interface UserProfileBase {
   name: string;
   email: string;
   role: UserRole;
-  phoneNumber?: string;
-  avatar?: string;
+  goals?: UserGoal[];
+  subscription?: string | SubscriptionInfo;
   loginCount?: number;
+  createdAt?: string;
   lastLogin?: string;
-  subscription?: UserSubscription | SubscriptionType;
-  profileCompleted?: boolean;
-  onboardingCompleted?: boolean;
-  streak?: number;
-  studyHours?: number;
-  conceptsLearned?: number;
-  testsCompleted?: number;
-  goals?: Array<{
-    id: string;
-    title: string;
-    targetDate?: string;
-    progress?: number;
-  }>;
+  image?: string;
+  pronouns?: string;
+  isActive?: boolean;
+  profile?: UserProfile;
+  mood?: MoodType;
+  personalityType?: PersonalityType;
+}
+
+export interface UserGoal {
+  id: string;
+  title: string;
+  targetDate?: string;
+  progress?: number;
+}
+
+export interface UserProfile {
+  bio?: string;
+  location?: string;
+  interests?: string[];
+  skills?: string[];
+  education?: string[];
 }
 
 export interface AdminUser {
   id: string;
   name: string;
   email: string;
-  role: "admin" | "super_admin";
-  permissions?: string[];
+  role: "admin";
+  permissions: string[];
 }
 
-export interface UserWithPreferences extends UserProfileBase {
-  preferences: {
-    theme?: 'light' | 'dark' | 'system';
-    notifications?: {
-      email: boolean;
-      push: boolean;
-      sms: boolean;
-    };
-    studyPreferences?: {
-      preferredTimeOfDay?: string[];
-      preferredDaysOfWeek?: string[];
-      preferredSessionDuration?: number;
-    };
-  };
+export interface SubscriptionInfo {
+  planType: string;
+  expiryDate?: string;
+  startDate?: string;
+  isActive?: boolean;
+  features?: string[];
 }
+
+export enum PersonalityType {
+  Visual = "visual",
+  Auditory = "auditory",
+  ReadWrite = "readwrite",
+  Kinesthetic = "kinesthetic",
+  Mixed = "mixed"
+}
+
+export type UserProfileType = UserProfileBase;

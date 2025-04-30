@@ -1,106 +1,113 @@
 
-import React from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { cn } from '@/lib/utils';
+import CountUp from 'react-countup';
 
-const kpiData = [
-  {
-    metric: '56%',
-    description: 'of students said PREPZR helped reduce exam stress',
-    icon: '😌'
-  },
-  {
-    metric: '5+ hours',
-    description: 'saved weekly through personalized study plans',
-    icon: '⏰'
-  },
-  {
-    metric: '70%',
-    description: 'of students built a consistent study habit in 2 weeks',
-    icon: '📚'
-  },
-  {
-    metric: '4 out of 5',
-    description: 'students felt more confident before their exam',
-    icon: '💪'
-  },
-  {
-    metric: '70%+',
-    description: 'of PREPZR users continued after their 1st month',
-    icon: '🎯'
-  },
-  {
-    metric: '63%',
-    description: 'use mood-based learning themes daily',
-    icon: '😊'
-  }
+const stats = [
+  { id: 1, value: 10000, label: "Students", prefix: "+", suffix: "", decimals: 0 },
+  { id: 2, value: 95, label: "Success Rate", prefix: "", suffix: "%", decimals: 0 },
+  { id: 3, value: 500000, label: "Practice Questions", prefix: "+", suffix: "", decimals: 0 },
+  { id: 4, value: 850, label: "Concepts Mastered", prefix: "Avg ", suffix: "", decimals: 0 }
 ];
 
-const KpiStats = () => {
+export const KpiStats = () => {
+  const [inView, setInView] = useState(false);
+  
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setInView(true);
+          observer.disconnect();
+        }
+      },
+      {
+        threshold: 0.2,
+      }
+    );
+    
+    const element = document.getElementById('kpi-stats-section');
+    if (element) {
+      observer.observe(element);
+    }
+    
+    return () => {
+      if (element) {
+        observer.unobserve(element);
+      }
+    };
+  }, []);
+  
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { 
+      opacity: 1,
+      transition: { 
+        staggerChildren: 0.2,
+        delayChildren: 0.3,
+      } 
+    }
+  };
+  
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: { 
+      y: 0, 
+      opacity: 1,
+      transition: { 
+        type: "spring", 
+        stiffness: 100 
+      } 
+    }
+  };
+
   return (
-    <section className="py-12 px-4">
-      <div className="container mx-auto">
-        <motion.h2 
-          className="text-2xl md:text-3xl font-bold text-center mb-8"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          The PREPZR Impact
-        </motion.h2>
-        
-        <motion.div 
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"
-          initial="hidden"
-          animate="visible"
-          variants={{
-            hidden: { opacity: 0 },
-            visible: {
-              opacity: 1,
-              transition: {
-                staggerChildren: 0.2
-              }
-            }
-          }}
-        >
-          {kpiData.map((kpi, index) => (
-            <motion.div
-              key={index}
-              className={cn(
-                "relative bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-100 dark:border-gray-700 hover:shadow-lg transition-shadow",
-                index % 3 === 0 && "bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/10",
-                index % 3 === 1 && "bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/10",
-                index % 3 === 2 && "bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/10"
-              )}
-              variants={{
-                hidden: { opacity: 0, y: 20 },
-                visible: { 
-                  opacity: 1, 
-                  y: 0,
-                  transition: {
-                    type: "spring",
-                    stiffness: 100,
-                    damping: 12
-                  }
-                }
-              }}
+    <div 
+      id="kpi-stats-section" 
+      className="bg-gradient-to-r from-purple-50 via-white to-blue-50 dark:from-purple-900/20 dark:via-gray-900 dark:to-blue-900/20 py-8 px-4 rounded-2xl shadow-sm border border-purple-100/50 dark:border-purple-900/50"
+    >
+      <motion.div
+        variants={containerVariants}
+        initial="hidden"
+        animate={inView ? "visible" : "hidden"}
+        className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-10 max-w-6xl mx-auto"
+      >
+        {stats.map((stat) => (
+          <motion.div 
+            key={stat.id} 
+            variants={itemVariants}
+            className="flex flex-col items-center text-center"
+          >
+            <motion.div 
+              className="text-3xl md:text-4xl font-bold text-purple-600 dark:text-purple-400 mb-2 flex items-center"
+              whileHover={{ scale: 1.05 }}
+              transition={{ type: "spring", stiffness: 400 }}
             >
-              <div className="absolute -top-3 -left-3 w-12 h-12 rounded-full bg-white dark:bg-gray-800 shadow-md flex items-center justify-center text-2xl">
-                {kpi.icon}
-              </div>
-              <div className="pt-4">
-                <h3 className="text-3xl font-bold mb-2 bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-                  {kpi.metric}
-                </h3>
-                <p className="text-gray-600 dark:text-gray-300">
-                  {kpi.description}
-                </p>
-              </div>
+              <span>{stat.prefix}</span>
+              {inView ? (
+                <CountUp 
+                  start={0} 
+                  end={stat.value} 
+                  duration={2.5} 
+                  separator="," 
+                  decimals={stat.decimals}
+                  decimal="."
+                />
+              ) : (
+                <span>0</span>
+              )}
+              <span>{stat.suffix}</span>
             </motion.div>
-          ))}
-        </motion.div>
-      </div>
-    </section>
+            <motion.p 
+              className="text-sm text-gray-600 dark:text-gray-300"
+              whileHover={{ color: "#8B5CF6" }}
+            >
+              {stat.label}
+            </motion.p>
+          </motion.div>
+        ))}
+      </motion.div>
+    </div>
   );
 };
 

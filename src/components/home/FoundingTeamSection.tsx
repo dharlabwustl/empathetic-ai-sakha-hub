@@ -54,14 +54,14 @@ const FoundingTeamSection = () => {
             name="Amit Singh"
             role="Founder & CEO"
             bio="Building AI tech startups in education. Based in India."
-            imageSrc="https://randomuser.me/api/portraits/men/32.jpg"
+            imageSrc="/lovable-uploads/671c8cbb-4d23-4d74-afc5-5977b926a678.png"
             location="India"
           />
           <ProfileCard
             name="Dr. Atul Sharma"
             role="Cofounder & Chief AI Scientist"
             bio="Doctorate in Engineering (USA), IIT Alumni. Research Scientist & Professor focused on advanced AI solutions."
-            imageSrc="https://randomuser.me/api/portraits/men/46.jpg"
+            imageSrc="/lovable-uploads/0fa1cac6-aec8-4484-82f8-54739838449c.png"
             location="USA"
           />
         </div>

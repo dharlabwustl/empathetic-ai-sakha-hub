@@ -67,7 +67,9 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       setIsAdminLoading(true);
       setAdminLoginError(null);
       
-      // Mock admin login for demo
+      console.log("Admin login attempt:", email);
+      
+      // For demo, allow any email with 'admin' in it and password length > 3
       if (email.includes('admin') && password.length > 3) {
         const adminUser: AdminUser = {
           id: 'admin1',
@@ -82,9 +84,11 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         
         setIsAdminAuthenticated(true);
         setAdminUser(adminUser);
+        console.log("Admin login successful");
         return true;
       } else {
         setAdminLoginError("Invalid admin credentials");
+        console.log("Admin login failed: Invalid credentials");
         return false;
       }
     } catch (error) {

@@ -20,7 +20,7 @@ import PrepzrLogo from '@/components/common/PrepzrLogo';
 const AdminLogin = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { adminLogin, adminLoginError } = useAdminAuth();
+  const { adminLogin, adminLoginError, isAdminLoading } = useAdminAuth();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -48,24 +48,15 @@ const AdminLogin = () => {
     setIsLoading(true);
     
     try {
-      // For demo purposes
       console.log("Attempting admin login with:", formData.email);
       
-      // Mock successful login (in a real app, we'd validate credentials)
-      if (formData.email.includes("admin")) {
+      const success = await adminLogin(formData.email, formData.password);
+      
+      if (success) {
         toast({
           title: "Login successful",
           description: "Redirecting to admin dashboard",
         });
-        
-        // Store admin info in localStorage for demo
-        localStorage.setItem("adminToken", "demo-admin-token-" + Date.now());
-        localStorage.setItem("adminUser", JSON.stringify({
-          id: "admin1",
-          name: "Admin User",
-          email: formData.email,
-          role: "admin"
-        }));
         
         // Navigate to admin dashboard
         setTimeout(() => {
@@ -74,7 +65,7 @@ const AdminLogin = () => {
       } else {
         toast({
           title: "Login Failed",
-          description: "Invalid admin credentials. Please try again.",
+          description: adminLoginError || "Invalid admin credentials. Please try again.",
           variant: "destructive"
         });
       }
@@ -160,9 +151,9 @@ const AdminLogin = () => {
                 <Button 
                   className="w-full bg-gradient-to-r from-purple-600 to-violet-700 hover:from-purple-700 hover:to-violet-800 text-white shadow-md"
                   type="submit"
-                  disabled={isLoading}
+                  disabled={isLoading || isAdminLoading}
                 >
-                  {isLoading ? (
+                  {(isLoading || isAdminLoading) ? (
                     <div className="flex items-center gap-2">
                       <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
                       <span>Signing in...</span>
@@ -174,6 +165,11 @@ const AdminLogin = () => {
                     </div>
                   )}
                 </Button>
+                
+                {/* Debug help for admin login */}
+                <p className="text-xs text-gray-500 text-center">
+                  Hint: Use any email containing "admin" with password length &gt; 3
+                </p>
               </div>
             </CardContent>
           </form>
