@@ -5,111 +5,176 @@ import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Slider } from '@/components/ui/slider';
 import { useOnboardingContext } from '../OnboardingContext';
+import { motion } from 'framer-motion';
+import { Clock, Calendar, Brain, SunMoon } from 'lucide-react';
 
 interface StudyHabitsStepProps {
   onNext: () => void;
 }
 
 const StudyHabitsStep: React.FC<StudyHabitsStepProps> = ({ onNext }) => {
-  const { updateFormData, formData } = useOnboardingContext();
-  const [studyTime, setStudyTime] = useState<'morning' | 'afternoon' | 'evening' | 'night'>(formData.studyTime || 'morning');
-  const [studyPace, setStudyPace] = useState<'slow' | 'moderate' | 'fast'>(formData.studyPace || 'moderate');
-  const [studyHoursPerDay, setStudyHoursPerDay] = useState<number>(formData.studyHoursPerDay || 4);
+  const { formData, updateFormData } = useOnboardingContext();
+  const [studyDuration, setStudyDuration] = useState(formData.studyDuration || 2);
+  const [studyFrequency, setStudyFrequency] = useState(formData.studyFrequency || "daily");
+  const [preferredTime, setPreferredTime] = useState(formData.preferredTime || "morning");
+  const [learningStyle, setLearningStyle] = useState(formData.learningStyle || "visual");
 
-  const handleContinue = () => {
+  const handleSubmit = () => {
     updateFormData({
-      studyTime,
-      studyPace,
-      studyHoursPerDay,
+      studyHabits: {
+        studyDuration,
+        studyFrequency,
+        preferredTime,
+        learningStyle,
+      }
     });
     onNext();
   };
 
+  const container = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const item = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0 }
+  };
+
   return (
-    <div className="space-y-6">
-      <div className="text-center mb-6">
-        <p className="text-muted-foreground">Tell us about your study preferences so we can personalize your experience</p>
-      </div>
+    <motion.div
+      variants={container}
+      initial="hidden"
+      animate="show"
+      className="space-y-6"
+    >
+      <motion.p variants={item} className="text-muted-foreground text-center">
+        Tell us about your study preferences to customize your learning experience
+      </motion.p>
 
-      <div className="space-y-6">
-        {/* Study Time Preference */}
-        <div className="space-y-3">
-          <Label>When do you prefer to study?</Label>
-          <RadioGroup 
-            defaultValue={studyTime} 
-            onValueChange={(value) => setStudyTime(value as 'morning' | 'afternoon' | 'evening' | 'night')}
-            className="grid grid-cols-2 gap-2"
-          >
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="morning" id="morning" />
-              <Label htmlFor="morning" className="cursor-pointer">Morning (5am-12pm)</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="afternoon" id="afternoon" />
-              <Label htmlFor="afternoon" className="cursor-pointer">Afternoon (12pm-5pm)</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="evening" id="evening" />
-              <Label htmlFor="evening" className="cursor-pointer">Evening (5pm-10pm)</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="night" id="night" />
-              <Label htmlFor="night" className="cursor-pointer">Night (10pm-5am)</Label>
-            </div>
-          </RadioGroup>
+      {/* Study Duration */}
+      <motion.div variants={item} className="space-y-3">
+        <div className="flex items-center">
+          <Clock className="h-4 w-4 mr-2 text-blue-600" />
+          <Label className="font-medium">How many hours can you study per day?</Label>
         </div>
-
-        {/* Study Pace */}
-        <div className="space-y-3">
-          <Label>What's your preferred study pace?</Label>
-          <RadioGroup 
-            defaultValue={studyPace}
-            onValueChange={(value) => setStudyPace(value as 'slow' | 'moderate' | 'fast')}
-            className="flex flex-col space-y-2"
-          >
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="slow" id="slow" />
-              <Label htmlFor="slow" className="cursor-pointer">I prefer to take my time and understand thoroughly</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="moderate" id="moderate" />
-              <Label htmlFor="moderate" className="cursor-pointer">I balance depth and coverage</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="fast" id="fast" />
-              <Label htmlFor="fast" className="cursor-pointer">I like to cover a lot of material quickly</Label>
-            </div>
-          </RadioGroup>
-        </div>
-
-        {/* Daily Study Hours */}
-        <div className="space-y-3">
-          <div className="flex justify-between">
-            <Label>How many hours can you study per day?</Label>
-            <span className="text-sm font-medium">{studyHoursPerDay} hours</span>
-          </div>
+        <div className="space-y-2">
           <Slider
-            defaultValue={[studyHoursPerDay]}
-            max={12}
-            min={1}
+            value={[studyDuration]}
+            min={0.5}
+            max={8}
             step={0.5}
-            onValueChange={(value) => setStudyHoursPerDay(value[0])}
-            className="w-full"
+            onValueChange={(vals) => setStudyDuration(vals[0])}
           />
+          <div className="flex justify-between text-xs text-muted-foreground">
+            <span>30min</span>
+            <span>{studyDuration} hours</span>
+            <span>8h</span>
+          </div>
         </div>
-      </div>
+      </motion.div>
 
-      <Button 
-        className="w-full"
-        onClick={handleContinue}
-      >
-        Continue
-      </Button>
+      {/* Study Frequency */}
+      <motion.div variants={item} className="space-y-3">
+        <div className="flex items-center">
+          <Calendar className="h-4 w-4 mr-2 text-purple-600" />
+          <Label className="font-medium">How often do you plan to study?</Label>
+        </div>
+        <RadioGroup
+          value={studyFrequency}
+          onValueChange={setStudyFrequency}
+          className="flex flex-col space-y-1"
+        >
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="daily" id="daily" />
+            <Label htmlFor="daily">Daily</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="weekdays" id="weekdays" />
+            <Label htmlFor="weekdays">Weekdays only</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="weekends" id="weekends" />
+            <Label htmlFor="weekends">Weekends only</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="few-times" id="few-times" />
+            <Label htmlFor="few-times">Few times a week</Label>
+          </div>
+        </RadioGroup>
+      </motion.div>
 
-      <p className="text-xs text-center text-muted-foreground mt-4">
-        We'll use this information to create your personalized study plan
-      </p>
-    </div>
+      {/* Preferred Study Time */}
+      <motion.div variants={item} className="space-y-3">
+        <div className="flex items-center">
+          <SunMoon className="h-4 w-4 mr-2 text-amber-600" />
+          <Label className="font-medium">When do you study best?</Label>
+        </div>
+        <RadioGroup
+          value={preferredTime}
+          onValueChange={setPreferredTime}
+          className="flex flex-col space-y-1"
+        >
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="morning" id="morning" />
+            <Label htmlFor="morning">Early morning (5 AM - 9 AM)</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="daytime" id="daytime" />
+            <Label htmlFor="daytime">Daytime (9 AM - 4 PM)</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="evening" id="evening" />
+            <Label htmlFor="evening">Evening (4 PM - 8 PM)</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="night" id="night" />
+            <Label htmlFor="night">Night (8 PM - 12 AM)</Label>
+          </div>
+        </RadioGroup>
+      </motion.div>
+
+      {/* Learning Style */}
+      <motion.div variants={item} className="space-y-3">
+        <div className="flex items-center">
+          <Brain className="h-4 w-4 mr-2 text-green-600" />
+          <Label className="font-medium">What's your learning style?</Label>
+        </div>
+        <RadioGroup
+          value={learningStyle}
+          onValueChange={setLearningStyle}
+          className="flex flex-col space-y-1"
+        >
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="visual" id="visual" />
+            <Label htmlFor="visual">Visual (images, diagrams, videos)</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="auditory" id="auditory" />
+            <Label htmlFor="auditory">Auditory (listening, discussing)</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="reading" id="reading" />
+            <Label htmlFor="reading">Reading/Writing (text, notes)</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="kinesthetic" id="kinesthetic" />
+            <Label htmlFor="kinesthetic">Kinesthetic (hands-on activities)</Label>
+          </div>
+        </RadioGroup>
+      </motion.div>
+
+      <motion.div variants={item} className="pt-4">
+        <Button onClick={handleSubmit} className="w-full">
+          Continue
+        </Button>
+      </motion.div>
+    </motion.div>
   );
 };
 
