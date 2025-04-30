@@ -17,7 +17,7 @@ const ChatInterface = () => {
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
     { 
       type: "bot", 
-      content: "Hi, I'm Sakha – your personal AI exam companion. I'll help you ace your exams with personalized study plans and continuous support!" 
+      content: "Hi, I'm PREPZR AI Tutor – your personal exam companion. I'll help you ace your exams with personalized study plans and continuous support!" 
     }
   ]);
 
@@ -35,7 +35,7 @@ const ChatInterface = () => {
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-xl overflow-hidden hover:shadow-2xl transition-shadow border border-violet-100">
+    <div className="bg-white rounded-xl shadow-xl overflow-hidden hover:shadow-2xl transition-shadow border border-blue-100">
       <ChatHeader />
       <ChatMessagesList messages={chatMessages} />
       <ChatInputBar onSendMessage={handleSendMessage} />

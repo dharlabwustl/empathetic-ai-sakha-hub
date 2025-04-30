@@ -11,7 +11,7 @@ import { motion } from "framer-motion";
 import { Star } from "lucide-react";
 
 interface SignupStepProps {
-  onSubmit: (formValues: { name: string; mobile: string; otp: string; agreeTerms: boolean }) => void;
+  onSubmit: (formValues: { mobile: string; otp: string; agreeTerms: boolean }) => void;
   isLoading: boolean;
 }
 
@@ -19,7 +19,6 @@ const SignupStep: React.FC<SignupStepProps> = ({ onSubmit, isLoading }) => {
   const { toast } = useToast();
   const { onboardingData } = useOnboarding();
   const [formValues, setFormValues] = useState({
-    name: onboardingData.name || "",
     mobile: "",
     otp: "",
     agreeTerms: false

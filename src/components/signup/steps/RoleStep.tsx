@@ -9,38 +9,14 @@ interface RoleStepProps {
 
 const RoleStep: React.FC<RoleStepProps> = ({ onRoleSelect }) => {
   return (
-    <div className="grid grid-cols-2 gap-4">
+    <div className="flex justify-center">
       <Button
         onClick={() => onRoleSelect(UserRole.Student)}
-        className="bg-white hover:bg-blue-50 text-blue-700 border border-blue-200 h-auto py-6 flex flex-col items-center"
+        className="bg-white hover:bg-blue-50 text-blue-700 border border-blue-200 h-auto py-6 px-8 w-full flex flex-col items-center"
         variant="outline"
       >
-        <span className="text-xl mb-2">🎓</span>
-        <span>Student</span>
-      </Button>
-      <Button
-        onClick={() => onRoleSelect(UserRole.Employee)}
-        className="bg-white hover:bg-blue-50 text-blue-700 border border-blue-200 h-auto py-6 flex flex-col items-center"
-        variant="outline"
-      >
-        <span className="text-xl mb-2">💼</span>
-        <span>Employee</span>
-      </Button>
-      <Button
-        onClick={() => onRoleSelect(UserRole.Doctor)}
-        className="bg-white hover:bg-blue-50 text-blue-700 border border-blue-200 h-auto py-6 flex flex-col items-center"
-        variant="outline"
-      >
-        <span className="text-xl mb-2">🏥</span>
-        <span>Doctor</span>
-      </Button>
-      <Button
-        onClick={() => onRoleSelect(UserRole.Founder)}
-        className="bg-white hover:bg-blue-50 text-blue-700 border border-blue-200 h-auto py-6 flex flex-col items-center"
-        variant="outline"
-      >
-        <span className="text-xl mb-2">🚀</span>
-        <span>Founder</span>
+        <span className="text-3xl mb-3">🎓</span>
+        <span className="text-lg font-medium">Student</span>
       </Button>
     </div>
   );

@@ -34,6 +34,23 @@ export interface DashboardStats {
   totalRevenue: number;
   subscriptionsByPlan: Record<string, number>;
   dailyActiveUsers: { date: string; count: number }[];
+  
+  // Add missing properties for SystemAnalyticsTab component
+  verifiedMoodImprovement: number;
+  averageMoodScore: number;
+  averageTimeSavedPerWeek: number;
+  studyPlanEfficiencyImprovement: number;
+  studentsWithVerifiedConsistentHabits: number;
+  studentsWithConsistentHabits: number;
+  totalStudents: number;
+  verifiedExamConfidenceImprovement: number;
+  averageConfidenceScore: number;
+  verifiedRetentionRate: number;
+  activeStudents: number;
+  verifiedMoodFeatureUsage: number;
+  moodBasedSessionsCount: number;
+  totalSessions: number;
+  completedSurveys: number;
 }
 
 // Alias for DashboardStats to maintain compatibility

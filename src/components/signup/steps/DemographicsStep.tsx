@@ -1,5 +1,4 @@
-
-import React, { useState } from "react";
+import React from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -205,14 +204,14 @@ const DemographicsStep: React.FC<DemographicsStepProps> = ({
             name="examDate"
             render={({ field }) => (
               <FormItem className="flex flex-col">
-                <FormLabel>Target Exam Date</FormLabel>
+                <FormLabel className="font-bold text-blue-600">Target Exam Date</FormLabel>
                 <Popover>
                   <PopoverTrigger asChild>
                     <FormControl>
                       <Button
                         variant={"outline"}
                         className={cn(
-                          "w-full pl-3 text-left font-normal border-blue-200 focus:border-blue-500",
+                          "w-full pl-3 text-left font-normal border-blue-300 focus:border-blue-600 bg-blue-50/50",
                           !field.value && "text-muted-foreground"
                         )}
                       >
