@@ -21,6 +21,7 @@ import RevisionLoopSection from './dashboard-sections/RevisionLoopSection';
 import UpcomingMilestonesSection from './dashboard-sections/UpcomingMilestonesSection';
 import MoodBasedSuggestions from './dashboard-sections/MoodBasedSuggestions';
 import SmartSuggestionsCenter from './dashboard-sections/SmartSuggestionsCenter';
+import ExamReadinessScore from './dashboard-sections/ExamReadinessScore';
 import { MoodType } from '@/types/user/base';
 
 interface RedesignedDashboardOverviewProps {
@@ -168,6 +169,59 @@ export default function RedesignedDashboardOverview({ userProfile, kpis }: Redes
         <StudyStatsSection subjects={dashboardData.subjects} conceptCards={dashboardData.conceptCards} />
       </motion.div>
 
+      {/* Exam Readiness Score - added below the KPI section */}
+      <motion.div 
+        variants={itemVariants}
+        className="grid grid-cols-1 lg:grid-cols-2 gap-6"
+      >
+        <ExamReadinessScore 
+          overallScore={72} 
+          targetExam={dashboardData.examGoal} 
+          daysUntilExam={85}
+        />
+        
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center mb-4">
+              <Brain className="h-5 w-5 text-violet-600 mr-2" />
+              <h3 className="text-lg font-medium">Your Learning Status</h3>
+            </div>
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg">
+                  <div className="text-sm text-muted-foreground">Concepts Mastered</div>
+                  <div className="text-2xl font-bold">45/60</div>
+                  <div className="text-xs text-blue-600 dark:text-blue-400">75% completed</div>
+                </div>
+                <div className="bg-green-50 dark:bg-green-900/20 p-3 rounded-lg">
+                  <div className="text-sm text-muted-foreground">Flashcards Reviewed</div>
+                  <div className="text-2xl font-bold">120/150</div>
+                  <div className="text-xs text-green-600 dark:text-green-400">80% completed</div>
+                </div>
+              </div>
+              
+              <div className="p-4 bg-violet-50 dark:bg-violet-900/20 rounded-lg border border-violet-200 dark:border-violet-800/50">
+                <h4 className="font-medium text-violet-800 dark:text-violet-300 mb-2">Weekly Progress</h4>
+                <div className="space-y-1">
+                  <div className="flex justify-between text-sm">
+                    <span>Study Hours</span>
+                    <span className="font-medium">12.5 hrs</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span>Practice Tests</span>
+                    <span className="font-medium">8 completed</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span>Avg. Score</span>
+                    <span className="font-medium">82%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <motion.div variants={itemVariants}>
           <Card>
@@ -229,10 +283,10 @@ export default function RedesignedDashboardOverview({ userProfile, kpis }: Redes
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <motion.div variants={itemVariants}>
-          <RevisionLoopSection revisionStats={dashboardData.revisionStats} />
+          <RevisionLoopSection revisionItems={dashboardData.revisionItems} />
         </motion.div>
         <motion.div variants={itemVariants}>
-          <UpcomingMilestonesSection milestones={dashboardData.upcomingMilestones} />
+          <UpcomingMilestonesSection milestones={dashboardData.milestones} />
         </motion.div>
       </div>
     </motion.div>

@@ -1,257 +1,362 @@
 
 import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { PersonalityType } from '@/types/user/base';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { CalendarIcon, Plus, Trash } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Slider } from "@/components/ui/slider";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { NewStudyPlan } from "@/types/user/studyPlan";
 
-// Define the UserRole here since it's needed in this component
-export enum UserRole {
-  Student = 'student',
-  Teacher = 'teacher',
-  Admin = 'admin'
-}
-
-// Define the study plan interface
-export interface NewStudyPlan {
-  title: string;
-  goalExam: string;
-  subjects: string[];
-  duration: number;
-  dailyHours: number;
-  startDate: string;
-}
-
-// Define props for the component
-export interface CreateStudyPlanWizardProps {
-  examGoal: string;
-  isOpen?: boolean;
-  onClose?: () => void;
+interface CreateStudyPlanWizardProps {
+  examGoal?: string;
   onCreatePlan: (plan: NewStudyPlan) => void;
+  onClose: () => void;
+  open: boolean;
 }
 
 const CreateStudyPlanWizard: React.FC<CreateStudyPlanWizardProps> = ({
-  examGoal,
-  isOpen = true,
-  onClose = () => {},
-  onCreatePlan
+  examGoal = "IIT-JEE",
+  onCreatePlan,
+  onClose,
+  open
 }) => {
-  const [activeTab, setActiveTab] = useState('subjects');
-  const [plan, setPlan] = useState<NewStudyPlan>({
-    title: `My ${examGoal} Prep Plan`,
-    goalExam: examGoal,
-    subjects: [],
-    duration: 12,
-    dailyHours: 3,
-    startDate: new Date().toISOString().split('T')[0]
+  const [currentStep, setCurrentStep] = useState(1);
+  const [loading, setLoading] = useState(false);
+  
+  // Form state
+  const [formData, setFormData] = useState<NewStudyPlan>({
+    examGoal: examGoal,
+    examDate: new Date(new Date().setMonth(new Date().getMonth() + 3)),
+    subjects: [{ name: "Mathematics", proficiency: 'moderate' }],
+    studyHoursPerDay: 3,
+    preferredStudyTime: 'evening',
+    learningPace: 'moderate'
   });
-
-  // Mock subjects based on exam type
-  const getSubjectsForExam = (exam: string) => {
-    switch (exam.toLowerCase()) {
-      case 'iit-jee':
-        return ['Physics', 'Chemistry', 'Mathematics'];
-      case 'neet':
-        return ['Biology', 'Physics', 'Chemistry'];
-      case 'upsc':
-        return ['History', 'Geography', 'Polity', 'Economics', 'Science & Technology'];
+  
+  const handleNextStep = () => {
+    setCurrentStep(currentStep + 1);
+  };
+  
+  const handlePreviousStep = () => {
+    setCurrentStep(currentStep - 1);
+  };
+  
+  const handleAddSubject = () => {
+    setFormData({
+      ...formData,
+      subjects: [
+        ...formData.subjects,
+        { name: "", proficiency: 'moderate' }
+      ]
+    });
+  };
+  
+  const handleRemoveSubject = (index: number) => {
+    const updatedSubjects = [...formData.subjects];
+    updatedSubjects.splice(index, 1);
+    
+    setFormData({
+      ...formData,
+      subjects: updatedSubjects
+    });
+  };
+  
+  const handleSubjectChange = (index: number, field: string, value: string) => {
+    const updatedSubjects = [...formData.subjects];
+    updatedSubjects[index] = {
+      ...updatedSubjects[index],
+      [field]: value
+    };
+    
+    setFormData({
+      ...formData,
+      subjects: updatedSubjects
+    });
+  };
+  
+  const handleInputChange = (field: keyof NewStudyPlan, value: any) => {
+    setFormData({
+      ...formData,
+      [field]: value
+    });
+  };
+  
+  const handleSubmit = () => {
+    setLoading(true);
+    
+    // Simulate API call
+    setTimeout(() => {
+      onCreatePlan(formData);
+      setLoading(false);
+      setCurrentStep(1);
+    }, 1000);
+  };
+  
+  const renderStepOne = () => (
+    <>
+      <div className="grid gap-4 py-4">
+        <div className="grid gap-2">
+          <Label htmlFor="examGoal">Exam Goal</Label>
+          <Input 
+            id="examGoal" 
+            value={formData.examGoal} 
+            onChange={(e) => handleInputChange('examGoal', e.target.value)} 
+            placeholder="e.g., IIT-JEE, NEET, UPSC"
+          />
+        </div>
+        
+        <div className="grid gap-2">
+          <Label>Exam Date</Label>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className={cn(
+                  "w-full justify-start text-left font-normal",
+                  !formData.examDate && "text-muted-foreground"
+                )}
+              >
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {formData.examDate ? format(formData.examDate, "PPP") : "Select a date"}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0">
+              <Calendar
+                mode="single"
+                selected={formData.examDate}
+                onSelect={(date) => handleInputChange('examDate', date)}
+                initialFocus
+                disabled={(date) => date < new Date()}
+              />
+            </PopoverContent>
+          </Popover>
+        </div>
+      </div>
+      
+      <div className="flex justify-between mt-4">
+        <Button variant="outline" onClick={onClose}>
+          Cancel
+        </Button>
+        <Button onClick={handleNextStep}>
+          Next Step
+        </Button>
+      </div>
+    </>
+  );
+  
+  const renderStepTwo = () => (
+    <>
+      <div className="grid gap-4 py-4 max-h-[400px] overflow-y-auto">
+        <div className="flex justify-between items-center">
+          <Label>Subjects</Label>
+          <Button 
+            type="button" 
+            variant="ghost" 
+            size="sm" 
+            onClick={handleAddSubject} 
+            className="h-8 px-2"
+          >
+            <Plus className="h-4 w-4 mr-1" />
+            Add Subject
+          </Button>
+        </div>
+        
+        {formData.subjects.map((subject, index) => (
+          <div key={index} className="space-y-3 border rounded-md p-3">
+            <div className="flex justify-between items-start">
+              <Label className="text-sm font-medium">Subject {index + 1}</Label>
+              {index > 0 && (
+                <Button 
+                  type="button" 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => handleRemoveSubject(index)} 
+                  className="h-6 px-2 text-red-500 hover:text-red-600 hover:bg-red-50"
+                >
+                  <Trash className="h-3 w-3" />
+                </Button>
+              )}
+            </div>
+            
+            <div className="grid gap-2">
+              <Label htmlFor={`subject-${index}`} className="text-xs text-muted-foreground">
+                Subject Name
+              </Label>
+              <Input 
+                id={`subject-${index}`} 
+                value={subject.name} 
+                onChange={(e) => handleSubjectChange(index, 'name', e.target.value)}
+                placeholder="e.g., Mathematics, Physics"
+              />
+            </div>
+            
+            <div className="grid gap-2">
+              <Label className="text-xs text-muted-foreground">
+                Current Proficiency
+              </Label>
+              <RadioGroup 
+                value={subject.proficiency}
+                onValueChange={(value) => handleSubjectChange(index, 'proficiency', value as 'weak' | 'moderate' | 'strong')}
+                className="flex space-x-2"
+              >
+                <div className="flex items-center space-x-1">
+                  <RadioGroupItem value="weak" id={`weak-${index}`} />
+                  <Label htmlFor={`weak-${index}`} className="text-sm">Weak</Label>
+                </div>
+                <div className="flex items-center space-x-1">
+                  <RadioGroupItem value="moderate" id={`moderate-${index}`} />
+                  <Label htmlFor={`moderate-${index}`} className="text-sm">Moderate</Label>
+                </div>
+                <div className="flex items-center space-x-1">
+                  <RadioGroupItem value="strong" id={`strong-${index}`} />
+                  <Label htmlFor={`strong-${index}`} className="text-sm">Strong</Label>
+                </div>
+              </RadioGroup>
+            </div>
+          </div>
+        ))}
+      </div>
+      
+      <div className="flex justify-between mt-4">
+        <Button variant="outline" onClick={handlePreviousStep}>
+          Previous
+        </Button>
+        <Button onClick={handleNextStep}>
+          Next Step
+        </Button>
+      </div>
+    </>
+  );
+  
+  const renderStepThree = () => (
+    <>
+      <div className="grid gap-4 py-4">
+        <div className="space-y-2">
+          <div className="flex justify-between">
+            <Label>Study Hours Per Day</Label>
+            <span className="text-sm font-medium">{formData.studyHoursPerDay} hours</span>
+          </div>
+          <Slider 
+            value={[formData.studyHoursPerDay]} 
+            max={12} 
+            min={1} 
+            step={0.5}
+            onValueChange={(value) => handleInputChange('studyHoursPerDay', value[0])}
+          />
+        </div>
+        
+        <div className="space-y-2">
+          <Label>Preferred Study Time</Label>
+          <Select 
+            value={formData.preferredStudyTime}
+            onValueChange={(value) => handleInputChange('preferredStudyTime', value)}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select preferred study time" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="morning">Morning (5 AM - 12 PM)</SelectItem>
+              <SelectItem value="afternoon">Afternoon (12 PM - 5 PM)</SelectItem>
+              <SelectItem value="evening">Evening (5 PM - 9 PM)</SelectItem>
+              <SelectItem value="night">Night (9 PM - 5 AM)</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        
+        <div className="space-y-2">
+          <Label>Learning Pace</Label>
+          <Select 
+            value={formData.learningPace}
+            onValueChange={(value) => handleInputChange('learningPace', value)}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select learning pace" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="slow">Slow - Thorough understanding</SelectItem>
+              <SelectItem value="moderate">Moderate - Balanced pace</SelectItem>
+              <SelectItem value="fast">Fast - Cover more ground quickly</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+      
+      <div className="flex justify-between mt-4">
+        <Button variant="outline" onClick={handlePreviousStep}>
+          Previous
+        </Button>
+        <Button onClick={handleSubmit} disabled={loading}>
+          {loading ? 'Creating Plan...' : 'Create Study Plan'}
+        </Button>
+      </div>
+    </>
+  );
+  
+  const renderStepContent = () => {
+    switch (currentStep) {
+      case 1:
+        return renderStepOne();
+      case 2:
+        return renderStepTwo();
+      case 3:
+        return renderStepThree();
       default:
-        return ['Mathematics', 'Science', 'English', 'General Knowledge'];
+        return renderStepOne();
     }
   };
-
-  const handleTabChange = (tab: string) => {
-    setActiveTab(tab);
-  };
-
-  const handleCreatePlan = () => {
-    // Final validation could be done here
-    onCreatePlan(plan);
-    onClose();
-  };
-
-  if (!isOpen) return null;
-
+  
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <Card className="w-full max-w-3xl max-h-[90vh] overflow-y-auto animate-in fade-in-0 zoom-in-95">
-        <CardHeader>
-          <CardTitle>Create Study Plan for {examGoal}</CardTitle>
-          <CardDescription>
-            Let's personalize your study journey for optimal results
-          </CardDescription>
-        </CardHeader>
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-[500px]">
+        <DialogHeader>
+          <DialogTitle>Create New Study Plan</DialogTitle>
+          <DialogDescription>
+            Let's create a personalized study plan for your exam preparation.
+          </DialogDescription>
+        </DialogHeader>
         
-        <CardContent>
-          <Tabs value={activeTab} onValueChange={handleTabChange}>
-            <TabsList className="grid grid-cols-3 mb-6">
-              <TabsTrigger value="subjects">Subjects</TabsTrigger>
-              <TabsTrigger value="schedule">Schedule</TabsTrigger>
-              <TabsTrigger value="approach">Approach</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="subjects" className="space-y-4">
-              <div className="space-y-2">
-                <h3 className="text-lg font-medium">Select Your Subjects</h3>
-                <p className="text-sm text-gray-500">
-                  Based on {examGoal}, we recommend these subjects for your preparation
-                </p>
-                <div className="grid grid-cols-2 gap-2 mt-4">
-                  {getSubjectsForExam(examGoal).map((subject) => (
-                    <div key={subject} className="flex items-center space-x-2">
-                      <input
-                        type="checkbox"
-                        id={subject}
-                        checked={plan.subjects.includes(subject)}
-                        onChange={(e) => {
-                          if (e.target.checked) {
-                            setPlan({...plan, subjects: [...plan.subjects, subject]});
-                          } else {
-                            setPlan({...plan, subjects: plan.subjects.filter(s => s !== subject)});
-                          }
-                        }}
-                        className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                      />
-                      <label htmlFor={subject} className="text-sm font-medium text-gray-700">
-                        {subject}
-                      </label>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              
-              <div className="flex justify-end">
-                <Button onClick={() => handleTabChange('schedule')}>
-                  Next: Schedule
-                </Button>
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="schedule" className="space-y-4">
-              <div className="space-y-4">
-                <div>
-                  <label htmlFor="duration" className="block text-sm font-medium text-gray-700">
-                    Plan Duration (weeks)
-                  </label>
-                  <input
-                    type="range"
-                    id="duration"
-                    value={plan.duration}
-                    onChange={(e) => setPlan({...plan, duration: Number(e.target.value)})}
-                    min="1"
-                    max="52"
-                    step="1"
-                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer mt-2"
-                  />
-                  <div className="flex justify-between text-xs text-gray-500 mt-1">
-                    <span>1</span>
-                    <span>{plan.duration} weeks</span>
-                    <span>52</span>
-                  </div>
-                </div>
-                
-                <div>
-                  <label htmlFor="daily-hours" className="block text-sm font-medium text-gray-700">
-                    Daily Study Hours
-                  </label>
-                  <input
-                    type="range"
-                    id="daily-hours"
-                    value={plan.dailyHours}
-                    onChange={(e) => setPlan({...plan, dailyHours: Number(e.target.value)})}
-                    min="1"
-                    max="10"
-                    step="0.5"
-                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer mt-2"
-                  />
-                  <div className="flex justify-between text-xs text-gray-500 mt-1">
-                    <span>1</span>
-                    <span>{plan.dailyHours} hours</span>
-                    <span>10</span>
-                  </div>
-                </div>
-                
-                <div>
-                  <label htmlFor="start-date" className="block text-sm font-medium text-gray-700">
-                    Start Date
-                  </label>
-                  <input
-                    type="date"
-                    id="start-date"
-                    value={plan.startDate}
-                    onChange={(e) => setPlan({...plan, startDate: e.target.value})}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                  />
-                </div>
-              </div>
-              
-              <div className="flex justify-between">
-                <Button variant="outline" onClick={() => handleTabChange('subjects')}>
-                  Previous: Subjects
-                </Button>
-                <Button onClick={() => handleTabChange('approach')}>
-                  Next: Approach
-                </Button>
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="approach" className="space-y-4">
-              <div className="space-y-4">
-                <h3 className="text-lg font-medium">Study Approach</h3>
-                <p className="text-sm text-gray-500">
-                  We'll tailor your study materials based on these preferences
-                </p>
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="border rounded-lg p-4 cursor-pointer hover:bg-gray-50 transition-colors">
-                    <h4 className="font-medium">Visual Learning</h4>
-                    <p className="text-sm text-gray-500">
-                      Diagrams, videos, and visual concept maps
-                    </p>
-                  </div>
-                  
-                  <div className="border rounded-lg p-4 cursor-pointer hover:bg-gray-50 transition-colors">
-                    <h4 className="font-medium">Practical Application</h4>
-                    <p className="text-sm text-gray-500">
-                      Examples, case studies, and problem solving
-                    </p>
-                  </div>
-                  
-                  <div className="border rounded-lg p-4 cursor-pointer hover:bg-gray-50 transition-colors">
-                    <h4 className="font-medium">Spaced Repetition</h4>
-                    <p className="text-sm text-gray-500">
-                      Regular review of concepts at optimal intervals
-                    </p>
-                  </div>
-                  
-                  <div className="border rounded-lg p-4 cursor-pointer hover:bg-gray-50 transition-colors">
-                    <h4 className="font-medium">Active Recall</h4>
-                    <p className="text-sm text-gray-500">
-                      Self-testing and practice question emphasis
-                    </p>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="flex justify-between">
-                <Button variant="outline" onClick={() => handleTabChange('schedule')}>
-                  Previous: Schedule
-                </Button>
-                <Button onClick={handleCreatePlan}>
-                  Create Study Plan
-                </Button>
-              </div>
-            </TabsContent>
-          </Tabs>
-        </CardContent>
+        <div className="flex justify-between text-sm mb-4">
+          <div className={`flex items-center ${currentStep >= 1 ? 'text-primary' : 'text-muted-foreground'}`}>
+            <div className={`w-6 h-6 rounded-full flex items-center justify-center mr-2 ${currentStep >= 1 ? 'bg-primary text-white' : 'bg-muted text-muted-foreground'}`}>
+              1
+            </div>
+            <span>Basics</span>
+          </div>
+          <Separator className="w-8 h-[1px] bg-muted-foreground/30 my-auto" />
+          <div className={`flex items-center ${currentStep >= 2 ? 'text-primary' : 'text-muted-foreground'}`}>
+            <div className={`w-6 h-6 rounded-full flex items-center justify-center mr-2 ${currentStep >= 2 ? 'bg-primary text-white' : 'bg-muted text-muted-foreground'}`}>
+              2
+            </div>
+            <span>Subjects</span>
+          </div>
+          <Separator className="w-8 h-[1px] bg-muted-foreground/30 my-auto" />
+          <div className={`flex items-center ${currentStep >= 3 ? 'text-primary' : 'text-muted-foreground'}`}>
+            <div className={`w-6 h-6 rounded-full flex items-center justify-center mr-2 ${currentStep >= 3 ? 'bg-primary text-white' : 'bg-muted text-muted-foreground'}`}>
+              3
+            </div>
+            <span>Preferences</span>
+          </div>
+        </div>
         
-        <CardFooter className="flex justify-end border-t pt-4">
-          <Button variant="outline" onClick={onClose} className="mr-2">
-            Cancel
-          </Button>
-        </CardFooter>
-      </Card>
-    </div>
+        {renderStepContent()}
+      </DialogContent>
+    </Dialog>
   );
 };
 

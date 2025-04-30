@@ -1,102 +1,110 @@
 
-import { MoodType } from '../user/base';
+import { MoodType } from '@/types/user/base';
 
-export interface StudyBlock {
+// Define task status enum
+export type TaskStatus = "completed" | "in-progress" | "viewed" | "pending";
+
+// Base task interface with common properties
+export interface BaseTask {
   id: string;
   title: string;
-  duration: number;
-  startTime?: string;
-  endTime?: string;
-  completed: boolean;
-  type: TaskType;
-  subject?: string;
+  subject: string;
+  chapter?: string;
   topic?: string;
-  resources?: string[];
-  mood?: MoodType;
-  tasks?: Task[];
-}
-
-export enum TaskType {
-  Concept = 'concept',
-  Revision = 'revision',
-  Practice = 'practice',
-  Break = 'break',
-  Test = 'test',
-  Flashcard = 'flashcard',
-  PracticeExam = 'practice-exam'
-}
-
-export enum TaskStatus {
-  Completed = 'completed',
-  InProgress = 'in-progress',
-  Pending = 'pending',
-  Missed = 'missed'
-}
-
-export interface Task {
-  id: string;
-  title: string;
-  description?: string;
-  dueDate: string;
-  duration: number;
-  timeEstimate?: number;
+  duration: number; // in minutes
   status: TaskStatus;
-  type: TaskType;
-  subject?: string;
-  topic?: string;
-  priority: 'low' | 'medium' | 'high';
-  deckName?: string;
-  examName?: string;
+  difficulty?: 'Easy' | 'Medium' | 'Hard';
+  completionPercent?: number;
 }
 
-export interface DailyMood {
-  date: string;
-  mood: MoodType;
-  note?: string;
+// Concept task interface
+export interface ConceptTask extends BaseTask {
+  key_points?: string[];
+  mastery_level?: number;
 }
 
-export interface StudyProgress {
-  plannedHours: number;
-  completedHours: number;
-  completedTasks: number;
-  totalTasks: number;
+// Flashcard task interface
+export interface FlashcardTask extends BaseTask {
+  cardCount?: number;
+  recallAccuracy?: number;
 }
 
-export interface TodaysPlan {
-  date: string;
-  greeting: string;
-  currentMood?: MoodType;
-  studyBlocks: StudyBlock[];
-  progress: StudyProgress;
-  pendingTasks: Task[];
-  backlogTasks: Task[];
+// Practice exam task interface
+export interface PracticeExamTask extends BaseTask {
+  questionCount?: number;
+  timeLimit?: number;
+  lastScore?: number;
 }
 
-export interface TodaysPlanData extends TodaysPlan {
-  timeAllocation: TimeAllocation;
-  subjectProgress: SubjectProgress[];
-  pastRecords: PastDayRecord[];
-}
-
+// Time allocation interface
 export interface TimeAllocation {
   concepts: number;
   flashcards: number;
-  practice: number;
-  breaks: number;
-}
-
-export interface SubjectProgress {
-  subject: string;
-  completion: number;
-  concepts: number;
-  flashcards: number;
   practiceExams: number;
+  revision?: number;
+  total: number;
 }
 
-export interface PastDayRecord {
+// Today's plan data interface
+export interface TodaysPlanData {
+  id?: string;
+  userName?: string;
+  examGoal?: string;
   date: string;
-  tasksCompleted: number;
+  streak?: number;
+  totalDuration?: number;
+  completed?: boolean;
+  completedTasks: number;
   totalTasks: number;
-  studyTimeMinutes: number;
-  mood: MoodType;
+  timeAllocation: TimeAllocation;
+  concepts: ConceptTask[];
+  flashcards: FlashcardTask[];
+  practiceExams: PracticeExamTask[];
+  subjectBreakdown?: {
+    [subject: string]: {
+      concepts: { id: string; title: string; status: string; timeEstimate: string }[];
+      flashcards: { id: string; deckName: string; status: string; timeEstimate: string }[];
+      practiceExams: { id: string; examName: string; status: string; timeEstimate: string }[];
+    };
+  };
+  tomorrowPreview?: {
+    totalTasks: number;
+    focusArea: string;
+    difficulty: string;
+    concepts: number;
+    flashcards: number;
+    practiceExams: number;
+  };
+  smartExtras?: {
+    bookmarks: {
+      id: string;
+      title: string;
+      type: string;
+      addedOn: string;
+    }[];
+    notes: {
+      id: string;
+      content: string;
+      createdAt: string;
+    }[];
+  };
+  backlogTasks?: {
+    id: string;
+    subject: string;
+    title: string;
+    type: string;
+    timeEstimate: number;
+    status: string;
+    daysOverdue: number;
+  }[];
+  recommendations?: {
+    id: string;
+    type: 'concept' | 'flashcard' | 'practice-exam';
+    title: string;
+    description: string;
+    reason: string;
+  }[];
 }
+
+// Timeline view type
+export type TimelineView = 'list' | 'timeline' | 'calendar' | 'daily';

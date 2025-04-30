@@ -1,15 +1,15 @@
 
-export interface Topic {
+export interface StudyPlanTopic {
   name: string;
   status: 'pending' | 'in-progress' | 'completed';
   priority: 'high' | 'medium' | 'low';
 }
 
-export interface Subject {
+export interface StudyPlanSubject {
   name: string;
   progress: number;
   proficiency: 'weak' | 'moderate' | 'strong';
-  topics: Topic[];
+  topics: StudyPlanTopic[];
 }
 
 export interface StudyPlan {
@@ -18,23 +18,21 @@ export interface StudyPlan {
   examDate: string;
   daysLeft: number;
   createdAt: string;
-  status: 'active' | 'completed' | 'expired';
+  status: 'active' | 'completed' | 'paused';
   progressPercentage: number;
-  subjects: Subject[];
+  subjects: StudyPlanSubject[];
   studyHoursPerDay: number;
   preferredStudyTime: 'morning' | 'afternoon' | 'evening' | 'night';
   learningPace: 'slow' | 'moderate' | 'fast';
 }
 
-export interface NewStudyPlanSubject {
-  name: string;
-  proficiency: 'weak' | 'moderate' | 'strong';
-}
-
 export interface NewStudyPlan {
   examGoal: string;
   examDate: Date;
-  subjects: NewStudyPlanSubject[];
+  subjects: {
+    name: string;
+    proficiency: 'weak' | 'moderate' | 'strong';
+  }[];
   studyHoursPerDay: number;
   preferredStudyTime: 'morning' | 'afternoon' | 'evening' | 'night';
   learningPace: 'slow' | 'moderate' | 'fast';

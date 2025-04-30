@@ -8,10 +8,6 @@ interface PerformanceTabsProps {
   className?: string;
 }
 
-interface SubjectOverviewProps {
-  // Define props as required
-}
-
 const PerformanceTabs: React.FC<PerformanceTabsProps> = ({ className }) => {
   return (
     <Tabs defaultValue="grades" className={className}>

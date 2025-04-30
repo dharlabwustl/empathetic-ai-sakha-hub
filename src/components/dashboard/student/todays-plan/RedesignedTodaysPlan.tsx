@@ -12,7 +12,7 @@ import { UserRole } from '@/types/user/base';
 
 const RedesignedTodaysPlan: React.FC = () => {
   const { userProfile } = useUserProfile(UserRole.Student);
-  const goalTitle = userProfile?.goals?.[0] || "IIT-JEE";
+  const goalTitle = userProfile?.goals?.[0]?.title || "IIT-JEE";
   
   // Get today's plan data
   const {
@@ -24,8 +24,8 @@ const RedesignedTodaysPlan: React.FC = () => {
     refreshData,
     markTaskCompleted,
     addBookmark,
-    addNotes
-  } = useTodaysPlan();
+    addNote
+  } = useTodaysPlan(goalTitle, userProfile?.name || "Student");
   
   if (loading) {
     return <LoadingState message="Loading your study plan..." />;

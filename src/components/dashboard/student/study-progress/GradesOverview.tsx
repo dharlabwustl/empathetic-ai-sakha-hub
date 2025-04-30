@@ -1,116 +1,102 @@
 
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
-interface GradesOverviewProps {
-  studentId?: string;
+interface GradeData {
+  month: string;
+  physics: number;
+  chemistry: number;
+  mathematics: number;
 }
 
-const GradesOverview: React.FC<GradesOverviewProps> = ({ studentId }) => {
-  // Mock grade data
-  const gradeData = [
-    { date: 'Jan', physics: 78, chemistry: 82, mathematics: 75 },
-    { date: 'Feb', physics: 76, chemistry: 83, mathematics: 78 },
-    { date: 'Mar', physics: 80, chemistry: 85, mathematics: 79 },
-    { date: 'Apr', physics: 82, chemistry: 87, mathematics: 82 },
-    { date: 'May', physics: 84, chemistry: 85, mathematics: 84 },
-    { date: 'Jun', physics: 87, chemistry: 88, mathematics: 86 },
-  ];
+// Sample data for the chart
+const gradeData: GradeData[] = [
+  { month: "Jan", physics: 76, chemistry: 65, mathematics: 82 },
+  { month: "Feb", physics: 68, chemistry: 72, mathematics: 80 },
+  { month: "Mar", physics: 75, chemistry: 78, mathematics: 85 },
+  { month: "Apr", physics: 82, chemistry: 75, mathematics: 89 },
+  { month: "May", physics: 85, chemistry: 82, mathematics: 92 },
+  { month: "Jun", physics: 87, chemistry: 85, mathematics: 90 },
+];
 
+const GradesOverview: React.FC = () => {
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between pb-2">
-        <CardTitle className="text-lg font-semibold">Performance Growth</CardTitle>
-        <Select defaultValue="6months">
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Time Period" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="3months">Last 3 Months</SelectItem>
-            <SelectItem value="6months">Last 6 Months</SelectItem>
-            <SelectItem value="1year">Last Year</SelectItem>
-          </SelectContent>
-        </Select>
-      </CardHeader>
-      <CardContent className="pt-4">
-        <div className="h-80">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart
-              data={gradeData}
-              margin={{
-                top: 5,
-                right: 10,
-                left: 10,
-                bottom: 0,
-              }}
-            >
-              <XAxis 
-                dataKey="date"
-                tick={{ fontSize: 12 }}
-                tickLine={false}
-                axisLine={false}
-              />
-              <YAxis 
-                domain={[50, 100]}
-                tick={{ fontSize: 12 }}
-                tickLine={false}
-                axisLine={false}
-                tickFormatter={(value) => `${value}%`}
-              />
-              <Tooltip 
-                formatter={(value) => [`${value}%`]}
-                contentStyle={{
-                  borderRadius: "4px",
-                  border: "none",
-                  boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)"
-                }}
-              />
-              <Line 
-                type="monotone"
-                dataKey="physics"
-                stroke="#3b82f6"
-                strokeWidth={2}
-                dot={{ r: 4 }}
-                activeDot={{ r: 6 }}
-              />
-              <Line 
-                type="monotone"
-                dataKey="chemistry"
-                stroke="#f59e0b"
-                strokeWidth={2}
-                dot={{ r: 4 }}
-                activeDot={{ r: 6 }}
-              />
-              <Line 
-                type="monotone"
-                dataKey="mathematics"
-                stroke="#10b981"
-                strokeWidth={2}
-                dot={{ r: 4 }}
-                activeDot={{ r: 6 }}
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-        
-        <div className="flex justify-center mt-4 space-x-6">
-          <div className="flex items-center">
-            <span className="h-3 w-3 rounded-full bg-blue-500 mr-2" />
-            <span className="text-sm">Physics</span>
+    <div className="space-y-4">
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Subject Performance Trend</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="h-[300px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={gradeData}>
+                <XAxis dataKey="month" />
+                <YAxis domain={[0, 100]} />
+                <Tooltip 
+                  formatter={(value) => [`${value}%`]}
+                  labelFormatter={(month) => `Month: ${month}`}
+                />
+                <Line 
+                  type="monotone" 
+                  dataKey="physics" 
+                  stroke="#2563eb" 
+                  strokeWidth={2}
+                  activeDot={{ r: 6 }}
+                  name="Physics"
+                />
+                <Line 
+                  type="monotone" 
+                  dataKey="chemistry" 
+                  stroke="#16a34a" 
+                  strokeWidth={2}
+                  activeDot={{ r: 6 }}
+                  name="Chemistry"
+                />
+                <Line 
+                  type="monotone" 
+                  dataKey="mathematics" 
+                  stroke="#9333ea" 
+                  strokeWidth={2}
+                  activeDot={{ r: 6 }}
+                  name="Mathematics"
+                />
+              </LineChart>
+            </ResponsiveContainer>
           </div>
-          <div className="flex items-center">
-            <span className="h-3 w-3 rounded-full bg-amber-500 mr-2" />
-            <span className="text-sm">Chemistry</span>
-          </div>
-          <div className="flex items-center">
-            <span className="h-3 w-3 rounded-full bg-green-500 mr-2" />
-            <span className="text-sm">Mathematics</span>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-lg">Physics</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-blue-600">87%</div>
+            <div className="text-sm text-muted-foreground mt-1">Up 12% from last month</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-lg">Chemistry</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-green-600">85%</div>
+            <div className="text-sm text-muted-foreground mt-1">Up 10% from last month</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-lg">Mathematics</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-purple-600">90%</div>
+            <div className="text-sm text-muted-foreground mt-1">Up 5% from last month</div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
   );
 };
 
