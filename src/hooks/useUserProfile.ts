@@ -1,14 +1,14 @@
 
 import { useState, useEffect } from "react";
-import { UserProfileType, UserRole } from "@/types/user";
+import { UserProfileBase, UserRole } from "@/types/user/base";
 import { getMockProfileByRole } from "@/data/mockProfiles";
 
 export function useUserProfile(role: UserRole = UserRole.Student): {
-  userProfile: UserProfileType | null;
+  userProfile: UserProfileBase | null;
   loading: boolean;
-  updateUserProfile: (updates: Partial<UserProfileType>) => void;
+  updateUserProfile: (updates: Partial<UserProfileBase>) => void;
 } {
-  const [userProfile, setUserProfile] = useState<UserProfileType | null>(null);
+  const [userProfile, setUserProfile] = useState<UserProfileBase | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -26,7 +26,7 @@ export function useUserProfile(role: UserRole = UserRole.Student): {
     fetchUserProfile();
   }, [role]);
 
-  const updateUserProfile = (updates: Partial<UserProfileType>) => {
+  const updateUserProfile = (updates: Partial<UserProfileBase>) => {
     setUserProfile(prev => {
       if (!prev) return prev;
       return { ...prev, ...updates };

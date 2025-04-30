@@ -19,17 +19,9 @@ const Header = () => {
     <header className="bg-white dark:bg-gray-900 shadow-sm sticky top-0 z-50">
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <Link to="/" className="flex items-center space-x-2">
+          <div className="flex items-center">
+            <Link to="/" className="flex items-center">
               <PrepzrLogo width={40} height={40} />
-              <div>
-                <h1 className="font-bold text-xl sm:text-2xl font-display gradient-text">
-                  PREPZR – Your personalized preparation partner
-                </h1>
-                <p className="hidden sm:block text-xs text-gray-500 dark:text-gray-400">
-                  India's 1st Emotionally Intelligent Study Partner – Tuned to Your Mood, Habits, Mind & Mission to Crack Exams.
-                </p>
-              </div>
             </Link>
           </div>
           
@@ -39,7 +31,7 @@ const Header = () => {
             {user ? (
               <div className="flex space-x-2">
                 <Button variant="ghost" asChild>
-                  <Link to="/dashboard">Dashboard</Link>
+                  <Link to="/dashboard/student">Dashboard</Link>
                 </Button>
                 <Button variant="ghost" onClick={() => logout()}>
                   Logout
@@ -73,7 +65,7 @@ const Header = () => {
               {user ? (
                 <>
                   <Button variant="ghost" asChild className="justify-start">
-                    <Link to="/dashboard">Dashboard</Link>
+                    <Link to="/dashboard/student">Dashboard</Link>
                   </Button>
                   <Button variant="ghost" onClick={() => logout()} className="justify-start">
                     Logout

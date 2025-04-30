@@ -1,26 +1,29 @@
 
 import React from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
+import { Navigate, Outlet } from 'react-router-dom';
 import { useAdminAuth } from '@/contexts/auth/AdminAuthContext';
-import LoadingSpinner from '@/components/common/LoadingSpinner';
+import LoadingScreen from '@/components/common/LoadingScreen';
 
 interface AdminRouteGuardProps {
-  children: React.ReactNode;
+  children?: React.ReactNode;
 }
 
 const AdminRouteGuard: React.FC<AdminRouteGuardProps> = ({ children }) => {
   const { isAdminAuthenticated, isAdminLoading } = useAdminAuth();
-  const location = useLocation();
-
+  
   if (isAdminLoading) {
-    return <LoadingSpinner />;
+    return <LoadingScreen />;
   }
-
+  
   if (!isAdminAuthenticated) {
-    return <Navigate to="/admin/login" state={{ from: location }} replace />;
+    return <Navigate to="/admin/login" replace />;
   }
-
-  return <>{children}</>;
+  
+  return (
+    <>
+      {children || <Outlet />}
+    </>
+  );
 };
 
 export default AdminRouteGuard;

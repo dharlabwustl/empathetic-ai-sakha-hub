@@ -1,44 +1,47 @@
 
 import React from 'react';
-import { Progress } from "@/components/ui/progress";
-import { BarChart, ResponsiveContainer, XAxis, YAxis, Bar, Tooltip } from 'recharts';
-import { SubjectProgress } from "@/types/user";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Book } from 'lucide-react';
+import { SubjectProgress } from '@/types/student/studyProgress';
 
 interface SubjectOverviewProps {
   subjects: SubjectProgress[];
 }
 
-export const SubjectOverview: React.FC<SubjectOverviewProps> = ({ subjects }) => {
+const SubjectOverview: React.FC<SubjectOverviewProps> = ({ subjects }) => {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div>
-        <h3 className="font-medium mb-4">Subject Progress</h3>
-        <div className="space-y-4">
-          {subjects.map(subject => (
-            <div key={subject.id} className="space-y-2">
-              <div className="flex justify-between">
-                <span>{subject.name}</span>
-                <span className="font-medium">{subject.progress}%</span>
+    <Card>
+      <CardHeader className="pb-3">
+        <CardTitle className="flex items-center text-lg">
+          <Book className="h-5 w-5 mr-2" />
+          Subject Progress
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-6">
+          {subjects.map((subject, index) => (
+            <div key={index} className="space-y-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <div className="w-3 h-3 rounded-full mr-2" style={{ backgroundColor: subject.color }}></div>
+                  <h4 className="font-medium">{subject.name}</h4>
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  {subject.masteredConcepts}/{subject.totalConcepts} concepts
+                </div>
               </div>
-              <Progress value={subject.progress} className="h-2" style={{backgroundColor: `${subject.color}40`}}>
-                <div className="h-full" style={{backgroundColor: subject.color}}></div>
-              </Progress>
+              <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
+                <div 
+                  className="h-2.5 rounded-full" 
+                  style={{ width: `${subject.progress}%`, backgroundColor: subject.color }}
+                ></div>
+              </div>
             </div>
           ))}
         </div>
-      </div>
-      
-      <div>
-        <h3 className="font-medium mb-4">Strong vs Weak Subjects</h3>
-        <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={subjects}>
-            <XAxis dataKey="name" />
-            <YAxis />
-            <Tooltip />
-            <Bar dataKey="progress" fill="#0ea5e9" />
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 };
+
+export default SubjectOverview;

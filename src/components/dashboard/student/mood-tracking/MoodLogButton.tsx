@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Smile } from "lucide-react";
 import { MoodType } from "@/types/user/base";
-import MoodSelectionDialog from "./MoodSelectionDialog";
+import { MoodSelectionDialog } from "./MoodSelectionDialog";
 import { motion } from "framer-motion";
 import { getMoodDisplayName, getMoodColor } from "./moodUtils";
 

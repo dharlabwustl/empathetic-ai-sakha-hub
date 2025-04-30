@@ -1,79 +1,50 @@
 
-import React from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { TodaysPlanData } from "@/types/student/todaysPlan";
-import { Clock } from "lucide-react";
+import React from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { TimeAllocation } from '@/types/student/todaysPlan';
 
 interface TimeAllocationWidgetProps {
-  planData?: TodaysPlanData;
-  isLoading: boolean;
+  allocations: TimeAllocation[];
 }
 
-const TimeAllocationWidget: React.FC<TimeAllocationWidgetProps> = ({ planData, isLoading }) => {
-  if (isLoading) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-sm">Time Allocation</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-2">
-            <div className="h-4 bg-gray-100 rounded animate-pulse"></div>
-            <div className="h-4 bg-gray-100 rounded animate-pulse"></div>
-            <div className="h-4 bg-gray-100 rounded animate-pulse"></div>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  const timeAllocation = planData?.timeAllocation;
-  
-  if (!timeAllocation) return null;
+const TimeAllocationWidget: React.FC<TimeAllocationWidgetProps> = ({ allocations }) => {
+  // Sort allocations by percentage (descending)
+  const sortedAllocations = [...allocations].sort((a, b) => b.percentage - a.percentage);
   
   return (
     <Card>
-      <CardHeader>
-        <CardTitle className="text-sm flex items-center gap-2">
-          <Clock className="h-4 w-4 text-primary" />
-          Time Allocation
-        </CardTitle>
+      <CardHeader className="pb-2">
+        <CardTitle className="text-lg">Time Allocation</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="space-y-3">
-          <div className="grid grid-cols-1 gap-2">
-            <div>
-              <p className="text-xs text-muted-foreground">Concepts</p>
-              <p className="text-sm font-medium">
-                {Math.floor(timeAllocation.conceptCards / 60) > 0 ? 
-                  `${Math.floor(timeAllocation.conceptCards / 60)}h ${timeAllocation.conceptCards % 60}m` : 
-                  `${timeAllocation.conceptCards}m`}
-              </p>
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground">Flashcards</p>
-              <p className="text-sm font-medium">
-                {Math.floor(timeAllocation.flashcards / 60) > 0 ? 
-                  `${Math.floor(timeAllocation.flashcards / 60)}h ${timeAllocation.flashcards % 60}m` : 
-                  `${timeAllocation.flashcards}m`}
-              </p>
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground">Practice Tests</p>
-              <p className="text-sm font-medium">
-                {Math.floor(timeAllocation.practiceTests / 60) > 0 ? 
-                  `${Math.floor(timeAllocation.practiceTests / 60)}h ${timeAllocation.practiceTests % 60}m` : 
-                  `${timeAllocation.practiceTests}m`}
-              </p>
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground">Total Time</p>
-              <p className="text-sm font-medium">
-                {Math.floor(timeAllocation.total / 60) > 0 ? 
-                  `${Math.floor(timeAllocation.total / 60)}h ${timeAllocation.total % 60}m` : 
-                  `${timeAllocation.total}m`}
-              </p>
-            </div>
+        <div className="space-y-4">
+          <div className="h-6 w-full flex rounded-full overflow-hidden">
+            {sortedAllocations.map((allocation, index) => (
+              <div
+                key={`${allocation.subject}-${index}`}
+                className="h-full"
+                style={{
+                  width: `${allocation.percentage}%`,
+                  backgroundColor: allocation.color
+                }}
+                title={`${allocation.subject}: ${allocation.percentage}%`}
+              />
+            ))}
+          </div>
+          
+          <div className="grid grid-cols-2 gap-2">
+            {sortedAllocations.map((allocation, index) => (
+              <div key={`${allocation.subject}-legend-${index}`} className="flex items-center space-x-2">
+                <div
+                  className="w-3 h-3 rounded-full"
+                  style={{ backgroundColor: allocation.color }}
+                />
+                <div className="text-sm flex-1 flex justify-between">
+                  <span>{allocation.subject}</span>
+                  <span className="text-muted-foreground">{allocation.percentage}%</span>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </CardContent>

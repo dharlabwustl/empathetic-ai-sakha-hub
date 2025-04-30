@@ -59,13 +59,13 @@ function App() {
               {/* Admin routes - protected by AdminRouteGuard */}
               <Route path="/admin/login" element={<AdminLogin />} />
               <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
-              <Route element={<AdminRouteGuard />}>
-                <Route path="/admin/dashboard/*" element={
+              <Route path="/admin/dashboard/*" element={
+                <AdminRouteGuard>
                   <Suspense fallback={<LoadingScreen />}>
                     <AdminDashboard />
                   </Suspense>
-                } />
-              </Route>
+                </AdminRouteGuard>
+              } />
 
               {/* 404 Not Found */}
               <Route path="*" element={<NotFound />} />

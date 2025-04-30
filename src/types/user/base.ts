@@ -7,18 +7,19 @@ export enum UserRole {
   Founder = 'founder'
 }
 
-export type MoodType = 
-  | 'happy'
-  | 'motivated'
-  | 'focused'
-  | 'neutral'
-  | 'tired'
-  | 'anxious'
-  | 'stressed'
-  | 'sad'
-  | 'curious'
-  | 'okay'
-  | 'overwhelmed';
+export enum MoodType {
+  Happy = 'happy',
+  Motivated = 'motivated',
+  Focused = 'focused',
+  Neutral = 'neutral',
+  Tired = 'tired',
+  Anxious = 'anxious',
+  Stressed = 'stressed',
+  Sad = 'sad',
+  Curious = 'curious',
+  Okay = 'okay',
+  Overwhelmed = 'overwhelmed'
+}
 
 export type PersonalityType =
   | 'analytical'
