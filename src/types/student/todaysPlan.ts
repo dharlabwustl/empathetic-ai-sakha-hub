@@ -81,10 +81,12 @@ export interface TodaysPlanData extends TodaysPlan {
   upcomingBlocks: StudyBlock[];
   backlog: Task[];
   tasks?: Task[];
+  pastDays?: PastDayRecord[];
   tomorrowPreview?: {
     concepts: number;
     flashcards: number;
     practice: number;
+    practiceExams?: number;
   };
   subjectBreakdown?: {
     [key: string]: {
@@ -109,6 +111,7 @@ export interface TimeAllocation {
   flashcards: number;
   practice: number;
   breaks: number;
+  practiceExams?: number;
 }
 
 export interface SubjectProgress {

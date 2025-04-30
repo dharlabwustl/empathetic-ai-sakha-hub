@@ -1,64 +1,71 @@
 
-export enum UserRole {
-  Student = 'student',
-  Teacher = 'teacher',
-  Admin = 'admin'
+// Define base user profile types
+export interface UserProfileBase {
+  id: string;
+  name: string;
+  email?: string;
+  phoneNumber?: string;
+  role: 'student' | 'instructor' | 'admin';
+  avatar?: string;
+  joinDate?: string;
+  lastLogin?: string;
+  loginCount?: number;
+  goals?: Goal[];
+  subjects?: string[];
+  progress?: number;
+  preferences?: UserPreferences;
+  subscription?: SubscriptionType | Subscription;
+}
+
+export interface Goal {
+  id?: string;
+  title: string;
+  description?: string;
+  targetDate?: string;
+  progress?: number;
+  subjects?: string[];
+  chapters?: string[];
+  concepts?: string[];
+}
+
+export interface UserPreferences {
+  theme?: 'light' | 'dark' | 'system';
+  notifications?: boolean;
+  studyReminders?: boolean;
+  timezone?: string;
+  language?: string;
 }
 
 export enum MoodType {
-  Happy = 'happy',
+  Motivated = 'motivated',
   Focused = 'focused',
   Tired = 'tired',
-  Stressed = 'stressed',
-  Curious = 'curious',
-  Okay = 'okay',
-  Overwhelmed = 'overwhelmed',
   Anxious = 'anxious',
-  Motivated = 'motivated',
+  Stressed = 'stressed',
+  Happy = 'happy',
+  Curious = 'curious',
   Confused = 'confused',
-  Neutral = 'neutral',
-  Sad = 'sad'
-}
-
-export enum PersonalityType {
-  Visual = 'visual',
-  Auditory = 'auditory',
-  ReadWrite = 'readWrite',
-  Kinesthetic = 'kinesthetic',
-  Logical = 'logical',
-  Social = 'social',
-  Solitary = 'solitary'
+  Overwhelmed = 'overwhelmed',
+  Bored = 'bored',
 }
 
 export enum SubscriptionType {
   Free = 'free',
   Basic = 'basic',
   Premium = 'premium',
-  Pro = 'pro'
+  Enterprise = 'enterprise',
 }
 
-export interface UserProfileBase {
-  id: string;
-  name: string;
-  email: string;
-  role: UserRole;
-  lastActive?: Date | string;
-  avatarUrl?: string;
-  avatar?: string;
-  streak?: number;
-  studyHours?: number;
-  conceptsLearned?: number;
-  testsCompleted?: number;
-  personality?: PersonalityType;
-  mood?: MoodType;
-  subscription?: SubscriptionType | {
-    planType: string;
-    status: string;
-    expiresAt?: string;
-  };
-  loginCount?: number;
-  goals?: string[];
-  studyPace?: 'Aggressive' | 'Balanced' | 'Relaxed';
-  studyTime?: 'Morning' | 'Afternoon' | 'Evening' | 'Night';
-  dailyStudyHours?: number;
+export interface Subscription {
+  planType: SubscriptionType | string;
+  startDate?: string;
+  expiryDate?: string;
+  amount?: number;
+  status?: 'active' | 'expired' | 'paused';
+  autoRenew?: boolean;
+  features?: string[];
+  discount?: number;
+  paymentMethod?: string;
 }
+
+export type UserProfileType = UserProfileBase;

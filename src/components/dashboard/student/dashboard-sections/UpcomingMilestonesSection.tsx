@@ -1,94 +1,105 @@
 
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Milestone } from '@/types/student/dashboard';
-import { Calendar, Check, Flag, TrendingUp } from 'lucide-react';
-import { format, isFuture, parseISO } from 'date-fns';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Calendar, Flag } from 'lucide-react';
 
 interface UpcomingMilestonesSectionProps {
-  milestones: Milestone[];
+  milestones?: any[];
+  isLoading?: boolean;
 }
 
-const UpcomingMilestonesSection: React.FC<UpcomingMilestonesSectionProps> = ({ milestones }) => {
-  const upcomingMilestones = milestones
-    .filter(milestone => isFuture(parseISO(milestone.date)))
-    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-    .slice(0, 3);
-
-  const getMilestoneIcon = (type: string) => {
-    switch (type) {
-      case 'weekly-target':
-        return <Flag className="h-4 w-4 text-blue-500" />;
-      case 'practice-exam':
-        return <Check className="h-4 w-4 text-green-500" />;
-      case 'performance-check':
-        return <TrendingUp className="h-4 w-4 text-purple-500" />;
-      default:
-        return <Calendar className="h-4 w-4 text-gray-500" />;
-    }
+const UpcomingMilestonesSection = ({ milestones, isLoading }: UpcomingMilestonesSectionProps) => {
+  // Mock data
+  const defaultMilestones = [
+    {
+      id: '1',
+      title: 'Physics Mid-Term Mock Test',
+      date: '2023-05-15',
+      daysLeft: 2,
+      type: 'exam',
+    },
+    {
+      id: '2',
+      title: 'Complete Organic Chemistry Module',
+      date: '2023-05-20',
+      daysLeft: 7,
+      type: 'module',
+    },
+    {
+      id: '3',
+      title: 'Mathematics Progress Assessment',
+      date: '2023-05-25',
+      daysLeft: 12,
+      type: 'assessment',
+    },
+    {
+      id: '4',
+      title: 'Biology Final Mock Exam',
+      date: '2023-06-05',
+      daysLeft: 23,
+      type: 'exam',
+    },
+  ];
+  
+  const displayMilestones = milestones || defaultMilestones;
+  
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    }).format(date);
   };
-
-  const getMilestoneTypeLabel = (type: string) => {
-    switch (type) {
-      case 'weekly-target':
-        return <Badge variant="outline" className="bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300">Weekly Target</Badge>;
-      case 'practice-exam':
-        return <Badge variant="outline" className="bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-300">Practice Exam</Badge>;
-      case 'performance-check':
-        return <Badge variant="outline" className="bg-purple-50 text-purple-700 dark:bg-purple-900/20 dark:text-purple-300">Performance Check</Badge>;
-      default:
-        return <Badge variant="outline">Milestone</Badge>;
-    }
-  };
-
+  
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center">
-          <Calendar className="h-5 w-5 mr-2 text-violet-600" />
+        <CardTitle className="text-lg flex items-center gap-2">
+          <Flag className="h-5 w-5 text-green-500" />
           Upcoming Milestones
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
-          {upcomingMilestones.length > 0 ? (
-            upcomingMilestones.map(milestone => (
-              <div key={milestone.id} className="bg-white dark:bg-gray-800 border rounded-lg p-4">
-                <div className="flex justify-between items-start">
-                  <div className="space-y-1">
-                    <div className="flex items-center">
-                      {getMilestoneIcon(milestone.type)}
-                      <h4 className="text-sm font-medium ml-2">{milestone.title}</h4>
+        <div className="overflow-x-auto">
+          <table className="min-w-full">
+            <thead>
+              <tr className="border-b">
+                <th className="text-left py-2 font-medium text-sm">Milestone</th>
+                <th className="text-left py-2 font-medium text-sm">Date</th>
+                <th className="text-left py-2 font-medium text-sm">Countdown</th>
+              </tr>
+            </thead>
+            <tbody>
+              {displayMilestones.map(milestone => (
+                <tr key={milestone.id} className="border-b last:border-0">
+                  <td className="py-3">
+                    <div className="font-medium">{milestone.title}</div>
+                    <div className="text-xs text-muted-foreground">{milestone.type}</div>
+                  </td>
+                  <td className="py-3">
+                    <div className="flex items-center gap-1 text-sm">
+                      <Calendar className="h-4 w-4 text-muted-foreground" />
+                      {formatDate(milestone.date)}
                     </div>
-                    <p className="text-xs text-muted-foreground">{milestone.description}</p>
-                  </div>
-                  {getMilestoneTypeLabel(milestone.type)}
-                </div>
-                <div className="mt-2 pt-2 border-t flex justify-between items-center">
-                  <div className="text-sm">
-                    <span className="font-medium">Due: </span>
-                    <span className="text-muted-foreground">
-                      {format(parseISO(milestone.date), "MMM d, yyyy")}
+                  </td>
+                  <td className="py-3">
+                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                      milestone.daysLeft <= 3 
+                        ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' 
+                        : milestone.daysLeft <= 7 
+                        ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
+                        : 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                    }`}>
+                      {milestone.daysLeft} days left
                     </span>
-                  </div>
-                  <Button size="sm" variant="outline">View Details</Button>
-                </div>
-              </div>
-            ))
-          ) : (
-            <div className="text-center py-4">
-              <p className="text-muted-foreground">No upcoming milestones</p>
-            </div>
-          )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </CardContent>
-      <CardFooter>
-        <Button variant="outline" className="w-full">
-          <Calendar className="h-4 w-4 mr-1" /> View All Milestones
-        </Button>
-      </CardFooter>
     </Card>
   );
 };

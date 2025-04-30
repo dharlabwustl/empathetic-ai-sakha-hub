@@ -38,7 +38,7 @@ const moodConfig = {
   }
 };
 
-export default function MoodBasedSuggestions({ currentMood, onMoodSelect }: MoodBasedSuggestionsProps) {
+const MoodBasedSuggestions = ({ currentMood, onMoodSelect }: MoodBasedSuggestionsProps) => {
   return (
     <Card>
       <CardHeader>
@@ -76,4 +76,6 @@ export default function MoodBasedSuggestions({ currentMood, onMoodSelect }: Mood
       </CardContent>
     </Card>
   );
-}
+};
+
+export default MoodBasedSuggestions;

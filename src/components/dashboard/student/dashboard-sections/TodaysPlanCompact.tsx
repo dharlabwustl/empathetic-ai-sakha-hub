@@ -1,13 +1,11 @@
 
 import React from 'react';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
-import { CalendarDays, ArrowRight, Clock, CheckCircle } from 'lucide-react';
+import { CalendarDays, Clock, ArrowRight } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
 import { TodaysPlanData } from '@/types/student/todaysPlan';
 import { MoodType } from '@/types/user/base';
-import { getMoodTheme } from '../mood-tracking/moodThemes';
-import { getMoodBasedTasks } from '../mood-tracking/moodUtils';
 
 interface TodaysPlanCompactProps {
   planData?: TodaysPlanData;
@@ -16,144 +14,126 @@ interface TodaysPlanCompactProps {
   onViewAll: () => void;
 }
 
-export default function TodaysPlanCompact({ 
-  planData, 
-  isLoading = false,
-  currentMood,
-  onViewAll
-}: TodaysPlanCompactProps) {
-  if (isLoading) {
-    return (
-      <Card>
-        <CardHeader>
-          <Skeleton className="h-8 w-1/2" />
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <Skeleton className="h-16 w-full" />
-            <Skeleton className="h-8 w-3/4" />
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
+const TodaysPlanCompact = ({ planData, isLoading, currentMood, onViewAll }: TodaysPlanCompactProps) => {
+  // Mock data if needed
+  const defaultPlanData = {
+    date: new Date().toISOString(),
+    progress: {
+      plannedHours: 5,
+      completedHours: 2.5,
+      completedTasks: 4,
+      totalTasks: 8
+    },
+    currentBlock: {
+      id: '123',
+      title: 'Physics: Wave Mechanics',
+      duration: 45,
+      startTime: `${new Date().getHours()}:${String(new Date().getMinutes()).padStart(2, '0')}`,
+      endTime: `${new Date().getHours() + 1}:${String(new Date().getMinutes()).padStart(2, '0')}`,
+      completed: false,
+      type: 'concept',
+      subject: 'Physics'
+    },
+    upcomingBlocks: [
+      {
+        id: '124',
+        title: 'Organic Chemistry Flashcards',
+        duration: 30,
+        startTime: `${new Date().getHours() + 1}:${String(new Date().getMinutes()).padStart(2, '0')}`,
+        endTime: `${new Date().getHours() + 1}:${String(new Date().getMinutes() + 30).padStart(2, '0')}`,
+        completed: false,
+        type: 'flashcard',
+        subject: 'Chemistry'
+      },
+      {
+        id: '125',
+        title: 'Short Break',
+        duration: 15,
+        startTime: `${new Date().getHours() + 1}:${String(new Date().getMinutes() + 30).padStart(2, '0')}`,
+        endTime: `${new Date().getHours() + 1}:${String(new Date().getMinutes() + 45).padStart(2, '0')}`,
+        completed: false,
+        type: 'break'
+      }
+    ]
+  };
 
-  // If no plan data, show empty state
-  if (!planData) {
-    return (
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-xl font-bold flex items-center gap-2">
-            <CalendarDays className="h-5 w-5 text-blue-500" />
-            Today's Plan
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-col items-center justify-center py-8 text-center">
-            <CalendarDays className="h-12 w-12 text-muted-foreground mb-4" />
-            <p className="text-muted-foreground">No study plan available yet</p>
-            <Button variant="outline" className="mt-4" onClick={onViewAll}>
-              Create Study Plan
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  // Get appropriate tasks based on current mood
-  const allTasks = planData.studyBlocks || [];
-  
-  // Filter tasks based on mood if available
-  const visibleTasks = currentMood 
-    ? getMoodBasedTasks(currentMood, allTasks).slice(0, 3)
-    : allTasks.slice(0, 3);
-    
-  // If there are no visible tasks, show an empty state
-  if (visibleTasks.length === 0) {
-    return (
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-xl font-bold flex items-center gap-2">
-            <CalendarDays className="h-5 w-5 text-blue-500" />
-            Today's Plan - {planData.date}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-col items-center justify-center py-8 text-center">
-            <CheckCircle className="h-12 w-12 text-green-500 mb-4" />
-            <p>Great job! All your tasks are complete for today.</p>
-          </div>
-        </CardContent>
-        <CardFooter>
-          <Button onClick={onViewAll} className="w-full">
-            View Plan Details
-            <ArrowRight className="ml-2 h-4 w-4" />
-          </Button>
-        </CardFooter>
-      </Card>
-    );
-  }
-
-  // Show mood context if available
-  const moodTheme = currentMood ? getMoodTheme(currentMood) : null;
+  const data = planData || defaultPlanData;
+  const progressPercentage = data.progress 
+    ? Math.floor((data.progress.completedTasks / data.progress.totalTasks) * 100) 
+    : 50;
 
   return (
     <Card>
-      <CardHeader className="pb-2">
-        <CardTitle className="text-xl font-bold flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <CalendarDays className="h-5 w-5 text-blue-500" />
-            Today's Plan
-          </div>
-          {moodTheme && (
-            <div className={`text-sm px-2 py-1 rounded-full ${moodTheme.colors.background} ${moodTheme.colors.text} flex items-center gap-1`}>
-              <span>{moodTheme.emoji}</span>
-              <span className="text-xs">{moodTheme.label}</span>
-            </div>
-          )}
+      <CardHeader>
+        <CardTitle className="text-lg flex items-center gap-2">
+          <CalendarDays className="h-5 w-5 text-purple-500" />
+          Today's Study Plan
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="space-y-3">
-          {visibleTasks.map((task, index) => (
-            <div 
-              key={task.id || index}
-              className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg"
-            >
-              <div>
-                <p className="font-medium">{task.title}</p>
-                <div className="text-sm text-muted-foreground flex items-center gap-2 mt-1">
-                  <Clock className="h-3 w-3" />
-                  <span>{task.duration} mins</span>
-                  {task.subject && (
-                    <span className="bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-xs px-2 py-0.5 rounded-full">
-                      {task.subject}
-                    </span>
-                  )}
-                </div>
+        <div className="space-y-4">
+          {/* Progress indicator */}
+          <div className="space-y-2">
+            <div className="flex justify-between text-sm">
+              <span>Daily Progress</span>
+              <span>{progressPercentage}%</span>
+            </div>
+            <Progress value={progressPercentage} className="h-2" />
+            <div className="flex justify-between text-xs text-muted-foreground">
+              <span>{data.progress.completedTasks} of {data.progress.totalTasks} tasks completed</span>
+              <span>{data.progress.completedHours} of {data.progress.plannedHours} hours</span>
+            </div>
+          </div>
+          
+          {/* Current task */}
+          {data.currentBlock && (
+            <div className="border rounded-lg p-4">
+              <div className="mb-2 flex justify-between items-center">
+                <span className="text-sm font-medium text-muted-foreground">Currently Studying</span>
+                <span className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 text-xs px-2 py-1 rounded-full">
+                  In Progress
+                </span>
               </div>
-              <Button size="sm" variant="outline" className="h-8">
-                Start
+              <h3 className="font-semibold">{data.currentBlock.title}</h3>
+              <div className="flex items-center gap-2 mt-1 text-sm text-muted-foreground">
+                <Clock className="h-4 w-4" />
+                <span>{data.currentBlock.startTime} - {data.currentBlock.endTime}</span>
+              </div>
+
+              <Button className="w-full mt-3" size="sm">
+                Continue Studying
               </Button>
             </div>
-          ))}
-        </div>
-        
-        {currentMood && (
-          <div className="mt-4 text-sm text-muted-foreground">
-            <p className="italic">
-              {visibleTasks.length} tasks selected based on your current mood.
-            </p>
+          )}
+          
+          {/* Upcoming tasks */}
+          <div className="space-y-3">
+            <h4 className="text-sm font-medium">Up Next</h4>
+            {data.upcomingBlocks?.slice(0, 2).map(block => (
+              <div key={block.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                <div>
+                  <div className="font-medium">{block.title}</div>
+                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                    <Clock className="h-3 w-3" /> 
+                    {block.startTime}
+                    {block.duration && ` · ${block.duration} min`}
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
-        )}
+          
+          <Button 
+            variant="outline" 
+            className="w-full mt-2 flex items-center justify-center"
+            onClick={onViewAll}
+          >
+            View Full Plan <ArrowRight className="h-4 w-4 ml-1" />
+          </Button>
+        </div>
       </CardContent>
-      <CardFooter>
-        <Button onClick={onViewAll} className="w-full">
-          View Full Study Plan
-          <ArrowRight className="ml-2 h-4 w-4" />
-        </Button>
-      </CardFooter>
     </Card>
   );
-}
+};
+
+export default TodaysPlanCompact;

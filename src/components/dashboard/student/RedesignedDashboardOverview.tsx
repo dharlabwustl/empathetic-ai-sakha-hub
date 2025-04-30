@@ -11,7 +11,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { motion } from 'framer-motion';
 import { 
   LayoutDashboard, CalendarDays, GraduationCap, BookOpen,
-  Brain, FileText, Bell, TrendingUp
+  Brain, FileText, TrendingUp
 } from 'lucide-react';
 
 import StudyStatsSection from './dashboard-sections/StudyStatsSection';
@@ -43,7 +43,7 @@ export default function RedesignedDashboardOverview({
 }: RedesignedDashboardOverviewProps) {
   const { loading, dashboardData, refreshData } = useStudentDashboardData();
   const goalTitle = userProfile?.goals && userProfile.goals.length > 0 
-    ? userProfile.goals[0].title || "IIT-JEE" 
+    ? userProfile.goals[0]?.title || "IIT-JEE" 
     : "IIT-JEE";
     
   const { planData, loading: planLoading } = useTodaysPlan(goalTitle, "Student");
@@ -139,10 +139,7 @@ export default function RedesignedDashboardOverview({
       <div className="grid grid-cols-1 md:grid-cols-6 lg:grid-cols-12 gap-6">
         {/* Study Stats Section */}
         <div className="md:col-span-3 lg:col-span-4">
-          <StudyStatsSection
-            stats={dashboardData?.stats}
-            isLoading={loading}
-          />
+          <StudyStatsSection />
         </div>
 
         {/* Today's Plan Section */}
@@ -159,7 +156,7 @@ export default function RedesignedDashboardOverview({
         <div className="md:col-span-6 lg:col-span-4">
           <MoodBasedSuggestions 
             currentMood={localMood} 
-            onMoodChange={handleMoodSelect}
+            onMoodSelect={handleMoodSelect}
           />
         </div>
 
@@ -170,42 +167,27 @@ export default function RedesignedDashboardOverview({
 
         {/* Subject Breakdown */}
         <div className="md:col-span-6">
-          <SubjectBreakdownSection
-            subjects={dashboardData?.subjectProgress}
-            isLoading={loading}
-          />
+          <SubjectBreakdownSection />
         </div>
 
         {/* Progress Tracker */}
         <div className="md:col-span-6">
-          <ProgressTrackerSection
-            progressData={dashboardData?.progressData}
-            isLoading={loading}
-          />
+          <ProgressTrackerSection />
         </div>
 
         {/* Smart Suggestions Center */}
         <div className="md:col-span-6">
-          <SmartSuggestionsCenter
-            suggestions={dashboardData?.smartSuggestions}
-            isLoading={loading}
-          />
+          <SmartSuggestionsCenter />
         </div>
 
         {/* Revision Loop */}
         <div className="md:col-span-6">
-          <RevisionLoopSection
-            revisionItems={dashboardData?.revisionItems}
-            isLoading={loading}
-          />
+          <RevisionLoopSection />
         </div>
 
         {/* Upcoming Milestones */}
         <div className="md:col-span-12">
-          <UpcomingMilestonesSection
-            milestones={dashboardData?.milestones}
-            isLoading={loading}
-          />
+          <UpcomingMilestonesSection />
         </div>
       </div>
 

@@ -18,11 +18,14 @@ import ConceptStudyPage from '@/pages/dashboard/student/ConceptStudyPage';
 import EnhancedFlashcardPage from '@/pages/dashboard/student/flashcards/EnhancedFlashcardPage';
 
 export default function AppRoutes() {
-  const { dashboardData } = useStudentDashboardData();
+  const { dashboardData, userProfile } = useStudentDashboardData();
   
   return (
     <Routes>
-      <Route path="/dashboard/student/today" element={<RedesignedTodaysPlan />} />
+      <Route 
+        path="/dashboard/student/today" 
+        element={<RedesignedTodaysPlan userProfile={userProfile} />} 
+      />
       <Route path="/dashboard/student/concepts" element={<ConceptCardsView />} />
       <Route path="/dashboard/student/concepts/card/:conceptId" element={<ConceptCardDetailPage />} />
       <Route path="/dashboard/student/concepts/study/:conceptId" element={<ConceptStudyPage />} />

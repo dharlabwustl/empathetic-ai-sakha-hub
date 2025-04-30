@@ -5,6 +5,7 @@ import { Toaster } from '@/components/ui/toaster';
 import Index from '@/pages/Index';
 import SignUp from '@/pages/SignUp';
 import LoginPage from '@/pages/login/LoginPage';
+import Login from '@/pages/Login';
 import NotFound from '@/pages/NotFound';
 import StudentDashboard from '@/pages/dashboard/student/StudentDashboard';
 import FeelGoodCornerView from '@/pages/dashboard/student/FeelGoodCornerView';
@@ -13,7 +14,7 @@ import AdminLogin from '@/pages/admin/AdminLogin';
 import AdminRouteGuard from '@/components/admin/AdminRouteGuard';
 import { AuthProvider } from '@/contexts/auth/AuthContext';
 import TodaysPlanView from '@/pages/dashboard/student/TodaysPlanView';
-import ConceptStudyPage from '@/pages/dashboard/student/concept/ConceptStudyPage';
+import ConceptStudyPage from '@/pages/dashboard/student/ConceptStudyPage';
 import FlashcardPracticePage from '@/pages/dashboard/student/flashcard/FlashcardPracticePage';
 import LoadingScreen from '@/components/common/LoadingScreen';
 import { ThemeProvider } from './components/theme-provider';
@@ -24,6 +25,7 @@ import ExamReviewPage from './components/dashboard/student/practice-exam/ExamRev
 import FlashcardInteractivePage from './pages/dashboard/student/flashcard/FlashcardInteractivePage';
 import PostLoginPrompt from './pages/dashboard/PostLoginPrompt';
 import WelcomeScreen from './components/dashboard/student/WelcomeScreen';
+import EnhancedFlashcardPage from './pages/dashboard/student/flashcards/EnhancedFlashcardPage';
 
 const AdminDashboard = React.lazy(() => import('@/pages/admin/AdminDashboard'));
 
@@ -37,7 +39,7 @@ function App() {
               {/* Public routes */}
               <Route path="/" element={<Index />} />
               <Route path="/signup" element={<SignUp />} />
-              <Route path="/login" element={<LoginPage />} />
+              <Route path="/login" element={<Login />} />
               <Route path="/register" element={<SignUp />} />
 
               {/* Post-signup welcome screen */}
@@ -52,7 +54,9 @@ function App() {
               <Route path="/dashboard/student/today" element={<TodaysPlanView />} />
               <Route path="/dashboard/student/feel-good-corner" element={<FeelGoodCornerView />} />
               <Route path="/dashboard/student/concepts/card/:conceptId" element={<ConceptCardDetailPage />} />
+              <Route path="/dashboard/student/concepts/study/:conceptId" element={<ConceptStudyPage />} />
               <Route path="/dashboard/student/flashcards/:deckId/interactive" element={<FlashcardInteractivePage />} />
+              <Route path="/dashboard/student/flashcards/enhanced" element={<EnhancedFlashcardPage />} />
               <Route path="/dashboard/student/practice-exam/:examId/start" element={<ExamTakingPage />} />
               <Route path="/dashboard/student/practice-exam/:examId/review" element={<ExamReviewPage />} />
 
