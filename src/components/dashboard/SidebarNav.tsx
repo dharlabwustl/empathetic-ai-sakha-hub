@@ -1,197 +1,136 @@
 
-import { useState } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { ThemeToggle } from "@/components/ui/theme-toggle";
-import { 
-  LogOut,
-  ChevronLeft,
-  ChevronRight,
-  Menu,
-  X,
-  Home,
-  Calendar,
-  BookMarked,
-  MessageSquare,
-  Brain,
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import {
+  LayoutDashboard,
+  CalendarDays,
+  GraduationCap,
   BookOpen,
-  LineChart, 
-  Activity,
-  Heart,
-  Folder,
-  Video,
-  Users,
+  Brain,
+  FileText,
   Bell,
   User,
-  Target
-} from "lucide-react";
-import { cn } from "@/lib/utils";
-import { SidebarAvatar } from "./SidebarAvatar";
-import { useIsMobile } from "@/hooks/use-mobile";
+  Settings,
+  LogOut
+} from 'lucide-react';
+import { useAuth } from '@/contexts/auth/AuthContext';
+import PrepzrLogo from '@/components/common/PrepzrLogo';
 
 interface SidebarNavProps {
   userType: string;
-  userName?: string;
+  userName: string;
   activeTab?: string;
   onTabChange?: (tab: string) => void;
 }
 
-const SidebarNav = ({ 
-  userType, 
-  userName = "User",
-  activeTab,
-  onTabChange
-}: SidebarNavProps) => {
-  const [collapsed, setCollapsed] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const isMobile = useIsMobile();
-  const navigate = useNavigate();
-  const location = useLocation();
-
-  const navItems = [
-    { icon: <Home size={20} />, title: "Dashboard", tab: "overview", path: "/dashboard/student/overview" },
-    { icon: <Calendar size={20} />, title: "Today's Plan", tab: "today", path: "/dashboard/student/today" },
-    { icon: <Target size={20} />, title: "Study Plan", tab: "studyplan", path: "/dashboard/student/studyplan" },
-    { icon: <BookMarked size={20} />, title: "Academic Advisor", tab: "academic", path: "/dashboard/student/academic" },
-    { icon: <Brain size={20} />, title: "Concept Cards", tab: "concepts", path: "/dashboard/student/concepts" },
-    { icon: <BookOpen size={20} />, title: "Flashcards", tab: "flashcards", path: "/dashboard/student/flashcards" },
-    { icon: <LineChart size={20} />, title: "Practice Exams", tab: "practice-exam", path: "/dashboard/student/practice-exam" },
-    { icon: <Users size={20} />, title: "Study Groups", tab: "study-groups", path: "/dashboard/student/study-groups" },
-    { icon: <Bell size={20} />, title: "Notifications", tab: "notifications", path: "/dashboard/student/notifications" }
-  ];
-
-  const handleTabChange = (tab: string, path: string) => {
+const SidebarNav: React.FC<SidebarNavProps> = ({ userType, userName, activeTab = 'overview', onTabChange }) => {
+  const { logout } = useAuth();
+  const [expanded, setExpanded] = useState(true);
+  
+  const handleTabClick = (tab: string) => {
     if (onTabChange) {
       onTabChange(tab);
     }
-    setMobileOpen(false);
-    navigate(path);
   };
 
-  const isActive = (path: string) => {
-    return location.pathname === path || location.pathname.startsWith(path + '/');
-  };
+  const menuItems = [
+    { id: 'overview', label: 'Overview', icon: LayoutDashboard },
+    { id: 'today', label: 'Today\'s Plan', icon: CalendarDays },
+    { id: 'academic', label: 'Academic Advisor', icon: GraduationCap },
+    { id: 'concepts', label: 'Concept Cards', icon: BookOpen },
+    { id: 'flashcards', label: 'Flashcards', icon: Brain },
+    { id: 'practice-exam', label: 'Practice Exams', icon: FileText },
+    { id: 'notifications', label: 'Notifications', icon: Bell }
+  ];
+  
+  const accountItems = [
+    { id: 'profile', label: 'Profile', icon: User, path: `/${userType}/profile` },
+    { id: 'settings', label: 'Settings', icon: Settings, path: `/${userType}/settings` }
+  ];
 
   return (
-    <>
-      <Button 
-        variant="outline" 
-        size="icon" 
-        className="fixed top-4 left-4 z-50 md:hidden"
-        onClick={() => setMobileOpen(!mobileOpen)}
-      >
-        {mobileOpen ? <X size={20} /> : <Menu size={20} />}
-      </Button>
-      
-      {mobileOpen && (
-        <div 
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 md:hidden"
-          onClick={() => setMobileOpen(false)}
-        ></div>
-      )}
-      
-      <div 
-        className={cn(
-          "fixed top-0 left-0 h-full bg-sidebar dark:bg-gradient-to-b dark:from-slate-900 dark:to-slate-800 border-r border-sidebar-border z-40 transition-all duration-300 flex flex-col",
-          collapsed ? "w-20" : "w-64",
-          isMobile ? (mobileOpen ? "translate-x-0" : "-translate-x-full") : "md:translate-x-0"
-        )}
-      >
-        <div className="p-4 border-b border-sidebar-border flex items-center justify-between">
-          <div className={cn("flex items-center gap-2", collapsed && "justify-center")}>
-            <div className="avatar-eyes w-10 h-10 bg-gradient-to-br from-sky-400 to-violet-500 rounded-full relative overflow-hidden animate-glow">
-              <img 
-                src="/lovable-uploads/fdc1cebd-e35f-4f08-a45b-e839964fd590.png" 
-                alt="Sakha AI Logo" 
-                className="w-10 h-10"
-              />
-            </div>
-            {!collapsed && <span className="font-display font-semibold gradient-text">Sakha AI</span>}
-          </div>
+    <nav className={`fixed top-0 left-0 h-full z-40 transition-all duration-300 hidden md:block ${expanded ? 'w-64' : 'w-16'}`}>
+      <div className="h-full bg-white dark:bg-gray-900 border-r dark:border-gray-800 shadow-sm flex flex-col">
+        {/* Logo */}
+        <div className={`p-4 border-b dark:border-gray-800 flex ${expanded ? 'justify-between' : 'justify-center'} items-center`}>
+          <Link to="/" className={`flex items-center ${!expanded && 'justify-center'}`}>
+            <PrepzrLogo width={expanded ? 40 : 30} />
+            {expanded && <span className="text-lg font-semibold ml-2">Prepzr</span>}
+          </Link>
           <Button 
             variant="ghost" 
             size="icon" 
-            onClick={() => setCollapsed(!collapsed)}
-            className="hidden md:flex"
+            onClick={() => setExpanded(!expanded)}
+            className={`${!expanded && 'hidden'}`}
           >
-            {collapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
+            {expanded ? '←' : '→'}
           </Button>
-          {isMobile && (
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              onClick={() => setMobileOpen(false)}
-            >
-              <X size={18} />
-            </Button>
-          )}
         </div>
         
-        <div className="flex-1 overflow-y-auto py-4">
-          <SidebarAvatar 
-            userName={userName} 
-            userType={userType} 
-            collapsed={collapsed} 
-          />
+        {/* Main Navigation */}
+        <div className="flex-1 py-4 overflow-y-auto">
+          <div className="px-3 space-y-1">
+            {menuItems.map((item) => (
+              <Button
+                key={item.id}
+                variant={activeTab === item.id ? "secondary" : "ghost"}
+                className={`w-full justify-${expanded ? 'start' : 'center'} mb-1`}
+                onClick={() => handleTabClick(item.id)}
+              >
+                <item.icon className={`h-5 w-5 ${expanded ? 'mr-2' : ''}`} />
+                {expanded && <span>{item.label}</span>}
+              </Button>
+            ))}
+          </div>
           
-          {/* Main navigation items */}
-          <div className="px-3 py-2">
-            <div className="space-y-1">
-              {navItems.map((item) => (
-                <button
-                  key={item.tab}
-                  onClick={() => handleTabChange(item.tab, item.path)}
-                  className={`w-full flex items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-all ${
-                    isActive(item.path)
-                      ? "bg-gradient-to-r from-sky-500 to-violet-500 text-white shadow-sm"
-                      : "hover:bg-gray-100 dark:hover:bg-gray-700"
-                  }`}
-                >
-                  <span className="flex-shrink-0">{item.icon}</span>
-                  {!collapsed && <span>{item.title}</span>}
-                </button>
-              ))}
+          <div className="mt-8 px-3 space-y-1">
+            <p className={`px-3 mb-2 text-xs font-medium text-gray-400 ${!expanded && 'sr-only'}`}>
+              Account
+            </p>
+            {accountItems.map((item) => (
+              <Button
+                key={item.id}
+                variant="ghost"
+                className={`w-full justify-${expanded ? 'start' : 'center'} mb-1`}
+                asChild
+              >
+                <Link to={item.path}>
+                  <item.icon className={`h-5 w-5 ${expanded ? 'mr-2' : ''}`} />
+                  {expanded && <span>{item.label}</span>}
+                </Link>
+              </Button>
+            ))}
+            
+            <Button
+              variant="ghost"
+              className={`w-full justify-${expanded ? 'start' : 'center'} text-red-500 hover:text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20`}
+              onClick={() => logout()}
+            >
+              <LogOut className={`h-5 w-5 ${expanded ? 'mr-2' : ''}`} />
+              {expanded && <span>Logout</span>}
+            </Button>
+          </div>
+        </div>
+        
+        {/* User Profile */}
+        <div className={`p-3 border-t dark:border-gray-800 ${!expanded && 'flex justify-center'}`}>
+          <div className={`flex items-center ${expanded ? 'justify-between' : 'justify-center'}`}>
+            <div className={`flex items-center ${!expanded && 'flex-col'}`}>
+              <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-medium">
+                {userName.charAt(0)}
+              </div>
+              {expanded && (
+                <div className="ml-2">
+                  <p className="text-sm font-medium truncate max-w-[120px]">{userName}</p>
+                  <p className="text-xs text-muted-foreground capitalize">{userType}</p>
+                </div>
+              )}
             </div>
           </div>
         </div>
-        
-        <div className="p-4 border-t border-sidebar-border">
-          <div className="flex items-center justify-between mb-2">
-            <ThemeToggle />
-            <Button 
-              variant="ghost" 
-              size="icon"
-              className="text-muted-foreground hover:text-destructive"
-              onClick={() => navigate("/dashboard/student/profile")}
-            >
-              <User size={18} />
-            </Button>
-          </div>
-          {!collapsed && (
-            <>
-              <Button 
-                variant="ghost" 
-                className="w-full text-muted-foreground hover:text-primary flex items-center gap-2 mb-2"
-                onClick={() => navigate("/dashboard/student/profile")}
-              >
-                <User size={18} />
-                <span>Profile</span>
-              </Button>
-              <Button 
-                variant="ghost" 
-                className="w-full text-muted-foreground hover:text-destructive flex items-center gap-2"
-                asChild
-              >
-                <Link to="/login">
-                  <LogOut size={18} />
-                  <span>Logout</span>
-                </Link>
-              </Button>
-            </>
-          )}
-        </div>
       </div>
-    </>
+    </nav>
   );
 };
 

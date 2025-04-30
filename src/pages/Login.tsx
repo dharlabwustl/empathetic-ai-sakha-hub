@@ -1,6 +1,6 @@
 
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import authService from "@/services/auth/authService";
 import { motion } from "framer-motion";
+import PrepzrLogo from "@/components/common/PrepzrLogo";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -36,7 +37,7 @@ const Login = () => {
       if (response.success && response.data) {
         toast({
           title: "Login successful",
-          description: "Welcome back to Sakha AI"
+          description: "Welcome back to Prepzr"
         });
 
         // Check user's role to direct to appropriate dashboard
@@ -83,7 +84,7 @@ const Login = () => {
 
   const handleDemoLogin = () => {
     setCredentials({
-      email: "demo@sakha.ai",
+      email: "demo@prepzr.com",
       password: "demo123"
     });
   };
@@ -98,9 +99,12 @@ const Login = () => {
       >
         <Card className="shadow-xl border-0">
           <CardHeader className="space-y-1 bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
+            <div className="flex justify-center mb-2">
+              <PrepzrLogo width={60} />
+            </div>
             <CardTitle className="text-2xl font-bold text-center">Welcome Back</CardTitle>
             <CardDescription className="text-blue-100 text-center">
-              Log in to your Sakha AI account
+              Log in to your Prepzr account
             </CardDescription>
           </CardHeader>
           <CardContent className="p-6">
@@ -154,9 +158,9 @@ const Login = () => {
             <div className="mt-4 text-center text-sm">
               <p className="text-gray-600">
                 Don't have an account?{" "}
-                <a href="/signup" className="text-blue-600 hover:underline">
+                <Link to="/signup" className="text-blue-600 hover:underline">
                   Sign up
-                </a>
+                </Link>
               </p>
             </div>
             <div className="mt-6">

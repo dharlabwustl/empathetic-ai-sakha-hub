@@ -1,133 +1,50 @@
 
-import React from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { AdminDashboardStats } from "@/types/admin";
+import React from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
+import { Button } from '@/components/ui/button';
 
-interface ContentTabProps {
-  stats: AdminDashboardStats | null;
+export interface ContentTabProps {
+  data: any;
 }
 
-const ContentTab = ({ stats }: ContentTabProps) => {
+const ContentTab: React.FC<ContentTabProps> = ({ data }) => {
+  const contentItems = data.items || [];
+  
   return (
-    <div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Content Overview</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="bg-muted/50 p-4 rounded-lg text-center">
-                <h3 className="text-xl font-bold">{stats?.totalConcepts || 0}</h3>
-                <p className="text-sm text-gray-500">Concept Cards</p>
-              </div>
-              <div className="bg-muted/50 p-4 rounded-lg text-center">
-                <h3 className="text-xl font-bold">{stats?.totalFlashcards || 0}</h3>
-                <p className="text-sm text-gray-500">Flashcards</p>
-              </div>
-              <div className="bg-muted/50 p-4 rounded-lg text-center">
-                <h3 className="text-xl font-bold">{stats?.totalQuestions || 0}</h3>
-                <p className="text-sm text-gray-500">Practice Questions</p>
-              </div>
-              <div className="bg-muted/50 p-4 rounded-lg text-center">
-                <h3 className="text-xl font-bold">{Math.floor(Math.random() * 100) + 50}</h3>
-                <p className="text-sm text-gray-500">Full Exams</p>
-              </div>
-            </div>
-            <Button variant="outline" size="sm" className="mt-6">
-              Manage Content
-            </Button>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Content Generation</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="bg-muted/50 p-4 rounded-lg">
-                <h3 className="font-medium mb-2">Generation Stats (Last 7 days)</h3>
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="bg-primary/10 p-3 rounded-md">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-600">AI Generated:</span>
-                      <span className="font-bold">1,245</span>
-                    </div>
-                  </div>
-                  <div className="bg-primary/10 p-3 rounded-md">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-600">Approved:</span>
-                      <span className="font-bold">967</span>
-                    </div>
-                  </div>
-                  <div className="bg-primary/10 p-3 rounded-md">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-600">Pending Review:</span>
-                      <span className="font-bold">85</span>
-                    </div>
-                  </div>
-                  <div className="bg-primary/10 p-3 rounded-md">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-600">Rejected:</span>
-                      <span className="font-bold">193</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="flex justify-between">
-                <Button variant="outline" size="sm">Review Pending</Button>
-                <Button variant="default" size="sm">Generate New</Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>GPT Prompt Management</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div className="bg-muted/50 p-4 rounded-lg">
-              <h3 className="font-medium mb-2">Active Prompt Templates</h3>
-              <div className="space-y-3">
-                <div className="bg-primary/10 p-3 rounded-md">
-                  <div className="flex items-center justify-between">
-                    <span className="font-medium">Concept Card Creator</span>
-                    <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">Active</span>
-                  </div>
-                  <p className="text-sm text-gray-600 mt-1 line-clamp-2">
-                    Create a concept card for {"{topic}"} targeted at {"{exam_type}"} students...
-                  </p>
-                </div>
-                <div className="bg-primary/10 p-3 rounded-md">
-                  <div className="flex items-center justify-between">
-                    <span className="font-medium">Flashcard Generator</span>
-                    <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">Active</span>
-                  </div>
-                  <p className="text-sm text-gray-600 mt-1 line-clamp-2">
-                    Create a set of flashcards about {"{topic}"} with {"{difficulty_level}"}...
-                  </p>
-                </div>
-                <div className="bg-primary/10 p-3 rounded-md">
-                  <div className="flex items-center justify-between">
-                    <span className="font-medium">Question Builder</span>
-                    <span className="text-xs bg-amber-100 text-amber-800 px-2 py-1 rounded-full">Needs Review</span>
-                  </div>
-                  <p className="text-sm text-gray-600 mt-1 line-clamp-2">
-                    Create a multiple-choice question about {"{topic}"} that tests {"{concept}"}...
-                  </p>
-                </div>
-              </div>
-            </div>
-            <Button variant="default">Edit Prompt Templates</Button>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+    <Card>
+      <CardHeader className="flex flex-row justify-between items-center">
+        <CardTitle>Content Management</CardTitle>
+        <Button>Add New Content</Button>
+      </CardHeader>
+      <CardContent>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Title</TableHead>
+              <TableHead>Type</TableHead>
+              <TableHead>Created</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {contentItems.map((item: any) => (
+              <TableRow key={item.id}>
+                <TableCell>{item.title}</TableCell>
+                <TableCell>{item.type}</TableCell>
+                <TableCell>{item.createdAt}</TableCell>
+                <TableCell>{item.status}</TableCell>
+                <TableCell className="flex space-x-2">
+                  <Button size="sm" variant="outline">Edit</Button>
+                  <Button size="sm" variant="outline">Delete</Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
   );
 };
 

@@ -1,35 +1,24 @@
 
 export enum UserRole {
+  Admin = "admin",
   Student = "student",
-  Employee = "employee",
   Doctor = "doctor",
   Founder = "founder",
-  Admin = "admin",
+  Employee = "employee"
 }
 
 export enum SubscriptionType {
-  Free = "free",
-  Basic = "basic",
-  Premium = "premium",
-  Pro = "pro",
-  Standard = "standard",
-  School = "school",
-  Corporate = "corporate",
-}
-
-export type MoodType = 'happy' | 'sad' | 'motivated' | 'neutral' | 'anxious' | 'overwhelmed' | 'curious' | 'okay';
-
-export interface UserGoal {
-  id: string;
-  title: string;
-  progress: number;
-  targetDate?: string;
+  Free = "Free",
+  Basic = "Basic",
+  Premium = "Premium",
+  Pro = "Pro",
+  Enterprise = "Enterprise",
+  Trial = "Trial",
+  Custom = "Custom"
 }
 
 export interface UserSubscription {
-  planType: SubscriptionType | string;
-  isActive?: boolean;
-  startDate?: string;
+  planType: SubscriptionType;
   expiryDate?: string;
   features?: string[];
 }
@@ -38,25 +27,20 @@ export interface UserProfileBase {
   id: string;
   name: string;
   email: string;
-  role: UserRole;
+  role?: UserRole;
   avatar?: string;
-  goals?: UserGoal[];
-  subscription?: UserSubscription | string;
-  examPreparation?: string;
-  personalityType?: string;
+  avatarUrl?: string;
   loginCount?: number;
-  joinDate?: string;
-}
-
-export type UserProfileType = UserProfileBase;
-
-export interface MoodTheme {
-  label: string;
-  emoji: string;
-  colors: {
-    primary: string;
-    secondary: string;
-  };
-  gradientClass: string;
-  buttonClass: string;
+  subscription?: UserSubscription | SubscriptionType;
+  phone?: string;
+  goals?: { title: string; deadline?: string }[];
+  lastActive?: string;
+  createdAt?: string;
+  bio?: string;
+  streak?: number;
+  studyHours?: number;
+  conceptsLearned?: number;
+  testsCompleted?: number;
+  achievements?: string[];
+  verified?: boolean;
 }

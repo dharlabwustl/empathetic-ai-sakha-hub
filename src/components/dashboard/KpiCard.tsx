@@ -1,95 +1,95 @@
 
-import React from 'react';
-import { Card, CardContent } from "@/components/ui/card";
-import { motion } from "framer-motion";
-import { KpiData } from "@/hooks/useKpiTracking";
-import { LucideIcon, ArrowUp, ArrowDown, TrendingUp, Database, Brain, Clock, Target, Award, Star, Users, BookOpen, FileText, BarChart3, Zap, Lightning, Sparkles } from 'lucide-react';
+import React, { ReactNode } from 'react';
+import {
+  Card,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/card";
+import { ArrowUpRight, ArrowDownRight, TrendingUp, TrendingDown, Activity, Zap } from "lucide-react";
 
 interface KpiCardProps {
-  kpi: KpiData;
-  delay?: number;
+  title: string;
+  value: number | string;
+  unit?: string;
+  icon?: ReactNode;
+  iconColor?: string;
+  change?: number;
+  changeType?: "positive" | "negative" | "neutral";
+  changePrefix?: string;
   className?: string;
 }
 
-const KpiCard: React.FC<KpiCardProps> = ({ kpi, delay = 0, className = "" }) => {
-  const getIconByType = (): React.ReactNode => {
-    // Map kpi.icon to a Lucide icon component
-    const iconMap: Record<string, LucideIcon> = {
-      "database": Database,
-      "brain": Brain,
-      "clock": Clock,
-      "target": Target,
-      "award": Award,
-      "star": Star,
-      "users": Users,
-      "bookOpen": BookOpen,
-      "fileText": FileText,
-      "barChart3": BarChart3,
-      "zap": Zap,
-      "lightning": Lightning,
-      "sparkles": Sparkles,
-      "trendingUp": TrendingUp
-    };
-    
-    const IconComponent = iconMap[kpi.icon] || Database;
-    return <IconComponent className="h-6 w-6" />;
-  };
-  
-  const getChangeColor = () => {
-    if (!kpi.change) return "text-gray-500";
-    
-    if (kpi.change.direction === "up") {
-      return kpi.change.isPositive ? "text-emerald-500" : "text-red-500";
-    } else if (kpi.change.direction === "down") {
-      return kpi.change.isPositive ? "text-emerald-500" : "text-red-500";
+const KpiCard: React.FC<KpiCardProps> = ({
+  title,
+  value,
+  unit,
+  icon,
+  iconColor = "text-primary",
+  change,
+  changeType = "neutral",
+  changePrefix = "",
+  className = "",
+}) => {
+  // Determine color based on change type
+  const getChangeColor = (type: string) => {
+    switch (type) {
+      case "positive":
+        return "text-emerald-600 dark:text-emerald-500";
+      case "negative":
+        return "text-red-600 dark:text-red-500";
+      default:
+        return "text-gray-500 dark:text-gray-400";
     }
-    
-    return "text-gray-500";
   };
-  
-  const getChangeIcon = () => {
-    if (!kpi.change) return null;
-    
-    if (kpi.change.direction === "up") {
-      return <ArrowUp className="h-4 w-4" />;
-    } else if (kpi.change.direction === "down") {
-      return <ArrowDown className="h-4 w-4" />;
+
+  // Determine icon based on change type
+  const getChangeIcon = (type: string) => {
+    switch (type) {
+      case "positive":
+        return <TrendingUp className="h-3.5 w-3.5" />;
+      case "negative":
+        return <TrendingDown className="h-3.5 w-3.5" />;
+      default:
+        return <Activity className="h-3.5 w-3.5" />;
     }
-    
-    return null;
   };
-  
+
+  // Get the correct icon component
+  const getIcon = () => {
+    if (icon) {
+      return icon;
+    }
+    // Default icon
+    return <Zap className={`h-5 w-5 ${iconColor}`} />;
+  };
+
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ 
-        duration: 0.5,
-        delay: delay * 0.1,
-        ease: "easeOut"
-      }}
-    >
-      <Card className={`overflow-hidden ${className}`}>
-        <CardContent className="p-5">
-          <div className="flex items-center justify-between">
-            <div className="bg-primary/10 p-2 rounded-full">
-              {getIconByType()}
+    <Card className={`shadow-sm hover:shadow-md transition-shadow ${className}`}>
+      <CardContent className="pt-4">
+        <div className="flex justify-between">
+          <div>
+            <p className="text-sm font-medium text-muted-foreground">{title}</p>
+            <div className="flex items-baseline mt-1">
+              <h3 className="text-2xl font-bold">
+                {typeof value === 'number' ? value.toLocaleString() : value}
+              </h3>
+              {unit && <span className="ml-1 text-sm text-muted-foreground">{unit}</span>}
             </div>
-            {kpi.change && (
-              <div className={`flex items-center gap-0.5 text-sm ${getChangeColor()}`}>
-                {getChangeIcon()}
-                <span>{kpi.change.value}%</span>
-              </div>
-            )}
           </div>
-          <h3 className="mt-3 font-medium text-base">{kpi.label}</h3>
-          <div className="mt-2 flex items-end gap-2">
-            <div className="text-2xl font-semibold">{kpi.value}</div>
-            {kpi.unit && <div className="text-muted-foreground text-sm mb-1">{kpi.unit}</div>}
+          <div className={`h-10 w-10 rounded-full flex items-center justify-center bg-primary/10 ${iconColor}`}>
+            {getIcon()}
           </div>
-        </CardContent>
-      </Card>
-    </motion.div>
+        </div>
+      </CardContent>
+      {change !== undefined && (
+        <CardFooter className="pt-0 px-6 pb-4">
+          <div className={`flex items-center gap-1 text-xs font-medium ${getChangeColor(changeType)}`}>
+            {getChangeIcon(changeType)}
+            <span>{changePrefix}{Math.abs(change)}%</span>
+          </div>
+        </CardFooter>
+      )}
+    </Card>
   );
 };
 

@@ -1,27 +1,21 @@
 
-import React from 'react';
-import { Navigate, Outlet } from 'react-router-dom';
-import { useAdminAuth } from '@/hooks/useAdminAuth';
-import { Loader2 } from 'lucide-react';
+import React, { useEffect } from 'react';
+import { useNavigate, Outlet } from 'react-router-dom';
+import { useAdminAuth } from '@/contexts/auth/AdminAuthContext';
 
 const AdminRouteGuard: React.FC = () => {
-  const { isAuthenticated, loading } = useAdminAuth();
+  const { isAuthenticated } = useAdminAuth();
+  const navigate = useNavigate();
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
-  }
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate('/admin/login', { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
 
-  // For development, temporarily allow access
-  if (process.env.NODE_ENV === 'development') {
-    return <Outlet />;
-  }
-
+  // If authenticated, render the child routes
   if (!isAuthenticated) {
-    return <Navigate to="/admin/login" replace />;
+    return null; // or a loading indicator
   }
 
   return <Outlet />;
