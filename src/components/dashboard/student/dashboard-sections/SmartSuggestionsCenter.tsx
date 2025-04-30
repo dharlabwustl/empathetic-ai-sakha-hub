@@ -13,22 +13,22 @@ const SmartSuggestionsCenter = ({}: SmartSuggestionsCenterProps) => {
   const suggestions = [
     {
       id: '1',
-      title: 'Master Newton\'s Third Law',
-      description: 'You've been struggling with related problems. Let's review the core principles.',
+      title: "Master Newton's Third Law",
+      description: "You've been struggling with related problems. Let's review the core principles.",
       type: 'concept',
       priority: 'high',
     },
     {
       id: '2',
-      title: 'Practice Organic Chemistry Reactions',
-      description: 'Based on your recent performance, additional practice will help solidify these concepts.',
+      title: "Practice Organic Chemistry Reactions",
+      description: "Based on your recent performance, additional practice will help solidify these concepts.",
       type: 'practice',
       priority: 'medium',
     },
     {
       id: '3',
-      title: 'Take a Mock Physics Test',
-      description: 'You've been consistently improving. Time to test your overall knowledge!',
+      title: "Take a Mock Physics Test",
+      description: "You've been consistently improving. Time to test your overall knowledge!",
       type: 'exam',
       priority: 'low',
     }

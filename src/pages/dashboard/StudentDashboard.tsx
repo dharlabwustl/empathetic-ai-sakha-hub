@@ -84,7 +84,16 @@ const StudentDashboard = () => {
     }
   };
 
-  // Show splash screen if needed
+  const handleMoodChange = (mood: MoodType) => {
+    setCurrentMood(mood);
+    const userData = localStorage.getItem("userData");
+    if (userData) {
+      const parsedData = JSON.parse(userData);
+      parsedData.mood = mood;
+      localStorage.setItem("userData", JSON.stringify(parsedData));
+    }
+  };
+
   if (showSplash) {
     return <SplashScreen onComplete={handleSplashComplete} mood={currentMood} />;
   }
@@ -111,7 +120,14 @@ const StudentDashboard = () => {
   // Custom content based on active tab
   const getTabContent = () => {
     if (activeTab === "overview") {
-      return <RedesignedDashboardOverview userProfile={userProfile} kpis={kpis} />;
+      return (
+        <RedesignedDashboardOverview 
+          userProfile={userProfile} 
+          kpis={kpis}
+          currentMood={currentMood}
+          onMoodChange={handleMoodChange} 
+        />
+      );
     }
     
     // For other tabs, use the default tab content
@@ -139,6 +155,7 @@ const StudentDashboard = () => {
       lastActivity={lastActivity}
       suggestedNextAction={suggestedNextAction}
       currentMood={currentMood}
+      onMoodChange={handleMoodChange}
     >
       {getTabContent()}
     </DashboardLayout>

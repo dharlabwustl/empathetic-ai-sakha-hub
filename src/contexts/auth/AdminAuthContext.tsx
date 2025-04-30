@@ -1,114 +1,100 @@
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useState, useEffect, ReactNode, useContext } from 'react';
+import adminAuthService from '@/services/auth/adminAuthService';
 
-// Define admin user type
-export interface AdminUser {
-  username: string;
-  role: 'admin' | 'superadmin';
-  permissions: string[];
+interface AdminUser {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
 }
 
-// Define the context types
-export interface AdminAuthContextValue {
-  isAdminAuthenticated: boolean;
-  isAdminLoading: boolean;
-  adminUser: AdminUser | null;
-  adminLogin: (username: string, password: string) => Promise<void>;
-  adminLogout: () => void;
+interface AdminAuthContextProps {
+  isAuthenticated: boolean;
+  user: AdminUser | null;
+  loading: boolean;
+  adminLoginError: string | null;
+  login: (email: string, password: string) => Promise<boolean>;
+  logout: () => Promise<void>;
 }
 
-// Create the context with a default value
-const AdminAuthContext = createContext<AdminAuthContextValue>({
-  isAdminAuthenticated: false,
-  isAdminLoading: true,
-  adminUser: null,
-  adminLogin: async () => {},
-  adminLogout: () => {}
+const AdminAuthContext = createContext<AdminAuthContextProps>({
+  isAuthenticated: false,
+  user: null,
+  loading: true,
+  adminLoginError: null,
+  login: async () => false,
+  logout: async () => {}
 });
 
-// Hook for using the admin auth context
 export const useAdminAuth = () => useContext(AdminAuthContext);
 
-// Provider component
-export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
-  const [isAdminLoading, setIsAdminLoading] = useState(true);
-  const [adminUser, setAdminUser] = useState<AdminUser | null>(null);
+interface AdminAuthProviderProps {
+  children: ReactNode;
+}
 
-  // Check if admin is authenticated on load
+export const AdminAuthProvider = ({ children }: AdminAuthProviderProps) => {
+  const [user, setUser] = useState<AdminUser | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [adminLoginError, setAdminLoginError] = useState<string | null>(null);
+
   useEffect(() => {
-    const checkAdminAuth = () => {
-      const adminToken = localStorage.getItem('adminToken');
-      const adminUserData = localStorage.getItem('adminUser');
-      
-      setIsAdminAuthenticated(!!adminToken);
-      
-      if (adminToken && adminUserData) {
-        try {
-          const userData = JSON.parse(adminUserData);
-          setAdminUser(userData);
-        } catch (error) {
-          console.error('Error parsing admin user data:', error);
-          setAdminUser(null);
-        }
-      } else {
-        setAdminUser(null);
+    // Check for existing admin session
+    const checkAuth = async () => {
+      setLoading(true);
+      try {
+        const currentUser = await adminAuthService.getAdminUser();
+        setUser(currentUser);
+      } catch (error) {
+        console.error("Error checking admin auth:", error);
+      } finally {
+        setLoading(false);
       }
-      
-      setIsAdminLoading(false);
     };
-
-    checkAdminAuth();
+    
+    checkAuth();
   }, []);
 
-  // Admin login function
-  const adminLogin = async (username: string, password: string): Promise<void> => {
+  const login = async (email: string, password: string): Promise<boolean> => {
+    setAdminLoginError(null);
+    
     try {
-      // Mock admin login - replace with actual API call
-      if (username === 'admin' && password === 'admin123') {
-        // Store token
-        localStorage.setItem('adminToken', 'mock-admin-token-12345');
-        
-        // Create mock admin user
-        const mockAdminUser: AdminUser = {
-          username: 'admin',
-          role: 'admin',
-          permissions: ['dashboard', 'users', 'content', 'settings']
-        };
-        
-        // Store user data
-        localStorage.setItem('adminUser', JSON.stringify(mockAdminUser));
-        
-        setAdminUser(mockAdminUser);
-        setIsAdminAuthenticated(true);
-        return Promise.resolve();
+      const response = await adminAuthService.adminLogin({ email, password });
+      
+      if (response.success && response.data) {
+        setUser(response.data);
+        return true;
       } else {
-        return Promise.reject(new Error('Invalid credentials'));
+        setAdminLoginError(response.message || "Login failed");
+        return false;
       }
     } catch (error) {
-      console.error('Admin login error:', error);
-      return Promise.reject(error);
+      console.error("Admin login error:", error);
+      setAdminLoginError("An unexpected error occurred");
+      return false;
     }
   };
 
-  // Admin logout function
-  const adminLogout = () => {
-    localStorage.removeItem('adminToken');
-    localStorage.removeItem('adminUser');
-    setAdminUser(null);
-    setIsAdminAuthenticated(false);
-  };
-
-  const value: AdminAuthContextValue = {
-    isAdminAuthenticated,
-    isAdminLoading,
-    adminUser,
-    adminLogin,
-    adminLogout
+  const logout = async (): Promise<void> => {
+    try {
+      await adminAuthService.adminLogout();
+      setUser(null);
+    } catch (error) {
+      console.error("Admin logout error:", error);
+    }
   };
 
   return (
-    <AdminAuthContext.Provider value={value}>
+    <AdminAuthContext.Provider
+      value={{
+        isAuthenticated: !!user,
+        user,
+        loading,
+        adminLoginError,
+        login,
+        logout
+      }}
+    >
       {children}
     </AdminAuthContext.Provider>
   );

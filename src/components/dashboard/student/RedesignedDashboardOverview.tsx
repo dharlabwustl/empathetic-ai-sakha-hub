@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { UserProfileBase } from "@/types/user/base";
 import { KpiData } from "@/hooks/useKpiTracking";
