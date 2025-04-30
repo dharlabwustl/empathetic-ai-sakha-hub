@@ -1,11 +1,10 @@
 
 import React, { useState } from 'react';
 import { Navigate, Link } from 'react-router-dom';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import LoginPage from '@/pages/login/LoginPage';
-import AdminLogin from '@/pages/admin/AdminLogin';
+import AdminLoginRedirect from '@/pages/login/forms/AdminLoginRedirect';
 import PrepzrLogo from '@/components/common/PrepzrLogo';
 
 const Login = () => {
@@ -31,9 +30,6 @@ const Login = () => {
         <Card className="shadow-xl border-gray-200 overflow-hidden animate-fade-in">
           <CardHeader className="bg-gradient-to-r from-blue-600 to-violet-700 text-white">
             <CardTitle className="text-2xl font-semibold">Sign In</CardTitle>
-            <CardDescription className="text-blue-100">
-              Choose your account type below to continue
-            </CardDescription>
           </CardHeader>
           
           <Tabs defaultValue="student" value={loginTab} onValueChange={(value) => setLoginTab(value as "student" | "admin")}>
@@ -50,16 +46,7 @@ const Login = () => {
             
             <TabsContent value="admin" className="pt-2">
               <CardContent>
-                <div className="space-y-4 py-4">
-                  <div className="text-center">
-                    <Button variant="outline" className="w-full" onClick={() => window.location.href = "/admin/login"}>
-                      Go to Admin Login
-                    </Button>
-                  </div>
-                  <p className="text-sm text-center text-muted-foreground">
-                    Administrator access is restricted to authorized personnel only.
-                  </p>
-                </div>
+                <AdminLoginRedirect />
               </CardContent>
             </TabsContent>
           </Tabs>

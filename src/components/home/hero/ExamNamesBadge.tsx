@@ -39,7 +39,12 @@ const ExamNamesBadge = () => {
         variants={textVariants}
         initial="hidden"
         animate="visible"
-        className="font-bold text-lg text-white bg-gradient-to-r from-purple-600 to-indigo-600 px-4 py-1.5 rounded-full border-2 border-purple-200 dark:border-purple-900 shadow-md transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
+        className="font-bold text-lg text-white bg-gradient-to-r from-purple-600 to-indigo-600 px-5 py-2 rounded-full border-2 border-purple-200 dark:border-purple-900 shadow-lg transition-all duration-300 transform hover:scale-110 hover:shadow-xl ring-2 ring-purple-300 dark:ring-purple-800"
+        whileHover={{ 
+          scale: 1.1,
+          textShadow: "0 0 8px rgb(255, 255, 255)",
+          boxShadow: "0 0 8px rgba(139, 92, 246, 0.6)"
+        }}
       >
         UPSC
       </motion.span>
@@ -49,7 +54,12 @@ const ExamNamesBadge = () => {
         variants={textVariants}
         initial="hidden"
         animate="visible"
-        className="font-bold text-lg text-white bg-gradient-to-r from-blue-500 to-cyan-500 px-4 py-1.5 rounded-full border-2 border-blue-200 dark:border-blue-900 shadow-md transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
+        className="font-bold text-lg text-white bg-gradient-to-r from-blue-500 to-cyan-500 px-5 py-2 rounded-full border-2 border-blue-200 dark:border-blue-900 shadow-lg transition-all duration-300 transform hover:scale-110 hover:shadow-xl ring-2 ring-blue-300 dark:ring-blue-800"
+        whileHover={{ 
+          scale: 1.1, 
+          textShadow: "0 0 8px rgb(255, 255, 255)",
+          boxShadow: "0 0 8px rgba(59, 130, 246, 0.6)"
+        }}
       >
         NEET
       </motion.span>
@@ -59,7 +69,12 @@ const ExamNamesBadge = () => {
         variants={textVariants}
         initial="hidden"
         animate="visible"
-        className="font-bold text-lg text-white bg-gradient-to-r from-fuchsia-600 to-pink-600 px-4 py-1.5 rounded-full border-2 border-pink-200 dark:border-pink-900 shadow-md transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
+        className="font-bold text-lg text-white bg-gradient-to-r from-fuchsia-600 to-pink-600 px-5 py-2 rounded-full border-2 border-pink-200 dark:border-pink-900 shadow-lg transition-all duration-300 transform hover:scale-110 hover:shadow-xl ring-2 ring-pink-300 dark:ring-pink-800"
+        whileHover={{ 
+          scale: 1.1,
+          textShadow: "0 0 8px rgb(255, 255, 255)",
+          boxShadow: "0 0 8px rgba(219, 39, 119, 0.6)"
+        }}
       >
         IIT-JEE
       </motion.span>
