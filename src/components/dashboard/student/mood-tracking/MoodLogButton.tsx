@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { MoodType } from '@/types/user/base';
 import { getMoodTheme } from './moodThemes';
 import { MoodSelectionDialog } from './MoodSelectionDialog';
+import { useToast } from '@/hooks/use-toast';
 
 interface MoodLogButtonProps {
   currentMood?: MoodType;
@@ -22,6 +23,7 @@ const MoodLogButton = ({
 }: MoodLogButtonProps) => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [localMood, setLocalMood] = useState<MoodType | undefined>(currentMood);
+  const { toast } = useToast();
 
   useEffect(() => {
     if (currentMood !== undefined && currentMood !== localMood) {
@@ -42,9 +44,23 @@ const MoodLogButton = ({
         const parsedData = JSON.parse(userData);
         parsedData.mood = mood;
         localStorage.setItem("userData", JSON.stringify(parsedData));
+        
+        // Update other mood components through a custom event
+        const moodChangeEvent = new CustomEvent('moodChanged', { detail: { mood } });
+        window.dispatchEvent(moodChangeEvent);
+        
+        toast({
+          title: "Mood updated",
+          description: `Your mood is now set to ${getMoodTheme(mood).label}`,
+        });
       }
     } catch (error) {
       console.error("Error saving mood to localStorage:", error);
+      toast({
+        title: "Error updating mood",
+        description: "Please try again",
+        variant: "destructive"
+      });
     }
 
     // Close the dialog after selection
