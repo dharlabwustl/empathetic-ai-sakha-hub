@@ -1,6 +1,5 @@
 
 import { motion } from "framer-motion";
-import { Bot } from "lucide-react";
 import PrepzrLogo from "@/components/common/PrepzrLogo";
 
 const ChatHeader = () => {

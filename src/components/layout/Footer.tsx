@@ -9,7 +9,7 @@ const Footer = () => {
       <div className="container mx-auto px-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           <div className="space-y-4">
-            <Link to="/" className="flex items-center gap-2 mb-4 group">
+            <Link to="/" className="flex items-center mb-4 group">
               <PrepzrLogo width={50} height={50} />
             </Link>
             <p className="text-blue-100 leading-relaxed">

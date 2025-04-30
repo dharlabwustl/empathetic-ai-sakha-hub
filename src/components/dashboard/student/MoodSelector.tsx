@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { MoodType } from '@/types/student/todaysPlan';
+import { MoodType } from '@/types/user/base';
 import { cn } from '@/lib/utils';
 
 interface MoodSelectorProps {
