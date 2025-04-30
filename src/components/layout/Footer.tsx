@@ -9,8 +9,8 @@ const Footer = () => {
       <div className="container mx-auto px-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           <div className="space-y-4">
-            <Link to="/" className="flex items-center mb-4 group">
-              <PrepzrLogo width={50} height={50} />
+            <Link to="/" className="flex items-center gap-2 mb-4 group">
+              <PrepzrLogo width={50} height={50} showText={true} textColor="text-white" />
             </Link>
             <p className="text-blue-100 leading-relaxed">
               The AI that listens, learns, and evolves with you across your learning journey, helping you ace your exams with personalized support.
@@ -24,19 +24,19 @@ const Footer = () => {
             </h3>
             <ul className="space-y-3">
               <li>
-                <Link to="/#neet" className="text-blue-200 hover:text-white transition-colors flex items-center gap-1.5 group">
+                <Link to="#neet" className="text-blue-200 hover:text-white transition-colors flex items-center gap-1.5 group">
                   <span className="w-1 h-1 bg-blue-400 rounded-full transition-all group-hover:w-2 group-hover:bg-white"></span>
                   NEET
                 </Link>
               </li>
               <li>
-                <Link to="/#iit-jee" className="text-blue-200 hover:text-white transition-colors flex items-center gap-1.5 group">
+                <Link to="#iit-jee" className="text-blue-200 hover:text-white transition-colors flex items-center gap-1.5 group">
                   <span className="w-1 h-1 bg-blue-400 rounded-full transition-all group-hover:w-2 group-hover:bg-white"></span>
                   IIT-JEE
                 </Link>
               </li>
               <li>
-                <Link to="/#upsc" className="text-blue-200 hover:text-white transition-colors flex items-center gap-1.5 group">
+                <Link to="#upsc" className="text-blue-200 hover:text-white transition-colors flex items-center gap-1.5 group">
                   <span className="w-1 h-1 bg-blue-400 rounded-full transition-all group-hover:w-2 group-hover:bg-white"></span>
                   UPSC
                 </Link>
@@ -51,19 +51,19 @@ const Footer = () => {
             </h3>
             <ul className="space-y-3">
               <li>
-                <Link to="/#features" className="text-blue-200 hover:text-white transition-colors flex items-center gap-1.5 group">
+                <Link to="#ai-tutor" className="text-blue-200 hover:text-white transition-colors flex items-center gap-1.5 group">
                   <span className="w-1 h-1 bg-blue-400 rounded-full transition-all group-hover:w-2 group-hover:bg-white"></span>
                   24/7 AI Tutor
                 </Link>
               </li>
               <li>
-                <Link to="/#features" className="text-blue-200 hover:text-white transition-colors flex items-center gap-1.5 group">
+                <Link to="#flashcards" className="text-blue-200 hover:text-white transition-colors flex items-center gap-1.5 group">
                   <span className="w-1 h-1 bg-blue-400 rounded-full transition-all group-hover:w-2 group-hover:bg-white"></span>
                   Flashcards
                 </Link>
               </li>
               <li>
-                <Link to="/#features" className="text-blue-200 hover:text-white transition-colors flex items-center gap-1.5 group">
+                <Link to="#concepts" className="text-blue-200 hover:text-white transition-colors flex items-center gap-1.5 group">
                   <span className="w-1 h-1 bg-blue-400 rounded-full transition-all group-hover:w-2 group-hover:bg-white"></span>
                   Concept Cards
                 </Link>
@@ -90,7 +90,7 @@ const Footer = () => {
         </div>
 
         <div className="border-t border-blue-800 mt-10 pt-6 flex flex-col md:flex-row justify-between items-center">
-          <p className="text-blue-200 mb-4 md:mb-0">© {new Date().getFullYear()} PREPZR. All rights reserved.</p>
+          <p className="text-blue-200 mb-4 md:mb-0">© 2025 PREPZR. All rights reserved.</p>
           <div className="flex space-x-6">
             <Link to="/terms" className="text-blue-200 hover:text-white transition-colors">Terms</Link>
             <Link to="/privacy" className="text-blue-200 hover:text-white transition-colors">Privacy</Link>

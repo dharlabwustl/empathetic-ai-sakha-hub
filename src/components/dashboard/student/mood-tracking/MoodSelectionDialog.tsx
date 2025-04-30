@@ -1,107 +1,92 @@
 
-import React, { useEffect } from 'react';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogClose,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { MoodType } from '@/types/user/base';
-import { MoodSelector } from '@/components/dashboard/student/MoodSelector';
-import { getMoodSuggestion } from './moodUtils';
-import { useToast } from '@/hooks/use-toast';
+import React from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { MoodType } from "@/types/user/base";
+import { motion } from "framer-motion";
+import MoodOption from "./MoodOption";
+import { Smile, Sparkles, Clock, Battery, Wind, Target, Heart, ThumbsUp, AlertCircle, Cloud } from "lucide-react";
 
 interface MoodSelectionDialogProps {
   isOpen: boolean;
   onClose: () => void;
   selectedMood?: MoodType;
   onSelectMood: (mood: MoodType) => void;
-  setGlobalMood?: (mood: MoodType) => void;
+  onOpenChange?: (open: boolean) => void;
 }
 
-export const MoodSelectionDialog: React.FC<MoodSelectionDialogProps> = ({
+const MoodSelectionDialog: React.FC<MoodSelectionDialogProps> = ({
   isOpen,
   onClose,
+  onOpenChange,
   selectedMood,
   onSelectMood,
-  setGlobalMood,
 }) => {
-  const { toast } = useToast();
-  const [localMood, setLocalMood] = React.useState<MoodType | undefined>(selectedMood);
+  const moods: Array<{ type: MoodType; icon: React.ReactNode; label: string }> = [
+    { type: "motivated", icon: <Sparkles className="h-6 w-6" />, label: "Motivated" },
+    { type: "curious", icon: <Smile className="h-6 w-6" />, label: "Curious" },
+    { type: "neutral", icon: <ThumbsUp className="h-6 w-6" />, label: "Neutral" },
+    { type: "tired", icon: <Battery className="h-6 w-6" />, label: "Tired" },
+    { type: "stressed", icon: <Wind className="h-6 w-6" />, label: "Stressed" },
+    { type: "focused", icon: <Target className="h-6 w-6" />, label: "Focused" },
+    { type: "happy", icon: <Heart className="h-6 w-6" />, label: "Happy" },
+    { type: "okay", icon: <Clock className="h-6 w-6" />, label: "Okay" },
+    { type: "overwhelmed", icon: <AlertCircle className="h-6 w-6" />, label: "Overwhelmed" },
+    { type: "sad", icon: <Cloud className="h-6 w-6" />, label: "Sad" },
+  ];
 
-  // Sync with parent component's selected mood
-  useEffect(() => {
-    setLocalMood(selectedMood);
-  }, [selectedMood]);
-
-  const handleMoodSelect = (mood: MoodType) => {
-    setLocalMood(mood);
+  // Animation variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+      },
+    },
   };
 
-  const handleSaveMood = () => {
-    if (localMood) {
-      onSelectMood(localMood);
-      if (setGlobalMood) {
-        setGlobalMood(localMood);
-      }
-      
-      // Save to localStorage for persistence
-      try {
-        const userData = localStorage.getItem("userData");
-        if (userData) {
-          const parsedData = JSON.parse(userData);
-          parsedData.mood = localMood;
-          localStorage.setItem("userData", JSON.stringify(parsedData));
-        }
-      } catch (error) {
-        console.error("Error saving mood to localStorage:", error);
-      }
-      
-      toast({
-        title: "Mood Updated",
-        description: "Your study plan has been adjusted based on your mood",
-      });
-      
+  const childVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0 },
+  };
+
+  const handleOpenChange = (open: boolean) => {
+    if (onOpenChange) {
+      onOpenChange(open);
+    }
+    if (!open) {
       onClose();
     }
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[500px]">
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
+      <DialogContent className="dialog-content sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>How are you feeling today?</DialogTitle>
-          <DialogDescription>
-            Select your current mood to help personalize your study experience
-          </DialogDescription>
+          <DialogTitle className="text-center text-xl">How are you feeling today?</DialogTitle>
         </DialogHeader>
         
-        <div className="py-4">
-          <MoodSelector currentMood={localMood} onMoodSelect={handleMoodSelect} />
-          
-          {localMood && (
-            <div className="mt-6 p-4 rounded-md bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 text-sm">
-              <h4 className="font-medium mb-2">Study Suggestion</h4>
-              <p>{getMoodSuggestion(localMood)}</p>
-            </div>
-          )}
-        </div>
-        
-        <div className="flex justify-end gap-2">
-          <DialogClose asChild>
-            <Button type="button" variant="outline">Cancel</Button>
-          </DialogClose>
-          <Button 
-            disabled={!localMood} 
-            onClick={handleSaveMood}
-          >
-            Save Mood
-          </Button>
-        </div>
+        <motion.div
+          className="grid grid-cols-2 sm:grid-cols-5 gap-4 py-4"
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+        >
+          {moods.map((mood) => (
+            <motion.div key={mood.type} variants={childVariants}>
+              <MoodOption
+                type={mood.type}
+                icon={mood.icon}
+                label={mood.label}
+                isSelected={selectedMood === mood.type}
+                onSelect={() => onSelectMood(mood.type)}
+              />
+            </motion.div>
+          ))}
+        </motion.div>
       </DialogContent>
     </Dialog>
   );
 };
+
+export default MoodSelectionDialog;

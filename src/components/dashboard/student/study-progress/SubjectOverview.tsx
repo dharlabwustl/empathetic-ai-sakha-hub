@@ -1,36 +1,44 @@
 
 import React from 'react';
-import { Progress } from '@/components/ui/progress';
+import { Progress } from "@/components/ui/progress";
+import { BarChart, ResponsiveContainer, XAxis, YAxis, Bar, Tooltip } from 'recharts';
+import { SubjectProgress } from "@/types/user";
 
-const SubjectOverview: React.FC = () => {
-  const subjects = [
-    { name: 'Mathematics', progress: 78, color: 'bg-blue-500' },
-    { name: 'Physics', progress: 65, color: 'bg-green-500' },
-    { name: 'Chemistry', progress: 82, color: 'bg-purple-500' },
-    { name: 'Biology', progress: 45, color: 'bg-amber-500' },
-  ];
+interface SubjectOverviewProps {
+  subjects: SubjectProgress[];
+}
 
+export const SubjectOverview: React.FC<SubjectOverviewProps> = ({ subjects }) => {
   return (
-    <div className="space-y-4">
-      <h3 className="text-lg font-medium">Subject Mastery</h3>
-      
-      <div className="space-y-4">
-        {subjects.map((subject, index) => (
-          <div key={index} className="space-y-1">
-            <div className="flex justify-between text-sm">
-              <span>{subject.name}</span>
-              <span className="font-medium">{subject.progress}%</span>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <h3 className="font-medium mb-4">Subject Progress</h3>
+        <div className="space-y-4">
+          {subjects.map(subject => (
+            <div key={subject.id} className="space-y-2">
+              <div className="flex justify-between">
+                <span>{subject.name}</span>
+                <span className="font-medium">{subject.progress}%</span>
+              </div>
+              <Progress value={subject.progress} className="h-2" style={{backgroundColor: `${subject.color}40`}}>
+                <div className="h-full" style={{backgroundColor: subject.color}}></div>
+              </Progress>
             </div>
-            <Progress value={subject.progress} className="h-2" />
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
       
-      <div className="mt-4 text-sm text-muted-foreground">
-        <p>Based on your recent assessments and activities</p>
+      <div>
+        <h3 className="font-medium mb-4">Strong vs Weak Subjects</h3>
+        <ResponsiveContainer width="100%" height={300}>
+          <BarChart data={subjects}>
+            <XAxis dataKey="name" />
+            <YAxis />
+            <Tooltip />
+            <Bar dataKey="progress" fill="#0ea5e9" />
+          </BarChart>
+        </ResponsiveContainer>
       </div>
     </div>
   );
 };
-
-export default SubjectOverview;

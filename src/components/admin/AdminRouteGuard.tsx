@@ -1,29 +1,24 @@
 
-import React from 'react';
-import { Navigate, Outlet } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { useNavigate, Outlet } from 'react-router-dom';
 import { useAdminAuth } from '@/contexts/auth/AdminAuthContext';
-import LoadingScreen from '@/components/common/LoadingScreen';
 
-interface AdminRouteGuardProps {
-  children?: React.ReactNode;
-}
+const AdminRouteGuard: React.FC = () => {
+  const { isAuthenticated } = useAdminAuth();
+  const navigate = useNavigate();
 
-const AdminRouteGuard: React.FC<AdminRouteGuardProps> = ({ children }) => {
-  const { isAuthenticated, loading } = useAdminAuth();
-  
-  if (loading) {
-    return <LoadingScreen />;
-  }
-  
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate('/admin/login', { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
+
+  // If authenticated, render the child routes
   if (!isAuthenticated) {
-    return <Navigate to="/admin/login" replace />;
+    return null; // or a loading indicator
   }
-  
-  return (
-    <>
-      {children || <Outlet />}
-    </>
-  );
+
+  return <Outlet />;
 };
 
 export default AdminRouteGuard;

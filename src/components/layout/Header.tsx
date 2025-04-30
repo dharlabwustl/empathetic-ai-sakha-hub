@@ -1,11 +1,9 @@
-
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Menu, X } from 'lucide-react';
 import { useAuth } from '@/contexts/auth/AuthContext';
-import PrepzrLogo from '@/components/common/PrepzrLogo';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -19,9 +17,21 @@ const Header = () => {
     <header className="bg-white dark:bg-gray-900 shadow-sm sticky top-0 z-50">
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center">
-            <Link to="/" className="flex items-center">
-              <PrepzrLogo width={120} height={40} /> {/* Increased logo size */}
+          <div className="flex items-center space-x-4">
+            <Link to="/" className="flex items-center space-x-2">
+              <img 
+                src="/lovable-uploads/fdc1cebd-e35f-4f08-a45b-e839964fd590.png" 
+                alt="Sakha AI Logo" 
+                className="w-10 h-10"
+              />
+              <div>
+                <h1 className="font-bold text-xl sm:text-2xl font-display gradient-text">
+                  Sakha AI – पहली बार, पढ़ाई से पहले, आपको समझने वाला साथी
+                </h1>
+                <p className="hidden sm:block text-xs text-gray-500 dark:text-gray-400">
+                  India's 1st Emotionally Intelligent Study Partner – Tuned to Your Mood, Habits, Mind & Mission to Crack Exams.
+                </p>
+              </div>
             </Link>
           </div>
           
@@ -31,7 +41,7 @@ const Header = () => {
             {user ? (
               <div className="flex space-x-2">
                 <Button variant="ghost" asChild>
-                  <Link to="/dashboard/student">Dashboard</Link>
+                  <Link to="/dashboard">Dashboard</Link>
                 </Button>
                 <Button variant="ghost" onClick={() => logout()}>
                   Logout
@@ -43,7 +53,7 @@ const Header = () => {
                   <Link to="/login">Login</Link>
                 </Button>
                 <Button variant="default" asChild>
-                  <Link to="/signup">Sign Up</Link>
+                  <Link to="/register">Register</Link>
                 </Button>
               </div>
             )}
@@ -65,7 +75,7 @@ const Header = () => {
               {user ? (
                 <>
                   <Button variant="ghost" asChild className="justify-start">
-                    <Link to="/dashboard/student">Dashboard</Link>
+                    <Link to="/dashboard">Dashboard</Link>
                   </Button>
                   <Button variant="ghost" onClick={() => logout()} className="justify-start">
                     Logout
@@ -77,7 +87,7 @@ const Header = () => {
                     <Link to="/login">Login</Link>
                   </Button>
                   <Button variant="default" asChild className="justify-start">
-                    <Link to="/signup">Sign Up</Link>
+                    <Link to="/register">Register</Link>
                   </Button>
                 </>
               )}

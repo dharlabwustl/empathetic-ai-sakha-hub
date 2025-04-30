@@ -32,8 +32,8 @@ export default function FeatureCard({
 }: FeatureCardProps) {
   const handleClick = (e: React.MouseEvent) => {
     if (isPremium && (!userSubscription || 
-        (typeof userSubscription === 'string' && userSubscription === 'free') ||
-        (typeof userSubscription === 'object' && userSubscription.planType === 'free'))) {
+        (typeof userSubscription === 'string' && userSubscription === SubscriptionType.Free) ||
+        (typeof userSubscription === 'object' && userSubscription.planType === SubscriptionType.Free))) {
       e.preventDefault();
       onClick && onClick();
     }

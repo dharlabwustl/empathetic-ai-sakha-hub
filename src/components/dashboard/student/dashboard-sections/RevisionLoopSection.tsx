@@ -1,95 +1,83 @@
 
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { RefreshCw, BookOpen, Star, FileText } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { RevisionStats } from '@/types/student/dashboard';
+import { BookOpen, FileText, Flag, RotateCw } from 'lucide-react';
 
 interface RevisionLoopSectionProps {
-  // Add proper typing when available
+  revisionStats: RevisionStats;
 }
 
-const RevisionLoopSection = ({}: RevisionLoopSectionProps) => {
-  // Mock revision data
+const RevisionLoopSection: React.FC<RevisionLoopSectionProps> = ({ revisionStats }) => {
   const revisionItems = [
     {
-      id: '1',
-      type: 'concept',
-      title: 'Newton\'s Laws of Motion',
-      dueDate: '2h ago',
-      isOverdue: true,
-      icon: <BookOpen className="h-4 w-4 text-blue-500" />
+      icon: <BookOpen className="h-10 w-10 text-blue-500" />,
+      label: "Pending Review Concepts",
+      value: revisionStats.pendingReviewConcepts,
+      color: "text-blue-600 dark:text-blue-400",
+      action: "Review Concepts",
+      colorClass: "bg-blue-50 dark:bg-blue-900/20"
     },
     {
-      id: '2',
-      type: 'flashcard',
-      title: 'Chemical Bonding',
-      dueDate: 'Today',
-      isOverdue: false,
-      icon: <Star className="h-4 w-4 text-purple-500" />
+      icon: <FileText className="h-10 w-10 text-amber-500" />,
+      label: "Low Retention Flashcards",
+      value: revisionStats.lowRetentionFlashcards,
+      color: "text-amber-600 dark:text-amber-400",
+      action: "Practice Flashcards",
+      colorClass: "bg-amber-50 dark:bg-amber-900/20"
     },
     {
-      id: '3',
-      type: 'concept',
-      title: 'Integration Techniques',
-      dueDate: 'Tomorrow',
-      isOverdue: false,
-      icon: <BookOpen className="h-4 w-4 text-blue-500" />
-    },
-    {
-      id: '4',
-      type: 'practice',
-      title: 'Thermodynamics Quiz',
-      dueDate: '2 days',
-      isOverdue: false,
-      icon: <FileText className="h-4 w-4 text-green-500" />
-    },
+      icon: <Flag className="h-10 w-10 text-red-500" />,
+      label: "Flagged Items for Revisit",
+      value: revisionStats.flaggedItems,
+      color: "text-red-600 dark:text-red-400",
+      action: "Review Flagged",
+      colorClass: "bg-red-50 dark:bg-red-900/20"
+    }
   ];
-  
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-lg flex items-center gap-2">
-          <RefreshCw className="h-5 w-5 text-purple-500" />
-          Spaced Revision
+        <CardTitle className="flex items-center">
+          <RotateCw className="h-5 w-5 mr-2 text-violet-600" />
+          Revision Loop
         </CardTitle>
       </CardHeader>
-      <CardContent>
-        <div className="space-y-3">
-          {revisionItems.map(item => (
-            <div 
-              key={item.id}
-              className={`p-3 border rounded-lg flex items-center gap-3 ${
-                item.isOverdue ? 'border-red-200 bg-red-50 dark:bg-red-900/10' : 'border-gray-200 bg-gray-50 dark:bg-gray-800'
-              }`}
-            >
-              <div className="p-2 rounded-full bg-white dark:bg-gray-700">
-                {item.icon}
-              </div>
-              <div className="flex-1">
-                <div className="font-medium">{item.title}</div>
-                <div className={`text-xs ${
-                  item.isOverdue ? 'text-red-500' : 'text-muted-foreground'
-                }`}>
-                  Due: {item.dueDate}
+      <CardContent className="space-y-4">
+        <div className="grid grid-cols-1 gap-4">
+          {revisionItems.map((item, index) => (
+            <div key={index} className={`rounded-lg p-4 ${item.colorClass}`}>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <div className="mr-4">
+                    {item.icon}
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-medium">{item.label}</h4>
+                    <p className={`text-2xl font-bold ${item.color}`}>
+                      {item.value}
+                    </p>
+                  </div>
                 </div>
+                <Button 
+                  size="sm" 
+                  variant={index === 0 ? "default" : "outline"}
+                  className={index === 0 ? "bg-gradient-to-r from-blue-500 to-violet-500" : ""}
+                >
+                  {item.action}
+                </Button>
               </div>
-              <Button 
-                size="sm" 
-                variant={item.isOverdue ? "destructive" : "outline"}
-                className="shrink-0"
-              >
-                Revise
-              </Button>
             </div>
           ))}
-          
-          <div className="pt-2 flex justify-center">
-            <Button variant="outline" size="sm">
-              View All Due Items
-            </Button>
-          </div>
         </div>
       </CardContent>
+      <CardFooter>
+        <Button variant="outline" className="w-full">
+          <RotateCw className="h-4 w-4 mr-1" /> View All Pending Revisions
+        </Button>
+      </CardFooter>
     </Card>
   );
 };

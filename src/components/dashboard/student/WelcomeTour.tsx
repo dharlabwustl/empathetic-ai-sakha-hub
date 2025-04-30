@@ -71,7 +71,7 @@ export default function WelcomeTour({
       <DialogContent className="sm:max-w-[600px] p-6">
         <DialogHeader>
           <div className="flex justify-center mb-4">
-            <PrepzrLogo width={120} height={120} /> {/* Increased logo size */}
+            <PrepzrLogo width={60} height={60} />
           </div>
           <DialogTitle className="text-2xl font-bold text-center">
             Welcome to PREPZR
@@ -122,14 +122,19 @@ export default function WelcomeTour({
               <div className="border-t border-b border-gray-200 dark:border-gray-800 py-4 my-4">
                 <div className="flex items-start space-x-3">
                   <div className="relative">
-                    <div className="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center">
-                      <span className="text-2xl">👋</span>
+                    <img
+                      src="/lovable-uploads/e0b0d435-a8a1-4419-bedd-59bf826b4560.png" 
+                      alt="Founder"
+                      className="h-12 w-12 rounded-full object-cover"
+                    />
+                    <div className="absolute -bottom-1 -right-1 bg-blue-500 rounded-full w-6 h-6 flex items-center justify-center text-white text-xs">
+                      👋
                     </div>
                   </div>
                   <div>
-                    <h3 className="font-medium">PREPZR Team</h3>
+                    <h3 className="font-medium">Amit, Founder, PREPZR</h3>
                     <p className="text-sm text-gray-600 dark:text-gray-400">
-                      "We created PREPZR to make exam prep personalized, effective, and stress-free. We're excited to have you join us!"
+                      "We created PREPZR to make exam prep personalized, effective, and stress-free. I'm excited to have you join us!"
                     </p>
                   </div>
                 </div>

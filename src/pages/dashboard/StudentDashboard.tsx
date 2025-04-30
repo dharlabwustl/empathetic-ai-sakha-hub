@@ -7,11 +7,10 @@ import DashboardLayout from "@/pages/dashboard/student/DashboardLayout";
 import SplashScreen from "@/components/dashboard/student/SplashScreen";
 import { useLocation } from "react-router-dom";
 import RedesignedDashboardOverview from "@/components/dashboard/student/RedesignedDashboardOverview";
-import { MoodType } from "@/types/user/base";
 
 const StudentDashboard = () => {
   const [showSplash, setShowSplash] = useState(true);
-  const [currentMood, setCurrentMood] = useState<MoodType | undefined>(undefined);
+  const [currentMood, setCurrentMood] = useState<'sad' | 'neutral' | 'happy' | 'motivated' | undefined>(undefined);
   const location = useLocation();
   
   const {
@@ -46,6 +45,8 @@ const StudentDashboard = () => {
     const isNewUser = params.get('new') === 'true';
     const completedOnboarding = params.get('completedOnboarding') === 'true';
     
+    console.log("URL params:", { isNewUser, completedOnboarding });
+    
     // Don't show splash screen for new users coming from signup flow
     if (isNewUser) {
       setShowSplash(false);
@@ -72,26 +73,17 @@ const StudentDashboard = () => {
     
     // Save a default optimistic mood if none is set
     if (!currentMood) {
-      setCurrentMood(MoodType.Motivated);
+      setCurrentMood('motivated');
       const userData = localStorage.getItem("userData");
       if (userData) {
         const parsedData = JSON.parse(userData);
-        parsedData.mood = MoodType.Motivated;
+        parsedData.mood = 'motivated';
         localStorage.setItem("userData", JSON.stringify(parsedData));
       }
     }
   };
 
-  const handleMoodChange = (mood: MoodType) => {
-    setCurrentMood(mood);
-    const userData = localStorage.getItem("userData");
-    if (userData) {
-      const parsedData = JSON.parse(userData);
-      parsedData.mood = mood;
-      localStorage.setItem("userData", JSON.stringify(parsedData));
-    }
-  };
-
+  // Show splash screen if needed
   if (showSplash) {
     return <SplashScreen onComplete={handleSplashComplete} mood={currentMood} />;
   }
@@ -118,14 +110,7 @@ const StudentDashboard = () => {
   // Custom content based on active tab
   const getTabContent = () => {
     if (activeTab === "overview") {
-      return (
-        <RedesignedDashboardOverview 
-          userProfile={userProfile} 
-          kpis={kpis}
-          currentMood={currentMood}
-          onMoodChange={handleMoodChange} 
-        />
-      );
+      return <RedesignedDashboardOverview userProfile={userProfile} kpis={kpis} />;
     }
     
     // For other tabs, use the default tab content
@@ -153,7 +138,6 @@ const StudentDashboard = () => {
       lastActivity={lastActivity}
       suggestedNextAction={suggestedNextAction}
       currentMood={currentMood}
-      onMoodChange={handleMoodChange}
     >
       {getTabContent()}
     </DashboardLayout>

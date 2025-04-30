@@ -1,145 +1,94 @@
 
-import { MoodType } from '@/types/user/base';
+import { MoodType } from "@/types/user/base";
 
 export interface MoodTheme {
-  emoji: string;
-  label: string;
-  colors: {
-    background: string;
-    text: string;
-  };
+  background: string;
+  text: string;
+  border: string;
+  icon: string;
 }
 
-export type MoodThemes = {
-  [key in MoodType]: MoodTheme;
+export const getMoodTheme = (mood: MoodType): MoodTheme => {
+  switch (mood) {
+    case 'happy':
+      return {
+        background: 'bg-green-50',
+        text: 'text-green-800',
+        border: 'border-green-200',
+        icon: '😊'
+      };
+    case 'focused':
+      return {
+        background: 'bg-blue-50',
+        text: 'text-blue-800',
+        border: 'border-blue-200',
+        icon: '🧠'
+      };
+    case 'motivated':
+      return {
+        background: 'bg-purple-50',
+        text: 'text-purple-800',
+        border: 'border-purple-200',
+        icon: '💪'
+      };
+    case 'tired':
+      return {
+        background: 'bg-amber-50',
+        text: 'text-amber-800',
+        border: 'border-amber-200',
+        icon: '😴'
+      };
+    case 'stressed':
+      return {
+        background: 'bg-red-50',
+        text: 'text-red-800',
+        border: 'border-red-200',
+        icon: '😰'
+      };
+    case 'anxious':
+      return {
+        background: 'bg-orange-50',
+        text: 'text-orange-800',
+        border: 'border-orange-200',
+        icon: '😟'
+      };
+    case 'overwhelmed':
+      return {
+        background: 'bg-red-50',
+        text: 'text-red-800',
+        border: 'border-red-200',
+        icon: '🥵'
+      };
+    case 'sad':
+      return {
+        background: 'bg-blue-50',
+        text: 'text-blue-800',
+        border: 'border-blue-200',
+        icon: '😢'
+      };
+    case 'curious':
+      return {
+        background: 'bg-teal-50',
+        text: 'text-teal-800',
+        border: 'border-teal-200',
+        icon: '🧐'
+      };
+    case 'okay':
+      return {
+        background: 'bg-gray-50',
+        text: 'text-gray-800',
+        border: 'border-gray-200',
+        icon: '😐'
+      };
+    case 'neutral':
+    default:
+      return {
+        background: 'bg-gray-50',
+        text: 'text-gray-800',
+        border: 'border-gray-200',
+        icon: '😐'
+      };
+  }
 };
 
-export const getMoodTheme = (mood?: MoodType): MoodTheme => {
-  if (!mood) {
-    return {
-      emoji: '😐',
-      label: 'Not Set',
-      colors: {
-        background: 'bg-gray-100 dark:bg-gray-800',
-        text: 'text-gray-700 dark:text-gray-300'
-      }
-    };
-  }
-  
-  const themes: MoodThemes = {
-    [MoodType.Happy]: {
-      emoji: '😊',
-      label: 'Happy',
-      colors: {
-        background: 'bg-amber-100 dark:bg-amber-900/30',
-        text: 'text-amber-700 dark:text-amber-300'
-      }
-    },
-    [MoodType.Focused]: {
-      emoji: '🧐',
-      label: 'Focused',
-      colors: {
-        background: 'bg-blue-100 dark:bg-blue-900/30',
-        text: 'text-blue-700 dark:text-blue-300'
-      }
-    },
-    [MoodType.Motivated]: {
-      emoji: '💪',
-      label: 'Motivated',
-      colors: {
-        background: 'bg-emerald-100 dark:bg-emerald-900/30',
-        text: 'text-emerald-700 dark:text-emerald-300'
-      }
-    },
-    [MoodType.Tired]: {
-      emoji: '😴',
-      label: 'Tired',
-      colors: {
-        background: 'bg-gray-100 dark:bg-gray-800',
-        text: 'text-gray-700 dark:text-gray-300'
-      }
-    },
-    [MoodType.Stressed]: {
-      emoji: '😓',
-      label: 'Stressed',
-      colors: {
-        background: 'bg-red-100 dark:bg-red-900/30',
-        text: 'text-red-700 dark:text-red-300'
-      }
-    },
-    [MoodType.Confused]: {
-      emoji: '🤔',
-      label: 'Confused',
-      colors: {
-        background: 'bg-purple-100 dark:bg-purple-900/30',
-        text: 'text-purple-700 dark:text-purple-300'
-      }
-    },
-    [MoodType.Anxious]: {
-      emoji: '😰',
-      label: 'Anxious',
-      colors: {
-        background: 'bg-orange-100 dark:bg-orange-900/30',
-        text: 'text-orange-700 dark:text-orange-300'
-      }
-    },
-    [MoodType.Neutral]: {
-      emoji: '😐',
-      label: 'Neutral',
-      colors: {
-        background: 'bg-gray-100 dark:bg-gray-800',
-        text: 'text-gray-700 dark:text-gray-300'
-      }
-    },
-    [MoodType.Okay]: {
-      emoji: '👍',
-      label: 'Okay',
-      colors: {
-        background: 'bg-blue-100 dark:bg-blue-900/30',
-        text: 'text-blue-700 dark:text-blue-300'
-      }
-    },
-    [MoodType.Overwhelmed]: {
-      emoji: '😩',
-      label: 'Overwhelmed',
-      colors: {
-        background: 'bg-red-100 dark:bg-red-900/30',
-        text: 'text-red-700 dark:text-red-300'
-      }
-    },
-    [MoodType.Curious]: {
-      emoji: '🤓',
-      label: 'Curious',
-      colors: {
-        background: 'bg-violet-100 dark:bg-violet-900/30',
-        text: 'text-violet-700 dark:text-violet-300'
-      }
-    },
-    [MoodType.Sad]: {
-      emoji: '😔',
-      label: 'Sad',
-      colors: {
-        background: 'bg-indigo-100 dark:bg-indigo-900/30',
-        text: 'text-indigo-700 dark:text-indigo-300'
-      }
-    },
-    [MoodType.Calm]: {
-      emoji: '😌',
-      label: 'Calm',
-      colors: {
-        background: 'bg-teal-100 dark:bg-teal-900/30',
-        text: 'text-teal-700 dark:text-teal-300'
-      }
-    },
-    [MoodType.Bored]: {
-      emoji: '🥱',
-      label: 'Bored',
-      colors: {
-        background: 'bg-gray-100 dark:bg-gray-800',
-        text: 'text-gray-700 dark:text-gray-300'
-      }
-    }
-  };
-  
-  return themes[mood] || themes[MoodType.Neutral];
-};
+export default getMoodTheme;

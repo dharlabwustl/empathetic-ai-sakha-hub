@@ -1,199 +1,240 @@
 
-import React from 'react';
-import { UserProfileBase } from "@/types/user/base";
-import { KpiData } from "@/hooks/useKpiTracking";
-import { MoodType } from "@/types/user/base";
-import { Card } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import { CalendarDays, Clock, Book, CheckCircle, User } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useStudentDashboardData } from '@/hooks/useStudentDashboardData';
+import { UserProfileBase } from '@/types/user/base';
+import { KpiData } from '@/hooks/useKpiTracking';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
+import { motion } from 'framer-motion';
+import { 
+  LayoutDashboard, CalendarDays, GraduationCap, BookOpen,
+  Brain, FileText, Bell, TrendingUp
+} from 'lucide-react';
+
+import StudyStatsSection from './dashboard-sections/StudyStatsSection';
+import SubjectBreakdownSection from './dashboard-sections/SubjectBreakdownSection';
+import TodaysPlanSection from './dashboard-sections/TodaysPlanSection';
+import ProgressTrackerSection from './dashboard-sections/ProgressTrackerSection';
+import RevisionLoopSection from './dashboard-sections/RevisionLoopSection';
+import UpcomingMilestonesSection from './dashboard-sections/UpcomingMilestonesSection';
+import MoodBasedSuggestions from './dashboard-sections/MoodBasedSuggestions';
+import SmartSuggestionsCenter from './dashboard-sections/SmartSuggestionsCenter';
+import { MoodType } from '@/types/user/base';
 
 interface RedesignedDashboardOverviewProps {
   userProfile: UserProfileBase;
   kpis: KpiData[];
-  currentMood?: MoodType;
-  onMoodChange?: (mood: MoodType) => void;
 }
 
-const RedesignedDashboardOverview = ({
-  userProfile,
-  kpis,
-  currentMood,
-  onMoodChange,
-}: RedesignedDashboardOverviewProps) => {
-  return (
-    <div className="space-y-6">
-      <h2 className="text-2xl font-semibold">Dashboard Overview</h2>
-      
-      {/* Today's Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        {kpis.map((kpi) => (
-          <Card key={kpi.id} className="p-4">
-            <div className="flex flex-col">
-              <div className="text-sm text-muted-foreground mb-1">{kpi.title}</div>
-              <div className="text-2xl font-bold flex items-end">
-                {kpi.value}
-                {kpi.unit && <span className="text-sm text-muted-foreground ml-1">{kpi.unit}</span>}
-                {kpi.change && (
-                  <span className={`ml-2 text-xs ${kpi.changeType === 'positive' ? 'text-green-500' : 'text-red-500'}`}>
-                    {kpi.changeType === 'positive' ? '+' : ''}{kpi.change}%
-                  </span>
-                )}
-              </div>
-            </div>
-          </Card>
-        ))}
-      </div>
-      
-      {/* Main content */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Study Progress */}
-        <div className="lg:col-span-2">
-          <Card className="p-6 h-full">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl font-semibold">Your Study Progress</h3>
-              <Button variant="outline" size="sm">View All</Button>
-            </div>
-            <div className="space-y-4">
-              <div>
-                <div className="flex justify-between mb-1">
-                  <span className="text-sm font-medium">Physics</span>
-                  <span className="text-sm text-muted-foreground">75%</span>
-                </div>
-                <Progress value={75} className="h-2" />
-              </div>
-              <div>
-                <div className="flex justify-between mb-1">
-                  <span className="text-sm font-medium">Chemistry</span>
-                  <span className="text-sm text-muted-foreground">60%</span>
-                </div>
-                <Progress value={60} className="h-2" />
-              </div>
-              <div>
-                <div className="flex justify-between mb-1">
-                  <span className="text-sm font-medium">Mathematics</span>
-                  <span className="text-sm text-muted-foreground">45%</span>
-                </div>
-                <Progress value={45} className="h-2" />
-              </div>
-              <div>
-                <div className="flex justify-between mb-1">
-                  <span className="text-sm font-medium">Biology</span>
-                  <span className="text-sm text-muted-foreground">30%</span>
-                </div>
-                <Progress value={30} className="h-2" />
-              </div>
-            </div>
-          </Card>
-        </div>
-        
-        {/* Upcoming Tasks */}
-        <div>
-          <Card className="p-6 h-full">
-            <h3 className="text-xl font-semibold mb-4">Today's Tasks</h3>
-            <div className="space-y-4">
-              <div className="flex items-center">
-                <div className="w-3 h-3 bg-blue-500 rounded-full mr-3"></div>
-                <div>
-                  <p className="font-medium">Physics Quiz</p>
-                  <p className="text-sm text-muted-foreground">Due in 2 hours</p>
-                </div>
-              </div>
-              <div className="flex items-center">
-                <div className="w-3 h-3 bg-green-500 rounded-full mr-3"></div>
-                <div>
-                  <p className="font-medium">Math Assignment</p>
-                  <p className="text-sm text-muted-foreground">Due tomorrow</p>
-                </div>
-              </div>
-              <div className="flex items-center">
-                <div className="w-3 h-3 bg-amber-500 rounded-full mr-3"></div>
-                <div>
-                  <p className="font-medium">Chemistry Lab</p>
-                  <p className="text-sm text-muted-foreground">Due in 3 days</p>
-                </div>
-              </div>
-              <div className="mt-4">
-                <Button variant="outline" size="sm" className="w-full">View All Tasks</Button>
-              </div>
-            </div>
-          </Card>
-        </div>
-      </div>
-      
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Recent Activity */}
-        <Card className="p-6">
-          <h3 className="text-xl font-semibold mb-4">Recent Activity</h3>
-          <div className="space-y-4">
-            <div className="flex items-start">
-              <div className="mr-3 mt-0.5">
-                <Book className="h-4 w-4 text-muted-foreground" />
-              </div>
-              <div>
-                <p className="font-medium">Completed Physics Revision</p>
-                <p className="text-sm text-muted-foreground">Today, 10:30 AM</p>
-              </div>
-            </div>
-            <div className="flex items-start">
-              <div className="mr-3 mt-0.5">
-                <CheckCircle className="h-4 w-4 text-muted-foreground" />
-              </div>
-              <div>
-                <p className="font-medium">Submitted Math Assignment</p>
-                <p className="text-sm text-muted-foreground">Yesterday, 3:45 PM</p>
-              </div>
-            </div>
-            <div className="flex items-start">
-              <div className="mr-3 mt-0.5">
-                <Clock className="h-4 w-4 text-muted-foreground" />
-              </div>
-              <div>
-                <p className="font-medium">Studied Chemistry for 2 hours</p>
-                <p className="text-sm text-muted-foreground">Yesterday, 1:20 PM</p>
-              </div>
-            </div>
-            <div className="flex items-start">
-              <div className="mr-3 mt-0.5">
-                <CalendarDays className="h-4 w-4 text-muted-foreground" />
-              </div>
-              <div>
-                <p className="font-medium">Added exam date to calendar</p>
-                <p className="text-sm text-muted-foreground">2 days ago</p>
-              </div>
-            </div>
-          </div>
-        </Card>
-        
-        {/* Study Statistics */}
-        <Card className="p-6">
-          <h3 className="text-xl font-semibold mb-4">Study Statistics</h3>
-          <div className="space-y-4">
-            <div className="flex justify-between">
-              <span>Total study time this week</span>
-              <span className="font-semibold">16 hours</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Flashcards reviewed</span>
-              <span className="font-semibold">324</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Practice tests taken</span>
-              <span className="font-semibold">8</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Concepts mastered</span>
-              <span className="font-semibold">42</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Weekly streak</span>
-              <span className="font-semibold">5 days</span>
-            </div>
-          </div>
-        </Card>
-      </div>
-    </div>
-  );
-};
+export default function RedesignedDashboardOverview({ userProfile, kpis }: RedesignedDashboardOverviewProps) {
+  const { loading, dashboardData, refreshData } = useStudentDashboardData();
+  const [currentMood, setCurrentMood] = useState<MoodType>();
+  const navigate = useNavigate();
 
-export default RedesignedDashboardOverview;
+  const navigationTabs = [
+    { id: "overview", label: "Overview", icon: LayoutDashboard, path: "/dashboard/student/overview" },
+    { id: "today", label: "Today's Plan", icon: CalendarDays, path: "/dashboard/student/today" },
+    { id: "academic", label: "Academic Advisor", icon: GraduationCap, path: "/dashboard/student/academic" },
+    { id: "concepts", label: "Concept Cards", icon: BookOpen, path: "/dashboard/student/concepts" },
+    { id: "flashcards", label: "Flashcards", icon: Brain, path: "/dashboard/student/flashcards" },
+    { id: "practice", label: "Practice Exams", icon: FileText, path: "/dashboard/student/practice-exam" },
+    { id: "notifications", label: "Notifications", icon: Bell, path: "/dashboard/student/notifications" },
+  ];
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        when: "beforeChildren",
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        type: "spring",
+        stiffness: 260,
+        damping: 20
+      }
+    }
+  };
+
+  const handleMoodSelect = (mood: MoodType) => {
+    setCurrentMood(mood);
+    const userData = localStorage.getItem("userData");
+    if (userData) {
+      const parsedData = JSON.parse(userData);
+      parsedData.mood = mood;
+      localStorage.setItem("userData", JSON.stringify(parsedData));
+    } else {
+      localStorage.setItem("userData", JSON.stringify({ mood }));
+    }
+  };
+
+  if (loading || !dashboardData) {
+    return (
+      <div className="space-y-6">
+        <Skeleton className="h-12 w-3/4" />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {[1, 2, 3, 4].map(i => (
+            <Skeleton key={i} className="h-32" />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <motion.div
+      className="space-y-6"
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+    >
+      <motion.div 
+        variants={itemVariants}
+        className="p-3 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 sticky top-0 z-10"
+      >
+        <div className="flex items-center justify-between overflow-x-auto">
+          <div className="flex space-x-1 md:space-x-2">
+            {navigationTabs.map((tab) => (
+              <motion.div
+                key={tab.id}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Button
+                  variant={tab.id === "overview" ? "default" : "ghost"}
+                  size="sm"
+                  className="flex items-center gap-1 whitespace-nowrap text-xs md:text-sm"
+                  onClick={() => navigate(tab.path)}
+                >
+                  <tab.icon className="h-4 w-4 mr-1" />
+                  <span className="hidden md:inline">{tab.label}</span>
+                </Button>
+              </motion.div>
+            ))}
+          </div>
+          <Button 
+            size="sm" 
+            variant="outline"
+            className="hidden md:flex items-center"
+            onClick={refreshData}
+          >
+            <TrendingUp className="mr-2 h-4 w-4" />
+            Refresh Stats
+          </Button>
+        </div>
+      </motion.div>
+
+      <motion.div variants={itemVariants}>
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
+          <div>
+            <h2 className="text-2xl font-bold">Study Dashboard</h2>
+            <div className="flex items-center mt-1">
+              <span className="text-sm text-muted-foreground mr-2">Exam Goal:</span>
+              <span className="bg-violet-100 text-violet-800 dark:bg-violet-900/30 dark:text-violet-300 px-2 py-0.5 rounded-full text-sm">
+                {dashboardData.examGoal}
+              </span>
+            </div>
+          </div>
+        </div>
+      </motion.div>
+
+      <motion.div 
+        variants={itemVariants}
+        className="grid grid-cols-1 lg:grid-cols-2 gap-6"
+      >
+        <MoodBasedSuggestions currentMood={currentMood} onMoodSelect={handleMoodSelect} />
+        <SmartSuggestionsCenter 
+          performance={{
+            accuracy: 85,
+            quizScores: 90,
+            conceptProgress: 75,
+            streak: 7
+          }}
+        />
+      </motion.div>
+
+      <motion.div variants={itemVariants}>
+        <StudyStatsSection subjects={dashboardData.subjects} conceptCards={dashboardData.conceptCards} />
+      </motion.div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <motion.div variants={itemVariants}>
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center mb-4">
+                <Brain className="h-5 w-5 text-violet-600 mr-2" />
+                <h3 className="text-lg font-medium">AI Personalized Study Plan</h3>
+              </div>
+              <div className="space-y-4">
+                <p className="text-sm text-muted-foreground">
+                  Based on your profile and learning goals, we've created a personalized study plan to help you succeed.
+                </p>
+                
+                <div className="p-4 bg-violet-50 dark:bg-violet-900/20 rounded-lg border border-violet-200 dark:border-violet-800/50">
+                  <h4 className="font-medium text-violet-800 dark:text-violet-300 mb-2">Your Learning Profile</h4>
+                  <ul className="space-y-2 text-sm">
+                    <li className="flex items-center">
+                      <span className="w-4 h-4 bg-violet-200 rounded-full flex items-center justify-center text-xs mr-2">•</span>
+                      <span>Learning Style: <strong>Visual-Kinesthetic</strong></span>
+                    </li>
+                    <li className="flex items-center">
+                      <span className="w-4 h-4 bg-violet-200 rounded-full flex items-center justify-center text-xs mr-2">•</span>
+                      <span>Best Study Time: <strong>Morning to Afternoon</strong></span>
+                    </li>
+                    <li className="flex items-center">
+                      <span className="w-4 h-4 bg-violet-200 rounded-full flex items-center justify-center text-xs mr-2">•</span>
+                      <span>Focus Duration: <strong>30-45 minute sessions</strong></span>
+                    </li>
+                    <li className="flex items-center">
+                      <span className="w-4 h-4 bg-violet-200 rounded-full flex items-center justify-center text-xs mr-2">•</span>
+                      <span>Recommended Break: <strong>10 minute breaks</strong></span>
+                    </li>
+                  </ul>
+                </div>
+                
+                <Button 
+                  className="w-full bg-gradient-to-r from-violet-600 to-indigo-600" 
+                  onClick={() => navigate('/dashboard/student/study-plan')}
+                >
+                  View Complete Study Strategy
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        <motion.div variants={itemVariants}>
+          <TodaysPlanSection studyPlan={dashboardData.studyPlan} currentMood={currentMood} />
+        </motion.div>
+      </div>
+
+      <motion.div variants={itemVariants}>
+        <SubjectBreakdownSection subjects={dashboardData.subjects} />
+      </motion.div>
+
+      <motion.div variants={itemVariants}>
+        <ProgressTrackerSection progressTracker={dashboardData.progressTracker} />
+      </motion.div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <motion.div variants={itemVariants}>
+          <RevisionLoopSection revisionStats={dashboardData.revisionStats} />
+        </motion.div>
+        <motion.div variants={itemVariants}>
+          <UpcomingMilestonesSection milestones={dashboardData.upcomingMilestones} />
+        </motion.div>
+      </div>
+    </motion.div>
+  );
+}

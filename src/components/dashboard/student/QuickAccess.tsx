@@ -1,86 +1,71 @@
 
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { Card, CardContent } from '@/components/ui/card';
-import { Sparkles, Calendar, BookOpen, Heart, GraduationCap } from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
+import { Button } from "@/components/ui/button";
+import { 
+  MessageSquare, 
+  Calendar,
+  GraduationCap,
+  Heart
+} from 'lucide-react';
+import { motion } from 'framer-motion';
 
-interface QuickAccessItemProps {
-  icon: React.ReactNode;
-  title: string;
-  description: string;
-  path: string;
-  isPremium?: boolean;
-}
-
-const QuickAccessItem: React.FC<QuickAccessItemProps> = ({ icon, title, description, path, isPremium }) => {
+export const QuickAccess = () => {
+  const location = useLocation();
+  const currentPath = location.pathname;
+  
+  // Updated quick links as per requirements - only these 4 items
+  const quickLinks = [
+    {
+      path: '/dashboard/student/tutor',
+      icon: <MessageSquare className="h-5 w-5" />,
+      label: '24/7 AI Tutor'
+    },
+    {
+      path: '/dashboard/student/studyplan',
+      icon: <Calendar className="h-5 w-5" />,
+      label: 'Study Plan'
+    },
+    {
+      path: '/dashboard/student/academic',
+      icon: <GraduationCap className="h-5 w-5" />,
+      label: 'Academic Advisor'
+    },
+    {
+      path: '/dashboard/student/wellness',
+      icon: <Heart className="h-5 w-5" />,
+      label: 'Feel Good Corner'
+    }
+  ];
+  
   return (
-    <Link to={path} className="block">
-      <div className="group flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-        <div className="mt-1 flex-shrink-0 w-9 h-9 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-700 dark:text-blue-400">
-          {icon}
-        </div>
-        <div>
-          <div className="flex items-center gap-2">
-            <h3 className="font-medium text-gray-900 dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-              {title}
-            </h3>
-            {isPremium && (
-              <span className="text-xs font-medium bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded">
-                PREMIUM
-              </span>
-            )}
-          </div>
-          <p className="text-sm text-gray-500 dark:text-gray-400">{description}</p>
-        </div>
+    <div className="overflow-x-auto pb-2 mb-2">
+      <div className="flex gap-3">
+        {quickLinks.map((link) => {
+          const isActive = currentPath === link.path;
+          return (
+            <motion.div 
+              key={link.path}
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.98 }}
+              className="shrink-0"
+            >
+              <Link to={link.path}>
+                <Button 
+                  variant={isActive ? "default" : "outline"}
+                  size="sm"
+                  className={`py-2 h-auto flex items-center gap-2 ${isActive ? 'shadow-md' : ''}`}
+                >
+                  {link.icon}
+                  <span>{link.label}</span>
+                </Button>
+              </Link>
+            </motion.div>
+          );
+        })}
       </div>
-    </Link>
+    </div>
   );
 };
 
-export function QuickAccess() {
-  const quickAccessItems: QuickAccessItemProps[] = [
-    {
-      icon: <Sparkles className="h-5 w-5" />,
-      title: "24/7 AI Tutor",
-      description: "Get instant help with any question",
-      path: "/dashboard/student/ai-tutor",
-    },
-    {
-      icon: <Calendar className="h-5 w-5" />,
-      title: "Study Plan",
-      description: "View your complete exam preparation timeline",
-      path: "/dashboard/student/study-plan",
-    },
-    {
-      icon: <BookOpen className="h-5 w-5" />,
-      title: "Concept Cards",
-      description: "Master key concepts with interactive cards",
-      path: "/dashboard/student/concepts",
-    },
-    {
-      icon: <GraduationCap className="h-5 w-5" />,
-      title: "Academic Advisor",
-      description: "Create personalized study plans for your exams",
-      path: "/dashboard/student/academic-advisor",
-    },
-    {
-      icon: <Heart className="h-5 w-5" />,
-      title: "Feel Good Corner",
-      description: "Tools to manage stress and stay focused",
-      path: "/dashboard/student/feel-good-corner",
-    },
-  ];
-
-  return (
-    <Card>
-      <CardContent className="p-4">
-        <h2 className="font-medium mb-2">Quick Access</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-1">
-          {quickAccessItems.map((item) => (
-            <QuickAccessItem key={item.title} {...item} />
-          ))}
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
+export default QuickAccess;

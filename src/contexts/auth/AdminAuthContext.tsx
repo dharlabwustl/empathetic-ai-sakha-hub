@@ -1,101 +1,81 @@
 
-import React, { createContext, useState, useEffect, ReactNode, useContext } from 'react';
-import adminAuthService from '@/services/auth/adminAuthService';
-
-interface AdminUser {
-  id: string;
-  name: string;
-  email: string;
-  role: string;
-}
+import React, { createContext, useState, useContext, ReactNode } from 'react';
+import { AuthUser } from '@/services/auth/authService';
 
 interface AdminAuthContextProps {
+  adminUser: AuthUser | null;
   isAuthenticated: boolean;
-  user: AdminUser | null;
-  loading: boolean;
-  adminLoginError: string | null;
   login: (email: string, password: string) => Promise<boolean>;
   logout: () => Promise<void>;
 }
 
-const AdminAuthContext = createContext<AdminAuthContextProps>({
-  isAuthenticated: false,
-  user: null,
-  loading: true,
-  adminLoginError: null,
-  login: async () => false,
-  logout: async () => {}
-});
-
-export const useAdminAuth = () => useContext(AdminAuthContext);
+const AdminAuthContext = createContext<AdminAuthContextProps | undefined>(undefined);
 
 interface AdminAuthProviderProps {
   children: ReactNode;
 }
 
-export const AdminAuthProvider = ({ children }: AdminAuthProviderProps) => {
-  const [user, setUser] = useState<AdminUser | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [adminLoginError, setAdminLoginError] = useState<string | null>(null);
+export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }) => {
+  const [adminUser, setAdminUser] = useState<AuthUser | null>(null);
 
-  useEffect(() => {
-    // Check for existing admin session
-    const checkAuth = async () => {
-      setLoading(true);
+  // Check for existing admin session
+  React.useEffect(() => {
+    const storedAdminUser = localStorage.getItem('admin_user');
+    if (storedAdminUser) {
       try {
-        const currentUser = await adminAuthService.getAdminUser();
-        setUser(currentUser);
+        const parsedUser = JSON.parse(storedAdminUser);
+        setAdminUser(parsedUser);
       } catch (error) {
-        console.error("Error checking admin auth:", error);
-      } finally {
-        setLoading(false);
+        console.error('Failed to parse admin user from localStorage');
+        localStorage.removeItem('admin_user');
       }
-    };
-    
-    checkAuth();
+    }
   }, []);
 
   const login = async (email: string, password: string): Promise<boolean> => {
-    setAdminLoginError(null);
-    
-    try {
-      const response = await adminAuthService.adminLogin({ email, password });
+    // For demo purposes, just check for a hardcoded admin credential
+    if (email === 'admin@prepzr.com' && password === 'admin123') {
+      const adminUserData: AuthUser = {
+        id: 'admin-1',
+        name: 'Admin User',
+        email,
+        role: 'admin',
+        token: `admin-token-${Date.now()}`
+      };
       
-      if (response.success && response.data) {
-        setUser(response.data);
-        return true;
-      } else {
-        setAdminLoginError(response.message || "Login failed");
-        return false;
-      }
-    } catch (error) {
-      console.error("Admin login error:", error);
-      setAdminLoginError("An unexpected error occurred");
-      return false;
+      localStorage.setItem('admin_user', JSON.stringify(adminUserData));
+      setAdminUser(adminUserData);
+      return true;
     }
+    
+    return false;
   };
 
   const logout = async (): Promise<void> => {
-    try {
-      await adminAuthService.adminLogout();
-      setUser(null);
-    } catch (error) {
-      console.error("Admin logout error:", error);
-    }
+    localStorage.removeItem('admin_user');
+    setAdminUser(null);
+  };
+
+  const value = {
+    adminUser,
+    isAuthenticated: !!adminUser,
+    login,
+    logout
   };
 
   return (
-    <AdminAuthContext.Provider
-      value={{
-        isAuthenticated: !!user,
-        user,
-        loading,
-        adminLoginError,
-        login,
-        logout
-      }}
-    >
+    <AdminAuthContext.Provider value={value}>
       {children}
     </AdminAuthContext.Provider>
   );
+};
+
+export const useAdminAuth = () => {
+  const context = useContext(AdminAuthContext);
+  
+  if (context === undefined) {
+    throw new Error('useAdminAuth must be used within an AdminAuthProvider');
+  }
+  
+  return context;
 };

@@ -11,7 +11,7 @@ import { motion } from "framer-motion";
 import { Star } from "lucide-react";
 
 interface SignupStepProps {
-  onSubmit: (formValues: { name: string; mobile: string; otp: string; agreeTerms: boolean }) => void;
+  onSubmit: (formValues: { mobile: string; otp: string; agreeTerms: boolean }) => void;
   isLoading: boolean;
 }
 
@@ -19,7 +19,6 @@ const SignupStep: React.FC<SignupStepProps> = ({ onSubmit, isLoading }) => {
   const { toast } = useToast();
   const { onboardingData } = useOnboarding();
   const [formValues, setFormValues] = useState({
-    name: "",
     mobile: "",
     otp: "",
     agreeTerms: false
@@ -44,12 +43,12 @@ const SignupStep: React.FC<SignupStepProps> = ({ onSubmit, isLoading }) => {
   };
 
   useEffect(() => {
-    if (onboardingData.examGoal) {
-      const facts = examFacts[onboardingData.examGoal as keyof typeof examFacts] || [];
+    if (onboardingData.goal) {
+      const facts = examFacts[onboardingData.goal as keyof typeof examFacts] || [];
       const randomFact = facts[Math.floor(Math.random() * facts.length)];
       setFact(randomFact);
     }
-  }, [onboardingData.examGoal]);
+  }, [onboardingData.goal]);
 
   const handleFormChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -86,7 +85,7 @@ const SignupStep: React.FC<SignupStepProps> = ({ onSubmit, isLoading }) => {
       return;
     }
     
-    if (formValues.name && formValues.mobile && formValues.otp) {
+    if (formValues.mobile && formValues.otp) {
       onSubmit(formValues);
     } else {
       toast({
@@ -95,22 +94,6 @@ const SignupStep: React.FC<SignupStepProps> = ({ onSubmit, isLoading }) => {
         variant: "destructive"
       });
     }
-  };
-
-  const handleGoogleSignup = () => {
-    toast({
-      title: "Google Sign Up",
-      description: "Google authentication would be implemented here",
-    });
-    
-    // In a real app this would trigger OAuth flow
-    // For now we just pass some dummy data
-    onSubmit({
-      name: "Google User",
-      mobile: "9999999999",
-      otp: "verified", 
-      agreeTerms: true
-    });
   };
 
   return (
@@ -133,19 +116,6 @@ const SignupStep: React.FC<SignupStepProps> = ({ onSubmit, isLoading }) => {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <Label htmlFor="name">Full Name</Label>
-          <Input 
-            id="name" 
-            name="name" 
-            value={formValues.name} 
-            onChange={handleFormChange} 
-            required 
-            className="border-purple-200 focus:border-purple-500 focus:ring-purple-500"
-            placeholder="Your full name"
-          />
-        </div>
-        
         <div>
           <Label htmlFor="mobile">Mobile Number</Label>
           <Input 
@@ -208,7 +178,7 @@ const SignupStep: React.FC<SignupStepProps> = ({ onSubmit, isLoading }) => {
         <Button 
           type="submit" 
           className="w-full bg-gradient-to-r from-blue-500 to-blue-600"
-          disabled={isLoading || !formValues.name || !formValues.mobile || !formValues.otp || !formValues.agreeTerms}
+          disabled={isLoading || !formValues.mobile || !formValues.otp || !formValues.agreeTerms}
         >
           {isLoading ? "Creating Account..." : "Create Account"}
         </Button>
@@ -226,7 +196,12 @@ const SignupStep: React.FC<SignupStepProps> = ({ onSubmit, isLoading }) => {
           type="button"
           variant="outline" 
           className="w-full"
-          onClick={handleGoogleSignup}
+          onClick={() => {
+            toast({
+              title: "Google Sign Up",
+              description: "Google authentication would be triggered here.",
+            });
+          }}
         >
           <img src="https://www.google.com/favicon.ico" alt="Google" className="h-4 w-4 mr-2" />
           Sign up with Google

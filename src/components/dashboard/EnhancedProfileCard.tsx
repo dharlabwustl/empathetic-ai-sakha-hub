@@ -1,109 +1,146 @@
 
 import React from 'react';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Smile, BookOpen, CheckCircle, BrainCircuit } from 'lucide-react';
-import { getInitials } from "@/lib/utils";
-import { UserProfileBase, MoodType } from "@/types/user/base";
-import { MoodSelector } from './student/MoodSelector';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { UserProfileBase, SubscriptionType } from '@/types/user/base';
+import { formatDistanceToNow } from 'date-fns';
+import { Award, Clock, Flame, Star } from 'lucide-react';
 
 interface EnhancedProfileCardProps {
   userProfile: UserProfileBase;
-  onMoodChange?: (mood: MoodType) => void;
-  currentMood?: MoodType;
+  className?: string;
 }
 
-const EnhancedProfileCard: React.FC<EnhancedProfileCardProps> = ({ userProfile, onMoodChange, currentMood }) => {
-  // Mock function to handle level up
-  const handleLevelUp = () => {
-    alert("Congratulations! You've leveled up!");
+export default function EnhancedProfileCard({ userProfile, className = '' }: EnhancedProfileCardProps) {
+  const initials = userProfile.name
+    .split(' ')
+    .map(n => n[0])
+    .join('')
+    .toUpperCase();
+    
+  const getSubscriptionBadge = () => {
+    // Default to Free plan
+    let plan = SubscriptionType.Free;
+    
+    if (userProfile.subscription) {
+      if (typeof userProfile.subscription === 'object') {
+        plan = userProfile.subscription.planType;
+      } else {
+        plan = userProfile.subscription;
+      }
+    }
+    
+    // Color mapping based on subscription type
+    const badgeColors: Record<SubscriptionType, string> = {
+      [SubscriptionType.Free]: 'bg-gray-100 text-gray-800 border-gray-200',
+      [SubscriptionType.Basic]: 'bg-blue-100 text-blue-800 border-blue-200',
+      [SubscriptionType.Premium]: 'bg-purple-100 text-purple-800 border-purple-200',
+      [SubscriptionType.Pro]: 'bg-indigo-100 text-indigo-800 border-indigo-200',
+      [SubscriptionType.Enterprise]: 'bg-emerald-100 text-emerald-800 border-emerald-200',
+      [SubscriptionType.Trial]: 'bg-amber-100 text-amber-800 border-amber-200',
+      [SubscriptionType.Custom]: 'bg-pink-100 text-pink-800 border-pink-200'
+    };
+    
+    // Label mapping based on subscription type
+    const badgeLabels: Record<SubscriptionType, string> = {
+      [SubscriptionType.Free]: 'Free Plan',
+      [SubscriptionType.Basic]: 'Basic Plan',
+      [SubscriptionType.Premium]: 'Premium',
+      [SubscriptionType.Pro]: 'Pro',
+      [SubscriptionType.Enterprise]: 'Enterprise',
+      [SubscriptionType.Trial]: 'Trial',
+      [SubscriptionType.Custom]: 'Custom Plan'
+    };
+    
+    return (
+      <Badge 
+        variant="outline" 
+        className={`${badgeColors[plan]} text-xs font-normal ml-2`}
+      >
+        {badgeLabels[plan]}
+      </Badge>
+    );
   };
-
-  // Function to format the last active time
-  const formatLastActive = (lastActive: string | undefined) => {
-    if (!lastActive) return "Recently";
-    
-    const date = new Date(lastActive);
-    const now = new Date();
-    const diff = now.getTime() - date.getTime();
-    const minutes = Math.floor(diff / 60000);
-    const hours = Math.floor(minutes / 60);
-    const days = Math.floor(hours / 24);
-    
-    if (minutes < 60) {
-      return `${minutes} minutes ago`;
-    } else if (hours < 24) {
-      return `${hours} hours ago`;
-    } else if (days === 1) {
-      return "Yesterday";
-    } else {
-      return date.toLocaleDateString();
+  
+  const formatLastActive = () => {
+    if (!userProfile.lastActive) return 'No activity yet';
+    try {
+      return `Last active ${formatDistanceToNow(new Date(userProfile.lastActive), { addSuffix: true })}`;
+    } catch (e) {
+      return 'Last active recently';
     }
   };
 
+  const goalText = userProfile.goals && userProfile.goals.length > 0 
+    ? userProfile.goals[0].title
+    : "No goal set";
+
   return (
-    <Card className="relative overflow-hidden">
-      <div className="absolute top-2 right-2 z-10">
-        <Badge variant="secondary">Level {userProfile.level || 1}</Badge>
-      </div>
-      
-      <CardHeader className="relative z-10">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div className="flex items-center space-x-4">
-            <Avatar className="w-16 h-16 ring-2 ring-primary/30">
-              <AvatarImage src={userProfile.avatar} alt={userProfile.name} />
-              <AvatarFallback>{getInitials(userProfile.name)}</AvatarFallback>
-            </Avatar>
-            
-            <div>
-              <CardTitle className="text-lg font-semibold">{userProfile.name}</CardTitle>
-              <CardDescription>
-                Last active: {formatLastActive(userProfile.lastActive)}
-              </CardDescription>
+    <Card className={`overflow-hidden ${className}`}>
+      <CardHeader className="bg-gradient-to-r from-violet-600 to-indigo-600 text-white py-4">
+        <div className="flex items-center space-x-4">
+          <Avatar className="h-16 w-16 border-2 border-white">
+            <AvatarImage src={userProfile.avatarUrl || userProfile.avatar} />
+            <AvatarFallback className="bg-violet-800 text-white text-xl">{initials}</AvatarFallback>
+          </Avatar>
+          <div>
+            <CardTitle className="text-white flex items-center text-xl">
+              {userProfile.name}
+              {getSubscriptionBadge()}
+            </CardTitle>
+            <CardDescription className="text-violet-100 mt-0.5 flex items-center">
+              <Clock className="h-3 w-3 mr-1 opacity-70" />
+              {formatLastActive()}
+            </CardDescription>
+            <div className="mt-2 flex items-center">
+              <Badge variant="secondary" className="bg-white/20 text-white border-none">
+                {goalText}
+              </Badge>
             </div>
-          </div>
-          
-          <div className="flex items-center space-x-2">
-            <Button size="sm" variant="outline" onClick={handleLevelUp}>
-              Level Up
-            </Button>
           </div>
         </div>
       </CardHeader>
-      
-      <CardContent className="relative z-10 space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="flex items-center space-x-2">
-            <BookOpen className="h-4 w-4 text-blue-500" />
-            <span>{userProfile.conceptsLearned || 0} Concepts</span>
+      <CardContent className="pt-4">
+        <div className="grid grid-cols-2 gap-6 text-sm">
+          <div className="flex items-center">
+            <div className="h-8 w-8 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center mr-3">
+              <Flame className="h-4 w-4 text-orange-600 dark:text-orange-400" />
+            </div>
+            <div>
+              <p className="text-muted-foreground text-xs">Study Streak</p>
+              <p className="font-medium text-base">{userProfile.streak || 0} days</p>
+            </div>
           </div>
-          <div className="flex items-center space-x-2">
-            <CheckCircle className="h-4 w-4 text-green-500" />
-            <span>{userProfile.testsCompleted || 0} Tests</span>
+          <div className="flex items-center">
+            <div className="h-8 w-8 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mr-3">
+              <Clock className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+            </div>
+            <div>
+              <p className="text-muted-foreground text-xs">Study Hours</p>
+              <p className="font-medium text-base">{userProfile.studyHours || 0} hours</p>
+            </div>
           </div>
-          <div className="flex items-center space-x-2">
-            <BrainCircuit className="h-4 w-4 text-purple-500" />
-            <span>{userProfile.studyHours || 0} Hours</span>
+          <div className="flex items-center">
+            <div className="h-8 w-8 rounded-full bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center mr-3">
+              <Star className="h-4 w-4 text-violet-600 dark:text-violet-400" />
+            </div>
+            <div>
+              <p className="text-muted-foreground text-xs">Concepts</p>
+              <p className="font-medium text-base">{userProfile.conceptsLearned || 0} mastered</p>
+            </div>
           </div>
-          <div className="flex items-center space-x-2">
-            <Smile className="h-4 w-4 text-amber-500" />
-            <span>Streak: {userProfile.streak || 0} Days</span>
+          <div className="flex items-center">
+            <div className="h-8 w-8 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center mr-3">
+              <Award className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+            </div>
+            <div>
+              <p className="text-muted-foreground text-xs">Tests</p>
+              <p className="font-medium text-base">{userProfile.testsCompleted || 0} completed</p>
+            </div>
           </div>
-        </div>
-        
-        <div>
-          <h3 className="text-sm font-medium mb-2">How are you feeling today?</h3>
-          <MoodSelector currentMood={currentMood} onMoodSelect={onMoodChange!} />
         </div>
       </CardContent>
-      
-      <div className="absolute bottom-0 right-0 opacity-10 pointer-events-none">
-        <div className="w-48 h-48 bg-gradient-to-tr from-primary/30 to-secondary/30 rounded-full -mb-24 -mr-24"></div>
-      </div>
     </Card>
   );
-};
-
-export default EnhancedProfileCard;
+}

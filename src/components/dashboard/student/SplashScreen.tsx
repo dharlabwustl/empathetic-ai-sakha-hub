@@ -1,9 +1,9 @@
 
-import React, { useState, useEffect } from "react";
-import { motion } from "framer-motion";
-import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
-import { MoodType } from "@/types/user/base";
+import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import PrepzrLogo from '@/components/common/PrepzrLogo';
+import { MoodType } from '@/types/user/base';
+import { Button } from '@/components/ui/button';
 
 interface SplashScreenProps {
   onComplete: () => void;
@@ -11,145 +11,121 @@ interface SplashScreenProps {
 }
 
 const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete, mood }) => {
-  const [currentMood, setCurrentMood] = useState<MoodType | undefined>(mood);
-  const [animationComplete, setAnimationComplete] = useState(false);
-  const [showButton, setShowButton] = useState(false);
-  
+  const [showMoodQuestion, setShowMoodQuestion] = useState(false);
+  const [selectedMood, setSelectedMood] = useState<MoodType | undefined>(mood);
+
   useEffect(() => {
+    // After logo animation, show the mood question
     const timer = setTimeout(() => {
-      setAnimationComplete(true);
-    }, 2000);
+      setShowMoodQuestion(true);
+    }, 1500);
     
-    const buttonTimer = setTimeout(() => {
-      setShowButton(true);
-    }, 2500);
-    
-    return () => {
-      clearTimeout(timer);
-      clearTimeout(buttonTimer);
-    };
+    return () => clearTimeout(timer);
   }, []);
   
-  const greetingVariants = {
-    initial: { opacity: 0, y: -20 },
-    animate: { opacity: 1, y: 0, transition: { duration: 0.5 } },
-  };
+  // Pre-define moods with emojis
+  const moods: { type: MoodType; emoji: string; label: string }[] = [
+    { type: 'motivated', emoji: '💪', label: 'Motivated' },
+    { type: 'happy', emoji: '😊', label: 'Happy' },
+    { type: 'focused', emoji: '🧠', label: 'Focused' },
+    { type: 'neutral', emoji: '😐', label: 'Neutral' },
+    { type: 'stressed', emoji: '😥', label: 'Stressed' },
+    { type: 'tired', emoji: '😴', label: 'Tired' },
+  ];
   
-  const logoVariants = {
-    initial: { scale: 0.8, opacity: 0 },
-    animate: { scale: 1, opacity: 1, transition: { duration: 0.5 } },
-  };
-  
-  const quoteVariants = {
-    initial: { opacity: 0, y: 20 },
-    animate: { opacity: 1, y: 0, transition: { duration: 0.5, delay: 0.3 } },
-  };
-  
-  // Map mood to specific quotes and messages
-  const getMoodSpecificContent = () => {
-    const defaultQuote = "Study hard and be awesome!";
-    const defaultMessage = "Let's achieve something great today!";
+  const handleMoodSelect = (mood: MoodType) => {
+    setSelectedMood(mood);
     
-    const moodContent = {
-      motivated: {
-        quote: "Success is the sum of small efforts, repeated day in and day out.",
-        message: "You're motivated! Let's channel that energy into focused study."
-      },
-      happy: {
-        quote: "A positive mindset brings positive results.",
-        message: "Great to see you happy! Ready to learn something new?"
-      },
-      focused: {
-        quote: "Discipline is the bridge between goals and accomplishment.",
-        message: "You're in the zone! Let's make progress on important concepts."
-      },
-      neutral: {
-        quote: "Small progress is still progress.",
-        message: "Let's build some momentum with your studies today."
-      },
-      stressed: {
-        quote: "Take a deep breath. You've got this.",
-        message: "Let's break down your work into manageable chunks."
-      },
-      tired: {
-        quote: "Rest if you must, but don't quit.",
-        message: "Let's focus on review and light learning today."
-      }
-    };
-    
-    if (!currentMood || !Object.prototype.hasOwnProperty.call(moodContent, currentMood)) {
-      return { quote: defaultQuote, message: defaultMessage };
+    // Save mood to localStorage
+    const userData = localStorage.getItem("userData");
+    if (userData) {
+      const parsedData = JSON.parse(userData);
+      parsedData.mood = mood;
+      localStorage.setItem("userData", JSON.stringify(parsedData));
+    } else {
+      localStorage.setItem("userData", JSON.stringify({ mood }));
     }
     
-    return moodContent[currentMood as keyof typeof moodContent];
+    // Allow a brief moment to see the selection
+    setTimeout(() => {
+      onComplete();
+    }, 500);
   };
   
-  const { quote, message } = getMoodSpecificContent();
-  
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-950 dark:to-indigo-900 flex items-center justify-center p-4">
-      <motion.div 
-        className="max-w-md w-full bg-white dark:bg-gray-900 rounded-xl shadow-xl overflow-hidden"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5 }}
+    <div className="fixed inset-0 bg-gradient-to-br from-blue-50 via-white to-blue-50 dark:from-blue-950 dark:via-gray-900 dark:to-indigo-950 flex flex-col items-center justify-center">
+      <motion.div
+        initial={{ scale: 0.5, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+        className="flex flex-col items-center"
       >
-        <div className="p-8 text-center">
-          <motion.div 
-            className="mb-6 flex justify-center"
-            variants={logoVariants}
-            initial="initial"
-            animate="animate"
-          >
-            <img 
-              src="/lovable-uploads/b3337c40-376b-4764-bee8-d425abf31bc8.png"
-              alt="PREPZR Logo" 
-              className="h-16 w-16"
-            />
-          </motion.div>
+        <PrepzrLogo width={100} height={100} />
+        
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3, duration: 0.6 }}
+          className="mt-4 text-3xl font-bold text-blue-600 dark:text-blue-400"
+        >
+          PREPZR
+        </motion.div>
+        
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.8, duration: 0.6 }}
+          className="mt-2 text-sm text-gray-600 dark:text-gray-400"
+        >
+          Your personalized exam preparation partner
+        </motion.div>
+      </motion.div>
+      
+      {showMoodQuestion && (
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mt-12 text-center"
+        >
+          <h2 className="text-xl font-medium mb-3">How are you feeling today?</h2>
+          <div className="grid grid-cols-3 gap-3 max-w-xs mx-auto">
+            {moods.map((mood) => (
+              <Button
+                key={mood.type}
+                variant={selectedMood === mood.type ? "default" : "outline"}
+                className={`flex flex-col items-center px-3 py-4 h-auto ${selectedMood === mood.type ? 'bg-blue-500 text-white' : ''}`}
+                onClick={() => handleMoodSelect(mood.type)}
+              >
+                <span className="text-2xl mb-1">{mood.emoji}</span>
+                <span className="text-xs">{mood.label}</span>
+              </Button>
+            ))}
+          </div>
           
           <motion.div
-            variants={greetingVariants}
-            initial="initial"
-            animate="animate"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+            className="mt-6"
           >
-            <h1 className="text-2xl font-bold mb-2">Welcome to PREPZR</h1>
-            <p className="text-gray-600 dark:text-gray-400 mb-6">
-              Your AI-powered study companion
-            </p>
+            <Button 
+              variant="ghost" 
+              onClick={onComplete}
+              className="text-sm text-gray-500"
+            >
+              Skip for now
+            </Button>
           </motion.div>
-          
-          {animationComplete && (
-            <motion.div 
-              className="mb-6"
-              variants={quoteVariants}
-              initial="initial"
-              animate="animate"
-            >
-              <blockquote className="italic text-gray-700 dark:text-gray-300 border-l-4 border-blue-500 pl-4 py-2 text-left">
-                "{quote}"
-              </blockquote>
-              <p className="mt-4 text-gray-600 dark:text-gray-400 text-sm">
-                {message}
-              </p>
-            </motion.div>
-          )}
-          
-          {showButton && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.3 }}
-            >
-              <Button 
-                className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700"
-                onClick={onComplete}
-              >
-                Continue to Dashboard <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </motion.div>
-          )}
-        </div>
+        </motion.div>
+      )}
+      
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1.2, duration: 0.6 }}
+        className="absolute bottom-8 text-center text-sm text-gray-600 dark:text-gray-400"
+      >
+        © {new Date().getFullYear()} PREPZR. All rights reserved.
       </motion.div>
     </div>
   );

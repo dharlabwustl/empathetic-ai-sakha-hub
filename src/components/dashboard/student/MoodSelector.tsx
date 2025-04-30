@@ -1,7 +1,8 @@
 
 import React from 'react';
-import { MoodType } from '@/types/user/base';
 import { Button } from '@/components/ui/button';
+import { MoodType } from '@/types/student/todaysPlan';
+import { cn } from '@/lib/utils';
 
 interface MoodSelectorProps {
   currentMood?: MoodType;
@@ -9,36 +10,36 @@ interface MoodSelectorProps {
   className?: string;
 }
 
-export const MoodSelector = ({ onMoodSelect, currentMood, className = '' }: MoodSelectorProps) => {
-  const moodOptions = [
-    { type: MoodType.Happy, emoji: '😊', label: 'Happy' },
-    { type: MoodType.Focused, emoji: '🧐', label: 'Focused' },
-    { type: MoodType.Motivated, emoji: '💪', label: 'Motivated' },
-    { type: MoodType.Tired, emoji: '😴', label: 'Tired' },
-    { type: MoodType.Stressed, emoji: '😓', label: 'Stressed' },
-    { type: MoodType.Confused, emoji: '🤔', label: 'Confused' },
-    { type: MoodType.Anxious, emoji: '😰', label: 'Anxious' },
-    { type: MoodType.Neutral, emoji: '😐', label: 'Neutral' },
-    { type: MoodType.Okay, emoji: '👍', label: 'Okay' },
-    { type: MoodType.Overwhelmed, emoji: '😩', label: 'Overwhelmed' },
-    { type: MoodType.Curious, emoji: '🤓', label: 'Curious' },
-    { type: MoodType.Sad, emoji: '😔', label: 'Sad' },
-    { type: MoodType.Bored, emoji: '🥱', label: 'Bored' }
-  ];
+const moods: { type: MoodType, emoji: string, label: string }[] = [
+  { type: 'happy', emoji: '😊', label: 'Happy' },
+  { type: 'motivated', emoji: '💪', label: 'Motivated' },
+  { type: 'focused', emoji: '🧠', label: 'Focused' },
+  { type: 'neutral', emoji: '😐', label: 'Neutral' },
+  { type: 'tired', emoji: '😴', label: 'Tired' },
+  { type: 'anxious', emoji: '😰', label: 'Anxious' },
+  { type: 'stressed', emoji: '😓', label: 'Stressed' },
+  { type: 'sad', emoji: '😢', label: 'Sad' },
+];
 
+export function MoodSelector({ currentMood, onMoodSelect, className }: MoodSelectorProps) {
   return (
-    <div className={`flex flex-wrap gap-2 ${className}`}>
-      {moodOptions.map((mood) => (
-        <Button
-          key={mood.type}
-          variant={currentMood === mood.type ? "default" : "outline"}
-          onClick={() => onMoodSelect(mood.type)}
-          className="flex flex-col items-center p-2 h-auto"
-        >
-          <span className="text-xl mb-1">{mood.emoji}</span>
-          <span className="text-xs">{mood.label}</span>
-        </Button>
-      ))}
+    <div className={cn("space-y-4", className)}>
+      <div className="grid grid-cols-4 gap-3">
+        {moods.map((mood) => (
+          <Button
+            key={mood.type}
+            variant={currentMood === mood.type ? "default" : "outline"}
+            className={cn(
+              "h-auto flex flex-col py-3 px-2 gap-1 transition-all",
+              currentMood === mood.type ? "ring-2 ring-primary" : "hover:bg-muted"
+            )}
+            onClick={() => onMoodSelect(mood.type)}
+          >
+            <span className="text-2xl">{mood.emoji}</span>
+            <span className="text-xs">{mood.label}</span>
+          </Button>
+        ))}
+      </div>
     </div>
   );
-};
+}

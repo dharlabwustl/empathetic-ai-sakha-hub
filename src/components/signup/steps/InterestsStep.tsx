@@ -1,9 +1,10 @@
 
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
-import { motion } from "framer-motion";
+import { Badge } from "@/components/ui/badge";
+import { getSubjectsForGoal } from "@/components/dashboard/student/onboarding/SubjectData";
 
 interface InterestsStepProps {
   examGoal?: string;
@@ -11,165 +12,125 @@ interface InterestsStepProps {
 }
 
 const InterestsStep: React.FC<InterestsStepProps> = ({ examGoal, onSubmit }) => {
-  const [selectedSubjects, setSelectedSubjects] = useState<string[]>([]);
-  const [weakSubjects, setWeakSubjects] = useState<string[]>([]);
-  const [subjects, setSubjects] = useState<string[]>([]);
-  
+  const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
+  const [customInterest, setCustomInterest] = useState("");
+  const [suggestedSubjects, setSuggestedSubjects] = useState<string[]>([]);
+
   useEffect(() => {
-    // Set default subjects based on exam goal
-    if (examGoal === "IIT-JEE") {
-      setSubjects([
-        "Physics", 
-        "Chemistry", 
-        "Mathematics", 
-        "Problem Solving", 
-        "Mechanics", 
-        "Electromagnetism", 
-        "Organic Chemistry", 
-        "Inorganic Chemistry", 
-        "Calculus", 
-        "Algebra"
-      ]);
-      // Auto-select core subjects
-      setSelectedSubjects(["Physics", "Chemistry", "Mathematics"]);
-    } else if (examGoal === "NEET") {
-      setSubjects([
-        "Physics", 
-        "Chemistry", 
-        "Biology", 
-        "Botany", 
-        "Zoology", 
-        "Human Physiology", 
-        "Biochemistry", 
-        "Organic Chemistry", 
-        "Inorganic Chemistry"
-      ]);
-      // Auto-select core subjects
-      setSelectedSubjects(["Physics", "Chemistry", "Biology"]);
-    } else if (examGoal === "UPSC") {
-      setSubjects([
-        "Indian Polity", 
-        "Geography", 
-        "Economy", 
-        "History", 
-        "Environment", 
-        "Current Affairs", 
-        "Science & Technology", 
-        "International Relations", 
-        "Ethics", 
-        "Ancient India"
-      ]);
-      // Auto-select core subjects
-      setSelectedSubjects(["Indian Polity", "Geography", "Economy", "History"]);
-    } else {
-      setSubjects([
-        "Mathematics",
-        "Science",
-        "Social Studies",
-        "Languages",
-        "Computer Science",
-        "Economics",
-        "Business Studies",
-        "Accountancy"
-      ]);
+    // Get suggested subjects based on the exam goal
+    if (examGoal) {
+      const subjects = getSubjectsForGoal(examGoal);
+      setSuggestedSubjects(subjects);
     }
   }, [examGoal]);
 
-  const handleSubjectToggle = (subject: string) => {
-    if (selectedSubjects.includes(subject)) {
-      setSelectedSubjects(selectedSubjects.filter(s => s !== subject));
-      setWeakSubjects(weakSubjects.filter(s => s !== subject));
-    } else {
-      setSelectedSubjects([...selectedSubjects, subject]);
+  const handleAddCustomInterest = () => {
+    if (customInterest.trim() && !selectedInterests.includes(customInterest.trim())) {
+      setSelectedInterests(prev => [...prev, customInterest.trim()]);
+      setCustomInterest("");
     }
   };
 
-  const handleWeakToggle = (subject: string) => {
-    if (!selectedSubjects.includes(subject)) {
-      return; // Can't mark as weak if not selected
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleAddCustomInterest();
     }
-    
-    if (weakSubjects.includes(subject)) {
-      setWeakSubjects(weakSubjects.filter(s => s !== subject));
+  };
+
+  const handleRemoveInterest = (interest: string) => {
+    setSelectedInterests(prev => prev.filter(item => item !== interest));
+  };
+
+  const toggleSubject = (subject: string) => {
+    if (selectedInterests.includes(subject)) {
+      handleRemoveInterest(subject);
     } else {
-      setWeakSubjects([...weakSubjects, subject]);
+      setSelectedInterests(prev => [...prev, subject]);
     }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const formattedInterests = selectedSubjects.map(subject => {
-      if (weakSubjects.includes(subject)) {
-        return `${subject} (weak)`;
-      }
-      return `${subject} (strong)`;
-    }).join(", ");
-    onSubmit(formattedInterests);
+    onSubmit(selectedInterests.join(", "));
   };
 
   return (
-    <motion.form
-      onSubmit={handleSubmit}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5 }}
-      className="space-y-6"
-    >
+    <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <h3 className="font-medium text-lg mb-3">Select Your Preferred Subjects</h3>
-        <p className="text-sm text-gray-500 mb-4">
-          Mark subjects you're interested in and identify your weak areas for personalized study focus.
+        <h3 className="text-lg font-medium mb-2">Select Your Preferred Subjects</h3>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+          {examGoal ? `Based on your goal for ${examGoal}, we recommend these subjects:` : 'Choose subjects you want to focus on:'}
         </p>
-        
-        {examGoal && (
-          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-md p-4 mb-4">
-            <p className="text-sm text-blue-700 dark:text-blue-300">
-              Based on your exam goal <strong>{examGoal}</strong>, we've pre-selected the core subjects.
-              You can modify these selections and mark your weak subjects.
-            </p>
-          </div>
-        )}
-        
-        <div className="space-y-2">
-          {subjects.map((subject) => (
-            <div key={subject} className="flex items-center justify-between border rounded-lg p-3">
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id={`subject-${subject}`}
-                  checked={selectedSubjects.includes(subject)}
-                  onCheckedChange={() => handleSubjectToggle(subject)}
-                />
-                <Label htmlFor={`subject-${subject}`} className="cursor-pointer">
-                  {subject}
-                </Label>
-              </div>
-              
-              {selectedSubjects.includes(subject) && (
-                <div className="flex items-center space-x-2">
-                  <Label htmlFor={`weak-${subject}`} className="text-xs cursor-pointer">
-                    Mark as weak
-                  </Label>
-                  <Checkbox
-                    id={`weak-${subject}`}
-                    checked={weakSubjects.includes(subject)}
-                    onCheckedChange={() => handleWeakToggle(subject)}
-                    className="data-[state=checked]:bg-amber-500 data-[state=checked]:border-amber-500"
-                  />
-                </div>
-              )}
+
+        <div className="grid grid-cols-2 gap-2 mb-4">
+          {suggestedSubjects.map(subject => (
+            <div key={subject} className="flex items-center space-x-2">
+              <Checkbox 
+                id={`subject-${subject}`}
+                checked={selectedInterests.includes(subject)}
+                onCheckedChange={() => toggleSubject(subject)}
+              />
+              <label 
+                htmlFor={`subject-${subject}`}
+                className="text-sm cursor-pointer"
+              >
+                {subject}
+              </label>
             </div>
           ))}
         </div>
+
+        <h4 className="text-sm font-medium mb-2 mt-4">Or add your own interests:</h4>
+        <div className="flex gap-2">
+          <Input
+            value={customInterest}
+            onChange={(e) => setCustomInterest(e.target.value)}
+            onKeyPress={handleKeyPress}
+            placeholder="Enter an interest and press Enter"
+          />
+          <Button 
+            type="button" 
+            onClick={handleAddCustomInterest} 
+            variant="outline"
+          >
+            Add
+          </Button>
+        </div>
       </div>
 
-      <Button
-        type="submit"
-        className="w-full bg-gradient-to-r from-blue-500 to-blue-600"
-        disabled={selectedSubjects.length === 0}
+      {selectedInterests.length > 0 && (
+        <div className="mt-4">
+          <h4 className="text-sm font-medium mb-2">Selected interests:</h4>
+          <div className="flex flex-wrap gap-2">
+            {selectedInterests.map((interest) => (
+              <Badge 
+                key={interest} 
+                variant="secondary"
+                className="flex items-center gap-1"
+              >
+                {interest}
+                <button
+                  type="button"
+                  className="ml-1 h-4 w-4 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 inline-flex items-center justify-center"
+                  onClick={() => handleRemoveInterest(interest)}
+                >
+                  ×
+                </button>
+              </Badge>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <Button 
+        type="submit" 
+        className="w-full bg-gradient-to-r from-blue-600 to-indigo-700"
+        disabled={selectedInterests.length === 0}
       >
-        Continue
+        Next
       </Button>
-    </motion.form>
+    </form>
   );
 };
 

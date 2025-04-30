@@ -2,9 +2,11 @@
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
-import { OnboardingStep } from "./OnboardingContext";
+import { OnboardingStep, UserRole, UserGoal } from "./OnboardingContext";
+import { getDemographicsQuestion } from "./utils/stepUtils";
 import authService from "@/services/auth/authService"; 
-import { MoodType, UserRole } from "@/types/user/base";
+import { getSubjectsForGoal } from "@/components/dashboard/student/onboarding/SubjectData";
+import { MoodType } from "@/types/user/base";
 
 interface StepHandlerProps {
   onboardingData: any;
@@ -25,7 +27,7 @@ const StepHandler = ({
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleRoleSelect = (role: UserRole | string) => {
+  const handleRoleSelect = (role: UserRole) => {
     setOnboardingData({ ...onboardingData, role });
     setMessages([
       ...messages, 
@@ -34,18 +36,8 @@ const StepHandler = ({
     ]);
     setStep("goal");
   };
-
-  const handleGoalSelect = (goal: string) => {
-    setOnboardingData({ ...onboardingData, goal });
-    setMessages([
-      ...messages, 
-      { content: goal, isBot: false },
-      { content: "Tell us more about yourself to personalize your learning experience.", isBot: true }
-    ]);
-    setStep("demographics");
-  };
   
-  const handleSignupSubmit = async (formValues: { name: string; mobile: string; otp: string; agreeTerms: boolean }) => {
+  const handleSignupSubmit = async (formValues: { name: string; mobile: string; otp: string }) => {
     setIsLoading(true);
     
     try {
@@ -78,11 +70,10 @@ const StepHandler = ({
         
         // Save additional onboarding data to localStorage with consistent format
         const extendedUserData = {
-          ...response.data,
           ...onboardingData,
           name: cleanName,
           phoneNumber: cleanMobile,
-          completedOnboarding: true, // Changed to true to skip onboarding flow
+          completedOnboarding: false, // Mark as not completed to trigger onboarding flow
           isNewUser: true,
           sawWelcomeTour: false
         };
@@ -91,11 +82,11 @@ const StepHandler = ({
         
         toast({
           title: "Welcome to Sakha AI!",
-          description: "Your account has been created successfully.",
+          description: "Let's create your personalized study plan.",
         });
         
-        // Redirect to welcome screen
-        navigate("/welcome");
+        // Go directly to the dashboard with parameters to show onboarding
+        navigate("/dashboard/student?completedOnboarding=false&new=true");
       } else {
         throw new Error("Registration failed");
       }
@@ -115,7 +106,6 @@ const StepHandler = ({
     isLoading,
     handlers: {
       handleRoleSelect,
-      handleGoalSelect,
       handleDemographicsSubmit: (data: Record<string, string>) => {
         // Create a readable message for chat
         let userMessage = "";
@@ -139,6 +129,15 @@ const StepHandler = ({
         ]);
         setStep("personality");
       },
+      handleGoalSelect: (goal: UserGoal) => {
+        setOnboardingData({ ...onboardingData, goal });
+        setMessages([
+          ...messages, 
+          { content: goal, isBot: false },
+          { content: "Tell us more about yourself to personalize your learning experience.", isBot: true }
+        ]);
+        setStep("demographics");
+      },
       handlePersonalitySelect: (personality: string) => {
         setOnboardingData({ ...onboardingData, personalityType: personality });
         setMessages([
@@ -153,7 +152,54 @@ const StepHandler = ({
         setMessages([
           ...messages,
           { content: mood, isBot: false },
-          { content: "Great! Let's understand your study preferences.", isBot: true }
+          { content: "Let's understand your study preferences for a personalized experience.", isBot: true }
+        ]);
+        setStep("habits");
+      },
+      handleHabitsSubmit: (habits: Record<string, string>) => {
+        // Clean up habits data - remove whitespace and normalize
+        const cleanedHabits: Record<string, string> = {};
+        
+        Object.entries(habits).forEach(([key, value]) => {
+          // Skip custom fields in the cleaned data if they've already been included
+          if (key === "stressManagementCustom" || key === "studyPreferenceCustom") {
+            return;
+          }
+          cleanedHabits[key] = value.trim();
+        });
+        
+        // Create a readable message for chat from the habits
+        let userMessage = "";
+        Object.entries(cleanedHabits).forEach(([key, value]) => {
+          userMessage += `${key}: ${value}, `;
+        });
+        userMessage = userMessage.slice(0, -2); // Remove trailing comma
+        
+        setOnboardingData({ ...onboardingData, ...cleanedHabits });
+        
+        // Get subjects based on selected exam goal
+        const suggestedSubjects = onboardingData.goal 
+          ? getSubjectsForGoal(onboardingData.goal)
+          : [];
+        
+        setMessages([
+          ...messages,
+          { content: userMessage, isBot: false },
+          { content: "Select your preferred subjects to study:", isBot: true }
+        ]);
+        setStep("interests");
+      },
+      handleInterestsSubmit: (interests: string) => {
+        // Clean and deduplicate interests
+        const interestsList = Array.from(new Set(
+          interests.split(",").map(i => i.trim()).filter(i => i.length > 0)
+        ));
+        
+        setOnboardingData({ ...onboardingData, interests: interestsList });
+        setMessages([
+          ...messages,
+          { content: interests, isBot: false },
+          { content: "Your personalized Sakha dashboard is ready. Please sign up to access it.", isBot: true }
         ]);
         setStep("signup");
       },

@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import MainLayout from '@/components/layouts/MainLayout';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -81,8 +82,8 @@ const ConceptsView: React.FC = () => {
   };
   
   const handleOpenConcept = (id: number) => {
-    // Navigate to the detailed concept study page
-    navigate(`/dashboard/student/concepts/study/${id}`);
+    // Navigate to the detailed concept card page
+    navigate(`/dashboard/student/concepts/card/${id}`);
   };
   
   return (

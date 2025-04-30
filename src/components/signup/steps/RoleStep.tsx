@@ -9,15 +9,15 @@ interface RoleStepProps {
 
 const RoleStep: React.FC<RoleStepProps> = ({ onRoleSelect }) => {
   return (
-    <div className="space-y-4">
+    <div className="flex justify-center">
       <Button
         onClick={() => onRoleSelect(UserRole.Student)}
-        className="bg-white hover:bg-blue-50 text-blue-700 border border-blue-200 w-full h-auto py-3 justify-start"
+        className="bg-white hover:bg-blue-50 text-blue-700 border border-blue-200 h-auto py-6 px-8 w-full flex flex-col items-center"
         variant="outline"
       >
-        Student
+        <span className="text-3xl mb-3">🎓</span>
+        <span className="text-lg font-medium">Student</span>
       </Button>
-      {/* Teacher and Parent roles removed as requested */}
     </div>
   );
 };
