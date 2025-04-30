@@ -1,109 +1,174 @@
-
-import React from 'react';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import React, { useState } from 'react';
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
-import { Smile, BookOpen, CheckCircle, BrainCircuit } from 'lucide-react';
-import { getInitials } from "@/lib/utils";
-import { UserProfileBase, MoodType } from "@/types/user/base";
-import { MoodSelector } from './student/MoodSelector';
+import { Edit, Target, Clock } from "lucide-react";
+import { formatDistanceToNow } from 'date-fns';
+import { Badge } from '@/components/ui/badge';
+import { UserProfileType } from '@/types/user/base';
+import { SkillRatings } from '@/types/student/dashboard';
+import { MoodSelector } from '@/components/dashboard/student/MoodSelector';
 
 interface EnhancedProfileCardProps {
-  userProfile: UserProfileBase;
-  onMoodChange?: (mood: MoodType) => void;
-  currentMood?: MoodType;
+  userProfile: UserProfileType;
+  streak?: number;
+  studyHours?: number;
+  conceptsMastered?: number;
+  skillRatingsData?: SkillRatings[];
+  onEditProfile?: () => void;
+  showQuickStats?: boolean;
+  showProgress?: boolean;
+  showMoodSelector?: boolean;
+  currentMood?: string;
+  onMoodChange?: (mood: string) => void;
+  className?: string;
 }
 
-const EnhancedProfileCard: React.FC<EnhancedProfileCardProps> = ({ userProfile, onMoodChange, currentMood }) => {
-  // Mock function to handle level up
-  const handleLevelUp = () => {
-    alert("Congratulations! You've leveled up!");
+interface Goal {
+  title: string;
+  targetDate: string;
+  description?: string;
+}
+
+interface UserProfileWithTypedGoals extends UserProfileType {
+  goals: Goal[];
+}
+
+export const EnhancedProfileCard: React.FC<EnhancedProfileCardProps> = ({
+  userProfile,
+  streak,
+  studyHours,
+  conceptsMastered,
+  skillRatingsData,
+  onEditProfile,
+  showQuickStats = true,
+  showProgress = true,
+  showMoodSelector = true,
+  currentMood,
+  onMoodChange,
+  className = ""
+}) => {
+  // Type cast userProfile to include properly typed goals
+  const typedUserProfile = userProfile as UserProfileWithTypedGoals;
+
+  const [isEditing, setIsEditing] = useState(false);
+  const primaryColor = 'indigo';
+
+  const handleEditClick = () => {
+    setIsEditing(true);
+    onEditProfile?.();
   };
 
-  // Function to format the last active time
-  const formatLastActive = (lastActive: string | undefined) => {
-    if (!lastActive) return "Recently";
-    
-    const date = new Date(lastActive);
-    const now = new Date();
-    const diff = now.getTime() - date.getTime();
-    const minutes = Math.floor(diff / 60000);
-    const hours = Math.floor(minutes / 60);
-    const days = Math.floor(hours / 24);
-    
-    if (minutes < 60) {
-      return `${minutes} minutes ago`;
-    } else if (hours < 24) {
-      return `${hours} hours ago`;
-    } else if (days === 1) {
-      return "Yesterday";
-    } else {
-      return date.toLocaleDateString();
-    }
+  const handleMoodSelect = (mood: string) => {
+    onMoodChange?.(mood);
   };
+
+  const quickStats = [
+    { label: 'Streak', value: streak || 0, unit: 'days' },
+    { label: 'Study Hours', value: studyHours || 0, unit: 'hrs' },
+    { label: 'Concepts', value: conceptsMastered || 0, unit: 'mastered' },
+  ];
+
+  const skillRatings = skillRatingsData || [
+    { skill: 'Problem Solving', rating: 85 },
+    { skill: 'Critical Thinking', rating: 92 },
+    { skill: 'Time Management', rating: 78 },
+  ];
 
   return (
-    <Card className="relative overflow-hidden">
-      <div className="absolute top-2 right-2 z-10">
-        <Badge variant="secondary">Level {userProfile.level || 1}</Badge>
-      </div>
-      
-      <CardHeader className="relative z-10">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div className="flex items-center space-x-4">
-            <Avatar className="w-16 h-16 ring-2 ring-primary/30">
-              <AvatarImage src={userProfile.avatar} alt={userProfile.name} />
-              <AvatarFallback>{getInitials(userProfile.name)}</AvatarFallback>
-            </Avatar>
-            
-            <div>
-              <CardTitle className="text-lg font-semibold">{userProfile.name}</CardTitle>
-              <CardDescription>
-                Last active: {formatLastActive(userProfile.lastActive)}
-              </CardDescription>
+    <Card className={`w-full border-${primaryColor}-200 dark:border-${primaryColor}-800 ${className}`}>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardTitle className="text-sm font-medium">Profile Overview</CardTitle>
+        <Button variant="ghost" size="sm" onClick={handleEditClick}>
+          <Edit className="h-4 w-4 mr-2" />
+          Edit Profile
+        </Button>
+      </CardHeader>
+
+      <CardContent className="px-6 pb-4">
+        <div className="flex items-center space-x-4 mb-4">
+          <Avatar>
+            <AvatarImage src={userProfile.avatarUrl || `/avatars/avatar-${(Math.floor(Math.random() * 10) + 1)}.png`} />
+            <AvatarFallback>{userProfile.name.substring(0, 2).toUpperCase()}</AvatarFallback>
+          </Avatar>
+          <div>
+            <h3 className="text-lg font-semibold">{userProfile.name}</h3>
+            <p className="text-sm text-muted-foreground">{userProfile.email}</p>
+          </div>
+        </div>
+
+        {showQuickStats && (
+          <div className="grid grid-cols-3 gap-4 mb-4">
+            {quickStats.map((stat, index) => (
+              <div key={index} className="text-center">
+                <div className="text-2xl font-bold">{stat.value}</div>
+                <p className="text-sm text-muted-foreground">{stat.label} {stat.unit}</p>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Goals section */}
+        {typedUserProfile.goals && typedUserProfile.goals.length > 0 && (
+          <div className="mt-4">
+            <h4 className="font-medium text-sm mb-2 flex items-center gap-1.5">
+              <Target className="h-4 w-4 text-indigo-600" /> Current Goals
+            </h4>
+            <div className="space-y-2">
+              {typedUserProfile.goals.map((goal, index) => (
+                <div key={index} className="border rounded-md p-3 bg-muted/20">
+                  <div className="flex justify-between items-start">
+                    <h5 className="font-medium">{goal.title}</h5>
+                    <Badge variant="outline" className="text-xs">
+                      <Clock className="h-3 w-3 mr-1" />
+                      {formatDistanceToNow(new Date(goal.targetDate), { addSuffix: true })}
+                    </Badge>
+                  </div>
+                  {goal.description && (
+                    <p className="text-sm text-muted-foreground mt-1">{goal.description}</p>
+                  )}
+                </div>
+              ))}
             </div>
           </div>
-          
-          <div className="flex items-center space-x-2">
-            <Button size="sm" variant="outline" onClick={handleLevelUp}>
-              Level Up
-            </Button>
-          </div>
-        </div>
-      </CardHeader>
-      
-      <CardContent className="relative z-10 space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="flex items-center space-x-2">
-            <BookOpen className="h-4 w-4 text-blue-500" />
-            <span>{userProfile.conceptsLearned || 0} Concepts</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <CheckCircle className="h-4 w-4 text-green-500" />
-            <span>{userProfile.testsCompleted || 0} Tests</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <BrainCircuit className="h-4 w-4 text-purple-500" />
-            <span>{userProfile.studyHours || 0} Hours</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Smile className="h-4 w-4 text-amber-500" />
-            <span>Streak: {userProfile.streak || 0} Days</span>
-          </div>
-        </div>
+        )}
         
-        <div>
-          <h3 className="text-sm font-medium mb-2">How are you feeling today?</h3>
-          <MoodSelector currentMood={currentMood} onMoodSelect={onMoodChange!} />
-        </div>
+        {showProgress && (
+          <div className="mt-4">
+            <h4 className="font-medium text-sm mb-2">Skill Ratings</h4>
+            <div className="space-y-3">
+              {skillRatings.map((skill, index) => (
+                <div key={index} className="space-y-1">
+                  <div className="flex justify-between items-center">
+                    <p className="text-sm font-medium">{skill.skill}</p>
+                    <span className="text-sm text-muted-foreground">{skill.rating}%</span>
+                  </div>
+                  <Progress value={skill.rating} className="h-2" />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        
+        {showMoodSelector && (
+          <div className="mt-6">
+            <h4 className="font-medium text-sm mb-2">How are you feeling today?</h4>
+            <MoodSelector onMoodSelect={handleMoodSelect} currentMood={currentMood} className="justify-center" />
+          </div>
+        )}
       </CardContent>
-      
-      <div className="absolute bottom-0 right-0 opacity-10 pointer-events-none">
-        <div className="w-48 h-48 bg-gradient-to-tr from-primary/30 to-secondary/30 rounded-full -mb-24 -mr-24"></div>
-      </div>
+
+      <CardFooter className="flex justify-between items-center p-6">
+        <p className="text-sm text-muted-foreground">
+          Joined {formatDistanceToNow(new Date(userProfile.lastActive || Date.now()), {
+            addSuffix: true,
+          })}
+        </p>
+        <Button size="sm" onClick={handleEditClick}>
+          Edit Profile
+        </Button>
+      </CardFooter>
     </Card>
   );
 };
-
-export default EnhancedProfileCard;

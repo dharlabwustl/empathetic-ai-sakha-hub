@@ -1,8 +1,6 @@
 
 import { MoodType } from '../user/base';
 
-export { MoodType };
-
 export interface StudyBlock {
   id: string;
   title: string;
@@ -78,39 +76,6 @@ export interface TodaysPlanData extends TodaysPlan {
   timeAllocation: TimeAllocation;
   subjectProgress: SubjectProgress[];
   pastRecords: PastDayRecord[];
-  currentBlock?: StudyBlock;
-  completedBlocks: StudyBlock[];
-  upcomingBlocks: StudyBlock[];
-  backlog: Task[];
-  tasks?: {
-    concepts: Task[];
-    flashcards: Task[];
-    practiceExams: Task[];
-    revision: Task[];
-  };
-  pastDays?: PastDayRecord[];
-  tomorrowPreview?: {
-    concepts: number;
-    flashcards: number;
-    practice: number;
-    practiceExams?: number;
-  };
-  subjectBreakdown?: {
-    [key: string]: {
-      concepts: {
-        total: number;
-        completed: number;
-      };
-      flashcards: {
-        total: number;
-        completed: number;
-      };
-      practiceExams: {
-        total: number;
-        completed: number;
-      };
-    };
-  };
 }
 
 export interface TimeAllocation {
@@ -118,7 +83,6 @@ export interface TimeAllocation {
   flashcards: number;
   practice: number;
   breaks: number;
-  practiceExams?: number;
 }
 
 export interface SubjectProgress {
@@ -135,16 +99,4 @@ export interface PastDayRecord {
   totalTasks: number;
   studyTimeMinutes: number;
   mood: MoodType;
-  status?: 'completed' | 'partial' | 'missed';
-  conceptsCompleted?: number;
-  conceptsTotal?: number;
-  flashcardsCompleted?: number;
-  flashcardsTotal?: number;
-  practiceCompleted?: number;
-  practiceTotal?: number;
 }
-
-// Additional task types for subject breakdown
-export type ConceptTask = Task & { type: TaskType.Concept };
-export type FlashcardTask = Task & { type: TaskType.Flashcard };
-export type PracticeExamTask = Task & { type: TaskType.PracticeExam };

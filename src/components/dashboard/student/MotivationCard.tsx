@@ -21,42 +21,42 @@ const MotivationCard: React.FC<MotivationCardProps> = ({ currentMood, className 
     }
 
     switch (currentMood) {
-      case MoodType.Happy:
+      case 'happy':
         return {
           message: "Your positive energy is contagious! It's a great day to tackle challenging concepts.",
           suggestion: "Try taking on that difficult topic you've been putting off."
         };
-      case MoodType.Motivated:
+      case 'motivated':
         return {
           message: "Your drive today is incredible! Channel that energy into productive study sessions.",
           suggestion: "Set ambitious goals for today - you're ready to achieve them!"
         };
-      case MoodType.Focused:
+      case 'focused':
         return {
           message: "Your concentration is at its peak. Take advantage of this clarity of mind.",
           suggestion: "Dive into complex problems requiring deep thinking and analysis."
         };
-      case MoodType.Neutral:
+      case 'neutral':
         return {
           message: "A balanced mindset provides steady progress. You're in a good place to learn.",
           suggestion: "Maintain your routine and focus on consistent effort today."
         };
-      case MoodType.Tired:
+      case 'tired':
         return {
           message: "It's okay to feel tired. Quality over quantity is important today.",
           suggestion: "Try shorter, more frequent study sessions with breaks in between."
         };
-      case MoodType.Anxious:
+      case 'anxious':
         return {
           message: "Your anxiety shows you care about your progress. Take a deep breath, you've got this.",
           suggestion: "Start with a brief meditation or try the 5-4-3-2-1 grounding technique."
         };
-      case MoodType.Stressed:
+      case 'stressed':
         return {
           message: "Acknowledge your stress, then direct that energy toward productive tasks.",
           suggestion: "Break down complex tasks into smaller, manageable chunks."
         };
-      case MoodType.Sad:
+      case 'sad':
         return {
           message: "It's okay to feel down sometimes. Be kind to yourself today.",
           suggestion: "Start with a small, achievable goal to build positive momentum."

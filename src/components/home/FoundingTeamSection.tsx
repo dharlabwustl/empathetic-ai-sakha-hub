@@ -14,13 +14,13 @@ const FoundingTeamSection = () => {
     {
       name: "Dr. Atul Sharma",
       role: "Co-founder & Chief AI Scientist",
-      image: "/lovable-uploads/603cbccd-0c50-44ec-b8eb-b4fc1b5109d4.png", // Updated image
+      image: "/lovable-uploads/0aee9e2f-6c2f-484e-a580-f28fe3d23820.png",
       bio: "Doctorate in Engineering (USA), IIT Alumni. Research Scientist & Professor focused on advanced AI solutions. Based in the USA."
     }
   ];
 
   return (
-    <section className="py-16 bg-gradient-to-b from-white to-blue-50 dark:from-gray-900 dark:to-gray-800" id="team">
+    <section className="py-16 bg-gradient-to-b from-white to-blue-50 dark:from-gray-900 dark:to-gray-800">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">The Team Behind PREPZR</h2>
@@ -37,11 +37,6 @@ const FoundingTeamSection = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: index * 0.2 }}
-              whileHover={{ 
-                y: -5, 
-                transition: { duration: 0.2 },
-                boxShadow: "0px 10px 30px rgba(0, 0, 0, 0.1)"
-              }}
             >
               <Card className="overflow-hidden">
                 <CardContent className="p-0">

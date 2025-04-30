@@ -1,100 +1,102 @@
 
-import React, { createContext, useState, useContext } from "react";
-import { Goal } from "@/types/user/base";
+import React, { createContext, useContext, useState } from 'react';
+import { MoodType, PersonalityType, UserRole } from '@/types/user/base';
+
+export type OnboardingStep = 
+  | "role" 
+  | "goal" 
+  | "demographics" 
+  | "personality" 
+  | "sentiment"
+  | "studyTime"
+  | "studyPace"
+  | "studyHours"
+  | "habits" 
+  | "interests" 
+  | "signup";
+
+export { UserRole };
+
+export type UserGoal = 
+  | 'IIT-JEE' 
+  | 'NEET' 
+  | 'UPSC' 
+  | 'JEE-Main' 
+  | 'GATE' 
+  | 'CAT' 
+  | 'Banking' 
+  | 'SSC' 
+  | 'State-PCS'
+  | 'Other';
 
 interface OnboardingContextType {
-  currentStep: number;
-  setCurrentStep: (step: number) => void;
-  steps: string[];
-  userType: string;
-  setUserType: (type: string) => void;
-  goalTitle: string;
-  setGoalTitle: (goal: string) => void;
-  examGoal: string;
-  setExamGoal: (exam: string) => void;
-  formData: any;
-  updateFormData: (data: any) => void;
+  currentStep: OnboardingStep;
+  goToNextStep: () => void;
+  goToPreviousStep: () => void;
+  setStep: (step: OnboardingStep) => void;
   onboardingData: any;
-  handleSubmit: () => Promise<void>;
+  setOnboardingData: React.Dispatch<React.SetStateAction<any>>;
 }
 
-const defaultOnboardingContext: OnboardingContextType = {
-  currentStep: 0,
-  setCurrentStep: () => {},
-  steps: ["welcome", "userType", "goal", "registration", "study", "complete"],
-  userType: "",
-  setUserType: () => {},
-  goalTitle: "",
-  setGoalTitle: () => {},
-  examGoal: "",
-  setExamGoal: () => {},
-  formData: {},
-  updateFormData: () => {},
+const OnboardingContext = createContext<OnboardingContextType>({
+  currentStep: "role",
+  goToNextStep: () => {},
+  goToPreviousStep: () => {},
+  setStep: () => {},
   onboardingData: {},
-  handleSubmit: async () => {},
-};
+  setOnboardingData: () => {},
+});
 
-const OnboardingContext = createContext<OnboardingContextType>(defaultOnboardingContext);
-
-export const useOnboardingContext = () => useContext(OnboardingContext);
+const STEPS: OnboardingStep[] = [
+  "role", 
+  "goal", 
+  "demographics", 
+  "personality", 
+  "sentiment", 
+  "studyTime",
+  "studyPace",
+  "studyHours",
+  "habits", 
+  "interests", 
+  "signup"
+];
 
 export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [currentStep, setCurrentStep] = useState(0);
-  const [userType, setUserType] = useState("");
-  const [goalTitle, setGoalTitle] = useState("");
-  const [examGoal, setExamGoal] = useState("");
-  const [formData, setFormData] = useState<any>({});
-  
-  const steps = ["welcome", "userType", "goal", "registration", "study", "complete"];
-  
-  const updateFormData = (data: any) => {
-    setFormData((prev: any) => ({ ...prev, ...data }));
-  };
-  
-  const onboardingData = {
-    userType,
-    goalTitle,
-    examGoal,
-    ...formData
+  const [currentStep, setCurrentStep] = useState<OnboardingStep>("role");
+  const [onboardingData, setOnboardingData] = useState<any>({});
+
+  const goToNextStep = () => {
+    const currentIndex = STEPS.indexOf(currentStep);
+    if (currentIndex < STEPS.length - 1) {
+      setCurrentStep(STEPS[currentIndex + 1]);
+    }
   };
 
-  const handleSubmit = async () => {
-    // Mock submission - in a real app, this would send data to your API
-    console.log("Submitting onboarding data:", onboardingData);
-    
-    return new Promise<void>((resolve) => {
-      setTimeout(() => {
-        // Save to localStorage for demo purposes
-        localStorage.setItem("userData", JSON.stringify({
-          ...onboardingData,
-          completedOnboarding: true,
-          registerDate: new Date().toISOString(),
-        }));
-        
-        resolve();
-      }, 1000);
-    });
+  const goToPreviousStep = () => {
+    const currentIndex = STEPS.indexOf(currentStep);
+    if (currentIndex > 0) {
+      setCurrentStep(STEPS[currentIndex - 1]);
+    }
+  };
+
+  const setStep = (step: OnboardingStep) => {
+    setCurrentStep(step);
   };
 
   return (
-    <OnboardingContext.Provider
-      value={{
-        currentStep,
-        setCurrentStep,
-        steps,
-        userType,
-        setUserType,
-        goalTitle,
-        setGoalTitle,
-        examGoal,
-        setExamGoal,
-        formData,
-        updateFormData,
+    <OnboardingContext.Provider 
+      value={{ 
+        currentStep, 
+        goToNextStep, 
+        goToPreviousStep, 
+        setStep,
         onboardingData,
-        handleSubmit,
+        setOnboardingData
       }}
     >
       {children}
     </OnboardingContext.Provider>
   );
 };
+
+export const useOnboarding = () => useContext(OnboardingContext);

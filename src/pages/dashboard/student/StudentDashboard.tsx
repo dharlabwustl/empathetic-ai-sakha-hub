@@ -74,14 +74,14 @@ const StudentDashboard = () => {
     
     // Save a default optimistic mood if none is set
     if (!currentMood) {
-      setCurrentMood(MoodType.Motivated);
+      setCurrentMood('motivated');
       const userData = localStorage.getItem("userData");
       if (userData) {
         const parsedData = JSON.parse(userData);
-        parsedData.mood = MoodType.Motivated;
+        parsedData.mood = 'motivated';
         localStorage.setItem("userData", JSON.stringify(parsedData));
       } else {
-        localStorage.setItem("userData", JSON.stringify({ mood: MoodType.Motivated }));
+        localStorage.setItem("userData", JSON.stringify({ mood: 'motivated' }));
       }
     }
   };
@@ -125,14 +125,7 @@ const StudentDashboard = () => {
   // Custom content based on active tab
   const getTabContent = () => {
     if (activeTab === "overview") {
-      return (
-        <RedesignedDashboardOverview 
-          userProfile={userProfile} 
-          kpis={kpis} 
-          currentMood={currentMood}
-          onMoodChange={handleMoodChange}
-        />
-      );
+      return <RedesignedDashboardOverview userProfile={userProfile} kpis={kpis} />;
     }
     
     // For other tabs, use the default tab content

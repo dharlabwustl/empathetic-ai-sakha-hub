@@ -14,24 +14,17 @@ import FeelGoodCornerView from '@/pages/dashboard/student/FeelGoodCornerView';
 import StudyPlanView from '@/components/dashboard/student/study-plan/StudyPlanView';
 import NotificationsView from '@/components/dashboard/student/notifications/NotificationsView';
 import AcademicAdvisorView from '@/components/dashboard/student/academic-advisor/AcademicAdvisorView';
-import ConceptStudyPage from '@/pages/dashboard/student/ConceptStudyPage';
-import EnhancedFlashcardPage from '@/pages/dashboard/student/flashcards/EnhancedFlashcardPage';
 
 export default function AppRoutes() {
-  const { dashboardData, userProfile } = useStudentDashboardData();
+  const { dashboardData } = useStudentDashboardData();
   
   return (
     <Routes>
-      <Route 
-        path="/dashboard/student/today" 
-        element={<RedesignedTodaysPlan userProfile={userProfile} />} 
-      />
+      <Route path="/dashboard/student/today" element={<RedesignedTodaysPlan />} />
       <Route path="/dashboard/student/concepts" element={<ConceptCardsView />} />
       <Route path="/dashboard/student/concepts/card/:conceptId" element={<ConceptCardDetailPage />} />
-      <Route path="/dashboard/student/concepts/study/:conceptId" element={<ConceptStudyPage />} />
       <Route path="/dashboard/student/flashcards" element={<FlashcardsView />} />
       <Route path="/dashboard/student/flashcards/:deckId/interactive" element={<FlashcardInteractive />} />
-      <Route path="/dashboard/student/flashcards/enhanced" element={<EnhancedFlashcardPage />} />
       <Route path="/dashboard/student/practice-exam" element={<PracticeExamsView />} />
       <Route path="/dashboard/student/practice-exam/:examId/start" element={<ExamTakingPage />} />
       <Route path="/dashboard/student/practice-exam/:examId/review" element={<ExamReviewPage />} />

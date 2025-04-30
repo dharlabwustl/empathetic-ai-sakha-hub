@@ -1,111 +1,71 @@
 
 import React from 'react';
-import { motion } from 'framer-motion';
-import { Card, CardContent } from '@/components/ui/card';
-import { Check, BookOpen, CalendarDays, Brain, Star } from 'lucide-react';
+import { motion } from "framer-motion";
+import { HeartPulse, BookOpenCheck, GraduationCap } from "lucide-react";
 
 const WhatIsSection = () => {
-  const benefits = [
-    {
-      icon: BookOpen,
-      title: 'Personalized Learning Journey',
-      description: 'Get a custom study plan based on your learning style, pace, and goals',
-    },
-    {
-      icon: Brain,
-      title: 'Mood-Based Study Experience',
-      description: 'Study resources adapt to how you feel – from energetic to anxious',
-    },
-    {
-      icon: CalendarDays,
-      title: 'Smart Time Management',
-      description: 'Optimized study schedules that work with your life, not against it',
-    },
-    {
-      icon: Star,
-      title: 'Comprehensive Exam Coverage',
-      description: 'Complete curriculum coverage for competitive exams and board preparations',
-    },
-  ];
-
   return (
-    <section id="why-prepzr" className="py-16 bg-gray-50 dark:bg-gray-900">
+    <section className="py-16 bg-white dark:bg-gray-950">
       <div className="container mx-auto px-4">
-        <motion.div
-          className="text-center max-w-3xl mx-auto mb-12"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-        >
+        <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">Why Choose PREPZR?</h2>
-          <p className="text-lg text-gray-600 dark:text-gray-400">
-            We're revolutionizing exam preparation with emotionally intelligent AI that adapts to your unique learning needs
+          <p className="text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+            Experience the perfect blend of technology and empathy in your learning journey
           </p>
-        </motion.div>
-
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {benefits.map((benefit, index) => (
-            <motion.div
-              key={benefit.title}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-            >
-              <Card className="h-full">
-                <CardContent className="pt-6">
-                  <div className="mb-4 flex justify-center">
-                    <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-full">
-                      <benefit.icon className="h-6 w-6 text-blue-600 dark:text-blue-400" />
-                    </div>
-                  </div>
-                  <h3 className="text-xl font-semibold mb-2 text-center">{benefit.title}</h3>
-                  <p className="text-gray-600 dark:text-gray-400 text-center">{benefit.description}</p>
-                </CardContent>
-              </Card>
-            </motion.div>
-          ))}
         </div>
-
-        <motion.div
-          className="mt-12 bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md max-w-3xl mx-auto"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: 0.4 }}
-        >
-          <h3 className="text-xl font-semibold mb-4">Seamless Onboarding Experience</h3>
-          <p className="text-gray-600 dark:text-gray-400 mb-6">
-            Get started with PREPZR through our intuitive, chat-based onboarding process that personalizes your experience from day one.
-          </p>
-          <div className="grid md:grid-cols-2 gap-4">
-            <div className="flex items-start space-x-3">
-              <div className="mt-1">
-                <Check className="h-5 w-5 text-green-500" />
-              </div>
-              <p className="text-sm">5-minute setup process</p>
+        
+        <div className="grid md:grid-cols-3 gap-8">
+          {/* Card 1 */}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            viewport={{ once: true }}
+            className="bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-950/50 dark:to-purple-950/50 p-6 rounded-2xl shadow-sm"
+          >
+            <div className="h-12 w-12 bg-blue-100 dark:bg-blue-900/50 rounded-2xl flex items-center justify-center mb-5">
+              <HeartPulse className="h-6 w-6 text-blue-600 dark:text-blue-400" />
             </div>
-            <div className="flex items-start space-x-3">
-              <div className="mt-1">
-                <Check className="h-5 w-5 text-green-500" />
-              </div>
-              <p className="text-sm">No technical knowledge required</p>
+            <h3 className="text-xl font-bold mb-3">Emotionally Intelligent</h3>
+            <p className="text-gray-600 dark:text-gray-300">
+              PREPZR adapts to your emotional state, learning style and pace, making studying less stressful and more effective.
+            </p>
+          </motion.div>
+          
+          {/* Card 2 */}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            viewport={{ once: true }}
+            className="bg-gradient-to-br from-green-50 to-blue-50 dark:from-green-950/50 dark:to-blue-950/50 p-6 rounded-2xl shadow-sm"
+          >
+            <div className="h-12 w-12 bg-green-100 dark:bg-green-900/50 rounded-2xl flex items-center justify-center mb-5">
+              <BookOpenCheck className="h-6 w-6 text-green-600 dark:text-green-400" />
             </div>
-            <div className="flex items-start space-x-3">
-              <div className="mt-1">
-                <Check className="h-5 w-5 text-green-500" />
-              </div>
-              <p className="text-sm">Immediate personalization</p>
+            <h3 className="text-xl font-bold mb-3">Personalized Learning</h3>
+            <p className="text-gray-600 dark:text-gray-300">
+              Get a completely customized study plan optimized for your goals, strengths, weaknesses, and learning preferences.
+            </p>
+          </motion.div>
+          
+          {/* Card 3 */}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            viewport={{ once: true }}
+            className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/50 dark:to-pink-950/50 p-6 rounded-2xl shadow-sm"
+          >
+            <div className="h-12 w-12 bg-purple-100 dark:bg-purple-900/50 rounded-2xl flex items-center justify-center mb-5">
+              <GraduationCap className="h-6 w-6 text-purple-600 dark:text-purple-400" />
             </div>
-            <div className="flex items-start space-x-3">
-              <div className="mt-1">
-                <Check className="h-5 w-5 text-green-500" />
-              </div>
-              <p className="text-sm">Chat-based assessment</p>
-            </div>
-          </div>
-        </motion.div>
+            <h3 className="text-xl font-bold mb-3">Result-Driven Approach</h3>
+            <p className="text-gray-600 dark:text-gray-300">
+              Our AI tracks your progress, identifies knowledge gaps, and adjusts your study plan to maximize your exam score.
+            </p>
+          </motion.div>
+        </div>
       </div>
     </section>
   );
