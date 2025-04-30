@@ -1,82 +1,110 @@
 
 import { MoodType } from "@/types/user/base";
 
-export const getMoodDisplayName = (mood?: MoodType): string => {
-  if (!mood) return "Log Mood";
-  
-  const moodNames: Record<MoodType, string> = {
-    [MoodType.Happy]: "Happy",
-    [MoodType.Motivated]: "Motivated",
-    [MoodType.Focused]: "Focused",
-    [MoodType.Neutral]: "Neutral",
-    [MoodType.Tired]: "Tired", 
-    [MoodType.Anxious]: "Anxious",
-    [MoodType.Stressed]: "Stressed",
-    [MoodType.Sad]: "Sad",
-    [MoodType.Curious]: "Curious",
-    [MoodType.Okay]: "Okay",
-    [MoodType.Overwhelmed]: "Overwhelmed"
-  };
-  
-  return moodNames[mood] || "Unknown";
-};
+export function getMoodEmoji(mood: MoodType): string {
+  switch (mood) {
+    case MoodType.Happy:
+      return "😊";
+    case MoodType.Focused:
+      return "🎯";
+    case MoodType.Tired:
+      return "😴";
+    case MoodType.Stressed:
+      return "😖";
+    case MoodType.Curious:
+      return "🧐";
+    case MoodType.Okay:
+      return "😐";
+    case MoodType.Overwhelmed:
+      return "😵";
+    case MoodType.Anxious:
+      return "😰";
+    case MoodType.Motivated:
+      return "💪";
+    case MoodType.Confused:
+      return "🤔";
+    default:
+      return "😐";
+  }
+}
 
-export const getMoodColor = (mood?: MoodType): string => {
-  if (!mood) return "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200";
-  
-  const moodColors: Record<MoodType, string> = {
-    [MoodType.Happy]: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300",
-    [MoodType.Motivated]: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300",
-    [MoodType.Focused]: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300",
-    [MoodType.Neutral]: "bg-gray-100 text-gray-800 dark:bg-gray-800/50 dark:text-gray-300",
-    [MoodType.Tired]: "bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-300",
-    [MoodType.Anxious]: "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300",
-    [MoodType.Stressed]: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300",
-    [MoodType.Sad]: "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300",
-    [MoodType.Curious]: "bg-cyan-100 text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-300",
-    [MoodType.Okay]: "bg-slate-100 text-slate-800 dark:bg-slate-900/30 dark:text-slate-300",
-    [MoodType.Overwhelmed]: "bg-rose-100 text-rose-800 dark:bg-rose-900/30 dark:text-rose-300"
-  };
-  
-  return moodColors[mood] || "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200";
-};
+export function getMoodColor(mood: MoodType): string {
+  switch (mood) {
+    case MoodType.Happy:
+      return "#FFD700";
+    case MoodType.Focused:
+      return "#4CAF50";
+    case MoodType.Tired:
+      return "#607D8B";
+    case MoodType.Stressed:
+      return "#F44336";
+    case MoodType.Curious:
+      return "#2196F3";
+    case MoodType.Okay:
+      return "#9E9E9E";
+    case MoodType.Overwhelmed:
+      return "#9C27B0";
+    case MoodType.Anxious:
+      return "#FF9800";
+    case MoodType.Motivated:
+      return "#673AB7";
+    case MoodType.Confused:
+      return "#009688";
+    default:
+      return "#9E9E9E";
+  }
+}
 
-export const getMoodEmoji = (mood?: MoodType): string => {
-  if (!mood) return "📝";
-  
-  const moodEmojis: Record<MoodType, string> = {
-    [MoodType.Happy]: "😊",
-    [MoodType.Motivated]: "💪",
-    [MoodType.Focused]: "🧠",
-    [MoodType.Neutral]: "😐",
-    [MoodType.Tired]: "😴",
-    [MoodType.Anxious]: "😰",
-    [MoodType.Stressed]: "😓",
-    [MoodType.Sad]: "😢",
-    [MoodType.Curious]: "🤔",
-    [MoodType.Okay]: "👍",
-    [MoodType.Overwhelmed]: "😵"
-  };
-  
-  return moodEmojis[mood] || "📝";
-};
+export function getMoodRecommendation(mood: MoodType): string {
+  switch (mood) {
+    case MoodType.Happy:
+      return "Great mood for creative tasks and tackling challenging concepts!";
+    case MoodType.Focused:
+      return "Perfect time to work on complex problems and detailed study.";
+    case MoodType.Tired:
+      return "Try shorter study sessions with frequent breaks. Consider reviewing familiar material.";
+    case MoodType.Stressed:
+      return "Take a few deep breaths. Start with something easy to build momentum.";
+    case MoodType.Curious:
+      return "Great time to explore new concepts or dive into interesting topics!";
+    case MoodType.Okay:
+      return "Good state for consistent progress. Mix easy and challenging tasks.";
+    case MoodType.Overwhelmed:
+      return "Break tasks into smaller chunks. Focus on one thing at a time.";
+    case MoodType.Anxious:
+      return "Try a quick mindfulness exercise. Start with familiar material to build confidence.";
+    case MoodType.Motivated:
+      return "Excellent time to tackle your most challenging subjects!";
+    case MoodType.Confused:
+      return "Start by reviewing fundamentals. Don't hesitate to seek clarification.";
+    default:
+      return "Try to identify what you need most right now - a break, a change of topic, or a different approach.";
+  }
+}
 
-export const getMoodDescription = (mood?: MoodType): string => {
-  if (!mood) return "Log your mood to get personalized recommendations";
-  
-  const moodDescriptions: Record<MoodType, string> = {
-    [MoodType.Happy]: "Great mood! This is a perfect time to tackle challenging concepts.",
-    [MoodType.Motivated]: "You're in peak condition for productive study sessions!",
-    [MoodType.Focused]: "Excellent! Your concentration is high, ideal for deep learning.",
-    [MoodType.Neutral]: "A balanced state of mind, good for steady progress.",
-    [MoodType.Tired]: "Consider shorter study sessions with more frequent breaks today.",
-    [MoodType.Anxious]: "Try some breathing exercises before starting your studies.",
-    [MoodType.Stressed]: "Focus on review rather than new concepts today.",
-    [MoodType.Sad]: "Start with small, achievable goals to build momentum.",
-    [MoodType.Curious]: "Your inquisitive state is perfect for exploring new concepts!",
-    [MoodType.Okay]: "You're doing fine, focus on topics you enjoy to build momentum.",
-    [MoodType.Overwhelmed]: "Take a step back, breathe, and break tasks into smaller chunks."
-  };
-  
-  return moodDescriptions[mood] || "Track how you're feeling to personalize your study plan.";
-};
+export function getGradientForMood(mood: MoodType): string {
+  switch (mood) {
+    case MoodType.Happy:
+      return "from-yellow-300 to-amber-500";
+    case MoodType.Focused:
+      return "from-green-500 to-green-700";
+    case MoodType.Tired:
+      return "from-gray-400 to-gray-600";
+    case MoodType.Stressed:
+      return "from-red-500 to-red-700";
+    case MoodType.Curious:
+      return "from-blue-400 to-blue-600";
+    case MoodType.Okay:
+      return "from-gray-300 to-gray-500";
+    case MoodType.Overwhelmed:
+      return "from-purple-500 to-purple-800";
+    case MoodType.Anxious:
+      return "from-orange-400 to-orange-600";
+    case MoodType.Motivated:
+      return "from-indigo-400 to-indigo-700";
+    case MoodType.Confused:
+      return "from-teal-400 to-teal-600";
+    default:
+      return "from-gray-300 to-gray-500";
+  }
+}

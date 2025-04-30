@@ -81,7 +81,7 @@ const AdminLogin = () => {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex items-center gap-2">
-            <PrepzrLogo width={80} height="auto" />
+            <PrepzrLogo width={120} height="auto" />
           </Link>
           <h1 className="mt-4 text-4xl font-display font-bold gradient-text">Admin Portal</h1>
           <p className="mt-2 text-gray-600">Login to access the PREPZR administration panel</p>

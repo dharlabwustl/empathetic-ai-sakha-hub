@@ -9,7 +9,7 @@ interface PrepzrLogoProps {
 
 const PrepzrLogo: React.FC<PrepzrLogoProps> = ({ 
   className = "", 
-  width = 180, // Further increased default size from 150 to 180
+  width = 200, // Increased default size to 200 for better visibility
   height = "auto"
 }) => {
   return (

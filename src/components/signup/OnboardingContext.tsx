@@ -1,82 +1,96 @@
 
-import React, { createContext, useContext, useState } from "react";
-import { MoodType, PersonalityType, UserRole } from "@/types/user/base";
+import React, { createContext, useContext, useState } from 'react';
+import { MoodType, PersonalityType, UserRole } from '@/types/user/base';
 
-export type OnboardingStep = "role" | "goal" | "demographics" | "personality" | "mood" | "habits" | "interests" | "signup";
+export type OnboardingStep = 
+  | "role" 
+  | "goal" 
+  | "demographics" 
+  | "personality" 
+  | "sentiment"
+  | "habits" 
+  | "interests" 
+  | "signup";
 
-export interface OnboardingData {
-  role?: UserRole;
-  examGoal?: string;
-  demographics?: Record<string, string>;
-  targetExamDate?: string;
-  personalityType?: PersonalityType;
-  mood?: MoodType;
-  habits?: Record<string, string>;
-  interests?: string;
-}
+export { UserRole };
+
+export type UserGoal = 
+  | 'IIT-JEE' 
+  | 'NEET' 
+  | 'UPSC' 
+  | 'JEE-Main' 
+  | 'GATE' 
+  | 'CAT' 
+  | 'Banking' 
+  | 'SSC' 
+  | 'State-PCS'
+  | 'Other';
 
 interface OnboardingContextType {
   currentStep: OnboardingStep;
-  onboardingData: OnboardingData;
-  setOnboardingData: (data: OnboardingData) => void;
   goToNextStep: () => void;
   goToPreviousStep: () => void;
+  setStep: (step: OnboardingStep) => void;
+  onboardingData: any;
+  setOnboardingData: React.Dispatch<React.SetStateAction<any>>;
 }
 
-const OnboardingContext = createContext<OnboardingContextType | undefined>(undefined);
+const OnboardingContext = createContext<OnboardingContextType>({
+  currentStep: "role",
+  goToNextStep: () => {},
+  goToPreviousStep: () => {},
+  setStep: () => {},
+  onboardingData: {},
+  setOnboardingData: () => {},
+});
 
-export function useOnboarding() {
-  const context = useContext(OnboardingContext);
-  if (!context) {
-    throw new Error("useOnboarding must be used within an OnboardingProvider");
-  }
-  return context;
-}
+const STEPS: OnboardingStep[] = [
+  "role", 
+  "goal", 
+  "demographics", 
+  "personality", 
+  "sentiment", 
+  "habits", 
+  "interests", 
+  "signup"
+];
 
-interface OnboardingProviderProps {
-  children: React.ReactNode;
-}
-
-export function OnboardingProvider({ children }: OnboardingProviderProps) {
+export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [currentStep, setCurrentStep] = useState<OnboardingStep>("role");
-  const [onboardingData, setOnboardingData] = useState<OnboardingData>({});
-
-  const steps: OnboardingStep[] = [
-    "role",
-    "goal",
-    "demographics",
-    "personality",
-    "mood",
-    "habits",
-    "interests",
-    "signup",
-  ];
+  const [onboardingData, setOnboardingData] = useState<any>({});
 
   const goToNextStep = () => {
-    const currentIndex = steps.indexOf(currentStep);
-    if (currentIndex < steps.length - 1) {
-      setCurrentStep(steps[currentIndex + 1]);
+    const currentIndex = STEPS.indexOf(currentStep);
+    if (currentIndex < STEPS.length - 1) {
+      setCurrentStep(STEPS[currentIndex + 1]);
     }
   };
 
   const goToPreviousStep = () => {
-    const currentIndex = steps.indexOf(currentStep);
+    const currentIndex = STEPS.indexOf(currentStep);
     if (currentIndex > 0) {
-      setCurrentStep(steps[currentIndex - 1]);
+      setCurrentStep(STEPS[currentIndex - 1]);
     }
   };
 
+  const setStep = (step: OnboardingStep) => {
+    setCurrentStep(step);
+  };
+
   return (
-    <OnboardingContext.Provider
-      value={{
-        currentStep,
+    <OnboardingContext.Provider 
+      value={{ 
+        currentStep, 
+        goToNextStep, 
+        goToPreviousStep, 
+        setStep,
         onboardingData,
-        setOnboardingData,
-        goToNextStep,
-        goToPreviousStep,
+        setOnboardingData
       }}
     >
       {children}
     </OnboardingContext.Provider>
   );
-}
+};
+
+export const useOnboarding = () => useContext(OnboardingContext);
