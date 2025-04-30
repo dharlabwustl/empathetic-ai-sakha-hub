@@ -1,46 +1,74 @@
 
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Book } from 'lucide-react';
-import { SubjectProgress } from '@/types/student/studyProgress';
+import { Progress } from '@/components/ui/progress';
+import { Book, BookOpen, FileText } from 'lucide-react';
+
+interface SubjectProgressData {
+  subject: string;
+  progress: number;
+  conceptsCompleted: number;
+  totalConcepts: number;
+  flashcardsCompleted: number;
+  totalFlashcards: number;
+  testsCompleted: number;
+  totalTests: number;
+}
 
 interface SubjectOverviewProps {
-  subjects: SubjectProgress[];
+  subjects: SubjectProgressData[];
 }
 
 const SubjectOverview: React.FC<SubjectOverviewProps> = ({ subjects }) => {
   return (
-    <Card>
-      <CardHeader className="pb-3">
-        <CardTitle className="flex items-center text-lg">
-          <Book className="h-5 w-5 mr-2" />
-          Subject Progress
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-6">
-          {subjects.map((subject, index) => (
-            <div key={index} className="space-y-2">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <div className="w-3 h-3 rounded-full mr-2" style={{ backgroundColor: subject.color }}></div>
-                  <h4 className="font-medium">{subject.name}</h4>
+    <div className="space-y-4">
+      {subjects.map((subject, index) => (
+        <Card key={index} className="overflow-hidden">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-lg">{subject.subject}</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-muted-foreground">Overall Progress</span>
+              <span className="text-sm font-medium">{subject.progress}%</span>
+            </div>
+            <Progress value={subject.progress} className="h-2" />
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2">
+              <div className="flex items-center gap-2">
+                <div className="p-1.5 rounded-full bg-blue-100 dark:bg-blue-900/30">
+                  <BookOpen className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                 </div>
-                <div className="text-sm text-muted-foreground">
-                  {subject.masteredConcepts}/{subject.totalConcepts} concepts
+                <div className="space-y-1">
+                  <p className="text-xs text-muted-foreground">Concepts</p>
+                  <p className="text-sm font-medium">{subject.conceptsCompleted}/{subject.totalConcepts}</p>
                 </div>
               </div>
-              <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
-                <div 
-                  className="h-2.5 rounded-full" 
-                  style={{ width: `${subject.progress}%`, backgroundColor: subject.color }}
-                ></div>
+              
+              <div className="flex items-center gap-2">
+                <div className="p-1.5 rounded-full bg-amber-100 dark:bg-amber-900/30">
+                  <Book className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                </div>
+                <div className="space-y-1">
+                  <p className="text-xs text-muted-foreground">Flashcards</p>
+                  <p className="text-sm font-medium">{subject.flashcardsCompleted}/{subject.totalFlashcards}</p>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-2">
+                <div className="p-1.5 rounded-full bg-violet-100 dark:bg-violet-900/30">
+                  <FileText className="h-4 w-4 text-violet-600 dark:text-violet-400" />
+                </div>
+                <div className="space-y-1">
+                  <p className="text-xs text-muted-foreground">Tests</p>
+                  <p className="text-sm font-medium">{subject.testsCompleted}/{subject.totalTests}</p>
+                </div>
               </div>
             </div>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
   );
 };
 

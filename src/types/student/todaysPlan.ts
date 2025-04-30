@@ -6,11 +6,14 @@ export interface StudyBlock {
   title: string;
   duration: number;
   startTime?: string;
+  endTime?: string;
   completed: boolean;
   type: TaskType;
   subject?: string;
   topic?: string;
   resources?: string[];
+  mood?: MoodType;
+  tasks?: Task[];
 }
 
 export enum TaskType {
@@ -19,7 +22,8 @@ export enum TaskType {
   Practice = 'practice',
   Break = 'break',
   Test = 'test',
-  Flashcard = 'flashcard'
+  Flashcard = 'flashcard',
+  PracticeExam = 'practice-exam'
 }
 
 export enum TaskStatus {
@@ -35,12 +39,14 @@ export interface Task {
   description?: string;
   dueDate: string;
   duration: number;
+  timeEstimate?: number;
   status: TaskStatus;
   type: TaskType;
   subject?: string;
   topic?: string;
   priority: 'low' | 'medium' | 'high';
   deckName?: string;
+  examName?: string;
 }
 
 export interface DailyMood {
@@ -64,4 +70,33 @@ export interface TodaysPlan {
   progress: StudyProgress;
   pendingTasks: Task[];
   backlogTasks: Task[];
+}
+
+export interface TodaysPlanData extends TodaysPlan {
+  timeAllocation: TimeAllocation;
+  subjectProgress: SubjectProgress[];
+  pastRecords: PastDayRecord[];
+}
+
+export interface TimeAllocation {
+  concepts: number;
+  flashcards: number;
+  practice: number;
+  breaks: number;
+}
+
+export interface SubjectProgress {
+  subject: string;
+  completion: number;
+  concepts: number;
+  flashcards: number;
+  practiceExams: number;
+}
+
+export interface PastDayRecord {
+  date: string;
+  tasksCompleted: number;
+  totalTasks: number;
+  studyTimeMinutes: number;
+  mood: MoodType;
 }

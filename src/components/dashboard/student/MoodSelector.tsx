@@ -4,11 +4,12 @@ import { MoodType } from '@/types/user/base';
 import { Button } from '@/components/ui/button';
 
 interface MoodSelectorProps {
+  currentMood?: MoodType;
   onMoodSelect: (mood: MoodType) => void;
   className?: string;
 }
 
-const MoodSelector = ({ onMoodSelect, className = '' }: MoodSelectorProps) => {
+export const MoodSelector = ({ onMoodSelect, currentMood, className = '' }: MoodSelectorProps) => {
   const moodOptions = [
     { type: MoodType.Happy, emoji: '😊', label: 'Happy' },
     { type: MoodType.Focused, emoji: '🧐', label: 'Focused' },
@@ -29,7 +30,7 @@ const MoodSelector = ({ onMoodSelect, className = '' }: MoodSelectorProps) => {
       {moodOptions.map((mood) => (
         <Button
           key={mood.type}
-          variant="outline"
+          variant={currentMood === mood.type ? "default" : "outline"}
           onClick={() => onMoodSelect(mood.type)}
           className="flex flex-col items-center p-2 h-auto"
         >
@@ -40,5 +41,3 @@ const MoodSelector = ({ onMoodSelect, className = '' }: MoodSelectorProps) => {
     </div>
   );
 };
-
-export default MoodSelector;

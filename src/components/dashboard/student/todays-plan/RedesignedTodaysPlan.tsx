@@ -1,214 +1,314 @@
 
-import React, { useEffect, useState } from 'react';
-import { TodaysPlanData, TaskType, TimeAllocation, SubjectProgress, PastDayRecord } from '@/types/student/todaysPlan';
-import { useToast } from '@/hooks/use-toast';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { TodaysPlan, TodaysPlanData, TimeAllocation, SubjectProgress, PastDayRecord } from '@/types/student/todaysPlan';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { MoodType } from '@/types/user/base';
-import NewTodaysPlanView from './NewTodaysPlanView';
+import { UserProfileBase } from '@/types/user/base';
+import { Calendar, BookOpen, Brain, FileText, Clock } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
 
-const mockData: TodaysPlanData = {
-  date: new Date().toISOString(),
-  currentBlock: {
-    startTime: "9:00 AM",
-    endTime: "10:30 AM",
-    mood: MoodType.Motivated,
-    tasks: [
+interface RedesignedTodaysPlanProps {
+  userProfile: UserProfileBase;
+  currentMood?: MoodType;
+  onMoodChange?: (mood: MoodType) => void;
+}
+
+const RedesignedTodaysPlan: React.FC<RedesignedTodaysPlanProps> = ({ userProfile, currentMood, onMoodChange }) => {
+  const navigate = useNavigate();
+
+  // Mock data for today's plan
+  const mockTodaysPlan: TodaysPlanData = {
+    date: new Date().toISOString(),
+    greeting: `Good ${getTimeOfDay()}, ${userProfile.name}!`,
+    currentMood: currentMood || MoodType.Motivated,
+    studyBlocks: [
       {
-        id: "task1",
-        subject: "Physics",
-        type: TaskType.Concept,
+        id: 'sb-1',
         title: "Newton's Laws of Motion",
-        status: "in-progress",
-        timeEstimate: "45 min"
+        duration: 30,
+        startTime: '09:00',
+        completed: false,
+        type: 'concept' as TaskType,
+        subject: 'Physics',
+        topic: 'Mechanics'
       },
       {
-        id: "task2",
-        subject: "Physics",
-        type: TaskType.Flashcard,
-        deckName: "Forces & Motion",
-        status: "not-started",
-        timeEstimate: "20 min",
-        cardCount: 15
+        id: 'sb-2',
+        title: "Chemistry Periodic Table",
+        duration: 20,
+        startTime: '10:00',
+        completed: false,
+        type: 'flashcard' as TaskType,
+        subject: 'Chemistry',
+        topic: 'Elements'
+      },
+      {
+        id: 'sb-3',
+        title: "Physics Mid-Term Mock",
+        duration: 60,
+        startTime: '11:00',
+        completed: false,
+        type: 'test' as TaskType,
+        subject: 'Physics',
+        topic: 'Mixed Topics'
       }
-    ]
-  },
-  upcomingBlocks: [
-    {
-      startTime: "11:00 AM",
-      endTime: "12:30 PM",
-      tasks: [
-        {
-          id: "task3",
-          subject: "Chemistry",
-          type: TaskType.Concept,
-          title: "Chemical Bonding",
-          status: "not-started",
-          timeEstimate: "50 min"
-        },
-        {
-          id: "task4",
-          subject: "Chemistry",
-          type: "practice-exam",
-          examName: "Chemical Equations Quiz",
-          status: "not-started",
-          timeEstimate: "30 min",
-          questionCount: 10
-        } as any
-      ]
+    ],
+    progress: {
+      plannedHours: 4,
+      completedHours: 1.5,
+      completedTasks: 2,
+      totalTasks: 6
     },
-    {
-      startTime: "2:00 PM",
-      endTime: "3:30 PM",
-      tasks: [
-        {
-          id: "task5",
-          subject: "Mathematics",
-          type: TaskType.Concept,
-          title: "Calculus: Derivatives",
-          status: "not-started",
-          timeEstimate: "60 min"
-        },
-        {
-          id: "task6",
-          subject: "Mathematics",
-          type: TaskType.Flashcard,
-          deckName: "Calculus Formulas",
-          status: "not-started",
-          timeEstimate: "25 min",
-          cardCount: 20
-        }
-      ]
-    }
-  ],
-  completedBlocks: [
-    {
-      startTime: "Yesterday 8:00 AM",
-      endTime: "Yesterday 9:30 AM",
-      mood: MoodType.Focused,
-      completed: true,
-      tasks: [
-        {
-          id: "old-task1",
-          subject: "Physics",
-          type: TaskType.Concept,
-          title: "Kinematics",
-          status: "completed",
-          timeEstimate: "45 min"
-        },
-        {
-          id: "old-task2",
-          subject: "Physics",
-          type: TaskType.Flashcard,
-          deckName: "Kinematics Equations",
-          status: "completed",
-          timeEstimate: "20 min",
-          cardCount: 12
-        }
-      ]
-    }
-  ],
-  timeAllocations: [
-    { subject: "Physics", percentage: 35, color: "#3B82F6" },
-    { subject: "Chemistry", percentage: 30, color: "#10B981" },
-    { subject: "Mathematics", percentage: 25, color: "#F59E0B" },
-    { subject: "Biology", percentage: 10, color: "#EC4899" }
-  ],
-  subjects: [
-    { name: "Physics", progress: 65, color: "#3B82F6", tasksCompleted: 12, totalTasks: 25 },
-    { name: "Chemistry", progress: 40, color: "#10B981", tasksCompleted: 8, totalTasks: 22 },
-    { name: "Mathematics", progress: 75, color: "#F59E0B", tasksCompleted: 15, totalTasks: 20 },
-    { name: "Biology", progress: 25, color: "#EC4899", tasksCompleted: 5, totalTasks: 18 }
-  ],
-  backlog: [
-    {
-      id: "backlog1",
-      subject: "Physics",
-      type: TaskType.Concept,
-      title: "Circular Motion",
-      status: "pending",
-      timeEstimate: "40 min"
+    pendingTasks: [],
+    backlogTasks: [],
+    timeAllocation: {
+      concepts: 40,
+      flashcards: 25,
+      practice: 30,
+      breaks: 5
     },
-    {
-      id: "backlog2",
-      subject: "Mathematics",
-      type: "practice-exam",
-      examName: "Trigonometry Quiz",
-      status: "pending",
-      timeEstimate: "30 min",
-      questionCount: 10
-    } as any
-  ],
-  pastDays: [
-    { date: "2023-04-29", tasksCompleted: 6, totalTasks: 8, mood: MoodType.Happy, studyHours: 4.5 },
-    { date: "2023-04-28", tasksCompleted: 5, totalTasks: 7, mood: MoodType.Motivated, studyHours: 3.8 },
-    { date: "2023-04-27", tasksCompleted: 4, totalTasks: 6, mood: MoodType.Tired, studyHours: 2.5 },
-    { date: "2023-04-26", tasksCompleted: 7, totalTasks: 7, mood: MoodType.Focused, studyHours: 5.2 },
-    { date: "2023-04-25", tasksCompleted: 3, totalTasks: 8, mood: MoodType.Anxious, studyHours: 2.0 },
-  ]
-};
-
-export default function RedesignedTodaysPlan() {
-  const { toast } = useToast();
-  const [planData, setPlanData] = useState<TodaysPlanData | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [currentMood, setCurrentMood] = useState<MoodType | undefined>(undefined);
-
-  // Simulate loading data
-  useEffect(() => {
-    // Get mood from localStorage if available
-    const userData = localStorage.getItem('userData');
-    if (userData) {
-      const parsedData = JSON.parse(userData);
-      if (parsedData.mood) {
-        setCurrentMood(parsedData.mood);
+    subjectProgress: [
+      {
+        subject: 'Physics',
+        completion: 65,
+        concepts: 3,
+        flashcards: 20,
+        practiceExams: 1
+      },
+      {
+        subject: 'Chemistry',
+        completion: 42,
+        concepts: 2,
+        flashcards: 15,
+        practiceExams: 1
+      },
+      {
+        subject: 'Mathematics',
+        completion: 78,
+        concepts: 4,
+        flashcards: 25,
+        practiceExams: 2
       }
-    }
-    
-    // Simulate API fetch delay
-    const timer = setTimeout(() => {
-      // Adjust plan based on mood if needed
-      let adjustedData = {...mockData};
-      
-      if (currentMood === MoodType.Tired) {
-        // Add more breaks for tired students
-        adjustedData.upcomingBlocks = adjustedData.upcomingBlocks.map(block => ({
-          ...block,
-          tasks: block.tasks.slice(0, Math.min(2, block.tasks.length)) // Reduce tasks per block
-        }));
-      } else if (currentMood === MoodType.Motivated) {
-        // Add more challenging content for motivated students
-        if (adjustedData.upcomingBlocks.length > 0) {
-          adjustedData.upcomingBlocks[0].tasks.push({
-            id: "extra-task1",
-            subject: "Physics",
-            type: "practice-exam",
-            examName: "Advanced Mechanics Challenge",
-            status: "not-started",
-            timeEstimate: "45 min",
-            questionCount: 15
-          } as any);
-        }
-      }
-      
-      setPlanData(adjustedData);
-      setIsLoading(false);
-    }, 1500);
-    
-    return () => clearTimeout(timer);
-  }, [currentMood]);
+    ],
+    pastRecords: []
+  };
+
+  // Navigate to different sections
+  const navigateToSection = (section: string) => {
+    navigate(`/dashboard/student/${section}`);
+  };
 
   return (
-    <>
-      {planData ? (
-        <NewTodaysPlanView 
-          planData={planData}
-          isLoading={isLoading}
-          currentMood={currentMood}
-        />
-      ) : (
-        <div className="flex items-center justify-center h-96">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+    <div className="space-y-6">
+      {/* Header with greeting and buttons */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 className="text-2xl font-bold">{mockTodaysPlan.greeting}</h1>
+          <p className="text-muted-foreground">Here's your personalized study plan for today</p>
         </div>
-      )}
-    </>
+        
+        <div className="flex gap-2">
+          <Button 
+            variant="default"
+            className="bg-gradient-to-r from-violet-500 to-purple-600"
+            onClick={() => navigateToSection('today')}
+          >
+            <Calendar className="h-4 w-4 mr-2" />
+            View Full Plan
+          </Button>
+        </div>
+      </div>
+
+      {/* Main content */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left column - Study blocks */}
+        <div className="lg:col-span-2 space-y-6">
+          <Card>
+            <CardContent className="p-6">
+              <h2 className="text-lg font-medium mb-4 flex items-center">
+                <Calendar className="h-5 w-5 mr-2 text-violet-500" />
+                Today's Study Blocks
+              </h2>
+              
+              <div className="space-y-4">
+                <div className="flex justify-between items-center text-sm">
+                  <span>Completed {mockTodaysPlan.progress.completedTasks} of {mockTodaysPlan.progress.totalTasks} tasks</span>
+                  <span>{Math.round((mockTodaysPlan.progress.completedTasks / mockTodaysPlan.progress.totalTasks) * 100)}% complete</span>
+                </div>
+                <Progress value={(mockTodaysPlan.progress.completedTasks / mockTodaysPlan.progress.totalTasks) * 100} className="h-2" />
+              </div>
+              
+              <div className="mt-6 space-y-4">
+                {mockTodaysPlan.studyBlocks.map((block) => {
+                  const isPast = block.startTime && new Date(`${new Date().toDateString()} ${block.startTime}`) < new Date();
+                  
+                  return (
+                    <div 
+                      key={block.id}
+                      className={`p-4 border rounded-lg ${
+                        block.completed 
+                          ? 'bg-green-50 border-green-200' 
+                          : isPast 
+                            ? 'bg-red-50 border-red-200' 
+                            : 'bg-white border-gray-200'
+                      }`}
+                    >
+                      <div className="flex justify-between items-start">
+                        <div className="flex items-start gap-3">
+                          <div className={`p-2 rounded-full ${getBlockTypeColor(block.type)}`}>
+                            {getBlockTypeIcon(block.type)}
+                          </div>
+                          <div>
+                            <h3 className="font-medium">{block.title}</h3>
+                            <div className="flex items-center gap-2 mt-1 text-sm text-muted-foreground">
+                              <span>{block.subject}</span>
+                              <span>•</span>
+                              <div className="flex items-center">
+                                <Clock className="h-3.5 w-3.5 mr-1" />
+                                <span>{block.duration} min</span>
+                              </div>
+                              {block.startTime && (
+                                <>
+                                  <span>•</span>
+                                  <span>{block.startTime}</span>
+                                </>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <Button 
+                          size="sm"
+                          variant={block.completed ? "outline" : "default"}
+                          onClick={() => navigateToSection(getBlockNavigationPath(block.type))}
+                        >
+                          {block.completed ? 'Review' : 'Start Now'}
+                        </Button>
+                      </div>
+                    </div>
+                  );
+                })}
+                
+                <div className="flex justify-center mt-2">
+                  <Button variant="link" onClick={() => navigateToSection('today')}>
+                    View all scheduled tasks
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Right column - Stats & Info */}
+        <div className="space-y-6">
+          {/* Progress summary */}
+          <Card>
+            <CardContent className="p-6">
+              <h2 className="text-lg font-medium mb-4">Daily Progress</h2>
+              
+              <div className="space-y-4">
+                <div className="grid grid-cols-3 gap-2">
+                  <div className="text-center p-2 bg-blue-50 rounded-md">
+                    <p className="text-xs text-muted-foreground">Planned</p>
+                    <p className="text-lg font-semibold">{mockTodaysPlan.progress.plannedHours} hrs</p>
+                  </div>
+                  <div className="text-center p-2 bg-green-50 rounded-md">
+                    <p className="text-xs text-muted-foreground">Completed</p>
+                    <p className="text-lg font-semibold">{mockTodaysPlan.progress.completedHours} hrs</p>
+                  </div>
+                  <div className="text-center p-2 bg-amber-50 rounded-md">
+                    <p className="text-xs text-muted-foreground">Remaining</p>
+                    <p className="text-lg font-semibold">{mockTodaysPlan.progress.plannedHours - mockTodaysPlan.progress.completedHours} hrs</p>
+                  </div>
+                </div>
+                
+                <div>
+                  <div className="flex justify-between mb-1 text-xs">
+                    <span>Daily Progress</span>
+                    <span>{Math.round((mockTodaysPlan.progress.completedHours / mockTodaysPlan.progress.plannedHours) * 100)}%</span>
+                  </div>
+                  <Progress value={(mockTodaysPlan.progress.completedHours / mockTodaysPlan.progress.plannedHours) * 100} className="h-2" />
+                </div>
+              </div>
+              
+              <div className="mt-4">
+                <Button variant="outline" className="w-full" onClick={() => navigateToSection('today')}>
+                  View Detailed Progress
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+          
+          {/* Quick Links */}
+          <Card>
+            <CardContent className="p-6">
+              <h2 className="text-lg font-medium mb-4">Quick Access</h2>
+              
+              <div className="grid grid-cols-1 gap-3">
+                <Button variant="outline" className="justify-start" onClick={() => navigateToSection('concepts')}>
+                  <BookOpen className="h-4 w-4 mr-2 text-blue-500" />
+                  Concept Cards
+                </Button>
+                <Button variant="outline" className="justify-start" onClick={() => navigateToSection('flashcards')}>
+                  <Brain className="h-4 w-4 mr-2 text-amber-500" />
+                  Flashcards
+                </Button>
+                <Button variant="outline" className="justify-start" onClick={() => navigateToSection('practice')}>
+                  <FileText className="h-4 w-4 mr-2 text-violet-500" />
+                  Practice Exams
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </div>
   );
+};
+
+// Helper functions
+function getTimeOfDay() {
+  const hour = new Date().getHours();
+  if (hour < 12) return "Morning";
+  if (hour < 17) return "Afternoon";
+  return "Evening";
 }
+
+function getBlockTypeIcon(type: TaskType) {
+  switch (type) {
+    case 'concept': return <BookOpen className="h-5 w-5 text-blue-600" />;
+    case 'flashcard': return <Brain className="h-5 w-5 text-amber-600" />;
+    case 'test': return <FileText className="h-5 w-5 text-violet-600" />;
+    case 'revision': return <Clock className="h-5 w-5 text-green-600" />;
+    case 'break': return <Coffee className="h-5 w-5 text-teal-600" />;
+    default: return <BookOpen className="h-5 w-5 text-blue-600" />;
+  }
+}
+
+function getBlockTypeColor(type: TaskType) {
+  switch (type) {
+    case 'concept': return 'bg-blue-100';
+    case 'flashcard': return 'bg-amber-100';
+    case 'test': return 'bg-violet-100';
+    case 'revision': return 'bg-green-100';
+    case 'break': return 'bg-teal-100';
+    default: return 'bg-blue-100';
+  }
+}
+
+function getBlockNavigationPath(type: TaskType) {
+  switch (type) {
+    case 'concept': return 'concepts';
+    case 'flashcard': return 'flashcards';
+    case 'test': return 'practice';
+    case 'revision': return 'concepts';
+    default: return 'today';
+  }
+}
+
+// Import Coffee icon
+import { Coffee } from 'lucide-react';
+
+export default RedesignedTodaysPlan;

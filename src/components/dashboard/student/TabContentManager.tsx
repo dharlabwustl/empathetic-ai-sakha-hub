@@ -1,11 +1,28 @@
 
 import React from 'react';
-import { UserProfileBase } from '@/types/user/base';
-import { KpiData, NudgeData } from '@/hooks/useKpiTracking';
+import { UserProfileBase } from "@/types/user/base";
+import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
 import { useNavigate } from 'react-router-dom';
 
-import RedesignedTodaysPlan from '@/components/dashboard/student/todays-plan/RedesignedTodaysPlan'; 
 import { TodayPlanView, StudyPlanView, ConceptsView, FlashcardsView, PracticeExamsView, NotificationsView } from '@/pages/dashboard/student/TabContentViews';
+import ConceptsLandingPage from '@/components/dashboard/student/concepts/ConceptsLandingPage';
+import FlashcardsLandingPage from '@/components/dashboard/student/flashcards/FlashcardsLandingPage';
+import PracticeExamLandingPage from '@/components/dashboard/student/practice-exam/PracticeExamLandingPage';
+import NotificationsPage from '@/components/dashboard/student/notifications/NotificationsPage';
+
+interface RedesignedTodaysPlanProps {
+  userProfile: UserProfileBase;
+}
+
+const RedesignedTodaysPlan: React.FC<RedesignedTodaysPlanProps> = ({ userProfile }) => {
+  // Simplified component that renders the redesigned Today's Plan
+  return (
+    <div className="space-y-6">
+      <h2 className="text-2xl font-bold">Today's Plan for {userProfile.name}</h2>
+      <p>Your personalized study schedule is ready!</p>
+    </div>
+  );
+};
 
 interface TabContentGeneratorProps {
   userProfile: UserProfileBase;
@@ -67,15 +84,15 @@ export const generateTabContents = ({
     ),
     
     // Concept Cards tab
-    "concepts": <ConceptsView />,
+    "concepts": <ConceptsLandingPage />,
     
     // Flashcards tab
-    "flashcards": <FlashcardsView />,
+    "flashcards": <FlashcardsLandingPage />,
     
     // Practice Exams tab
-    "practice-exam": <PracticeExamsView />,
+    "practice-exam": <PracticeExamLandingPage />,
     
     // Notifications tab
-    "notifications": <NotificationsView />
+    "notifications": <NotificationsPage />
   };
 };
