@@ -24,6 +24,8 @@ import ExamReviewPage from './components/dashboard/student/practice-exam/ExamRev
 import FlashcardInteractivePage from './pages/dashboard/student/flashcard/FlashcardInteractivePage';
 import PostLoginPrompt from './pages/dashboard/PostLoginPrompt';
 import StudyPlanCreation from './pages/StudyPlanCreation';
+import ConceptCardStudyPage from './pages/dashboard/student/concept/ConceptCardStudyPage';
+import Login from './pages/Login';
 
 const AdminDashboard = React.lazy(() => import('@/pages/admin/AdminDashboard'));
 
@@ -37,7 +39,7 @@ function App() {
               {/* Public routes */}
               <Route path="/" element={<Index />} />
               <Route path="/signup" element={<SignUp />} />
-              <Route path="/login" element={<LoginPage />} />
+              <Route path="/login" element={<Login />} />
               <Route path="/register" element={<SignUp />} />
 
               {/* Post-signup & post-login routes */}
@@ -50,6 +52,8 @@ function App() {
               <Route path="/dashboard/student/today" element={<TodaysPlanView />} />
               <Route path="/dashboard/student/feel-good-corner" element={<FeelGoodCornerView />} />
               <Route path="/dashboard/student/concepts/card/:conceptId" element={<ConceptCardDetailPage />} />
+              <Route path="/dashboard/student/concepts/study/:conceptId" element={<ConceptCardStudyPage />} />
+              <Route path="/dashboard/student/concepts/study" element={<ConceptCardStudyPage />} />
               <Route path="/dashboard/student/flashcards/:deckId/interactive" element={<FlashcardInteractivePage />} />
               <Route path="/dashboard/student/practice-exam/:examId/start" element={<ExamTakingPage />} />
               <Route path="/dashboard/student/practice-exam/:examId/review" element={<ExamReviewPage />} />

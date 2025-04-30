@@ -1,56 +1,90 @@
 
-// User role enum
+export enum MoodType {
+  Happy = "happy",
+  Focused = "focused",
+  Tired = "tired",
+  Stressed = "stressed",
+  Okay = "okay",
+  Overwhelmed = "overwhelmed",
+  Anxious = "anxious",
+  Motivated = "motivated",
+  Confused = "confused",
+  Calm = "calm",
+  Neutral = "neutral",
+  Sad = "sad",
+  Curious = "curious"
+}
+
 export enum UserRole {
   Student = "student",
   Teacher = "teacher",
-  Admin = "admin",
-  Parent = "parent"
+  Parent = "parent",
+  Admin = "admin"
 }
 
-// Mood type enum
-export enum MoodType {
-  Happy = "happy",
-  Motivated = "motivated",
-  Focused = "focused",
-  Calm = "calm",
-  Tired = "tired",
-  Confused = "confused",
-  Anxious = "anxious",
-  Stressed = "stressed",
-  Overwhelmed = "overwhelmed",
-  Neutral = "neutral",
-  Okay = "okay",
-  Sad = "sad"
+export type SubscriptionType = 'free' | 'basic' | 'premium' | 'pro_monthly' | 'pro_annual' | 'enterprise' | 'trial' | 'custom';
+
+export interface UserSubscription {
+  planType: SubscriptionType;
+  startDate?: string;
+  expiryDate?: string;
+  features?: string[];
+  status?: 'active' | 'expired' | 'pending';
+  autoRenew?: boolean;
 }
 
-// Subscription type enum
-export enum SubscriptionType {
-  Free = "free",
-  Basic = "basic",
-  Premium = "premium",
-  School = "school",
-  Enterprise = "enterprise"
-}
-
-// Base user profile interface
 export interface UserProfileBase {
   id: string;
   name: string;
   email: string;
   role: UserRole;
+  phoneNumber?: string;
   avatar?: string;
   loginCount?: number;
-  createdAt?: string;
   lastLogin?: string;
-  goals?: { id: string; title: string; targetDate?: string }[];
-  subscription?: {
-    planType: SubscriptionType | string;
-    isActive?: boolean;
-    startDate?: string;
-    expiryDate?: string;
-    features?: string[];
-  } | string;
+  subscription?: UserSubscription | SubscriptionType;
+  profileCompleted?: boolean;
+  onboardingCompleted?: boolean;
+  streak?: number;
+  studyHours?: number;
+  conceptsLearned?: number;
+  testsCompleted?: number;
+  goals?: Array<{
+    id: string;
+    title: string;
+    targetDate?: string;
+    progress?: number;
+  }>;
 }
 
-// Aliases for backward compatibility
-export type UserProfileType = UserProfileBase;
+export interface AdminUser {
+  id: string;
+  name: string;
+  email: string;
+  role: "admin" | "super_admin";
+  permissions?: string[];
+}
+
+export interface UserWithPreferences extends UserProfileBase {
+  preferences: {
+    theme?: 'light' | 'dark' | 'system';
+    notifications?: {
+      email: boolean;
+      push: boolean;
+      sms: boolean;
+    };
+    studyPreferences?: {
+      preferredTimeOfDay?: string[];
+      preferredDaysOfWeek?: string[];
+      preferredSessionDuration?: number;
+    };
+  };
+}
+
+export enum TaskStatus {
+  Pending = "pending",
+  InProgress = "in-progress",
+  Completed = "completed",
+  Missed = "missed",
+  Partial = "partial"
+}

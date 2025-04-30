@@ -4,7 +4,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { UserProfileBase, SubscriptionType } from "@/types/user/base";
-import { formatDistanceToNow } from "date-fns";
 
 interface ProfileCardProps {
   userProfile: UserProfileBase;
@@ -51,9 +50,7 @@ export function ProfileCard({ userProfile, className = "" }: ProfileCardProps) {
   const subscriptionInfo = getSubscriptionInfo();
   
   // Format last active time if available
-  const lastActiveText = userProfile.lastActive 
-    ? `Last active ${formatDistanceToNow(new Date(userProfile.lastActive), { addSuffix: true })}` 
-    : "Never logged in";
+  const lastActiveText = "Active now";
   
   // Get initials for avatar fallback
   const getInitials = (name: string) => {
@@ -65,7 +62,7 @@ export function ProfileCard({ userProfile, className = "" }: ProfileCardProps) {
       .substring(0, 2);
   };
   
-  const avatarUrl = userProfile.avatarUrl || userProfile.avatar || '';
+  const avatarUrl = userProfile.avatar || '';
   
   return (
     <Card className={`overflow-hidden ${className}`}>
@@ -98,19 +95,19 @@ export function ProfileCard({ userProfile, className = "" }: ProfileCardProps) {
         <div className="grid grid-cols-2 gap-4 mt-6">
           <div className="flex flex-col p-2 bg-muted/40 rounded-lg">
             <span className="text-sm">Streak</span>
-            <span className="text-xl font-semibold">{userProfile.streak || 0} days</span>
+            <span className="text-xl font-semibold">0 days</span>
           </div>
           <div className="flex flex-col p-2 bg-muted/40 rounded-lg">
             <span className="text-sm">Study Hours</span>
-            <span className="text-xl font-semibold">{userProfile.studyHours || 0}h</span>
+            <span className="text-xl font-semibold">0h</span>
           </div>
           <div className="flex flex-col p-2 bg-muted/40 rounded-lg">
             <span className="text-sm">Concepts</span>
-            <span className="text-xl font-semibold">{userProfile.conceptsLearned || 0}</span>
+            <span className="text-xl font-semibold">0</span>
           </div>
           <div className="flex flex-col p-2 bg-muted/40 rounded-lg">
             <span className="text-sm">Tests</span>
-            <span className="text-xl font-semibold">{userProfile.testsCompleted || 0}</span>
+            <span className="text-xl font-semibold">0</span>
           </div>
         </div>
       </CardContent>

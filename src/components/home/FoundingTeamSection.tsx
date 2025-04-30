@@ -11,36 +11,25 @@ interface TeamMember {
   image?: string;
   initials: string;
   linkedIn?: string;
+  location?: string;
 }
 
 const teamMembers: TeamMember[] = [
   {
-    name: "Rahul Sharma",
+    name: "Amit Singh",
     role: "Founder & CEO",
-    bio: "Former educator with 10+ years of experience in the EdTech space, passionate about transforming learning with AI.",
-    initials: "RS",
-    linkedIn: "#"
+    bio: "Building AI tech startups in education. Based in India.",
+    initials: "AS",
+    linkedIn: "#",
+    location: "India"
   },
   {
-    name: "Priya Patel",
-    role: "Co-founder & CTO",
-    bio: "AI researcher with a focus on personalized learning systems and adaptive educational technologies.",
-    initials: "PP",
-    linkedIn: "#"
-  },
-  {
-    name: "Vikram Singh",
-    role: "Head of Educational Content",
-    bio: "Former IIT professor with expertise in developing structured learning materials for competitive exams.",
-    initials: "VS",
-    linkedIn: "#"
-  },
-  {
-    name: "Ananya Desai",
-    role: "Chief Learning Officer",
-    bio: "Educational psychologist specializing in cognitive learning models and student engagement strategies.",
-    initials: "AD",
-    linkedIn: "#"
+    name: "Dr. Atul Sharma",
+    role: "Co-founder & Chief AI Scientist",
+    bio: "Doctorate in Engineering (USA), IIT Alumni. Research Scientist & Professor focused on advanced AI solutions.",
+    initials: "AS",
+    linkedIn: "#",
+    location: "USA"
   }
 ];
 
@@ -61,7 +50,7 @@ const FoundingTeamSection = () => {
           </p>
         </motion.div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
           {teamMembers.map((member, index) => (
             <motion.div
               key={index}
@@ -86,6 +75,12 @@ const FoundingTeamSection = () => {
                   <h3 className="text-xl font-bold text-center">{member.name}</h3>
                   <p className="text-primary text-center mb-4">{member.role}</p>
                   <p className="text-gray-600 dark:text-gray-400 text-center">{member.bio}</p>
+                  
+                  {member.location && (
+                    <p className="text-gray-500 dark:text-gray-500 text-center mt-2">
+                      Based in {member.location}
+                    </p>
+                  )}
                   
                   {member.linkedIn && (
                     <div className="flex justify-center mt-4">
