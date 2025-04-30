@@ -64,7 +64,7 @@ const PostLoginPrompt = () => {
         <Card className="shadow-lg border-gray-200 overflow-hidden">
           <CardHeader className="bg-gradient-to-r from-blue-600 to-purple-600 text-white text-center py-8">
             <div className="flex justify-center mb-3">
-              <PrepzrLogo width={150} /> {/* Increased logo size */}
+              <PrepzrLogo width={150} />
             </div>
             <CardTitle className="text-3xl font-display">
               Welcome{userName ? ` back, ${userName}` : ""}!
@@ -79,11 +79,21 @@ const PostLoginPrompt = () => {
             >
               <div className="text-center mb-6">
                 <h2 className="text-xl font-semibold mb-2">Founder's Message</h2>
-                <p className="text-gray-600">
-                  "Our mission at PREPZR is to make learning personalized, engaging, 
-                  and effective. We're dedicated to helping you achieve your academic goals."
-                </p>
-                <p className="text-gray-600 mt-2 font-medium">- Amit Singh, Founder & CEO</p>
+                <div className="flex flex-col md:flex-row items-center justify-center gap-4 bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+                  <div className="w-32 h-32 rounded-full overflow-hidden">
+                    <img 
+                      src="/lovable-uploads/bffd91d7-243d-42d9-bbd9-52133e18f4b6.png"
+                      alt="Amit Singh" 
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="md:ml-4 text-left">
+                    <p className="text-gray-600 italic">
+                      "At PREPZR, our mission is simple — to make learning truly personalized, engaging and result-driven. We're committed to empowering every student unbiasedly with the right tools, guidance and support to confidently reach their exam goals."
+                    </p>
+                    <p className="text-gray-600 mt-2 font-medium">— Amit Singh, Founder & CEO</p>
+                  </div>
+                </div>
               </div>
             </motion.div>
             

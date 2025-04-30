@@ -23,21 +23,20 @@ import ExamTakingPage from './components/dashboard/student/practice-exam/ExamTak
 import ExamReviewPage from './components/dashboard/student/practice-exam/ExamReviewPage';
 import FlashcardInteractivePage from './pages/dashboard/student/flashcard/FlashcardInteractivePage';
 import PostLoginPrompt from './pages/dashboard/PostLoginPrompt';
-import Login from './pages/Login';
 
 const AdminDashboard = React.lazy(() => import('@/pages/admin/AdminDashboard'));
 
 function App() {
   return (
-    <BrowserRouter>
-      <ThemeProvider defaultTheme="light" storageKey="prepzr-ui-theme">
+    <ThemeProvider defaultTheme="light" storageKey="prepzr-ui-theme">
+      <BrowserRouter>
         <AuthProvider>
           <AdminAuthProvider>
             <Routes>
               {/* Public routes */}
               <Route path="/" element={<Index />} />
               <Route path="/signup" element={<SignUp />} />
-              <Route path="/login" element={<Login />} />
+              <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<SignUp />} />
 
               {/* Post-login prompt */}
@@ -73,8 +72,8 @@ function App() {
             <Toaster />
           </AdminAuthProvider>
         </AuthProvider>
-      </ThemeProvider>
-    </BrowserRouter>
+      </BrowserRouter>
+    </ThemeProvider>
   );
 }
 

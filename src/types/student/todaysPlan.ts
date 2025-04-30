@@ -1,84 +1,94 @@
 
-import { MoodType } from "@/types/user/base";
+import { MoodType } from "../user/base";
 
 export enum TaskType {
-  Concept = "concept",
-  Flashcard = "flashcard",
-  PracticeExam = "practice-exam"
-}
-
-export enum TaskStatus {
-  NotStarted = "not-started",
-  InProgress = "in-progress",
-  Completed = "completed",
-  Skipped = "skipped",
-  Pending = "pending"
+  Concept = 'concept',
+  Flashcard = 'flashcard',
+  PracticeExam = 'practice-exam'
 }
 
 export interface BaseTask {
   id: string;
-  subject: string;
   type: TaskType;
-  status: TaskStatus | string;
-  timeEstimate: string;
+  subject: string;
+  timeEstimate: string; // e.g. "30 min" or "1 hr"
+  status: 'pending' | 'in-progress' | 'completed' | 'skipped';
+  priority?: 'low' | 'medium' | 'high';
+  chapter?: string;
+  title?: string;
+  completionPercent?: number;
 }
 
 export interface ConceptTask extends BaseTask {
   type: TaskType.Concept;
-  title: string;
+  conceptId: string;
+  description: string;
+  difficulty: 'beginner' | 'intermediate' | 'advanced';
 }
 
 export interface FlashcardTask extends BaseTask {
   type: TaskType.Flashcard;
-  deckName: string;
-  cardCount?: number;
+  deckId: string;
+  cardCount: number;
+  recallAccuracy?: number;
 }
 
 export interface PracticeExamTask extends BaseTask {
-  type: "practice-exam";
-  examName: string;
+  type: TaskType.PracticeExam;
+  examId: string;
   questionCount: number;
-}
-
-export type Task = ConceptTask | FlashcardTask | PracticeExamTask;
-
-export interface TimeAllocation {
-  subject: string;
-  percentage: number;
-  color: string;
+  timeLimit?: string;
+  lastScore?: number;
 }
 
 export interface StudyBlock {
-  startTime: string;
-  endTime: string;
-  tasks: Task[];
-  mood?: MoodType;
-  completed?: boolean;
-}
-
-export interface SubjectProgress {
-  name: string;
-  progress: number;
-  color: string;
-  tasksCompleted: number;
-  totalTasks: number;
+  id: string;
+  timeSlot: string;
+  tasks: Array<ConceptTask | FlashcardTask | PracticeExamTask>;
 }
 
 export interface PastDayRecord {
   date: string;
-  tasksCompleted: number;
+  totalCompleted: number;
   totalTasks: number;
-  mood: MoodType;
-  studyHours: number;
+  studyTime: string;
+  status?: 'completed' | 'partial' | 'missed';
+  conceptsCompleted?: number;
+  conceptsTotal?: number;
+  flashcardsCompleted?: number;
+  flashcardsTotal?: number;
+  practiceCompleted?: number;
+  practiceTotal?: number;
+}
+
+export interface SubjectBreakdown {
+  subject: string;
+  concepts: { total: number; completed: number };
+  flashcards: { total: number; completed: number };
+  practiceExams: { total: number; completed: number };
+  timeSpent: string;
+}
+
+export interface TomorrowPreview {
+  conceptCount: number;
+  flashcardCount: number;
+  practiceExamCount: number;
+  totalTasks: number;
+  estimatedTime: string;
 }
 
 export interface TodaysPlanData {
-  date: string;
-  currentBlock?: StudyBlock;
-  upcomingBlocks: StudyBlock[];
+  currentBlock: StudyBlock | null;
   completedBlocks: StudyBlock[];
-  timeAllocations: TimeAllocation[];
-  subjects: SubjectProgress[];
-  backlog: Task[];
-  pastDays: PastDayRecord[];
+  upcomingBlocks: StudyBlock[];
+  backlog: Array<ConceptTask | FlashcardTask | PracticeExamTask>;
+  timeAllocations: { subject: string; minutes: number }[];
+  tasks?: {
+    concepts: ConceptTask[];
+    flashcards: FlashcardTask[];
+    practiceExams: PracticeExamTask[];
+  };
+  pastDays?: PastDayRecord[];
+  subjectBreakdown?: SubjectBreakdown[];
+  tomorrowPreview?: TomorrowPreview;
 }

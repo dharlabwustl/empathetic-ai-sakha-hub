@@ -8,7 +8,7 @@ const FoundingTeamSection = () => {
     {
       name: "Amit Singh",
       role: "Founder & CEO, PREPZR",
-      image: "/lovable-uploads/01737148-61ec-4c48-8cd4-d3cbe28124a3.png", 
+      image: "/lovable-uploads/bffd91d7-243d-42d9-bbd9-52133e18f4b6.png", 
       bio: "Building AI tech startups in education. Product architect. Based in India."
     },
     {

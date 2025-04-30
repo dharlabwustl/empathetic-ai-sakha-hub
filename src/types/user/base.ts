@@ -1,10 +1,9 @@
 
 export enum UserRole {
   Student = 'student',
-  Teacher = 'teacher',
   Parent = 'parent',
-  Admin = 'admin',
-  Founder = 'founder'
+  Teacher = 'teacher',
+  Admin = 'admin'
 }
 
 export enum MoodType {
@@ -15,36 +14,26 @@ export enum MoodType {
   Tired = 'tired',
   Anxious = 'anxious',
   Stressed = 'stressed',
-  Sad = 'sad',
-  Curious = 'curious',
-  Okay = 'okay',
-  Overwhelmed = 'overwhelmed'
+  Sad = 'sad'
 }
 
-export type PersonalityType =
-  | 'analytical'
-  | 'creative'
-  | 'practical'
-  | 'visual'
-  | 'auditory'
-  | 'kinesthetic';
-
-export enum SubscriptionType {
-  Free = 'free',
-  Basic = 'basic',
-  Premium = 'premium',
-  Enterprise = 'enterprise',
-  Trial = 'trial',
-  Pro_Annual = 'pro_annual',
-  Pro_Monthly = 'pro_monthly'
+export enum PersonalityType {
+  Analytical = 'analytical',
+  Creative = 'creative',
+  Practical = 'practical',
+  Visual = 'visual',
+  Auditory = 'auditory',
+  Kinesthetic = 'kinesthetic'
 }
 
-export interface UserSubscription {
-  planType: SubscriptionType | string;
-  startDate?: string;
-  expiryDate?: string;
-  autoRenew?: boolean;
-  paymentMethod?: string;
+export interface MoodTheme {
+  label: string;
+  icon: React.ReactNode;
+  colors: {
+    bg: string;
+    border: string;
+    text: string;
+  };
 }
 
 export interface UserProfileBase {
@@ -53,22 +42,37 @@ export interface UserProfileBase {
   email?: string;
   role: UserRole;
   loginCount?: number;
-  subscription?: UserSubscription | SubscriptionType | string;
-  goals?: Array<{id: string; title: string; targetDate?: string}>;
-  mood?: MoodType;
-  personality?: PersonalityType;
-  lastActive?: string;
-  avatarUrl?: string;
-  avatar?: string;
-  streak?: number;
-  studyHours?: number;
-  conceptsLearned?: number;
-  testsCompleted?: number;
+  createdAt?: string;
+  lastLogin?: string;
+  subscription?: string | {
+    planType: string;
+    expiryDate?: string;
+    features?: string[];
+  };
+  goals?: {
+    id?: string;
+    title: string;
+    progress?: number;
+    target?: string;
+    targetDate?: string;
+  }[];
+  currentMood?: MoodType;
+  personalityType?: PersonalityType;
 }
 
 export interface AdminUser {
   id: string;
   name: string;
   email: string;
-  role: string;
+  role: 'admin' | 'super_admin';
+  token?: string;
+}
+
+export type UserProfileType = UserProfileBase;
+
+export enum SubscriptionType {
+  Free = 'free',
+  Basic = 'basic',
+  Premium = 'premium',
+  Pro = 'pro',
 }

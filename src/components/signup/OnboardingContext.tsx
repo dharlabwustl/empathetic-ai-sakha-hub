@@ -1,85 +1,82 @@
 
-import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { MoodType, PersonalityType, UserRole } from '@/types/user/base';
+import React, { createContext, useContext, useState } from "react";
+import { MoodType, PersonalityType, UserRole } from "@/types/user/base";
 
-export type UserGoal = string;
+export type OnboardingStep = "role" | "goal" | "demographics" | "personality" | "mood" | "habits" | "interests" | "signup";
 
 export interface OnboardingData {
   role?: UserRole;
-  goal?: UserGoal;
+  examGoal?: string;
   demographics?: Record<string, string>;
-  personality?: PersonalityType;
+  targetExamDate?: string;
+  personalityType?: PersonalityType;
   mood?: MoodType;
   habits?: Record<string, string>;
   interests?: string;
-  name?: string;
-  mobile?: string;
 }
 
-interface OnboardingContextProps {
+interface OnboardingContextType {
+  currentStep: OnboardingStep;
   onboardingData: OnboardingData;
   setOnboardingData: (data: OnboardingData) => void;
-  currentStep: string;
   goToNextStep: () => void;
   goToPreviousStep: () => void;
-  goToStep: (step: string) => void;
 }
 
-const OnboardingContext = createContext<OnboardingContextProps | undefined>(undefined);
+const OnboardingContext = createContext<OnboardingContextType | undefined>(undefined);
 
-export const useOnboarding = (): OnboardingContextProps => {
+export function useOnboarding() {
   const context = useContext(OnboardingContext);
   if (!context) {
-    throw new Error('useOnboarding must be used within an OnboardingProvider');
+    throw new Error("useOnboarding must be used within an OnboardingProvider");
   }
   return context;
-};
-
-interface OnboardingProviderProps {
-  children: ReactNode;
 }
 
-export const OnboardingProvider: React.FC<OnboardingProviderProps> = ({ children }) => {
+interface OnboardingProviderProps {
+  children: React.ReactNode;
+}
+
+export function OnboardingProvider({ children }: OnboardingProviderProps) {
+  const [currentStep, setCurrentStep] = useState<OnboardingStep>("role");
   const [onboardingData, setOnboardingData] = useState<OnboardingData>({});
-  
-  // Define the steps in the onboarding flow
-  const steps = ['role', 'goal', 'demographics', 'personality', 'mood', 'habits', 'interests', 'signup'];
-  const [currentStepIndex, setCurrentStepIndex] = useState(0);
-  
+
+  const steps: OnboardingStep[] = [
+    "role",
+    "goal",
+    "demographics",
+    "personality",
+    "mood",
+    "habits",
+    "interests",
+    "signup",
+  ];
+
   const goToNextStep = () => {
-    if (currentStepIndex < steps.length - 1) {
-      setCurrentStepIndex(currentStepIndex + 1);
+    const currentIndex = steps.indexOf(currentStep);
+    if (currentIndex < steps.length - 1) {
+      setCurrentStep(steps[currentIndex + 1]);
     }
   };
-  
+
   const goToPreviousStep = () => {
-    if (currentStepIndex > 0) {
-      setCurrentStepIndex(currentStepIndex - 1);
+    const currentIndex = steps.indexOf(currentStep);
+    if (currentIndex > 0) {
+      setCurrentStep(steps[currentIndex - 1]);
     }
   };
-  
-  const goToStep = (step: string) => {
-    const stepIndex = steps.indexOf(step);
-    if (stepIndex !== -1) {
-      setCurrentStepIndex(stepIndex);
-    }
-  };
-  
+
   return (
     <OnboardingContext.Provider
       value={{
+        currentStep,
         onboardingData,
         setOnboardingData,
-        currentStep: steps[currentStepIndex],
         goToNextStep,
         goToPreviousStep,
-        goToStep,
       }}
     >
       {children}
     </OnboardingContext.Provider>
   );
-};
-
-// Explicitly export UserRole to fix import error in CreateStudyPlanWizard
-export { UserRole };
+}
