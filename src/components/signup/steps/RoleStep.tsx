@@ -17,6 +17,20 @@ const RoleStep: React.FC<RoleStepProps> = ({ onRoleSelect }) => {
       >
         Student
       </Button>
+      <Button
+        onClick={() => onRoleSelect(UserRole.Teacher)}
+        className="bg-white hover:bg-blue-50 text-blue-700 border border-blue-200 w-full h-auto py-3 justify-start"
+        variant="outline"
+      >
+        Teacher
+      </Button>
+      <Button
+        onClick={() => onRoleSelect(UserRole.Parent)}
+        className="bg-white hover:bg-blue-50 text-blue-700 border border-blue-200 w-full h-auto py-3 justify-start"
+        variant="outline"
+      >
+        Parent
+      </Button>
     </div>
   );
 };

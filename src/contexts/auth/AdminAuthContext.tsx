@@ -1,20 +1,14 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import adminAuthService from '@/services/auth/adminAuthService';
-
-interface AdminUser {
-  id: string;
-  name: string;
-  email: string;
-  role: string;
-}
+import { AdminUser } from '@/types/user/base';
 
 interface AdminAuthContextType {
   adminUser: AdminUser | null;
   isAdminAuthenticated: boolean;
   isAdminLoading: boolean;
   adminLoginError: string | null;
-  adminLogin: (credentials: { email: string; password: string }) => Promise<boolean>;
+  login: (email: string, password: string) => Promise<boolean>;
   adminLogout: () => Promise<void>;
 }
 
@@ -23,7 +17,7 @@ const AdminAuthContext = createContext<AdminAuthContextType>({
   isAdminAuthenticated: false,
   isAdminLoading: true,
   adminLoginError: null,
-  adminLogin: async () => false,
+  login: async () => false,
   adminLogout: async () => {},
 });
 
@@ -59,10 +53,10 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
     checkAdminAuth();
   }, []);
 
-  const adminLogin = async (credentials: { email: string; password: string }): Promise<boolean> => {
+  const login = async (email: string, password: string): Promise<boolean> => {
     setAdminLoginError(null);
     try {
-      const response = await adminAuthService.adminLogin(credentials);
+      const response = await adminAuthService.adminLogin({email, password});
       if (response.success && response.data) {
         setAdminUser(response.data);
         setIsAdminAuthenticated(true);
@@ -95,7 +89,7 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
     isAdminAuthenticated,
     isAdminLoading,
     adminLoginError,
-    adminLogin,
+    login,
     adminLogout,
   };
 

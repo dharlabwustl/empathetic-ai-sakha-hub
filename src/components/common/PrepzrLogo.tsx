@@ -19,7 +19,7 @@ const PrepzrLogo: React.FC<PrepzrLogoProps> = ({
   return (
     <div className={`flex items-center ${className}`}>
       <img 
-        src="/lovable-uploads/b3337c40-376b-4764-bee8-d425abf31bc8.png" 
+        src="/lovable-uploads/3de22e29-64fb-4767-8cd5-6a123ee6b8cb.png" 
         alt="PREPZR Logo" 
         style={{ 
           width: typeof width === 'number' ? `${width}px` : width,
@@ -27,12 +27,6 @@ const PrepzrLogo: React.FC<PrepzrLogoProps> = ({
           objectFit: 'contain'
         }}
       />
-      
-      {showText && (
-        <span className={`font-bold ml-2 text-xl tracking-tight ${textColor}`}>
-          PREPZR
-        </span>
-      )}
     </div>
   );
 };

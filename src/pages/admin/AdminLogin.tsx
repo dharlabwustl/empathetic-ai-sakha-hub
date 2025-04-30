@@ -57,7 +57,7 @@ const AdminLogin = () => {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="mx-auto mb-4">
-            <PrepzrLogo width={60} />
+            <PrepzrLogo width={60} height={60} />
           </div>
           <CardTitle className="text-2xl">Admin Login</CardTitle>
           <CardDescription>
