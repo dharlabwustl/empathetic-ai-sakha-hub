@@ -1,7 +1,8 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStudentDashboardData } from '@/hooks/useStudentDashboardData';
+import { useTodaysPlan } from '@/hooks/useTodaysPlan';
 import { UserProfileBase } from '@/types/user/base';
 import { KpiData } from '@/hooks/useKpiTracking';
 import { Button } from '@/components/ui/button';
@@ -21,17 +22,53 @@ import RevisionLoopSection from './dashboard-sections/RevisionLoopSection';
 import UpcomingMilestonesSection from './dashboard-sections/UpcomingMilestonesSection';
 import MoodBasedSuggestions from './dashboard-sections/MoodBasedSuggestions';
 import SmartSuggestionsCenter from './dashboard-sections/SmartSuggestionsCenter';
+import ExamReadinessSection from './dashboard-sections/ExamReadinessSection';
+import TodaysPlanCompact from './dashboard-sections/TodaysPlanCompact';
 import { MoodType } from '@/types/user/base';
 
 interface RedesignedDashboardOverviewProps {
   userProfile: UserProfileBase;
   kpis: KpiData[];
+  currentMood?: MoodType;
+  onMoodChange?: (mood: MoodType) => void;
 }
 
-export default function RedesignedDashboardOverview({ userProfile, kpis }: RedesignedDashboardOverviewProps) {
+export default function RedesignedDashboardOverview({ 
+  userProfile, 
+  kpis, 
+  currentMood,
+  onMoodChange 
+}: RedesignedDashboardOverviewProps) {
   const { loading, dashboardData, refreshData } = useStudentDashboardData();
-  const [currentMood, setCurrentMood] = useState<MoodType>();
+  const { planData, loading: planLoading } = useTodaysPlan(userProfile?.goals?.[0]?.title || "IIT-JEE", "Student");
   const navigate = useNavigate();
+
+  // Use current mood from props if available, otherwise use local state
+  const [localMood, setLocalMood] = useState<MoodType | undefined>(currentMood);
+
+  // Sync mood between props and local state
+  useEffect(() => {
+    if (currentMood !== undefined && currentMood !== localMood) {
+      setLocalMood(currentMood);
+    }
+  }, [currentMood]);
+
+  const handleMoodSelect = (mood: MoodType) => {
+    setLocalMood(mood);
+    if (onMoodChange) {
+      onMoodChange(mood);
+    } else {
+      // Store in localStorage if no parent handler
+      const userData = localStorage.getItem("userData");
+      if (userData) {
+        const parsedData = JSON.parse(userData);
+        parsedData.mood = mood;
+        localStorage.setItem("userData", JSON.stringify(parsedData));
+      } else {
+        localStorage.setItem("userData", JSON.stringify({ mood }));
+      }
+    }
+  };
 
   const navigationTabs = [
     { id: "overview", label: "Overview", icon: LayoutDashboard, path: "/dashboard/student/overview" },
@@ -67,18 +104,6 @@ export default function RedesignedDashboardOverview({ userProfile, kpis }: Redes
     }
   };
 
-  const handleMoodSelect = (mood: MoodType) => {
-    setCurrentMood(mood);
-    const userData = localStorage.getItem("userData");
-    if (userData) {
-      const parsedData = JSON.parse(userData);
-      parsedData.mood = mood;
-      localStorage.setItem("userData", JSON.stringify(parsedData));
-    } else {
-      localStorage.setItem("userData", JSON.stringify({ mood }));
-    }
-  };
-
   if (loading || !dashboardData) {
     return (
       <div className="space-y-6">
@@ -91,6 +116,11 @@ export default function RedesignedDashboardOverview({ userProfile, kpis }: Redes
       </div>
     );
   }
+
+  // Calculate today's plan stats for compact view
+  const todaysTasks = planData?.studyBlocks?.flatMap(block => block.tasks || []) || [];
+  const completedCount = todaysTasks.filter(task => task.status === 'completed').length;
+  const topTasks = todaysTasks.filter(task => task.status !== 'completed').slice(0, 3);
 
   return (
     <motion.div
@@ -149,75 +179,37 @@ export default function RedesignedDashboardOverview({ userProfile, kpis }: Redes
         </div>
       </motion.div>
 
+      {/* Exam Readiness Score Section */}
+      <motion.div variants={itemVariants}>
+        <ExamReadinessSection
+          examGoal={dashboardData.examGoal}
+          readinessScore={dashboardData.examReadiness?.overallScore || 68}
+          cutoffPercentage={dashboardData.examReadiness?.cutoffPercentage || 75}
+          lastAssessmentDate={dashboardData.examReadiness?.lastAssessmentDate || "2 days ago"}
+          progressBySubject={dashboardData.examReadiness?.subjectScores || [
+            { subject: "Physics", score: 72, improvement: 5 },
+            { subject: "Chemistry", score: 65, improvement: -2 },
+            { subject: "Mathematics", score: 78, improvement: 8 },
+          ]}
+        />
+      </motion.div>
+
       <motion.div 
         variants={itemVariants}
         className="grid grid-cols-1 lg:grid-cols-2 gap-6"
       >
-        <MoodBasedSuggestions currentMood={currentMood} onMoodSelect={handleMoodSelect} />
-        <SmartSuggestionsCenter 
-          performance={{
-            accuracy: 85,
-            quizScores: 90,
-            conceptProgress: 75,
-            streak: 7
-          }}
+        <MoodBasedSuggestions currentMood={localMood} onMoodSelect={handleMoodSelect} />
+        <TodaysPlanCompact 
+          currentTasks={planData?.studyBlocks?.flatMap(block => block.tasks || []) || []}
+          completedCount={completedCount}
+          totalCount={todaysTasks.length}
+          currentMood={localMood}
         />
       </motion.div>
 
       <motion.div variants={itemVariants}>
         <StudyStatsSection subjects={dashboardData.subjects} conceptCards={dashboardData.conceptCards} />
       </motion.div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <motion.div variants={itemVariants}>
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center mb-4">
-                <Brain className="h-5 w-5 text-violet-600 mr-2" />
-                <h3 className="text-lg font-medium">AI Personalized Study Plan</h3>
-              </div>
-              <div className="space-y-4">
-                <p className="text-sm text-muted-foreground">
-                  Based on your profile and learning goals, we've created a personalized study plan to help you succeed.
-                </p>
-                
-                <div className="p-4 bg-violet-50 dark:bg-violet-900/20 rounded-lg border border-violet-200 dark:border-violet-800/50">
-                  <h4 className="font-medium text-violet-800 dark:text-violet-300 mb-2">Your Learning Profile</h4>
-                  <ul className="space-y-2 text-sm">
-                    <li className="flex items-center">
-                      <span className="w-4 h-4 bg-violet-200 rounded-full flex items-center justify-center text-xs mr-2">•</span>
-                      <span>Learning Style: <strong>Visual-Kinesthetic</strong></span>
-                    </li>
-                    <li className="flex items-center">
-                      <span className="w-4 h-4 bg-violet-200 rounded-full flex items-center justify-center text-xs mr-2">•</span>
-                      <span>Best Study Time: <strong>Morning to Afternoon</strong></span>
-                    </li>
-                    <li className="flex items-center">
-                      <span className="w-4 h-4 bg-violet-200 rounded-full flex items-center justify-center text-xs mr-2">•</span>
-                      <span>Focus Duration: <strong>30-45 minute sessions</strong></span>
-                    </li>
-                    <li className="flex items-center">
-                      <span className="w-4 h-4 bg-violet-200 rounded-full flex items-center justify-center text-xs mr-2">•</span>
-                      <span>Recommended Break: <strong>10 minute breaks</strong></span>
-                    </li>
-                  </ul>
-                </div>
-                
-                <Button 
-                  className="w-full bg-gradient-to-r from-violet-600 to-indigo-600" 
-                  onClick={() => navigate('/dashboard/student/study-plan')}
-                >
-                  View Complete Study Strategy
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        <motion.div variants={itemVariants}>
-          <TodaysPlanSection studyPlan={dashboardData.studyPlan} currentMood={currentMood} />
-        </motion.div>
-      </div>
 
       <motion.div variants={itemVariants}>
         <SubjectBreakdownSection subjects={dashboardData.subjects} />

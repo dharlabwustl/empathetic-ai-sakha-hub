@@ -76,6 +76,32 @@ export interface TodaysPlanData extends TodaysPlan {
   timeAllocation: TimeAllocation;
   subjectProgress: SubjectProgress[];
   pastRecords: PastDayRecord[];
+  currentBlock?: StudyBlock;
+  completedBlocks: StudyBlock[];
+  upcomingBlocks: StudyBlock[];
+  backlog: Task[];
+  tasks?: Task[];
+  tomorrowPreview?: {
+    concepts: number;
+    flashcards: number;
+    practice: number;
+  };
+  subjectBreakdown?: {
+    [key: string]: {
+      concepts: {
+        total: number;
+        completed: number;
+      };
+      flashcards: {
+        total: number;
+        completed: number;
+      };
+      practiceExams: {
+        total: number;
+        completed: number;
+      };
+    };
+  };
 }
 
 export interface TimeAllocation {
@@ -99,4 +125,10 @@ export interface PastDayRecord {
   totalTasks: number;
   studyTimeMinutes: number;
   mood: MoodType;
+  status?: 'completed' | 'partial' | 'missed';
 }
+
+// Additional task types for subject breakdown
+export type ConceptTask = Task & { type: TaskType.Concept };
+export type FlashcardTask = Task & { type: TaskType.Flashcard };
+export type PracticeExamTask = Task & { type: TaskType.PracticeExam };

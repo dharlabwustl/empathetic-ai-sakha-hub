@@ -2,85 +2,85 @@
 import { MoodType } from '@/types/user/base';
 
 export const getMoodDisplayName = (mood?: MoodType): string => {
-  if (!mood) return "Set Mood";
+  if (!mood) return 'Set Mood';
   
-  const moodMap: Record<MoodType, string> = {
-    [MoodType.Happy]: "Happy",
-    [MoodType.Focused]: "Focused",
-    [MoodType.Tired]: "Tired",
-    [MoodType.Stressed]: "Stressed",
-    [MoodType.Curious]: "Curious",
-    [MoodType.Okay]: "Okay",
-    [MoodType.Overwhelmed]: "Overwhelmed",
-    [MoodType.Anxious]: "Anxious",
-    [MoodType.Motivated]: "Motivated",
-    [MoodType.Confused]: "Confused",
-    [MoodType.Neutral]: "Neutral",
-    [MoodType.Sad]: "Sad"
+  const displayNames: Record<MoodType, string> = {
+    [MoodType.Happy]: 'Happy',
+    [MoodType.Focused]: 'Focused',
+    [MoodType.Motivated]: 'Motivated',
+    [MoodType.Tired]: 'Tired',
+    [MoodType.Stressed]: 'Stressed',
+    [MoodType.Confused]: 'Confused',
+    [MoodType.Anxious]: 'Anxious',
+    [MoodType.Neutral]: 'Neutral',
+    [MoodType.Okay]: 'Okay',
+    [MoodType.Overwhelmed]: 'Overwhelmed',
+    [MoodType.Curious]: 'Curious',
+    [MoodType.Sad]: 'Sad',
   };
   
-  return moodMap[mood];
+  return displayNames[mood] || 'Unknown';
 };
 
 export const getMoodEmoji = (mood?: MoodType): string => {
-  if (!mood) return "📝";
+  if (!mood) return '😐';
   
-  const moodEmojiMap: Record<MoodType, string> = {
-    [MoodType.Happy]: "😊",
-    [MoodType.Focused]: "🧐",
-    [MoodType.Tired]: "😴",
-    [MoodType.Stressed]: "😓",
-    [MoodType.Curious]: "🤓",
-    [MoodType.Okay]: "👍",
-    [MoodType.Overwhelmed]: "😩",
-    [MoodType.Anxious]: "😰",
-    [MoodType.Motivated]: "💪",
-    [MoodType.Confused]: "🤔",
-    [MoodType.Neutral]: "😐",
-    [MoodType.Sad]: "😔"
+  const emojis: Record<MoodType, string> = {
+    [MoodType.Happy]: '😊',
+    [MoodType.Focused]: '🧐',
+    [MoodType.Motivated]: '💪',
+    [MoodType.Tired]: '😴',
+    [MoodType.Stressed]: '😓',
+    [MoodType.Confused]: '🤔',
+    [MoodType.Anxious]: '😰',
+    [MoodType.Neutral]: '😐',
+    [MoodType.Okay]: '👍',
+    [MoodType.Overwhelmed]: '😩',
+    [MoodType.Curious]: '🤓',
+    [MoodType.Sad]: '😔',
   };
   
-  return moodEmojiMap[mood];
+  return emojis[mood] || '😐';
 };
 
 export const getMoodColor = (mood?: MoodType): string => {
-  if (!mood) return "bg-gray-100 text-gray-800";
+  if (!mood) return '';
   
-  const moodColorMap: Record<MoodType, string> = {
-    [MoodType.Happy]: "bg-amber-100 text-amber-800",
-    [MoodType.Focused]: "bg-blue-100 text-blue-800",
-    [MoodType.Tired]: "bg-gray-100 text-gray-800",
-    [MoodType.Stressed]: "bg-red-100 text-red-800",
-    [MoodType.Curious]: "bg-indigo-100 text-indigo-800",
-    [MoodType.Okay]: "bg-green-100 text-green-800",
-    [MoodType.Overwhelmed]: "bg-purple-100 text-purple-800",
-    [MoodType.Anxious]: "bg-orange-100 text-orange-800",
-    [MoodType.Motivated]: "bg-emerald-100 text-emerald-800",
-    [MoodType.Confused]: "bg-cyan-100 text-cyan-800",
-    [MoodType.Neutral]: "bg-slate-100 text-slate-800",
-    [MoodType.Sad]: "bg-sky-100 text-sky-800"
+  const moodColors: Record<MoodType, string> = {
+    [MoodType.Happy]: 'text-amber-600 bg-amber-50 dark:bg-amber-900/20 dark:text-amber-400',
+    [MoodType.Focused]: 'text-blue-600 bg-blue-50 dark:bg-blue-900/20 dark:text-blue-400',
+    [MoodType.Motivated]: 'text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 dark:text-emerald-400',
+    [MoodType.Tired]: 'text-gray-600 bg-gray-50 dark:bg-gray-800 dark:text-gray-400',
+    [MoodType.Stressed]: 'text-red-600 bg-red-50 dark:bg-red-900/20 dark:text-red-400',
+    [MoodType.Confused]: 'text-purple-600 bg-purple-50 dark:bg-purple-900/20 dark:text-purple-400',
+    [MoodType.Anxious]: 'text-orange-600 bg-orange-50 dark:bg-orange-900/20 dark:text-orange-400',
+    [MoodType.Neutral]: 'text-gray-600 bg-gray-50 dark:bg-gray-800 dark:text-gray-400',
+    [MoodType.Okay]: 'text-blue-600 bg-blue-50 dark:bg-blue-900/20 dark:text-blue-400',
+    [MoodType.Overwhelmed]: 'text-red-600 bg-red-50 dark:bg-red-900/20 dark:text-red-400',
+    [MoodType.Curious]: 'text-violet-600 bg-violet-50 dark:bg-violet-900/20 dark:text-violet-400',
+    [MoodType.Sad]: 'text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 dark:text-indigo-400',
   };
   
-  return moodColorMap[mood];
+  return moodColors[mood] || '';
 };
 
-export const getMoodStudyTip = (mood?: MoodType): string => {
-  if (!mood) return "Set your mood to get personalized study tips";
+export const getMoodSuggestion = (mood?: MoodType): string => {
+  if (!mood) return '';
   
-  const moodTipMap: Record<MoodType, string> = {
-    [MoodType.Happy]: "Great mood! Take on challenging concepts today, your positivity will help you tackle difficult material.",
-    [MoodType.Focused]: "Your focus is sharp! Perfect time for deep work on complex topics that require concentration.",
-    [MoodType.Tired]: "Take it easy today with lighter review sessions and more breaks. Quality over quantity!",
-    [MoodType.Stressed]: "Try short study bursts with relaxation breaks. Focus on reviewing familiar material for confidence.",
-    [MoodType.Curious]: "Channel that curiosity into exploring new concepts or diving deeper into topics you enjoy.",
-    [MoodType.Okay]: "You're in a balanced state - good for steady progress through your study plan.",
-    [MoodType.Overwhelmed]: "Break tasks into smaller chunks. Focus on just one small goal at a time.",
-    [MoodType.Anxious]: "Start with easy wins to build confidence. Try the Pomodoro technique with short sessions.",
-    [MoodType.Motivated]: "Harness this energy to tackle your most challenging or least favorite subjects first!",
-    [MoodType.Confused]: "Focus on clarifying concepts. Revisit fundamentals and create simple summaries.",
-    [MoodType.Neutral]: "A balanced approach works well today - mix review with new material.",
-    [MoodType.Sad]: "Be kind to yourself. Choose lighter material or review familiar concepts that bring a sense of accomplishment."
+  const suggestions: Record<MoodType, string> = {
+    [MoodType.Happy]: 'Great day to tackle challenging concepts! Add a bonus practice test?',
+    [MoodType.Focused]: 'Maximize this energy! Aim for 10% extra progress today.',
+    [MoodType.Motivated]: 'Channel this motivation into tackling your most challenging tasks.',
+    [MoodType.Tired]: "Let's lighten today's plan. Focus only on Flashcards or Quick Revision.",
+    [MoodType.Stressed]: 'Take it easy. 15 minutes of flashcards only. Tomorrow, we rebuild momentum.',
+    [MoodType.Confused]: 'Start with reviewing fundamentals before moving to new material.',
+    [MoodType.Anxious]: 'Breathe. Start with 1 simple concept you know well to build confidence.',
+    [MoodType.Neutral]: 'Follow your regular study plan for best results.',
+    [MoodType.Okay]: 'A balanced day ahead. Mix concepts, practice, and revision equally.',
+    [MoodType.Overwhelmed]: 'Simplify your focus. Work on just one subject today.',
+    [MoodType.Curious]: 'Great time to explore new connections between topics!',
+    [MoodType.Sad]: 'Start with lighter material that you enjoy. Short studying sessions today.',
   };
   
-  return moodTipMap[mood];
+  return suggestions[mood] || '';
 };

@@ -23,6 +23,7 @@ import ExamTakingPage from './components/dashboard/student/practice-exam/ExamTak
 import ExamReviewPage from './components/dashboard/student/practice-exam/ExamReviewPage';
 import FlashcardInteractivePage from './pages/dashboard/student/flashcard/FlashcardInteractivePage';
 import PostLoginPrompt from './pages/dashboard/PostLoginPrompt';
+import WelcomeScreen from './components/dashboard/student/WelcomeScreen';
 
 const AdminDashboard = React.lazy(() => import('@/pages/admin/AdminDashboard'));
 
@@ -39,6 +40,9 @@ function App() {
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<SignUp />} />
 
+              {/* Post-signup welcome screen */}
+              <Route path="/welcome" element={<WelcomeScreen onComplete={() => window.location.href = '/dashboard/student'} />} />
+              
               {/* Post-login prompt */}
               <Route path="/welcome-back" element={<PostLoginPrompt />} />
 
@@ -57,21 +61,25 @@ function App() {
 
               {/* Admin routes - protected by AdminRouteGuard */}
               <Route path="/admin/login" element={<AdminLogin />} />
-              <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
-              <Route path="/admin/dashboard/*" element={
-                <AdminRouteGuard>
-                  <Suspense fallback={<LoadingScreen />}>
-                    <AdminDashboard />
-                  </Suspense>
-                </AdminRouteGuard>
-              } />
+              <Route 
+                path="/admin/dashboard/*" 
+                element={
+                  <AdminRouteGuard>
+                    <Suspense fallback={<LoadingScreen />}>
+                      <AdminDashboard />
+                    </Suspense>
+                  </AdminRouteGuard>
+                }
+              />
 
-              {/* 404 Not Found */}
+              {/* Fallback routes */}
+              <Route path="/admin" element={<Navigate to="/admin/login" />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
-            <Toaster />
           </AdminAuthProvider>
         </AuthProvider>
+        
+        <Toaster />
       </BrowserRouter>
     </ThemeProvider>
   );

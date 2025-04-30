@@ -1,215 +1,137 @@
 
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
-import { Card } from "@/components/ui/card";
-import { useToast } from "@/hooks/use-toast";
-import { useOnboarding } from "./OnboardingContext";
-import SignupProgressBar from "./SignupProgressBar";
-import StepRenderer from "./StepRenderer";
-import PrepzrLogo from "@/components/common/PrepzrLogo";
-import { MoodType, PersonalityType, UserRole } from "@/types/user/base";
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useOnboardingContext } from './OnboardingContext';
+import WelcomeStep from './steps/WelcomeStep';
+import RegistrationStep from './steps/RegistrationStep';
+import UserTypeStep from './steps/UserTypeStep';
+import GoalSelectionStep from './steps/GoalSelectionStep';
+import StudyHabitsStep from './steps/StudyHabitsStep';
+import ProfileCompleteStep from './steps/ProfileCompleteStep';
+import ProgressIndicator from './ProgressIndicator';
+import { Button } from '../ui/button';
+import { ArrowLeft } from 'lucide-react';
 
 const SignupContent = () => {
-  const { toast } = useToast();
+  const { 
+    currentStep, 
+    setCurrentStep, 
+    steps, 
+    userType, 
+    goalTitle,
+    formData,
+    updateFormData,
+    handleSubmit
+  } = useOnboardingContext();
   const navigate = useNavigate();
-  const { onboardingData, setOnboardingData, currentStep, goToNextStep } = useOnboarding();
-  const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleRoleSelect = (role: UserRole) => {
-    // Only allow student role
-    setOnboardingData({ ...onboardingData, role: UserRole.Student });
-    goToNextStep();
-  };
-
-  const handleGoalSelect = (goal: string) => {
-    setOnboardingData({ ...onboardingData, examGoal: goal });
-    goToNextStep();
-  };
-
-  const handleDemographicsSubmit = (data: Record<string, string>) => {
-    setOnboardingData({ 
-      ...onboardingData, 
-      demographics: data,
-      targetExamDate: data.examDate // Save exam date specifically
-    });
-    goToNextStep();
-  };
-
-  const handlePersonalitySelect = (personality: PersonalityType) => {
-    setOnboardingData({ ...onboardingData, personalityType: personality });
-    goToNextStep();
-  };
-
-  const handleMoodSelect = (mood: MoodType) => {
-    setOnboardingData({ ...onboardingData, mood });
-    goToNextStep();
-  };
-  
-  const handleStudyTimeSelect = (time: "Morning" | "Afternoon" | "Evening" | "Night") => {
-    setOnboardingData({ ...onboardingData, studyTime: time });
-    goToNextStep();
-  };
-  
-  const handleStudyPaceSelect = (pace: "Aggressive" | "Balanced" | "Relaxed") => {
-    setOnboardingData({ ...onboardingData, studyPace: pace });
-    goToNextStep();
-  };
-  
-  const handleStudyHoursSelect = (hours: number) => {
-    setOnboardingData({ ...onboardingData, dailyStudyHours: hours });
-    goToNextStep();
-  };
-
-  const handleHabitsSubmit = (habits: Record<string, string>) => {
-    setOnboardingData({ ...onboardingData, habits });
-    goToNextStep();
-  };
-
-  const handleInterestsSubmit = (interests: string) => {
-    setOnboardingData({ ...onboardingData, interests });
-    goToNextStep();
-  };
-
-  const handleSignupSubmit = async (formValues: { name: string; mobile: string; otp: string; agreeTerms: boolean }) => {
-    setIsLoading(true);
-
-    try {
-      // Set name from form data
-      const finalData = {
-        ...onboardingData,
-        name: formValues.name,
-        mobile: formValues.mobile,
-      };
-
-      setOnboardingData(finalData);
-
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-
-      // Store data in localStorage
-      localStorage.setItem("userData", JSON.stringify({
-        ...finalData,
-        loginCount: 1,
-        createdAt: new Date().toISOString(),
-      }));
-
-      // Show success message
-      toast({
-        title: "Account created successfully!",
-        description: "Redirecting to your personalized dashboard.",
-      });
-
-      // Redirect to dashboard
-      setTimeout(() => {
-        navigate("/welcome-back?new=true&completedOnboarding=true");
-      }, 1000);
-    } catch (error) {
-      console.error("Error creating account:", error);
-      toast({
-        title: "Account creation failed",
-        description: "Please try again later.",
-        variant: "destructive"
-      });
-      setIsLoading(false);
+  // Function to handle next step
+  const goToNextStep = () => {
+    if (currentStep < steps.length - 1) {
+      setCurrentStep(currentStep + 1);
+    } else {
+      // On final step completion
+      handleFinalSubmit();
     }
   };
 
-  const handlers = {
-    handleRoleSelect,
-    handleGoalSelect,
-    handleDemographicsSubmit,
-    handlePersonalitySelect,
-    handleMoodSelect,
-    handleStudyTimeSelect,
-    handleStudyPaceSelect,
-    handleStudyHoursSelect,
-    handleHabitsSubmit,
-    handleInterestsSubmit,
-    handleSignupSubmit,
+  // Function to handle going back to previous step
+  const goToPreviousStep = () => {
+    if (currentStep > 0) {
+      setCurrentStep(currentStep - 1);
+    }
   };
 
-  const cardVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0 },
+  // Handle final form submission
+  const handleFinalSubmit = async () => {
+    setIsSubmitting(true);
+    try {
+      await handleSubmit();
+      // Redirect to welcome screen instead of dashboard
+      navigate('/welcome');
+    } catch (error) {
+      console.error('Error during signup:', error);
+      // Handle error
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const handleGoogleSignup = () => {
-    toast({
-      title: "Google Sign Up",
-      description: "Google authentication would be implemented here.",
-    });
+  // Render the current step's content
+  const renderStep = () => {
+    switch (currentStep) {
+      case 0:
+        return <WelcomeStep onNext={goToNextStep} />;
+      case 1:
+        return <UserTypeStep onNext={goToNextStep} />;
+      case 2:
+        return <GoalSelectionStep onNext={goToNextStep} />;
+      case 3:
+        return <RegistrationStep onNext={goToNextStep} />;
+      case 4:
+        return <StudyHabitsStep onNext={goToNextStep} />;
+      case 5:
+        return <ProfileCompleteStep onComplete={handleFinalSubmit} isSubmitting={isSubmitting} />;
+      default:
+        return <WelcomeStep onNext={goToNextStep} />;
+    }
+  };
 
-    // Mock successful signup for demonstration
-    setTimeout(() => {
-      // Store mock data in localStorage
-      localStorage.setItem("userData", JSON.stringify({
-        name: "Google User",
-        email: "googleuser@example.com",
-        role: "student",
-        loginCount: 1,
-        createdAt: new Date().toISOString(),
-        onboardingCompleted: false,
-      }));
-
-      navigate("/welcome-back?new=true");
-    }, 2000);
+  // Generate the correct step title
+  const getStepTitle = () => {
+    switch (currentStep) {
+      case 0:
+        return "Welcome to Prepzr";
+      case 1:
+        return "I am a...";
+      case 2:
+        return "What's your goal?";
+      case 3:
+        return "Create Your Account";
+      case 4:
+        return "Your Study Habits";
+      case 5:
+        return "Almost Done!";
+      default:
+        return "Sign Up";
+    }
   };
 
   return (
-    <motion.div
-      initial="hidden"
-      animate="visible"
-      variants={cardVariants}
-      transition={{ duration: 0.5 }}
-      className="w-full max-w-md mx-auto"
-    >
-      <Card className="relative overflow-hidden bg-white dark:bg-gray-900 shadow-xl rounded-xl">
-        <div className="p-6 md:p-8">
-          <div className="flex flex-col items-center mb-6">
-            <PrepzrLogo width={120} height={120} />
-            <h1 className="mt-4 text-2xl font-bold">Join PREPZR</h1>
-            <p className="text-gray-500 text-sm text-center mt-1">
-              Create your personalized study partner
-            </p>
+    <div className="w-full max-w-md mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
+      <div className="p-8 pb-6">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            {currentStep > 0 && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="gap-1 px-2 h-8"
+                onClick={goToPreviousStep}
+                disabled={isSubmitting}
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Back
+              </Button>
+            )}
           </div>
-
-          <SignupProgressBar currentStep={currentStep} />
-
-          <div className="mt-6">
-            <StepRenderer 
-              step={currentStep}
-              onboardingData={onboardingData}
-              handlers={handlers}
-              isLoading={isLoading}
-            />
+          <div className="text-center flex-1">
+            <h2 className="font-semibold text-lg">{getStepTitle()}</h2>
           </div>
-
-          {currentStep === "role" && (
-            <div className="mt-6">
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t border-gray-300"></span>
-                </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-white dark:bg-gray-900 px-2 text-gray-500">Or sign up with</span>
-                </div>
-              </div>
-              <div className="mt-4">
-                <button
-                  type="button"
-                  className="w-full flex justify-center items-center gap-2 bg-white border border-gray-300 rounded-md py-2 px-4 text-sm font-medium text-gray-700 hover:bg-gray-50"
-                  onClick={handleGoogleSignup}
-                >
-                  <img src="https://www.google.com/favicon.ico" alt="Google" className="h-4 w-4" />
-                  Sign up with Google
-                </button>
-              </div>
-            </div>
-          )}
+          <div className="w-12"></div> {/* Spacer for alignment */}
         </div>
-      </Card>
-    </motion.div>
+
+        {/* Progress indicator */}
+        <ProgressIndicator currentStep={currentStep} totalSteps={steps.length} />
+
+        {/* Current Step Content */}
+        <div className="my-6">
+          {renderStep()}
+        </div>
+      </div>
+    </div>
   );
 };
 

@@ -1,147 +1,237 @@
 
-import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import PrepzrLogo from "@/components/common/PrepzrLogo";
-import { motion } from "framer-motion";
-import { ArrowRight, BookOpen, Calendar, Sparkles, Star } from "lucide-react";
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { motion } from 'framer-motion';
+import { Calendar, BookOpen, ArrowRight, Clock, Star, FileText } from 'lucide-react';
 
 const PostLoginPrompt = () => {
   const navigate = useNavigate();
-  const [userName, setUserName] = useState("");
-  const [animation, setAnimation] = useState(false);
+  const [lastActivity, setLastActivity] = useState<any | null>(null);
+  const [pendingTasks, setPendingTasks] = useState<any[]>([]);
 
   useEffect(() => {
-    // Try to get user data from local storage
-    const userData = localStorage.getItem("userData");
-    if (userData) {
-      const parsedData = JSON.parse(userData);
-      if (parsedData.name) {
-        setUserName(parsedData.name);
-      }
-    }
+    // In a real app, fetch this data from your API
+    // Mocking data for demonstration
+    setLastActivity({
+      type: 'concept',
+      title: 'Newton\'s Laws of Motion',
+      timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString() // 1 day ago
+    });
 
-    // Start animation after a short delay
-    setTimeout(() => setAnimation(true), 300);
+    setPendingTasks([
+      {
+        id: '1',
+        title: 'Complete Chemical Bonding',
+        type: 'concept',
+        subject: 'Chemistry',
+        dueDate: new Date().toISOString()
+      },
+      {
+        id: '2',
+        title: 'Organic Chemistry Flashcards',
+        type: 'flashcard',
+        subject: 'Chemistry',
+        dueDate: new Date().toISOString()
+      },
+      {
+        id: '3',
+        title: 'Physics Weekly Test',
+        type: 'exam',
+        subject: 'Physics',
+        dueDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
+      }
+    ]);
+
+    // Auto-redirect to dashboard after 30 seconds
+    const timer = setTimeout(() => {
+      goToDashboard();
+    }, 30000);
+
+    return () => clearTimeout(timer);
   }, []);
 
-  const features = [
-    {
-      title: "Today's Study Plan",
-      description: "Your personalized daily study schedule",
-      icon: <Calendar className="h-5 w-5 text-purple-500" />,
-    },
-    {
-      title: "Concept Cards",
-      description: "Master key concepts with interactive learning cards",
-      icon: <BookOpen className="h-5 w-5 text-blue-500" />,
-    },
-    {
-      title: "Feel Good Corner",
-      description: "Tools to help you manage stress and stay focused",
-      icon: <Star className="h-5 w-5 text-amber-500" />,
-    },
-    {
-      title: "24/7 AI Tutor",
-      description: "Get help with any question, anytime",
-      icon: <Sparkles className="h-5 w-5 text-green-500" />,
-    },
-  ];
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString();
+  };
 
-  const handleContinue = () => {
-    navigate("/dashboard/student");
+  const formatTimeAgo = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffHrs = Math.floor(diffMs / (1000 * 60 * 60));
+    
+    if (diffHrs < 1) {
+      return "Just now";
+    } else if (diffHrs === 1) {
+      return "1 hour ago";
+    } else if (diffHrs < 24) {
+      return `${diffHrs} hours ago`;
+    } else {
+      const diffDays = Math.floor(diffHrs / 24);
+      if (diffDays === 1) {
+        return "Yesterday";
+      } else {
+        return `${diffDays} days ago`;
+      }
+    }
+  };
+
+  const goToTask = (taskId: string, taskType: string) => {
+    // Navigate to the appropriate section based on task type
+    switch (taskType) {
+      case 'concept':
+        navigate(`/dashboard/student/concepts/card/${taskId}`);
+        break;
+      case 'flashcard':
+        navigate(`/dashboard/student/flashcards/${taskId}/interactive`);
+        break;
+      case 'exam':
+        navigate(`/dashboard/student/practice-exam/${taskId}/start`);
+        break;
+      default:
+        goToDashboard();
+    }
+  };
+
+  const goToLastActivity = () => {
+    if (lastActivity) {
+      switch (lastActivity.type) {
+        case 'concept':
+          navigate(`/dashboard/student/concepts/card/${lastActivity.id}`);
+          break;
+        case 'flashcard':
+          navigate(`/dashboard/student/flashcards/${lastActivity.id}/interactive`);
+          break;
+        case 'exam':
+          navigate(`/dashboard/student/practice-exam/${lastActivity.id}/start`);
+          break;
+        default:
+          goToDashboard();
+      }
+    } else {
+      goToDashboard();
+    }
+  };
+
+  const goToDashboard = () => {
+    navigate('/dashboard/student');
+  };
+
+  const goToTodayPlan = () => {
+    navigate('/dashboard/student/today');
+  };
+
+  const getTaskIcon = (taskType: string) => {
+    switch (taskType) {
+      case 'concept':
+        return <BookOpen className="h-4 w-4 text-blue-500" />;
+      case 'flashcard':
+        return <Star className="h-4 w-4 text-amber-500" />;
+      case 'exam':
+        return <FileText className="h-4 w-4 text-emerald-500" />;
+      default:
+        return <Clock className="h-4 w-4 text-gray-500" />;
+    }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-100 via-white to-blue-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-950 dark:to-blue-950 flex items-center justify-center">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="w-full max-w-3xl"
+        className="w-full max-w-2xl p-4"
       >
-        <Card className="shadow-lg border-gray-200 overflow-hidden">
-          <CardHeader className="bg-gradient-to-r from-blue-600 to-purple-600 text-white text-center py-8">
-            <div className="flex justify-center mb-3">
-              <PrepzrLogo width={180} />
-            </div>
-            <CardTitle className="text-3xl font-display">
-              Welcome{userName ? ` back, ${userName}` : ""}!
-            </CardTitle>
-          </CardHeader>
-          
-          <CardContent className="p-6 md:p-8 space-y-6">
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: animation ? 1 : 0 }}
-              transition={{ duration: 0.7, delay: 0.2 }}
-            >
+        <Card className="border-none shadow-xl bg-white/90 backdrop-blur-sm dark:bg-gray-800/90">
+          <CardContent className="p-8">
+            <div className="space-y-6">
               <div className="text-center mb-6">
-                <h2 className="text-xl font-semibold mb-2">Founder's Message</h2>
-                <div className="flex flex-col md:flex-row items-center justify-center gap-4 bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
-                  <div className="w-32 h-32 rounded-full overflow-hidden">
-                    <img 
-                      src="/lovable-uploads/bffd91d7-243d-42d9-bbd9-52133e18f4b6.png"
-                      alt="Amit Singh" 
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <div className="md:ml-4 text-left">
-                    <p className="text-gray-600 italic">
-                      "At PREPZR, our mission is simple — to make learning truly personalized, engaging and result-driven. We're committed to empowering every student unbiasedly with the right tools, guidance and support to confidently reach their exam goals."
-                    </p>
-                    <p className="text-gray-600 mt-2 font-medium">— Amit Singh, Founder & CEO</p>
-                  </div>
-                </div>
+                <h1 className="text-2xl font-bold">Welcome back!</h1>
+                <p className="text-muted-foreground">Pick up where you left off</p>
               </div>
-            </motion.div>
-            
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: animation ? 1 : 0 }}
-              transition={{ duration: 0.7, delay: 0.4 }}
-              className="space-y-4"
-            >
-              <h3 className="text-lg font-medium">Discover PREPZR Features</h3>
-              <div className="grid md:grid-cols-2 gap-4">
-                {features.map((feature, index) => (
-                  <motion.div 
-                    key={index}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: animation ? 1 : 0, y: animation ? 0 : 20 }}
-                    transition={{ duration: 0.5, delay: 0.5 + index * 0.1 }}
-                    className="border rounded-lg p-4 hover:shadow-md transition-shadow"
+
+              {lastActivity && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.2 }}
+                >
+                  <h2 className="text-lg font-medium mb-3">Last Activity</h2>
+                  <Button 
+                    variant="outline" 
+                    className="w-full justify-start gap-3 p-4 h-auto" 
+                    onClick={goToLastActivity}
                   >
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 bg-gray-100 rounded-full">
-                        {feature.icon}
-                      </div>
-                      <div>
-                        <h4 className="font-medium">{feature.title}</h4>
-                        <p className="text-sm text-gray-500">{feature.description}</p>
-                      </div>
+                    <div className="p-2 rounded-full bg-blue-100 dark:bg-blue-900/30">
+                      {getTaskIcon(lastActivity.type)}
                     </div>
-                  </motion.div>
-                ))}
-              </div>
-            </motion.div>
+                    <div className="flex-1 text-left">
+                      <p className="font-medium">{lastActivity.title}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {formatTimeAgo(lastActivity.timestamp)}
+                      </p>
+                    </div>
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </motion.div>
+              )}
+
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.4 }}
+              >
+                <h2 className="text-lg font-medium mb-3">Pending Tasks</h2>
+                <div className="space-y-2">
+                  {pendingTasks.map(task => (
+                    <Button
+                      key={task.id}
+                      variant="outline"
+                      className="w-full justify-start gap-3 p-4 h-auto"
+                      onClick={() => goToTask(task.id, task.type)}
+                    >
+                      <div className="p-2 rounded-full bg-blue-100 dark:bg-blue-900/30">
+                        {getTaskIcon(task.type)}
+                      </div>
+                      <div className="flex-1 text-left">
+                        <p className="font-medium">{task.title}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {task.subject} • Due: {formatDate(task.dueDate)}
+                        </p>
+                      </div>
+                      <ArrowRight className="h-4 w-4" />
+                    </Button>
+                  ))}
+                </div>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.6 }}
+                className="flex flex-col sm:flex-row gap-3 mt-8"
+              >
+                <Button 
+                  className="flex-1" 
+                  onClick={goToTodayPlan}
+                >
+                  <Calendar className="mr-2 h-4 w-4" />
+                  Today's Plan
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="flex-1" 
+                  onClick={goToDashboard}
+                >
+                  Go to Dashboard
+                </Button>
+              </motion.div>
+            </div>
           </CardContent>
-          
-          <CardFooter className="border-t px-6 py-4 bg-gray-50">
-            <Button 
-              onClick={handleContinue}
-              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700"
-            >
-              <span>Continue to Dashboard</span>
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
-          </CardFooter>
         </Card>
-        
-        <div className="text-center mt-4 text-sm text-gray-600">
-          <p>Need help getting started? <Link to="/help" className="text-blue-600 hover:underline">View Tutorial</Link></p>
-        </div>
       </motion.div>
     </div>
   );
