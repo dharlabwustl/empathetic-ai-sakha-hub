@@ -55,11 +55,17 @@ const Index = () => {
           <FeaturesSection />
         </div>
         
+        <div ref={forWhomRef}>
+          <ForWhomSection />
+        </div>
+        
         <ExamPreparationSection />
         
         {showExamAnalyzer && <ExamReadinessAnalyzer onClose={handleCloseExamAnalyzer} />}
         
         <StudentBenefitsSection />
+        
+        {/* Both EcosystemAnimation and OnboardingSection are now in HeroSection */}
         
         <VideoSection />
         

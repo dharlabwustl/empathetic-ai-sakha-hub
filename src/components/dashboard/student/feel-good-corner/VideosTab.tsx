@@ -1,97 +1,83 @@
 
 import React from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { BookOpen } from 'lucide-react';
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Play } from "lucide-react";
+import { motion } from "framer-motion";
+import { useToast } from "@/hooks/use-toast";
+import { Video } from "./types";
 
-const VideosTab = () => {
-  const educationalVideos = [
-    {
-      id: 'vid1',
-      title: 'The Beauty of Mathematics',
-      thumbnail: 'https://placehold.co/600x400/9c89ff/ffffff?text=Math+Video',
-      duration: '4:32',
-      category: 'Mathematics'
-    },
-    {
-      id: 'vid2',
-      title: 'Understanding Quantum Physics',
-      thumbnail: 'https://placehold.co/600x400/4dbbf8/ffffff?text=Physics+Video',
-      duration: '6:15',
-      category: 'Physics'
-    },
-    {
-      id: 'vid3',
-      title: 'The Human Brain Explained',
-      thumbnail: 'https://placehold.co/600x400/f88c4d/ffffff?text=Biology+Video',
-      duration: '5:47',
-      category: 'Biology'
-    },
-    {
-      id: 'vid4',
-      title: 'Understanding Chemical Reactions',
-      thumbnail: 'https://placehold.co/600x400/4df8ae/ffffff?text=Chemistry+Video',
-      duration: '4:18',
-      category: 'Chemistry'
-    },
-    {
-      id: 'vid5',
-      title: 'History of Ancient Civilizations',
-      thumbnail: 'https://placehold.co/600x400/f84d9e/ffffff?text=History+Video',
-      duration: '7:22',
-      category: 'History'
-    },
-    {
-      id: 'vid6',
-      title: 'Introduction to Creative Writing',
-      thumbnail: 'https://placehold.co/600x400/f8e54d/ffffff?text=Literature+Video',
-      duration: '3:50',
-      category: 'Literature'
-    }
-  ];
+// Mock data
+const mockVideos = [
+  { id: 1, title: "When Physics Goes Wrong", thumbnail: "https://source.unsplash.com/random/300x200?comedy", duration: "0:30" },
+  { id: 2, title: "Funny Animal Bloopers", thumbnail: "https://source.unsplash.com/random/300x200?animals", duration: "0:27" },
+  { id: 3, title: "Study Break Comedy", thumbnail: "https://source.unsplash.com/random/300x200?laugh", duration: "0:30" },
+];
 
+interface VideosTabProps {
+  initialVideos?: Video[];
+}
+
+const VideosTab: React.FC<VideosTabProps> = ({ initialVideos = mockVideos }) => {
+  const { toast } = useToast();
+
+  const handlePlayVideo = (id: number) => {
+    toast({
+      title: "Video playing",
+      description: "Enjoy your 30-second laugh break!",
+    });
+  };
+  
   return (
-    <div className="space-y-6">
-      <div className="mb-6">
-        <h3 className="text-2xl font-bold mb-2">Educational & Relaxing Videos</h3>
-        <p className="text-muted-foreground">
-          Watch short, engaging videos to give your mind a refresh while still learning something new.
+    <motion.div 
+      key="videos"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+    >
+      <div className="space-y-4">
+        <h3 className="font-medium">30-Second Laugh Break</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {mockVideos.map((video) => (
+            <motion.div 
+              key={video.id} 
+              className="rounded-lg overflow-hidden border bg-white shadow-sm"
+              whileHover={{ y: -2, scale: 1.01 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: video.id * 0.15 }}
+            >
+              <div className="relative">
+                <img 
+                  src={video.thumbnail} 
+                  alt={video.title} 
+                  className="w-full h-32 object-cover"
+                />
+                <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="rounded-full bg-white w-10 h-10"
+                    onClick={() => handlePlayVideo(video.id)}
+                  >
+                    <Play className="h-5 w-5 text-violet-700" />
+                  </Button>
+                </div>
+                <Badge className="absolute top-2 right-2 bg-black/50">
+                  {video.duration}
+                </Badge>
+              </div>
+              <div className="p-2">
+                <h4 className="text-sm font-medium">{video.title}</h4>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+        <p className="text-xs text-gray-500 text-center mt-2">
+          Videos are curated based on your preferences and age group.
         </p>
       </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {educationalVideos.map((video) => (
-          <Card key={video.id} className="overflow-hidden hover:shadow-md transition-shadow">
-            <div className="relative">
-              <img 
-                src={video.thumbnail} 
-                alt={video.title} 
-                className="w-full h-48 object-cover"
-              />
-              <div className="absolute bottom-2 right-2 bg-black/70 text-white px-2 py-1 text-xs rounded">
-                {video.duration}
-              </div>
-              <div className="absolute top-2 left-2 bg-primary/90 text-white px-2 py-1 text-xs rounded">
-                {video.category}
-              </div>
-            </div>
-            <CardContent className="p-4">
-              <h4 className="font-medium mb-2 line-clamp-1">{video.title}</h4>
-              <Button variant="outline" size="sm" className="w-full">
-                <BookOpen className="mr-2 h-4 w-4" />
-                Watch Now
-              </Button>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      <div className="mt-8 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800/30">
-        <p className="text-sm text-blue-800 dark:text-blue-300">
-          <strong>Study Tip:</strong> Brief educational videos can refresh your mind while reinforcing concepts in a different format, engaging both visual and auditory learning pathways.
-        </p>
-      </div>
-    </div>
+    </motion.div>
   );
 };
 

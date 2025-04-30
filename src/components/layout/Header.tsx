@@ -1,11 +1,9 @@
-
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Menu, X } from 'lucide-react';
 import { useAuth } from '@/contexts/auth/AuthContext';
-import PrepzrLogo from '@/components/common/PrepzrLogo';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -21,10 +19,14 @@ const Header = () => {
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <Link to="/" className="flex items-center space-x-2">
-              <PrepzrLogo width={40} height={40} />
+              <img 
+                src="/lovable-uploads/fdc1cebd-e35f-4f08-a45b-e839964fd590.png" 
+                alt="Sakha AI Logo" 
+                className="w-10 h-10"
+              />
               <div>
                 <h1 className="font-bold text-xl sm:text-2xl font-display gradient-text">
-                  PREPZR – पहली बार, पढ़ाई से पहले, आपको समझने वाला साथी
+                  Sakha AI – पहली बार, पढ़ाई से पहले, आपको समझने वाला साथी
                 </h1>
                 <p className="hidden sm:block text-xs text-gray-500 dark:text-gray-400">
                   India's 1st Emotionally Intelligent Study Partner – Tuned to Your Mood, Habits, Mind & Mission to Crack Exams.

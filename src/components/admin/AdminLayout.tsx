@@ -25,6 +25,12 @@ interface AdminLayoutProps {
   children: ReactNode;
 }
 
+interface SidebarItem {
+  name: string;
+  icon: ReactNode;
+  path: string;
+}
+
 const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const { adminUser, logout } = useAdminAuth();
   const navigate = useNavigate();

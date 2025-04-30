@@ -9,15 +9,38 @@ interface RoleStepProps {
 
 const RoleStep: React.FC<RoleStepProps> = ({ onRoleSelect }) => {
   return (
-    <div className="flex justify-center">
+    <div className="grid grid-cols-2 gap-4">
       <Button
         onClick={() => onRoleSelect(UserRole.Student)}
-        className="bg-white hover:bg-blue-50 text-blue-700 border border-blue-200 h-auto py-6 w-full max-w-xs flex flex-col items-center"
+        className="bg-white hover:bg-blue-50 text-blue-700 border border-blue-200 h-auto py-6 flex flex-col items-center"
         variant="outline"
       >
         <span className="text-xl mb-2">🎓</span>
-        <span className="text-lg font-medium">Student</span>
-        <p className="text-sm text-gray-500 mt-1">Prepare for exams with personalized study plans</p>
+        <span>Student</span>
+      </Button>
+      <Button
+        onClick={() => onRoleSelect(UserRole.Employee)}
+        className="bg-white hover:bg-blue-50 text-blue-700 border border-blue-200 h-auto py-6 flex flex-col items-center"
+        variant="outline"
+      >
+        <span className="text-xl mb-2">💼</span>
+        <span>Employee</span>
+      </Button>
+      <Button
+        onClick={() => onRoleSelect(UserRole.Doctor)}
+        className="bg-white hover:bg-blue-50 text-blue-700 border border-blue-200 h-auto py-6 flex flex-col items-center"
+        variant="outline"
+      >
+        <span className="text-xl mb-2">🏥</span>
+        <span>Doctor</span>
+      </Button>
+      <Button
+        onClick={() => onRoleSelect(UserRole.Founder)}
+        className="bg-white hover:bg-blue-50 text-blue-700 border border-blue-200 h-auto py-6 flex flex-col items-center"
+        variant="outline"
+      >
+        <span className="text-xl mb-2">🚀</span>
+        <span>Founder</span>
       </Button>
     </div>
   );

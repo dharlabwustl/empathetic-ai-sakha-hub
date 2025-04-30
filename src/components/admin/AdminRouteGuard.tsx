@@ -1,13 +1,13 @@
 
 import React from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
-import { useAdminAuth } from '@/contexts/AdminAuthContext';
+import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { Loader2 } from 'lucide-react';
 
 const AdminRouteGuard: React.FC = () => {
-  const { isAuthenticated, isLoading } = useAdminAuth();
+  const { isAuthenticated, loading } = useAdminAuth();
 
-  if (isLoading) {
+  if (loading) {
     return (
       <div className="flex items-center justify-center h-screen">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />

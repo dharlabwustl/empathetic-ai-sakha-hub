@@ -1,41 +1,62 @@
 
 export enum UserRole {
-  Admin = "admin",
   Student = "student",
-  Educator = "educator",
   Employee = "employee",
   Doctor = "doctor",
-  Founder = "founder"
+  Founder = "founder",
+  Admin = "admin",
 }
 
 export enum SubscriptionType {
-  free = "free",
-  premium = "premium",
-  pro_student = "pro_student",
-  pro_educator = "pro_educator"
+  Free = "free",
+  Basic = "basic",
+  Premium = "premium",
+  Pro = "pro",
+  Standard = "standard",
+  School = "school",
+  Corporate = "corporate",
 }
 
-export type MoodType = 'happy' | 'motivated' | 'focused' | 'neutral' | 'tired' | 'anxious' | 'stressed' | 'sad';
+export type MoodType = 'happy' | 'sad' | 'motivated' | 'neutral' | 'anxious' | 'overwhelmed' | 'curious' | 'okay';
+
+export interface UserGoal {
+  id: string;
+  title: string;
+  progress: number;
+  targetDate?: string;
+}
 
 export interface UserSubscription {
-  type: SubscriptionType;
-  startDate: Date;
-  endDate?: Date;
-  autoRenew?: boolean;
+  planType: SubscriptionType | string;
+  isActive?: boolean;
+  startDate?: string;
+  expiryDate?: string;
   features?: string[];
 }
 
 export interface UserProfileBase {
   id: string;
   name: string;
-  email?: string;
+  email: string;
   role: UserRole;
-  photoUrl?: string;
-  subscription?: SubscriptionType | UserSubscription;
-  goals?: { id: string; title: string; progress: number }[];
+  avatar?: string;
+  goals?: UserGoal[];
+  subscription?: UserSubscription | string;
+  examPreparation?: string;
+  personalityType?: string;
   loginCount?: number;
-  lastLogin?: Date;
-  createdAt?: Date;
-  updatedAt?: Date;
-  exams?: string[];
+  joinDate?: string;
+}
+
+export type UserProfileType = UserProfileBase;
+
+export interface MoodTheme {
+  label: string;
+  emoji: string;
+  colors: {
+    primary: string;
+    secondary: string;
+  };
+  gradientClass: string;
+  buttonClass: string;
 }

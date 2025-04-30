@@ -1,385 +1,205 @@
 
-// Generate database schema for export
-export const generateDatabaseSchema = () => {
+/**
+ * Schema Export Utility
+ * Provides utility functions for generating database schema representations
+ */
+
+export interface SchemaField {
+  name: string;
+  type: string;
+  isRequired: boolean;
+  isPrimaryKey: boolean;
+  isForeignKey: boolean;
+  references?: string;
+  description?: string;
+}
+
+export interface SchemaTable {
+  tableName: string;
+  description?: string;
+  fields: SchemaField[];
+}
+
+/**
+ * Generate a representation of the database schema
+ */
+export const generateDatabaseSchema = (): SchemaTable[] => {
+  // For demonstration purposes, we're hardcoding the schema
+  // In a real application, this would be fetched from the backend
   return [
     {
-      tableName: 'users',
+      tableName: "users",
+      description: "Core user account information and authentication details",
       fields: [
-        { name: 'id', type: 'UUID', isPrimaryKey: true, isRequired: true, isForeignKey: false },
-        { name: 'email', type: 'VARCHAR(255)', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'phone_number', type: 'VARCHAR(15)', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'password_hash', type: 'VARCHAR(255)', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'role', type: 'ENUM', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'created_at', type: 'TIMESTAMP', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'updated_at', type: 'TIMESTAMP', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'last_login', type: 'TIMESTAMP', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'status', type: 'ENUM', isPrimaryKey: false, isRequired: true, isForeignKey: false }
+        { name: "id", type: "UUID", isRequired: true, isPrimaryKey: true, isForeignKey: false, description: "Unique user identifier" },
+        { name: "email", type: "VARCHAR(255)", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "User email address, used for login" },
+        { name: "password_hash", type: "VARCHAR(255)", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Hashed user password" },
+        { name: "name", type: "VARCHAR(100)", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "User's full name" },
+        { name: "role", type: "VARCHAR(50)", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "User role (student, admin, etc.)" },
+        { name: "created_at", type: "TIMESTAMP", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Account creation timestamp" },
+        { name: "updated_at", type: "TIMESTAMP", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Last account update timestamp" }
       ]
     },
     {
-      tableName: 'students',
+      tableName: "students",
+      description: "Student-specific profile information",
       fields: [
-        { name: 'id', type: 'UUID', isPrimaryKey: true, isRequired: true, isForeignKey: false },
-        { name: 'user_id', type: 'UUID', isPrimaryKey: false, isRequired: true, isForeignKey: true, references: 'users.id' },
-        { name: 'name', type: 'VARCHAR(255)', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'age', type: 'INT', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'grade', type: 'VARCHAR(50)', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'school', type: 'VARCHAR(255)', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'location', type: 'VARCHAR(255)', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'target_exam', type: 'VARCHAR(100)', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'parent_name', type: 'VARCHAR(255)', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'parent_contact', type: 'VARCHAR(15)', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'profile_image', type: 'VARCHAR(255)', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'personality_type', type: 'VARCHAR(50)', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'created_at', type: 'TIMESTAMP', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'updated_at', type: 'TIMESTAMP', isPrimaryKey: false, isRequired: true, isForeignKey: false }
+        { name: "id", type: "UUID", isRequired: true, isPrimaryKey: true, isForeignKey: false, description: "Unique student identifier" },
+        { name: "user_id", type: "UUID", isRequired: true, isPrimaryKey: false, isForeignKey: true, references: "users(id)", description: "Reference to user account" },
+        { name: "grade", type: "VARCHAR(20)", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "Student's academic grade/level" },
+        { name: "exam_type", type: "VARCHAR(50)", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Type of exam the student is preparing for" },
+        { name: "target_score", type: "INTEGER", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "Target score for exam" },
+        { name: "phone_number", type: "VARCHAR(20)", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "Student contact number" },
+        { name: "onboarding_completed", type: "BOOLEAN", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Whether student completed onboarding" },
+        { name: "last_active", type: "TIMESTAMP", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "Last platform activity timestamp" }
       ]
     },
     {
-      tableName: 'onboarding_data',
+      tableName: "student_subjects",
+      description: "Subjects that students are studying",
       fields: [
-        { name: 'id', type: 'UUID', isPrimaryKey: true, isRequired: true, isForeignKey: false },
-        { name: 'user_id', type: 'UUID', isPrimaryKey: false, isRequired: true, isForeignKey: true, references: 'users.id' },
-        { name: 'goal', type: 'VARCHAR(100)', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'sleep_schedule', type: 'VARCHAR(100)', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'focus_hours', type: 'INT', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'stress_management', type: 'VARCHAR(100)', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'break_routine', type: 'VARCHAR(100)', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'interests', type: 'JSON', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'completed', type: 'BOOLEAN', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'created_at', type: 'TIMESTAMP', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'updated_at', type: 'TIMESTAMP', isPrimaryKey: false, isRequired: true, isForeignKey: false }
+        { name: "id", type: "UUID", isRequired: true, isPrimaryKey: true, isForeignKey: false, description: "Unique record identifier" },
+        { name: "student_id", type: "UUID", isRequired: true, isPrimaryKey: false, isForeignKey: true, references: "students(id)", description: "Reference to student" },
+        { name: "subject_name", type: "VARCHAR(100)", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Subject name" },
+        { name: "proficiency_level", type: "INTEGER", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Self-rated proficiency (1-10)" },
+        { name: "is_priority", type: "BOOLEAN", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Whether this is a priority subject" },
+        { name: "created_at", type: "TIMESTAMP", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Record creation timestamp" }
       ]
     },
     {
-      tableName: 'student_goals',
+      tableName: "mood_logs",
+      description: "User mood tracking records",
       fields: [
-        { name: 'id', type: 'UUID', isPrimaryKey: true, isRequired: true, isForeignKey: false },
-        { name: 'student_id', type: 'UUID', isPrimaryKey: false, isRequired: true, isForeignKey: true, references: 'students.id' },
-        { name: 'title', type: 'VARCHAR(255)', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'description', type: 'TEXT', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'target_date', type: 'DATE', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'progress', type: 'FLOAT', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'status', type: 'ENUM', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'created_at', type: 'TIMESTAMP', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'updated_at', type: 'TIMESTAMP', isPrimaryKey: false, isRequired: true, isForeignKey: false }
+        { name: "id", type: "UUID", isRequired: true, isPrimaryKey: true, isForeignKey: false, description: "Unique log identifier" },
+        { name: "student_id", type: "UUID", isRequired: true, isPrimaryKey: false, isForeignKey: true, references: "students(id)", description: "Reference to student" },
+        { name: "mood_type", type: "VARCHAR(50)", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Type of mood (happy, stressed, etc.)" },
+        { name: "mood_score", type: "INTEGER", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Numerical mood score (1-10)" },
+        { name: "note", type: "TEXT", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "Optional notes about mood" },
+        { name: "logged_at", type: "TIMESTAMP", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "When mood was logged" }
       ]
     },
     {
-      tableName: 'student_subjects',
+      tableName: "study_sessions",
+      description: "Student study session records",
       fields: [
-        { name: 'id', type: 'UUID', isPrimaryKey: true, isRequired: true, isForeignKey: false },
-        { name: 'student_id', type: 'UUID', isPrimaryKey: false, isRequired: true, isForeignKey: true, references: 'students.id' },
-        { name: 'name', type: 'VARCHAR(100)', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'progress', type: 'FLOAT', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'total_topics', type: 'INT', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'completed_topics', type: 'INT', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'weak_areas', type: 'JSON', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'strong_areas', type: 'JSON', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'last_studied', type: 'TIMESTAMP', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'average_score', type: 'FLOAT', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'color', type: 'VARCHAR(20)', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'created_at', type: 'TIMESTAMP', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'updated_at', type: 'TIMESTAMP', isPrimaryKey: false, isRequired: true, isForeignKey: false }
+        { name: "id", type: "UUID", isRequired: true, isPrimaryKey: true, isForeignKey: false, description: "Unique session identifier" },
+        { name: "student_id", type: "UUID", isRequired: true, isPrimaryKey: false, isForeignKey: true, references: "students(id)", description: "Reference to student" },
+        { name: "subject_id", type: "UUID", isRequired: true, isPrimaryKey: false, isForeignKey: true, references: "student_subjects(id)", description: "Subject studied" },
+        { name: "start_time", type: "TIMESTAMP", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Session start time" },
+        { name: "end_time", type: "TIMESTAMP", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "Session end time" },
+        { name: "duration_minutes", type: "INTEGER", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "Session duration in minutes" },
+        { name: "mood_before_id", type: "UUID", isRequired: false, isPrimaryKey: false, isForeignKey: true, references: "mood_logs(id)", description: "Mood before session" },
+        { name: "mood_after_id", type: "UUID", isRequired: false, isPrimaryKey: false, isForeignKey: true, references: "mood_logs(id)", description: "Mood after session" },
+        { name: "productivity_rating", type: "INTEGER", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "Self-rated productivity (1-10)" }
       ]
     },
     {
-      tableName: 'subject_topics',
+      tableName: "study_plans",
+      description: "Structured learning plans for students",
       fields: [
-        { name: 'id', type: 'UUID', isPrimaryKey: true, isRequired: true, isForeignKey: false },
-        { name: 'subject_id', type: 'UUID', isPrimaryKey: false, isRequired: true, isForeignKey: true, references: 'student_subjects.id' },
-        { name: 'name', type: 'VARCHAR(255)', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'progress', type: 'FLOAT', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'status', type: 'ENUM', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'last_practiced', type: 'TIMESTAMP', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'score', type: 'FLOAT', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'completed', type: 'BOOLEAN', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'mastery_level', type: 'INT', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'created_at', type: 'TIMESTAMP', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'updated_at', type: 'TIMESTAMP', isPrimaryKey: false, isRequired: true, isForeignKey: false }
+        { name: "id", type: "UUID", isRequired: true, isPrimaryKey: true, isForeignKey: false, description: "Unique plan identifier" },
+        { name: "student_id", type: "UUID", isRequired: true, isPrimaryKey: false, isForeignKey: true, references: "students(id)", description: "Reference to student" },
+        { name: "title", type: "VARCHAR(100)", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Plan title" },
+        { name: "description", type: "TEXT", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "Plan description" },
+        { name: "start_date", type: "DATE", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Plan start date" },
+        { name: "end_date", type: "DATE", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Plan end date" },
+        { name: "is_active", type: "BOOLEAN", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Whether plan is active" },
+        { name: "created_at", type: "TIMESTAMP", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Plan creation timestamp" },
+        { name: "updated_at", type: "TIMESTAMP", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Plan update timestamp" }
       ]
     },
     {
-      tableName: 'concept_cards',
+      tableName: "concept_cards",
+      description: "Educational concept cards for various subjects",
       fields: [
-        { name: 'id', type: 'UUID', isPrimaryKey: true, isRequired: true, isForeignKey: false },
-        { name: 'subject_id', type: 'UUID', isPrimaryKey: false, isRequired: true, isForeignKey: true, references: 'student_subjects.id' },
-        { name: 'topic_id', type: 'UUID', isPrimaryKey: false, isRequired: false, isForeignKey: true, references: 'subject_topics.id' },
-        { name: 'title', type: 'VARCHAR(255)', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'content', type: 'TEXT', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'complexity', type: 'ENUM', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'examples', type: 'JSON', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'images', type: 'JSON', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'related_concepts', type: 'JSON', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'practice_questions', type: 'JSON', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'created_at', type: 'TIMESTAMP', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'updated_at', type: 'TIMESTAMP', isPrimaryKey: false, isRequired: true, isForeignKey: false }
+        { name: "id", type: "UUID", isRequired: true, isPrimaryKey: true, isForeignKey: false, description: "Unique card identifier" },
+        { name: "subject", type: "VARCHAR(100)", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Subject area" },
+        { name: "topic", type: "VARCHAR(100)", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Specific topic" },
+        { name: "title", type: "VARCHAR(255)", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Concept title" },
+        { name: "content", type: "TEXT", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Card content" },
+        { name: "difficulty_level", type: "INTEGER", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Difficulty level (1-5)" },
+        { name: "created_by", type: "UUID", isRequired: true, isPrimaryKey: false, isForeignKey: true, references: "users(id)", description: "Creator reference" },
+        { name: "created_at", type: "TIMESTAMP", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Creation timestamp" },
+        { name: "updated_at", type: "TIMESTAMP", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Update timestamp" }
       ]
     },
     {
-      tableName: 'flashcards',
+      tableName: "system_logs",
+      description: "Application and system event logging",
       fields: [
-        { name: 'id', type: 'UUID', isPrimaryKey: true, isRequired: true, isForeignKey: false },
-        { name: 'deck_id', type: 'UUID', isPrimaryKey: false, isRequired: true, isForeignKey: true, references: 'flashcard_decks.id' },
-        { name: 'front_content', type: 'TEXT', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'back_content', type: 'TEXT', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'front_image', type: 'VARCHAR(255)', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'back_image', type: 'VARCHAR(255)', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'difficulty', type: 'ENUM', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'tags', type: 'JSON', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'created_at', type: 'TIMESTAMP', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'updated_at', type: 'TIMESTAMP', isPrimaryKey: false, isRequired: true, isForeignKey: false }
+        { name: "id", type: "UUID", isRequired: true, isPrimaryKey: true, isForeignKey: false, description: "Unique log identifier" },
+        { name: "event_type", type: "VARCHAR(50)", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Type of system event" },
+        { name: "severity", type: "VARCHAR(20)", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Log severity (info, warning, error)" },
+        { name: "message", type: "TEXT", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Log message" },
+        { name: "source", type: "VARCHAR(100)", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "Source of event" },
+        { name: "user_id", type: "UUID", isRequired: false, isPrimaryKey: false, isForeignKey: true, references: "users(id)", description: "Associated user if applicable" },
+        { name: "metadata", type: "JSONB", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "Additional metadata for event" },
+        { name: "created_at", type: "TIMESTAMP", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Log timestamp" }
       ]
     },
     {
-      tableName: 'flashcard_decks',
+      tableName: "admin_users",
+      description: "Administrative user accounts with special privileges",
       fields: [
-        { name: 'id', type: 'UUID', isPrimaryKey: true, isRequired: true, isForeignKey: false },
-        { name: 'student_id', type: 'UUID', isPrimaryKey: false, isRequired: true, isForeignKey: true, references: 'students.id' },
-        { name: 'subject_id', type: 'UUID', isPrimaryKey: false, isRequired: false, isForeignKey: true, references: 'student_subjects.id' },
-        { name: 'name', type: 'VARCHAR(255)', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'description', type: 'TEXT', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'card_count', type: 'INT', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'mastered_count', type: 'INT', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'created_at', type: 'TIMESTAMP', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'updated_at', type: 'TIMESTAMP', isPrimaryKey: false, isRequired: true, isForeignKey: false }
+        { name: "id", type: "UUID", isRequired: true, isPrimaryKey: true, isForeignKey: false, description: "Unique admin identifier" },
+        { name: "user_id", type: "UUID", isRequired: true, isPrimaryKey: false, isForeignKey: true, references: "users(id)", description: "Reference to user account" },
+        { name: "admin_level", type: "INTEGER", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Admin privilege level (1-3)" },
+        { name: "department", type: "VARCHAR(100)", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "Admin department" },
+        { name: "created_at", type: "TIMESTAMP", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Record creation timestamp" }
       ]
     },
     {
-      tableName: 'exams',
+      tableName: "subscriptions",
+      description: "User subscription records",
       fields: [
-        { name: 'id', type: 'UUID', isPrimaryKey: true, isRequired: true, isForeignKey: false },
-        { name: 'title', type: 'VARCHAR(255)', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'description', type: 'TEXT', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'subject', type: 'VARCHAR(100)', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'total_questions', type: 'INT', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'total_points', type: 'INT', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'time_limit', type: 'INT', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'difficulty', type: 'ENUM', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'average_score', type: 'FLOAT', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'top_score', type: 'FLOAT', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'completion_rate', type: 'FLOAT', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'tags', type: 'JSON', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'recommended_for', type: 'JSON', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'required_score', type: 'FLOAT', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'status', type: 'ENUM', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'created_at', type: 'TIMESTAMP', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'updated_at', type: 'TIMESTAMP', isPrimaryKey: false, isRequired: true, isForeignKey: false }
+        { name: "id", type: "UUID", isRequired: true, isPrimaryKey: true, isForeignKey: false, description: "Unique subscription identifier" },
+        { name: "user_id", type: "UUID", isRequired: true, isPrimaryKey: false, isForeignKey: true, references: "users(id)", description: "Reference to user account" },
+        { name: "plan_id", type: "UUID", isRequired: true, isPrimaryKey: false, isForeignKey: true, references: "subscription_plans(id)", description: "Reference to plan" },
+        { name: "start_date", type: "DATE", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Subscription start date" },
+        { name: "end_date", type: "DATE", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Subscription end date" },
+        { name: "status", type: "VARCHAR(50)", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Status (active, expired, canceled)" },
+        { name: "auto_renew", type: "BOOLEAN", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Whether subscription auto-renews" },
+        { name: "created_at", type: "TIMESTAMP", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Record creation timestamp" },
+        { name: "updated_at", type: "TIMESTAMP", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Record update timestamp" }
       ]
     },
     {
-      tableName: 'exam_questions',
+      tableName: "subscription_plans",
+      description: "Available subscription plan definitions",
       fields: [
-        { name: 'id', type: 'UUID', isPrimaryKey: true, isRequired: true, isForeignKey: false },
-        { name: 'exam_id', type: 'UUID', isPrimaryKey: false, isRequired: true, isForeignKey: true, references: 'exams.id' },
-        { name: 'question', type: 'TEXT', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'options', type: 'JSON', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'correct_answer', type: 'JSON', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'explanation', type: 'TEXT', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'type', type: 'ENUM', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'points', type: 'INT', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'feedback', type: 'TEXT', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'image_path', type: 'VARCHAR(255)', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'has_image', type: 'BOOLEAN', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'difficulty', type: 'ENUM', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'tags', type: 'JSON', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'subject', type: 'VARCHAR(100)', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'chapter', type: 'VARCHAR(100)', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'time_recommended', type: 'INT', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'created_at', type: 'TIMESTAMP', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'updated_at', type: 'TIMESTAMP', isPrimaryKey: false, isRequired: true, isForeignKey: false }
+        { name: "id", type: "UUID", isRequired: true, isPrimaryKey: true, isForeignKey: false, description: "Unique plan identifier" },
+        { name: "name", type: "VARCHAR(100)", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Plan name" },
+        { name: "description", type: "TEXT", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "Plan description" },
+        { name: "price", type: "DECIMAL(10,2)", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Plan price" },
+        { name: "currency", type: "VARCHAR(3)", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Currency code" },
+        { name: "duration_days", type: "INTEGER", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Plan duration in days" },
+        { name: "features", type: "JSONB", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "Plan features as JSON" },
+        { name: "is_active", type: "BOOLEAN", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Whether plan is active" },
+        { name: "created_at", type: "TIMESTAMP", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Record creation timestamp" },
+        { name: "updated_at", type: "TIMESTAMP", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Record update timestamp" }
       ]
     },
     {
-      tableName: 'exam_attempts',
+      tableName: "ai_model_settings",
+      description: "Configuration for AI models used in the system",
       fields: [
-        { name: 'id', type: 'UUID', isPrimaryKey: true, isRequired: true, isForeignKey: false },
-        { name: 'student_id', type: 'UUID', isPrimaryKey: false, isRequired: true, isForeignKey: true, references: 'students.id' },
-        { name: 'exam_id', type: 'UUID', isPrimaryKey: false, isRequired: true, isForeignKey: true, references: 'exams.id' },
-        { name: 'started_at', type: 'TIMESTAMP', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'completed_at', type: 'TIMESTAMP', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'score', type: 'FLOAT', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'total_points', type: 'INT', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'time_spent', type: 'INT', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'percentile', type: 'FLOAT', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'accuracy', type: 'FLOAT', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'speed_index', type: 'FLOAT', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'subjectwise_performance', type: 'JSON', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'created_at', type: 'TIMESTAMP', isPrimaryKey: false, isRequired: true, isForeignKey: false }
-      ]
-    },
-    {
-      tableName: 'exam_answers',
-      fields: [
-        { name: 'id', type: 'UUID', isPrimaryKey: true, isRequired: true, isForeignKey: false },
-        { name: 'attempt_id', type: 'UUID', isPrimaryKey: false, isRequired: true, isForeignKey: true, references: 'exam_attempts.id' },
-        { name: 'question_id', type: 'UUID', isPrimaryKey: false, isRequired: true, isForeignKey: true, references: 'exam_questions.id' },
-        { name: 'user_answer', type: 'JSON', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'correct', type: 'BOOLEAN', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'points', type: 'INT', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'feedback', type: 'TEXT', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'time_taken', type: 'INT', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'created_at', type: 'TIMESTAMP', isPrimaryKey: false, isRequired: true, isForeignKey: false }
-      ]
-    },
-    {
-      tableName: 'mood_logs',
-      fields: [
-        { name: 'id', type: 'UUID', isPrimaryKey: true, isRequired: true, isForeignKey: false },
-        { name: 'student_id', type: 'UUID', isPrimaryKey: false, isRequired: true, isForeignKey: true, references: 'students.id' },
-        { name: 'mood', type: 'ENUM', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'note', type: 'TEXT', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'recorded_at', type: 'TIMESTAMP', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'energy_level', type: 'INT', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'stress_level', type: 'INT', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'motivation_level', type: 'INT', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'created_at', type: 'TIMESTAMP', isPrimaryKey: false, isRequired: true, isForeignKey: false }
-      ]
-    },
-    {
-      tableName: 'study_plans',
-      fields: [
-        { name: 'id', type: 'UUID', isPrimaryKey: true, isRequired: true, isForeignKey: false },
-        { name: 'student_id', type: 'UUID', isPrimaryKey: false, isRequired: true, isForeignKey: true, references: 'students.id' },
-        { name: 'title', type: 'VARCHAR(255)', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'description', type: 'TEXT', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'start_date', type: 'DATE', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'end_date', type: 'DATE', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'target_goal_id', type: 'UUID', isPrimaryKey: false, isRequired: false, isForeignKey: true, references: 'student_goals.id' },
-        { name: 'completion_rate', type: 'FLOAT', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'status', type: 'ENUM', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'created_at', type: 'TIMESTAMP', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'updated_at', type: 'TIMESTAMP', isPrimaryKey: false, isRequired: true, isForeignKey: false }
-      ]
-    },
-    {
-      tableName: 'study_sessions',
-      fields: [
-        { name: 'id', type: 'UUID', isPrimaryKey: true, isRequired: true, isForeignKey: false },
-        { name: 'student_id', type: 'UUID', isPrimaryKey: false, isRequired: true, isForeignKey: true, references: 'students.id' },
-        { name: 'study_plan_id', type: 'UUID', isPrimaryKey: false, isRequired: false, isForeignKey: true, references: 'study_plans.id' },
-        { name: 'subject_id', type: 'UUID', isPrimaryKey: false, isRequired: false, isForeignKey: true, references: 'student_subjects.id' },
-        { name: 'title', type: 'VARCHAR(255)', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'description', type: 'TEXT', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'start_time', type: 'TIMESTAMP', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'end_time', type: 'TIMESTAMP', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'duration_minutes', type: 'INT', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'completed', type: 'BOOLEAN', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'productivity_score', type: 'INT', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'mood_before_id', type: 'UUID', isPrimaryKey: false, isRequired: false, isForeignKey: true, references: 'mood_logs.id' },
-        { name: 'mood_after_id', type: 'UUID', isPrimaryKey: false, isRequired: false, isForeignKey: true, references: 'mood_logs.id' },
-        { name: 'created_at', type: 'TIMESTAMP', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'updated_at', type: 'TIMESTAMP', isPrimaryKey: false, isRequired: true, isForeignKey: false }
-      ]
-    },
-    {
-      tableName: 'study_streaks',
-      fields: [
-        { name: 'id', type: 'UUID', isPrimaryKey: true, isRequired: true, isForeignKey: false },
-        { name: 'student_id', type: 'UUID', isPrimaryKey: false, isRequired: true, isForeignKey: true, references: 'students.id' },
-        { name: 'current', type: 'INT', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'longest', type: 'INT', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'last_study_date', type: 'DATE', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'weekly_data', type: 'JSON', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'monthly_data', type: 'JSON', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'this_week', type: 'JSON', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'created_at', type: 'TIMESTAMP', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'updated_at', type: 'TIMESTAMP', isPrimaryKey: false, isRequired: true, isForeignKey: false }
-      ]
-    },
-    {
-      tableName: 'subscriptions',
-      fields: [
-        { name: 'id', type: 'UUID', isPrimaryKey: true, isRequired: true, isForeignKey: false },
-        { name: 'user_id', type: 'UUID', isPrimaryKey: false, isRequired: true, isForeignKey: true, references: 'users.id' },
-        { name: 'plan_id', type: 'UUID', isPrimaryKey: false, isRequired: true, isForeignKey: true, references: 'subscription_plans.id' },
-        { name: 'start_date', type: 'DATE', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'end_date', type: 'DATE', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'status', type: 'ENUM', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'is_active', type: 'BOOLEAN', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'auto_renew', type: 'BOOLEAN', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'created_at', type: 'TIMESTAMP', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'updated_at', type: 'TIMESTAMP', isPrimaryKey: false, isRequired: true, isForeignKey: false }
-      ]
-    },
-    {
-      tableName: 'subscription_plans',
-      fields: [
-        { name: 'id', type: 'UUID', isPrimaryKey: true, isRequired: true, isForeignKey: false },
-        { name: 'name', type: 'VARCHAR(100)', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'type', type: 'ENUM', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'price', type: 'DECIMAL', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'interval', type: 'ENUM', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'features', type: 'JSON', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'max_users', type: 'INT', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'description', type: 'TEXT', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'trial_days', type: 'INT', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'created_at', type: 'TIMESTAMP', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'updated_at', type: 'TIMESTAMP', isPrimaryKey: false, isRequired: true, isForeignKey: false }
-      ]
-    },
-    {
-      tableName: 'features',
-      fields: [
-        { name: 'id', type: 'UUID', isPrimaryKey: true, isRequired: true, isForeignKey: false },
-        { name: 'title', type: 'VARCHAR(100)', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'description', type: 'TEXT', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'path', type: 'VARCHAR(255)', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'is_premium', type: 'BOOLEAN', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'icon', type: 'VARCHAR(100)', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'free_access_limit', type: 'JSON', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'allowed_plans', type: 'JSON', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'created_at', type: 'TIMESTAMP', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'updated_at', type: 'TIMESTAMP', isPrimaryKey: false, isRequired: true, isForeignKey: false }
-      ]
-    },
-    {
-      tableName: 'user_feature_access',
-      fields: [
-        { name: 'id', type: 'UUID', isPrimaryKey: true, isRequired: true, isForeignKey: false },
-        { name: 'user_id', type: 'UUID', isPrimaryKey: false, isRequired: true, isForeignKey: true, references: 'users.id' },
-        { name: 'feature_id', type: 'UUID', isPrimaryKey: false, isRequired: true, isForeignKey: true, references: 'features.id' },
-        { name: 'has_access', type: 'BOOLEAN', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'usage_left', type: 'INT', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'expires_at', type: 'TIMESTAMP', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'created_at', type: 'TIMESTAMP', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'updated_at', type: 'TIMESTAMP', isPrimaryKey: false, isRequired: true, isForeignKey: false }
-      ]
-    },
-    {
-      tableName: 'feel_good_content',
-      fields: [
-        { name: 'id', type: 'UUID', isPrimaryKey: true, isRequired: true, isForeignKey: false },
-        { name: 'title', type: 'VARCHAR(255)', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'content_type', type: 'ENUM', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'content', type: 'TEXT', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'mood_tag', type: 'VARCHAR(100)', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'image_url', type: 'VARCHAR(255)', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'video_url', type: 'VARCHAR(255)', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'external_url', type: 'VARCHAR(255)', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'author', type: 'VARCHAR(100)', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'likes', type: 'INT', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'created_at', type: 'TIMESTAMP', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'updated_at', type: 'TIMESTAMP', isPrimaryKey: false, isRequired: true, isForeignKey: false }
-      ]
-    },
-    {
-      tableName: 'tutor_chats',
-      fields: [
-        { name: 'id', type: 'UUID', isPrimaryKey: true, isRequired: true, isForeignKey: false },
-        { name: 'student_id', type: 'UUID', isPrimaryKey: false, isRequired: true, isForeignKey: true, references: 'students.id' },
-        { name: 'session_id', type: 'VARCHAR(100)', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'subject', type: 'VARCHAR(100)', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'topic', type: 'VARCHAR(255)', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'messages', type: 'JSON', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'helpful_rating', type: 'INT', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'start_time', type: 'TIMESTAMP', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'end_time', type: 'TIMESTAMP', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'duration_minutes', type: 'INT', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'mood_context', type: 'VARCHAR(50)', isPrimaryKey: false, isRequired: false, isForeignKey: false },
-        { name: 'created_at', type: 'TIMESTAMP', isPrimaryKey: false, isRequired: true, isForeignKey: false },
-        { name: 'updated_at', type: 'TIMESTAMP', isPrimaryKey: false, isRequired: true, isForeignKey: false }
+        { name: "id", type: "UUID", isRequired: true, isPrimaryKey: true, isForeignKey: false, description: "Unique setting identifier" },
+        { name: "model_name", type: "VARCHAR(100)", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "AI model name" },
+        { name: "feature", type: "VARCHAR(100)", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Feature using this model" },
+        { name: "parameters", type: "JSONB", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Model parameters as JSON" },
+        { name: "is_active", type: "BOOLEAN", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Whether setting is active" },
+        { name: "created_by", type: "UUID", isRequired: true, isPrimaryKey: false, isForeignKey: true, references: "admin_users(id)", description: "Creator reference" },
+        { name: "created_at", type: "TIMESTAMP", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Record creation timestamp" },
+        { name: "updated_at", type: "TIMESTAMP", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Record update timestamp" }
       ]
     }
   ];
+};
+
+/**
+ * Mock function to check if a table exists in the database
+ */
+export const tableExists = (tableName: string): boolean => {
+  const schema = generateDatabaseSchema();
+  return schema.some(table => table.tableName === tableName);
 };

@@ -4,7 +4,6 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { useOnboarding } from "../OnboardingContext";
 import { motion } from "framer-motion";
@@ -23,7 +22,6 @@ const SignupStep: React.FC<SignupStepProps> = ({ onSubmit, isLoading }) => {
     mobile: "",
     otp: "",
   });
-  const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [fact, setFact] = useState("");
   const examFacts = {
     "IIT-JEE": [
@@ -76,15 +74,6 @@ const SignupStep: React.FC<SignupStepProps> = ({ onSubmit, isLoading }) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!agreedToTerms) {
-      toast({
-        title: "Terms & Conditions Required",
-        description: "Please agree to our terms and conditions to continue.",
-        variant: "destructive"
-      });
-      return;
-    }
     
     if (formValues.name && formValues.mobile && formValues.otp) {
       onSubmit(formValues);
@@ -163,23 +152,10 @@ const SignupStep: React.FC<SignupStepProps> = ({ onSubmit, isLoading }) => {
             />
           </div>
         )}
-        
-        <div className="flex items-start space-x-2 mt-4">
-          <Checkbox 
-            id="terms" 
-            checked={agreedToTerms}
-            onCheckedChange={(checked) => setAgreedToTerms(checked === true)}
-            className="mt-1"
-          />
-          <Label htmlFor="terms" className="text-sm leading-tight">
-            I agree to the <Link to="/terms" className="text-purple-600 hover:underline font-medium" target="_blank">Terms & Conditions</Link> and <Link to="/privacy" className="text-purple-600 hover:underline font-medium" target="_blank">Privacy Policy</Link> of Sakha AI (Greatwisdom India Pvt Ltd).
-          </Label>
-        </div>
-        
         <Button 
           type="submit" 
           className="w-full bg-gradient-to-r from-purple-600 to-violet-700"
-          disabled={isLoading || !formValues.name || !formValues.mobile || !formValues.otp || !agreedToTerms}
+          disabled={isLoading || !formValues.name || !formValues.mobile || !formValues.otp}
         >
           {isLoading ? "Creating Account..." : "Create Account"}
         </Button>

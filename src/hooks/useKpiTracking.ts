@@ -1,16 +1,15 @@
 
-import { LucideIcon } from 'lucide-react';
+import { useState, useEffect } from 'react';
 
 export interface KpiData {
   id: string;
-  value: number | string;
+  name: string;
+  value: number;
+  unit: string;
+  change: number;
+  trend: 'up' | 'down' | 'neutral';
   label: string;
-  trend?: {
-    value: number;
-    direction: 'up' | 'down' | 'neutral';
-  };
-  trendLabel?: string;
-  icon?: LucideIcon;
+  icon?: React.ReactNode;
 }
 
 export interface NudgeData {
@@ -20,61 +19,120 @@ export interface NudgeData {
   type: 'info' | 'warning' | 'success' | 'error';
   timestamp: string;
   read: boolean;
+  action?: {
+    label: string;
+    url: string;
+  };
 }
 
-export const useKpiTracking = (userRole: string) => {
-  // Sample data for demonstration
-  const kpis: KpiData[] = [
-    {
-      id: "study-time",
-      value: 24,
-      label: "Study Hours",
-      trend: { value: 8, direction: "up" },
-      trendLabel: "vs last week"
-    },
-    {
-      id: "completion",
-      value: "67%",
-      label: "Task Completion",
-      trend: { value: 5, direction: "up" },
-      trendLabel: "vs last week"
-    },
-    {
-      id: "practice",
-      value: 32,
-      label: "Practice Tests",
-      trend: { value: 2, direction: "down" },
-      trendLabel: "vs last week"
-    }
-  ];
+export const useKpiTracking = () => {
+  const [kpis, setKpis] = useState<KpiData[]>([]);
+  const [nudges, setNudges] = useState<NudgeData[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const nudges: NudgeData[] = [
-    {
-      id: "1",
-      title: "Study Reminder",
-      description: "Time to review your Physics concepts",
-      type: "info",
-      timestamp: new Date().toISOString(),
-      read: false
-    },
-    {
-      id: "2",
-      title: "Congratulations!",
-      description: "You've completed all your tasks for today",
-      type: "success",
-      timestamp: new Date().toISOString(),
-      read: false
-    }
-  ];
+  useEffect(() => {
+    // In a real app, this would be an API call
+    const fetchKpis = async () => {
+      // Mock KPI data
+      const mockKpis: KpiData[] = [
+        {
+          id: '1',
+          name: 'Study Time',
+          value: 4.5,
+          unit: 'hours',
+          change: 0.5,
+          trend: 'up',
+          label: 'Today',
+          icon: null
+        },
+        {
+          id: '2',
+          name: 'Completion',
+          value: 68,
+          unit: '%',
+          change: 5,
+          trend: 'up',
+          label: 'This week',
+          icon: null
+        },
+        {
+          id: '3',
+          name: 'Questions',
+          value: 42,
+          unit: '',
+          change: -3,
+          trend: 'down',
+          label: 'This week',
+          icon: null
+        },
+        {
+          id: '4',
+          name: 'Accuracy',
+          value: 81,
+          unit: '%',
+          change: 2,
+          trend: 'up',
+          label: 'Last 30 days',
+          icon: null
+        },
+      ];
 
-  const markNudgeAsRead = (id: string) => {
-    // In a real application, this would update state or call an API
-    console.log(`Marking nudge ${id} as read`);
+      // Mock nudges
+      const mockNudges: NudgeData[] = [
+        {
+          id: 'n1',
+          title: 'Study reminder',
+          description: "You haven't studied Physics in 3 days. Would you like to continue where you left off?",
+          type: 'info',
+          timestamp: new Date().toISOString(),
+          read: false,
+          action: {
+            label: 'Continue studying',
+            url: '/dashboard/student/study/physics',
+          },
+        },
+        {
+          id: 'n2',
+          title: 'Practice exam available',
+          description: "A new practice exam for Chemistry has been prepared based on your study progress.",
+          type: 'success',
+          timestamp: new Date(Date.now() - 3600000).toISOString(),
+          read: false,
+          action: {
+            label: 'Take practice exam',
+            url: '/dashboard/student/practice-exams',
+          },
+        },
+        {
+          id: 'n3',
+          title: 'Deadline approaching',
+          description: "Your assignment 'Quantum Mechanics Essay' is due in 2 days.",
+          type: 'warning',
+          timestamp: new Date(Date.now() - 7200000).toISOString(),
+          read: true,
+        },
+      ];
+
+      setKpis(mockKpis);
+      setNudges(mockNudges);
+      setLoading(false);
+    };
+
+    fetchKpis();
+  }, []);
+
+  const markNudgeAsRead = (nudgeId: string) => {
+    setNudges((prevNudges) =>
+      prevNudges.map((nudge) =>
+        nudge.id === nudgeId ? { ...nudge, read: true } : nudge
+      )
+    );
   };
 
   return {
     kpis,
     nudges,
-    markNudgeAsRead
+    loading,
+    markNudgeAsRead,
   };
 };

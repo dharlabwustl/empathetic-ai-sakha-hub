@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { UserProfileType, MoodType } from "@/types/user/base";
+import { UserProfileBase as UserProfileType } from "@/types/user/base";
 import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
 import { generateTabContents } from "@/components/dashboard/student/TabContentManager";
 import DashboardTabs from "@/components/dashboard/student/DashboardTabs";
@@ -28,8 +28,6 @@ interface DashboardContentProps {
   hideTabsNav: boolean;
   lastActivity?: { type: string; description: string } | null;
   suggestedNextAction?: string | null;
-  currentMood?: MoodType;
-  onMoodChange?: (mood: MoodType) => void;
   children?: React.ReactNode;
 }
 
@@ -47,8 +45,6 @@ const DashboardContent = ({
   hideTabsNav,
   lastActivity,
   suggestedNextAction,
-  currentMood,
-  onMoodChange,
   children
 }: DashboardContentProps) => {
   // State to track whether the returning user recap has been closed
@@ -67,9 +63,7 @@ const DashboardContent = ({
     handleSkipTour,
     handleCompleteTour,
     lastActivity,
-    suggestedNextAction,
-    currentMood,
-    onMoodChange
+    suggestedNextAction
   });
   
   // Handle closing the recap

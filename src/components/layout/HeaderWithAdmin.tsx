@@ -7,7 +7,7 @@ import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { ChevronDown, Lock } from "lucide-react";
-import PrepzrLogo from "@/components/common/PrepzrLogo";
+import SakhaLogo from "@/components/common/SakhaLogo";
 
 export const Header = () => {
   const { theme } = useTheme();
@@ -56,7 +56,7 @@ export const Header = () => {
                 transition: { duration: 0.5 }
               }}
             >
-              <PrepzrLogo width={40} height={40} />
+              <SakhaLogo width={40} height={40} />
             </motion.div>
             <motion.span 
               className="font-display font-bold text-xl md:text-2xl"
@@ -64,8 +64,8 @@ export const Header = () => {
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5 }}
             >
-              <span className="bg-gradient-to-r from-blue-500 to-blue-600 bg-clip-text text-transparent">
-                PREPZR
+              <span className="bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
+                Sakha AI
               </span>
             </motion.span>
           </Link>
@@ -80,13 +80,13 @@ export const Header = () => {
                   className={cn(
                     "px-3 py-2 rounded-md text-sm font-medium transition-colors relative group",
                     isActive(link.path)
-                      ? "text-blue-600"
-                      : "text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400"
+                      ? "text-pink-600"
+                      : "text-gray-700 dark:text-gray-300 hover:text-pink-600 dark:hover:text-pink-500"
                   )}
                 >
                   {link.title}
                   <span className={cn(
-                    "absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-blue-500 to-blue-600 transform scale-x-0 transition-transform duration-300",
+                    "absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-pink-600 to-purple-600 transform scale-x-0 transition-transform duration-300",
                     isActive(link.path) ? "scale-x-100" : "group-hover:scale-x-100"
                   )}></span>
                 </Link>
@@ -99,7 +99,7 @@ export const Header = () => {
               </Button>
             </Link>
             <Link to="/signup">
-              <Button className="ml-2 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 transition-all duration-300">
+              <Button className="ml-2 bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 transition-all duration-300">
                 Sign Up
               </Button>
             </Link>
@@ -165,8 +165,8 @@ export const Header = () => {
                 className={cn(
                   "block px-3 py-2 rounded-md text-base font-medium",
                   isActive(link.path)
-                    ? "text-blue-600 bg-blue-50 dark:bg-blue-900/10"
-                    : "text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400"
+                    ? "text-pink-600 bg-pink-50 dark:bg-pink-900/10"
+                    : "text-gray-700 dark:text-gray-300 hover:text-pink-600 dark:hover:text-pink-500"
                 )}
                 onClick={() => setMobileMenuOpen(false)}
               >
@@ -175,14 +175,14 @@ export const Header = () => {
             ))}
             <Link
               to="/login"
-              className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400"
+              className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:text-pink-600 dark:hover:text-pink-500"
               onClick={() => setMobileMenuOpen(false)}
             >
               Student Login
             </Link>
             <div className="flex flex-col space-y-2 pt-2 pb-3 border-t dark:border-gray-800">
               <Link to="/signup" onClick={() => setMobileMenuOpen(false)}>
-                <Button className="w-full bg-gradient-to-r from-blue-500 to-blue-600">Sign Up</Button>
+                <Button className="w-full bg-gradient-to-r from-pink-600 to-purple-600">Sign Up</Button>
               </Link>
             </div>
           </div>

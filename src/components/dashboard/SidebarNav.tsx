@@ -28,7 +28,6 @@ import {
 import { cn } from "@/lib/utils";
 import { SidebarAvatar } from "./SidebarAvatar";
 import { useIsMobile } from "@/hooks/use-mobile";
-import PrepzrLogo from "../common/PrepzrLogo";
 
 interface SidebarNavProps {
   userType: string;
@@ -100,10 +99,14 @@ const SidebarNav = ({
       >
         <div className="p-4 border-b border-sidebar-border flex items-center justify-between">
           <div className={cn("flex items-center gap-2", collapsed && "justify-center")}>
-            <div className="avatar-eyes w-10 h-10 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full relative overflow-hidden animate-glow">
-              <PrepzrLogo width={40} height={40} />
+            <div className="avatar-eyes w-10 h-10 bg-gradient-to-br from-sky-400 to-violet-500 rounded-full relative overflow-hidden animate-glow">
+              <img 
+                src="/lovable-uploads/fdc1cebd-e35f-4f08-a45b-e839964fd590.png" 
+                alt="Sakha AI Logo" 
+                className="w-10 h-10"
+              />
             </div>
-            {!collapsed && <span className="font-display font-semibold gradient-text">PREPZR</span>}
+            {!collapsed && <span className="font-display font-semibold gradient-text">Sakha AI</span>}
           </div>
           <Button 
             variant="ghost" 
@@ -140,7 +143,7 @@ const SidebarNav = ({
                   onClick={() => handleTabChange(item.tab, item.path)}
                   className={`w-full flex items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-all ${
                     isActive(item.path)
-                      ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-sm"
+                      ? "bg-gradient-to-r from-sky-500 to-violet-500 text-white shadow-sm"
                       : "hover:bg-gray-100 dark:hover:bg-gray-700"
                   }`}
                 >

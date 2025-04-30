@@ -7,12 +7,11 @@ import NudgePanel from "@/components/dashboard/NudgePanel";
 import ProfileCard from "@/components/dashboard/ProfileCard";
 import FeatureCard from "@/components/dashboard/FeatureCard";
 import TodayStudyPlan from "@/components/dashboard/student/TodayStudyPlan";
-import FeelGoodCorner from "@/components/dashboard/student/feel-good-corner/FeelGoodCorner";
 import ExamReadinessMeter from './metrics/ExamReadinessMeter';
 import { motion } from "framer-motion";
 import { Coffee, BookOpen, AlertCircle } from 'lucide-react';
 import { useMediaQuery } from "@/hooks/useMediaQuery";
-import { SubscriptionType } from "@/types/user/base";
+import SubscriptionBanner from "@/components/dashboard/student/SubscriptionBanner";
 
 interface DashboardOverviewProps {
   userProfile: UserProfileType;
@@ -80,7 +79,7 @@ export default function DashboardOverview({
 
   // Helper function to determine user's subscription type
   const getUserSubscriptionType = (): string => {
-    if (!userProfile.subscription) return 'Basic';
+    if (!userProfile.subscription) return 'free';
     
     if (typeof userProfile.subscription === 'object') {
       return userProfile.subscription.planType;
@@ -108,6 +107,11 @@ export default function DashboardOverview({
       initial="hidden"
       animate="visible"
     >
+      {/* Subscription Banner */}
+      <motion.div variants={itemVariants} className="mb-6">
+        <SubscriptionBanner subscription={userProfile.subscription} />
+      </motion.div>
+
       {/* Study Tip Banner */}
       <motion.div
         variants={itemVariants}
@@ -124,7 +128,7 @@ export default function DashboardOverview({
         </div>
       </motion.div>
 
-      {/* KPI Cards - Only show here, not duplicated */}
+      {/* KPI Cards */}
       <motion.div 
         className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8"
         variants={itemVariants}
@@ -134,7 +138,7 @@ export default function DashboardOverview({
         ))}
       </motion.div>
       
-      {/* Exam Readiness Meter */}
+      {/* Exam Readiness Meter - Moved here from profile page */}
       <motion.div 
         className="mb-6"
         variants={itemVariants}
@@ -142,7 +146,7 @@ export default function DashboardOverview({
         <ExamReadinessMeter readinessData={readinessData} />
       </motion.div>
       
-      {/* Study Plan and Profile - Only show study plan here, not duplicated */}
+      {/* Study Plan and Profile */}
       <motion.div 
         className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8"
         variants={itemVariants}
@@ -162,17 +166,12 @@ export default function DashboardOverview({
         </motion.div>
       </motion.div>
       
-      {/* Feel Good Corner and Nudges */}
+      {/* Nudges */}
       <motion.div 
-        className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8"
         variants={itemVariants}
+        className="mb-6"
       >
-        <motion.div variants={itemVariants}>
-          <FeelGoodCorner />
-        </motion.div>
-        <motion.div variants={itemVariants}>
-          <NudgePanel nudges={nudges} markAsRead={markNudgeAsRead} />
-        </motion.div>
+        <NudgePanel nudges={nudges} markAsRead={markNudgeAsRead} />
       </motion.div>
       
       {/* Feature Cards */}

@@ -2,54 +2,55 @@
 import React, { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { ChevronLeft, BookOpen, Brain, FileText, Clock, Calendar } from 'lucide-react';
-import { useTheme } from "@/providers/ThemeProvider";
-import QuickAccess from './QuickAccess';
+import { ArrowLeft } from "lucide-react";
+import { QuickAccessButtons } from './QuickAccessButtons';
 
-interface SharedPageLayoutProps {
-  children: ReactNode;
+export interface SharedPageLayoutProps {
   title: string;
   subtitle?: string;
-  showBackLink?: boolean;
-  backLinkText?: string;
-  backLinkUrl?: string;
   showQuickAccess?: boolean;
+  children: ReactNode;
+  showBackButton?: boolean;
+  backButtonUrl?: string;
 }
 
-export function SharedPageLayout({
+export const SharedPageLayout = ({ 
+  title, 
+  subtitle, 
+  showQuickAccess = true, 
   children,
-  title,
-  subtitle,
-  showBackLink = false,
-  backLinkText = "Back",
-  backLinkUrl = "/dashboard/student/overview",
-  showQuickAccess = true
-}: SharedPageLayoutProps) {
+  showBackButton = false,
+  backButtonUrl = ""
+}: SharedPageLayoutProps) => {
   return (
-    <div className="container mx-auto p-4 md:p-6">
-      <div className="mb-6">
-        {showBackLink && (
-          <Link to={backLinkUrl} className="text-sm text-blue-600 hover:underline inline-flex items-center mb-2">
-            <ChevronLeft size={16} className="mr-1" />
-            {backLinkText}
-          </Link>
-        )}
-        <h1 className="text-3xl font-bold">{title}</h1>
-        {subtitle && <p className="text-muted-foreground mt-1">{subtitle}</p>}
+    <div className="space-y-4">
+      {/* Page header */}
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div className="space-y-0.5">
+          {showBackButton && backButtonUrl && (
+            <Link to={backButtonUrl}>
+              <Button variant="ghost" size="sm" className="mb-2 -ml-3">
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back
+              </Button>
+            </Link>
+          )}
+          <h2 className="text-2xl font-bold tracking-tight">{title}</h2>
+          {subtitle && <p className="text-muted-foreground">{subtitle}</p>}
+        </div>
       </div>
       
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        <div className="lg:col-span-3">
-          {children}
+      {/* Quick access buttons - only shown if requested */}
+      {showQuickAccess && (
+        <div className="my-4">
+          <QuickAccessButtons />
         </div>
-        
-        {showQuickAccess && (
-          <div className="space-y-6">
-            <QuickAccess />
-          </div>
-        )}
+      )}
+      
+      {/* Main content */}
+      <div className="mt-2">
+        {children}
       </div>
     </div>
   );
-}
+};

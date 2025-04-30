@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { UserProfileType } from "@/types/user";
+import { UserProfileBase } from "@/types/user/base";
 import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
 import DashboardHeader from "@/pages/dashboard/student/DashboardHeader";
 import SidebarNavigation from "@/pages/dashboard/student/SidebarNavigation";
@@ -13,7 +13,7 @@ import MainContent from '@/components/dashboard/student/MainContent';
 import { useIsMobile } from "@/hooks/use-mobile";
 
 interface DashboardWrapperProps {
-  userProfile: UserProfileType;
+  userProfile: UserProfileBase;
   hideSidebar: boolean;
   hideTabsNav: boolean;
   activeTab: string;

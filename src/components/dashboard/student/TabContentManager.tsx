@@ -1,18 +1,13 @@
-
 import React from 'react';
-import { UserProfileType } from "@/types/user";
-import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
-import DashboardOverview from "@/components/dashboard/student/DashboardOverview";
-import WelcomeTour from "@/components/dashboard/student/WelcomeTour";
-import TodaysPlanView from "@/components/dashboard/student/todays-plan/TodaysPlanView";
-import ConceptCardsSection from "@/components/dashboard/student/concepts/ConceptCardsSection";
-import FlashcardsSection from "@/components/dashboard/student/flashcards/FlashcardsSection";
-import PracticeExamSection from "@/components/dashboard/student/practice-exams/PracticeExamSection";
-import NudgePanel from "@/components/dashboard/NudgePanel";
-import AcademicAdvisorSection from "@/components/dashboard/student/academic-advisor/AcademicAdvisorSection";
+import { UserProfileBase } from '@/types/user/base';
+import { KpiData, NudgeData } from '@/hooks/useKpiTracking';
+import { useNavigate } from 'react-router-dom';
 
-export interface GenerateTabContentsProps {
-  userProfile: UserProfileType;
+import RedesignedTodaysPlan from '@/components/dashboard/student/todays-plan/RedesignedTodaysPlan'; 
+import { TodayPlanView, StudyPlanView, ConceptsView, FlashcardsView, PracticeExamsView, NotificationsView } from '@/pages/dashboard/student/TabContentViews';
+
+interface TabContentGeneratorProps {
+  userProfile: UserProfileBase;
   kpis: KpiData[];
   nudges: NudgeData[];
   markNudgeAsRead: (id: string) => void;
@@ -35,57 +30,51 @@ export const generateTabContents = ({
   handleCompleteTour,
   lastActivity,
   suggestedNextAction
-}: GenerateTabContentsProps) => {
-  // Create a map of tab IDs to their React component content
-  const tabContents: Record<string, React.ReactNode> = {
+}: TabContentGeneratorProps) => {
+  const navigate = useNavigate();
+
+  // Pre-generated tab contents that will be used in different parts of the app
+  return {
+    // Home/Overview tab
     "overview": (
-      <>
-        {showWelcomeTour && (
-          <WelcomeTour
-            onSkipTour={handleSkipTour}
-            onCompleteTour={handleCompleteTour}
-            isFirstTimeUser={!userProfile.loginCount || userProfile.loginCount <= 1}
-            lastActivity={lastActivity}
-            suggestedNextAction={suggestedNextAction}
-            loginCount={userProfile.loginCount}
-            open={true}
-            onOpenChange={() => {}}
-          />
-        )}
-        
-        <DashboardOverview
-          userProfile={userProfile}
-          kpis={kpis}
-          nudges={nudges}
-          markNudgeAsRead={markNudgeAsRead}
-          features={features}
-        />
-      </>
+      <div className="space-y-6">
+        <h2 className="text-2xl font-bold">Dashboard Overview</h2>
+        <p>Welcome back, {userProfile.name}!</p>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {kpis.map(kpi => (
+            <div key={kpi.id} className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
+              <h3 className="font-medium">{kpi.title}</h3>
+              <p className="text-2xl">{kpi.value} {kpi.unit}</p>
+            </div>
+          ))}
+        </div>
+      </div>
     ),
-    "today": (
-      <TodaysPlanView />
-    ),
+    
+    // Today's Plan tab
+    "today": <RedesignedTodaysPlan userProfile={userProfile} />,
+    
+    // Study Plan tab
+    "study-plan": <StudyPlanView />,
+    
+    // Academic Advisor tab
     "academic": (
-      <AcademicAdvisorSection />
+      <div className="space-y-6">
+        <h2 className="text-2xl font-bold">Academic Advisor</h2>
+        <p>Get personalized guidance for your academic journey.</p>
+      </div>
     ),
-    "concepts": (
-      <ConceptCardsSection />
-    ),
-    "flashcards": (
-      <FlashcardsSection />
-    ),
-    "practice-exam": (
-      <PracticeExamSection />
-    ),
-    "notifications": (
-      <NudgePanel
-        nudges={nudges}
-        markAsRead={markNudgeAsRead}
-        showAll={true}
-      />
-    )
+    
+    // Concept Cards tab
+    "concepts": <ConceptsView />,
+    
+    // Flashcards tab
+    "flashcards": <FlashcardsView />,
+    
+    // Practice Exams tab
+    "practice-exam": <PracticeExamsView />,
+    
+    // Notifications tab
+    "notifications": <NotificationsView />
   };
-  
-  // Return the tab contents map
-  return tabContents;
 };
