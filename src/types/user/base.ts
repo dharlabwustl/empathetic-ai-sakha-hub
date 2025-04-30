@@ -22,6 +22,14 @@ export enum UserRole {
   Admin = "admin"
 }
 
+export enum TaskStatus {
+  Pending = "pending",
+  InProgress = "in-progress",
+  Completed = "completed",
+  Missed = "missed",
+  Partial = "partial"
+}
+
 export type SubscriptionType = 'free' | 'basic' | 'premium' | 'pro_monthly' | 'pro_annual' | 'enterprise' | 'trial' | 'custom';
 
 export interface UserSubscription {
@@ -79,12 +87,4 @@ export interface UserWithPreferences extends UserProfileBase {
       preferredSessionDuration?: number;
     };
   };
-}
-
-export enum TaskStatus {
-  Pending = "pending",
-  InProgress = "in-progress",
-  Completed = "completed",
-  Missed = "missed",
-  Partial = "partial"
 }
