@@ -1,8 +1,8 @@
 
-import React from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import { CheckCircle } from 'lucide-react';
 
 interface WelcomeScreenProps {
@@ -10,126 +10,117 @@ interface WelcomeScreenProps {
 }
 
 const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onComplete }) => {
+  const [animationDone, setAnimationDone] = useState(false);
+
+  // Animation variants
+  const container = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.3,
+        delayChildren: 0.3
+      }
+    }
+  };
+
+  const item = {
+    hidden: { opacity: 0, y: 20 },
+    show: { 
+      opacity: 1, 
+      y: 0,
+      transition: {
+        duration: 0.5
+      }
+    }
+  };
+
+  // Stats to animate
+  const stats = [
+    { label: "Students", value: "10,000+", icon: "👨‍🎓" },
+    { label: "Success Rate", value: "95%", icon: "🎯" },
+    { label: "Practice Questions", value: "500,000+", icon: "📝" },
+    { label: "Avg Score Improvement", value: "850", icon: "📈" }
+  ];
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 flex items-center justify-center p-4">
-      <Card className="max-w-3xl w-full shadow-lg border-0 overflow-hidden">
-        <div className="bg-gradient-to-r from-blue-500 to-indigo-600 p-6 text-white">
-          <h1 className="text-3xl font-bold">Welcome to Sakha AI</h1>
-          <p className="mt-2 opacity-90">Your personalized study companion is ready!</p>
-        </div>
-        
-        <CardContent className="p-8">
-          <div className="space-y-8">
-            <div>
-              <h2 className="text-2xl font-bold mb-4">Your Study Plan is Ready!</h2>
-              <p className="text-gray-600 mb-6">
-                We've created a personalized study plan based on your preferences, goals, and learning style.
-              </p>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 }}
-                className="bg-blue-50 rounded-lg p-5 border border-blue-100"
-              >
-                <div className="text-blue-600 text-xl font-bold mb-2">Study Time</div>
-                <div className="text-3xl font-bold text-gray-900 mb-1">120+ hrs</div>
-                <div className="text-sm text-gray-500">Optimized study schedule</div>
-              </motion.div>
-              
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-                className="bg-purple-50 rounded-lg p-5 border border-purple-100"
-              >
-                <div className="text-purple-600 text-xl font-bold mb-2">Flashcards</div>
-                <div className="text-3xl font-bold text-gray-900 mb-1">500+</div>
-                <div className="text-sm text-gray-500">Custom flashcards created</div>
-              </motion.div>
-              
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
-                className="bg-green-50 rounded-lg p-5 border border-green-100"
-              >
-                <div className="text-green-600 text-xl font-bold mb-2">Practice Tests</div>
-                <div className="text-3xl font-bold text-gray-900 mb-1">25+</div>
-                <div className="text-sm text-gray-500">Full-length practice exams</div>
-              </motion.div>
-            </div>
-            
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.5 }}
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex flex-col items-center justify-center p-4">
+      <motion.div
+        className="max-w-2xl w-full text-center"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <h1 className="text-4xl font-bold text-blue-700 mb-4">Welcome to Sakha AI!</h1>
+        <p className="text-gray-600 mb-8">We're glad you're here. Your personalized learning journey begins now.</p>
+
+        <motion.div
+          variants={container}
+          initial="hidden"
+          animate="show"
+          onAnimationComplete={() => setAnimationDone(true)}
+          className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8"
+        >
+          {stats.map((stat, index) => (
+            <motion.div
+              key={index}
+              variants={item}
+              className="bg-white rounded-lg shadow-md p-4 flex flex-col items-center"
             >
-              <div className="border-t border-gray-200 my-6"></div>
-              
-              <h3 className="text-xl font-semibold mb-3">Key Features Available Now:</h3>
-              
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-                <div className="flex items-center">
-                  <CheckCircle className="h-5 w-5 text-green-500 mr-2" />
-                  <span>Personalized study plan</span>
-                </div>
-                <div className="flex items-center">
-                  <CheckCircle className="h-5 w-5 text-green-500 mr-2" />
-                  <span>Smart flashcards</span>
-                </div>
-                <div className="flex items-center">
-                  <CheckCircle className="h-5 w-5 text-green-500 mr-2" />
-                  <span>Practice exams</span>
-                </div>
-                <div className="flex items-center">
-                  <CheckCircle className="h-5 w-5 text-green-500 mr-2" />
-                  <span>Progress tracking</span>
-                </div>
-                <div className="flex items-center">
-                  <CheckCircle className="h-5 w-5 text-green-500 mr-2" />
-                  <span>AI-powered tutor</span>
-                </div>
-                <div className="flex items-center">
-                  <CheckCircle className="h-5 w-5 text-green-500 mr-2" />
-                  <span>Mood-based learning</span>
-                </div>
-              </div>
-              
-              <div className="bg-gray-50 p-6 rounded-lg border border-gray-100">
-                <h4 className="text-lg font-semibold">A message from our founder</h4>
-                <p className="my-3 text-gray-700">
-                  "Welcome to Sakha AI! We're excited to be part of your learning journey. Our platform adapts to your unique needs and helps you achieve your academic goals efficiently. Remember, consistent practice is key to success!"
-                </p>
-                <div className="flex items-center">
-                  <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold">DR</div>
-                  <div className="ml-3">
-                    <p className="font-medium">Dr. Rakesh Sharma</p>
-                    <p className="text-sm text-gray-500">Founder, Sakha AI</p>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-            
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.7 }}
-              className="flex justify-center"
-            >
-              <Button 
-                onClick={onComplete}
-                size="lg"
-                className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-8 py-6 h-auto text-lg"
+              <span className="text-2xl mb-2">{stat.icon}</span>
+              <motion.span 
+                className="text-2xl font-bold text-blue-600"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 1.5 + index * 0.2, duration: 0.5 }}
               >
-                Go to Dashboard
-              </Button>
+                {stat.value}
+              </motion.span>
+              <span className="text-sm text-gray-600">{stat.label}</span>
             </motion.div>
-          </div>
-        </CardContent>
-      </Card>
+          ))}
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={animationDone ? { opacity: 1 } : { opacity: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <Card className="mb-8">
+            <CardContent className="pt-6">
+              <h2 className="text-xl font-semibold mb-4">Your account is ready!</h2>
+              
+              <motion.div className="flex flex-col space-y-3 mb-6">
+                {[
+                  "Personalized study plan created",
+                  "Progress tracking enabled",
+                  "AI tutor access activated",
+                  "Daily recommendations ready"
+                ].map((item, i) => (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 2.5 + i * 0.2 }}
+                    className="flex items-center gap-2 text-left"
+                  >
+                    <CheckCircle className="h-5 w-5 text-green-500" />
+                    <span>{item}</span>
+                  </motion.div>
+                ))}
+              </motion.div>
+            </CardContent>
+          </Card>
+
+          <Button
+            size="lg"
+            className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-8 py-6 h-auto text-lg"
+            onClick={onComplete}
+          >
+            Start My Learning Journey
+          </Button>
+        </motion.div>
+      </motion.div>
     </div>
   );
 };

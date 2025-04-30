@@ -12,6 +12,8 @@ export enum MoodType {
   Neutral = 'neutral',
   Sad = 'sad',
   Calm = 'calm',
+  Confused = 'confused',
+  Bored = 'bored'
 }
 
 export enum SubscriptionType {
@@ -37,13 +39,20 @@ export interface UserGoal {
   description?: string;
 }
 
+export enum UserRole {
+  Student = 'student',
+  Teacher = 'teacher',
+  Parent = 'parent',
+  Admin = 'admin'
+}
+
 export interface UserProfileBase {
   id: string;
   name: string;
   email?: string;
   phoneNumber?: string;
   avatar?: string;
-  role?: string;
+  role?: UserRole | string;
   goals?: UserGoal[];
   interests?: string[];
   subscription?: Subscription | string;

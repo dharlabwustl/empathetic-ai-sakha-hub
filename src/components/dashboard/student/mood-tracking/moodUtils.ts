@@ -27,6 +27,8 @@ export const getMoodSuggestion = (mood: MoodType): string => {
     
     [MoodType.Sad]: "Light review sessions might be best today. Be gentle with yourself, focus on small wins, and consider subjects you enjoy to lift your spirits.",
     
+    [MoodType.Calm]: "Your calm state is perfect for methodical learning. This is a good time for detailed review and connecting ideas across subjects.",
+    
     [MoodType.Bored]: "Try changing your study environment or approach. Gamify your learning or try a different format like videos, interactive quizzes, or group study."
   };
   
@@ -99,7 +101,8 @@ export const getMoodBasedTasks = (mood: MoodType, tasks: any[]): any[] => {
         .slice(0, Math.min(tasks.length, 2)); // Very few tasks
     
     case MoodType.Bored:
-      // For bored mood, provide variety and engaging content
+    case MoodType.Calm:
+      // For bored or calm mood, provide variety and engaging content
       return tasks
         .sort((a, b) => {
           // Prioritize interactive content first

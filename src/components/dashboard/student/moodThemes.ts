@@ -160,6 +160,17 @@ export const moodThemes: MoodThemes = {
     emoji: "🥱",
     message: "You're feeling bored today.",
     studyTip: "Try a new learning approach or change your study environment to renew interest."
+  },
+  [MoodType.Calm]: {
+    backgroundColor: "#E0F2FE",
+    textColor: "#0C4A6E",
+    borderColor: "#BAE6FD",
+    darkBackgroundColor: "rgba(14, 165, 233, 0.2)",
+    darkTextColor: "#38BDF8",
+    darkBorderColor: "#0EA5E9",
+    emoji: "😌",
+    message: "You're feeling calm today.",
+    studyTip: "Your relaxed state is perfect for deep learning. Focus on making connections between concepts."
   }
 };
 

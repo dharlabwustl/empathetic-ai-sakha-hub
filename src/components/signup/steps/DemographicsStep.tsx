@@ -1,158 +1,172 @@
 
-import React, { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import React, { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { motion } from 'framer-motion';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { UserRole } from '@/types/user/base';
 
 interface DemographicsStepProps {
+  role: UserRole | string;
+  goal: string;
   onSubmit: (data: Record<string, string>) => void;
 }
 
-const DemographicsStep: React.FC<DemographicsStepProps> = ({ onSubmit }) => {
-  const [formValues, setFormValues] = useState({
+const DemographicsStep: React.FC<DemographicsStepProps> = ({ role, goal, onSubmit }) => {
+  const [formData, setFormData] = useState<Record<string, string>>({
     age: "",
-    educationLevel: "",
+    grade: "",
     city: "",
-    examDate: "",
-  });
-  
-  const [errors, setErrors] = useState({
-    age: "",
-    educationLevel: "",
-    examDate: "",
+    institute: ""
   });
 
-  const calculateMinDate = () => {
-    const today = new Date();
-    return today.toISOString().split('T')[0];
-  };
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormValues({ ...formValues, [name]: value });
-    
-    // Validate age
-    if (name === "age") {
-      const ageNum = parseInt(value);
-      if (isNaN(ageNum) || ageNum < 12 || ageNum > 100) {
-        setErrors({ ...errors, age: "Age must be between 12-100" });
-      } else {
-        setErrors({ ...errors, age: "" });
-      }
-    }
-  };
-  
-  const handleSelectChange = (name: string, value: string) => {
-    setFormValues({ ...formValues, [name]: value });
-    if (name === "educationLevel" && value === "") {
-      setErrors({ ...errors, educationLevel: "Education level is required" });
-    } else {
-      setErrors({ ...errors, educationLevel: "" });
-    }
-  };
-  
-  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormValues({ ...formValues, [name]: value });
-    
-    if (name === "examDate") {
-      if (!value) {
-        setErrors({ ...errors, examDate: "Exam date is required" });
-      } else {
-        const selectedDate = new Date(value);
-        const today = new Date();
-        
-        if (selectedDate < today) {
-          setErrors({ ...errors, examDate: "Exam date must be in the future" });
-        } else {
-          setErrors({ ...errors, examDate: "" });
-        }
-      }
-    }
+  const handleChange = (field: string, value: string) => {
+    setFormData({
+      ...formData,
+      [field]: value
+    });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Validation
-    const newErrors = {
-      age: formValues.age ? (parseInt(formValues.age) < 12 || parseInt(formValues.age) > 100) ? "Age must be between 12-100" : "" : "Age is required",
-      educationLevel: formValues.educationLevel ? "" : "Education level is required",
-      examDate: formValues.examDate ? "" : "Exam date is required",
-    };
-    
-    setErrors(newErrors);
-    
-    if (Object.values(newErrors).every(error => error === "")) {
-      onSubmit(formValues);
+    onSubmit(formData);
+  };
+
+  const container = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
     }
   };
 
-  return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="space-y-2">
-        <Label htmlFor="age">Age</Label>
-        <Input 
-          id="age" 
-          name="age" 
-          type="number" 
-          placeholder="Enter your age" 
-          min="12" 
-          max="100"
-          value={formValues.age} 
-          onChange={handleInputChange}
-        />
-        {errors.age && <p className="text-sm text-red-500">{errors.age}</p>}
-      </div>
-      
-      <div className="space-y-2">
-        <Label htmlFor="educationLevel">Education Level</Label>
-        <Select 
-          value={formValues.educationLevel} 
-          onValueChange={(value) => handleSelectChange("educationLevel", value)}
-        >
-          <SelectTrigger id="educationLevel">
-            <SelectValue placeholder="Select your education level" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="highSchool">High School (9-10th)</SelectItem>
-            <SelectItem value="higherSecondary">Higher Secondary (11-12th)</SelectItem>
-            <SelectItem value="undergraduate">Undergraduate</SelectItem>
-            <SelectItem value="graduate">Graduate</SelectItem>
-            <SelectItem value="postgraduate">Post Graduate</SelectItem>
-          </SelectContent>
-        </Select>
-        {errors.educationLevel && <p className="text-sm text-red-500">{errors.educationLevel}</p>}
-      </div>
-      
-      <div className="space-y-2">
-        <Label htmlFor="city">City (Optional)</Label>
-        <Input 
-          id="city" 
-          name="city" 
-          type="text" 
-          placeholder="Enter your city" 
-          value={formValues.city} 
-          onChange={handleInputChange}
-        />
-      </div>
+  const item = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0 }
+  };
 
-      <div className="space-y-2">
-        <Label htmlFor="examDate">Exam Appearing Date</Label>
-        <Input 
-          id="examDate" 
-          name="examDate" 
-          type="date" 
-          min={calculateMinDate()} 
-          value={formValues.examDate} 
-          onChange={handleDateChange}
-        />
-        {errors.examDate && <p className="text-sm text-red-500">{errors.examDate}</p>}
-      </div>
+  // Determine which fields to show based on role
+  const isStudent = role === UserRole.Student || role === "Student";
+  
+  return (
+    <motion.form 
+      onSubmit={handleSubmit}
+      variants={container}
+      initial="hidden"
+      animate="show"
+      className="space-y-6"
+    >
+      <motion.div variants={item}>
+        <h2 className="text-2xl font-semibold text-center mb-2">
+          Tell us about yourself
+        </h2>
+        <p className="text-muted-foreground text-center mb-6">
+          {isStudent 
+            ? `We'll personalize your ${goal} preparation experience` 
+            : "We'll customize your experience based on your profile"}
+        </p>
+      </motion.div>
+
+      {isStudent && (
+        <motion.div variants={item} className="space-y-4">
+          <div>
+            <Label htmlFor="age">Your Age</Label>
+            <Input 
+              id="age"
+              type="number"
+              placeholder="e.g. 17" 
+              value={formData.age}
+              onChange={(e) => handleChange('age', e.target.value)}
+            />
+          </div>
+          
+          <div>
+            <Label htmlFor="grade">Current Grade/Year</Label>
+            <Select 
+              onValueChange={(value) => handleChange('grade', value)}
+              defaultValue={formData.grade}
+            >
+              <SelectTrigger id="grade">
+                <SelectValue placeholder="Select your grade/year" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="10">Class 10</SelectItem>
+                <SelectItem value="11">Class 11</SelectItem>
+                <SelectItem value="12">Class 12</SelectItem>
+                <SelectItem value="12-pass">12th Pass</SelectItem>
+                <SelectItem value="college-1">College Year 1</SelectItem>
+                <SelectItem value="college-2">College Year 2</SelectItem>
+                <SelectItem value="college-3">College Year 3</SelectItem>
+                <SelectItem value="college-4">College Year 4</SelectItem>
+                <SelectItem value="working">Working Professional</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          
+          <div>
+            <Label htmlFor="city">Your City</Label>
+            <Input 
+              id="city"
+              placeholder="e.g. New Delhi" 
+              value={formData.city}
+              onChange={(e) => handleChange('city', e.target.value)}
+            />
+          </div>
+          
+          <div>
+            <Label htmlFor="institute">School/Institute</Label>
+            <Input 
+              id="institute"
+              placeholder="e.g. Delhi Public School" 
+              value={formData.institute}
+              onChange={(e) => handleChange('institute', e.target.value)}
+            />
+          </div>
+        </motion.div>
+      )}
       
-      <Button type="submit" className="w-full">Continue</Button>
-    </form>
+      {!isStudent && (
+        <motion.div variants={item} className="space-y-4">
+          {/* Fields for teachers/other professionals */}
+          <div>
+            <Label htmlFor="experience">Years of Experience</Label>
+            <Input 
+              id="experience"
+              placeholder="e.g. 5" 
+              value={formData.experience || ""}
+              onChange={(e) => handleChange('experience', e.target.value)}
+            />
+          </div>
+          
+          <div>
+            <Label htmlFor="specialization">Specialization/Subject</Label>
+            <Input 
+              id="specialization"
+              placeholder="e.g. Physics, Mathematics" 
+              value={formData.specialization || ""}
+              onChange={(e) => handleChange('specialization', e.target.value)}
+            />
+          </div>
+          
+          <div>
+            <Label htmlFor="institute">Institute/Organization</Label>
+            <Input 
+              id="institute"
+              placeholder="Where do you work?" 
+              value={formData.institute || ""}
+              onChange={(e) => handleChange('institute', e.target.value)}
+            />
+          </div>
+        </motion.div>
+      )}
+
+      <motion.div variants={item}>
+        <Button type="submit" className="w-full">Continue</Button>
+      </motion.div>
+    </motion.form>
   );
 };
 

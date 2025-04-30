@@ -1,13 +1,15 @@
 
 import React, { createContext, useState, useContext } from "react";
-import { Goal } from "@/types/user/base";
+import { MoodType, UserRole } from "@/types/user/base";
+
+export type OnboardingStep = "role" | "goal" | "demographics" | "personality" | "sentiment" | "signup";
 
 interface OnboardingContextType {
   currentStep: number;
   setCurrentStep: (step: number) => void;
   steps: string[];
-  userType: string;
-  setUserType: (type: string) => void;
+  role: UserRole | string;
+  setRole: (type: UserRole | string) => void;
   goalTitle: string;
   setGoalTitle: (goal: string) => void;
   examGoal: string;
@@ -22,8 +24,8 @@ const defaultOnboardingContext: OnboardingContextType = {
   currentStep: 0,
   setCurrentStep: () => {},
   steps: ["welcome", "userType", "goal", "registration", "study", "complete"],
-  userType: "",
-  setUserType: () => {},
+  role: "",
+  setRole: () => {},
   goalTitle: "",
   setGoalTitle: () => {},
   examGoal: "",
@@ -40,7 +42,7 @@ export const useOnboardingContext = () => useContext(OnboardingContext);
 
 export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [currentStep, setCurrentStep] = useState(0);
-  const [userType, setUserType] = useState("");
+  const [role, setRole] = useState<UserRole | string>("");
   const [goalTitle, setGoalTitle] = useState("");
   const [examGoal, setExamGoal] = useState("");
   const [formData, setFormData] = useState<any>({});
@@ -52,7 +54,7 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   };
   
   const onboardingData = {
-    userType,
+    role,
     goalTitle,
     examGoal,
     ...formData
@@ -82,8 +84,8 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         currentStep,
         setCurrentStep,
         steps,
-        userType,
-        setUserType,
+        role,
+        setRole,
         goalTitle,
         setGoalTitle,
         examGoal,
@@ -98,3 +100,11 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     </OnboardingContext.Provider>
   );
 };
+
+export function useOnboarding() {
+  const context = useContext(OnboardingContext);
+  if (context === undefined) {
+    throw new Error("useOnboarding must be used within an OnboardingProvider");
+  }
+  return context;
+}

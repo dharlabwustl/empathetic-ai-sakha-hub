@@ -2,9 +2,9 @@
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
-import { OnboardingStep, UserRole, UserGoal } from "./OnboardingContext";
+import { OnboardingStep } from "./OnboardingContext";
 import authService from "@/services/auth/authService"; 
-import { MoodType } from "@/types/user/base";
+import { MoodType, UserRole } from "@/types/user/base";
 
 interface StepHandlerProps {
   onboardingData: any;
@@ -25,7 +25,7 @@ const StepHandler = ({
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleRoleSelect = (role: UserRole) => {
+  const handleRoleSelect = (role: UserRole | string) => {
     setOnboardingData({ ...onboardingData, role });
     setMessages([
       ...messages, 
@@ -34,8 +34,18 @@ const StepHandler = ({
     ]);
     setStep("goal");
   };
+
+  const handleGoalSelect = (goal: string) => {
+    setOnboardingData({ ...onboardingData, goal });
+    setMessages([
+      ...messages, 
+      { content: goal, isBot: false },
+      { content: "Tell us more about yourself to personalize your learning experience.", isBot: true }
+    ]);
+    setStep("demographics");
+  };
   
-  const handleSignupSubmit = async (formValues: { name: string; mobile: string; otp: string }) => {
+  const handleSignupSubmit = async (formValues: { name: string; mobile: string; otp: string; agreeTerms: boolean }) => {
     setIsLoading(true);
     
     try {
@@ -105,6 +115,7 @@ const StepHandler = ({
     isLoading,
     handlers: {
       handleRoleSelect,
+      handleGoalSelect,
       handleDemographicsSubmit: (data: Record<string, string>) => {
         // Create a readable message for chat
         let userMessage = "";
@@ -127,15 +138,6 @@ const StepHandler = ({
           { content: "Let's understand your personality type with a short quiz. Which of these best describes your approach to learning?", isBot: true }
         ]);
         setStep("personality");
-      },
-      handleGoalSelect: (goal: UserGoal) => {
-        setOnboardingData({ ...onboardingData, goal });
-        setMessages([
-          ...messages, 
-          { content: goal, isBot: false },
-          { content: "Tell us more about yourself to personalize your learning experience.", isBot: true }
-        ]);
-        setStep("demographics");
       },
       handlePersonalitySelect: (personality: string) => {
         setOnboardingData({ ...onboardingData, personalityType: personality });

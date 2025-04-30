@@ -34,7 +34,7 @@ const StepRenderer: React.FC<StepRendererProps> = ({ step, onboardingData, handl
       return (
         <DemographicsStep
           role={onboardingData.role}
-          examGoal={onboardingData.examGoal}
+          goal={onboardingData.goal}
           onSubmit={handlers.handleDemographicsSubmit}
         />
       );
