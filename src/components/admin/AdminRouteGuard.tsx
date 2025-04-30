@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Navigate, Outlet } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import { useAdminAuth } from '@/contexts/auth/AdminAuthContext';
 import LoadingScreen from '@/components/common/LoadingScreen';
 
@@ -19,11 +19,7 @@ const AdminRouteGuard: React.FC<AdminRouteGuardProps> = ({ children }) => {
     return <Navigate to="/admin/login" replace />;
   }
   
-  return (
-    <>
-      {children || <Outlet />}
-    </>
-  );
+  return <>{children}</>;
 };
 
 export default AdminRouteGuard;

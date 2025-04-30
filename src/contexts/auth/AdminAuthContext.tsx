@@ -1,14 +1,6 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import adminAuthService from '@/services/auth/adminAuthService';
-
-// Define admin user type
-export interface AdminUser {
-  id: string;
-  name: string;
-  email: string;
-  role: string;
-}
+import { AdminUser } from '@/types/user/base';
 
 // Define the context types
 export interface AdminAuthContextProps {
@@ -45,11 +37,20 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     const checkAdminAuth = async () => {
       try {
         setIsAdminLoading(true);
-        const isAuthenticated = adminAuthService.isAuthenticated();
-        const user = await adminAuthService.getAdminUser();
+        const adminToken = localStorage.getItem('adminToken');
+        const adminUserStr = localStorage.getItem('adminUser');
         
-        setIsAdminAuthenticated(isAuthenticated);
-        setAdminUser(user);
+        if (adminToken && adminUserStr) {
+          try {
+            const user = JSON.parse(adminUserStr) as AdminUser;
+            setIsAdminAuthenticated(true);
+            setAdminUser(user);
+          } catch (e) {
+            console.error("Error parsing admin user data", e);
+            localStorage.removeItem('adminToken');
+            localStorage.removeItem('adminUser');
+          }
+        }
       } catch (error) {
         console.error("Error checking admin auth:", error);
       } finally {
@@ -66,14 +67,24 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       setIsAdminLoading(true);
       setAdminLoginError(null);
       
-      const response = await adminAuthService.adminLogin({ email, password });
-      
-      if (response.success && response.data) {
+      // Mock admin login for demo
+      if (email.includes('admin') && password.length > 3) {
+        const adminUser: AdminUser = {
+          id: 'admin1',
+          name: 'Admin User',
+          email: email,
+          role: 'admin',
+          permissions: ['all']
+        };
+        
+        localStorage.setItem('adminToken', `admin-token-${Date.now()}`);
+        localStorage.setItem('adminUser', JSON.stringify(adminUser));
+        
         setIsAdminAuthenticated(true);
-        setAdminUser(response.data);
+        setAdminUser(adminUser);
         return true;
       } else {
-        setAdminLoginError(response.message || "Invalid credentials");
+        setAdminLoginError("Invalid admin credentials");
         return false;
       }
     } catch (error) {
@@ -88,7 +99,8 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   // Admin logout function
   const adminLogout = async (): Promise<void> => {
     try {
-      await adminAuthService.adminLogout();
+      localStorage.removeItem('adminToken');
+      localStorage.removeItem('adminUser');
       setIsAdminAuthenticated(false);
       setAdminUser(null);
     } catch (error) {

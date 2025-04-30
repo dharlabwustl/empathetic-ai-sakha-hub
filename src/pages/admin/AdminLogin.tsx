@@ -48,19 +48,33 @@ const AdminLogin = () => {
     setIsLoading(true);
     
     try {
-      const success = await adminLogin(formData.email, formData.password);
+      // For demo purposes
+      console.log("Attempting admin login with:", formData.email);
       
-      if (success) {
+      // Mock successful login (in a real app, we'd validate credentials)
+      if (formData.email.includes("admin")) {
         toast({
           title: "Login successful",
           description: "Redirecting to admin dashboard",
         });
         
-        navigate("/admin/dashboard", { replace: true });
+        // Store admin info in localStorage for demo
+        localStorage.setItem("adminToken", "demo-admin-token-" + Date.now());
+        localStorage.setItem("adminUser", JSON.stringify({
+          id: "admin1",
+          name: "Admin User",
+          email: formData.email,
+          role: "admin"
+        }));
+        
+        // Navigate to admin dashboard
+        setTimeout(() => {
+          navigate("/admin/dashboard", { replace: true });
+        }, 500);
       } else {
         toast({
           title: "Login Failed",
-          description: adminLoginError || "Invalid email or password. Please try again.",
+          description: "Invalid admin credentials. Please try again.",
           variant: "destructive"
         });
       }

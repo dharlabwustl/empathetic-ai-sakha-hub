@@ -4,7 +4,6 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
 import Index from '@/pages/Index';
 import SignUp from '@/pages/SignUp';
-import LoginPage from '@/pages/login/LoginPage';
 import NotFound from '@/pages/NotFound';
 import StudentDashboard from '@/pages/dashboard/student/StudentDashboard';
 import FeelGoodCornerView from '@/pages/dashboard/student/FeelGoodCornerView';
@@ -26,6 +25,7 @@ import PostLoginPrompt from './pages/dashboard/PostLoginPrompt';
 import StudyPlanCreation from './pages/StudyPlanCreation';
 import ConceptCardStudyPage from './pages/dashboard/student/concept/ConceptCardStudyPage';
 import Login from './pages/Login';
+import EnhancedFlashcardPage from './pages/dashboard/student/flashcards/EnhancedFlashcardPage';
 
 const AdminDashboard = React.lazy(() => import('@/pages/admin/AdminDashboard'));
 
@@ -55,6 +55,7 @@ function App() {
               <Route path="/dashboard/student/concepts/study/:conceptId" element={<ConceptCardStudyPage />} />
               <Route path="/dashboard/student/concepts/study" element={<ConceptCardStudyPage />} />
               <Route path="/dashboard/student/flashcards/:deckId/interactive" element={<FlashcardInteractivePage />} />
+              <Route path="/dashboard/student/flashcards/enhanced" element={<EnhancedFlashcardPage />} />
               <Route path="/dashboard/student/practice-exam/:examId/start" element={<ExamTakingPage />} />
               <Route path="/dashboard/student/practice-exam/:examId/review" element={<ExamReviewPage />} />
 
