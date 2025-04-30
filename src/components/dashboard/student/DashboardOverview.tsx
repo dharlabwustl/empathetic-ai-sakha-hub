@@ -1,133 +1,172 @@
 
-import React from 'react';
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Clock, Users, BookOpen, Target, BookCheck, Brain, FileText, Star } from "lucide-react";
-import { motion } from "framer-motion";
-import { KpiData } from "@/hooks/useKpiTracking";
-import { UserProfileBase } from "@/types/user/base";
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { UserProfileType } from "@/types/user";
 import { KpiCard } from "@/components/dashboard/KpiCard";
-import FeatureHighlights from '@/components/dashboard/student/FeatureHighlights';
-import RecommendedResources from '@/components/dashboard/student/RecommendedResources';
-import UpcomingTasks from '@/components/dashboard/student/UpcomingTasks';
-import StudyProgress from '@/components/dashboard/student/StudyProgress';
-import SubjectPerformance from '@/components/dashboard/student/SubjectPerformance';
-
-interface DashboardData {
-  upcomingTasks: any[];
-  progressData: any;
-  features: any[];
-  recommendedResources: any[];
-}
+import { KpiData } from "@/hooks/useKpiTracking";
 
 interface DashboardOverviewProps {
-  userProfile: UserProfileBase;
+  userProfile: UserProfileType;
   kpis: KpiData[];
-  dashboardData?: DashboardData;
 }
 
-const DashboardOverview: React.FC<DashboardOverviewProps> = ({ 
-  userProfile, 
-  kpis,
-  dashboardData = {
-    upcomingTasks: [],
-    progressData: {
-      subjects: [],
-      studyStreak: {
-        currentStreak: 0,
-        longestStreak: 0,
-        thisWeek: [0, 0, 0, 0, 0, 0, 0]
-      }
-    },
-    features: [],
-    recommendedResources: []
-  }
-}) => {
-  // Mock KPI icon mapping
-  const getKpiIcon = (kpiId: string) => {
-    switch (kpiId) {
-      case 'study-hours':
-        return <Clock className="h-8 w-8 text-blue-500" />;
-      case 'concepts-mastered':
-        return <BookOpen className="h-8 w-8 text-green-500" />;
-      case 'streak':
-        return <Target className="h-8 w-8 text-red-500" />;
-      case 'accuracy':
-        return <Star className="h-8 w-8 text-yellow-500" />;
-      case 'tests-completed':
-        return <FileText className="h-8 w-8 text-purple-500" />;
-      case 'flashcards-reviewed':
-        return <Brain className="h-8 w-8 text-cyan-500" />;
-      case 'points':
-        return <BookCheck className="h-8 w-8 text-lime-500" />;
-      default:
-        return <BookOpen className="h-8 w-8 text-gray-500" />;
-    }
+export function DashboardOverview({ userProfile, kpis }: DashboardOverviewProps) {
+  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState("overview");
+  
+  // Get user initials for avatar
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map(part => part.charAt(0))
+      .join('')
+      .toUpperCase()
+      .substring(0, 2);
   };
-
+  
+  // Convert KPI change types
+  const mapChangeType = (change: string | number, changeType: string) => {
+    if (changeType === "positive") return "increase";
+    if (changeType === "negative") return "decrease";
+    return "neutral";
+  };
+  
   return (
     <div className="space-y-6">
-      {/* KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {kpis.map(kpi => (
-          <motion.div
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
+        <div>
+          <h2 className="text-2xl font-bold">Welcome back, {userProfile.name}!</h2>
+          <p className="text-muted-foreground">Here's an overview of your progress</p>
+        </div>
+        
+        <div className="mt-4 sm:mt-0">
+          <Button onClick={() => navigate("/dashboard/student/today")}>
+            Go to Today's Plan
+          </Button>
+        </div>
+      </div>
+      
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        {kpis.map((kpi) => (
+          <KpiCard
             key={kpi.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            <KpiCard
-              key={kpi.id}
-              title={kpi.title}
-              value={kpi.value}
-              unit={kpi.unit}
-              icon={getKpiIcon(kpi.id)}
-              change={kpi.change || 0}
-              changeType={kpi.changeType || 'neutral'}
-            />
-          </motion.div>
+            title={kpi.title}
+            value={kpi.value}
+            unit={kpi.unit}
+            change={kpi.change}
+            changeType={mapChangeType(kpi.change, kpi.changeType)}
+            icon={kpi.icon}
+          />
         ))}
       </div>
-
-      {/* Main Overview Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Study Progress */}
-          <StudyProgress 
-            subjects={dashboardData.progressData?.subjects || []}
-            studyStreak={dashboardData.progressData?.studyStreak || {
-              currentStreak: 0,
-              longestStreak: 0,
-              thisWeek: [0, 0, 0, 0, 0, 0, 0]
-            }}
-          />
-
-          {/* Subject Performance */}
-          <SubjectPerformance 
-            subjects={[
-              { subject: "Physics", progress: 75, change: 5 },
-              { subject: "Chemistry", progress: 60, change: -2 },
-              { subject: "Mathematics", progress: 85, change: 7 },
-              { subject: "Biology", progress: 45, change: 3 }
-            ]}
-          />
-        </div>
-
-        {/* Right Column */}
-        <div className="space-y-6">
-          {/* Upcoming Tasks */}
-          <UpcomingTasks tasks={dashboardData.upcomingTasks || []} />
-
-          {/* Feature Highlights */}
-          <FeatureHighlights features={dashboardData.features || []} />
-
-          {/* Recommended Resources */}
-          <RecommendedResources resources={dashboardData.recommendedResources || []} />
-        </div>
+      
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <Card className="col-span-1 md:col-span-1">
+          <CardHeader>
+            <CardTitle>Profile</CardTitle>
+            <CardDescription>Your student information</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center space-x-4">
+              <Avatar className="h-10 w-10">
+                <AvatarFallback>{getInitials(userProfile.name)}</AvatarFallback>
+              </Avatar>
+              <div>
+                <p className="text-sm font-medium leading-none">{userProfile.name}</p>
+                <p className="text-sm text-muted-foreground">{userProfile.email}</p>
+              </div>
+            </div>
+            <div className="mt-6 space-y-2">
+              <div className="flex justify-between text-sm">
+                <span>Account type:</span>
+                <span className="font-medium">Student</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span>Login count:</span>
+                <span className="font-medium">{userProfile.loginCount || 1}</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card className="col-span-1 md:col-span-1">
+          <CardHeader>
+            <CardTitle>Quick Actions</CardTitle>
+            <CardDescription>Frequently used features</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            <Button variant="outline" className="w-full justify-start" onClick={() => navigate('/dashboard/student/academic')}>
+              Academic Advisor
+            </Button>
+            <Button variant="outline" className="w-full justify-start" onClick={() => navigate('/dashboard/student/tutor')}>
+              Chat with AI Tutor
+            </Button>
+            <Button variant="outline" className="w-full justify-start" onClick={() => navigate('/dashboard/student/practice-exam')}>
+              Practice Tests
+            </Button>
+            <Button variant="outline" className="w-full justify-start" onClick={() => navigate('/dashboard/student/concepts')}>
+              Browse Concepts
+            </Button>
+          </CardContent>
+        </Card>
+        
+        <Card className="col-span-1 md:col-span-1">
+          <CardHeader>
+            <CardTitle>Recent Activity</CardTitle>
+            <CardDescription>Your latest study sessions</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="border-l-4 border-blue-500 pl-4 py-2">
+              <p className="text-sm font-medium">Physics Quiz</p>
+              <p className="text-xs text-muted-foreground">Completed yesterday</p>
+            </div>
+            <div className="border-l-4 border-green-500 pl-4 py-2">
+              <p className="text-sm font-medium">Math Concepts</p>
+              <p className="text-xs text-muted-foreground">Studied 2 days ago</p>
+            </div>
+            <div className="border-l-4 border-purple-500 pl-4 py-2">
+              <p className="text-sm font-medium">Chemistry Flashcards</p>
+              <p className="text-xs text-muted-foreground">Reviewed 3 days ago</p>
+            </div>
+          </CardContent>
+        </Card>
       </div>
+      
+      <Card>
+        <CardHeader>
+          <Tabs defaultValue={activeTab} onValueChange={setActiveTab}>
+            <div className="flex justify-between items-center">
+              <CardTitle>Study Progress</CardTitle>
+              <TabsList>
+                <TabsTrigger value="overview">Overview</TabsTrigger>
+                <TabsTrigger value="subjects">By Subject</TabsTrigger>
+                <TabsTrigger value="time">Time Spent</TabsTrigger>
+              </TabsList>
+            </div>
+          </Tabs>
+        </CardHeader>
+        <CardContent>
+          <TabsContent value="overview" className="space-y-4">
+            <div className="h-[250px] flex items-center justify-center border rounded">
+              <p className="text-muted-foreground">Progress chart will be displayed here</p>
+            </div>
+          </TabsContent>
+          <TabsContent value="subjects" className="space-y-4">
+            <div className="h-[250px] flex items-center justify-center border rounded">
+              <p className="text-muted-foreground">Subject breakdown will be displayed here</p>
+            </div>
+          </TabsContent>
+          <TabsContent value="time" className="space-y-4">
+            <div className="h-[250px] flex items-center justify-center border rounded">
+              <p className="text-muted-foreground">Time tracking chart will be displayed here</p>
+            </div>
+          </TabsContent>
+        </CardContent>
+      </Card>
     </div>
   );
-};
-
-export default DashboardOverview;
+}

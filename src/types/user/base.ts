@@ -1,52 +1,73 @@
 
 export enum UserRole {
-  Student = "student",
-  Employee = "employee",
-  Doctor = "doctor",
-  Founder = "founder",
-  Admin = "admin"
+  Student = 'student',
+  Teacher = 'teacher',
+  Parent = 'parent',
+  Admin = 'admin',
+  Founder = 'founder'
 }
 
-export enum MoodType {
-  Happy = "happy",
-  Motivated = "motivated",
-  Neutral = "neutral",
-  Tired = "tired",
-  Stressed = "stressed",
-  Confused = "confused",
-  Focused = "focused",
-  Anxious = "anxious",
-  Sad = "sad"
-}
+export type MoodType = 
+  | 'happy'
+  | 'motivated'
+  | 'focused'
+  | 'neutral'
+  | 'tired'
+  | 'anxious'
+  | 'stressed'
+  | 'sad'
+  | 'curious'
+  | 'okay'
+  | 'overwhelmed';
 
-export enum PersonalityType {
-  Visual = "visual",
-  Auditory = "auditory",
-  Reading = "reading",
-  Kinesthetic = "kinesthetic"
-}
+export type PersonalityType =
+  | 'analytical'
+  | 'creative'
+  | 'practical'
+  | 'visual'
+  | 'auditory'
+  | 'kinesthetic';
 
 export enum SubscriptionType {
-  Free = "free",
-  Basic = "basic",
-  Premium = "premium",
-  ProAnnual = "pro_annual",
-  ProMonthly = "pro_monthly",
-  Enterprise = "enterprise",
-  Trial = "trial"
+  Free = 'free',
+  Basic = 'basic',
+  Premium = 'premium',
+  Enterprise = 'enterprise',
+  Trial = 'trial',
+  Pro_Annual = 'pro_annual',
+  Pro_Monthly = 'pro_monthly'
 }
 
-// Base user profile type
+export interface UserSubscription {
+  planType: SubscriptionType | string;
+  startDate?: string;
+  expiryDate?: string;
+  autoRenew?: boolean;
+  paymentMethod?: string;
+}
+
 export interface UserProfileBase {
   id: string;
   name: string;
-  email: string;
+  email?: string;
   role: UserRole;
-  goals?: { id: string; title: string }[];
-  subscription?: SubscriptionType | { planType: string; expiryDate?: string };
   loginCount?: number;
-  lastLogin?: string;
-  createdAt?: string;
+  subscription?: UserSubscription | SubscriptionType | string;
+  goals?: Array<{id: string; title: string; targetDate?: string}>;
+  mood?: MoodType;
+  personality?: PersonalityType;
+  lastActive?: string;
+  avatarUrl?: string;
+  avatar?: string;
+  streak?: number;
+  studyHours?: number;
+  conceptsLearned?: number;
+  testsCompleted?: number;
 }
 
-export type UserProfileType = UserProfileBase;
+export interface AdminUser {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+}

@@ -1,112 +1,116 @@
 
 import React from 'react';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { UserProfileBase, SubscriptionType } from '@/types/user/base';
-import { formatDistanceToNow } from 'date-fns';
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { UserProfileBase, SubscriptionType } from "@/types/user/base";
+import { formatDistanceToNow } from "date-fns";
 
 interface ProfileCardProps {
   userProfile: UserProfileBase;
   className?: string;
 }
 
-export default function ProfileCard({ userProfile, className = '' }: ProfileCardProps) {
-  const initials = userProfile.name
-    .split(' ')
-    .map(n => n[0])
-    .join('')
-    .toUpperCase();
-    
-  const getSubscriptionBadge = () => {
-    // Default to Free plan
-    let plan = SubscriptionType.Free;
-    
-    if (userProfile.subscription) {
-      if (typeof userProfile.subscription === 'object') {
-        plan = userProfile.subscription.planType;
-      } else {
-        plan = userProfile.subscription;
-      }
+export function ProfileCard({ userProfile, className = "" }: ProfileCardProps) {
+  // Determine subscription display info
+  const getSubscriptionInfo = () => {
+    let planType = "free";
+    if (typeof userProfile.subscription === 'object' && userProfile.subscription) {
+      planType = userProfile.subscription.planType;
+    } else if (typeof userProfile.subscription === 'string') {
+      planType = userProfile.subscription;
     }
-    
-    // Color mapping based on subscription type
-    const badgeColors: Record<SubscriptionType, string> = {
-      [SubscriptionType.Free]: 'bg-gray-100 text-gray-800 border-gray-200',
-      [SubscriptionType.Basic]: 'bg-blue-100 text-blue-800 border-blue-200',
-      [SubscriptionType.Premium]: 'bg-purple-100 text-purple-800 border-purple-200',
-      [SubscriptionType.Pro]: 'bg-indigo-100 text-indigo-800 border-indigo-200',
-      [SubscriptionType.Enterprise]: 'bg-emerald-100 text-emerald-800 border-emerald-200',
-      [SubscriptionType.Trial]: 'bg-amber-100 text-amber-800 border-amber-200',
-      [SubscriptionType.Custom]: 'bg-pink-100 text-pink-800 border-pink-200'
+
+    const subscriptionColors: Record<string, string> = {
+      free: "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300",
+      basic: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300",
+      premium: "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300",
+      enterprise: "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300",
+      trial: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300",
+      pro_annual: "bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-300",
+      pro_monthly: "bg-violet-100 text-violet-800 dark:bg-violet-900/30 dark:text-violet-300"
     };
     
-    // Label mapping based on subscription type
-    const badgeLabels: Record<SubscriptionType, string> = {
-      [SubscriptionType.Free]: 'Free Plan',
-      [SubscriptionType.Basic]: 'Basic Plan',
-      [SubscriptionType.Premium]: 'Premium',
-      [SubscriptionType.Pro]: 'Pro',
-      [SubscriptionType.Enterprise]: 'Enterprise',
-      [SubscriptionType.Trial]: 'Trial',
-      [SubscriptionType.Custom]: 'Custom Plan'
+    const subscriptionLabels: Record<string, string> = {
+      free: "Free",
+      basic: "Basic",
+      premium: "Premium",
+      enterprise: "Enterprise",
+      trial: "Trial",
+      pro_annual: "Pro (Annual)",
+      pro_monthly: "Pro (Monthly)",
+      custom: "Custom"
     };
+
+    const color = subscriptionColors[planType.toLowerCase()] || subscriptionColors.free;
+    const label = subscriptionLabels[planType.toLowerCase()] || "Unknown";
     
-    return (
-      <Badge 
-        variant="outline" 
-        className={`${badgeColors[plan]} text-xs font-normal ml-2`}
-      >
-        {badgeLabels[plan]}
-      </Badge>
-    );
+    return { color, label };
   };
   
-  const formatLastActive = () => {
-    if (!userProfile.lastActive) return 'No activity yet';
-    try {
-      return `Last active ${formatDistanceToNow(new Date(userProfile.lastActive), { addSuffix: true })}`;
-    } catch (e) {
-      return 'Last active recently';
-    }
+  const subscriptionInfo = getSubscriptionInfo();
+  
+  // Format last active time if available
+  const lastActiveText = userProfile.lastActive 
+    ? `Last active ${formatDistanceToNow(new Date(userProfile.lastActive), { addSuffix: true })}` 
+    : "Never logged in";
+  
+  // Get initials for avatar fallback
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map(part => part[0])
+      .join('')
+      .toUpperCase()
+      .substring(0, 2);
   };
-
+  
+  const avatarUrl = userProfile.avatarUrl || userProfile.avatar || '';
+  
   return (
     <Card className={`overflow-hidden ${className}`}>
-      <CardHeader className="bg-gradient-to-r from-violet-600 to-indigo-600 text-white py-4">
-        <div className="flex items-center space-x-4">
-          <Avatar className="h-12 w-12 border-2 border-white">
-            <AvatarImage src={userProfile.avatarUrl || userProfile.avatar} />
-            <AvatarFallback className="bg-violet-800 text-white">{initials}</AvatarFallback>
-          </Avatar>
-          <div>
-            <CardTitle className="text-white flex items-center">
-              {userProfile.name}
-              {getSubscriptionBadge()}
-            </CardTitle>
-            <CardDescription className="text-violet-100 mt-0.5">
-              {formatLastActive()}
-            </CardDescription>
+      <CardContent className="p-6">
+        <div className="flex justify-between items-start">
+          <div className="flex items-center">
+            <Avatar className="h-16 w-16 mr-4">
+              {avatarUrl ? <AvatarImage src={avatarUrl} alt={userProfile.name} /> : null}
+              <AvatarFallback className="text-lg bg-primary/10 text-primary">
+                {getInitials(userProfile.name)}
+              </AvatarFallback>
+            </Avatar>
+            
+            <div>
+              <h3 className="text-lg font-semibold">{userProfile.name}</h3>
+              <div className="flex items-center mt-1 space-x-2">
+                <Badge variant="outline" className={subscriptionInfo.color}>
+                  {subscriptionInfo.label}
+                </Badge>
+                
+                <span className="text-xs text-muted-foreground">
+                  {userProfile.email}
+                </span>
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">{lastActiveText}</p>
+            </div>
           </div>
         </div>
-      </CardHeader>
-      <CardContent className="pt-4">
-        <div className="grid grid-cols-2 gap-4 text-sm">
-          <div>
-            <p className="text-muted-foreground">Study Streak</p>
-            <p className="font-medium">{userProfile.streak || 0} days</p>
+        
+        <div className="grid grid-cols-2 gap-4 mt-6">
+          <div className="flex flex-col p-2 bg-muted/40 rounded-lg">
+            <span className="text-sm">Streak</span>
+            <span className="text-xl font-semibold">{userProfile.streak || 0} days</span>
           </div>
-          <div>
-            <p className="text-muted-foreground">Study Hours</p>
-            <p className="font-medium">{userProfile.studyHours || 0} hours</p>
+          <div className="flex flex-col p-2 bg-muted/40 rounded-lg">
+            <span className="text-sm">Study Hours</span>
+            <span className="text-xl font-semibold">{userProfile.studyHours || 0}h</span>
           </div>
-          <div>
-            <p className="text-muted-foreground">Concepts</p>
-            <p className="font-medium">{userProfile.conceptsLearned || 0} mastered</p>
+          <div className="flex flex-col p-2 bg-muted/40 rounded-lg">
+            <span className="text-sm">Concepts</span>
+            <span className="text-xl font-semibold">{userProfile.conceptsLearned || 0}</span>
           </div>
-          <div>
-            <p className="text-muted-foreground">Tests</p>
-            <p className="font-medium">{userProfile.testsCompleted || 0} completed</p>
+          <div className="flex flex-col p-2 bg-muted/40 rounded-lg">
+            <span className="text-sm">Tests</span>
+            <span className="text-xl font-semibold">{userProfile.testsCompleted || 0}</span>
           </div>
         </div>
       </CardContent>

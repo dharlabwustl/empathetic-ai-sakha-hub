@@ -1,92 +1,95 @@
 
-import React from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { MoodType } from "@/types/user/base";
-import { motion } from "framer-motion";
-import MoodOption from "./MoodOption";
-import { Smile, Sparkles, Clock, Battery, Wind, Target, Heart, ThumbsUp, AlertCircle, Cloud } from "lucide-react";
+import React, { useState } from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { MoodType } from '@/types/user/base';
+import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
 
 interface MoodSelectionDialogProps {
-  isOpen: boolean;
-  onClose: () => void;
-  selectedMood?: MoodType;
-  onSelectMood: (mood: MoodType) => void;
-  onOpenChange?: (open: boolean) => void;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onMoodSelected: (mood: MoodType) => void;
+  currentMood?: MoodType;
 }
 
-const MoodSelectionDialog: React.FC<MoodSelectionDialogProps> = ({
-  isOpen,
-  onClose,
-  onOpenChange,
-  selectedMood,
-  onSelectMood,
-}) => {
-  const moods: Array<{ type: MoodType; icon: React.ReactNode; label: string }> = [
-    { type: "motivated", icon: <Sparkles className="h-6 w-6" />, label: "Motivated" },
-    { type: "curious", icon: <Smile className="h-6 w-6" />, label: "Curious" },
-    { type: "neutral", icon: <ThumbsUp className="h-6 w-6" />, label: "Neutral" },
-    { type: "tired", icon: <Battery className="h-6 w-6" />, label: "Tired" },
-    { type: "stressed", icon: <Wind className="h-6 w-6" />, label: "Stressed" },
-    { type: "focused", icon: <Target className="h-6 w-6" />, label: "Focused" },
-    { type: "happy", icon: <Heart className="h-6 w-6" />, label: "Happy" },
-    { type: "okay", icon: <Clock className="h-6 w-6" />, label: "Okay" },
-    { type: "overwhelmed", icon: <AlertCircle className="h-6 w-6" />, label: "Overwhelmed" },
-    { type: "sad", icon: <Cloud className="h-6 w-6" />, label: "Sad" },
+export function MoodSelectionDialog({ open, onOpenChange, onMoodSelected, currentMood }: MoodSelectionDialogProps) {
+  const { toast } = useToast();
+  const [selectedMood, setSelectedMood] = useState<MoodType | undefined>(currentMood);
+
+  const moods: Array<{type: MoodType, emoji: string, label: string, description: string}> = [
+    { type: "motivated", emoji: "💪", label: "Motivated", description: "Ready to take on challenges" },
+    { type: "curious", emoji: "🧐", label: "Curious", description: "Eager to learn new things" },
+    { type: "neutral", emoji: "😐", label: "Neutral", description: "Neither positive nor negative" },
+    { type: "tired", emoji: "😴", label: "Tired", description: "Low energy levels" },
+    { type: "stressed", emoji: "😓", label: "Stressed", description: "Feeling pressured" },
+    { type: "focused", emoji: "🧠", label: "Focused", description: "In the zone, concentrated" },
+    { type: "happy", emoji: "😊", label: "Happy", description: "Feeling positive and upbeat" },
+    { type: "sad", emoji: "😢", label: "Sad", description: "Feeling down or upset" },
+    { type: "overwhelmed", emoji: "😵", label: "Overwhelmed", description: "Too many things to handle" },
   ];
-
-  // Animation variants
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-      },
-    },
-  };
-
-  const childVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0 },
-  };
-
-  const handleOpenChange = (open: boolean) => {
-    if (onOpenChange) {
-      onOpenChange(open);
-    }
-    if (!open) {
-      onClose();
+  
+  const handleConfirm = () => {
+    if (selectedMood) {
+      onMoodSelected(selectedMood);
+      toast({
+        title: "Mood updated",
+        description: `Your mood has been set to ${selectedMood}`,
+      });
+      onOpenChange(false);
+    } else {
+      toast({
+        title: "Please select a mood",
+        description: "You need to select a mood before confirming",
+        variant: "destructive",
+      });
     }
   };
-
+  
   return (
-    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <DialogContent className="dialog-content sm:max-w-md">
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-center text-xl">How are you feeling today?</DialogTitle>
+          <DialogTitle>How are you feeling today?</DialogTitle>
+          <DialogDescription>
+            Your mood helps us personalize your learning experience
+          </DialogDescription>
         </DialogHeader>
         
-        <motion.div
-          className="grid grid-cols-2 sm:grid-cols-5 gap-4 py-4"
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-        >
-          {moods.map((mood) => (
-            <motion.div key={mood.type} variants={childVariants}>
-              <MoodOption
-                type={mood.type}
-                icon={mood.icon}
-                label={mood.label}
-                isSelected={selectedMood === mood.type}
-                onSelect={() => onSelectMood(mood.type)}
-              />
-            </motion.div>
+        <div className="grid grid-cols-3 gap-3 py-4">
+          {moods.map(mood => (
+            <Button
+              key={mood.type}
+              variant="outline"
+              className={cn(
+                "flex flex-col h-auto py-3 px-2",
+                selectedMood === mood.type && "bg-primary/10 border-primary"
+              )}
+              onClick={() => setSelectedMood(mood.type)}
+            >
+              <span className="text-2xl mb-1">{mood.emoji}</span>
+              <span className="text-sm">{mood.label}</span>
+            </Button>
           ))}
-        </motion.div>
+        </div>
+        
+        {selectedMood && (
+          <div className="bg-muted p-3 rounded-lg text-center mb-4">
+            <p className="text-sm font-medium">
+              {moods.find(m => m.type === selectedMood)?.description}
+            </p>
+          </div>
+        )}
+        
+        <div className="flex justify-end gap-3">
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            Cancel
+          </Button>
+          <Button onClick={handleConfirm} disabled={!selectedMood}>
+            Confirm
+          </Button>
+        </div>
       </DialogContent>
     </Dialog>
   );
-};
-
-export default MoodSelectionDialog;
+}

@@ -50,7 +50,6 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
         }
       } catch (error) {
         console.error('Admin auth check failed:', error);
-        // Clear potentially invalid session
         localStorage.removeItem('adminToken');
       } finally {
         setIsAdminLoading(false);
