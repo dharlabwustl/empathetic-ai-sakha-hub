@@ -35,3 +35,6 @@ export interface DashboardStats {
   subscriptionsByPlan: Record<string, number>;
   dailyActiveUsers: { date: string; count: number }[];
 }
+
+// Alias for DashboardStats to maintain compatibility
+export type AdminDashboardStats = DashboardStats;

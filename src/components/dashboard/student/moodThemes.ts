@@ -80,6 +80,83 @@ export function getMoodTheme(mood: MoodType): MoodTheme {
           dark: '#4f46e5'   // indigo-600
         }
       };
+    case 'focused':
+      return {
+        emoji: '🧠',
+        label: 'Focused',
+        colors: {
+          background: 'bg-teal-100',
+          text: 'text-teal-600',
+          light: '#ccfbf1', // teal-100
+          dark: '#0d9488'   // teal-600
+        }
+      };
+    case 'tired':
+      return {
+        emoji: '😴',
+        label: 'Tired',
+        colors: {
+          background: 'bg-gray-100',
+          text: 'text-gray-600',
+          light: '#f3f4f6', // gray-100
+          dark: '#4b5563'   // gray-600
+        }
+      };
+    case 'anxious':
+      return {
+        emoji: '😟',
+        label: 'Anxious',
+        colors: {
+          background: 'bg-amber-100',
+          text: 'text-amber-600',
+          light: '#fef3c7', // amber-100
+          dark: '#d97706'   // amber-600
+        }
+      };
+    case 'overwhelmed':
+      return {
+        emoji: '🥴',
+        label: 'Overwhelmed',
+        colors: {
+          background: 'bg-rose-100',
+          text: 'text-rose-600',
+          light: '#ffe4e6', // rose-100
+          dark: '#e11d48'   // rose-600
+        }
+      };
+    case 'curious':
+      return {
+        emoji: '🧐',
+        label: 'Curious',
+        colors: {
+          background: 'bg-sky-100',
+          text: 'text-sky-600',
+          light: '#e0f2fe', // sky-100
+          dark: '#0284c7'   // sky-600
+        }
+      };
+    case 'okay':
+      return {
+        emoji: '👍',
+        label: 'Okay',
+        colors: {
+          background: 'bg-emerald-100',
+          text: 'text-emerald-600',
+          light: '#d1fae5', // emerald-100
+          dark: '#059669'   // emerald-600
+        }
+      };
+    case 'energetic':
+      return {
+        emoji: '⚡',
+        label: 'Energetic',
+        colors: {
+          background: 'bg-fuchsia-100',
+          text: 'text-fuchsia-600',
+          light: '#fae8ff', // fuchsia-100
+          dark: '#c026d3'   // fuchsia-600
+        }
+      };
     default:
       return {
         emoji: '😐',

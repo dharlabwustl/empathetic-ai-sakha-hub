@@ -1,158 +1,197 @@
 
-import React from "react";
-import { 
-  Card, 
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription
-} from "@/components/ui/card";
-import ChatMessage from "@/components/signup/ChatMessage";
-import { useOnboarding, OnboardingStep } from "@/components/signup/OnboardingContext";
-import StepHandler from "@/components/signup/StepHandler";
-import StepRenderer from "@/components/signup/StepRenderer";
-import { motion, AnimatePresence } from "framer-motion";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import { Card } from "@/components/ui/card";
+import { useToast } from "@/hooks/use-toast";
+import { useOnboarding } from "./OnboardingContext";
+import SignupProgressBar from "./SignupProgressBar";
+import StepRenderer from "./StepRenderer";
+import PrepzrLogo from "@/components/common/PrepzrLogo";
+import { MoodType, PersonalityType, UserRole } from "@/types/user/base";
 
-const SignUpContent = () => {
-  const { 
-    step, 
-    setStep, 
-    onboardingData, 
-    setOnboardingData, 
-    messages, 
-    setMessages 
-  } = useOnboarding();
+const SignupContent = () => {
+  const { toast } = useToast();
+  const navigate = useNavigate();
+  const { onboardingData, setOnboardingData, currentStep, goToNextStep } = useOnboarding();
+  const [isLoading, setIsLoading] = useState(false);
 
-  const { isLoading, handlers } = StepHandler({
-    onboardingData,
-    setOnboardingData,
-    messages,
-    setMessages,
-    setStep
-  });
+  const handleRoleSelect = (role: UserRole) => {
+    setOnboardingData({ ...onboardingData, role });
+    goToNextStep();
+  };
 
-  // Animation variants
+  const handleGoalSelect = (goal: string) => {
+    setOnboardingData({ ...onboardingData, goal });
+    goToNextStep();
+  };
+
+  const handleDemographicsSubmit = (data: Record<string, string>) => {
+    setOnboardingData({ 
+      ...onboardingData, 
+      demographics: data,
+      targetExamDate: data.examDate // Save exam date specifically
+    });
+    goToNextStep();
+  };
+
+  const handlePersonalitySelect = (personality: PersonalityType) => {
+    setOnboardingData({ ...onboardingData, personality });
+    goToNextStep();
+  };
+
+  const handleMoodSelect = (mood: MoodType) => {
+    setOnboardingData({ ...onboardingData, mood });
+    goToNextStep();
+  };
+
+  const handleHabitsSubmit = (habits: Record<string, string>) => {
+    setOnboardingData({ ...onboardingData, habits });
+    goToNextStep();
+  };
+
+  const handleInterestsSubmit = (interests: string) => {
+    setOnboardingData({ ...onboardingData, interests });
+    goToNextStep();
+  };
+
+  const handleSignupSubmit = async (formValues: { name: string; mobile: string; otp: string; agreeTerms: boolean }) => {
+    setIsLoading(true);
+
+    try {
+      // Set name from form data
+      const finalData = {
+        ...onboardingData,
+        name: formValues.name,
+        mobile: formValues.mobile,
+      };
+
+      setOnboardingData(finalData);
+
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1500));
+
+      // Store data in localStorage
+      localStorage.setItem("userData", JSON.stringify({
+        ...finalData,
+        loginCount: 1,
+        createdAt: new Date().toISOString(),
+      }));
+
+      // Show success message
+      toast({
+        title: "Account created successfully!",
+        description: "Redirecting to your personalized dashboard.",
+      });
+
+      // Redirect to dashboard
+      setTimeout(() => {
+        navigate("/dashboard/student?new=true&completedOnboarding=true");
+      }, 1000);
+    } catch (error) {
+      console.error("Error creating account:", error);
+      toast({
+        title: "Account creation failed",
+        description: "Please try again later.",
+        variant: "destructive"
+      });
+      setIsLoading(false);
+    }
+  };
+
+  const handlers = {
+    handleRoleSelect,
+    handleGoalSelect,
+    handleDemographicsSubmit,
+    handlePersonalitySelect,
+    handleMoodSelect,
+    handleHabitsSubmit,
+    handleInterestsSubmit,
+    handleSignupSubmit,
+  };
+
   const cardVariants = {
     hidden: { opacity: 0, y: 20 },
-    visible: { 
-      opacity: 1, 
-      y: 0,
-      transition: { duration: 0.5 }
-    },
-    exit: { 
-      opacity: 0, 
-      y: -20,
-      transition: { duration: 0.3 }
-    }
+    visible: { opacity: 1, y: 0 },
   };
 
-  const messageVariants = {
-    hidden: { opacity: 0, y: 10 },
-    visible: (i: number) => ({ 
-      opacity: 1, 
-      y: 0,
-      transition: { 
-        delay: i * 0.1,
-        duration: 0.3
-      }
-    }),
-  };
+  const handleGoogleSignup = () => {
+    toast({
+      title: "Google Sign Up",
+      description: "Google authentication would be implemented here.",
+    });
 
-  const logoVariants = {
-    hidden: { scale: 0.8, opacity: 0 },
-    visible: { 
-      scale: 1, 
-      opacity: 1,
-      transition: {
-        duration: 0.5,
-        type: "spring",
-        stiffness: 260,
-        damping: 20
-      }
-    }
-  };
+    // Mock successful signup for demonstration
+    setTimeout(() => {
+      // Store mock data in localStorage
+      localStorage.setItem("userData", JSON.stringify({
+        name: "Google User",
+        email: "googleuser@example.com",
+        role: "student",
+        loginCount: 1,
+        createdAt: new Date().toISOString(),
+        onboardingCompleted: false,
+      }));
 
-  // Stats that will show up in the header to build trust
-  const trustStats = [
-    "80% reduced exam stress",
-    "5+ hours saved weekly",
-    "75% built study habits"
-  ];
+      navigate("/dashboard/student?new=true");
+    }, 2000);
+  };
 
   return (
-    <AnimatePresence mode="wait">
-      <motion.div 
-        key={step}
-        initial="hidden"
-        animate="visible"
-        exit="exit"
-        variants={cardVariants}
-        className="w-full max-w-3xl"
-      >
-        <Card className="w-full shadow-xl border-gray-200 overflow-hidden bg-white dark:bg-gray-900">
-          <CardHeader className="bg-gradient-to-r from-purple-600 to-violet-700 text-white">
-            <CardTitle className="text-2xl flex items-center">
-              <motion.img 
-                src="/lovable-uploads/6bd65589-a748-4b63-a28b-12521c233a7e.png" 
-                alt="Sakha AI Logo" 
-                className="w-10 h-10 mr-3" 
-                variants={logoVariants}
-                initial="hidden"
-                animate="visible"
-              />
-              Sakha AI Onboarding
-            </CardTitle>
-            <CardDescription className="text-purple-100">
-              Let's personalize your learning experience
-            </CardDescription>
-            <div className="flex flex-wrap gap-2 mt-2">
-              {trustStats.map((stat, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.5 + (index * 0.1) }}
-                  className="px-3 py-1 bg-white/10 rounded-full text-xs font-medium"
-                >
-                  {stat}
-                </motion.div>
-              ))}
-            </div>
-          </CardHeader>
-          <CardContent className="p-0">
-            <div className="grid md:grid-cols-2">
-              <div className="bg-gray-50 dark:bg-gray-800/50 p-6 max-h-[600px] overflow-y-auto">
-                <div className="space-y-4">
-                  {messages.map((msg, index) => (
-                    <motion.div
-                      key={`${index}-${msg.content.substring(0, 10)}`}
-                      custom={index}
-                      variants={messageVariants}
-                      initial="hidden"
-                      animate="visible"
-                    >
-                      <ChatMessage 
-                        content={msg.content} 
-                        isBot={msg.isBot} 
-                      />
-                    </motion.div>
-                  ))}
+    <motion.div
+      initial="hidden"
+      animate="visible"
+      variants={cardVariants}
+      transition={{ duration: 0.5 }}
+      className="w-full max-w-md mx-auto"
+    >
+      <Card className="relative overflow-hidden bg-white dark:bg-gray-900 shadow-xl rounded-xl">
+        <div className="p-6 md:p-8">
+          <div className="flex flex-col items-center mb-6">
+            <PrepzrLogo width={60} height={60} />
+            <h1 className="mt-4 text-2xl font-bold">Join PREPZR</h1>
+            <p className="text-gray-500 text-sm text-center mt-1">
+              Create your personalized study partner
+            </p>
+          </div>
+
+          <SignupProgressBar currentStep={currentStep} />
+
+          <div className="mt-6">
+            <StepRenderer 
+              step={currentStep}
+              onboardingData={onboardingData}
+              handlers={handlers}
+              isLoading={isLoading}
+            />
+          </div>
+
+          {currentStep === "role" && (
+            <div className="mt-6">
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t border-gray-300"></span>
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-white dark:bg-gray-900 px-2 text-gray-500">Or sign up with</span>
                 </div>
               </div>
-              <div className="p-6 bg-white dark:bg-gray-900 border-l border-purple-100 dark:border-purple-900/20">
-                <StepRenderer 
-                  step={step}
-                  onboardingData={onboardingData}
-                  handlers={handlers}
-                  isLoading={isLoading}
-                />
+              <div className="mt-4">
+                <button
+                  type="button"
+                  className="w-full flex justify-center items-center gap-2 bg-white border border-gray-300 rounded-md py-2 px-4 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                  onClick={handleGoogleSignup}
+                >
+                  <img src="https://www.google.com/favicon.ico" alt="Google" className="h-4 w-4" />
+                  Sign up with Google
+                </button>
               </div>
             </div>
-          </CardContent>
-        </Card>
-      </motion.div>
-    </AnimatePresence>
+          )}
+        </div>
+      </Card>
+    </motion.div>
   );
 };
 
-export default SignUpContent;
+export default SignupContent;

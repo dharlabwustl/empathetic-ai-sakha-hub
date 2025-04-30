@@ -4,13 +4,14 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { useOnboarding } from "../OnboardingContext";
 import { motion } from "framer-motion";
 import { Star } from "lucide-react";
 
 interface SignupStepProps {
-  onSubmit: (formValues: { name: string; mobile: string; otp: string }) => void;
+  onSubmit: (formValues: { name: string; mobile: string; otp: string; agreeTerms: boolean }) => void;
   isLoading: boolean;
 }
 
@@ -21,6 +22,7 @@ const SignupStep: React.FC<SignupStepProps> = ({ onSubmit, isLoading }) => {
     name: onboardingData.name || "",
     mobile: "",
     otp: "",
+    agreeTerms: false
   });
   const [fact, setFact] = useState("");
   const examFacts = {
@@ -75,7 +77,16 @@ const SignupStep: React.FC<SignupStepProps> = ({ onSubmit, isLoading }) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (formValues.name && formValues.mobile && formValues.otp) {
+    if (!formValues.agreeTerms) {
+      toast({
+        title: "Terms & Conditions Required",
+        description: "Please agree to our terms and conditions to continue.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    if (formValues.mobile && formValues.otp) {
       onSubmit(formValues);
     } else {
       toast({
@@ -107,17 +118,6 @@ const SignupStep: React.FC<SignupStepProps> = ({ onSubmit, isLoading }) => {
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <Label htmlFor="name">Full Name</Label>
-          <Input 
-            id="name" 
-            name="name" 
-            value={formValues.name} 
-            onChange={handleFormChange} 
-            required 
-            className="border-purple-200 focus:border-purple-500 focus:ring-purple-500"
-          />
-        </div>
-        <div>
           <Label htmlFor="mobile">Mobile Number</Label>
           <Input 
             id="mobile" 
@@ -127,8 +127,10 @@ const SignupStep: React.FC<SignupStepProps> = ({ onSubmit, isLoading }) => {
             required 
             type="tel"
             className="border-purple-200 focus:border-purple-500 focus:ring-purple-500"
+            placeholder="+91 9876543210"
           />
         </div>
+        
         {formValues.mobile && (
           <Button 
             type="button" 
@@ -139,6 +141,7 @@ const SignupStep: React.FC<SignupStepProps> = ({ onSubmit, isLoading }) => {
             Get OTP
           </Button>
         )}
+        
         {formValues.mobile && (
           <div>
             <Label htmlFor="otp">OTP</Label>
@@ -149,20 +152,66 @@ const SignupStep: React.FC<SignupStepProps> = ({ onSubmit, isLoading }) => {
               onChange={handleFormChange} 
               required 
               className="border-purple-200 focus:border-purple-500 focus:ring-purple-500"
+              placeholder="Enter OTP"
             />
           </div>
         )}
+        
+        <div className="flex items-center space-x-2">
+          <Checkbox 
+            id="terms" 
+            checked={formValues.agreeTerms} 
+            onCheckedChange={(checked) => {
+              setFormValues({ ...formValues, agreeTerms: checked === true });
+            }}
+          />
+          <label
+            htmlFor="terms"
+            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+          >
+            I agree to the{" "}
+            <Link to="/terms" className="text-purple-600 hover:underline">
+              Terms & Conditions
+            </Link>
+          </label>
+        </div>
+        
         <Button 
           type="submit" 
-          className="w-full bg-gradient-to-r from-purple-600 to-violet-700"
-          disabled={isLoading || !formValues.name || !formValues.mobile || !formValues.otp}
+          className="w-full bg-gradient-to-r from-blue-500 to-blue-600"
+          disabled={isLoading || !formValues.mobile || !formValues.otp || !formValues.agreeTerms}
         >
           {isLoading ? "Creating Account..." : "Create Account"}
         </Button>
+        
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <span className="w-full border-t border-gray-300"></span>
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-white dark:bg-gray-900 px-2 text-gray-500">Or continue with</span>
+          </div>
+        </div>
+        
+        <Button 
+          type="button"
+          variant="outline" 
+          className="w-full"
+          onClick={() => {
+            toast({
+              title: "Google Sign Up",
+              description: "Google authentication would be triggered here.",
+            });
+          }}
+        >
+          <img src="https://www.google.com/favicon.ico" alt="Google" className="h-4 w-4 mr-2" />
+          Sign up with Google
+        </Button>
+        
         <div className="text-center">
           <p className="text-sm text-gray-600">
             Already have an account?{" "}
-            <Link to="/login" className="text-purple-600 hover:underline">Login</Link>
+            <Link to="/login" className="text-blue-600 hover:underline">Login</Link>
           </p>
         </div>
       </form>

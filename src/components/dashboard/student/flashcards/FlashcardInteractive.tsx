@@ -1,350 +1,246 @@
 
 import React, { useState, useEffect } from 'react';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { 
-  Bookmark, 
-  BookmarkPlus, 
-  Mic, 
-  Calculator, 
-  Rotate3d, 
-  Check, 
-  RefreshCw,
-  ArrowLeft,
-  ThumbsUp,
-  ThumbsDown,
-  ChevronLeft,
-  ChevronRight
-} from 'lucide-react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { useToast } from "@/hooks/use-toast";
+import { ArrowLeft, ArrowRight, RotateCw, Check, X } from "lucide-react";
+
+interface FlashcardData {
+  id: string;
+  question: string;
+  answer: string;
+  subject: string;
+  difficulty: 'easy' | 'medium' | 'hard';
+}
 
 const FlashcardInteractive = () => {
   const { deckId } = useParams<{ deckId: string }>();
   const navigate = useNavigate();
-  
-  // State for the flashcard
+  const { toast } = useToast();
+  const [cards, setCards] = useState<FlashcardData[]>([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
-  const [userAnswer, setUserAnswer] = useState('');
-  const [hasSubmitted, setHasSubmitted] = useState(false);
-  const [accuracy, setAccuracy] = useState<number | null>(null);
-  const [cardIndex, setCardIndex] = useState(0);
-  const [isBookmarked, setIsBookmarked] = useState(false);
-  const [showCalculator, setShowCalculator] = useState(false);
-  
-  // Mock flashcard data
-  const mockFlashcards = [
-    {
-      id: '1',
-      question: "What is Newton's First Law of Motion?",
-      answer: "An object at rest stays at rest and an object in motion stays in motion with the same speed and in the same direction unless acted upon by an unbalanced force.",
-      subject: "Physics",
-      topic: "Mechanics",
-      difficulty: "Medium",
-      type: "text"
-    },
-    {
-      id: '2',
-      question: "Define the term 'Activation Energy' in a chemical reaction.",
-      answer: "Activation energy is the minimum energy required to initiate a chemical reaction.",
-      subject: "Chemistry",
-      topic: "Kinetics",
-      difficulty: "Easy",
-      type: "text"
-    },
-    {
-      id: '3',
-      question: "Solve the equation: 2x + 5 = 15",
-      answer: "x = 5",
-      subject: "Mathematics",
-      topic: "Algebra",
-      difficulty: "Easy",
-      type: "text"
-    },
-    {
-      id: '4',
-      question: "What are the main components of a eukaryotic cell?",
-      answer: "The main components include: cell membrane, nucleus, cytoplasm, mitochondria, endoplasmic reticulum, Golgi apparatus, lysosomes, and various other organelles.",
-      subject: "Biology",
-      topic: "Cell Biology",
-      difficulty: "Medium",
-      type: "text"
-    }
-  ];
-  
-  const currentCard = mockFlashcards[cardIndex];
-  
-  // Handle flipping the card
+  const [userResponses, setUserResponses] = useState<Record<string, boolean>>({});
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // Mock data - in a real app this would come from an API call
+    const fetchFlashcards = async () => {
+      try {
+        // Simulate API call
+        setTimeout(() => {
+          const mockCards: FlashcardData[] = [
+            {
+              id: '1',
+              question: 'What is Newton's Third Law of Motion?',
+              answer: 'For every action, there is an equal and opposite reaction.',
+              subject: 'Physics',
+              difficulty: 'medium',
+            },
+            {
+              id: '2',
+              question: 'What is the chemical formula for water?',
+              answer: 'H2O',
+              subject: 'Chemistry',
+              difficulty: 'easy',
+            },
+            {
+              id: '3',
+              question: 'What is the Pythagorean theorem?',
+              answer: 'In a right-angled triangle, the square of the length of the hypotenuse equals the sum of squares of the other two sides (a² + b² = c²).',
+              subject: 'Mathematics',
+              difficulty: 'medium',
+            },
+            {
+              id: '4',
+              question: 'What is photosynthesis?',
+              answer: 'The process by which green plants and some other organisms use sunlight to synthesize nutrients from carbon dioxide and water.',
+              subject: 'Biology',
+              difficulty: 'hard',
+            },
+            {
+              id: '5',
+              question: 'Who wrote "Romeo and Juliet"?',
+              answer: 'William Shakespeare',
+              subject: 'Literature',
+              difficulty: 'easy',
+            },
+          ];
+          setCards(mockCards);
+          setIsLoading(false);
+        }, 1000);
+      } catch (error) {
+        console.error('Error fetching flashcards:', error);
+        toast({
+          title: "Failed to load flashcards",
+          description: "Please try again later",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+      }
+    };
+
+    fetchFlashcards();
+  }, [deckId, toast]);
+
   const handleFlip = () => {
     setIsFlipped(!isFlipped);
   };
-  
-  // Handle answer submission
-  const handleSubmit = () => {
-    // In a real app, we would compare the answer with the correct one
-    // and calculate accuracy, but here we'll simulate it
-    const randomAccuracy = Math.floor(Math.random() * 40) + 60; // Random accuracy between 60-100%
-    setAccuracy(randomAccuracy);
-    setHasSubmitted(true);
-  };
-  
-  // Handle moving to the next card
-  const handleNextCard = () => {
-    if (cardIndex < mockFlashcards.length - 1) {
-      setCardIndex(cardIndex + 1);
-      resetCard();
+
+  const handleResponse = (knew: boolean) => {
+    setUserResponses(prev => ({
+      ...prev,
+      [cards[currentIndex].id]: knew,
+    }));
+    
+    // Move to next card
+    if (currentIndex < cards.length - 1) {
+      setCurrentIndex(currentIndex + 1);
+      setIsFlipped(false);
+    } else {
+      // End of deck
+      toast({
+        title: "Deck completed!",
+        description: "Moving to results page",
+      });
+      
+      // In a real app, you would save the results and navigate to a results page
+      setTimeout(() => {
+        navigate(`/dashboard/student/flashcards/${deckId}/results`);
+      }, 1500);
     }
   };
-  
-  // Handle moving to the previous card
-  const handlePrevCard = () => {
-    if (cardIndex > 0) {
-      setCardIndex(cardIndex - 1);
-      resetCard();
+
+  const handleNext = () => {
+    if (currentIndex < cards.length - 1) {
+      setCurrentIndex(currentIndex + 1);
+      setIsFlipped(false);
     }
   };
-  
-  // Reset the card state
-  const resetCard = () => {
-    setIsFlipped(false);
-    setUserAnswer('');
-    setHasSubmitted(false);
-    setAccuracy(null);
+
+  const handlePrevious = () => {
+    if (currentIndex > 0) {
+      setCurrentIndex(currentIndex - 1);
+      setIsFlipped(false);
+    }
   };
-  
-  // Handle retry
-  const handleRetry = () => {
-    resetCard();
-  };
-  
-  // Toggle bookmark
-  const handleToggleBookmark = () => {
-    setIsBookmarked(!isBookmarked);
-  };
-  
-  return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800 py-8 px-4">
-      <div className="max-w-4xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
-          <Button variant="outline" onClick={() => navigate('/dashboard/student/flashcards')}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Flashcards
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
+
+  if (cards.length === 0) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold mb-4">No flashcards found</h2>
+          <Button onClick={() => navigate('/dashboard/student/flashcards')}>
+            Go Back to Flashcards
           </Button>
+        </div>
+      </div>
+    );
+  }
+
+  const currentCard = cards[currentIndex];
+  const progress = ((currentIndex + 1) / cards.length) * 100;
+
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <div className="mb-6">
+        <Button variant="outline" onClick={() => navigate('/dashboard/student/flashcards')}>
+          <ArrowLeft className="mr-2 h-4 w-4" /> Back to Flashcards
+        </Button>
+      </div>
+
+      <h1 className="text-2xl font-bold mb-2">Flashcard Practice</h1>
+      <p className="text-muted-foreground mb-6">Deck: {deckId} • Card {currentIndex + 1} of {cards.length}</p>
+
+      <div className="relative w-full h-2 bg-gray-200 rounded-full mb-6">
+        <div 
+          className="absolute top-0 left-0 h-2 bg-blue-500 rounded-full transition-all duration-300"
+          style={{ width: `${progress}%` }}
+        ></div>
+      </div>
+
+      <div className="mb-8">
+        <Card 
+          className={`p-6 min-h-[200px] md:min-h-[300px] flex items-center justify-center relative transition-all duration-500 cursor-pointer ${isFlipped ? 'bg-blue-50 dark:bg-blue-900/20' : 'bg-white dark:bg-gray-800'}`}
+          onClick={handleFlip}
+        >
           <div className="text-center">
-            <h2 className="text-2xl font-bold">{currentCard.subject}: {currentCard.topic}</h2>
-            <p className="text-gray-500 dark:text-gray-400">Flashcard {cardIndex + 1} of {mockFlashcards.length}</p>
-          </div>
-          <div className="w-[100px]">
-            {/* Placeholder for symmetry */}
-          </div>
-        </div>
-        
-        {/* Progress bar */}
-        <div className="mb-8">
-          <Progress value={((cardIndex + 1) / mockFlashcards.length) * 100} className="h-2" />
-        </div>
-        
-        <div className="relative perspective-1000">
-          {/* Flashcard */}
-          <div 
-            className={`relative w-full transition-transform duration-500 transform-style-preserve-3d ${
-              isFlipped ? 'rotate-y-180' : ''
-            }`}
-            style={{ transformStyle: 'preserve-3d', perspective: '1000px' }}
-          >
-            {/* Front side (Question) */}
-            <Card 
-              className={`p-8 ${isFlipped ? 'opacity-0' : 'opacity-100'}`}
-              style={{ 
-                backfaceVisibility: 'hidden',
-                transition: 'opacity 0.3s ease',
-                minHeight: '400px'
-              }}
-            >
-              <div className="flex justify-between items-start mb-6">
-                <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">
-                  Question
-                </Badge>
-                <Badge className={`${
-                  currentCard.difficulty === 'Easy' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' :
-                  currentCard.difficulty === 'Medium' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300' :
-                  'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
-                }`}>
-                  {currentCard.difficulty}
-                </Badge>
+            {!isFlipped ? (
+              <div>
+                <h3 className="text-xl font-medium mb-2">Question:</h3>
+                <p className="text-lg">{currentCard.question}</p>
+                <p className="text-sm text-muted-foreground mt-4">
+                  Click to reveal answer
+                </p>
               </div>
-              
-              <div className="flex flex-col justify-center items-center h-[300px] text-center">
-                <h3 className="text-xl font-medium mb-8">{currentCard.question}</h3>
-              </div>
-              
-              <div className="mt-6">
-                <Textarea 
-                  placeholder="Type your answer here..."
-                  className="mb-4"
-                  value={userAnswer}
-                  onChange={(e) => setUserAnswer(e.target.value)}
-                  disabled={hasSubmitted}
-                  rows={4}
-                />
-                
-                <div className="flex justify-between flex-wrap gap-2">
-                  <div className="space-x-2">
-                    <Button
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => setShowCalculator(!showCalculator)}
-                    >
-                      <Calculator className="h-4 w-4 mr-1" />
-                      Calculator
-                    </Button>
-                    <Button
-                      variant="outline" 
-                      size="sm"
-                    >
-                      <Mic className="h-4 w-4 mr-1" />
-                      Voice Input
-                    </Button>
-                  </div>
-                  
-                  <div className="space-x-2">
-                    <Button 
-                      variant="outline"
-                      onClick={handleFlip}
-                    >
-                      <Rotate3d className="h-4 w-4 mr-1" />
-                      Flip Card
-                    </Button>
-                    {!hasSubmitted ? (
-                      <Button 
-                        onClick={handleSubmit} 
-                        disabled={!userAnswer.trim()}
-                      >
-                        <Check className="h-4 w-4 mr-1" />
-                        Submit
-                      </Button>
-                    ) : (
-                      <Button 
-                        variant="outline"
-                        onClick={handleRetry}
-                      >
-                        <RefreshCw className="h-4 w-4 mr-1" />
-                        Retry
-                      </Button>
-                    )}
-                  </div>
-                </div>
-                
-                {/* Accuracy feedback */}
-                {hasSubmitted && accuracy !== null && (
-                  <div className="mt-4 p-4 border rounded-lg bg-gray-50 dark:bg-gray-800">
-                    <h4 className="font-medium mb-2">AI Accuracy Assessment</h4>
-                    <div className="flex items-center mb-2">
-                      <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700 mr-2">
-                        <div 
-                          className={`h-2.5 rounded-full ${
-                            accuracy >= 80 ? 'bg-green-600' :
-                            accuracy >= 60 ? 'bg-yellow-500' :
-                            'bg-red-600'
-                          }`} 
-                          style={{ width: `${accuracy}%` }}
-                        ></div>
-                      </div>
-                      <span className="text-sm font-medium">{accuracy}%</span>
-                    </div>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
-                      {accuracy >= 80 ? 'Great job! Your answer is mostly correct.' :
-                       accuracy >= 60 ? 'Good attempt. Some elements are correct, but there\'s room for improvement.' :
-                       'Your answer needs improvement. Try reviewing the concept again.'}
-                    </p>
-                  </div>
-                )}
-              </div>
-            </Card>
-            
-            {/* Back side (Answer) */}
-            <Card 
-              className={`p-8 absolute inset-0 ${isFlipped ? 'opacity-100' : 'opacity-0'}`}
-              style={{ 
-                backfaceVisibility: 'hidden',
-                transform: 'rotateY(180deg)',
-                transition: 'opacity 0.3s ease',
-                minHeight: '400px'
-              }}
-            >
-              <div className="flex justify-between items-start mb-6">
-                <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">
-                  Answer
-                </Badge>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className={isBookmarked ? 'text-yellow-500' : ''}
-                  onClick={handleToggleBookmark}
-                >
-                  {isBookmarked ? (
-                    <Bookmark className="h-5 w-5" />
-                  ) : (
-                    <BookmarkPlus className="h-5 w-5" />
-                  )}
-                </Button>
-              </div>
-              
-              <div className="flex flex-col justify-center items-center h-[300px] overflow-y-auto">
+            ) : (
+              <div>
+                <h3 className="text-xl font-medium mb-2">Answer:</h3>
                 <p className="text-lg">{currentCard.answer}</p>
               </div>
-              
-              <div className="mt-6 flex justify-between">
-                <div className="space-x-2">
-                  <Button variant="outline" size="sm">
-                    <ThumbsUp className="h-4 w-4 mr-1" />
-                    Got it
-                  </Button>
-                  <Button variant="outline" size="sm">
-                    <ThumbsDown className="h-4 w-4 mr-1" />
-                    Needs Review
-                  </Button>
-                </div>
-                
-                <Button 
-                  onClick={handleFlip}
-                >
-                  <Rotate3d className="h-4 w-4 mr-1" />
-                  Flip Back
-                </Button>
-              </div>
-            </Card>
+            )}
           </div>
-        </div>
-        
-        {/* Navigation controls */}
-        <div className="flex justify-between mt-8">
-          <Button 
-            variant="outline" 
-            onClick={handlePrevCard}
-            disabled={cardIndex === 0}
-          >
-            <ChevronLeft className="h-4 w-4 mr-2" />
-            Previous Card
-          </Button>
-          
-          <div className="text-center">
-            <span className="text-sm text-gray-500">
-              {cardIndex + 1} of {mockFlashcards.length}
+          <div className="absolute top-4 right-4">
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">
+              {currentCard.subject} • {currentCard.difficulty}
             </span>
           </div>
-          
+          <button
+            className="absolute bottom-4 right-4 p-2 rounded-full bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleFlip();
+            }}
+          >
+            <RotateCw className="h-4 w-4" />
+          </button>
+        </Card>
+      </div>
+
+      <div className="flex flex-col sm:flex-row justify-between gap-4">
+        <div className="flex gap-2">
           <Button 
             variant="outline" 
-            onClick={handleNextCard}
-            disabled={cardIndex === mockFlashcards.length - 1}
+            onClick={handlePrevious}
+            disabled={currentIndex === 0}
           >
-            Next Card
-            <ChevronRight className="h-4 w-4 ml-2" />
+            <ArrowLeft className="mr-2 h-4 w-4" /> Previous
+          </Button>
+          <Button 
+            variant="outline" 
+            onClick={handleNext}
+            disabled={currentIndex === cards.length - 1}
+          >
+            Next <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
         </div>
+        
+        {isFlipped && (
+          <div className="flex gap-2 justify-center sm:justify-end">
+            <Button 
+              variant="destructive" 
+              onClick={() => handleResponse(false)}
+            >
+              <X className="mr-2 h-4 w-4" /> Didn't Know
+            </Button>
+            <Button 
+              variant="default" 
+              className="bg-green-600 hover:bg-green-700"
+              onClick={() => handleResponse(true)}
+            >
+              <Check className="mr-2 h-4 w-4" /> Knew It
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );

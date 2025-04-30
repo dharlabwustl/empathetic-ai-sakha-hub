@@ -22,6 +22,7 @@ import ConceptCardDetailPage from './components/dashboard/student/concepts/Conce
 import ExamTakingPage from './components/dashboard/student/practice-exam/ExamTakingPage';
 import ExamReviewPage from './components/dashboard/student/practice-exam/ExamReviewPage';
 import FlashcardInteractivePage from './pages/dashboard/student/flashcard/FlashcardInteractivePage';
+import PostLoginPrompt from './pages/dashboard/PostLoginPrompt';
 
 const AdminDashboard = React.lazy(() => import('@/pages/admin/AdminDashboard'));
 
@@ -37,6 +38,9 @@ function App() {
               <Route path="/signup" element={<SignUp />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<SignUp />} />
+
+              {/* Post-login prompt */}
+              <Route path="/welcome-back" element={<PostLoginPrompt />} />
 
               {/* Student routes */}
               <Route path="/dashboard/student" element={<StudentDashboard />} />

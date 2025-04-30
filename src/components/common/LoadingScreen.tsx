@@ -1,18 +1,28 @@
 
 import React from 'react';
-import { Loader2 } from 'lucide-react';
 import PrepzrLogo from './PrepzrLogo';
 
-const LoadingScreen: React.FC = () => {
+interface LoadingScreenProps {
+  message?: string;
+}
+
+const LoadingScreen: React.FC<LoadingScreenProps> = ({ message = "Loading..." }) => {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-violet-50 dark:from-blue-950/30 dark:to-violet-950/30">
-      <div className="text-center">
-        <div className="flex justify-center mb-4">
-          <PrepzrLogo width={80} />
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-50 via-white to-blue-50 dark:from-blue-950 dark:via-gray-900 dark:to-indigo-950">
+      <div className="flex flex-col items-center">
+        <div className="relative">
+          <PrepzrLogo width={80} height={80} />
+          <div className="absolute -bottom-2 -right-2 w-8 h-8 rounded-full border-4 border-t-blue-500 border-r-transparent border-b-transparent border-l-transparent animate-spin"></div>
         </div>
-        <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto mt-4" />
-        <h2 className="mt-4 text-xl font-medium">Loading...</h2>
-        <p className="mt-2 text-muted-foreground">Please wait while we prepare your experience</p>
+        
+        <h1 className="mt-6 text-2xl font-bold text-blue-600 dark:text-blue-400">PREPZR</h1>
+        <p className="mt-2 text-gray-600 dark:text-gray-400">{message}</p>
+        
+        <div className="mt-8 flex items-center space-x-2">
+          <div className="w-2 h-2 rounded-full bg-blue-500 animate-bounce"></div>
+          <div className="w-2 h-2 rounded-full bg-blue-500 animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+          <div className="w-2 h-2 rounded-full bg-blue-500 animate-bounce" style={{ animationDelay: '0.4s' }}></div>
+        </div>
       </div>
     </div>
   );
