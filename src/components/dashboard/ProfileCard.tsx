@@ -1,17 +1,17 @@
-
 import React from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { UserProfileBase, SubscriptionType } from "@/types/user/base";
 import { formatDistanceToNow } from "date-fns";
 
 interface ProfileCardProps {
   userProfile: UserProfileBase;
+  onLevelUp?: () => void;
   className?: string;
 }
 
-export function ProfileCard({ userProfile, className = "" }: ProfileCardProps) {
+export function ProfileCard({ userProfile, onLevelUp, className = "" }: ProfileCardProps) {
   // Determine subscription display info
   const getSubscriptionInfo = () => {
     let planType = "free";
@@ -68,33 +68,30 @@ export function ProfileCard({ userProfile, className = "" }: ProfileCardProps) {
   const avatarUrl = userProfile.avatarUrl || userProfile.avatar || '';
   
   return (
-    <Card className={`overflow-hidden ${className}`}>
-      <CardContent className="p-6">
-        <div className="flex justify-between items-start">
-          <div className="flex items-center">
-            <Avatar className="h-16 w-16 mr-4">
-              {avatarUrl ? <AvatarImage src={avatarUrl} alt={userProfile.name} /> : null}
-              <AvatarFallback className="text-lg bg-primary/10 text-primary">
-                {getInitials(userProfile.name)}
-              </AvatarFallback>
-            </Avatar>
-            
-            <div>
-              <h3 className="text-lg font-semibold">{userProfile.name}</h3>
-              <div className="flex items-center mt-1 space-x-2">
-                <Badge variant="outline" className={subscriptionInfo.color}>
-                  {subscriptionInfo.label}
-                </Badge>
-                
-                <span className="text-xs text-muted-foreground">
-                  {userProfile.email}
-                </span>
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">{lastActiveText}</p>
+    <Card>
+      <CardHeader>
+        <div className="flex items-center space-x-4">
+          <Avatar className="w-16 h-16 border-2 border-primary">
+            <AvatarImage src={userProfile.avatar} alt={userProfile.name} />
+            <AvatarFallback>{getInitials(userProfile.name)}</AvatarFallback>
+          </Avatar>
+          <div>
+            <h3 className="text-lg font-semibold">{userProfile.name}</h3>
+            <div className="flex items-center mt-1 space-x-2">
+              <Badge variant="outline" className={subscriptionInfo.color}>
+                {subscriptionInfo.label}
+              </Badge>
+              
+              <span className="text-xs text-muted-foreground">
+                {userProfile.email}
+              </span>
             </div>
+            <p className="text-xs text-muted-foreground mt-1">{lastActiveText}</p>
           </div>
         </div>
-        
+      </CardHeader>
+      
+      <CardContent className="p-6">
         <div className="grid grid-cols-2 gap-4 mt-6">
           <div className="flex flex-col p-2 bg-muted/40 rounded-lg">
             <span className="text-sm">Streak</span>

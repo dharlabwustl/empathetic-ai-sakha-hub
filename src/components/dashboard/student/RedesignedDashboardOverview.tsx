@@ -8,6 +8,7 @@ import StudyStatsSection from "./dashboard-sections/StudyStatsSection";
 import SubjectBreakdownSection from "./dashboard-sections/SubjectBreakdownSection";
 import SmartSuggestionsCenter from "./dashboard-sections/SmartSuggestionsCenter";
 import ExamReadinessSection from "./dashboard-sections/ExamReadinessSection";
+import TodaysPlanSection from "./dashboard-sections/TodaysPlanSection";
 
 interface RedesignedDashboardOverviewProps {
   userProfile: UserProfileBase;
@@ -22,9 +23,26 @@ const RedesignedDashboardOverview = ({
   currentMood,
   onMoodChange,
 }: RedesignedDashboardOverviewProps) => {
+  // Mock study plan data for the TodaysPlanSection
+  const studyPlan = {
+    completedTasks: 3,
+    totalTasks: 8,
+    todaysFocus: {
+      concepts: ["Newton's Laws", "Atomic Structure", "Integration"],
+      flashcards: 15,
+      practiceTests: 1,
+      estimatedTime: 120,
+    }
+  };
+
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-semibold">Dashboard Overview</h2>
+      
+      {/* Today's Plan Section */}
+      <div className="mb-8">
+        <TodaysPlanSection studyPlan={studyPlan} currentMood={currentMood} />
+      </div>
       
       {/* Top row: Study Stats + Subject Breakdown */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

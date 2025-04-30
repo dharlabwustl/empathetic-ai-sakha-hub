@@ -1,72 +1,36 @@
-
-import React, { useState } from 'react';
+import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { SubjectOverview } from './SubjectOverview';
-import { TopicsList } from './TopicsList';
-import { QuizzesList } from './QuizzesList';
-import { StudyTimeChart } from './StudyTimeChart';
-import { SubjectProgress, StudyStreak } from "@/types/user";
+import { Card, CardContent } from "@/components/ui/card";
+import { GradesOverview } from "./GradesOverview";
+import SubjectOverview from "./SubjectOverview";
 
 interface PerformanceTabsProps {
-  subjects: SubjectProgress[];
-  selectedSubject: SubjectProgress | null;
-  selectSubject: (id: string) => void;
-  studyStreak: StudyStreak | null;
+  studentId: string;
 }
 
-export const PerformanceTabs: React.FC<PerformanceTabsProps> = ({
-  subjects,
-  selectedSubject,
-  selectSubject,
-  studyStreak
-}) => {
-  const [activeTab, setActiveTab] = useState("overview");
-
+const PerformanceTabs: React.FC<PerformanceTabsProps> = ({ studentId }) => {
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Subject Performance</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <Tabs defaultValue="overview" value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="mb-4">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="topics">Topics</TabsTrigger>
-            <TabsTrigger value="quizzes">Quizzes</TabsTrigger>
-            <TabsTrigger value="time">Study Time</TabsTrigger>
+      <CardContent className="p-0">
+        <Tabs defaultvalue="grades" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="grades">Grades Overview</TabsTrigger>
+            <TabsTrigger value="subjects">Subjects Overview</TabsTrigger>
           </TabsList>
-          
-          <TabsContent value="overview" className="space-y-4">
-            <SubjectOverview subjects={subjects} />
+          <TabsContent value="grades">
+            <div className="p-4">
+              <GradesOverview studentId={studentId} />
+            </div>
           </TabsContent>
-          
-          <TabsContent value="topics">
-            <TopicsList
-              selectedSubject={selectedSubject}
-              subjects={subjects}
-              selectSubject={selectSubject}
-            />
-          </TabsContent>
-          
-          <TabsContent value="quizzes">
-            <QuizzesList
-              selectedSubject={selectedSubject}
-              subjects={subjects}
-              selectSubject={selectSubject}
-            />
-          </TabsContent>
-          
-          <TabsContent value="time">
-            <StudyTimeChart
-              selectedSubject={selectedSubject}
-              subjects={subjects}
-              selectSubject={selectSubject}
-              studyStreak={studyStreak}
-            />
+          <TabsContent value="subjects">
+            <div className="p-4">
+              <SubjectOverview studentId={studentId} />
+            </div>
           </TabsContent>
         </Tabs>
       </CardContent>
     </Card>
   );
 };
+
+export default PerformanceTabs;

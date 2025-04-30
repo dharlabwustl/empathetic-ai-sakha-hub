@@ -1,20 +1,41 @@
 
-// Define base user profile types
+export enum MoodType {
+  Happy = 'happy',
+  Focused = 'focused',
+  Motivated = 'motivated',
+  Tired = 'tired',
+  Stressed = 'stressed',
+  Confused = 'confused',
+  Anxious = 'anxious',
+  Overwhelmed = 'overwhelmed',
+  Curious = 'curious',
+  Bored = 'bored'
+}
+
+export type SubscriptionType = 'free' | 'basic' | 'premium' | 'pro';
+
+export interface SubscriptionDetails {
+  planType: SubscriptionType;
+  startDate?: string;
+  expiryDate?: string;
+  autoRenew?: boolean;
+  features?: string[];
+}
+
 export interface UserProfileBase {
-  id: string;
+  id?: string;
   name: string;
   email?: string;
-  phoneNumber?: string;
-  role: 'student' | 'instructor' | 'admin';
-  avatar?: string;
-  joinDate?: string;
-  lastLogin?: string;
+  avatar?: string; 
+  role?: string;
+  level?: number;
+  xp?: number;
+  verified?: boolean;
+  subscription?: SubscriptionType | SubscriptionDetails;
+  onboardingComplete?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
   loginCount?: number;
-  goals?: Goal[];
-  subjects?: string[];
-  progress?: number;
-  preferences?: UserPreferences;
-  subscription?: SubscriptionType | Subscription;
   lastActive?: string;
   streak?: number;
   studyHours?: number;
@@ -22,64 +43,52 @@ export interface UserProfileBase {
   testsCompleted?: number;
 }
 
-export interface Goal {
-  id?: string;
-  title: string;
-  description?: string;
-  targetDate?: string;
-  progress?: number;
-  subjects?: string[];
-  chapters?: string[];
-  concepts?: string[];
-}
-
-export interface UserPreferences {
+export interface UserPreferencesBase {
   theme?: 'light' | 'dark' | 'system';
-  notifications?: boolean;
+  notifications?: {
+    email?: boolean;
+    push?: boolean;
+    sms?: boolean;
+  };
   studyReminders?: boolean;
-  timezone?: string;
+  weeklyReports?: boolean;
   language?: string;
 }
 
-export enum MoodType {
-  Motivated = 'motivated',
-  Focused = 'focused',
-  Tired = 'tired',
-  Anxious = 'anxious',
-  Stressed = 'stressed',
-  Happy = 'happy',
-  Curious = 'curious',
-  Confused = 'confused',
-  Overwhelmed = 'overwhelmed',
-  Neutral = 'neutral',
-  Okay = 'okay',
-  Sad = 'sad',
-  Bored = 'bored',
+export interface StudentProfile extends UserProfileBase {
+  school?: string;
+  grade?: string;
+  targetExams?: string[];
+  subjects?: string[];
+  studyPreferences?: {
+    preferredTimeOfDay?: 'morning' | 'afternoon' | 'evening' | 'night';
+    sessionDuration?: number;
+    breakFrequency?: number;
+    weeklyGoalHours?: number;
+  };
 }
 
-export enum SubscriptionType {
-  Free = 'free',
-  Basic = 'basic',
-  Premium = 'premium',
-  Enterprise = 'enterprise',
+export interface TeacherProfile extends UserProfileBase {
+  school?: string;
+  department?: string;
+  subjects?: string[];
+  yearsOfExperience?: number;
+  bio?: string;
+  credentials?: string[];
 }
 
-export interface Subscription {
-  planType: SubscriptionType | string;
-  startDate?: string;
-  expiryDate?: string;
-  amount?: number;
-  status?: 'active' | 'expired' | 'paused';
-  autoRenew?: boolean;
-  features?: string[];
-  discount?: number;
-  paymentMethod?: string;
+export interface ParentProfile extends UserProfileBase {
+  children?: {
+    id: string;
+    name: string;
+    grade?: string;
+  }[];
+  accessLevel?: 'full' | 'limited' | 'reports-only';
 }
 
-export enum UserRole {
-  Student = 'student',
-  Instructor = 'instructor',
-  Admin = 'admin'
+export interface AdminUser {
+  id: string;
+  name: string;
+  email: string;
+  role: 'admin' | 'super_admin';
 }
-
-export type UserProfileType = UserProfileBase;

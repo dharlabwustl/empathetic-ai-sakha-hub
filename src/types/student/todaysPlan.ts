@@ -1,6 +1,8 @@
 
 import { MoodType } from '../user/base';
 
+export { MoodType };
+
 export interface StudyBlock {
   id: string;
   title: string;
@@ -80,7 +82,12 @@ export interface TodaysPlanData extends TodaysPlan {
   completedBlocks: StudyBlock[];
   upcomingBlocks: StudyBlock[];
   backlog: Task[];
-  tasks?: Task[];
+  tasks?: {
+    concepts: Task[];
+    flashcards: Task[];
+    practiceExams: Task[];
+    revision: Task[];
+  };
   pastDays?: PastDayRecord[];
   tomorrowPreview?: {
     concepts: number;
@@ -129,6 +136,12 @@ export interface PastDayRecord {
   studyTimeMinutes: number;
   mood: MoodType;
   status?: 'completed' | 'partial' | 'missed';
+  conceptsCompleted?: number;
+  conceptsTotal?: number;
+  flashcardsCompleted?: number;
+  flashcardsTotal?: number;
+  practiceCompleted?: number;
+  practiceTotal?: number;
 }
 
 // Additional task types for subject breakdown
