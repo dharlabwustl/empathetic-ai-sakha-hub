@@ -26,6 +26,7 @@ import ConceptStudyPage from '@/components/dashboard/student/concepts/ConceptStu
 import FlashcardInteractive from '@/components/dashboard/student/flashcards/FlashcardInteractive';
 import FlashcardDetailsPage from '@/pages/dashboard/student/FlashcardDetailsPage';
 import InteractiveFlashcardBrowser from '@/components/flashcards/InteractiveFlashcardBrowser';
+import StudentProfile from '@/pages/dashboard/student/StudentProfile';
 
 export default function StudentRoutes() {
   return (
@@ -33,7 +34,7 @@ export default function StudentRoutes() {
       <Route path="/today" element={<TodaysPlanView />} />
       <Route path="/studyplan" element={<StudyPlanView />} />
       <Route path="/study-plan" element={<StudyPlanView />} />
-      <Route path="/profile" element={<ProfilePage />} />
+      <Route path="/profile" element={<StudentProfile />} />
       
       {/* Concepts routes */}
       <Route path="/concepts" element={<ConceptCardsView />} />

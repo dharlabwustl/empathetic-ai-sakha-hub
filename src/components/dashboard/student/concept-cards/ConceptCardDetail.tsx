@@ -150,7 +150,7 @@ export const ConceptCardDetail = () => {
           </CardContent>
         </Card>
 
-        {/* Concept Analysis Section - New */}
+        {/* Concept Analysis Section - Enhanced */}
         <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 shadow-md">
           <CardContent className="p-6">
             <h3 className="text-xl font-bold mb-4 text-blue-800 flex items-center">
@@ -243,10 +243,6 @@ export const ConceptCardDetail = () => {
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {conceptCard.relatedConcepts.map((relatedId) => {
-                const relatedCard = conceptCard && conceptCard.relatedConcepts 
-                  ? conceptCard.relatedConcepts.find(c => c === relatedId) 
-                  : null;
-                  
                 return (
                   <Card key={relatedId} className="hover:shadow-md transition-shadow border-l-4 border-blue-500">
                     <CardContent className="p-4">

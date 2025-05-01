@@ -27,6 +27,7 @@ import Login from './pages/Login';
 import EnhancedFlashcardPage from './pages/dashboard/student/flashcards/EnhancedFlashcardPage';
 import WelcomeToPrepr from './pages/signup/WelcomeToPrepr';
 import ProfilePage from './pages/student/ProfilePage';
+import StudentProfile from './pages/dashboard/student/StudentProfile';
 import StudyPlanView from './pages/dashboard/student/StudyPlanView';
 import TutorView from './pages/dashboard/student/TutorView';
 import AcademicAdvisorView from './pages/dashboard/student/AcademicAdvisorView';
@@ -65,7 +66,7 @@ function App() {
               <Route path="/dashboard/student/:tab" element={<StudentDashboard />} />
               <Route path="/dashboard/student/today" element={<TodaysPlanView />} />
               <Route path="/dashboard/student/feel-good-corner" element={<FeelGoodCornerView />} />
-              <Route path="/dashboard/student/profile" element={<ProfilePage />} />
+              <Route path="/dashboard/student/profile" element={<StudentProfile />} />
               
               {/* Concept routes */}
               <Route path="/dashboard/student/concepts/card/:conceptId" element={<ConceptCardDetailPage />} />

@@ -1,7 +1,7 @@
 
 import React from "react";
 import { UserProfileType } from "@/types/user";
-import ProfileDetails from "./ProfileDetails";
+import ProfileDetails from "@/components/dashboard/student/profile/ProfileDetails";
 
 interface StudentProfileProps {
   userProfile: UserProfileType;
@@ -14,7 +14,7 @@ const StudentProfile: React.FC<StudentProfileProps> = ({ userProfile }) => {
   };
 
   return (
-    <div className="container">
+    <div className="container mx-auto py-6">
       <ProfileDetails
         userProfile={userProfile}
         onUpdateProfile={handleUpdateProfile}
