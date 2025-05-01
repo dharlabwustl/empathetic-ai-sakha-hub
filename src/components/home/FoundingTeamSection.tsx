@@ -54,7 +54,7 @@ const FoundingTeamSection = () => {
             name="Amit Singh"
             role="Founder & CEO"
             bio="Building AI tech startups in education. Based in India."
-            imageSrc="/lovable-uploads/671c8cbb-4d23-4d74-afc5-5977b926a678.png"
+            imageSrc="/lovable-uploads/ffb2594e-ee5e-424c-92ff-417777e347c9.png"
             location="India"
           />
           <ProfileCard

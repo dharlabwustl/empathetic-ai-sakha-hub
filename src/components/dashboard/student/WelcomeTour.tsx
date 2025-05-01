@@ -11,7 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Steps, StepLabel } from "@/components/ui/steps";
-import { Check, X } from "lucide-react";
+import { Check, X, BookOpen, Clock, Calendar, LineChart, MessageSquare, User, Video, FileText } from "lucide-react";
 import PrepzrLogo from "@/components/common/PrepzrLogo";
 
 interface WelcomeTourProps {
@@ -42,7 +42,7 @@ export default function WelcomeTour({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[550px]">
+      <DialogContent className="sm:max-w-[650px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <div className="flex items-center justify-center mb-4">
             <PrepzrLogo width={100} height={100} />
@@ -56,7 +56,7 @@ export default function WelcomeTour({
         <div className="py-4">
           <div className="mb-6 flex flex-col md:flex-row gap-4 p-4 bg-gradient-to-r from-blue-50 to-violet-50 border border-blue-100 rounded-lg">
             <img
-              src="/lovable-uploads/8b654e3b-59bb-4288-9e3c-b3299d9cdfb3.png"
+              src="/lovable-uploads/ffb2594e-ee5e-424c-92ff-417777e347c9.png"
               alt="Amit Singh - Founder"
               className="w-24 h-24 object-cover rounded-full mx-auto md:mx-0 border-2 border-blue-200"
             />
@@ -97,6 +97,94 @@ export default function WelcomeTour({
               </StepLabel>
             </Fragment>
           </Steps>
+          
+          <Separator className="my-6" />
+          
+          <h3 className="font-medium text-lg mb-4">Your Dashboard Features:</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="bg-white p-4 rounded-lg border border-gray-100 shadow-sm">
+              <div className="flex items-start gap-3">
+                <div className="p-2 bg-blue-100 text-blue-700 rounded-md">
+                  <BookOpen size={20} />
+                </div>
+                <div>
+                  <h4 className="font-medium text-gray-900">Concept Cards</h4>
+                  <p className="text-sm text-gray-600">Interactive learning materials with visuals and explanations</p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="bg-white p-4 rounded-lg border border-gray-100 shadow-sm">
+              <div className="flex items-start gap-3">
+                <div className="p-2 bg-purple-100 text-purple-700 rounded-md">
+                  <FileText size={20} />
+                </div>
+                <div>
+                  <h4 className="font-medium text-gray-900">Flashcards</h4>
+                  <p className="text-sm text-gray-600">Quick review cards to test your memory and understanding</p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="bg-white p-4 rounded-lg border border-gray-100 shadow-sm">
+              <div className="flex items-start gap-3">
+                <div className="p-2 bg-green-100 text-green-700 rounded-md">
+                  <Calendar size={20} />
+                </div>
+                <div>
+                  <h4 className="font-medium text-gray-900">Today's Plan</h4>
+                  <p className="text-sm text-gray-600">Your personalized daily study schedule and tasks</p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="bg-white p-4 rounded-lg border border-gray-100 shadow-sm">
+              <div className="flex items-start gap-3">
+                <div className="p-2 bg-amber-100 text-amber-700 rounded-md">
+                  <Clock size={20} />
+                </div>
+                <div>
+                  <h4 className="font-medium text-gray-900">Practice Exams</h4>
+                  <p className="text-sm text-gray-600">Test your knowledge with timed mock exams</p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="bg-white p-4 rounded-lg border border-gray-100 shadow-sm">
+              <div className="flex items-start gap-3">
+                <div className="p-2 bg-red-100 text-red-700 rounded-md">
+                  <LineChart size={20} />
+                </div>
+                <div>
+                  <h4 className="font-medium text-gray-900">Progress Tracking</h4>
+                  <p className="text-sm text-gray-600">Visual analytics of your study progress and performance</p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="bg-white p-4 rounded-lg border border-gray-100 shadow-sm">
+              <div className="flex items-start gap-3">
+                <div className="p-2 bg-sky-100 text-sky-700 rounded-md">
+                  <MessageSquare size={20} />
+                </div>
+                <div>
+                  <h4 className="font-medium text-gray-900">AI Tutor</h4>
+                  <p className="text-sm text-gray-600">24/7 assistance for your study questions and doubts</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-100">
+            <h4 className="font-medium text-blue-800 mb-2">How to start studying:</h4>
+            <ol className="list-decimal list-inside space-y-2 text-sm text-blue-700">
+              <li>Begin with <strong>Today's Plan</strong> to see what's scheduled for you</li>
+              <li>Review <strong>Concept Cards</strong> to understand fundamental topics</li>
+              <li>Practice with <strong>Flashcards</strong> to strengthen your memory</li>
+              <li>Take <strong>Practice Exams</strong> to test your knowledge</li>
+              <li>Use the <strong>AI Tutor</strong> whenever you have questions or need help</li>
+            </ol>
+          </div>
         </div>
 
         <DialogFooter className="flex flex-col sm:flex-row gap-2">
