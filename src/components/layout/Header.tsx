@@ -19,9 +19,9 @@ const Header = () => {
     <header className="bg-white dark:bg-gray-900 shadow-sm sticky top-0 z-50">
       <div className="container mx-auto px-4 py-3">
         <div className="flex items-center justify-between">
-          <div className="flex items-center">
+          <div className="flex items-center -ml-4">
             <Link to="/" className="flex items-center">
-              <PrepzrLogo width={360} height={70} /> {/* Doubled from 180x50 to 360x70 */}
+              <PrepzrLogo width={360} height={70} />
             </Link>
           </div>
           

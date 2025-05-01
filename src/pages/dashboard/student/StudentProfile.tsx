@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React from "react";
 import { UserProfileType } from "@/types/user";
 import ProfileDetails from "@/components/dashboard/student/profile/ProfileDetails";
 import { useUserProfile } from "@/hooks/useUserProfile";

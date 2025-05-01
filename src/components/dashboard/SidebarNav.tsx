@@ -54,8 +54,8 @@ const SidebarNav: React.FC<SidebarNavProps> = ({ userType, userName, activeTab =
       <div className="h-full bg-white dark:bg-gray-900 border-r dark:border-gray-800 shadow-sm flex flex-col">
         {/* Logo */}
         <div className={`p-4 border-b dark:border-gray-800 flex ${expanded ? 'justify-between' : 'justify-center'} items-center`}>
-          <Link to="/" className={`flex items-center ${!expanded && 'justify-center'}`}>
-            <PrepzrLogo width={expanded ? 80 : 60} /> {/* Doubled from 40/30 to 80/60 */}
+          <Link to="/" className={`flex items-center ${!expanded && 'justify-center'} -ml-2`}>
+            <PrepzrLogo width={expanded ? 80 : 60} />
             {expanded && <span className="text-lg font-semibold ml-2">Prepzr</span>}
           </Link>
           <Button 

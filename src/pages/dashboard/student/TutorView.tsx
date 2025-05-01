@@ -1,10 +1,11 @@
 
 import React, { useState, useEffect } from 'react';
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
-import { AITutorChat } from '@/components/dashboard/student/tutor/AITutorChat';
+import AIChatTutor from '@/pages/dashboard/student/AIChatTutor';
+import { UserProfileType } from '@/types/user/base';
 
 // Mock user profile for demonstration
-const mockUserProfile = {
+const mockUserProfile: UserProfileType = {
   id: "user123",
   name: "Student",
   email: "student@example.com",
@@ -21,7 +22,7 @@ const mockUserProfile = {
 };
 
 const TutorView = () => {
-  const [userProfile, setUserProfile] = useState(mockUserProfile);
+  const [userProfile, setUserProfile] = useState<UserProfileType>(mockUserProfile);
 
   // In a real app, you would fetch the user profile from an API or context
   useEffect(() => {
@@ -59,7 +60,7 @@ const TutorView = () => {
         </p>
       </div>
       
-      <AITutorChat userProfile={userProfile} />
+      <AIChatTutor userProfile={userProfile} />
     </SharedPageLayout>
   );
 };
