@@ -40,13 +40,22 @@ const StudentDashboard = () => {
     toggleTabsNav
   } = useStudentDashboard();
 
+  // State for force showing welcome tour
+  const [forceShowTour, setForceShowTour] = useState(false);
+
   // Check URL parameters for onboarding status
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const isNewUser = params.get('new') === 'true';
     const completedOnboarding = params.get('completedOnboarding') === 'true';
+    const shouldShowTour = params.get('showTour') === 'true';
     
-    console.log("URL params:", { isNewUser, completedOnboarding });
+    console.log("URL params:", { isNewUser, completedOnboarding, shouldShowTour });
+    
+    // Force show welcome tour if requested
+    if (shouldShowTour) {
+      setForceShowTour(true);
+    }
     
     // Don't show splash screen for new users coming from signup flow
     if (isNewUser) {
@@ -122,7 +131,7 @@ const StudentDashboard = () => {
       kpis={kpis}
       nudges={nudges}
       markNudgeAsRead={markNudgeAsRead}
-      showWelcomeTour={showWelcomeTour}
+      showWelcomeTour={showWelcomeTour || forceShowTour}
       onTabChange={handleTabChange}
       onViewStudyPlan={handleViewStudyPlan}
       onToggleSidebar={toggleSidebar}

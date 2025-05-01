@@ -38,7 +38,9 @@ const Login = () => {
             </div>
             
             <TabsContent value="student" className="pt-2">
-              <LoginPage />
+              <CardContent>
+                <StudentLoginForm activeTab="student" />
+              </CardContent>
             </TabsContent>
             
             <TabsContent value="admin" className="pt-2">
@@ -72,6 +74,161 @@ const Login = () => {
         </div>
       </div>
     </div>
+  );
+};
+
+// Import the student login form component to prevent duplicate designs
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useAuth } from "@/contexts/auth/AuthContext";
+import { useToast } from "@/hooks/use-toast";
+
+interface StudentLoginFormProps {
+  activeTab: string;
+}
+
+const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
+  const navigate = useNavigate();
+  const { login } = useAuth();
+  const { toast } = useToast();
+  const [credentials, setCredentials] = useState({ email: "", password: "" });
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setCredentials(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!credentials.email || !credentials.password) {
+      toast({
+        title: "Required fields",
+        description: "Please fill in all required fields",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    
+    try {
+      const success = await login(credentials.email, credentials.password);
+      
+      if (success) {
+        toast({
+          title: "Login successful",
+          description: "Welcome back to Prepzr"
+        });
+        
+        // For regular users, direct to welcome-back screen
+        const userData = localStorage.getItem('userData');
+        if (userData) {
+          const parsedData = JSON.parse(userData);
+          
+          if (parsedData.loginCount) {
+            parsedData.loginCount += 1;
+            localStorage.setItem('userData', JSON.stringify(parsedData));
+          }
+          
+          // If returning user (loginCount > 1), show welcome back screen
+          if (parsedData.loginCount > 1) {
+            navigate("/welcome-back");
+          } else {
+            // First login after registration, show welcome tour
+            navigate("/welcome");
+          }
+        } else {
+          navigate("/welcome-back");
+        }
+      } else {
+        toast({
+          title: "Login failed",
+          description: "Invalid credentials",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Login error",
+        description: "An error occurred while logging in",
+        variant: "destructive"
+      });
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDemoLogin = () => {
+    setCredentials({
+      email: "demo@prepzr.com",
+      password: "demo123"
+    });
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="space-y-2">
+        <Label htmlFor="email">Email</Label>
+        <Input
+          id="email"
+          name="email"
+          type="email"
+          placeholder="your.email@example.com"
+          value={credentials.email}
+          onChange={handleChange}
+          required
+        />
+      </div>
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <Label htmlFor="password">Password</Label>
+          <Button
+            type="button"
+            variant="link"
+            className="p-0 h-auto text-xs"
+            onClick={() => {
+              toast({
+                title: "Password Reset",
+                description: "Password reset functionality will be available soon."
+              });
+            }}
+          >
+            Forgot password?
+          </Button>
+        </div>
+        <Input
+          id="password"
+          name="password"
+          type="password"
+          value={credentials.password}
+          onChange={handleChange}
+          required
+        />
+      </div>
+      <div className="flex items-center space-x-2">
+        <Checkbox id="remember" />
+        <Label htmlFor="remember" className="text-sm">Remember me</Label>
+      </div>
+      <div className="space-y-2">
+        <Button type="submit" className="w-full" disabled={isLoading}>
+          {isLoading ? "Logging in..." : "Login"}
+        </Button>
+        <Button 
+          type="button" 
+          variant="outline" 
+          className="w-full mt-2" 
+          onClick={handleDemoLogin}
+        >
+          Use Demo Account
+        </Button>
+      </div>
+    </form>
   );
 };
 

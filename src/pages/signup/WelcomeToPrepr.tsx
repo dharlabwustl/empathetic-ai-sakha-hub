@@ -45,8 +45,21 @@ const WelcomeToPrepr = () => {
       }
       
       // Navigate to dashboard with welcome tour flag
-      navigate('/dashboard/student?new=true');
+      navigate('/dashboard/student');
     }
+  };
+  
+  const goToDashboard = () => {
+    // Save to localStorage that user has seen this welcome
+    const userData = localStorage.getItem('userData');
+    if (userData) {
+      const parsedData = JSON.parse(userData);
+      parsedData.sawWelcomeSteps = true;
+      localStorage.setItem('userData', JSON.stringify(parsedData));
+    }
+    
+    // Navigate directly to dashboard with welcome tour flag set to true
+    navigate('/dashboard/student?showTour=true');
   };
   
   return (
@@ -114,7 +127,7 @@ const WelcomeToPrepr = () => {
                   <Button 
                     variant="ghost" 
                     className="w-full mt-2" 
-                    onClick={() => navigate('/dashboard/student?new=true')}
+                    onClick={goToDashboard}
                   >
                     Skip Introduction
                   </Button>

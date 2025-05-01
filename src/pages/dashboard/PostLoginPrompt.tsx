@@ -26,7 +26,7 @@ const PostLoginPrompt = () => {
         const parsedData = JSON.parse(userData);
         
         // Check if this is a first-time user
-        if (parsedData.isNewUser === true) {
+        if (parsedData.isNewUser === true || parsedData.loginCount === 1) {
           // First time user should be redirected to welcome flow, not post-login prompt
           navigate('/welcome');
           return;
@@ -43,9 +43,6 @@ const PostLoginPrompt = () => {
           if (parsedData.pendingTasks && parsedData.pendingTasks.length > 0) {
             setPendingTask(parsedData.pendingTasks[0].title);
           }
-        } else {
-          // First time login after registration, redirect them to welcome flow
-          navigate('/welcome');
         }
         
       } catch (error) {

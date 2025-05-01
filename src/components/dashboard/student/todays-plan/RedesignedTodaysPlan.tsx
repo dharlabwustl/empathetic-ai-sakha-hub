@@ -15,6 +15,18 @@ const RedesignedTodaysPlan = () => {
       showBackButton={true}
       backButtonUrl="/dashboard/student"
     >
+      <div className="mb-4">
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          className="flex items-center text-muted-foreground hover:text-foreground"
+          onClick={() => navigate('/dashboard/student')}
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Back to Dashboard
+        </Button>
+      </div>
+      
       <Card className="mb-6">
         <CardHeader>
           <CardTitle>Your Daily Tasks</CardTitle>
