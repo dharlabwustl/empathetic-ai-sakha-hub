@@ -1,3 +1,4 @@
+
 import React, { Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
@@ -39,6 +40,8 @@ import { NotificationsView } from './components/dashboard/student/notifications/
 import EnhancedProfilePage from './pages/dashboard/student/EnhancedProfilePage';
 import PracticeExamsSection from './components/dashboard/student/practice-exam/PracticeExamsSection';
 import PostLoginWelcomeBack from './pages/dashboard/PostLoginWelcomeBack';
+import Terms from './pages/Terms';
+import Privacy from './pages/Privacy';
 
 const AdminDashboard = React.lazy(() => import('@/pages/admin/AdminDashboard'));
 
@@ -55,6 +58,8 @@ function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/admin/login" element={<AdminLogin />} />
               <Route path="/register" element={<SignUp />} />
+              <Route path="/terms" element={<Terms />} />
+              <Route path="/privacy" element={<Privacy />} />
 
               {/* Post-signup flow - Welcome flow only */}
               <Route path="/welcome" element={<WelcomeToPrepr />} />
