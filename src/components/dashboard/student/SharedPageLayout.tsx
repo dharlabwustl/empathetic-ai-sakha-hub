@@ -1,56 +1,70 @@
 
-import React, { ReactNode } from 'react';
-import { Link } from 'react-router-dom';
-import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
-import { QuickAccessButtons } from './QuickAccessButtons';
+import React from 'react';
+import { useUserProfile } from '@/hooks/useUserProfile';
+import { UserRole } from '@/types/user/base';
+import DashboardLayout from '@/pages/dashboard/student/DashboardLayout';
+import SharedNavigation from './SharedNavigation';
 
-export interface SharedPageLayoutProps {
+interface SharedPageLayoutProps {
   title: string;
   subtitle?: string;
-  showQuickAccess?: boolean;
-  children: ReactNode;
-  showBackButton?: boolean;
-  backButtonUrl?: string;
+  activeTab?: string;
+  children: React.ReactNode;
 }
 
-export const SharedPageLayout = ({ 
-  title, 
-  subtitle, 
-  showQuickAccess = true, 
-  children,
-  showBackButton = false,
-  backButtonUrl = ""
-}: SharedPageLayoutProps) => {
-  return (
-    <div className="space-y-4">
-      {/* Page header */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div className="space-y-0.5">
-          {showBackButton && backButtonUrl && (
-            <Link to={backButtonUrl}>
-              <Button variant="ghost" size="sm" className="mb-2 -ml-3">
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back
-              </Button>
-            </Link>
-          )}
-          <h2 className="text-2xl font-bold tracking-tight">{title}</h2>
-          {subtitle && <p className="text-muted-foreground">{subtitle}</p>}
-        </div>
+export const SharedPageLayout: React.FC<SharedPageLayoutProps> = ({
+  title,
+  subtitle,
+  activeTab = 'overview',
+  children
+}) => {
+  const { userProfile, loading } = useUserProfile(UserRole.Student);
+  
+  if (loading || !userProfile) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  // Content to display within the dashboard layout
+  const pageContent = (
+    <div className="space-y-6">
+      {/* Page Header */}
+      <div>
+        <h1 className="text-2xl font-bold">{title}</h1>
+        {subtitle && <p className="text-muted-foreground mt-1">{subtitle}</p>}
       </div>
       
-      {/* Quick access buttons - only shown if requested */}
-      {showQuickAccess && (
-        <div className="my-4">
-          <QuickAccessButtons />
-        </div>
-      )}
+      {/* Shared Navigation */}
+      <SharedNavigation />
       
-      {/* Main content */}
-      <div className="mt-2">
-        {children}
-      </div>
+      {/* Main Content */}
+      {children}
     </div>
+  );
+
+  return (
+    <DashboardLayout
+      userProfile={userProfile}
+      hideSidebar={false}
+      hideTabsNav={false}
+      activeTab={activeTab}
+      kpis={[]}
+      nudges={[]}
+      markNudgeAsRead={() => {}}
+      showWelcomeTour={false}
+      onTabChange={() => {}}
+      onViewStudyPlan={() => {}}
+      onToggleSidebar={() => {}}
+      onToggleTabsNav={() => {}}
+      onSkipTour={() => {}}
+      onCompleteTour={() => {}}
+      showStudyPlan={false}
+      onCloseStudyPlan={() => {}}
+    >
+      {pageContent}
+    </DashboardLayout>
   );
 };

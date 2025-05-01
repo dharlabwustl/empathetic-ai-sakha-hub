@@ -8,8 +8,8 @@ export interface DashboardData {
   studyPlan: any;
   progressTracker: ProgressTracker;
   revisionStats: RevisionStats;
-  revisionItems: any[];  // Added this property
-  milestones: Milestone[];  // Added this property
+  revisionItems: RevisionItem[];  
+  milestones: Milestone[];  
 }
 
 export interface Subject {
@@ -68,6 +68,17 @@ export interface RevisionStats {
   pendingReviewConcepts: number;
   lowRetentionFlashcards: number;
   flaggedItems: number;
+}
+
+export interface RevisionItem {
+  id: string;
+  title: string;
+  type: "concept" | "flashcard" | "quiz";
+  subject: string;
+  lastReviewed: string;
+  retentionScore: number;
+  dueDate: string;
+  priority: "high" | "medium" | "low";
 }
 
 export interface Milestone {

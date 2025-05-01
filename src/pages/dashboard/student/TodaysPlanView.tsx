@@ -1,20 +1,22 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTodaysPlan } from '@/hooks/useTodaysPlan';
-import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { SectionHeader } from '@/components/ui/section-header';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { MoodSelector } from '@/components/dashboard/student/MoodSelector';
 import { Progress } from '@/components/ui/progress';
 import { BookOpen, Clock, FileText, Brain, AlertTriangle, CheckCircle, Calendar } from 'lucide-react';
-import { MoodType, TaskType, TaskStatus } from '@/types/student/todaysPlan';
-import { cn } from '@/lib/utils';
+import { MoodType } from '@/types/user/base';
+
+// Import DashboardLayout to integrate with main dashboard
+import DashboardLayout from '@/pages/dashboard/student/DashboardLayout';
+import { useUserProfile } from '@/hooks/useUserProfile';
+import { UserRole } from '@/types/user/base';
 
 const TodaysPlanView = () => {
   const navigate = useNavigate();
+  const { userProfile } = useUserProfile(UserRole.Student);
   const { planData, loading, activeView, setActiveView, markTaskCompleted } = useTodaysPlan("IIT-JEE", "Student");
   const [currentTab, setCurrentTab] = useState('all');
   const [currentMood, setCurrentMood] = useState<MoodType | undefined>();
@@ -25,8 +27,8 @@ const TodaysPlanView = () => {
       id: '1',
       title: "Newton's Laws of Motion",
       subject: "Physics",
-      type: 'concept' as TaskType,
-      status: 'pending' as TaskStatus,
+      type: 'concept',
+      status: 'pending',
       timeEstimate: 45,
       isBacklog: false,
       priority: 'high',
@@ -36,8 +38,8 @@ const TodaysPlanView = () => {
       id: '2',
       title: "Organic Chemistry Reactions",
       subject: "Chemistry",
-      type: 'flashcard' as TaskType,
-      status: 'in-progress' as TaskStatus,
+      type: 'flashcard',
+      status: 'in-progress',
       timeEstimate: 30,
       isBacklog: true,
       priority: 'medium',
@@ -47,8 +49,8 @@ const TodaysPlanView = () => {
       id: '3',
       title: "Calculus Integration Techniques",
       subject: "Mathematics",
-      type: 'concept' as TaskType,
-      status: 'completed' as TaskStatus,
+      type: 'concept',
+      status: 'completed',
       timeEstimate: 60,
       isBacklog: false,
       priority: 'medium',
@@ -58,8 +60,8 @@ const TodaysPlanView = () => {
       id: '4',
       title: "Physics Practice Test",
       subject: "Physics",
-      type: 'exam' as TaskType,
-      status: 'pending' as TaskStatus,
+      type: 'exam',
+      status: 'pending',
       timeEstimate: 90,
       isBacklog: false,
       priority: 'high',
@@ -69,8 +71,8 @@ const TodaysPlanView = () => {
       id: '5',
       title: "Chemical Bonding Flashcards",
       subject: "Chemistry",
-      type: 'flashcard' as TaskType,
-      status: 'pending' as TaskStatus,
+      type: 'flashcard',
+      status: 'pending',
       timeEstimate: 25,
       isBacklog: false,
       priority: 'low',
@@ -79,8 +81,8 @@ const TodaysPlanView = () => {
       id: '6',
       title: "Coordinate Geometry Quiz",
       subject: "Mathematics",
-      type: 'exam' as TaskType,
-      status: 'completed' as TaskStatus,
+      type: 'exam',
+      status: 'completed',
       timeEstimate: 45,
       isBacklog: false,
       priority: 'medium',
@@ -123,7 +125,7 @@ const TodaysPlanView = () => {
   const percentageCompleted = Math.round((completedTasks / totalTasks) * 100);
 
   // Handle task action (start or review)
-  const handleTaskAction = (task: typeof tasks[0]) => {
+  const handleTaskAction = (task: any) => {
     if (task.status === 'completed') {
       // Navigate to review page based on task type
       switch (task.type) {
@@ -158,9 +160,19 @@ const TodaysPlanView = () => {
     setCurrentMood(mood);
     // In a real implementation, we would update the user's mood in the backend
     console.log('User mood updated:', mood);
+    
+    // Save mood to local storage for persistence
+    const userData = localStorage.getItem("userData");
+    if (userData) {
+      const parsedData = JSON.parse(userData);
+      parsedData.mood = mood;
+      localStorage.setItem("userData", JSON.stringify(parsedData));
+    } else {
+      localStorage.setItem("userData", JSON.stringify({ mood }));
+    }
   };
 
-  const getTaskTypeIcon = (type: TaskType) => {
+  const getTaskTypeIcon = (type: string) => {
     switch (type) {
       case 'concept':
         return <BookOpen className="h-5 w-5 text-blue-500" />;
@@ -173,7 +185,7 @@ const TodaysPlanView = () => {
     }
   };
 
-  const getTaskStatusBadge = (status: TaskStatus) => {
+  const getTaskStatusBadge = (status: string) => {
     switch (status) {
       case 'pending':
         return <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">Pending</Badge>;
@@ -186,197 +198,233 @@ const TodaysPlanView = () => {
     }
   };
 
-  return (
-    <SharedPageLayout
-      title="Today's Study Plan"
-      subtitle="Your personalized learning schedule for maximum productivity"
-    >
-      <div className="space-y-6">
-        {/* Mood and Completion Summary */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-          <Card>
-            <CardContent className="p-6">
-              <h3 className="text-lg font-medium mb-4">How are you feeling today?</h3>
-              <MoodSelector currentMood={currentMood} onMoodSelect={handleMoodChange} />
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-6">
-              <h3 className="text-lg font-medium mb-2">Today's Progress</h3>
-              <div className="flex justify-between items-center mb-2 text-sm text-muted-foreground">
-                <span>Completed {completedTasks} of {totalTasks} tasks</span>
-                <span>{percentageCompleted}%</span>
-              </div>
-              <Progress value={percentageCompleted} className="h-2 mb-4" />
-              
-              <div className="grid grid-cols-3 gap-4 text-center">
-                <div>
-                  <p className="text-xs text-muted-foreground mb-1">Remaining Time</p>
-                  <p className="text-lg font-semibold">{totalTimeEstimate} min</p>
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground mb-1">Completed</p>
-                  <p className="text-lg font-semibold">{completedTasks}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground mb-1">Pending</p>
-                  <p className="text-lg font-semibold">{totalTasks - completedTasks}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Today's tasks with tabs */}
+  // Render the today's plan content that will be shown inside the dashboard layout
+  const todaysPlanContent = (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-bold flex items-center">
+          <Calendar className="h-6 w-6 mr-2 text-primary" />
+          Today's Study Plan
+        </h1>
+        <Badge className="text-sm py-1">
+          {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}
+        </Badge>
+      </div>
+      
+      {/* Mood and Completion Summary */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         <Card>
-          <CardHeader className="pb-3">
-            <div className="flex justify-between items-center">
-              <CardTitle className="text-xl flex items-center gap-2">
-                <Calendar className="h-5 w-5 text-primary" />
-                Task Breakdown
-              </CardTitle>
-              <div className="text-sm text-muted-foreground">
-                Total Estimated Time: <span className="font-semibold">{totalTimeEstimate} min</span>
-              </div>
-            </div>
-          </CardHeader>
-          <Tabs value={currentTab} onValueChange={setCurrentTab} className="w-full">
-            <div className="px-6">
-              <TabsList className="w-full justify-start mb-4 overflow-x-auto">
-                <TabsTrigger value="all">All</TabsTrigger>
-                <TabsTrigger value="pending">Pending</TabsTrigger>
-                <TabsTrigger value="completed">Completed</TabsTrigger>
-                <TabsTrigger value="concept">Concept</TabsTrigger>
-                <TabsTrigger value="flashcard">Flashcard</TabsTrigger>
-                <TabsTrigger value="exam">Exam</TabsTrigger>
-              </TabsList>
-            </div>
-            
-            <TabsContent value={currentTab} className="mt-0">
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 p-6 pt-2">
-                {filteredTasks.map(task => (
-                  <Card 
-                    key={task.id} 
-                    className={cn(
-                      "overflow-hidden transition-all border-l-4",
-                      task.priority === 'high' ? "border-l-red-500" : 
-                      task.priority === 'medium' ? "border-l-amber-500" : "border-l-blue-500",
-                      "hover:shadow-md"
-                    )}
-                  >
-                    <div className="p-5">
-                      <div className="flex justify-between items-start">
-                        <div className="flex items-center space-x-2">
-                          {getTaskTypeIcon(task.type)}
-                          <span className="font-medium">{task.subject}</span>
-                        </div>
-                        {getTaskStatusBadge(task.status)}
-                      </div>
-                      
-                      <h3 className="font-semibold mt-3">{task.title}</h3>
-                      
-                      <div className="mt-3 flex items-center gap-2 text-sm text-muted-foreground">
-                        <Clock className="h-4 w-4" />
-                        <span>{task.timeEstimate} min</span>
-                        
-                        {task.isBacklog && (
-                          <div className="ml-auto flex items-center space-x-1 text-amber-600">
-                            <AlertTriangle className="h-4 w-4" />
-                            <span className="text-xs">Backlog</span>
-                          </div>
-                        )}
-                      </div>
-                      
-                      {task.status === 'completed' && task.completedAt && (
-                        <div className="mt-2 flex items-center gap-1 text-xs text-green-600">
-                          <CheckCircle className="h-3 w-3" />
-                          <span>Completed at {new Date(task.completedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                        </div>
-                      )}
-                      
-                      {task.smartTip && (
-                        <div className="mt-3 py-2 px-3 bg-blue-50 dark:bg-blue-900/20 rounded-md text-xs text-blue-800 dark:text-blue-300">
-                          <p>{task.smartTip}</p>
-                        </div>
-                      )}
-                      
-                      <Button 
-                        className="w-full mt-3"
-                        variant={task.status === 'completed' ? "outline" : "default"}
-                        onClick={() => handleTaskAction(task)}
-                      >
-                        {task.status === 'completed' ? 'Review' : 'Start Now'}
-                      </Button>
-                    </div>
-                  </Card>
-                ))}
-              </div>
-              
-              {filteredTasks.length === 0 && (
-                <div className="text-center py-10 text-muted-foreground">
-                  <p>No tasks found for this category</p>
-                </div>
-              )}
-            </TabsContent>
-          </Tabs>
+          <CardContent className="p-6">
+            <h3 className="text-lg font-medium mb-4">How are you feeling today?</h3>
+            <MoodSelector currentMood={currentMood} onMoodSelect={handleMoodChange} />
+          </CardContent>
         </Card>
-        
-        {/* Smart Suggestions */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-xl">Smart Suggestions</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {currentMood === 'anxious' || currentMood === 'stressed' ? (
-                <div className="bg-violet-50 dark:bg-violet-900/20 p-4 rounded-lg border border-violet-200 dark:border-violet-700">
-                  <h3 className="font-medium text-violet-800 dark:text-violet-300 mb-2">You seem {currentMood} today</h3>
-                  <p className="text-sm text-violet-700 dark:text-violet-400 mb-2">
-                    Try shorter study sessions of 15-20 minutes with more frequent breaks.
-                  </p>
-                  <Button variant="outline" className="text-xs h-7 border-violet-300 text-violet-800">
-                    Adjust My Schedule
-                  </Button>
-                </div>
-              ) : currentMood === 'tired' || currentMood === 'sad' ? (
-                <div className="bg-amber-50 dark:bg-amber-900/20 p-4 rounded-lg border border-amber-200 dark:border-amber-700">
-                  <h3 className="font-medium text-amber-800 dark:text-amber-300 mb-2">Energy management for {currentMood} days</h3>
-                  <p className="text-sm text-amber-700 dark:text-amber-400 mb-2">
-                    Focus on review tasks instead of new concepts. Take a short walk before studying.
-                  </p>
-                  <Button variant="outline" className="text-xs h-7 border-amber-300 text-amber-800">
-                    Show Review Tasks
-                  </Button>
-                </div>
-              ) : (
-                <div className="bg-emerald-50 dark:bg-emerald-900/20 p-4 rounded-lg border border-emerald-200 dark:border-emerald-700">
-                  <h3 className="font-medium text-emerald-800 dark:text-emerald-300 mb-2">
-                    {currentMood ? `Great to see you're ${currentMood}!` : 'Optimize your study session'}
-                  </h3>
-                  <p className="text-sm text-emerald-700 dark:text-emerald-400 mb-2">
-                    Your calculus scores have improved! Try tackling the advanced practice exam.
-                  </p>
-                  <Button variant="outline" className="text-xs h-7 border-emerald-300 text-emerald-800">
-                    Start Advanced Exam
-                  </Button>
-                </div>
-              )}
 
-              <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-700">
-                <h3 className="font-medium text-blue-800 dark:text-blue-300 mb-2">Subject focus recommendation</h3>
-                <p className="text-sm text-blue-700 dark:text-blue-400 mb-2">
-                  Physics concepts need attention based on your recent quiz performance.
-                </p>
-                <Button variant="outline" className="text-xs h-7 border-blue-300 text-blue-800">
-                  View Physics Resources
-                </Button>
+        <Card>
+          <CardContent className="p-6">
+            <h3 className="text-lg font-medium mb-2">Today's Progress</h3>
+            <div className="flex justify-between items-center mb-2 text-sm text-muted-foreground">
+              <span>Completed {completedTasks} of {totalTasks} tasks</span>
+              <span>{percentageCompleted}%</span>
+            </div>
+            <Progress value={percentageCompleted} className="h-2 mb-4" />
+            
+            <div className="grid grid-cols-3 gap-4 text-center">
+              <div>
+                <p className="text-xs text-muted-foreground mb-1">Remaining Time</p>
+                <p className="text-lg font-semibold">{totalTimeEstimate} min</p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground mb-1">Completed</p>
+                <p className="text-lg font-semibold">{completedTasks}</p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground mb-1">Pending</p>
+                <p className="text-lg font-semibold">{totalTasks - completedTasks}</p>
               </div>
             </div>
           </CardContent>
         </Card>
       </div>
-    </SharedPageLayout>
+
+      {/* Today's tasks with tabs */}
+      <Card>
+        <CardHeader className="pb-3">
+          <div className="flex justify-between items-center">
+            <CardTitle className="text-xl flex items-center gap-2">
+              <Calendar className="h-5 w-5 text-primary" />
+              Task Breakdown
+            </CardTitle>
+            <div className="text-sm text-muted-foreground">
+              Total Estimated Time: <span className="font-semibold">{totalTimeEstimate} min</span>
+            </div>
+          </div>
+        </CardHeader>
+        
+        <div className="px-6">
+          <div className="flex space-x-2 overflow-x-auto pb-2">
+            {['all', 'pending', 'completed', 'concept', 'flashcard', 'exam'].map((tab) => (
+              <Button
+                key={tab}
+                variant={currentTab === tab ? "default" : "outline"}
+                size="sm"
+                onClick={() => setCurrentTab(tab)}
+                className="capitalize"
+              >
+                {tab}
+              </Button>
+            ))}
+          </div>
+        </div>
+        
+        <div className="p-6 pt-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+            {filteredTasks.map(task => (
+              <Card 
+                key={task.id} 
+                className={`overflow-hidden transition-all border-l-4 ${
+                  task.priority === 'high' ? "border-l-red-500" : 
+                  task.priority === 'medium' ? "border-l-amber-500" : "border-l-blue-500"
+                } hover:shadow-md`}
+              >
+                <div className="p-5">
+                  <div className="flex justify-between items-start">
+                    <div className="flex items-center space-x-2">
+                      {getTaskTypeIcon(task.type)}
+                      <span className="font-medium">{task.subject}</span>
+                    </div>
+                    {getTaskStatusBadge(task.status)}
+                  </div>
+                  
+                  <h3 className="font-semibold mt-3">{task.title}</h3>
+                  
+                  <div className="mt-3 flex items-center gap-2 text-sm text-muted-foreground">
+                    <Clock className="h-4 w-4" />
+                    <span>{task.timeEstimate} min</span>
+                    
+                    {task.isBacklog && (
+                      <div className="ml-auto flex items-center space-x-1 text-amber-600">
+                        <AlertTriangle className="h-4 w-4" />
+                        <span className="text-xs">Backlog</span>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {task.status === 'completed' && task.completedAt && (
+                    <div className="mt-2 flex items-center gap-1 text-xs text-green-600">
+                      <CheckCircle className="h-3 w-3" />
+                      <span>Completed</span>
+                    </div>
+                  )}
+                  
+                  {task.smartTip && (
+                    <div className="mt-3 py-2 px-3 bg-blue-50 dark:bg-blue-900/20 rounded-md text-xs text-blue-800 dark:text-blue-300">
+                      <p>{task.smartTip}</p>
+                    </div>
+                  )}
+                  
+                  <Button 
+                    className="w-full mt-3"
+                    variant={task.status === 'completed' ? "outline" : "default"}
+                    onClick={() => handleTaskAction(task)}
+                  >
+                    {task.status === 'completed' ? 'Review' : 'Start Now'}
+                  </Button>
+                </div>
+              </Card>
+            ))}
+          </div>
+          
+          {filteredTasks.length === 0 && (
+            <div className="text-center py-10 text-muted-foreground">
+              <p>No tasks found for this category</p>
+            </div>
+          )}
+        </div>
+      </Card>
+      
+      {/* Smart Suggestions */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-xl">Smart Suggestions</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            {currentMood === 'stressed' ? (
+              <div className="bg-violet-50 dark:bg-violet-900/20 p-4 rounded-lg border border-violet-200 dark:border-violet-700">
+                <h3 className="font-medium text-violet-800 dark:text-violet-300 mb-2">You seem {currentMood} today</h3>
+                <p className="text-sm text-violet-700 dark:text-violet-400 mb-2">
+                  Try shorter study sessions of 15-20 minutes with more frequent breaks.
+                </p>
+                <Button variant="outline" className="text-xs h-7 border-violet-300 text-violet-800">
+                  Adjust My Schedule
+                </Button>
+              </div>
+            ) : currentMood === 'tired' ? (
+              <div className="bg-amber-50 dark:bg-amber-900/20 p-4 rounded-lg border border-amber-200 dark:border-amber-700">
+                <h3 className="font-medium text-amber-800 dark:text-amber-300 mb-2">Energy management for {currentMood} days</h3>
+                <p className="text-sm text-amber-700 dark:text-amber-400 mb-2">
+                  Focus on review tasks instead of new concepts. Take a short walk before studying.
+                </p>
+                <Button variant="outline" className="text-xs h-7 border-amber-300 text-amber-800">
+                  Show Review Tasks
+                </Button>
+              </div>
+            ) : (
+              <div className="bg-emerald-50 dark:bg-emerald-900/20 p-4 rounded-lg border border-emerald-200 dark:border-emerald-700">
+                <h3 className="font-medium text-emerald-800 dark:text-emerald-300 mb-2">
+                  {currentMood ? `Great to see you're feeling ${currentMood}!` : 'Optimize your study session'}
+                </h3>
+                <p className="text-sm text-emerald-700 dark:text-emerald-400 mb-2">
+                  Your calculus scores have improved! Try tackling the advanced practice exam.
+                </p>
+                <Button variant="outline" className="text-xs h-7 border-emerald-300 text-emerald-800">
+                  Start Advanced Exam
+                </Button>
+              </div>
+            )}
+
+            <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-700">
+              <h3 className="font-medium text-blue-800 dark:text-blue-300 mb-2">Subject focus recommendation</h3>
+              <p className="text-sm text-blue-700 dark:text-blue-400 mb-2">
+                Physics concepts need attention based on your recent quiz performance.
+              </p>
+              <Button variant="outline" className="text-xs h-7 border-blue-300 text-blue-800">
+                View Physics Resources
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+
+  // Wrap the content in the DashboardLayout
+  return userProfile ? (
+    <DashboardLayout
+      userProfile={userProfile}
+      hideSidebar={false}
+      hideTabsNav={false}
+      activeTab="today"
+      kpis={[]}
+      nudges={[]}
+      markNudgeAsRead={() => {}}
+      showWelcomeTour={false}
+      onTabChange={() => {}}
+      onViewStudyPlan={() => {}}
+      onToggleSidebar={() => {}}
+      onToggleTabsNav={() => {}}
+      onSkipTour={() => {}}
+      onCompleteTour={() => {}}
+      showStudyPlan={false}
+      onCloseStudyPlan={() => {}}
+      currentMood={currentMood}
+      onMoodChange={handleMoodChange}
+    >
+      {todaysPlanContent}
+    </DashboardLayout>
+  ) : (
+    <div>Loading...</div>
   );
 };
 
