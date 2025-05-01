@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -32,11 +31,11 @@ const AcademicAdvisorView: React.FC = () => {
       {
         name: "Physics",
         progress: 45,
-        proficiency: 'moderate',
+        proficiency: 'medium',
         topics: [
-          { name: "Mechanics", status: 'in-progress', priority: 'high' },
-          { name: "Thermodynamics", status: 'pending', priority: 'medium' },
-          { name: "Electrostatics", status: 'completed', priority: 'high' }
+          { id: "topic-1", name: "Mechanics", status: 'in-progress', difficulty: 'medium', completed: false },
+          { id: "topic-2", name: "Thermodynamics", status: 'pending', difficulty: 'medium', completed: false },
+          { id: "topic-3", name: "Electrostatics", status: 'completed', difficulty: 'hard', completed: true }
         ]
       },
       {
@@ -44,9 +43,9 @@ const AcademicAdvisorView: React.FC = () => {
         progress: 25,
         proficiency: 'weak',
         topics: [
-          { name: "Organic Chemistry", status: 'pending', priority: 'high' },
-          { name: "Chemical Bonding", status: 'in-progress', priority: 'medium' },
-          { name: "Equilibrium", status: 'pending', priority: 'low' }
+          { id: "topic-4", name: "Organic Chemistry", status: 'pending', difficulty: 'hard', completed: false },
+          { id: "topic-5", name: "Chemical Bonding", status: 'in-progress', difficulty: 'medium', completed: false },
+          { id: "topic-6", name: "Equilibrium", status: 'pending', difficulty: 'easy', completed: false }
         ]
       },
       {
@@ -54,9 +53,9 @@ const AcademicAdvisorView: React.FC = () => {
         progress: 72,
         proficiency: 'strong',
         topics: [
-          { name: "Calculus", status: 'completed', priority: 'high' },
-          { name: "Coordinate Geometry", status: 'completed', priority: 'high' },
-          { name: "Probability", status: 'in-progress', priority: 'medium' }
+          { id: "topic-7", name: "Calculus", status: 'completed', difficulty: 'hard', completed: true },
+          { id: "topic-8", name: "Coordinate Geometry", status: 'completed', difficulty: 'hard', completed: true },
+          { id: "topic-9", name: "Probability", status: 'in-progress', difficulty: 'medium', completed: false }
         ]
       }
     ],
@@ -80,8 +79,8 @@ const AcademicAdvisorView: React.FC = () => {
         progress: 65,
         proficiency: 'weak',
         topics: [
-          { name: "Mechanics", status: 'completed', priority: 'high' },
-          { name: "Waves", status: 'completed', priority: 'medium' }
+          { id: "old-topic-1", name: "Mechanics", status: 'completed', difficulty: 'hard', completed: true },
+          { id: "old-topic-2", name: "Waves", status: 'completed', difficulty: 'medium', completed: true }
         ]
       },
       {
@@ -89,15 +88,15 @@ const AcademicAdvisorView: React.FC = () => {
         progress: 60,
         proficiency: 'weak',
         topics: [
-          { name: "Periodic Table", status: 'completed', priority: 'medium' }
+          { id: "old-topic-3", name: "Periodic Table", status: 'completed', difficulty: 'medium', completed: true }
         ]
       },
       {
         name: "Mathematics",
         progress: 70,
-        proficiency: 'moderate',
+        proficiency: 'medium',
         topics: [
-          { name: "Algebra", status: 'completed', priority: 'high' }
+          { id: "old-topic-4", name: "Algebra", status: 'completed', difficulty: 'hard', completed: true }
         ]
       }
     ],
@@ -107,7 +106,7 @@ const AcademicAdvisorView: React.FC = () => {
   }];
 
   // Function to generate topics based on subject
-  const generateTopicsForSubject = (subject: string, proficiency: 'weak' | 'moderate' | 'strong') => {
+  const generateTopicsForSubject = (subject: string, proficiency: 'weak' | 'medium' | 'strong') => {
     let topics = [];
     const priorities = ['high', 'medium', 'low'];
     const statuses = ['pending', 'in-progress'];

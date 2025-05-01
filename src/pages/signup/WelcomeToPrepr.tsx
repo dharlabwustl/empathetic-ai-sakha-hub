@@ -58,7 +58,7 @@ const WelcomeToPrepr = () => {
       localStorage.setItem('userData', JSON.stringify(parsedData));
     }
     
-    // Navigate directly to dashboard
+    // Navigate directly to dashboard with replace:true to avoid back button issues
     navigate('/dashboard/student', { replace: true });
   };
   
@@ -100,7 +100,7 @@ const WelcomeToPrepr = () => {
               </div>
               
               <h2 className="text-2xl font-bold text-center">
-                Step {currentStep + 1}: {steps[currentStep].title}
+                {steps[currentStep].title}
               </h2>
               
               <p className="text-center text-gray-600 dark:text-gray-400">
