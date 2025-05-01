@@ -1,3 +1,4 @@
+
 import React, { Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
@@ -37,6 +38,7 @@ import EnhancedFlashcardPractice from './components/dashboard/student/flashcards
 import FlashcardInteractive from './components/dashboard/student/flashcards/FlashcardInteractive';
 import FlashcardDetailsPage from './pages/dashboard/student/FlashcardDetailsPage';
 import InteractiveFlashcardBrowser from './components/flashcards/InteractiveFlashcardBrowser';
+import { NotificationsView } from './components/dashboard/student/notifications/NotificationsView';
 
 const AdminDashboard = React.lazy(() => import('@/pages/admin/AdminDashboard'));
 

@@ -13,7 +13,7 @@ export const QuickAccessButtons: React.FC = () => {
           Concepts
         </Button>
       </Link>
-      <Link to="/dashboard/student/flashcards/landing">
+      <Link to="/dashboard/student/flashcards">
         <Button variant="outline" size="sm" className="flex items-center">
           <BookOpen className="h-4 w-4 mr-1" />
           Flashcards
@@ -40,3 +40,5 @@ export const QuickAccessButtons: React.FC = () => {
     </div>
   );
 };
+
+export default QuickAccessButtons;

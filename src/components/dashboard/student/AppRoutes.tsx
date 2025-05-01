@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import FlashcardInteractive from '@/components/dashboard/student/flashcards/FlashcardInteractive';
@@ -11,7 +12,7 @@ import FlashcardsView from '@/components/dashboard/student/flashcards/Flashcards
 import PracticeExamsView from '@/components/dashboard/student/practice-exam/PracticeExamsView';
 import FeelGoodCornerView from '@/pages/dashboard/student/FeelGoodCornerView';
 import StudyPlanView from '@/pages/dashboard/student/StudyPlanView';
-import NotificationsView from '@/components/dashboard/student/notifications/NotificationsView';
+import { NotificationsView } from '@/components/dashboard/student/notifications/NotificationsView';
 import AcademicAdvisorView from '@/pages/dashboard/student/AcademicAdvisorView';
 import TutorView from '@/pages/dashboard/student/TutorView';
 import ConceptStudyLandingPage from '@/pages/dashboard/student/concept/ConceptStudyLandingPage';
