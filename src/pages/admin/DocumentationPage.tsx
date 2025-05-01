@@ -1,4 +1,3 @@
-
 import React from "react";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -24,7 +23,7 @@ const DocumentationPage = () => {
       <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
       <head>
         <meta charset="utf-8">
-        <title>PREPZR Flask Backend Implementation Guide</title>
+        <title>PREPZR Flask PostgreSQL Implementation Guide</title>
         <style>
           body { font-family: Arial, sans-serif; }
           h1 { color: #2563eb; margin-bottom: 16px; }
@@ -34,8 +33,8 @@ const DocumentationPage = () => {
         </style>
       </head>
       <body>
-        <h1>PREPZR Flask Backend Implementation Guide</h1>
-        <p>Version 1.2.0 | Last Updated: May 1, 2025</p>
+        <h1>PREPZR Flask PostgreSQL Implementation Guide</h1>
+        <p>Version 1.3.0 | Last Updated: May 1, 2025</p>
         
         <h2>1. Setup & Installation</h2>
         <p>Install required packages for the PREPZR backend:</p>
@@ -92,6 +91,9 @@ class User(db.Model):
     role = db.Column(db.String(20), default='student')  # student, tutor, admin, parent
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     last_login = db.Column(db.DateTime)
+    avatar_url = db.Column(db.String(255))
+    login_count = db.Column(db.Integer, default=0)
+    signup_type = db.Column(db.String(20), default='standard')  # standard, google, facebook, apple, batch
     
     # User profile fields
     profile = db.relationship('UserProfile', backref='user', uselist=False)
@@ -110,7 +112,10 @@ class User(db.Model):
             'phoneNumber': self.phone_number,
             'role': self.role,
             'createdAt': self.created_at.isoformat() if self.created_at else None,
-            'lastLogin': self.last_login.isoformat() if self.last_login else None
+            'lastLogin': self.last_login.isoformat() if self.last_login else None,
+            'avatarUrl': self.avatar_url,
+            'loginCount': self.login_count,
+            'signupType': self.signup_type
         }
 
 class UserProfile(db.Model):
@@ -122,7 +127,14 @@ class UserProfile(db.Model):
     exam_date = db.Column(db.Date)
     study_hours_per_day = db.Column(db.Integer)
     study_pace = db.Column(db.String(20))  # relaxed, moderate, intensive
+    study_preference = db.Column(db.String(20))  # visual, auditory, read-write, kinesthetic, mixed
     completed_onboarding = db.Column(db.Boolean, default=False)
+    current_mood = db.Column(db.String(20))  # happy, sad, stressed, relaxed, focused, etc.
+    
+    # Subscription information
+    subscription_type = db.Column(db.String(20), default='free')  # free, basic, premium, group, enterprise
+    subscription_plan_type = db.Column(db.String(50))  # specific plan identifier
+    subscription_expires_at = db.Column(db.DateTime)
     
     # Relationships
     goals = db.relationship('StudyGoal', backref='user_profile')
@@ -152,6 +164,23 @@ class AdminUser(db.Model):
             'role': self.role,
             'permissions': self.permissions
         }
+
+class MoodLog(db.Model):
+    __tablename__ = 'mood_logs'
+    
+    id = db.Column(db.String(36), primary_key=True)
+    user_id = db.Column(db.String(36), db.ForeignKey('users.id'), nullable=False)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    mood_type = db.Column(db.String(20), nullable=False)  # happy, sad, stressed, relaxed, focused, etc.
+    notes = db.Column(db.Text)
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'mood': self.mood_type,
+            'timestamp': self.timestamp.isoformat() if self.timestamp else None,
+            'notes': self.notes
+        }
         </pre>
         
         <h2>4. Authentication API</h2>
@@ -176,8 +205,9 @@ def login():
     user = User.query.filter_by(email=email).first()
     
     if user and user.check_password(password):
-        # Update last login time
+        # Update last login time and increment login count
         user.last_login = datetime.utcnow()
+        user.login_count = (user.login_count or 0) + 1
         db.session.commit()
         
         # Generate token with role claim
@@ -195,6 +225,8 @@ def login():
                 'email': user.email,
                 'phoneNumber': user.phone_number,
                 'role': user.role,
+                'avatarUrl': user.avatar_url,
+                'loginCount': user.login_count,
                 'token': token
             },
             'message': 'Login successful'
@@ -256,8 +288,9 @@ def admin_login():
 # app/routes/admin.py
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt
-from app.models.user import User
+from app.models.user import User, UserProfile
 from app import db
+from datetime import datetime, timedelta
 from functools import wraps
 
 admin_bp = Blueprint('admin', __name__, url_prefix='/api/admin')
@@ -286,6 +319,13 @@ def get_dashboard_stats():
         User.last_login > (datetime.utcnow() - timedelta(days=7))
     ).count()
     
+    # Get subscription statistics
+    free_users = UserProfile.query.filter_by(subscription_type='free').count()
+    basic_users = UserProfile.query.filter_by(subscription_type='basic').count()
+    premium_users = UserProfile.query.filter_by(subscription_type='premium').count()
+    group_users = UserProfile.query.filter_by(subscription_type='group').count()
+    paid_users = basic_users + premium_users + group_users
+    
     # In a real app, you would fetch this data from your database
     # For now, returning mock data similar to the React frontend
     return jsonify({
@@ -304,9 +344,9 @@ def get_dashboard_stats():
         'dailyActiveUsers': 347,
         'weeklyActiveUsers': 762,
         'monthlyActiveUsers': 1042,
-        'freeUsers': 984,
-        'paidUsers': 261,
-        'groupUsers': 128,
+        'freeUsers': free_users,
+        'paidUsers': paid_users,
+        'groupUsers': group_users,
         'subscriptionConversionRate': 24.6,
         'churnRate': 3.2,
         'averageStudyTimePerUser': 42,
@@ -339,6 +379,11 @@ def get_students():
                 'examType': profile.exam_goal,
                 'studyHours': profile.study_hours_per_day,
                 'completedOnboarding': profile.completed_onboarding,
+                'subscription': {
+                    'type': profile.subscription_type,
+                    'planType': profile.subscription_plan_type,
+                    'expiresAt': profile.subscription_expires_at.isoformat() if profile.subscription_expires_at else None
+                },
                 'goals': [goal.title for goal in profile.goals] if profile.goals else [],
                 'subjectsSelected': [subject.name for subject in profile.subjects] if profile.subjects else []
             })
@@ -408,10 +453,9 @@ def create_app(config_class=Config):
 # app/routes/students.py
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from app.models.user import User
-from app.models.study_data import MoodLog, StudySession
+from app.models.user import User, UserProfile, MoodLog
 from app import db
-from datetime import datetime
+from datetime import datetime, timedelta
 
 students_bp = Blueprint('students', __name__, url_prefix='/api/students')
 
@@ -426,11 +470,17 @@ def log_mood():
     
     # Create new mood log
     mood_log = MoodLog(
+        id=f"mood_{datetime.utcnow().timestamp()}",
         user_id=user_id,
         mood_type=mood_type,
         notes=notes,
         timestamp=datetime.utcnow()
     )
+    
+    # Update user's current mood
+    user_profile = UserProfile.query.filter_by(user_id=user_id).first()
+    if user_profile:
+        user_profile.current_mood = mood_type
     
     db.session.add(mood_log)
     db.session.commit()
@@ -441,11 +491,7 @@ def log_mood():
     return jsonify({
         'success': True,
         'data': {
-            'moodLog': {
-                'id': mood_log.id,
-                'mood': mood_log.mood_type,
-                'timestamp': mood_log.timestamp.isoformat()
-            },
+            'moodLog': mood_log.to_dict(),
             'suggestions': suggestions
         },
         'message': 'Mood logged successfully'
@@ -463,22 +509,48 @@ def get_mood_history():
         MoodLog.timestamp >= datetime.utcnow() - timedelta(days=days)
     ).order_by(MoodLog.timestamp.desc()).all()
     
-    mood_data = [{
-        'id': log.id,
-        'mood': log.mood_type,
-        'notes': log.notes,
-        'timestamp': log.timestamp.isoformat()
-    } for log in logs]
+    mood_data = [log.to_dict() for log in logs]
     
     return jsonify({
         'success': True,
         'data': mood_data,
         'message': f'Retrieved {len(mood_data)} mood logs'
     })
+
+def get_mood_based_suggestions(mood_type):
+    """Generate personalized study suggestions based on user's mood."""
+    suggestions = []
+    
+    if mood_type == 'happy' or mood_type == 'motivated' or mood_type == 'focused':
+        suggestions = [
+            'Great time to tackle challenging concepts!',
+            'Try working on practice problems that you find difficult.',
+            'Consider helping peers on the discussion forum.'
+        ]
+    elif mood_type == 'stressed' or mood_type == 'overwhelmed' or mood_type == 'anxious':
+        suggestions = [
+            'Take a 15-minute break with some deep breathing exercises.',
+            'Try working on easier topics to build confidence.',
+            'Consider reviewing material you already know well.'
+        ]
+    elif mood_type == 'tired' or mood_type == 'sad':
+        suggestions = [
+            'Keep your study session short today (30 minutes max).',
+            'Watch a video explanation instead of reading text.',
+            'Try a different study environment or change your location.'
+        ]
+    else:  # neutral, okay, relaxed, curious
+        suggestions = [
+            'Good time to learn new concepts at a moderate pace.',
+            'Mix study with practical examples for better engagement.',
+            'Consider participating in a group study session.'
+        ]
+    
+    return suggestions
         </pre>
         
         <h2>8. Deployment</h2>
-        <p>Deploy your Flask API to match the React app deployment:</p>
+        <p>Deploy your Flask API with PostgreSQL to match the React app deployment:</p>
         <pre class="code">
 # Production deployment using Gunicorn and nginx
 # Install: pip install gunicorn
@@ -523,13 +595,15 @@ services:
       - db
   
   db:
-    image: postgres:13
+    image: postgres:15
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=password
       - POSTGRES_DB=prepzr
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
 
 volumes:
   postgres_data:
@@ -552,7 +626,7 @@ const apiClient = axios.create({
 
 // Add authentication token to requests
 apiClient.interceptors.request.use(config => {
-  const token = localStorage.getItem('sakha_auth_token');
+  const token = localStorage.getItem('prepzr_auth_token');
   
   if (token) {
     config.headers.Authorization = \`Bearer \${token}\`;
@@ -569,7 +643,7 @@ apiClient.interceptors.response.use(
   error => {
     if (error.response?.status === 401) {
       // Clear auth data and redirect to login
-      localStorage.removeItem('sakha_auth_token');
+      localStorage.removeItem('prepzr_auth_token');
       window.location.href = '/login';
     }
     return Promise.reject(error);
@@ -593,8 +667,9 @@ $ flask db upgrade
 
 # Seed database with initial data (create a seed.py file)
 from app import create_app, db
-from app.models.user import User, AdminUser
+from app.models.user import User, AdminUser, UserProfile
 import uuid
+from datetime import datetime, timedelta
 
 app = create_app()
 
@@ -611,14 +686,34 @@ with app.app_context():
     db.session.add(admin)
     
     # Create demo student
+    student_id = f"student_{uuid.uuid4()}"
     student = User(
-        id=f"student_{uuid.uuid4()}",
+        id=student_id,
         name="Demo Student",
         email="student@prepzr.com",
-        role="student"
+        role="student",
+        avatar_url="/assets/avatars/student.png",
+        login_count=0,
+        signup_type="standard"
     )
     student.set_password("student123")
     db.session.add(student)
+    
+    # Create student profile
+    profile = UserProfile(
+        id=f"profile_{uuid.uuid4()}",
+        user_id=student_id,
+        exam_goal="IIT-JEE",
+        study_hours_per_day=4,
+        study_pace="moderate",
+        study_preference="visual",
+        completed_onboarding=True,
+        current_mood="motivated",
+        subscription_type="premium",
+        subscription_plan_type="premium_monthly",
+        subscription_expires_at=datetime.utcnow() + timedelta(days=30)
+    )
+    db.session.add(profile)
     
     # Commit changes
     db.session.commit()
@@ -634,7 +729,7 @@ with app.app_context():
     
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'prepzr-flask-implementation-guide.doc';
+    a.download = 'prepzr-flask-postgresql-implementation-guide.doc';
     document.body.appendChild(a);
     a.click();
     
@@ -643,7 +738,7 @@ with app.app_context():
     
     toast({
       title: "Download Started",
-      description: "PREPZR Flask implementation guide is being downloaded as a Word document",
+      description: "PREPZR Flask PostgreSQL implementation guide is being downloaded as a Word document",
       variant: "default"
     });
   };

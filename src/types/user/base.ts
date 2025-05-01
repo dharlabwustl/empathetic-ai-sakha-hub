@@ -17,7 +17,10 @@ export enum MoodType {
   Tired = 'tired',
   Curious = 'curious',
   Okay = 'okay',
-  Neutral = 'neutral'
+  Neutral = 'neutral',
+  Anxious = 'anxious',
+  Confused = 'confused',
+  Calm = 'calm'
 }
 
 export enum StudyPace {
@@ -49,7 +52,6 @@ export enum SubscriptionType {
   Enterprise = 'enterprise'
 }
 
-// Add this enum to fix the missing SignupType reference
 export enum SignupType {
   Standard = 'standard',
   Google = 'google',
@@ -67,6 +69,8 @@ export interface UserProfileBase {
   createdAt?: string;
   lastLogin?: string;
   avatarUrl?: string;
+  avatar?: string;
+  loginCount?: number;
   goals?: {
     id: string;
     title: string;
@@ -74,6 +78,7 @@ export interface UserProfileBase {
   }[];
   subscription?: {
     type: SubscriptionType;
+    planType?: string;
     expiresAt?: string;
     features?: string[];
   };
@@ -96,4 +101,53 @@ export interface AdminUser {
   email: string;
   role: 'admin' | 'super_admin';
   permissions?: string[];
+}
+
+export interface PaymentMethod {
+  id: string;
+  type: 'card' | 'upi' | 'bank';
+  lastFour?: string;
+  expiryDate?: string;
+  isDefault: boolean;
+  cardType?: string;
+  upiId?: string;
+}
+
+export interface BillingHistory {
+  id: string;
+  date: string;
+  amount: number;
+  status: 'paid' | 'pending' | 'failed';
+  invoiceUrl: string;
+  planName: string;
+}
+
+export interface StudyPlanSubject {
+  id: string;
+  name: string;
+  progress: number;
+  proficiency: "strong" | "moderate" | "weak";
+  topics: any[];
+  color: string;
+  hoursPerWeek: number;
+  priority: number;
+}
+
+export interface SubjectProgress {
+  id: string;
+  name: string;
+  progress: number;
+  totalTopics: number;
+  completedTopics: number;
+}
+
+export interface StudyStreak {
+  current: number;
+  best: number;
+  lastStudyDate: string;
+}
+
+export interface UserProfileType extends UserProfileBase {
+  // Additional user profile fields
+  [key: string]: any;
 }
