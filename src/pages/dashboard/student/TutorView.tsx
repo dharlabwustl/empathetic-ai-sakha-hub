@@ -3,47 +3,70 @@ import React, { useState, useEffect } from 'react';
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
 import AIChatTutor from '@/pages/dashboard/student/AIChatTutor';
 import { UserProfileType } from '@/types/user/base';
-
-// Mock user profile for demonstration
-const mockUserProfile: UserProfileType = {
-  id: "user123",
-  name: "Student",
-  email: "student@example.com",
-  examPreparation: "JEE Advanced",
-  goals: [
-    { id: "g1", title: "JEE Advanced", targetDate: "2023-04-15", progress: 65 }
-  ],
-  subjects: ["Physics", "Chemistry", "Mathematics"],
-  recentActivity: {
-    lastLogin: new Date(),
-    lastStudySession: new Date(Date.now() - 86400000),
-    completedTasks: 42
-  }
-};
+import { useUserProfile } from '@/hooks/useUserProfile';
+import { UserRole } from '@/types/user/base';
 
 const TutorView = () => {
-  const [userProfile, setUserProfile] = useState<UserProfileType>(mockUserProfile);
+  const { userProfile, loading } = useUserProfile(UserRole.Student);
+  const [loadedProfile, setLoadedProfile] = useState<UserProfileType | null>(null);
 
-  // In a real app, you would fetch the user profile from an API or context
+  // Fallback profile if needed
+  const fallbackProfile: UserProfileType = {
+    id: "user123",
+    name: "Student",
+    email: "student@example.com",
+    examPreparation: "JEE Advanced",
+    goals: [
+      { id: "g1", title: "JEE Advanced", targetDate: "2023-04-15", progress: 65 }
+    ],
+    subjects: ["Physics", "Chemistry", "Mathematics"],
+    recentActivity: {
+      lastLogin: new Date(),
+      lastStudySession: new Date(Date.now() - 86400000),
+      completedTasks: 42
+    }
+  };
+
+  // Use userProfile from hook or try to load from localStorage
   useEffect(() => {
-    // Simulate fetching user data
-    const userData = localStorage.getItem("userData");
-    if (userData) {
-      try {
-        const parsedData = JSON.parse(userData);
-        if (parsedData) {
-          setUserProfile({
-            ...mockUserProfile,
+    if (userProfile) {
+      setLoadedProfile(userProfile);
+    } else {
+      // Try to load from localStorage as backup
+      const userData = localStorage.getItem("userData");
+      if (userData) {
+        try {
+          const parsedData = JSON.parse(userData);
+          setLoadedProfile({
+            ...fallbackProfile,
             ...parsedData,
-            name: parsedData.name || mockUserProfile.name,
-            examPreparation: parsedData.examPreparation || mockUserProfile.examPreparation
+            name: parsedData.name || fallbackProfile.name,
+            examPreparation: parsedData.examGoal || fallbackProfile.examPreparation
           });
+        } catch (error) {
+          console.error("Error parsing user data:", error);
+          setLoadedProfile(fallbackProfile);
         }
-      } catch (error) {
-        console.error("Error parsing user data:", error);
+      } else {
+        setLoadedProfile(fallbackProfile);
       }
     }
-  }, []);
+  }, [userProfile]);
+
+  if (!loadedProfile && loading) {
+    return (
+      <SharedPageLayout 
+        title="Loading..." 
+        subtitle="Please wait while we load your data"
+        backButtonUrl="/dashboard/student"
+        showBackButton={true}
+      >
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary"></div>
+        </div>
+      </SharedPageLayout>
+    );
+  }
 
   return (
     <SharedPageLayout 
@@ -60,7 +83,7 @@ const TutorView = () => {
         </p>
       </div>
       
-      <AIChatTutor userProfile={userProfile} />
+      <AIChatTutor userProfile={loadedProfile || fallbackProfile} />
     </SharedPageLayout>
   );
 };

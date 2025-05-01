@@ -1,22 +1,16 @@
 
 import React, { useState } from "react";
-import MainLayout from "@/components/layouts/MainLayout";
-import StudentProfile from "@/pages/dashboard/student/StudentProfile";
-import { useUserProfile } from "@/hooks/useUserProfile";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import EnhancedProfileCard from "@/components/dashboard/EnhancedProfileCard";
-import { UserRole } from "@/types/user";
-import { useToast } from "@/hooks/use-toast";
-import SettingsTabContent from "@/components/dashboard/student/SettingsTabContent";
-import BatchManagementContent from "@/components/subscription/batch/BatchManagementContent";
-import InviteCodeForm from "@/components/subscription/batch/InviteCodeForm";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { AlertCircle } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { useUserProfile } from "@/hooks/useUserProfile";
+import { UserRole } from "@/types/user/base";
+import Header from '@/components/layout/Header';
 
 const ProfilePage = () => {
-  const { userProfile, loading, updateUserProfile } = useUserProfile();
+  const { userProfile, loading, updateUserProfile } = useUserProfile(UserRole.Student);
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("overview");
 
@@ -28,6 +22,7 @@ const ProfilePage = () => {
       
       if (userProfile) {
         updateUserProfile({
+          ...userProfile,
           avatar: imageUrl
         });
       }
@@ -46,186 +41,125 @@ const ProfilePage = () => {
     }
   };
 
-  const handleRedeemInvite = async (code: string) => {
-    try {
-      // In a real app, this would call an API to verify the code and update subscription
-      toast({
-        title: "Processing",
-        description: "Verifying your invite code...",
-      });
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // Simulate successful redemption
-      if (code.startsWith("SAKHA-") || code.startsWith("BATCH-")) {
-        toast({
-          title: "Success!",
-          description: "You have been added to the batch successfully!",
-        });
-        
-        // Update user profile with new subscription info
-        if (userProfile) {
-          updateUserProfile({
-            subscription: {
-              planType: UserRole.Student === userProfile.role ? 'premium' : 'basic',
-              isActive: true,
-              startDate: new Date().toISOString(),
-              expiryDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
-              features: ["group", "batch_member"]
-            }
-          });
-        }
-        
-        setActiveTab("batch");
-        return true;
-      } else {
-        toast({
-          title: "Invalid Code",
-          description: "The invite code you entered is invalid or expired.",
-          variant: "destructive",
-        });
-        return false;
-      }
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to redeem invite code. Please try again.",
-        variant: "destructive",
-      });
-      return false;
-    }
-  };
-
-  // Check if user is a batch leader
-  const isBatchLeader = () => {
-    if (!userProfile || !userProfile.subscription) return false;
-    
-    if (typeof userProfile.subscription === 'object') {
-      return userProfile.subscription.features?.includes('batch_leader');
-    }
-    
-    return false;
-  };
-
-  // Check if user is a batch member (but not a leader)
-  const isBatchMember = () => {
-    if (!userProfile || !userProfile.subscription) return false;
-    
-    if (typeof userProfile.subscription === 'object') {
-      return userProfile.subscription.features?.includes('batch_member') &&
-             !userProfile.subscription.features?.includes('batch_leader');
-    }
-    
-    return false;
-  };
-
   return (
-    <MainLayout>
-      <div className="container py-8">
-        {loading ? (
-          <div className="flex items-center justify-center h-64">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-              <p className="mt-4 text-gray-500 dark:text-gray-400">Loading profile...</p>
-            </div>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="md:col-span-1">
-              {userProfile && (
-                <EnhancedProfileCard 
-                  profile={userProfile} 
-                  onUploadImage={handleUploadImage}
-                  showPeerRanking={true}
-                  currentMood="motivated"
-                />
-              )}
-              
-              {/* Invite Code Redemption Section */}
-              {!isBatchLeader() && !isBatchMember() && (
-                <Card className="mt-6">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-lg">Got an Invite Code?</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <InviteCodeForm onSubmit={handleRedeemInvite} />
-                  </CardContent>
-                </Card>
-              )}
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <Header />
+      
+      <div className="container mx-auto px-4 py-8">
+        <div className="max-w-5xl mx-auto">
+          <h1 className="text-3xl font-bold mb-6">My Profile</h1>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-1">
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle>Profile Information</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex flex-col items-center">
+                    <div className="w-32 h-32 rounded-full bg-primary/20 flex items-center justify-center text-primary text-4xl font-medium mb-4">
+                      {userProfile?.name ? userProfile.name.charAt(0) : "U"}
+                    </div>
+                    
+                    <h3 className="text-xl font-bold">{userProfile?.name || "Student"}</h3>
+                    <p className="text-gray-500 mb-2">{userProfile?.email || "student@example.com"}</p>
+                    
+                    <div className="flex gap-2 mb-4">
+                      <Badge variant="outline">{userProfile?.examPreparation || "JEE Advanced"}</Badge>
+                    </div>
+                    
+                    <Button size="sm" className="w-full">
+                      Change Profile Picture
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
             
-            <div className="md:col-span-2">
-              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <Card>
-                  <TabsList className="w-full border-b rounded-none grid grid-cols-4">
-                    <TabsTrigger value="overview">Overview</TabsTrigger>
-                    <TabsTrigger value="settings">Settings</TabsTrigger>
-                    <TabsTrigger value="batch">
-                      Batch
-                      {(isBatchLeader() || isBatchMember()) && (
-                        <Badge variant="secondary" className="ml-2 bg-blue-100 text-blue-800">
-                          {isBatchLeader() ? 'Leader' : 'Member'}
-                        </Badge>
-                      )}
-                    </TabsTrigger>
-                    <TabsTrigger value="achievements">Achievements</TabsTrigger>
-                  </TabsList>
+            <div className="lg:col-span-2">
+              <Card>
+                <Tabs defaultValue={activeTab} onValueChange={setActiveTab}>
+                  <div className="px-6 pt-6">
+                    <TabsList className="grid w-full grid-cols-3">
+                      <TabsTrigger value="overview">Overview</TabsTrigger>
+                      <TabsTrigger value="settings">Settings</TabsTrigger>
+                      <TabsTrigger value="subscription">Subscription</TabsTrigger>
+                    </TabsList>
+                  </div>
                   
-                  <TabsContent value="overview" className="p-4">
-                    {userProfile && <StudentProfile userProfile={userProfile} />}
-                  </TabsContent>
-                  
-                  <TabsContent value="settings" className="p-4">
-                    <SettingsTabContent />
-                  </TabsContent>
-                  
-                  <TabsContent value="batch" className="p-4">
-                    {(isBatchLeader() || isBatchMember()) ? (
-                      <BatchManagementContent 
-                        isLeader={isBatchLeader()} 
-                        userProfile={userProfile!}
-                      />
-                    ) : (
-                      <div className="text-center py-8">
-                        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-100 text-blue-600 mb-4">
-                          <AlertCircle size={28} />
+                  <TabsContent value="overview" className="p-6">
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-medium">Personal Information</h3>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="text-sm font-medium text-gray-500">Full Name</label>
+                          <p>{userProfile?.name || "Student"}</p>
                         </div>
-                        <h2 className="text-xl font-bold mb-2">No Batch Membership</h2>
-                        <p className="text-muted-foreground mb-4 max-w-md mx-auto">
-                          You're not part of any batch yet. Join a batch to study with peers and get access to group features.
-                        </p>
-                        <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-                          <Button 
-                            variant="outline" 
-                            onClick={() => setActiveTab("overview")}
-                          >
-                            Return to Profile
-                          </Button>
-                          <Button onClick={() => document.getElementById('invite-code-input')?.focus()}>
-                            Enter Invite Code
-                          </Button>
+                        <div>
+                          <label className="text-sm font-medium text-gray-500">Email Address</label>
+                          <p>{userProfile?.email || "student@example.com"}</p>
+                        </div>
+                        <div>
+                          <label className="text-sm font-medium text-gray-500">Exam Preparation</label>
+                          <p>{userProfile?.examPreparation || "JEE Advanced"}</p>
                         </div>
                       </div>
-                    )}
+                      
+                      <hr className="my-4" />
+                      
+                      <h3 className="text-lg font-medium">Study Information</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="text-sm font-medium text-gray-500">Subjects</label>
+                          <div className="flex flex-wrap gap-1 mt-1">
+                            {userProfile?.subjects?.map((subject, index) => (
+                              <Badge key={index} variant="secondary">{subject}</Badge>
+                            )) || (
+                              <>
+                                <Badge variant="secondary">Physics</Badge>
+                                <Badge variant="secondary">Chemistry</Badge>
+                                <Badge variant="secondary">Mathematics</Badge>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </TabsContent>
                   
-                  <TabsContent value="achievements" className="p-4">
-                    <h2 className="text-xl font-medium mb-4">Your Achievements</h2>
-                    <p className="text-muted-foreground">
-                      Track your learning journey and celebrate your achievements.
-                      This section will display badges, certificates, and milestones
-                      you've earned through your studies.
-                    </p>
-                    {/* Achievements content will be implemented in the future */}
+                  <TabsContent value="settings" className="p-6">
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-medium">Account Settings</h3>
+                      <p className="text-muted-foreground">
+                        Manage your account preferences and settings
+                      </p>
+                      {/* Settings content would go here */}
+                    </div>
                   </TabsContent>
-                </Card>
-              </Tabs>
+                  
+                  <TabsContent value="subscription" className="p-6">
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-medium">Subscription Details</h3>
+                      <div className="rounded-lg bg-blue-50 dark:bg-blue-900/20 p-4 border border-blue-100 dark:border-blue-800">
+                        <p className="font-medium text-blue-800 dark:text-blue-300">
+                          You are currently on the Free plan
+                        </p>
+                        <p className="text-sm text-blue-600 dark:text-blue-400 mt-1">
+                          Upgrade to unlock premium features and get unlimited access
+                        </p>
+                      </div>
+                      
+                      <Button className="w-full">Upgrade to Premium</Button>
+                    </div>
+                  </TabsContent>
+                </Tabs>
+              </Card>
             </div>
           </div>
-        )}
+        </div>
       </div>
-    </MainLayout>
+    </div>
   );
 };
 

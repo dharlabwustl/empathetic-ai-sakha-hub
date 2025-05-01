@@ -100,9 +100,9 @@ const SignupContent = () => {
         description: "Redirecting to your personalized dashboard.",
       });
 
-      // Redirect to the study plan screen, then to welcome screen
+      // Go directly to welcome screen without study plan creation
       setTimeout(() => {
-        navigate("/study-plan-creation?new=true&completedOnboarding=true");
+        navigate("/welcome");
       }, 1000);
     } catch (error) {
       console.error("Error creating account:", error);
@@ -152,7 +152,7 @@ const SignupContent = () => {
         onboardingCompleted: false,
       }));
 
-      navigate("/study-plan-creation?new=true");
+      navigate("/welcome");
     }, 2000);
   };
 

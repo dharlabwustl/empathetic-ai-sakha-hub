@@ -1,3 +1,4 @@
+
 import React, { Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
@@ -20,7 +21,6 @@ import ConceptCardDetailPage from './components/dashboard/student/concepts/Conce
 import ExamTakingPage from './components/dashboard/student/practice-exam/ExamTakingPage';
 import ExamReviewPage from './components/dashboard/student/practice-exam/ExamReviewPage';
 import PostLoginPrompt from './pages/dashboard/PostLoginPrompt';
-import StudyPlanCreation from './pages/StudyPlanCreation';
 import ConceptCardStudyPage from './pages/dashboard/student/concept/ConceptCardStudyPage';
 import Login from './pages/Login';
 import EnhancedFlashcardPage from './pages/dashboard/student/flashcards/EnhancedFlashcardPage';
@@ -58,8 +58,9 @@ function App() {
 
               {/* Post-signup flow */}
               <Route path="/welcome" element={<WelcomeToPrepr />} />
-              <Route path="/study-plan-creation" element={<StudyPlanCreation />} />
-              <Route path="/welcome-back" element={<PostLoginPrompt />} />
+              
+              {/* Redirect post-login prompt to dashboard */}
+              <Route path="/welcome-back" element={<Navigate to="/dashboard/student" replace />} />
 
               {/* Student routes */}
               <Route path="/dashboard/student" element={<StudentDashboard />} />

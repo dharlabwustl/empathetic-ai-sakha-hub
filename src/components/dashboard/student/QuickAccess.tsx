@@ -1,63 +1,84 @@
 
 import React from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Sparkles, Calendar, Heart, GraduationCap, Brain } from 'lucide-react';
-import AnimatedActionButton from './AnimatedActionButton';
+import { useNavigate } from 'react-router-dom';
+import { Button } from "@/components/ui/button";
+import { BookOpen, Calendar, GraduationCap, FileText } from "lucide-react";
+import { motion } from "framer-motion";
 
-export function QuickAccess() {
-  const quickAccessItems = [
+export const QuickAccess = () => {
+  const navigate = useNavigate();
+
+  const quickItems = [
     {
-      icon: <Sparkles className="h-5 w-5 text-blue-500" />,
-      title: "24/7 AI Tutor",
-      description: "Get help with any question",
-      path: "/dashboard/student/tutor",
-      isPrimary: true
+      id: 'today',
+      label: "Today's Plan",
+      icon: Calendar,
+      path: '/dashboard/student/today',
+      color: 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400'
     },
     {
-      icon: <Calendar className="h-5 w-5 text-indigo-500" />,
-      title: "Study Plan",
-      description: "View your exam timeline",
-      path: "/dashboard/student/study-plan",
+      id: 'concept',
+      label: 'Concept Cards',
+      icon: BookOpen,
+      path: '/dashboard/student/concepts/landing',
+      color: 'bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400'
     },
     {
-      icon: <Brain className="h-5 w-5 text-purple-500" />,
-      title: "Flashcards",
-      description: "Practice with flashcards",
-      path: "/dashboard/student/flashcards",
+      id: 'advisor',
+      label: 'Academic Advisor',
+      icon: GraduationCap,
+      path: '/dashboard/student/academic',
+      color: 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400'
     },
     {
-      icon: <GraduationCap className="h-5 w-5 text-blue-500" />,
-      title: "Academic Advisor",
-      description: "Get personalized guidance",
-      path: "/dashboard/student/academic",
-    },
-    {
-      icon: <Heart className="h-5 w-5 text-pink-500" />,
-      title: "Feel Good Corner",
-      description: "Manage stress and focus",
-      path: "/dashboard/student/feel-good-corner",
-    },
+      id: 'practice',
+      label: 'Practice Exams',
+      icon: FileText,
+      path: '/dashboard/student/practice-exam',
+      color: 'bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400'
+    }
   ];
 
-  return (
-    <Card>
-      <CardContent className="p-4">
-        <h2 className="font-medium mb-3">Quick Access</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
-          {quickAccessItems.map((item) => (
-            <AnimatedActionButton 
-              key={item.title}
-              icon={item.icon}
-              label={item.title}
-              description={item.description}
-              path={item.path}
-              isPrimary={item.isPrimary}
-            />
-          ))}
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
+  const container = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.05
+      }
+    }
+  };
 
-export default QuickAccess;
+  const item = {
+    hidden: { opacity: 0, y: 10 },
+    show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 100 }}
+  };
+
+  return (
+    <div className="mb-4">
+      <motion.div 
+        className="grid grid-cols-2 sm:grid-cols-4 gap-3"
+        variants={container}
+        initial="hidden"
+        animate="show"
+      >
+        {quickItems.map((item) => (
+          <motion.div key={item.id} variants={item}>
+            <Button
+              variant="outline"
+              className="w-full border-0 hover:bg-gray-100 dark:hover:bg-gray-800 h-auto py-3 bg-white dark:bg-gray-900 shadow-sm border-gray-200 dark:border-gray-800"
+              onClick={() => navigate(item.path)}
+            >
+              <div className="flex flex-col items-center">
+                <div className={`w-10 h-10 rounded-full ${item.color} flex items-center justify-center mb-2`}>
+                  <item.icon className="h-5 w-5" />
+                </div>
+                <span className="text-xs font-medium">{item.label}</span>
+              </div>
+            </Button>
+          </motion.div>
+        ))}
+      </motion.div>
+    </div>
+  );
+};

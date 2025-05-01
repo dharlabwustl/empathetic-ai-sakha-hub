@@ -39,7 +39,6 @@ const SidebarNav: React.FC<SidebarNavProps> = ({ userType, userName, activeTab =
     { id: 'today', label: 'Today\'s Plan', icon: CalendarDays },
     { id: 'academic', label: 'Academic Advisor', icon: GraduationCap },
     { id: 'concepts', label: 'Concept Cards', icon: BookOpen },
-    { id: 'flashcards', label: 'Flashcards', icon: Brain },
     { id: 'practice-exam', label: 'Practice Exams', icon: FileText },
     { id: 'notifications', label: 'Notifications', icon: Bell }
   ];
@@ -55,7 +54,7 @@ const SidebarNav: React.FC<SidebarNavProps> = ({ userType, userName, activeTab =
         {/* Logo */}
         <div className={`p-4 border-b dark:border-gray-800 flex ${expanded ? 'justify-between' : 'justify-center'} items-center`}>
           <Link to="/" className={`flex items-center ${!expanded && 'justify-center'} -ml-2`}>
-            <PrepzrLogo width={expanded ? 150 : 40} height={expanded ? 40 : 40} showText={false} />
+            <PrepzrLogo width={expanded ? 110 : 40} height={expanded ? 40 : 40} showText={false} />
           </Link>
           <Button 
             variant="ghost" 
