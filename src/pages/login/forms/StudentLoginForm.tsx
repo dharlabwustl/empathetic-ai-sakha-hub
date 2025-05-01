@@ -19,6 +19,7 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
   const { toast } = useToast();
   const [credentials, setCredentials] = useState({ email: "", password: "" });
   const [isLoading, setIsLoading] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -50,6 +51,7 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
           title: "Login successful",
           description: "Welcome back to Prepzr"
         });
+        
         // Check if this appears to be a new user for demo purposes
         const isNewUser = !localStorage.getItem("hasLoggedInBefore");
         if (isNewUser) {
@@ -125,7 +127,11 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
         />
       </div>
       <div className="flex items-center space-x-2">
-        <Checkbox id="remember" />
+        <Checkbox 
+          id="remember" 
+          checked={rememberMe}
+          onCheckedChange={(checked) => setRememberMe(!!checked)}
+        />
         <Label htmlFor="remember" className="text-sm">Remember me</Label>
       </div>
       <div className="space-y-2">

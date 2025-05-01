@@ -70,6 +70,14 @@ const AdminLogin = () => {
     }
   };
 
+  // Auto-fill demo credentials for easier testing
+  const handleDemoLogin = () => {
+    setCredentials({
+      email: 'admin@prepzr.com',
+      password: 'admin123'
+    });
+  };
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-gradient-to-br from-slate-50 to-blue-50">
       <div className="max-w-md w-full">
@@ -134,6 +142,15 @@ const AdminLogin = () => {
                 )}
               </Button>
 
+              <Button 
+                type="button" 
+                variant="outline" 
+                className="w-full mt-2" 
+                onClick={handleDemoLogin}
+              >
+                Use Demo Account
+              </Button>
+
               {/* Demo account info */}
               <div className="rounded-md bg-blue-50 p-3">
                 <div className="text-sm text-blue-700 font-medium mb-1">Demo Account</div>
@@ -156,6 +173,24 @@ const AdminLogin = () => {
             </Button>
           </CardFooter>
         </Card>
+
+        {/* Direct access to database CSV */}
+        <div className="mt-6 text-center">
+          <Button 
+            variant="outline" 
+            className="bg-white hover:bg-gray-100"
+            onClick={() => {
+              const { exportDatabaseSchemaToCSV } = require('@/utils/database-schema-export');
+              exportDatabaseSchemaToCSV();
+              toast({
+                title: 'Database CSV',
+                description: 'Database schema CSV has been downloaded to your device',
+              });
+            }}
+          >
+            Download Database CSV Directly
+          </Button>
+        </div>
       </div>
     </div>
   );
