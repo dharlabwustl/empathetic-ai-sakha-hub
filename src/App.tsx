@@ -31,6 +31,7 @@ import ProfilePage from './pages/dashboard/student/ProfilePage';
 import StudyPlanView from './pages/dashboard/student/StudyPlanView';
 import TutorView from './pages/dashboard/student/TutorView';
 import AcademicAdvisorView from './pages/dashboard/student/AcademicAdvisorView';
+import FlashcardPracticeLandingPage from './pages/dashboard/student/flashcard/FlashcardPracticeLandingPage';
 
 const AdminDashboard = React.lazy(() => import('@/pages/admin/AdminDashboard'));
 
@@ -62,6 +63,7 @@ function App() {
               <Route path="/dashboard/student/concepts/study" element={<ConceptCardStudyPage />} />
               <Route path="/dashboard/student/flashcards/:deckId/interactive" element={<FlashcardInteractivePage />} />
               <Route path="/dashboard/student/flashcards/enhanced" element={<EnhancedFlashcardPage />} />
+              <Route path="/dashboard/student/flashcards/practice" element={<FlashcardPracticeLandingPage />} />
               <Route path="/dashboard/student/practice-exam/:examId/start" element={<ExamTakingPage />} />
               <Route path="/dashboard/student/practice-exam/:examId/review" element={<ExamReviewPage />} />
               <Route path="/dashboard/student/profile" element={<ProfilePage />} />
