@@ -10,8 +10,6 @@ import ProfilePage from '@/pages/student/ProfilePage';
 import BatchManagementView from '@/pages/dashboard/student/BatchManagementView';
 import SubscriptionView from '@/pages/dashboard/student/SubscriptionPage';
 import ConceptCardDetailPage from '@/components/dashboard/student/concepts/ConceptCardDetailPage';
-import FlashcardInteractivePage from '@/pages/dashboard/student/flashcard/FlashcardInteractivePage';
-import FlashcardPracticeLandingPage from '@/pages/dashboard/student/flashcard/FlashcardPracticeLandingPage';
 import ExamTakingPage from '@/components/dashboard/student/practice-exam/ExamTakingPage';
 import ExamReviewPage from '@/components/dashboard/student/practice-exam/ExamReviewPage';
 import TutorView from '@/pages/dashboard/student/TutorView';
@@ -44,14 +42,13 @@ export default function StudentRoutes() {
       <Route path="/concepts/study-landing/:conceptId" element={<ConceptStudyLandingPage />} />
       <Route path="/concepts/:conceptId/study" element={<ConceptStudyPage />} />
       
-      {/* Flashcards routes - consolidated and simplified */}
+      {/* Flashcards routes - simplified and direct */}
       <Route path="/flashcards" element={<FlashcardsView />} />
       <Route path="/flashcards/landing" element={<FlashcardsLandingPage />} />
       <Route path="/flashcards/:subject?" element={<FlashcardsLandingPage />} />
-      <Route path="/flashcards/:deckId/interactive" element={<FlashcardInteractivePage />} />
+      <Route path="/flashcards/:flashcardId/interactive" element={<FlashcardInteractive />} />
       <Route path="/flashcards/:flashcardId" element={<FlashcardDetailsPage />} />
       <Route path="/flashcards/:flashcardId/browse" element={<InteractiveFlashcardBrowser />} />
-      <Route path="/flashcards/practice" element={<FlashcardPracticeLandingPage />} />
       <Route path="/flashcards/:flashcardId/practice" element={<EnhancedFlashcardPractice />} />
       
       {/* Practice exam routes */}

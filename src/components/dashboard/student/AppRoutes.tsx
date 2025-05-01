@@ -15,7 +15,6 @@ import NotificationsView from '@/components/dashboard/student/notifications/Noti
 import AcademicAdvisorView from '@/pages/dashboard/student/AcademicAdvisorView';
 import TutorView from '@/pages/dashboard/student/TutorView';
 import ConceptStudyLandingPage from '@/pages/dashboard/student/concept/ConceptStudyLandingPage';
-import FlashcardPracticeLandingPage from '@/pages/dashboard/student/flashcard/FlashcardPracticeLandingPage';
 import ConceptsLandingPage from '@/components/dashboard/student/concepts/ConceptsLandingPage';
 import FlashcardsLandingPage from '@/components/dashboard/student/flashcards/FlashcardsLandingPage';
 import EnhancedFlashcardPractice from '@/components/dashboard/student/flashcards/EnhancedFlashcardPractice';
@@ -23,7 +22,6 @@ import ConceptStudyPage from '@/components/dashboard/student/concepts/ConceptStu
 import ProfilePage from '@/pages/student/ProfilePage';
 import FlashcardDetailsPage from '@/pages/dashboard/student/FlashcardDetailsPage';
 import InteractiveFlashcardBrowser from '@/components/flashcards/InteractiveFlashcardBrowser';
-import FlashcardInteractivePage from '@/pages/dashboard/student/flashcard/FlashcardInteractivePage';
 
 export default function AppRoutes() {
   const { dashboardData } = useStudentDashboardData();
@@ -40,13 +38,12 @@ export default function AppRoutes() {
       <Route path="/dashboard/student/concepts/study-landing/:conceptId" element={<ConceptStudyLandingPage />} />
       <Route path="/dashboard/student/concepts/:conceptId/study" element={<ConceptStudyPage />} />
       
-      {/* Flashcard routes - simplified */}
+      {/* Flashcard routes - simplified to direct interactive access */}
       <Route path="/dashboard/student/flashcards" element={<FlashcardsView />} />
       <Route path="/dashboard/student/flashcards/landing" element={<FlashcardsLandingPage />} />
-      <Route path="/dashboard/student/flashcards/:deckId/interactive" element={<FlashcardInteractivePage />} />
+      <Route path="/dashboard/student/flashcards/:flashcardId/interactive" element={<FlashcardInteractive />} />
       <Route path="/dashboard/student/flashcards/:flashcardId" element={<FlashcardDetailsPage />} />
       <Route path="/dashboard/student/flashcards/:flashcardId/browse" element={<InteractiveFlashcardBrowser />} />
-      <Route path="/dashboard/student/flashcards/practice" element={<FlashcardPracticeLandingPage />} />
       <Route path="/dashboard/student/flashcards/:flashcardId/practice" element={<EnhancedFlashcardPractice />} />
       
       {/* Practice exam routes */}

@@ -1,4 +1,3 @@
-
 import React, { Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
@@ -20,7 +19,6 @@ import AppRoutes from './components/dashboard/student/AppRoutes';
 import ConceptCardDetailPage from './components/dashboard/student/concepts/ConceptCardDetailPage';
 import ExamTakingPage from './components/dashboard/student/practice-exam/ExamTakingPage';
 import ExamReviewPage from './components/dashboard/student/practice-exam/ExamReviewPage';
-import FlashcardInteractivePage from './pages/dashboard/student/flashcard/FlashcardInteractivePage';
 import PostLoginPrompt from './pages/dashboard/PostLoginPrompt';
 import StudyPlanCreation from './pages/StudyPlanCreation';
 import ConceptCardStudyPage from './pages/dashboard/student/concept/ConceptCardStudyPage';
@@ -74,41 +72,36 @@ function App() {
               <Route path="/dashboard/student/concepts/study-landing/:conceptId" element={<ConceptStudyLandingPage />} />
               <Route path="/dashboard/student/concepts/landing" element={<ConceptsLandingPage />} />
               
-              {/* Flashcard routes - make sure ALL possible flashcard routes are here */}
-              <Route path="/dashboard/student/flashcards/:deckId/interactive" element={<FlashcardInteractive />} />
-              <Route path="/dashboard/student/flashcards/:deckId/interactive-landing" element={<FlashcardInteractivePage />} />
+              {/* Direct Flashcard routes - Simplified */}
+              <Route path="/dashboard/student/flashcards/:flashcardId/interactive" element={<FlashcardInteractive />} />
               <Route path="/dashboard/student/flashcards/:flashcardId" element={<FlashcardDetailsPage />} />
               <Route path="/dashboard/student/flashcards/:flashcardId/browse" element={<InteractiveFlashcardBrowser />} />
-              <Route path="/dashboard/student/flashcards/enhanced" element={<EnhancedFlashcardPage />} />
-              <Route path="/dashboard/student/flashcards/practice" element={<FlashcardPracticeLandingPage />} />
               <Route path="/dashboard/student/flashcards/:flashcardId/practice" element={<EnhancedFlashcardPractice />} />
-              <Route path="/dashboard/student/flashcards/landing" element={<FlashcardsLandingPage />} />
               
               {/* Practice exam routes */}
               <Route path="/dashboard/student/practice-exam/:examId/start" element={<ExamTakingPage />} />
               <Route path="/dashboard/student/practice-exam/:examId/review" element={<ExamReviewPage />} />
               
               {/* Other routes */}
-              <Route path="/dashboard/student/profile" element={<ProfilePage />} />
-              <Route path="/dashboard/student/studyplan" element={<StudyPlanView />} />
+              <Route path="/dashboard/student/notifications" element={<NotificationsView />} />
               <Route path="/dashboard/student/tutor" element={<TutorView />} />
               <Route path="/dashboard/student/academic" element={<AcademicAdvisorView />} />
-
-              {/* Additional student dashboard routes */}
-              <Route path="/dashboard/student/*" element={<AppRoutes />} />
-
-              {/* Admin routes - protected by AdminRouteGuard */}
+              <Route path="/dashboard/student/study-plan" element={<StudyPlanView />} />
+              
+              {/* Admin routes */}
               <Route path="/admin/login" element={<AdminLogin />} />
-              <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
-              <Route path="/admin/dashboard/*" element={
-                <AdminRouteGuard>
-                  <Suspense fallback={<LoadingScreen />}>
-                    <AdminDashboard />
-                  </Suspense>
-                </AdminRouteGuard>
-              } />
-
-              {/* 404 Not Found */}
+              <Route
+                path="/admin/*"
+                element={
+                  <AdminRouteGuard>
+                    <Suspense fallback={<LoadingScreen />}>
+                      <AdminDashboard />
+                    </Suspense>
+                  </AdminRouteGuard>
+                }
+              />
+              
+              {/* 404 */}
               <Route path="*" element={<NotFound />} />
             </Routes>
             <Toaster />
