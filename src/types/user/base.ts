@@ -39,6 +39,9 @@ export type MoodType =
   | "happy" 
   | "sad"
   | "anxious"
+  | "okay"
+  | "overwhelmed"
+  | "energetic"
   | "😊 Motivated"
   | "🤔 Curious" 
   | "😐 Neutral" 
@@ -65,6 +68,7 @@ export interface UserProfile {
   goals?: Goal[];
   mood?: MoodType;
   personality?: PersonalityType;
+  loginCount?: number;
 }
 
 // Goal interface

@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStudentDashboardData } from '@/hooks/useStudentDashboardData';
-import { UserProfileBase } from '@/types/user/base';
+import { UserProfile } from '@/types/user/base';
 import { KpiData } from '@/hooks/useKpiTracking';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -16,6 +16,7 @@ import {
 import StudyStatsSection from './dashboard-sections/StudyStatsSection';
 import SubjectBreakdownSection from './dashboard-sections/SubjectBreakdownSection';
 import TodaysPlanSection from './dashboard-sections/TodaysPlanSection';
+import ExamReadinessSection from './dashboard-sections/ExamReadinessSection';
 import ProgressTrackerSection from './dashboard-sections/ProgressTrackerSection';
 import RevisionLoopSection from './dashboard-sections/RevisionLoopSection';
 import UpcomingMilestonesSection from './dashboard-sections/UpcomingMilestonesSection';
@@ -24,7 +25,7 @@ import SmartSuggestionsCenter from './dashboard-sections/SmartSuggestionsCenter'
 import { MoodType } from '@/types/user/base';
 
 interface RedesignedDashboardOverviewProps {
-  userProfile: UserProfileBase;
+  userProfile: UserProfile;
   kpis: KpiData[];
 }
 
@@ -33,15 +34,42 @@ export default function RedesignedDashboardOverview({ userProfile, kpis }: Redes
   const [currentMood, setCurrentMood] = useState<MoodType>();
   const navigate = useNavigate();
 
-  const navigationTabs = [
-    { id: "overview", label: "Overview", icon: LayoutDashboard, path: "/dashboard/student/overview" },
-    { id: "today", label: "Today's Plan", icon: CalendarDays, path: "/dashboard/student/today" },
-    { id: "academic", label: "Academic Advisor", icon: GraduationCap, path: "/dashboard/student/academic" },
-    { id: "concepts", label: "Concept Cards", icon: BookOpen, path: "/dashboard/student/concepts" },
-    { id: "flashcards", label: "Flashcards", icon: Brain, path: "/dashboard/student/flashcards" },
-    { id: "practice", label: "Practice Exams", icon: FileText, path: "/dashboard/student/practice-exam" },
-    { id: "notifications", label: "Notifications", icon: Bell, path: "/dashboard/student/notifications" },
-  ];
+  // Mock data for the ExamReadinessSection
+  const examReadinessData = {
+    examGoal: userProfile?.goals?.[0]?.title || "IIT-JEE",
+    daysLeft: 78,
+    overallReadiness: 65,
+    subjectReadiness: [
+      {
+        subject: "Physics",
+        readiness: 75,
+        trend: 'up' as const,
+        areasToImprove: ["Electromagnetism", "Optics"]
+      },
+      {
+        subject: "Chemistry",
+        readiness: 58,
+        trend: 'stable' as const,
+        areasToImprove: ["Organic Reactions", "Thermodynamics"]
+      },
+      {
+        subject: "Mathematics",
+        readiness: 62,
+        trend: 'down' as const,
+        areasToImprove: ["Calculus", "Coordinate Geometry"]
+      }
+    ]
+  };
+
+  // Mock data for the TodaysPlanSection
+  const todayPlanData = {
+    focusSubjects: ["Physics", "Chemistry"],
+    totalTasks: 8,
+    concepts: 3,
+    flashcards: 4,
+    exams: 1,
+    timeAllocated: 120
+  };
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -105,7 +133,15 @@ export default function RedesignedDashboardOverview({ userProfile, kpis }: Redes
       >
         <div className="flex items-center justify-between overflow-x-auto">
           <div className="flex space-x-1 md:space-x-2">
-            {navigationTabs.map((tab) => (
+            {[
+              { id: "overview", label: "Overview", icon: LayoutDashboard, path: "/dashboard/student/overview" },
+              { id: "today", label: "Today's Plan", icon: CalendarDays, path: "/dashboard/student/today" },
+              { id: "academic", label: "Academic Advisor", icon: GraduationCap, path: "/dashboard/student/academic" },
+              { id: "concepts", label: "Concept Cards", icon: BookOpen, path: "/dashboard/student/concepts" },
+              { id: "flashcards", label: "Flashcards", icon: Brain, path: "/dashboard/student/flashcards" },
+              { id: "practice", label: "Practice Exams", icon: FileText, path: "/dashboard/student/practice-exam" },
+              { id: "notifications", label: "Notifications", icon: Bell, path: "/dashboard/student/notifications" },
+            ].map((tab) => (
               <motion.div
                 key={tab.id}
                 whileHover={{ scale: 1.05 }}
@@ -168,6 +204,16 @@ export default function RedesignedDashboardOverview({ userProfile, kpis }: Redes
         <StudyStatsSection subjects={dashboardData.subjects} conceptCards={dashboardData.conceptCards} />
       </motion.div>
 
+      {/* Add Exam Readiness Section */}
+      <motion.div variants={itemVariants}>
+        <ExamReadinessSection 
+          examGoal={examReadinessData.examGoal}
+          daysLeft={examReadinessData.daysLeft}
+          overallReadiness={examReadinessData.overallReadiness}
+          subjectReadiness={examReadinessData.subjectReadiness}
+        />
+      </motion.div>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <motion.div variants={itemVariants}>
           <Card>
@@ -215,7 +261,7 @@ export default function RedesignedDashboardOverview({ userProfile, kpis }: Redes
         </motion.div>
 
         <motion.div variants={itemVariants}>
-          <TodaysPlanSection studyPlan={dashboardData.studyPlan} currentMood={currentMood} />
+          <TodaysPlanSection studyPlan={todayPlanData} currentMood={currentMood} />
         </motion.div>
       </div>
 

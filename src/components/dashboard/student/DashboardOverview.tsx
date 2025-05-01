@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Clock, Users, BookOpen, Target, BookCheck, Brain, FileText, Star } from "lucide-react";
 import { motion } from "framer-motion";
 import { KpiData } from "@/hooks/useKpiTracking";
-import { UserProfileBase } from "@/types/user/base";
+import { UserProfile } from "@/types/user/base";
 import { KpiCard } from "@/components/dashboard/KpiCard";
 import FeatureHighlights from '@/components/dashboard/student/FeatureHighlights';
 import RecommendedResources from '@/components/dashboard/student/RecommendedResources';
@@ -21,7 +21,7 @@ interface DashboardData {
 }
 
 interface DashboardOverviewProps {
-  userProfile: UserProfileBase;
+  userProfile: UserProfile;
   kpis: KpiData[];
   dashboardData?: DashboardData;
 }

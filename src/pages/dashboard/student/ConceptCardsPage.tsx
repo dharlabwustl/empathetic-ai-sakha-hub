@@ -8,129 +8,120 @@ import { Input } from '@/components/ui/input';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Brain, Search, Plus, Clock, ArrowRight, Tag, Filter, ChevronDown, Layers } from 'lucide-react';
-import { Progress } from '@/components/ui/progress';
+import { BookOpen, Search, Plus, Clock, BookCheck, ArrowRight, Tag, Star, Bookmark, Filter, ChevronDown } from 'lucide-react';
 
-interface Flashcard {
+interface ConceptCard {
   id: string;
-  deckName: string;
+  title: string;
   subject: string;
-  topic: string;
-  cardCount: number;
+  chapter: string;
   difficulty: 'Easy' | 'Medium' | 'Hard' | 'Expert';
-  progress: number;
-  lastStudied?: string;
+  completed: boolean;
+  lastReviewed?: string;
   timeToComplete: number;
-  recallAccuracy?: number;
+  masteringProgress: number;
   tags: string[];
   isPro?: boolean;
 }
 
-// Mock data for flashcards
-const mockFlashcards: Flashcard[] = [
+// Mock data for concept cards
+const mockConceptCards: ConceptCard[] = [
   {
     id: '1',
-    deckName: 'Physics Formulas',
+    title: 'Newton\'s Laws of Motion',
     subject: 'Physics',
-    topic: 'Mechanics',
-    cardCount: 25,
+    chapter: 'Mechanics',
     difficulty: 'Medium',
-    progress: 75,
-    lastStudied: '2023-11-15',
-    timeToComplete: 20,
-    recallAccuracy: 82,
-    tags: ['mechanics', 'formulas', 'equations']
+    completed: true,
+    lastReviewed: '2023-11-15',
+    timeToComplete: 15,
+    masteringProgress: 85,
+    tags: ['mechanics', 'forces', 'core-concept']
   },
   {
     id: '2',
-    deckName: 'Chemical Reactions',
+    title: 'Organic Chemistry Reactions',
     subject: 'Chemistry',
-    topic: 'Organic Chemistry',
-    cardCount: 40,
+    chapter: 'Organic Chemistry',
     difficulty: 'Hard',
-    progress: 45,
-    lastStudied: '2023-11-10',
-    timeToComplete: 30,
-    recallAccuracy: 68,
-    tags: ['reactions', 'organic', 'mechanisms']
+    completed: false,
+    timeToComplete: 25,
+    masteringProgress: 45,
+    tags: ['organic', 'reactions', 'substitution']
   },
   {
     id: '3',
-    deckName: 'Calculus Definitions',
+    title: 'Integration Techniques',
     subject: 'Mathematics',
-    topic: 'Calculus',
-    cardCount: 35,
+    chapter: 'Calculus',
     difficulty: 'Hard',
-    progress: 60,
-    lastStudied: '2023-11-12',
-    timeToComplete: 25,
-    recallAccuracy: 75,
-    tags: ['calculus', 'definitions', 'theorems']
+    completed: false,
+    timeToComplete: 30,
+    masteringProgress: 30,
+    tags: ['calculus', 'integration', 'advanced']
   },
   {
     id: '4',
-    deckName: 'Cell Components',
+    title: 'Cell Structure and Function',
     subject: 'Biology',
-    topic: 'Cell Biology',
-    cardCount: 30,
+    chapter: 'Cell Biology',
     difficulty: 'Easy',
-    progress: 90,
-    lastStudied: '2023-11-16',
-    timeToComplete: 15,
-    recallAccuracy: 95,
-    tags: ['cells', 'organelles', 'functions']
+    completed: true,
+    lastReviewed: '2023-11-10',
+    timeToComplete: 20,
+    masteringProgress: 90,
+    tags: ['cells', 'organelles', 'basic']
   },
   {
     id: '5',
-    deckName: 'Advanced Quantum Principles',
+    title: 'Advanced Quantum Mechanics',
     subject: 'Physics',
-    topic: 'Quantum Physics',
-    cardCount: 50,
+    chapter: 'Quantum Physics',
     difficulty: 'Expert',
-    progress: 30,
+    completed: false,
     timeToComplete: 45,
-    recallAccuracy: 55,
-    tags: ['quantum', 'advanced', 'principles'],
+    masteringProgress: 15,
+    tags: ['quantum', 'advanced', 'theoretical'],
     isPro: true
   }
 ];
 
-export default function FlashcardsPage() {
+export default function ConceptCardsPage() {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('all');
   const [selectedSubject, setSelectedSubject] = useState<string>('all');
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>('all');
-  const [showCreateDeck, setShowCreateDeck] = useState(false);
+  const [showCreateCard, setShowCreateCard] = useState(false);
   
-  // Filter flashcards based on search, tab, subject, and difficulty
-  const filteredFlashcards = mockFlashcards.filter(deck => {
-    const matchesSearch = deck.deckName.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                         deck.subject.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         deck.topic.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         deck.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
+  // Filter cards based on search, tab, subject, and difficulty
+  const filteredCards = mockConceptCards.filter(card => {
+    const matchesSearch = card.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                         card.subject.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         card.chapter.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         card.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
                          
     const matchesTab = activeTab === 'all' || 
-                      (activeTab === 'mastered' && deck.progress >= 90) || 
-                      (activeTab === 'in-progress' && deck.progress < 90);
+                      (activeTab === 'completed' && card.completed) || 
+                      (activeTab === 'incomplete' && !card.completed);
                       
-    const matchesSubject = selectedSubject === 'all' || deck.subject === selectedSubject;
+    const matchesSubject = selectedSubject === 'all' || card.subject === selectedSubject;
     
-    const matchesDifficulty = selectedDifficulty === 'all' || deck.difficulty === selectedDifficulty;
+    const matchesDifficulty = selectedDifficulty === 'all' || card.difficulty === selectedDifficulty;
     
     return matchesSearch && matchesTab && matchesSubject && matchesDifficulty;
   });
   
   // Get unique subjects
-  const subjects = Array.from(new Set(mockFlashcards.map(deck => deck.subject)));
+  const subjects = Array.from(new Set(mockConceptCards.map(card => card.subject)));
   
   // Get difficulty levels
   const difficultyLevels = ['Easy', 'Medium', 'Hard', 'Expert'];
 
   return (
     <SharedPageLayout 
-      title="Flashcards" 
-      subtitle="Review and memorize with interactive flashcards"
+      title="Concept Cards" 
+      subtitle="Master key concepts through interactive learning cards"
     >
       <div className="space-y-6">
         {/* Search and Filter Bar */}
@@ -138,7 +129,7 @@ export default function FlashcardsPage() {
           <div className="relative flex-grow">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Search flashcard decks, subjects, or tags..."
+              placeholder="Search concepts, subjects, or tags..."
               className="pl-9"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -181,52 +172,52 @@ export default function FlashcardsPage() {
         {/* Tabs Navigation */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="w-full max-w-md grid grid-cols-3">
-            <TabsTrigger value="all">All Decks</TabsTrigger>
-            <TabsTrigger value="mastered">Mastered</TabsTrigger>
-            <TabsTrigger value="in-progress">In Progress</TabsTrigger>
+            <TabsTrigger value="all">All Cards</TabsTrigger>
+            <TabsTrigger value="completed">Mastered</TabsTrigger>
+            <TabsTrigger value="incomplete">To Learn</TabsTrigger>
           </TabsList>
           
           <TabsContent value={activeTab} className="mt-6">
-            {filteredFlashcards.length === 0 ? (
+            {filteredCards.length === 0 ? (
               <div className="text-center py-10">
-                <Brain className="h-12 w-12 text-muted-foreground mx-auto mb-3 opacity-20" />
-                <h3 className="text-lg font-medium">No flashcard decks found</h3>
+                <BookOpen className="h-12 w-12 text-muted-foreground mx-auto mb-3 opacity-20" />
+                <h3 className="text-lg font-medium">No concept cards found</h3>
                 <p className="text-muted-foreground mt-1 mb-4">Try adjusting your filters or search query</p>
-                <Button onClick={() => setShowCreateDeck(true)}>Create New Deck</Button>
+                <Button onClick={() => setShowCreateCard(true)}>Create New Card</Button>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-4">
-                {/* Create New Deck (Pro Feature) */}
-                <Card className="border-2 border-dashed border-muted hover:border-primary/50 transition-colors flex flex-col justify-center items-center h-[280px]">
+                {/* Create New Card (Pro Feature) */}
+                <Card className="border-2 border-dashed border-muted hover:border-primary/50 transition-colors flex flex-col justify-center items-center h-[300px]">
                   <CardContent className="flex flex-col items-center justify-center text-center space-y-4 pt-6">
                     <div className="p-3 rounded-full bg-primary/10">
                       <Plus className="h-8 w-8 text-primary" />
                     </div>
                     <div>
-                      <h3 className="font-semibold mb-1">Create New Flashcard Deck</h3>
+                      <h3 className="font-semibold mb-1">Create New Concept Card</h3>
                       <p className="text-sm text-muted-foreground">
-                        Create your own custom flashcard deck
+                        Add your own custom concept cards
                       </p>
                     </div>
                     <Badge variant="secondary">PRO Feature</Badge>
                   </CardContent>
                   <CardFooter>
-                    <Button onClick={() => setShowCreateDeck(true)}>
-                      Create Deck
+                    <Button onClick={() => setShowCreateCard(true)}>
+                      Create Card
                     </Button>
                   </CardFooter>
                 </Card>
                 
-                {/* Flashcard Decks */}
-                {filteredFlashcards.map(deck => (
+                {/* Concept Cards */}
+                {filteredCards.map(card => (
                   <Card 
-                    key={deck.id} 
-                    className={`overflow-hidden transition-all hover:shadow-md group h-[280px] flex flex-col ${deck.isPro ? 'border-violet-200 dark:border-violet-800' : 'border'}`}
+                    key={card.id} 
+                    className={`overflow-hidden transition-all hover:shadow-md group h-[300px] flex flex-col ${card.isPro ? 'border-violet-200 dark:border-violet-800' : 'border'}`}
                   >
                     <CardHeader className={`pb-2 border-b ${
-                        deck.difficulty === 'Easy' ? 'bg-green-50/50 dark:bg-green-950/10 border-green-200' :
-                        deck.difficulty === 'Medium' ? 'bg-blue-50/50 dark:bg-blue-950/10 border-blue-200' :
-                        deck.difficulty === 'Hard' ? 'bg-orange-50/50 dark:bg-orange-950/10 border-orange-200' :
+                        card.difficulty === 'Easy' ? 'bg-green-50/50 dark:bg-green-950/10 border-green-200' :
+                        card.difficulty === 'Medium' ? 'bg-blue-50/50 dark:bg-blue-950/10 border-blue-200' :
+                        card.difficulty === 'Hard' ? 'bg-orange-50/50 dark:bg-orange-950/10 border-orange-200' :
                         'bg-purple-50/50 dark:bg-purple-950/10 border-purple-200'
                       }`}
                     >
@@ -235,80 +226,60 @@ export default function FlashcardsPage() {
                           <Badge 
                             variant="secondary" 
                             className={`mb-2 ${
-                              deck.difficulty === 'Easy' ? 'bg-green-100 text-green-700 hover:bg-green-200' :
-                              deck.difficulty === 'Medium' ? 'bg-blue-100 text-blue-700 hover:bg-blue-200' :
-                              deck.difficulty === 'Hard' ? 'bg-orange-100 text-orange-700 hover:bg-orange-200' :
+                              card.difficulty === 'Easy' ? 'bg-green-100 text-green-700 hover:bg-green-200' :
+                              card.difficulty === 'Medium' ? 'bg-blue-100 text-blue-700 hover:bg-blue-200' :
+                              card.difficulty === 'Hard' ? 'bg-orange-100 text-orange-700 hover:bg-orange-200' :
                               'bg-purple-100 text-purple-700 hover:bg-purple-200'
                             }`}
                           >
-                            {deck.difficulty}
+                            {card.difficulty}
                           </Badge>
                           
-                          {deck.isPro && (
+                          {card.isPro && (
                             <Badge variant="outline" className="ml-2 bg-violet-100 text-violet-700 border-violet-200 hover:bg-violet-200">
                               PRO
                             </Badge>
                           )}
                         </div>
                         
-                        <div className="flex items-center gap-1">
-                          <Layers className="h-4 w-4 text-muted-foreground" />
-                          <span className="text-sm">{deck.cardCount} cards</span>
+                        <div className="flex gap-2">
+                          <Button variant="ghost" size="icon" className="h-7 w-7" title="Bookmark">
+                            <Bookmark className="h-4 w-4" />
+                          </Button>
+                          <Button variant="ghost" size="icon" className="h-7 w-7 text-amber-500" title="Mark as favorite">
+                            <Star className="h-4 w-4" />
+                          </Button>
                         </div>
                       </div>
                     </CardHeader>
                     
                     <CardContent className="py-4 flex-grow">
                       <div className="mb-3">
-                        <h3 className="font-semibold text-lg group-hover:text-primary transition-colors">{deck.deckName}</h3>
+                        <h3 className="font-semibold text-lg group-hover:text-primary transition-colors">{card.title}</h3>
                         <div className="flex gap-2 text-xs text-muted-foreground mt-1">
-                          <span className="font-medium">{deck.subject}</span>
+                          <span className="font-medium">{card.subject}</span>
                           <span>•</span>
-                          <span>{deck.topic}</span>
+                          <span>{card.chapter}</span>
                         </div>
                       </div>
                       
                       <div className="space-y-3">
-                        <div className="space-y-1">
-                          <div className="flex justify-between text-sm">
-                            <span className="text-muted-foreground">Mastery progress</span>
-                            <span className={`${deck.progress >= 90 ? 'text-green-600' : 'text-muted-foreground'}`}>
-                              {deck.progress}%
-                            </span>
-                          </div>
-                          <Progress 
-                            value={deck.progress} 
-                            className={`h-2 ${
-                              deck.progress >= 90 ? 'bg-green-500' :
-                              deck.progress >= 70 ? 'bg-blue-500' :
-                              deck.progress >= 40 ? 'bg-amber-500' :
-                              'bg-red-500'
-                            }`} 
-                          />
-                        </div>
-                        
                         <div className="flex justify-between text-sm">
                           <div className="flex items-center gap-1">
                             <Clock className="h-3.5 w-3.5 text-muted-foreground" />
-                            <span className="text-muted-foreground">{deck.timeToComplete} min</span>
+                            <span className="text-muted-foreground">{card.timeToComplete} min</span>
                           </div>
                           
-                          {deck.recallAccuracy && (
-                            <div className="flex items-center gap-1">
-                              <span className={`${
-                                deck.recallAccuracy >= 90 ? 'text-green-600' :
-                                deck.recallAccuracy >= 70 ? 'text-blue-600' :
-                                deck.recallAccuracy >= 50 ? 'text-amber-600' :
-                                'text-red-600'
-                              }`}>
-                                {deck.recallAccuracy}% recall
-                              </span>
-                            </div>
-                          )}
+                          <div className="flex items-center gap-1">
+                            <BookCheck className="h-3.5 w-3.5 text-muted-foreground" />
+                            <span className={`${card.completed ? 'text-green-600' : 'text-muted-foreground'}`}>
+                              {card.masteringProgress}% mastered
+                            </span>
+                          </div>
                         </div>
                         
                         <div className="flex gap-1 flex-wrap">
-                          {deck.tags.map((tag, index) => (
+                          {card.tags.map((tag, index) => (
                             <span key={index} className="inline-flex items-center px-2 py-0.5 rounded text-xs bg-muted">
                               <Tag className="h-3 w-3 mr-1" />
                               {tag}
@@ -320,10 +291,10 @@ export default function FlashcardsPage() {
                     
                     <CardFooter className="pt-0 pb-4">
                       <Button 
-                        onClick={() => navigate(`/dashboard/student/flashcards/${deck.id}/interactive`)} 
+                        onClick={() => navigate(`/dashboard/student/concepts/card/${card.id}`)} 
                         className="w-full"
                       >
-                        Study Now
+                        {card.completed ? 'Review Concept' : 'Learn Concept'}
                         <ArrowRight className="ml-2 h-4 w-4" />
                       </Button>
                     </CardFooter>

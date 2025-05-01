@@ -5,14 +5,12 @@ interface PrepzrLogoProps {
   className?: string;
   width?: number | string;
   height?: number | string;
-  showText?: boolean;
 }
 
 const PrepzrLogo: React.FC<PrepzrLogoProps> = ({ 
   className = "", 
-  width = 48, 
-  height = "auto",
-  showText = false // We'll keep this prop for backward compatibility but not use it
+  width = 80, // Increased default size for better visibility
+  height = "auto"
 }) => {
   return (
     <div className={`flex items-center ${className}`}>
@@ -23,6 +21,7 @@ const PrepzrLogo: React.FC<PrepzrLogoProps> = ({
           width: typeof width === 'number' ? `${width}px` : width,
           height: typeof height === 'number' ? `${height}px` : height,
         }}
+        className="object-contain"
       />
     </div>
   );

@@ -1,19 +1,12 @@
 
 import React from 'react';
-import { Button } from "@/components/ui/button";
-import { UserProfileBase } from "@/types/user/base";
+import { UserProfile } from "@/types/user/base";
 import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
-import DashboardHeader from "@/pages/dashboard/student/DashboardHeader";
-import SidebarNavigation from "@/pages/dashboard/student/SidebarNavigation";
-import MobileNavigation from "@/pages/dashboard/student/MobileNavigation";
-import SidebarToggleButton from '@/components/dashboard/student/SidebarToggleButton';
-import TopNavigationControls from '@/components/dashboard/student/TopNavigationControls';
-import SurroundingInfluencesSection from '@/components/dashboard/student/SurroundingInfluencesSection';
-import MainContent from '@/components/dashboard/student/MainContent';
-import { useIsMobile } from "@/hooks/use-mobile";
+import MainContent from "@/components/dashboard/student/MainContent";
+import { useWindowSize } from '@/hooks/useWindowSize';
 
 interface DashboardWrapperProps {
-  userProfile: UserProfileBase;
+  userProfile: UserProfile;
   hideSidebar: boolean;
   hideTabsNav: boolean;
   activeTab: string;
@@ -31,6 +24,7 @@ interface DashboardWrapperProps {
   onCompleteTour: () => void;
   lastActivity?: { type: string; description: string } | null;
   suggestedNextAction?: string | null;
+  children?: React.ReactNode;
 }
 
 const DashboardWrapper: React.FC<DashboardWrapperProps> = ({
@@ -51,79 +45,40 @@ const DashboardWrapper: React.FC<DashboardWrapperProps> = ({
   onSkipTour,
   onCompleteTour,
   lastActivity,
-  suggestedNextAction
+  suggestedNextAction,
+  children
 }) => {
-  const isMobile = useIsMobile();
-  const formattedTime = formatTime(currentTime);
-  const formattedDate = formatDate(currentTime);
-  const [influenceMeterCollapsed, setInfluenceMeterCollapsed] = React.useState(true);
+  const windowSize = useWindowSize();
+  const isMobile = windowSize.width < 768;
 
   return (
-    <main className={`transition-all duration-300 ${hideSidebar ? 'md:ml-0' : 'md:ml-64'} p-4 sm:p-6 pb-20 md:pb-6`}>
-      {/* Sidebar toggle button */}
-      <SidebarToggleButton hideSidebar={hideSidebar} onToggle={onToggleSidebar} />
-      
-      {/* Top navigation controls */}
-      <TopNavigationControls 
-        hideSidebar={hideSidebar}
-        onToggleSidebar={onToggleSidebar}
-        formattedDate={formattedDate}
-        formattedTime={formattedTime}
-      />
-      
-      {/* Dashboard header */}
-      <DashboardHeader 
-        userProfile={userProfile}
-        formattedTime={formattedTime}
-        formattedDate={formattedDate}
-        onViewStudyPlan={onViewStudyPlan}
-      />
-
-      {/* Surrounding Influences Meter */}
-      <SurroundingInfluencesSection 
-        influenceMeterCollapsed={influenceMeterCollapsed}
-        setInfluenceMeterCollapsed={setInfluenceMeterCollapsed}
-      />
-      
-      {/* Mobile Navigation */}
-      {isMobile && (
-        <MobileNavigation activeTab={activeTab} onTabChange={onTabChange} />
-      )}
-      
-      {/* Main dashboard content area */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
-        {/* Left navigation sidebar (desktop) */}
-        {!hideSidebar && !isMobile && (
-          <SidebarNavigation 
-            activeTab={activeTab} 
-            onTabChange={onTabChange} 
+    <div className={`flex-1 flex flex-col ${hideSidebar ? 'ml-0' : 'ml-0 md:ml-64'} transition-all duration-300`}>
+      <main className="flex-1 px-4 md:px-6 lg:px-8 pb-16">
+        <div className="max-w-7xl mx-auto py-6">
+          {/* Main content area */}
+          <MainContent
+            hideTabsNav={hideTabsNav}
+            activeTab={activeTab}
+            userProfile={userProfile}
+            kpis={kpis}
+            nudges={nudges}
+            markNudgeAsRead={markNudgeAsRead}
+            features={features}
+            showWelcomeTour={showWelcomeTour}
+            onTabChange={onTabChange}
+            onToggleTabsNav={onToggleTabsNav}
+            onSkipTour={onSkipTour}
+            onCompleteTour={onCompleteTour}
+            isMobile={isMobile}
+            lastActivity={lastActivity}
+            suggestedNextAction={suggestedNextAction}
           />
-        )}
-        
-        {/* Main content area */}
-        <MainContent 
-          hideTabsNav={hideTabsNav}
-          activeTab={activeTab}
-          userProfile={userProfile}
-          kpis={kpis}
-          nudges={nudges}
-          markNudgeAsRead={markNudgeAsRead}
-          features={features}
-          showWelcomeTour={showWelcomeTour}
-          onTabChange={onTabChange}
-          onToggleTabsNav={onToggleTabsNav}
-          onSkipTour={onSkipTour}
-          onCompleteTour={onCompleteTour}
-          isMobile={isMobile}
-          lastActivity={lastActivity}
-          suggestedNextAction={suggestedNextAction}
-        />
-      </div>
-    </main>
+          
+          {children}
+        </div>
+      </main>
+    </div>
   );
 };
 
 export default DashboardWrapper;
-
-// Import formatting utilities
-import { formatTime, formatDate } from "@/pages/dashboard/student/utils/DateTimeFormatter";
