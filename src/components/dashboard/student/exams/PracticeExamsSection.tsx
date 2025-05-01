@@ -15,6 +15,9 @@ import { CheckCircle, Clock, BookOpen, Calendar, Flag, Plus, BarChart } from "lu
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { SharedPageLayout } from "../SharedPageLayout";
+import CreateExamCardDialog, { ExamCardFormData } from "./CreateExamCardDialog";
+import PurchaseCreditsDialog from "./PurchaseCreditsDialog";
+import { SubscriptionType } from "@/types/user/base";
 
 // Mock exam data
 const mockExams = [
@@ -182,6 +185,7 @@ const ExamCard: React.FC<ExamCardProps> = ({ exam }) => {
 const PracticeExamsSection = () => {
   const [activeTab, setActiveTab] = useState("all");
   const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [showPurchaseCreditsDialog, setShowPurchaseCreditsDialog] = useState(false);
   const [examForm, setExamForm] = useState({
     title: "",
     subject: "physics",
@@ -194,6 +198,10 @@ const PracticeExamsSection = () => {
   });
   const { toast } = useToast();
   const navigate = useNavigate();
+  
+  // Mock user data - in a real app this would come from a context or API
+  const [userCredits, setUserCredits] = useState({ standard: 15, exam: 5 });
+  const [userSubscription, setUserSubscription] = useState<SubscriptionType>(SubscriptionType.Pro);
   
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { id, value } = e.target;
@@ -235,6 +243,30 @@ const PracticeExamsSection = () => {
     });
   };
   
+  const handleCreateCards = (data: ExamCardFormData) => {
+    // In a real app, this would call an API to generate the cards
+    console.log("Creating cards with data:", data);
+    
+    // Deduct credits
+    setUserCredits(prev => ({
+      ...prev,
+      exam: prev.exam - data.cardCount
+    }));
+    
+    toast({
+      title: "Creating Exam Cards",
+      description: `${data.cardCount} exam cards are being created for ${data.subject}: ${data.topic}.`,
+    });
+  };
+  
+  const handlePurchaseComplete = () => {
+    // In a real app, this would update the credit balance from the API
+    setUserCredits(prev => ({
+      ...prev,
+      exam: prev.exam + 20 // Simulating purchase of 20 credits
+    }));
+  };
+  
   // Filter exams based on tab
   const filterExams = (tab: string) => {
     switch (tab) {
@@ -264,7 +296,7 @@ const PracticeExamsSection = () => {
             </TabsList>
           </Tabs>
           
-          <div className="flex gap-2 mt-2 sm:mt-0">
+          <div className="flex flex-wrap gap-2 mt-2 sm:mt-0">
             <Button variant="outline" size="sm">
               <Flag className="h-4 w-4 mr-1" />
               Prioritize
@@ -273,6 +305,14 @@ const PracticeExamsSection = () => {
               <BarChart className="h-4 w-4 mr-1" />
               Analytics
             </Button>
+            
+            <CreateExamCardDialog 
+              userSubscription={userSubscription} 
+              userCredits={userCredits}
+              onCreateCards={handleCreateCards}
+              onPurchaseCredits={() => setShowPurchaseCreditsDialog(true)}
+            />
+            
             <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
               <DialogTrigger asChild>
                 <Button size="sm">
@@ -429,6 +469,13 @@ const PracticeExamsSection = () => {
           )}
         </motion.div>
       </div>
+      
+      {/* Purchase Credits Dialog */}
+      <PurchaseCreditsDialog 
+        open={showPurchaseCreditsDialog}
+        onOpenChange={setShowPurchaseCreditsDialog}
+        onPurchaseComplete={handlePurchaseComplete}
+      />
     </SharedPageLayout>
   );
 };

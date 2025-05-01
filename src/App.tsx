@@ -1,3 +1,4 @@
+
 import React, { Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
@@ -39,6 +40,7 @@ import FlashcardDetailsPage from './pages/dashboard/student/FlashcardDetailsPage
 import InteractiveFlashcardBrowser from './components/flashcards/InteractiveFlashcardBrowser';
 import { NotificationsView } from './components/dashboard/student/notifications/NotificationsView';
 import EnhancedProfilePage from './pages/dashboard/student/EnhancedProfilePage';
+import PracticeExamsSection from './components/dashboard/student/exams/PracticeExamsSection';
 
 const AdminDashboard = React.lazy(() => import('@/pages/admin/AdminDashboard'));
 
@@ -80,13 +82,14 @@ function App() {
               <Route path="/dashboard/student/concepts/study-landing/:conceptId" element={<ConceptStudyLandingPage />} />
               <Route path="/dashboard/student/concepts/landing" element={<ConceptsLandingPage />} />
               
-              {/* Direct Flashcard routes - Simplified */}
+              {/* Direct Flashcard routes */}
               <Route path="/dashboard/student/flashcards/:flashcardId/interactive" element={<FlashcardInteractive />} />
               <Route path="/dashboard/student/flashcards/:flashcardId" element={<FlashcardDetailsPage />} />
               <Route path="/dashboard/student/flashcards/:flashcardId/browse" element={<InteractiveFlashcardBrowser />} />
               <Route path="/dashboard/student/flashcards/:flashcardId/practice" element={<EnhancedFlashcardPractice />} />
               
               {/* Practice exam routes */}
+              <Route path="/dashboard/student/practice-exams" element={<PracticeExamsSection />} />
               <Route path="/dashboard/student/practice-exam/:examId/start" element={<ExamTakingPage />} />
               <Route path="/dashboard/student/practice-exam/:examId/review" element={<ExamReviewPage />} />
               

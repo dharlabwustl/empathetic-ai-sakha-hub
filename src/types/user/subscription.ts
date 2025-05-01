@@ -59,6 +59,11 @@ export interface CreditPack {
   bestValue?: boolean;
 }
 
+export interface UserCredits {
+  standard: number;
+  exam: number;
+}
+
 export const creditPacks: CreditPack[] = [
   {
     id: 'credits_50',
