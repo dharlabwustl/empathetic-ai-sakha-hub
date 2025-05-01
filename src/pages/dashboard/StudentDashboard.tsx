@@ -8,6 +8,7 @@ import SplashScreen from "@/components/dashboard/student/SplashScreen";
 import { useLocation } from "react-router-dom";
 import RedesignedDashboardOverview from "@/components/dashboard/student/RedesignedDashboardOverview";
 import { MoodType } from "@/types/user/base";
+import WelcomeTour from "@/components/dashboard/student/WelcomeTour";
 
 const StudentDashboard = () => {
   const [showSplash, setShowSplash] = useState(true);
@@ -41,6 +42,9 @@ const StudentDashboard = () => {
     toggleTabsNav
   } = useStudentDashboard();
 
+  // Separate state to control tour visibility
+  const [showTourModal, setShowTourModal] = useState(false);
+
   // Check URL parameters for onboarding status
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -54,6 +58,11 @@ const StudentDashboard = () => {
       setShowSplash(false);
       // For new users, we always want to show the tour
       setForceShowTour(true);
+      
+      // Display tour after a short delay
+      setTimeout(() => {
+        setShowTourModal(true);
+      }, 2000);
     } else {
       // Check if the user has seen the splash screen in this session
       const hasSeen = sessionStorage.getItem("hasSeenSplash");
@@ -73,6 +82,7 @@ const StudentDashboard = () => {
     if (isNewUser || !sessionStorage.getItem("hasSeenTour")) {
       const tourTimer = setTimeout(() => {
         setForceShowTour(true);
+        setShowTourModal(true);
         sessionStorage.setItem("hasSeenTour", "true");
       }, 2000);
       
@@ -95,6 +105,16 @@ const StudentDashboard = () => {
         localStorage.setItem("userData", JSON.stringify(parsedData));
       }
     }
+  };
+
+  const handleSkipTourWrapper = () => {
+    handleSkipTour();
+    setShowTourModal(false);
+  };
+
+  const handleCompleteTourWrapper = () => {
+    handleCompleteTour();
+    setShowTourModal(false);
   };
 
   // Show splash screen if needed
@@ -132,29 +152,42 @@ const StudentDashboard = () => {
   };
 
   return (
-    <DashboardLayout
-      userProfile={userProfile}
-      hideSidebar={hideSidebar}
-      hideTabsNav={hideTabsNav}
-      activeTab={activeTab}
-      kpis={kpis}
-      nudges={nudges}
-      markNudgeAsRead={markNudgeAsRead}
-      showWelcomeTour={forceShowTour || showWelcomeTour}
-      onTabChange={handleTabChange}
-      onViewStudyPlan={handleViewStudyPlan}
-      onToggleSidebar={toggleSidebar}
-      onToggleTabsNav={toggleTabsNav}
-      onSkipTour={handleSkipTour}
-      onCompleteTour={handleCompleteTour}
-      showStudyPlan={showStudyPlan}
-      onCloseStudyPlan={handleCloseStudyPlan}
-      lastActivity={lastActivity}
-      suggestedNextAction={suggestedNextAction}
-      currentMood={currentMood}
-    >
-      {getTabContent()}
-    </DashboardLayout>
+    <>
+      <DashboardLayout
+        userProfile={userProfile}
+        hideSidebar={hideSidebar}
+        hideTabsNav={hideTabsNav}
+        activeTab={activeTab}
+        kpis={kpis}
+        nudges={nudges}
+        markNudgeAsRead={markNudgeAsRead}
+        showWelcomeTour={false} // We're controlling this with our own state now
+        onTabChange={handleTabChange}
+        onViewStudyPlan={handleViewStudyPlan}
+        onToggleSidebar={toggleSidebar}
+        onToggleTabsNav={toggleTabsNav}
+        onSkipTour={handleSkipTourWrapper}
+        onCompleteTour={handleCompleteTourWrapper}
+        showStudyPlan={showStudyPlan}
+        onCloseStudyPlan={handleCloseStudyPlan}
+        lastActivity={lastActivity}
+        suggestedNextAction={suggestedNextAction}
+        currentMood={currentMood}
+      >
+        {getTabContent()}
+      </DashboardLayout>
+      
+      {/* Welcome Tour Modal - will show after 2 seconds if user is new */}
+      <WelcomeTour
+        open={showTourModal}
+        onOpenChange={setShowTourModal}
+        onSkipTour={handleSkipTourWrapper}
+        onCompleteTour={handleCompleteTourWrapper}
+        isFirstTimeUser={true}
+        lastActivity={lastActivity}
+        suggestedNextAction={suggestedNextAction}
+      />
+    </>
   );
 };
 

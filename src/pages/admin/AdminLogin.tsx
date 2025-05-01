@@ -14,13 +14,12 @@ import {
 } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Eye, EyeOff, Lock, Mail, ArrowRight, Loader2 } from "lucide-react";
-import { useAdminAuth } from '@/contexts/auth/AdminAuthContext';
+import adminAuthService from '@/services/auth/adminAuthService';
 import PrepzrLogo from '@/components/common/PrepzrLogo';
 
 const AdminLogin = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { adminLogin, adminLoginError, isAdminLoading } = useAdminAuth();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -48,27 +47,24 @@ const AdminLogin = () => {
     setIsLoading(true);
     
     try {
-      console.log("Attempting admin login with:", formData.email);
+      // Use the admin auth service directly
+      const response = await adminAuthService.adminLogin({
+        email: formData.email,
+        password: formData.password
+      });
       
-      // In a real app, we'd validate against a backend
-      // For demo purposes, consider any email containing "admin" as valid
-      const isValidAdmin = formData.email.toLowerCase().includes('admin') && 
-                           formData.password.length > 3;
-                           
-      if (isValidAdmin) {
+      if (response.success && response.data) {
         toast({
-          title: "Login successful",
-          description: "Redirecting to admin dashboard",
+          title: "Admin login successful",
+          description: "Welcome to the admin dashboard"
         });
         
         // Navigate to admin dashboard
-        setTimeout(() => {
-          navigate("/admin/dashboard", { replace: true });
-        }, 500);
+        navigate("/admin/dashboard", { replace: true });
       } else {
         toast({
           title: "Login Failed",
-          description: "Invalid admin credentials. Please try again.",
+          description: response.message || "Invalid admin credentials. Please try again.",
           variant: "destructive"
         });
       }
@@ -154,9 +150,9 @@ const AdminLogin = () => {
                 <Button 
                   className="w-full bg-gradient-to-r from-purple-600 to-violet-700 hover:from-purple-700 hover:to-violet-800 text-white shadow-md"
                   type="submit"
-                  disabled={isLoading || isAdminLoading}
+                  disabled={isLoading}
                 >
-                  {(isLoading || isAdminLoading) ? (
+                  {isLoading ? (
                     <div className="flex items-center gap-2">
                       <Loader2 className="h-5 w-5 animate-spin" />
                       <span>Signing in...</span>

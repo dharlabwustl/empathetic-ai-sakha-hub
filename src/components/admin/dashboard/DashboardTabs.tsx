@@ -9,6 +9,9 @@ import UsersManagement from './UsersManagement';
 import ContentManagement from './ContentManagement';
 import SystemLogs from './SystemLogs';
 import SubscriptionPlans from './SubscriptionPlans';
+import FeatureManager from '../features/FeatureManager';
+import DatabaseExplorer from '../database/DatabaseExplorer';
+import ApiEndpoints from '../api/ApiEndpoints';
 
 interface DashboardTabsProps {
   activeTab: string;
@@ -29,12 +32,15 @@ const DashboardTabs: React.FC<DashboardTabsProps> = ({ activeTab, onTabChange })
       onValueChange={onTabChange}
       className="w-full"
     >
-      <TabsList className="grid w-full grid-cols-5">
+      <TabsList className="grid w-full grid-cols-8">
         <TabsTrigger value="overview">Overview</TabsTrigger>
         <TabsTrigger value="users">Users</TabsTrigger>
         <TabsTrigger value="content">Content</TabsTrigger>
         <TabsTrigger value="subscriptions">Subscriptions</TabsTrigger>
-        <TabsTrigger value="logs">System Logs</TabsTrigger>
+        <TabsTrigger value="features">Features</TabsTrigger>
+        <TabsTrigger value="database">Database</TabsTrigger>
+        <TabsTrigger value="api">API</TabsTrigger>
+        <TabsTrigger value="logs">Logs</TabsTrigger>
       </TabsList>
 
       <TabsContent value="overview" className="space-y-4 mt-4">
@@ -51,6 +57,18 @@ const DashboardTabs: React.FC<DashboardTabsProps> = ({ activeTab, onTabChange })
       
       <TabsContent value="subscriptions" className="space-y-4 mt-4">
         <SubscriptionPlans />
+      </TabsContent>
+      
+      <TabsContent value="features" className="space-y-4 mt-4">
+        <FeatureManager />
+      </TabsContent>
+      
+      <TabsContent value="database" className="space-y-4 mt-4">
+        <DatabaseExplorer />
+      </TabsContent>
+      
+      <TabsContent value="api" className="space-y-4 mt-4">
+        <ApiEndpoints />
       </TabsContent>
       
       <TabsContent value="logs" className="space-y-4 mt-4">

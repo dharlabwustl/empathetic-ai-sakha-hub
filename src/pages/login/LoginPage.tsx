@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Eye, EyeOff, Mail, Lock, ArrowRight } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, ArrowRight, Loader2 } from "lucide-react";
 import { useAuth } from "@/contexts/auth/AuthContext";
 import PrepzrLogo from "@/components/common/PrepzrLogo";
 
@@ -49,7 +49,7 @@ const LoginPage = () => {
           description: "Redirecting to your dashboard",
         });
         
-        navigate("/welcome-back");
+        navigate("/dashboard/student");
       } else {
         toast({
           title: "Login Failed",
@@ -78,7 +78,7 @@ const LoginPage = () => {
 
   return (
     <CardContent className="p-6 space-y-6">
-      <div className="space-y-4">
+      <form onSubmit={handleLogin} className="space-y-4">
         <div className="space-y-2">
           <Label htmlFor="email" className="text-sm font-medium">Email Address</Label>
           <div className="relative">
@@ -140,7 +140,7 @@ const LoginPage = () => {
         >
           {isLoading ? (
             <div className="flex items-center gap-2">
-              <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+              <Loader2 className="h-5 w-5 animate-spin" />
               <span>Signing in...</span>
             </div>
           ) : (
@@ -150,31 +150,14 @@ const LoginPage = () => {
             </div>
           )}
         </Button>
-      </div>
-      
-      <div className="relative">
-        <div className="absolute inset-0 flex items-center">
-          <span className="w-full border-t border-gray-300"></span>
+
+        <div className="text-center text-sm">
+          <span className="text-gray-500">Don't have an account? </span>
+          <Button variant="link" className="p-0 h-auto" onClick={() => navigate("/signup")}>
+            Sign up
+          </Button>
         </div>
-        <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-white dark:bg-gray-900 px-2 text-gray-500">Or sign in with</span>
-        </div>
-      </div>
-      
-      <Button 
-        type="button"
-        variant="outline" 
-        className="w-full"
-        onClick={() => {
-          toast({
-            title: "Google Sign In",
-            description: "Google authentication would be implemented here.",
-          });
-        }}
-      >
-        <img src="https://www.google.com/favicon.ico" alt="Google" className="h-4 w-4 mr-2" />
-        Sign in with Google
-      </Button>
+      </form>
     </CardContent>
   );
 };
