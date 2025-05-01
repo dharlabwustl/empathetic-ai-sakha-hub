@@ -1,4 +1,3 @@
-
 import React, { Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
@@ -33,6 +32,8 @@ import TutorView from './pages/dashboard/student/TutorView';
 import AcademicAdvisorView from './pages/dashboard/student/AcademicAdvisorView';
 import FlashcardPracticeLandingPage from './pages/dashboard/student/flashcard/FlashcardPracticeLandingPage';
 import ConceptStudyLandingPage from './pages/dashboard/student/concept/ConceptStudyLandingPage';
+import ConceptsLandingPage from './components/dashboard/student/concepts/ConceptsLandingPage';
+import FlashcardsLandingPage from './components/dashboard/student/flashcards/FlashcardsLandingPage';
 
 const AdminDashboard = React.lazy(() => import('@/pages/admin/AdminDashboard'));
 
@@ -59,15 +60,25 @@ function App() {
               <Route path="/dashboard/student/:tab" element={<StudentDashboard />} />
               <Route path="/dashboard/student/today" element={<TodaysPlanView />} />
               <Route path="/dashboard/student/feel-good-corner" element={<FeelGoodCornerView />} />
+              
+              {/* Concept routes */}
               <Route path="/dashboard/student/concepts/card/:conceptId" element={<ConceptCardDetailPage />} />
               <Route path="/dashboard/student/concepts/study/:conceptId" element={<ConceptStudyPage />} />
               <Route path="/dashboard/student/concepts/study" element={<ConceptCardStudyPage />} />
               <Route path="/dashboard/student/concepts/study-landing/:conceptId" element={<ConceptStudyLandingPage />} />
+              <Route path="/dashboard/student/concepts/landing" element={<ConceptsLandingPage />} />
+              
+              {/* Flashcard routes */}
               <Route path="/dashboard/student/flashcards/:deckId/interactive" element={<FlashcardInteractivePage />} />
               <Route path="/dashboard/student/flashcards/enhanced" element={<EnhancedFlashcardPage />} />
               <Route path="/dashboard/student/flashcards/practice" element={<FlashcardPracticeLandingPage />} />
+              <Route path="/dashboard/student/flashcards/landing" element={<FlashcardsLandingPage />} />
+              
+              {/* Practice exam routes */}
               <Route path="/dashboard/student/practice-exam/:examId/start" element={<ExamTakingPage />} />
               <Route path="/dashboard/student/practice-exam/:examId/review" element={<ExamReviewPage />} />
+              
+              {/* Other routes */}
               <Route path="/dashboard/student/profile" element={<ProfilePage />} />
               <Route path="/dashboard/student/studyplan" element={<StudyPlanView />} />
               <Route path="/dashboard/student/tutor" element={<TutorView />} />

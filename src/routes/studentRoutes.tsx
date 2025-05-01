@@ -1,4 +1,3 @@
-
 import { Routes, Route } from 'react-router-dom';
 import TodaysPlanView from '@/components/dashboard/student/todays-plan/TodaysPlanView';
 import ConceptsLandingPage from '@/components/dashboard/student/concepts/ConceptsLandingPage';
@@ -12,6 +11,7 @@ import BatchManagementView from '@/pages/dashboard/student/BatchManagementView';
 import SubscriptionView from '@/pages/dashboard/student/SubscriptionPage';
 import ConceptCardDetailPage from '@/components/dashboard/student/concepts/ConceptCardDetailPage';
 import FlashcardInteractivePage from '@/pages/dashboard/student/flashcard/FlashcardInteractivePage';
+import FlashcardPracticeLandingPage from '@/pages/dashboard/student/flashcard/FlashcardPracticeLandingPage';
 import ExamTakingPage from '@/components/dashboard/student/practice-exam/ExamTakingPage';
 import ExamReviewPage from '@/components/dashboard/student/practice-exam/ExamReviewPage';
 import TutorView from '@/pages/dashboard/student/TutorView';
@@ -29,17 +29,28 @@ export default function StudentRoutes() {
       <Route path="/today" element={<TodaysPlanView />} />
       <Route path="/studyplan" element={<StudyPlanView />} />
       <Route path="/study-plan" element={<StudyPlanView />} />
+      
+      {/* Concepts routes */}
       <Route path="/concepts" element={<ConceptCardsView />} />
+      <Route path="/concepts/landing" element={<ConceptsLandingPage />} />
       <Route path="/concepts/:subject?" element={<ConceptsLandingPage />} />
       <Route path="/concepts/card/:conceptId" element={<ConceptCardDetailPage />} />
       <Route path="/concepts/study-landing/:conceptId" element={<ConceptStudyLandingPage />} />
+      
+      {/* Flashcards routes */}
       <Route path="/flashcards" element={<FlashcardsView />} />
+      <Route path="/flashcards/landing" element={<FlashcardsLandingPage />} />
       <Route path="/flashcards/:subject?" element={<FlashcardsLandingPage />} />
       <Route path="/flashcards/:deckId/interactive" element={<FlashcardInteractivePage />} />
+      <Route path="/flashcards/practice" element={<FlashcardPracticeLandingPage />} />
+      
+      {/* Practice exam routes */}
       <Route path="/practice" element={<PracticeExamsView />} />
       <Route path="/practice/:subject?" element={<PracticeExamLandingPage />} />
       <Route path="/practice-exam/:examId/start" element={<ExamTakingPage />} />
       <Route path="/practice-exam/:examId/review" element={<ExamReviewPage />} />
+      
+      {/* Other routes */}
       <Route path="/notifications" element={<NotificationsView />} />
       <Route path="/backlog" element={<BacklogView />} />
       <Route path="/profile" element={<ProfileView />} />

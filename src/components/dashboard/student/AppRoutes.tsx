@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import FlashcardInteractive from '@/components/dashboard/student/flashcards/FlashcardInteractive';
@@ -16,6 +15,9 @@ import NotificationsView from '@/components/dashboard/student/notifications/Noti
 import AcademicAdvisorView from '@/pages/dashboard/student/AcademicAdvisorView';
 import TutorView from '@/pages/dashboard/student/TutorView';
 import ConceptStudyLandingPage from '@/pages/dashboard/student/concept/ConceptStudyLandingPage';
+import FlashcardPracticeLandingPage from '@/pages/dashboard/student/flashcard/FlashcardPracticeLandingPage';
+import ConceptsLandingPage from '@/components/dashboard/student/concepts/ConceptsLandingPage';
+import FlashcardsLandingPage from '@/components/dashboard/student/flashcards/FlashcardsLandingPage';
 
 export default function AppRoutes() {
   const { dashboardData } = useStudentDashboardData();
@@ -23,14 +25,25 @@ export default function AppRoutes() {
   return (
     <Routes>
       <Route path="/dashboard/student/today" element={<RedesignedTodaysPlan />} />
+      
+      {/* Concepts routes */}
       <Route path="/dashboard/student/concepts" element={<ConceptCardsView />} />
+      <Route path="/dashboard/student/concepts/landing" element={<ConceptsLandingPage />} />
       <Route path="/dashboard/student/concepts/card/:conceptId" element={<ConceptCardDetailPage />} />
       <Route path="/dashboard/student/concepts/study-landing/:conceptId" element={<ConceptStudyLandingPage />} />
+      
+      {/* Flashcards routes */}
       <Route path="/dashboard/student/flashcards" element={<FlashcardsView />} />
+      <Route path="/dashboard/student/flashcards/landing" element={<FlashcardsLandingPage />} />
       <Route path="/dashboard/student/flashcards/:deckId/interactive" element={<FlashcardInteractive />} />
+      <Route path="/dashboard/student/flashcards/practice" element={<FlashcardPracticeLandingPage />} />
+      
+      {/* Practice exam routes */}
       <Route path="/dashboard/student/practice-exam" element={<PracticeExamsView />} />
       <Route path="/dashboard/student/practice-exam/:examId/start" element={<ExamTakingPage />} />
       <Route path="/dashboard/student/practice-exam/:examId/review" element={<ExamReviewPage />} />
+      
+      {/* Other routes */}
       <Route path="/dashboard/student/feel-good-corner" element={<FeelGoodCornerView />} />
       <Route path="/dashboard/student/study-plan" element={<StudyPlanView />} />
       <Route path="/dashboard/student/academic" element={<AcademicAdvisorView />} />
