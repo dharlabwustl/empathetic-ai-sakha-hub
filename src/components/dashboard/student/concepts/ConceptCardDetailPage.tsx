@@ -20,6 +20,11 @@ const ConceptCardDetailPage = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
+  // Add function to navigate to study page
+  const handleStudyClick = () => {
+    navigate(`/dashboard/student/concepts/${conceptId}/study`);
+  };
+
   useEffect(() => {
     // Check if speech synthesis is supported
     if ('speechSynthesis' in window) {
@@ -181,7 +186,6 @@ const ConceptCardDetailPage = () => {
                   toast({
                     title: "Concept marked as completed",
                     description: "Your progress has been updated!",
-                    variant: "default"
                   });
                 }}
               >
@@ -194,15 +198,6 @@ const ConceptCardDetailPage = () => {
                     <CheckCircle2 className="mr-1 h-4 w-4" /> Mark as Complete
                   </>
                 )}
-              </Button>
-
-              <Button 
-                variant="secondary"
-                size="sm" 
-                onClick={handleStartStudy}
-                className="bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white"
-              >
-                <BookOpen className="mr-1 h-4 w-4" /> Study This Concept
               </Button>
             </div>
           </div>
@@ -376,6 +371,18 @@ const ConceptCardDetailPage = () => {
               </Card>
             </TabsContent>
           </Tabs>
+          
+          {/* Study Button - Added to link to the concept study page */}
+          <div className="flex justify-center mt-6">
+            <Button 
+              size="lg" 
+              className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-8 py-6"
+              onClick={handleStudyClick}
+            >
+              <BookOpen className="mr-2 h-5 w-5" />
+              {conceptCard?.completed ? "Review Again" : "Start Learning"}
+            </Button>
+          </div>
           
           {/* Related Concepts Section */}
           <div className="mt-8">

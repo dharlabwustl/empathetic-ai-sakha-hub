@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
@@ -155,6 +154,12 @@ const ConceptsLandingPage = () => {
     navigate(`/dashboard/student/concepts/card/${conceptId}`);
   };
 
+  // Handle start learning button click
+  const handleStartLearningClick = (e: React.MouseEvent<HTMLButtonElement>, conceptId: string) => {
+    e.stopPropagation(); // Prevent triggering the card click
+    navigate(`/dashboard/student/concepts/${conceptId}/study`);
+  };
+
   // Difficulty badge color
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
@@ -274,7 +279,11 @@ const ConceptsLandingPage = () => {
                   </CardContent>
                   
                   <CardFooter>
-                    <Button variant="outline" className="w-full">
+                    <Button 
+                      variant="outline" 
+                      className="w-full"
+                      onClick={(e) => handleStartLearningClick(e, concept.id)}
+                    >
                       {concept.completed ? 'Review Again' : concept.progress > 0 ? 'Continue Learning' : 'Start Learning'}
                       <ChevronRight className="h-4 w-4 ml-1" />
                     </Button>

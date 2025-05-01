@@ -3,7 +3,7 @@ import React from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useConceptCardDetails } from '@/hooks/useUserStudyPlan';
-import { ChevronLeft, Book } from 'lucide-react';
+import { ChevronLeft, Book, BookOpen } from 'lucide-react';
 import { ConceptsPageLayout } from './ConceptsPageLayout';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -12,6 +12,11 @@ export const ConceptCardDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { conceptCard, loading } = useConceptCardDetails(id || '');
+
+  // Function to navigate to the concept study page
+  const handleStudyClick = () => {
+    navigate(`/dashboard/student/concepts/${id}/study`);
+  };
 
   if (loading) {
     return (
@@ -129,6 +134,18 @@ export const ConceptCardDetail = () => {
             </div>
           </CardContent>
         </Card>
+
+        {/* Study Button - Added to the detailed view */}
+        <div className="flex justify-center mt-6">
+          <Button 
+            size="lg" 
+            className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-8 py-6"
+            onClick={handleStudyClick}
+          >
+            <BookOpen className="mr-2 h-5 w-5" />
+            {conceptCard?.completed ? "Review Again" : "Start Learning"}
+          </Button>
+        </div>
           
         {/* Related concepts */}
         {conceptCard.relatedConcepts && conceptCard.relatedConcepts.length > 0 && (

@@ -1,10 +1,49 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
-import { Card, CardContent } from "@/components/ui/card";
-import { MessageCircle } from 'lucide-react';
+import AIChatTutor from '@/pages/dashboard/student/AIChatTutor';
+
+// Mock user profile for demonstration
+const mockUserProfile = {
+  id: "user123",
+  name: "Student",
+  email: "student@example.com",
+  examPreparation: "JEE Advanced",
+  goals: [
+    { id: "g1", title: "JEE Advanced", targetDate: "2023-04-15", progress: 65 }
+  ],
+  subjects: ["Physics", "Chemistry", "Mathematics"],
+  recentActivity: {
+    lastLogin: new Date(),
+    lastStudySession: new Date(Date.now() - 86400000),
+    completedTasks: 42
+  }
+};
 
 const TutorView = () => {
+  const [userProfile, setUserProfile] = useState(mockUserProfile);
+
+  // In a real app, you would fetch the user profile from an API or context
+  useEffect(() => {
+    // Simulate fetching user data
+    const userData = localStorage.getItem("userData");
+    if (userData) {
+      try {
+        const parsedData = JSON.parse(userData);
+        if (parsedData) {
+          setUserProfile({
+            ...mockUserProfile,
+            ...parsedData,
+            name: parsedData.name || mockUserProfile.name,
+            examPreparation: parsedData.examPreparation || mockUserProfile.examPreparation
+          });
+        }
+      } catch (error) {
+        console.error("Error parsing user data:", error);
+      }
+    }
+  }, []);
+
   return (
     <SharedPageLayout 
       title="24/7 AI Tutor" 
@@ -12,20 +51,7 @@ const TutorView = () => {
       backButtonUrl="/dashboard/student"
       showBackButton={true}
     >
-      <div className="space-y-6">
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center gap-3 mb-4">
-              <MessageCircle className="h-6 w-6 text-primary" />
-              <h2 className="text-xl font-bold">AI Tutor Assistant</h2>
-            </div>
-            <p className="mb-4">Your personal AI tutor is here to help with any academic questions or learning challenges.</p>
-            <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg">
-              <p className="text-center">AI chat interface would be displayed here</p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      <AIChatTutor userProfile={userProfile} />
     </SharedPageLayout>
   );
 };
