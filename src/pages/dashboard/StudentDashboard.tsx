@@ -13,7 +13,7 @@ import WelcomeTour from "@/components/dashboard/student/WelcomeTour";
 const StudentDashboard = () => {
   const [showSplash, setShowSplash] = useState(true);
   const [currentMood, setCurrentMood] = useState<MoodType | undefined>(undefined);
-  const [forceShowTour, setForceShowTour] = useState(false);
+  const [showTourModal, setShowTourModal] = useState(false);
   const location = useLocation();
   
   const {
@@ -42,10 +42,7 @@ const StudentDashboard = () => {
     toggleTabsNav
   } = useStudentDashboard();
 
-  // Separate state to control tour visibility
-  const [showTourModal, setShowTourModal] = useState(false);
-
-  // Check URL parameters for onboarding status
+  // Check URL parameters for onboarding status and show tour immediately
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const isNewUser = params.get('new') === 'true';
@@ -56,17 +53,21 @@ const StudentDashboard = () => {
     // Don't show splash screen for new users coming from signup flow
     if (isNewUser) {
       setShowSplash(false);
-      // For new users, we always want to show the tour
-      setForceShowTour(true);
-      
-      // Display tour after a short delay
-      setTimeout(() => {
-        setShowTourModal(true);
-      }, 2000);
+      // Always show tour for new users, immediately
+      setShowTourModal(true);
     } else {
       // Check if the user has seen the splash screen in this session
       const hasSeen = sessionStorage.getItem("hasSeenSplash");
       setShowSplash(!hasSeen);
+      
+      // For returning users who haven't seen the tour
+      const hasSeenTour = localStorage.getItem("userData") ? 
+        JSON.parse(localStorage.getItem("userData") || '{}').sawWelcomeTour : false;
+      
+      if (!hasSeenTour) {
+        // Short timeout just to let the dashboard render first
+        setTimeout(() => setShowTourModal(true), 500);
+      }
     }
     
     // Try to get saved mood from local storage
@@ -76,19 +77,6 @@ const StudentDashboard = () => {
       if (parsedData.mood) {
         setCurrentMood(parsedData.mood);
       }
-    }
-    
-    // Set a timeout to show tour for first-time users who don't have the new=true parameter
-    // This is a fallback for users who don't come through the signup flow
-    if (!sessionStorage.getItem("hasSeenTour")) {
-      const tourTimer = setTimeout(() => {
-        console.log("Showing welcome tour after timeout");
-        setForceShowTour(true);
-        setShowTourModal(true);
-        sessionStorage.setItem("hasSeenTour", "true");
-      }, 2000);
-      
-      return () => clearTimeout(tourTimer);
     }
   }, [location]);
   
@@ -154,7 +142,7 @@ const StudentDashboard = () => {
   };
 
   // Log when the component renders to help debug tour issue
-  console.log("StudentDashboard render", { showTourModal, forceShowTour });
+  console.log("StudentDashboard render", { showTourModal });
 
   return (
     <>
@@ -182,7 +170,7 @@ const StudentDashboard = () => {
         {getTabContent()}
       </DashboardLayout>
       
-      {/* Welcome Tour Modal - will show after 2 seconds if user is new */}
+      {/* Welcome Tour Modal - will show immediately for new users */}
       <WelcomeTour
         open={showTourModal}
         onOpenChange={setShowTourModal}

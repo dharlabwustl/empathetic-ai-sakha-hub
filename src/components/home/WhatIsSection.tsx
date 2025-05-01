@@ -1,10 +1,38 @@
 
-import React from 'react';
-import { motion } from 'framer-motion';
-import { CheckCircle } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
+import { motion, useAnimation } from 'framer-motion';
+import { CheckCircle, Layers, BookOpen, Clock, Activity, Brain } from 'lucide-react';
 
 const WhatIsSection = () => {
-  // Animation variants for the feature icons
+  const controls = useAnimation();
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
+  const [animationTriggered, setAnimationTriggered] = useState(false);
+  
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !animationTriggered) {
+          setIsVisible(true);
+          setAnimationTriggered(true);
+          controls.start("visible");
+        }
+      },
+      { threshold: 0.2 }
+    );
+    
+    if (containerRef.current) {
+      observer.observe(containerRef.current);
+    }
+    
+    return () => {
+      if (containerRef.current) {
+        observer.unobserve(containerRef.current);
+      }
+    };
+  }, [controls, animationTriggered]);
+
+  // Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -20,7 +48,15 @@ const WhatIsSection = () => {
     visible: { opacity: 1, y: 0 }
   };
 
-  // Animation for the floating elements
+  const dashboardVariants = {
+    hidden: { opacity: 0, scale: 0.95 },
+    visible: { 
+      opacity: 1, 
+      scale: 1,
+      transition: { duration: 0.6 }
+    }
+  };
+  
   const floatingAnimation = {
     y: [-10, 10, -10],
     transition: {
@@ -33,17 +69,19 @@ const WhatIsSection = () => {
   };
 
   return (
-    <section className="py-16 md:py-24 bg-white dark:bg-gray-900">
+    <section ref={containerRef} className="py-16 md:py-24 bg-white dark:bg-gray-900">
       <div className="container mx-auto px-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          animate={controls}
+          className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center"
+        >
           <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
+            variants={itemVariants}
             className="order-2 md:order-1"
           >
-            <h2 className="text-3xl md:text-4xl font-bold mb-6">What is PREPZR?</h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-6 bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">What is PREPZR?</h2>
             <p className="text-lg text-gray-600 dark:text-gray-400 mb-6">
               PREPZR is an AI-powered learning platform designed specifically for students preparing for competitive exams in India. Our platform intelligently adapts to your learning style, pace, and preferences.
             </p>
@@ -51,9 +89,6 @@ const WhatIsSection = () => {
             <motion.div 
               className="space-y-4"
               variants={containerVariants}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
             >
               <motion.div className="flex items-start" variants={itemVariants}>
                 <CheckCircle className="h-6 w-6 text-green-500 mr-3 mt-0.5" />
@@ -88,20 +123,96 @@ const WhatIsSection = () => {
           </motion.div>
           
           <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="order-1 md:order-2"
+            variants={dashboardVariants}
+            className="order-1 md:order-2 relative"
           >
-            <div className="relative h-[400px]">
-              {/* Main image with shadow effect */}
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl transform rotate-3"></div>
-              <img 
-                src="/lovable-uploads/9ca5a007-1086-4c37-81cc-cc869e880b5b.png" 
-                alt="Student using PREPZR" 
-                className="relative z-10 rounded-2xl shadow-xl object-cover w-full"
-              />
+            <div className="relative h-[400px] dashboard-animation-container perspective-1000">
+              {/* Main dashboard visualization */}
+              <motion.div 
+                className="absolute inset-0 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl shadow-xl transform-gpu"
+                animate={{ 
+                  rotateY: [0, 2, 0, -2, 0],
+                  rotateX: [0, -1, 0, 1, 0]
+                }}
+                transition={{ 
+                  duration: 8, 
+                  repeat: Infinity, 
+                  ease: "easeInOut" 
+                }}
+              >
+                {/* Dashboard screen mockup */}
+                <div className="absolute inset-2 bg-white dark:bg-gray-800 rounded-lg overflow-hidden flex flex-col">
+                  {/* Mock dashboard header */}
+                  <div className="h-10 bg-purple-600 flex items-center px-4">
+                    <div className="w-3 h-3 rounded-full bg-red-400 mr-2"></div>
+                    <div className="w-3 h-3 rounded-full bg-yellow-400 mr-2"></div>
+                    <div className="w-3 h-3 rounded-full bg-green-400"></div>
+                    <div className="ml-4 h-4 w-20 bg-white/20 rounded"></div>
+                  </div>
+                  
+                  {/* Mock dashboard content */}
+                  <div className="flex-1 p-4 grid grid-cols-6 gap-3">
+                    {/* Sidebar */}
+                    <div className="col-span-1 bg-gray-100 dark:bg-gray-700 rounded h-full flex flex-col p-2">
+                      {[1, 2, 3, 4, 5].map((item) => (
+                        <motion.div 
+                          key={item}
+                          className={`h-8 mb-2 rounded ${item === 1 ? 'bg-purple-200 dark:bg-purple-800' : 'bg-gray-200 dark:bg-gray-600'}`}
+                          whileHover={{ scale: 1.05 }}
+                        ></motion.div>
+                      ))}
+                    </div>
+                    
+                    {/* Main content */}
+                    <div className="col-span-5 flex flex-col gap-3">
+                      {/* Header section */}
+                      <div className="h-16 bg-gray-100 dark:bg-gray-700 rounded p-2 flex justify-between items-center">
+                        <div className="w-32 h-6 bg-gray-200 dark:bg-gray-600 rounded"></div>
+                        <div className="w-24 h-8 bg-purple-200 dark:bg-purple-700 rounded"></div>
+                      </div>
+                      
+                      {/* Metrics row */}
+                      <div className="grid grid-cols-4 gap-2 h-20">
+                        {[1, 2, 3, 4].map((item) => (
+                          <motion.div 
+                            key={item}
+                            className="bg-gray-100 dark:bg-gray-700 rounded p-2 flex flex-col justify-between"
+                            whileHover={{ y: -5 }}
+                            transition={{ type: "spring", stiffness: 300 }}
+                          >
+                            <div className="w-full h-2 bg-gray-200 dark:bg-gray-600 rounded"></div>
+                            <div className="w-1/2 h-4 bg-gray-200 dark:bg-gray-600 rounded"></div>
+                          </motion.div>
+                        ))}
+                      </div>
+                      
+                      {/* Content blocks */}
+                      <div className="grid grid-cols-2 gap-2 flex-1">
+                        <motion.div 
+                          className="bg-gray-100 dark:bg-gray-700 rounded"
+                          animate={{ y: [0, -5, 0] }}
+                          transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                        >
+                          <div className="p-3">
+                            <div className="w-3/4 h-3 bg-gray-200 dark:bg-gray-600 rounded mb-2"></div>
+                            <div className="w-1/2 h-3 bg-gray-200 dark:bg-gray-600 rounded"></div>
+                          </div>
+                        </motion.div>
+                        <motion.div 
+                          className="bg-gray-100 dark:bg-gray-700 rounded"
+                          animate={{ y: [0, -5, 0] }}
+                          transition={{ duration: 2.5, delay: 0.5, repeat: Infinity, ease: "easeInOut" }}
+                        >
+                          <div className="p-3">
+                            <div className="w-3/4 h-3 bg-gray-200 dark:bg-gray-600 rounded mb-2"></div>
+                            <div className="w-1/2 h-3 bg-gray-200 dark:bg-gray-600 rounded"></div>
+                          </div>
+                        </motion.div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
               
               {/* Animated floating elements around the image */}
               <motion.div 
@@ -110,11 +221,7 @@ const WhatIsSection = () => {
               >
                 <div className="flex items-center space-x-2">
                   <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M12 20V10"></path>
-                      <path d="M18 20V4"></path>
-                      <path d="M6 20v-6"></path>
-                    </svg>
+                    <Activity size={16} />
                   </div>
                   <span className="font-medium text-sm">Progress Tracking</span>
                 </div>
@@ -135,12 +242,9 @@ const WhatIsSection = () => {
               >
                 <div className="flex items-center space-x-2">
                   <div className="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center text-white">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <polyline points="9 11 12 14 22 4"></polyline>
-                      <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
-                    </svg>
+                    <BookOpen size={16} />
                   </div>
-                  <span className="font-medium text-sm">Exam Readiness</span>
+                  <span className="font-medium text-sm">Concept Mastery</span>
                 </div>
               </motion.div>
               
@@ -159,12 +263,9 @@ const WhatIsSection = () => {
               >
                 <div className="flex items-center space-x-2">
                   <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center text-white">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-                      <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
-                    </svg>
+                    <Brain size={16} />
                   </div>
-                  <span className="font-medium text-sm">Smart Flashcards</span>
+                  <span className="font-medium text-sm">AI Tutor</span>
                 </div>
               </motion.div>
               
@@ -183,18 +284,22 @@ const WhatIsSection = () => {
               >
                 <div className="flex items-center space-x-2">
                   <div className="w-8 h-8 rounded-full bg-amber-500 flex items-center justify-center text-white">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <circle cx="12" cy="12" r="10"></circle>
-                      <polyline points="12 6 12 12 16 14"></polyline>
-                    </svg>
+                    <Clock size={16} />
                   </div>
-                  <span className="font-medium text-sm">Adaptive Learning</span>
+                  <span className="font-medium text-sm">Study Planner</span>
                 </div>
               </motion.div>
             </div>
           </motion.div>
-        </div>
+        </motion.div>
       </div>
+      
+      {/* Custom style for the perspective effect */}
+      <style jsx>{`
+        .perspective-1000 {
+          perspective: 1000px;
+        }
+      `}</style>
     </section>
   );
 };
