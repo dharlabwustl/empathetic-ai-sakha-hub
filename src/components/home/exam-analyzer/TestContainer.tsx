@@ -48,46 +48,47 @@ const TestContainer: React.FC<TestContainerProps> = ({
     <div className="my-4 space-y-6">
       <ProgressIndicator progress={progress} currentTest={currentTest} />
       
-      {currentTest === 'intro' && (
-        <IntroSection 
-          examTypes={examTypes} 
-          selectedExam={selectedExam}
-          setSelectedExam={setSelectedExam}
-          onStartTest={handleStartTest}
-        />
-      )}
-      
-      {currentTest === 'readiness' && (
-        <ReadinessTestSection 
-          loading={loading}
-          testCompleted={testCompleted.readiness}
-          selectedExam={selectedExam}
-          results={results.readiness}
-          simulateTest={simulateReadinessTest}
-          onCompleteTest={handleReadinessTestComplete}
-          onContinue={() => handleNavigation('concept')}
-        />
-      )}
-      
-      {currentTest === 'concept' && (
-        <ConceptTestSection
-          loading={loading}
-          testCompleted={testCompleted.concept}
-          selectedExam={selectedExam}
-          results={results.concept}
-          simulateTest={simulateConceptTest}
-          onCompleteTest={handleConceptTestComplete}
-          onContinue={() => handleNavigation('report')}
-        />
-      )}
-      
-      {currentTest === 'report' && (
-        <ReportSection
-          results={results}
-          selectedExam={selectedExam}
-          onStartOver={handleStartOver}
-        />
-      )}
+      <div className="min-h-[50vh]">
+        {currentTest === 'intro' && (
+          <IntroSection 
+            examTypes={examTypes} 
+            selectedExam={selectedExam}
+            setSelectedExam={setSelectedExam}
+            onStartTest={handleStartTest}
+          />
+        )}
+        
+        {currentTest === 'readiness' && (
+          <ReadinessTestSection 
+            loading={loading}
+            testCompleted={testCompleted.readiness}
+            selectedExam={selectedExam}
+            results={results.readiness}
+            simulateTest={simulateReadinessTest}
+            onCompleteTest={handleReadinessTestComplete}
+            onContinue={() => handleNavigation('concept')}
+          />
+        )}
+        
+        {currentTest === 'concept' && (
+          <ConceptTestSection
+            loading={loading}
+            testCompleted={testCompleted.concept}
+            selectedExam={selectedExam}
+            results={results.concept}
+            simulateTest={simulateConceptTest}
+            onCompleteTest={handleConceptTestComplete}
+            onContinue={() => handleNavigation('report')}
+          />
+        )}
+        
+        {currentTest === 'report' && (
+          <ReportSection
+            results={results}
+            onClose={handleStartOver}
+          />
+        )}
+      </div>
     </div>
   );
 };
