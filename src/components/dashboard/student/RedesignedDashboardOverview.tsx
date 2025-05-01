@@ -17,12 +17,13 @@ import StudyStatsSection from './dashboard-sections/StudyStatsSection';
 import SubjectBreakdownSection from './dashboard-sections/SubjectBreakdownSection';
 import TodaysPlanSection from './dashboard-sections/TodaysPlanSection';
 import ProgressTrackerSection from './dashboard-sections/ProgressTrackerSection';
-import RevisionLoopSection from './dashboard-sections/RevisionLoopSection';
-import UpcomingMilestonesSection from './dashboard-sections/UpcomingMilestonesSection';
 import MoodBasedSuggestions from './dashboard-sections/MoodBasedSuggestions';
 import SmartSuggestionsCenter from './dashboard-sections/SmartSuggestionsCenter';
 import ExamReadinessScore from './dashboard-sections/ExamReadinessScore';
 import { MoodType } from '@/types/user/base';
+
+// Import SharedNavigation for the navigation bar
+import SharedNavigation from './SharedNavigation';
 
 interface RedesignedDashboardOverviewProps {
   userProfile: UserProfileBase;
@@ -33,16 +34,6 @@ export default function RedesignedDashboardOverview({ userProfile, kpis }: Redes
   const { loading, dashboardData, refreshData } = useStudentDashboardData();
   const [currentMood, setCurrentMood] = useState<MoodType>();
   const navigate = useNavigate();
-
-  const navigationTabs = [
-    { id: "overview", label: "Overview", icon: LayoutDashboard, path: "/dashboard/student/overview" },
-    { id: "today", label: "Today's Plan", icon: CalendarDays, path: "/dashboard/student/today" },
-    { id: "academic", label: "Academic Advisor", icon: GraduationCap, path: "/dashboard/student/academic" },
-    { id: "concepts", label: "Concept Cards", icon: BookOpen, path: "/dashboard/student/concepts" },
-    { id: "flashcards", label: "Flashcards", icon: Brain, path: "/dashboard/student/flashcards" },
-    { id: "practice", label: "Practice Exams", icon: FileText, path: "/dashboard/student/practice-exam" },
-    { id: "notifications", label: "Notifications", icon: Bell, path: "/dashboard/student/notifications" },
-  ];
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -100,40 +91,9 @@ export default function RedesignedDashboardOverview({ userProfile, kpis }: Redes
       initial="hidden"
       animate="visible"
     >
-      <motion.div 
-        variants={itemVariants}
-        className="p-3 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 sticky top-0 z-10"
-      >
-        <div className="flex items-center justify-between overflow-x-auto">
-          <div className="flex space-x-1 md:space-x-2">
-            {navigationTabs.map((tab) => (
-              <motion.div
-                key={tab.id}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <Button
-                  variant={tab.id === "overview" ? "default" : "ghost"}
-                  size="sm"
-                  className="flex items-center gap-1 whitespace-nowrap text-xs md:text-sm"
-                  onClick={() => navigate(tab.path)}
-                >
-                  <tab.icon className="h-4 w-4 mr-1" />
-                  <span className="hidden md:inline">{tab.label}</span>
-                </Button>
-              </motion.div>
-            ))}
-          </div>
-          <Button 
-            size="sm" 
-            variant="outline"
-            className="hidden md:flex items-center"
-            onClick={refreshData}
-          >
-            <TrendingUp className="mr-2 h-4 w-4" />
-            Refresh Stats
-          </Button>
-        </div>
+      {/* Add SharedNavigation at the top */}
+      <motion.div variants={itemVariants}>
+        <SharedNavigation />
       </motion.div>
 
       <motion.div variants={itemVariants}>
@@ -281,14 +241,7 @@ export default function RedesignedDashboardOverview({ userProfile, kpis }: Redes
         <ProgressTrackerSection progressTracker={dashboardData.progressTracker} />
       </motion.div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <motion.div variants={itemVariants}>
-          <RevisionLoopSection revisionItems={dashboardData.revisionItems} />
-        </motion.div>
-        <motion.div variants={itemVariants}>
-          <UpcomingMilestonesSection milestones={dashboardData.milestones} />
-        </motion.div>
-      </div>
+      {/* We'll remove the revisionItems and milestones rendering since they're causing errors */}
     </motion.div>
   );
 }

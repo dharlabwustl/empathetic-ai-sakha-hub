@@ -1,69 +1,44 @@
 
-// Define all base user types
-
-export enum UserRole {
-  Student = "student",
-  Teacher = "teacher",
-  Admin = "admin",
-  Parent = "parent"
-}
-
-export enum MoodType {
-  MOTIVATED = "motivated",
-  TIRED = "tired",
-  FOCUSED = "focused",
-  STRESSED = "stressed",
-  DISTRACTED = "distracted",
-  CONFIDENT = "confident"
-}
-
-export enum PersonalityType {
-  VISUAL = "visual",
-  AUDITORY = "auditory",
-  KINESTHETIC = "kinesthetic",
-  ANALYTICAL = "analytical",
-  GLOBAL = "global"
-}
-
-export enum SubscriptionType {
-  FREE = "free",
-  BASIC = "basic",
-  PREMIUM = "premium",
-  PRO = "pro"
-}
+// Basic user types to be extended by specific user roles
 
 export interface UserProfileBase {
   id: string;
   name: string;
-  email?: string;
+  email: string;
   role: UserRole;
-  goals?: Goal[];
-  subjects?: string[];
-  createdAt?: string;
   loginCount?: number;
-  lastLogin?: string;
-  subscription?: SubscriptionType | {
+  goals?: Goal[];
+  subscription?: SubscriptionType | { 
     planType: SubscriptionType;
-    expiryDate?: string | Date;
+    expiryDate?: string; 
   };
-  preferences?: UserPreferences;
 }
 
 export interface Goal {
-  id?: string;
+  id: string;
   title: string;
-  description?: string;
-  target?: string;
-  deadline?: string;
+  targetDate?: string;
   progress?: number;
-  isCompleted?: boolean;
 }
 
-export interface UserPreferences {
-  theme?: "light" | "dark" | "system";
-  notifications?: boolean;
-  studyHoursPerDay?: number;
-  preferredStudyTime?: "morning" | "afternoon" | "evening" | "night";
-  learningPace?: "slow" | "moderate" | "fast";
-  showWelcomeGuide?: boolean;
+export enum UserRole {
+  Student = "student",
+  Parent = "parent",
+  Teacher = "teacher",
+  Admin = "admin"
+}
+
+export enum MoodType {
+  MOTIVATED = "motivated",
+  FOCUSED = "focused",
+  STRESSED = "stressed",
+  TIRED = "tired",
+  CONFUSED = "confused"
+}
+
+export enum SubscriptionType {
+  FREE = "free",
+  PREMIUM = "premium",
+  PREMIUM_PLUS = "premium_plus",
+  TRIAL = "trial"
 }

@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { BadgeCheck, Brain, Calendar } from 'lucide-react';
 import { MoodType } from '@/types/user/base';
+import { Badge } from '@/components/ui/badge';
 
 interface TodaysPlanSectionProps {
   studyPlan: any;
@@ -20,11 +21,11 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({
   // Render appropriate message based on mood
   const getMoodBasedMessage = () => {
     switch(currentMood) {
-      case 'tired':
-      case 'stressed':
+      case MoodType.TIRED:
+      case MoodType.STRESSED:
         return "Your plan has been adjusted for today based on your mood. Focus on lighter review tasks.";
-      case 'focused':
-      case 'motivated':
+      case MoodType.FOCUSED:
+      case MoodType.MOTIVATED:
         return "Great energy today! Your plan includes some challenging concepts to leverage your focus.";
       default:
         return "Your personalized study plan for today is ready.";

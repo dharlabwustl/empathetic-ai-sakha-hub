@@ -103,7 +103,6 @@ const DashboardContent = ({
           <SharedPageLayout
             title="Coming Soon"
             subtitle="This feature is under development. Check back later."
-            showQuickAccess={false}
           >
             <div className="text-center py-8">
               <p className="text-muted-foreground">

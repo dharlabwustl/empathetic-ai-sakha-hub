@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTodaysPlan } from '@/hooks/useTodaysPlan';
@@ -13,6 +14,7 @@ import { MoodType } from '@/types/user/base';
 import DashboardLayout from '@/pages/dashboard/student/DashboardLayout';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { UserRole } from '@/types/user/base';
+import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
 
 const TodaysPlanView = () => {
   const navigate = useNavigate();
@@ -198,7 +200,7 @@ const TodaysPlanView = () => {
     }
   };
 
-  // Render the today's plan content that will be shown inside the dashboard layout
+  // Today's plan content
   const todaysPlanContent = (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -350,9 +352,9 @@ const TodaysPlanView = () => {
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
-            {currentMood === 'stressed' ? (
+            {currentMood === MoodType.STRESSED ? (
               <div className="bg-violet-50 dark:bg-violet-900/20 p-4 rounded-lg border border-violet-200 dark:border-violet-700">
-                <h3 className="font-medium text-violet-800 dark:text-violet-300 mb-2">You seem {currentMood} today</h3>
+                <h3 className="font-medium text-violet-800 dark:text-violet-300 mb-2">You seem stressed today</h3>
                 <p className="text-sm text-violet-700 dark:text-violet-400 mb-2">
                   Try shorter study sessions of 15-20 minutes with more frequent breaks.
                 </p>
@@ -360,9 +362,9 @@ const TodaysPlanView = () => {
                   Adjust My Schedule
                 </Button>
               </div>
-            ) : currentMood === 'tired' ? (
+            ) : currentMood === MoodType.TIRED ? (
               <div className="bg-amber-50 dark:bg-amber-900/20 p-4 rounded-lg border border-amber-200 dark:border-amber-700">
-                <h3 className="font-medium text-amber-800 dark:text-amber-300 mb-2">Energy management for {currentMood} days</h3>
+                <h3 className="font-medium text-amber-800 dark:text-amber-300 mb-2">Energy management for tired days</h3>
                 <p className="text-sm text-amber-700 dark:text-amber-400 mb-2">
                   Focus on review tasks instead of new concepts. Take a short walk before studying.
                 </p>
@@ -399,32 +401,14 @@ const TodaysPlanView = () => {
     </div>
   );
 
-  // Wrap the content in the DashboardLayout
   return userProfile ? (
-    <DashboardLayout
-      userProfile={userProfile}
-      hideSidebar={false}
-      hideTabsNav={false}
-      activeTab="today"
-      kpis={[]}
-      nudges={[]}
-      markNudgeAsRead={() => {}}
-      showWelcomeTour={false}
-      onTabChange={() => {}}
-      onViewStudyPlan={() => {}}
-      onToggleSidebar={() => {}}
-      onToggleTabsNav={() => {}}
-      onSkipTour={() => {}}
-      onCompleteTour={() => {}}
-      showStudyPlan={false}
-      onCloseStudyPlan={() => {}}
-      currentMood={currentMood}
-      onMoodChange={handleMoodChange}
-    >
+    <SharedPageLayout title="Today's Plan" subtitle="Your personalized daily study schedule" activeTab="today">
       {todaysPlanContent}
-    </DashboardLayout>
+    </SharedPageLayout>
   ) : (
-    <div>Loading...</div>
+    <div className="flex items-center justify-center h-screen">
+      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+    </div>
   );
 };
 
