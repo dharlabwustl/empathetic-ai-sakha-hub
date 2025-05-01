@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { UserProfileType } from '@/types/user';
 import { DashboardData, Subject, ConceptCard, ProgressTracker, RevisionStats, Milestone } from '@/types/student/dashboard';
@@ -218,8 +217,36 @@ function generateMockDashboardData(userProfile: UserProfileType): DashboardData 
     flaggedItems: 5
   };
 
-  // Upcoming milestones
-  const upcomingMilestones: Milestone[] = [
+  // Add revision items that were missing and causing errors
+  const revisionItems = [
+    {
+      id: "rev-1",
+      title: "Wave Optics",
+      subject: "Physics",
+      lastReviewed: "2025-04-20",
+      retentionScore: 65,
+      dueDate: "2025-04-27"
+    },
+    {
+      id: "rev-2",
+      title: "Chemical Bonding",
+      subject: "Chemistry",
+      lastReviewed: "2025-04-22",
+      retentionScore: 72,
+      dueDate: "2025-04-28"
+    },
+    {
+      id: "rev-3",
+      title: "Integration",
+      subject: "Mathematics",
+      lastReviewed: "2025-04-23",
+      retentionScore: 58,
+      dueDate: "2025-04-26"
+    }
+  ];
+
+  // Add milestone data that was missing and causing errors
+  const milestones: Milestone[] = [
     {
       id: "mile-1",
       title: "Complete Calculus Section",
@@ -253,6 +280,7 @@ function generateMockDashboardData(userProfile: UserProfileType): DashboardData 
     studyPlan,
     progressTracker,
     revisionStats,
-    upcomingMilestones
+    revisionItems,  // Added this property
+    milestones     // Added this property
   };
 }

@@ -1,75 +1,80 @@
 
 import React from 'react';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, LucideIcon } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { LucideIcon } from 'lucide-react';
 import { SubscriptionType } from '@/types/user/base';
 
 interface FeatureCardProps {
   title: string;
   description: string;
   icon: LucideIcon;
-  isPremium?: boolean;
-  isNew?: boolean;
   path: string;
-  onClick?: () => void;
-  className?: string;
-  userSubscription?: SubscriptionType | { planType: SubscriptionType };
+  isPremium?: boolean;
+  comingSoon?: boolean;
+  userSubscription?: SubscriptionType;
 }
 
-export default function FeatureCard({
+const FeatureCard: React.FC<FeatureCardProps> = ({
   title,
   description,
   icon: Icon,
-  isPremium = false,
-  isNew = false,
   path,
-  onClick,
-  className = '',
-  userSubscription
-}: FeatureCardProps) {
-  const handleClick = (e: React.MouseEvent) => {
-    if (isPremium && (!userSubscription || 
-        (typeof userSubscription === 'string' && userSubscription === SubscriptionType.Free) ||
-        (typeof userSubscription === 'object' && userSubscription.planType === SubscriptionType.Free))) {
-      e.preventDefault();
-      onClick && onClick();
+  isPremium = false,
+  comingSoon = false,
+  userSubscription = SubscriptionType.FREE
+}) => {
+  const navigate = useNavigate();
+  
+  const handleClick = () => {
+    if (comingSoon) {
+      return;
     }
+    
+    if (isPremium && userSubscription === SubscriptionType.FREE) {
+      // Show upgrade prompt
+      // For now, just navigate anyway
+    }
+    
+    navigate(path);
   };
-
+  
   return (
-    <Card className={`overflow-hidden hover:shadow-md transition-shadow ${className}`}>
-      <CardHeader className="p-4">
-        <div className="flex justify-between">
-          <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
-            <Icon className="h-4 w-4 text-primary" />
+    <Card className={`overflow-hidden transition-all duration-300 hover:shadow-md ${isPremium && userSubscription === SubscriptionType.FREE ? 'border-amber-200 dark:border-amber-800' : ''}`}>
+      <CardContent className="p-4">
+        <div className="flex items-start justify-between">
+          <div className="flex items-center space-x-2">
+            <div className="bg-gradient-to-br from-violet-100 to-blue-100 dark:from-violet-900/40 dark:to-blue-900/40 p-2 rounded-lg">
+              <Icon className="h-5 w-5 text-violet-600 dark:text-violet-400" />
+            </div>
+            <div>
+              <h3 className="font-medium">{title}</h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400">{description}</p>
+            </div>
           </div>
-          <div>
-            {isNew && (
-              <Badge variant="outline" className="bg-green-100 text-green-800 border-green-200 text-xs">
-                New
-              </Badge>
-            )}
-            {isPremium && (
-              <Badge variant="outline" className="bg-amber-100 text-amber-800 border-amber-200 text-xs">
-                Premium
-              </Badge>
-            )}
-          </div>
+          
+          {isPremium && userSubscription === SubscriptionType.FREE && (
+            <span className="text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 px-1.5 py-0.5 rounded">
+              Premium
+            </span>
+          )}
         </div>
-        <CardTitle className="text-lg mt-3">{title}</CardTitle>
-        <CardDescription>{description}</CardDescription>
-      </CardHeader>
-      <CardFooter className="p-4 pt-0">
-        <Button variant="ghost" asChild className="w-full justify-between p-2">
-          <Link to={path} onClick={handleClick}>
-            Explore Feature
-            <ArrowRight className="h-4 w-4 ml-2" />
-          </Link>
-        </Button>
-      </CardFooter>
+        
+        <div className="mt-3">
+          <Button
+            variant="outline"
+            size="sm"
+            className="w-full text-sm"
+            onClick={handleClick}
+            disabled={comingSoon}
+          >
+            {comingSoon ? 'Coming Soon' : isPremium && userSubscription === SubscriptionType.FREE ? 'Upgrade to Access' : 'Open'}
+          </Button>
+        </div>
+      </CardContent>
     </Card>
   );
-}
+};
+
+export default FeatureCard;
