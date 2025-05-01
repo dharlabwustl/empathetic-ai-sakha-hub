@@ -45,7 +45,7 @@ const WelcomeToPrepr = () => {
       }
       
       // Navigate to dashboard with welcome tour flag
-      navigate('/dashboard/student?showTour=true');
+      navigate('/dashboard/student', { replace: true });
     }
   };
   
@@ -60,7 +60,7 @@ const WelcomeToPrepr = () => {
     
     // Navigate directly to dashboard with welcome tour flag set to true
     // Using replace to ensure we don't have navigation issues
-    navigate('/dashboard/student?showTour=true', { replace: true });
+    navigate('/dashboard/student', { replace: true });
   };
   
   return (

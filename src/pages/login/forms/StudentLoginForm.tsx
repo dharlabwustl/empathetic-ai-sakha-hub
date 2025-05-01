@@ -56,13 +56,8 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
             localStorage.setItem('userData', JSON.stringify(parsedData));
           }
           
-          // If returning user (loginCount > 1), show welcome back screen
-          if (parsedData.loginCount > 1) {
-            navigate("/welcome-back");
-          } else {
-            // First login after registration, show welcome tour
-            navigate("/welcome");
-          }
+          // Now send users directly to welcome-back screen regardless of login count
+          navigate("/welcome-back");
         } else {
           navigate("/welcome-back");
         }
