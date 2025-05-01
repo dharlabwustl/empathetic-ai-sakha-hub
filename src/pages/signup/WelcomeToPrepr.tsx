@@ -191,13 +191,15 @@ const WelcomeToPrepr = () => {
       </footer>
       
       {/* Onboarding Dialog */}
-      <OnboardingFlow 
-        userProfile={userProfile}
-        goalTitle={userProfile?.examGoal || "Your Exams"}
-        onComplete={handleCompleteOnboarding}
-        open={showOnboarding}
-        onOpenChange={setShowOnboarding}
-      />
+      {showOnboarding && (
+        <OnboardingFlow 
+          userProfile={userProfile}
+          goalTitle={userProfile?.examGoal || "Your Exams"}
+          onComplete={handleCompleteOnboarding}
+          open={showOnboarding}
+          onOpenChange={setShowOnboarding}
+        />
+      )}
     </div>
   );
 };

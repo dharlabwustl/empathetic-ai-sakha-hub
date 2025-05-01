@@ -8,6 +8,7 @@ interface SharedPageLayoutProps {
   headerContent?: ReactNode;
   children: ReactNode;
   className?: string;
+  wrapContent?: boolean;
 }
 
 export const SharedPageLayout = ({
@@ -16,9 +17,10 @@ export const SharedPageLayout = ({
   headerContent,
   children,
   className = '',
+  wrapContent = true,
 }: SharedPageLayoutProps) => {
-  return (
-    <div className={`container mx-auto px-4 py-6 max-w-7xl ${className}`}>
+  const content = (
+    <>
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
@@ -30,6 +32,18 @@ export const SharedPageLayout = ({
       <Separator className="mb-6" />
       
       {children}
-    </div>
+    </>
   );
+  
+  // Check if the content should be wrapped in a container
+  if (wrapContent) {
+    return (
+      <div className={`container mx-auto px-4 py-6 max-w-7xl ${className}`}>
+        {content}
+      </div>
+    );
+  }
+  
+  // Return unwrapped content for pages that already have their own container
+  return content;
 };

@@ -37,7 +37,7 @@ const AdminLogin = () => {
       // Simulate API call for admin login
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // For demo purposes, any login is successful
+      // For demo purposes, store admin token and user data
       localStorage.setItem('adminToken', 'demo-admin-token');
       localStorage.setItem('adminData', JSON.stringify({
         name: 'Admin User',
@@ -50,7 +50,10 @@ const AdminLogin = () => {
         description: "Welcome to the admin dashboard"
       });
       
-      navigate("/admin/dashboard");
+      // Redirect to admin dashboard
+      setTimeout(() => {
+        navigate("/admin/dashboard");
+      }, 500);
     } catch (error) {
       toast({
         title: "Login failed",

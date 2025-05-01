@@ -1,18 +1,74 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Navigate, Link } from 'react-router-dom';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import LoginPage from '@/pages/login/LoginPage';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useToast } from "@/hooks/use-toast";
 import PrepzrLogo from '@/components/common/PrepzrLogo';
 
 const Login = () => {
+  const [credentials, setCredentials] = useState({ email: '', password: '' });
+  const [rememberMe, setRememberMe] = useState(false);
+  const { toast } = useToast();
+  
   // Check if user is already logged in
   const userToken = localStorage.getItem('userData');
   
   if (userToken) {
     return <Navigate to="/welcome-back?returnTo=dashboard/student" replace />;
   }
+  
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setCredentials(prev => ({ ...prev, [name]: value }));
+  };
+  
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!credentials.email || !credentials.password) {
+      toast({
+        title: "Required fields",
+        description: "Please fill in all required fields",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    // For demo purposes, create a user session
+    const userData = {
+      name: credentials.email.split('@')[0].replace(/\./g, ' '),
+      email: credentials.email,
+      role: 'student',
+      loginCount: 2, // Set as a returning user
+      completedOnboarding: true, // Skip onboarding
+      sawWelcomeTour: true, // Skip welcome tour
+      lastActivity: {
+        type: 'study',
+        description: 'studied Physics: Mechanics'
+      }
+    };
+    
+    // Store in localStorage
+    localStorage.setItem('userData', JSON.stringify(userData));
+    
+    // Show success toast
+    toast({
+      title: "Login successful",
+      description: "Welcome back to PREPZR"
+    });
+    
+    // Redirect to welcome back screen
+    window.location.href = '/welcome-back?returnTo=dashboard/student';
+  };
+  
+  const handleAdminRedirect = () => {
+    window.location.href = '/admin/login';
+  };
   
   return (
     <div className="min-h-screen bg-gradient-to-br from-sky-100/30 via-white to-violet-100/30 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -42,16 +98,81 @@ const Login = () => {
             </div>
             
             <TabsContent value="student" className="pt-2">
-              <LoginPage />
+              <CardContent>
+                <form onSubmit={handleLogin} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email</Label>
+                    <Input 
+                      id="email" 
+                      name="email"
+                      type="email" 
+                      placeholder="student@example.com" 
+                      value={credentials.email}
+                      onChange={handleChange}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="password">Password</Label>
+                      <Link to="/forgot-password" className="text-xs text-blue-600 hover:underline">
+                        Forgot password?
+                      </Link>
+                    </div>
+                    <Input 
+                      id="password" 
+                      name="password"
+                      type="password" 
+                      placeholder="••••••••" 
+                      value={credentials.password}
+                      onChange={handleChange}
+                      required
+                    />
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox 
+                      id="remember" 
+                      checked={rememberMe} 
+                      onCheckedChange={(checked) => setRememberMe(checked === true)}
+                    />
+                    <label
+                      htmlFor="remember"
+                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                    >
+                      Remember me
+                    </label>
+                  </div>
+                  <Button type="submit" className="w-full">Sign In</Button>
+                  
+                  <div className="text-center text-sm">
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      className="w-full mt-2"
+                      onClick={() => {
+                        setCredentials({
+                          email: "student@prepzr.com",
+                          password: "student123",
+                        });
+                      }}
+                    >
+                      Use Demo Credentials
+                    </Button>
+                  </div>
+                </form>
+              </CardContent>
             </TabsContent>
             
             <TabsContent value="admin" className="pt-2">
               <CardContent>
                 <div className="space-y-4 py-4">
                   <div className="text-center">
-                    <Link to="/admin/login" className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                    <Button 
+                      onClick={handleAdminRedirect} 
+                      className="w-full inline-flex justify-center py-2 px-4"
+                    >
                       Go to Admin Login
-                    </Link>
+                    </Button>
                   </div>
                   <p className="text-sm text-center text-muted-foreground">
                     Administrator access is restricted to authorized personnel only.

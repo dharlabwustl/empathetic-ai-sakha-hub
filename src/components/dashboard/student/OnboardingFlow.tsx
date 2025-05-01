@@ -13,16 +13,16 @@ interface OnboardingFlowProps {
   userProfile: UserProfileBase;
   goalTitle: string;
   onComplete: () => void;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ 
   userProfile, 
   goalTitle, 
   onComplete,
-  open,
-  onOpenChange
+  open = true,
+  onOpenChange = () => {}
 }) => {
   const [step, setStep] = useState(0);
   const [loading, setLoading] = useState(false);

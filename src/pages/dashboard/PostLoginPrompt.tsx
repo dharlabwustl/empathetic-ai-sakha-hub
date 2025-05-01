@@ -17,6 +17,7 @@ const PostLoginPrompt = () => {
   const [lastActivity, setLastActivity] = useState<string | null>(null);
   const [pendingTask, setPendingTask] = useState<string | null>(null);
   const [loginCount, setLoginCount] = useState<number>(0);
+  const [isNewUser, setIsNewUser] = useState(false);
   
   useEffect(() => {
     // Get user data from localStorage
@@ -25,6 +26,9 @@ const PostLoginPrompt = () => {
     if (userData) {
       try {
         const parsedData = JSON.parse(userData);
+        
+        // Check if user is new
+        setIsNewUser(parsedData.loginCount === 1);
         
         // Set login count
         if (parsedData.loginCount) {
@@ -57,6 +61,13 @@ const PostLoginPrompt = () => {
     
     return () => clearTimeout(timer);
   }, [navigate, returnTo, toast]);
+
+  // If the user is completely new, redirect them to welcome screen
+  useEffect(() => {
+    if (isNewUser) {
+      navigate('/welcome?new=true');
+    }
+  }, [isNewUser, navigate]);
 
   const goToTodaysPlan = () => {
     navigate("/dashboard/student/today");

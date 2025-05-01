@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -92,6 +91,8 @@ const SignupContent = () => {
         ...finalData,
         loginCount: 1,
         createdAt: new Date().toISOString(),
+        completedOnboarding: false,
+        sawWelcomeTour: false
       }));
 
       // Show success message
@@ -100,9 +101,9 @@ const SignupContent = () => {
         description: "Redirecting to your personalized dashboard.",
       });
 
-      // Navigate directly to the welcome screen (skipping study plan creation dialog)
+      // Navigate directly to the welcome page
       setTimeout(() => {
-        navigate("/welcome?new=true&completedOnboarding=true");
+        navigate("/welcome?new=true");
       }, 1000);
     } catch (error) {
       console.error("Error creating account:", error);
@@ -150,6 +151,7 @@ const SignupContent = () => {
         loginCount: 1,
         createdAt: new Date().toISOString(),
         onboardingCompleted: false,
+        sawWelcomeTour: false,
       }));
 
       navigate("/welcome?new=true");
