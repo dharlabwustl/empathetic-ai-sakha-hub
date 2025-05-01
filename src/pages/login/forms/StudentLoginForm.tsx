@@ -50,7 +50,14 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
           title: "Login successful",
           description: "Welcome back to Prepzr"
         });
-        navigate("/dashboard/student/today");
+        // Check if this appears to be a new user for demo purposes
+        const isNewUser = !localStorage.getItem("hasLoggedInBefore");
+        if (isNewUser) {
+          localStorage.setItem("hasLoggedInBefore", "true");
+          navigate("/dashboard/student?new=true");
+        } else {
+          navigate("/dashboard/student/today");
+        }
       } else {
         toast({
           title: "Login failed",

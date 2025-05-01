@@ -1,191 +1,161 @@
 
-import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardFooter, 
-  CardHeader, 
-  CardTitle 
-} from "@/components/ui/card";
-import { useToast } from "@/hooks/use-toast";
-import { Eye, EyeOff, Lock, Mail, ArrowRight, Loader2 } from "lucide-react";
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Separator } from '@/components/ui/separator';
+import { useToast } from '@/hooks/use-toast';
+import { Check, Loader2 } from 'lucide-react';
 import adminAuthService from '@/services/auth/adminAuthService';
 import PrepzrLogo from '@/components/common/PrepzrLogo';
 
 const AdminLogin = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
-  const [showPassword, setShowPassword] = useState(false);
+  const [credentials, setCredentials] = useState({ email: '', password: '' });
   const [isLoading, setIsLoading] = useState(false);
+  const [loginSuccess, setLoginSuccess] = useState(false);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    setCredentials(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.email || !formData.password) {
+    if (!credentials.email || !credentials.password) {
       toast({
-        title: "Missing information",
-        description: "Please provide both email and password.",
-        variant: "destructive"
+        title: 'Required fields',
+        description: 'Please enter both email and password',
+        variant: 'destructive',
       });
       return;
     }
-    
+
     setIsLoading(true);
-    
+
     try {
-      // Use the admin auth service directly
-      const response = await adminAuthService.adminLogin({
-        email: formData.email,
-        password: formData.password
-      });
-      
-      if (response.success && response.data) {
+      const response = await adminAuthService.adminLogin(credentials);
+
+      if (response.success) {
+        setLoginSuccess(true);
         toast({
-          title: "Admin login successful",
-          description: "Welcome to the admin dashboard"
+          title: 'Login successful',
+          description: 'Welcome to the admin dashboard',
         });
         
-        // Navigate to admin dashboard
-        navigate("/admin/dashboard", { replace: true });
+        // Wait a moment to show the success animation
+        setTimeout(() => {
+          navigate('/admin/dashboard');
+        }, 1000);
       } else {
         toast({
-          title: "Login Failed",
-          description: response.message || "Invalid admin credentials. Please try again.",
-          variant: "destructive"
+          title: 'Login failed',
+          description: response.message || 'Invalid admin credentials',
+          variant: 'destructive',
         });
       }
     } catch (error) {
+      console.error('Admin login error:', error);
       toast({
-        title: "Login Failed",
-        description: "An unexpected error occurred. Please try again.",
-        variant: "destructive"
+        title: 'Login error',
+        description: 'An error occurred during login. Please try again.',
+        variant: 'destructive',
       });
-      console.error("Login error:", error);
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-100/30 via-white to-violet-100/30 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <Link to="/" className="inline-flex items-center gap-2">
-            <PrepzrLogo width={240} height="auto" />
-          </Link>
-          <h1 className="mt-4 text-4xl font-display font-bold gradient-text">Admin Portal</h1>
-          <p className="mt-2 text-gray-600">Login to access the PREPZR administration panel</p>
+    <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-gradient-to-br from-slate-50 to-blue-50">
+      <div className="max-w-md w-full">
+        <div className="text-center mb-6">
+          <PrepzrLogo width={180} height="auto" className="mx-auto" />
+          <h1 className="mt-4 text-3xl font-bold">Admin Portal</h1>
+          <p className="text-gray-600 mt-1">Access the system administration tools</p>
         </div>
-        
-        <Card className="shadow-xl border-gray-200 overflow-hidden animate-fade-in">
-          <CardHeader className="bg-gradient-to-r from-purple-600 to-violet-700 text-white">
-            <CardTitle className="text-2xl font-semibold">Admin Sign In</CardTitle>
-            <CardDescription className="text-purple-100">
-              Enter your admin credentials to access the dashboard
-            </CardDescription>
+
+        <Card className="shadow-lg border-gray-200">
+          <CardHeader className="bg-gradient-to-r from-blue-700 to-indigo-800 text-white">
+            <CardTitle className="text-xl font-medium">Admin Authentication</CardTitle>
           </CardHeader>
           
-          <form onSubmit={handleLogin}>
-            <CardContent className="p-6 space-y-6">
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="email" className="text-sm font-medium">Email Address</Label>
-                  <div className="relative">
-                    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
-                      <Mail size={16} />
-                    </div>
-                    <Input
-                      id="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleInputChange}
-                      placeholder="Enter your admin email"
-                      type="email"
-                      className="pl-9 border-purple-200 focus:ring-purple-500 focus:border-purple-500"
-                    />
-                  </div>
+          <form onSubmit={handleSubmit}>
+            <CardContent className="space-y-4 pt-6">
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  name="email"
+                  type="email"
+                  placeholder="admin@example.com"
+                  value={credentials.email}
+                  onChange={handleChange}
+                  disabled={isLoading || loginSuccess}
+                  required
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <Input
+                  id="password"
+                  name="password"
+                  type="password"
+                  placeholder="••••••••"
+                  value={credentials.password}
+                  onChange={handleChange}
+                  disabled={isLoading || loginSuccess}
+                  required
+                />
+              </div>
+
+              <Button 
+                type="submit" 
+                className="w-full" 
+                disabled={isLoading || loginSuccess}
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Authenticating...
+                  </>
+                ) : loginSuccess ? (
+                  <>
+                    <Check className="mr-2 h-4 w-4" />
+                    Authenticated
+                  </>
+                ) : (
+                  'Sign In to Admin Portal'
+                )}
+              </Button>
+
+              {/* Demo account info */}
+              <div className="rounded-md bg-blue-50 p-3">
+                <div className="text-sm text-blue-700 font-medium mb-1">Demo Account</div>
+                <div className="text-xs text-gray-600">
+                  <p>For demo purposes, any email containing "admin" will work</p>
+                  <p>Example: admin@prepzr.com / any password</p>
                 </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="password" className="text-sm font-medium">Password</Label>
-                  <div className="relative">
-                    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
-                      <Lock size={16} />
-                    </div>
-                    <Input
-                      id="password"
-                      name="password"
-                      value={formData.password}
-                      onChange={handleInputChange}
-                      placeholder="Enter your password"
-                      type={showPassword ? "text" : "password"}
-                      className="pl-9 border-purple-200 focus:ring-purple-500 focus:border-purple-500 pr-10"
-                    />
-                    <Button 
-                      variant="ghost"
-                      size="icon"
-                      className="absolute right-0 top-0 h-full"
-                      onClick={() => setShowPassword(!showPassword)}
-                      type="button"
-                    >
-                      {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                    </Button>
-                  </div>
-                </div>
-                
-                <Button 
-                  className="w-full bg-gradient-to-r from-purple-600 to-violet-700 hover:from-purple-700 hover:to-violet-800 text-white shadow-md"
-                  type="submit"
-                  disabled={isLoading}
-                >
-                  {isLoading ? (
-                    <div className="flex items-center gap-2">
-                      <Loader2 className="h-5 w-5 animate-spin" />
-                      <span>Signing in...</span>
-                    </div>
-                  ) : (
-                    <div className="flex items-center justify-center gap-2">
-                      <span>Sign In</span>
-                      <ArrowRight size={16} />
-                    </div>
-                  )}
-                </Button>
-                
-                {/* Debug help for admin login */}
-                <p className="text-xs text-gray-500 text-center">
-                  Hint: Use any email containing "admin" with password length &gt; 3
-                </p>
               </div>
             </CardContent>
           </form>
-          
-          <CardFooter className="flex justify-center pb-6 border-t pt-6">
-            <p className="text-sm text-gray-600">
-              Not an admin?{" "}
-              <Link to="/login" className="text-purple-600 hover:text-purple-700 font-medium hover:underline">
-                Go to Student Login
-              </Link>
-            </p>
+
+          <Separator />
+
+          <CardFooter className="flex justify-between pt-4">
+            <Button variant="ghost" size="sm" onClick={() => navigate('/')}>
+              Return to Home
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => navigate('/login')}>
+              Student Login
+            </Button>
           </CardFooter>
         </Card>
-        
-        <div className="mt-6 text-center text-sm text-gray-500">
-          <p>Need help? <a href="#" className="text-purple-600 hover:underline">Contact Support</a></p>
-        </div>
       </div>
     </div>
   );

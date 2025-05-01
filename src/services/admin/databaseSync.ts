@@ -128,24 +128,114 @@ const databaseSyncService = {
   async syncDatabase(): Promise<boolean> {
     console.log("Syncing database between admin and student dashboards");
     
-    // In a real app, this would make API calls to sync data
-    
-    return true;
+    try {
+      // In a real app, this would make API calls to sync data
+      // For demo, simulate a successful sync
+      return true;
+    } catch (error) {
+      console.error("Error syncing database:", error);
+      return false;
+    }
   },
   
   // Update database sync settings
   async updateSyncSettings(settings: any): Promise<boolean> {
     console.log("Updating database sync settings:", settings);
     
-    // In a real app, this would make API calls to update settings
-    
-    return true;
+    try {
+      // In a real app, this would make API calls to update settings
+      return true;
+    } catch (error) {
+      console.error("Error updating sync settings:", error);
+      return false;
+    }
   },
   
   // Export database schema to CSV
   async exportDatabaseSchema(): Promise<string> {
     console.log("Exporting database schema to CSV");
     return exportDatabaseSchemaToCSV();
+  },
+
+  // Generate database sync status between admin and student dashboards
+  async getRealtimeSyncStatus(): Promise<any> {
+    return {
+      lastSyncTimestamp: new Date().toISOString(),
+      syncInProgress: false,
+      adminDataRecords: 42580,
+      studentDataRecords: 42580,
+      syncPercentage: 100,
+      syncErrors: 0
+    };
+  },
+
+  // New methods for enhanced admin-student data flow
+  async syncModuleToStudentDashboard(moduleId: string): Promise<boolean> {
+    console.log(`Syncing module ${moduleId} to student dashboard`);
+    
+    // For demo purposes
+    return true;
+  },
+  
+  async getDataConsistencyReport(): Promise<any> {
+    return {
+      consistencyScore: 98.7,
+      lastChecked: new Date().toISOString(),
+      inconsistentRecords: 12,
+      totalRecords: 42580,
+      recommendations: [
+        "Run full sync to resolve minor inconsistencies",
+        "Check data integrity for mood_logs table"
+      ]
+    };
+  },
+  
+  // Get student dashboard API endpoints that connect to admin system
+  async getConnectedEndpoints(): Promise<any[]> {
+    return [
+      {
+        endpoint: "/api/concepts",
+        sourceTable: "concept_cards",
+        lastAccessed: new Date().toISOString(),
+        accessCount: 4256,
+        status: "active"
+      },
+      {
+        endpoint: "/api/flashcards",
+        sourceTable: "flashcards",
+        lastAccessed: new Date().toISOString(),
+        accessCount: 3478,
+        status: "active"
+      },
+      {
+        endpoint: "/api/study-plans",
+        sourceTable: "study_plans",
+        lastAccessed: new Date().toISOString(),
+        accessCount: 1256,
+        status: "active"
+      },
+      {
+        endpoint: "/api/performance",
+        sourceTable: "performance_metrics",
+        lastAccessed: new Date().toISOString(),
+        accessCount: 2890,
+        status: "active"
+      },
+      {
+        endpoint: "/api/user-data",
+        sourceTable: "users,profiles",
+        lastAccessed: new Date().toISOString(),
+        accessCount: 8950,
+        status: "active"
+      },
+      {
+        endpoint: "/api/goals",
+        sourceTable: "student_goals",
+        lastAccessed: new Date().toISOString(),
+        accessCount: 1560,
+        status: "active"
+      }
+    ];
   }
 };
 

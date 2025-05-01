@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,7 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { 
   ArrowLeft, BookOpen, Brain, FileText, Bookmark, BookmarkPlus,
   Clock, CheckCircle, RotateCw, Volume2, Play, 
-  PenLine, MessageSquare, FileQuestion
+  PenLine, MessageSquare, FileQuestion, ArrowRight
 } from 'lucide-react';
 
 interface ConceptCardData {
@@ -155,6 +154,15 @@ const ConceptCardView = () => {
       title: increase ? "Mastery increased" : "Mastery decreased",
       description: `Your mastery is now ${newMastery}%`,
       variant: increase ? "default" : "secondary",
+    });
+  };
+  
+  // Add a function to navigate to flashcards
+  const handleStartInteractiveLearning = () => {
+    navigate(`/dashboard/student/flashcards/physics-${conceptId}/interactive`);
+    toast({
+      title: "Interactive learning started",
+      description: "Get ready to master this concept with flashcards!",
     });
   };
   
@@ -394,6 +402,18 @@ const ConceptCardView = () => {
               </div>
             </Button>
           </div>
+          
+          {/* Add the Start Interactive Learning button */}
+          <Button 
+            variant="default" 
+            size="lg"
+            onClick={handleStartInteractiveLearning}
+            className="w-full py-6 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
+          >
+            <Play className="mr-2 h-5 w-5" />
+            Start Interactive Learning
+            <ArrowRight className="ml-2 h-5 w-5" />
+          </Button>
         </div>
         
         <div className="lg:col-span-1 space-y-6">

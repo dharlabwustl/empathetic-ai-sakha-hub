@@ -78,9 +78,11 @@ const StudentDashboard = () => {
       }
     }
     
-    // Set a timeout to show tour for first-time users
-    if (isNewUser || !sessionStorage.getItem("hasSeenTour")) {
+    // Set a timeout to show tour for first-time users who don't have the new=true parameter
+    // This is a fallback for users who don't come through the signup flow
+    if (!sessionStorage.getItem("hasSeenTour")) {
       const tourTimer = setTimeout(() => {
+        console.log("Showing welcome tour after timeout");
         setForceShowTour(true);
         setShowTourModal(true);
         sessionStorage.setItem("hasSeenTour", "true");
@@ -150,6 +152,9 @@ const StudentDashboard = () => {
     // For other tabs, use the default tab content
     return null;
   };
+
+  // Log when the component renders to help debug tour issue
+  console.log("StudentDashboard render", { showTourModal, forceShowTour });
 
   return (
     <>
