@@ -141,9 +141,6 @@ const StudentDashboard = () => {
     return null;
   };
 
-  // Log when the component renders to help debug tour issue
-  console.log("StudentDashboard render", { showTourModal });
-
   return (
     <>
       <DashboardLayout

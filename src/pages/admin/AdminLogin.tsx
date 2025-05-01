@@ -192,17 +192,6 @@ const AdminLogin = () => {
             </Button>
           </CardFooter>
         </Card>
-
-        {/* Direct access to database CSV */}
-        <div className="mt-6 text-center">
-          <Button 
-            variant="outline" 
-            className="bg-white hover:bg-gray-100"
-            onClick={() => navigate('/database-export')}
-          >
-            Download Database CSV Directly
-          </Button>
-        </div>
       </div>
     </div>
   );

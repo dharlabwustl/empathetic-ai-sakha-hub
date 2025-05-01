@@ -1,10 +1,12 @@
+
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { UserRole } from '@/types/user/base';
 
 interface User {
   id: string;
   name: string;
   email: string;
-  role: string;
+  role: UserRole;
 }
 
 interface AuthContextType {
@@ -44,7 +46,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
               id: parsedData.id,
               name: parsedData.name || 'User',
               email: parsedData.email,
-              role: parsedData.role || 'student'
+              role: parsedData.role || UserRole.Student
             });
           }
         } catch (error) {
@@ -69,7 +71,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             id: '1',
             name: email.split('@')[0] || 'Student',
             email: email,
-            role: 'student'
+            role: UserRole.Student
           };
           
           // Save user data to localStorage

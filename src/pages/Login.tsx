@@ -5,11 +5,9 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import LoginPage from '@/pages/login/LoginPage';
-import AdminLogin from '@/pages/admin/AdminLogin';
 import PrepzrLogo from '@/components/common/PrepzrLogo';
 
 const Login = () => {
-  // Check if user is already logged in
   const [loginTab, setLoginTab] = useState<"student" | "admin">("student");
   
   return (

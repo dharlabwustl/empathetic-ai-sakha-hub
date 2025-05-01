@@ -1,11 +1,10 @@
-
 import React, { Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
 import Index from '@/pages/Index';
 import SignUp from '@/pages/SignUp';
 import NotFound from '@/pages/NotFound';
-import StudentDashboard from '@/pages/dashboard/student/StudentDashboard';
+import StudentDashboard from '@/pages/dashboard/StudentDashboard';
 import FeelGoodCornerView from '@/pages/dashboard/student/FeelGoodCornerView';
 import { AdminAuthProvider } from '@/contexts/auth/AdminAuthContext';
 import AdminLogin from '@/pages/admin/AdminLogin';
@@ -39,7 +38,6 @@ import InteractiveFlashcardBrowser from './components/flashcards/InteractiveFlas
 import { NotificationsView } from './components/dashboard/student/notifications/NotificationsView';
 import EnhancedProfilePage from './pages/dashboard/student/EnhancedProfilePage';
 import PracticeExamsSection from './components/dashboard/student/practice-exam/PracticeExamsSection';
-import DatabaseExport from './pages/database/DatabaseExport';
 import PostLoginWelcomeBack from './pages/dashboard/PostLoginWelcomeBack';
 
 const AdminDashboard = React.lazy(() => import('@/pages/admin/AdminDashboard'));
@@ -57,7 +55,6 @@ function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/admin/login" element={<AdminLogin />} />
               <Route path="/register" element={<SignUp />} />
-              <Route path="/database-export" element={<DatabaseExport />} />
 
               {/* Post-signup flow - Welcome flow only */}
               <Route path="/welcome" element={<WelcomeToPrepr />} />
