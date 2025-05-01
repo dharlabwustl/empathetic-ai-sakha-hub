@@ -44,9 +44,6 @@ const StudentDashboard = () => {
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const isNewUser = params.get('new') === 'true';
-    const completedOnboarding = params.get('completedOnboarding') === 'true';
-    
-    console.log("URL params:", { isNewUser, completedOnboarding });
     
     // Don't show splash screen for new users coming from signup flow
     if (isNewUser) {
@@ -132,6 +129,9 @@ const StudentDashboard = () => {
     return null;
   };
 
+  // Disable welcome tour popup
+  const modifiedShowWelcomeTour = false;
+
   return (
     <DashboardLayout
       userProfile={userProfile}
@@ -141,7 +141,7 @@ const StudentDashboard = () => {
       kpis={kpis}
       nudges={nudges}
       markNudgeAsRead={markNudgeAsRead}
-      showWelcomeTour={showWelcomeTour}
+      showWelcomeTour={modifiedShowWelcomeTour}
       onTabChange={handleTabChange}
       onViewStudyPlan={handleViewStudyPlan}
       onToggleSidebar={toggleSidebar}

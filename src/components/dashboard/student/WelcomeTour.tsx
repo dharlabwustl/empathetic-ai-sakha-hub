@@ -1,24 +1,17 @@
 
-import React from "react";
+import React, { Fragment } from "react";
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
   DialogDescription,
   DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import {
-  Book,
-  CalendarDays,
-  LucideIcon,
-  MessageSquare,
-  Star,
-  Heart,
-  TrendingUp,
-  User,
-} from "lucide-react";
+import { Separator } from "@/components/ui/separator";
+import { Steps, StepLabel } from "@/components/ui/steps";
+import { Check, X } from "lucide-react";
 import PrepzrLogo from "@/components/common/PrepzrLogo";
 
 interface WelcomeTourProps {
@@ -32,151 +25,83 @@ interface WelcomeTourProps {
   onOpenChange: (open: boolean) => void;
 }
 
-interface FeatureDescriptionProps {
-  icon: LucideIcon;
-  title: string;
-  description: string;
-}
-
-const FeatureDescription: React.FC<FeatureDescriptionProps> = ({
-  icon: Icon,
-  title,
-  description,
-}) => {
-  return (
-    <div className="flex items-start space-x-3">
-      <div className="bg-blue-100 p-2 rounded-full dark:bg-blue-900">
-        <Icon className="h-5 w-5 text-blue-600 dark:text-blue-300" />
-      </div>
-      <div>
-        <h3 className="font-medium">{title}</h3>
-        <p className="text-sm text-gray-600 dark:text-gray-400">{description}</p>
-      </div>
-    </div>
-  );
-};
-
 export default function WelcomeTour({
   onSkipTour,
   onCompleteTour,
   isFirstTimeUser = true,
-  lastActivity,
-  suggestedNextAction,
-  loginCount = 1,
   open,
   onOpenChange,
 }: WelcomeTourProps) {
+  const handleSkip = () => {
+    onSkipTour();
+  };
+
+  const handleComplete = () => {
+    onCompleteTour();
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] p-6">
+      <DialogContent className="sm:max-w-[550px]">
         <DialogHeader>
-          <div className="flex justify-center mb-4">
-            <PrepzrLogo width={120} height={120} /> {/* Increased logo size */}
+          <div className="flex items-center justify-center mb-4">
+            <PrepzrLogo width={100} height={100} />
           </div>
-          <DialogTitle className="text-2xl font-bold text-center">
-            Welcome to PREPZR
-          </DialogTitle>
+          <DialogTitle className="text-2xl text-center">Welcome to PREPZR!</DialogTitle>
           <DialogDescription className="text-center">
-            {isFirstTimeUser
-              ? "Your personalized exam preparation partner. Let's get you started with a quick tour."
-              : `Welcome back! This is login #${loginCount}. Let's continue where you left off.`}
+            Your personalized study companion powered by AI
           </DialogDescription>
         </DialogHeader>
 
-        <div className="my-6 space-y-6">
-          {isFirstTimeUser ? (
-            <>
-              <div className="space-y-4">
-                <FeatureDescription
-                  icon={Book}
-                  title="Personalized Study Plan"
-                  description="We've created a customized study plan based on your goals and learning style."
-                />
-                <FeatureDescription
-                  icon={Star}
-                  title="Concept Cards & Flashcards"
-                  description="Master key concepts and test your knowledge with interactive learning tools."
-                />
-                <FeatureDescription
-                  icon={CalendarDays}
-                  title="Today's Plan"
-                  description="See what you need to focus on today to stay on track with your exam goals."
-                />
-                <FeatureDescription
-                  icon={MessageSquare}
-                  title="24/7 AI Tutor"
-                  description="Get help anytime with our AI tutor that's always ready to answer your questions."
-                />
-                <FeatureDescription
-                  icon={Heart}
-                  title="Feel Good Corner"
-                  description="Take breaks, reduce stress, and get motivated with the Feel Good Corner."
-                />
-                <FeatureDescription
-                  icon={TrendingUp}
-                  title="Track Your Progress"
-                  description="See your improvement over time and identify areas that need more focus."
-                />
-              </div>
+        <div className="py-4">
+          <div className="mb-6 flex flex-col md:flex-row gap-4 p-4 bg-gradient-to-r from-blue-50 to-violet-50 border border-blue-100 rounded-lg">
+            <img
+              src="/lovable-uploads/19303283-7911-484b-9bea-65d7691bbdae.png"
+              alt="Founder"
+              className="w-24 h-24 object-cover rounded-full mx-auto md:mx-0 border-2 border-blue-200"
+            />
+            <div>
+              <h3 className="font-medium text-blue-700 text-center md:text-left">A Message From Our Founder</h3>
+              <p className="text-gray-700 text-sm mt-2 italic">
+                "Thank you for joining PREPZR! We've built this platform to adapt to your unique learning style, 
+                personality, and goals. PREPZR will be your constant companion on your journey to exam success, 
+                making studying efficient and enjoyable."
+              </p>
+              <p className="text-blue-600 mt-2 text-sm font-medium text-right">— PREPZR Team</p>
+            </div>
+          </div>
 
-              <div className="border-t border-b border-gray-200 dark:border-gray-800 py-4 my-4">
-                <div className="flex items-start space-x-3">
-                  <div className="relative">
-                    <div className="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center">
-                      <span className="text-2xl">👋</span>
-                    </div>
-                  </div>
-                  <div>
-                    <h3 className="font-medium">PREPZR Team</h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
-                      "We created PREPZR to make exam prep personalized, effective, and stress-free. We're excited to have you join us!"
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </>
-          ) : (
-            <>
-              {lastActivity && (
-                <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
-                  <h3 className="font-medium mb-1">Last Activity</h3>
-                  <p className="text-sm">
-                    {lastActivity.type}: {lastActivity.description}
-                  </p>
-                </div>
-              )}
+          <Separator className="my-4" />
 
-              {suggestedNextAction && (
-                <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
-                  <h3 className="font-medium mb-1">Suggested Next Step</h3>
-                  <p className="text-sm">{suggestedNextAction}</p>
-                </div>
-              )}
-
-              <div className="border-t border-gray-200 dark:border-gray-800 pt-4">
-                <FeatureDescription
-                  icon={User}
-                  title="New Features Available"
-                  description="Check out our latest updates to help you prepare better!"
-                />
-              </div>
-            </>
-          )}
+          <h3 className="font-medium text-lg mb-3">What makes PREPZR special:</h3>
+          <Steps>
+            <Fragment>
+              <StepLabel>
+                <h4 className="font-medium">Personalized Study Plan</h4>
+                <p className="text-sm text-muted-foreground">Automatically adapts to your learning style and progress</p>
+              </StepLabel>
+              <StepLabel>
+                <h4 className="font-medium">AI-Powered Assistance</h4>
+                <p className="text-sm text-muted-foreground">Get help with concepts and track your progress</p>
+              </StepLabel>
+              <StepLabel>
+                <h4 className="font-medium">Mood-Adaptive Learning</h4>
+                <p className="text-sm text-muted-foreground">Study plans that adjust to your current mental state</p>
+              </StepLabel>
+              <StepLabel>
+                <h4 className="font-medium">Comprehensive Resources</h4>
+                <p className="text-sm text-muted-foreground">Concept cards, flashcards, and practice exams in one place</p>
+              </StepLabel>
+            </Fragment>
+          </Steps>
         </div>
 
         <DialogFooter className="flex flex-col sm:flex-row gap-2">
-          <Button
-            variant="outline"
-            onClick={onSkipTour}
-            className="sm:mr-auto"
-          >
-            {isFirstTimeUser ? "Skip Tour" : "Remind Me Later"}
+          <Button variant="outline" onClick={handleSkip} className="w-full sm:w-auto">
+            <X className="mr-2 h-4 w-4" /> Skip Tour
           </Button>
-          <Button 
-            onClick={onCompleteTour}
-            className="bg-gradient-to-r from-blue-500 to-blue-600"
-          >
-            {isFirstTimeUser ? "Get Started" : "Continue Learning"}
+          <Button onClick={handleComplete} className="w-full sm:w-auto">
+            <Check className="mr-2 h-4 w-4" /> Get Started
           </Button>
         </DialogFooter>
       </DialogContent>
