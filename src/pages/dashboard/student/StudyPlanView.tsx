@@ -1,24 +1,30 @@
 
 import React from 'react';
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Target } from 'lucide-react';
 
 const StudyPlanView = () => {
   return (
     <SharedPageLayout 
       title="Study Plan" 
-      subtitle="Your comprehensive study calendar and exam preparation"
-      backButtonUrl="/dashboard/student"
+      subtitle="Your comprehensive study calendar and exam preparation path"
       showBackButton={true}
+      backButtonUrl="/dashboard/student"
     >
       <div className="space-y-6">
+        <div className="flex items-center mb-4 gap-2">
+          <Target className="h-5 w-5 text-primary" />
+          <h2 className="text-xl font-bold">Exam Goal Study Plan</h2>
+        </div>
+        
         <Card>
-          <CardContent className="p-6">
-            <h2 className="text-xl font-bold mb-4">Exam Preparation Plan</h2>
-            <p className="mb-4">Your personalized study plan is designed to help you reach your academic goals.</p>
-            <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg">
-              <p className="text-center">Your complete study plan will be displayed here.</p>
-            </div>
+          <CardHeader>
+            <CardTitle>Your Personalized Study Plan</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="mb-4">This comprehensive study plan is specifically designed for your exam goal.</p>
+            <p className="text-muted-foreground">It includes a full calendar view of your preparation schedule, topic breakdowns, and milestone tracking.</p>
           </CardContent>
         </Card>
       </div>

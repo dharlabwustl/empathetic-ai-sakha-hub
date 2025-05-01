@@ -4,31 +4,19 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Check, Users, X } from 'lucide-react';
+import { SubscriptionPlan } from '@/types/user/base';
 import { motion } from 'framer-motion';
-
-interface SubscriptionPlan {
-  id: string;
-  name: string;
-  price: number;
-  annualPrice?: number;
-  features: string[];
-  type: string;
-  maxMembers?: number;
-  isPopular?: boolean;
-}
 
 interface SubscriptionPlansProps {
   currentPlanId?: string;
-  onSelectPlan?: (plan: SubscriptionPlan, isGroup: boolean) => void;
+  onSelectPlan: (plan: SubscriptionPlan, isGroup: boolean) => void;
   showGroupOption?: boolean;
-  isAdmin?: boolean;
 }
 
 const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({ 
   currentPlanId, 
   onSelectPlan,
-  showGroupOption = true,
-  isAdmin = false
+  showGroupOption = true
 }) => {
   // Basic plans
   const basicPlans: SubscriptionPlan[] = [
@@ -51,7 +39,6 @@ const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
       id: 'pro_monthly',
       name: 'Pro Plan (Monthly)',
       price: 999,
-      annualPrice: 9999,
       features: [
         'Unlimited Concept Cards (via Study Plan)',
         'Unlimited Flashcards',
@@ -63,8 +50,7 @@ const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
         'Surrounding Influence',
         'Feel Good Corner'
       ],
-      type: 'pro_monthly',
-      isPopular: true
+      type: 'pro_monthly'
     },
     {
       id: 'pro_annual',
@@ -86,7 +72,6 @@ const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
       id: 'group_small',
       name: 'Group Plan (5 Users)',
       price: 3999,
-      annualPrice: 39999,
       features: [
         '5 Users included (₹799/user extra)',
         'Unlimited Concept Cards (via Study Plan)',
@@ -122,14 +107,15 @@ const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
   ];
 
   const handleSelectPlan = (plan: SubscriptionPlan, isGroup: boolean = false) => {
-    if (onSelectPlan) {
-      onSelectPlan(plan, isGroup);
-    }
+    onSelectPlan(plan, isGroup);
   };
 
   const formatPrice = (price: number) => {
     if (price === 0) return 'Free';
-    if (price >= 1000) return `₹${(price/1000).toLocaleString()}k`;
+    if (price === 999) return '₹999/month';
+    if (price === 9999) return '₹9,999/year';
+    if (price === 3999) return '₹3,999/month';
+    if (price === 39999) return '₹39,999/year';
     return `₹${price}`;
   };
 
@@ -162,13 +148,13 @@ const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
             >
               <Card className={`overflow-hidden h-full flex flex-col ${
                 currentPlanId === plan.id ? 'border-2 border-primary' : ''
-              } ${plan.isPopular ? 'border-2 border-purple-500 shadow-lg' : ''}`}>
+              } ${plan.id === 'pro_monthly' ? 'border-2 border-purple-500 shadow-lg' : ''}`}>
                 {currentPlanId === plan.id && (
                   <div className="bg-primary text-primary-foreground text-center py-1 text-sm font-medium">
                     Current Plan
                   </div>
                 )}
-                {plan.isPopular && currentPlanId !== plan.id && (
+                {plan.id === 'pro_monthly' && currentPlanId !== plan.id && (
                   <div className="bg-gradient-to-r from-purple-600 to-violet-700 text-white text-center py-1 text-sm font-medium">
                     MOST POPULAR
                   </div>
@@ -179,9 +165,6 @@ const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
                   </div>
                   <div className="mt-2">
                     <span className="text-2xl font-bold">{formatPrice(plan.price)}</span>
-                    {plan.id === 'pro_monthly' && (
-                      <span className="text-sm text-muted-foreground">/month</span>
-                    )}
                     {plan.id === 'pro_annual' && (
                       <span className="text-sm text-green-600 ml-2">Save ₹2,000</span>
                     )}
@@ -198,20 +181,18 @@ const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
                   </ul>
                 </CardContent>
                 <CardFooter>
-                  {!isAdmin && (
-                    <Button
-                      className={`w-full ${
-                        plan.isPopular 
-                          ? 'bg-gradient-to-r from-purple-600 to-violet-700 hover:from-purple-700 hover:to-violet-800' 
-                          : ''
-                      }`}
-                      variant={currentPlanId === plan.id ? 'outline' : 'default'}
-                      disabled={currentPlanId === plan.id}
-                      onClick={() => handleSelectPlan(plan)}
-                    >
-                      {currentPlanId === plan.id ? 'Current Plan' : 'Select Plan'}
-                    </Button>
-                  )}
+                  <Button
+                    className={`w-full ${
+                      plan.id === 'pro_monthly' 
+                        ? 'bg-gradient-to-r from-purple-600 to-violet-700 hover:from-purple-700 hover:to-violet-800' 
+                        : ''
+                    }`}
+                    variant={currentPlanId === plan.id ? 'outline' : 'default'}
+                    disabled={currentPlanId === plan.id}
+                    onClick={() => handleSelectPlan(plan)}
+                  >
+                    {currentPlanId === plan.id ? 'Current Plan' : 'Select Plan'}
+                  </Button>
                 </CardFooter>
               </Card>
             </motion.div>
@@ -253,9 +234,6 @@ const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
                     </div>
                     <div className="mt-2">
                       <span className="text-2xl font-bold">{formatPrice(plan.price)}</span>
-                      {plan.id === 'group_small' && (
-                        <span className="text-sm text-muted-foreground">/month</span>
-                      )}
                       {plan.id === 'group_annual' && (
                         <span className="text-sm text-green-600 ml-2">Save ₹8,000</span>
                       )}
@@ -272,16 +250,14 @@ const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
                     </ul>
                   </CardContent>
                   <CardFooter>
-                    {!isAdmin && (
-                      <Button
-                        className="w-full"
-                        variant={currentPlanId === plan.id ? 'outline' : 'default'}
-                        disabled={currentPlanId === plan.id}
-                        onClick={() => handleSelectPlan(plan, true)}
-                      >
-                        {currentPlanId === plan.id ? 'Current Plan' : 'Select Plan'}
-                      </Button>
-                    )}
+                    <Button
+                      className="w-full"
+                      variant={currentPlanId === plan.id ? 'outline' : 'default'}
+                      disabled={currentPlanId === plan.id}
+                      onClick={() => handleSelectPlan(plan, true)}
+                    >
+                      {currentPlanId === plan.id ? 'Current Plan' : 'Select Plan'}
+                    </Button>
                   </CardFooter>
                 </Card>
               </motion.div>
@@ -289,40 +265,6 @@ const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
           </div>
         </div>
       )}
-      
-      {/* Advanced Features Section */}
-      <div>
-        <h3 className="text-2xl font-bold mb-6">Advanced Features (Pro & Group)</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Card>
-            <CardContent className="p-6">
-              <h4 className="font-medium text-lg mb-2">Study-Plan-Based Generation</h4>
-              <p className="text-muted-foreground">Cards created from user's academic roadmap</p>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardContent className="p-6">
-              <h4 className="font-medium text-lg mb-2">Mood-Based Study Plan</h4>
-              <p className="text-muted-foreground">Dynamically adapts content based on user's mood</p>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardContent className="p-6">
-              <h4 className="font-medium text-lg mb-2">Surrounding Influence</h4>
-              <p className="text-muted-foreground">Peer motivation from trending topics, activity stats</p>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardContent className="p-6">
-              <h4 className="font-medium text-lg mb-2">Batch Manager (Group)</h4>
-              <p className="text-muted-foreground">Create & manage multiple learner batches, track progress</p>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
       
       {/* Additional credit system section */}
       <div>
@@ -366,46 +308,37 @@ const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
         </Card>
       </div>
       
-      {/* User limits section */}
+      {/* Advanced Features Section */}
       <div>
-        <h3 className="text-2xl font-bold mb-6">User Limits & Add-ons</h3>
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-            <thead>
-              <tr>
-                <th className="px-6 py-3 bg-gray-50 dark:bg-gray-800 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Item</th>
-                <th className="px-6 py-3 bg-gray-50 dark:bg-gray-800 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Pro Plan</th>
-                <th className="px-6 py-3 bg-gray-50 dark:bg-gray-800 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Group Plan</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-800">
-              <tr>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">Users Included</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm">1</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm">5</td>
-              </tr>
-              <tr>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">Extra Users (Group)</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm"><X size={16} className="text-red-500" /></td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm">₹799/user/month</td>
-              </tr>
-              <tr>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">Max Study Plans</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm">2/month</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm">4/month (shared)</td>
-              </tr>
-              <tr>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">AI Tutor Requests</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm">Unlimited</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm">Unlimited (Per User)</td>
-              </tr>
-              <tr>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">Additional Card Credits</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm">₹99–₹399</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm">Group bundles available</td>
-              </tr>
-            </tbody>
-          </table>
+        <h3 className="text-2xl font-bold mb-6">Advanced Features (Pro & Group)</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Card>
+            <CardContent className="p-6">
+              <h4 className="font-medium text-lg mb-2">Study-Plan-Based Generation</h4>
+              <p className="text-muted-foreground">Cards created from user's academic roadmap</p>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardContent className="p-6">
+              <h4 className="font-medium text-lg mb-2">Mood-Based Study Plan</h4>
+              <p className="text-muted-foreground">Dynamically adapts content based on user's mood</p>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardContent className="p-6">
+              <h4 className="font-medium text-lg mb-2">Surrounding Influence</h4>
+              <p className="text-muted-foreground">Peer motivation from trending topics, activity stats</p>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardContent className="p-6">
+              <h4 className="font-medium text-lg mb-2">Batch Manager (Group)</h4>
+              <p className="text-muted-foreground">Create & manage multiple learner batches, assign content, track progress</p>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>

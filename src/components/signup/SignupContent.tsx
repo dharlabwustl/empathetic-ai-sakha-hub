@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -84,28 +83,27 @@ const SignupContent = () => {
 
       setOnboardingData(finalData);
 
-      // Simulate API call
+      // Simulate API call - in a real app, this would send to backend to generate study plan
       await new Promise(resolve => setTimeout(resolve, 1500));
 
       // Store data in localStorage
       localStorage.setItem("userData", JSON.stringify({
         ...finalData,
         loginCount: 1,
-        isNewUser: true,
         createdAt: new Date().toISOString(),
-        completedOnboarding: true, // Mark as completed
-        sawWelcomeTour: false // Show welcome tour later
+        completedOnboarding: false,
+        sawWelcomeTour: false
       }));
 
       // Show success message
       toast({
         title: "Account created successfully!",
-        description: "Redirecting to welcome screen.",
+        description: "Redirecting to your personalized dashboard.",
       });
 
-      // Navigate directly to the welcome screen (NOT study plan)
+      // Navigate directly to the welcome page
       setTimeout(() => {
-        navigate("/welcome");
+        navigate("/welcome?new=true");
       }, 1000);
     } catch (error) {
       console.error("Error creating account:", error);
@@ -151,13 +149,12 @@ const SignupContent = () => {
         email: "googleuser@example.com",
         role: "student",
         loginCount: 1,
-        isNewUser: true,
         createdAt: new Date().toISOString(),
-        completedOnboarding: true, // Mark as completed
-        sawWelcomeTour: false // Show welcome tour later
+        onboardingCompleted: false,
+        sawWelcomeTour: false,
       }));
 
-      navigate("/welcome");
+      navigate("/welcome?new=true");
     }, 2000);
   };
 

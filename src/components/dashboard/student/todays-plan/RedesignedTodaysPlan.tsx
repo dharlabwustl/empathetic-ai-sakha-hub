@@ -1,45 +1,68 @@
 
 import React from 'react';
+import { Helmet } from 'react-helmet';
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useNavigate } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
-import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
+import { useTodaysPlan } from "@/hooks/useTodaysPlan";
+import LoadingState from "@/components/common/LoadingState";
+import ErrorState from "@/components/common/ErrorState";
+import PlanHeader from './PlanHeader';
+import NewTodaysPlanView from './NewTodaysPlanView';
+import { useUserProfile } from '@/hooks/useUserProfile';
+import { UserRole } from '@/types/user/base';
 
-const RedesignedTodaysPlan = () => {
-  const navigate = useNavigate();
+const RedesignedTodaysPlan: React.FC = () => {
+  const { userProfile } = useUserProfile(UserRole.Student);
+  const goalTitle = userProfile?.goals?.[0]?.title || "IIT-JEE";
   
+  // Get today's plan data
+  const {
+    loading,
+    error,
+    planData,
+    activeView,
+    setActiveView,
+    refreshData,
+    markTaskCompleted,
+    addBookmark,
+    addNote
+  } = useTodaysPlan(goalTitle, userProfile?.name || "Student");
+  
+  if (loading) {
+    return <LoadingState message="Loading your study plan..." />;
+  }
+  
+  if (error) {
+    return (
+      <ErrorState 
+        title="Could not load study plan" 
+        message={error} 
+        action={
+          <Button onClick={refreshData}>
+            Try Again
+          </Button>
+        }
+      />
+    );
+  }
+
   return (
-    <SharedPageLayout
-      title="Today's Plan"
-      showBackButton={true}
-      backButtonUrl="/dashboard/student"
-    >
-      <div className="mb-4">
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          className="flex items-center text-muted-foreground hover:text-foreground"
-          onClick={() => navigate('/dashboard/student')}
-        >
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to Dashboard
-        </Button>
+    <>
+      <Helmet>
+        <title>Today's Plan - PREPZR</title>
+      </Helmet>
+      
+      <div className="space-y-8">
+        <PlanHeader 
+          planData={planData} 
+          activeView={activeView}
+          setActiveView={setActiveView}
+        />
+        
+        <NewTodaysPlanView 
+          planData={planData}
+        />
       </div>
-      
-      <Card className="mb-6">
-        <CardHeader>
-          <CardTitle>Your Daily Tasks</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-muted-foreground">
-            Your personalized study plan for today will appear here.
-          </div>
-        </CardContent>
-      </Card>
-      
-      {/* Additional content would go here */}
-    </SharedPageLayout>
+    </>
   );
 };
 

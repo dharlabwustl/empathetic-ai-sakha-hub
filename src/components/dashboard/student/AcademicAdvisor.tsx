@@ -15,26 +15,6 @@ interface AcademicAdvisorProps {
   };
 }
 
-// Define proper types to match what the components expect
-interface Topic {
-  id: string;
-  name: string;
-  status: 'pending' | 'in-progress' | 'completed' | 'skipped';
-  difficulty: 'easy' | 'medium' | 'hard';
-  completed: boolean;
-}
-
-interface StudyPlanSubject {
-  name: string;
-  progress: number;
-  proficiency: 'strong' | 'weak' | 'medium';
-  topics: Topic[];
-  id: string;
-  color: string;
-  hoursPerWeek: number;
-  priority: 'high' | 'medium' | 'low';
-}
-
 const AcademicAdvisor: React.FC<AcademicAdvisorProps> = ({ userProfile }) => {
   const { toast } = useToast();
   const [showCreateDialog, setShowCreateDialog] = useState(false);
@@ -51,45 +31,33 @@ const AcademicAdvisor: React.FC<AcademicAdvisorProps> = ({ userProfile }) => {
     progressPercentage: 35,
     subjects: [
       {
-        id: "subj-1",
         name: "Physics",
         progress: 45,
-        proficiency: 'medium',
-        color: "#4F46E5",
-        hoursPerWeek: 8,
-        priority: 'high',
+        proficiency: 'moderate',
         topics: [
-          { id: "topic-1", name: "Mechanics", status: 'in-progress', difficulty: 'medium', completed: false },
-          { id: "topic-2", name: "Thermodynamics", status: 'pending', difficulty: 'medium', completed: false },
-          { id: "topic-3", name: "Electrostatics", status: 'completed', difficulty: 'hard', completed: true }
+          { name: "Mechanics", status: 'in-progress', priority: 'high' },
+          { name: "Thermodynamics", status: 'pending', priority: 'medium' },
+          { name: "Electrostatics", status: 'completed', priority: 'high' }
         ]
       },
       {
-        id: "subj-2",
         name: "Chemistry",
         progress: 25,
         proficiency: 'weak',
-        color: "#10B981",
-        hoursPerWeek: 6,
-        priority: 'medium',
         topics: [
-          { id: "topic-4", name: "Organic Chemistry", status: 'pending', difficulty: 'hard', completed: false },
-          { id: "topic-5", name: "Chemical Bonding", status: 'in-progress', difficulty: 'medium', completed: false },
-          { id: "topic-6", name: "Equilibrium", status: 'pending', difficulty: 'easy', completed: false }
+          { name: "Organic Chemistry", status: 'pending', priority: 'high' },
+          { name: "Chemical Bonding", status: 'in-progress', priority: 'medium' },
+          { name: "Equilibrium", status: 'pending', priority: 'low' }
         ]
       },
       {
-        id: "subj-3",
         name: "Mathematics",
         progress: 72,
         proficiency: 'strong',
-        color: "#EC4899",
-        hoursPerWeek: 10,
-        priority: 'medium',
         topics: [
-          { id: "topic-7", name: "Calculus", status: 'completed', difficulty: 'hard', completed: true },
-          { id: "topic-8", name: "Coordinate Geometry", status: 'completed', difficulty: 'hard', completed: true },
-          { id: "topic-9", name: "Probability", status: 'in-progress', difficulty: 'medium', completed: false }
+          { name: "Calculus", status: 'completed', priority: 'high' },
+          { name: "Coordinate Geometry", status: 'completed', priority: 'high' },
+          { name: "Probability", status: 'in-progress', priority: 'medium' }
         ]
       }
     ],
@@ -109,40 +77,28 @@ const AcademicAdvisor: React.FC<AcademicAdvisorProps> = ({ userProfile }) => {
     progressPercentage: 100,
     subjects: [
       {
-        id: "old-subj-1",
         name: "Physics",
         progress: 65,
         proficiency: 'weak',
-        color: "#4F46E5",
-        hoursPerWeek: 5,
-        priority: 'high',
         topics: [
-          { id: "old-topic-1", name: "Mechanics", status: 'completed', difficulty: 'hard', completed: true },
-          { id: "old-topic-2", name: "Waves", status: 'completed', difficulty: 'medium', completed: true }
+          { name: "Mechanics", status: 'completed', priority: 'high' },
+          { name: "Waves", status: 'completed', priority: 'medium' }
         ]
       },
       {
-        id: "old-subj-2",
         name: "Chemistry",
         progress: 60,
         proficiency: 'weak',
-        color: "#10B981",
-        hoursPerWeek: 4,
-        priority: 'medium',
         topics: [
-          { id: "old-topic-3", name: "Periodic Table", status: 'completed', difficulty: 'medium', completed: true }
+          { name: "Periodic Table", status: 'completed', priority: 'medium' }
         ]
       },
       {
-        id: "old-subj-3",
         name: "Mathematics",
         progress: 70,
-        proficiency: 'medium',
-        color: "#EC4899",
-        hoursPerWeek: 6,
-        priority: 'low',
+        proficiency: 'moderate',
         topics: [
-          { id: "old-topic-4", name: "Algebra", status: 'completed', difficulty: 'hard', completed: true }
+          { name: "Algebra", status: 'completed', priority: 'high' }
         ]
       }
     ],
@@ -163,104 +119,38 @@ const AcademicAdvisor: React.FC<AcademicAdvisorProps> = ({ userProfile }) => {
   };
 
   // Function to generate topics based on subject
-  const generateTopicsForSubject = (subject: string, proficiency: 'weak' | 'medium' | 'strong') => {
-    let topics: Topic[] = [];
-    const difficulties: ('easy' | 'medium' | 'hard')[] = ['easy', 'medium', 'hard'];
-    const statuses: ('pending' | 'in-progress')[] = ['pending', 'in-progress'];
+  const generateTopicsForSubject = (subject: string, proficiency: 'weak' | 'moderate' | 'strong') => {
+    let topics = [];
+    const priorities = ['high', 'medium', 'low'];
+    const statuses = ['pending', 'in-progress'];
     
     // Generate topics based on subject
     switch(subject.toLowerCase()) {
       case 'physics':
         topics = [
-          { 
-            id: uuidv4(), 
-            name: "Mechanics", 
-            status: statuses[Math.floor(Math.random() * statuses.length)], 
-            difficulty: difficulties[Math.floor(Math.random() * difficulties.length)],
-            completed: false
-          },
-          { 
-            id: uuidv4(), 
-            name: "Thermodynamics", 
-            status: statuses[Math.floor(Math.random() * statuses.length)], 
-            difficulty: difficulties[Math.floor(Math.random() * difficulties.length)],
-            completed: false
-          },
-          { 
-            id: uuidv4(), 
-            name: "Electrostatics", 
-            status: statuses[Math.floor(Math.random() * statuses.length)], 
-            difficulty: difficulties[Math.floor(Math.random() * difficulties.length)],
-            completed: false
-          }
+          { name: "Mechanics", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low' },
+          { name: "Thermodynamics", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low' },
+          { name: "Electrostatics", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low' }
         ];
         break;
       case 'chemistry':
         topics = [
-          { 
-            id: uuidv4(), 
-            name: "Organic Chemistry", 
-            status: statuses[Math.floor(Math.random() * statuses.length)], 
-            difficulty: difficulties[Math.floor(Math.random() * difficulties.length)],
-            completed: false
-          },
-          { 
-            id: uuidv4(), 
-            name: "Inorganic Chemistry", 
-            status: statuses[Math.floor(Math.random() * statuses.length)], 
-            difficulty: difficulties[Math.floor(Math.random() * difficulties.length)],
-            completed: false
-          },
-          { 
-            id: uuidv4(), 
-            name: "Physical Chemistry", 
-            status: statuses[Math.floor(Math.random() * statuses.length)], 
-            difficulty: difficulties[Math.floor(Math.random() * difficulties.length)],
-            completed: false
-          }
+          { name: "Organic Chemistry", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low' },
+          { name: "Inorganic Chemistry", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low' },
+          { name: "Physical Chemistry", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low' }
         ];
         break;
       case 'mathematics':
         topics = [
-          { 
-            id: uuidv4(), 
-            name: "Calculus", 
-            status: statuses[Math.floor(Math.random() * statuses.length)], 
-            difficulty: difficulties[Math.floor(Math.random() * difficulties.length)],
-            completed: false
-          },
-          { 
-            id: uuidv4(), 
-            name: "Algebra", 
-            status: statuses[Math.floor(Math.random() * statuses.length)], 
-            difficulty: difficulties[Math.floor(Math.random() * difficulties.length)],
-            completed: false
-          },
-          { 
-            id: uuidv4(), 
-            name: "Geometry", 
-            status: statuses[Math.floor(Math.random() * statuses.length)], 
-            difficulty: difficulties[Math.floor(Math.random() * difficulties.length)],
-            completed: false
-          }
+          { name: "Calculus", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low' },
+          { name: "Algebra", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low' },
+          { name: "Geometry", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low' }
         ];
         break;
       default:
         topics = [
-          { 
-            id: uuidv4(), 
-            name: "Fundamentals", 
-            status: statuses[Math.floor(Math.random() * statuses.length)], 
-            difficulty: difficulties[Math.floor(Math.random() * difficulties.length)],
-            completed: false
-          },
-          { 
-            id: uuidv4(), 
-            name: "Advanced Topics", 
-            status: statuses[Math.floor(Math.random() * statuses.length)], 
-            difficulty: difficulties[Math.floor(Math.random() * difficulties.length)],
-            completed: false
-          }
+          { name: "Fundamentals", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low' },
+          { name: "Advanced Topics", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low' }
         ];
     }
     
@@ -277,14 +167,10 @@ const AcademicAdvisor: React.FC<AcademicAdvisorProps> = ({ userProfile }) => {
       createdAt: new Date().toISOString(),
       status: 'active',
       progressPercentage: 0,
-      subjects: plan.subjects.map((subject, index) => ({
-        id: `subj-new-${index}`,
+      subjects: plan.subjects.map(subject => ({
         name: subject.name,
         progress: 0,
         proficiency: subject.proficiency,
-        color: ["#4F46E5", "#10B981", "#EC4899", "#F59E0B", "#6366F1"][index % 5],
-        hoursPerWeek: Math.floor(Math.random() * 5) + 4, // 4-8 hours
-        priority: ['high', 'medium', 'low'][index % 3] as 'high' | 'medium' | 'low',
         topics: generateTopicsForSubject(subject.name, subject.proficiency)
       })),
       studyHoursPerDay: plan.studyHoursPerDay,
@@ -327,7 +213,7 @@ const AcademicAdvisor: React.FC<AcademicAdvisorProps> = ({ userProfile }) => {
       />
 
       <CreateStudyPlanWizard
-        open={showCreateDialog}
+        isOpen={showCreateDialog}
         onClose={() => setShowCreateDialog(false)}
         examGoal={userProfile?.examPreparation}
         onCreatePlan={handleNewPlanCreated}

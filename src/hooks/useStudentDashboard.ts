@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -56,62 +55,39 @@ export const useStudentDashboard = () => {
       try {
         setLoading(true);
         
-        // Check URL params
-        const params = new URLSearchParams(location.search);
-        const isNewUser = params.get('new') === 'true';
-        const completedOnboarding = params.get('completedOnboarding') === 'true';
-        
-        // Check local storage data
-        const userData = localStorage.getItem("userData");
-        const parsedUserData = userData ? JSON.parse(userData) : null;
-        
-        // Set onboarding states based on userData and URL params
-        let shouldShowOnboarding = false;
-        let shouldShowWelcomeTour = false;
-        
-        // Respect explicit URL parameters first (deep linking)
-        if (completedOnboarding === false) {
-          shouldShowOnboarding = true;
-          shouldShowWelcomeTour = false;
-        } else if (isNewUser) {
-          shouldShowOnboarding = false;
-          shouldShowWelcomeTour = true;
-        } else if (parsedUserData) {
-          // Then check localStorage data
-          shouldShowOnboarding = parsedUserData.completedOnboarding === false;
-          shouldShowWelcomeTour = parsedUserData.sawWelcomeTour === false;
-        }
+        const { shouldShowOnboarding, shouldShowWelcomeTour } = handleNewUser(location, navigate);
         
         console.log("useStudentDashboard - Session result:", { 
           shouldShowOnboarding, 
-          shouldShowWelcomeTour,
-          isNewUser,
-          completedOnboarding
+          shouldShowWelcomeTour 
         });
         
         setShowOnboarding(shouldShowOnboarding);
         setShowWelcomeTour(shouldShowWelcomeTour);
         
-        // Setup last activity and suggested actions for returning users
-        if (!shouldShowOnboarding && parsedUserData) {
-          if (parsedUserData.lastActivity) {
-            setLastActivity(parsedUserData.lastActivity);
-          } else {
-            setLastActivity({
-              type: "login",
-              description: "You last logged in yesterday"
-            });
-          }
-          
-          if (parsedUserData.completedModules && parsedUserData.completedModules.length > 0) {
-            const lastModule = parsedUserData.completedModules[parsedUserData.completedModules.length - 1];
-            setSuggestedNextAction(`Continue with ${lastModule.nextModule || "Practice Exercises"}`);
-          } else {
-            setSuggestedNextAction("Start today's recommended study plan");
+        if (!shouldShowOnboarding && !shouldShowWelcomeTour) {
+          const userData = localStorage.getItem("userData");
+          if (userData) {
+            const parsedData = JSON.parse(userData);
+            
+            if (parsedData.lastActivity) {
+              setLastActivity(parsedData.lastActivity);
+            } else {
+              setLastActivity({
+                type: "login",
+                description: "You last logged in yesterday"
+              });
+            }
+            
+            if (parsedData.completedModules && parsedData.completedModules.length > 0) {
+              const lastModule = parsedData.completedModules[parsedData.completedModules.length - 1];
+              setSuggestedNextAction(`Continue with ${lastModule.nextModule || "Practice Exercises"}`);
+            } else {
+              setSuggestedNextAction("Start today's recommended study plan");
+            }
           }
         }
         
-        // Update login count for existing users
         if (userProfile && !shouldShowOnboarding) {
           const currentLoginCount = userProfile.loginCount || 0;
           
@@ -138,7 +114,7 @@ export const useStudentDashboard = () => {
     };
     
     initDashboard();
-  }, [location, navigate, profileLoading, userProfile, updateUserProfile, toast]);
+  }, [location, navigate, profileLoading, userProfile, updateUserProfile]);
   
   useEffect(() => {
     if (!profileLoading) {
@@ -179,7 +155,7 @@ export const useStudentDashboard = () => {
     }
     
     toast({
-      title: "Welcome to Prepzr!",
+      title: "Welcome to Sakha AI!",
       description: "You're all set to start your personalized learning journey.",
     });
   };

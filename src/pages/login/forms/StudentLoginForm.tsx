@@ -45,22 +45,7 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
           title: "Login successful",
           description: "Welcome back to Prepzr"
         });
-        
-        // For regular users, direct to welcome-back screen first
-        const userData = localStorage.getItem('userData');
-        if (userData) {
-          const parsedData = JSON.parse(userData);
-          
-          if (parsedData.loginCount) {
-            parsedData.loginCount += 1;
-            localStorage.setItem('userData', JSON.stringify(parsedData));
-          }
-          
-          // Now send users directly to welcome-back screen regardless of login count
-          navigate("/welcome-back");
-        } else {
-          navigate("/welcome-back");
-        }
+        navigate("/dashboard/student/today");
       } else {
         toast({
           title: "Login failed",

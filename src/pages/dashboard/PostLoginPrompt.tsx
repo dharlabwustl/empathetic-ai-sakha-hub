@@ -16,6 +16,8 @@ const PostLoginPrompt = () => {
   
   const [lastActivity, setLastActivity] = useState<string | null>(null);
   const [pendingTask, setPendingTask] = useState<string | null>(null);
+  const [loginCount, setLoginCount] = useState<number>(0);
+  const [isNewUser, setIsNewUser] = useState(false);
   
   useEffect(() => {
     // Get user data from localStorage
@@ -25,24 +27,22 @@ const PostLoginPrompt = () => {
       try {
         const parsedData = JSON.parse(userData);
         
-        // Check if this is a first-time user
-        if (parsedData.isNewUser === true || parsedData.loginCount === 1) {
-          // First time user should be redirected to welcome flow, not post-login prompt
-          navigate('/welcome', { replace: true });
-          return;
+        // Check if user is new
+        setIsNewUser(parsedData.loginCount === 1);
+        
+        // Set login count
+        if (parsedData.loginCount) {
+          setLoginCount(parsedData.loginCount);
         }
         
-        // Only show for returning users
-        if (parsedData.loginCount && parsedData.loginCount > 1) {
-          // Get last activity
-          if (parsedData.lastActivity) {
-            setLastActivity(parsedData.lastActivity.description);
-          }
-          
-          // Get pending tasks
-          if (parsedData.pendingTasks && parsedData.pendingTasks.length > 0) {
-            setPendingTask(parsedData.pendingTasks[0].title);
-          }
+        // Get last activity
+        if (parsedData.lastActivity) {
+          setLastActivity(parsedData.lastActivity.description);
+        }
+        
+        // Get pending tasks
+        if (parsedData.pendingTasks && parsedData.pendingTasks.length > 0) {
+          setPendingTask(parsedData.pendingTasks[0].title);
         }
         
       } catch (error) {
@@ -52,7 +52,7 @@ const PostLoginPrompt = () => {
     
     // Auto-redirect after 15 seconds if no action taken
     const timer = setTimeout(() => {
-      navigate(`/${returnTo}`, { replace: true });
+      navigate(`/${returnTo}`);
       toast({
         title: "Welcome back!",
         description: "You've been automatically redirected to your dashboard.",
@@ -62,8 +62,15 @@ const PostLoginPrompt = () => {
     return () => clearTimeout(timer);
   }, [navigate, returnTo, toast]);
 
+  // If the user is completely new, redirect them to welcome screen
+  useEffect(() => {
+    if (isNewUser) {
+      navigate('/welcome?new=true');
+    }
+  }, [isNewUser, navigate]);
+
   const goToTodaysPlan = () => {
-    navigate("/dashboard/student/today", { replace: true });
+    navigate("/dashboard/student/today");
     toast({
       title: "Today's Plan",
       description: "Let's focus on today's learning goals!"
@@ -71,7 +78,7 @@ const PostLoginPrompt = () => {
   };
 
   const goToDashboard = () => {
-    navigate(`/${returnTo}`, { replace: true });
+    navigate(`/${returnTo}`);
     toast({
       title: "Welcome Back",
       description: "Your dashboard is ready for today's learning activities."
@@ -81,7 +88,7 @@ const PostLoginPrompt = () => {
   const continuePendingTask = () => {
     // In a real app, this would navigate to the specific task
     // For now, just go to today's plan
-    navigate("/dashboard/student/today", { replace: true });
+    navigate("/dashboard/student/today");
     toast({
       title: "Continuing Your Work",
       description: "Pick up right where you left off!"
@@ -97,7 +104,7 @@ const PostLoginPrompt = () => {
         className="max-w-md w-full"
       >
         <div className="text-center mb-8">
-          <PrepzrLogo width={150} height="auto" className="mx-auto" />
+          <PrepzrLogo width={120} height="auto" className="mx-auto" />
           <h1 className="mt-4 text-4xl font-display font-bold gradient-text">Welcome Back!</h1>
           <p className="mt-2 text-gray-600 dark:text-gray-400">Ready to continue your learning journey?</p>
         </div>
@@ -142,7 +149,7 @@ const PostLoginPrompt = () => {
             <Button 
               variant="outline" 
               className="w-full justify-start gap-3 border-purple-200 dark:border-purple-900 hover:border-purple-300 hover:bg-purple-50 dark:hover:bg-purple-950/50"
-              onClick={() => navigate("/dashboard/student/concepts", { replace: true })}
+              onClick={() => navigate("/dashboard/student/concepts")}
             >
               <BookOpen className="h-5 w-5 text-purple-600 dark:text-purple-400" />
               <span className="flex-1 text-left">Explore Concept Cards</span>

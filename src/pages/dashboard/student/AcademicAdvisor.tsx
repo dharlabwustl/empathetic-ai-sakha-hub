@@ -12,47 +12,6 @@ interface AcademicAdvisorProps {
   };
 }
 
-// Define proper types to match what the components expect
-interface Topic {
-  name: string;
-  status: 'pending' | 'in-progress' | 'completed';
-  difficulty?: 'easy' | 'medium' | 'hard';
-  completed?: boolean;
-}
-
-interface StudyPlanSubject {
-  name: string;
-  progress: number;
-  proficiency: 'strong' | 'weak' | 'medium';
-  topics: Topic[];
-  id?: string;
-  color?: string;
-  hoursPerWeek?: number;
-  priority?: number;
-}
-
-interface StudyPlan {
-  id: string;
-  examGoal: string;
-  examDate: string;
-  daysLeft: number;
-  createdAt: string;
-  status: 'active' | 'completed' | 'paused';
-  progressPercentage: number;
-  subjects: StudyPlanSubject[];
-  studyHoursPerDay: number;
-  preferredStudyTime: string;
-  learningPace: string;
-}
-
-interface NewStudyPlan {
-  examGoal: string;
-  examDate: string;
-  subjects: string[];
-  studyHoursPerDay: number;
-  preferredStudyTime: string;
-}
-
 const AcademicAdvisor: React.FC<AcademicAdvisorProps> = ({ userProfile }) => {
   const {
     showCreateDialog,
