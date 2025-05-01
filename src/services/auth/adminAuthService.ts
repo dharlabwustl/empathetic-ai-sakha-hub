@@ -12,36 +12,21 @@ interface LoginCredentials {
   password: string;
 }
 
-// Mock admin user data
-const MOCK_ADMIN_USERS: AdminUser[] = [
-  {
-    id: "admin1",
-    name: "Admin User",
-    email: "admin@example.com",
-    role: "admin"
-  },
-  {
-    id: "admin2",
-    name: "Super Admin",
-    email: "super@example.com",
-    role: "admin"
-  }
-];
-
 // Admin auth service with mock functions
 const adminAuthService = {
   // Admin login function
   async adminLogin(credentials: LoginCredentials): Promise<LoginResponse> {
     console.log("Admin auth service: login attempt for", credentials.email);
     
-    // For demo purposes, check against our mock data
-    const adminUser = MOCK_ADMIN_USERS.find(
-      user => user.email === credentials.email && 
-              // Simple password check for demo
-              (credentials.password === "admin123" || credentials.password === "password")
-    );
-    
-    if (adminUser) {
+    // For demo purposes, allow any email with admin in it
+    if (credentials.email.includes('admin')) {
+      const adminUser: AdminUser = {
+        id: `admin_${Date.now()}`,
+        name: "Admin User",
+        email: credentials.email,
+        role: "admin"
+      };
+      
       // Store token in localStorage
       const mockToken = `admin_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
       localStorage.setItem("adminToken", mockToken);
@@ -56,7 +41,7 @@ const adminAuthService = {
       return {
         success: false,
         data: null,
-        message: "Invalid email or password"
+        message: "Invalid admin credentials. Email must contain 'admin'."
       };
     }
   },

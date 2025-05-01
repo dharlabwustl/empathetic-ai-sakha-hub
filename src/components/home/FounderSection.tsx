@@ -10,7 +10,7 @@ const FounderSection = () => {
             <div className="relative">
               <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl transform rotate-3"></div>
               <img 
-                src="/lovable-uploads/9ca5a007-1086-4c37-81cc-cc869e880b5b.png" 
+                src="/lovable-uploads/8b654e3b-59bb-4288-9e3c-b3299d9cdfb3.png" 
                 alt="Amit Singh - Founder of PREPZR" 
                 className="relative z-10 rounded-2xl object-cover w-full max-w-md mx-auto"
               />

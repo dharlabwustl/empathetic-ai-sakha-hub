@@ -1,12 +1,19 @@
+
 import React from 'react';
 import { SharedPageLayout } from "@/components/dashboard/student/SharedPageLayout";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckCircle, BookOpen, FileText, Award, Clock, BarChart2, Bookmark, PenTool, Layers } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const ConceptsLandingPage: React.FC = () => {
+  const navigate = useNavigate();
+  
   // State and handlers for your concept cards functionality
+  const handleCardClick = (conceptId: string) => {
+    navigate(`/dashboard/student/concepts/card/${conceptId}`);
+  };
   
   return (
     <SharedPageLayout 
@@ -38,6 +45,7 @@ const ConceptsLandingPage: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {/* Sample concept cards with enhanced features */}
               <ConceptCard 
+                id="1"
                 title="Newton's Laws of Motion"
                 subject="Physics"
                 masteryScore={85}
@@ -47,9 +55,11 @@ const ConceptsLandingPage: React.FC = () => {
                   timeSpent: "45 min",
                   retentionScore: 87
                 }}
+                onClick={handleCardClick}
               />
               
               <ConceptCard 
+                id="2"
                 title="Chemical Bonding"
                 subject="Chemistry"
                 masteryScore={72}
@@ -59,9 +69,11 @@ const ConceptsLandingPage: React.FC = () => {
                   timeSpent: "35 min",
                   retentionScore: 65
                 }}
+                onClick={handleCardClick}
               />
               
               <ConceptCard 
+                id="3"
                 title="Cell Division"
                 subject="Biology"
                 masteryScore={79}
@@ -71,6 +83,7 @@ const ConceptsLandingPage: React.FC = () => {
                   timeSpent: "50 min",
                   retentionScore: 72
                 }}
+                onClick={handleCardClick}
               />
             </div>
             
@@ -155,6 +168,7 @@ const ConceptsLandingPage: React.FC = () => {
 
 // Helper component for concept cards with enhanced features
 interface ConceptCardProps {
+  id: string;
   title: string;
   subject: string;
   masteryScore: number;
@@ -164,14 +178,17 @@ interface ConceptCardProps {
     timeSpent: string;
     retentionScore: number;
   };
+  onClick: (id: string) => void;
 }
 
 const ConceptCard: React.FC<ConceptCardProps> = ({ 
+  id,
   title, 
   subject, 
   masteryScore, 
   lastReviewed,
-  progressStats 
+  progressStats,
+  onClick
 }) => {
   return (
     <Card className="overflow-hidden hover:shadow-md transition-all">
@@ -263,7 +280,7 @@ const RecommendationCard: React.FC<RecommendationCardProps> = ({ title, reason, 
       <CardContent>
         <Button variant="ghost" className="w-full justify-start text-purple-600">
           <BookOpen className="h-4 w-4 mr-2" />
-          Explore this concept
+          Study this concept
         </Button>
       </CardContent>
     </Card>

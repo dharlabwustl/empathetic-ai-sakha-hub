@@ -70,15 +70,15 @@ const WelcomeToPrepr = () => {
                     <h3 className="text-xl font-medium mb-4">A message from our founder</h3>
                     <div className="flex items-start gap-4">
                       <img 
-                        src="/assets/team/founder.jpg" 
-                        alt="Founder" 
+                        src="/lovable-uploads/8b654e3b-59bb-4288-9e3c-b3299d9cdfb3.png" 
+                        alt="Amit Singh Founder" 
                         className="w-16 h-16 rounded-full object-cover"
                       />
                       <div>
                         <p className="text-muted-foreground mb-3">
                           "Welcome to PREPZR! We've created a platform that adapts to your unique learning style and exam goals. I'm confident that with consistent effort and our smart tools, you'll achieve the results you're aiming for."
                         </p>
-                        <p className="font-medium">Dr. Ajay Singh</p>
+                        <p className="font-medium">Amit Singh</p>
                         <p className="text-sm text-muted-foreground">Founder & CEO, PREPZR</p>
                       </div>
                     </div>

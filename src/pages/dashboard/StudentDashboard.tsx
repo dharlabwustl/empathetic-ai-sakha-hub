@@ -12,6 +12,7 @@ import { MoodType } from "@/types/user/base";
 const StudentDashboard = () => {
   const [showSplash, setShowSplash] = useState(true);
   const [currentMood, setCurrentMood] = useState<MoodType | undefined>(undefined);
+  const [forceShowTour, setForceShowTour] = useState(false);
   const location = useLocation();
   
   const {
@@ -51,6 +52,8 @@ const StudentDashboard = () => {
     // Don't show splash screen for new users coming from signup flow
     if (isNewUser) {
       setShowSplash(false);
+      // For new users, we always want to show the tour
+      setForceShowTour(true);
     } else {
       // Check if the user has seen the splash screen in this session
       const hasSeen = sessionStorage.getItem("hasSeenSplash");
@@ -64,6 +67,16 @@ const StudentDashboard = () => {
       if (parsedData.mood) {
         setCurrentMood(parsedData.mood);
       }
+    }
+    
+    // Set a timeout to show tour for first-time users
+    if (isNewUser || !sessionStorage.getItem("hasSeenTour")) {
+      const tourTimer = setTimeout(() => {
+        setForceShowTour(true);
+        sessionStorage.setItem("hasSeenTour", "true");
+      }, 2000);
+      
+      return () => clearTimeout(tourTimer);
     }
   }, [location]);
   
@@ -127,7 +140,7 @@ const StudentDashboard = () => {
       kpis={kpis}
       nudges={nudges}
       markNudgeAsRead={markNudgeAsRead}
-      showWelcomeTour={showWelcomeTour}
+      showWelcomeTour={forceShowTour || showWelcomeTour}
       onTabChange={handleTabChange}
       onViewStudyPlan={handleViewStudyPlan}
       onToggleSidebar={toggleSidebar}

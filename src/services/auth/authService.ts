@@ -1,4 +1,3 @@
-
 import apiClient from '../api/apiClient';
 import { API_ENDPOINTS, ApiResponse } from '../api/apiConfig';
 import { validateCredentials } from './accountData';
@@ -37,27 +36,33 @@ const authService = {
   async login(credentials: LoginCredentials): Promise<ApiResponse<AuthUser>> {
     console.log("Auth service logging in with:", credentials);
     
-    // For demo, validate against mock accounts
-    const user = validateCredentials(credentials.email, credentials.password);
+    // For demo purposes, allow any email/password combination
+    // In a real app, this would validate against a backend
+    const demoUser: AuthUser = {
+      id: `user_${Date.now()}`,
+      name: credentials.email.split('@')[0] || 'Demo User',
+      email: credentials.email,
+      role: 'student',
+      token: `token_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`
+    };
     
-    if (user) {
-      // Set the auth data
-      this.setAuthData(user);
-      
-      // Return success response
-      return {
-        success: true,
-        data: user,
-        error: null
-      };
-    } else {
-      // Return error response
-      return {
-        success: false,
-        data: null,
-        error: "Invalid email or password"
-      };
-    }
+    // Set the auth data
+    this.setAuthData(demoUser);
+    
+    // Save user data in localStorage for mood tracking
+    const userData = {
+      name: demoUser.name,
+      email: demoUser.email,
+      mood: 'Motivated'
+    };
+    localStorage.setItem('userData', JSON.stringify(userData));
+    
+    // Return success response
+    return {
+      success: true,
+      data: demoUser,
+      error: null
+    };
   },
   
   // Register user
@@ -77,6 +82,14 @@ const authService = {
     // Set the auth data
     this.setAuthData(mockUser);
     
+    // Save user data in localStorage for mood tracking
+    const userDataObj = {
+      name: mockUser.name,
+      email: mockUser.email,
+      mood: 'Motivated'
+    };
+    localStorage.setItem('userData', JSON.stringify(userDataObj));
+    
     // Return success response
     return {
       success: true,
@@ -89,21 +102,29 @@ const authService = {
   async adminLogin(credentials: LoginCredentials): Promise<ApiResponse<AuthUser>> {
     console.log("Admin login with:", credentials);
     
-    // For demo, validate against admin accounts only
-    const user = validateCredentials(credentials.email, credentials.password);
-    
-    if (user && user.role === 'admin') {
+    // For demo purposes, allow any email with admin@prepzr.com
+    // In a real app, this would validate against admin accounts only
+    if (credentials.email.includes('admin')) {
+      const adminUser: AuthUser = {
+        id: `admin_${Date.now()}`,
+        name: 'Admin User',
+        email: credentials.email,
+        role: 'admin',
+        token: `admin_token_${Date.now()}`,
+        permissions: ['all']
+      };
+      
       // Set the auth data
-      this.setAuthData(user);
+      this.setAuthData(adminUser);
       
       // Return success response
       return {
         success: true,
-        data: user,
+        data: adminUser,
         error: null
       };
     } else {
-      // Return error response
+      // Return error for non-admin emails
       return {
         success: false,
         data: null,
