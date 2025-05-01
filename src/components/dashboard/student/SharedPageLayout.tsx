@@ -3,7 +3,6 @@ import React from 'react';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { UserRole } from '@/types/user/base';
 import DashboardLayout from '@/pages/dashboard/student/DashboardLayout';
-import SharedNavigation from './SharedNavigation';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -15,6 +14,8 @@ interface SharedPageLayoutProps {
   children: React.ReactNode;
   backButtonUrl?: string;
   showBackButton?: boolean;
+  hideSidebar?: boolean;
+  hideTabsNav?: boolean;
 }
 
 export const SharedPageLayout: React.FC<SharedPageLayoutProps> = ({
@@ -23,7 +24,9 @@ export const SharedPageLayout: React.FC<SharedPageLayoutProps> = ({
   activeTab = 'overview',
   children,
   backButtonUrl,
-  showBackButton = false
+  showBackButton = false,
+  hideSidebar = false,
+  hideTabsNav = false
 }) => {
   const { userProfile, loading } = useUserProfile(UserRole.Student);
   const navigate = useNavigate();
@@ -36,7 +39,7 @@ export const SharedPageLayout: React.FC<SharedPageLayoutProps> = ({
     );
   }
 
-  // Content to display within the dashboard layout
+  // Content to display within the shared page layout
   const pageContent = (
     <div className="space-y-6">
       {/* Page Header */}
@@ -59,34 +62,11 @@ export const SharedPageLayout: React.FC<SharedPageLayoutProps> = ({
         )}
       </div>
       
-      {/* Shared Navigation - only if needed */}
-      <SharedNavigation />
-      
       {/* Main Content */}
       {children}
     </div>
   );
 
-  return (
-    <DashboardLayout
-      userProfile={userProfile}
-      hideSidebar={false}
-      hideTabsNav={false}
-      activeTab={activeTab}
-      kpis={[]}
-      nudges={[]}
-      markNudgeAsRead={() => {}}
-      showWelcomeTour={false}
-      onTabChange={() => {}}
-      onViewStudyPlan={() => {}}
-      onToggleSidebar={() => {}}
-      onToggleTabsNav={() => {}}
-      onSkipTour={() => {}}
-      onCompleteTour={() => {}}
-      showStudyPlan={false}
-      onCloseStudyPlan={() => {}}
-    >
-      {pageContent}
-    </DashboardLayout>
-  );
+  // Return the page content directly - don't wrap in DashboardLayout as this is done at the page level
+  return pageContent;
 };

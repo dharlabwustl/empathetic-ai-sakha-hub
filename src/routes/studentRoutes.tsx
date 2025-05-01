@@ -6,7 +6,7 @@ import FlashcardsLandingPage from '@/components/dashboard/student/flashcards/Fla
 import PracticeExamLandingPage from '@/components/dashboard/student/practice-exam/PracticeExamLandingPage';
 import NotificationsPage from '@/components/dashboard/student/notifications/NotificationsPage';
 import BacklogView from '@/components/dashboard/student/backlog/BacklogView';
-import StudyPlanView from '@/components/dashboard/student/studyplan/StudyPlanView';
+import StudyPlanView from '@/pages/dashboard/student/StudyPlanView';
 import ProfileView from '@/pages/dashboard/student/ProfilePage';
 import BatchManagementView from '@/pages/dashboard/student/BatchManagementView';
 import SubscriptionView from '@/pages/dashboard/student/SubscriptionPage';
@@ -17,23 +17,28 @@ import ExamReviewPage from '@/components/dashboard/student/practice-exam/ExamRev
 import TutorView from '@/pages/dashboard/student/TutorView';
 import AcademicAdvisorView from '@/pages/dashboard/student/AcademicAdvisorView';
 import FeelGoodCornerView from '@/pages/dashboard/student/FeelGoodCornerView';
+import NotificationsView from '@/components/dashboard/student/notifications/NotificationsView';
+import ConceptCardsView from '@/components/dashboard/student/concepts/ConceptCardsView';
+import FlashcardsView from '@/components/dashboard/student/flashcards/FlashcardsView';
+import PracticeExamsView from '@/components/dashboard/student/practice-exam/PracticeExamsView';
 
 export default function StudentRoutes() {
   return (
     <Routes>
       <Route path="/today" element={<TodaysPlanView />} />
       <Route path="/studyplan" element={<StudyPlanView />} />
-      <Route path="/concepts" element={<ConceptsLandingPage />} />
+      <Route path="/study-plan" element={<StudyPlanView />} />
+      <Route path="/concepts" element={<ConceptCardsView />} />
       <Route path="/concepts/:subject?" element={<ConceptsLandingPage />} />
       <Route path="/concepts/card/:conceptId" element={<ConceptCardDetailPage />} />
-      <Route path="/flashcards" element={<FlashcardsLandingPage />} />
+      <Route path="/flashcards" element={<FlashcardsView />} />
       <Route path="/flashcards/:subject?" element={<FlashcardsLandingPage />} />
       <Route path="/flashcards/:deckId/interactive" element={<FlashcardInteractivePage />} />
-      <Route path="/practice" element={<PracticeExamLandingPage />} />
+      <Route path="/practice" element={<PracticeExamsView />} />
       <Route path="/practice/:subject?" element={<PracticeExamLandingPage />} />
       <Route path="/practice-exam/:examId/start" element={<ExamTakingPage />} />
       <Route path="/practice-exam/:examId/review" element={<ExamReviewPage />} />
-      <Route path="/notifications" element={<NotificationsPage />} />
+      <Route path="/notifications" element={<NotificationsView />} />
       <Route path="/backlog" element={<BacklogView />} />
       <Route path="/profile" element={<ProfileView />} />
       <Route path="/batch" element={<BatchManagementView />} />
