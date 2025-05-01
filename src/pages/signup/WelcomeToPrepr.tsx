@@ -44,7 +44,7 @@ const WelcomeToPrepr = () => {
         localStorage.setItem('userData', JSON.stringify(parsedData));
       }
       
-      // Navigate to dashboard with welcome tour flag
+      // Navigate to dashboard with replace: true to avoid navigation issues
       navigate('/dashboard/student', { replace: true });
     }
   };
@@ -58,8 +58,7 @@ const WelcomeToPrepr = () => {
       localStorage.setItem('userData', JSON.stringify(parsedData));
     }
     
-    // Navigate directly to dashboard with welcome tour flag set to true
-    // Using replace to ensure we don't have navigation issues
+    // Use replace: true to ensure proper history management
     navigate('/dashboard/student', { replace: true });
   };
   

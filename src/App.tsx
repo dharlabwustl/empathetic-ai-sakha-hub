@@ -5,7 +5,7 @@ import { Toaster } from '@/components/ui/toaster';
 import Index from '@/pages/Index';
 import SignUp from '@/pages/SignUp';
 import NotFound from '@/pages/NotFound';
-import StudentDashboard from '@/pages/dashboard/student/StudentDashboard';
+import StudentDashboard from '@/pages/dashboard/StudentDashboard';
 import FeelGoodCornerView from '@/pages/dashboard/student/FeelGoodCornerView';
 import { AdminAuthProvider } from '@/contexts/auth/AdminAuthContext';
 import AdminLogin from '@/pages/admin/AdminLogin';
@@ -23,7 +23,7 @@ import ExamReviewPage from './components/dashboard/student/practice-exam/ExamRev
 import FlashcardInteractivePage from './pages/dashboard/student/flashcard/FlashcardInteractivePage';
 import PostLoginPrompt from './pages/dashboard/PostLoginPrompt';
 import ConceptCardStudyPage from './pages/dashboard/student/concept/ConceptCardStudyPage';
-import Login from './pages/auth/Login';
+import Login from './pages/Login';
 import EnhancedFlashcardPage from './pages/dashboard/student/flashcards/EnhancedFlashcardPage';
 import WelcomeToPrepr from './pages/signup/WelcomeToPrepr';
 import ProfilePage from './pages/dashboard/student/ProfilePage';
