@@ -4,7 +4,16 @@ import { Bell, AlertTriangle, Info, CheckCircle } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { NudgeData } from '@/hooks/useKpiTracking';
+
+// Define the type for nudges
+export interface NudgeData {
+  id: string;
+  title: string;
+  description: string;
+  priority: string;
+  createdAt: string;
+  read?: boolean;
+}
 
 interface NudgesListProps {
   nudges: NudgeData[];
