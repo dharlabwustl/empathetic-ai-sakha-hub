@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { FileText, BookOpen, Download, ExternalLink, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 const DocumentationPage = () => {
   const { toast } = useToast();
@@ -13,6 +14,68 @@ const DocumentationPage = () => {
     toast({
       title: "Documentation",
       description: "This feature is currently under development.",
+      variant: "default"
+    });
+  };
+
+  const handleDownloadFlaskGuide = () => {
+    // Create a JSON object with Flask integration guide content
+    const jsonContent = JSON.stringify({
+      title: "Flask Integration Guide for MySQL",
+      version: "1.0.0",
+      sections: [
+        {
+          title: "Setup & Installation",
+          content: "Install required packages: Flask, SQLAlchemy, Flask-SQLAlchemy, mysql-connector-python"
+        },
+        {
+          title: "Database Configuration",
+          content: "Configure MySQL database connection using SQLAlchemy ORM"
+        },
+        {
+          title: "API Development",
+          content: "Structure your Flask API with blueprints and RESTful endpoints"
+        },
+        {
+          title: "Models Creation",
+          content: "Define SQLAlchemy models that map to your MySQL tables"
+        },
+        {
+          title: "Authentication",
+          content: "Implement JWT or session-based authentication"
+        },
+        {
+          title: "Migrations",
+          content: "Use Flask-Migrate to handle database schema changes"
+        },
+        {
+          title: "Testing",
+          content: "Implement unit and integration tests for your API"
+        },
+        {
+          title: "Deployment",
+          content: "Deploy using Gunicorn/uWSGI with Nginx"
+        }
+      ],
+      created: new Date().toISOString()
+    }, null, 2);
+    
+    // Create a blob and download it
+    const blob = new Blob([jsonContent], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'flask-mysql-integration-guide.json';
+    document.body.appendChild(a);
+    a.click();
+    
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    toast({
+      title: "Download Started",
+      description: "Flask MySQL integration guide is being downloaded",
       variant: "default"
     });
   };
@@ -30,6 +93,18 @@ const DocumentationPage = () => {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
           <Input placeholder="Search documentation..." className="pl-10" />
         </div>
+      </div>
+      
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-xl font-semibold">Featured Documentation</h2>
+        <Button 
+          variant="outline" 
+          className="flex items-center gap-2" 
+          onClick={handleDownloadFlaskGuide}
+        >
+          <Download size={16} />
+          Download Flask MySQL Guide
+        </Button>
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
@@ -142,6 +217,23 @@ const DocumentationPage = () => {
                     <button 
                       className="text-blue-600 hover:underline inline-flex items-center gap-1"
                       onClick={showToast}
+                    >
+                      <Download size={14} />
+                      <span>Download</span>
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="font-medium">Flask MySQL Integration</div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">Technical</td>
+                  <td className="px-6 py-4 whitespace-nowrap">May 01, 2025</td>
+                  <td className="px-6 py-4 whitespace-nowrap">v1.0</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-right">
+                    <button 
+                      className="text-blue-600 hover:underline inline-flex items-center gap-1"
+                      onClick={handleDownloadFlaskGuide}
                     >
                       <Download size={14} />
                       <span>Download</span>
