@@ -50,6 +50,7 @@ export default function StudentRoutes() {
       <Route path="/flashcards/landing" element={<FlashcardsLandingPage />} />
       <Route path="/flashcards/:subject?" element={<FlashcardsLandingPage />} />
       <Route path="/flashcards/:deckId/interactive" element={<FlashcardInteractive />} />
+      <Route path="/flashcards/:deckId/interactive-landing" element={<FlashcardInteractivePage />} />
       <Route path="/flashcards/:flashcardId" element={<FlashcardDetailsPage />} />
       <Route path="/flashcards/:flashcardId/browse" element={<InteractiveFlashcardBrowser />} />
       <Route path="/flashcards/practice" element={<FlashcardPracticeLandingPage />} />

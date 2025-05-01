@@ -76,6 +76,7 @@ function App() {
               
               {/* Flashcard routes - make sure ALL possible flashcard routes are here */}
               <Route path="/dashboard/student/flashcards/:deckId/interactive" element={<FlashcardInteractive />} />
+              <Route path="/dashboard/student/flashcards/:deckId/interactive-landing" element={<FlashcardInteractivePage />} />
               <Route path="/dashboard/student/flashcards/:flashcardId" element={<FlashcardDetailsPage />} />
               <Route path="/dashboard/student/flashcards/:flashcardId/browse" element={<InteractiveFlashcardBrowser />} />
               <Route path="/dashboard/student/flashcards/enhanced" element={<EnhancedFlashcardPage />} />

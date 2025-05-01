@@ -24,6 +24,7 @@ import ConceptStudyPage from '@/components/dashboard/student/concepts/ConceptStu
 import ProfilePage from '@/pages/student/ProfilePage';
 import FlashcardDetailsPage from '@/pages/dashboard/student/FlashcardDetailsPage';
 import InteractiveFlashcardBrowser from '@/components/flashcards/InteractiveFlashcardBrowser';
+import FlashcardInteractivePage from '@/pages/dashboard/student/flashcard/FlashcardInteractivePage';
 
 export default function AppRoutes() {
   const { dashboardData } = useStudentDashboardData();
@@ -44,6 +45,7 @@ export default function AppRoutes() {
       <Route path="/dashboard/student/flashcards" element={<FlashcardsView />} />
       <Route path="/dashboard/student/flashcards/landing" element={<FlashcardsLandingPage />} />
       <Route path="/dashboard/student/flashcards/:deckId/interactive" element={<FlashcardInteractive />} />
+      <Route path="/dashboard/student/flashcards/:deckId/interactive-landing" element={<FlashcardInteractivePage />} />
       <Route path="/dashboard/student/flashcards/:flashcardId" element={<FlashcardDetailsPage />} />
       <Route path="/dashboard/student/flashcards/:flashcardId/browse" element={<InteractiveFlashcardBrowser />} />
       <Route path="/dashboard/student/flashcards/practice" element={<FlashcardPracticeLandingPage />} />

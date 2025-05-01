@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeft, BookOpen, Star } from 'lucide-react';
 
 const FlashcardInteractivePage: React.FC = () => {
-  const { deckId } = useParams<{ deckId: string }>();
+  const { deckId = 'default' } = useParams<{ deckId: string }>();
   const navigate = useNavigate();
   
   return (
@@ -40,7 +40,7 @@ const FlashcardInteractivePage: React.FC = () => {
             </p>
             <Button 
               className="w-full" 
-              onClick={() => navigate(`/dashboard/student/flashcard/${deckId || 'default'}`)}
+              onClick={() => navigate(`/dashboard/student/flashcards/${deckId}`)}
             >
               Start Classic Practice
             </Button>
@@ -65,7 +65,7 @@ const FlashcardInteractivePage: React.FC = () => {
             </p>
             <Button 
               className="w-full bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600"
-              onClick={() => navigate('/dashboard/student/flashcards/practice')}
+              onClick={() => navigate(`/dashboard/student/flashcards/${deckId}/practice`)}
             >
               Start Enhanced Practice
             </Button>
@@ -85,7 +85,7 @@ const FlashcardInteractivePage: React.FC = () => {
             </p>
             <Button 
               className="w-full"
-              onClick={() => navigate(`/dashboard/student/flashcards/${deckId || 'default'}/interactive`)}
+              onClick={() => navigate(`/dashboard/student/flashcards/${deckId}/interactive`)}
             >
               Start Interactive Learning
             </Button>
