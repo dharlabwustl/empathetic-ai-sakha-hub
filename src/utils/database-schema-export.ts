@@ -1,7 +1,7 @@
 
 import { generateDatabaseSchema } from './schemaExport';
 
-export const exportDatabaseSchemaToCSV = (): void => {
+export const exportDatabaseSchemaToCSV = (): string => {
   const tables = generateDatabaseSchema();
   
   // Create CSV content with more detailed headers
@@ -17,7 +17,8 @@ export const exportDatabaseSchemaToCSV = (): void => {
     'Employee Management': 'Handles professional user profiles including employees, doctors, and founders.',
     'Subscription Management': 'Manages subscription plans, billing, and payment information.',
     'Analytics': 'Tracks user engagement, performance metrics, and system analytics.',
-    'Communication': 'Handles messaging, notifications, and user interactions.'
+    'Communication': 'Handles messaging, notifications, and user interactions.',
+    'Feature Management': 'Controls feature flags, access permissions, and platform capabilities.'
   };
 
   // Detailed table descriptions
@@ -55,7 +56,12 @@ export const exportDatabaseSchemaToCSV = (): void => {
     'notifications': 'User notification preferences and history',
     'employees': 'Employee user profiles',
     'founders': 'Founder user profiles',
-    'doctors': 'Doctor user profiles'
+    'doctors': 'Doctor user profiles',
+    'feature_flags': 'Configuration flags for enabling/disabling features',
+    'access_logs': 'Records of user access and authentication events',
+    'study_habits': 'Patterns and habits of student study behavior',
+    'performance_metrics': 'Measurements of student academic performance',
+    'subscription_features': 'Features available in different subscription plans'
   };
 
   // Dictionary to store field descriptions based on field name patterns
@@ -86,7 +92,23 @@ export const exportDatabaseSchemaToCSV = (): void => {
     'target_exam': 'Target examination being prepared for',
     'parent_name': 'Name of parent or guardian',
     'parent_contact': 'Contact information for parent/guardian',
-    'profile_image': 'URL or path to profile image'
+    'profile_image': 'URL or path to profile image',
+    'mood_type': 'Type of mood logged by the user',
+    'mood_score': 'Numerical score representing mood intensity',
+    'study_time': 'Duration of study activity',
+    'mastery_level': 'Level of mastery for a concept or topic',
+    'difficulty_level': 'Difficulty level of content or task',
+    'completion_percentage': 'Percentage of completion for a task or goal',
+    'is_active': 'Whether the entity is currently active',
+    'is_default': 'Whether the entity is a default option',
+    'priority': 'Priority level of the entity',
+    'subject': 'Academic subject or topic area',
+    'topic': 'Specific topic within a subject',
+    'content': 'Main content or body text',
+    'feature_name': 'Name of a platform feature',
+    'is_enabled': 'Whether a feature is enabled',
+    'retention_score': 'Measure of information retention',
+    'confidence_score': 'Student self-reported confidence level'
   };
 
   // Function to get description for a field based on name or provide a default
@@ -106,6 +128,27 @@ export const exportDatabaseSchemaToCSV = (): void => {
     if (fieldName.endsWith('_date')) {
       return `Date when ${fieldName.replace('_date', '')} occurred`;
     }
+    if (fieldName.endsWith('_at')) {
+      return `Timestamp when ${fieldName.replace('_at', '')} occurred`;
+    }
+    if (fieldName.endsWith('_flag')) {
+      return `Boolean flag indicating ${fieldName.replace('_flag', '')} status`;
+    }
+    if (fieldName.endsWith('_status')) {
+      return `Status of ${fieldName.replace('_status', '')}`;
+    }
+    if (fieldName.endsWith('_type')) {
+      return `Type of ${fieldName.replace('_type', '')}`;
+    }
+    if (fieldName.endsWith('_level')) {
+      return `Level of ${fieldName.replace('_level', '')}`;
+    }
+    if (fieldName.endsWith('_score')) {
+      return `Score or rating for ${fieldName.replace('_score', '')}`;
+    }
+    if (fieldName.endsWith('_percentage')) {
+      return `Percentage value for ${fieldName.replace('_percentage', '')}`;
+    }
     
     // Default description
     return `Field for ${fieldName.replace(/_/g, ' ')}`;
@@ -115,15 +158,16 @@ export const exportDatabaseSchemaToCSV = (): void => {
     const moduleTableNames = Object.keys(generateDatabaseSchema().reduce((acc, table) => {
       // Group tables by module based on naming convention
       const tableToModuleMap = {
-        'User Management': ['users', 'admin_users', 'login_history', 'user_settings'],
+        'User Management': ['users', 'admin_users', 'login_history', 'user_settings', 'access_logs'],
         'Student Management': ['students', 'student_goals', 'student_subjects', 'subject_topics', 'quiz_scores', 'study_hours', 'study_streaks'],
         'Learning Content': ['concept_cards', 'flashcards', 'questions', 'exam_papers', 'study_plans', 'study_sessions', 'content_item_references'],
         'Personalization': ['mood_logs', 'feel_good_content', 'surrounding_influences', 'user_doubts', 'tutor_chats'],
-        'System Management': ['ai_model_settings', 'system_logs', 'notifications'],
+        'System Management': ['ai_model_settings', 'system_logs', 'notifications', 'feature_flags'],
         'Employee Management': ['employees', 'founders', 'doctors'],
-        'Subscription Management': ['subscriptions', 'subscription_plans', 'payment_history', 'billing_info'],
-        'Analytics': ['study_analytics', 'user_engagement', 'system_metrics'],
-        'Communication': ['notifications', 'messages', 'chat_history']
+        'Subscription Management': ['subscriptions', 'subscription_plans', 'payment_history', 'billing_info', 'subscription_features'],
+        'Analytics': ['study_analytics', 'user_engagement', 'system_metrics', 'performance_metrics'],
+        'Communication': ['notifications', 'messages', 'chat_history'],
+        'Feature Management': ['feature_flags', 'permissions', 'roles']
       }[moduleName] || [];
       
       tableToModuleMap.forEach(tableName => {
@@ -155,10 +199,11 @@ export const exportDatabaseSchemaToCSV = (): void => {
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
+  
+  return csvContent;
 };
 
 // Expose a function to generate Excel via CSV
 export const downloadDatabaseSchemaCSV = () => {
-  exportDatabaseSchemaToCSV();
+  return exportDatabaseSchemaToCSV();
 };
-

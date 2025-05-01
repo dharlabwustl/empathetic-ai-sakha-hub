@@ -4,11 +4,12 @@ import { Button } from "@/components/ui/button";
 import { apiEndpointChecker, getDatabaseSchema, getDatabaseSchemaSql, exportDatabaseSchemaAsJson } from '@/services/api/apiEndpointChecker';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Download, RefreshCw, Database, Server, MessageSquare, Laptop, FileJson, FileSpreadsheet, FileCode } from 'lucide-react';
+import { Download, RefreshCw, Database, Server, MessageSquare, Laptop, FileJson, FileSpreadsheet, FileCode, CheckCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { downloadDatabaseSchemaCSV } from '@/utils/database-schema-export';
+import databaseSyncService from '@/services/admin/databaseSync';
 
 export const DatabaseSchemaDownloader = () => {
   const [isChecking, setIsChecking] = useState(false);
@@ -17,6 +18,7 @@ export const DatabaseSchemaDownloader = () => {
   const [apiStatus, setApiStatus] = useState<Record<string, { exists: boolean; status?: number; message: string }> | null>(null);
   const [schema, setSchema] = useState<any>(null);
   const [sqlSchema, setSqlSchema] = useState<string>("");
+  const [exportSuccess, setExportSuccess] = useState(false);
   const { toast } = useToast();
 
   const handleCheckEndpoints = async () => {
@@ -47,11 +49,13 @@ export const DatabaseSchemaDownloader = () => {
       setSchema(schemaData);
       
       if (format === 'csv') {
-        downloadDatabaseSchemaCSV();
+        const csvData = await databaseSyncService.exportDatabaseSchema();
         toast({
           title: "Download Complete",
           description: "Database schema CSV has been downloaded",
         });
+        setExportSuccess(true);
+        setTimeout(() => setExportSuccess(false), 3000);
       } else if (format === 'json') {
         const jsonData = exportDatabaseSchemaAsJson();
         const blob = new Blob([jsonData], { type: 'application/json;charset=utf-8;' });
@@ -94,6 +98,25 @@ export const DatabaseSchemaDownloader = () => {
       });
     } finally {
       setIsDownloading(false);
+    }
+  };
+
+  const handleDirectCSVDownload = () => {
+    try {
+      downloadDatabaseSchemaCSV();
+      toast({
+        title: "CSV Export Complete",
+        description: "Database schema has been exported to CSV",
+      });
+      setExportSuccess(true);
+      setTimeout(() => setExportSuccess(false), 3000);
+    } catch (error) {
+      console.error("Error exporting CSV:", error);
+      toast({
+        title: "Export Failed",
+        description: "Failed to export database schema to CSV",
+        variant: "destructive",
+      });
     }
   };
 
@@ -179,34 +202,40 @@ export const DatabaseSchemaDownloader = () => {
           
           <TabsContent value="schema">
             <div className="mb-4">
-              <div className="flex justify-end gap-2">
+              <div className="flex justify-between">
                 <Button 
-                  onClick={() => handleDownloadSchema('csv')} 
-                  disabled={isDownloading}
-                  variant="outline"
+                  onClick={handleDirectCSVDownload}
+                  variant="default"
                   className="gap-2"
                 >
-                  <FileSpreadsheet className="h-4 w-4" />
-                  CSV
+                  {exportSuccess ? (
+                    <CheckCircle className="h-4 w-4 text-green-400" />
+                  ) : (
+                    <FileSpreadsheet className="h-4 w-4" />
+                  )}
+                  Download Database Schema CSV
                 </Button>
-                <Button 
-                  onClick={() => handleDownloadSchema('json')} 
-                  disabled={isDownloading}
-                  variant="outline"
-                  className="gap-2"
-                >
-                  <FileJson className="h-4 w-4" />
-                  JSON
-                </Button>
-                <Button 
-                  onClick={() => handleDownloadSchema('sql')} 
-                  disabled={isDownloading}
-                  variant="outline"
-                  className="gap-2"
-                >
-                  <FileCode className="h-4 w-4" />
-                  SQL
-                </Button>
+                
+                <div className="flex gap-2">
+                  <Button 
+                    onClick={() => handleDownloadSchema('json')} 
+                    disabled={isDownloading}
+                    variant="outline"
+                    className="gap-2"
+                  >
+                    <FileJson className="h-4 w-4" />
+                    JSON
+                  </Button>
+                  <Button 
+                    onClick={() => handleDownloadSchema('sql')} 
+                    disabled={isDownloading}
+                    variant="outline"
+                    className="gap-2"
+                  >
+                    <FileCode className="h-4 w-4" />
+                    SQL
+                  </Button>
+                </div>
               </div>
               
               {schema ? (
@@ -217,7 +246,7 @@ export const DatabaseSchemaDownloader = () => {
                   </pre>
                 </div>
               ) : (
-                <div className="text-center py-8 text-gray-500">
+                <div className="text-center py-8 text-gray-500 mt-4">
                   <Database className="mx-auto mb-2 opacity-50" size={32} />
                   <p>Click one of the buttons above to download the database schema</p>
                 </div>
@@ -269,7 +298,7 @@ export const DatabaseSchemaDownloader = () => {
             Connected
           </Badge>
           <Badge variant="outline" className="text-xs">
-            Schema v1.2.4
+            Schema v1.3.0
           </Badge>
         </div>
       </CardFooter>
