@@ -83,7 +83,7 @@ const WelcomeToPrepr = () => {
               className="space-y-6"
             >
               <div className={`w-16 h-16 rounded-full ${steps[currentStep].color} flex items-center justify-center mx-auto text-white`}>
-                <steps[currentStep].icon size={32} />
+                {React.createElement(steps[currentStep].icon, { size: 32 })}
               </div>
               
               <h2 className="text-2xl font-bold text-center">

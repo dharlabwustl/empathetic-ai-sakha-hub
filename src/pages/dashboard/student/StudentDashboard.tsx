@@ -10,7 +10,7 @@ import RedesignedDashboardOverview from "@/components/dashboard/student/Redesign
 import { MoodType } from "@/types/user/base";
 
 const StudentDashboard = () => {
-  const [showSplash, setShowSplash] = useState(false); // Set to false to bypass splash screen for now
+  const [showSplash, setShowSplash] = useState(true);
   const [currentMood, setCurrentMood] = useState<MoodType | undefined>(undefined);
   const location = useLocation();
   
@@ -44,6 +44,9 @@ const StudentDashboard = () => {
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const isNewUser = params.get('new') === 'true';
+    const completedOnboarding = params.get('completedOnboarding') === 'true';
+    
+    console.log("URL params:", { isNewUser, completedOnboarding });
     
     // Don't show splash screen for new users coming from signup flow
     if (isNewUser) {
@@ -51,19 +54,15 @@ const StudentDashboard = () => {
     } else {
       // Check if the user has seen the splash screen in this session
       const hasSeen = sessionStorage.getItem("hasSeenSplash");
-      setShowSplash(false); // Temporarily disable splash screen
+      setShowSplash(!hasSeen);
     }
     
     // Try to get saved mood from local storage
     const savedUserData = localStorage.getItem("userData");
     if (savedUserData) {
-      try {
-        const parsedData = JSON.parse(savedUserData);
-        if (parsedData.mood) {
-          setCurrentMood(parsedData.mood);
-        }
-      } catch (err) {
-        console.error("Error parsing user data from localStorage:", err);
+      const parsedData = JSON.parse(savedUserData);
+      if (parsedData.mood) {
+        setCurrentMood(parsedData.mood);
       }
     }
   }, [location]);
@@ -75,44 +74,15 @@ const StudentDashboard = () => {
     
     // Save a default optimistic mood if none is set
     if (!currentMood) {
-      setCurrentMood(MoodType.MOTIVATED);
+      setCurrentMood(MoodType.Motivated);
       const userData = localStorage.getItem("userData");
       if (userData) {
-        try {
-          const parsedData = JSON.parse(userData);
-          parsedData.mood = MoodType.MOTIVATED;
-          localStorage.setItem("userData", JSON.stringify(parsedData));
-        } catch (err) {
-          console.error("Error updating user data in localStorage:", err);
-          localStorage.setItem("userData", JSON.stringify({ mood: MoodType.MOTIVATED }));
-        }
-      } else {
-        localStorage.setItem("userData", JSON.stringify({ mood: MoodType.MOTIVATED }));
-      }
-    }
-  };
-
-  const handleMoodChange = (mood: MoodType) => {
-    setCurrentMood(mood);
-    const userData = localStorage.getItem("userData");
-    if (userData) {
-      try {
         const parsedData = JSON.parse(userData);
-        parsedData.mood = mood;
+        parsedData.mood = MoodType.Motivated;
         localStorage.setItem("userData", JSON.stringify(parsedData));
-      } catch (err) {
-        console.error("Error updating mood in localStorage:", err);
-        localStorage.setItem("userData", JSON.stringify({ mood }));
       }
-    } else {
-      localStorage.setItem("userData", JSON.stringify({ mood }));
     }
   };
-
-  // Show splash screen if needed
-  if (showSplash) {
-    return <SplashScreen onComplete={handleSplashComplete} mood={currentMood} />;
-  }
 
   if (loading || !userProfile) {
     return <DashboardLoading />;
@@ -143,9 +113,6 @@ const StudentDashboard = () => {
     return null;
   };
 
-  // Disable welcome tour popup
-  const modifiedShowWelcomeTour = false;
-
   return (
     <DashboardLayout
       userProfile={userProfile}
@@ -155,7 +122,7 @@ const StudentDashboard = () => {
       kpis={kpis}
       nudges={nudges}
       markNudgeAsRead={markNudgeAsRead}
-      showWelcomeTour={modifiedShowWelcomeTour}
+      showWelcomeTour={showWelcomeTour}
       onTabChange={handleTabChange}
       onViewStudyPlan={handleViewStudyPlan}
       onToggleSidebar={toggleSidebar}
@@ -167,7 +134,6 @@ const StudentDashboard = () => {
       lastActivity={lastActivity}
       suggestedNextAction={suggestedNextAction}
       currentMood={currentMood}
-      onMoodChange={handleMoodChange}
     >
       {getTabContent()}
     </DashboardLayout>

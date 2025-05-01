@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -90,16 +91,19 @@ const SignupContent = () => {
       localStorage.setItem("userData", JSON.stringify({
         ...finalData,
         loginCount: 1,
+        isNewUser: true,
         createdAt: new Date().toISOString(),
+        completedOnboarding: true, // Mark as completed
+        sawWelcomeTour: false // Show welcome tour later
       }));
 
       // Show success message
       toast({
         title: "Account created successfully!",
-        description: "Redirecting to your personalized dashboard.",
+        description: "Redirecting to welcome screen.",
       });
 
-      // Navigate directly to the welcome steps screen
+      // Navigate directly to the welcome screen (NOT study plan)
       setTimeout(() => {
         navigate("/welcome");
       }, 1000);
@@ -147,8 +151,10 @@ const SignupContent = () => {
         email: "googleuser@example.com",
         role: "student",
         loginCount: 1,
+        isNewUser: true,
         createdAt: new Date().toISOString(),
-        onboardingCompleted: false,
+        completedOnboarding: true, // Mark as completed
+        sawWelcomeTour: false // Show welcome tour later
       }));
 
       navigate("/welcome");

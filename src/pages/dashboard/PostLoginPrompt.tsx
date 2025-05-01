@@ -25,7 +25,14 @@ const PostLoginPrompt = () => {
       try {
         const parsedData = JSON.parse(userData);
         
-        // Only show for returning users, not first-time users
+        // Check if this is a first-time user
+        if (parsedData.isNewUser === true) {
+          // First time user should be redirected to welcome flow, not post-login prompt
+          navigate('/welcome');
+          return;
+        }
+        
+        // Only show for returning users
         if (parsedData.loginCount && parsedData.loginCount > 1) {
           // Get last activity
           if (parsedData.lastActivity) {
@@ -37,8 +44,8 @@ const PostLoginPrompt = () => {
             setPendingTask(parsedData.pendingTasks[0].title);
           }
         } else {
-          // First time user, redirect them directly to the dashboard
-          navigate(`/${returnTo}`);
+          // First time login after registration, redirect them to welcome flow
+          navigate('/welcome');
         }
         
       } catch (error) {

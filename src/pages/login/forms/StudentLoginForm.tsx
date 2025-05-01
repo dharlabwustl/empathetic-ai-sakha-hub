@@ -45,7 +45,27 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
           title: "Login successful",
           description: "Welcome back to Prepzr"
         });
-        navigate("/dashboard/student/today");
+        
+        // For regular users, direct to welcome-back screen first
+        const userData = localStorage.getItem('userData');
+        if (userData) {
+          const parsedData = JSON.parse(userData);
+          
+          if (parsedData.loginCount) {
+            parsedData.loginCount += 1;
+            localStorage.setItem('userData', JSON.stringify(parsedData));
+          }
+          
+          // If returning user (loginCount > 1), show welcome back screen
+          if (parsedData.loginCount > 1) {
+            navigate("/welcome-back");
+          } else {
+            // First login after registration, show welcome tour
+            navigate("/welcome");
+          }
+        } else {
+          navigate("/welcome-back");
+        }
       } else {
         toast({
           title: "Login failed",
