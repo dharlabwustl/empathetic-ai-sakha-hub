@@ -3,7 +3,6 @@ import React from 'react';
 import { TestType, TestCompletionState, ExamResults, ExamType } from './types';
 import { Button } from '@/components/ui/button';
 import IntroSection from './IntroSection';
-import StressTestSection from './StressTestSection';
 import ReadinessTestSection from './ReadinessTestSection';
 import ConceptTestSection from './concept-test/ConceptTestSection';
 import ReportSection from './ReportSection';
@@ -19,12 +18,10 @@ interface TestContainerProps {
   progress: number;
   results: ExamResults;
   examTypes: ExamType[];
-  simulateStressTest: () => void;
   simulateReadinessTest: () => void;
   simulateConceptTest: () => void;
   handleStartTest: () => void;
   handleStartOver: () => void;
-  handleStressTestComplete: (answers: UserAnswer[]) => void;
   handleReadinessTestComplete: (answers: UserAnswer[]) => void;
   handleConceptTestComplete: (answers: UserAnswer[]) => void;
   handleNavigation: (test: TestType) => void;
@@ -39,12 +36,10 @@ const TestContainer: React.FC<TestContainerProps> = ({
   progress,
   results,
   examTypes,
-  simulateStressTest,
   simulateReadinessTest,
   simulateConceptTest,
   handleStartTest,
   handleStartOver,
-  handleStressTestComplete,
   handleReadinessTestComplete,
   handleConceptTestComplete,
   handleNavigation,
@@ -59,17 +54,6 @@ const TestContainer: React.FC<TestContainerProps> = ({
           selectedExam={selectedExam}
           setSelectedExam={setSelectedExam}
           onStartTest={handleStartTest}
-        />
-      )}
-      
-      {currentTest === 'stress' && (
-        <StressTestSection
-          loading={loading}
-          testCompleted={testCompleted.stress}
-          selectedExam={selectedExam}
-          results={results.stress}
-          simulateTest={simulateStressTest}
-          onCompleteTest={handleStressTestComplete}
         />
       )}
       

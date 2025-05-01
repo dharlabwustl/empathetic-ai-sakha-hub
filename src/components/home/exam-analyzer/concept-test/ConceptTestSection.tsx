@@ -1,16 +1,13 @@
 
 import React, { useState, useEffect } from 'react';
-import { TestResults, UserAnswer, TestQuestion } from '../types';
-import { Button } from '@/components/ui/button';
-import { getConceptTestQuestionsByExam, getAvailableSubjects } from '../test-questions/conceptTestQuestions';
-import ConceptTestIntro from './components/ConceptTestIntro';
-import ConceptTestLoading from './components/ConceptTestLoading';
-import ConceptTestQuestion from './components/ConceptTestQuestion';
-import ConceptTestResults from './components/ConceptTestResults';
-import { Badge } from '@/components/ui/badge';
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Brain, ChevronRight, BookOpen, Check, BookMarked } from 'lucide-react';
 import { CustomProgress } from '@/components/ui/custom-progress';
-import { motion } from 'framer-motion';
-import { Brain, Check, AlertTriangle } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { TestResults, TestQuestion, UserAnswer } from '../types';
+import { getConceptTestQuestions, getConceptTestSubjects } from '../test-questions/conceptTestQuestions';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface ConceptTestSectionProps {
   loading: boolean;
@@ -32,243 +29,300 @@ const ConceptTestSection: React.FC<ConceptTestSectionProps> = ({
   onContinue
 }) => {
   const [isTestActive, setIsTestActive] = useState(false);
+  const [currentSubject, setCurrentSubject] = useState('Physics');
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [userAnswers, setUserAnswers] = useState<UserAnswer[]>([]);
   const [questions, setQuestions] = useState<TestQuestion[]>([]);
-  const [selectedSubjects, setSelectedSubjects] = useState<string[]>([]);
-  const [selectedSet, setSelectedSet] = useState<number>(1);
-  const [showExplanation, setShowExplanation] = useState(false);
-  const [processingNextQuestion, setProcessingNextQuestion] = useState(false);
-  const [confidenceLevel, setConfidenceLevel] = useState<number>(3);
-  const [testFinished, setTestFinished] = useState(false);
+  const [subjectQuestions, setSubjectQuestions] = useState<Record<string, TestQuestion[]>>({});
+  const [subjectScores, setSubjectScores] = useState<Record<string, number>>({});
+  const [completedSubjects, setCompletedSubjects] = useState<string[]>([]);
+  const [allSubjects] = useState(getConceptTestSubjects());
   
-  // Get available subjects for the selected exam
-  const availableSubjects = getAvailableSubjects(selectedExam);
-  
-  const toggleSubjectSelection = (subject: string) => {
-    setSelectedSubjects(prev => {
-      if (prev.includes(subject)) {
-        return prev.filter(s => s !== subject);
-      } else if (prev.length < 2) {
-        return [...prev, subject];
-      }
-      return prev;
-    });
-  };
-  
-  const startTest = () => {
-    if (selectedSubjects.length === 0) {
-      return;
+  // Start the test for a particular subject
+  const startTest = (subject: string) => {
+    if (completedSubjects.includes(subject)) {
+      return; // Subject already completed
     }
     
-    let allQuestions: TestQuestion[] = [];
+    const testQuestions = getConceptTestQuestions(subject, 10);
     
-    // Get questions for each selected subject with the chosen set
-    selectedSubjects.forEach(subject => {
-      const subjectQuestions = getConceptTestQuestionsByExam(selectedExam, subject, selectedSet);
-      allQuestions = [...allQuestions, ...subjectQuestions];
-    });
+    setSubjectQuestions(prev => ({
+      ...prev,
+      [subject]: testQuestions
+    }));
     
-    setQuestions(allQuestions);
-    setIsTestActive(true);
+    setQuestions(testQuestions);
+    setCurrentSubject(subject);
     setCurrentQuestionIndex(0);
-    setUserAnswers([]);
-    setTestFinished(false);
+    setIsTestActive(true);
   };
   
-  const handleAnswer = (answer: string, confidence: number = confidenceLevel) => {
-    if (processingNextQuestion || !questions[currentQuestionIndex]) return;
-    
+  const handleAnswer = (answer: string) => {
     const currentQuestion = questions[currentQuestionIndex];
-    const isCorrect = answer === currentQuestion.correctAnswer;
     
     const newAnswer: UserAnswer = {
       questionId: currentQuestion.id,
       answer,
-      timeToAnswer: 30, // Default value
-      isCorrect,
-      confidenceLevel: confidence
+      timeToAnswer: 0, 
+      isCorrect: answer === currentQuestion.correctAnswer
     };
     
     setUserAnswers(prev => [...prev, newAnswer]);
-    setShowExplanation(true);
-    setProcessingNextQuestion(true);
     
-    setTimeout(() => {
-      setShowExplanation(false);
-      setProcessingNextQuestion(false);
+    // Move to next question or complete the subject test
+    if (currentQuestionIndex < questions.length - 1) {
+      setCurrentQuestionIndex(prevIndex => prevIndex + 1);
+    } else {
+      // Calculate score for this subject
+      const subjectAnswers = [...userAnswers, newAnswer];
+      const correctAnswers = subjectAnswers.filter(a => a.isCorrect).length;
+      const score = Math.round((correctAnswers / subjectAnswers.length) * 100);
       
-      if (currentQuestionIndex < questions.length - 1) {
-        setCurrentQuestionIndex(prev => prev + 1);
-      } else {
+      setSubjectScores(prev => ({
+        ...prev,
+        [currentSubject]: score
+      }));
+      
+      setCompletedSubjects(prev => [...prev, currentSubject]);
+      
+      // Check if all subjects are completed
+      const updatedCompletedSubjects = [...completedSubjects, currentSubject];
+      if (updatedCompletedSubjects.length === allSubjects.length) {
+        // All subjects are completed, end the test
         setIsTestActive(false);
-        setTestFinished(true);
-        onCompleteTest([...userAnswers, newAnswer]);
+        
+        // Combine all answers and submit
+        const allAnswers = [...userAnswers, newAnswer];
+        onCompleteTest(allAnswers);
+      } else {
+        // Move to the next subject
+        setIsTestActive(false);
       }
-    }, 2000);
-  };
-
-  // Reset if exam changes
-  useEffect(() => {
-    setSelectedSubjects([]);
-  }, [selectedExam]);
-
-  // Estimated test time calculation
-  const getEstimatedTestTime = () => {
-    return selectedSubjects.length * 5 * 60; // 5 questions × 60 seconds per subject
+    }
   };
   
-  // Format time function
-  const formatTime = (seconds: number): string => {
-    const minutes = Math.floor(seconds / 60);
-    return `${minutes} min`;
+  const renderQuestion = () => {
+    if (!questions.length) return null;
+    
+    const currentQuestion = questions[currentQuestionIndex];
+    
+    return (
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <Badge variant="outline" className="bg-pink-50 dark:bg-pink-900/30 border-pink-200 dark:border-pink-700">
+            Question {currentQuestionIndex + 1}/{questions.length}
+          </Badge>
+          <Badge variant="outline" className="bg-pink-50 dark:bg-pink-900/30 border-pink-200 dark:border-pink-700">
+            {currentSubject} - {currentQuestion.subject}
+          </Badge>
+        </div>
+        
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg border-2 border-pink-100 dark:border-pink-800 shadow-md">
+          <h3 className="text-lg font-medium mb-4">{currentQuestion.question}</h3>
+          
+          <div className="space-y-3">
+            {currentQuestion.options.map((option, index) => (
+              <motion.div 
+                key={index}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <Button 
+                  variant="outline" 
+                  className="w-full text-left justify-start p-4 h-auto"
+                  onClick={() => handleAnswer(option)}
+                >
+                  <span className="mr-2">{String.fromCharCode(65 + index)}.</span>
+                  {option}
+                </Button>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+        
+        <CustomProgress 
+          value={(currentQuestionIndex + 1) / questions.length * 100} 
+          className="h-2" 
+          indicatorClassName="bg-gradient-to-r from-pink-400 to-pink-600" 
+        />
+      </div>
+    );
   };
-
-  const currentQuestion = questions[currentQuestionIndex];
-
+  
+  const renderSubjectSelection = () => {
+    return (
+      <div className="space-y-6">
+        <div className="bg-pink-50 dark:bg-pink-900/20 p-4 rounded-lg border-2 border-pink-100 dark:border-pink-800">
+          <h4 className="font-medium mb-2 flex items-center">
+            <Brain className="mr-2 text-pink-500" size={16} />
+            Test your concept mastery across all NEET subjects:
+          </h4>
+          <p className="text-sm mb-4">
+            Complete 10 questions for each subject to assess your understanding of key concepts.
+          </p>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            {allSubjects.map((subject) => (
+              <Button 
+                key={subject}
+                variant={completedSubjects.includes(subject) ? "outline" : "default"}
+                className={completedSubjects.includes(subject) 
+                  ? "border-green-300 bg-green-50 text-green-800 hover:bg-green-100 hover:text-green-900"
+                  : "bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700"}
+                onClick={() => startTest(subject)}
+                disabled={completedSubjects.includes(subject)}
+              >
+                {completedSubjects.includes(subject) ? (
+                  <>
+                    <Check className="mr-2" size={16} />
+                    {subject} ({subjectScores[subject]}%)
+                  </>
+                ) : (
+                  <>
+                    <BookMarked className="mr-2" size={16} />
+                    {subject}
+                  </>
+                )}
+              </Button>
+            ))}
+          </div>
+          
+          {completedSubjects.length > 0 && completedSubjects.length < allSubjects.length && (
+            <div className="mt-4 text-center text-sm">
+              <p className="text-muted-foreground">
+                You've completed {completedSubjects.length} out of {allSubjects.length} subjects. Please complete all subjects.
+              </p>
+            </div>
+          )}
+          
+          {completedSubjects.length === allSubjects.length && (
+            <div className="mt-4 text-center">
+              <p className="text-green-600 font-medium mb-2">All subjects completed!</p>
+              <Button 
+                className="w-full mt-2 bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700"
+                onClick={() => {
+                  // Calculate overall score
+                  const overallScore = Object.values(subjectScores).reduce((a, b) => a + b, 0) / allSubjects.length;
+                  
+                  // Format answers to include all subjects
+                  const allAnswers = userAnswers;
+                  
+                  onCompleteTest(allAnswers);
+                }}
+              >
+                View My Results
+              </Button>
+            </div>
+          )}
+        </div>
+        
+        {completedSubjects.length > 0 && (
+          <div className="mt-4">
+            <h4 className="font-medium mb-2">Subject Scores:</h4>
+            <div className="space-y-3">
+              {completedSubjects.map(subject => (
+                <div key={subject} className="bg-white dark:bg-gray-800 p-3 rounded border">
+                  <div className="flex justify-between items-center">
+                    <span className="font-medium">{subject}</span>
+                    <span className={`font-medium ${
+                      subjectScores[subject] >= 70 ? 'text-green-600' : 
+                      subjectScores[subject] >= 40 ? 'text-amber-600' : 
+                      'text-red-600'
+                    }`}>
+                      {subjectScores[subject]}%
+                    </span>
+                  </div>
+                  <CustomProgress 
+                    value={subjectScores[subject]} 
+                    className="h-2 mt-2" 
+                    indicatorClassName={`
+                      ${subjectScores[subject] >= 70 ? 'bg-green-500' : 
+                        subjectScores[subject] >= 40 ? 'bg-amber-500' : 
+                        'bg-red-500'
+                      }
+                    `}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
+  
   return (
-    <div className="space-y-4">
-      <div className="bg-gradient-to-r from-blue-100 to-purple-100 dark:from-blue-900/20 dark:to-purple-900/20 p-4 rounded-lg">
-        <h3 className="font-medium text-lg mb-2">Concept Mapping Test</h3>
-        <p className="text-sm text-gray-700 dark:text-gray-300">
-          This test evaluates your understanding of key concepts and how they connect to each other.
-        </p>
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h3 className="text-lg font-medium flex items-center">
+          <Brain className="mr-2 text-pink-500" size={20} />
+          NEET Concept Mastery Test
+        </h3>
+        <Badge variant="outline" className="bg-pink-50 dark:bg-pink-900/30 border-pink-200 dark:border-pink-700">3 of 3</Badge>
       </div>
       
-      {!loading && !testCompleted && !isTestActive && !testFinished ? (
-        <div className="space-y-6">
-          {availableSubjects.length > 0 ? (
-            <div className="space-y-4">
-              <div>
-                <h3 className="text-sm font-medium mb-2">Select Subjects (max 2):</h3>
-                <div className="flex flex-wrap gap-2">
-                  {availableSubjects.map(subject => (
-                    <Badge
-                      key={subject}
-                      onClick={() => toggleSubjectSelection(subject)}
-                      className={`cursor-pointer px-3 py-1 ${
-                        selectedSubjects.includes(subject) 
-                          ? 'bg-purple-600 hover:bg-purple-700' 
-                          : 'bg-gray-100 hover:bg-gray-200 text-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600'
-                      } ${selectedSubjects.length >= 2 && !selectedSubjects.includes(subject) ? 'opacity-50 cursor-not-allowed' : ''}`}
-                    >
-                      {subject}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-              
-              <div>
-                <h3 className="text-sm font-medium mb-2">Select Test Set:</h3>
-                <div className="flex gap-2">
-                  {[1, 2, 3].map(setNum => (
-                    <button
-                      key={setNum}
-                      className={`px-3 py-1 text-sm rounded-md ${
-                        selectedSet === setNum 
-                          ? 'bg-purple-600 text-white' 
-                          : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'
-                      }`}
-                      onClick={() => setSelectedSet(setNum)}
-                    >
-                      {setNum === 1 ? 'Basic' : setNum === 2 ? 'Intermediate' : 'Advanced'} 
-                    </button>
-                  ))}
-                </div>
-              </div>
-              
-              <div className="mt-4 bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
-                <h4 className="font-medium text-sm mb-2">Test Summary:</h4>
-                <ul className="text-xs space-y-1 text-gray-700 dark:text-gray-300">
-                  <li>• Selected subjects: {selectedSubjects.length > 0 ? selectedSubjects.join(", ") : "None"}</li>
-                  <li>• Questions per subject: 5</li>
-                  <li>• Total questions: {selectedSubjects.length * 5}</li>
-                  <li>• Estimated time: {formatTime(getEstimatedTestTime())}</li>
-                  <li>• Set difficulty: {selectedSet === 1 ? 'Basic' : selectedSet === 2 ? 'Intermediate' : 'Advanced'}</li>
-                </ul>
-              </div>
-              
-              <Button 
-                className="w-full bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700"
-                onClick={startTest}
-                disabled={selectedSubjects.length === 0}
-              >
-                Begin Concept Test
-              </Button>
-            </div>
-          ) : (
-            <div className="text-center py-8">
-              <p className="text-gray-500">No subject data available for {selectedExam}.</p>
-              <Button className="mt-4" onClick={onContinue}>
-                Continue
-              </Button>
-            </div>
-          )}
-        </div>
+      <p className="text-sm">
+        This assessment tests your knowledge across Physics, Chemistry, and Biology to identify your strengths and areas for improvement.
+      </p>
+      
+      {!loading && !testCompleted && !isTestActive ? (
+        renderSubjectSelection()
       ) : loading ? (
-        <ConceptTestLoading />
-      ) : isTestActive && currentQuestion ? (
-        <div>
-          <div className="mb-2 flex justify-between items-center">
-            <Badge variant="outline" className="text-xs">
-              Question {currentQuestionIndex + 1}/{questions.length}
-            </Badge>
-            <Badge variant="outline" className="text-xs">
-              {currentQuestion.id.includes('-set1') ? 'Basic' : 
-               currentQuestion.id.includes('-set2') ? 'Intermediate' : 'Advanced'}
-            </Badge>
+        <div className="space-y-4">
+          <div className="h-40 bg-pink-50 dark:bg-pink-900/20 rounded-lg flex items-center justify-center border-2 border-pink-100 dark:border-pink-800">
+            <div className="text-center">
+              <Brain className="mx-auto mb-2 animate-pulse text-pink-500" size={40} />
+              <p className="text-sm font-medium">Evaluating your concept mastery...</p>
+            </div>
           </div>
-          
-          <ConceptTestQuestion
-            question={currentQuestion}
-            onAnswer={handleAnswer}
-            disabled={showExplanation || processingNextQuestion}
-          />
-          
-          {showExplanation && (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className={`p-4 rounded-lg mt-4 ${
-                userAnswers[userAnswers.length - 1]?.isCorrect 
-                  ? 'bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800' 
-                  : 'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800'
-              }`}
-            >
-              <div className="flex items-start">
-                {userAnswers[userAnswers.length - 1]?.isCorrect ? (
-                  <Check className="text-green-500 mr-2 mt-1 flex-shrink-0" size={18} />
-                ) : (
-                  <AlertTriangle className="text-red-500 mr-2 mt-1 flex-shrink-0" size={18} />
-                )}
-                <div>
-                  <p className="font-medium">
-                    {userAnswers[userAnswers.length - 1]?.isCorrect ? 'Correct!' : 'Incorrect'}
-                  </p>
-                  <p className="text-sm mt-1">{currentQuestion.explanation}</p>
-                </div>
-              </div>
-            </motion.div>
-          )}
-          
-          <CustomProgress 
-            value={(currentQuestionIndex + 1) / questions.length * 100} 
-            className="h-2 mt-4" 
-            indicatorClassName="bg-gradient-to-r from-pink-400 to-pink-600" 
-          />
+          <CustomProgress value={30} className="h-2" indicatorClassName="bg-gradient-to-r from-pink-400 to-pink-600" />
+          <p className="text-xs text-center text-muted-foreground">Please wait while we analyze your knowledge in key NEET topics</p>
         </div>
-      ) : testFinished || testCompleted ? (
-        <div>
-          <ConceptTestResults 
-            results={results} 
-            userAnswers={userAnswers}
-            subjects={selectedSubjects}
-          />
-          <div className="flex justify-end mt-4">
-            <Button onClick={onContinue}>
-              Continue to Report
-            </Button>
+      ) : isTestActive ? (
+        renderQuestion()
+      ) : testCompleted ? (
+        <div className="space-y-4">
+          <div className="bg-pink-50 dark:bg-pink-900/20 p-4 rounded-lg border-2 border-pink-100 dark:border-pink-800">
+            <div className="flex justify-between items-center">
+              <h4 className="font-medium">Your Concept Mastery Score:</h4>
+              <span className="text-lg font-bold">{results.score}%</span>
+            </div>
+            <CustomProgress value={results.score} className="h-2 my-2" indicatorClassName="bg-gradient-to-r from-pink-400 to-pink-600" />
+            <p className="text-sm">{results.analysis}</p>
+            
+            <div className="grid grid-cols-3 gap-2 mt-4">
+              {allSubjects.map(subject => (
+                <div key={subject} className="bg-white/60 dark:bg-gray-800/60 p-2 rounded text-center">
+                  <p className="text-xs text-gray-500 dark:text-gray-400">{subject}</p>
+                  <p className="font-medium">{subjectScores[subject] || 0}%</p>
+                </div>
+              ))}
+            </div>
+            
+            <div className="mt-4">
+              <h5 className="text-sm font-medium mb-2">Strengths:</h5>
+              <ul className="text-xs space-y-1 list-disc list-inside">
+                {results.strengths.map((strength, index) => (
+                  <li key={index}>{strength}</li>
+                ))}
+              </ul>
+              
+              <h5 className="text-sm font-medium mt-3 mb-2">Areas for Improvement:</h5>
+              <ul className="text-xs space-y-1 list-disc list-inside">
+                {results.improvements.map((improvement, index) => (
+                  <li key={index}>{improvement}</li>
+                ))}
+              </ul>
+            </div>
           </div>
+          
+          <Button 
+            className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700 transition-all duration-300 shadow-md hover:shadow-lg"
+            onClick={onContinue}
+          >
+            <span>View My Full Analysis</span>
+            <ChevronRight size={16} />
+          </Button>
         </div>
       ) : null}
     </div>

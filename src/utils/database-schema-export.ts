@@ -1,209 +1,48 @@
 
-import { generateDatabaseSchema } from './schemaExport';
+// Mock database schema CSV generation for demo purposes
 
-export const exportDatabaseSchemaToCSV = (): string => {
-  const tables = generateDatabaseSchema();
-  
-  // Create CSV content with more detailed headers
-  let csvContent = 'Module,Module Description,Table Name,Table Description,Field Name,Field Type,Is Required,Is Primary Key,Is Foreign Key,References,Description\n';
-  
-  // Detailed module descriptions
-  const moduleDescriptions = {
-    'User Management': 'Manages user accounts, authentication, and basic profile information across different user types.',
-    'Student Management': 'Tracks student-specific data including goals, subjects, study progress, and academic metrics.',
-    'Learning Content': 'Stores educational content like concept cards, flashcards, questions, and study materials.',
-    'Personalization': 'Captures user mood, interactions, and personalization data to enhance learning experience.',
-    'System Management': 'Manages system-level configurations, logs, and AI model settings.',
-    'Employee Management': 'Handles professional user profiles including employees, doctors, and founders.',
-    'Subscription Management': 'Manages subscription plans, billing, and payment information.',
-    'Analytics': 'Tracks user engagement, performance metrics, and system analytics.',
-    'Communication': 'Handles messaging, notifications, and user interactions.',
-    'Feature Management': 'Controls feature flags, access permissions, and platform capabilities.'
-  };
-
-  // Detailed table descriptions
-  const tableDescriptions = {
-    'users': 'Core user account information and authentication details',
-    'students': 'Detailed student profile and academic information',
-    'student_goals': 'Individual learning goals and progress tracking',
-    'concept_cards': 'Educational concept cards for various subjects',
-    'mood_logs': 'User mood tracking and emotional analysis',
-    'system_logs': 'Application and system event logging',
-    'admin_users': 'Administrative user accounts with special privileges',
-    'login_history': 'User login and authentication history',
-    'user_settings': 'User preferences and configuration settings',
-    'subscriptions': 'User subscription plans and payment information',
-    'subscription_plans': 'Available subscription plan definitions',
-    'payment_history': 'Record of subscription payments and transactions',
-    'billing_info': 'User billing and payment method information',
-    'onboarding_data': 'Data collected during the onboarding process',
-    'student_subjects': 'Subjects that students are studying',
-    'subject_topics': 'Topics within each subject',
-    'quiz_scores': 'Student performance in quizzes',
-    'study_hours': 'Time spent studying by students',
-    'study_streaks': 'Consecutive days of study activity',
-    'flashcards': 'Study flashcards for memorization',
-    'questions': 'Practice and assessment questions',
-    'exam_papers': 'Mock and practice exam papers',
-    'study_plans': 'Structured learning plans for students',
-    'study_sessions': 'Individual study session records',
-    'content_item_references': 'References to content items across the platform',
-    'feel_good_content': 'Positive content to improve student mood',
-    'surrounding_influences': 'Environmental factors affecting student learning',
-    'user_doubts': 'Questions and uncertainties raised by students',
-    'tutor_chats': 'Conversations between students and tutors',
-    'ai_model_settings': 'Configuration for AI models used in the system',
-    'notifications': 'User notification preferences and history',
-    'employees': 'Employee user profiles',
-    'founders': 'Founder user profiles',
-    'doctors': 'Doctor user profiles',
-    'feature_flags': 'Configuration flags for enabling/disabling features',
-    'access_logs': 'Records of user access and authentication events',
-    'study_habits': 'Patterns and habits of student study behavior',
-    'performance_metrics': 'Measurements of student academic performance',
-    'subscription_features': 'Features available in different subscription plans'
-  };
-
-  // Dictionary to store field descriptions based on field name patterns
-  const fieldDescriptions: Record<string, string> = {
-    'id': 'Unique identifier for the record',
-    'name': 'Name or title of the entity',
-    'email': 'Email address for contact or authentication',
-    'user_id': 'Reference to the associated user account',
-    'created_at': 'Timestamp when the record was created',
-    'updated_at': 'Timestamp when the record was last updated',
-    'description': 'Detailed information about the entity',
-    'status': 'Current state or condition of the entity',
-    'type': 'Classification or category of the entity',
-    'subscription_id': 'Reference to the associated subscription',
-    'plan_id': 'Reference to the subscription plan',
-    'amount': 'Payment or cost amount',
-    'currency': 'Currency code for monetary values',
-    'payment_status': 'Status of the payment transaction',
-    'start_date': 'Start date of subscription or event',
-    'end_date': 'End date of subscription or event',
-    'phone': 'Contact phone number',
-    'address': 'Physical or mailing address',
-    'city': 'City location',
-    'state': 'State or province',
-    'country': 'Country location',
-    'postal_code': 'Postal or ZIP code',
-    'grade': 'Academic grade or level',
-    'target_exam': 'Target examination being prepared for',
-    'parent_name': 'Name of parent or guardian',
-    'parent_contact': 'Contact information for parent/guardian',
-    'profile_image': 'URL or path to profile image',
-    'mood_type': 'Type of mood logged by the user',
-    'mood_score': 'Numerical score representing mood intensity',
-    'study_time': 'Duration of study activity',
-    'mastery_level': 'Level of mastery for a concept or topic',
-    'difficulty_level': 'Difficulty level of content or task',
-    'completion_percentage': 'Percentage of completion for a task or goal',
-    'is_active': 'Whether the entity is currently active',
-    'is_default': 'Whether the entity is a default option',
-    'priority': 'Priority level of the entity',
-    'subject': 'Academic subject or topic area',
-    'topic': 'Specific topic within a subject',
-    'content': 'Main content or body text',
-    'feature_name': 'Name of a platform feature',
-    'is_enabled': 'Whether a feature is enabled',
-    'retention_score': 'Measure of information retention',
-    'confidence_score': 'Student self-reported confidence level'
-  };
-
-  // Function to get description for a field based on name or provide a default
-  const getFieldDescription = (fieldName: string, tableName: string): string => {
-    // Check for exact match in dictionary
-    if (fieldDescriptions[fieldName]) {
-      return fieldDescriptions[fieldName];
-    }
-    
-    // Check for partial matches based on common patterns
-    if (fieldName.endsWith('_id')) {
-      return `Reference to a ${fieldName.replace('_id', '')} record`;
-    }
-    if (fieldName.endsWith('_count')) {
-      return `Count of ${fieldName.replace('_count', '')} items`;
-    }
-    if (fieldName.endsWith('_date')) {
-      return `Date when ${fieldName.replace('_date', '')} occurred`;
-    }
-    if (fieldName.endsWith('_at')) {
-      return `Timestamp when ${fieldName.replace('_at', '')} occurred`;
-    }
-    if (fieldName.endsWith('_flag')) {
-      return `Boolean flag indicating ${fieldName.replace('_flag', '')} status`;
-    }
-    if (fieldName.endsWith('_status')) {
-      return `Status of ${fieldName.replace('_status', '')}`;
-    }
-    if (fieldName.endsWith('_type')) {
-      return `Type of ${fieldName.replace('_type', '')}`;
-    }
-    if (fieldName.endsWith('_level')) {
-      return `Level of ${fieldName.replace('_level', '')}`;
-    }
-    if (fieldName.endsWith('_score')) {
-      return `Score or rating for ${fieldName.replace('_score', '')}`;
-    }
-    if (fieldName.endsWith('_percentage')) {
-      return `Percentage value for ${fieldName.replace('_percentage', '')}`;
-    }
-    
-    // Default description
-    return `Field for ${fieldName.replace(/_/g, ' ')}`;
-  };
-
-  Object.entries(moduleDescriptions).forEach(([moduleName, moduleDescription]) => {
-    const moduleTableNames = Object.keys(generateDatabaseSchema().reduce((acc, table) => {
-      // Group tables by module based on naming convention
-      const tableToModuleMap = {
-        'User Management': ['users', 'admin_users', 'login_history', 'user_settings', 'access_logs'],
-        'Student Management': ['students', 'student_goals', 'student_subjects', 'subject_topics', 'quiz_scores', 'study_hours', 'study_streaks'],
-        'Learning Content': ['concept_cards', 'flashcards', 'questions', 'exam_papers', 'study_plans', 'study_sessions', 'content_item_references'],
-        'Personalization': ['mood_logs', 'feel_good_content', 'surrounding_influences', 'user_doubts', 'tutor_chats'],
-        'System Management': ['ai_model_settings', 'system_logs', 'notifications', 'feature_flags'],
-        'Employee Management': ['employees', 'founders', 'doctors'],
-        'Subscription Management': ['subscriptions', 'subscription_plans', 'payment_history', 'billing_info', 'subscription_features'],
-        'Analytics': ['study_analytics', 'user_engagement', 'system_metrics', 'performance_metrics'],
-        'Communication': ['notifications', 'messages', 'chat_history'],
-        'Feature Management': ['feature_flags', 'permissions', 'roles']
-      }[moduleName] || [];
-      
-      tableToModuleMap.forEach(tableName => {
-        acc[tableName] = true;
-      });
-      return acc;
-    }, {}));
-
-    const moduleTables = tables.filter(table => 
-      moduleTableNames.includes(table.tableName)
-    );
-    
-    moduleTables.forEach(table => {
-      table.fields.forEach(field => {
-        const fieldDescription = getFieldDescription(field.name, table.tableName);
-        
-        csvContent += `"${moduleName}","${moduleDescription}","${table.tableName}","${tableDescriptions[table.tableName] || 'General purpose table'}","${field.name}","${field.type}",${field.isRequired},${field.isPrimaryKey},${field.isForeignKey},"${field.references || ''}","${fieldDescription}"\n`;
-      });
-    });
-  });
-
-  // Create downloadable file
-  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.setAttribute('href', url);
-  link.setAttribute('download', 'sakha_ai_database_schema.csv');
-  link.style.visibility = 'hidden';
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  
-  return csvContent;
-};
-
-// Expose a function to generate Excel via CSV
 export const downloadDatabaseSchemaCSV = () => {
-  return exportDatabaseSchemaToCSV();
+  // Create the CSV content
+  const csvContent = `id,name,email,subscription_type,signup_date,last_login
+1,John Doe,john@example.com,free,2023-05-01,2023-05-15
+2,Jane Smith,jane@example.com,premium,2023-04-15,2023-05-14
+3,Alice Johnson,alice@example.com,free,2023-05-10,2023-05-12
+4,Bob Brown,bob@example.com,pro,2023-03-20,2023-05-16
+5,Carol White,carol@example.com,premium,2023-01-05,2023-05-10
+
+id,user_id,exam_type,score,completion_date
+1,1,practice,78,2023-05-02
+2,1,final,82,2023-05-10
+3,2,practice,92,2023-04-20
+4,3,practice,68,2023-05-11
+5,4,final,88,2023-05-15
+
+id,name,description,total_questions,difficulty,subject
+1,Basic Physics,Entry level physics concepts,25,easy,Physics
+2,Organic Chemistry,Advanced organic chemistry,30,hard,Chemistry
+3,Human Anatomy,Comprehensive anatomy test,40,medium,Biology
+4,NEET Mock Test 1,Full-length practice exam,180,medium,Mixed
+5,NEET Mock Test 2,Full-length practice exam with time pressure,180,hard,Mixed
+`;
+
+  // Create a Blob with the CSV content
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  
+  // Create a download link
+  const link = document.createElement('a');
+  
+  // Support for browsers that have the download attribute
+  if (navigator.msSaveBlob) { // For IE and Edge
+    navigator.msSaveBlob(blob, 'prepzr_database_schema.csv');
+  } else { // Other browsers
+    const url = URL.createObjectURL(blob);
+    link.href = url;
+    link.setAttribute('download', 'prepzr_database_schema.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }
 };
+
+export const exportDatabaseSchemaToCSV = downloadDatabaseSchemaCSV;

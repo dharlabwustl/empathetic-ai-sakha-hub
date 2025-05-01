@@ -23,8 +23,6 @@ export function ExamReadinessAnalyzer({ onClose }: { onClose: () => void }) {
     testCompleted,
     results,
     handleStartTest,
-    simulateStressTest,
-    handleStressTestComplete,
     simulateReadinessTest,
     handleReadinessTestComplete,
     simulateConceptTest,
@@ -51,12 +49,10 @@ export function ExamReadinessAnalyzer({ onClose }: { onClose: () => void }) {
           testCompleted={testCompleted}
           results={results}
           examTypes={examTypes}
-          simulateStressTest={simulateStressTest}
           simulateReadinessTest={simulateReadinessTest}
           simulateConceptTest={simulateConceptTest}
           handleStartTest={handleStartTest}
           handleStartOver={handleStartOver}
-          handleStressTestComplete={handleStressTestComplete}
           handleReadinessTestComplete={handleReadinessTestComplete}
           handleConceptTestComplete={handleConceptTestComplete}
           handleNavigation={handleNavigation}

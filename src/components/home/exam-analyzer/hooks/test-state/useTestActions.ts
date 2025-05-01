@@ -1,180 +1,141 @@
 
 import { useState } from 'react';
-import { TestType, TestCompletionState, ExamResults, UserAnswer } from '../../types';
-import {
-  calculateStressTestResults,
-  calculateReadinessTestResults,
-  calculateConceptTestResults,
-  calculateOverallResults,
-} from '../../testDataService';
+import { TestType, UserAnswer, TestCompletionState, ExamResults } from '../../types';
+import { generateReadinessReport } from '../../utils/readinessReportGenerator';
+import { generateConceptReport } from '../../utils/conceptReportGenerator';
+import { generateOverallReport } from '../../utils/overallReportGenerator';
 
-export interface TestStateActions {
-  handleStartTest: () => void;
-  simulateStressTest: () => void;
-  handleStressTestComplete: (answers: UserAnswer[]) => void;
-  simulateReadinessTest: () => void;
-  handleReadinessTestComplete: (answers: UserAnswer[]) => void;
-  simulateConceptTest: () => void;
-  handleConceptTestComplete: (answers: UserAnswer[]) => void;
-  handleNavigation: (test: TestType) => void;
-  handleStartOver: () => void;
-}
-
-export interface TestStateProps {
+interface TestActionsProps {
   selectedExam: string;
-  setSelectedExam: React.Dispatch<React.SetStateAction<string>>;
+  setSelectedExam: (value: string) => void;
   currentTest: TestType;
-  setCurrentTest: React.Dispatch<React.SetStateAction<TestType>>;
+  setCurrentTest: (test: TestType) => void;
   progress: number;
-  setProgress: React.Dispatch<React.SetStateAction<number>>;
+  setProgress: (value: number) => void;
   loading: boolean;
-  setLoading: React.Dispatch<React.SetStateAction<boolean>>;
+  setLoading: (value: boolean) => void;
   testCompleted: TestCompletionState;
-  setTestCompleted: React.Dispatch<React.SetStateAction<TestCompletionState>>;
+  setTestCompleted: (value: TestCompletionState) => void;
   results: ExamResults;
-  setResults: React.Dispatch<React.SetStateAction<ExamResults>>;
+  setResults: (value: ExamResults) => void;
 }
 
 export const useTestActions = ({
   selectedExam,
+  currentTest,
   setCurrentTest,
+  progress,
   setProgress,
+  loading,
   setLoading,
   testCompleted,
   setTestCompleted,
   results,
-  setResults,
-  currentTest,
-}: TestStateProps): TestStateActions => {
-  
+  setResults
+}: TestActionsProps) => {
+
+  // Start the test flow
   const handleStartTest = () => {
-    if (!selectedExam) return;
-    setCurrentTest('stress');
-    setProgress(10);
-  };
-
-  const simulateStressTest = () => {
-    setLoading(true);
-    let progressCounter = 10;
-    const interval = setInterval(() => {
-      progressCounter += 5;
-      setProgress(progressCounter);
-      if (progressCounter >= 30) {
-        clearInterval(interval);
-        setLoading(false);
-      }
-    }, 300);
-  };
-  
-  const handleStressTestComplete = (answers: UserAnswer[]) => {
-    const stressResults = calculateStressTestResults(answers);
-    
-    setResults(prev => ({
-      ...prev,
-      stress: stressResults
-    }));
-    
-    setTestCompleted(prev => ({ ...prev, stress: true }));
     setCurrentTest('readiness');
-    setProgress(30);
+    setProgress(25);
   };
 
+  // Readiness Test actions
   const simulateReadinessTest = () => {
     setLoading(true);
-    let progressCounter = 30;
-    const interval = setInterval(() => {
-      progressCounter += 5;
-      setProgress(progressCounter);
-      if (progressCounter >= 60) {
-        clearInterval(interval);
-        setLoading(false);
-      }
-    }, 300);
-  };
-  
-  const handleReadinessTestComplete = (answers: UserAnswer[]) => {
-    const readinessResults = calculateReadinessTestResults(answers);
-    
-    setResults(prev => ({
-      ...prev,
-      readiness: readinessResults
-    }));
-    
-    setTestCompleted(prev => ({ ...prev, readiness: true }));
-    setCurrentTest('concept');
-    setProgress(60);
+    setTimeout(() => {
+      setLoading(false);
+    }, 1500);
   };
 
+  const handleReadinessTestComplete = (answers: UserAnswer[]) => {
+    // Generate readiness report
+    const readinessResult = generateReadinessReport(answers, selectedExam);
+    
+    // Update completed tests
+    setTestCompleted({
+      ...testCompleted,
+      readiness: true
+    });
+    
+    // Update results
+    setResults({
+      ...results,
+      readiness: readinessResult
+    });
+    
+    // Update progress
+    setProgress(50);
+  };
+
+  // Concept Test actions
   const simulateConceptTest = () => {
     setLoading(true);
-    let progressCounter = 60;
-    const interval = setInterval(() => {
-      progressCounter += 5;
-      setProgress(progressCounter);
-      if (progressCounter >= 100) {
-        clearInterval(interval);
-        setLoading(false);
-      }
-    }, 300);
-  };
-  
-  const handleConceptTestComplete = (answers: UserAnswer[]) => {
-    const conceptResults = calculateConceptTestResults(answers);
-    
-    setResults(prev => ({
-      ...prev,
-      concept: conceptResults
-    }));
-    
-    setTestCompleted(prev => ({ ...prev, concept: true }));
-    
-    const overallResults = calculateOverallResults(
-      results.stress, 
-      results.readiness, 
-      conceptResults, 
-      selectedExam
-    );
-    
-    setResults(prev => ({
-      ...prev,
-      overall: overallResults
-    }));
-    
-    setCurrentTest('report');
-    setProgress(100);
+    setTimeout(() => {
+      setLoading(false);
+    }, 1500);
   };
 
+  const handleConceptTestComplete = (answers: UserAnswer[]) => {
+    // Generate concept test report
+    const conceptResult = generateConceptReport(answers, selectedExam);
+    
+    // Update completed tests
+    setTestCompleted({
+      ...testCompleted,
+      concept: true
+    });
+    
+    // Update results
+    setResults({
+      ...results,
+      concept: conceptResult,
+      // Generate overall report based on all test results
+      overall: generateOverallReport({
+        readiness: results.readiness,
+        concept: conceptResult,
+        // We're not using stress test anymore
+        stress: results.stress 
+      }, selectedExam)
+    });
+    
+    // Update progress
+    setProgress(75);
+  };
+
+  // Handle navigation between tests
   const handleNavigation = (test: TestType) => {
     setCurrentTest(test);
     
-    // Update progress based on the test
-    if (test === 'intro') {
-      setProgress(0);
-    } else if (test === 'stress') {
-      setProgress(10);
-    } else if (test === 'readiness') {
-      setProgress(30);
-    } else if (test === 'concept') {
-      setProgress(60);
-    } else if (test === 'report') {
-      setProgress(100);
+    // Update progress based on test
+    switch (test) {
+      case 'readiness':
+        setProgress(25);
+        break;
+      case 'concept':
+        setProgress(50);
+        break;
+      case 'report':
+        setProgress(100);
+        break;
+      default:
+        setProgress(0);
     }
   };
 
+  // Reset and start over
   const handleStartOver = () => {
     setCurrentTest('intro');
-    setProgress(0);
     setTestCompleted({
-      stress: false,
       readiness: false,
+      stress: false, // keep for backward compatibility
       concept: false
     });
+    setProgress(0);
   };
 
   return {
     handleStartTest,
-    simulateStressTest,
-    handleStressTestComplete,
     simulateReadinessTest,
     handleReadinessTestComplete,
     simulateConceptTest,
