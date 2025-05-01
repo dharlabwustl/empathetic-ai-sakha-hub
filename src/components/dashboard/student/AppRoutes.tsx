@@ -39,7 +39,7 @@ export default function AppRoutes() {
       <Route path="/dashboard/student/flashcards/landing" element={<FlashcardsLandingPage />} />
       <Route path="/dashboard/student/flashcards/:deckId/interactive" element={<FlashcardInteractive />} />
       <Route path="/dashboard/student/flashcards/practice" element={<FlashcardPracticeLandingPage />} />
-      <Route path="/dashboard/student/flashcards/:deckId/practice" element={<EnhancedFlashcardPractice />} />
+      <Route path="/dashboard/student/flashcards/:flashcardId/practice" element={<EnhancedFlashcardPractice />} />
       
       {/* Practice exam routes */}
       <Route path="/dashboard/student/practice-exam" element={<PracticeExamsView />} />

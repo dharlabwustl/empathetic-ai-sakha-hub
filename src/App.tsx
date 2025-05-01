@@ -74,7 +74,7 @@ function App() {
               <Route path="/dashboard/student/flashcards/:deckId/interactive" element={<FlashcardInteractivePage />} />
               <Route path="/dashboard/student/flashcards/enhanced" element={<EnhancedFlashcardPage />} />
               <Route path="/dashboard/student/flashcards/practice" element={<FlashcardPracticeLandingPage />} />
-              <Route path="/dashboard/student/flashcards/:deckId/practice" element={<EnhancedFlashcardPractice />} />
+              <Route path="/dashboard/student/flashcards/:flashcardId/practice" element={<EnhancedFlashcardPractice />} />
               <Route path="/dashboard/student/flashcards/landing" element={<FlashcardsLandingPage />} />
               
               {/* Practice exam routes */}

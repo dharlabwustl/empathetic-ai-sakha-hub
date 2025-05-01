@@ -45,7 +45,7 @@ export default function StudentRoutes() {
       <Route path="/flashcards/:subject?" element={<FlashcardsLandingPage />} />
       <Route path="/flashcards/:deckId/interactive" element={<FlashcardInteractivePage />} />
       <Route path="/flashcards/practice" element={<FlashcardPracticeLandingPage />} />
-      <Route path="/flashcards/:deckId/practice" element={<EnhancedFlashcardPractice />} />
+      <Route path="/flashcards/:flashcardId/practice" element={<EnhancedFlashcardPractice />} />
       
       {/* Practice exam routes */}
       <Route path="/practice" element={<PracticeExamsView />} />
