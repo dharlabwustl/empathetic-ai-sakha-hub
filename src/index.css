@@ -1,3 +1,4 @@
+
 @import './styles/theme.css';
 @tailwind base;
 @tailwind components;
@@ -8,7 +9,25 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground antialiased;
+    @apply bg-background text-foreground antialiased text-base;
+    font-size: 16px; /* Reset to standard size */
+  }
+  
+  /* Reset headings to appropriate sizes */
+  h1 {
+    font-size: 2rem;
+  }
+  h2 {
+    font-size: 1.5rem;
+  }
+  h3 {
+    font-size: 1.25rem;
+  }
+  h4 {
+    font-size: 1.125rem;
+  }
+  h5, h6 {
+    font-size: 1rem;
   }
 }
 
@@ -138,4 +157,17 @@
   .scrollbar-thin {
     scrollbar-width: thin;
   }
+}
+
+/* Fix for the resolution and font size */
+html {
+  font-size: 16px; /* Base font size */
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+}
+
+/* Ensure proper viewport settings */
+@viewport {
+  width: device-width;
+  initial-scale: 1;
 }
