@@ -1,3 +1,4 @@
+
 import React, { Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
@@ -26,7 +27,7 @@ import ConceptCardStudyPage from './pages/dashboard/student/concept/ConceptCardS
 import Login from './pages/Login';
 import EnhancedFlashcardPage from './pages/dashboard/student/flashcards/EnhancedFlashcardPage';
 import WelcomeToPrepr from './pages/signup/WelcomeToPrepr';
-import ProfilePage from './pages/dashboard/student/ProfilePage';
+import ProfilePage from './pages/student/ProfilePage';
 import StudyPlanView from './pages/dashboard/student/StudyPlanView';
 import TutorView from './pages/dashboard/student/TutorView';
 import AcademicAdvisorView from './pages/dashboard/student/AcademicAdvisorView';
@@ -61,6 +62,7 @@ function App() {
               <Route path="/dashboard/student/:tab" element={<StudentDashboard />} />
               <Route path="/dashboard/student/today" element={<TodaysPlanView />} />
               <Route path="/dashboard/student/feel-good-corner" element={<FeelGoodCornerView />} />
+              <Route path="/dashboard/student/profile" element={<ProfilePage />} />
               
               {/* Concept routes */}
               <Route path="/dashboard/student/concepts/card/:conceptId" element={<ConceptCardDetailPage />} />

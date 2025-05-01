@@ -1,4 +1,3 @@
-
 import { Routes, Route } from 'react-router-dom';
 import TodaysPlanView from '@/components/dashboard/student/todays-plan/TodaysPlanView';
 import ConceptsLandingPage from '@/components/dashboard/student/concepts/ConceptsLandingPage';
@@ -7,7 +6,7 @@ import PracticeExamLandingPage from '@/components/dashboard/student/practice-exa
 import NotificationsPage from '@/components/dashboard/student/notifications/NotificationsPage';
 import BacklogView from '@/components/dashboard/student/backlog/BacklogView';
 import StudyPlanView from '@/pages/dashboard/student/StudyPlanView';
-import ProfileView from '@/pages/dashboard/student/ProfilePage';
+import ProfilePage from '@/pages/student/ProfilePage';
 import BatchManagementView from '@/pages/dashboard/student/BatchManagementView';
 import SubscriptionView from '@/pages/dashboard/student/SubscriptionPage';
 import ConceptCardDetailPage from '@/components/dashboard/student/concepts/ConceptCardDetailPage';
@@ -32,6 +31,7 @@ export default function StudentRoutes() {
       <Route path="/today" element={<TodaysPlanView />} />
       <Route path="/studyplan" element={<StudyPlanView />} />
       <Route path="/study-plan" element={<StudyPlanView />} />
+      <Route path="/profile" element={<ProfilePage />} />
       
       {/* Concepts routes */}
       <Route path="/concepts" element={<ConceptCardsView />} />
@@ -58,7 +58,6 @@ export default function StudentRoutes() {
       {/* Other routes */}
       <Route path="/notifications" element={<NotificationsView />} />
       <Route path="/backlog" element={<BacklogView />} />
-      <Route path="/profile" element={<ProfileView />} />
       <Route path="/batch" element={<BatchManagementView />} />
       <Route path="/subscription" element={<SubscriptionView />} />
       <Route path="/tutor" element={<TutorView />} />

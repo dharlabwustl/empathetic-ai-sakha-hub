@@ -21,6 +21,7 @@ import ConceptsLandingPage from '@/components/dashboard/student/concepts/Concept
 import FlashcardsLandingPage from '@/components/dashboard/student/flashcards/FlashcardsLandingPage';
 import EnhancedFlashcardPractice from '@/components/dashboard/student/flashcards/EnhancedFlashcardPractice';
 import ConceptStudyPage from '@/components/dashboard/student/concepts/ConceptStudyPage';
+import ProfilePage from '@/pages/student/ProfilePage';
 
 export default function AppRoutes() {
   const { dashboardData } = useStudentDashboardData();
@@ -28,6 +29,7 @@ export default function AppRoutes() {
   return (
     <Routes>
       <Route path="/dashboard/student/today" element={<RedesignedTodaysPlan />} />
+      <Route path="/dashboard/student/profile" element={<ProfilePage />} />
       
       {/* Concepts routes */}
       <Route path="/dashboard/student/concepts" element={<ConceptCardsView />} />
