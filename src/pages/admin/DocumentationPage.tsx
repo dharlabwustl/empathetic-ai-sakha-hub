@@ -1,3 +1,4 @@
+
 import React from "react";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -34,11 +35,11 @@ const DocumentationPage = () => {
       </head>
       <body>
         <h1>PREPZR Flask Backend Implementation Guide</h1>
-        <p>Version 1.1.0 | Last Updated: May 1, 2025</p>
+        <p>Version 1.2.0 | Last Updated: May 1, 2025</p>
         
         <h2>1. Setup & Installation</h2>
         <p>Install required packages for the PREPZR backend:</p>
-        <pre class="code">pip install Flask Flask-SQLAlchemy Flask-Migrate Flask-CORS Flask-JWT-Extended mysql-connector-python python-dotenv</pre>
+        <pre class="code">pip install Flask Flask-SQLAlchemy Flask-Migrate Flask-CORS Flask-JWT-Extended psycopg2-binary python-dotenv</pre>
         
         <h2>2. Project Structure</h2>
         <pre class="code">
@@ -351,8 +352,19 @@ def get_students():
         </pre>
         
         <h2>6. App Configuration</h2>
-        <p>Configure your Flask app with JWT and CORS to work with the React frontend:</p>
+        <p>Configure your Flask app with JWT, CORS and PostgreSQL connection:</p>
         <pre class="code">
+# app/config.py
+import os
+from datetime import timedelta
+
+class Config:
+    SECRET_KEY = os.environ.get('SECRET_KEY') or 'dev-secret-key'
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'postgresql://postgres:password@localhost/prepzr'
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY') or 'jwt-secret-key'
+    JWT_ACCESS_TOKEN_EXPIRES = timedelta(days=1)
+
 # app/__init__.py
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
@@ -482,37 +494,45 @@ if __name__ == "__main__":
 # Start with Gunicorn
 # gunicorn -w 4 -b 0.0.0.0:5000 wsgi:app
 
-# Nginx configuration for proxying to the Flask app
-server {
-    listen 80;
-    server_name api.prepzr.com;
+# Docker setup (recommended for PostgreSQL deployment)
+# Dockerfile
+FROM python:3.9-slim
 
-    location / {
-        proxy_pass http://127.0.0.1:5000;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-}
+WORKDIR /app
 
-# Nginx configuration for serving the React frontend
-server {
-    listen 80;
-    server_name prepzr.com www.prepzr.com;
-    root /var/www/prepzr/html;
-    index index.html;
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-    location / {
-        try_files $uri $uri/ /index.html;
-    }
+COPY . .
 
-    location /api {
-        proxy_pass http://api.prepzr.com;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-    }
-}
+CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:5000", "wsgi:app"]
+
+# docker-compose.yml
+version: '3'
+
+services:
+  web:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      - DATABASE_URL=postgresql://postgres:password@db:5432/prepzr
+      - SECRET_KEY=your-secret-key
+      - JWT_SECRET_KEY=your-jwt-secret-key
+    depends_on:
+      - db
+  
+  db:
+    image: postgres:13
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=prepzr
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
         </pre>
         
         <h2>9. Integration with React Components</h2>
@@ -535,7 +555,7 @@ apiClient.interceptors.request.use(config => {
   const token = localStorage.getItem('sakha_auth_token');
   
   if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+    config.headers.Authorization = \`Bearer \${token}\`;
   }
   
   return config;
@@ -557,6 +577,52 @@ apiClient.interceptors.response.use(
 );
 
 export default apiClient;
+        </pre>
+
+        <h2>10. Database Migration & Setup</h2>
+        <p>Initialize and manage your PostgreSQL database with Flask-Migrate:</p>
+        <pre class="code">
+# Initialize migrations
+$ flask db init
+
+# Create initial migration
+$ flask db migrate -m "Initial migration"
+
+# Apply migrations to database
+$ flask db upgrade
+
+# Seed database with initial data (create a seed.py file)
+from app import create_app, db
+from app.models.user import User, AdminUser
+import uuid
+
+app = create_app()
+
+with app.app_context():
+    # Create admin user
+    admin = AdminUser(
+        id=f"admin_{uuid.uuid4()}",
+        name="Admin User",
+        email="admin@prepzr.com",
+        role="admin",
+        permissions=["all"]
+    )
+    admin.set_password("admin123")
+    db.session.add(admin)
+    
+    # Create demo student
+    student = User(
+        id=f"student_{uuid.uuid4()}",
+        name="Demo Student",
+        email="student@prepzr.com",
+        role="student"
+    )
+    student.set_password("student123")
+    db.session.add(student)
+    
+    # Commit changes
+    db.session.commit()
+    print("Database seeded successfully!")
         </pre>
       </body>
       </html>

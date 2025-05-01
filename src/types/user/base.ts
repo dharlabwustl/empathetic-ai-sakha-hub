@@ -49,6 +49,15 @@ export enum SubscriptionType {
   Enterprise = 'enterprise'
 }
 
+// Add this enum to fix the missing SignupType reference
+export enum SignupType {
+  Standard = 'standard',
+  Google = 'google',
+  Facebook = 'facebook',
+  Apple = 'apple',
+  Batch = 'batch'
+}
+
 export interface UserProfileBase {
   id: string;
   name: string;
