@@ -1,134 +1,117 @@
 
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent } from "@/components/ui/card";
-import { UserProfileType } from "@/types/user";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
+import { UserProfileType } from "@/types/user";
+import { CreditCard, User } from "lucide-react";
+import BatchManagement from "./BatchManagement";
+import SubscriptionDetails from "./SubscriptionDetails";
 
 interface ProfileDetailsProps {
   userProfile: UserProfileType;
-  onUpdateProfile: (updates: Partial<UserProfileType>) => void;
+  onUpdateProfile?: (updates: Partial<UserProfileType>) => void;
 }
 
-const ProfileDetails: React.FC<ProfileDetailsProps> = ({ 
-  userProfile, 
-  onUpdateProfile 
+const ProfileDetails: React.FC<ProfileDetailsProps> = ({
+  userProfile,
+  onUpdateProfile
 }) => {
+  const [activeTab, setActiveTab] = useState("personal");
+  const navigate = useNavigate();
   const { toast } = useToast();
-  const [formData, setFormData] = useState({
-    name: userProfile.name || '',
-    email: userProfile.email || '',
-    phoneNumber: userProfile.phoneNumber || '',
-    bio: userProfile.bio || '',
-    examPreparation: userProfile.examPreparation || '',
-  });
 
-  const [isEditing, setIsEditing] = useState(false);
-  
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+  const handleUpgradeSubscription = () => {
+    navigate("/dashboard/student/subscription");
   };
-  
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onUpdateProfile(formData);
-    setIsEditing(false);
-    toast({
-      title: "Profile Updated",
-      description: "Your profile information has been saved successfully.",
-    });
+
+  const renderPersonalInfo = () => {
+    const personalInfo = [
+      { label: "Name", value: userProfile.name },
+      { label: "Email", value: userProfile.email },
+      { label: "Phone", value: userProfile.phoneNumber || "Not provided" },
+      { label: "Exam Preparation", value: userProfile.examPreparation || "Not specified" },
+      { label: "Location", value: userProfile.location || "Not specified" },
+      { label: "Grade", value: userProfile.grade || "Not specified" },
+    ];
+
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center gap-4">
+          <Avatar className="h-16 w-16">
+            <AvatarImage src={userProfile.avatar || ""} />
+            <AvatarFallback>{userProfile.name?.substring(0, 2).toUpperCase() || "U"}</AvatarFallback>
+          </Avatar>
+          <div>
+            <h2 className="text-xl font-semibold">{userProfile.name}</h2>
+            <p className="text-muted-foreground">{userProfile.email}</p>
+          </div>
+        </div>
+
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle>Personal Information</CardTitle>
+            <CardDescription>
+              Your personal details and preferences
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-4">
+              {personalInfo.map((item, index) => (
+                <div key={index} className="grid grid-cols-3 items-center">
+                  <span className="text-sm font-medium">{item.label}</span>
+                  <span className="col-span-2 text-sm">{item.value}</span>
+                </div>
+              ))}
+            </div>
+            <div className="mt-6">
+              <Button variant="outline" size="sm" className="mt-4">
+                Edit Profile
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        <BatchManagement 
+          hasSubscription={userProfile.subscription?.type === "group" || userProfile.subscription?.planType === "group"} 
+        />
+      </div>
+    );
   };
 
   return (
-    <Card>
-      <CardContent className="pt-6">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-semibold">Profile Information</h2>
-          <Button 
-            variant={isEditing ? "outline" : "default"} 
-            onClick={() => setIsEditing(!isEditing)}
-          >
-            {isEditing ? "Cancel" : "Edit Profile"}
-          </Button>
-        </div>
-        
-        <form onSubmit={handleSubmit}>
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="name">Full Name</Label>
-              <Input
-                id="name"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                readOnly={!isEditing}
-                className={!isEditing ? "bg-gray-100 dark:bg-gray-800" : ""}
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="email">Email Address</Label>
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                value={formData.email}
-                onChange={handleChange}
-                readOnly={!isEditing}
-                className={!isEditing ? "bg-gray-100 dark:bg-gray-800" : ""}
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="phoneNumber">Phone Number</Label>
-              <Input
-                id="phoneNumber"
-                name="phoneNumber"
-                value={formData.phoneNumber}
-                onChange={handleChange}
-                readOnly={!isEditing}
-                className={!isEditing ? "bg-gray-100 dark:bg-gray-800" : ""}
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="examPreparation">Exam Preparation</Label>
-              <Input
-                id="examPreparation"
-                name="examPreparation"
-                value={formData.examPreparation}
-                onChange={handleChange}
-                readOnly={!isEditing}
-                className={!isEditing ? "bg-gray-100 dark:bg-gray-800" : ""}
-              />
-            </div>
-            
-            <div className="space-y-2 md:col-span-2">
-              <Label htmlFor="bio">Bio</Label>
-              <Textarea
-                id="bio"
-                name="bio"
-                value={formData.bio}
-                onChange={handleChange}
-                readOnly={!isEditing}
-                className={!isEditing ? "bg-gray-100 dark:bg-gray-800" : ""}
-                rows={4}
-              />
-            </div>
-          </div>
-          
-          {isEditing && (
-            <div className="flex justify-end mt-6">
-              <Button type="submit">Save Changes</Button>
-            </div>
-          )}
-        </form>
-      </CardContent>
-    </Card>
+    <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full space-y-6">
+      <TabsList className="grid grid-cols-2 w-full max-w-md">
+        <TabsTrigger value="personal" className="flex gap-2 items-center">
+          <User className="h-4 w-4" />
+          <span>Personal</span>
+        </TabsTrigger>
+        <TabsTrigger value="subscription" className="flex gap-2 items-center">
+          <CreditCard className="h-4 w-4" />
+          <span>Subscription</span>
+        </TabsTrigger>
+      </TabsList>
+
+      <TabsContent value="personal" className="space-y-6">
+        {renderPersonalInfo()}
+      </TabsContent>
+
+      <TabsContent value="subscription" className="space-y-6">
+        <SubscriptionDetails 
+          userProfile={userProfile}
+          onUpgrade={handleUpgradeSubscription}
+        />
+      </TabsContent>
+    </Tabs>
   );
 };
 

@@ -1,73 +1,46 @@
 
-import { AuthUser } from "./authService";
+import { AuthUser } from './authService';
 
-// Mock user database for demonstration purposes
-const mockUsers = [
+// Mock user accounts for development
+const mockAccounts = [
   {
-    email: "student@example.com",
-    password: "password123",
-    role: "student",
-    name: "Student User",
-    id: "user_student_1"
+    email: 'student@example.com',
+    password: 'password123',
+    user: {
+      id: 'user_1',
+      name: 'John Student',
+      email: 'student@example.com',
+      phoneNumber: '+919876543210',
+      role: 'student',
+      token: 'mock_student_token',
+      permissions: []
+    }
   },
   {
-    email: "admin@sakha.ai",
-    password: "admin123",
-    role: "admin",
-    name: "Admin User",
-    id: "user_admin_1",
-    permissions: ["all"]
-  },
-  {
-    email: "content@sakha.ai",
-    password: "content123",
-    role: "admin",
-    name: "Content Manager",
-    id: "user_admin_2",
-    permissions: ["manage_content", "view_dashboard"]
-  },
-  {
-    email: "uploader@sakha.ai",
-    password: "uploader123",
-    role: "admin",
-    name: "Content Uploader",
-    id: "user_admin_3",
-    permissions: ["upload_content"]
+    email: 'admin@example.com',
+    password: 'admin123',
+    user: {
+      id: 'admin_1',
+      name: 'Admin User',
+      email: 'admin@example.com',
+      phoneNumber: '+919876543211',
+      role: 'admin',
+      token: 'mock_admin_token',
+      permissions: ['all']
+    }
   }
 ];
 
-// Validate user credentials
-export function validateCredentials(email: string, password: string): AuthUser | null {
-  // Find user by email and password
-  const user = mockUsers.find(u => u.email.toLowerCase() === email.toLowerCase() && u.password === password);
+/**
+ * Validates user credentials against mock accounts
+ * @param email User email
+ * @param password User password
+ * @returns AuthUser object if credentials are valid, null otherwise
+ */
+export const validateCredentials = (email: string, password: string): AuthUser | null => {
+  const account = mockAccounts.find(
+    acc => acc.email.toLowerCase() === email.toLowerCase() && acc.password === password
+  );
   
-  if (!user) {
-    return null;
-  }
-  
-  // Create and return the authenticated user object
-  return {
-    id: user.id,
-    name: user.name,
-    email: user.email,
-    role: user.role,
-    permissions: user.permissions,
-    token: `mock_token_${Date.now()}_${user.id}`
-  };
-}
-
-export function getUserByEmail(email: string): Omit<AuthUser, 'token'> | null {
-  const user = mockUsers.find(u => u.email.toLowerCase() === email.toLowerCase());
-  
-  if (!user) {
-    return null;
-  }
-  
-  return {
-    id: user.id,
-    name: user.name,
-    email: user.email,
-    role: user.role,
-    permissions: user.permissions
-  };
-}
+  return account ? account.user : null;
+};

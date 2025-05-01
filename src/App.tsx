@@ -37,7 +37,7 @@ import FlashcardDetailsPage from './pages/dashboard/student/FlashcardDetailsPage
 import InteractiveFlashcardBrowser from './components/flashcards/InteractiveFlashcardBrowser';
 import { NotificationsView } from './components/dashboard/student/notifications/NotificationsView';
 import EnhancedProfilePage from './pages/dashboard/student/EnhancedProfilePage';
-import PracticeExamsSection from './components/dashboard/student/exams/PracticeExamsSection';
+import PracticeExamsSection from './components/dashboard/student/practice-exam/PracticeExamsSection';
 
 const AdminDashboard = React.lazy(() => import('@/pages/admin/AdminDashboard'));
 
@@ -55,7 +55,7 @@ function App() {
               <Route path="/admin/login" element={<AdminLogin />} />
               <Route path="/register" element={<SignUp />} />
 
-              {/* Post-signup flow - Welcome flow only, removing study plan creation screen */}
+              {/* Post-signup flow - Welcome flow only */}
               <Route path="/welcome" element={<WelcomeToPrepr />} />
               
               {/* Redirect post-login prompt to dashboard */}
@@ -67,7 +67,7 @@ function App() {
               <Route path="/dashboard/student/today" element={<TodaysPlanView />} />
               <Route path="/dashboard/student/feel-good-corner" element={<FeelGoodCornerView />} />
               
-              {/* Profile routes - ensuring they all work properly */}
+              {/* Profile routes */}
               <Route path="/dashboard/student/profile" element={<EnhancedProfilePage />} />
               <Route path="/student/profile" element={<ProfilePage />} />
               <Route path="/profile" element={<ProfilePage />} />
@@ -88,8 +88,8 @@ function App() {
               <Route path="/dashboard/student/flashcards/:flashcardId/browse" element={<InteractiveFlashcardBrowser />} />
               <Route path="/dashboard/student/flashcards/:flashcardId/practice" element={<EnhancedFlashcardPractice />} />
               
-              {/* Practice exam routes - ensure review page works */}
-              <Route path="/dashboard/student/practice-exams" element={<PracticeExamsSection />} />
+              {/* Practice exam routes */}
+              <Route path="/dashboard/student/practice-exam" element={<PracticeExamsSection />} />
               <Route path="/dashboard/student/practice-exam/:examId/start" element={<ExamTakingPage />} />
               <Route path="/dashboard/student/practice-exam/:examId/review" element={<ExamReviewPage />} />
               
@@ -99,16 +99,20 @@ function App() {
               <Route path="/dashboard/student/study-plan" element={<StudyPlanView />} />
               
               {/* Admin routes */}
-              <Route
-                path="/admin/*"
-                element={
-                  <AdminRouteGuard>
-                    <Suspense fallback={<LoadingScreen />}>
-                      <AdminDashboard />
-                    </Suspense>
-                  </AdminRouteGuard>
-                }
-              />
+              <Route path="/admin" element={
+                <AdminRouteGuard>
+                  <Suspense fallback={<LoadingScreen />}>
+                    <AdminDashboard />
+                  </Suspense>
+                </AdminRouteGuard>
+              } />
+              <Route path="/admin/*" element={
+                <AdminRouteGuard>
+                  <Suspense fallback={<LoadingScreen />}>
+                    <AdminDashboard />
+                  </Suspense>
+                </AdminRouteGuard>
+              } />
               <Route path="/admin/dashboard" element={
                 <AdminRouteGuard>
                   <Suspense fallback={<LoadingScreen />}>

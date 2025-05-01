@@ -1,43 +1,51 @@
 
-import React, { useEffect } from 'react';
-import { Navigate, useNavigate } from 'react-router-dom';
-import { useAdminAuth } from '@/contexts/auth/AdminAuthContext';
+import React from 'react';
+import { Navigate } from 'react-router-dom';
+import authService from '@/services/auth/authService';
 import LoadingScreen from '@/components/common/LoadingScreen';
-import { useToast } from "@/hooks/use-toast";
 
 interface AdminRouteGuardProps {
-  children?: React.ReactNode;
+  children: React.ReactNode;
 }
 
 const AdminRouteGuard: React.FC<AdminRouteGuardProps> = ({ children }) => {
-  const { isAdminAuthenticated, isAdminLoading } = useAdminAuth();
-  const navigate = useNavigate();
-  const { toast } = useToast();
-  
-  useEffect(() => {
-    console.log("AdminRouteGuard - Authentication status:", { 
-      isAdminAuthenticated, 
-      isAdminLoading 
-    });
-    
-    if (!isAdminLoading && !isAdminAuthenticated) {
-      toast({
-        title: "Authentication Required",
-        description: "Please login to access the admin dashboard",
-        variant: "destructive"
-      });
-      navigate("/admin/login", { replace: true });
-    }
-  }, [isAdminAuthenticated, isAdminLoading, navigate, toast]);
-  
-  if (isAdminLoading) {
-    return <LoadingScreen message="Checking admin credentials..." />;
+  const [isLoading, setIsLoading] = React.useState(true);
+  const [isAdmin, setIsAdmin] = React.useState(false);
+
+  React.useEffect(() => {
+    const checkAuth = async () => {
+      setIsLoading(true);
+      
+      try {
+        // Check if user is authenticated
+        const isAuthenticated = await authService.verifyToken();
+        
+        if (isAuthenticated) {
+          // Check if user has admin role
+          const hasAdminRole = authService.isAdmin();
+          setIsAdmin(hasAdminRole);
+        } else {
+          setIsAdmin(false);
+        }
+      } catch (error) {
+        console.error("Error verifying admin access:", error);
+        setIsAdmin(false);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    checkAuth();
+  }, []);
+
+  if (isLoading) {
+    return <LoadingScreen />;
   }
-  
-  if (!isAdminAuthenticated) {
+
+  if (!isAdmin) {
     return <Navigate to="/admin/login" replace />;
   }
-  
+
   return <>{children}</>;
 };
 

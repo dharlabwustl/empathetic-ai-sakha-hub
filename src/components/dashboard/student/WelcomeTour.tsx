@@ -56,18 +56,21 @@ export default function WelcomeTour({
         <div className="py-4">
           <div className="mb-6 flex flex-col md:flex-row gap-4 p-4 bg-gradient-to-r from-blue-50 to-violet-50 border border-blue-100 rounded-lg">
             <img
-              src="/lovable-uploads/8c62154a-6dbf-40c6-8117-f1c9cfd1effa.png"
+              src="/lovable-uploads/ceb4d1ce-554b-47a4-84b2-68760ca540f1.png"
               alt="Founder"
               className="w-24 h-24 object-cover rounded-full mx-auto md:mx-0 border-2 border-blue-200"
             />
             <div>
               <h3 className="font-medium text-blue-700 text-center md:text-left">A Message From Our Founder</h3>
               <p className="text-gray-700 text-sm mt-2 italic">
-                "Thank you for joining PREPZR! We've built this platform to adapt to your unique learning style, 
-                personality, and goals. PREPZR will be your constant companion on your journey to exam success, 
-                making studying efficient and enjoyable."
+                "Hi, I'm Amit Singh, Founder of Prepzr. You've taken the first step toward mastering your exam journey.
+                Prepzr isn't just another prep tool — it's your 24/7 personal coach, your daily motivator and your smart companion.
+                We personalize everything — from study plans to concept clarity — based on your exam goals, mood and pace."
               </p>
-              <p className="text-blue-600 mt-2 text-sm font-medium text-right">— PREPZR Team</p>
+              <p className="text-gray-700 text-sm mt-2 italic">
+                "Let's stay focused. Let's stay consistent. Let's crack it — together."
+              </p>
+              <p className="text-blue-600 mt-2 text-sm font-medium text-right">— Amit Singh, Founder, Prepzr</p>
             </div>
           </div>
 

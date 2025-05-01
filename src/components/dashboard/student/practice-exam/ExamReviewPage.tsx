@@ -1,449 +1,285 @@
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { ArrowLeft, CheckCircle, XCircle, Clock, Book, AlertTriangle, BarChart } from "lucide-react";
+import QuestionReview from "./QuestionReview";
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
-import { PracticeExam, UserAnswer } from '@/types/practice-exam';
-import { Check, X, ChevronLeft, ChevronRight, AlertTriangle, Trophy, ArrowRight, BarChart2 } from 'lucide-react';
-import QuestionReview from './QuestionReview';
-import LoadingScreen from '@/components/common/LoadingScreen';
 
-// Mock data for a practice exam
-const getMockExam = (examId: string): PracticeExam => {
-  return {
-    id: examId,
-    title: `Practice Exam ${examId}`,
-    description: "Test your knowledge with this comprehensive practice exam",
-    subject: "Physics",
-    topic: "Mechanics",
-    totalQuestions: 10,
-    timeAllowed: 60, // minutes
-    questions: Array.from({ length: 10 }, (_, i) => ({
-      id: `q${i + 1}`,
-      text: `Question ${i + 1}: What is the formula for calculating the force?`,
-      options: [
-        { id: "a", text: "F = ma" },
-        { id: "b", text: "F = mv" },
-        { id: "c", text: "F = mg" },
-        { id: "d", text: "F = mv²/r" },
-      ],
-      correctOptionId: "a",
-      explanation: "According to Newton's second law, force equals mass times acceleration (F = ma).",
-      difficulty: i % 3 === 0 ? "hard" : i % 2 === 0 ? "medium" : "easy"
-    }))
-  };
+// Mock exam result data
+const mockExamResult = {
+  examId: "1",
+  title: "Physics Mock Test #1",
+  subject: "Physics",
+  topics: ["Mechanics", "Optics", "Waves"],
+  score: 78,
+  totalQuestions: 30,
+  correctAnswers: 23,
+  incorrectAnswers: 7,
+  timeTaken: "48 minutes",
+  maxTime: "60 minutes",
+  completedOn: "2023-10-25T10:30:00Z",
+  topicPerformance: [
+    { name: "Mechanics", score: 85, questions: 12 },
+    { name: "Optics", score: 70, questions: 10 },
+    { name: "Waves", score: 75, questions: 8 }
+  ],
+  questions: [
+    {
+      id: 1,
+      text: "Which of the following correctly describes Newton's First Law of Motion?",
+      userAnswer: "An object at rest stays at rest, and an object in motion stays in motion unless acted upon by an external force",
+      correctAnswer: "An object at rest stays at rest, and an object in motion stays in motion unless acted upon by an external force",
+      isCorrect: true,
+      explanation: "Newton's First Law of Motion states that an object will remain at rest or in uniform motion in a straight line unless acted upon by an external force."
+    },
+    {
+      id: 2,
+      text: "What is the SI unit of electric current?",
+      userAnswer: "Watt",
+      correctAnswer: "Ampere",
+      isCorrect: false,
+      explanation: "The SI unit of electric current is the ampere (A), not the watt. The watt is the unit of power."
+    },
+    {
+      id: 3,
+      text: "Which of the following are scalar quantities?",
+      userAnswer: ["Mass", "Temperature"],
+      correctAnswer: ["Mass", "Temperature"],
+      isCorrect: true,
+      explanation: "Mass and temperature are scalar quantities because they have only magnitude and no direction."
+    }
+    // More questions would be here
+  ],
+  weakAreas: [
+    "Electric Current and Resistance",
+    "Lens Equations",
+    "Doppler Effect"
+  ],
+  recommendations: [
+    "Review the concepts of electric current and resistivity",
+    "Practice problems related to lens equations and image formation",
+    "Focus on wave mechanics, especially the Doppler effect"
+  ]
 };
 
-interface ExamResult {
-  examId: string;
-  score: number;
-  totalQuestions: number;
-  correctAnswers: number;
-  userAnswers: UserAnswer[];
-  completedAt: string;
-}
-
-const ExamReviewPage: React.FC = () => {
+const ExamReviewPage = () => {
+  const { examId } = useParams<{ examId: string }>();
   const navigate = useNavigate();
-  const { examId = '' } = useParams<{ examId: string }>();
-  const [loading, setLoading] = useState(true);
-  const [exam, setExam] = useState<PracticeExam | null>(null);
-  const [examResult, setExamResult] = useState<ExamResult | null>(null);
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [activeTab, setActiveTab] = useState("all");
-  const [difficulty, setDifficulty] = useState<Record<string, number>>({
-    easy: 0,
-    medium: 0,
-    hard: 0
-  });
+  const [activeTab, setActiveTab] = React.useState("overview");
   
-  useEffect(() => {
-    // In a real app, this would fetch from an API
-    setTimeout(() => {
-      // Get mock exam
-      const mockExam = getMockExam(examId);
-      setExam(mockExam);
-      
-      // Get results from localStorage (simulating a backend)
-      const storedResult = localStorage.getItem(`examResult_${examId}`);
-      
-      if (storedResult) {
-        try {
-          const result = JSON.parse(storedResult) as ExamResult;
-          setExamResult(result);
-          
-          // Calculate difficulty statistics
-          const difficultyStats = { easy: 0, medium: 0, hard: 0 };
-          
-          mockExam.questions.forEach((question, index) => {
-            const userAnswer = result.userAnswers[index];
-            
-            if (!userAnswer.isCorrect) {
-              difficultyStats[question.difficulty as keyof typeof difficultyStats]++;
-            }
-          });
-          
-          setDifficulty(difficultyStats);
-        } catch (error) {
-          console.error("Error parsing stored exam result:", error);
-          // Create a fallback result if parsing fails
-          createFallbackResult(mockExam);
-        }
-      } else {
-        // If no stored result, create a fallback
-        createFallbackResult(mockExam);
-      }
-      
-      setLoading(false);
-    }, 1500);
-  }, [examId]);
+  // In a real app, fetch results based on examId
+  const examResult = mockExamResult;
   
-  const createFallbackResult = (mockExam: PracticeExam) => {
-    // Create a fallback result with random answers
-    const userAnswers: UserAnswer[] = mockExam.questions.map(question => {
-      const isCorrect = Math.random() > 0.3; // 70% correct answers
-      
-      return {
-        questionId: question.id,
-        selectedOptionId: isCorrect ? question.correctOptionId : question.options.find(o => o.id !== question.correctOptionId)?.id || "",
-        isCorrect
-      };
+  const getScoreColor = (score: number) => {
+    if (score >= 80) return "text-green-600";
+    if (score >= 60) return "text-amber-600";
+    return "text-red-600";
+  };
+  
+  const getProgressColor = (score: number) => {
+    if (score >= 80) return "bg-green-500";
+    if (score >= 60) return "bg-amber-500";
+    return "bg-red-500";
+  };
+  
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
     });
-    
-    const correctCount = userAnswers.filter(a => a.isCorrect).length;
-    const score = Math.round((correctCount / mockExam.questions.length) * 100);
-    
-    const fallbackResult: ExamResult = {
-      examId: mockExam.id,
-      score,
-      totalQuestions: mockExam.questions.length,
-      correctAnswers: correctCount,
-      userAnswers,
-      completedAt: new Date().toISOString()
-    };
-    
-    setExamResult(fallbackResult);
-    
-    // Calculate difficulty statistics
-    const difficultyStats = { easy: 0, medium: 0, hard: 0 };
-          
-    mockExam.questions.forEach((question, index) => {
-      const userAnswer = userAnswers[index];
-      
-      if (!userAnswer.isCorrect) {
-        difficultyStats[question.difficulty as keyof typeof difficultyStats]++;
-      }
-    });
-    
-    setDifficulty(difficultyStats);
-    
-    // Store for future reference
-    localStorage.setItem(`examResult_${examId}`, JSON.stringify(fallbackResult));
   };
   
-  const handleNextQuestion = () => {
-    if (exam && currentQuestionIndex < exam.questions.length - 1) {
-      setCurrentQuestionIndex(currentQuestionIndex + 1);
-    }
+  const handleBackToPracticeExams = () => {
+    navigate("/dashboard/student/practice-exam");
   };
-  
-  const handlePrevQuestion = () => {
-    if (currentQuestionIndex > 0) {
-      setCurrentQuestionIndex(currentQuestionIndex - 1);
-    }
-  };
-  
-  const getFilteredQuestions = () => {
-    if (!exam || !examResult) return [];
-    
-    switch (activeTab) {
-      case "correct":
-        return exam.questions.filter((_, index) => 
-          examResult.userAnswers[index].isCorrect
-        );
-      case "incorrect":
-        return exam.questions.filter((_, index) => 
-          !examResult.userAnswers[index].isCorrect
-        );
-      default:
-        return exam.questions;
-    }
-  };
-  
-  const getQuestionIndexInFiltered = (index: number) => {
-    if (!exam || !examResult) return 0;
-    
-    const filteredQuestions = getFilteredQuestions();
-    const currentQuestion = exam.questions[index];
-    
-    return filteredQuestions.findIndex(q => q.id === currentQuestion.id);
-  };
-  
-  const getCurrentFilteredQuestion = () => {
-    const filteredQuestions = getFilteredQuestions();
-    const currentIndexInFiltered = getQuestionIndexInFiltered(currentQuestionIndex);
-    
-    if (currentIndexInFiltered === -1) {
-      // Current question not in filtered view, show first filtered question
-      setCurrentQuestionIndex(
-        exam!.questions.findIndex(q => q.id === filteredQuestions[0]?.id) || 0
-      );
-      return filteredQuestions[0];
-    }
-    
-    return filteredQuestions[currentIndexInFiltered];
-  };
-  
-  if (loading) {
-    return <LoadingScreen message="Loading exam results..." />;
-  }
-  
-  if (!exam || !examResult) {
-    return (
-      <SharedPageLayout
-        title="Exam Review Not Available"
-        subtitle="We couldn't load your exam review"
-        showBackButton
-        backButtonUrl="/dashboard/student/practice-exams"
-      >
-        <div className="flex flex-col items-center justify-center py-12">
-          <AlertTriangle className="h-16 w-16 text-amber-500 mb-4" />
-          <h2 className="text-xl font-medium mb-2">Exam Review Not Available</h2>
-          <p className="text-muted-foreground mb-6 text-center max-w-md">
-            We couldn't load the review for this exam. This could be because the exam data has expired or hasn't been submitted yet.
-          </p>
-          <Button onClick={() => navigate('/dashboard/student/practice-exams')}>
-            Return to Practice Exams
-          </Button>
-        </div>
-      </SharedPageLayout>
-    );
-  }
-  
-  const filteredQuestions = getFilteredQuestions();
-  const currentFilteredQuestion = getCurrentFilteredQuestion();
-  const currentFilteredIndex = getQuestionIndexInFiltered(currentQuestionIndex);
-  
-  // Get the user's answers for the current question
-  const getCurrentUserAnswer = () => {
-    if (!currentFilteredQuestion) return null;
-    
-    const questionIndex = exam.questions.findIndex(q => q.id === currentFilteredQuestion.id);
-    return examResult.userAnswers[questionIndex];
-  };
-  
-  const currentUserAnswer = getCurrentUserAnswer();
   
   return (
     <SharedPageLayout
-      title="Exam Review"
-      subtitle={`${exam.title} - ${exam.subject}`}
-      showBackButton
-      backButtonUrl="/dashboard/student/practice-exams"
+      title={`Exam Result: ${examResult.title}`}
+      subtitle={`${examResult.subject} • Completed on ${formatDate(examResult.completedOn)}`}
+      showBackButton={true}
+      backButtonUrl="/dashboard/student/practice-exam"
+      showQuickAccess={false}
     >
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-        <Card className="col-span-1">
-          <CardHeader className="pb-3">
-            <CardTitle className="flex items-center">
-              <Trophy className="h-5 w-5 mr-2 text-yellow-500" />
-              Your Score
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-center py-4">
-              <div className="text-4xl font-bold mb-2">{examResult.score}%</div>
-              <p className="text-muted-foreground">
-                {examResult.correctAnswers} out of {examResult.totalQuestions} correct
-              </p>
-              
-              <div className="mt-4">
-                <Progress 
-                  value={examResult.score} 
-                  className="h-3"
-                  indicatorColor={
-                    examResult.score >= 80 ? "bg-green-500" :
-                    examResult.score >= 60 ? "bg-blue-500" :
-                    examResult.score >= 40 ? "bg-yellow-500" : "bg-red-500"
-                  }
-                />
-              </div>
-              
-              <div className="mt-4">
-                {examResult.score >= 80 && (
-                  <p className="text-green-600 dark:text-green-400 font-medium">Excellent work!</p>
-                )}
-                {examResult.score >= 60 && examResult.score < 80 && (
-                  <p className="text-blue-600 dark:text-blue-400 font-medium">Good job!</p>
-                )}
-                {examResult.score >= 40 && examResult.score < 60 && (
-                  <p className="text-yellow-600 dark:text-yellow-400 font-medium">Keep practicing!</p>
-                )}
-                {examResult.score < 40 && (
-                  <p className="text-red-600 dark:text-red-400 font-medium">Needs improvement</p>
-                )}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card className="col-span-1">
-          <CardHeader className="pb-3">
-            <CardTitle className="flex items-center">
-              <BarChart2 className="h-5 w-5 mr-2 text-blue-500" />
-              Performance by Difficulty
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <div className="flex justify-between text-sm mb-1">
-                <span>Easy Questions</span>
-                <span className="font-medium">
-                  {difficulty.easy} incorrect
-                </span>
-              </div>
-              <Progress 
-                value={
-                  (difficulty.easy / 
-                  exam.questions.filter(q => q.difficulty === "easy").length) * 100
-                } 
-                className="h-2"
-                indicatorColor="bg-red-500"
-              />
-            </div>
-            
-            <div>
-              <div className="flex justify-between text-sm mb-1">
-                <span>Medium Questions</span>
-                <span className="font-medium">
-                  {difficulty.medium} incorrect
-                </span>
-              </div>
-              <Progress 
-                value={
-                  (difficulty.medium / 
-                  exam.questions.filter(q => q.difficulty === "medium").length) * 100
-                } 
-                className="h-2"
-                indicatorColor="bg-red-500"
-              />
-            </div>
-            
-            <div>
-              <div className="flex justify-between text-sm mb-1">
-                <span>Hard Questions</span>
-                <span className="font-medium">
-                  {difficulty.hard} incorrect
-                </span>
-              </div>
-              <Progress 
-                value={
-                  (difficulty.hard / 
-                  exam.questions.filter(q => q.difficulty === "hard").length) * 100
-                } 
-                className="h-2"
-                indicatorColor="bg-red-500"
-              />
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card className="col-span-1">
-          <CardHeader className="pb-3">
-            <CardTitle>Next Steps</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <Button variant="outline" className="w-full justify-between">
-              <span>Review Weak Areas</span>
-              <ArrowRight className="h-4 w-4" />
-            </Button>
-            <Button variant="outline" className="w-full justify-between">
-              <span>Practice Similar Questions</span>
-              <ArrowRight className="h-4 w-4" />
-            </Button>
-            <Button variant="outline" className="w-full justify-between">
-              <span>Take Another Practice Exam</span>
-              <ArrowRight className="h-4 w-4" />
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-      
       <div className="space-y-6">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <h2 className="text-2xl font-bold">Question Review</h2>
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full sm:w-auto">
-            <TabsList>
-              <TabsTrigger value="all" className="flex items-center gap-1">
-                All ({exam.questions.length})
-              </TabsTrigger>
-              <TabsTrigger value="correct" className="flex items-center gap-1">
-                <Check className="h-4 w-4" />
-                Correct ({examResult.correctAnswers})
-              </TabsTrigger>
-              <TabsTrigger value="incorrect" className="flex items-center gap-1">
-                <X className="h-4 w-4" />
-                Incorrect ({examResult.totalQuestions - examResult.correctAnswers})
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
-        </div>
-        
-        {filteredQuestions.length > 0 ? (
-          <>
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-sm text-muted-foreground">
-                Question {currentFilteredIndex + 1} of {filteredQuestions.length}
-              </span>
-              <span className="text-sm font-medium">
-                Difficulty: 
-                <span className={`ml-1 ${
-                  currentFilteredQuestion.difficulty === "hard" ? "text-red-600 dark:text-red-400" :
-                  currentFilteredQuestion.difficulty === "medium" ? "text-yellow-600 dark:text-yellow-400" :
-                  "text-green-600 dark:text-green-400"
-                }`}>
-                  {currentFilteredQuestion.difficulty.charAt(0).toUpperCase() + 
-                  currentFilteredQuestion.difficulty.slice(1)}
-                </span>
-              </span>
+        {/* Score Overview */}
+        <Card className="overflow-hidden">
+          <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20">
+            <div className="flex flex-wrap justify-between items-center">
+              <CardTitle>Exam Performance</CardTitle>
+              <div className="flex items-center gap-2">
+                {examResult.topics.map(topic => (
+                  <Badge key={topic} variant="outline">
+                    {topic}
+                  </Badge>
+                ))}
+              </div>
             </div>
-            
-            {currentFilteredQuestion && currentUserAnswer && (
-              <QuestionReview
-                question={currentFilteredQuestion}
-                userAnswer={currentUserAnswer}
-                showExplanation
-              />
-            )}
-            
-            <div className="flex justify-between pt-4 border-t">
-              <Button 
-                variant="outline" 
-                onClick={handlePrevQuestion}
-                disabled={currentFilteredIndex === 0}
-              >
-                <ChevronLeft className="h-4 w-4 mr-1" />
-                Previous
-              </Button>
+          </CardHeader>
+          <CardContent className="pt-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm">
+                    Overall Score
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  <div className={`text-4xl font-bold ${getScoreColor(examResult.score)}`}>
+                    {examResult.score}%
+                  </div>
+                  <Progress 
+                    value={examResult.score} 
+                    className={`h-2 mt-2 ${getProgressColor(examResult.score)}`} 
+                  />
+                </CardContent>
+              </Card>
               
-              <Button 
-                onClick={handleNextQuestion}
-                disabled={currentFilteredIndex === filteredQuestions.length - 1}
-              >
-                Next
-                <ChevronRight className="h-4 w-4 ml-1" />
-              </Button>
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm">
+                    Questions
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  <div className="flex justify-between">
+                    <div>
+                      <div className="flex items-center">
+                        <CheckCircle className="h-4 w-4 text-green-500 mr-1" />
+                        <span className="text-sm text-muted-foreground">Correct</span>
+                      </div>
+                      <div className="text-xl font-medium">{examResult.correctAnswers}</div>
+                    </div>
+                    <div>
+                      <div className="flex items-center">
+                        <XCircle className="h-4 w-4 text-red-500 mr-1" />
+                        <span className="text-sm text-muted-foreground">Incorrect</span>
+                      </div>
+                      <div className="text-xl font-medium">{examResult.incorrectAnswers}</div>
+                    </div>
+                    <div>
+                      <div className="flex items-center">
+                        <Book className="h-4 w-4 text-blue-500 mr-1" />
+                        <span className="text-sm text-muted-foreground">Total</span>
+                      </div>
+                      <div className="text-xl font-medium">{examResult.totalQuestions}</div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm">
+                    Time
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  <div className="flex items-center mb-1">
+                    <Clock className="h-4 w-4 text-muted-foreground mr-1" />
+                    <span className="text-sm text-muted-foreground">Time taken</span>
+                  </div>
+                  <div className="text-xl font-medium">{examResult.timeTaken}</div>
+                  <div className="text-xs text-muted-foreground mt-1">
+                    out of {examResult.maxTime}
+                  </div>
+                </CardContent>
+              </Card>
             </div>
-          </>
-        ) : (
-          <div className="text-center py-12">
-            <p className="text-muted-foreground">
-              No questions match the selected filter.
-            </p>
-          </div>
-        )}
+            
+            <Tabs value={activeTab} onValueChange={setActiveTab}>
+              <TabsList className="mb-4">
+                <TabsTrigger value="overview">Overview</TabsTrigger>
+                <TabsTrigger value="questions">Questions</TabsTrigger>
+                <TabsTrigger value="recommendations">Recommendations</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="overview" className="space-y-5">
+                <div>
+                  <h3 className="font-medium text-lg mb-3">Topic Performance</h3>
+                  <div className="space-y-3">
+                    {examResult.topicPerformance.map(topic => (
+                      <div key={topic.name}>
+                        <div className="flex justify-between text-sm mb-1">
+                          <span>{topic.name}</span>
+                          <span className={getScoreColor(topic.score)}>{topic.score}%</span>
+                        </div>
+                        <Progress 
+                          value={topic.score}
+                          className={`h-2 ${getProgressColor(topic.score)}`} 
+                        />
+                        <div className="text-xs text-muted-foreground mt-1 text-right">
+                          {topic.questions} questions
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                
+                <div>
+                  <h3 className="font-medium text-lg mb-3">Areas for Improvement</h3>
+                  <div className="space-y-2">
+                    {examResult.weakAreas.map((area, index) => (
+                      <div key={index} className="flex items-start">
+                        <AlertTriangle className="h-5 w-5 text-amber-500 mr-2 mt-0.5" />
+                        <span>{area}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="questions">
+                <div className="space-y-5">
+                  {examResult.questions.map((question, index) => (
+                    <QuestionReview 
+                      key={question.id}
+                      question={question}
+                      questionNumber={index + 1}
+                    />
+                  ))}
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="recommendations">
+                <div className="space-y-6">
+                  <h3 className="font-medium text-lg">Suggested Actions</h3>
+                  <div className="space-y-4">
+                    {examResult.recommendations.map((recommendation, index) => (
+                      <Card key={index}>
+                        <CardContent className="p-4 flex">
+                          <BarChart className="h-5 w-5 text-blue-500 mr-3 mt-0.5" />
+                          <div>
+                            <p>{recommendation}</p>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                  
+                  <div className="flex justify-end space-x-3">
+                    <Button variant="outline" onClick={handleBackToPracticeExams}>
+                      <ArrowLeft className="h-4 w-4 mr-2" />
+                      Back to Practice Exams
+                    </Button>
+                    <Button>
+                      <Book className="h-4 w-4 mr-2" />
+                      Study Related Concepts
+                    </Button>
+                  </div>
+                </div>
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+        </Card>
       </div>
     </SharedPageLayout>
   );
