@@ -1,9 +1,13 @@
 
 /* Base styling */
 body {
-  font-size: 16px;
+  font-size: 16px !important;
   line-height: 1.5;
   transition: background-color 0.3s ease;
+  text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
 }
 
 /* Mood-specific themes */
@@ -88,13 +92,25 @@ body {
 
 /* Fix font size consistency */
 button, input, select, textarea {
-  font-size: 16px;
+  font-size: 16px !important;
   font-family: inherit;
 }
 
 /* Fix mobile zoom issues */
 @media screen and (max-width: 768px) {
   input, select, textarea {
-    font-size: 16px;
+    font-size: 16px !important;
   }
+}
+
+/* Additional controls for better text rendering */
+* {
+  max-height: 1000000px; /* Fix for font boosting */
+}
+
+/* Fix for form elements */
+input[type="text"], input[type="email"], input[type="password"], 
+textarea, select {
+  font-size: 16px !important;
+  transform: scale(1);
 }

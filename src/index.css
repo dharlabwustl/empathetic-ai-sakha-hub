@@ -6,10 +6,21 @@
 @layer base {
   * {
     @apply border-border;
+    max-height: 1000000px; /* Fix for font boosting */
   }
+  
+  html {
+    font-size: 16px !important;
+    -webkit-text-size-adjust: 100%;
+    -moz-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+  
   body {
     @apply bg-background text-foreground antialiased;
-    font-size: 16px; /* Reset to standard size */
+    font-size: 16px !important;
+    line-height: 1.5;
   }
   
   /* Reset headings to appropriate sizes */
@@ -27,6 +38,11 @@
   }
   h5, h6 {
     font-size: 1rem;
+  }
+
+  /* Ensure form elements have correct font size */
+  input, textarea, select, button {
+    font-size: 16px !important;
   }
 }
 
@@ -160,7 +176,7 @@
 
 /* Fix for the resolution and font size */
 html {
-  font-size: 16px; /* Base font size */
+  font-size: 16px !important; /* Base font size with important */
   -webkit-text-size-adjust: 100%;
   -ms-text-size-adjust: 100%;
 }
@@ -168,5 +184,28 @@ html {
 /* Ensure proper viewport settings */
 @viewport {
   width: device-width;
-  initial-scale: 1;
+  zoom: 1.0;
+  min-zoom: 1.0;
+  max-zoom: 1.0;
+  user-zoom: fixed;
+}
+
+/* Additional fixes for better text display */
+@media screen and (min-width: 320px) {
+  html, body {
+    font-size: 16px !important;
+  }
+}
+
+/* Fix for form elements to prevent auto-zoom on mobile */
+@media screen and (max-width: 768px) {
+  input, textarea, select {
+    font-size: 16px !important;
+  }
+}
+
+/* Fix for SVG rendering */
+svg {
+  shape-rendering: geometricPrecision;
+  text-rendering: optimizeLegibility;
 }

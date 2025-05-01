@@ -13,6 +13,8 @@ if (!rootElement) throw new Error('Root element not found');
 
 createRoot(rootElement).render(
   <React.StrictMode>
-    <App />
+    <ThemeProvider defaultTheme="light" attribute="class">
+      <App />
+    </ThemeProvider>
   </React.StrictMode>
 );
