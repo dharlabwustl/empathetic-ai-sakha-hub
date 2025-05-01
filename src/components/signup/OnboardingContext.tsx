@@ -1,106 +1,112 @@
 
 import React, { createContext, useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { MoodType, PersonalityType, UserRole } from "@/types/user/base";
+
+export type OnboardingStep = 
+  | "role" 
+  | "goal" 
+  | "demographics" 
+  | "personality" 
+  | "sentiment" 
+  | "studyTime" 
+  | "studyPace" 
+  | "studyHours" 
+  | "habits" 
+  | "interests" 
+  | "signup";
+
+export type UserGoal = "IIT-JEE" | "NEET" | "UPSC" | "CAT" | "GATE" | "GMAT";
 
 interface OnboardingContextType {
-  currentStep: number;
-  formData: {
-    name: string;
-    email: string;
-    password: string;
-    examGoal: string;
-    agreeToTerms: boolean;
-  };
-  updateFormData: (data: Partial<OnboardingContextType['formData']>) => void;
-  nextStep: () => void;
-  prevStep: () => void;
-  resetForm: () => void;
-  submitForm: () => void;
-  isSubmitting: boolean;
+  onboardingData: Record<string, any>;
+  setOnboardingData: (data: Record<string, any>) => void;
+  currentStep: OnboardingStep;
+  setStep: (step: OnboardingStep) => void;
+  goToNextStep: () => void;
+  goToPreviousStep: () => void;
 }
 
-const defaultFormData = {
-  name: '',
-  email: '',
-  password: '',
-  examGoal: '',
-  agreeToTerms: false,
+const defaultOnboardingData = {
+  role: UserRole.Student,
+  examGoal: "",
+  demographics: {},
+  personalityType: null,
+  mood: null,
+  studyTime: null,
+  studyPace: null,
+  dailyStudyHours: null,
+  habits: {},
+  interests: []
 };
 
 const OnboardingContext = createContext<OnboardingContextType>({
-  currentStep: 1,
-  formData: defaultFormData,
-  updateFormData: () => {},
-  nextStep: () => {},
-  prevStep: () => {},
-  resetForm: () => {},
-  submitForm: () => {},
-  isSubmitting: false,
+  onboardingData: defaultOnboardingData,
+  setOnboardingData: () => {},
+  currentStep: "role",
+  setStep: () => {},
+  goToNextStep: () => {},
+  goToPreviousStep: () => {}
 });
 
 export const useOnboarding = () => useContext(OnboardingContext);
 
+// Define the step sequence for the onboarding flow
+const stepSequence: OnboardingStep[] = [
+  "role", 
+  "goal", 
+  "demographics", 
+  "personality", 
+  "sentiment", 
+  "studyTime", 
+  "studyPace", 
+  "studyHours", 
+  "habits", 
+  "interests", 
+  "signup"
+];
+
 export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [currentStep, setCurrentStep] = useState(1);
-  const [formData, setFormData] = useState(defaultFormData);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [onboardingData, setOnboardingData] = useState(defaultOnboardingData);
+  const [currentStep, setCurrentStep] = useState<OnboardingStep>("role");
   const navigate = useNavigate();
 
-  const updateFormData = (data: Partial<typeof formData>) => {
-    setFormData({ ...formData, ...data });
-  };
+  // Get the current step index
+  const currentStepIndex = stepSequence.indexOf(currentStep);
 
-  const nextStep = () => {
-    setCurrentStep((prev) => Math.min(prev + 1, 3));
-  };
-
-  const prevStep = () => {
-    setCurrentStep((prev) => Math.max(prev - 1, 1));
-  };
-
-  const resetForm = () => {
-    setCurrentStep(1);
-    setFormData(defaultFormData);
-  };
-
-  const submitForm = async () => {
-    setIsSubmitting(true);
-    try {
-      // Here you would typically call your API to register the user
-      
-      // Mock successful registration
-      // Store user data in localStorage for demo
-      localStorage.setItem('userData', JSON.stringify({
-        id: `user-${Math.random().toString(36).substr(2, 9)}`,
-        name: formData.name,
-        email: formData.email,
-        role: 'student',
-        examGoal: formData.examGoal,
-        isActive: true,
-        loginCount: 1,
-        createdAt: new Date().toISOString()
-      }));
-      
-      // Redirect to post-signup flow instead of dashboard
-      navigate('/post-signup');
-    } catch (error) {
-      console.error('Error registering user:', error);
-    } finally {
-      setIsSubmitting(false);
+  // Go to the next step in the sequence
+  const goToNextStep = () => {
+    if (currentStepIndex < stepSequence.length - 1) {
+      setCurrentStep(stepSequence[currentStepIndex + 1]);
     }
+  };
+
+  // Go to the previous step in the sequence
+  const goToPreviousStep = () => {
+    if (currentStepIndex > 0) {
+      setCurrentStep(stepSequence[currentStepIndex - 1]);
+    }
+  };
+
+  // Set a specific step
+  const setStep = (step: OnboardingStep) => {
+    setCurrentStep(step);
+  };
+
+  // Update the onboarding data
+  const updateOnboardingData = (data: Record<string, any>) => {
+    setOnboardingData({ ...onboardingData, ...data });
   };
 
   return (
     <OnboardingContext.Provider
       value={{
+        onboardingData,
+        setOnboardingData: updateOnboardingData,
         currentStep,
-        formData,
-        updateFormData,
-        nextStep,
-        prevStep,
-        resetForm,
-        submitForm,
-        isSubmitting,
+        setStep,
+        goToNextStep,
+        goToPreviousStep
       }}
     >
       {children}
