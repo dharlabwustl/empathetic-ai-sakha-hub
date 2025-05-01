@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Navigate, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -10,19 +10,14 @@ import PrepzrLogo from '@/components/common/PrepzrLogo';
 
 const Login = () => {
   // Check if user is already logged in
-  const userToken = localStorage.getItem('userData');
   const [loginTab, setLoginTab] = useState<"student" | "admin">("student");
-  
-  if (userToken) {
-    return <Navigate to="/welcome-back?returnTo=dashboard/student" replace />;
-  }
   
   return (
     <div className="min-h-screen bg-gradient-to-br from-sky-100/30 via-white to-violet-100/30 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex items-center gap-2">
-            <PrepzrLogo width={120} height="auto" />
+            <PrepzrLogo width={240} height="auto" />
           </Link>
           <h1 className="mt-4 text-4xl font-display font-bold gradient-text">Welcome Back</h1>
           <p className="mt-2 text-gray-600">Login to continue your learning journey</p>
@@ -45,7 +40,9 @@ const Login = () => {
             </div>
             
             <TabsContent value="student" className="pt-2">
-              <LoginPage />
+              <form onSubmit={(e) => e.preventDefault()}>
+                <LoginPage />
+              </form>
             </TabsContent>
             
             <TabsContent value="admin" className="pt-2">

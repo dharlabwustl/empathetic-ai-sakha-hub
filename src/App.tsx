@@ -1,4 +1,3 @@
-
 import React, { Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
@@ -54,6 +53,7 @@ function App() {
               <Route path="/" element={<Index />} />
               <Route path="/signup" element={<SignUp />} />
               <Route path="/login" element={<Login />} />
+              <Route path="/admin/login" element={<AdminLogin />} />
               <Route path="/register" element={<SignUp />} />
 
               {/* Post-signup flow */}
@@ -66,7 +66,11 @@ function App() {
               <Route path="/dashboard/student/:tab" element={<StudentDashboard />} />
               <Route path="/dashboard/student/today" element={<TodaysPlanView />} />
               <Route path="/dashboard/student/feel-good-corner" element={<FeelGoodCornerView />} />
+              <Route path="/student/profile" element={<StudentProfile />} />
               <Route path="/dashboard/student/profile" element={<StudentProfile />} />
+              
+              {/* AI Tutor route */}
+              <Route path="/dashboard/student/tutor" element={<TutorView />} />
               
               {/* Concept routes */}
               <Route path="/dashboard/student/concepts/card/:conceptId" element={<ConceptCardDetailPage />} />
@@ -92,7 +96,6 @@ function App() {
               <Route path="/dashboard/student/study-plan" element={<StudyPlanView />} />
               
               {/* Admin routes */}
-              <Route path="/admin/login" element={<AdminLogin />} />
               <Route
                 path="/admin/*"
                 element={
@@ -103,6 +106,13 @@ function App() {
                   </AdminRouteGuard>
                 }
               />
+              <Route path="/admin/dashboard" element={
+                <AdminRouteGuard>
+                  <Suspense fallback={<LoadingScreen />}>
+                    <AdminDashboard />
+                  </Suspense>
+                </AdminRouteGuard>
+              } />
               
               {/* 404 */}
               <Route path="*" element={<NotFound />} />
