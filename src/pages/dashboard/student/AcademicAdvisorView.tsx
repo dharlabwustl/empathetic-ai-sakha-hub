@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
-import AcademicAdvisor from '@/pages/dashboard/student/AcademicAdvisor';
+import AcademicAdvisor from '@/components/dashboard/student/AcademicAdvisor';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { UserRole } from '@/types/user/base';
 
