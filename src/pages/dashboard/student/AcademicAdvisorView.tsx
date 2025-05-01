@@ -1,32 +1,26 @@
 
 import React from 'react';
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { GraduationCap } from 'lucide-react';
+import AcademicAdvisor from '@/pages/dashboard/student/AcademicAdvisor';
+import { useUserProfile } from '@/hooks/useUserProfile';
+import { UserRole } from '@/types/user/base';
 
 const AcademicAdvisorView = () => {
+  const { userProfile, loading } = useUserProfile(UserRole.Student);
+
   return (
     <SharedPageLayout 
       title="Academic Advisor" 
       subtitle="Get guidance for your academic journey"
-      showBackButton={true}
       backButtonUrl="/dashboard/student"
+      showBackButton={true}
     >
       <div className="space-y-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <GraduationCap className="h-5 w-5 text-primary" />
-              Academic Guidance
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="mb-4">Your academic advisor is here to help you plan your educational path and achieve your goals.</p>
-            <div className="bg-muted p-4 rounded-lg text-center">
-              <p className="text-muted-foreground">Academic advisor interface would be displayed here</p>
-            </div>
-          </CardContent>
-        </Card>
+        {loading || !userProfile ? (
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+        ) : (
+          <AcademicAdvisor userProfile={userProfile} />
+        )}
       </div>
     </SharedPageLayout>
   );

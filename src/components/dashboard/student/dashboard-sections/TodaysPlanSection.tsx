@@ -3,7 +3,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { BadgeCheck, Calendar } from 'lucide-react';
+import { BadgeCheck, Brain, Calendar } from 'lucide-react';
 import { MoodType } from '@/types/user/base';
 import { Badge } from '@/components/ui/badge';
 
@@ -27,8 +27,6 @@ const TodaysPlanSection: React.FC<TodaysPlanSectionProps> = ({
       case MoodType.FOCUSED:
       case MoodType.MOTIVATED:
         return "Great energy today! Your plan includes some challenging concepts to leverage your focus.";
-      case MoodType.CONFUSED:
-        return "We've simplified your plan today to help clarify concepts that might be challenging.";
       default:
         return "Your personalized study plan for today is ready.";
     }

@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -83,7 +84,7 @@ const SignupContent = () => {
 
       setOnboardingData(finalData);
 
-      // Simulate API call - in a real app, this would send to backend to generate study plan
+      // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1500));
 
       // Store data in localStorage
@@ -91,8 +92,6 @@ const SignupContent = () => {
         ...finalData,
         loginCount: 1,
         createdAt: new Date().toISOString(),
-        completedOnboarding: false,
-        sawWelcomeTour: false
       }));
 
       // Show success message
@@ -101,9 +100,9 @@ const SignupContent = () => {
         description: "Redirecting to your personalized dashboard.",
       });
 
-      // Navigate directly to the welcome page
+      // Redirect to the study plan screen, then to welcome screen
       setTimeout(() => {
-        navigate("/welcome?new=true");
+        navigate("/study-plan-creation?new=true&completedOnboarding=true");
       }, 1000);
     } catch (error) {
       console.error("Error creating account:", error);
@@ -151,10 +150,9 @@ const SignupContent = () => {
         loginCount: 1,
         createdAt: new Date().toISOString(),
         onboardingCompleted: false,
-        sawWelcomeTour: false,
       }));
 
-      navigate("/welcome?new=true");
+      navigate("/study-plan-creation?new=true");
     }, 2000);
   };
 

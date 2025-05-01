@@ -13,23 +13,15 @@ interface OnboardingFlowProps {
   userProfile: UserProfileBase;
   goalTitle: string;
   onComplete: () => void;
-  open?: boolean;
-  onOpenChange?: (open: boolean) => void;
 }
 
-const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ 
-  userProfile, 
-  goalTitle, 
-  onComplete,
-  open = true,
-  onOpenChange = () => {}
-}) => {
+const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ userProfile, goalTitle, onComplete }) => {
   const [step, setStep] = useState(0);
   const [loading, setLoading] = useState(false);
   
   const steps = [
     {
-      title: "Welcome to PREPZR!",
+      title: "Welcome to Prepzr!",
       description: "Let's set up your personalized study plan",
       content: (
         <div className="space-y-6 py-4">
@@ -37,7 +29,7 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({
             <PrepzrLogo width={80} className="mx-auto mb-4" />
             <h2 className="text-2xl font-bold">Welcome, {userProfile.name}!</h2>
             <p className="text-muted-foreground mt-2">
-              We're excited to help you prepare for {goalTitle || "your exams"}
+              We're excited to help you prepare for {goalTitle}
             </p>
           </div>
           
@@ -83,7 +75,7 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({
     },
     {
       title: "Your Learning Style",
-      description: "Personalized to your preferences",
+      description: "Help us understand your preferences",
       content: (
         <div className="space-y-6 py-4">
           <div className="space-y-4">
@@ -109,23 +101,6 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({
               </ul>
             </div>
             
-            <div className="mb-6 flex flex-col md:flex-row gap-4 p-4 bg-gradient-to-r from-blue-50 to-violet-50 border border-blue-100 rounded-lg">
-              <img
-                src="/lovable-uploads/19303283-7911-484b-9bea-65d7691bbdae.png"
-                alt="Founder"
-                className="w-24 h-24 object-cover rounded-full mx-auto md:mx-0 border-2 border-blue-200"
-              />
-              <div>
-                <h3 className="font-medium text-blue-700 text-center md:text-left">A Message From Our Founder</h3>
-                <p className="text-gray-700 text-sm mt-2 italic">
-                  "Thank you for joining PREPZR! We've built this platform to adapt to your unique learning style, 
-                  personality, and goals. PREPZR will be your constant companion on your journey to exam success, 
-                  making studying efficient and enjoyable."
-                </p>
-                <p className="text-blue-600 mt-2 text-sm font-medium text-right">— PREPZR Team</p>
-              </div>
-            </div>
-            
             <p className="text-sm text-muted-foreground">
               Your study plan will be tailored to these preferences. You can always adjust these settings later in your profile.
             </p>
@@ -144,7 +119,7 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({
             </div>
             <h2 className="text-xl font-bold mt-4">Your Study Plan is Ready!</h2>
             <p className="text-muted-foreground mt-2">
-              We've created a personalized learning path for {goalTitle || "your exams"}
+              We've created a personalized learning path for {goalTitle}
             </p>
           </div>
           
@@ -199,10 +174,8 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({
   
   const progress = ((step + 1) / steps.length) * 100;
   
-  if (!open) return null;
-  
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-violet-50 dark:from-blue-950/30 dark:to-violet-950/30 p-4">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

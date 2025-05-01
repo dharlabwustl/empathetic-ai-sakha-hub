@@ -21,6 +21,7 @@ const StudentDashboard = () => {
     showWelcomeTour,
     showOnboarding,
     currentTime,
+    showStudyPlan,
     hideTabsNav,
     hideSidebar,
     kpis,
@@ -33,6 +34,8 @@ const StudentDashboard = () => {
     handleSkipTour,
     handleCompleteTour,
     handleCompleteOnboarding,
+    handleViewStudyPlan,
+    handleCloseStudyPlan,
     toggleSidebar,
     toggleTabsNav
   } = useStudentDashboard();
@@ -101,8 +104,6 @@ const StudentDashboard = () => {
         userProfile={userProfile} 
         goalTitle={goalTitle}
         onComplete={handleCompleteOnboarding}
-        open={true}
-        onOpenChange={() => {}}
       />
     );
   }
@@ -128,10 +129,13 @@ const StudentDashboard = () => {
       markNudgeAsRead={markNudgeAsRead}
       showWelcomeTour={showWelcomeTour}
       onTabChange={handleTabChange}
+      onViewStudyPlan={handleViewStudyPlan}
       onToggleSidebar={toggleSidebar}
       onToggleTabsNav={toggleTabsNav}
       onSkipTour={handleSkipTour}
       onCompleteTour={handleCompleteTour}
+      showStudyPlan={showStudyPlan}
+      onCloseStudyPlan={handleCloseStudyPlan}
       lastActivity={lastActivity}
       suggestedNextAction={suggestedNextAction}
       currentMood={currentMood}
