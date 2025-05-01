@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, Calendar, AlertCircle, ChevronRight } from "lucide-react";
+import { Sparkles, Calendar, AlertCircle, ChevronRight, Package } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
 import { SubscriptionType } from '@/types/user/base';
 
@@ -43,32 +43,32 @@ const SubscriptionBanner: React.FC<SubscriptionBannerProps> = ({ subscription, c
   const hasExpired = daysRemaining <= 0;
   
   const getPlanDetails = () => {
-    switch (planType.toLowerCase()) {
-      case 'premium':
-      case 'pro':
-        return {
-          name: 'PRO',
-          color: 'bg-gradient-to-r from-amber-500 to-amber-300',
-          textColor: 'text-amber-900',
-          borderColor: 'border-amber-400',
-          icon: <Sparkles className="h-4 w-4" />
-        };
-      case 'standard':
-        return {
-          name: 'Standard',
-          color: 'bg-gradient-to-r from-blue-500 to-blue-300',
-          textColor: 'text-blue-900',
-          borderColor: 'border-blue-400',
-          icon: <Badge className="h-4 w-4" />
-        };
-      default:
-        return {
-          name: 'Free',
-          color: 'bg-gradient-to-r from-gray-300 to-gray-200',
-          textColor: 'text-gray-700',
-          borderColor: 'border-gray-300',
-          icon: <Calendar className="h-4 w-4" />
-        };
+    const planTypeLower = typeof planType === 'string' ? planType.toLowerCase() : '';
+
+    if (planTypeLower.includes('pro')) {
+      return {
+        name: 'Pro',
+        color: 'bg-gradient-to-r from-purple-500 to-purple-300',
+        textColor: 'text-purple-900',
+        borderColor: 'border-purple-400',
+        icon: <Sparkles className="h-4 w-4" />
+      };
+    } else if (planTypeLower.includes('group')) {
+      return {
+        name: 'Group',
+        color: 'bg-gradient-to-r from-blue-500 to-blue-300',
+        textColor: 'text-blue-900',
+        borderColor: 'border-blue-400',
+        icon: <Package className="h-4 w-4" />
+      };
+    } else {
+      return {
+        name: 'Free',
+        color: 'bg-gradient-to-r from-gray-300 to-gray-200',
+        textColor: 'text-gray-700',
+        borderColor: 'border-gray-300',
+        icon: <Calendar className="h-4 w-4" />
+      };
     }
   };
   
@@ -79,7 +79,7 @@ const SubscriptionBanner: React.FC<SubscriptionBannerProps> = ({ subscription, c
   };
   
   const handleManageClick = () => {
-    navigate('/account/subscription');
+    navigate('/dashboard/student/subscription');
   };
   
   if (hasExpired && isActive) {
@@ -171,7 +171,7 @@ const SubscriptionBanner: React.FC<SubscriptionBannerProps> = ({ subscription, c
                   <span className="font-medium">
                     {planDetails.name} Plan
                   </span>
-                  {isActive && planType.toLowerCase() !== 'free' && (
+                  {isActive && !planType.toLowerCase().includes('free') && (
                     <Badge variant="outline" className="ml-2 bg-green-100 text-green-800 border-green-200">
                       Active
                     </Badge>
@@ -185,7 +185,7 @@ const SubscriptionBanner: React.FC<SubscriptionBannerProps> = ({ subscription, c
               </div>
             </div>
             
-            {planType.toLowerCase() === 'free' ? (
+            {planType.toLowerCase().includes('free') ? (
               <Button 
                 size="sm"
                 className="bg-gradient-to-r from-violet-600 to-indigo-600 text-white"

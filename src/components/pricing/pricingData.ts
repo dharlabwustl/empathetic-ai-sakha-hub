@@ -1,3 +1,4 @@
+
 export const individualPlans = [
   {
     title: "Free Trial",
@@ -6,135 +7,123 @@ export const individualPlans = [
     subtitle: "Try essential features",
     description: "Experience Sakha AI for 7 days",
     features: [
-      { name: "Limited AI conversation (5 queries/day)", included: true },
-      { name: "Basic personalized dashboard", included: true },
-      { name: "Limited access to study tools", included: true },
-      { name: "3 academic goals", included: true },
-      { name: "Limited video content", included: true },
-      { name: "Email support", included: true },
-      { name: "Advanced personalization", included: false },
-      { name: "Full content library", included: false },
-      { name: "Emotional intelligence features", included: false },
-      { name: "Weekly insights report", included: false },
+      { name: "5 Concept Cards (Auto-generated)", included: true },
+      { name: "5 Flashcards", included: true },
+      { name: "5 Practice Exams with analytics", included: true },
+      { name: "1 Academic Advisor plan", included: true },
+      { name: "Basic Smart Study Plan", included: true },
+      { name: "10 AI Tutor requests", included: true },
+      { name: "Feel Good Corner", included: true },
+      { name: "Custom Card Creation", included: false },
+      { name: "Surrounding Influence", included: false },
+      { name: "Mood-Based Study Plan", included: false },
     ],
     recommended: false,
     color: "gray",
     trial: true
   },
   {
-    title: "Basic",
-    price: "₹499",
-    period: "/month",
-    subtitle: "Expanded learning tools",
-    description: "For serious students who want more features",
-    features: [
-      { name: "Unlimited AI conversations", included: true },
-      { name: "Personalized dashboard", included: true },
-      { name: "Full access to study tools", included: true },
-      { name: "Unlimited academic goals", included: true },
-      { name: "Expanded video library", included: true },
-      { name: "Priority email support", included: true },
-      { name: "Basic personalization", included: true },
-      { name: "Smart notifications", included: true },
-      { name: "Emotional intelligence features", included: false },
-      { name: "Weekly insights report", included: false },
-    ],
-    recommended: false,
-    color: "blue"
-  },
-  {
-    title: "Premium",
+    title: "Pro Plan (Monthly)",
     price: "₹999",
     period: "/month",
-    subtitle: "Complete AI companion",
-    description: "Unlock the full potential of Sakha AI",
+    subtitle: "Full learning experience",
+    description: "Complete AI-powered learning companion",
     features: [
-      { name: "Unlimited AI conversations", included: true },
-      { name: "Advanced personalized dashboard", included: true },
-      { name: "Full access to all tools & features", included: true },
-      { name: "Unlimited goals with advanced tracking", included: true },
-      { name: "Complete video & content library", included: true },
-      { name: "24/7 priority support", included: true },
-      { name: "Advanced AI personalization", included: true },
-      { name: "Emotional intelligence coaching", included: true },
-      { name: "Mental health support tools", included: true },
-      { name: "Weekly insights & progress reports", included: true },
+      { name: "Unlimited Concept Cards (via Study Plan)", included: true },
+      { name: "Unlimited Flashcards", included: true },
+      { name: "Unlimited Practice Exams", included: true },
+      { name: "Custom Cards (via credits)", included: true },
+      { name: "2 Academic Advisor plans/month", included: true },
+      { name: "Full + Mood-Based Study Plan", included: true },
+      { name: "Unlimited AI Tutor (Fair Use)", included: true },
+      { name: "Surrounding Influence", included: true },
+      { name: "Feel Good Corner", included: true },
+      { name: "Study Groups", included: false },
     ],
     recommended: true,
     color: "purple"
+  },
+  {
+    title: "Pro Plan (Annual)",
+    price: "₹9,999",
+    period: "/year",
+    subtitle: "Save ₹2,000 annually",
+    description: "All Pro features with annual savings",
+    features: [
+      { name: "All Pro Plan Monthly features", included: true },
+      { name: "₹2,000 savings vs. monthly plan", included: true },
+      { name: "Priority support", included: true },
+      { name: "Early access to new features", included: true },
+      { name: "Unlimited Concept Cards", included: true },
+      { name: "Unlimited Flashcards", included: true },
+      { name: "Unlimited Practice Exams", included: true },
+      { name: "Custom Cards (via credits)", included: true },
+      { name: "Full + Mood-Based Study Plan", included: true },
+      { name: "Unlimited AI Tutor (Fair Use)", included: true },
+    ],
+    color: "blue"
   },
 ];
 
 export const groupPlans = [
   {
-    title: "Group",
+    title: "Group Plan (5 Users)",
     price: "₹3,999",
     period: "/month",
-    subtitle: "For small study groups",
-    description: "Shared access for 5 users",
+    subtitle: "Shared learning experience",
+    description: "For study groups & small batches",
     features: [
-      { name: "All Basic plan features", included: true },
-      { name: "5 user accounts", included: true },
-      { name: "Group progress tracking", included: true },
-      { name: "Collaborative study tools", included: true },
-      { name: "Shared resource library", included: true },
-      { name: "Group chat support", included: true },
+      { name: "5 Users included (₹799/user extra)", included: true },
+      { name: "Unlimited Concept Cards (via Study Plan)", included: true },
+      { name: "Unlimited Flashcards", included: true },
+      { name: "Unlimited Practice Exams", included: true },
+      { name: "Custom Cards (shared credit pool)", included: true },
+      { name: "4 Academic Advisor plans/month shared", included: true },
+      { name: "Study Groups", included: true },
+      { name: "Admin Dashboard", included: true },
+      { name: "Batch Manager", included: true },
     ],
     icon: "users",
     color: "green"
   },
   {
-    title: "Institute",
-    price: "₹19,999",
-    period: "/month",
-    subtitle: "For educational institutes",
-    description: "For up to 50 students",
+    title: "Group Plan (Annual)",
+    price: "₹39,999",
+    period: "/year",
+    subtitle: "Save ₹8,000 annually",
+    description: "Best value for study groups",
     features: [
-      { name: "All Premium plan features", included: true },
-      { name: "50 student accounts", included: true },
-      { name: "Admin dashboard", included: true },
-      { name: "Performance analytics", included: true },
-      { name: "Custom content integration", included: true },
-      { name: "Dedicated account manager", included: true },
-    ],
-    icon: "building2",
-    color: "amber"
-  },
-  {
-    title: "Corporate",
-    price: "₹49,999",
-    period: "/month",
-    subtitle: "For employee families",
-    description: "For up to 100 users",
-    features: [
-      { name: "All Premium plan features", included: true },
-      { name: "100 user accounts", included: true },
-      { name: "Family account grouping", included: true },
-      { name: "Advanced admin controls", included: true },
-      { name: "Custom branding options", included: true },
-      { name: "API access", included: true },
+      { name: "All Group Plan Monthly features", included: true },
+      { name: "₹8,000 savings vs. monthly plan", included: true },
+      { name: "Priority group support", included: true },
+      { name: "Enhanced analytics", included: true },
+      { name: "Customized onboarding session", included: true },
+      { name: "5 Users included (₹799/user extra)", included: true },
+      { name: "Batch Manager", included: true },
+      { name: "Admin Dashboard", included: true },
     ],
     icon: "building",
-    color: "blue"
-  },
+    color: "blue",
+    recommended: true
+  }
 ];
 
 export const faq = [
   {
     question: "How do free access limits work?",
-    answer: "Free plans provide limited access to features. For example, you may be limited to 5 AI tutor questions per day, 3 study plans, or access to only 20-50% of certain content. You'll see these limits clearly marked when using the features."
+    answer: "The Free Plan offers limited access to features for 7 days. This includes 5 Concept Cards, 5 Flashcards, 5 Practice Exams, 1 Academic Advisor plan, Basic Smart Study Plan, 10 AI Tutor requests, and access to the Feel Good Corner. These limits are clearly marked when using the features."
   },
   {
-    question: "Can I switch between plans?",
-    answer: "Yes, you can upgrade or downgrade your plan at any time. When upgrading, you'll get immediate access to premium features. If you downgrade, you'll continue to have premium access until the end of your current billing cycle."
+    question: "What is the Card Credit system?",
+    answer: "Card Credits allow you to create custom Concept Cards or Flashcards beyond what's automatically generated by your Study Plan. We offer credit packs at different price points: 50 Credits (₹99), 100 Credits (₹179), 250 Credits (₹399), and 100 Exam Credits (₹499). Each regular card costs 1 credit while exam cards cost 2 credits due to their more detailed AI generation."
   },
   {
     question: "How do group plans work?",
-    answer: "Our group plans allow multiple users to access premium features at a discounted rate. The group admin can invite members, and each member gets their own personalized dashboard and tracking while sharing access to premium features."
+    answer: "Our Group Plan supports 5 users by default (₹3,999/month) with the ability to add more users at ₹799 per additional user. Group plans include shared features like 4 Academic Advisor plans per month, a shared credit pool for custom cards, and admin tools including Batch Manager to organize your study group."
   },
   {
-    question: "Do you offer discounts for students?",
-    answer: "Yes, we offer a 50% discount on our Basic plan for students with a valid student ID. Please contact our support team after signing up to verify your student status."
+    question: "What's the difference between monthly and annual plans?",
+    answer: "Annual plans offer significant savings: the Pro Plan Annual saves ₹2,000 compared to monthly billing (₹9,999 vs ₹11,988), and the Group Plan Annual saves ₹8,000 (₹39,999 vs ₹47,988). Annual plans also include priority support and early access to new features."
   },
   {
     question: "What payment methods do you accept?",

@@ -4,46 +4,76 @@ import { Check, X } from "lucide-react";
 
 const features = [
   {
-    name: "24/7 AI Tutor",
-    free: "5 questions/day",
-    basic: "Unlimited",
-    premium: "Unlimited + Priority"
-  },
-  {
-    name: "Flashcards & Revision",
-    free: "50% content",
-    basic: "Full access",
-    premium: "Full access + Advanced"
-  },
-  {
-    name: "Video Library",
-    free: "20% content",
-    basic: "Full access",
-    premium: "Full access"
-  },
-  {
     name: "Concept Cards",
-    free: "40% content",
-    basic: "Full access",
-    premium: "Full access"
+    free: "5 total",
+    pro: "Unlimited",
+    group: "Unlimited"
   },
   {
-    name: "Mood Tracker",
+    name: "Flashcards",
+    free: "5 total",
+    pro: "Unlimited",
+    group: "Unlimited"
+  },
+  {
+    name: "Practice Exams",
+    free: "5 total",
+    pro: "Unlimited",
+    group: "Unlimited"
+  },
+  {
+    name: "Custom Card Creation",
     free: false,
-    basic: false,
-    premium: true
+    pro: "via credits",
+    group: "shared credit pool"
+  },
+  {
+    name: "Academic Advisor",
+    free: "1 plan",
+    pro: "2/month",
+    group: "4/month shared"
+  },
+  {
+    name: "Smart Study Plan",
+    free: "Basic",
+    pro: "Full + Mood-Based",
+    group: "Full + Mood-Based"
+  },
+  {
+    name: "AI Tutor",
+    free: "10 requests",
+    pro: "Unlimited (Fair Use)",
+    group: "Unlimited (Per User)"
+  },
+  {
+    name: "Study Groups",
+    free: false,
+    pro: false,
+    group: true
+  },
+  {
+    name: "Admin Dashboard",
+    free: false,
+    pro: false,
+    group: true
+  },
+  {
+    name: "Batch Manager",
+    free: false,
+    pro: false,
+    group: true
+  },
+  {
+    name: "Feel Good Corner",
+    free: true,
+    pro: true,
+    group: true
   },
   {
     name: "Surrounding Influence",
     free: false,
-    basic: false,
-    premium: true
-  },
-  {
-    name: "Profile Analytics",
-    free: "Basic",
-    basic: "Standard",
-    premium: "Advanced"
+    pro: true,
+    group: true
   }
 ];
 
@@ -57,9 +87,9 @@ const FeatureComparison = () => {
             <thead>
               <tr className="border-b border-gray-200 dark:border-gray-700">
                 <th className="py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Feature</th>
-                <th className="py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Free</th>
-                <th className="py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Basic</th>
-                <th className="py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Premium</th>
+                <th className="py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Free Plan</th>
+                <th className="py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Pro Plan</th>
+                <th className="py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Group Plan</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -78,25 +108,25 @@ const FeatureComparison = () => {
                     )}
                   </td>
                   <td className="py-3 text-sm">
-                    {typeof feature.basic === "boolean" ? (
-                      feature.basic ? (
+                    {typeof feature.pro === "boolean" ? (
+                      feature.pro ? (
                         <Check className="text-green-500" size={16} />
                       ) : (
                         <X className="text-red-500" size={16} />
                       )
                     ) : (
-                      feature.basic
+                      feature.pro
                     )}
                   </td>
                   <td className="py-3 text-sm">
-                    {typeof feature.premium === "boolean" ? (
-                      feature.premium ? (
+                    {typeof feature.group === "boolean" ? (
+                      feature.group ? (
                         <Check className="text-green-500" size={16} />
                       ) : (
                         <X className="text-red-500" size={16} />
                       )
                     ) : (
-                      feature.premium
+                      feature.group
                     )}
                   </td>
                 </tr>
@@ -110,4 +140,3 @@ const FeatureComparison = () => {
 };
 
 export default FeatureComparison;
-

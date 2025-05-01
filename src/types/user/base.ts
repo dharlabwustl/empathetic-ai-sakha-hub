@@ -51,7 +51,12 @@ export enum SubscriptionType {
   Free = 'free',
   Premium = 'premium',
   Pro = 'pro',
-  Trial = 'trial'
+  Trial = 'trial',
+  GroupSmall = 'group_small',
+  GroupMedium = 'group_medium',
+  GroupAnnual = 'group_annual',
+  ProMonthly = 'pro_monthly',
+  ProAnnual = 'pro_annual'
 }
 
 export interface Goal {

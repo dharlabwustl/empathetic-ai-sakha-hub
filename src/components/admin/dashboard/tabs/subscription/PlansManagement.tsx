@@ -234,7 +234,7 @@ const PlansManagement = () => {
                 <TableCell>{formatPrice(plan.price, plan.billingCycle)}</TableCell>
                 <TableCell>{plan.billingCycle}</TableCell>
                 <TableCell>{plan.users.toLocaleString()}</TableCell>
-                <TableCell>{plan.maxUsers === 1 ? "1" : `${plan.maxUsers} (Expandable)`}</TableCell>
+                <TableCell>{plan.maxUsers === 1 ? "1" : `${plan.maxUsers} ${plan.id.startsWith('group') ? "(₹799/user extra)" : ""}`}</TableCell>
                 <TableCell>
                   {plan.isActive ? (
                     <div className="flex items-center text-green-600">
@@ -294,6 +294,53 @@ const PlansManagement = () => {
             ))}
           </TableBody>
         </Table>
+      </div>
+
+      {/* Card Credit Packs section */}
+      <div className="mt-8">
+        <h3 className="text-xl font-bold mb-4">Card Credit Packs</h3>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">50 Credits</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-xl font-bold">₹99</div>
+              <p className="text-sm text-muted-foreground mt-2">For creating 50 Concept or Flashcards</p>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">100 Credits</CardTitle>
+              <Badge className="bg-green-100 text-green-800">Best Value</Badge>
+            </CardHeader>
+            <CardContent>
+              <div className="text-xl font-bold">₹179</div>
+              <p className="text-sm text-muted-foreground mt-2">For creating 100 Concept or Flashcards</p>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">250 Credits</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-xl font-bold">₹399</div>
+              <p className="text-sm text-muted-foreground mt-2">For creating 250 Concept or Flashcards</p>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">100 Exam Credits</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-xl font-bold">₹499</div>
+              <p className="text-sm text-muted-foreground mt-2">For creating 100 exam cards</p>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );

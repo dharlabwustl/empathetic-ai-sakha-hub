@@ -9,7 +9,8 @@ import {
   StudyPreferenceType, 
   MoodType, 
   PaymentMethod,
-  BillingHistory 
+  BillingHistory,
+  SubscriptionType
 } from '@/types/user/base';
 
 // Mock data for demonstration
@@ -49,18 +50,18 @@ const generateMockUserProfile = (role: UserRole): UserProfileType => {
       {
         id: 'inv1',
         date: '2023-12-01',
-        amount: 499,
+        amount: 999,
         status: 'paid',
         invoiceUrl: '#',
-        planName: 'Premium Monthly'
+        planName: 'Pro Plan (Monthly)'
       },
       {
         id: 'inv2',
         date: '2023-11-01',
-        amount: 499,
+        amount: 999,
         status: 'paid',
         invoiceUrl: '#',
-        planName: 'Premium Monthly'
+        planName: 'Pro Plan (Monthly)'
       }
     ];
     
@@ -101,17 +102,21 @@ const generateMockUserProfile = (role: UserRole): UserProfileType => {
         completedTasks: 42
       },
       subscription: {
-        type: 'premium',
+        type: 'pro_monthly',
         startDate: '2023-11-01',
         endDate: '2024-11-01',
         isActive: true,
-        planType: 'premium',
+        planType: 'pro_monthly',
         features: [
-          'Unlimited practice questions',
-          'AI-powered study recommendations',
-          '24/7 doubt solving assistance',
-          'Performance analytics',
-          'Mock test analysis'
+          'Unlimited Concept Cards (via Study Plan)',
+          'Unlimited Flashcards',
+          'Unlimited Practice Exams',
+          'Create Custom Cards (via credits)',
+          '2 Academic Advisor plans/month',
+          'Full + Mood-Based Smart Study Plan',
+          'Unlimited AI Tutor (Fair Use)',
+          'Surrounding Influence',
+          'Feel Good Corner'
         ],
         memberLimit: 0
       },

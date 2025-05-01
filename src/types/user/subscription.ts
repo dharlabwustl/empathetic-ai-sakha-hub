@@ -9,6 +9,7 @@ export enum SubscriptionType {
   GROUP_SMALL = "group_small",
   GROUP_MEDIUM = "group_medium",
   GROUP_LARGE = "group_large",
+  GROUP_ANNUAL = "group_annual",
   ENTERPRISE = "enterprise"
 }
 
@@ -46,3 +47,45 @@ export interface PricingTier {
   trial?: boolean;
   maxUsers?: number;
 }
+
+// Credit system types
+export interface CreditPack {
+  id: string;
+  name: string;
+  credits: number;
+  price: number;
+  isExamCredits?: boolean;
+  bestValue?: boolean;
+}
+
+export const creditPacks: CreditPack[] = [
+  {
+    id: 'credits_50',
+    name: '50 Credits',
+    credits: 50,
+    price: 99,
+    isExamCredits: false
+  },
+  {
+    id: 'credits_100',
+    name: '100 Credits',
+    credits: 100,
+    price: 179,
+    isExamCredits: false,
+    bestValue: true
+  },
+  {
+    id: 'credits_250',
+    name: '250 Credits',
+    credits: 250,
+    price: 399,
+    isExamCredits: false
+  },
+  {
+    id: 'exam_credits_100',
+    name: '100 Exam Credits',
+    credits: 100,
+    price: 499,
+    isExamCredits: true
+  }
+];

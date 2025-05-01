@@ -4,12 +4,12 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Check, Users, X } from 'lucide-react';
-import { SubscriptionPlan } from '@/types/user/base';
+import { SubscriptionType } from '@/types/user/base';
 import { motion } from 'framer-motion';
 
 interface SubscriptionPlansProps {
   currentPlanId?: string;
-  onSelectPlan: (plan: SubscriptionPlan, isGroup: boolean) => void;
+  onSelectPlan: (plan: any, isGroup: boolean) => void;
   showGroupOption?: boolean;
 }
 
@@ -19,7 +19,7 @@ const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
   showGroupOption = true
 }) => {
   // Basic plans
-  const basicPlans: SubscriptionPlan[] = [
+  const basicPlans = [
     {
       id: 'free',
       name: 'Free Plan (7 Days)',
@@ -33,7 +33,7 @@ const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
         '10 AI Tutor requests',
         'Feel Good Corner'
       ],
-      type: 'free'
+      type: SubscriptionType.Free
     },
     {
       id: 'pro_monthly',
@@ -50,7 +50,7 @@ const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
         'Surrounding Influence',
         'Feel Good Corner'
       ],
-      type: 'pro_monthly'
+      type: SubscriptionType.ProMonthly
     },
     {
       id: 'pro_annual',
@@ -62,12 +62,12 @@ const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
         'Priority support',
         'Early access to new features'
       ],
-      type: 'pro_annual'
+      type: SubscriptionType.ProAnnual
     }
   ];
 
   // Group plans
-  const groupPlans: SubscriptionPlan[] = [
+  const groupPlans = [
     {
       id: 'group_small',
       name: 'Group Plan (5 Users)',
@@ -87,7 +87,7 @@ const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
         'Surrounding Influence',
         'Feel Good Corner'
       ],
-      type: 'group_small',
+      type: SubscriptionType.GroupSmall,
       maxMembers: 5
     },
     {
@@ -101,12 +101,12 @@ const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
         'Enhanced analytics',
         'Customized onboarding session'
       ],
-      type: 'group_annual',
+      type: SubscriptionType.GroupAnnual,
       maxMembers: 5
     }
   ];
 
-  const handleSelectPlan = (plan: SubscriptionPlan, isGroup: boolean = false) => {
+  const handleSelectPlan = (plan: any, isGroup: boolean = false) => {
     onSelectPlan(plan, isGroup);
   };
 
@@ -266,7 +266,7 @@ const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
         </div>
       )}
       
-      {/* Additional credit system section */}
+      {/* Credit system section */}
       <div>
         <h3 className="text-2xl font-bold mb-6">Card Credit System</h3>
         <Card>
@@ -274,7 +274,7 @@ const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
             <CardTitle className="text-lg">For Custom Card Generation</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div className="p-4 border rounded-lg">
                 <h4 className="font-medium">50 Credits</h4>
                 <p className="text-2xl font-bold mt-1">₹99</p>
@@ -293,6 +293,12 @@ const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
                 <p className="text-2xl font-bold mt-1">₹399</p>
                 <p className="text-sm text-muted-foreground mt-2">Create 250 Concept or Flashcards</p>
               </div>
+              
+              <div className="p-4 border rounded-lg bg-blue-50 dark:bg-blue-900/20">
+                <h4 className="font-medium">100 Exam Credits</h4>
+                <p className="text-2xl font-bold mt-1">₹499</p>
+                <p className="text-sm text-muted-foreground mt-2">Create 100 exam cards</p>
+              </div>
             </div>
             
             <div className="mt-6 p-4 border rounded-lg bg-purple-50 dark:bg-purple-900/20">
@@ -308,38 +314,97 @@ const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
         </Card>
       </div>
       
-      {/* Advanced Features Section */}
+      {/* Features Comparison Section */}
       <div>
-        <h3 className="text-2xl font-bold mb-6">Advanced Features (Pro & Group)</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Card>
-            <CardContent className="p-6">
-              <h4 className="font-medium text-lg mb-2">Study-Plan-Based Generation</h4>
-              <p className="text-muted-foreground">Cards created from user's academic roadmap</p>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardContent className="p-6">
-              <h4 className="font-medium text-lg mb-2">Mood-Based Study Plan</h4>
-              <p className="text-muted-foreground">Dynamically adapts content based on user's mood</p>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardContent className="p-6">
-              <h4 className="font-medium text-lg mb-2">Surrounding Influence</h4>
-              <p className="text-muted-foreground">Peer motivation from trending topics, activity stats</p>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardContent className="p-6">
-              <h4 className="font-medium text-lg mb-2">Batch Manager (Group)</h4>
-              <p className="text-muted-foreground">Create & manage multiple learner batches, assign content, track progress</p>
-            </CardContent>
-          </Card>
-        </div>
+        <h3 className="text-2xl font-bold mb-6">Plans Comparison</h3>
+        <Card>
+          <CardContent className="p-6 overflow-x-auto">
+            <table className="min-w-full">
+              <thead>
+                <tr className="border-b border-gray-200 dark:border-gray-700">
+                  <th className="py-3 text-left text-sm font-medium text-gray-500">Feature</th>
+                  <th className="py-3 text-left text-sm font-medium text-gray-500">Free Plan</th>
+                  <th className="py-3 text-left text-sm font-medium text-gray-500">Pro Plan</th>
+                  <th className="py-3 text-left text-sm font-medium text-gray-500">Group Plan</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                <tr>
+                  <td className="py-3 text-sm font-medium">Concept Cards</td>
+                  <td className="py-3 text-sm">5 total</td>
+                  <td className="py-3 text-sm">Unlimited (via Study Plan)</td>
+                  <td className="py-3 text-sm">Unlimited (via Study Plan)</td>
+                </tr>
+                <tr>
+                  <td className="py-3 text-sm font-medium">Flashcards</td>
+                  <td className="py-3 text-sm">5 total</td>
+                  <td className="py-3 text-sm">Unlimited</td>
+                  <td className="py-3 text-sm">Unlimited</td>
+                </tr>
+                <tr>
+                  <td className="py-3 text-sm font-medium">Practice Exams</td>
+                  <td className="py-3 text-sm">5 total</td>
+                  <td className="py-3 text-sm">Unlimited</td>
+                  <td className="py-3 text-sm">Unlimited</td>
+                </tr>
+                <tr>
+                  <td className="py-3 text-sm font-medium">Create Custom Cards</td>
+                  <td className="py-3 text-sm"><X size={16} className="text-red-500" /></td>
+                  <td className="py-3 text-sm">✅ (via credits)</td>
+                  <td className="py-3 text-sm">✅ (shared credit pool)</td>
+                </tr>
+                <tr>
+                  <td className="py-3 text-sm font-medium">Academic Advisor</td>
+                  <td className="py-3 text-sm">1 plan</td>
+                  <td className="py-3 text-sm">2/month</td>
+                  <td className="py-3 text-sm">4/month shared</td>
+                </tr>
+                <tr>
+                  <td className="py-3 text-sm font-medium">Study Plan</td>
+                  <td className="py-3 text-sm">Basic</td>
+                  <td className="py-3 text-sm">Full + Mood-Based</td>
+                  <td className="py-3 text-sm">Full + Mood-Based</td>
+                </tr>
+                <tr>
+                  <td className="py-3 text-sm font-medium">AI Tutor</td>
+                  <td className="py-3 text-sm">10 requests</td>
+                  <td className="py-3 text-sm">Unlimited (Fair Use)</td>
+                  <td className="py-3 text-sm">Unlimited (Per User)</td>
+                </tr>
+                <tr>
+                  <td className="py-3 text-sm font-medium">Study Groups</td>
+                  <td className="py-3 text-sm"><X size={16} className="text-red-500" /></td>
+                  <td className="py-3 text-sm"><X size={16} className="text-red-500" /></td>
+                  <td className="py-3 text-sm"><Check size={16} className="text-green-500" /></td>
+                </tr>
+                <tr>
+                  <td className="py-3 text-sm font-medium">Admin Dashboard</td>
+                  <td className="py-3 text-sm"><X size={16} className="text-red-500" /></td>
+                  <td className="py-3 text-sm"><X size={16} className="text-red-500" /></td>
+                  <td className="py-3 text-sm"><Check size={16} className="text-green-500" /></td>
+                </tr>
+                <tr>
+                  <td className="py-3 text-sm font-medium">Batch Manager</td>
+                  <td className="py-3 text-sm"><X size={16} className="text-red-500" /></td>
+                  <td className="py-3 text-sm"><X size={16} className="text-red-500" /></td>
+                  <td className="py-3 text-sm"><Check size={16} className="text-green-500" /></td>
+                </tr>
+                <tr>
+                  <td className="py-3 text-sm font-medium">Feel Good Corner</td>
+                  <td className="py-3 text-sm"><Check size={16} className="text-green-500" /></td>
+                  <td className="py-3 text-sm"><Check size={16} className="text-green-500" /></td>
+                  <td className="py-3 text-sm"><Check size={16} className="text-green-500" /></td>
+                </tr>
+                <tr>
+                  <td className="py-3 text-sm font-medium">Surrounding Influence</td>
+                  <td className="py-3 text-sm"><X size={16} className="text-red-500" /></td>
+                  <td className="py-3 text-sm"><Check size={16} className="text-green-500" /></td>
+                  <td className="py-3 text-sm"><Check size={16} className="text-green-500" /></td>
+                </tr>
+              </tbody>
+            </table>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
