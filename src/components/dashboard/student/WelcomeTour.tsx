@@ -56,7 +56,7 @@ export default function WelcomeTour({
         <div className="py-4">
           <div className="mb-6 flex flex-col md:flex-row gap-4 p-4 bg-gradient-to-r from-blue-50 to-violet-50 border border-blue-100 rounded-lg">
             <img
-              src="/lovable-uploads/19303283-7911-484b-9bea-65d7691bbdae.png"
+              src="/lovable-uploads/8c62154a-6dbf-40c6-8117-f1c9cfd1effa.png"
               alt="Founder"
               className="w-24 h-24 object-cover rounded-full mx-auto md:mx-0 border-2 border-blue-200"
             />
@@ -101,7 +101,7 @@ export default function WelcomeTour({
             <X className="mr-2 h-4 w-4" /> Skip Tour
           </Button>
           <Button onClick={handleComplete} className="w-full sm:w-auto">
-            <Check className="mr-2 h-4 w-4" /> Get Started
+            <Check className="mr-2 h-4 w-4" /> Let's Begin
           </Button>
         </DialogFooter>
       </DialogContent>

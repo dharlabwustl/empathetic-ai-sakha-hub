@@ -1,4 +1,3 @@
-
 import React, { Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
@@ -20,11 +19,9 @@ import AppRoutes from './components/dashboard/student/AppRoutes';
 import ConceptCardDetailPage from './components/dashboard/student/concepts/ConceptCardDetailPage';
 import ExamTakingPage from './components/dashboard/student/practice-exam/ExamTakingPage';
 import ExamReviewPage from './components/dashboard/student/practice-exam/ExamReviewPage';
-import PostLoginPrompt from './pages/dashboard/PostLoginPrompt';
-import ConceptCardStudyPage from './pages/dashboard/student/concept/ConceptCardStudyPage';
+import WelcomeToPrepr from './pages/signup/WelcomeToPrepr';
 import Login from './pages/Login';
 import EnhancedFlashcardPage from './pages/dashboard/student/flashcards/EnhancedFlashcardPage';
-import WelcomeToPrepr from './pages/signup/WelcomeToPrepr';
 import ProfilePage from './pages/student/ProfilePage';
 import StudentProfile from './pages/dashboard/student/StudentProfile';
 import StudyPlanView from './pages/dashboard/student/StudyPlanView';
@@ -58,7 +55,7 @@ function App() {
               <Route path="/admin/login" element={<AdminLogin />} />
               <Route path="/register" element={<SignUp />} />
 
-              {/* Post-signup flow */}
+              {/* Post-signup flow - Welcome flow only, removing study plan creation screen */}
               <Route path="/welcome" element={<WelcomeToPrepr />} />
               
               {/* Redirect post-login prompt to dashboard */}
@@ -69,8 +66,11 @@ function App() {
               <Route path="/dashboard/student/:tab" element={<StudentDashboard />} />
               <Route path="/dashboard/student/today" element={<TodaysPlanView />} />
               <Route path="/dashboard/student/feel-good-corner" element={<FeelGoodCornerView />} />
-              <Route path="/student/profile" element={<ProfilePage />} />
+              
+              {/* Profile routes - ensuring they all work properly */}
               <Route path="/dashboard/student/profile" element={<EnhancedProfilePage />} />
+              <Route path="/student/profile" element={<ProfilePage />} />
+              <Route path="/profile" element={<ProfilePage />} />
               
               {/* AI Tutor route */}
               <Route path="/dashboard/student/tutor" element={<TutorView />} />
@@ -88,17 +88,15 @@ function App() {
               <Route path="/dashboard/student/flashcards/:flashcardId/browse" element={<InteractiveFlashcardBrowser />} />
               <Route path="/dashboard/student/flashcards/:flashcardId/practice" element={<EnhancedFlashcardPractice />} />
               
-              {/* Practice exam routes */}
+              {/* Practice exam routes - ensure review page works */}
               <Route path="/dashboard/student/practice-exams" element={<PracticeExamsSection />} />
               <Route path="/dashboard/student/practice-exam/:examId/start" element={<ExamTakingPage />} />
               <Route path="/dashboard/student/practice-exam/:examId/review" element={<ExamReviewPage />} />
               
               {/* Other routes */}
               <Route path="/dashboard/student/notifications" element={<NotificationsView />} />
-              <Route path="/dashboard/student/tutor" element={<TutorView />} />
               <Route path="/dashboard/student/academic" element={<AcademicAdvisorView />} />
               <Route path="/dashboard/student/study-plan" element={<StudyPlanView />} />
-              <Route path="/profile" element={<ProfilePage />} />
               
               {/* Admin routes */}
               <Route

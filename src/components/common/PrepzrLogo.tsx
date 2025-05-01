@@ -17,7 +17,7 @@ const PrepzrLogo: React.FC<PrepzrLogoProps> = ({
   return (
     <div className={`flex items-center ${className}`}>
       <img 
-        src="/lovable-uploads/23386b7b-7613-4e2f-9018-07b56ae7ab1b.png" 
+        src="/lovable-uploads/8c62154a-6dbf-40c6-8117-f1c9cfd1effa.png" 
         alt="PREPZR Logo" 
         style={{ 
           width: typeof width === 'number' ? `${width}px` : width,

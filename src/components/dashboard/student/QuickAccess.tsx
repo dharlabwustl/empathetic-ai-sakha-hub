@@ -1,84 +1,63 @@
 
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { BookOpen, Calendar, GraduationCap, User } from "lucide-react";
-import { motion } from "framer-motion";
+import { Brain, Calendar, GraduationCap, HeartHandshake } from "lucide-react";
+import { Link } from 'react-router-dom';
 
-export const QuickAccess = () => {
-  const navigate = useNavigate();
-
-  const quickItems = [
+export function QuickAccess() {
+  const quickActions = [
     {
-      id: 'today',
-      label: "Today's Plan",
+      title: "24/7 AI Tutor",
+      icon: Brain,
+      description: "Get instant help with any topic",
+      path: "/dashboard/student/tutor",
+      color: "bg-blue-500"
+    },
+    {
+      title: "Study Plan",
       icon: Calendar,
-      path: '/dashboard/student/today',
-      color: 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400'
+      description: "View your personalized study schedule",
+      path: "/dashboard/student/study-plan",
+      color: "bg-purple-500"
     },
     {
-      id: 'concept',
-      label: 'Concept Cards',
-      icon: BookOpen,
-      path: '/dashboard/student/concepts/landing',
-      color: 'bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400'
-    },
-    {
-      id: 'advisor',
-      label: 'Academic Advisor',
+      title: "Academic Advisor",
       icon: GraduationCap,
-      path: '/dashboard/student/academic',
-      color: 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400'
+      description: "Get expert guidance for your exams",
+      path: "/dashboard/student/academic",
+      color: "bg-green-500"
     },
     {
-      id: 'profile',
-      label: 'My Profile',
-      icon: User,
-      path: '/dashboard/student/profile',
-      color: 'bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400'
+      title: "Feel Good Corner",
+      icon: HeartHandshake,
+      description: "Take a break and refresh your mind",
+      path: "/dashboard/student/feel-good-corner",
+      color: "bg-amber-500"
     }
   ];
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.05
-      }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 10 },
-    show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 100 }}
-  };
-
   return (
-    <div className="mb-4">
-      <motion.div 
-        className="grid grid-cols-2 sm:grid-cols-4 gap-3"
-        initial="hidden"
-        animate="show"
-        variants={containerVariants}
-      >
-        {quickItems.map((item) => (
-          <motion.div key={item.id} variants={itemVariants}>
-            <Button
-              variant="outline"
-              className="w-full border-0 hover:bg-gray-100 dark:hover:bg-gray-800 h-auto py-3 bg-white dark:bg-gray-900 shadow-sm border-gray-200 dark:border-gray-800"
-              onClick={() => navigate(item.path)}
-            >
-              <div className="flex flex-col items-center">
-                <div className={`w-10 h-10 rounded-full ${item.color} flex items-center justify-center mb-2`}>
-                  <item.icon className="h-5 w-5" />
-                </div>
-                <span className="text-xs font-medium">{item.label}</span>
+    <Card className="p-4">
+      <h2 className="font-medium text-lg mb-3">Quick Access</h2>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+        {quickActions.map((action) => (
+          <Button
+            key={action.title}
+            variant="outline"
+            className="h-auto py-3 px-4 flex flex-col items-center text-center hover:bg-muted/50"
+            asChild
+          >
+            <Link to={action.path}>
+              <div className={`${action.color} rounded-full p-2 mb-2`}>
+                <action.icon className="h-5 w-5 text-white" />
               </div>
-            </Button>
-          </motion.div>
+              <span className="font-medium mb-1">{action.title}</span>
+              <span className="text-xs text-muted-foreground">{action.description}</span>
+            </Link>
+          </Button>
         ))}
-      </motion.div>
-    </div>
+      </div>
+    </Card>
   );
-};
+}
