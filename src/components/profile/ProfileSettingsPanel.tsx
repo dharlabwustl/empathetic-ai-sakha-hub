@@ -1,271 +1,302 @@
 
-import React, { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import React from "react";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { UserProfileType } from "@/types/user/base";
+import { 
+  Bell, 
+  Key, 
+  Lock, 
+  Settings, 
+  Smartphone, 
+  Shield, 
+  Download, 
+  Trash2 
+} from "lucide-react";
+import { 
+  Switch
+} from "@/components/ui/switch";
+import { 
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
-import { Separator } from "@/components/ui/separator";
-import { 
-  KeyIcon, 
-  BellIcon,
-  ShieldCheckIcon,
-  EyeIcon,
-  MailIcon,
-  ClockIcon
-} from "lucide-react";
-import { UserProfileType } from "@/types/user/base";
-import { useToast } from "@/hooks/use-toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface ProfileSettingsPanelProps {
   userProfile: UserProfileType;
   onUpdateProfile: (updates: Partial<UserProfileType>) => void;
 }
 
-export const ProfileSettingsPanel = ({ 
-  userProfile, 
-  onUpdateProfile 
-}: ProfileSettingsPanelProps) => {
-  const [notificationSettings, setNotificationSettings] = useState({
-    studyReminders: userProfile.preferences?.studyReminders ?? true,
-    emailNotifications: userProfile.preferences?.emailNotifications ?? true,
-    darkMode: userProfile.preferences?.darkMode ?? false,
-  });
-  
-  const [passwordData, setPasswordData] = useState({
-    currentPassword: "",
-    newPassword: "",
-    confirmPassword: ""
-  });
-  
-  const { toast } = useToast();
-  
-  const handleNotificationChange = (key: keyof typeof notificationSettings) => {
-    setNotificationSettings(prev => {
-      const newSettings = { 
-        ...prev, 
-        [key]: !prev[key] 
-      };
-      
-      // Update profile preferences
+export function ProfileSettingsPanel({
+  userProfile,
+  onUpdateProfile
+}: ProfileSettingsPanelProps) {
+  const [isPasswordDialogOpen, setIsPasswordDialogOpen] = React.useState(false);
+
+  // Handle notification preferences
+  const handleToggleNotification = (key: string, value: boolean) => {
+    if (userProfile.preferences) {
       onUpdateProfile({
         preferences: {
           ...userProfile.preferences,
-          [key]: newSettings[key]
+          [key]: value
         }
       });
-      
-      return newSettings;
-    });
-  };
-  
-  const handlePasswordChange = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (passwordData.newPassword !== passwordData.confirmPassword) {
-      toast({
-        title: "Passwords Don't Match",
-        description: "New password and confirmation must match",
-        variant: "destructive"
+    } else {
+      onUpdateProfile({
+        preferences: {
+          [key]: value
+        }
       });
-      return;
     }
-    
-    // In a real app, this would call an API to change the password
-    toast({
-      title: "Password Updated",
-      description: "Your password has been changed successfully",
-    });
-    
-    setPasswordData({
-      currentPassword: "",
-      newPassword: "",
-      confirmPassword: ""
-    });
-  };
-  
-  const handlePasswordInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setPasswordData(prev => ({
-      ...prev,
-      [name]: value
-    }));
   };
 
+  // Handle password change
+  const handleChangePassword = (e: React.FormEvent) => {
+    e.preventDefault();
+    // In a real app, we would verify the current password and update with the new one
+    setIsPasswordDialogOpen(false);
+  };
+
+  // Handle account deletion
+  const handleDeleteAccount = () => {
+    console.log("Account deletion requested");
+    // In a real app, this would send a request to delete the account
+  };
+
+  // Handle data export
+  const handleExportData = () => {
+    console.log("Data export requested");
+    // In a real app, this would generate and download the user's data
+  };
+
+  const isDarkMode = userProfile.preferences?.darkMode || false;
+  const emailNotifications = userProfile.preferences?.emailNotifications || true;
+  const studyReminders = userProfile.preferences?.studyReminders || true;
+
   return (
-    <div className="p-6 space-y-6">
-      {/* Security Settings */}
+    <div className="space-y-6">
+      {/* Security */}
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <KeyIcon className="h-5 w-5 text-primary" />
-            <span>Security Settings</span>
-          </CardTitle>
+        <CardHeader className="pb-3">
+          <div className="flex items-center">
+            <Lock className="mr-2 h-5 w-5 text-muted-foreground" />
+            <CardTitle>Security</CardTitle>
+          </div>
           <CardDescription>
-            Update your password and security preferences
+            Manage your password and security settings
           </CardDescription>
         </CardHeader>
-        
-        <CardContent>
-          <form onSubmit={handlePasswordChange} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="currentPassword">Current Password</Label>
-              <Input
-                id="currentPassword"
-                name="currentPassword"
-                type="password"
-                value={passwordData.currentPassword}
-                onChange={handlePasswordInput}
-                required
-              />
+        <CardContent className="pb-2 space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <div className="font-medium">Password</div>
+              <div className="text-sm text-muted-foreground">
+                Change your password regularly to keep your account secure
+              </div>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="newPassword">New Password</Label>
-              <Input
-                id="newPassword"
-                name="newPassword"
-                type="password"
-                value={passwordData.newPassword}
-                onChange={handlePasswordInput}
-                required
-              />
+            <Dialog open={isPasswordDialogOpen} onOpenChange={setIsPasswordDialogOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline">Change Password</Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Change Password</DialogTitle>
+                  <DialogDescription>
+                    Enter your current password and a new password.
+                  </DialogDescription>
+                </DialogHeader>
+                <form onSubmit={handleChangePassword} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="current-password">Current Password</Label>
+                    <Input id="current-password" type="password" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="new-password">New Password</Label>
+                    <Input id="new-password" type="password" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="confirm-password">Confirm New Password</Label>
+                    <Input id="confirm-password" type="password" />
+                  </div>
+                  <DialogFooter>
+                    <Button type="submit">Update Password</Button>
+                  </DialogFooter>
+                </form>
+              </DialogContent>
+            </Dialog>
+          </div>
+          
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <div className="font-medium">Two-Factor Authentication</div>
+              <div className="text-sm text-muted-foreground">
+                Add an extra layer of security to your account
+              </div>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirm New Password</Label>
-              <Input
-                id="confirmPassword"
-                name="confirmPassword"
-                type="password"
-                value={passwordData.confirmPassword}
-                onChange={handlePasswordInput}
-                required
-              />
-            </div>
-            
-            <Button type="submit">Change Password</Button>
-          </form>
+            <Button variant="outline">
+              <Smartphone className="mr-2 h-4 w-4" /> Setup 2FA
+            </Button>
+          </div>
         </CardContent>
       </Card>
-      
-      {/* Notification Settings */}
+
+      {/* Notifications */}
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <BellIcon className="h-5 w-5 text-primary" />
-            <span>Notification Settings</span>
-          </CardTitle>
+        <CardHeader className="pb-3">
+          <div className="flex items-center">
+            <Bell className="mr-2 h-5 w-5 text-muted-foreground" />
+            <CardTitle>Notifications</CardTitle>
+          </div>
           <CardDescription>
-            Configure how and when you receive notifications
+            Manage how you receive notifications and alerts
           </CardDescription>
         </CardHeader>
-        
-        <CardContent className="space-y-6">
+        <CardContent className="pb-2">
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
-                <div className="flex items-center gap-2">
-                  <ClockIcon className="h-4 w-4 text-muted-foreground" />
-                  <Label htmlFor="studyReminders">Study Reminders</Label>
+                <div className="font-medium">Email Notifications</div>
+                <div className="text-sm text-muted-foreground">
+                  Receive important updates via email
                 </div>
-                <p className="text-sm text-muted-foreground">
-                  Receive reminders for your scheduled study sessions
-                </p>
               </div>
-              <Switch
-                id="studyReminders"
-                checked={notificationSettings.studyReminders}
-                onCheckedChange={() => handleNotificationChange('studyReminders')}
+              <Switch 
+                checked={emailNotifications} 
+                onCheckedChange={(checked) => handleToggleNotification('emailNotifications', checked)}
               />
             </div>
-            
-            <Separator />
-            
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
-                <div className="flex items-center gap-2">
-                  <MailIcon className="h-4 w-4 text-muted-foreground" />
-                  <Label htmlFor="emailNotifications">Email Notifications</Label>
+                <div className="font-medium">Study Reminders</div>
+                <div className="text-sm text-muted-foreground">
+                  Get notifications for daily study plans
                 </div>
-                <p className="text-sm text-muted-foreground">
-                  Receive important updates and announcements via email
-                </p>
               </div>
-              <Switch
-                id="emailNotifications"
-                checked={notificationSettings.emailNotifications}
-                onCheckedChange={() => handleNotificationChange('emailNotifications')}
-              />
-            </div>
-            
-            <Separator />
-            
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <div className="flex items-center gap-2">
-                  <EyeIcon className="h-4 w-4 text-muted-foreground" />
-                  <Label htmlFor="darkMode">Dark Mode</Label>
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  Use dark mode for better readability in low light
-                </p>
-              </div>
-              <Switch
-                id="darkMode"
-                checked={notificationSettings.darkMode}
-                onCheckedChange={() => handleNotificationChange('darkMode')}
+              <Switch 
+                checked={studyReminders} 
+                onCheckedChange={(checked) => handleToggleNotification('studyReminders', checked)}
               />
             </div>
           </div>
         </CardContent>
       </Card>
-      
-      {/* Privacy Settings */}
+
+      {/* Appearance */}
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <ShieldCheckIcon className="h-5 w-5 text-primary" />
-            <span>Privacy Settings</span>
-          </CardTitle>
+        <CardHeader className="pb-3">
+          <div className="flex items-center">
+            <Settings className="mr-2 h-5 w-5 text-muted-foreground" />
+            <CardTitle>Appearance</CardTitle>
+          </div>
           <CardDescription>
-            Control your privacy and data sharing preferences
+            Customize your app experience
           </CardDescription>
         </CardHeader>
-        
-        <CardContent className="space-y-6">
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label htmlFor="dataSharing">Data Sharing</Label>
-                <p className="text-sm text-muted-foreground">
-                  Allow anonymous usage data to improve our services
-                </p>
+        <CardContent className="pb-2">
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <div className="font-medium">Dark Mode</div>
+              <div className="text-sm text-muted-foreground">
+                Use dark theme for better night time viewing
               </div>
-              <Switch id="dataSharing" defaultChecked />
             </div>
-            
-            <Separator />
-            
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label htmlFor="profileVisibility">Profile Visibility</Label>
-                <p className="text-sm text-muted-foreground">
-                  Allow other students to see your profile in groups and forums
-                </p>
-              </div>
-              <Switch id="profileVisibility" defaultChecked />
-            </div>
-            
-            <Separator />
-            
-            <div>
-              <Button variant="destructive">Delete Account</Button>
-              <p className="text-xs text-muted-foreground mt-2">
-                This will permanently delete your account and all associated data
-              </p>
-            </div>
+            <Switch 
+              checked={isDarkMode} 
+              onCheckedChange={(checked) => handleToggleNotification('darkMode', checked)}
+            />
           </div>
         </CardContent>
       </Card>
+
+      {/* Advanced Settings */}
+      <Accordion type="single" collapsible className="w-full">
+        <AccordionItem value="advanced-settings">
+          <AccordionTrigger className="text-lg font-semibold">
+            Advanced Settings
+          </AccordionTrigger>
+          <AccordionContent className="space-y-4 pt-2">
+            <Card>
+              <CardHeader className="pb-3">
+                <div className="flex items-center">
+                  <Shield className="mr-2 h-5 w-5 text-muted-foreground" />
+                  <CardTitle className="text-base">Privacy</CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4 pb-2">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <div className="font-medium">Data Export</div>
+                    <div className="text-sm text-muted-foreground">
+                      Download all your data in machine-readable format
+                    </div>
+                  </div>
+                  <Button variant="outline" onClick={handleExportData}>
+                    <Download className="mr-2 h-4 w-4" /> Export
+                  </Button>
+                </div>
+                
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <div className="font-medium">Delete Account</div>
+                    <div className="text-sm text-muted-foreground">
+                      Permanently delete your account and all associated data
+                    </div>
+                  </div>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="outline" className="text-red-600 hover:text-red-700 hover:bg-red-50">
+                        <Trash2 className="mr-2 h-4 w-4" /> Delete
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          This action cannot be undone. This will permanently delete your
+                          account and remove all your data from our servers.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction 
+                          onClick={handleDeleteAccount}
+                          className="bg-red-600 hover:bg-red-700 text-white"
+                        >
+                          Delete Account
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </div>
+              </CardContent>
+            </Card>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
     </div>
   );
-};
+}

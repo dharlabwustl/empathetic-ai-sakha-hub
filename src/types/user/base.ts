@@ -47,6 +47,13 @@ export enum StudyPreferenceType {
   AIAssisted = 'ai_assisted'
 }
 
+export enum SubscriptionType {
+  Free = 'free',
+  Premium = 'premium',
+  Pro = 'pro',
+  Trial = 'trial'
+}
+
 export interface Goal {
   id: string;
   title: string;
@@ -112,6 +119,16 @@ export interface Batch {
   };
 }
 
+export interface SubscriptionPlan {
+  type: string;
+  startDate?: string;
+  endDate?: string;
+  isActive: boolean;
+  planType: string;
+  features?: string[];
+  memberLimit?: number;
+}
+
 export interface UserProfileType {
   id: string;
   name: string;
@@ -147,20 +164,3 @@ export interface UserProfileType {
 
 // Alias for UserProfileType to maintain compatibility
 export type UserProfileBase = UserProfileType;
-
-export enum SubscriptionType {
-  Free = 'free',
-  Premium = 'premium',
-  Pro = 'pro',
-  Trial = 'trial'
-}
-
-export interface SubscriptionPlan {
-  type: string;
-  startDate?: string;
-  endDate?: string;
-  isActive: boolean;
-  planType: string;
-  features?: string[];
-  memberLimit?: number;
-}

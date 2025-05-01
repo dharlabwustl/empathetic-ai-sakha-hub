@@ -2,7 +2,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { BookOpen, Calendar, GraduationCap, FileText, User } from "lucide-react";
+import { BookOpen, Calendar, GraduationCap, User } from "lucide-react";
 import { motion } from "framer-motion";
 
 export const QuickAccess = () => {
@@ -39,7 +39,7 @@ export const QuickAccess = () => {
     }
   ];
 
-  const container = {
+  const containerVariants = {
     hidden: { opacity: 0 },
     show: {
       opacity: 1,
@@ -49,7 +49,7 @@ export const QuickAccess = () => {
     }
   };
 
-  const item = {
+  const itemVariants = {
     hidden: { opacity: 0, y: 10 },
     show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 100 }}
   };
@@ -58,12 +58,12 @@ export const QuickAccess = () => {
     <div className="mb-4">
       <motion.div 
         className="grid grid-cols-2 sm:grid-cols-4 gap-3"
-        variants={container}
         initial="hidden"
         animate="show"
+        variants={containerVariants}
       >
         {quickItems.map((item) => (
-          <motion.div key={item.id} variants={item}>
+          <motion.div key={item.id} variants={itemVariants}>
             <Button
               variant="outline"
               className="w-full border-0 hover:bg-gray-100 dark:hover:bg-gray-800 h-auto py-3 bg-white dark:bg-gray-900 shadow-sm border-gray-200 dark:border-gray-800"

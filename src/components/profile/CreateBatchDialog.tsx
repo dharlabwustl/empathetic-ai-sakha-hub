@@ -1,21 +1,20 @@
 
 import React, { useState } from "react";
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle,
-  DialogDescription,
-  DialogFooter
-} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
-import { BatchCreationData } from "@/types/user/batch";
+import { BatchCreationData, BatchMemberInvite } from "@/types/user/batch";
+import { Switch } from "@/components/ui/switch";
+import { PlusIcon, TrashIcon } from "lucide-react";
 
 interface CreateBatchDialogProps {
   open: boolean;
@@ -24,289 +23,208 @@ interface CreateBatchDialogProps {
   memberLimit: number;
 }
 
-export const CreateBatchDialog = ({
+export function CreateBatchDialog({
   open,
   onClose,
   onCreateBatch,
-  memberLimit = 5
-}: CreateBatchDialogProps) => {
-  const [activeTab, setActiveTab] = useState("basic");
-  const [formData, setFormData] = useState<BatchCreationData>({
-    batchName: "",
-    examGoal: "",
-    targetYear: new Date().getFullYear() + 1,
-    allowProgressVisibility: true,
-    allowLeadershipTransfer: false,
-    invites: []
-  });
-  
-  const [currentInvite, setCurrentInvite] = useState({
-    name: "",
-    email: "",
-    phone: ""
-  });
-
+  memberLimit
+}: CreateBatchDialogProps) {
   const currentYear = new Date().getFullYear();
-  const years = Array.from({ length: 5 }, (_, i) => currentYear + i);
+  const [batchName, setBatchName] = useState("");
+  const [examGoal, setExamGoal] = useState("");
+  const [targetYear, setTargetYear] = useState(currentYear + 1);
+  const [allowProgressVisibility, setAllowProgressVisibility] = useState(true);
+  const [allowLeadershipTransfer, setAllowLeadershipTransfer] = useState(false);
   
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
+  const emptyInvite: BatchMemberInvite = { name: "", email: "", phone: "" };
+  const [invites, setInvites] = useState<BatchMemberInvite[]>([{ ...emptyInvite }]);
   
-  const handleSwitchChange = (name: string) => {
-    setFormData(prev => ({ ...prev, [name]: !prev[name as keyof typeof prev] }));
-  };
-  
-  const handleSelectChange = (name: string, value: string | number) => {
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-  
-  const handleInviteInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setCurrentInvite(prev => ({ ...prev, [name]: value }));
-  };
-  
-  const handleAddInvite = () => {
-    if (!currentInvite.email.trim() || !currentInvite.name.trim()) return;
-    
-    setFormData(prev => ({
-      ...prev,
-      invites: [...prev.invites, { ...currentInvite }]
-    }));
-    
-    setCurrentInvite({
-      name: "",
-      email: "",
-      phone: ""
-    });
-  };
-  
-  const handleRemoveInvite = (email: string) => {
-    setFormData(prev => ({
-      ...prev,
-      invites: prev.invites.filter(invite => invite.email !== email)
-    }));
-  };
-  
-  const handleSubmit = () => {
-    // Basic validation
-    if (!formData.batchName || !formData.examGoal || !formData.targetYear) {
-      // In a real app, show errors
-      return;
-    }
-    
-    onCreateBatch(formData);
-  };
-  
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      handleAddInvite();
+  const handleAddMember = () => {
+    if (invites.length < memberLimit - 1) { // -1 because the current user is the batch leader
+      setInvites([...invites, { ...emptyInvite }]);
     }
   };
-
+  
+  const handleRemoveMember = (index: number) => {
+    const newInvites = [...invites];
+    newInvites.splice(index, 1);
+    setInvites(newInvites);
+  };
+  
+  const handleMemberChange = (index: number, field: keyof BatchMemberInvite, value: string) => {
+    const newInvites = [...invites];
+    newInvites[index][field] = value;
+    setInvites(newInvites);
+  };
+  
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Only include non-empty invites
+    const validInvites = invites.filter(invite => invite.name.trim() !== "" && invite.email.trim() !== "");
+    
+    const batchData: BatchCreationData = {
+      batchName,
+      examGoal,
+      targetYear,
+      allowProgressVisibility,
+      allowLeadershipTransfer,
+      invites: validInvites
+    };
+    
+    onCreateBatch(batchData);
+  };
+  
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[550px]">
+      <DialogContent className="sm:max-w-[550px] max-h-[80vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Create New Batch</DialogTitle>
+          <DialogTitle>Create Study Batch</DialogTitle>
           <DialogDescription>
-            Create a study batch to invite students and learn together
+            Create a study batch and invite friends to join
           </DialogDescription>
         </DialogHeader>
         
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid grid-cols-2 mb-4">
-            <TabsTrigger value="basic">Basic Info</TabsTrigger>
-            <TabsTrigger value="invites">Invite Members</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="basic" className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-6 pt-4">
+          <div className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="batchName">Batch Name</Label>
               <Input
                 id="batchName"
-                name="batchName"
-                placeholder="Enter a name for your batch"
-                value={formData.batchName}
-                onChange={handleInputChange}
+                value={batchName}
+                onChange={(e) => setBatchName(e.target.value)}
+                placeholder="e.g., JEE Champions, UPSC Warriors"
+                required
               />
             </div>
             
             <div className="space-y-2">
               <Label htmlFor="examGoal">Exam Goal</Label>
-              <Select
-                value={formData.examGoal}
-                onValueChange={(value) => handleSelectChange("examGoal", value)}
-              >
-                <SelectTrigger id="examGoal">
-                  <SelectValue placeholder="Select exam" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="JEE">JEE</SelectItem>
-                  <SelectItem value="NEET">NEET</SelectItem>
-                  <SelectItem value="UPSC">UPSC</SelectItem>
-                  <SelectItem value="CAT">CAT</SelectItem>
-                  <SelectItem value="GATE">GATE</SelectItem>
-                </SelectContent>
-              </Select>
+              <Input
+                id="examGoal"
+                value={examGoal}
+                onChange={(e) => setExamGoal(e.target.value)}
+                placeholder="e.g., JEE Advanced, NEET, UPSC CSE"
+                required
+              />
             </div>
             
             <div className="space-y-2">
               <Label htmlFor="targetYear">Target Year</Label>
-              <Select
-                value={formData.targetYear.toString()}
-                onValueChange={(value) => handleSelectChange("targetYear", parseInt(value))}
-              >
-                <SelectTrigger id="targetYear">
-                  <SelectValue placeholder="Select year" />
-                </SelectTrigger>
-                <SelectContent>
-                  {years.map((year) => (
-                    <SelectItem key={year} value={year.toString()}>
-                      {year}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <Separator className="my-4" />
-            
-            <h3 className="text-sm font-medium">Batch Settings</h3>
-            
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label htmlFor="allowProgressVisibility">Allow Progress Visibility</Label>
-                <p className="text-xs text-muted-foreground">
-                  Let members see each other's study progress
-                </p>
-              </div>
-              <Switch
-                id="allowProgressVisibility"
-                checked={formData.allowProgressVisibility}
-                onCheckedChange={() => handleSwitchChange("allowProgressVisibility")}
+              <Input
+                id="targetYear"
+                type="number"
+                min={currentYear}
+                max={currentYear + 5}
+                value={targetYear}
+                onChange={(e) => setTargetYear(parseInt(e.target.value))}
+                required
               />
             </div>
             
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label htmlFor="allowLeadershipTransfer">Allow Leadership Transfer</Label>
-                <p className="text-xs text-muted-foreground">
-                  Let you transfer batch leadership to another member
-                </p>
+            <Separator />
+            
+            <div className="space-y-2">
+              <Label>Batch Settings</Label>
+              
+              <div className="flex items-center justify-between pt-2">
+                <div className="space-y-0.5">
+                  <div className="text-sm font-medium">Allow Progress Visibility</div>
+                  <div className="text-xs text-muted-foreground">
+                    Members can see each other's study progress
+                  </div>
+                </div>
+                <Switch 
+                  checked={allowProgressVisibility} 
+                  onCheckedChange={setAllowProgressVisibility}
+                />
               </div>
-              <Switch
-                id="allowLeadershipTransfer"
-                checked={formData.allowLeadershipTransfer}
-                onCheckedChange={() => handleSwitchChange("allowLeadershipTransfer")}
-              />
+              
+              <div className="flex items-center justify-between pt-4">
+                <div className="space-y-0.5">
+                  <div className="text-sm font-medium">Allow Leadership Transfer</div>
+                  <div className="text-xs text-muted-foreground">
+                    You can transfer batch leadership to another member
+                  </div>
+                </div>
+                <Switch 
+                  checked={allowLeadershipTransfer} 
+                  onCheckedChange={setAllowLeadershipTransfer}
+                />
+              </div>
             </div>
             
-            <div className="pt-2 flex justify-between items-center">
-              <div className="text-sm">
-                <span className="font-medium">Member Limit: </span>
-                <span className="text-muted-foreground">{memberLimit} students</span>
+            <Separator />
+            
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <Label>Invite Members ({invites.length}/{memberLimit - 1})</Label>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={handleAddMember}
+                  disabled={invites.length >= memberLimit - 1}
+                >
+                  <PlusIcon className="h-4 w-4 mr-1" /> Add Member
+                </Button>
               </div>
               
-              <Button onClick={() => setActiveTab("invites")}>Next: Invite Members</Button>
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="invites" className="space-y-4">
-            <div>
-              <h3 className="text-sm font-medium mb-2">Invite Members</h3>
-              <p className="text-xs text-muted-foreground mb-4">
-                You can invite up to {memberLimit} members to your batch. You can also add more members later.
-              </p>
-              
-              <div className="space-y-3">
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="space-y-1">
-                    <Label htmlFor="inviteName" className="text-xs">Name</Label>
+              {invites.map((invite, index) => (
+                <div key={index} className="grid grid-cols-12 gap-2 items-center">
+                  <div className="col-span-4">
                     <Input
-                      id="inviteName"
-                      name="name"
-                      placeholder="Student name"
-                      value={currentInvite.name}
-                      onChange={handleInviteInputChange}
-                      onKeyDown={handleKeyPress}
+                      placeholder="Name"
+                      value={invite.name}
+                      onChange={(e) => handleMemberChange(index, 'name', e.target.value)}
+                      className="h-8"
                     />
                   </div>
-                  <div className="space-y-1">
-                    <Label htmlFor="inviteEmail" className="text-xs">Email</Label>
+                  <div className="col-span-5">
                     <Input
-                      id="inviteEmail"
-                      name="email"
-                      placeholder="student@example.com"
+                      placeholder="Email"
                       type="email"
-                      value={currentInvite.email}
-                      onChange={handleInviteInputChange}
-                      onKeyDown={handleKeyPress}
+                      value={invite.email}
+                      onChange={(e) => handleMemberChange(index, 'email', e.target.value)}
+                      className="h-8"
                     />
                   </div>
-                </div>
-                
-                <div className="flex gap-2">
-                  <div className="space-y-1 flex-1">
-                    <Label htmlFor="invitePhone" className="text-xs">Phone (optional)</Label>
+                  <div className="col-span-2">
                     <Input
-                      id="invitePhone"
-                      name="phone"
-                      placeholder="+91 98765 43210"
-                      value={currentInvite.phone}
-                      onChange={handleInviteInputChange}
-                      onKeyDown={handleKeyPress}
+                      placeholder="Phone (optional)"
+                      value={invite.phone || ''}
+                      onChange={(e) => handleMemberChange(index, 'phone', e.target.value)}
+                      className="h-8"
                     />
                   </div>
-                  <Button
-                    type="button"
-                    className="mt-auto"
-                    onClick={handleAddInvite}
-                  >
-                    Add
-                  </Button>
-                </div>
-              </div>
-              
-              {formData.invites.length > 0 && (
-                <div className="mt-4">
-                  <h4 className="text-sm font-medium mb-2">Invited Members ({formData.invites.length}/{memberLimit})</h4>
-                  
-                  <div className="border rounded-md divide-y">
-                    {formData.invites.map((invite, idx) => (
-                      <div key={idx} className="flex justify-between items-center p-2">
-                        <div>
-                          <div className="font-medium text-sm">{invite.name}</div>
-                          <div className="text-xs text-muted-foreground">{invite.email}</div>
-                        </div>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="text-red-500 h-8 px-2"
-                          onClick={() => handleRemoveInvite(invite.email)}
-                        >
-                          Remove
-                        </Button>
-                      </div>
-                    ))}
+                  <div className="col-span-1 flex justify-center">
+                    {invites.length > 1 && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleRemoveMember(index)}
+                        className="h-8 w-8"
+                      >
+                        <TrashIcon className="h-4 w-4 text-muted-foreground" />
+                      </Button>
+                    )}
                   </div>
                 </div>
-              )}
+              ))}
+              
+              <div className="text-xs text-muted-foreground">
+                Invites will be sent to these email addresses. Members can accept or decline.
+              </div>
             </div>
-            
-            <div className="pt-2 flex justify-between">
-              <Button variant="outline" onClick={() => setActiveTab("basic")}>Back</Button>
-              <Button onClick={handleSubmit}>Create Batch</Button>
-            </div>
-          </TabsContent>
-        </Tabs>
-        
-        <DialogFooter className="pt-2">
-          <Button variant="ghost" onClick={onClose}>Cancel</Button>
-        </DialogFooter>
+          </div>
+          
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
+            <Button type="submit">Create Batch</Button>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );
-};
+}

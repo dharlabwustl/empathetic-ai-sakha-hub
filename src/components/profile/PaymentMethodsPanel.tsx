@@ -1,231 +1,298 @@
 
 import React, { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { PaymentMethod, BillingHistory } from "@/types/user/base";
-import { CreditCard, Wallet, DownloadIcon, TrashIcon, CheckCircle } from "lucide-react";
-import { AddPaymentMethodDialog } from "./AddPaymentMethodDialog";
-import { useToast } from "@/hooks/use-toast";
+import { Calendar, CreditCard, Download, Plus } from "lucide-react";
+import { format } from "date-fns";
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger
+} from "@/components/ui/tabs";
 
 interface PaymentMethodsPanelProps {
   paymentMethods: PaymentMethod[];
   billingHistory: BillingHistory[];
 }
 
-export const PaymentMethodsPanel = ({
-  paymentMethods = [],
-  billingHistory = []
-}: PaymentMethodsPanelProps) => {
-  const [activeTab, setActiveTab] = useState("methods");
-  const [showAddPaymentDialog, setShowAddPaymentDialog] = useState(false);
-  const { toast } = useToast();
+export function PaymentMethodsPanel({
+  paymentMethods,
+  billingHistory
+}: PaymentMethodsPanelProps) {
+  const [isAddingPayment, setIsAddingPayment] = useState(false);
+  const [paymentType, setPaymentType] = useState<'card' | 'upi' | 'paypal'>('card');
   
-  const handleDeletePaymentMethod = (id: string) => {
-    toast({
-      title: "Payment Method Removed",
-      description: "The payment method has been removed successfully",
-    });
+  const handleAddPaymentMethod = (e: React.FormEvent) => {
+    e.preventDefault();
+    // In a real app, this would send the payment method to a payment processor
+    setIsAddingPayment(false);
   };
   
-  const handleSetDefaultMethod = (id: string) => {
-    toast({
-      title: "Default Payment Method Updated",
-      description: "Your default payment method has been updated",
-    });
+  const handleRemovePaymentMethod = (id: string) => {
+    console.log("Remove payment method:", id);
   };
   
-  const handleAddPaymentMethod = (data: any) => {
-    toast({
-      title: "Payment Method Added",
-      description: "The new payment method has been added successfully",
-    });
-    setShowAddPaymentDialog(false);
-  };
-
-  const getCardIcon = (type?: string) => {
-    return <CreditCard className="h-4 w-4" />;
+  const handleSetDefaultPaymentMethod = (id: string) => {
+    console.log("Set default payment method:", id);
   };
   
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
+  // Get payment method icon
+  const getPaymentIcon = (type: string, cardType?: string) => {
+    // In a real app, we would use different icons for different card types
+    return <CreditCard className="h-5 w-5" />;
   };
-
+  
+  // Format payment method details for display
+  const formatPaymentDetails = (method: PaymentMethod) => {
+    if (method.type === 'card') {
+      return `${method.cardType || 'Card'} ending in ${method.lastFour}`;
+    } else if (method.type === 'upi') {
+      return method.upiId;
+    } else if (method.type === 'paypal') {
+      return method.paypalEmail;
+    }
+    return 'Unknown payment method';
+  };
+  
   return (
-    <div className="p-6 space-y-6">
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList>
-          <TabsTrigger value="methods">Payment Methods</TabsTrigger>
-          <TabsTrigger value="history">Billing History</TabsTrigger>
+    <div className="space-y-6">
+      <Tabs defaultValue="payment-methods">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="payment-methods">Payment Methods</TabsTrigger>
+          <TabsTrigger value="billing-history">Billing History</TabsTrigger>
         </TabsList>
-        
-        {/* Payment Methods Tab */}
-        <TabsContent value="methods" className="space-y-4 mt-6">
-          <div className="flex justify-between items-center">
-            <h2 className="text-xl font-semibold">Your Payment Methods</h2>
-            <Button onClick={() => setShowAddPaymentDialog(true)}>
-              Add Payment Method
-            </Button>
+      
+        <TabsContent value="payment-methods" className="mt-4 space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-semibold">Your Payment Methods</h3>
+            <Dialog open={isAddingPayment} onOpenChange={setIsAddingPayment}>
+              <DialogTrigger asChild>
+                <Button>
+                  <Plus className="mr-2 h-4 w-4" /> Add Payment Method
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                  <DialogTitle>Add Payment Method</DialogTitle>
+                  <DialogDescription>
+                    Add a new payment method to your account
+                  </DialogDescription>
+                </DialogHeader>
+                
+                <Tabs defaultValue="card" onValueChange={(v) => setPaymentType(v as any)}>
+                  <TabsList className="grid w-full grid-cols-3">
+                    <TabsTrigger value="card">Card</TabsTrigger>
+                    <TabsTrigger value="upi">UPI</TabsTrigger>
+                    <TabsTrigger value="paypal">PayPal</TabsTrigger>
+                  </TabsList>
+                  
+                  <TabsContent value="card" className="space-y-4 mt-4">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium" htmlFor="cardNumber">
+                        Card Number
+                      </label>
+                      <Input id="cardNumber" placeholder="1234 5678 9012 3456" />
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium" htmlFor="expiryDate">
+                          Expiry Date
+                        </label>
+                        <Input id="expiryDate" placeholder="MM/YY" />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium" htmlFor="cvv">
+                          CVV
+                        </label>
+                        <Input id="cvv" placeholder="123" />
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium" htmlFor="nameOnCard">
+                        Name on Card
+                      </label>
+                      <Input id="nameOnCard" placeholder="John Doe" />
+                    </div>
+                  </TabsContent>
+                  
+                  <TabsContent value="upi" className="space-y-4 mt-4">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium" htmlFor="upiId">
+                        UPI ID
+                      </label>
+                      <Input id="upiId" placeholder="yourname@bank" />
+                    </div>
+                  </TabsContent>
+                  
+                  <TabsContent value="paypal" className="space-y-4 mt-4">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium" htmlFor="paypalEmail">
+                        PayPal Email
+                      </label>
+                      <Input id="paypalEmail" placeholder="email@example.com" type="email" />
+                    </div>
+                  </TabsContent>
+                </Tabs>
+                
+                <DialogFooter className="mt-4">
+                  <Button variant="outline" onClick={() => setIsAddingPayment(false)}>
+                    Cancel
+                  </Button>
+                  <Button onClick={handleAddPaymentMethod}>Save Payment Method</Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
           </div>
           
-          {paymentMethods.length === 0 ? (
-            <Card>
-              <CardContent className="pt-6 flex flex-col items-center justify-center min-h-[200px] text-center">
-                <Wallet className="h-12 w-12 text-muted-foreground mb-4" />
-                <h3 className="text-lg font-semibold mb-2">No Payment Methods</h3>
-                <p className="text-muted-foreground mb-4">
-                  You haven't added any payment methods yet
+          {paymentMethods.length > 0 ? (
+            <div className="space-y-3">
+              {paymentMethods.map((method) => (
+                <Card key={method.id} className={method.isDefault ? "border-primary border-2" : ""}>
+                  <CardContent className="p-4 flex items-center justify-between">
+                    <div className="flex items-center space-x-4">
+                      <div className="p-2 bg-muted rounded-full">
+                        {getPaymentIcon(method.type, method.cardType)}
+                      </div>
+                      <div>
+                        <div className="font-medium">{formatPaymentDetails(method)}</div>
+                        <div className="text-sm text-muted-foreground">
+                          {method.type === 'card' && method.expiryDate && `Expires: ${method.expiryDate}`}
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center space-x-2">
+                      {method.isDefault ? (
+                        <Badge>Default</Badge>
+                      ) : (
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleSetDefaultPaymentMethod(method.id)}
+                        >
+                          Set Default
+                        </Button>
+                      )}
+                      
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="text-red-500 hover:text-red-600 hover:bg-red-50"
+                        onClick={() => handleRemovePaymentMethod(method.id)}
+                      >
+                        Remove
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <Card className="bg-muted/50">
+              <CardContent className="p-8 flex flex-col items-center justify-center">
+                <CreditCard className="h-12 w-12 text-muted-foreground mb-4" />
+                <h4 className="text-lg font-medium mb-1">No Payment Methods</h4>
+                <p className="text-sm text-muted-foreground text-center mb-4">
+                  Add a payment method to make subscription payments easier
                 </p>
-                <Button onClick={() => setShowAddPaymentDialog(true)}>
-                  Add Payment Method
+                <Button onClick={() => setIsAddingPayment(true)}>
+                  <Plus className="mr-2 h-4 w-4" /> Add Payment Method
                 </Button>
               </CardContent>
             </Card>
-          ) : (
-            <Card>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Payment Method</TableHead>
-                    <TableHead>Details</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {paymentMethods.map((method) => (
-                    <TableRow key={method.id}>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          {getCardIcon(method.cardType)}
-                          <span className="font-medium capitalize">{method.type}</span>
-                          {method.isDefault && (
-                            <Badge variant="outline" className="ml-2 bg-blue-50 text-blue-800">Default</Badge>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        {method.type === 'card' && (
-                          <div>
-                            <div className="font-medium">
-                              {method.cardType} •••• {method.lastFour}
-                            </div>
-                            <div className="text-xs text-muted-foreground">
-                              Expires {method.expiryDate}
-                            </div>
-                          </div>
-                        )}
-                        
-                        {method.type === 'paypal' && (
-                          <div className="font-medium">{method.paypalEmail}</div>
-                        )}
-                        
-                        {method.type === 'upi' && (
-                          <div className="font-medium">{method.upiId}</div>
-                        )}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          {!method.isDefault && (
-                            <Button 
-                              variant="ghost" 
-                              size="sm"
-                              onClick={() => handleSetDefaultMethod(method.id)}
-                            >
-                              <CheckCircle className="h-4 w-4 mr-1" />
-                              Set Default
-                            </Button>
-                          )}
-                          <Button 
-                            variant="ghost" 
-                            size="sm"
-                            className="text-red-500"
-                            onClick={() => handleDeletePaymentMethod(method.id)}
-                          >
-                            <TrashIcon className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </Card>
           )}
         </TabsContent>
-        
-        {/* Billing History Tab */}
-        <TabsContent value="history" className="space-y-4 mt-6">
-          <div className="flex justify-between items-center">
-            <h2 className="text-xl font-semibold">Billing History</h2>
+      
+        <TabsContent value="billing-history" className="mt-4 space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-semibold">Billing History</h3>
+            <Select defaultValue="all">
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Filter by status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Transactions</SelectItem>
+                <SelectItem value="paid">Paid</SelectItem>
+                <SelectItem value="pending">Pending</SelectItem>
+                <SelectItem value="failed">Failed</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
           
-          {billingHistory.length === 0 ? (
-            <Card>
-              <CardContent className="pt-6 flex flex-col items-center justify-center min-h-[200px] text-center">
-                <CreditCard className="h-12 w-12 text-muted-foreground mb-4" />
-                <h3 className="text-lg font-semibold mb-2">No Billing History</h3>
-                <p className="text-muted-foreground">
-                  Your payment history will appear here
+          {billingHistory.length > 0 ? (
+            <div className="space-y-3">
+              {billingHistory.map((invoice) => (
+                <Card key={invoice.id}>
+                  <CardContent className="p-4 flex items-center justify-between">
+                    <div className="flex items-center space-x-4">
+                      <div className="p-2 bg-muted rounded-full">
+                        <Calendar className="h-5 w-5 text-muted-foreground" />
+                      </div>
+                      <div>
+                        <div className="font-medium">{invoice.planName}</div>
+                        <div className="text-sm text-muted-foreground">
+                          {format(new Date(invoice.date), "MMMM dd, yyyy")}
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center space-x-4">
+                      <div className="text-right">
+                        <div className="font-medium">₹{invoice.amount.toFixed(2)}</div>
+                        <Badge 
+                          variant={invoice.status === 'paid' ? 'default' : 
+                                  invoice.status === 'pending' ? 'outline' : 'destructive'}
+                          className="capitalize"
+                        >
+                          {invoice.status}
+                        </Badge>
+                      </div>
+                      
+                      {invoice.invoiceUrl && (
+                        <Button variant="ghost" size="icon">
+                          <Download className="h-5 w-5" />
+                        </Button>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <Card className="bg-muted/50">
+              <CardContent className="p-8 flex flex-col items-center justify-center">
+                <Calendar className="h-12 w-12 text-muted-foreground mb-4" />
+                <h4 className="text-lg font-medium mb-1">No Billing History</h4>
+                <p className="text-sm text-muted-foreground text-center">
+                  Your billing history will appear here once you've made payments
                 </p>
               </CardContent>
-            </Card>
-          ) : (
-            <Card>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Description</TableHead>
-                    <TableHead>Amount</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {billingHistory.map((item) => (
-                    <TableRow key={item.id}>
-                      <TableCell>{formatDate(item.date)}</TableCell>
-                      <TableCell>
-                        <div className="font-medium">{item.planName}</div>
-                      </TableCell>
-                      <TableCell>₹{item.amount}</TableCell>
-                      <TableCell>
-                        {item.status === 'paid' ? (
-                          <Badge variant="outline" className="bg-green-100 text-green-800">Paid</Badge>
-                        ) : item.status === 'pending' ? (
-                          <Badge variant="outline" className="bg-yellow-100 text-yellow-800">Pending</Badge>
-                        ) : (
-                          <Badge variant="outline" className="bg-red-100 text-red-800">Failed</Badge>
-                        )}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        {item.invoiceUrl && (
-                          <Button variant="ghost" size="sm">
-                            <DownloadIcon className="h-4 w-4 mr-1" />
-                            Invoice
-                          </Button>
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
             </Card>
           )}
         </TabsContent>
       </Tabs>
-      
-      <AddPaymentMethodDialog 
-        open={showAddPaymentDialog}
-        onClose={() => setShowAddPaymentDialog(false)}
-        onAddPaymentMethod={handleAddPaymentMethod}
-      />
     </div>
   );
-};
+}
