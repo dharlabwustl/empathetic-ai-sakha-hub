@@ -21,6 +21,7 @@ import NotificationsView from '@/components/dashboard/student/notifications/Noti
 import ConceptCardsView from '@/components/dashboard/student/concepts/ConceptCardsView';
 import FlashcardsView from '@/components/dashboard/student/flashcards/FlashcardsView';
 import PracticeExamsView from '@/components/dashboard/student/practice-exam/PracticeExamsView';
+import ConceptStudyLandingPage from '@/pages/dashboard/student/concept/ConceptStudyLandingPage';
 
 export default function StudentRoutes() {
   return (
@@ -31,6 +32,7 @@ export default function StudentRoutes() {
       <Route path="/concepts" element={<ConceptCardsView />} />
       <Route path="/concepts/:subject?" element={<ConceptsLandingPage />} />
       <Route path="/concepts/card/:conceptId" element={<ConceptCardDetailPage />} />
+      <Route path="/concepts/study-landing/:conceptId" element={<ConceptStudyLandingPage />} />
       <Route path="/flashcards" element={<FlashcardsView />} />
       <Route path="/flashcards/:subject?" element={<FlashcardsLandingPage />} />
       <Route path="/flashcards/:deckId/interactive" element={<FlashcardInteractivePage />} />

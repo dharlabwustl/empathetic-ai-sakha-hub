@@ -15,6 +15,7 @@ import StudyPlanView from '@/pages/dashboard/student/StudyPlanView';
 import NotificationsView from '@/components/dashboard/student/notifications/NotificationsView';
 import AcademicAdvisorView from '@/pages/dashboard/student/AcademicAdvisorView';
 import TutorView from '@/pages/dashboard/student/TutorView';
+import ConceptStudyLandingPage from '@/pages/dashboard/student/concept/ConceptStudyLandingPage';
 
 export default function AppRoutes() {
   const { dashboardData } = useStudentDashboardData();
@@ -24,6 +25,7 @@ export default function AppRoutes() {
       <Route path="/dashboard/student/today" element={<RedesignedTodaysPlan />} />
       <Route path="/dashboard/student/concepts" element={<ConceptCardsView />} />
       <Route path="/dashboard/student/concepts/card/:conceptId" element={<ConceptCardDetailPage />} />
+      <Route path="/dashboard/student/concepts/study-landing/:conceptId" element={<ConceptStudyLandingPage />} />
       <Route path="/dashboard/student/flashcards" element={<FlashcardsView />} />
       <Route path="/dashboard/student/flashcards/:deckId/interactive" element={<FlashcardInteractive />} />
       <Route path="/dashboard/student/practice-exam" element={<PracticeExamsView />} />

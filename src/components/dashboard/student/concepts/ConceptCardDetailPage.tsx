@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useConceptCardDetails } from '@/hooks/useUserStudyPlan';
 import MainLayout from '@/components/layouts/MainLayout';
 import { ArrowLeft, BookOpen, Book, Clock, Tag, MessageSquare, Volume, Volume2, VolumeX, Loader2, Brain, AlertTriangle, CheckCircle2, Lightbulb } from 'lucide-react';
@@ -18,6 +18,7 @@ const ConceptCardDetailPage = () => {
   const [isSpeechSupported, setIsSpeechSupported] = useState(false);
   const speechSynthesisRef = useRef<SpeechSynthesisUtterance | null>(null);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Check if speech synthesis is supported
@@ -78,6 +79,13 @@ const ConceptCardDetailPage = () => {
       speechSynthesisRef.current = utterance;
       window.speechSynthesis.speak(utterance);
       setIsReading(true);
+    }
+  };
+
+  // Function to handle navigating to the study page
+  const handleStartStudy = () => {
+    if (conceptId) {
+      navigate(`/dashboard/student/concepts/study-landing/${conceptId}`);
     }
   };
 
@@ -186,6 +194,15 @@ const ConceptCardDetailPage = () => {
                     <CheckCircle2 className="mr-1 h-4 w-4" /> Mark as Complete
                   </>
                 )}
+              </Button>
+
+              <Button 
+                variant="secondary"
+                size="sm" 
+                onClick={handleStartStudy}
+                className="bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white"
+              >
+                <BookOpen className="mr-1 h-4 w-4" /> Study This Concept
               </Button>
             </div>
           </div>
