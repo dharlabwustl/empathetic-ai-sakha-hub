@@ -1,6 +1,5 @@
 
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState } from "react";
 import MainLayout from "@/components/layouts/MainLayout";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -12,107 +11,25 @@ import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import { 
   User, Settings, CreditCard, Users, BookOpen, 
-  GraduationCap, Calendar, Bell, Shield, Edit
+  Calendar, Bell, Shield, Edit, Mail, Phone, MapPin,
+  Smile, School, CheckCircle, AlertCircle, Clock
 } from "lucide-react";
-import { UserRole, SubscriptionType } from "@/types/user/base";
-import ProfileDetails from "@/pages/dashboard/student/ProfileDetails";
-import BatchManagementContent from "@/components/subscription/batch/BatchManagementContent";
-import SettingsTabContent from "@/components/dashboard/student/SettingsTabContent";
-import InviteCodeForm from "@/components/subscription/batch/InviteCodeForm";
-import SubscriptionPlans from "@/components/subscription/SubscriptionPlans";
-import ExamReadinessMeter from "@/components/dashboard/student/metrics/ExamReadinessMeter";
+import { useNavigate } from "react-router-dom";
+import { UserRole } from "@/types/user/base";
+import ProfileDetails from "./ProfileDetails";
+import BatchManagementPanel from "@/components/profile/BatchManagementPanel";
+import ProfileSubscriptionPanel from "@/components/profile/ProfileSubscriptionPanel";
+import BatchCreationDialog from "@/components/profile/BatchCreationDialog";
+import PaymentMethodsPanel from "@/components/profile/PaymentMethodsPanel";
+import ProfileSettingsPanel from "@/components/profile/ProfileSettingsPanel";
+import BillingHistoryPanel from "@/components/profile/BillingHistoryPanel";
 
 const ProfilePage = () => {
   const navigate = useNavigate();
   const { userProfile, loading, updateUserProfile } = useUserProfile();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("overview");
-  
-  // Sample KPI data - these would come from actual user data in a real app
-  const kpiData = [
-    { title: "Study Hours", value: "24h", change: "+3h", trend: "up" },
-    { title: "Concepts Mastered", value: "42", change: "+5", trend: "up" },
-    { title: "Quiz Score Avg.", value: "82%", change: "+2%", trend: "up" },
-    { title: "Days Streak", value: "7", change: "0", trend: "neutral" }
-  ];
-  
-  // Handle profile image upload
-  const handleUploadImage = (file: File) => {
-    try {
-      // In a real app, this would upload the file to a server
-      const imageUrl = URL.createObjectURL(file);
-      
-      if (userProfile) {
-        updateUserProfile({
-          avatar: imageUrl
-        });
-      }
-      
-      toast({
-        title: "Success",
-        description: "Your profile image has been updated successfully.",
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to update profile image. Please try again.",
-        variant: "destructive",
-      });
-      console.error("Error uploading image:", error);
-    }
-  };
-  
-  // Handle invite code redemption
-  const handleRedeemInvite = async (code: string) => {
-    try {
-      // Show processing toast
-      toast({
-        title: "Processing",
-        description: "Verifying your invite code...",
-      });
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // Simulate successful redemption
-      if (code.startsWith("SAKHA-") || code.startsWith("BATCH-")) {
-        toast({
-          title: "Success!",
-          description: "You have been added to the batch successfully!",
-        });
-        
-        // Update user profile with new subscription info
-        if (userProfile) {
-          updateUserProfile({
-            subscription: {
-              planType: UserRole.Student === userProfile.role ? 'premium' : 'basic',
-              isActive: true,
-              startDate: new Date().toISOString(),
-              expiryDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
-              features: ["group", "batch_member"]
-            }
-          });
-        }
-        
-        setActiveTab("batch");
-        return true;
-      } else {
-        toast({
-          title: "Invalid Code",
-          description: "The invite code you entered is invalid or expired.",
-          variant: "destructive",
-        });
-        return false;
-      }
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to redeem invite code. Please try again.",
-        variant: "destructive",
-      });
-      return false;
-    }
-  };
+  const [isBatchCreationOpen, setIsBatchCreationOpen] = useState(false);
   
   // Check if user is a batch leader or member
   const isBatchLeader = () => {
@@ -146,37 +63,114 @@ const ProfilePage = () => {
     return userProfile.subscription;
   };
   
-  const handleSelectPlan = (plan: any) => {
-    toast({
-      title: "Subscription Selected",
-      description: `You've selected the ${plan.name} plan. Redirecting to checkout...`,
-    });
+  const getSubscriptionStatus = () => {
+    if (!userProfile || !userProfile.subscription) return 'inactive';
     
-    // In a real app, this would redirect to a checkout page
-    setTimeout(() => {
-      navigate('/dashboard/student/subscription');
-    }, 1500);
+    if (typeof userProfile.subscription === 'object' && userProfile.subscription.isActive) {
+      const expiryDate = userProfile.subscription.expiryDate;
+      if (!expiryDate) return 'active';
+      
+      const now = new Date();
+      const expiry = new Date(expiryDate);
+      
+      if (expiry < now) {
+        return 'expired';
+      }
+      
+      // If expiry is within 30 days, consider it "expiring soon"
+      const thirtyDaysInMs = 30 * 24 * 60 * 60 * 1000;
+      if (expiry.getTime() - now.getTime() < thirtyDaysInMs) {
+        return 'expiring-soon';
+      }
+      
+      return 'active';
+    }
+    
+    return 'inactive';
   };
   
-  const handleCreateBatch = () => {
-    navigate('/dashboard/student/batch');
+  const handleProfileImageUpload = (file: File) => {
+    try {
+      // In a real app, this would upload the file to a server
+      const imageUrl = URL.createObjectURL(file);
+      
+      if (userProfile) {
+        updateUserProfile({
+          avatar: imageUrl
+        });
+      }
+      
+      toast({
+        title: "Success",
+        description: "Your profile image has been updated successfully.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update profile image. Please try again.",
+        variant: "destructive",
+      });
+      console.error("Error uploading image:", error);
+    }
   };
   
-  const handleManageSubscription = () => {
-    navigate('/dashboard/student/subscription');
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      handleProfileImageUpload(file);
+    }
   };
   
-  // Mock readiness data - in a real app, this would come from props or an API
-  const readinessData = {
-    conceptCompletion: 75,
-    flashcardAccuracy: 82,
-    examScores: {
-      physics: 78,
-      chemistry: 85,
-      mathematics: 80
-    },
-    overallReadiness: 78,
-    timestamp: new Date().toISOString()
+  // Determine subscription plan tier badge styling
+  const getSubscriptionBadgeStyle = () => {
+    const subType = getCurrentSubscriptionType();
+    
+    switch (subType) {
+      case 'premium':
+        return "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300";
+      case 'pro_monthly':
+      case 'pro_annual':
+        return "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300";
+      case 'group_small':
+      case 'group_medium':
+      case 'group_large':
+        return "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300";
+      case 'trial':
+        return "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300";
+      default:
+        return "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300";
+    }
+  };
+  
+  const getSubscriptionStatusBadge = () => {
+    const status = getSubscriptionStatus();
+    
+    switch (status) {
+      case 'active':
+        return (
+          <Badge variant="outline" className="bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400 ml-2">
+            <CheckCircle className="h-3 w-3 mr-1" /> Active
+          </Badge>
+        );
+      case 'expired':
+        return (
+          <Badge variant="outline" className="bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400 ml-2">
+            <AlertCircle className="h-3 w-3 mr-1" /> Expired
+          </Badge>
+        );
+      case 'expiring-soon':
+        return (
+          <Badge variant="outline" className="bg-amber-100 text-amber-800 dark:bg-amber-900/20 dark:text-amber-400 ml-2">
+            <Clock className="h-3 w-3 mr-1" /> Expiring Soon
+          </Badge>
+        );
+      default:
+        return (
+          <Badge variant="outline" className="bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300 ml-2">
+            Inactive
+          </Badge>
+        );
+    }
   };
   
   if (loading) {
@@ -210,104 +204,216 @@ const ProfilePage = () => {
           <div className="lg:col-span-4 xl:col-span-3 space-y-6">
             {/* Profile Card */}
             <Card className="overflow-hidden">
-              <div className="h-24 bg-gradient-to-r from-violet-500 to-purple-500"></div>
+              <div className="h-20 bg-gradient-to-r from-violet-500 to-purple-500"></div>
               <CardContent className="pt-0 relative">
-                <div className="absolute -top-12 left-4 border-4 border-background rounded-full">
-                  <Avatar className="h-24 w-24">
+                <div className="absolute -top-10 left-4 border-4 border-background rounded-full">
+                  <Avatar className="h-20 w-20">
                     <AvatarImage src={userProfile?.avatar} alt={userProfile?.name || 'Profile'} />
                     <AvatarFallback className="text-2xl bg-primary/20">
                       {userProfile?.name?.charAt(0) || 'U'}
                     </AvatarFallback>
                   </Avatar>
-                  {/* Edit button overlay */}
-                  <div className="absolute bottom-0 right-0 bg-primary rounded-full p-1.5">
-                    <Edit className="h-4 w-4 text-white" />
+                  
+                  {/* Edit button overlay with file input */}
+                  <div className="absolute bottom-0 right-0 bg-primary rounded-full p-1.5 cursor-pointer">
+                    <label htmlFor="avatar-upload" className="cursor-pointer">
+                      <Edit className="h-3.5 w-3.5 text-white" />
+                    </label>
+                    <input 
+                      id="avatar-upload" 
+                      type="file" 
+                      accept="image/*" 
+                      className="hidden" 
+                      onChange={handleFileUpload}
+                    />
                   </div>
                 </div>
                 
-                <div className="mt-14 space-y-2">
-                  <div className="flex items-center justify-between">
+                <div className="mt-12 space-y-2">
+                  <div className="flex items-start justify-between">
                     <div>
                       <h3 className="text-xl font-semibold">{userProfile?.name || 'Student'}</h3>
-                      <p className="text-muted-foreground text-sm">{userProfile?.email}</p>
+                      <div className="flex items-center space-x-2 text-sm text-muted-foreground mt-0.5">
+                        <Mail className="h-3.5 w-3.5" />
+                        <span>{userProfile?.email}</span>
+                      </div>
+                      {userProfile?.phone && (
+                        <div className="flex items-center space-x-2 text-sm text-muted-foreground mt-0.5">
+                          <Phone className="h-3.5 w-3.5" />
+                          <span>{userProfile.phone}</span>
+                        </div>
+                      )}
                     </div>
-                    <Badge variant="secondary" className="capitalize">
-                      {getCurrentSubscriptionType()}
-                    </Badge>
+                    <div className="flex flex-col items-end">
+                      <Badge className={`capitalize ${getSubscriptionBadgeStyle()}`}>
+                        {getCurrentSubscriptionType()}
+                      </Badge>
+                      {getSubscriptionStatusBadge()}
+                    </div>
+                  </div>
+                  
+                  <div className="pt-3 space-y-2.5">
+                    {userProfile?.personalityType && (
+                      <div className="flex items-center justify-between text-sm">
+                        <div className="flex items-center gap-2">
+                          <Smile className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-muted-foreground">Personality</span>
+                        </div>
+                        <span>{userProfile.personalityType}</span>
+                      </div>
+                    )}
+                    
+                    {userProfile?.location && (
+                      <div className="flex items-center justify-between text-sm">
+                        <div className="flex items-center gap-2">
+                          <MapPin className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-muted-foreground">Location</span>
+                        </div>
+                        <span>{userProfile.location}</span>
+                      </div>
+                    )}
+                    
+                    {userProfile?.goals && userProfile.goals.length > 0 && (
+                      <div className="flex items-center justify-between text-sm">
+                        <div className="flex items-center gap-2">
+                          <School className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-muted-foreground">Exam Goal</span>
+                        </div>
+                        <span>{userProfile.goals[0].title}</span>
+                      </div>
+                    )}
                   </div>
                   
                   {userProfile?.goals && userProfile.goals.length > 0 && (
                     <div className="pt-2">
-                      <p className="text-sm text-muted-foreground">Exam Goal</p>
-                      <div className="flex items-center justify-between mt-1">
-                        <span className="font-medium">{userProfile.goals[0].title}</span>
-                        <span className="text-sm text-primary">{userProfile.goals[0].progress}% complete</span>
+                      <div className="flex items-center justify-between mt-1 text-sm">
+                        <span className="text-muted-foreground">Progress</span>
+                        <span className="font-medium">{userProfile.goals[0].progress}%</span>
                       </div>
                       <Progress value={userProfile.goals[0].progress} className="h-1.5 mt-1.5" />
                     </div>
                   )}
-                  
-                  <div className="pt-2 flex items-center gap-2">
-                    {userProfile?.examPreparation && (
-                      <Badge variant="outline" className="py-1">
-                        {userProfile.examPreparation}
-                      </Badge>
-                    )}
-                    {userProfile?.personalityType && (
-                      <Badge variant="outline" className="py-1">
-                        {userProfile.personalityType}
-                      </Badge>
-                    )}
-                  </div>
                 </div>
               </CardContent>
             </Card>
             
-            {/* Quick Stats */}
+            {/* Subscription Summary Card */}
             <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg">Learning Activity</CardTitle>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg flex items-center">
+                  <CreditCard className="h-5 w-5 mr-2 text-primary" />
+                  Subscription Summary
+                </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 gap-4">
-                  {kpiData.map((kpi, index) => (
-                    <div key={index} className="p-3 bg-primary/5 rounded-lg">
-                      <div className="text-xs text-muted-foreground">{kpi.title}</div>
-                      <div className="text-lg font-semibold mt-1">{kpi.value}</div>
-                      <div className={`text-xs flex items-center mt-1 ${
-                        kpi.trend === 'up' ? 'text-green-600' : 
-                        kpi.trend === 'down' ? 'text-red-600' : 
-                        'text-muted-foreground'
-                      }`}>
-                        {kpi.change}
-                      </div>
+              <CardContent className="space-y-3">
+                {userProfile?.subscription && typeof userProfile.subscription === 'object' ? (
+                  <>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">Plan Type</span>
+                      <Badge variant="outline" className={getSubscriptionBadgeStyle()}>
+                        {isBatchLeader() ? 'Batch Leader' : 
+                         isBatchMember() ? 'Batch Member' : 
+                         userProfile.subscription.planType || 'Free'}
+                      </Badge>
                     </div>
-                  ))}
-                </div>
+                    
+                    {userProfile.subscription.startDate && (
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-muted-foreground">Started On</span>
+                        <span>{new Date(userProfile.subscription.startDate).toLocaleDateString()}</span>
+                      </div>
+                    )}
+                    
+                    {userProfile.subscription.expiryDate && (
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-muted-foreground">Valid Until</span>
+                        <span>{new Date(userProfile.subscription.expiryDate).toLocaleDateString()}</span>
+                      </div>
+                    )}
+                    
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">Status</span>
+                      {getSubscriptionStatusBadge()}
+                    </div>
+                    
+                    {getSubscriptionStatus() === 'expiring-soon' && (
+                      <Button variant="default" size="sm" className="w-full mt-2">
+                        Renew Subscription
+                      </Button>
+                    )}
+                    
+                    {getSubscriptionStatus() === 'expired' && (
+                      <Button variant="default" size="sm" className="w-full mt-2">
+                        Reactivate Plan
+                      </Button>
+                    )}
+                    
+                    {getSubscriptionStatus() === 'inactive' && (
+                      <Button variant="default" size="sm" className="w-full mt-2">
+                        Upgrade to Premium
+                      </Button>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <div className="py-3 text-center">
+                      <p className="text-muted-foreground mb-3">You're currently on the free plan</p>
+                      <Button variant="default" size="sm" onClick={() => setActiveTab("subscription")}>
+                        Upgrade Now
+                      </Button>
+                    </div>
+                  </>
+                )}
               </CardContent>
             </Card>
             
-            {/* Exam Readiness Meter */}
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg">Exam Readiness</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ExamReadinessMeter readinessData={readinessData} />
-              </CardContent>
-            </Card>
-            
-            {/* Invitation Section */}
-            {!isBatchLeader() && !isBatchMember() && (
+            {/* Batch Management Quick Access */}
+            {(isBatchLeader() || isBatchMember()) && (
               <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-lg">Got an Invite?</CardTitle>
-                  <CardDescription>
-                    Join a batch or create your own to study with peers
-                  </CardDescription>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg flex items-center">
+                    <Users className="h-5 w-5 mr-2 text-primary" />
+                    {isBatchLeader() ? 'Your Batch' : 'Your Study Group'}
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <InviteCodeForm onSubmit={handleRedeemInvite} />
+                  <div className="space-y-3">
+                    {isBatchLeader() ? (
+                      <>
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-muted-foreground">Member Count</span>
+                          <Badge variant="outline">12/20</Badge>
+                        </div>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="w-full"
+                          onClick={() => setActiveTab("batch")}
+                        >
+                          Manage Batch
+                        </Button>
+                      </>
+                    ) : (
+                      <>
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-muted-foreground">Batch Name</span>
+                          <span>JEE Champions 2025</span>
+                        </div>
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-muted-foreground">Leader</span>
+                          <span>Rahul Sharma</span>
+                        </div>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="w-full"
+                          onClick={() => setActiveTab("batch")}
+                        >
+                          View Details
+                        </Button>
+                      </>
+                    )}
+                  </div>
                 </CardContent>
               </Card>
             )}
@@ -320,11 +426,7 @@ const ProfilePage = () => {
                 <TabsList className="w-full border-b rounded-none grid grid-cols-5">
                   <TabsTrigger value="overview" className="flex items-center gap-1.5">
                     <User className="h-4 w-4" />
-                    <span>Overview</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="details" className="flex items-center gap-1.5">
-                    <GraduationCap className="h-4 w-4" />
-                    <span>Details</span>
+                    <span>Profile</span>
                   </TabsTrigger>
                   <TabsTrigger value="subscription" className="flex items-center gap-1.5">
                     <CreditCard className="h-4 w-4" />
@@ -337,214 +439,52 @@ const ProfilePage = () => {
                       <span className="ml-1.5 w-2 h-2 bg-blue-500 rounded-full"></span>
                     )}
                   </TabsTrigger>
+                  <TabsTrigger value="billing" className="flex items-center gap-1.5">
+                    <CreditCard className="h-4 w-4" />
+                    <span>Billing</span>
+                  </TabsTrigger>
                   <TabsTrigger value="settings" className="flex items-center gap-1.5">
                     <Settings className="h-4 w-4" />
                     <span>Settings</span>
                   </TabsTrigger>
                 </TabsList>
                 
-                {/* Overview Tab */}
+                {/* Profile Tab */}
                 <TabsContent value="overview" className="p-6">
-                  <div className="space-y-8">
-                    {/* Learning Summary */}
-                    <div>
-                      <h2 className="text-xl font-semibold mb-4">Learning Summary</h2>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <Card>
-                          <CardContent className="pt-6">
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-2">
-                                <div className="bg-violet-100 dark:bg-violet-900/30 p-2 rounded-full">
-                                  <BookOpen className="h-5 w-5 text-violet-600 dark:text-violet-400" />
-                                </div>
-                                <h3 className="font-medium">Concepts</h3>
-                              </div>
-                              <Badge variant="outline">42/100</Badge>
-                            </div>
-                            <Progress value={42} className="h-1.5 mt-4" />
-                            <div className="mt-3 flex justify-between text-xs text-muted-foreground">
-                              <span>42% mastered</span>
-                              <span>Last studied: Today</span>
-                            </div>
-                          </CardContent>
-                        </Card>
-                        
-                        <Card>
-                          <CardContent className="pt-6">
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-2">
-                                <div className="bg-amber-100 dark:bg-amber-900/30 p-2 rounded-full">
-                                  <Calendar className="h-5 w-5 text-amber-600 dark:text-amber-400" />
-                                </div>
-                                <h3 className="font-medium">Study Plan</h3>
-                              </div>
-                              <Badge variant="outline">9 days</Badge>
-                            </div>
-                            <Progress value={65} className="h-1.5 mt-4" />
-                            <div className="mt-3 flex justify-between text-xs text-muted-foreground">
-                              <span>65% on track</span>
-                              <span>Next: Physics</span>
-                            </div>
-                          </CardContent>
-                        </Card>
-                        
-                        <Card>
-                          <CardContent className="pt-6">
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-2">
-                                <div className="bg-emerald-100 dark:bg-emerald-900/30 p-2 rounded-full">
-                                  <Shield className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-                                </div>
-                                <h3 className="font-medium">Test Scores</h3>
-                              </div>
-                              <Badge variant="outline">82%</Badge>
-                            </div>
-                            <Progress value={82} className="h-1.5 mt-4" />
-                            <div className="mt-3 flex justify-between text-xs text-muted-foreground">
-                              <span>12 tests taken</span>
-                              <span>+3% improvement</span>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      </div>
-                    </div>
-                    
-                    {/* Upcoming Sessions */}
-                    <div>
-                      <div className="flex items-center justify-between mb-4">
-                        <h2 className="text-xl font-semibold">Upcoming Study Sessions</h2>
-                        <Button variant="outline" size="sm" onClick={() => navigate('/dashboard/student/studyplan')}>
-                          View Full Plan
-                        </Button>
-                      </div>
-                      <Card>
-                        <CardContent className="py-4">
-                          <div className="space-y-4">
-                            {/* Study Session Items */}
-                            <div className="flex items-start gap-4 p-3 bg-violet-50 dark:bg-violet-900/10 rounded-lg">
-                              <div className="bg-white dark:bg-slate-800 rounded-md p-2 shadow-sm">
-                                <div className="text-xs text-center text-muted-foreground">APR</div>
-                                <div className="text-lg font-bold text-center">28</div>
-                              </div>
-                              <div className="flex-1">
-                                <h4 className="font-medium">Physics - Wave Mechanics</h4>
-                                <div className="text-sm text-muted-foreground mt-1">
-                                  <span>3:00 PM • 60 minutes • High priority</span>
-                                </div>
-                              </div>
-                              <Button variant="ghost" size="sm">Reschedule</Button>
-                            </div>
-                            
-                            <div className="flex items-start gap-4 p-3 bg-amber-50 dark:bg-amber-900/10 rounded-lg">
-                              <div className="bg-white dark:bg-slate-800 rounded-md p-2 shadow-sm">
-                                <div className="text-xs text-center text-muted-foreground">APR</div>
-                                <div className="text-lg font-bold text-center">29</div>
-                              </div>
-                              <div className="flex-1">
-                                <h4 className="font-medium">Chemistry - Organic Chemistry</h4>
-                                <div className="text-sm text-muted-foreground mt-1">
-                                  <span>10:00 AM • 45 minutes • Medium priority</span>
-                                </div>
-                              </div>
-                              <Button variant="ghost" size="sm">Reschedule</Button>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </div>
-                    
-                    {/* Recent Activity */}
-                    <div>
-                      <h2 className="text-xl font-semibold mb-4">Recent Activity</h2>
-                      <Card>
-                        <CardContent className="py-4">
-                          <div className="space-y-4">
-                            <div className="flex items-center gap-3 pb-3 border-b">
-                              <div className="bg-slate-100 dark:bg-slate-800 p-2 rounded-full">
-                                <BookOpen className="h-4 w-4 text-slate-600 dark:text-slate-400" />
-                              </div>
-                              <div>
-                                <p className="font-medium">Completed Concept: Kinematics</p>
-                                <p className="text-xs text-muted-foreground">Today at 2:30 PM</p>
-                              </div>
-                            </div>
-                            
-                            <div className="flex items-center gap-3 pb-3 border-b">
-                              <div className="bg-slate-100 dark:bg-slate-800 p-2 rounded-full">
-                                <Shield className="h-4 w-4 text-slate-600 dark:text-slate-400" />
-                              </div>
-                              <div>
-                                <p className="font-medium">Scored 85% on Chemistry Quiz</p>
-                                <p className="text-xs text-muted-foreground">Yesterday at 5:15 PM</p>
-                              </div>
-                            </div>
-                            
-                            <div className="flex items-center gap-3">
-                              <div className="bg-slate-100 dark:bg-slate-800 p-2 rounded-full">
-                                <Bell className="h-4 w-4 text-slate-600 dark:text-slate-400" />
-                              </div>
-                              <div>
-                                <p className="font-medium">Created study reminder</p>
-                                <p className="text-xs text-muted-foreground">Apr 26 at 9:20 AM</p>
-                              </div>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </div>
-                  </div>
-                </TabsContent>
-                
-                {/* Profile Details Tab */}
-                <TabsContent value="details" className="p-6">
-                  {userProfile && (
-                    <ProfileDetails userProfile={userProfile} onUpdateProfile={updateUserProfile} />
-                  )}
+                  {userProfile && <ProfileDetails userProfile={userProfile} onUpdateProfile={updateUserProfile} />}
                 </TabsContent>
                 
                 {/* Subscription Tab */}
                 <TabsContent value="subscription" className="p-6">
-                  <div className="space-y-8">
-                    {/* Current Plan Summary */}
-                    <Card className="bg-gradient-to-r from-violet-50 to-purple-50 dark:from-violet-950/30 dark:to-purple-950/30 border-none">
-                      <CardContent className="pt-6">
-                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                          <div>
-                            <h3 className="text-xl font-semibold flex items-center gap-2">
-                              <CreditCard className="h-5 w-5 text-violet-600" />
-                              {getCurrentSubscriptionType() === 'free' ? 'Free Plan' : `${getCurrentSubscriptionType()} Plan`}
-                            </h3>
-                            <p className="text-muted-foreground mt-1">
-                              {getCurrentSubscriptionType() === 'free' 
-                                ? 'Upgrade to unlock premium features and accelerate your learning' 
-                                : 'Your subscription is active and renews monthly'}
-                            </p>
-                          </div>
-                          <Button size="sm" onClick={handleManageSubscription}>
-                            {getCurrentSubscriptionType() === 'free' ? 'Upgrade Plan' : 'Manage Subscription'}
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                    
-                    {/* Available Plans */}
-                    <div>
-                      <h3 className="text-xl font-semibold mb-4">Available Plans</h3>
-                      <SubscriptionPlans 
-                        currentPlanId={typeof userProfile?.subscription === 'object' ? userProfile.subscription.planId : 'free'}
-                        onSelectPlan={handleSelectPlan}
-                        showGroupOption={true}
-                      />
-                    </div>
-                  </div>
+                  <ProfileSubscriptionPanel 
+                    currentSubscription={userProfile?.subscription} 
+                    userRole={userProfile?.role || UserRole.Student}
+                  />
                 </TabsContent>
                 
                 {/* Batch Management Tab */}
                 <TabsContent value="batch" className="p-6">
+                  <div className="flex justify-between items-center mb-6">
+                    <h2 className="text-2xl font-semibold">
+                      {isBatchLeader() ? 'Batch Management' : 'My Batch'}
+                    </h2>
+                    
+                    {(!isBatchLeader() && !isBatchMember() && userProfile?.subscription && 
+                      typeof userProfile.subscription === 'object' && 
+                      (userProfile.subscription.planType === 'group_small' || 
+                       userProfile.subscription.planType === 'group_medium' || 
+                       userProfile.subscription.planType === 'group_large')) && (
+                      <Button onClick={() => setIsBatchCreationOpen(true)}>
+                        <Users className="h-4 w-4 mr-2" />
+                        Create Batch
+                      </Button>
+                    )}
+                  </div>
+                  
                   {(isBatchLeader() || isBatchMember()) ? (
-                    userProfile && <BatchManagementContent 
+                    <BatchManagementPanel 
                       isLeader={isBatchLeader()} 
-                      userProfile={userProfile}
+                      userProfile={userProfile!}
                     />
                   ) : (
                     <div className="text-center py-12">
@@ -553,7 +493,14 @@ const ProfilePage = () => {
                       </div>
                       <h2 className="text-xl font-bold mb-2">No Batch Membership</h2>
                       <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-                        You're not part of any batch yet. Join a batch to study with peers and get access to group features.
+                        {userProfile?.subscription && 
+                        typeof userProfile.subscription === 'object' && 
+                        (userProfile.subscription.planType === 'group_small' || 
+                         userProfile.subscription.planType === 'group_medium' || 
+                         userProfile.subscription.planType === 'group_large')
+                          ? "You have a group subscription! Create a batch to invite members and study together."
+                          : "You're not part of any batch yet. Upgrade to a group plan to create a batch or use an invite code to join one."
+                        }
                       </p>
                       <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
                         <Button 
@@ -562,22 +509,43 @@ const ProfilePage = () => {
                         >
                           View Subscription Plans
                         </Button>
-                        <Button onClick={handleCreateBatch}>
-                          Create Your Batch
-                        </Button>
+                        {userProfile?.subscription && 
+                          typeof userProfile.subscription === 'object' && 
+                          (userProfile.subscription.planType === 'group_small' || 
+                           userProfile.subscription.planType === 'group_medium' || 
+                           userProfile.subscription.planType === 'group_large') && (
+                          <Button onClick={() => setIsBatchCreationOpen(true)}>
+                            Create Your Batch
+                          </Button>
+                        )}
                       </div>
                     </div>
                   )}
                 </TabsContent>
                 
+                {/* Billing Tab */}
+                <TabsContent value="billing" className="p-6">
+                  <div className="space-y-8">
+                    <PaymentMethodsPanel />
+                    <BillingHistoryPanel />
+                  </div>
+                </TabsContent>
+                
                 {/* Settings Tab */}
                 <TabsContent value="settings" className="p-6">
-                  <SettingsTabContent />
+                  <ProfileSettingsPanel userProfile={userProfile} />
                 </TabsContent>
               </Card>
             </Tabs>
           </div>
         </div>
+        
+        {/* Batch Creation Dialog */}
+        <BatchCreationDialog 
+          open={isBatchCreationOpen} 
+          onClose={() => setIsBatchCreationOpen(false)}
+          maxMembers={20} // This would come from the user's subscription
+        />
       </div>
     </MainLayout>
   );
