@@ -24,6 +24,7 @@ import FlashcardsView from '@/components/dashboard/student/flashcards/Flashcards
 import PracticeExamsView from '@/components/dashboard/student/practice-exam/PracticeExamsView';
 import ConceptStudyLandingPage from '@/pages/dashboard/student/concept/ConceptStudyLandingPage';
 import EnhancedFlashcardPractice from '@/components/dashboard/student/flashcards/EnhancedFlashcardPractice';
+import ConceptStudyPage from '@/components/dashboard/student/concepts/ConceptStudyPage';
 
 export default function StudentRoutes() {
   return (
@@ -38,6 +39,7 @@ export default function StudentRoutes() {
       <Route path="/concepts/:subject?" element={<ConceptsLandingPage />} />
       <Route path="/concepts/card/:conceptId" element={<ConceptCardDetailPage />} />
       <Route path="/concepts/study-landing/:conceptId" element={<ConceptStudyLandingPage />} />
+      <Route path="/concepts/:conceptId/study" element={<ConceptStudyPage />} />
       
       {/* Flashcards routes */}
       <Route path="/flashcards" element={<FlashcardsView />} />

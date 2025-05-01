@@ -1,4 +1,3 @@
-
 import React, { Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
@@ -66,7 +65,7 @@ function App() {
               {/* Concept routes */}
               <Route path="/dashboard/student/concepts/card/:conceptId" element={<ConceptCardDetailPage />} />
               <Route path="/dashboard/student/concepts/study/:conceptId" element={<ConceptStudyPage />} />
-              <Route path="/dashboard/student/concepts/study" element={<ConceptCardStudyPage />} />
+              <Route path="/dashboard/student/concepts/:conceptId/study" element={<ConceptStudyPage />} />
               <Route path="/dashboard/student/concepts/study-landing/:conceptId" element={<ConceptStudyLandingPage />} />
               <Route path="/dashboard/student/concepts/landing" element={<ConceptsLandingPage />} />
               
