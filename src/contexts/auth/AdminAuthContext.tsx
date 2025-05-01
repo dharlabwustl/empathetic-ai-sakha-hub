@@ -100,7 +100,7 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }
   };
 
-  // Admin logout function
+  // Admin logout function - no longer uses navigation
   const adminLogout = async (): Promise<void> => {
     try {
       localStorage.removeItem('adminToken');

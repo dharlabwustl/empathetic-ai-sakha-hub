@@ -10,10 +10,12 @@ import { useToast } from '@/hooks/use-toast';
 import { Check, Loader2 } from 'lucide-react';
 import adminAuthService from '@/services/auth/adminAuthService';
 import PrepzrLogo from '@/components/common/PrepzrLogo';
+import { useAdminAuth } from '@/contexts/auth/AdminAuthContext';
 
 const AdminLogin = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { adminLogin } = useAdminAuth();
   const [credentials, setCredentials] = useState({ email: '', password: '' });
   const [isLoading, setIsLoading] = useState(false);
   const [loginSuccess, setLoginSuccess] = useState(false);
@@ -38,9 +40,10 @@ const AdminLogin = () => {
     setIsLoading(true);
 
     try {
-      const response = await adminAuthService.adminLogin(credentials);
-
-      if (response.success) {
+      // Try login with adminAuthService first
+      const loginSuccess = await adminLogin(credentials.email, credentials.password);
+      
+      if (loginSuccess) {
         setLoginSuccess(true);
         toast({
           title: 'Login successful',
@@ -52,11 +55,27 @@ const AdminLogin = () => {
           navigate('/admin/dashboard');
         }, 1000);
       } else {
-        toast({
-          title: 'Login failed',
-          description: response.message || 'Invalid admin credentials',
-          variant: 'destructive',
-        });
+        // Fallback to the service if context login fails
+        const response = await adminAuthService.adminLogin(credentials);
+        
+        if (response.success) {
+          setLoginSuccess(true);
+          toast({
+            title: 'Login successful',
+            description: 'Welcome to the admin dashboard',
+          });
+          
+          // Wait a moment to show the success animation
+          setTimeout(() => {
+            navigate('/admin/dashboard');
+          }, 1000);
+        } else {
+          toast({
+            title: 'Login failed',
+            description: response.message || 'Invalid admin credentials',
+            variant: 'destructive',
+          });
+        }
       }
     } catch (error) {
       console.error('Admin login error:', error);
@@ -179,14 +198,7 @@ const AdminLogin = () => {
           <Button 
             variant="outline" 
             className="bg-white hover:bg-gray-100"
-            onClick={() => {
-              const { exportDatabaseSchemaToCSV } = require('@/utils/database-schema-export');
-              exportDatabaseSchemaToCSV();
-              toast({
-                title: 'Database CSV',
-                description: 'Database schema CSV has been downloaded to your device',
-              });
-            }}
+            onClick={() => navigate('/database-export')}
           >
             Download Database CSV Directly
           </Button>
