@@ -73,7 +73,16 @@ const LoginPage = () => {
             navigate("/dashboard/student");
           }
         } else {
-          navigate("/dashboard/student");
+          // If no user data exists, create it
+          const newUserData = {
+            name: formData.email.split('@')[0],
+            email: formData.email,
+            loginCount: 1,
+            lastLogin: new Date().toISOString(),
+            mood: 'Motivated'
+          };
+          localStorage.setItem("userData", JSON.stringify(newUserData));
+          navigate("/dashboard/student?new=true");
         }
       } else {
         toast({

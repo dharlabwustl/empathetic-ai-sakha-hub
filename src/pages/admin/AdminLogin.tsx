@@ -14,7 +14,7 @@ import { useAdminAuth } from '@/contexts/auth/AdminAuthContext';
 const AdminLogin = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { adminLogin } = useAdminAuth();
+  const { adminLogin, adminLoginError } = useAdminAuth();
   const [credentials, setCredentials] = useState({ email: '', password: '' });
   const [isLoading, setIsLoading] = useState(false);
   const [loginSuccess, setLoginSuccess] = useState(false);
@@ -55,7 +55,7 @@ const AdminLogin = () => {
       } else {
         toast({
           title: 'Login failed',
-          description: 'Invalid admin credentials. Email must contain "admin".',
+          description: adminLoginError || 'Invalid admin credentials. Email must contain "admin".',
           variant: 'destructive',
         });
       }

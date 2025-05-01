@@ -7,7 +7,7 @@ export interface AdminAuthContextProps {
   isAdminAuthenticated: boolean;
   isAdminLoading: boolean;
   adminUser: AdminUser | null;
-  adminLogin: (username: string, password: string) => Promise<boolean>;
+  adminLogin: (email: string, password: string) => Promise<boolean>;
   adminLogout: () => Promise<void>;
   adminLoginError: string | null;
 }
