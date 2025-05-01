@@ -1,76 +1,100 @@
 
-/* Mood-based theme styles */
+/* Base styling */
+body {
+  font-size: 16px;
+  line-height: 1.5;
+  transition: background-color 0.3s ease;
+}
+
+/* Mood-specific themes */
 .mood-happy {
-  --mood-gradient: linear-gradient(to right bottom, rgba(253, 224, 71, 0.1), rgba(251, 146, 60, 0.05));
-  --mood-accent: rgba(253, 224, 71, 0.3);
-  --mood-card-bg: rgba(254, 249, 195, 0.3);
+  --mood-primary: rgba(255, 220, 100, 0.1);
+  --mood-accent: rgba(255, 230, 130, 0.15);
+  --mood-text: #222;
 }
 
-.mood-motivated {
-  --mood-gradient: linear-gradient(to right bottom, rgba(74, 222, 128, 0.1), rgba(34, 197, 94, 0.05));
-  --mood-accent: rgba(74, 222, 128, 0.3);
-  --mood-card-bg: rgba(220, 252, 231, 0.3);
-}
-
-.mood-focused {
-  --mood-gradient: linear-gradient(to right bottom, rgba(96, 165, 250, 0.1), rgba(59, 130, 246, 0.05));
-  --mood-accent: rgba(96, 165, 250, 0.3);
-  --mood-card-bg: rgba(219, 234, 254, 0.3);
-}
-
-.mood-neutral {
-  --mood-gradient: linear-gradient(to right bottom, rgba(148, 163, 184, 0.1), rgba(100, 116, 139, 0.05));
-  --mood-accent: rgba(148, 163, 184, 0.3);
-  --mood-card-bg: rgba(226, 232, 240, 0.3);
-}
-
-.mood-tired {
-  --mood-gradient: linear-gradient(to right bottom, rgba(147, 197, 253, 0.1), rgba(59, 130, 246, 0.05));
-  --mood-accent: rgba(147, 197, 253, 0.3);
-  --mood-card-bg: rgba(219, 234, 254, 0.3);
-}
-
-.mood-anxious {
-  --mood-gradient: linear-gradient(to right bottom, rgba(252, 211, 77, 0.1), rgba(251, 191, 36, 0.05));
-  --mood-accent: rgba(252, 211, 77, 0.3);
-  --mood-card-bg: rgba(254, 243, 199, 0.3);
+.mood-sad {
+  --mood-primary: rgba(100, 150, 200, 0.1);
+  --mood-accent: rgba(120, 170, 220, 0.15);
+  --mood-text: #333;
 }
 
 .mood-stressed {
-  --mood-gradient: linear-gradient(to right bottom, rgba(248, 113, 113, 0.1), rgba(239, 68, 68, 0.05));
-  --mood-accent: rgba(248, 113, 113, 0.2);
-  --mood-card-bg: rgba(254, 226, 226, 0.3);
+  --mood-primary: rgba(255, 160, 130, 0.1);
+  --mood-accent: rgba(255, 180, 150, 0.15);
+  --mood-text: #333;
 }
 
-.mood-sad {
-  --mood-gradient: linear-gradient(to right bottom, rgba(165, 180, 252, 0.1), rgba(129, 140, 248, 0.05));
-  --mood-accent: rgba(165, 180, 252, 0.3);
-  --mood-card-bg: rgba(224, 231, 255, 0.3);
+.mood-relaxed {
+  --mood-primary: rgba(170, 220, 200, 0.1);
+  --mood-accent: rgba(190, 240, 220, 0.15);
+  --mood-text: #222;
 }
 
-/* Apply mood styles to the dashboard */
-.mood-happy,
-.mood-motivated,
-.mood-focused,
-.mood-neutral,
-.mood-tired,
-.mood-anxious,
-.mood-stressed,
-.mood-sad {
-  background-image: var(--mood-gradient);
+.mood-focused {
+  --mood-primary: rgba(180, 160, 240, 0.1);
+  --mood-accent: rgba(200, 180, 255, 0.15);
+  --mood-text: #222;
 }
 
-.mood-happy .dashboard-card,
-.mood-motivated .dashboard-card,
-.mood-focused .dashboard-card,
-.mood-neutral .dashboard-card,
-.mood-tired .dashboard-card,
-.mood-anxious .dashboard-card,
-.mood-stressed .dashboard-card,
-.mood-sad .dashboard-card {
-  border-color: var(--mood-accent);
+.mood-motivated {
+  --mood-primary: rgba(255, 180, 100, 0.1);
+  --mood-accent: rgba(255, 200, 120, 0.15);
+  --mood-text: #222;
 }
 
-.dashboard-highlight-card {
-  background-color: var(--mood-card-bg, transparent);
+.mood-overwhelmed {
+  --mood-primary: rgba(220, 150, 180, 0.1);
+  --mood-accent: rgba(240, 170, 200, 0.15);
+  --mood-text: #333;
+}
+
+.mood-tired {
+  --mood-primary: rgba(180, 190, 200, 0.1);
+  --mood-accent: rgba(200, 210, 220, 0.15);
+  --mood-text: #444;
+}
+
+.mood-curious {
+  --mood-primary: rgba(180, 220, 255, 0.1);
+  --mood-accent: rgba(200, 240, 255, 0.15);
+  --mood-text: #222;
+}
+
+.mood-okay, .mood-neutral {
+  --mood-primary: rgba(200, 200, 200, 0.1);
+  --mood-accent: rgba(220, 220, 220, 0.15);
+  --mood-text: #333;
+}
+
+/* Apply mood tinting */
+.mood-happy, .mood-sad, .mood-stressed, 
+.mood-relaxed, .mood-focused, .mood-motivated,
+.mood-overwhelmed, .mood-tired, .mood-curious,
+.mood-okay, .mood-neutral, .mood-anxious, 
+.mood-confused, .mood-calm {
+  background-color: var(--mood-primary);
+}
+
+/* Adjustments for dark mode */
+.dark .mood-happy, .dark .mood-sad, .dark .mood-stressed, 
+.dark .mood-relaxed, .dark .mood-focused, .dark .mood-motivated,
+.dark .mood-overwhelmed, .dark .mood-tired, .dark .mood-curious,
+.dark .mood-okay, .dark .mood-neutral, .dark .mood-anxious, 
+.dark .mood-confused, .dark .mood-calm {
+  --mood-text: #eee;
+  background-color: transparent;
+}
+
+/* Fix font size consistency */
+button, input, select, textarea {
+  font-size: 16px;
+  font-family: inherit;
+}
+
+/* Fix mobile zoom issues */
+@media screen and (max-width: 768px) {
+  input, select, textarea {
+    font-size: 16px;
+  }
 }
