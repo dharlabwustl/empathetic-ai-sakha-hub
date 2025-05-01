@@ -1,500 +1,231 @@
 
 import React, { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { 
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue 
-} from "@/components/ui/select";
-import {
-  Dialog, DialogContent, DialogTitle, DialogDescription,
-  DialogHeader, DialogFooter, DialogTrigger
-} from "@/components/ui/dialog";
-import {
-  AlertDialog, AlertDialogAction, AlertDialogCancel,
-  AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
-  AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { CreditCard, Trash2, Plus, Edit } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { PaymentMethod, BillingHistory } from "@/types/user/base";
+import { CreditCard, Wallet, DownloadIcon, TrashIcon, CheckCircle } from "lucide-react";
+import { AddPaymentMethodDialog } from "./AddPaymentMethodDialog";
 import { useToast } from "@/hooks/use-toast";
 
-interface PaymentMethod {
-  id: string;
-  type: "card" | "upi" | "paypal";
-  label: string;
-  isDefault: boolean;
-  lastDigits?: string;
-  expiryDate?: string;
-  cardType?: string;
-  upiId?: string;
-  email?: string;
+interface PaymentMethodsPanelProps {
+  paymentMethods: PaymentMethod[];
+  billingHistory: BillingHistory[];
 }
 
-const PaymentMethodsPanel: React.FC = () => {
+export const PaymentMethodsPanel = ({
+  paymentMethods = [],
+  billingHistory = []
+}: PaymentMethodsPanelProps) => {
+  const [activeTab, setActiveTab] = useState("methods");
+  const [showAddPaymentDialog, setShowAddPaymentDialog] = useState(false);
   const { toast } = useToast();
-  const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([
-    {
-      id: "card-1",
-      type: "card",
-      label: "HDFC Bank",
-      lastDigits: "4242",
-      expiryDate: "04/25",
-      cardType: "Visa",
-      isDefault: true
-    },
-    {
-      id: "upi-1",
-      type: "upi",
-      label: "Google Pay",
-      upiId: "user@okaxis",
-      isDefault: false
-    }
-  ]);
   
-  const [showAddCardDialog, setShowAddCardDialog] = useState(false);
-  const [showAddUpiDialog, setShowAddUpiDialog] = useState(false);
-  const [newCard, setNewCard] = useState({
-    cardNumber: "",
-    cardholderName: "",
-    expiryMonth: "",
-    expiryYear: "",
-    cvv: "",
-    nickname: ""
-  });
-  
-  const [newUpi, setNewUpi] = useState({
-    upiId: "",
-    nickname: ""
-  });
-  
-  const handleNewCardChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setNewCard({
-      ...newCard,
-      [name]: value
-    });
-  };
-  
-  const handleNewUpiChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setNewUpi({
-      ...newUpi,
-      [name]: value
-    });
-  };
-  
-  const handleAddCard = () => {
-    // Basic validation
-    if (!newCard.cardNumber || !newCard.cardholderName || !newCard.expiryMonth || !newCard.expiryYear || !newCard.cvv) {
-      toast({
-        title: "Missing information",
-        description: "Please fill out all required card fields.",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    // In a real app, this would send data to a payment processor
-    const last4 = newCard.cardNumber.slice(-4);
-    const expiryDate = `${newCard.expiryMonth}/${newCard.expiryYear.slice(-2)}`;
-    
-    const newPaymentMethod: PaymentMethod = {
-      id: `card-${Date.now()}`,
-      type: "card",
-      label: newCard.nickname || `Card ending in ${last4}`,
-      lastDigits: last4,
-      expiryDate: expiryDate,
-      cardType: "Visa", // This would be determined by the payment processor
-      isDefault: paymentMethods.length === 0
-    };
-    
-    setPaymentMethods([...paymentMethods, newPaymentMethod]);
-    
+  const handleDeletePaymentMethod = (id: string) => {
     toast({
-      title: "Card added",
-      description: "Your new payment method has been added successfully."
+      title: "Payment Method Removed",
+      description: "The payment method has been removed successfully",
     });
-    
-    // Reset form and close dialog
-    setNewCard({
-      cardNumber: "",
-      cardholderName: "",
-      expiryMonth: "",
-      expiryYear: "",
-      cvv: "",
-      nickname: ""
-    });
-    setShowAddCardDialog(false);
   };
   
-  const handleAddUpi = () => {
-    // Basic validation
-    if (!newUpi.upiId) {
-      toast({
-        title: "Missing information",
-        description: "Please enter a UPI ID.",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    const newPaymentMethod: PaymentMethod = {
-      id: `upi-${Date.now()}`,
-      type: "upi",
-      label: newUpi.nickname || `UPI: ${newUpi.upiId}`,
-      upiId: newUpi.upiId,
-      isDefault: paymentMethods.length === 0
-    };
-    
-    setPaymentMethods([...paymentMethods, newPaymentMethod]);
-    
+  const handleSetDefaultMethod = (id: string) => {
     toast({
-      title: "UPI added",
-      description: "Your UPI ID has been added successfully."
+      title: "Default Payment Method Updated",
+      description: "Your default payment method has been updated",
     });
-    
-    // Reset form and close dialog
-    setNewUpi({
-      upiId: "",
-      nickname: ""
-    });
-    setShowAddUpiDialog(false);
   };
   
-  const handleSetDefault = (id: string) => {
-    setPaymentMethods(paymentMethods.map(method => ({
-      ...method,
-      isDefault: method.id === id
-    })));
-    
+  const handleAddPaymentMethod = (data: any) => {
     toast({
-      title: "Default payment method updated",
-      description: "Your default payment method has been updated."
+      title: "Payment Method Added",
+      description: "The new payment method has been added successfully",
+    });
+    setShowAddPaymentDialog(false);
+  };
+
+  const getCardIcon = (type?: string) => {
+    return <CreditCard className="h-4 w-4" />;
+  };
+  
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
     });
   };
-  
-  const handleRemovePaymentMethod = (id: string) => {
-    const methodToRemove = paymentMethods.find(method => method.id === id);
-    
-    if (methodToRemove?.isDefault && paymentMethods.length > 1) {
-      toast({
-        title: "Cannot remove default payment method",
-        description: "Please set another payment method as default first.",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    setPaymentMethods(paymentMethods.filter(method => method.id !== id));
-    
-    toast({
-      title: "Payment method removed",
-      description: "Your payment method has been removed successfully."
-    });
-  };
-  
-  // Helper function to mask card number
-  const maskCardNumber = (lastDigits?: string) => {
-    if (!lastDigits) return "••••";
-    return `•••• •••• •••• ${lastDigits}`;
-  };
-  
-  const getMonthOptions = () => {
-    const months = [];
-    for (let i = 1; i <= 12; i++) {
-      const month = i.toString().padStart(2, '0');
-      months.push(
-        <option key={month} value={month}>{month}</option>
-      );
-    }
-    return months;
-  };
-  
-  const getYearOptions = () => {
-    const currentYear = new Date().getFullYear();
-    const years = [];
-    for (let i = 0; i < 10; i++) {
-      const year = (currentYear + i).toString();
-      years.push(
-        <option key={year} value={year}>{year}</option>
-      );
-    }
-    return years;
-  };
-  
+
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-semibold">Payment Methods</h2>
-        <div className="flex gap-2">
-          <Dialog open={showAddCardDialog} onOpenChange={setShowAddCardDialog}>
-            <DialogTrigger asChild>
-              <Button variant="outline">
-                <Plus className="h-4 w-4 mr-1" />
-                Add Card
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-md">
-              <DialogHeader>
-                <DialogTitle>Add Payment Card</DialogTitle>
-                <DialogDescription>
-                  Add a new credit or debit card for subscription payments.
-                </DialogDescription>
-              </DialogHeader>
-              
-              <div className="py-4 space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="cardNumber">Card Number</Label>
-                  <Input
-                    id="cardNumber"
-                    name="cardNumber"
-                    value={newCard.cardNumber}
-                    onChange={handleNewCardChange}
-                    placeholder="1234 5678 9012 3456"
-                    maxLength={19}
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="cardholderName">Cardholder Name</Label>
-                  <Input
-                    id="cardholderName"
-                    name="cardholderName"
-                    value={newCard.cardholderName}
-                    onChange={handleNewCardChange}
-                    placeholder="Name as it appears on card"
-                  />
-                </div>
-                
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="expiryMonth">Expiry Month</Label>
-                    <select
-                      id="expiryMonth"
-                      name="expiryMonth"
-                      value={newCard.expiryMonth}
-                      onChange={(e) => setNewCard({...newCard, expiryMonth: e.target.value})}
-                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                    >
-                      <option value="" disabled>Month</option>
-                      {getMonthOptions()}
-                    </select>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="expiryYear">Expiry Year</Label>
-                    <select
-                      id="expiryYear"
-                      name="expiryYear"
-                      value={newCard.expiryYear}
-                      onChange={(e) => setNewCard({...newCard, expiryYear: e.target.value})}
-                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                    >
-                      <option value="" disabled>Year</option>
-                      {getYearOptions()}
-                    </select>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="cvv">CVV</Label>
-                    <Input
-                      id="cvv"
-                      name="cvv"
-                      value={newCard.cvv}
-                      onChange={handleNewCardChange}
-                      placeholder="123"
-                      maxLength={4}
-                      type="password"
-                    />
-                  </div>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="nickname">Nickname (Optional)</Label>
-                  <Input
-                    id="nickname"
-                    name="nickname"
-                    value={newCard.nickname}
-                    onChange={handleNewCardChange}
-                    placeholder="e.g., Personal Card"
-                  />
-                </div>
-              </div>
-              
-              <DialogFooter>
-                <Button variant="outline" onClick={() => setShowAddCardDialog(false)}>
-                  Cancel
-                </Button>
-                <Button onClick={handleAddCard}>
-                  Add Card
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
+    <div className="p-6 space-y-6">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList>
+          <TabsTrigger value="methods">Payment Methods</TabsTrigger>
+          <TabsTrigger value="history">Billing History</TabsTrigger>
+        </TabsList>
+        
+        {/* Payment Methods Tab */}
+        <TabsContent value="methods" className="space-y-4 mt-6">
+          <div className="flex justify-between items-center">
+            <h2 className="text-xl font-semibold">Your Payment Methods</h2>
+            <Button onClick={() => setShowAddPaymentDialog(true)}>
+              Add Payment Method
+            </Button>
+          </div>
           
-          <Dialog open={showAddUpiDialog} onOpenChange={setShowAddUpiDialog}>
-            <DialogTrigger asChild>
-              <Button variant="outline">
-                <Plus className="h-4 w-4 mr-1" />
-                Add UPI
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-md">
-              <DialogHeader>
-                <DialogTitle>Add UPI ID</DialogTitle>
-                <DialogDescription>
-                  Add a UPI ID for subscription payments.
-                </DialogDescription>
-              </DialogHeader>
-              
-              <div className="py-4 space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="upiId">UPI ID</Label>
-                  <Input
-                    id="upiId"
-                    name="upiId"
-                    value={newUpi.upiId}
-                    onChange={handleNewUpiChange}
-                    placeholder="yourname@bankcode"
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="nickname">Nickname (Optional)</Label>
-                  <Input
-                    id="nickname"
-                    name="nickname"
-                    value={newUpi.nickname}
-                    onChange={handleNewUpiChange}
-                    placeholder="e.g., Google Pay"
-                  />
-                </div>
-              </div>
-              
-              <DialogFooter>
-                <Button variant="outline" onClick={() => setShowAddUpiDialog(false)}>
-                  Cancel
+          {paymentMethods.length === 0 ? (
+            <Card>
+              <CardContent className="pt-6 flex flex-col items-center justify-center min-h-[200px] text-center">
+                <Wallet className="h-12 w-12 text-muted-foreground mb-4" />
+                <h3 className="text-lg font-semibold mb-2">No Payment Methods</h3>
+                <p className="text-muted-foreground mb-4">
+                  You haven't added any payment methods yet
+                </p>
+                <Button onClick={() => setShowAddPaymentDialog(true)}>
+                  Add Payment Method
                 </Button>
-                <Button onClick={handleAddUpi}>
-                  Add UPI
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-        </div>
-      </div>
-      
-      {paymentMethods.length === 0 ? (
-        <Card>
-          <CardContent className="flex flex-col items-center justify-center py-8">
-            <CreditCard className="h-12 w-12 text-muted-foreground mb-4" />
-            <h3 className="text-lg font-medium mb-2">No payment methods</h3>
-            <p className="text-muted-foreground text-center mb-4">
-              You haven't added any payment methods yet.
-            </p>
-            <div className="flex gap-2">
-              <Button variant="outline" onClick={() => setShowAddCardDialog(true)}>
-                <Plus className="h-4 w-4 mr-1" />
-                Add Card
-              </Button>
-              <Button variant="outline" onClick={() => setShowAddUpiDialog(true)}>
-                <Plus className="h-4 w-4 mr-1" />
-                Add UPI
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="space-y-4">
-          {paymentMethods.map(method => (
-            <Card key={method.id} className={`${method.isDefault ? 'border-primary' : ''}`}>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    {method.type === 'card' ? (
-                      <div className="h-12 w-16 bg-primary/10 rounded-md flex items-center justify-center">
-                        <CreditCard className="h-6 w-6 text-primary" />
-                      </div>
-                    ) : (
-                      <div className="h-12 w-16 bg-green-100 rounded-md flex items-center justify-center">
-                        <span className="text-green-700 font-bold">UPI</span>
-                      </div>
-                    )}
-                    
-                    <div>
-                      <h3 className="font-medium">{method.label}</h3>
-                      <p className="text-sm text-muted-foreground">
-                        {method.type === 'card' 
-                          ? `${method.cardType} ${maskCardNumber(method.lastDigits)}`
-                          : method.upiId}
-                      </p>
-                      
-                      {method.type === 'card' && method.expiryDate && (
-                        <p className="text-xs text-muted-foreground mt-1">
-                          Expires: {method.expiryDate}
-                        </p>
-                      )}
-                      
-                      {method.isDefault && (
-                        <div className="mt-1">
-                          <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded">
-                            Default
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center gap-2">
-                    {!method.isDefault && (
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        onClick={() => handleSetDefault(method.id)}
-                      >
-                        Set as default
-                      </Button>
-                    )}
-                    
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button 
-                          variant="ghost" 
-                          size="sm"
-                          className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Remove Payment Method</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            Are you sure you want to remove this payment method?
-                            {method.isDefault && " This is your default payment method."}
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction 
-                            onClick={() => handleRemovePaymentMethod(method.id)}
-                            className="bg-red-500 hover:bg-red-600"
-                          >
-                            Remove
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
-                  </div>
-                </div>
               </CardContent>
             </Card>
-          ))}
-        </div>
-      )}
+          ) : (
+            <Card>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Payment Method</TableHead>
+                    <TableHead>Details</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {paymentMethods.map((method) => (
+                    <TableRow key={method.id}>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          {getCardIcon(method.cardType)}
+                          <span className="font-medium capitalize">{method.type}</span>
+                          {method.isDefault && (
+                            <Badge variant="outline" className="ml-2 bg-blue-50 text-blue-800">Default</Badge>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        {method.type === 'card' && (
+                          <div>
+                            <div className="font-medium">
+                              {method.cardType} •••• {method.lastFour}
+                            </div>
+                            <div className="text-xs text-muted-foreground">
+                              Expires {method.expiryDate}
+                            </div>
+                          </div>
+                        )}
+                        
+                        {method.type === 'paypal' && (
+                          <div className="font-medium">{method.paypalEmail}</div>
+                        )}
+                        
+                        {method.type === 'upi' && (
+                          <div className="font-medium">{method.upiId}</div>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          {!method.isDefault && (
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              onClick={() => handleSetDefaultMethod(method.id)}
+                            >
+                              <CheckCircle className="h-4 w-4 mr-1" />
+                              Set Default
+                            </Button>
+                          )}
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            className="text-red-500"
+                            onClick={() => handleDeletePaymentMethod(method.id)}
+                          >
+                            <TrashIcon className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </Card>
+          )}
+        </TabsContent>
+        
+        {/* Billing History Tab */}
+        <TabsContent value="history" className="space-y-4 mt-6">
+          <div className="flex justify-between items-center">
+            <h2 className="text-xl font-semibold">Billing History</h2>
+          </div>
+          
+          {billingHistory.length === 0 ? (
+            <Card>
+              <CardContent className="pt-6 flex flex-col items-center justify-center min-h-[200px] text-center">
+                <CreditCard className="h-12 w-12 text-muted-foreground mb-4" />
+                <h3 className="text-lg font-semibold mb-2">No Billing History</h3>
+                <p className="text-muted-foreground">
+                  Your payment history will appear here
+                </p>
+              </CardContent>
+            </Card>
+          ) : (
+            <Card>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Date</TableHead>
+                    <TableHead>Description</TableHead>
+                    <TableHead>Amount</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {billingHistory.map((item) => (
+                    <TableRow key={item.id}>
+                      <TableCell>{formatDate(item.date)}</TableCell>
+                      <TableCell>
+                        <div className="font-medium">{item.planName}</div>
+                      </TableCell>
+                      <TableCell>₹{item.amount}</TableCell>
+                      <TableCell>
+                        {item.status === 'paid' ? (
+                          <Badge variant="outline" className="bg-green-100 text-green-800">Paid</Badge>
+                        ) : item.status === 'pending' ? (
+                          <Badge variant="outline" className="bg-yellow-100 text-yellow-800">Pending</Badge>
+                        ) : (
+                          <Badge variant="outline" className="bg-red-100 text-red-800">Failed</Badge>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        {item.invoiceUrl && (
+                          <Button variant="ghost" size="sm">
+                            <DownloadIcon className="h-4 w-4 mr-1" />
+                            Invoice
+                          </Button>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </Card>
+          )}
+        </TabsContent>
+      </Tabs>
+      
+      <AddPaymentMethodDialog 
+        open={showAddPaymentDialog}
+        onClose={() => setShowAddPaymentDialog(false)}
+        onAddPaymentMethod={handleAddPaymentMethod}
+      />
     </div>
   );
 };
-
-export default PaymentMethodsPanel;

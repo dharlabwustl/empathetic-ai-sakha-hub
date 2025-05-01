@@ -7,7 +7,6 @@ import {
   CalendarDays,
   GraduationCap,
   BookOpen,
-  Brain,
   FileText,
   Bell,
   User,
@@ -44,8 +43,8 @@ const SidebarNav: React.FC<SidebarNavProps> = ({ userType, userName, activeTab =
   ];
   
   const accountItems = [
-    { id: 'profile', label: 'Profile', icon: User, path: `/${userType}/profile` },
-    { id: 'settings', label: 'Settings', icon: Settings, path: `/${userType}/settings` }
+    { id: 'profile', label: 'Profile', icon: User, path: `/dashboard/${userType}/profile` },
+    { id: 'settings', label: 'Settings', icon: Settings, path: `/dashboard/${userType}/settings` }
   ];
 
   return (

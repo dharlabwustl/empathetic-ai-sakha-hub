@@ -2,7 +2,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { BookOpen, Calendar, GraduationCap, FileText } from "lucide-react";
+import { BookOpen, Calendar, GraduationCap, FileText, User } from "lucide-react";
 import { motion } from "framer-motion";
 
 export const QuickAccess = () => {
@@ -31,10 +31,10 @@ export const QuickAccess = () => {
       color: 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400'
     },
     {
-      id: 'practice',
-      label: 'Practice Exams',
-      icon: FileText,
-      path: '/dashboard/student/practice-exam',
+      id: 'profile',
+      label: 'My Profile',
+      icon: User,
+      path: '/dashboard/student/profile',
       color: 'bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400'
     }
   ];

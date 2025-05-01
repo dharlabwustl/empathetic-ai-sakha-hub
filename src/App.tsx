@@ -39,6 +39,7 @@ import FlashcardInteractive from './components/dashboard/student/flashcards/Flas
 import FlashcardDetailsPage from './pages/dashboard/student/FlashcardDetailsPage';
 import InteractiveFlashcardBrowser from './components/flashcards/InteractiveFlashcardBrowser';
 import { NotificationsView } from './components/dashboard/student/notifications/NotificationsView';
+import EnhancedProfilePage from './pages/dashboard/student/EnhancedProfilePage';
 
 const AdminDashboard = React.lazy(() => import('@/pages/admin/AdminDashboard'));
 
@@ -68,7 +69,7 @@ function App() {
               <Route path="/dashboard/student/today" element={<TodaysPlanView />} />
               <Route path="/dashboard/student/feel-good-corner" element={<FeelGoodCornerView />} />
               <Route path="/student/profile" element={<StudentProfile />} />
-              <Route path="/dashboard/student/profile" element={<StudentProfile />} />
+              <Route path="/dashboard/student/profile" element={<EnhancedProfilePage />} />
               
               {/* AI Tutor route */}
               <Route path="/dashboard/student/tutor" element={<TutorView />} />
