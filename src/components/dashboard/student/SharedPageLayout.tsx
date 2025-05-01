@@ -1,78 +1,70 @@
 
-import React, { ReactNode } from 'react';
-import { Separator } from '@/components/ui/separator';
-import { Button } from '@/components/ui/button';
-import { ArrowLeft } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import React from 'react';
+import { useUserProfile } from '@/hooks/useUserProfile';
+import { UserRole } from '@/types/user/base';
+import DashboardLayout from '@/pages/dashboard/student/DashboardLayout';
+import SharedNavigation from './SharedNavigation';
 
 interface SharedPageLayoutProps {
   title: string;
   subtitle?: string;
-  headerContent?: ReactNode;
-  children: ReactNode;
-  className?: string;
-  wrapContent?: boolean;
-  showBackButton?: boolean;
-  backButtonUrl?: string;
+  activeTab?: string;
+  children: React.ReactNode;
 }
 
-export const SharedPageLayout = ({
+export const SharedPageLayout: React.FC<SharedPageLayoutProps> = ({
   title,
   subtitle,
-  headerContent,
-  children,
-  className = '',
-  wrapContent = true,
-  showBackButton = false,
-  backButtonUrl,
-}: SharedPageLayoutProps) => {
-  const navigate = useNavigate();
-
-  const handleBack = () => {
-    if (backButtonUrl) {
-      navigate(backButtonUrl);
-    } else {
-      navigate(-1);
-    }
-  };
+  activeTab = 'overview',
+  children
+}) => {
+  const { userProfile, loading } = useUserProfile(UserRole.Student);
   
-  const content = (
-    <>
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
-        <div className="flex items-center">
-          {showBackButton && (
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="mr-2" 
-              onClick={handleBack}
-            >
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-          )}
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
-            {subtitle && <p className="text-muted-foreground mt-1">{subtitle}</p>}
-          </div>
-        </div>
-        {headerContent && <div className="mt-4 md:mt-0">{headerContent}</div>}
-      </div>
-      
-      <Separator className="mb-6" />
-      
-      {children}
-    </>
-  );
-  
-  // Check if the content should be wrapped in a container
-  if (wrapContent) {
+  if (loading || !userProfile) {
     return (
-      <div className={`container mx-auto px-4 py-6 max-w-7xl ${className}`}>
-        {content}
+      <div className="flex items-center justify-center h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
       </div>
     );
   }
-  
-  // Return unwrapped content for pages that already have their own container
-  return content;
+
+  // Content to display within the dashboard layout
+  const pageContent = (
+    <div className="space-y-6">
+      {/* Page Header */}
+      <div>
+        <h1 className="text-2xl font-bold">{title}</h1>
+        {subtitle && <p className="text-muted-foreground mt-1">{subtitle}</p>}
+      </div>
+      
+      {/* Shared Navigation */}
+      <SharedNavigation />
+      
+      {/* Main Content */}
+      {children}
+    </div>
+  );
+
+  return (
+    <DashboardLayout
+      userProfile={userProfile}
+      hideSidebar={false}
+      hideTabsNav={false}
+      activeTab={activeTab}
+      kpis={[]}
+      nudges={[]}
+      markNudgeAsRead={() => {}}
+      showWelcomeTour={false}
+      onTabChange={() => {}}
+      onViewStudyPlan={() => {}}
+      onToggleSidebar={() => {}}
+      onToggleTabsNav={() => {}}
+      onSkipTour={() => {}}
+      onCompleteTour={() => {}}
+      showStudyPlan={false}
+      onCloseStudyPlan={() => {}}
+    >
+      {pageContent}
+    </DashboardLayout>
+  );
 };
