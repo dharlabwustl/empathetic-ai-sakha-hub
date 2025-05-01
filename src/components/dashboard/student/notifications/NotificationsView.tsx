@@ -28,7 +28,7 @@ const notifications = [
   {
     id: '3',
     title: 'Study streak milestone',
-    message: 'Congratulations! You've maintained a 7-day study streak.',
+    message: "Congratulations! You've maintained a 7-day study streak.",
     date: 'Today',
     read: true,
     type: 'achievement'
