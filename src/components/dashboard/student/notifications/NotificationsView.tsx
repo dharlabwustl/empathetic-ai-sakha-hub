@@ -160,6 +160,8 @@ const NotificationsView = () => {
     <SharedPageLayout
       title="Notifications"
       subtitle="Stay updated with your learning journey"
+      backButtonUrl="/dashboard/student"
+      showBackButton={true}
     >
       <div className="space-y-6">
         {/* Personalized greeting header */}

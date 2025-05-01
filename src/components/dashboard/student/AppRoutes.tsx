@@ -11,9 +11,10 @@ import ConceptCardsView from '@/components/dashboard/student/concepts/ConceptCar
 import FlashcardsView from '@/components/dashboard/student/flashcards/FlashcardsView';
 import PracticeExamsView from '@/components/dashboard/student/practice-exam/PracticeExamsView';
 import FeelGoodCornerView from '@/pages/dashboard/student/FeelGoodCornerView';
-import StudyPlanView from '@/components/dashboard/student/study-plan/StudyPlanView';
+import StudyPlanView from '@/pages/dashboard/student/StudyPlanView';
 import NotificationsView from '@/components/dashboard/student/notifications/NotificationsView';
-import AcademicAdvisorView from '@/components/dashboard/student/academic-advisor/AcademicAdvisorView';
+import AcademicAdvisorView from '@/pages/dashboard/student/AcademicAdvisorView';
+import TutorView from '@/pages/dashboard/student/TutorView';
 
 export default function AppRoutes() {
   const { dashboardData } = useStudentDashboardData();
@@ -32,6 +33,7 @@ export default function AppRoutes() {
       <Route path="/dashboard/student/study-plan" element={<StudyPlanView />} />
       <Route path="/dashboard/student/academic" element={<AcademicAdvisorView />} />
       <Route path="/dashboard/student/notifications" element={<NotificationsView />} />
+      <Route path="/dashboard/student/tutor" element={<TutorView />} />
     </Routes>
   );
 }
