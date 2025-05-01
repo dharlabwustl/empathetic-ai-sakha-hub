@@ -65,8 +65,10 @@ export default function StudentRoutes() {
       <Route path="/batch" element={<BatchManagementView />} />
       <Route path="/subscription" element={<SubscriptionView />} />
       <Route path="/tutor" element={<TutorView />} />
+      <Route path="/ai-tutor" element={<TutorView />} />  {/* Add extra path for consistency */}
       <Route path="/academic" element={<AcademicAdvisorView />} />
       <Route path="/wellness" element={<FeelGoodCornerView />} />
+      <Route path="/feel-good-corner" element={<FeelGoodCornerView />} />
     </Routes>
   );
 }

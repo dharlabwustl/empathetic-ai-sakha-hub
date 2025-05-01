@@ -7,8 +7,15 @@ import { UserRole } from "@/types/user/base";
 import { SharedPageLayout } from "@/components/dashboard/student/SharedPageLayout";
 import LoadingScreen from "@/components/common/LoadingScreen";
 
-const StudentProfile = () => {
-  const { userProfile, loading } = useUserProfile(UserRole.Student);
+interface StudentProfileProps {
+  userProfile?: UserProfileType;
+}
+
+const StudentProfile: React.FC<StudentProfileProps> = ({ userProfile: propUserProfile }) => {
+  const { userProfile: hookUserProfile, loading } = useUserProfile(UserRole.Student);
+  
+  // Use the provided userProfile if available, otherwise use the one from the hook
+  const userProfile = propUserProfile || hookUserProfile;
   
   if (loading || !userProfile) {
     return <LoadingScreen />;

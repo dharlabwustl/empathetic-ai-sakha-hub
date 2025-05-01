@@ -5,6 +5,15 @@ export enum UserRole {
   Admin = 'admin'
 }
 
+export enum MoodType {
+  Happy = 'happy',
+  Focused = 'focused',
+  Tired = 'tired',
+  Stressed = 'stressed',
+  Motivated = 'motivated',
+  Confused = 'confused'
+}
+
 export interface Goal {
   id: string;
   title: string;
@@ -35,4 +44,20 @@ export interface UserProfileType {
     darkMode?: boolean;
   };
   recentActivity: UserRecentActivity;
+  loginCount?: number;
+  subscription?: SubscriptionType | string;
+  studyStreak?: number;
+  mood?: MoodType;
+  location?: string;
+  personalityType?: string;
+}
+
+// Alias for UserProfileType to maintain compatibility
+export type UserProfileBase = UserProfileType;
+
+export enum SubscriptionType {
+  Free = 'free',
+  Premium = 'premium',
+  Pro = 'pro',
+  Trial = 'trial'
 }
