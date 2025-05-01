@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
-import AIChatTutor from '@/pages/dashboard/student/AIChatTutor';
+import { AITutorChat } from '@/components/dashboard/student/tutor/AITutorChat';
 
 // Mock user profile for demonstration
 const mockUserProfile = {
@@ -51,7 +51,15 @@ const TutorView = () => {
       backButtonUrl="/dashboard/student"
       showBackButton={true}
     >
-      <AIChatTutor userProfile={userProfile} />
+      <div className="mb-6">
+        <p className="text-muted-foreground">
+          Our AI tutor is trained on your specific exam syllabus and can answer questions, explain concepts, 
+          and help you solve problems across all subjects. Just select a subject, ask a question, and get 
+          instant help with your studies.
+        </p>
+      </div>
+      
+      <AITutorChat userProfile={userProfile} />
     </SharedPageLayout>
   );
 };

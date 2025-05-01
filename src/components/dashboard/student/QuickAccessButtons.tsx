@@ -2,7 +2,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Book, BookOpen, FileText, MessageSquare } from 'lucide-react';
+import { Book, BookOpen, FileText, MessageSquare, Calendar } from 'lucide-react';
 
 export const QuickAccessButtons: React.FC = () => {
   return (
@@ -29,6 +29,12 @@ export const QuickAccessButtons: React.FC = () => {
         <Button variant="outline" size="sm" className="flex items-center">
           <MessageSquare className="h-4 w-4 mr-1" />
           AI Tutor
+        </Button>
+      </Link>
+      <Link to="/dashboard/student/study-plan">
+        <Button variant="outline" size="sm" className="flex items-center">
+          <Calendar className="h-4 w-4 mr-1" />
+          Study Plan
         </Button>
       </Link>
     </div>
