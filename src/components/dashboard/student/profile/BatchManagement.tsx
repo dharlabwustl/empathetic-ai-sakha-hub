@@ -6,7 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, UserPlus, Users } from "lucide-react";
+import { Plus, UserPlus, Users, CreditCard } from "lucide-react";
+import { useNavigate } from 'react-router-dom';
 
 // Mock data for current batches
 const mockBatches = [
@@ -32,10 +33,12 @@ interface BatchManagementProps {
 
 const BatchManagement: React.FC<BatchManagementProps> = ({ hasSubscription = true }) => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [batchCode, setBatchCode] = useState('');
   const [newBatchName, setNewBatchName] = useState('');
   const [showJoinDialog, setShowJoinDialog] = useState(false);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [showSubscribeDialog, setShowSubscribeDialog] = useState(false);
   const [currentBatches, setCurrentBatches] = useState(mockBatches);
 
   const handleJoinBatch = () => {
@@ -87,11 +90,8 @@ const BatchManagement: React.FC<BatchManagementProps> = ({ hasSubscription = tru
     }
 
     if (!hasSubscription) {
-      toast({
-        title: "Subscription Required",
-        description: "You need an active group plan subscription to create a batch",
-        variant: "destructive"
-      });
+      setShowCreateDialog(false);
+      setShowSubscribeDialog(true);
       return;
     }
 
@@ -139,6 +139,11 @@ const BatchManagement: React.FC<BatchManagementProps> = ({ hasSubscription = tru
         description: "You have successfully left the batch",
       });
     }, 1000);
+  };
+
+  const handleUpgradeSubscription = () => {
+    setShowSubscribeDialog(false);
+    navigate('/dashboard/student/subscription');
   };
 
   return (
@@ -225,7 +230,58 @@ const BatchManagement: React.FC<BatchManagementProps> = ({ hasSubscription = tru
                   onClick={handleCreateBatch} 
                   disabled={!hasSubscription}
                 >
-                  Create Batch
+                  {hasSubscription ? "Create Batch" : "Upgrade to Create"}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+          
+          <Dialog open={showSubscribeDialog} onOpenChange={setShowSubscribeDialog}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Upgrade to Group Plan</DialogTitle>
+                <DialogDescription>
+                  Unlock batch creation and management features to study with your friends.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="mt-4 space-y-4">
+                <div className="bg-blue-50 border border-blue-200 rounded-md p-4 space-y-3">
+                  <h3 className="font-medium">Group Plan Benefits:</h3>
+                  <ul className="space-y-2 text-sm">
+                    <li className="flex items-center gap-2">
+                      <div className="rounded-full bg-green-500 text-white h-4 w-4 flex items-center justify-center text-xs">✓</div>
+                      Create and manage your own study batches
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <div className="rounded-full bg-green-500 text-white h-4 w-4 flex items-center justify-center text-xs">✓</div>
+                      Invite up to 10 members per batch
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <div className="rounded-full bg-green-500 text-white h-4 w-4 flex items-center justify-center text-xs">✓</div>
+                      Track group progress and performance
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <div className="rounded-full bg-green-500 text-white h-4 w-4 flex items-center justify-center text-xs">✓</div>
+                      Share study materials and notes with batch members
+                    </li>
+                  </ul>
+                </div>
+                <div className="bg-gradient-to-r from-purple-100 to-blue-100 p-4 rounded-md">
+                  <div className="font-medium text-center mb-2">Group Plan</div>
+                  <div className="text-2xl font-bold text-center mb-1">₹499/month</div>
+                  <div className="text-sm text-center text-gray-600">or ₹4,999/year (save 16%)</div>
+                </div>
+              </div>
+              <DialogFooter className="mt-6">
+                <Button variant="outline" onClick={() => setShowSubscribeDialog(false)}>
+                  Not Now
+                </Button>
+                <Button 
+                  onClick={handleUpgradeSubscription}
+                  className="gap-2"
+                >
+                  <CreditCard className="h-4 w-4" />
+                  Upgrade Now
                 </Button>
               </DialogFooter>
             </DialogContent>
@@ -256,7 +312,7 @@ const BatchManagement: React.FC<BatchManagementProps> = ({ hasSubscription = tru
                     </div>
                     <div className="mt-2 sm:mt-0">
                       {batch.isAdmin ? (
-                        <Button size="sm" variant="outline">
+                        <Button size="sm" variant="outline" onClick={() => navigate("/dashboard/student/batch-management")}>
                           Manage
                         </Button>
                       ) : (

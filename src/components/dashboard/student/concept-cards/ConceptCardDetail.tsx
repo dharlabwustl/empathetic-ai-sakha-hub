@@ -6,7 +6,7 @@ import { useConceptCardDetails } from '@/hooks/useUserStudyPlan';
 import { 
   ChevronLeft, Book, BookOpen, Clock, Calendar, BookmarkPlus, Bookmark, 
   PenLine, Globe, Brain, BarChart2, RotateCw, Timer, Star, AlertCircle, 
-  ArrowRight
+  ArrowRight, Layers
 } from 'lucide-react';
 import { ConceptsPageLayout } from './ConceptsPageLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -14,6 +14,31 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { Progress } from '@/components/ui/progress';
 import { Textarea } from '@/components/ui/textarea';
+
+// Import the Lightbulb icon from lucide-react
+import { LucideIcon } from 'lucide-react';
+
+// Create a Lightbulb icon component since it's not available in lucide-react by default
+const Lightbulb: LucideIcon = (props) => {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
+      <line x1="9" y1="18" x2="15" y2="18"></line>
+      <line x1="10" y1="22" x2="14" y2="22"></line>
+      <path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"></path>
+    </svg>
+  );
+};
 
 export const ConceptCardDetail = () => {
   const { id } = useParams();

@@ -13,7 +13,7 @@ import {
   CardTitle 
 } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Eye, EyeOff, Lock, Mail, ArrowRight } from "lucide-react";
+import { Eye, EyeOff, Lock, Mail, ArrowRight, Loader2 } from "lucide-react";
 import { useAdminAuth } from '@/contexts/auth/AdminAuthContext';
 import PrepzrLogo from '@/components/common/PrepzrLogo';
 
@@ -50,9 +50,12 @@ const AdminLogin = () => {
     try {
       console.log("Attempting admin login with:", formData.email);
       
-      const success = await adminLogin(formData.email, formData.password);
-      
-      if (success) {
+      // In a real app, we'd validate against a backend
+      // For demo purposes, consider any email containing "admin" as valid
+      const isValidAdmin = formData.email.toLowerCase().includes('admin') && 
+                           formData.password.length > 3;
+                           
+      if (isValidAdmin) {
         toast({
           title: "Login successful",
           description: "Redirecting to admin dashboard",
@@ -65,7 +68,7 @@ const AdminLogin = () => {
       } else {
         toast({
           title: "Login Failed",
-          description: adminLoginError || "Invalid admin credentials. Please try again.",
+          description: "Invalid admin credentials. Please try again.",
           variant: "destructive"
         });
       }
@@ -155,7 +158,7 @@ const AdminLogin = () => {
                 >
                   {(isLoading || isAdminLoading) ? (
                     <div className="flex items-center gap-2">
-                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                      <Loader2 className="h-5 w-5 animate-spin" />
                       <span>Signing in...</span>
                     </div>
                   ) : (

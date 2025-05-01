@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/contexts/auth/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { Loader2 } from "lucide-react";
 
 interface StudentLoginFormProps {
   activeTab: string;
@@ -38,6 +39,10 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
     setIsLoading(true);
     
     try {
+      // In a real app, this would validate credentials against a backend
+      console.log("Attempting to log in with:", credentials.email);
+      
+      // For demo purposes, consider any login valid
       const success = await login(credentials.email, credentials.password);
       
       if (success) {
@@ -118,7 +123,14 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
       </div>
       <div className="space-y-2">
         <Button type="submit" className="w-full" disabled={isLoading}>
-          {isLoading ? "Logging in..." : "Login"}
+          {isLoading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Logging in...
+            </>
+          ) : (
+            "Login"
+          )}
         </Button>
         <Button 
           type="button" 

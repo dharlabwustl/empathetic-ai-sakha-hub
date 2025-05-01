@@ -56,7 +56,7 @@ export default function WelcomeTour({
         <div className="py-4">
           <div className="mb-6 flex flex-col md:flex-row gap-4 p-4 bg-gradient-to-r from-blue-50 to-violet-50 border border-blue-100 rounded-lg">
             <img
-              src="/lovable-uploads/ceb4d1ce-554b-47a4-84b2-68760ca540f1.png"
+              src="/lovable-uploads/2782b977-ddc8-4b86-bf7a-0426dd6792a0.png"
               alt="Founder"
               className="w-24 h-24 object-cover rounded-full mx-auto md:mx-0 border-2 border-blue-200"
             />

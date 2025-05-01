@@ -1,756 +1,742 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+
+import React, { useState } from 'react';
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { Progress } from '@/components/ui/progress';
-import { useToast } from '@/hooks/use-toast';
 import { 
-  BookOpen, Search, Clock, Calendar, ChevronRight, Tag, Star, 
-  TrendingUp, Brain, Sparkles, Activity, BookMarked, GraduationCap,
-  FileText, CheckCircle, Lightbulb, BarChart2, RotateCw, Timer,
-  Bookmark, BookmarkPlus, PenLine, Globe, Zap, Layers, AlertCircle
+  Bookmark, ChevronRight, Clock, Book, Search, 
+  BookOpen, Star, BarChart2, Brain, GraduationCap 
 } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useNavigate } from 'react-router-dom';
+import { useToast } from '@/hooks/use-toast';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Progress } from '@/components/ui/progress';
 
-interface ConceptCard {
-  id: string;
-  title: string;
-  subject: string;
-  chapter: string;
-  description: string;
-  difficulty: 'Easy' | 'Medium' | 'Hard';
-  timeEstimate: number;
-  tags: string[];
-  completed: boolean;
-  progress: number;
-  lastViewed?: string;
-  scheduledFor?: string;
-  isRecommended?: boolean;
-  masteryScore?: number;
-  relatedFlashcards?: string[];
-  relatedExams?: string[];
-  relatedConcepts?: string[];
-  // New fields for enhanced features
-  accuracyRate?: number;
-  timeSpent?: number;
-  firstStudied?: string;
-  recallAttempts?: number;
-  recallSuccess?: number;
-  nextReviewDate?: string;
-  retentionScore?: number;
-  hasBookmark?: boolean;
-  hasNotes?: boolean;
-  realWorldApplications?: string[];
-  suggestedFocusAreas?: string[];
-}
+// Mock data for concept cards
+const mockConceptCards = [
+  {
+    id: '1',
+    title: "Newton's First Law",
+    subject: "Physics",
+    chapter: "Laws of Motion",
+    difficulty: "Medium",
+    completed: true,
+    description: "An object at rest stays at rest, and an object in motion stays in motion with the same speed and direction unless acted upon by an external force.",
+    mastery: 85,
+    lastStudied: '2 days ago',
+    tags: ['mechanics', 'force', 'motion'],
+    nextReviewDate: '4 days',
+    reviewPriority: 'low',
+    recommendedForYou: true
+  },
+  {
+    id: '2',
+    title: "Newton's Second Law",
+    subject: "Physics",
+    chapter: "Laws of Motion",
+    difficulty: "Hard",
+    completed: false,
+    description: "The rate of change of momentum of a body is directly proportional to the force applied, and occurs in the direction of the applied force.",
+    mastery: 42,
+    lastStudied: '5 days ago',
+    tags: ['mechanics', 'force', 'motion', 'acceleration'],
+    nextReviewDate: 'Today',
+    reviewPriority: 'high',
+    recommendedForYou: true
+  },
+  {
+    id: '3',
+    title: "Newton's Third Law",
+    subject: "Physics",
+    chapter: "Laws of Motion",
+    difficulty: "Easy",
+    completed: false,
+    description: "For every action, there is an equal and opposite reaction.",
+    mastery: 65,
+    lastStudied: '1 week ago',
+    tags: ['mechanics', 'force', 'motion', 'reaction'],
+    nextReviewDate: '2 days',
+    reviewPriority: 'medium',
+    recommendedForYou: false
+  },
+  {
+    id: '4',
+    title: "Kepler's Laws",
+    subject: "Physics",
+    chapter: "Gravitation",
+    difficulty: "Hard",
+    completed: false,
+    description: "Three laws describing the motion of planets around the sun.",
+    mastery: 25,
+    lastStudied: '2 weeks ago',
+    tags: ['planets', 'orbits', 'astronomy'],
+    nextReviewDate: 'Tomorrow',
+    reviewPriority: 'high',
+    recommendedForYou: true
+  },
+  {
+    id: '5',
+    title: "Ohm's Law",
+    subject: "Physics",
+    chapter: "Electricity",
+    difficulty: "Medium",
+    completed: true,
+    description: "The current through a conductor between two points is directly proportional to the voltage across the two points.",
+    mastery: 95,
+    lastStudied: '3 days ago',
+    tags: ['electricity', 'current', 'voltage', 'resistance'],
+    nextReviewDate: '1 week',
+    reviewPriority: 'low',
+    recommendedForYou: false
+  },
+  {
+    id: '6',
+    title: "Acid-Base Reactions",
+    subject: "Chemistry",
+    chapter: "Chemical Reactions",
+    difficulty: "Medium",
+    completed: false,
+    description: "Reactions between acids and bases to form salt and water.",
+    mastery: 68,
+    lastStudied: '4 days ago',
+    tags: ['acid', 'base', 'neutralization', 'salt'],
+    nextReviewDate: '3 days',
+    reviewPriority: 'medium',
+    recommendedForYou: true
+  }
+];
 
-const ConceptsLandingPage = () => {
-  const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('all');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [highlightedConcept, setHighlightedConcept] = useState<ConceptCard | null>(null);
+// Mock subjects
+const subjects = [
+  "All Subjects",
+  "Physics",
+  "Chemistry",
+  "Biology",
+  "Mathematics"
+];
+
+// Mock difficulty levels
+const difficultyLevels = [
+  "All Difficulties",
+  "Easy",
+  "Medium",
+  "Hard"
+];
+
+// Function to render the status badge for concept cards
+const ConceptStatusBadge = ({ completed, mastery }: { completed: boolean; mastery: number }) => {
+  if (completed) {
+    return (
+      <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+        Completed
+      </Badge>
+    );
+  }
+  
+  if (mastery > 70) {
+    return (
+      <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+        In Progress (Good)
+      </Badge>
+    );
+  } else if (mastery > 30) {
+    return (
+      <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">
+        In Progress (Moderate)
+      </Badge>
+    );
+  } else {
+    return (
+      <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">
+        Needs Attention
+      </Badge>
+    );
+  }
+};
+
+// Function to render difficulty badge
+const DifficultyBadge = ({ difficulty }: { difficulty: string }) => {
+  let badgeClass = '';
+  switch (difficulty.toLowerCase()) {
+    case 'easy':
+      badgeClass = 'bg-green-50 text-green-700 border-green-200';
+      break;
+    case 'medium':
+      badgeClass = 'bg-amber-50 text-amber-700 border-amber-200';
+      break;
+    case 'hard':
+      badgeClass = 'bg-red-50 text-red-700 border-red-200';
+      break;
+  }
+  
+  return (
+    <Badge variant="outline" className={badgeClass}>
+      {difficulty}
+    </Badge>
+  );
+};
+
+// Function to render recommended badge
+const RecommendedBadge = ({ recommended }: { recommended: boolean }) => {
+  if (!recommended) return null;
+  
+  return (
+    <Badge className="bg-purple-100 text-purple-700 border-purple-200 flex items-center gap-1">
+      <Star className="h-3 w-3 fill-purple-500" />
+      Recommended
+    </Badge>
+  );
+};
+
+// Concept card component
+const ConceptCard = ({ 
+  concept, 
+  onCardClick 
+}: { 
+  concept: typeof mockConceptCards[0];
+  onCardClick: (id: string) => void;
+}) => {
+  return (
+    <Card 
+      className="hover:shadow-md transition-shadow cursor-pointer"
+      onClick={() => onCardClick(concept.id)}
+    >
+      <CardHeader className="pb-2 flex flex-row items-start justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <Book className="h-4 w-4 text-blue-600" />
+            <CardTitle className="text-lg">{concept.title}</CardTitle>
+          </div>
+          <CardDescription>{concept.subject} - {concept.chapter}</CardDescription>
+        </div>
+        <DifficultyBadge difficulty={concept.difficulty} />
+      </CardHeader>
+      <CardContent className="pb-3">
+        <p className="text-sm text-gray-700 line-clamp-2 mb-3">{concept.description}</p>
+        
+        <div className="flex items-center justify-between mb-1 mt-4">
+          <span className="text-xs text-gray-500">Mastery</span>
+          <span className="text-xs font-medium">{concept.mastery}%</span>
+        </div>
+        <Progress value={concept.mastery} className="h-1.5" />
+        
+        <div className="flex items-center justify-between mt-4 text-xs text-gray-500">
+          <div className="flex items-center gap-1">
+            <Clock className="h-3 w-3" />
+            {concept.lastStudied}
+          </div>
+          <ConceptStatusBadge completed={concept.completed} mastery={concept.mastery} />
+        </div>
+      </CardContent>
+      <CardFooter className="pt-0 flex items-center justify-between">
+        <div className="flex gap-1 flex-wrap">
+          {concept.reviewPriority === 'high' ? (
+            <Badge variant="destructive" className="text-xs">Review Soon</Badge>
+          ) : null}
+          <RecommendedBadge recommended={concept.recommendedForYou} />
+        </div>
+      </CardFooter>
+    </Card>
+  );
+};
+
+// Enhanced Concept Card with more features
+const EnhancedConceptCard = ({ 
+  concept, 
+  onCardClick 
+}: { 
+  concept: typeof mockConceptCards[0];
+  onCardClick: (id: string) => void;
+}) => {
   const { toast } = useToast();
-
-  // Enhanced mock data for concepts with new tracking features
-  const concepts: ConceptCard[] = [
-    {
-      id: 'concept-1',
-      title: "Newton's Laws of Motion",
-      subject: "Physics",
-      chapter: "Mechanics",
-      description: "Learn about Newton's three laws of motion and their applications in various scenarios.",
-      difficulty: "Medium",
-      timeEstimate: 30,
-      tags: ["Mechanics", "Forces", "Motion"],
-      completed: false,
-      progress: 0,
-      scheduledFor: "today",
-      isRecommended: true,
-      masteryScore: 65,
-      relatedFlashcards: ['flash-1', 'flash-2'],
-      relatedExams: ['exam-1'],
-      relatedConcepts: ['concept-3', 'concept-6'],
-      // New enhanced data
-      accuracyRate: 68,
-      timeSpent: 45,
-      firstStudied: '2023-04-15',
-      recallAttempts: 4,
-      recallSuccess: 3,
-      nextReviewDate: 'tomorrow',
-      retentionScore: 72,
-      hasBookmark: true,
-      hasNotes: true,
-      realWorldApplications: ['Rocket Propulsion', 'Car Safety', 'Sports Dynamics'],
-      suggestedFocusAreas: ['Third Law Applications']
-    },
-    {
-      id: 'concept-2',
-      title: "Periodic Table of Elements",
-      subject: "Chemistry",
-      chapter: "Atomic Structure",
-      description: "Explore the periodic table and understand element properties and trends.",
-      difficulty: "Easy",
-      timeEstimate: 25,
-      tags: ["Elements", "Periodic Table", "Properties"],
-      completed: false,
-      progress: 0,
-      scheduledFor: "today",
-      masteryScore: 45,
-      relatedFlashcards: ['flash-3'],
-      relatedExams: ['exam-2'],
-      relatedConcepts: ['concept-5'],
-      // New enhanced data
-      accuracyRate: 52,
-      timeSpent: 20,
-      firstStudied: '2023-04-02',
-      recallAttempts: 2,
-      recallSuccess: 1,
-      nextReviewDate: 'today',
-      retentionScore: 48,
-      hasBookmark: false,
-      hasNotes: false,
-      realWorldApplications: ['Battery Technology', 'Medical Imaging', 'Materials Science'],
-      suggestedFocusAreas: ['Noble Gases', 'Transition Metals']
-    },
-    {
-      id: 'concept-3',
-      title: "Calculus: Integration Techniques",
-      subject: "Mathematics",
-      chapter: "Calculus",
-      description: "Master various integration techniques including substitution and parts.",
-      difficulty: "Hard",
-      timeEstimate: 45,
-      tags: ["Integration", "Calculus", "Advanced Math"],
-      completed: false,
-      progress: 0,
-      scheduledFor: "tomorrow",
-      isRecommended: true,
-      masteryScore: 35,
-      relatedFlashcards: ['flash-4', 'flash-5'],
-      relatedExams: ['exam-3'],
-      relatedConcepts: ['concept-1'],
-      // New enhanced data
-      accuracyRate: 40,
-      timeSpent: 60,
-      firstStudied: '2023-03-28',
-      recallAttempts: 6,
-      recallSuccess: 2,
-      nextReviewDate: 'in 2 days',
-      retentionScore: 35,
-      hasBookmark: true,
-      hasNotes: true,
-      realWorldApplications: ['Engineering Design', 'Economic Models', 'Computer Graphics'],
-      suggestedFocusAreas: ['Integration by Parts', 'Substitution Method']
-    },
-    {
-      id: 'concept-4',
-      title: "Cell Structure and Function",
-      subject: "Biology",
-      chapter: "Cell Biology",
-      description: "Understand the structure of cells and their various functions in organisms.",
-      difficulty: "Medium",
-      timeEstimate: 35,
-      tags: ["Cell", "Biology", "Organelles"],
-      completed: true,
-      progress: 100,
-      lastViewed: "2 days ago",
-      masteryScore: 92,
-      relatedFlashcards: ['flash-6'],
-      relatedExams: ['exam-4'],
-      relatedConcepts: [],
-      // New enhanced data
-      accuracyRate: 95,
-      timeSpent: 30,
-      firstStudied: '2023-03-15',
-      recallAttempts: 1,
-      recallSuccess: 1,
-      nextReviewDate: 'none',
-      retentionScore: 90,
-      hasBookmark: false,
-      hasNotes: false,
-      realWorldApplications: ['Drug Development', 'Genetic Engineering', 'Disease Diagnosis'],
-      suggestedFocusAreas: []
-    },
-    {
-      id: 'concept-5',
-      title: "Organic Chemistry: Alkenes",
-      subject: "Chemistry",
-      chapter: "Organic Chemistry",
-      description: "Learn about structure, properties and reactions of alkenes.",
-      difficulty: "Hard",
-      timeEstimate: 40,
-      tags: ["Organic", "Alkenes", "Reactions"],
-      completed: false,
-      progress: 65,
-      lastViewed: "yesterday",
-      masteryScore: 58,
-      relatedFlashcards: ['flash-7', 'flash-8'],
-      relatedExams: [],
-      relatedConcepts: ['concept-2'],
-      // New enhanced data
-      accuracyRate: 60,
-      timeSpent: 50,
-      firstStudied: '2023-02-28',
-      recallAttempts: 3,
-      recallSuccess: 2,
-      nextReviewDate: 'in 5 days',
-      retentionScore: 62,
-      hasBookmark: true,
-      hasNotes: false,
-      realWorldApplications: ['Plastics Industry', 'Pharmaceuticals', 'Fuel Production'],
-      suggestedFocusAreas: ['Addition Reactions', 'Polymerization']
-    },
-    {
-      id: 'concept-6',
-      title: "Electromagnetic Induction",
-      subject: "Physics",
-      chapter: "Electromagnetism",
-      description: "Understand electromagnetic induction and Faraday's laws.",
-      difficulty: "Hard",
-      timeEstimate: 40,
-      tags: ["Electromagnetism", "Induction", "Faraday"],
-      completed: false,
-      progress: 25,
-      lastViewed: "3 days ago",
-      masteryScore: 42,
-      relatedFlashcards: ['flash-9'],
-      relatedExams: ['exam-5'],
-      relatedConcepts: ['concept-1'],
-      // New enhanced data
-      accuracyRate: 45,
-      timeSpent: 55,
-      firstStudied: '2023-02-15',
-      recallAttempts: 5,
-      recallSuccess: 1,
-      nextReviewDate: 'in 1 week',
-      retentionScore: 40,
-      hasBookmark: false,
-      hasNotes: true,
-      realWorldApplications: ['Electric Generators', 'Transformers', 'Wireless Charging'],
-      suggestedFocusAreas: ['Lenzs Law', 'Applications of Induction']
-    }
-  ];
-
-  // Show a random highlighted concept when page loads
-  useEffect(() => {
-    const recommendedConcepts = concepts.filter(concept => concept.isRecommended);
-    if (recommendedConcepts.length > 0) {
-      const randomIndex = Math.floor(Math.random() * recommendedConcepts.length);
-      setHighlightedConcept(recommendedConcepts[randomIndex]);
-    } else if (concepts.length > 0) {
-      const randomIndex = Math.floor(Math.random() * concepts.length);
-      setHighlightedConcept(concepts[randomIndex]);
-    }
-  }, []);
-
-  // Filter concepts based on tab and search
-  const getFilteredConcepts = () => {
-    let filtered = concepts;
-    
-    // Filter by tab
-    if (activeTab === 'today') {
-      filtered = filtered.filter(concept => concept.scheduledFor === 'today');
-    } else if (activeTab === 'completed') {
-      filtered = filtered.filter(concept => concept.completed);
-    } else if (activeTab === 'in-progress') {
-      filtered = filtered.filter(concept => !concept.completed && concept.progress > 0);
-    } else if (activeTab === 'recommended') {
-      filtered = filtered.filter(concept => concept.isRecommended);
-    } else if (activeTab === 'bookmarked') {
-      filtered = filtered.filter(concept => concept.hasBookmark);
-    } else if (activeTab === 'with-notes') {
-      filtered = filtered.filter(concept => concept.hasNotes);
-    } else if (activeTab !== 'all') {
-      // Filter by subject
-      filtered = filtered.filter(concept => concept.subject.toLowerCase() === activeTab);
-    }
-    
-    // Apply search filter
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(concept => 
-        concept.title.toLowerCase().includes(query) || 
-        concept.subject.toLowerCase().includes(query) ||
-        concept.tags.some(tag => tag.toLowerCase().includes(query))
-      );
-    }
-    
-    return filtered;
-  };
-
-  const filteredConcepts = getFilteredConcepts();
+  const [isBookmarked, setIsBookmarked] = useState(false);
   
-  // Get list of unique subjects
-  const subjects = Array.from(new Set(concepts.map(concept => concept.subject.toLowerCase())));
-  
-  // Handle card click to navigate to concept detail
-  const handleConceptClick = (conceptId: string) => {
-    navigate(`/dashboard/student/concepts/card/${conceptId}`);
-  };
-
-  // Handle start learning button click
-  const handleStartLearningClick = (e: React.MouseEvent<HTMLButtonElement>, conceptId: string) => {
-    e.stopPropagation(); // Prevent triggering the card click
-    navigate(`/dashboard/student/concepts/${conceptId}/study`);
+  const handleBookmarkClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsBookmarked(!isBookmarked);
     
     toast({
-      title: "Loading concept study materials",
-      description: "Preparing your personalized learning experience",
-    });
-  };
-
-  // Handle bookmark click
-  const handleBookmarkClick = (e: React.MouseEvent<HTMLButtonElement>, conceptId: string) => {
-    e.stopPropagation(); // Prevent triggering the card click
-    
-    // Find the concept and toggle bookmark state
-    const updatedConcepts = concepts.map(concept => {
-      if (concept.id === conceptId) {
-        return {
-          ...concept,
-          hasBookmark: !concept.hasBookmark
-        };
-      }
-      return concept;
-    });
-    
-    // In a real app, we'd update the state and send to backend
-    // For this demo, just show toast
-    const concept = concepts.find(c => c.id === conceptId);
-    const isBookmarked = concept?.hasBookmark;
-    
-    toast({
-      title: isBookmarked ? "Bookmark removed" : "Concept bookmarked",
+      title: isBookmarked ? "Removed from bookmarks" : "Added to bookmarks",
       description: isBookmarked 
-        ? "Concept removed from your bookmarks" 
-        : "You can access this concept from your bookmarks section",
+        ? `${concept.title} has been removed from your bookmarks` 
+        : `${concept.title} has been added to your bookmarks`,
     });
   };
+  
+  return (
+    <Card 
+      className="hover:shadow-md transition-shadow cursor-pointer border-l-4"
+      style={{ borderLeftColor: concept.reviewPriority === 'high' ? '#ef4444' : concept.reviewPriority === 'medium' ? '#f59e0b' : '#3b82f6' }}
+      onClick={() => onCardClick(concept.id)}
+    >
+      <CardHeader className="pb-2">
+        <div className="flex justify-between">
+          <div className="flex items-center gap-2 mb-1">
+            <Book className="h-4 w-4 text-blue-600" />
+            <CardTitle className="text-lg">{concept.title}</CardTitle>
+          </div>
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="h-8 w-8" 
+            onClick={handleBookmarkClick}
+          >
+            <Bookmark className={`h-4 w-4 ${isBookmarked ? 'fill-yellow-400 text-yellow-400' : ''}`} />
+          </Button>
+        </div>
+        <CardDescription>{concept.subject} - {concept.chapter}</CardDescription>
+      </CardHeader>
+      
+      <CardContent className="pb-3 space-y-4">
+        <p className="text-sm text-gray-700 line-clamp-2">{concept.description}</p>
+        
+        <div className="flex flex-wrap gap-1">
+          <DifficultyBadge difficulty={concept.difficulty} />
+          <RecommendedBadge recommended={concept.recommendedForYou} />
+          {concept.reviewPriority === 'high' ? (
+            <Badge variant="destructive" className="text-xs">Review Soon</Badge>
+          ) : null}
+        </div>
+        
+        <div className="space-y-2">
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-xs text-gray-500 flex items-center gap-1">
+              <Brain className="h-3 w-3" /> Concept Mastery
+            </span>
+            <span className="text-xs font-medium">{concept.mastery}%</span>
+          </div>
+          <Progress value={concept.mastery} className="h-1.5" />
+        </div>
+        
+        <div className="flex justify-between text-xs text-gray-500">
+          <div className="flex items-center gap-1">
+            <Clock className="h-3 w-3" />
+            Last studied {concept.lastStudied}
+          </div>
+          <div>
+            Next review: {concept.nextReviewDate}
+          </div>
+        </div>
+        
+        <div className="pt-2 flex justify-between items-center">
+          <ConceptStatusBadge completed={concept.completed} mastery={concept.mastery} />
+          <Button variant="ghost" size="sm" className="gap-1 h-7 text-xs">
+            Learn More <ChevronRight className="h-3 w-3" />
+          </Button>
+        </div>
+        
+        {/* New: Real-world Integration */}
+        <div className="border-t pt-3 mt-2">
+          <div className="text-xs text-blue-600 font-medium flex items-center gap-1 mb-1">
+            <GraduationCap className="h-3 w-3" /> Real-world Application
+          </div>
+          <p className="text-xs text-gray-600">
+            Used in modern applications like {concept.subject === 'Physics' ? 'smartphone accelerometers, vehicle safety systems, and space exploration' : 'pharmaceuticals, materials science, and environmental monitoring'}.
+          </p>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
 
-  // Difficulty badge color
-  const getDifficultyColor = (difficulty: string) => {
-    switch (difficulty) {
-      case 'Easy': return 'bg-green-100 text-green-800 border-green-200';
-      case 'Medium': return 'bg-amber-100 text-amber-800 border-amber-200';
-      case 'Hard': return 'bg-red-100 text-red-800 border-red-200';
-      default: return 'bg-blue-100 text-blue-800 border-blue-200';
+export const ConceptsLandingPage = () => {
+  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedSubject, setSelectedSubject] = useState("All Subjects");
+  const [selectedDifficulty, setSelectedDifficulty] = useState("All Difficulties");
+  const [cardView, setCardView] = useState<"simple" | "enhanced">("enhanced");
+  
+  const handleConceptCardClick = (id: string) => {
+    navigate(`/dashboard/student/concepts/card/${id}`);
+  };
+  
+  // Filter concepts based on search, subject and difficulty
+  const filteredConcepts = mockConceptCards.filter(concept => {
+    // Search filter
+    const matchesSearch = searchQuery === "" || 
+      concept.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      concept.description.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    // Subject filter
+    const matchesSubject = selectedSubject === "All Subjects" || 
+      concept.subject === selectedSubject;
+    
+    // Difficulty filter
+    const matchesDifficulty = selectedDifficulty === "All Difficulties" || 
+      concept.difficulty === selectedDifficulty;
+    
+    // Tab filter
+    let matchesTab = true;
+    switch (activeTab) {
+      case "bookmarked":
+        // For demo, just show some random ones
+        matchesTab = concept.id === '1' || concept.id === '3';
+        break;
+      case "incomplete":
+        matchesTab = !concept.completed;
+        break;
+      case "completed":
+        matchesTab = concept.completed;
+        break;
+      case "recommended":
+        matchesTab = concept.recommendedForYou;
+        break;
+      case "all":
+      default:
+        matchesTab = true;
+        break;
     }
-  };
-
-  // Mastery level color
-  const getMasteryColor = (score: number) => {
-    if (score >= 80) return 'bg-green-500';
-    if (score >= 60) return 'bg-amber-500';
-    return 'bg-red-500';
-  };
-
-  // Retention score color
-  const getRetentionScoreColor = (score: number) => {
-    if (score >= 80) return 'text-green-600';
-    if (score >= 50) return 'text-amber-600';
-    return 'text-red-600';
-  };
-
+    
+    return matchesSearch && matchesSubject && matchesDifficulty && matchesTab;
+  });
+  
   return (
     <SharedPageLayout
       title="Concept Cards"
-      subtitle="Master key concepts through interactive learning cards"
+      subtitle="Master key concepts through comprehensive study cards"
     >
       <div className="space-y-6">
-        {/* Featured concept section with enhanced tracking */}
-        {highlightedConcept && (
-          <div className="mb-8">
-            <h2 className="text-xl font-bold mb-4 flex items-center">
-              <Sparkles className="mr-2 h-5 w-5 text-amber-500" />
-              Featured Concept
-            </h2>
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 rounded-lg overflow-hidden shadow-md">
-              <div className="grid md:grid-cols-3 gap-6 p-6">
-                <div className="md:col-span-2">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <Badge variant="outline">
-                        {highlightedConcept.subject}
-                      </Badge>
-                      <Badge variant="outline" className={getDifficultyColor(highlightedConcept.difficulty)}>
-                        {highlightedConcept.difficulty}
-                      </Badge>
-                      {highlightedConcept.isRecommended && (
-                        <Badge className="bg-purple-100 text-purple-800 border-purple-200">
-                          <Star className="h-3 w-3 mr-1 fill-purple-500" />
-                          Recommended
-                        </Badge>
-                      )}
-                    </div>
-                    <Button 
-                      variant="ghost" 
-                      size="icon"
-                      className={highlightedConcept.hasBookmark ? "text-yellow-500" : ""}
-                      onClick={(e) => handleBookmarkClick(e, highlightedConcept.id)}
-                    >
-                      {highlightedConcept.hasBookmark ? (
-                        <Bookmark className="h-5 w-5 fill-yellow-500" />
-                      ) : (
-                        <BookmarkPlus className="h-5 w-5" />
-                      )}
-                    </Button>
-                  </div>
-                  <h3 className="text-xl font-bold mb-2">{highlightedConcept.title}</h3>
-                  <p className="text-sm text-muted-foreground mb-4">{highlightedConcept.description}</p>
-                  
-                  {/* Real-World Application Section */}
-                  {highlightedConcept.realWorldApplications && (
-                    <div className="mb-4 bg-blue-50/50 dark:bg-blue-900/10 p-3 rounded-md flex gap-2">
-                      <Globe className="h-5 w-5 text-blue-500 flex-shrink-0 mt-0.5" />
-                      <div>
-                        <p className="text-xs font-medium text-blue-700 dark:text-blue-300 mb-1">Real-world Applications:</p>
-                        <div className="flex flex-wrap gap-1">
-                          {highlightedConcept.realWorldApplications.map((app, i) => (
-                            <Badge key={i} variant="outline" className="bg-blue-100/50 text-blue-700 border-blue-200">
-                              {app}
-                            </Badge>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                  
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {highlightedConcept.tags.map(tag => (
-                      <Badge key={tag} variant="secondary" className="text-xs">
-                        <Tag className="h-3 w-3 mr-1" />
-                        {tag}
-                      </Badge>
-                    ))}
-                  </div>
-                  <Button 
-                    size="lg"
-                    className="w-full md:w-auto mt-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
-                    onClick={(e) => handleStartLearningClick(e, highlightedConcept.id)}
-                  >
-                    <BookOpen className="mr-2 h-4 w-4" />
-                    Start Learning Now
-                  </Button>
-                </div>
-                <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
-                  {/* Enhanced Learning Analytics */}
-                  <h4 className="font-semibold mb-3 flex items-center">
-                    <Brain className="h-4 w-4 mr-1 text-indigo-500" />
-                    Learning Analytics
-                  </h4>
-                  
-                  {/* Concept Mastery */}
-                  <div className="mb-3">
-                    <div className="flex justify-between items-center mb-1">
-                      <span className="text-sm">Mastery Score</span>
-                      <span className="text-sm font-medium">{highlightedConcept.masteryScore}%</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div 
-                        className={`h-2 rounded-full ${getMasteryColor(highlightedConcept.masteryScore || 0)}`} 
-                        style={{width: `${highlightedConcept.masteryScore}%`}}
-                      ></div>
-                    </div>
-                  </div>
-                  
-                  {/* Accuracy Rate */}
-                  {highlightedConcept.accuracyRate !== undefined && (
-                    <div className="mb-3">
-                      <div className="flex justify-between items-center mb-1">
-                        <span className="text-sm">Accuracy Rate</span>
-                        <span className="text-sm font-medium">{highlightedConcept.accuracyRate}%</span>
-                      </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div 
-                          className={`h-2 rounded-full ${highlightedConcept.accuracyRate >= 70 ? 'bg-green-500' : 'bg-amber-500'}`} 
-                          style={{width: `${highlightedConcept.accuracyRate}%`}}
-                        ></div>
-                      </div>
-                    </div>
-                  )}
-                  
-                  {/* Recall & Retention */}
-                  {highlightedConcept.retentionScore !== undefined && (
-                    <div className="mb-3">
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm">Long-term Retention</span>
-                        <span className={`text-sm font-medium ${getRetentionScoreColor(highlightedConcept.retentionScore)}`}>
-                          {highlightedConcept.retentionScore}%
-                        </span>
-                      </div>
-                      <div className="mt-2 flex items-center gap-2 text-xs">
-                        <RotateCw className="h-3.5 w-3.5 text-blue-500" />
-                        <span>
-                          Next review: <span className="font-medium">{highlightedConcept.nextReviewDate}</span>
-                        </span>
-                      </div>
-                    </div>
-                  )}
-                  
-                  {/* Time & Activity Stats */}
-                  <div className="grid grid-cols-2 gap-2 text-sm mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
-                    <div className="flex items-center">
-                      <Clock className="h-4 w-4 mr-1 text-blue-500" />
-                      <span>{highlightedConcept.timeSpent || highlightedConcept.timeEstimate} min</span>
-                    </div>
-                    {highlightedConcept.recallAttempts !== undefined && (
-                      <div className="flex items-center">
-                        <Activity className="h-4 w-4 mr-1 text-green-500" />
-                        <span>{highlightedConcept.recallSuccess}/{highlightedConcept.recallAttempts} recalls</span>
-                      </div>
-                    )}
-                    <div className="flex items-center">
-                      <Calendar className="h-4 w-4 mr-1 text-amber-500" />
-                      <span>Due: {highlightedConcept.scheduledFor || 'anytime'}</span>
-                    </div>
-                    {highlightedConcept.suggestedFocusAreas && highlightedConcept.suggestedFocusAreas.length > 0 && (
-                      <div className="flex items-center">
-                        <AlertCircle className="h-4 w-4 mr-1 text-indigo-500" />
-                        <span>Focus needed</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div className="relative">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
+            <Input
+              type="search"
+              placeholder="Search concepts..."
+              className="pl-9 md:w-[300px]"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
           </div>
-        )}
-
-        {/* Search and filter bar */}
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-          <Input 
-            placeholder="Search concepts by title, subject, or tag..." 
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9 w-full"
-          />
-        </div>
-
-        {/* Enhanced Tabs for filtering */}
-        <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="w-full overflow-x-auto flex flex-nowrap justify-start p-1 bg-gray-100 dark:bg-gray-800 rounded-xl">
-            <TabsTrigger value="all" className="rounded-lg">All Concepts</TabsTrigger>
-            <TabsTrigger value="today" className="rounded-lg">Due Today</TabsTrigger>
-            <TabsTrigger value="recommended" className="rounded-lg">Recommended</TabsTrigger>
-            <TabsTrigger value="in-progress" className="rounded-lg">In Progress</TabsTrigger>
-            <TabsTrigger value="completed" className="rounded-lg">Completed</TabsTrigger>
-            <TabsTrigger value="bookmarked" className="rounded-lg">Bookmarked</TabsTrigger>
-            <TabsTrigger value="with-notes" className="rounded-lg">With Notes</TabsTrigger>
-            {subjects.map(subject => (
-              <TabsTrigger key={subject} value={subject} className="capitalize rounded-lg">
-                {subject}
-              </TabsTrigger>
-            ))}
-          </TabsList>
-
-          <TabsContent value={activeTab} className="mt-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredConcepts.map(concept => (
-                <Card 
-                  key={concept.id}
-                  className={`cursor-pointer transition-all hover:shadow-md overflow-hidden border-l-4 ${
-                    concept.completed 
-                      ? 'border-l-green-500' 
-                      : concept.progress > 0 
-                        ? 'border-l-blue-500' 
-                        : concept.isRecommended 
-                          ? 'border-l-violet-500' 
-                          : 'border-l-gray-300'
-                  } hover:translate-y-[-2px] transition-transform duration-200`}
-                  onClick={() => handleConceptClick(concept.id)}
-                >
-                  <CardHeader className="pb-2 bg-gradient-to-r from-white to-gray-50 dark:from-gray-900 dark:to-gray-800">
-                    <div className="flex justify-between items-start mb-1">
-                      <div className="flex flex-wrap gap-1">
-                        <Badge variant="outline" className={getDifficultyColor(concept.difficulty)}>
-                          {concept.difficulty}
-                        </Badge>
-                        {concept.isRecommended && (
-                          <Badge variant="outline" className="bg-violet-50 text-violet-800 border-violet-200">
-                            <Star className="h-3 w-3 mr-1 fill-violet-500 text-violet-500" />
-                            Recommended
-                          </Badge>
-                        )}
-                        {concept.scheduledFor === 'today' && (
-                          <Badge className="bg-blue-100 text-blue-800 border-blue-200">
-                            <Clock className="h-3 w-3 mr-1" />
-                            Due Today
-                          </Badge>
-                        )}
-                      </div>
-                      <Button 
-                        variant="ghost" 
-                        size="icon"
-                        className={`h-8 w-8 ${concept.hasBookmark ? "text-yellow-500" : ""}`}
-                        onClick={(e) => handleBookmarkClick(e, concept.id)}
-                      >
-                        {concept.hasBookmark ? (
-                          <Bookmark className="h-4 w-4 fill-yellow-500" />
-                        ) : (
-                          <BookmarkPlus className="h-4 w-4" />
-                        )}
-                      </Button>
-                    </div>
-                    <CardTitle className="text-lg group-hover:text-blue-600">{concept.title}</CardTitle>
-                  </CardHeader>
-                  
-                  <CardContent className="pb-2">
-                    <div className="text-sm text-muted-foreground line-clamp-2 mb-3">
-                      {concept.description}
-                    </div>
-                    
-                    {/* Enhanced metrics section */}
-                    <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm mb-3">
-                      {concept.masteryScore !== undefined && (
-                        <div className="col-span-2">
-                          <div className="flex justify-between text-xs mb-0.5">
-                            <span>Mastery Score</span>
-                            <span>{concept.masteryScore}%</span>
-                          </div>
-                          <Progress value={concept.masteryScore} className="h-1" />
-                        </div>
-                      )}
-                      
-                      {concept.accuracyRate !== undefined && (
-                        <div className="flex items-center">
-                          <BarChart2 className="h-3.5 w-3.5 mr-1 text-blue-500" />
-                          <span>{concept.accuracyRate}% accuracy</span>
-                        </div>
-                      )}
-                      
-                      {concept.recallAttempts !== undefined && (
-                        <div className="flex items-center">
-                          <Brain className="h-3.5 w-3.5 mr-1 text-violet-500" />
-                          <span>{concept.recallSuccess}/{concept.recallAttempts} recalls</span>
-                        </div>
-                      )}
-                    </div>
-                    
-                    {/* Real-world applications - condensed */}
-                    {concept.realWorldApplications && concept.realWorldApplications.length > 0 && (
-                      <div className="mb-3">
-                        <div className="flex gap-1 items-center mb-1">
-                          <Globe className="h-3.5 w-3.5 text-blue-500" />
-                          <p className="text-xs font-medium text-blue-700 dark:text-blue-300">Used in real world:</p>
-                        </div>
-                        <div className="flex flex-wrap gap-1">
-                          {concept.realWorldApplications.slice(0, 2).map((app, i) => (
-                            <Badge key={i} variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 text-xs">
-                              {app}
-                            </Badge>
-                          ))}
-                          {concept.realWorldApplications.length > 2 && (
-                            <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 text-xs">
-                              +{concept.realWorldApplications.length - 2} more
-                            </Badge>
-                          )}
-                        </div>
-                      </div>
-                    )}
-                    
-                    <div className="flex flex-wrap gap-1 mb-3">
-                      {concept.tags.map(tag => (
-                        <Badge key={tag} variant="secondary" className="text-xs">
-                          <Tag className="h-3 w-3 mr-1" />
-                          {tag}
-                        </Badge>
-                      ))}
-                    </div>
-                    
-                    <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground border-t pt-2 mt-2">
-                      <div className="flex items-center">
-                        <Clock className="h-3.5 w-3.5 mr-1" />
-                        <span>~{concept.timeEstimate} min</span>
-                      </div>
-                      {concept.lastViewed && (
-                        <div className="flex items-center">
-                          <Calendar className="h-3.5 w-3.5 mr-1" />
-                          <span>Viewed: {concept.lastViewed}</span>
-                        </div>
-                      )}
-                      {concept.nextReviewDate && (
-                        <div className="flex items-center text-blue-600">
-                          <RotateCw className="h-3.5 w-3.5 mr-1" />
-                          <span>Review: {concept.nextReviewDate}</span>
-                        </div>
-                      )}
-                      {concept.hasNotes && (
-                        <div className="flex items-center">
-                          <PenLine className="h-3.5 w-3.5 mr-1 text-amber-500" />
-                          <span>Has notes</span>
-                        </div>
-                      )}
-                    </div>
-                  </CardContent>
-                  
-                  <CardFooter className="pt-0 pb-3">
-                    <Button 
-                      variant={concept.completed ? "outline" : "default"}
-                      className="w-full"
-                      onClick={(e) => handleStartLearningClick(e, concept.id)}
-                    >
-                      {concept.completed 
-                        ? 'Review Again' 
-                        : concept.progress > 0 
-                          ? 'Continue Learning' 
-                          : 'Start Learning'
-                      }
-                      <ChevronRight className="h-4 w-4 ml-1" />
-                    </Button>
-                  </CardFooter>
-                </Card>
-              ))}
+          
+          <div className="flex flex-wrap gap-2">
+            <div className="flex">
+              <Button
+                variant={cardView === "simple" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setCardView("simple")}
+                className="rounded-r-none"
+              >
+                Simple View
+              </Button>
+              <Button
+                variant={cardView === "enhanced" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setCardView("enhanced")}
+                className="rounded-l-none"
+              >
+                Enhanced View
+              </Button>
             </div>
             
-            {filteredConcepts.length === 0 && (
-              <div className="text-center py-12 text-muted-foreground">
-                <BookOpen className="h-12 w-12 mx-auto mb-3 text-muted-foreground opacity-20" />
-                <h3 className="text-lg font-medium mb-1">No concept cards found</h3>
-                <p>Try adjusting your filter or search criteria</p>
-              </div>
-            )}
-          </TabsContent>
-        </Tabs>
-
-        {/* Learning Insights Section */}
-        <div className="mt-10">
-          <h2 className="text-xl font-bold mb-4 flex items-center">
-            <Lightbulb className="mr-2 h-5 w-5 text-amber-500" />
-            Learning Insights
-          </h2>
+            <select
+              className="px-3 py-1 rounded-md text-sm border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              value={selectedSubject}
+              onChange={(e) => setSelectedSubject(e.target.value)}
+            >
+              {subjects.map(subject => (
+                <option key={subject} value={subject}>{subject}</option>
+              ))}
+            </select>
+            
+            <select
+              className="px-3 py-1 rounded-md text-sm border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              value={selectedDifficulty}
+              onChange={(e) => setSelectedDifficulty(e.target.value)}
+            >
+              {difficultyLevels.map(level => (
+                <option key={level} value={level}>{level}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+        
+        <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="w-full md:w-auto">
+            <TabsTrigger value="all">All Concepts</TabsTrigger>
+            <TabsTrigger value="recommended">Recommended</TabsTrigger>
+            <TabsTrigger value="incomplete">Need Review</TabsTrigger>
+            <TabsTrigger value="completed">Completed</TabsTrigger>
+            <TabsTrigger value="bookmarked">Bookmarked</TabsTrigger>
+          </TabsList>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Card className="bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-900/40">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-md flex items-center">
-                  <Activity className="mr-2 h-4 w-4 text-blue-600" />
-                  Study Recommendations
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-2">
-                  <li className="flex items-start">
-                    <div className="bg-blue-100 p-1 rounded-full mr-2 mt-0.5">
-                      <TrendingUp className="h-3 w-3 text-blue-600" />
+          <div className="mt-6">
+            <TabsContent value="all" className="space-y-6 m-0">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {filteredConcepts.length > 0 ? (
+                  filteredConcepts.map(concept => (
+                    cardView === "simple" ? (
+                      <ConceptCard
+                        key={concept.id}
+                        concept={concept}
+                        onCardClick={handleConceptCardClick}
+                      />
+                    ) : (
+                      <EnhancedConceptCard
+                        key={concept.id}
+                        concept={concept}
+                        onCardClick={handleConceptCardClick}
+                      />
+                    )
+                  ))
+                ) : (
+                  <div className="col-span-full text-center py-10">
+                    <BookOpen className="mx-auto h-10 w-10 text-gray-400 mb-3" />
+                    <h3 className="text-lg font-medium text-gray-900 mb-1">No concepts found</h3>
+                    <p className="text-gray-500 max-w-md mx-auto">
+                      Try adjusting your search or filters to find what you're looking for.
+                    </p>
+                  </div>
+                )}
+              </div>
+              
+              {/* Learning Stats Section */}
+              <Card className="mt-8 bg-gradient-to-r from-blue-50 to-indigo-50">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <BarChart2 className="h-5 w-5 text-blue-600" />
+                    Your Learning Progress
+                  </CardTitle>
+                  <CardDescription>
+                    Track your concept mastery and study patterns
+                  </CardDescription>
+                </CardHeader>
+                
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="bg-white p-4 rounded-lg shadow-sm">
+                      <div className="flex items-center justify-between mb-2">
+                        <h4 className="text-sm font-medium text-gray-700">Concepts Mastered</h4>
+                        <Badge className="bg-green-100 text-green-800 hover:bg-green-100">73%</Badge>
+                      </div>
+                      <Progress value={73} className="h-2" />
+                      <p className="mt-2 text-xs text-gray-500">2 new concepts mastered this week</p>
                     </div>
-                    <span className="text-sm">Focus on high-value concepts first</span>
-                  </li>
-                  <li className="flex items-start">
-                    <div className="bg-blue-100 p-1 rounded-full mr-2 mt-0.5">
-                      <Clock className="h-3 w-3 text-blue-600" />
+                    
+                    <div className="bg-white p-4 rounded-lg shadow-sm">
+                      <div className="flex items-center justify-between mb-2">
+                        <h4 className="text-sm font-medium text-gray-700">Study Streak</h4>
+                        <Badge className="bg-amber-100 text-amber-800 hover:bg-amber-100">14 days</Badge>
+                      </div>
+                      <div className="flex gap-1 mt-2">
+                        {Array.from({ length: 7 }).map((_, i) => (
+                          <div
+                            key={i}
+                            className={`h-6 w-6 rounded-sm ${i < 5 ? 'bg-green-500' : 'bg-gray-200'}`}
+                          />
+                        ))}
+                      </div>
+                      <p className="mt-2 text-xs text-gray-500">Keep going! You're on a roll!</p>
                     </div>
-                    <span className="text-sm">Study in 25-min focused sessions</span>
-                  </li>
-                  <li className="flex items-start">
-                    <div className="bg-blue-100 p-1 rounded-full mr-2 mt-0.5">
-                      <Brain className="h-3 w-3 text-blue-600" />
+                    
+                    <div className="bg-white p-4 rounded-lg shadow-sm">
+                      <h4 className="text-sm font-medium text-gray-700 mb-3">Top Subjects</h4>
+                      <div className="space-y-2">
+                        <div>
+                          <div className="flex justify-between text-xs mb-1">
+                            <span>Physics</span>
+                            <span>89%</span>
+                          </div>
+                          <Progress value={89} className="h-2" />
+                        </div>
+                        <div>
+                          <div className="flex justify-between text-xs mb-1">
+                            <span>Chemistry</span>
+                            <span>67%</span>
+                          </div>
+                          <Progress value={67} className="h-2" />
+                        </div>
+                        <div>
+                          <div className="flex justify-between text-xs mb-1">
+                            <span>Biology</span>
+                            <span>45%</span>
+                          </div>
+                          <Progress value={45} className="h-2" />
+                        </div>
+                      </div>
                     </div>
-                    <span className="text-sm">Review concepts after 48 hours</span>
-                  </li>
-                </ul>
-              </CardContent>
-            </
+                  </div>
+                </CardContent>
+              </Card>
+              
+              {/* Study Plan Section */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Brain className="h-5 w-5 text-purple-600" />
+                    Recommended Study Plan
+                  </CardTitle>
+                  <CardDescription>
+                    Personalized learning path based on your progress
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-4">
+                      <Avatar className="h-12 w-12 border-2 border-purple-200">
+                        <AvatarImage src="/lovable-uploads/2782b977-ddc8-4b86-bf7a-0426dd6792a0.png" />
+                        <AvatarFallback>AS</AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <h4 className="font-medium">Your AI Study Coach</h4>
+                        <p className="text-sm text-muted-foreground">
+                          Here's your personalized study plan for today
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                      {filteredConcepts.slice(0, 3).map((concept, index) => (
+                        <Button 
+                          key={concept.id}
+                          variant={index === 0 ? "default" : "outline"}
+                          className="justify-start h-auto py-3 px-4"
+                          onClick={() => handleConceptCardClick(concept.id)}
+                        >
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <div className="bg-blue-100 text-blue-800 w-5 h-5 rounded-full flex items-center justify-center text-xs font-medium">
+                                {index + 1}
+                              </div>
+                              <span className="font-medium">{concept.title}</span>
+                            </div>
+                            <p className="text-xs text-left mt-1 text-muted-foreground">
+                              {concept.subject} • {concept.mastery}% mastered
+                            </p>
+                          </div>
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+            
+            <TabsContent value="recommended" className="space-y-4 m-0">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {filteredConcepts.length > 0 ? (
+                  filteredConcepts.map(concept => (
+                    cardView === "simple" ? (
+                      <ConceptCard
+                        key={concept.id}
+                        concept={concept}
+                        onCardClick={handleConceptCardClick}
+                      />
+                    ) : (
+                      <EnhancedConceptCard
+                        key={concept.id}
+                        concept={concept}
+                        onCardClick={handleConceptCardClick}
+                      />
+                    )
+                  ))
+                ) : (
+                  <div className="col-span-full text-center py-10">
+                    <Star className="mx-auto h-10 w-10 text-gray-400 mb-3" />
+                    <h3 className="text-lg font-medium text-gray-900 mb-1">No recommended concepts</h3>
+                    <p className="text-gray-500">
+                      We'll recommend concepts as you continue your learning journey.
+                    </p>
+                  </div>
+                )}
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="incomplete" className="space-y-4 m-0">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {filteredConcepts.length > 0 ? (
+                  filteredConcepts.map(concept => (
+                    cardView === "simple" ? (
+                      <ConceptCard
+                        key={concept.id}
+                        concept={concept}
+                        onCardClick={handleConceptCardClick}
+                      />
+                    ) : (
+                      <EnhancedConceptCard
+                        key={concept.id}
+                        concept={concept}
+                        onCardClick={handleConceptCardClick}
+                      />
+                    )
+                  ))
+                ) : (
+                  <div className="col-span-full text-center py-10">
+                    <BookOpen className="mx-auto h-10 w-10 text-gray-400 mb-3" />
+                    <h3 className="text-lg font-medium text-gray-900 mb-1">All concepts completed!</h3>
+                    <p className="text-gray-500">
+                      Great job! You've completed all your concept cards.
+                    </p>
+                  </div>
+                )}
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="completed" className="space-y-4 m-0">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {filteredConcepts.length > 0 ? (
+                  filteredConcepts.map(concept => (
+                    cardView === "simple" ? (
+                      <ConceptCard
+                        key={concept.id}
+                        concept={concept}
+                        onCardClick={handleConceptCardClick}
+                      />
+                    ) : (
+                      <EnhancedConceptCard
+                        key={concept.id}
+                        concept={concept}
+                        onCardClick={handleConceptCardClick}
+                      />
+                    )
+                  ))
+                ) : (
+                  <div className="col-span-full text-center py-10">
+                    <BookOpen className="mx-auto h-10 w-10 text-gray-400 mb-3" />
+                    <h3 className="text-lg font-medium text-gray-900 mb-1">No completed concepts yet</h3>
+                    <p className="text-gray-500">
+                      Start learning and complete concepts to see them here.
+                    </p>
+                  </div>
+                )}
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="bookmarked" className="space-y-4 m-0">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {filteredConcepts.length > 0 ? (
+                  filteredConcepts.map(concept => (
+                    cardView === "simple" ? (
+                      <ConceptCard
+                        key={concept.id}
+                        concept={concept}
+                        onCardClick={handleConceptCardClick}
+                      />
+                    ) : (
+                      <EnhancedConceptCard
+                        key={concept.id}
+                        concept={concept}
+                        onCardClick={handleConceptCardClick}
+                      />
+                    )
+                  ))
+                ) : (
+                  <div className="col-span-full text-center py-10">
+                    <Bookmark className="mx-auto h-10 w-10 text-gray-400 mb-3" />
+                    <h3 className="text-lg font-medium text-gray-900 mb-1">No bookmarked concepts</h3>
+                    <p className="text-gray-500 max-w-md mx-auto">
+                      Bookmark important concepts for quick access.
+                    </p>
+                  </div>
+                )}
+              </div>
+            </TabsContent>
+          </div>
+        </Tabs>
+      </div>
+    </SharedPageLayout>
+  );
+};
