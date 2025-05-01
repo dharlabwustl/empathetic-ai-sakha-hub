@@ -84,6 +84,10 @@ const PostLoginWelcomeBack = () => {
       } catch (error) {
         console.error("Error parsing user data:", error);
       }
+    } else {
+      // If no user data, redirect to login
+      navigate('/login');
+      return;
     }
     
     // Auto-redirect after 30 seconds if no action taken

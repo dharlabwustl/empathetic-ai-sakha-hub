@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -46,7 +45,7 @@ const LoginPage = () => {
       if (user) {
         toast({
           title: "Login successful",
-          description: "Redirecting to welcome screen",
+          description: "Redirecting to your dashboard",
         });
         
         // Check for existing user data to determine if they're returning
@@ -54,15 +53,9 @@ const LoginPage = () => {
         if (userData) {
           try {
             const parsedData = JSON.parse(userData);
-            const loginCount = parsedData.loginCount ? parseInt(parsedData.loginCount) + 1 : 1;
+            const loginCount = parsedData.loginCount ? parseInt(parsedData.loginCount) : 1;
             
-            localStorage.setItem("userData", JSON.stringify({
-              ...parsedData,
-              loginCount,
-              lastLogin: new Date().toISOString()
-            }));
-            
-            // Redirect to welcome back screen for returning users
+            // For returning users
             if (loginCount > 1) {
               navigate("/welcome-back");
             } else {
@@ -71,10 +64,10 @@ const LoginPage = () => {
             }
           } catch (error) {
             console.error("Error parsing user data:", error);
-            navigate("/welcome-back");
+            navigate("/dashboard/student");
           }
         } else {
-          navigate("/welcome-back");
+          navigate("/dashboard/student");
         }
       } else {
         toast({
