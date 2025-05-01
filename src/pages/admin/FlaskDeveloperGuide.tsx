@@ -74,7 +74,7 @@ const FlaskDeveloperGuide = () => {
                     <li>Python 3.9+ installed</li>
                     <li>pip package manager</li>
                     <li>virtualenv (recommended)</li>
-                    <li>MongoDB (for data storage)</li>
+                    <li>MySQL (for data storage)</li>
                     <li>Redis (for caching and session management)</li>
                   </ul>
                   
@@ -90,7 +90,7 @@ python -m venv venv
 source venv/bin/activate  # On Windows: venv\\Scripts\\activate
 
 # Install required packages
-pip install flask flask-cors flask-restful flask-jwt-extended pymongo redis python-dotenv`}
+pip install flask flask-cors flask-restful flask-jwt-extended flask-sqlalchemy flask-migrate pymysql python-dotenv redis`}
                   </CodeBlock>
                   
                   <h3 className="text-lg font-medium text-gray-800 mt-4 mb-2">2.3 Project Structure</h3>
@@ -101,13 +101,14 @@ pip install flask flask-cors flask-restful flask-jwt-extended pymongo redis pyth
 ├── config.py               # Configuration settings
 ├── app.py                  # Application entry point
 ├── requirements.txt        # Python dependencies
+├── migrations/             # Database migrations
 ├── api/                    # API endpoints
 │   ├── __init__.py
 │   ├── auth.py             # Authentication endpoints
 │   ├── content.py          # Content endpoints
 │   ├── students.py         # Student management endpoints
 │   └── ai.py               # AI processing endpoints
-├── models/                 # Data models
+├── models/                 # SQLAlchemy models
 │   ├── __init__.py
 │   ├── user.py
 │   ├── content.py
@@ -135,9 +136,10 @@ pip install flask flask-cors flask-restful flask-jwt-extended pymongo redis pyth
 {`from flask import Flask
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
+from flask_migrate import Migrate
 from config import Config
 from api import register_routes
-from utils.database import init_db
+from models import db
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -145,11 +147,14 @@ app.config.from_object(Config)
 # Enable CORS
 CORS(app, resources={r"/api/*": {"origins": "*"}})
 
+# Initialize SQLAlchemy
+db.init_app(app)
+
+# Initialize migrations
+migrate = Migrate(app, db)
+
 # Initialize JWT
 jwt = JWTManager(app)
-
-# Initialize database connection
-init_db(app)
 
 # Register API routes
 register_routes(app)
@@ -177,8 +182,9 @@ class Config:
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=1)
     JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=30)
     
-    # Database settings
-    MONGO_URI = os.environ.get('MONGO_URI', 'mongodb://localhost:27017/sakha')
+    # Database settings - MySQL
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', 'mysql+pymysql://username:password@localhost/sakha')
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
     
     # Redis settings
     REDIS_URL = os.environ.get('REDIS_URL', 'redis://localhost:6379/0')
@@ -194,7 +200,7 @@ class Config:
 {`FLASK_ENV=development
 SECRET_KEY=your-secret-key
 JWT_SECRET_KEY=your-jwt-secret-key
-MONGO_URI=mongodb://localhost:27017/sakha
+DATABASE_URL=mysql+pymysql://username:password@localhost/sakha
 REDIS_URL=redis://localhost:6379/0
 OPENAI_API_KEY=your-openai-api-key`}
                   </CodeBlock>
@@ -205,66 +211,163 @@ OPENAI_API_KEY=your-openai-api-key`}
                 <section>
                   <h2 className="text-xl font-semibold text-gray-800 mb-3">4. Database Integration</h2>
                   
-                  <h3 className="text-lg font-medium text-gray-800 mb-2">4.1 MongoDB Setup</h3>
-                  <p className="text-gray-600 mb-3">Create the database connection module (utils/database.py):</p>
+                  <h3 className="text-lg font-medium text-gray-800 mb-2">4.1 MySQL Setup</h3>
+                  <p className="text-gray-600 mb-3">Create the database connection module (models/__init__.py):</p>
                   <CodeBlock>
-{`from flask import Flask
-from pymongo import MongoClient
+{`from flask_sqlalchemy import SQLAlchemy
 
-# MongoDB client
-mongo_client = None
-db = None
+# Initialize SQLAlchemy instance
+db = SQLAlchemy()
 
-def init_db(app: Flask):
-    global mongo_client, db
-    mongo_client = MongoClient(app.config['MONGO_URI'])
-    db = mongo_client.get_default_database()
-    
-    # Ensure indexes for better query performance
-    db.users.create_index('email', unique=True)
-    db.users.create_index('username', unique=True)
-    db.content.create_index('type')
-    db.content.create_index('subject')
-    
-    return db
-
-def get_db():
-    global db
-    if db is None:
-        raise RuntimeError("Database not initialized. Call init_db first.")
-    return db`}
+# Import models after db is defined to avoid circular imports
+from models.user import User
+from models.content import Content, ContentType
+from models.study_plan import StudyPlan, StudyPlanItem`}
                   </CodeBlock>
                   
                   <h3 className="text-lg font-medium text-gray-800 mt-4 mb-2">4.2 Data Models</h3>
-                  <p className="text-gray-600 mb-3">For MongoDB, we'll use Python dictionaries to define document structures (models/user.py):</p>
+                  <p className="text-gray-600 mb-3">Create SQLAlchemy models for your data (models/user.py):</p>
                   <CodeBlock>
 {`from datetime import datetime
-from bson import ObjectId
-from werkzeug.security import generate_password_hash
+from werkzeug.security import generate_password_hash, check_password_hash
+from models import db
 
-def create_user(name, email, password, role='student'):
-    """Create a new user document."""
-    return {
-        "name": name,
-        "email": email,
-        "password": generate_password_hash(password),
-        "role": role,  # student, admin, tutor
-        "created_at": datetime.utcnow(),
-        "last_login": None,
-        "profile": {
-            "phoneNumber": None,
-            "bio": "",
-            "examPreparation": None,
-            "grade": None,
-            "subjects": [],
-            "studyPreferences": {
-                "pace": "moderate",
-                "hoursPerDay": 2,
-                "preferredTimeStart": "18:00",
-                "preferredTimeEnd": "20:00"
-            }
+class User(db.Model):
+    __tablename__ = 'users'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    email = db.Column(db.String(100), unique=True, nullable=False)
+    password_hash = db.Column(db.String(200), nullable=False)
+    role = db.Column(db.String(20), default='student')  # student, admin, tutor
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    last_login = db.Column(db.DateTime, nullable=True)
+    
+    # Define relationship with study plans
+    study_plans = db.relationship('StudyPlan', backref='user', lazy=True)
+    
+    @property
+    def password(self):
+        raise AttributeError('password is not a readable attribute')
+    
+    @password.setter
+    def password(self, password):
+        self.password_hash = generate_password_hash(password)
+    
+    def verify_password(self, password):
+        return check_password_hash(self.password_hash, password)
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'email': self.email,
+            'role': self.role,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'last_login': self.last_login.isoformat() if self.last_login else None
         }
-    }`}
+
+class UserProfile(db.Model):
+    __tablename__ = 'user_profiles'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, unique=True)
+    phone_number = db.Column(db.String(15), nullable=True)
+    bio = db.Column(db.Text, default='')
+    exam_preparation = db.Column(db.String(100), nullable=True)
+    grade = db.Column(db.String(20), nullable=True)
+    study_pace = db.Column(db.String(20), default='moderate')
+    hours_per_day = db.Column(db.Integer, default=2)
+    preferred_time_start = db.Column(db.String(5), default='18:00')
+    preferred_time_end = db.Column(db.String(5), default='20:00')
+    
+    # Define relationship with user
+    user = db.relationship('User', backref=db.backref('profile', uselist=False, lazy=True))
+    
+    def to_dict(self):
+        return {
+            'phoneNumber': self.phone_number,
+            'bio': self.bio,
+            'examPreparation': self.exam_preparation,
+            'grade': self.grade,
+            'studyPreferences': {
+                'pace': self.study_pace,
+                'hoursPerDay': self.hours_per_day,
+                'preferredTimeStart': self.preferred_time_start,
+                'preferredTimeEnd': self.preferred_time_end
+            }
+        }`}
+                  </CodeBlock>
+                  
+                  <p className="text-gray-600 mt-4 mb-3">Create the StudyPlan model (models/study_plan.py):</p>
+                  <CodeBlock>
+{`from datetime import datetime
+from models import db
+
+class StudyPlan(db.Model):
+    __tablename__ = 'study_plans'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    title = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.Text, nullable=True)
+    start_date = db.Column(db.Date, nullable=False)
+    end_date = db.Column(db.Date, nullable=False)
+    target_exam = db.Column(db.String(100), nullable=True)
+    is_active = db.Column(db.Boolean, default=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Define relationship with study plan items
+    items = db.relationship('StudyPlanItem', backref='study_plan', lazy=True, cascade='all, delete-orphan')
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'title': self.title,
+            'description': self.description,
+            'start_date': self.start_date.isoformat(),
+            'end_date': self.end_date.isoformat(),
+            'target_exam': self.target_exam,
+            'is_active': self.is_active,
+            'created_at': self.created_at.isoformat(),
+            'items': [item.to_dict() for item in self.items]
+        }
+
+class StudyPlanItem(db.Model):
+    __tablename__ = 'study_plan_items'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    study_plan_id = db.Column(db.Integer, db.ForeignKey('study_plans.id'), nullable=False)
+    subject = db.Column(db.String(100), nullable=False)
+    topic = db.Column(db.String(200), nullable=False)
+    scheduled_date = db.Column(db.Date, nullable=False)
+    duration_minutes = db.Column(db.Integer, nullable=False)
+    priority = db.Column(db.String(20), default='medium')  # high, medium, low
+    status = db.Column(db.String(20), default='pending')  # pending, completed, skipped
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'subject': self.subject,
+            'topic': self.topic,
+            'scheduled_date': self.scheduled_date.isoformat(),
+            'duration_minutes': self.duration_minutes,
+            'priority': self.priority,
+            'status': self.status
+        }`}
+                  </CodeBlock>
+                  
+                  <h3 className="text-lg font-medium text-gray-800 mt-4 mb-2">4.3 Database Migrations</h3>
+                  <p className="text-gray-600 mb-3">Initialize and run database migrations:</p>
+                  <CodeBlock>
+{`# Initialize migrations
+flask db init
+
+# Create initial migration
+flask db migrate -m "Initial migration"
+
+# Apply migrations to database
+flask db upgrade`}
                   </CodeBlock>
                 </section>
 
@@ -299,11 +402,11 @@ def register_routes(app: Flask):
                   <h3 className="text-lg font-medium text-gray-800 mt-4 mb-2">5.2 Authentication API</h3>
                   <p className="text-gray-600 mb-3">Create the authentication endpoints (api/auth.py):</p>
                   <CodeBlock>
-{`from flask import Blueprint, request, jsonify
-from werkzeug.security import check_password_hash
+{`from datetime import datetime
+from flask import Blueprint, request, jsonify
 from flask_jwt_extended import create_access_token, create_refresh_token, jwt_required, get_jwt_identity
-from utils.database import get_db
-from models.user import create_user
+from models import db
+from models.user import User, UserProfile
 
 auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
 
@@ -317,40 +420,47 @@ def register():
         if field not in data:
             return jsonify({"success": False, "error": f"Missing required field: {field}"}), 400
     
-    db = get_db()
-    
     # Check if user already exists
-    if db.users.find_one({"email": data['email']}):
+    if User.query.filter_by(email=data['email']).first():
         return jsonify({"success": False, "error": "Email already registered"}), 400
     
     # Create and insert new user
-    new_user = create_user(
-        name=data['name'],
-        email=data['email'],
-        password=data['password'],
-        role=data.get('role', 'student')
-    )
-    
-    result = db.users.insert_one(new_user)
-    
-    if result.inserted_id:
+    try:
+        new_user = User(
+            name=data['name'],
+            email=data['email'],
+            role=data.get('role', 'student')
+        )
+        new_user.password = data['password']  # This will use the password setter to hash it
+        
+        db.session.add(new_user)
+        db.session.flush()  # Flush to get the user ID
+        
+        # Create user profile
+        profile = UserProfile(user_id=new_user.id)
+        db.session.add(profile)
+        
+        db.session.commit()
+        
         # Create tokens
-        access_token = create_access_token(identity=str(result.inserted_id))
-        refresh_token = create_refresh_token(identity=str(result.inserted_id))
+        access_token = create_access_token(identity=new_user.id)
+        refresh_token = create_refresh_token(identity=new_user.id)
         
         return jsonify({
             "success": True,
             "data": {
-                "id": str(result.inserted_id),
-                "name": new_user['name'],
-                "email": new_user['email'],
-                "role": new_user['role'],
+                "id": new_user.id,
+                "name": new_user.name,
+                "email": new_user.email,
+                "role": new_user.role,
                 "token": access_token
             },
             "error": None
         }), 201
-    else:
-        return jsonify({"success": False, "error": "Failed to create user"}), 500
+    
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"success": False, "error": str(e)}), 500
 
 @auth_bp.route('/login', methods=['POST'])
 def login():
@@ -360,26 +470,25 @@ def login():
     if not data or not data.get('email') or not data.get('password'):
         return jsonify({"success": False, "error": "Missing email or password"}), 400
     
-    db = get_db()
-    
     # Find user by email
-    user = db.users.find_one({"email": data['email']})
+    user = User.query.filter_by(email=data['email']).first()
     
-    if user and check_password_hash(user['password'], data['password']):
+    if user and user.verify_password(data['password']):
         # Update last login
-        db.users.update_one({"_id": user['_id']}, {"$set": {"last_login": datetime.utcnow()}})
+        user.last_login = datetime.utcnow()
+        db.session.commit()
         
         # Create tokens
-        access_token = create_access_token(identity=str(user['_id']))
-        refresh_token = create_refresh_token(identity=str(user['_id']))
+        access_token = create_access_token(identity=user.id)
+        refresh_token = create_refresh_token(identity=user.id)
         
         return jsonify({
             "success": True,
             "data": {
-                "id": str(user['_id']),
-                "name": user['name'],
-                "email": user['email'],
-                "role": user['role'],
+                "id": user.id,
+                "name": user.name,
+                "email": user.email,
+                "role": user.role,
                 "token": access_token
             },
             "error": None
@@ -416,6 +525,9 @@ import openai
 from flask import current_app
 import json
 import redis
+from datetime import datetime, timedelta
+from models import db
+from models.study_plan import StudyPlan, StudyPlanItem
 
 # Initialize Redis client for caching
 redis_client = redis.from_url(os.environ.get('REDIS_URL', 'redis://localhost:6379/0'))
@@ -428,7 +540,7 @@ class SAKHAAIService:
         
         openai.api_key = self.api_key
     
-    def generate_study_plan(self, student_data):
+    def generate_study_plan(self, student_data, user_id):
         """Generate personalized study plan based on student data."""
         # Cache key based on student data
         cache_key = f"study_plan:{hash(json.dumps(student_data, sort_keys=True))}"
@@ -459,6 +571,9 @@ class SAKHAAIService:
             # Parse the response
             result = json.loads(response.choices[0].message.content)
             
+            # Save the study plan to the database
+            self._save_study_plan_to_db(result, user_id)
+            
             # Cache the result for 1 hour
             redis_client.setex(cache_key, 3600, json.dumps(result))
             
@@ -474,7 +589,7 @@ class SAKHAAIService:
                 model="gpt-4",
                 messages=[
                     {"role": "system", "content": "You are SAKHA AI, an expert educational AI assistant."},
-                    {"role": "user", "content": f"Subject: {subject}\nTopic: {topic}\nQuestion: {question}"}
+                    {"role": "user", "content": f"Subject: {subject}\\nTopic: {topic}\\nQuestion: {question}"}
                 ],
                 temperature=0.7,
                 max_tokens=800,
@@ -522,7 +637,7 @@ class SAKHAAIService:
                 model="gpt-3.5-turbo",
                 messages=[
                     {"role": "system", "content": "Generate 3 follow-up questions related to this topic:"},
-                    {"role": "user", "content": f"Subject: {subject}\nTopic: {topic}\nOriginal Question: {question}"}
+                    {"role": "user", "content": f"Subject: {subject}\\nTopic: {topic}\\nOriginal Question: {question}"}
                 ],
                 temperature=0.7,
                 max_tokens=200,
@@ -533,11 +648,54 @@ class SAKHAAIService:
             
             # Parse lines into questions
             content = response.choices[0].message.content
-            questions = [q.strip() for q in content.strip().split('\n') if q.strip()]
+            questions = [q.strip() for q in content.strip().split('\\n') if q.strip()]
             return questions[:3]  # Return only up to 3 questions
         except Exception as e:
             current_app.logger.error(f"Error generating follow-up questions: {str(e)}")
             return []
+    
+    def _save_study_plan_to_db(self, plan_data, user_id):
+        """Save the generated study plan to the database."""
+        try:
+            # Create new study plan
+            start_date = datetime.now().date()
+            end_date = start_date + timedelta(days=plan_data.get('durationDays', 90))
+            
+            study_plan = StudyPlan(
+                user_id=user_id,
+                title=plan_data.get('title', 'Personalized Study Plan'),
+                description=plan_data.get('description', ''),
+                start_date=start_date,
+                end_date=end_date,
+                target_exam=plan_data.get('examGoal', ''),
+                is_active=True
+            )
+            
+            db.session.add(study_plan)
+            db.session.flush()  # Get the plan ID
+            
+            # Add plan items
+            for item in plan_data.get('dailySchedule', []):
+                topic_date = datetime.strptime(item.get('date', start_date.isoformat()), '%Y-%m-%d').date()
+                
+                for topic in item.get('topics', []):
+                    plan_item = StudyPlanItem(
+                        study_plan_id=study_plan.id,
+                        subject=topic.get('subject', ''),
+                        topic=topic.get('topic', ''),
+                        scheduled_date=topic_date,
+                        duration_minutes=topic.get('durationMinutes', 60),
+                        priority=topic.get('priority', 'medium'),
+                        status='pending'
+                    )
+                    db.session.add(plan_item)
+            
+            db.session.commit()
+            return True
+        except Exception as e:
+            db.session.rollback()
+            current_app.logger.error(f"Error saving study plan: {str(e)}")
+            return False
 
 # Create singleton instance
 sakha_ai_service = SAKHAAIService()`}
@@ -546,10 +704,12 @@ sakha_ai_service = SAKHAAIService()`}
                   <h3 className="text-lg font-medium text-gray-800 mt-4 mb-2">6.2 AI API Endpoints</h3>
                   <p className="text-gray-600 mb-3">Create the AI API endpoints (api/ai.py):</p>
                   <CodeBlock>
-{`from flask import Blueprint, request, jsonify
+{`from datetime import datetime
+from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from services.ai_service import sakha_ai_service
-from utils.database import get_db
+from models import db
+from models.user import User
 
 ai_bp = Blueprint('ai', __name__, url_prefix='/ai')
 
@@ -565,24 +725,14 @@ def generate_plan():
     user_id = get_jwt_identity()
     
     # Generate study plan
-    study_plan = sakha_ai_service.generate_study_plan(data)
+    study_plan = sakha_ai_service.generate_study_plan(data, user_id)
     
     if "error" in study_plan:
         return jsonify({"success": False, "error": study_plan["error"]}), 500
     
-    # Save the study plan to the database
-    db = get_db()
-    result = db.study_plans.insert_one({
-        "user_id": user_id,
-        "plan": study_plan,
-        "created_at": datetime.utcnow(),
-        "is_active": True
-    })
-    
     return jsonify({
         "success": True,
         "data": {
-            "plan_id": str(result.inserted_id),
             "study_plan": study_plan
         },
         "error": None
@@ -613,15 +763,14 @@ def doubt_response():
         return jsonify({"success": False, "error": response["error"]}), 500
     
     # Log the question for analytics
-    db = get_db()
-    db.student_doubts.insert_one({
-        "user_id": user_id,
-        "question": data['question'],
-        "subject": data['subject'],
-        "topic": data['topic'],
-        "answer": response['answer'],
-        "created_at": datetime.utcnow()
-    })
+    try:
+        user = User.query.get(user_id)
+        if user:
+            # Here you would typically save to a student_doubts table
+            # For now, we'll just log it
+            current_app.logger.info(f"User {user_id} asked: {data['question']}")
+    except Exception as e:
+        current_app.logger.error(f"Error logging student doubt: {str(e)}")
     
     return jsonify({
         "success": True,
@@ -723,15 +872,20 @@ services:
     env_file:
       - .env
     depends_on:
-      - mongo
+      - mysql
       - redis
 
-  mongo:
-    image: mongo:4
+  mysql:
+    image: mysql:8
     volumes:
-      - mongo_data:/data/db
+      - mysql_data:/var/lib/mysql
+    env_file:
+      - .env
+    environment:
+      - MYSQL_DATABASE=sakha
+      - MYSQL_ROOT_PASSWORD=${MYSQL_PASSWORD}
     ports:
-      - "27017:27017"
+      - "3306:3306"
 
   redis:
     image: redis:6
@@ -741,7 +895,7 @@ services:
       - "6379:6379"
 
 volumes:
-  mongo_data:
+  mysql_data:
   redis_data:`}
                   </CodeBlock>
                 </section>
@@ -760,13 +914,19 @@ pip install pytest
 # Example test file: tests/test_auth.py
 import pytest
 from app import app
-from utils.database import get_db
+from models import db, User
 
 @pytest.fixture
 def client():
     app.config['TESTING'] = True
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+    
     with app.test_client() as client:
-        yield client
+        with app.app_context():
+            db.create_all()
+            yield client
+            db.session.remove()
+            db.drop_all()
 
 def test_register(client):
     response = client.post('/api/auth/register', 
@@ -843,7 +1003,9 @@ def setup_logging(app: Flask):
                   
                   <div className="bg-gray-50 p-4 rounded-md space-y-3">
                     <p className="text-gray-700"><strong>Flask Documentation:</strong> <a href="https://flask.palletsprojects.com/" className="text-blue-600 hover:underline" target="_blank" rel="noopener noreferrer">https://flask.palletsprojects.com/</a></p>
-                    <p className="text-gray-700"><strong>MongoDB Python Driver:</strong> <a href="https://pymongo.readthedocs.io/" className="text-blue-600 hover:underline" target="_blank" rel="noopener noreferrer">https://pymongo.readthedocs.io/</a></p>
+                    <p className="text-gray-700"><strong>Flask-SQLAlchemy Documentation:</strong> <a href="https://flask-sqlalchemy.palletsprojects.com/" className="text-blue-600 hover:underline" target="_blank" rel="noopener noreferrer">https://flask-sqlalchemy.palletsprojects.com/</a></p>
+                    <p className="text-gray-700"><strong>Flask-Migrate Documentation:</strong> <a href="https://flask-migrate.readthedocs.io/" className="text-blue-600 hover:underline" target="_blank" rel="noopener noreferrer">https://flask-migrate.readthedocs.io/</a></p>
+                    <p className="text-gray-700"><strong>MySQL Documentation:</strong> <a href="https://dev.mysql.com/doc/" className="text-blue-600 hover:underline" target="_blank" rel="noopener noreferrer">https://dev.mysql.com/doc/</a></p>
                     <p className="text-gray-700"><strong>Flask-JWT-Extended:</strong> <a href="https://flask-jwt-extended.readthedocs.io/" className="text-blue-600 hover:underline" target="_blank" rel="noopener noreferrer">https://flask-jwt-extended.readthedocs.io/</a></p>
                     <p className="text-gray-700"><strong>OpenAI API Reference:</strong> <a href="https://platform.openai.com/docs/api-reference" className="text-blue-600 hover:underline" target="_blank" rel="noopener noreferrer">https://platform.openai.com/docs/api-reference</a></p>
                     <p className="text-gray-700"><strong>Contact for Development Support:</strong> <a href="mailto:hello@prepzr.com" className="text-blue-600 hover:underline">hello@prepzr.com</a></p>
@@ -883,3 +1045,4 @@ def setup_logging(app: Flask):
 };
 
 export default FlaskDeveloperGuide;
+
