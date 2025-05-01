@@ -4,7 +4,7 @@ import { SubscriptionType } from '@/types/user/base';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { format } from 'date-fns';
-import { UpgradeIcon } from 'lucide-react';
+import { ArrowUp } from 'lucide-react';
 
 interface SubscriptionBannerProps {
   planType?: SubscriptionType;
@@ -46,14 +46,11 @@ const SubscriptionBanner: React.FC<SubscriptionBannerProps> = ({ planType = 'fre
           )}
         </span>
         <Button variant="default" className="bg-blue-600 hover:bg-blue-700 text-white">
-          <UpgradeIcon className="h-4 w-4 mr-2" /> Upgrade
+          <ArrowUp className="h-4 w-4 mr-2" /> Upgrade
         </Button>
       </AlertDescription>
     </Alert>
   );
 };
-
-// Import lucide icons
-import { ArrowUp as UpgradeIcon } from 'lucide-react';
 
 export default SubscriptionBanner;
