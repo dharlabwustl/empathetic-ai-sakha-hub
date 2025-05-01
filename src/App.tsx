@@ -1,4 +1,3 @@
-
 import React, { Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
@@ -68,7 +67,7 @@ function App() {
               <Route path="/dashboard/student/:tab" element={<StudentDashboard />} />
               <Route path="/dashboard/student/today" element={<TodaysPlanView />} />
               <Route path="/dashboard/student/feel-good-corner" element={<FeelGoodCornerView />} />
-              <Route path="/student/profile" element={<StudentProfile />} />
+              <Route path="/student/profile" element={<ProfilePage />} />
               <Route path="/dashboard/student/profile" element={<EnhancedProfilePage />} />
               
               {/* AI Tutor route */}
@@ -96,6 +95,7 @@ function App() {
               <Route path="/dashboard/student/tutor" element={<TutorView />} />
               <Route path="/dashboard/student/academic" element={<AcademicAdvisorView />} />
               <Route path="/dashboard/student/study-plan" element={<StudyPlanView />} />
+              <Route path="/profile" element={<ProfilePage />} />
               
               {/* Admin routes */}
               <Route

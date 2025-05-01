@@ -6,8 +6,8 @@ const features = [
   {
     name: "Concept Cards",
     free: "5 total",
-    pro: "Unlimited",
-    group: "Unlimited"
+    pro: "Unlimited (via Study Plan)",
+    group: "Unlimited (via Study Plan)"
   },
   {
     name: "Flashcards",

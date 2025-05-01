@@ -4,6 +4,7 @@ export enum SubscriptionType {
   TRIAL = "trial",
   BASIC = "basic",
   PREMIUM = "premium",
+  PRO = "pro",
   PRO_MONTHLY = "pro_monthly",
   PRO_ANNUAL = "pro_annual",
   GROUP_SMALL = "group_small",
