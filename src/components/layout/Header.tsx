@@ -21,7 +21,7 @@ const Header = () => {
         <div className="flex items-center justify-between">
           <div className="flex items-center">
             <Link to="/" className="flex items-center">
-              <PrepzrLogo width={120} height={40} /> {/* Increased logo size */}
+              <PrepzrLogo width={160} height={50} /> {/* Increased logo size */}
             </Link>
           </div>
           

@@ -28,7 +28,7 @@ const PostLoginPrompt = () => {
         // Check if this is a first-time user
         if (parsedData.isNewUser === true || parsedData.loginCount === 1) {
           // First time user should be redirected to welcome flow, not post-login prompt
-          navigate('/welcome');
+          navigate('/welcome', { replace: true });
           return;
         }
         
@@ -52,7 +52,7 @@ const PostLoginPrompt = () => {
     
     // Auto-redirect after 15 seconds if no action taken
     const timer = setTimeout(() => {
-      navigate(`/${returnTo}`);
+      navigate(`/${returnTo}`, { replace: true });
       toast({
         title: "Welcome back!",
         description: "You've been automatically redirected to your dashboard.",
@@ -63,7 +63,7 @@ const PostLoginPrompt = () => {
   }, [navigate, returnTo, toast]);
 
   const goToTodaysPlan = () => {
-    navigate("/dashboard/student/today");
+    navigate("/dashboard/student/today", { replace: true });
     toast({
       title: "Today's Plan",
       description: "Let's focus on today's learning goals!"
@@ -71,7 +71,7 @@ const PostLoginPrompt = () => {
   };
 
   const goToDashboard = () => {
-    navigate(`/${returnTo}`);
+    navigate(`/${returnTo}`, { replace: true });
     toast({
       title: "Welcome Back",
       description: "Your dashboard is ready for today's learning activities."
@@ -81,7 +81,7 @@ const PostLoginPrompt = () => {
   const continuePendingTask = () => {
     // In a real app, this would navigate to the specific task
     // For now, just go to today's plan
-    navigate("/dashboard/student/today");
+    navigate("/dashboard/student/today", { replace: true });
     toast({
       title: "Continuing Your Work",
       description: "Pick up right where you left off!"
@@ -142,7 +142,7 @@ const PostLoginPrompt = () => {
             <Button 
               variant="outline" 
               className="w-full justify-start gap-3 border-purple-200 dark:border-purple-900 hover:border-purple-300 hover:bg-purple-50 dark:hover:bg-purple-950/50"
-              onClick={() => navigate("/dashboard/student/concepts")}
+              onClick={() => navigate("/dashboard/student/concepts", { replace: true })}
             >
               <BookOpen className="h-5 w-5 text-purple-600 dark:text-purple-400" />
               <span className="flex-1 text-left">Explore Concept Cards</span>
