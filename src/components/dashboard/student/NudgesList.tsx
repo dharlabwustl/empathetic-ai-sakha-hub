@@ -30,17 +30,19 @@ const NudgesList: React.FC<NudgesListProps> = ({ nudges, markNudgeAsRead }) => {
           <CardHeader className="pb-2">
             <CardTitle className="text-lg flex justify-between">
               <span>{nudge.title}</span>
-              <span className={`text-xs px-2 py-1 rounded ${getCategoryStyle(nudge.category)}`}>
-                {nudge.category}
-              </span>
+              {nudge.type && (
+                <span className={`text-xs px-2 py-1 rounded ${getNudgeTypeStyle(nudge.type)}`}>
+                  {nudge.type}
+                </span>
+              )}
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-sm">{nudge.message}</p>
+            <p className="text-sm">{nudge.content || "No content available"}</p>
           </CardContent>
           <CardFooter className="border-t pt-3 flex justify-between items-center">
             <span className="text-xs text-muted-foreground">
-              {formatDate(nudge.createdAt)}
+              {formatDate(nudge.createdAt || new Date())}
             </span>
             {!nudge.read && (
               <Button 
@@ -58,9 +60,9 @@ const NudgesList: React.FC<NudgesListProps> = ({ nudges, markNudgeAsRead }) => {
   );
 };
 
-// Helper function to get styles based on category
-const getCategoryStyle = (category: string) => {
-  switch (category.toLowerCase()) {
+// Helper function to get styles based on nudge type
+const getNudgeTypeStyle = (type: string) => {
+  switch (type.toLowerCase()) {
     case 'reminder':
       return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300';
     case 'achievement':

@@ -6,26 +6,16 @@ import Index from '@/pages/Index';
 import SignUp from '@/pages/SignUp';
 import NotFound from '@/pages/NotFound';
 import StudentDashboard from '@/pages/dashboard/student/StudentDashboard';
-import FeelGoodCornerView from '@/pages/dashboard/student/FeelGoodCornerView';
 import { AdminAuthProvider } from '@/contexts/auth/AdminAuthContext';
 import AdminLogin from '@/pages/admin/AdminLogin';
 import AdminRouteGuard from '@/components/admin/AdminRouteGuard';
 import { AuthProvider } from '@/contexts/auth/AuthContext';
-import TodaysPlanView from '@/pages/dashboard/student/TodaysPlanView';
-import ConceptStudyPage from '@/pages/dashboard/student/concept/ConceptStudyPage';
-import FlashcardPracticePage from '@/pages/dashboard/student/flashcard/FlashcardPracticePage';
 import LoadingScreen from '@/components/common/LoadingScreen';
 import { ThemeProvider } from './components/theme-provider';
 import AppRoutes from './components/dashboard/student/AppRoutes';
-import ConceptCardDetailPage from './components/dashboard/student/concepts/ConceptCardDetailPage';
-import ExamTakingPage from './components/dashboard/student/practice-exam/ExamTakingPage';
-import ExamReviewPage from './components/dashboard/student/practice-exam/ExamReviewPage';
-import FlashcardInteractivePage from './pages/dashboard/student/flashcard/FlashcardInteractivePage';
 import PostLoginPrompt from './pages/dashboard/PostLoginPrompt';
 import StudyPlanCreation from './pages/StudyPlanCreation';
-import ConceptCardStudyPage from './pages/dashboard/student/concept/ConceptCardStudyPage';
 import Login from './pages/Login';
-import EnhancedFlashcardPage from './pages/dashboard/student/flashcards/EnhancedFlashcardPage';
 import WelcomeToPrepr from './pages/signup/WelcomeToPrepr';
 
 const AdminDashboard = React.lazy(() => import('@/pages/admin/AdminDashboard'));
@@ -51,18 +41,9 @@ function App() {
               {/* Student routes */}
               <Route path="/dashboard/student" element={<StudentDashboard />} />
               <Route path="/dashboard/student/:tab" element={<StudentDashboard />} />
-              <Route path="/dashboard/student/today" element={<TodaysPlanView />} />
-              <Route path="/dashboard/student/feel-good-corner" element={<FeelGoodCornerView />} />
-              <Route path="/dashboard/student/concepts/card/:conceptId" element={<ConceptCardDetailPage />} />
-              <Route path="/dashboard/student/concepts/study/:conceptId" element={<ConceptCardStudyPage />} />
-              <Route path="/dashboard/student/concepts/study" element={<ConceptCardStudyPage />} />
-              <Route path="/dashboard/student/flashcards/:deckId/interactive" element={<FlashcardInteractivePage />} />
-              <Route path="/dashboard/student/flashcards/enhanced" element={<EnhancedFlashcardPage />} />
-              <Route path="/dashboard/student/practice-exam/:examId/start" element={<ExamTakingPage />} />
-              <Route path="/dashboard/student/practice-exam/:examId/review" element={<ExamReviewPage />} />
-
+              
               {/* Additional student dashboard routes */}
-              <Route path="/dashboard/student/*" element={<AppRoutes />} />
+              <Route path="/*" element={<AppRoutes />} />
 
               {/* Admin routes - protected by AdminRouteGuard */}
               <Route path="/admin/login" element={<AdminLogin />} />
