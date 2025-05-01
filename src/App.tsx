@@ -42,6 +42,7 @@ import PracticeExamsSection from './components/dashboard/student/practice-exam/P
 import PostLoginWelcomeBack from './pages/dashboard/PostLoginWelcomeBack';
 import Terms from './pages/Terms';
 import Privacy from './pages/Privacy';
+import FlaskDeveloperGuide from './pages/admin/FlaskDeveloperGuide';
 
 const AdminDashboard = React.lazy(() => import('@/pages/admin/AdminDashboard'));
 
@@ -60,6 +61,7 @@ function App() {
               <Route path="/register" element={<SignUp />} />
               <Route path="/terms" element={<Terms />} />
               <Route path="/privacy" element={<Privacy />} />
+              <Route path="/admin/flask-guide" element={<FlaskDeveloperGuide />} />
 
               {/* Post-signup flow - Welcome flow only */}
               <Route path="/welcome" element={<WelcomeToPrepr />} />
