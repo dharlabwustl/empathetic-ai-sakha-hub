@@ -1,3 +1,4 @@
+
 import { Routes, Route } from 'react-router-dom';
 import TodaysPlanView from '@/components/dashboard/student/todays-plan/TodaysPlanView';
 import ConceptsLandingPage from '@/components/dashboard/student/concepts/ConceptsLandingPage';
@@ -24,6 +25,9 @@ import PracticeExamsView from '@/components/dashboard/student/practice-exam/Prac
 import ConceptStudyLandingPage from '@/pages/dashboard/student/concept/ConceptStudyLandingPage';
 import EnhancedFlashcardPractice from '@/components/dashboard/student/flashcards/EnhancedFlashcardPractice';
 import ConceptStudyPage from '@/components/dashboard/student/concepts/ConceptStudyPage';
+import FlashcardInteractive from '@/components/dashboard/student/flashcards/FlashcardInteractive';
+import FlashcardDetailsPage from '@/pages/dashboard/student/FlashcardDetailsPage';
+import InteractiveFlashcardBrowser from '@/components/flashcards/InteractiveFlashcardBrowser';
 
 export default function StudentRoutes() {
   return (
@@ -41,11 +45,13 @@ export default function StudentRoutes() {
       <Route path="/concepts/study-landing/:conceptId" element={<ConceptStudyLandingPage />} />
       <Route path="/concepts/:conceptId/study" element={<ConceptStudyPage />} />
       
-      {/* Flashcards routes */}
+      {/* Flashcards routes - ensure ALL flashcard routes exist */}
       <Route path="/flashcards" element={<FlashcardsView />} />
       <Route path="/flashcards/landing" element={<FlashcardsLandingPage />} />
       <Route path="/flashcards/:subject?" element={<FlashcardsLandingPage />} />
-      <Route path="/flashcards/:deckId/interactive" element={<FlashcardInteractivePage />} />
+      <Route path="/flashcards/:deckId/interactive" element={<FlashcardInteractive />} />
+      <Route path="/flashcards/:flashcardId" element={<FlashcardDetailsPage />} />
+      <Route path="/flashcards/:flashcardId/browse" element={<InteractiveFlashcardBrowser />} />
       <Route path="/flashcards/practice" element={<FlashcardPracticeLandingPage />} />
       <Route path="/flashcards/:flashcardId/practice" element={<EnhancedFlashcardPractice />} />
       

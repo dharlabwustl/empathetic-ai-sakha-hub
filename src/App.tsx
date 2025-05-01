@@ -36,6 +36,9 @@ import ConceptStudyLandingPage from './pages/dashboard/student/concept/ConceptSt
 import ConceptsLandingPage from './components/dashboard/student/concepts/ConceptsLandingPage';
 import FlashcardsLandingPage from './components/dashboard/student/flashcards/FlashcardsLandingPage';
 import EnhancedFlashcardPractice from './components/dashboard/student/flashcards/EnhancedFlashcardPractice';
+import FlashcardInteractive from './components/dashboard/student/flashcards/FlashcardInteractive';
+import FlashcardDetailsPage from './pages/dashboard/student/FlashcardDetailsPage';
+import InteractiveFlashcardBrowser from './components/flashcards/InteractiveFlashcardBrowser';
 
 const AdminDashboard = React.lazy(() => import('@/pages/admin/AdminDashboard'));
 
@@ -71,8 +74,10 @@ function App() {
               <Route path="/dashboard/student/concepts/study-landing/:conceptId" element={<ConceptStudyLandingPage />} />
               <Route path="/dashboard/student/concepts/landing" element={<ConceptsLandingPage />} />
               
-              {/* Flashcard routes */}
-              <Route path="/dashboard/student/flashcards/:deckId/interactive" element={<FlashcardInteractivePage />} />
+              {/* Flashcard routes - make sure ALL possible flashcard routes are here */}
+              <Route path="/dashboard/student/flashcards/:deckId/interactive" element={<FlashcardInteractive />} />
+              <Route path="/dashboard/student/flashcards/:flashcardId" element={<FlashcardDetailsPage />} />
+              <Route path="/dashboard/student/flashcards/:flashcardId/browse" element={<InteractiveFlashcardBrowser />} />
               <Route path="/dashboard/student/flashcards/enhanced" element={<EnhancedFlashcardPage />} />
               <Route path="/dashboard/student/flashcards/practice" element={<FlashcardPracticeLandingPage />} />
               <Route path="/dashboard/student/flashcards/:flashcardId/practice" element={<EnhancedFlashcardPractice />} />
