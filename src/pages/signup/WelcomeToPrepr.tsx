@@ -44,7 +44,7 @@ const WelcomeToPrepr = () => {
         localStorage.setItem('userData', JSON.stringify(parsedData));
       }
       
-      // Navigate to dashboard with replace: true to avoid navigation issues
+      // Navigate directly to the dashboard
       navigate('/dashboard/student', { replace: true });
     }
   };
@@ -58,7 +58,7 @@ const WelcomeToPrepr = () => {
       localStorage.setItem('userData', JSON.stringify(parsedData));
     }
     
-    // Use replace: true to ensure proper history management
+    // Navigate directly to dashboard
     navigate('/dashboard/student', { replace: true });
   };
   
@@ -118,7 +118,7 @@ const WelcomeToPrepr = () => {
                     </>
                   ) : (
                     <>
-                      Let's Get Started <ArrowRight className="ml-2 h-4 w-4" />
+                      Go to Dashboard <ArrowRight className="ml-2 h-4 w-4" />
                     </>
                   )}
                 </Button>
@@ -129,7 +129,7 @@ const WelcomeToPrepr = () => {
                     className="w-full mt-2" 
                     onClick={goToDashboard}
                   >
-                    Skip Introduction
+                    Skip & Go to Dashboard
                   </Button>
                 )}
               </div>
