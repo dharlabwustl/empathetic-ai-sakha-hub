@@ -1,19 +1,68 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, BookOpen, Star } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { ArrowLeft, BookOpen, Star, RotateCw, CheckCircle } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
 
 const FlashcardInteractivePage: React.FC = () => {
   const { deckId = 'default' } = useParams<{ deckId: string }>();
   const navigate = useNavigate();
+  const [currentCardIndex, setCurrentCardIndex] = useState(0);
+  const [flipped, setFlipped] = useState(false);
+  const [masteryScore, setMasteryScore] = useState(68);
+  
+  // Mock flashcard data
+  const mockFlashcards = [
+    {
+      id: '1',
+      question: 'What is the law of conservation of energy?',
+      answer: 'Energy cannot be created or destroyed, only transformed from one form to another.',
+      mastered: true
+    },
+    {
+      id: '2',
+      question: 'What is Newton\'s Second Law of Motion?',
+      answer: 'Force equals mass times acceleration (F = ma).',
+      mastered: false
+    },
+    {
+      id: '3',
+      question: 'What is the chemical formula for water?',
+      answer: 'H₂O',
+      mastered: true
+    }
+  ];
+  
+  const handleFlip = () => {
+    setFlipped(!flipped);
+  };
+  
+  const handleNextCard = () => {
+    if (currentCardIndex < mockFlashcards.length - 1) {
+      setCurrentCardIndex(currentCardIndex + 1);
+      setFlipped(false);
+    }
+  };
+  
+  const handlePreviousCard = () => {
+    if (currentCardIndex > 0) {
+      setCurrentCardIndex(currentCardIndex - 1);
+      setFlipped(false);
+    }
+  };
+  
+  const handleMarkAsMastered = () => {
+    // In a real app, you would update the mastery status in your data store
+    setMasteryScore(masteryScore + 2);
+  };
   
   return (
     <SharedPageLayout
       title="Interactive Flashcards"
-      subtitle="Choose a study mode to continue"
+      subtitle="Practice and master your flashcards"
     >
       <div className="mb-6">
         <Button 
@@ -26,117 +75,183 @@ const FlashcardInteractivePage: React.FC = () => {
         </Button>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <Card className="hover:shadow-lg transition-shadow">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <BookOpen className="h-5 w-5 text-blue-500" />
-              Classic Mode
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-muted-foreground mb-4">
-              Simple flashcard practice with question and answer flipping.
-            </p>
-            <Button 
-              className="w-full" 
-              onClick={() => navigate(`/dashboard/student/flashcards/${deckId}`)}
-            >
-              Start Classic Practice
-            </Button>
-          </CardContent>
-        </Card>
-        
-        <Card className="hover:shadow-lg transition-shadow border-2 border-indigo-100 dark:border-indigo-900">
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle className="flex items-center gap-2">
-                <Star className="h-5 w-5 text-yellow-500" />
-                Enhanced Practice
-              </CardTitle>
-              <div className="bg-indigo-100 text-indigo-700 px-2 py-1 rounded-full text-xs font-medium">
-                Recommended
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <p className="text-muted-foreground mb-4">
-              Powerful practice with AI accuracy scoring, speech input and performance analytics.
-            </p>
-            <Button 
-              className="w-full bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600"
-              onClick={() => navigate(`/dashboard/student/flashcards/${deckId}/practice`)}
-            >
-              Start Enhanced Practice
-            </Button>
-          </CardContent>
-        </Card>
-        
-        <Card className="hover:shadow-lg transition-shadow">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <BookOpen className="h-5 w-5 text-green-500" />
-              Interactive Learning
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-muted-foreground mb-4">
-              Engaging practice with spaced repetition and adaptive difficulty.
-            </p>
-            <Button 
-              className="w-full"
-              onClick={() => navigate(`/dashboard/student/flashcards/${deckId}/interactive`)}
-            >
-              Start Interactive Learning
-            </Button>
-          </CardContent>
-        </Card>
+      {/* Progress indicator */}
+      <div className="mb-4">
+        <div className="flex justify-between items-center mb-2">
+          <span className="text-sm font-medium">
+            Card {currentCardIndex + 1} of {mockFlashcards.length}
+          </span>
+          <span className="text-sm font-medium">{Math.round((currentCardIndex + 1) / mockFlashcards.length * 100)}% Complete</span>
+        </div>
+        <Progress value={(currentCardIndex + 1) / mockFlashcards.length * 100} className="h-2" />
       </div>
       
-      <div className="mt-10">
-        <h2 className="text-lg font-semibold mb-4">Study Progress Overview</h2>
-        <Card>
-          <CardContent className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="space-y-2">
-                <h3 className="text-sm font-medium">Today's Progress</h3>
-                <div className="flex items-center gap-2">
-                  <div className="bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300 rounded-full h-12 w-12 flex items-center justify-center font-bold">
-                    15
+      {/* Main content area */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2">
+          {/* Flashcard */}
+          <div className="perspective-1000">
+            <div 
+              className={`relative transition-all duration-500 transform-style-3d cursor-pointer h-[400px] ${flipped ? 'rotate-y-180' : ''}`}
+              onClick={handleFlip}
+            >
+              {/* Front of card - Question */}
+              <Card className={`absolute inset-0 backface-hidden p-6 ${flipped ? 'hidden' : ''}`}>
+                <CardContent className="flex flex-col items-center justify-center h-full">
+                  <div className="text-2xl font-semibold text-center">
+                    {mockFlashcards[currentCardIndex].question}
                   </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground">Cards practiced</p>
-                  </div>
-                </div>
-              </div>
+                  <p className="text-sm text-muted-foreground mt-8 animate-pulse">
+                    Tap to flip
+                  </p>
+                </CardContent>
+              </Card>
               
-              <div className="space-y-2">
-                <h3 className="text-sm font-medium">Weekly Streak</h3>
-                <div className="flex items-center gap-2">
-                  <div className="bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300 rounded-full h-12 w-12 flex items-center justify-center font-bold">
-                    4
+              {/* Back of card - Answer */}
+              <Card className={`absolute inset-0 backface-hidden p-6 rotate-y-180 ${!flipped ? 'hidden' : ''}`}>
+                <CardContent className="flex flex-col items-center justify-center h-full">
+                  <div className="text-xl text-center">
+                    {mockFlashcards[currentCardIndex].answer}
                   </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground">Days in a row</p>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="space-y-2">
-                <h3 className="text-sm font-medium">Mastery Level</h3>
-                <div className="flex items-center gap-2">
-                  <div className="bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300 rounded-full h-12 w-12 flex items-center justify-center font-bold">
-                    68%
-                  </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground">Average across decks</p>
-                  </div>
-                </div>
-              </div>
+                  <p className="text-sm text-muted-foreground mt-8 animate-pulse">
+                    Tap to flip back
+                  </p>
+                </CardContent>
+              </Card>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+          
+          {/* Navigation controls */}
+          <div className="flex justify-between items-center mt-4">
+            <Button 
+              variant="outline" 
+              onClick={handlePreviousCard}
+              disabled={currentCardIndex === 0}
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Previous
+            </Button>
+            
+            <div className="flex gap-2">
+              <Button 
+                variant="outline" 
+                size="icon"
+                onClick={() => {
+                  setCurrentCardIndex(0);
+                  setFlipped(false);
+                }}
+              >
+                <RotateCw className="h-4 w-4" />
+              </Button>
+              
+              <Button 
+                variant="outline" 
+                className="flex items-center"
+                onClick={handleMarkAsMastered}
+              >
+                <CheckCircle className="h-4 w-4 mr-2" />
+                Mark as Mastered
+              </Button>
+            </div>
+            
+            <Button 
+              onClick={handleNextCard}
+              disabled={currentCardIndex === mockFlashcards.length - 1}
+            >
+              Next
+              <ArrowLeft className="h-4 w-4 ml-2 rotate-180" />
+            </Button>
+          </div>
+        </div>
+        
+        {/* Sidebar */}
+        <div className="space-y-6">
+          {/* Mastery tracker */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Mastery Progress</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-col items-center">
+                <div className="relative h-32 w-32">
+                  <svg className="h-full w-full" viewBox="0 0 100 100">
+                    <circle
+                      className="text-muted-foreground/20 stroke-current"
+                      strokeWidth="10"
+                      cx="50"
+                      cy="50"
+                      r="40"
+                      fill="transparent"
+                    />
+                    <circle
+                      className="text-primary stroke-current"
+                      strokeWidth="10"
+                      strokeLinecap="round"
+                      cx="50"
+                      cy="50"
+                      r="40"
+                      fill="transparent"
+                      strokeDasharray={`${masteryScore * 2.51} 251`}
+                      strokeDashoffset="0"
+                      transform="rotate(-90 50 50)"
+                    />
+                  </svg>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="text-2xl font-bold">{masteryScore}%</span>
+                  </div>
+                </div>
+                
+                <div className="text-center mt-4">
+                  <p className="text-sm text-muted-foreground">
+                    {masteryScore > 80 ? 'Almost mastered!' : masteryScore > 50 ? 'Good progress!' : 'Keep practicing!'}
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          
+          {/* Study options */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Study Options</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <Button variant="outline" className="w-full flex justify-start items-center">
+                <Star className="h-4 w-4 mr-2 text-yellow-500" />
+                Spaced Repetition
+              </Button>
+              <Button variant="outline" className="w-full flex justify-start items-center">
+                <BookOpen className="h-4 w-4 mr-2 text-blue-500" />
+                Quiz Mode
+              </Button>
+              <Button variant="outline" className="w-full flex justify-start items-center">
+                <CheckCircle className="h-4 w-4 mr-2 text-green-500" />
+                Mastered Cards
+              </Button>
+            </CardContent>
+            <CardFooter>
+              <Button className="w-full bg-gradient-to-r from-indigo-500 to-purple-500">
+                Start Enhanced Practice
+              </Button>
+            </CardFooter>
+          </Card>
+        </div>
       </div>
+      
+      <style jsx>{`
+        .perspective-1000 {
+          perspective: 1000px;
+        }
+        .backface-hidden {
+          backface-visibility: hidden;
+        }
+        .transform-style-3d {
+          transform-style: preserve-3d;
+        }
+        .rotate-y-180 {
+          transform: rotateY(180deg);
+        }
+      `}</style>
     </SharedPageLayout>
   );
 };

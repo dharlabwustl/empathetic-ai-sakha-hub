@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import FlashcardInteractive from '@/components/dashboard/student/flashcards/FlashcardInteractive';
@@ -41,11 +40,10 @@ export default function AppRoutes() {
       <Route path="/dashboard/student/concepts/study-landing/:conceptId" element={<ConceptStudyLandingPage />} />
       <Route path="/dashboard/student/concepts/:conceptId/study" element={<ConceptStudyPage />} />
       
-      {/* Flashcard routes - ensure ALL flashcard routes exist */}
+      {/* Flashcard routes - simplified */}
       <Route path="/dashboard/student/flashcards" element={<FlashcardsView />} />
       <Route path="/dashboard/student/flashcards/landing" element={<FlashcardsLandingPage />} />
-      <Route path="/dashboard/student/flashcards/:deckId/interactive" element={<FlashcardInteractive />} />
-      <Route path="/dashboard/student/flashcards/:deckId/interactive-landing" element={<FlashcardInteractivePage />} />
+      <Route path="/dashboard/student/flashcards/:deckId/interactive" element={<FlashcardInteractivePage />} />
       <Route path="/dashboard/student/flashcards/:flashcardId" element={<FlashcardDetailsPage />} />
       <Route path="/dashboard/student/flashcards/:flashcardId/browse" element={<InteractiveFlashcardBrowser />} />
       <Route path="/dashboard/student/flashcards/practice" element={<FlashcardPracticeLandingPage />} />

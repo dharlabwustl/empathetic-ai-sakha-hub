@@ -1,4 +1,3 @@
-
 import { Routes, Route } from 'react-router-dom';
 import TodaysPlanView from '@/components/dashboard/student/todays-plan/TodaysPlanView';
 import ConceptsLandingPage from '@/components/dashboard/student/concepts/ConceptsLandingPage';
@@ -45,12 +44,11 @@ export default function StudentRoutes() {
       <Route path="/concepts/study-landing/:conceptId" element={<ConceptStudyLandingPage />} />
       <Route path="/concepts/:conceptId/study" element={<ConceptStudyPage />} />
       
-      {/* Flashcards routes - ensure ALL flashcard routes exist */}
+      {/* Flashcards routes - consolidated and simplified */}
       <Route path="/flashcards" element={<FlashcardsView />} />
       <Route path="/flashcards/landing" element={<FlashcardsLandingPage />} />
       <Route path="/flashcards/:subject?" element={<FlashcardsLandingPage />} />
-      <Route path="/flashcards/:deckId/interactive" element={<FlashcardInteractive />} />
-      <Route path="/flashcards/:deckId/interactive-landing" element={<FlashcardInteractivePage />} />
+      <Route path="/flashcards/:deckId/interactive" element={<FlashcardInteractivePage />} />
       <Route path="/flashcards/:flashcardId" element={<FlashcardDetailsPage />} />
       <Route path="/flashcards/:flashcardId/browse" element={<InteractiveFlashcardBrowser />} />
       <Route path="/flashcards/practice" element={<FlashcardPracticeLandingPage />} />
