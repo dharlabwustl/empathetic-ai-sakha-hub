@@ -1,3 +1,4 @@
+
 import React, { Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
@@ -34,6 +35,7 @@ import FlashcardPracticeLandingPage from './pages/dashboard/student/flashcard/Fl
 import ConceptStudyLandingPage from './pages/dashboard/student/concept/ConceptStudyLandingPage';
 import ConceptsLandingPage from './components/dashboard/student/concepts/ConceptsLandingPage';
 import FlashcardsLandingPage from './components/dashboard/student/flashcards/FlashcardsLandingPage';
+import EnhancedFlashcardPractice from './components/dashboard/student/flashcards/EnhancedFlashcardPractice';
 
 const AdminDashboard = React.lazy(() => import('@/pages/admin/AdminDashboard'));
 
@@ -72,6 +74,7 @@ function App() {
               <Route path="/dashboard/student/flashcards/:deckId/interactive" element={<FlashcardInteractivePage />} />
               <Route path="/dashboard/student/flashcards/enhanced" element={<EnhancedFlashcardPage />} />
               <Route path="/dashboard/student/flashcards/practice" element={<FlashcardPracticeLandingPage />} />
+              <Route path="/dashboard/student/flashcards/:deckId/practice" element={<EnhancedFlashcardPractice />} />
               <Route path="/dashboard/student/flashcards/landing" element={<FlashcardsLandingPage />} />
               
               {/* Practice exam routes */}

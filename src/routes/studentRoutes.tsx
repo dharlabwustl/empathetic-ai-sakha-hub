@@ -1,3 +1,4 @@
+
 import { Routes, Route } from 'react-router-dom';
 import TodaysPlanView from '@/components/dashboard/student/todays-plan/TodaysPlanView';
 import ConceptsLandingPage from '@/components/dashboard/student/concepts/ConceptsLandingPage';
@@ -22,6 +23,7 @@ import ConceptCardsView from '@/components/dashboard/student/concepts/ConceptCar
 import FlashcardsView from '@/components/dashboard/student/flashcards/FlashcardsView';
 import PracticeExamsView from '@/components/dashboard/student/practice-exam/PracticeExamsView';
 import ConceptStudyLandingPage from '@/pages/dashboard/student/concept/ConceptStudyLandingPage';
+import EnhancedFlashcardPractice from '@/components/dashboard/student/flashcards/EnhancedFlashcardPractice';
 
 export default function StudentRoutes() {
   return (
@@ -43,6 +45,7 @@ export default function StudentRoutes() {
       <Route path="/flashcards/:subject?" element={<FlashcardsLandingPage />} />
       <Route path="/flashcards/:deckId/interactive" element={<FlashcardInteractivePage />} />
       <Route path="/flashcards/practice" element={<FlashcardPracticeLandingPage />} />
+      <Route path="/flashcards/:deckId/practice" element={<EnhancedFlashcardPractice />} />
       
       {/* Practice exam routes */}
       <Route path="/practice" element={<PracticeExamsView />} />
