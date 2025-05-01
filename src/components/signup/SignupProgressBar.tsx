@@ -9,6 +9,11 @@ interface SignupProgressBarProps {
 const steps: { key: OnboardingStep; label: string }[] = [
   { key: 'role', label: 'Role' },
   { key: 'goal', label: 'Goal' },
+  { key: 'examDate', label: 'Exam Date' },
+  { key: 'studyHours', label: 'Study Hours' },
+  { key: 'subjects', label: 'Subjects' },
+  { key: 'studyPace', label: 'Study Pace' },
+  { key: 'studyTime', label: 'Study Time' },
   { key: 'demographics', label: 'Details' },
   { key: 'personality', label: 'Learning Style' },
   { key: 'sentiment', label: 'Mood' },

@@ -26,6 +26,31 @@ const SignupContent = () => {
     goToNextStep();
   };
 
+  const handleExamDateSelect = (date: Date) => {
+    setOnboardingData({ ...onboardingData, examDate: date });
+    goToNextStep();
+  };
+
+  const handleStudyHoursSelect = (hours: number) => {
+    setOnboardingData({ ...onboardingData, studyHours: hours });
+    goToNextStep();
+  };
+
+  const handleSubjectsSelect = (strongSubjects: string[], weakSubjects: string[]) => {
+    setOnboardingData({ ...onboardingData, strongSubjects, weakSubjects });
+    goToNextStep();
+  };
+
+  const handleStudyPaceSelect = (pace: string) => {
+    setOnboardingData({ ...onboardingData, studyPace: pace });
+    goToNextStep();
+  };
+
+  const handleStudyTimeSelect = (time: string) => {
+    setOnboardingData({ ...onboardingData, studyTime: time });
+    goToNextStep();
+  };
+
   const handleDemographicsSubmit = (data: Record<string, string>) => {
     setOnboardingData({ 
       ...onboardingData, 
@@ -99,6 +124,11 @@ const SignupContent = () => {
   const handlers = {
     handleRoleSelect,
     handleGoalSelect,
+    handleExamDateSelect,
+    handleStudyHoursSelect,
+    handleSubjectsSelect,
+    handleStudyPaceSelect,
+    handleStudyTimeSelect,
     handleDemographicsSubmit,
     handlePersonalitySelect,
     handleMoodSelect,
@@ -145,7 +175,7 @@ const SignupContent = () => {
       <Card className="relative overflow-hidden bg-white dark:bg-gray-900 shadow-xl rounded-xl">
         <div className="p-6 md:p-8">
           <div className="flex flex-col items-center mb-6">
-            <PrepzrLogo width={60} height={60} />
+            <PrepzrLogo width={72} height={72} />
             <h1 className="mt-4 text-2xl font-bold">Join PREPZR</h1>
             <p className="text-gray-500 text-sm text-center mt-1">
               Create your personalized study partner

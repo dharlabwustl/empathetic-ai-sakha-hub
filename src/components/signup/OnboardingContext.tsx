@@ -2,13 +2,19 @@
 import React, { createContext, useState, useContext } from "react";
 import { MoodType, PersonalityType, UserRole } from "@/types/user/base";
 
-export type OnboardingStep = "role" | "goal" | "demographics" | "personality" | "sentiment" | "habits" | "interests" | "signup";
+export type OnboardingStep = "role" | "goal" | "examDate" | "studyHours" | "subjects" | "studyPace" | "studyTime" | "demographics" | "personality" | "sentiment" | "habits" | "interests" | "signup";
 
 export type UserGoal = string;
 
 export interface OnboardingData {
   role?: UserRole;
   goal?: UserGoal;
+  examDate?: Date;
+  studyHours?: number;
+  strongSubjects?: string[];
+  weakSubjects?: string[];
+  studyPace?: string;
+  studyTime?: string;
   demographics?: Record<string, string>;
   personalityType?: PersonalityType;
   mood?: MoodType;
@@ -30,6 +36,11 @@ interface OnboardingContextType {
 const steps: OnboardingStep[] = [
   "role", 
   "goal", 
+  "examDate", 
+  "studyHours", 
+  "subjects", 
+  "studyPace", 
+  "studyTime",
   "demographics", 
   "personality", 
   "sentiment", 

@@ -12,13 +12,14 @@ const RoleStep: React.FC<RoleStepProps> = ({ onRoleSelect }) => {
   const roles = [
     { role: UserRole.Student, icon: "🎓", label: "Student" },
     { role: UserRole.Employee, icon: "💼", label: "Working Professional" },
-    { role: UserRole.Doctor, icon: "⚕️", label: "Doctor" }
+    { role: UserRole.Doctor, icon: "⚕️", label: "Doctor" },
+    { role: UserRole.Founder, icon: "🚀", label: "Founder/Entrepreneur" }
   ];
 
   return (
     <div className="space-y-4">
       <h2 className="text-lg font-medium text-center mb-4">I am a...</h2>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 gap-4">
         {roles.map((item) => (
           <motion.div
             key={item.role}

@@ -82,7 +82,7 @@ const WelcomeScreen = () => {
       >
         <Card className="shadow-xl border-0">
           <CardHeader className="text-center pb-2">
-            <PrepzrLogo width={60} className="mx-auto mb-4" showText={true} />
+            <PrepzrLogo width={80} className="mx-auto mb-4" />
             <CardTitle className="text-2xl">Welcome, {userName}!</CardTitle>
           </CardHeader>
           <CardContent>

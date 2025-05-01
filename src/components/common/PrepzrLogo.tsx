@@ -6,32 +6,24 @@ interface PrepzrLogoProps {
   width?: number | string;
   height?: number | string;
   showText?: boolean;
-  textColor?: string;
 }
 
 const PrepzrLogo: React.FC<PrepzrLogoProps> = ({ 
   className = "", 
-  width = 40, 
+  width = 48, 
   height = "auto",
-  showText = false,
-  textColor = "text-blue-500"
+  showText = false // We'll keep this prop for backward compatibility but not use it
 }) => {
   return (
     <div className={`flex items-center ${className}`}>
       <img 
-        src="/lovable-uploads/1d4f90c6-4bcf-4265-89ba-b51ffa584307.png" 
+        src="/lovable-uploads/19303283-7911-484b-9bea-65d7691bbdae.png" 
         alt="PREPZR Logo" 
         style={{ 
           width: typeof width === 'number' ? `${width}px` : width,
           height: typeof height === 'number' ? `${height}px` : height,
         }}
       />
-      
-      {showText && (
-        <span className={`font-bold ml-2 text-xl tracking-tight ${textColor}`}>
-          PREPZR
-        </span>
-      )}
     </div>
   );
 };
