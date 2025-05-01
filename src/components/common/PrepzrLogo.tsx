@@ -9,7 +9,7 @@ interface PrepzrLogoProps {
 
 const PrepzrLogo: React.FC<PrepzrLogoProps> = ({ 
   className = "", 
-  width = 240, // Increased default size to better fit logo's aspect ratio
+  width = 480, // Doubled from 240 to 480
   height = "auto"
 }) => {
   return (
