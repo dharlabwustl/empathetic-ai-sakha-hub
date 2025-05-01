@@ -1,94 +1,61 @@
 
-import React, { useState } from "react";
+import React from "react";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Check, Zap, Clock, Calendar } from "lucide-react";
+import { FastForward, Play, Pause, AlertCircle } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface StudyPaceStepProps {
-  onStudyPaceSelect: (pace: string) => void;
+  onStudyPaceSelect: (pace: "Aggressive" | "Balanced" | "Relaxed") => void;
 }
 
-const paceOptions = [
-  {
-    id: "intensive",
-    title: "Intensive",
-    description: "Cover more material in less time, high intensity",
-    icon: Zap,
-  },
-  {
-    id: "balanced",
-    title: "Balanced",
-    description: "Steady pace with regular breaks, moderate intensity",
-    icon: Clock,
-  },
-  {
-    id: "relaxed",
-    title: "Relaxed",
-    description: "Take your time, focus on deep understanding with less pressure",
-    icon: Calendar,
-  },
-];
-
 const StudyPaceStep: React.FC<StudyPaceStepProps> = ({ onStudyPaceSelect }) => {
-  const [selectedPace, setSelectedPace] = useState<string | null>(null);
-  
-  const handlePaceSelect = (pace: string) => {
-    setSelectedPace(pace);
-  };
-  
-  const handleSubmit = () => {
-    if (selectedPace) {
-      onStudyPaceSelect(selectedPace);
-    }
-  };
-
   return (
     <div className="space-y-6">
-      <div className="text-center mb-6">
-        <h2 className="text-2xl font-semibold mb-2">What study pace works best for you?</h2>
-        <p className="text-gray-500">
-          We'll adjust your study schedule based on your preferred pace.
-        </p>
-      </div>
-      
-      <div className="grid gap-4">
-        {paceOptions.map((pace) => (
-          <Card
-            key={pace.id}
-            className={`border p-4 cursor-pointer transition-all ${
-              selectedPace === pace.id
-                ? "border-primary bg-primary/5"
-                : "hover:border-primary/50"
-            }`}
-            onClick={() => handlePaceSelect(pace.id)}
+      <div>
+        <h3 className="text-xl font-semibold mb-2 flex items-center gap-2">
+          <FastForward className="text-amber-500" size={20} />
+          Study Pace Preference
+        </h3>
+        <p className="text-muted-foreground mb-4">How intensive would you like your study plan to be?</p>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <Button 
+            variant="outline"
+            onClick={() => onStudyPaceSelect("Aggressive")}
+            className="h-24 flex flex-col items-center justify-center space-y-2 hover:bg-amber-600 hover:text-white"
           >
-            <div className="flex items-center gap-3">
-              <div className={`p-2 rounded-full ${
-                selectedPace === pace.id ? "bg-primary text-white" : "bg-muted"
-              }`}>
-                <pace.icon className="h-5 w-5" />
-              </div>
-              
-              <div className="flex-grow">
-                <h3 className="font-medium">{pace.title}</h3>
-                <p className="text-sm text-muted-foreground">{pace.description}</p>
-              </div>
-              
-              {selectedPace === pace.id && (
-                <Check className="h-5 w-5 text-primary" />
-              )}
-            </div>
-          </Card>
-        ))}
+            <FastForward size={24} />
+            <span>Aggressive</span>
+          </Button>
+          
+          <Button 
+            variant="outline"
+            onClick={() => onStudyPaceSelect("Balanced")}
+            className="h-24 flex flex-col items-center justify-center space-y-2 hover:bg-emerald-600 hover:text-white"
+          >
+            <Play size={24} />
+            <span>Balanced</span>
+          </Button>
+          
+          <Button 
+            variant="outline"
+            onClick={() => onStudyPaceSelect("Relaxed")}
+            className="h-24 flex flex-col items-center justify-center space-y-2 hover:bg-blue-600 hover:text-white"
+          >
+            <Pause size={24} />
+            <span>Relaxed</span>
+          </Button>
+        </div>
+        
+        <div className="mt-4 bg-amber-50 p-4 rounded-md">
+          <p className="text-sm flex items-center gap-2">
+            <AlertCircle size={16} className="text-amber-500" />
+            <span>
+              Choose a pace that suits your learning style. Aggressive pace fits more content in less time, Balanced provides steady progression, and Relaxed pace gives more time for review.
+            </span>
+          </p>
+        </div>
       </div>
-      
-      <Button 
-        onClick={handleSubmit} 
-        className="w-full mt-4"
-        disabled={!selectedPace}
-      >
-        Continue
-      </Button>
     </div>
   );
 };

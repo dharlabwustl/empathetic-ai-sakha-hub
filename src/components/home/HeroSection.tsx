@@ -3,7 +3,7 @@ import React from 'react';
 import PainPoints from './hero/PainPoints';
 import ChatInterface from './hero/ChatInterface';
 import ScrollIndicator from './hero/ScrollIndicator';
-import HeroButtons from './hero/HeroButtons';
+import HeroButtons from './HeroButtons';
 import { motion } from "framer-motion";
 import ExamNamesBadge from './hero/ExamNamesBadge';
 import KeyFeatures from '../landing/KeyFeatures';
@@ -56,9 +56,9 @@ const HeroSection: React.FC<HeroSectionProps> = ({
             transition={{ duration: 0.5, delay: 0.4 }}
           >
             <HeroButtons 
-              onAnalyzeClick={openExamAnalyzer} 
               scrollToFeatures={scrollToFeatures} 
               scrollToForWhom={scrollToForWhom}
+              openExamAnalyzer={openExamAnalyzer}
             />
           </motion.div>
         </div>

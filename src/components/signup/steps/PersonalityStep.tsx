@@ -1,104 +1,125 @@
 
-import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
+import React from "react";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { PersonalityType } from "@/types/user/base";
+import { motion } from "framer-motion";
+import { 
+  Brain, 
+  Lightbulb, 
+  Hammer, 
+  Eye, 
+  Music, 
+  Activity 
+} from "lucide-react";
 
 interface PersonalityStepProps {
-  onNext: (personality: string) => void;
-  onPersonalitySelect?: (personality: string) => void; // Added missing prop
+  onPersonalitySelect: (personality: PersonalityType) => void;
 }
 
-const PersonalityStep = ({ onNext, onPersonalitySelect }: PersonalityStepProps) => {
-  const [selectedPersonality, setSelectedPersonality] = useState<string | null>(null);
+interface PersonalityOption {
+  type: PersonalityType;
+  title: string;
+  description: string;
+  icon: React.ReactNode;
+  color: string;
+}
 
-  const handleSelectPersonality = (personality: string) => {
-    setSelectedPersonality(personality);
-    if (onPersonalitySelect) {
-      onPersonalitySelect(personality);
-    }
-  };
-
-  const handleContinue = () => {
-    if (selectedPersonality) {
-      onNext(selectedPersonality);
-    }
-  };
-
-  const personalities = [
+const PersonalityStep: React.FC<PersonalityStepProps> = ({ onPersonalitySelect }) => {
+  const options: PersonalityOption[] = [
     {
-      id: "systematic_learner",
-      name: "Systematic Learner",
-      description: "You prefer structured learning with clear guidelines and milestones.",
-      icon: "📚"
+      type: "analytical",
+      title: "Analytical",
+      description: "You enjoy solving problems with logic and reasoning",
+      icon: <Brain className="h-6 w-6" />,
+      color: "border-blue-200 hover:border-blue-500 text-blue-700"
     },
     {
-      id: "curious_explorer",
-      name: "Curious Explorer",
-      description: "You enjoy discovering new concepts and making connections between ideas.",
-      icon: "🔍"
+      type: "creative",
+      title: "Creative",
+      description: "You learn best through creative expression and imagination",
+      icon: <Lightbulb className="h-6 w-6" />,
+      color: "border-purple-200 hover:border-purple-500 text-purple-700"
     },
     {
-      id: "practical_applier",
-      name: "Practical Applier",
-      description: "You learn best by doing and applying knowledge to real-world problems.",
-      icon: "🛠️"
+      type: "practical",
+      title: "Practical",
+      description: "You prefer hands-on learning and practical applications",
+      icon: <Hammer className="h-6 w-6" />,
+      color: "border-green-200 hover:border-green-500 text-green-700"
     },
     {
-      id: "social_collaborator",
-      name: "Social Collaborator",
-      description: "You thrive in group settings and enjoy learning through discussion.",
-      icon: "👥"
+      type: "visual",
+      title: "Visual",
+      description: "You learn best through images, diagrams and visual aids",
+      icon: <Eye className="h-6 w-6" />,
+      color: "border-amber-200 hover:border-amber-500 text-amber-700"
     },
     {
-      id: "creative_thinker",
-      name: "Creative Thinker",
-      description: "You approach problems from unique angles with innovative solutions.",
-      icon: "💡"
+      type: "auditory",
+      title: "Auditory",
+      description: "You absorb information best through listening and discussion",
+      icon: <Music className="h-6 w-6" />,
+      color: "border-red-200 hover:border-red-500 text-red-700"
+    },
+    {
+      type: "kinesthetic",
+      title: "Kinesthetic",
+      description: "You learn through movement, experiments and activity",
+      icon: <Activity className="h-6 w-6" />,
+      color: "border-indigo-200 hover:border-indigo-500 text-indigo-700"
     }
   ];
+  
+  const container = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+  
+  const item = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0 }
+  };
 
   return (
-    <div className="w-full max-w-2xl mx-auto">
-      <h2 className="text-2xl font-bold text-center mb-6">What's Your Learning Style?</h2>
-      <p className="text-center text-gray-600 dark:text-gray-300 mb-8">
-        Choose the learning personality that best describes you. This helps us personalize your experience.
-      </p>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-        {personalities.map((personality) => (
-          <motion.div
-            key={personality.id}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            className={cn(
-              "border p-4 rounded-lg cursor-pointer transition-all",
-              selectedPersonality === personality.id 
-                ? "border-primary bg-primary/10" 
-                : "border-gray-200 hover:border-gray-300 dark:border-gray-700 dark:hover:border-gray-600"
-            )}
-            onClick={() => handleSelectPersonality(personality.id)}
-          >
-            <div className="flex items-start gap-4">
-              <div className="text-3xl">{personality.icon}</div>
-              <div>
-                <h3 className="font-medium text-lg">{personality.name}</h3>
-                <p className="text-gray-600 dark:text-gray-300 text-sm">{personality.description}</p>
+    <div className="space-y-6">
+      <div>
+        <h3 className="text-lg font-medium mb-2">What's Your Learning Style?</h3>
+        <p className="text-sm text-gray-500 mb-4">
+          Knowing how you learn best helps us personalize your study experience.
+        </p>
+      </div>
+      
+      <motion.div 
+        variants={container}
+        initial="hidden"
+        animate="show"
+        className="grid grid-cols-1 sm:grid-cols-2 gap-3"
+      >
+        {options.map((option) => (
+          <motion.div key={option.type} variants={item}>
+            <button
+              className={`w-full p-4 border rounded-lg text-left hover:shadow-md transition-all ${option.color} bg-white hover:bg-gradient-to-br hover:from-white hover:to-gray-50`}
+              onClick={() => onPersonalitySelect(option.type)}
+            >
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-full bg-white border">
+                  {option.icon}
+                </div>
+                <div>
+                  <h4 className="font-medium">{option.title}</h4>
+                  <p className="text-xs text-gray-500 mt-1">{option.description}</p>
+                </div>
               </div>
-            </div>
+            </button>
           </motion.div>
         ))}
-      </div>
-
-      <div className="flex justify-end">
-        <Button
-          onClick={handleContinue}
-          disabled={!selectedPersonality}
-          className="w-full md:w-auto"
-        >
-          Continue
-        </Button>
-      </div>
+      </motion.div>
     </div>
   );
 };

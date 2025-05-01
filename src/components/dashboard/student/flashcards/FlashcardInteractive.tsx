@@ -33,7 +33,7 @@ const FlashcardInteractive = () => {
           const mockCards: FlashcardData[] = [
             {
               id: '1',
-              question: "What is Newton's Third Law of Motion?",
+              question: "What is Newton\'s Third Law of Motion?",
               answer: 'For every action, there is an equal and opposite reaction.',
               subject: 'Physics',
               difficulty: 'medium',

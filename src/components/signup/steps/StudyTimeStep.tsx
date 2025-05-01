@@ -1,118 +1,68 @@
 
-import React, { useState } from "react";
+import React from 'react';
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Check, Sun, Coffee, Moon, Clock } from "lucide-react";
+import { Sunrise, Sun, Sunset, Moon, Check } from "lucide-react";
 
 interface StudyTimeStepProps {
-  onStudyTimeSelect: (time: string) => void;
+  onStudyTimeSelect: (time: "Morning" | "Afternoon" | "Evening" | "Night") => void;
 }
 
-const timeOptions = [
-  {
-    id: "early_morning",
-    title: "Early Morning",
-    description: "4 AM - 8 AM",
-    icon: Sun,
-    emojiTime: "🌅",
-  },
-  {
-    id: "morning",
-    title: "Morning",
-    description: "8 AM - 12 PM",
-    icon: Coffee,
-    emojiTime: "☀️",
-  },
-  {
-    id: "afternoon",
-    title: "Afternoon",
-    description: "12 PM - 5 PM",
-    icon: Sun,
-    emojiTime: "🌤️",
-  },
-  {
-    id: "evening",
-    title: "Evening",
-    description: "5 PM - 9 PM",
-    icon: Clock,
-    emojiTime: "🌆",
-  },
-  {
-    id: "night",
-    title: "Night",
-    description: "9 PM - 12 AM",
-    icon: Moon,
-    emojiTime: "🌙",
-  },
-  {
-    id: "late_night",
-    title: "Late Night",
-    description: "12 AM - 4 AM",
-    icon: Moon,
-    emojiTime: "🌚",
-  },
-];
-
 const StudyTimeStep: React.FC<StudyTimeStepProps> = ({ onStudyTimeSelect }) => {
-  const [selectedTime, setSelectedTime] = useState<string | null>(null);
-  
-  const handleTimeSelect = (time: string) => {
-    setSelectedTime(time);
-  };
-  
-  const handleSubmit = () => {
-    if (selectedTime) {
-      onStudyTimeSelect(selectedTime);
+  const timeOptions = [
+    {
+      value: "Morning",
+      label: "Morning",
+      description: "Early hours, 6 AM - 11 AM",
+      icon: <Sunrise className="h-6 w-6 text-amber-500" />
+    },
+    {
+      value: "Afternoon",
+      label: "Afternoon",
+      description: "Midday hours, 12 PM - 4 PM",
+      icon: <Sun className="h-6 w-6 text-orange-500" />
+    },
+    {
+      value: "Evening",
+      label: "Evening",
+      description: "After sunset, 5 PM - 8 PM",
+      icon: <Sunset className="h-6 w-6 text-indigo-500" />
+    },
+    {
+      value: "Night",
+      label: "Night",
+      description: "Late hours, 9 PM - 12 AM",
+      icon: <Moon className="h-6 w-6 text-blue-500" />
     }
-  };
+  ];
 
   return (
     <div className="space-y-6">
-      <div className="text-center mb-6">
-        <h2 className="text-2xl font-semibold mb-2">When do you prefer to study?</h2>
-        <p className="text-gray-500">
-          Select your most productive time of day for studying.
+      <div>
+        <h2 className="text-xl font-semibold mb-2">When do you prefer to study?</h2>
+        <p className="text-muted-foreground">
+          We'll optimize your study plan for your most productive hours
         </p>
       </div>
-      
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {timeOptions.map((time) => (
-          <Card
-            key={time.id}
-            className={`border p-4 cursor-pointer transition-all ${
-              selectedTime === time.id
-                ? "border-primary bg-primary/5"
-                : "hover:border-primary/50"
-            }`}
-            onClick={() => handleTimeSelect(time.id)}
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {timeOptions.map((option) => (
+          <div
+            key={option.value}
+            className="relative cursor-pointer group transition-all rounded-lg overflow-hidden"
+            onClick={() => onStudyTimeSelect(option.value as "Morning" | "Afternoon" | "Evening" | "Night")}
           >
-            <div className="flex items-center gap-3">
-              <div className={`p-2 rounded-full ${
-                selectedTime === time.id ? "bg-primary text-white" : "bg-muted"
-              }`}>
-                {time.emojiTime}
+            <div className="flex items-center gap-4 p-4 border-2 transition-colors border-gray-200 hover:bg-indigo-50/50 hover:border-indigo-200 dark:border-gray-700 dark:hover:bg-indigo-900/10 dark:hover:border-indigo-800">
+              <div className="p-3 rounded-full bg-white dark:bg-gray-800 shadow-sm">
+                {option.icon}
               </div>
-              
-              <div className="flex-grow">
-                <h3 className="font-medium">{time.title}</h3>
-                <p className="text-sm text-muted-foreground">{time.description}</p>
+              <div className="text-left">
+                <div className="font-medium text-lg">{option.label}</div>
+                <div className="text-sm text-gray-500 dark:text-gray-400">{option.description}</div>
               </div>
-              
-              {selectedTime === time.id && (
-                <Check className="h-5 w-5 text-primary" />
-              )}
             </div>
-          </Card>
+          </div>
         ))}
       </div>
-      
-      <Button 
-        onClick={handleSubmit} 
-        className="w-full mt-4"
-        disabled={!selectedTime}
-      >
-        Continue
-      </Button>
     </div>
   );
 };

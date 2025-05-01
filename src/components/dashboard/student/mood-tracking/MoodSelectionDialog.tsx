@@ -1,89 +1,52 @@
 
-import React from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { MoodType } from "@/types/user/base";
-import { motion } from "framer-motion";
-import MoodOption from "./MoodOption";
-import { Smile, Sparkles, Clock, Battery, Wind, Target, Heart, ThumbsUp, AlertCircle, Cloud } from "lucide-react";
+import React from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { MoodType } from '@/types/user/base';
 
 interface MoodSelectionDialogProps {
   isOpen: boolean;
   onClose: () => void;
   selectedMood?: MoodType;
   onSelectMood: (mood: MoodType) => void;
-  onOpenChange?: (open: boolean) => void;
 }
 
-const MoodSelectionDialog: React.FC<MoodSelectionDialogProps> = ({
+export const MoodSelectionDialog: React.FC<MoodSelectionDialogProps> = ({
   isOpen,
   onClose,
-  onOpenChange,
   selectedMood,
-  onSelectMood,
+  onSelectMood
 }) => {
-  const moods: Array<{ type: MoodType; icon: React.ReactNode; label: string }> = [
-    { type: "motivated", icon: <Sparkles className="h-6 w-6" />, label: "Motivated" },
-    { type: "curious", icon: <Smile className="h-6 w-6" />, label: "Curious" },
-    { type: "neutral", icon: <ThumbsUp className="h-6 w-6" />, label: "Neutral" },
-    { type: "tired", icon: <Battery className="h-6 w-6" />, label: "Tired" },
-    { type: "stressed", icon: <Wind className="h-6 w-6" />, label: "Stressed" },
-    { type: "focused", icon: <Target className="h-6 w-6" />, label: "Focused" },
-    { type: "happy", icon: <Heart className="h-6 w-6" />, label: "Happy" },
-    { type: "okay", icon: <Clock className="h-6 w-6" />, label: "Okay" },
-    { type: "overwhelmed", icon: <AlertCircle className="h-6 w-6" />, label: "Overwhelmed" },
-    { type: "sad", icon: <Cloud className="h-6 w-6" />, label: "Sad" },
+  const moods = [
+    { name: 'Happy', emoji: '😊', value: MoodType.Happy },
+    { name: 'Motivated', emoji: '💪', value: MoodType.Motivated },
+    { name: 'Focused', emoji: '🧠', value: MoodType.Focused },
+    { name: 'Neutral', emoji: '😐', value: MoodType.Neutral },
+    { name: 'Tired', emoji: '😴', value: MoodType.Tired },
+    { name: 'Anxious', emoji: '😰', value: MoodType.Anxious },
+    { name: 'Stressed', emoji: '😓', value: MoodType.Stressed },
+    { name: 'Sad', emoji: '😢', value: MoodType.Sad },
   ];
 
-  // Animation variants
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-      },
-    },
-  };
-
-  const childVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0 },
-  };
-
-  const handleOpenChange = (open: boolean) => {
-    if (onOpenChange) {
-      onOpenChange(open);
-    }
-    if (!open) {
-      onClose();
-    }
-  };
-
   return (
-    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <DialogContent className="dialog-content sm:max-w-md">
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle className="text-center text-xl">How are you feeling today?</DialogTitle>
+          <DialogTitle>How are you feeling today?</DialogTitle>
         </DialogHeader>
-        
-        <motion.div
-          className="grid grid-cols-2 sm:grid-cols-5 gap-4 py-4"
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-        >
+        <div className="grid grid-cols-4 gap-3 py-4">
           {moods.map((mood) => (
-            <motion.div key={mood.type} variants={childVariants}>
-              <MoodOption
-                type={mood.type}
-                icon={mood.icon}
-                label={mood.label}
-                isSelected={selectedMood === mood.type}
-                onSelect={() => onSelectMood(mood.type)}
-              />
-            </motion.div>
+            <Button
+              key={mood.value}
+              onClick={() => onSelectMood(mood.value)}
+              variant={selectedMood === mood.value ? "default" : "outline"}
+              className="flex flex-col py-3 h-auto gap-1"
+            >
+              <span className="text-2xl">{mood.emoji}</span>
+              <span className="text-xs">{mood.name}</span>
+            </Button>
           ))}
-        </motion.div>
+        </div>
       </DialogContent>
     </Dialog>
   );

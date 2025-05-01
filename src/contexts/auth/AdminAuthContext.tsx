@@ -1,66 +1,124 @@
 
-import React, { createContext, useState, useContext, ReactNode } from 'react';
-import { AuthUser } from '@/services/auth/authService';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { AdminUser } from '@/types/user/base';
 
-interface AdminAuthContextProps {
-  adminUser: AuthUser | null;
-  isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<boolean>;
-  logout: () => Promise<void>;
+// Define the context types
+export interface AdminAuthContextProps {
+  isAdminAuthenticated: boolean;
+  isAdminLoading: boolean;
+  adminUser: AdminUser | null;
+  adminLogin: (username: string, password: string) => Promise<boolean>;
+  adminLogout: () => Promise<void>;
+  adminLoginError: string | null;
 }
 
-const AdminAuthContext = createContext<AdminAuthContextProps | undefined>(undefined);
+// Create the context with a default value
+const AdminAuthContext = createContext<AdminAuthContextProps>({
+  isAdminAuthenticated: false,
+  isAdminLoading: true,
+  adminUser: null,
+  adminLogin: async () => false,
+  adminLogout: async () => {},
+  adminLoginError: null
+});
 
-interface AdminAuthProviderProps {
-  children: ReactNode;
-}
+// Hook for using the admin auth context
+export const useAdminAuth = () => useContext(AdminAuthContext);
 
-export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }) => {
-  const [adminUser, setAdminUser] = useState<AuthUser | null>(null);
+// Provider component
+export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
+  const [isAdminLoading, setIsAdminLoading] = useState(true);
+  const [adminUser, setAdminUser] = useState<AdminUser | null>(null);
+  const [adminLoginError, setAdminLoginError] = useState<string | null>(null);
 
-  // Check for existing admin session
-  React.useEffect(() => {
-    const storedAdminUser = localStorage.getItem('admin_user');
-    if (storedAdminUser) {
+  // Check if admin is authenticated on load
+  useEffect(() => {
+    const checkAdminAuth = async () => {
       try {
-        const parsedUser = JSON.parse(storedAdminUser);
-        setAdminUser(parsedUser);
+        setIsAdminLoading(true);
+        const adminToken = localStorage.getItem('adminToken');
+        const adminUserStr = localStorage.getItem('adminUser');
+        
+        if (adminToken && adminUserStr) {
+          try {
+            const user = JSON.parse(adminUserStr) as AdminUser;
+            setIsAdminAuthenticated(true);
+            setAdminUser(user);
+          } catch (e) {
+            console.error("Error parsing admin user data", e);
+            localStorage.removeItem('adminToken');
+            localStorage.removeItem('adminUser');
+          }
+        }
       } catch (error) {
-        console.error('Failed to parse admin user from localStorage');
-        localStorage.removeItem('admin_user');
+        console.error("Error checking admin auth:", error);
+      } finally {
+        setIsAdminLoading(false);
       }
-    }
+    };
+
+    checkAdminAuth();
   }, []);
 
-  const login = async (email: string, password: string): Promise<boolean> => {
-    // For demo purposes, just check for a hardcoded admin credential
-    if (email === 'admin@prepzr.com' && password === 'admin123') {
-      const adminUserData: AuthUser = {
-        id: 'admin-1',
-        name: 'Admin User',
-        email,
-        role: 'admin',
-        token: `admin-token-${Date.now()}`
-      };
+  // Admin login function
+  const adminLogin = async (email: string, password: string): Promise<boolean> => {
+    try {
+      setIsAdminLoading(true);
+      setAdminLoginError(null);
       
-      localStorage.setItem('admin_user', JSON.stringify(adminUserData));
-      setAdminUser(adminUserData);
-      return true;
+      console.log("Admin login attempt:", email);
+      
+      // For demo, allow any email with 'admin' in it and password length > 3
+      if (email.includes('admin') && password.length > 3) {
+        const adminUser: AdminUser = {
+          id: 'admin1',
+          name: 'Admin User',
+          email: email,
+          role: 'admin',
+          permissions: ['all']
+        };
+        
+        localStorage.setItem('adminToken', `admin-token-${Date.now()}`);
+        localStorage.setItem('adminUser', JSON.stringify(adminUser));
+        
+        setIsAdminAuthenticated(true);
+        setAdminUser(adminUser);
+        console.log("Admin login successful");
+        return true;
+      } else {
+        setAdminLoginError("Invalid admin credentials");
+        console.log("Admin login failed: Invalid credentials");
+        return false;
+      }
+    } catch (error) {
+      console.error("Admin login error:", error);
+      setAdminLoginError("An unexpected error occurred");
+      return false;
+    } finally {
+      setIsAdminLoading(false);
     }
-    
-    return false;
   };
 
-  const logout = async (): Promise<void> => {
-    localStorage.removeItem('admin_user');
-    setAdminUser(null);
+  // Admin logout function
+  const adminLogout = async (): Promise<void> => {
+    try {
+      localStorage.removeItem('adminToken');
+      localStorage.removeItem('adminUser');
+      setIsAdminAuthenticated(false);
+      setAdminUser(null);
+    } catch (error) {
+      console.error("Admin logout error:", error);
+    }
   };
 
-  const value = {
+  const value: AdminAuthContextProps = {
+    isAdminAuthenticated,
+    isAdminLoading,
     adminUser,
-    isAuthenticated: !!adminUser,
-    login,
-    logout
+    adminLogin,
+    adminLogout,
+    adminLoginError
   };
 
   return (
@@ -68,14 +126,4 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
       {children}
     </AdminAuthContext.Provider>
   );
-};
-
-export const useAdminAuth = () => {
-  const context = useContext(AdminAuthContext);
-  
-  if (context === undefined) {
-    throw new Error('useAdminAuth must be used within an AdminAuthProvider');
-  }
-  
-  return context;
 };

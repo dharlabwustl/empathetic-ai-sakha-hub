@@ -1,55 +1,69 @@
 
-import React from 'react';
 import { motion } from 'framer-motion';
-import { useIsMobile } from '@/hooks/use-mobile';
-
-const examNames = [
-  "UPSC", "JEE", "NEET", "GMAT", "CAT", "GATE", "SSC", "Banking", "GRE", "CLAT", "CUET"
-];
 
 const ExamNamesBadge = () => {
-  const isMobile = useIsMobile();
-  
-  // Animation variants for the exam badges
-  const container = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.3
+  const badgeVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: { 
+        duration: 0.5 
       }
     }
   };
-  
-  const item = {
-    hidden: { opacity: 0, scale: 0.8 },
-    show: { opacity: 1, scale: 1 }
+
+  const textVariants = {
+    hidden: { opacity: 0, scale: 0.9 },
+    visible: (i: number) => ({
+      opacity: 1,
+      scale: 1,
+      transition: {
+        delay: i * 0.2,
+        duration: 0.5
+      }
+    })
   };
 
   return (
-    <div className="flex flex-col items-center justify-center">
-      <h2 className="text-lg md:text-xl text-center font-medium text-gray-700 dark:text-gray-300 mb-4">
-        Trusted by students preparing for:
-      </h2>
+    <motion.div
+      variants={badgeVariants}
+      initial="hidden"
+      animate="visible"
+      className="max-w-lg mx-auto bg-white/80 dark:bg-gray-800/80 backdrop-blur rounded-full py-3 px-6 shadow-md flex flex-wrap justify-center items-center gap-3"
+    >
+      <span className="text-sm text-gray-500 dark:text-gray-400 font-medium">Trusted by students preparing for:</span>
       
-      <motion.div 
-        variants={container}
+      <motion.span 
+        custom={1}
+        variants={textVariants}
         initial="hidden"
-        animate="show"
-        className="flex flex-wrap justify-center gap-2 md:gap-3 px-4 py-3 bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-xl shadow-sm border border-violet-100 dark:border-violet-800/30"
+        animate="visible"
+        className="font-bold text-lg text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-indigo-600 px-3 py-1 rounded-full border-2 border-purple-200 dark:border-purple-900 hover:shadow-md transition-all duration-300 transform hover:scale-105"
       >
-        {examNames.map((exam, index) => (
-          <motion.span
-            key={index}
-            variants={item}
-            className="px-3 py-1 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/40 dark:to-blue-900/40 text-purple-800 dark:text-purple-300 text-sm md:text-base font-medium rounded-full shadow-sm border border-purple-200/50 dark:border-purple-700/30"
-          >
-            {exam}
-          </motion.span>
-        ))}
-      </motion.div>
-    </div>
+        UPSC
+      </motion.span>
+      
+      <motion.span 
+        custom={2}
+        variants={textVariants}
+        initial="hidden"
+        animate="visible"
+        className="font-bold text-lg text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-cyan-500 px-3 py-1 rounded-full border-2 border-blue-200 dark:border-blue-900 hover:shadow-md transition-all duration-300 transform hover:scale-105"
+      >
+        NEET
+      </motion.span>
+      
+      <motion.span 
+        custom={3}
+        variants={textVariants}
+        initial="hidden"
+        animate="visible"
+        className="font-bold text-lg text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-600 to-pink-600 px-3 py-1 rounded-full border-2 border-pink-200 dark:border-pink-900 hover:shadow-md transition-all duration-300 transform hover:scale-105"
+      >
+        IIT-JEE
+      </motion.span>
+    </motion.div>
   );
 };
 

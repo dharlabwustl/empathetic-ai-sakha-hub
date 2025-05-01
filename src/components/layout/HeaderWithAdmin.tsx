@@ -19,9 +19,11 @@ const Header = () => {
     <header className="bg-white dark:bg-gray-900 shadow-sm sticky top-0 z-50">
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
-          <Link to="/" className="flex items-center">
-            <PrepzrLogo width={50} />
-          </Link>
+          <div className="flex items-center">
+            <Link to="/" className="flex items-center">
+              <PrepzrLogo width={120} height={40} /> {/* Increased logo size */}
+            </Link>
+          </div>
           
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-4">

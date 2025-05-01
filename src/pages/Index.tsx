@@ -4,7 +4,6 @@ import Header from '@/components/layout/HeaderWithAdmin';
 import Footer from '@/components/layout/Footer';
 import HeroSection from '@/components/home/HeroSection';
 import WhatIsSection from '@/components/home/WhatIsSection';
-import ForWhomSection from '@/components/home/ForWhomSection';
 import FeaturesSection from '@/components/home/FeaturesSection';
 import ExamPreparationSection from '@/components/home/ExamPreparationSection';
 import StudentBenefitsSection from '@/components/home/StudentBenefitsSection';
@@ -12,21 +11,15 @@ import CallToAction from '@/components/home/CallToAction';
 import FounderSection from '@/components/home/FounderSection';
 import VideoSection from '@/components/home/VideoSection';
 import { ExamReadinessAnalyzer } from '@/components/home/ExamReadinessAnalyzer';
+import FoundingTeamSection from '@/components/home/FoundingTeamSection';
 
 const Index = () => {
   const featuresRef = useRef<HTMLDivElement>(null);
-  const forWhomRef = useRef<HTMLDivElement>(null);
   const [showExamAnalyzer, setShowExamAnalyzer] = useState(false);
   
   const scrollToFeatures = () => {
     if (featuresRef.current) {
       featuresRef.current.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-  
-  const scrollToForWhom = () => {
-    if (forWhomRef.current) {
-      forWhomRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   };
   
@@ -45,7 +38,6 @@ const Index = () => {
       <main>
         <HeroSection 
           scrollToFeatures={scrollToFeatures} 
-          scrollToForWhom={scrollToForWhom}
           openExamAnalyzer={handleOpenExamAnalyzer}
         />
         
@@ -55,21 +47,17 @@ const Index = () => {
           <FeaturesSection />
         </div>
         
-        <div ref={forWhomRef}>
-          <ForWhomSection />
-        </div>
-        
         <ExamPreparationSection />
         
         {showExamAnalyzer && <ExamReadinessAnalyzer onClose={handleCloseExamAnalyzer} />}
         
         <StudentBenefitsSection />
         
-        {/* Both EcosystemAnimation and OnboardingSection are now in HeroSection */}
-        
         <VideoSection />
         
         <FounderSection />
+        
+        <FoundingTeamSection />
         
         <CallToAction />
       </main>

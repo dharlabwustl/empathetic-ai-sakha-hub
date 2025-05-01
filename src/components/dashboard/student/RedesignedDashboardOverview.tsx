@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStudentDashboardData } from '@/hooks/useStudentDashboardData';
-import { UserProfile } from '@/types/user/base';
+import { UserProfileBase } from '@/types/user/base';
 import { KpiData } from '@/hooks/useKpiTracking';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -16,16 +16,16 @@ import {
 import StudyStatsSection from './dashboard-sections/StudyStatsSection';
 import SubjectBreakdownSection from './dashboard-sections/SubjectBreakdownSection';
 import TodaysPlanSection from './dashboard-sections/TodaysPlanSection';
-import ExamReadinessSection from './dashboard-sections/ExamReadinessSection';
 import ProgressTrackerSection from './dashboard-sections/ProgressTrackerSection';
 import RevisionLoopSection from './dashboard-sections/RevisionLoopSection';
 import UpcomingMilestonesSection from './dashboard-sections/UpcomingMilestonesSection';
 import MoodBasedSuggestions from './dashboard-sections/MoodBasedSuggestions';
 import SmartSuggestionsCenter from './dashboard-sections/SmartSuggestionsCenter';
+import ExamReadinessScore from './dashboard-sections/ExamReadinessScore';
 import { MoodType } from '@/types/user/base';
 
 interface RedesignedDashboardOverviewProps {
-  userProfile: UserProfile;
+  userProfile: UserProfileBase;
   kpis: KpiData[];
 }
 
@@ -34,42 +34,15 @@ export default function RedesignedDashboardOverview({ userProfile, kpis }: Redes
   const [currentMood, setCurrentMood] = useState<MoodType>();
   const navigate = useNavigate();
 
-  // Mock data for the ExamReadinessSection
-  const examReadinessData = {
-    examGoal: userProfile?.goals?.[0]?.title || "IIT-JEE",
-    daysLeft: 78,
-    overallReadiness: 65,
-    subjectReadiness: [
-      {
-        subject: "Physics",
-        readiness: 75,
-        trend: 'up' as const,
-        areasToImprove: ["Electromagnetism", "Optics"]
-      },
-      {
-        subject: "Chemistry",
-        readiness: 58,
-        trend: 'stable' as const,
-        areasToImprove: ["Organic Reactions", "Thermodynamics"]
-      },
-      {
-        subject: "Mathematics",
-        readiness: 62,
-        trend: 'down' as const,
-        areasToImprove: ["Calculus", "Coordinate Geometry"]
-      }
-    ]
-  };
-
-  // Mock data for the TodaysPlanSection
-  const todayPlanData = {
-    focusSubjects: ["Physics", "Chemistry"],
-    totalTasks: 8,
-    concepts: 3,
-    flashcards: 4,
-    exams: 1,
-    timeAllocated: 120
-  };
+  const navigationTabs = [
+    { id: "overview", label: "Overview", icon: LayoutDashboard, path: "/dashboard/student/overview" },
+    { id: "today", label: "Today's Plan", icon: CalendarDays, path: "/dashboard/student/today" },
+    { id: "academic", label: "Academic Advisor", icon: GraduationCap, path: "/dashboard/student/academic" },
+    { id: "concepts", label: "Concept Cards", icon: BookOpen, path: "/dashboard/student/concepts" },
+    { id: "flashcards", label: "Flashcards", icon: Brain, path: "/dashboard/student/flashcards" },
+    { id: "practice", label: "Practice Exams", icon: FileText, path: "/dashboard/student/practice-exam" },
+    { id: "notifications", label: "Notifications", icon: Bell, path: "/dashboard/student/notifications" },
+  ];
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -133,15 +106,7 @@ export default function RedesignedDashboardOverview({ userProfile, kpis }: Redes
       >
         <div className="flex items-center justify-between overflow-x-auto">
           <div className="flex space-x-1 md:space-x-2">
-            {[
-              { id: "overview", label: "Overview", icon: LayoutDashboard, path: "/dashboard/student/overview" },
-              { id: "today", label: "Today's Plan", icon: CalendarDays, path: "/dashboard/student/today" },
-              { id: "academic", label: "Academic Advisor", icon: GraduationCap, path: "/dashboard/student/academic" },
-              { id: "concepts", label: "Concept Cards", icon: BookOpen, path: "/dashboard/student/concepts" },
-              { id: "flashcards", label: "Flashcards", icon: Brain, path: "/dashboard/student/flashcards" },
-              { id: "practice", label: "Practice Exams", icon: FileText, path: "/dashboard/student/practice-exam" },
-              { id: "notifications", label: "Notifications", icon: Bell, path: "/dashboard/student/notifications" },
-            ].map((tab) => (
+            {navigationTabs.map((tab) => (
               <motion.div
                 key={tab.id}
                 whileHover={{ scale: 1.05 }}
@@ -204,14 +169,57 @@ export default function RedesignedDashboardOverview({ userProfile, kpis }: Redes
         <StudyStatsSection subjects={dashboardData.subjects} conceptCards={dashboardData.conceptCards} />
       </motion.div>
 
-      {/* Add Exam Readiness Section */}
-      <motion.div variants={itemVariants}>
-        <ExamReadinessSection 
-          examGoal={examReadinessData.examGoal}
-          daysLeft={examReadinessData.daysLeft}
-          overallReadiness={examReadinessData.overallReadiness}
-          subjectReadiness={examReadinessData.subjectReadiness}
+      {/* Exam Readiness Score - added below the KPI section */}
+      <motion.div 
+        variants={itemVariants}
+        className="grid grid-cols-1 lg:grid-cols-2 gap-6"
+      >
+        <ExamReadinessScore 
+          overallScore={72} 
+          targetExam={dashboardData.examGoal} 
+          daysUntilExam={85}
         />
+        
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center mb-4">
+              <Brain className="h-5 w-5 text-violet-600 mr-2" />
+              <h3 className="text-lg font-medium">Your Learning Status</h3>
+            </div>
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg">
+                  <div className="text-sm text-muted-foreground">Concepts Mastered</div>
+                  <div className="text-2xl font-bold">45/60</div>
+                  <div className="text-xs text-blue-600 dark:text-blue-400">75% completed</div>
+                </div>
+                <div className="bg-green-50 dark:bg-green-900/20 p-3 rounded-lg">
+                  <div className="text-sm text-muted-foreground">Flashcards Reviewed</div>
+                  <div className="text-2xl font-bold">120/150</div>
+                  <div className="text-xs text-green-600 dark:text-green-400">80% completed</div>
+                </div>
+              </div>
+              
+              <div className="p-4 bg-violet-50 dark:bg-violet-900/20 rounded-lg border border-violet-200 dark:border-violet-800/50">
+                <h4 className="font-medium text-violet-800 dark:text-violet-300 mb-2">Weekly Progress</h4>
+                <div className="space-y-1">
+                  <div className="flex justify-between text-sm">
+                    <span>Study Hours</span>
+                    <span className="font-medium">12.5 hrs</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span>Practice Tests</span>
+                    <span className="font-medium">8 completed</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span>Avg. Score</span>
+                    <span className="font-medium">82%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </motion.div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -261,7 +269,7 @@ export default function RedesignedDashboardOverview({ userProfile, kpis }: Redes
         </motion.div>
 
         <motion.div variants={itemVariants}>
-          <TodaysPlanSection studyPlan={todayPlanData} currentMood={currentMood} />
+          <TodaysPlanSection studyPlan={dashboardData.studyPlan} currentMood={currentMood} />
         </motion.div>
       </div>
 
@@ -275,10 +283,10 @@ export default function RedesignedDashboardOverview({ userProfile, kpis }: Redes
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <motion.div variants={itemVariants}>
-          <RevisionLoopSection revisionStats={dashboardData.revisionStats} />
+          <RevisionLoopSection revisionItems={dashboardData.revisionItems} />
         </motion.div>
         <motion.div variants={itemVariants}>
-          <UpcomingMilestonesSection milestones={dashboardData.upcomingMilestones} />
+          <UpcomingMilestonesSection milestones={dashboardData.milestones} />
         </motion.div>
       </div>
     </motion.div>

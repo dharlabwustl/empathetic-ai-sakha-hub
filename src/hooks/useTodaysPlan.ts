@@ -1,14 +1,93 @@
+
 import { useState, useEffect } from 'react';
 import { TodaysPlanData, TimelineView } from '@/types/student/todaysPlan';
 
 // Mock data for today's plan
 const mockTodayPlan: TodaysPlanData = {
-  userName: "Student",
-  examGoal: "IIT-JEE",
+  id: "plan-1",
   date: new Date().toISOString(),
   streak: 4,
   completedTasks: 3,
   totalTasks: 7,
+  timeAllocation: {
+    concepts: 70,
+    flashcards: 25,
+    practiceExams: 45,
+    revision: 20,
+    total: 160
+  },
+  concepts: [
+    {
+      id: "c1",
+      title: "Newton's Laws of Motion",
+      subject: "Physics",
+      topic: "Mechanics",
+      duration: 25,
+      status: "pending",
+      difficulty: "Medium"
+    },
+    {
+      id: "c2",
+      title: "Motion Kinematics",
+      subject: "Physics",
+      topic: "Mechanics",
+      duration: 20,
+      status: "completed",
+      difficulty: "Easy"
+    }
+  ],
+  flashcards: [
+    {
+      id: "f1",
+      title: "Force & Motion Flashcards",
+      subject: "Physics",
+      duration: 15,
+      status: "pending",
+      cardCount: 20
+    }
+  ],
+  practiceExams: [
+    {
+      id: "p1",
+      title: "Physics Mini Test",
+      subject: "Physics",
+      duration: 30,
+      status: "pending",
+      questionCount: 15
+    },
+    {
+      id: "p2",
+      title: "Chemistry Quick Quiz",
+      subject: "Chemistry",
+      duration: 15,
+      status: "completed",
+      questionCount: 10
+    }
+  ],
+  recommendations: [
+    {
+      id: "r1",
+      type: "concept",
+      title: "Wave Optics",
+      description: "Master the concepts of wave optics",
+      reason: "Complements your current study of Physics"
+    },
+    {
+      id: "r2",
+      type: "flashcard",
+      title: "Chemical Elements Deck",
+      description: "Review periodic table elements",
+      reason: "You've been consistently improving in Chemistry"
+    }
+  ],
+  tomorrowPreview: {
+    totalTasks: 5,
+    focusArea: "Mathematics",
+    difficulty: "moderate",
+    concepts: 2,
+    flashcards: 2,
+    practiceExams: 1
+  },
   subjectBreakdown: {
     "Physics": {
       concepts: [
@@ -69,44 +148,6 @@ const mockTodayPlan: TodaysPlanData = {
       ]
     }
   },
-  timeAllocation: {
-    concepts: 70,
-    flashcards: 25,
-    practiceExams: 45,
-    revision: 20,
-    total: 160
-  },
-  tomorrowPreview: {
-    totalTasks: 5,
-    focusArea: "Mathematics",
-    difficulty: "moderate",
-    concepts: 2,
-    flashcards: 2,
-    practiceExams: 1
-  },
-  smartExtras: {
-    bookmarks: [
-      {
-        id: "b1",
-        title: "Wave Optics",
-        type: "concept",
-        addedOn: new Date().toISOString()
-      }
-    ],
-    notes: [
-      {
-        id: "n1",
-        content: "Remember to review the formulas for kinematics before the mini-test",
-        createdAt: new Date().toISOString()
-      }
-    ]
-  },
-  tasks: {
-    concepts: [],
-    flashcards: [],
-    practiceExams: [],
-    revision: []
-  },
   backlogTasks: [
     {
       id: "bl1",
@@ -129,11 +170,11 @@ const mockTodayPlan: TodaysPlanData = {
   ]
 };
 
-export const useTodaysPlan = (examGoal: string, userName: string) => {
+export const useTodaysPlan = (examGoal = "IIT-JEE", userName = "Student") => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [planData, setPlanData] = useState<TodaysPlanData | null>(null);
-  const [activeView, setActiveView] = useState<TimelineView>('daily');
+  const [activeView, setActiveView] = useState<TimelineView>('list');
 
   // Fetch today's plan data
   useEffect(() => {
@@ -145,7 +186,11 @@ export const useTodaysPlan = (examGoal: string, userName: string) => {
       setTimeout(() => {
         try {
           // Simulate API response
-          const data = { ...mockTodayPlan, userName: userName || "Student", examGoal: examGoal || "IIT-JEE" };
+          const data = {
+            ...mockTodayPlan,
+            examGoal: examGoal || "IIT-JEE",
+            userName: userName || "Student"
+          };
           setPlanData(data);
           setLoading(false);
         } catch (err) {
@@ -166,7 +211,11 @@ export const useTodaysPlan = (examGoal: string, userName: string) => {
     setTimeout(() => {
       try {
         // Simulate API response with slightly different data
-        const updatedData = { ...mockTodayPlan, userName: userName || "Student", examGoal: examGoal || "IIT-JEE" };
+        const updatedData = {
+          ...mockTodayPlan,
+          examGoal: examGoal || "IIT-JEE",
+          userName: userName || "Student"
+        };
         setPlanData(updatedData);
         setLoading(false);
       } catch (err) {
@@ -184,56 +233,35 @@ export const useTodaysPlan = (examGoal: string, userName: string) => {
       if (!prev) return null;
       
       const updated = {...prev};
-      let found = false;
       
-      // Update in subject breakdown
-      Object.keys(updated.subjectBreakdown).forEach(subject => {
-        if (type === 'concept') {
-          updated.subjectBreakdown[subject].concepts = updated.subjectBreakdown[subject].concepts.map(c => {
-            if (c.id === id) {
-              found = true;
-              return {...c, status: '✅ completed'};
-            }
-            return c;
-          });
-        } else if (type === 'flashcard') {
-          updated.subjectBreakdown[subject].flashcards = updated.subjectBreakdown[subject].flashcards.map(f => {
-            if (f.id === id) {
-              found = true;
-              return {...f, status: '✅ completed'};
-            }
-            return f;
-          });
-        } else if (type === 'practice-exam') {
-          updated.subjectBreakdown[subject].practiceExams = updated.subjectBreakdown[subject].practiceExams.map(p => {
-            if (p.id === id) {
-              found = true;
-              return {...p, status: '✅ completed'};
-            }
-            return p;
-          });
-        }
-      });
-      
-      // Update in backlogs if not found in main tasks
-      if (!found) {
-        updated.backlogTasks = updated.backlogTasks.map(task => {
-          if (task.id === id) {
-            return {...task, status: '✅ completed'};
+      if (type === 'concept') {
+        updated.concepts = updated.concepts.map(c => {
+          if (c.id === id) {
+            return {...c, status: 'completed'};
           }
-          return task;
+          return c;
+        });
+      } else if (type === 'flashcard') {
+        updated.flashcards = updated.flashcards.map(f => {
+          if (f.id === id) {
+            return {...f, status: 'completed'};
+          }
+          return f;
+        });
+      } else if (type === 'practice-exam') {
+        updated.practiceExams = updated.practiceExams.map(p => {
+          if (p.id === id) {
+            return {...p, status: 'completed'};
+          }
+          return p;
         });
       }
       
       // Update completion count
       let completedCount = 0;
-      Object.keys(updated.subjectBreakdown).forEach(subject => {
-        completedCount += updated.subjectBreakdown[subject].concepts.filter(c => c.status === '✅ completed').length;
-        completedCount += updated.subjectBreakdown[subject].flashcards.filter(f => f.status === '✅ completed').length;
-        completedCount += updated.subjectBreakdown[subject].practiceExams.filter(p => p.status === '✅ completed').length;
-      });
-      
-      completedCount += updated.backlogTasks.filter(t => t.status === '✅ completed').length;
+      completedCount += updated.concepts.filter(c => c.status === 'completed').length;
+      completedCount += updated.flashcards.filter(f => f.status === 'completed').length;
+      completedCount += updated.practiceExams.filter(p => p.status === 'completed').length;
       
       updated.completedTasks = completedCount;
       
@@ -243,10 +271,10 @@ export const useTodaysPlan = (examGoal: string, userName: string) => {
 
   // Add bookmark
   const addBookmark = (title: string, type: 'concept' | 'flashcard' | 'exam') => {
-    if (!planData) return;
+    if (!planData || !planData.smartExtras) return;
     
     setPlanData(prev => {
-      if (!prev) return null;
+      if (!prev || !prev.smartExtras) return prev;
       
       return {
         ...prev,
@@ -268,10 +296,10 @@ export const useTodaysPlan = (examGoal: string, userName: string) => {
 
   // Add note
   const addNote = (content: string) => {
-    if (!planData) return;
+    if (!planData || !planData.smartExtras) return;
     
     setPlanData(prev => {
-      if (!prev) return null;
+      if (!prev || !prev.smartExtras) return prev;
       
       return {
         ...prev,
@@ -290,21 +318,6 @@ export const useTodaysPlan = (examGoal: string, userName: string) => {
     });
   };
 
-  // Mark day as complete
-  const markDayComplete = () => {
-    if (!planData) return;
-    
-    setPlanData(prev => {
-      if (!prev) return null;
-      
-      return {
-        ...prev,
-        streak: prev.streak + 1,
-        completedTasks: prev.totalTasks
-      };
-    });
-  };
-
   return {
     loading,
     error,
@@ -314,7 +327,6 @@ export const useTodaysPlan = (examGoal: string, userName: string) => {
     refreshData,
     markTaskCompleted,
     addBookmark,
-    addNote,
-    markDayComplete
+    addNote
   };
 };

@@ -17,38 +17,13 @@ const SignupContent = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleRoleSelect = (role: UserRole) => {
-    // Always select Student role as per request
+    // Only allow student role
     setOnboardingData({ ...onboardingData, role: UserRole.Student });
     goToNextStep();
   };
 
   const handleGoalSelect = (goal: string) => {
-    setOnboardingData({ ...onboardingData, goal });
-    goToNextStep();
-  };
-
-  const handleExamDateSelect = (date: Date) => {
-    setOnboardingData({ ...onboardingData, examDate: date });
-    goToNextStep();
-  };
-
-  const handleStudyHoursSelect = (hours: number) => {
-    setOnboardingData({ ...onboardingData, studyHours: hours });
-    goToNextStep();
-  };
-
-  const handleSubjectsSelect = (strongSubjects: string[], weakSubjects: string[]) => {
-    setOnboardingData({ ...onboardingData, strongSubjects, weakSubjects });
-    goToNextStep();
-  };
-
-  const handleStudyPaceSelect = (pace: string) => {
-    setOnboardingData({ ...onboardingData, studyPace: pace });
-    goToNextStep();
-  };
-
-  const handleStudyTimeSelect = (time: string) => {
-    setOnboardingData({ ...onboardingData, studyTime: time });
+    setOnboardingData({ ...onboardingData, examGoal: goal });
     goToNextStep();
   };
 
@@ -62,12 +37,27 @@ const SignupContent = () => {
   };
 
   const handlePersonalitySelect = (personality: PersonalityType) => {
-    setOnboardingData({ ...onboardingData, personality });
+    setOnboardingData({ ...onboardingData, personalityType: personality });
     goToNextStep();
   };
 
   const handleMoodSelect = (mood: MoodType) => {
     setOnboardingData({ ...onboardingData, mood });
+    goToNextStep();
+  };
+  
+  const handleStudyTimeSelect = (time: "Morning" | "Afternoon" | "Evening" | "Night") => {
+    setOnboardingData({ ...onboardingData, studyTime: time });
+    goToNextStep();
+  };
+  
+  const handleStudyPaceSelect = (pace: "Aggressive" | "Balanced" | "Relaxed") => {
+    setOnboardingData({ ...onboardingData, studyPace: pace });
+    goToNextStep();
+  };
+  
+  const handleStudyHoursSelect = (hours: number) => {
+    setOnboardingData({ ...onboardingData, dailyStudyHours: hours });
     goToNextStep();
   };
 
@@ -77,7 +67,7 @@ const SignupContent = () => {
   };
 
   const handleInterestsSubmit = (interests: string) => {
-    setOnboardingData({ ...onboardingData, interests: interests.split(',').map(i => i.trim()) });
+    setOnboardingData({ ...onboardingData, interests });
     goToNextStep();
   };
 
@@ -85,16 +75,6 @@ const SignupContent = () => {
     setIsLoading(true);
 
     try {
-      if (!formValues.agreeTerms) {
-        toast({
-          title: "Terms and Conditions",
-          description: "You must agree to the Terms and Conditions to continue.",
-          variant: "destructive"
-        });
-        setIsLoading(false);
-        return;
-      }
-      
       // Set name from form data
       const finalData = {
         ...onboardingData,
@@ -103,6 +83,9 @@ const SignupContent = () => {
       };
 
       setOnboardingData(finalData);
+
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1500));
 
       // Store data in localStorage
       localStorage.setItem("userData", JSON.stringify({
@@ -117,9 +100,9 @@ const SignupContent = () => {
         description: "Redirecting to your personalized dashboard.",
       });
 
-      // Redirect to welcome screen
+      // Redirect to the study plan screen, then to welcome screen
       setTimeout(() => {
-        navigate("/welcome");
+        navigate("/study-plan-creation?new=true&completedOnboarding=true");
       }, 1000);
     } catch (error) {
       console.error("Error creating account:", error);
@@ -135,14 +118,12 @@ const SignupContent = () => {
   const handlers = {
     handleRoleSelect,
     handleGoalSelect,
-    handleExamDateSelect,
-    handleStudyHoursSelect,
-    handleSubjectsSelect,
-    handleStudyPaceSelect,
-    handleStudyTimeSelect,
     handleDemographicsSubmit,
     handlePersonalitySelect,
     handleMoodSelect,
+    handleStudyTimeSelect,
+    handleStudyPaceSelect,
+    handleStudyHoursSelect,
     handleHabitsSubmit,
     handleInterestsSubmit,
     handleSignupSubmit,
@@ -165,14 +146,14 @@ const SignupContent = () => {
       localStorage.setItem("userData", JSON.stringify({
         name: "Google User",
         email: "googleuser@example.com",
-        role: UserRole.Student,
+        role: "student",
         loginCount: 1,
         createdAt: new Date().toISOString(),
         onboardingCompleted: false,
       }));
 
-      navigate("/welcome");
-    }, 1000);
+      navigate("/study-plan-creation?new=true");
+    }, 2000);
   };
 
   return (
@@ -184,10 +165,11 @@ const SignupContent = () => {
       className="w-full max-w-md mx-auto"
     >
       <Card className="relative overflow-hidden bg-white dark:bg-gray-900 shadow-xl rounded-xl">
+        <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"></div>
         <div className="p-6 md:p-8">
           <div className="flex flex-col items-center mb-6">
             <PrepzrLogo width={120} height={120} />
-            <h1 className="mt-4 text-2xl font-bold">Join PREPZR</h1>
+            <h1 className="mt-4 text-2xl font-bold text-gray-800 dark:text-white">Join PREPZR</h1>
             <p className="text-gray-500 text-sm text-center mt-1">
               Create your personalized study partner
             </p>
@@ -217,7 +199,7 @@ const SignupContent = () => {
               <div className="mt-4">
                 <button
                   type="button"
-                  className="w-full flex justify-center items-center gap-2 bg-white border border-gray-300 rounded-md py-2 px-4 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                  className="w-full flex justify-center items-center gap-2 bg-white border border-gray-300 rounded-md py-2 px-4 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200"
                   onClick={handleGoogleSignup}
                 >
                   <img src="https://www.google.com/favicon.ico" alt="Google" className="h-4 w-4" />
@@ -228,6 +210,10 @@ const SignupContent = () => {
           )}
         </div>
       </Card>
+      
+      <div className="mt-6 text-center text-xs text-gray-500">
+        <p>By signing up, you agree to our <a href="#" className="text-blue-600 hover:underline">Terms of Service</a> and <a href="#" className="text-blue-600 hover:underline">Privacy Policy</a></p>
+      </div>
     </motion.div>
   );
 };

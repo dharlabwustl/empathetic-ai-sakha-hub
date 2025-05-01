@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { UserProfile } from "@/types/user/base";
+import { UserProfileBase } from "@/types/user/base";
 import { KpiData, NudgeData } from "@/hooks/useKpiTracking";
 import ChatAssistant from "@/components/dashboard/ChatAssistant";
 import SidebarNav from "@/components/dashboard/SidebarNav";
@@ -8,7 +8,7 @@ import StudyPlanDialog from "@/pages/dashboard/student/StudyPlanDialog";
 import DashboardWrapper from '@/components/dashboard/student/DashboardWrapper';
 
 interface DashboardContainerProps {
-  userProfile: UserProfile;
+  userProfile: UserProfileBase;
   hideSidebar: boolean;
   hideTabsNav: boolean;
   activeTab: string;

@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Menu, X } from 'lucide-react';
 import { useAuth } from '@/contexts/auth/AuthContext';
-import PrepzrLogo from "@/components/common/PrepzrLogo";
+import PrepzrLogo from '@/components/common/PrepzrLogo';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -19,9 +19,9 @@ const Header = () => {
     <header className="bg-white dark:bg-gray-900 shadow-sm sticky top-0 z-50">
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center">
             <Link to="/" className="flex items-center">
-              <PrepzrLogo width={160} height={48} />
+              <PrepzrLogo width={120} height={40} /> {/* Increased logo size */}
             </Link>
           </div>
           
@@ -31,7 +31,7 @@ const Header = () => {
             {user ? (
               <div className="flex space-x-2">
                 <Button variant="ghost" asChild>
-                  <Link to="/dashboard">Dashboard</Link>
+                  <Link to="/dashboard/student">Dashboard</Link>
                 </Button>
                 <Button variant="ghost" onClick={() => logout()}>
                   Logout
@@ -43,7 +43,7 @@ const Header = () => {
                   <Link to="/login">Login</Link>
                 </Button>
                 <Button variant="default" asChild>
-                  <Link to="/register">Register</Link>
+                  <Link to="/signup">Sign Up</Link>
                 </Button>
               </div>
             )}
@@ -65,7 +65,7 @@ const Header = () => {
               {user ? (
                 <>
                   <Button variant="ghost" asChild className="justify-start">
-                    <Link to="/dashboard">Dashboard</Link>
+                    <Link to="/dashboard/student">Dashboard</Link>
                   </Button>
                   <Button variant="ghost" onClick={() => logout()} className="justify-start">
                     Logout
@@ -77,7 +77,7 @@ const Header = () => {
                     <Link to="/login">Login</Link>
                   </Button>
                   <Button variant="default" asChild className="justify-start">
-                    <Link to="/register">Register</Link>
+                    <Link to="/signup">Sign Up</Link>
                   </Button>
                 </>
               )}

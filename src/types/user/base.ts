@@ -1,84 +1,99 @@
 
-// User Roles
 export enum UserRole {
   Student = "student",
+  Teacher = "teacher",
+  Parent = "parent",
+  Admin = "admin",
   Employee = "employee",
   Doctor = "doctor",
   Founder = "founder"
 }
 
-// Subscription Types
+export enum MoodType {
+  Happy = "happy",
+  Sad = "sad",
+  Motivated = "motivated",
+  Tired = "tired",
+  Stressed = "stressed",
+  Focused = "focused",
+  Curious = "curious",
+  Okay = "okay",
+  Overwhelmed = "overwhelmed",
+  Anxious = "anxious",
+  Confused = "confused",
+  Neutral = "neutral",
+  Calm = "calm"
+}
+
 export enum SubscriptionType {
-  Free = "free",
-  Basic = "basic",
-  Premium = "premium",
-  Enterprise = "enterprise",
-  Trial = "trial",
-  Pro_Annual = "pro_annual",
-  Pro_Monthly = "pro_monthly"
+  FREE = "free",
+  TRIAL = "trial",
+  BASIC = "basic",
+  PREMIUM = "premium",
+  PRO_MONTHLY = "pro_monthly",
+  PRO_ANNUAL = "pro_annual",
+  GROUP_SMALL = "group_small",
+  GROUP_MEDIUM = "group_medium",
+  GROUP_LARGE = "group_large",
+  ENTERPRISE = "enterprise"
 }
 
-// Psychology Types
-export enum PersonalityType {
-  Visual = "visual",
-  Auditory = "auditory",
-  ReadWrite = "read_write",
-  Kinesthetic = "kinesthetic",
-  Analytical = "analytical",
-  Reflective = "reflective"
-}
-
-// Mood Types (expanded to include all options used throughout the app)
-export type MoodType = 
-  | "motivated" 
-  | "curious" 
-  | "neutral" 
-  | "tired" 
-  | "stressed" 
-  | "focused" 
-  | "happy" 
-  | "sad"
-  | "anxious"
-  | "okay"
-  | "overwhelmed"
-  | "energetic"
-  | "😊 Motivated"
-  | "🤔 Curious" 
-  | "😐 Neutral" 
-  | "😓 Tired" 
-  | "😔 Stressed";
-
-// Goal Status
-export enum GoalStatus {
-  NotStarted = "not_started",
-  InProgress = "in_progress",
-  Completed = "completed",
-  Overdue = "overdue"
-}
-
-// User Profile - Basic fields
-export interface UserProfile {
+export interface UserProfileBase {
   id: string;
   name: string;
   email: string;
   role: UserRole;
-  avatar?: string;
-  streak?: number;
-  subscriptionType?: SubscriptionType;
-  goals?: Goal[];
-  mood?: MoodType;
-  personality?: PersonalityType;
+  goals?: UserGoal[];
+  subscription?: string | SubscriptionInfo;
   loginCount?: number;
+  createdAt?: string;
+  lastLogin?: string;
+  image?: string;
+  avatar?: string;
+  pronouns?: string;
+  isActive?: boolean;
+  profile?: UserProfile;
+  mood?: MoodType;
+  personalityType?: PersonalityType;
 }
 
-// Goal interface
-export interface Goal {
+export interface UserGoal {
   id: string;
   title: string;
-  description?: string;
-  progress?: number; // 0-100
-  status: GoalStatus;
-  dueDate?: string;
-  completed?: boolean;
-  category?: string;
+  targetDate?: string;
+  progress?: number;
 }
+
+export interface UserProfile {
+  bio?: string;
+  location?: string;
+  interests?: string[];
+  skills?: string[];
+  education?: string[];
+}
+
+export interface AdminUser {
+  id: string;
+  name: string;
+  email: string;
+  role: "admin";
+  permissions: string[];
+}
+
+export interface SubscriptionInfo {
+  planType: string;
+  expiryDate?: string;
+  startDate?: string;
+  isActive?: boolean;
+  features?: string[];
+}
+
+export enum PersonalityType {
+  Visual = "visual",
+  Auditory = "auditory",
+  ReadWrite = "readwrite",
+  Kinesthetic = "kinesthetic",
+  Mixed = "mixed"
+}
+
+export type UserProfileType = UserProfileBase;

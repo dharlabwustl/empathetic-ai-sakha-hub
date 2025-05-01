@@ -1,107 +1,90 @@
 
 import React from "react";
-import RoleStep from "@/components/signup/steps/RoleStep";
-import DemographicsStep from "@/components/signup/steps/DemographicsStep";
-import GoalStep from "@/components/signup/steps/GoalStep";
-import PersonalityStep from "@/components/signup/steps/PersonalityStep";
-import SentimentStep from "@/components/signup/steps/SentimentStep";
-import HabitsStep from "@/components/signup/steps/HabitsStep";
-import InterestsStep from "@/components/signup/steps/InterestsStep";
-import SignupStep from "@/components/signup/steps/SignupStep";
-import ExamDateStep from "@/components/signup/steps/ExamDateStep";
-import StudyHoursStep from "@/components/signup/steps/StudyHoursStep";
-import StudyPaceStep from "@/components/signup/steps/StudyPaceStep";
-import StudyTimeStep from "@/components/signup/steps/StudyTimeStep";
-import SubjectsStep from "@/components/signup/steps/SubjectsStep";
-import { OnboardingStep, UserRole } from "./OnboardingContext";
-import { PersonalityType, MoodType } from "@/types/user/base";
+import RoleStep from "./steps/RoleStep";
+import GoalStep from "./steps/GoalStep";
+import DemographicsStep from "./steps/DemographicsStep";
+import PersonalityStep from "./steps/PersonalityStep";
+import MoodStep from "./steps/MoodStep";
+import StudyHabitsStep from "./steps/StudyHabitsStep";
+import InterestsStep from "./steps/InterestsStep";
+import SignupStep from "./steps/SignupStep";
+import StudyTimeStep from "./steps/StudyTimeStep";
+import StudyPaceStep from "./steps/StudyPaceStep";
+import StudyHoursStep from "./steps/StudyHoursStep";
+import { OnboardingStep } from "./OnboardingContext";
 
 interface StepRendererProps {
   step: OnboardingStep;
   onboardingData: any;
   handlers: {
-    handleRoleSelect: (role: UserRole) => void;
-    handleDemographicsSubmit: (data: Record<string, string>) => void;
-    handleGoalSelect: (goal: string) => void;
-    handlePersonalitySelect: (personality: PersonalityType) => void;
-    handleMoodSelect: (mood: MoodType) => void;
-    handleHabitsSubmit: (habits: Record<string, string>) => void;
-    handleInterestsSubmit: (interests: string) => void;
-    handleSignupSubmit: (formValues: { name: string; mobile: string; otp: string }) => void;
-    handleExamDateSelect: (date: Date) => void;
-    handleStudyHoursSelect: (hours: number) => void;
-    handleStudyPaceSelect: (pace: string) => void;
-    handleStudyTimeSelect: (time: string) => void;
-    handleSubjectsSelect: (strongSubjects: string[], weakSubjects: string[]) => void;
+    handleRoleSelect: any;
+    handleGoalSelect: any;
+    handleDemographicsSubmit: any;
+    handlePersonalitySelect: any;
+    handleMoodSelect: any;
+    handleStudyTimeSelect?: any;
+    handleStudyPaceSelect?: any;
+    handleStudyHoursSelect?: any;
+    handleHabitsSubmit: any;
+    handleInterestsSubmit: any;
+    handleSignupSubmit: any;
   };
   isLoading: boolean;
 }
 
-const StepRenderer: React.FC<StepRendererProps> = ({ 
-  step, 
-  onboardingData, 
-  handlers,
-  isLoading
-}) => {
+const StepRenderer: React.FC<StepRendererProps> = ({ step, onboardingData, handlers, isLoading }) => {
   switch (step) {
     case "role":
       return <RoleStep onRoleSelect={handlers.handleRoleSelect} />;
+
     case "goal":
-      return <GoalStep 
-        role={onboardingData.role} 
-        onGoalSelect={handlers.handleGoalSelect} 
-      />;
-    case "examDate":
-      return <ExamDateStep
-        onExamDateSelect={handlers.handleExamDateSelect}
-      />;
-    case "studyHours":
-      return <StudyHoursStep
-        onStudyHoursSelect={handlers.handleStudyHoursSelect}
-      />;
-    case "subjects":
-      return <SubjectsStep
-        examType={onboardingData.goal}
-        onSubjectsSelect={handlers.handleSubjectsSelect}
-      />;
-    case "studyPace":
-      return <StudyPaceStep
-        onStudyPaceSelect={handlers.handleStudyPaceSelect}
-      />;
-    case "studyTime":
-      return <StudyTimeStep
-        onStudyTimeSelect={handlers.handleStudyTimeSelect}
-      />;
+      return <GoalStep role={onboardingData.role} onGoalSelect={handlers.handleGoalSelect} />;
+
     case "demographics":
-      return <DemographicsStep 
-        role={onboardingData.role}
-        goal={onboardingData.goal}
-        onSubmit={handlers.handleDemographicsSubmit} 
-      />;
+      return (
+        <DemographicsStep
+          role={onboardingData.role}
+          examGoal={onboardingData.examGoal}
+          onSubmit={handlers.handleDemographicsSubmit}
+        />
+      );
+
     case "personality":
-      return <PersonalityStep 
-        onPersonalitySelect={handlers.handlePersonalitySelect} 
-      />;
+      return <PersonalityStep onPersonalitySelect={handlers.handlePersonalitySelect} />;
+
     case "sentiment":
-      return <SentimentStep 
-        onMoodSelect={handlers.handleMoodSelect} 
-      />;
+      return <MoodStep onMoodSelect={handlers.handleMoodSelect} />;
+      
+    case "studyTime":
+      return <StudyTimeStep onStudyTimeSelect={handlers.handleStudyTimeSelect} />;
+      
+    case "studyPace":
+      return <StudyPaceStep onStudyPaceSelect={handlers.handleStudyPaceSelect} />;
+      
+    case "studyHours":
+      return <StudyHoursStep onStudyHoursSelect={handlers.handleStudyHoursSelect} examGoal={onboardingData.examGoal} />;
+
     case "habits":
-      return <HabitsStep 
-        onSubmit={handlers.handleHabitsSubmit} 
-      />;
+      return <StudyHabitsStep onSubmit={handlers.handleHabitsSubmit} />;
+
     case "interests":
-      return <InterestsStep 
-        examGoal={onboardingData.goal}
-        onSubmit={handlers.handleInterestsSubmit} 
-      />;
+      return (
+        <InterestsStep
+          examGoal={onboardingData.examGoal}
+          onSubmit={handlers.handleInterestsSubmit}
+        />
+      );
+
     case "signup":
-      return <SignupStep 
-        onSubmit={handlers.handleSignupSubmit} 
-        isLoading={isLoading} 
-      />;
+      return (
+        <SignupStep
+          onSubmit={handlers.handleSignupSubmit}
+          isLoading={isLoading}
+        />
+      );
+
     default:
-      return null;
+      return <div>Unknown step</div>;
   }
 };
 

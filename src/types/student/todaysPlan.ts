@@ -1,137 +1,69 @@
 
-// Types for today's plan
+import { MoodType } from '../user/base';
 
-export type TimelineView = 'daily' | 'weekly' | 'monthly';
-
-export type MoodType = 
-  | 'happy' 
-  | 'focused' 
-  | 'tired' 
-  | 'stressed' 
-  | 'confused' 
-  | 'motivated' 
-  | 'anxious' 
-  | 'overwhelmed' 
-  | 'sad' 
-  | 'curious' 
-  | 'neutral' 
-  | 'okay';
-
-export type TaskType = 'concept' | 'flashcard' | 'exam' | 'revision';
-export type TaskStatus = 'pending' | 'in-progress' | 'completed' | 'overdue';
-
-export interface SubjectTaskBreakdown {
-  [subject: string]: {
-    concepts: {
-      id: string;
-      title: string;
-      status: string;
-      timeEstimate: string;
-    }[];
-    flashcards: {
-      id: string;
-      deckName: string;
-      status: string;
-      timeEstimate: string;
-      cardCount?: number;
-    }[];
-    practiceExams: {
-      id: string;
-      examName: string;
-      status: string;
-      timeEstimate: string;
-    }[];
-  };
-}
-
-export interface TimeAllocation {
-  concepts: number;
-  flashcards: number;
-  practiceExams: number;
-  revision: number;
-  total: number;
-}
-
-export interface TomorrowPreview {
-  totalTasks: number;
-  focusArea: string;
-  difficulty: 'easy' | 'moderate' | 'challenging';
-  concepts: number;
-  flashcards: number;
-  practiceExams: number;
-}
-
-export interface SmartExtras {
-  bookmarks: {
-    id: string;
-    title: string;
-    type: 'concept' | 'flashcard' | 'exam';
-    addedOn: string;
-  }[];
-  notes: {
-    id: string;
-    content: string;
-    createdAt: string;
-  }[];
-}
-
-export interface TaskItem {
+export interface StudyBlock {
   id: string;
   title: string;
-  subject: string;
+  startTime: string;
+  endTime: string;
+  duration: number; // minutes
+  tasks: Task[];
+  completed?: boolean;
+}
+
+export interface Task {
+  id: string;
+  title: string;
+  description?: string;
   type: TaskType;
+  duration: number; // minutes
   status: TaskStatus;
-  timeEstimate: number;
-  isBacklog: boolean;
+  subjectId?: string;
+  conceptId?: string;
+  resourceId?: string;
   priority: 'high' | 'medium' | 'low';
-  smartTip?: string;
-  completedAt?: string;
 }
 
-export interface TodaysPlanData {
-  userName: string;
-  examGoal: string;
-  date: string;
-  subjectBreakdown: SubjectTaskBreakdown;
-  timeAllocation: TimeAllocation;
-  tomorrowPreview: TomorrowPreview;
-  smartExtras: SmartExtras;
-  tasks: TaskItem[];
-  streak: number;
-  completedTasks: number;
-  totalTasks: number;
-  backlogTasks: {
-    id: string;
-    subject: string;
-    title: string;
-    type: 'concept' | 'flashcard' | 'practice-exam';
-    timeEstimate: number;
-    status: string;
-    daysOverdue: number;
-  }[];
+export enum TaskType {
+  READ = 'read',
+  PRACTICE = 'practice',
+  WATCH = 'watch',
+  QUIZ = 'quiz',
+  FLASHCARD = 'flashcard',
+  BREAK = 'break',
+  OTHER = 'other'
 }
 
-export interface MoodTheme {
-  backgroundColor: string;
-  textColor: string;
-  borderColor: string;
-  iconColor: string;
-  gradientFrom: string;
-  gradientTo: string;
-  buttonColor: string;
-  buttonTextColor: string;
-  colors: {
-    primary: string;
-    secondary: string;
-    accent: string;
-    muted: string;
-  };
+export enum TaskStatus {
+  TODO = 'todo',
+  IN_PROGRESS = 'in_progress',
+  COMPLETED = 'completed',
+  SKIPPED = 'skipped'
 }
 
-export interface MoodRecommendation {
+export interface PendingTask extends Task {
+  dueDate: string;
+  isOverdue: boolean;
+}
+
+export interface SubjectBreakdownData {
   id: string;
-  title: string;
-  description: string;
-  actionLabel: string;
-  actionPath: string;
+  name: string;
+  color: string;
+  timeAllocated: number; // minutes
+  percentComplete: number;
 }
+
+export interface TimeAllocationSummary {
+  totalStudyTime: number; // minutes
+  breakTime: number; // minutes
+  subjectBreakdown: SubjectBreakdownData[];
+}
+
+export enum TimelineView {
+  DAILY = 'daily',
+  WEEKLY = 'weekly',
+  MONTHLY = 'monthly'
+}
+
+export { MoodType };

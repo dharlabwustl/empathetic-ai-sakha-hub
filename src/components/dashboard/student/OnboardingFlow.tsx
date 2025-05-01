@@ -1,208 +1,225 @@
 
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { ArrowRight, BookOpen, Calendar, Clock, Settings, User, Check, Wand } from 'lucide-react';
-import { UserProfile } from '@/types/user/base';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
+import { Progress } from '@/components/ui/progress';
+import { ArrowRight, Check, FileText, Calendar, Clock, Star } from 'lucide-react';
+import { motion } from 'framer-motion';
 import PrepzrLogo from '@/components/common/PrepzrLogo';
+import { UserProfileBase } from '@/types/user/base';
 
 interface OnboardingFlowProps {
-  userProfile: UserProfile;
+  userProfile: UserProfileBase;
   goalTitle: string;
   onComplete: () => void;
 }
 
 const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ userProfile, goalTitle, onComplete }) => {
-  const [currentStep, setCurrentStep] = useState(1);
-  const totalSteps = 3;
+  const [step, setStep] = useState(0);
+  const [loading, setLoading] = useState(false);
   
-  const handleNextStep = () => {
-    if (currentStep < totalSteps) {
-      setCurrentStep(currentStep + 1);
+  const steps = [
+    {
+      title: "Welcome to Prepzr!",
+      description: "Let's set up your personalized study plan",
+      content: (
+        <div className="space-y-6 py-4">
+          <div className="text-center mb-8">
+            <PrepzrLogo width={80} className="mx-auto mb-4" />
+            <h2 className="text-2xl font-bold">Welcome, {userProfile.name}!</h2>
+            <p className="text-muted-foreground mt-2">
+              We're excited to help you prepare for {goalTitle}
+            </p>
+          </div>
+          
+          <div className="space-y-4">
+            <div className="flex items-center">
+              <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center mr-3">
+                <Calendar className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <h3 className="font-medium">Personalized Study Plan</h3>
+                <p className="text-sm text-muted-foreground">
+                  Get a day-by-day study schedule tailored to your needs
+                </p>
+              </div>
+            </div>
+            
+            <div className="flex items-center">
+              <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center mr-3">
+                <FileText className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <h3 className="font-medium">Concept Cards & Flashcards</h3>
+                <p className="text-sm text-muted-foreground">
+                  Master key concepts with our bite-sized learning modules
+                </p>
+              </div>
+            </div>
+            
+            <div className="flex items-center">
+              <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center mr-3">
+                <Star className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <h3 className="font-medium">Progress Tracking</h3>
+                <p className="text-sm text-muted-foreground">
+                  Monitor your improvement and stay motivated
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )
+    },
+    {
+      title: "Your Learning Style",
+      description: "Help us understand your preferences",
+      content: (
+        <div className="space-y-6 py-4">
+          <div className="space-y-4">
+            <div className="bg-primary/5 p-4 rounded-lg">
+              <h3 className="font-medium mb-2">Based on your onboarding responses:</h3>
+              <ul className="space-y-3">
+                <li className="flex items-center">
+                  <Check className="h-4 w-4 text-primary mr-2" />
+                  <span>You're a <strong>visual-kinesthetic learner</strong></span>
+                </li>
+                <li className="flex items-center">
+                  <Check className="h-4 w-4 text-primary mr-2" />
+                  <span>Best study time: <strong>Morning to Afternoon</strong></span>
+                </li>
+                <li className="flex items-center">
+                  <Check className="h-4 w-4 text-primary mr-2" />
+                  <span>Optimal focus duration: <strong>30-45 minute sessions</strong></span>
+                </li>
+                <li className="flex items-center">
+                  <Check className="h-4 w-4 text-primary mr-2" />
+                  <span>Recommended break: <strong>10 minute breaks</strong></span>
+                </li>
+              </ul>
+            </div>
+            
+            <p className="text-sm text-muted-foreground">
+              Your study plan will be tailored to these preferences. You can always adjust these settings later in your profile.
+            </p>
+          </div>
+        </div>
+      )
+    },
+    {
+      title: "Your Study Plan is Ready!",
+      description: "Let's get started with your preparation",
+      content: (
+        <div className="space-y-6 py-4">
+          <div className="text-center mb-6">
+            <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
+              <Clock className="h-8 w-8 text-primary" />
+            </div>
+            <h2 className="text-xl font-bold mt-4">Your Study Plan is Ready!</h2>
+            <p className="text-muted-foreground mt-2">
+              We've created a personalized learning path for {goalTitle}
+            </p>
+          </div>
+          
+          <div className="space-y-4">
+            <div className="border rounded-lg p-4">
+              <h3 className="font-medium mb-2">Today's Focus Areas:</h3>
+              <ul className="space-y-2 text-sm">
+                <li className="flex items-center justify-between">
+                  <span>Physics: Newton's Laws</span>
+                  <span className="text-muted-foreground">45 min</span>
+                </li>
+                <li className="flex items-center justify-between">
+                  <span>Chemistry: Periodic Table</span>
+                  <span className="text-muted-foreground">30 min</span>
+                </li>
+                <li className="flex items-center justify-between">
+                  <span>Mathematics: Calculus</span>
+                  <span className="text-muted-foreground">40 min</span>
+                </li>
+              </ul>
+            </div>
+            
+            <div className="flex items-center justify-between text-sm">
+              <span>Estimated study time today:</span>
+              <span className="font-medium">2 hours 15 minutes</span>
+            </div>
+            
+            <Separator />
+            
+            <p className="text-sm text-center">
+              Ready to start your learning journey?
+            </p>
+          </div>
+        </div>
+      )
+    }
+  ];
+  
+  const handleNext = () => {
+    if (step < steps.length - 1) {
+      setStep(step + 1);
     } else {
-      onComplete();
+      setLoading(true);
+      
+      // Simulate loading and then complete onboarding
+      setTimeout(() => {
+        setLoading(false);
+        onComplete();
+      }, 1500);
     }
   };
   
-  const progress = (currentStep / totalSteps) * 100;
+  const progress = ((step + 1) / steps.length) * 100;
   
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-50 via-white to-violet-50 dark:from-blue-900/30 dark:via-gray-900 dark:to-violet-900/30 p-4">
-      <Card className="w-full max-w-2xl shadow-xl">
-        <CardHeader className="text-center border-b pb-6">
-          <div className="mx-auto mb-4">
-            <PrepzrLogo width={120} />
-          </div>
-          <CardTitle className="text-2xl">Welcome to PREPZR</CardTitle>
-          <CardDescription>Let's set up your personalized learning experience</CardDescription>
-        </CardHeader>
-        
-        <CardContent className="pt-6">
-          {/* Progress Bar */}
-          <div className="mb-8">
-            <div className="flex justify-between text-xs mb-1">
-              <span>Getting Started</span>
-              <span>Step {currentStep} of {totalSteps}</span>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-violet-50 dark:from-blue-950/30 dark:to-violet-950/30 p-4">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="w-full max-w-md"
+      >
+        <Card className="border-0 shadow-lg">
+          <CardHeader>
+            <CardTitle>{steps[step].title}</CardTitle>
+            <CardDescription>{steps[step].description}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {steps[step].content}
+          </CardContent>
+          <CardFooter className="flex flex-col space-y-4">
+            <Button 
+              className="w-full" 
+              onClick={handleNext}
+              disabled={loading}
+            >
+              {loading ? (
+                <>
+                  <span className="animate-spin mr-2">⏳</span>
+                  Setting up your dashboard...
+                </>
+              ) : step < steps.length - 1 ? (
+                <>
+                  Continue
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </>
+              ) : (
+                <>
+                  Go to Dashboard
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </>
+              )}
+            </Button>
+            <Progress value={progress} className="h-1" />
+            <div className="text-xs text-center text-muted-foreground">
+              Step {step + 1} of {steps.length}
             </div>
-            <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
-              <motion.div 
-                className="h-full bg-primary"
-                initial={{ width: 0 }}
-                animate={{ width: `${progress}%` }}
-                transition={{ duration: 0.5 }}
-              />
-            </div>
-          </div>
-          
-          {/* Step Content */}
-          <motion.div
-            key={currentStep}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.5 }}
-            className="space-y-6"
-          >
-            {currentStep === 1 && (
-              <div className="space-y-6">
-                <div>
-                  <h3 className="text-lg font-semibold flex items-center">
-                    <User className="mr-2 h-5 w-5 text-primary" />
-                    Your Profile
-                  </h3>
-                  <p className="text-muted-foreground mt-1 mb-4">
-                    We've created your account with the following details:
-                  </p>
-                  
-                  <div className="grid gap-4">
-                    <div className="bg-muted p-4 rounded-md">
-                      <p className="text-sm text-muted-foreground mb-1">Name</p>
-                      <p className="font-medium">{userProfile.name}</p>
-                    </div>
-                    
-                    <div className="bg-muted p-4 rounded-md">
-                      <p className="text-sm text-muted-foreground mb-1">Email</p>
-                      <p className="font-medium">{userProfile.email}</p>
-                    </div>
-                    
-                    <div className="bg-muted p-4 rounded-md">
-                      <p className="text-sm text-muted-foreground mb-1">Role</p>
-                      <p className="font-medium capitalize">{userProfile.role}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-            
-            {currentStep === 2 && (
-              <div className="space-y-6">
-                <div>
-                  <h3 className="text-lg font-semibold flex items-center">
-                    <BookOpen className="mr-2 h-5 w-5 text-primary" />
-                    Your Goal
-                  </h3>
-                  <p className="text-muted-foreground mt-1 mb-4">
-                    We'll help you prepare for your exam with a personalized study plan.
-                  </p>
-                  
-                  <div className="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-md border border-blue-200 dark:border-blue-800 text-center">
-                    <h4 className="text-xl font-bold mb-2">{goalTitle}</h4>
-                    <p className="text-muted-foreground">
-                      Your personalized study journey starts now.
-                    </p>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-4 mt-6">
-                    <div className="bg-muted p-4 rounded-md">
-                      <p className="text-sm text-muted-foreground mb-1">Study Schedule</p>
-                      <p className="font-medium flex items-center">
-                        <Clock className="h-4 w-4 mr-2 text-primary" />
-                        Personalized daily plan
-                      </p>
-                    </div>
-                    
-                    <div className="bg-muted p-4 rounded-md">
-                      <p className="text-sm text-muted-foreground mb-1">Target Date</p>
-                      <p className="font-medium flex items-center">
-                        <Calendar className="h-4 w-4 mr-2 text-primary" />
-                        Exam-focused timeline
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-            
-            {currentStep === 3 && (
-              <div className="space-y-6">
-                <div>
-                  <h3 className="text-lg font-semibold flex items-center">
-                    <Wand className="mr-2 h-5 w-5 text-primary" />
-                    AI Personalization
-                  </h3>
-                  <p className="text-muted-foreground mt-1 mb-4">
-                    Our AI will personalize your learning experience based on your preferences.
-                  </p>
-                  
-                  <div className="grid gap-4">
-                    <div className="bg-violet-50 dark:bg-violet-900/20 p-4 rounded-md border border-violet-200 dark:border-violet-800 flex items-center">
-                      <div className="mr-4 p-2 bg-violet-100 dark:bg-violet-800 rounded-full">
-                        <Settings className="h-6 w-6 text-violet-600 dark:text-violet-300" />
-                      </div>
-                      <div>
-                        <h4 className="font-medium">Personalized Content</h4>
-                        <p className="text-sm text-muted-foreground">
-                          Content tailored to your learning style and pace
-                        </p>
-                      </div>
-                    </div>
-                    
-                    <div className="bg-emerald-50 dark:bg-emerald-900/20 p-4 rounded-md border border-emerald-200 dark:border-emerald-800 flex items-center">
-                      <div className="mr-4 p-2 bg-emerald-100 dark:bg-emerald-800 rounded-full">
-                        <Check className="h-6 w-6 text-emerald-600 dark:text-emerald-300" />
-                      </div>
-                      <div>
-                        <h4 className="font-medium">Adaptive Learning</h4>
-                        <p className="text-sm text-muted-foreground">
-                          Our system adapts to your progress and challenges
-                        </p>
-                      </div>
-                    </div>
-                    
-                    <div className="bg-amber-50 dark:bg-amber-900/20 p-4 rounded-md border border-amber-200 dark:border-amber-800 flex items-center">
-                      <div className="mr-4 p-2 bg-amber-100 dark:bg-amber-800 rounded-full">
-                        <Clock className="h-6 w-6 text-amber-600 dark:text-amber-300" />
-                      </div>
-                      <div>
-                        <h4 className="font-medium">Smart Scheduling</h4>
-                        <p className="text-sm text-muted-foreground">
-                          Optimized study schedules based on your availability
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-          </motion.div>
-        </CardContent>
-        
-        <CardFooter className="flex justify-between border-t pt-6">
-          <Button 
-            variant="ghost" 
-            onClick={() => currentStep > 1 && setCurrentStep(currentStep - 1)}
-            disabled={currentStep === 1}
-          >
-            Back
-          </Button>
-          
-          <Button onClick={handleNextStep}>
-            {currentStep === totalSteps ? 'Get Started' : 'Next'}
-            <ArrowRight className="ml-2 h-4 w-4" />
-          </Button>
-        </CardFooter>
-      </Card>
+          </CardFooter>
+        </Card>
+      </motion.div>
     </div>
   );
 };

@@ -1,31 +1,23 @@
 
-import { Brain } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { motion } from "framer-motion";
+import PrepzrLogo from "@/components/common/PrepzrLogo";
 
 const ChatHeader = () => {
   return (
-    <div className="p-4 bg-gradient-to-r from-violet-600 to-purple-600 text-white">
-      <div className="flex items-center gap-3">
-        <div className="relative">
-          <div className="avatar-pulse"></div>
-          <div className="avatar-pulse" style={{ animationDelay: "0.5s" }}></div>
-          <div className="avatar-eyes w-10 h-10 bg-gradient-to-br from-violet-400 to-purple-500 rounded-full relative overflow-hidden animate-glow">
-            <img 
-              src="/lovable-uploads/37933273-088b-4a83-a5ec-24b13c8c89f5.png" 
-              alt="Sakha AI Avatar" 
-              className="w-10 h-10 rounded-full z-10 relative"
-            />
-          </div>
-        </div>
-        <div>
-          <h3 className="font-medium">Sakha AI</h3>
-          <p className="text-xs opacity-80">Online | Your Study Partner</p>
-        </div>
-        <Badge className="ml-auto bg-white/20 text-white hover:bg-white/30 flex items-center gap-1">
-          <Brain size={12} /> AI-Powered
-        </Badge>
+    <motion.div 
+      className="flex items-center p-3 border-b bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-950/30 dark:to-blue-900/20"
+      initial={{ opacity: 0, y: -10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.1 }}
+    >
+      <div className="bg-white dark:bg-gray-800 rounded-full p-1 mr-2">
+        <PrepzrLogo width={20} height={20} />
       </div>
-    </div>
+      <div>
+        <h3 className="font-semibold text-sm text-blue-700 dark:text-blue-300">PREPZR AI Tutor</h3>
+        <p className="text-xs text-blue-500/70 dark:text-blue-400/70">Online • 24/7 Support</p>
+      </div>
+    </motion.div>
   );
 };
 
