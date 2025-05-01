@@ -40,6 +40,7 @@ import { NotificationsView } from './components/dashboard/student/notifications/
 import EnhancedProfilePage from './pages/dashboard/student/EnhancedProfilePage';
 import PracticeExamsSection from './components/dashboard/student/practice-exam/PracticeExamsSection';
 import DatabaseExport from './pages/database/DatabaseExport';
+import PostLoginWelcomeBack from './pages/dashboard/PostLoginWelcomeBack';
 
 const AdminDashboard = React.lazy(() => import('@/pages/admin/AdminDashboard'));
 
@@ -61,8 +62,8 @@ function App() {
               {/* Post-signup flow - Welcome flow only */}
               <Route path="/welcome" element={<WelcomeToPrepr />} />
               
-              {/* Redirect post-login prompt to dashboard */}
-              <Route path="/welcome-back" element={<Navigate to="/dashboard/student" replace />} />
+              {/* Post-login welcome back screen */}
+              <Route path="/welcome-back" element={<PostLoginWelcomeBack />} />
 
               {/* Student routes */}
               <Route path="/dashboard/student" element={<StudentDashboard />} />

@@ -1,35 +1,20 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { useState, useEffect } from 'react';
+import { UserRole } from '@/types/user/base';
 
 interface User {
   id: string;
   name: string;
   email: string;
-  role: string;
+  role: UserRole;
 }
 
-interface AuthContextType {
-  user: User | null;
-  loading: boolean;
-  login: (email: string, password: string) => Promise<User>;
-  logout: () => void;
-  isAuthenticated: boolean;
-}
-
-// Create the context
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-// Auth provider props
-interface AuthProviderProps {
-  children: ReactNode;
-}
-
-// Auth provider component
-export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Check for existing user in localStorage on component mount
   useEffect(() => {
+    // In a real app, we'd check for a token in localStorage
+    // and make an API call to validate it
     const checkAuth = () => {
       setLoading(true);
       
@@ -44,7 +29,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
               id: parsedData.id,
               name: parsedData.name || 'User',
               email: parsedData.email,
-              role: parsedData.role || 'student'
+              role: parsedData.role || UserRole.Student
             });
           }
         } catch (error) {
@@ -58,8 +43,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     checkAuth();
   }, []);
 
-  // Login function
-  const login = async (email: string, password: string): Promise<User> => {
+  const login = async (email: string, password: string) => {
+    // Mock login functionality
     setLoading(true);
     
     return new Promise<User>((resolve, reject) => {
@@ -69,18 +54,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             id: '1',
             name: email.split('@')[0] || 'Student',
             email: email,
-            role: 'student'
+            role: UserRole.Student
           };
           
           // Save user data to localStorage
-          const existingData = localStorage.getItem('userData');
-          const userData = existingData ? JSON.parse(existingData) : {};
-          
           localStorage.setItem('userData', JSON.stringify({
-            ...userData,
             ...newUser,
             lastLogin: new Date().toISOString(),
-            loginCount: userData.loginCount ? parseInt(userData.loginCount) + 1 : 1,
+            loginCount: 1,
           }));
           
           setUser(newUser);
@@ -93,10 +74,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }, 1000);
     });
   };
-
-  // Logout function
+  
   const logout = () => {
-    // Preserve some user preferences but remove auth data
+    // Mock logout - don't remove userData completely to keep preferences
     const userData = localStorage.getItem('userData');
     if (userData) {
       try {
@@ -114,26 +94,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setUser(null);
   };
   
-  return (
-    <AuthContext.Provider
-      value={{
-        user,
-        loading,
-        login,
-        logout,
-        isAuthenticated: !!user
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
-  );
-};
-
-// Custom hook to use the auth context
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-};
+  return {
+    user,
+    loading,
+    login,
+    logout,
+    isAuthenticated: !!user
+  };
+}

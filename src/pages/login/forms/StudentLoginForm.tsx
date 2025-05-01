@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useAuth } from "@/contexts/auth/AuthContext";
+import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
 
@@ -43,22 +43,46 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
       // In a real app, this would validate credentials against a backend
       console.log("Attempting to log in with:", credentials.email);
       
-      // For demo purposes, consider any login valid
-      const success = await login(credentials.email, credentials.password);
+      const user = await login(credentials.email, credentials.password);
       
-      if (success) {
+      if (user) {
         toast({
           title: "Login successful",
           description: "Welcome back to Prepzr"
         });
         
-        // Check if this appears to be a new user for demo purposes
-        const isNewUser = !localStorage.getItem("hasLoggedInBefore");
-        if (isNewUser) {
-          localStorage.setItem("hasLoggedInBefore", "true");
-          navigate("/dashboard/student?new=true");
+        // Update login count and last activity in userData
+        const userData = localStorage.getItem("userData");
+        if (userData) {
+          try {
+            const parsedData = JSON.parse(userData);
+            const loginCount = parsedData.loginCount ? parseInt(parsedData.loginCount) + 1 : 1;
+            const lastActivity = {
+              type: "login",
+              description: "last session",
+              timestamp: new Date().toISOString()
+            };
+            
+            localStorage.setItem("userData", JSON.stringify({
+              ...parsedData,
+              loginCount,
+              lastActivity,
+              lastLogin: new Date().toISOString()
+            }));
+            
+            // Redirect to welcome back screen for returning users
+            if (loginCount > 1) {
+              navigate("/welcome-back");
+            } else {
+              // For first-time users
+              navigate("/dashboard/student?new=true");
+            }
+          } catch (error) {
+            console.error("Error updating user data:", error);
+            navigate("/dashboard/student");
+          }
         } else {
-          navigate("/dashboard/student/today");
+          navigate("/dashboard/student");
         }
       } else {
         toast({

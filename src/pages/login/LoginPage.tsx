@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Eye, EyeOff, Mail, Lock, ArrowRight, Loader2 } from "lucide-react";
-import { useAuth } from "@/contexts/auth/AuthContext";
+import { useAuth } from "@/hooks/useAuth";
 import PrepzrLogo from "@/components/common/PrepzrLogo";
 
 const LoginPage = () => {
@@ -41,15 +41,41 @@ const LoginPage = () => {
     setIsLoading(true);
     
     try {
-      const success = await login(formData.email, formData.password);
+      const user = await login(formData.email, formData.password);
       
-      if (success) {
+      if (user) {
         toast({
           title: "Login successful",
-          description: "Redirecting to your dashboard",
+          description: "Redirecting to welcome screen",
         });
         
-        navigate("/dashboard/student");
+        // Check for existing user data to determine if they're returning
+        const userData = localStorage.getItem("userData");
+        if (userData) {
+          try {
+            const parsedData = JSON.parse(userData);
+            const loginCount = parsedData.loginCount ? parseInt(parsedData.loginCount) + 1 : 1;
+            
+            localStorage.setItem("userData", JSON.stringify({
+              ...parsedData,
+              loginCount,
+              lastLogin: new Date().toISOString()
+            }));
+            
+            // Redirect to welcome back screen for returning users
+            if (loginCount > 1) {
+              navigate("/welcome-back");
+            } else {
+              // For first-time users
+              navigate("/dashboard/student?new=true");
+            }
+          } catch (error) {
+            console.error("Error parsing user data:", error);
+            navigate("/welcome-back");
+          }
+        } else {
+          navigate("/welcome-back");
+        }
       } else {
         toast({
           title: "Login Failed",
@@ -73,6 +99,13 @@ const LoginPage = () => {
     toast({
       title: "Password Reset",
       description: "Check your email for password reset instructions.",
+    });
+  };
+  
+  const handleDemoLogin = () => {
+    setFormData({
+      email: "demo@prepzr.com",
+      password: "demo123"
     });
   };
 
@@ -149,6 +182,15 @@ const LoginPage = () => {
               <ArrowRight size={16} />
             </div>
           )}
+        </Button>
+        
+        <Button 
+          type="button" 
+          variant="outline" 
+          className="w-full mt-2" 
+          onClick={handleDemoLogin}
+        >
+          Use Demo Account
         </Button>
 
         <div className="text-center text-sm">
