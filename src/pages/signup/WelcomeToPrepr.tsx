@@ -1,15 +1,60 @@
 
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, BookOpen, Calendar, GraduationCap, Brain } from 'lucide-react';
 import { motion } from 'framer-motion';
+import OnboardingFlow from '@/components/dashboard/student/OnboardingFlow';
 
 const WelcomeToPrepr = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [userProfile, setUserProfile] = useState<any>({
+    name: "New User",
+    email: "",
+    id: ""
+  });
+  
+  useEffect(() => {
+    // Check URL parameters for onboarding status
+    const params = new URLSearchParams(location.search);
+    const isNewUser = params.get('new') === 'true';
+    const completedOnboarding = params.get('completedOnboarding') === 'true';
+    
+    if (isNewUser || completedOnboarding) {
+      // Get user data from localStorage
+      const userData = localStorage.getItem('userData');
+      if (userData) {
+        const parsedData = JSON.parse(userData);
+        setUserProfile(parsedData);
+        // Show onboarding after a short delay
+        setTimeout(() => {
+          setShowOnboarding(true);
+        }, 1000);
+      }
+    }
+  }, [location.search]);
   
   const handleContinueToDashboard = () => {
+    navigate('/dashboard/student');
+  };
+  
+  const handleCompleteOnboarding = () => {
+    // Mark onboarding as completed in localStorage
+    const userData = localStorage.getItem('userData');
+    if (userData) {
+      const parsedData = JSON.parse(userData);
+      const updatedData = {
+        ...parsedData,
+        completedOnboarding: true,
+        sawWelcomeTour: true
+      };
+      localStorage.setItem('userData', JSON.stringify(updatedData));
+    }
+    
+    // Navigate to dashboard
     navigate('/dashboard/student');
   };
 
@@ -70,7 +115,7 @@ const WelcomeToPrepr = () => {
                     <h3 className="text-xl font-medium mb-4">A message from our founder</h3>
                     <div className="flex items-start gap-4">
                       <img 
-                        src="/assets/team/founder.jpg" 
+                        src="/lovable-uploads/19303283-7911-484b-9bea-65d7691bbdae.png" 
                         alt="Founder" 
                         className="w-16 h-16 rounded-full object-cover"
                       />
@@ -144,6 +189,15 @@ const WelcomeToPrepr = () => {
       <footer className="p-6 text-center text-sm text-muted-foreground">
         © {new Date().getFullYear()} PREPZR. All rights reserved.
       </footer>
+      
+      {/* Onboarding Dialog */}
+      <OnboardingFlow 
+        userProfile={userProfile}
+        goalTitle={userProfile?.examGoal || "Your Exams"}
+        onComplete={handleCompleteOnboarding}
+        open={showOnboarding}
+        onOpenChange={setShowOnboarding}
+      />
     </div>
   );
 };

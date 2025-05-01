@@ -1,193 +1,146 @@
 
-import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardFooter, 
-  CardHeader, 
-  CardTitle 
-} from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
-import { Eye, EyeOff, Lock, Mail, ArrowRight } from "lucide-react";
-import { useAdminAuth } from '@/contexts/auth/AdminAuthContext';
 import PrepzrLogo from '@/components/common/PrepzrLogo';
 
 const AdminLogin = () => {
+  const [credentials, setCredentials] = useState({ email: '', password: '' });
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { adminLogin, adminLoginError, isAdminLoading } = useAdminAuth();
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
-  const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    setCredentials(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!formData.email || !formData.password) {
+    if (!credentials.email || !credentials.password) {
       toast({
-        title: "Missing information",
-        description: "Please provide both email and password.",
+        title: "Required fields",
+        description: "Please fill in all required fields",
         variant: "destructive"
       });
       return;
     }
-    
+
     setIsLoading(true);
     
     try {
-      console.log("Attempting admin login with:", formData.email);
+      // Simulate API call for admin login
+      await new Promise(resolve => setTimeout(resolve, 1000));
       
-      const success = await adminLogin(formData.email, formData.password);
+      // For demo purposes, any login is successful
+      localStorage.setItem('adminToken', 'demo-admin-token');
+      localStorage.setItem('adminData', JSON.stringify({
+        name: 'Admin User',
+        email: credentials.email,
+        role: 'admin',
+      }));
       
-      if (success) {
-        toast({
-          title: "Login successful",
-          description: "Redirecting to admin dashboard",
-        });
-        
-        // Navigate to admin dashboard
-        setTimeout(() => {
-          navigate("/admin/dashboard", { replace: true });
-        }, 500);
-      } else {
-        toast({
-          title: "Login Failed",
-          description: adminLoginError || "Invalid admin credentials. Please try again.",
-          variant: "destructive"
-        });
-      }
+      toast({
+        title: "Login successful",
+        description: "Welcome to the admin dashboard"
+      });
+      
+      navigate("/admin/dashboard");
     } catch (error) {
       toast({
-        title: "Login Failed",
-        description: "An unexpected error occurred. Please try again.",
+        title: "Login failed",
+        description: "Invalid credentials",
         variant: "destructive"
       });
-      console.error("Login error:", error);
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-100/30 via-white to-violet-100/30 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <Link to="/" className="inline-flex items-center gap-2">
-            <PrepzrLogo width={120} height="auto" />
-          </Link>
-          <h1 className="mt-4 text-4xl font-display font-bold gradient-text">Admin Portal</h1>
-          <p className="mt-2 text-gray-600">Login to access the PREPZR administration panel</p>
-        </div>
-        
-        <Card className="shadow-xl border-gray-200 overflow-hidden animate-fade-in">
-          <CardHeader className="bg-gradient-to-r from-purple-600 to-violet-700 text-white">
-            <CardTitle className="text-2xl font-semibold">Admin Sign In</CardTitle>
-            <CardDescription className="text-purple-100">
-              Enter your admin credentials to access the dashboard
-            </CardDescription>
-          </CardHeader>
-          
-          <form onSubmit={handleLogin}>
-            <CardContent className="p-6 space-y-6">
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="email" className="text-sm font-medium">Email Address</Label>
-                  <div className="relative">
-                    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
-                      <Mail size={16} />
-                    </div>
-                    <Input
-                      id="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleInputChange}
-                      placeholder="Enter your admin email"
-                      type="email"
-                      className="pl-9 border-purple-200 focus:ring-purple-500 focus:border-purple-500"
-                    />
-                  </div>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="password" className="text-sm font-medium">Password</Label>
-                  <div className="relative">
-                    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
-                      <Lock size={16} />
-                    </div>
-                    <Input
-                      id="password"
-                      name="password"
-                      value={formData.password}
-                      onChange={handleInputChange}
-                      placeholder="Enter your password"
-                      type={showPassword ? "text" : "password"}
-                      className="pl-9 border-purple-200 focus:ring-purple-500 focus:border-purple-500 pr-10"
-                    />
-                    <Button 
-                      variant="ghost"
-                      size="icon"
-                      className="absolute right-0 top-0 h-full"
-                      onClick={() => setShowPassword(!showPassword)}
-                      type="button"
-                    >
-                      {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                    </Button>
-                  </div>
-                </div>
-                
-                <Button 
-                  className="w-full bg-gradient-to-r from-purple-600 to-violet-700 hover:from-purple-700 hover:to-violet-800 text-white shadow-md"
-                  type="submit"
-                  disabled={isLoading || isAdminLoading}
-                >
-                  {(isLoading || isAdminLoading) ? (
-                    <div className="flex items-center gap-2">
-                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                      <span>Signing in...</span>
-                    </div>
-                  ) : (
-                    <div className="flex items-center justify-center gap-2">
-                      <span>Sign In</span>
-                      <ArrowRight size={16} />
-                    </div>
-                  )}
+    <div className="min-h-screen bg-gradient-to-br from-gray-100 via-white to-blue-100 flex items-center justify-center p-4 sm:p-6 lg:p-8">
+      <Card className="w-full max-w-md shadow-xl">
+        <CardHeader className="bg-gradient-to-r from-blue-700 to-slate-800 text-white text-center">
+          <div className="flex justify-center mb-4">
+            <PrepzrLogo width={80} height={80} />
+          </div>
+          <CardTitle className="text-2xl font-bold">Admin Login</CardTitle>
+          <CardDescription className="text-blue-100">
+            Access the PREPZR administrator dashboard
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="pt-6">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input 
+                id="email" 
+                name="email" 
+                type="email" 
+                placeholder="admin@example.com"
+                value={credentials.email}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="password">Password</Label>
+                <Button variant="link" className="p-0 h-auto text-xs" onClick={() => toast({
+                  title: "Password Reset",
+                  description: "Please contact your system administrator"
+                })}>
+                  Forgot password?
                 </Button>
-                
-                {/* Debug help for admin login */}
-                <p className="text-xs text-gray-500 text-center">
-                  Hint: Use any email containing "admin" with password length &gt; 3
-                </p>
               </div>
-            </CardContent>
+              <Input 
+                id="password" 
+                name="password" 
+                type="password"
+                value={credentials.password}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            <div className="flex items-center space-x-2">
+              <Checkbox id="remember" />
+              <Label htmlFor="remember" className="text-sm">Remember me</Label>
+            </div>
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? "Logging in..." : "Login"}
+            </Button>
+
+            <div className="text-center text-sm">
+              <Button 
+                type="button" 
+                variant="outline" 
+                className="w-full mt-2"
+                onClick={() => {
+                  setCredentials({
+                    email: "admin@prepzr.com",
+                    password: "admin123",
+                  });
+                }}
+              >
+                Use Demo Credentials
+              </Button>
+            </div>
           </form>
-          
-          <CardFooter className="flex justify-center pb-6 border-t pt-6">
-            <p className="text-sm text-gray-600">
-              Not an admin?{" "}
-              <Link to="/login" className="text-purple-600 hover:text-purple-700 font-medium hover:underline">
-                Go to Student Login
-              </Link>
-            </p>
-          </CardFooter>
-        </Card>
-        
-        <div className="mt-6 text-center text-sm text-gray-500">
-          <p>Need help? <a href="#" className="text-purple-600 hover:underline">Contact Support</a></p>
-        </div>
-      </div>
+        </CardContent>
+        <CardFooter className="flex flex-col items-center gap-4 border-t pt-6">
+          <p className="text-sm text-gray-500">
+            Need technical support? Contact IT administration
+          </p>
+          <Button variant="outline" size="sm" onClick={() => navigate("/login")}>
+            Back to Student Login
+          </Button>
+        </CardFooter>
+      </Card>
     </div>
   );
 };

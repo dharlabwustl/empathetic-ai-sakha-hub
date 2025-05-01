@@ -16,6 +16,7 @@ const PostLoginPrompt = () => {
   
   const [lastActivity, setLastActivity] = useState<string | null>(null);
   const [pendingTask, setPendingTask] = useState<string | null>(null);
+  const [loginCount, setLoginCount] = useState<number>(0);
   
   useEffect(() => {
     // Get user data from localStorage
@@ -24,6 +25,11 @@ const PostLoginPrompt = () => {
     if (userData) {
       try {
         const parsedData = JSON.parse(userData);
+        
+        // Set login count
+        if (parsedData.loginCount) {
+          setLoginCount(parsedData.loginCount);
+        }
         
         // Get last activity
         if (parsedData.lastActivity) {

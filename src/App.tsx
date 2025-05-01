@@ -40,8 +40,8 @@ function App() {
               {/* Public routes */}
               <Route path="/" element={<Index />} />
               <Route path="/signup" element={<SignUp />} />
-              <Route path="/login" element={<Login />} />
               <Route path="/register" element={<SignUp />} />
+              <Route path="/login" element={<Login />} />
 
               {/* Post-signup flow */}
               <Route path="/welcome" element={<WelcomeToPrepr />} />

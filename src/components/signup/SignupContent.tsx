@@ -84,7 +84,7 @@ const SignupContent = () => {
 
       setOnboardingData(finalData);
 
-      // Simulate API call
+      // Simulate API call - in a real app, this would send to backend to generate study plan
       await new Promise(resolve => setTimeout(resolve, 1500));
 
       // Store data in localStorage
@@ -100,9 +100,9 @@ const SignupContent = () => {
         description: "Redirecting to your personalized dashboard.",
       });
 
-      // Redirect to the study plan screen, then to welcome screen
+      // Navigate directly to the welcome screen (skipping study plan creation dialog)
       setTimeout(() => {
-        navigate("/study-plan-creation?new=true&completedOnboarding=true");
+        navigate("/welcome?new=true&completedOnboarding=true");
       }, 1000);
     } catch (error) {
       console.error("Error creating account:", error);
@@ -152,7 +152,7 @@ const SignupContent = () => {
         onboardingCompleted: false,
       }));
 
-      navigate("/study-plan-creation?new=true");
+      navigate("/welcome?new=true");
     }, 2000);
   };
 
