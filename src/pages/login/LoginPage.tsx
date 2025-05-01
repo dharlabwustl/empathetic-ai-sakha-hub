@@ -1,13 +1,13 @@
+
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Eye, EyeOff, Mail, Lock, ArrowRight, Loader2 } from "lucide-react";
 import { useAuth } from "@/contexts/auth/AuthContext";
-import PrepzrLogo from "@/components/common/PrepzrLogo";
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -53,7 +53,13 @@ const LoginPage = () => {
         if (userData) {
           try {
             const parsedData = JSON.parse(userData);
-            const loginCount = parsedData.loginCount ? parseInt(parsedData.loginCount) : 1;
+            const loginCount = parsedData.loginCount ? parseInt(parsedData.loginCount) + 1 : 1;
+            
+            localStorage.setItem("userData", JSON.stringify({
+              ...parsedData,
+              loginCount,
+              lastLogin: new Date().toISOString()
+            }));
             
             // For returning users
             if (loginCount > 1) {

@@ -72,57 +72,51 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       // For demo, allow any email with 'admin' in it and password length > 3
       if (email.includes('admin') && password.length > 3) {
         const adminUser: AdminUser = {
-          id: 'admin1',
+          id: `admin_${Date.now()}`,
           name: 'Admin User',
           email: email,
-          role: 'admin',
-          permissions: ['all']
+          role: 'admin'
         };
         
-        localStorage.setItem('adminToken', `admin-token-${Date.now()}`);
+        localStorage.setItem('adminToken', `admin_token_${Date.now()}`);
         localStorage.setItem('adminUser', JSON.stringify(adminUser));
         
-        setIsAdminAuthenticated(true);
         setAdminUser(adminUser);
-        console.log("Admin login successful");
+        setIsAdminAuthenticated(true);
+        
         return true;
       } else {
-        setAdminLoginError("Invalid admin credentials");
-        console.log("Admin login failed: Invalid credentials");
+        setAdminLoginError('Invalid admin credentials');
         return false;
       }
     } catch (error) {
-      console.error("Admin login error:", error);
-      setAdminLoginError("An unexpected error occurred");
+      console.error("Error during admin login:", error);
+      setAdminLoginError('An error occurred during login');
       return false;
     } finally {
       setIsAdminLoading(false);
     }
   };
 
-  // Admin logout function - no longer uses navigation
+  // Admin logout function
   const adminLogout = async (): Promise<void> => {
-    try {
-      localStorage.removeItem('adminToken');
-      localStorage.removeItem('adminUser');
-      setIsAdminAuthenticated(false);
-      setAdminUser(null);
-    } catch (error) {
-      console.error("Admin logout error:", error);
-    }
-  };
-
-  const value: AdminAuthContextProps = {
-    isAdminAuthenticated,
-    isAdminLoading,
-    adminUser,
-    adminLogin,
-    adminLogout,
-    adminLoginError
+    localStorage.removeItem('adminToken');
+    localStorage.removeItem('adminUser');
+    setAdminUser(null);
+    setIsAdminAuthenticated(false);
   };
 
   return (
-    <AdminAuthContext.Provider value={value}>
+    <AdminAuthContext.Provider
+      value={{
+        isAdminAuthenticated,
+        isAdminLoading,
+        adminUser,
+        adminLogin,
+        adminLogout,
+        adminLoginError
+      }}
+    >
       {children}
     </AdminAuthContext.Provider>
   );

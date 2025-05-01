@@ -8,7 +8,6 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { Check, Loader2 } from 'lucide-react';
-import adminAuthService from '@/services/auth/adminAuthService';
 import PrepzrLogo from '@/components/common/PrepzrLogo';
 import { useAdminAuth } from '@/contexts/auth/AdminAuthContext';
 
@@ -40,7 +39,6 @@ const AdminLogin = () => {
     setIsLoading(true);
 
     try {
-      // Try login with adminAuthService first
       const loginSuccess = await adminLogin(credentials.email, credentials.password);
       
       if (loginSuccess) {
@@ -55,27 +53,11 @@ const AdminLogin = () => {
           navigate('/admin/dashboard');
         }, 1000);
       } else {
-        // Fallback to the service if context login fails
-        const response = await adminAuthService.adminLogin(credentials);
-        
-        if (response.success) {
-          setLoginSuccess(true);
-          toast({
-            title: 'Login successful',
-            description: 'Welcome to the admin dashboard',
-          });
-          
-          // Wait a moment to show the success animation
-          setTimeout(() => {
-            navigate('/admin/dashboard');
-          }, 1000);
-        } else {
-          toast({
-            title: 'Login failed',
-            description: response.message || 'Invalid admin credentials',
-            variant: 'destructive',
-          });
-        }
+        toast({
+          title: 'Login failed',
+          description: 'Invalid admin credentials. Email must contain "admin".',
+          variant: 'destructive',
+        });
       }
     } catch (error) {
       console.error('Admin login error:', error);
@@ -170,12 +152,11 @@ const AdminLogin = () => {
                 Use Demo Account
               </Button>
 
-              {/* Demo account info */}
               <div className="rounded-md bg-blue-50 p-3">
                 <div className="text-sm text-blue-700 font-medium mb-1">Demo Account</div>
                 <div className="text-xs text-gray-600">
                   <p>For demo purposes, any email containing "admin" will work</p>
-                  <p>Example: admin@prepzr.com / any password</p>
+                  <p>Example: admin@prepzr.com / any password (min 4 chars)</p>
                 </div>
               </div>
             </CardContent>
