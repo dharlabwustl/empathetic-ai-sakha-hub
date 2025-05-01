@@ -1,43 +1,39 @@
 
 import React, { useEffect } from 'react';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { useAdminAuth } from '@/contexts/auth/AdminAuthContext';
 import LoadingScreen from '@/components/common/LoadingScreen';
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from '@/hooks/use-toast';
 
 interface AdminRouteGuardProps {
-  children?: React.ReactNode;
+  children: React.ReactNode;
 }
 
 const AdminRouteGuard: React.FC<AdminRouteGuardProps> = ({ children }) => {
   const { isAdminAuthenticated, isAdminLoading } = useAdminAuth();
-  const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
-  
+
   useEffect(() => {
-    console.log("AdminRouteGuard - Authentication status:", { 
-      isAdminAuthenticated, 
-      isAdminLoading 
-    });
-    
     if (!isAdminLoading && !isAdminAuthenticated) {
       toast({
-        title: "Authentication Required",
-        description: "Please login to access the admin dashboard",
+        title: "Access Restricted",
+        description: "Please login with an administrator account to access this area.",
         variant: "destructive"
       });
-      navigate("/admin/login", { replace: true });
     }
-  }, [isAdminAuthenticated, isAdminLoading, navigate, toast]);
-  
+  }, [isAdminAuthenticated, isAdminLoading, toast]);
+
   if (isAdminLoading) {
-    return <LoadingScreen message="Checking admin credentials..." />;
+    return <LoadingScreen />;
   }
-  
+
   if (!isAdminAuthenticated) {
-    return <Navigate to="/admin/login" replace />;
+    // Redirect to admin login page, preserving the intended destination
+    return <Navigate to="/admin/login" state={{ from: location }} replace />;
   }
-  
+
+  // User is authenticated as admin, render the protected route
   return <>{children}</>;
 };
 

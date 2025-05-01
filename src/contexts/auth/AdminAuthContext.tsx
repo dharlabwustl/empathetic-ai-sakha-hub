@@ -1,60 +1,51 @@
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { AdminUser } from '@/types/user/base';
+import React, { createContext, useContext, useState, ReactNode } from 'react';
+import authService from '@/services/auth/authService';
 
-// Define the context types
-export interface AdminAuthContextProps {
+// AuthUser type imported from authService
+import { AuthUser } from '@/services/auth/authService';
+
+// Define context props
+interface AdminAuthContextProps {
+  adminUser: AuthUser | null;
   isAdminAuthenticated: boolean;
   isAdminLoading: boolean;
-  adminUser: AdminUser | null;
-  adminLogin: (username: string, password: string) => Promise<boolean>;
-  adminLogout: () => Promise<void>;
   adminLoginError: string | null;
+  adminLogin: (email: string, password: string) => Promise<boolean>;
+  adminLogout: () => Promise<void>;
 }
 
-// Create the context with a default value
-const AdminAuthContext = createContext<AdminAuthContextProps>({
-  isAdminAuthenticated: false,
-  isAdminLoading: true,
-  adminUser: null,
-  adminLogin: async () => false,
-  adminLogout: async () => {},
-  adminLoginError: null
-});
+// Create context
+const AdminAuthContext = createContext<AdminAuthContextProps | undefined>(undefined);
 
-// Hook for using the admin auth context
-export const useAdminAuth = () => useContext(AdminAuthContext);
+// Provider props type
+interface AdminAuthProviderProps {
+  children: ReactNode;
+}
 
-// Provider component
-export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
-  const [isAdminLoading, setIsAdminLoading] = useState(true);
-  const [adminUser, setAdminUser] = useState<AdminUser | null>(null);
+export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }) => {
+  const [adminUser, setAdminUser] = useState<AuthUser | null>(null);
+  const [isAdminLoading, setIsAdminLoading] = useState(false);
   const [adminLoginError, setAdminLoginError] = useState<string | null>(null);
 
-  // Check if admin is authenticated on load
-  useEffect(() => {
+  // Initialize admin user from localStorage if available
+  React.useEffect(() => {
     const checkAdminAuth = async () => {
       try {
-        setIsAdminLoading(true);
-        const adminToken = localStorage.getItem('adminToken');
-        const adminUserStr = localStorage.getItem('adminUser');
-        
-        if (adminToken && adminUserStr) {
-          try {
-            const user = JSON.parse(adminUserStr) as AdminUser;
-            setIsAdminAuthenticated(true);
+        // Check if there's a stored admin token
+        const user = authService.getCurrentUser();
+        if (user && user.role === 'admin') {
+          const isValid = await authService.verifyToken();
+          if (isValid) {
             setAdminUser(user);
-          } catch (e) {
-            console.error("Error parsing admin user data", e);
-            localStorage.removeItem('adminToken');
-            localStorage.removeItem('adminUser');
+          } else {
+            // Clear invalid admin auth
+            authService.clearAuthData();
           }
         }
       } catch (error) {
-        console.error("Error checking admin auth:", error);
-      } finally {
-        setIsAdminLoading(false);
+        console.error("Error checking admin authentication:", error);
+        authService.clearAuthData();
       }
     };
 
@@ -63,32 +54,31 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   // Admin login function
   const adminLogin = async (email: string, password: string): Promise<boolean> => {
+    setIsAdminLoading(true);
+    setAdminLoginError(null);
+
     try {
-      setIsAdminLoading(true);
-      setAdminLoginError(null);
-      
-      console.log("Admin login attempt:", email);
-      
-      // For demo, allow any email with 'admin' in it and password length > 3
-      if (email.includes('admin') && password.length > 3) {
-        const adminUser: AdminUser = {
-          id: 'admin1',
-          name: 'Admin User',
-          email: email,
-          role: 'admin',
-          permissions: ['all']
-        };
-        
-        localStorage.setItem('adminToken', `admin-token-${Date.now()}`);
-        localStorage.setItem('adminUser', JSON.stringify(adminUser));
-        
-        setIsAdminAuthenticated(true);
-        setAdminUser(adminUser);
-        console.log("Admin login successful");
+      // Email validation for admin - simple check for demo
+      if (!email.toLowerCase().includes('admin')) {
+        setAdminLoginError("Administrative access restricted. Please use an admin account.");
+        setIsAdminLoading(false);
+        return false;
+      }
+
+      if (password.length < 4) {
+        setAdminLoginError("Invalid password format");
+        setIsAdminLoading(false);
+        return false;
+      }
+
+      // Call auth service for admin login
+      const response = await authService.adminLogin({ email, password });
+
+      if (response.success && response.data) {
+        setAdminUser(response.data);
         return true;
       } else {
-        setAdminLoginError("Invalid admin credentials");
-        console.log("Admin login failed: Invalid credentials");
+        setAdminLoginError(response.error || "Invalid admin credentials");
         return false;
       }
     } catch (error) {
@@ -103,22 +93,21 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   // Admin logout function
   const adminLogout = async (): Promise<void> => {
     try {
-      localStorage.removeItem('adminToken');
-      localStorage.removeItem('adminUser');
-      setIsAdminAuthenticated(false);
+      await authService.logout();
       setAdminUser(null);
     } catch (error) {
-      console.error("Admin logout error:", error);
+      console.error("Error during admin logout:", error);
     }
   };
 
-  const value: AdminAuthContextProps = {
-    isAdminAuthenticated,
-    isAdminLoading,
+  // Context value
+  const value = {
     adminUser,
+    isAdminAuthenticated: !!adminUser,
+    isAdminLoading,
+    adminLoginError,
     adminLogin,
     adminLogout,
-    adminLoginError
   };
 
   return (
@@ -126,4 +115,15 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       {children}
     </AdminAuthContext.Provider>
   );
+};
+
+// Custom hook to use admin auth context
+export const useAdminAuth = (): AdminAuthContextProps => {
+  const context = useContext(AdminAuthContext);
+
+  if (context === undefined) {
+    throw new Error('useAdminAuth must be used within an AdminAuthProvider');
+  }
+
+  return context;
 };

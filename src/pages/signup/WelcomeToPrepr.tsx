@@ -1,149 +1,141 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, BookOpen, Calendar, GraduationCap, Brain } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Check, ArrowRight, Book, Calendar, ChevronRight, Target } from 'lucide-react';
+import PrepzrLogo from '@/components/common/PrepzrLogo';
 import { motion } from 'framer-motion';
 
 const WelcomeToPrepr = () => {
   const navigate = useNavigate();
+  const [currentStep, setCurrentStep] = useState(0);
   
-  const handleContinueToDashboard = () => {
-    navigate('/dashboard/student');
+  const steps = [
+    {
+      title: "Define Your Learning Goals",
+      description: "PREPZR helps you set clear goals and track your progress every step of the way.",
+      icon: Target,
+      color: "bg-blue-500"
+    },
+    {
+      title: "Create Your Study Schedule",
+      description: "Optimize your learning with personalized study plans based on your availability and preferences.",
+      icon: Calendar,
+      color: "bg-purple-500"
+    },
+    {
+      title: "Access Learning Resources",
+      description: "Explore our extensive library of concept cards, flashcards, and practice tests.",
+      icon: Book,
+      color: "bg-indigo-500"
+    }
+  ];
+  
+  const handleNext = () => {
+    if (currentStep < steps.length - 1) {
+      setCurrentStep(currentStep + 1);
+    } else {
+      // Save to localStorage that user has seen this welcome
+      const userData = localStorage.getItem('userData');
+      if (userData) {
+        const parsedData = JSON.parse(userData);
+        parsedData.sawWelcomeSteps = true;
+        localStorage.setItem('userData', JSON.stringify(parsedData));
+      }
+      
+      // Navigate to dashboard with welcome tour flag
+      navigate('/dashboard/student?new=true');
+    }
   };
-
+  
   return (
-    <div className="min-h-screen bg-gradient-to-br from-sky-100/30 via-white to-violet-100/30 flex flex-col">
-      <div className="flex-1 flex items-center justify-center p-4">
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="w-full max-w-4xl"
-        >
-          <div className="mb-8 text-center">
-            <img src="/assets/logo.svg" alt="PREPZR Logo" className="h-16 mx-auto mb-4" />
-            <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-violet-600 to-indigo-600 bg-clip-text text-transparent">
-              Welcome to PREPZR!
-            </h1>
-            <p className="text-lg text-muted-foreground mt-2">
-              Your personalized study journey begins now
-            </p>
-          </div>
-          
-          <div className="mb-8">
-            <Card className="overflow-hidden border-0 shadow-lg">
-              <CardContent className="p-0">
-                <div className="grid grid-cols-1 md:grid-cols-2">
-                  <div className="bg-gradient-to-br from-violet-600 to-indigo-600 text-white p-8">
-                    <div className="space-y-6">
-                      <div className="flex items-center gap-3">
-                        <div className="bg-white/20 p-2 rounded-full">
-                          <GraduationCap className="h-6 w-6" />
-                        </div>
-                        <h2 className="text-2xl font-semibold">Your Study Plan is Ready</h2>
-                      </div>
-                      
-                      <p className="opacity-90">
-                        We've created a personalized study plan based on your goals and preferences.
-                        Your journey to exam success is now optimized and structured.
-                      </p>
-                      
-                      <ul className="space-y-3">
-                        <li className="flex items-center gap-2">
-                          <div className="bg-white/20 h-6 w-6 flex items-center justify-center rounded-full text-sm">✓</div>
-                          <span>Customized study schedule</span>
-                        </li>
-                        <li className="flex items-center gap-2">
-                          <div className="bg-white/20 h-6 w-6 flex items-center justify-center rounded-full text-sm">✓</div>
-                          <span>Topic prioritization based on your strengths</span>
-                        </li>
-                        <li className="flex items-center gap-2">
-                          <div className="bg-white/20 h-6 w-6 flex items-center justify-center rounded-full text-sm">✓</div>
-                          <span>AI-powered learning recommendations</span>
-                        </li>
-                      </ul>
-                    </div>
-                  </div>
-                  
-                  <div className="p-8 bg-white dark:bg-gray-900">
-                    <h3 className="text-xl font-medium mb-4">A message from our founder</h3>
-                    <div className="flex items-start gap-4">
-                      <img 
-                        src="/assets/team/founder.jpg" 
-                        alt="Founder" 
-                        className="w-16 h-16 rounded-full object-cover"
-                      />
-                      <div>
-                        <p className="text-muted-foreground mb-3">
-                          "Welcome to PREPZR! We've created a platform that adapts to your unique learning style and exam goals. I'm confident that with consistent effort and our smart tools, you'll achieve the results you're aiming for."
-                        </p>
-                        <p className="font-medium">Dr. Ajay Singh</p>
-                        <p className="text-sm text-muted-foreground">Founder & CEO, PREPZR</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-          
-          <div className="mb-8">
-            <h2 className="text-xl font-semibold mb-4">Key Features to Explore</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Card className="p-6">
-                <div className="flex flex-col items-center text-center">
-                  <div className="bg-violet-100 dark:bg-violet-900/30 p-3 rounded-full mb-3">
-                    <Calendar className="h-6 w-6 text-violet-600 dark:text-violet-400" />
-                  </div>
-                  <h3 className="font-medium mb-2">Today's Plan</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Your daily personalized study schedule with optimized learning blocks
-                  </p>
-                </div>
-              </Card>
-              
-              <Card className="p-6">
-                <div className="flex flex-col items-center text-center">
-                  <div className="bg-blue-100 dark:bg-blue-900/30 p-3 rounded-full mb-3">
-                    <BookOpen className="h-6 w-6 text-blue-600 dark:text-blue-400" />
-                  </div>
-                  <h3 className="font-medium mb-2">Concept Cards</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Master key concepts with visual learning materials and interactive examples
-                  </p>
-                </div>
-              </Card>
-              
-              <Card className="p-6">
-                <div className="flex flex-col items-center text-center">
-                  <div className="bg-green-100 dark:bg-green-900/30 p-3 rounded-full mb-3">
-                    <Brain className="h-6 w-6 text-green-600 dark:text-green-400" />
-                  </div>
-                  <h3 className="font-medium mb-2">Academic Advisor</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Get personalized guidance and optimize your exam preparation strategy
-                  </p>
-                </div>
-              </Card>
+    <div className="min-h-screen bg-gradient-to-br from-blue-100 via-white to-purple-100 dark:from-gray-900 dark:via-gray-900 dark:to-purple-950/20 flex flex-col justify-center items-center p-4">
+      <div className="max-w-md w-full text-center mb-8">
+        <PrepzrLogo width={150} height="auto" className="mx-auto mb-4" />
+        <h1 className="text-4xl font-bold gradient-text">Welcome to PREPZR</h1>
+        <p className="mt-2 text-gray-600 dark:text-gray-400">Your AI-powered study companion</p>
+      </div>
+      
+      <Card className="w-full max-w-md shadow-xl border-0">
+        <CardContent className="p-0">
+          <div className="flex justify-between p-4 bg-gradient-to-r from-blue-600 to-indigo-700 text-white rounded-t-lg">
+            <div className="flex items-center">
+              <span className="font-medium">Your Journey</span>
+            </div>
+            <div className="flex space-x-1">
+              {steps.map((_, idx) => (
+                <div 
+                  key={idx} 
+                  className={`w-2 h-2 rounded-full ${idx === currentStep ? 'bg-white' : 'bg-white/40'}`}
+                />
+              ))}
             </div>
           </div>
           
-          <div className="flex justify-center">
-            <Button 
-              size="lg" 
-              onClick={handleContinueToDashboard}
-              className="px-8 bg-gradient-to-r from-purple-600 to-blue-600"
+          <div className="p-8">
+            <motion.div 
+              key={currentStep}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.3 }}
+              className="space-y-6"
             >
-              Continue to Dashboard <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
+              <div className={`w-16 h-16 rounded-full ${steps[currentStep].color} flex items-center justify-center mx-auto text-white`}>
+                <steps[currentStep].icon size={32} />
+              </div>
+              
+              <h2 className="text-2xl font-bold text-center">
+                Step {currentStep + 1}: {steps[currentStep].title}
+              </h2>
+              
+              <p className="text-center text-gray-600 dark:text-gray-400">
+                {steps[currentStep].description}
+              </p>
+              
+              <div className="pt-4">
+                <Button 
+                  onClick={handleNext}
+                  className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
+                >
+                  {currentStep < steps.length - 1 ? (
+                    <>
+                      Continue <ChevronRight className="ml-2 h-4 w-4" />
+                    </>
+                  ) : (
+                    <>
+                      Let's Get Started <ArrowRight className="ml-2 h-4 w-4" />
+                    </>
+                  )}
+                </Button>
+                
+                {currentStep < steps.length - 1 && (
+                  <Button 
+                    variant="ghost" 
+                    className="w-full mt-2" 
+                    onClick={() => navigate('/dashboard/student?new=true')}
+                  >
+                    Skip Introduction
+                  </Button>
+                )}
+              </div>
+            </motion.div>
           </div>
-        </motion.div>
-      </div>
+        </CardContent>
+      </Card>
       
-      <footer className="p-6 text-center text-sm text-muted-foreground">
-        © {new Date().getFullYear()} PREPZR. All rights reserved.
-      </footer>
+      <div className="flex mt-8 space-x-2">
+        {steps.map((_, idx) => (
+          <button
+            key={idx}
+            className={`w-3 h-3 rounded-full transition-colors ${
+              idx === currentStep ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-700'
+            }`}
+            onClick={() => setCurrentStep(idx)}
+          />
+        ))}
+      </div>
     </div>
   );
 };

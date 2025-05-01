@@ -1,21 +1,14 @@
 
 import React, { useState } from 'react';
-import { Navigate, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import LoginPage from '@/pages/login/LoginPage';
-import AdminLogin from '@/pages/admin/AdminLogin';
 import PrepzrLogo from '@/components/common/PrepzrLogo';
 
 const Login = () => {
-  // Check if user is already logged in
-  const userToken = localStorage.getItem('userData');
   const [loginTab, setLoginTab] = useState<"student" | "admin">("student");
-  
-  if (userToken) {
-    return <Navigate to="/welcome-back?returnTo=dashboard/student" replace />;
-  }
   
   return (
     <div className="min-h-screen bg-gradient-to-br from-sky-100/30 via-white to-violet-100/30 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">

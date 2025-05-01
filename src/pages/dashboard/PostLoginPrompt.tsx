@@ -25,14 +25,20 @@ const PostLoginPrompt = () => {
       try {
         const parsedData = JSON.parse(userData);
         
-        // Get last activity
-        if (parsedData.lastActivity) {
-          setLastActivity(parsedData.lastActivity.description);
-        }
-        
-        // Get pending tasks
-        if (parsedData.pendingTasks && parsedData.pendingTasks.length > 0) {
-          setPendingTask(parsedData.pendingTasks[0].title);
+        // Only show for returning users, not first-time users
+        if (parsedData.loginCount && parsedData.loginCount > 1) {
+          // Get last activity
+          if (parsedData.lastActivity) {
+            setLastActivity(parsedData.lastActivity.description);
+          }
+          
+          // Get pending tasks
+          if (parsedData.pendingTasks && parsedData.pendingTasks.length > 0) {
+            setPendingTask(parsedData.pendingTasks[0].title);
+          }
+        } else {
+          // First time user, redirect them directly to the dashboard
+          navigate(`/${returnTo}`);
         }
         
       } catch (error) {
