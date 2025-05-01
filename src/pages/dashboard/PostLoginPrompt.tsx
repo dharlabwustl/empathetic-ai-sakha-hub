@@ -97,7 +97,7 @@ const PostLoginPrompt = () => {
         className="max-w-md w-full"
       >
         <div className="text-center mb-8">
-          <PrepzrLogo width={120} height="auto" className="mx-auto" />
+          <PrepzrLogo width={150} height="auto" className="mx-auto" />
           <h1 className="mt-4 text-4xl font-display font-bold gradient-text">Welcome Back!</h1>
           <p className="mt-2 text-gray-600 dark:text-gray-400">Ready to continue your learning journey?</p>
         </div>

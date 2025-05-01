@@ -1,110 +1,109 @@
 
-import React, { Fragment } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import React from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import { Steps, StepLabel } from "@/components/ui/steps";
-import { Check, X } from "lucide-react";
-import PrepzrLogo from "@/components/common/PrepzrLogo";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useNavigate } from "react-router-dom";
+import { ChevronRight, LayoutDashboard, Book, Calendar, User } from 'lucide-react';
 
 interface WelcomeTourProps {
-  onSkipTour: () => void;
-  onCompleteTour: () => void;
-  isFirstTimeUser?: boolean;
-  lastActivity?: { type: string; description: string } | null;
-  suggestedNextAction?: string | null;
-  loginCount?: number;
   open: boolean;
-  onOpenChange: (open: boolean) => void;
+  onClose: () => void;
 }
 
-export default function WelcomeTour({
-  onSkipTour,
-  onCompleteTour,
-  isFirstTimeUser = true,
-  open,
-  onOpenChange,
-}: WelcomeTourProps) {
-  const handleSkip = () => {
-    onSkipTour();
-  };
-
-  const handleComplete = () => {
-    onCompleteTour();
-  };
-
+const WelcomeTour: React.FC<WelcomeTourProps> = ({ open, onClose }) => {
+  const navigate = useNavigate();
+  
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[550px]">
+    <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
+      <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <div className="flex items-center justify-center mb-4">
-            <PrepzrLogo width={100} height={100} />
-          </div>
-          <DialogTitle className="text-2xl text-center">Welcome to PREPZR!</DialogTitle>
-          <DialogDescription className="text-center">
-            Your personalized study companion powered by AI
+          <DialogTitle className="text-2xl font-bold text-center">Welcome to Your PREPZR Dashboard</DialogTitle>
+          <DialogDescription className="text-center text-base">
+            Let's take a quick tour of the key features to help you get started
           </DialogDescription>
         </DialogHeader>
-
-        <div className="py-4">
-          <div className="mb-6 flex flex-col md:flex-row gap-4 p-4 bg-gradient-to-r from-blue-50 to-violet-50 border border-blue-100 rounded-lg">
-            <img
-              src="/lovable-uploads/19303283-7911-484b-9bea-65d7691bbdae.png"
-              alt="Founder"
-              className="w-24 h-24 object-cover rounded-full mx-auto md:mx-0 border-2 border-blue-200"
-            />
-            <div>
-              <h3 className="font-medium text-blue-700 text-center md:text-left">A Message From Our Founder</h3>
-              <p className="text-gray-700 text-sm mt-2 italic">
-                "Thank you for joining PREPZR! We've built this platform to adapt to your unique learning style, 
-                personality, and goals. PREPZR will be your constant companion on your journey to exam success, 
-                making studying efficient and enjoyable."
-              </p>
-              <p className="text-blue-600 mt-2 text-sm font-medium text-right">— PREPZR Team</p>
+        
+        <Tabs defaultValue="dashboard" className="mt-4">
+          <TabsList className="grid grid-cols-4 mb-4">
+            <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
+            <TabsTrigger value="concepts">Concept Cards</TabsTrigger>
+            <TabsTrigger value="study">Study Plan</TabsTrigger>
+            <TabsTrigger value="founder">Founder's Note</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="dashboard" className="space-y-4">
+            <div className="aspect-video bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-center">
+              <LayoutDashboard className="h-24 w-24 text-blue-500 opacity-50" />
             </div>
-          </div>
-
-          <Separator className="my-4" />
-
-          <h3 className="font-medium text-lg mb-3">What makes PREPZR special:</h3>
-          <Steps>
-            <Fragment>
-              <StepLabel>
-                <h4 className="font-medium">Personalized Study Plan</h4>
-                <p className="text-sm text-muted-foreground">Automatically adapts to your learning style and progress</p>
-              </StepLabel>
-              <StepLabel>
-                <h4 className="font-medium">AI-Powered Assistance</h4>
-                <p className="text-sm text-muted-foreground">Get help with concepts and track your progress</p>
-              </StepLabel>
-              <StepLabel>
-                <h4 className="font-medium">Mood-Adaptive Learning</h4>
-                <p className="text-sm text-muted-foreground">Study plans that adjust to your current mental state</p>
-              </StepLabel>
-              <StepLabel>
-                <h4 className="font-medium">Comprehensive Resources</h4>
-                <p className="text-sm text-muted-foreground">Concept cards, flashcards, and practice exams in one place</p>
-              </StepLabel>
-            </Fragment>
-          </Steps>
+            <h3 className="text-lg font-medium">Your Smart Dashboard</h3>
+            <p className="text-gray-600 dark:text-gray-400">
+              Your personalized dashboard shows your progress, upcoming tasks, and smart recommendations based on your study habits and goals.
+              Check your key performance indicators and get insights on where to focus next.
+            </p>
+          </TabsContent>
+          
+          <TabsContent value="concepts" className="space-y-4">
+            <div className="aspect-video bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-center">
+              <Book className="h-24 w-24 text-purple-500 opacity-50" />
+            </div>
+            <h3 className="text-lg font-medium">AI-Powered Concept Cards</h3>
+            <p className="text-gray-600 dark:text-gray-400">
+              Browse through our extensive library of concept cards that explain complex topics in simple terms.
+              Our AI tailors the content to match your learning style and current understanding level.
+              Practice with flashcards to reinforce your learning.
+            </p>
+          </TabsContent>
+          
+          <TabsContent value="study" className="space-y-4">
+            <div className="aspect-video bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-center">
+              <Calendar className="h-24 w-24 text-green-500 opacity-50" />
+            </div>
+            <h3 className="text-lg font-medium">Smart Study Planning</h3>
+            <p className="text-gray-600 dark:text-gray-400">
+              Your personalized study plan helps you organize your time effectively.
+              Based on your learning goals, available time, and progress, PREPZR creates
+              an optimized schedule to help you achieve your targets efficiently.
+            </p>
+          </TabsContent>
+          
+          <TabsContent value="founder" className="space-y-4">
+            <div className="flex items-center space-x-4">
+              <div className="h-16 w-16 rounded-full bg-blue-100 flex items-center justify-center">
+                <User className="h-10 w-10 text-blue-600" />
+              </div>
+              <div>
+                <h3 className="text-lg font-medium">A Message from Our Founder</h3>
+                <p className="text-sm text-gray-500">Dr. Rajesh Kumar • Founder & CEO</p>
+              </div>
+            </div>
+            
+            <blockquote className="border-l-4 border-blue-500 pl-4 italic text-gray-600 dark:text-gray-400">
+              "At PREPZR, we believe that every student deserves personalized learning support.
+              Our mission is to democratize access to quality education through AI-driven
+              personalization. We're committed to continuously improving our platform based on
+              your feedback and learning patterns."
+            </blockquote>
+            
+            <p className="text-gray-600 dark:text-gray-400">
+              With years of experience in education technology, our team has developed PREPZR to be
+              your perfect learning companion. We understand the challenges students face and have built
+              solutions to address them effectively.
+            </p>
+          </TabsContent>
+        </Tabs>
+        
+        <div className="flex justify-between mt-6">
+          <Button variant="outline" onClick={onClose}>
+            Skip Tour
+          </Button>
+          <Button onClick={() => { onClose(); navigate('/dashboard/student'); }}>
+            Start Learning <ChevronRight className="ml-2 h-4 w-4" />
+          </Button>
         </div>
-
-        <DialogFooter className="flex flex-col sm:flex-row gap-2">
-          <Button variant="outline" onClick={handleSkip} className="w-full sm:w-auto">
-            <X className="mr-2 h-4 w-4" /> Skip Tour
-          </Button>
-          <Button onClick={handleComplete} className="w-full sm:w-auto">
-            <Check className="mr-2 h-4 w-4" /> Get Started
-          </Button>
-        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
-}
+};
+
+export default WelcomeTour;

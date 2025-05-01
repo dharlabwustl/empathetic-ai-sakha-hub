@@ -23,10 +23,11 @@ import ExamReviewPage from './components/dashboard/student/practice-exam/ExamRev
 import FlashcardInteractivePage from './pages/dashboard/student/flashcard/FlashcardInteractivePage';
 import PostLoginPrompt from './pages/dashboard/PostLoginPrompt';
 import ConceptCardStudyPage from './pages/dashboard/student/concept/ConceptCardStudyPage';
-import Login from './pages/Login';
+import Login from './pages/auth/Login';
 import EnhancedFlashcardPage from './pages/dashboard/student/flashcards/EnhancedFlashcardPage';
 import WelcomeToPrepr from './pages/signup/WelcomeToPrepr';
 import ProfilePage from './pages/dashboard/student/ProfilePage';
+import SubscriptionPage from './pages/dashboard/student/SubscriptionPage';
 
 const AdminDashboard = React.lazy(() => import('@/pages/admin/AdminDashboard'));
 
@@ -52,6 +53,7 @@ function App() {
               <Route path="/dashboard/student/:tab" element={<StudentDashboard />} />
               <Route path="/dashboard/student/today" element={<TodaysPlanView />} />
               <Route path="/dashboard/student/profile" element={<ProfilePage />} />
+              <Route path="/dashboard/student/subscription" element={<SubscriptionPage />} />
               <Route path="/dashboard/student/feel-good-corner" element={<FeelGoodCornerView />} />
               <Route path="/dashboard/student/concepts/card/:conceptId" element={<ConceptCardDetailPage />} />
               <Route path="/dashboard/student/concepts/study/:conceptId" element={<ConceptCardStudyPage />} />

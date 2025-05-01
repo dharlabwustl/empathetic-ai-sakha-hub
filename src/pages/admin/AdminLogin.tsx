@@ -6,13 +6,17 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Eye, EyeOff, Lock, Mail } from 'lucide-react';
-import { useAuth } from '@/contexts/auth/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import PrepzrLogo from '@/components/common/PrepzrLogo';
 
+// Simplified admin authentication 
+const mockAdminCredentials = {
+  email: 'admin@example.com',
+  password: 'admin123'
+};
+
 const AdminLogin = () => {
   const navigate = useNavigate();
-  const { adminLogin } = useAuth();
   const { toast } = useToast();
   
   const [isLoading, setIsLoading] = useState(false);
@@ -45,13 +49,24 @@ const AdminLogin = () => {
     setIsLoading(true);
     
     try {
-      const success = await adminLogin(formData.email, formData.password);
+      // Simple mock authentication
+      const isValidCredentials = 
+        formData.email === mockAdminCredentials.email && 
+        formData.password === mockAdminCredentials.password;
       
-      if (success) {
+      if (isValidCredentials) {
         toast({
           title: "Login Successful",
           description: "Welcome to the Admin Dashboard"
         });
+        
+        // Store admin session in localStorage
+        localStorage.setItem('adminSession', JSON.stringify({
+          isAdmin: true,
+          email: mockAdminCredentials.email,
+          name: 'Admin User',
+          loggedInAt: new Date().toISOString()
+        }));
         
         // Force navigation to the admin dashboard
         setTimeout(() => {
@@ -80,7 +95,7 @@ const AdminLogin = () => {
     <div className="min-h-screen bg-gradient-to-br from-slate-100 via-white to-slate-200 flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-6">
-          <PrepzrLogo width={130} height="auto" className="mx-auto" />
+          <PrepzrLogo width={150} height="auto" className="mx-auto" />
           <h1 className="mt-3 text-2xl font-bold text-gray-800">Admin Portal</h1>
           <p className="text-gray-600 text-sm">Secure access for administrators only</p>
         </div>

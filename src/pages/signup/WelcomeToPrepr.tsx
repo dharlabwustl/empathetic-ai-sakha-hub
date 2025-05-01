@@ -45,7 +45,7 @@ const WelcomeToPrepr = () => {
       }
       
       // Navigate to dashboard with welcome tour flag
-      navigate('/dashboard/student');
+      navigate('/dashboard/student?showTour=true');
     }
   };
   
@@ -65,7 +65,7 @@ const WelcomeToPrepr = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-100 via-white to-purple-100 dark:from-gray-900 dark:via-gray-900 dark:to-purple-950/20 flex flex-col justify-center items-center p-4">
       <div className="max-w-md w-full text-center mb-8">
-        <PrepzrLogo width={150} height="auto" className="mx-auto mb-4" />
+        <PrepzrLogo width={180} height="auto" className="mx-auto mb-4" />
         <h1 className="text-4xl font-bold gradient-text">Welcome to PREPZR</h1>
         <p className="mt-2 text-gray-600 dark:text-gray-400">Your AI-powered study companion</p>
       </div>

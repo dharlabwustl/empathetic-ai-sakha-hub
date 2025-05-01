@@ -1,39 +1,49 @@
 
-import React, { useEffect } from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
-import { useAdminAuth } from '@/contexts/auth/AdminAuthContext';
-import LoadingScreen from '@/components/common/LoadingScreen';
-import { useToast } from '@/hooks/use-toast';
+import React, { useEffect, useState } from 'react';
+import { Navigate } from 'react-router-dom';
+import LoadingScreen from '../common/LoadingScreen';
 
 interface AdminRouteGuardProps {
   children: React.ReactNode;
 }
 
 const AdminRouteGuard: React.FC<AdminRouteGuardProps> = ({ children }) => {
-  const { isAdminAuthenticated, isAdminLoading } = useAdminAuth();
-  const location = useLocation();
-  const { toast } = useToast();
+  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!isAdminLoading && !isAdminAuthenticated) {
-      toast({
-        title: "Access Restricted",
-        description: "Please login with an administrator account to access this area.",
-        variant: "destructive"
-      });
-    }
-  }, [isAdminAuthenticated, isAdminLoading, toast]);
-
-  if (isAdminLoading) {
-    return <LoadingScreen />;
+    // Check for admin session in localStorage
+    const checkAdminAuth = () => {
+      const adminSession = localStorage.getItem('adminSession');
+      
+      if (adminSession) {
+        try {
+          const session = JSON.parse(adminSession);
+          setIsAdmin(!!session.isAdmin);
+        } catch (error) {
+          console.error('Error parsing admin session:', error);
+          setIsAdmin(false);
+        }
+      } else {
+        setIsAdmin(false);
+      }
+      
+      setLoading(false);
+    };
+    
+    checkAdminAuth();
+  }, []);
+  
+  if (loading) {
+    return <LoadingScreen message="Verifying administrator access..." />;
   }
-
-  if (!isAdminAuthenticated) {
-    // Redirect to admin login page, preserving the intended destination
-    return <Navigate to="/admin/login" state={{ from: location }} replace />;
+  
+  // Redirect to login if not admin
+  if (!isAdmin) {
+    return <Navigate to="/admin/login" replace />;
   }
-
-  // User is authenticated as admin, render the protected route
+  
+  // Render children if admin access is confirmed
   return <>{children}</>;
 };
 
