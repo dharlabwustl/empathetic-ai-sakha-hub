@@ -1,220 +1,121 @@
 
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useToast } from "@/hooks/use-toast";
-import { useOnboarding } from "../OnboardingContext";
-import { motion } from "framer-motion";
-import { Star } from "lucide-react";
+import { Label } from "@/components/ui/label";
 
 interface SignupStepProps {
-  onSubmit: (formValues: { mobile: string; otp: string; agreeTerms: boolean }) => void;
+  onSubmit: (formValues: { name: string; mobile: string; otp: string; agreeTerms: boolean }) => void;
   isLoading: boolean;
 }
 
 const SignupStep: React.FC<SignupStepProps> = ({ onSubmit, isLoading }) => {
-  const { toast } = useToast();
-  const { onboardingData } = useOnboarding();
-  const [formValues, setFormValues] = useState({
-    mobile: "",
-    otp: "",
-    agreeTerms: false
-  });
-  const [fact, setFact] = useState("");
-  const examFacts = {
-    "IIT-JEE": [
-      "Did you know? The highest package offered to an IIT graduate was ₹2.4 Cr!",
-      "11 of India's Fortune 500 CEOs are IIT alumni.",
-      "IITs have a 98% placement rate across all branches."
-    ],
-    "NEET": [
-      "India needs 2.5 million doctors by 2030 - huge opportunities ahead!",
-      "Medical professionals are among the most respected careers globally.",
-      "AIIMS Delhi sees over 10,000 patients daily - imagine the impact you'll make!"
-    ],
-    "UPSC": [
-      "The youngest IAS officer was just 21 when selected!",
-      "Over 48% of current IAS officers come from small towns.",
-      "Civil servants directly impact millions of lives daily."
-    ]
-  };
+  const [name, setName] = useState("");
+  const [mobile, setMobile] = useState("");
+  const [otp, setOtp] = useState("");
+  const [agreeTerms, setAgreeTerms] = useState(false);
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
-  useEffect(() => {
-    if (onboardingData.goal) {
-      const facts = examFacts[onboardingData.goal as keyof typeof examFacts] || [];
-      const randomFact = facts[Math.floor(Math.random() * facts.length)];
-      setFact(randomFact);
-    }
-  }, [onboardingData.goal]);
-
-  const handleFormChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormValues({ ...formValues, [name]: value });
-  };
-
-  const handleRequestOtp = () => {
-    if (!formValues.mobile) {
-      toast({
-        title: "Please fill in all fields",
-        description: "We need your mobile number to proceed.",
-        variant: "destructive"
-      });
-      return;
-    }
+  const validateForm = () => {
+    const newErrors: { [key: string]: string } = {};
     
-    toast({
-      title: "OTP Sent",
-      description: "A verification code has been sent to your mobile.",
-    });
+    if (!name.trim()) newErrors.name = "Name is required";
+    if (!mobile.trim()) newErrors.mobile = "Mobile number is required";
+    else if (!/^\d{10}$/.test(mobile)) newErrors.mobile = "Please enter a valid 10-digit mobile number";
+    if (!otp.trim()) newErrors.otp = "OTP is required";
+    if (!agreeTerms) newErrors.agreeTerms = "You must agree to the terms and conditions";
     
-    setFormValues({ ...formValues, otp: "1234" }); // Auto-fill OTP for demo
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formValues.agreeTerms) {
-      toast({
-        title: "Terms & Conditions Required",
-        description: "Please agree to our terms and conditions to continue.",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    if (formValues.mobile && formValues.otp) {
-      onSubmit(formValues);
-    } else {
-      toast({
-        title: "Please fill in all fields",
-        description: "All fields are required to create your account.",
-        variant: "destructive"
-      });
+    if (validateForm()) {
+      onSubmit({ name, mobile, otp, agreeTerms });
     }
   };
 
   return (
-    <div className="space-y-6">
-      {fact && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="p-4 bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 rounded-lg border border-purple-100 dark:border-purple-800"
-        >
-          <div className="flex items-center gap-3">
-            <div className="h-8 w-8 rounded-full bg-purple-100 dark:bg-purple-900/50 flex items-center justify-center">
-              <Star className="h-4 w-4 text-purple-600 dark:text-purple-400" />
-            </div>
-            <p className="text-sm text-purple-700 dark:text-purple-300 font-medium">
-              {fact}
-            </p>
-          </div>
-        </motion.div>
-      )}
-
-      <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="text-center mb-6">
+        <h2 className="text-2xl font-semibold mb-2">Create Your Account</h2>
+        <p className="text-gray-500">
+          Enter your details to get started with PREPZR.
+        </p>
+      </div>
+      
+      <div className="space-y-4">
+        <div>
+          <Label htmlFor="name">Full Name</Label>
+          <Input
+            id="name"
+            type="text"
+            placeholder="Enter your full name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+          {errors.name && <p className="text-sm text-red-500 mt-1">{errors.name}</p>}
+        </div>
+        
         <div>
           <Label htmlFor="mobile">Mobile Number</Label>
-          <Input 
-            id="mobile" 
-            name="mobile" 
-            value={formValues.mobile} 
-            onChange={handleFormChange} 
-            required 
+          <Input
+            id="mobile"
             type="tel"
-            className="border-purple-200 focus:border-purple-500 focus:ring-purple-500"
-            placeholder="+91 9876543210"
+            placeholder="10-digit mobile number"
+            value={mobile}
+            onChange={(e) => setMobile(e.target.value.replace(/\D/g, "").slice(0, 10))}
           />
+          {errors.mobile && <p className="text-sm text-red-500 mt-1">{errors.mobile}</p>}
         </div>
         
-        {formValues.mobile && (
-          <Button 
-            type="button" 
-            variant="outline"
-            onClick={handleRequestOtp}
-            className="w-full border-purple-500 text-purple-600 hover:bg-purple-50"
-          >
-            Get OTP
-          </Button>
-        )}
-        
-        {formValues.mobile && (
-          <div>
+        <div className="flex gap-3">
+          <div className="flex-1">
             <Label htmlFor="otp">OTP</Label>
-            <Input 
-              id="otp" 
-              name="otp" 
-              value={formValues.otp} 
-              onChange={handleFormChange} 
-              required 
-              className="border-purple-200 focus:border-purple-500 focus:ring-purple-500"
+            <Input
+              id="otp"
+              type="text"
               placeholder="Enter OTP"
+              value={otp}
+              onChange={(e) => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
             />
+            {errors.otp && <p className="text-sm text-red-500 mt-1">{errors.otp}</p>}
           </div>
-        )}
+          <div className="self-end">
+            <Button type="button" variant="outline" className="h-10">
+              Get OTP
+            </Button>
+          </div>
+        </div>
         
-        <div className="flex items-center space-x-2">
+        <div className="flex items-start space-x-2 pt-2">
           <Checkbox 
-            id="terms" 
-            checked={formValues.agreeTerms} 
-            onCheckedChange={(checked) => {
-              setFormValues({ ...formValues, agreeTerms: checked === true });
-            }}
+            id="agreeTerms" 
+            checked={agreeTerms} 
+            onCheckedChange={(checked) => setAgreeTerms(checked === true)} 
           />
-          <label
-            htmlFor="terms"
-            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-          >
-            I agree to the{" "}
-            <Link to="/terms" className="text-purple-600 hover:underline">
-              Terms & Conditions
-            </Link>
-          </label>
+          <Label htmlFor="agreeTerms" className="text-sm leading-tight">
+            I agree to the <a href="#" className="text-primary underline">Terms and Conditions</a> and <a href="#" className="text-primary underline">Privacy Policy</a>
+          </Label>
         </div>
-        
-        <Button 
-          type="submit" 
-          className="w-full bg-gradient-to-r from-blue-500 to-blue-600"
-          disabled={isLoading || !formValues.mobile || !formValues.otp || !formValues.agreeTerms}
-        >
-          {isLoading ? "Creating Account..." : "Create Account"}
-        </Button>
-        
-        <div className="relative">
-          <div className="absolute inset-0 flex items-center">
-            <span className="w-full border-t border-gray-300"></span>
-          </div>
-          <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-white dark:bg-gray-900 px-2 text-gray-500">Or continue with</span>
-          </div>
-        </div>
-        
-        <Button 
-          type="button"
-          variant="outline" 
-          className="w-full"
-          onClick={() => {
-            toast({
-              title: "Google Sign Up",
-              description: "Google authentication would be triggered here.",
-            });
-          }}
-        >
-          <img src="https://www.google.com/favicon.ico" alt="Google" className="h-4 w-4 mr-2" />
-          Sign up with Google
-        </Button>
-        
-        <div className="text-center">
-          <p className="text-sm text-gray-600">
-            Already have an account?{" "}
-            <Link to="/login" className="text-blue-600 hover:underline">Login</Link>
-          </p>
-        </div>
-      </form>
-    </div>
+        {errors.agreeTerms && <p className="text-sm text-red-500 mt-1">{errors.agreeTerms}</p>}
+      </div>
+      
+      <Button
+        type="submit"
+        className="w-full mt-6"
+        disabled={isLoading}
+      >
+        {isLoading ? "Creating Account..." : "Create Account"}
+      </Button>
+      
+      <p className="text-sm text-center text-gray-500 mt-4">
+        Already have an account? <a href="/login" className="text-primary underline">Login</a>
+      </p>
+    </form>
   );
 };
 

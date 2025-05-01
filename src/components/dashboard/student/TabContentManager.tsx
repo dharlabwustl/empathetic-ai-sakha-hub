@@ -1,6 +1,5 @@
-
 import React from 'react';
-import { UserProfileBase } from '@/types/user/base';
+import { UserProfile } from '@/types/user/base';
 import { KpiData, NudgeData } from '@/hooks/useKpiTracking';
 import { useNavigate } from 'react-router-dom';
 
@@ -8,7 +7,7 @@ import RedesignedTodaysPlan from '@/components/dashboard/student/todays-plan/Red
 import { TodayPlanView, StudyPlanView, ConceptsView, FlashcardsView, PracticeExamsView, NotificationsView } from '@/pages/dashboard/student/TabContentViews';
 
 interface TabContentGeneratorProps {
-  userProfile: UserProfileBase;
+  userProfile: UserProfile;
   kpis: KpiData[];
   nudges: NudgeData[];
   markNudgeAsRead: (id: string) => void;

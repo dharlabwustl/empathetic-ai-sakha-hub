@@ -4,6 +4,7 @@ import { MoodType, PersonalityType, UserRole } from "@/types/user/base";
 
 export type OnboardingStep = "role" | "goal" | "examDate" | "studyHours" | "subjects" | "studyPace" | "studyTime" | "demographics" | "personality" | "sentiment" | "habits" | "interests" | "signup";
 
+export { UserRole };
 export type UserGoal = string;
 
 export interface OnboardingData {

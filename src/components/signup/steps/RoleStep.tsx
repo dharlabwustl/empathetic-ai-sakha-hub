@@ -1,46 +1,45 @@
 
 import React from "react";
+import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { UserRole } from "@/types/user/base";
-import { motion } from "framer-motion";
+import { UserRole } from "@/components/signup/OnboardingContext";
+import { Graduation } from "lucide-react";
 
 interface RoleStepProps {
   onRoleSelect: (role: UserRole) => void;
 }
 
 const RoleStep: React.FC<RoleStepProps> = ({ onRoleSelect }) => {
-  const roles = [
-    { role: UserRole.Student, icon: "🎓", label: "Student" },
-    { role: UserRole.Employee, icon: "💼", label: "Working Professional" },
-    { role: UserRole.Doctor, icon: "⚕️", label: "Doctor" },
-    { role: UserRole.Founder, icon: "🚀", label: "Founder/Entrepreneur" }
-  ];
-
   return (
-    <div className="space-y-4">
-      <h2 className="text-lg font-medium text-center mb-4">I am a...</h2>
-      <div className="grid grid-cols-2 gap-4">
-        {roles.map((item) => (
-          <motion.div
-            key={item.role}
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.98 }}
-          >
-            <Button
-              onClick={() => onRoleSelect(item.role)}
-              className="bg-white hover:bg-blue-50 text-blue-700 border border-blue-200 h-auto py-6 px-4 w-full flex flex-col items-center gap-2"
-              variant="outline"
-            >
-              <span className="text-3xl mb-1">{item.icon}</span>
-              <span className="text-lg font-medium">{item.label}</span>
-            </Button>
-          </motion.div>
-        ))}
+    <div className="space-y-6">
+      <div className="text-center mb-6">
+        <h2 className="text-2xl font-semibold mb-2">Welcome to PREPZR</h2>
+        <p className="text-gray-500">Your personal AI study partner for exam preparation</p>
       </div>
       
-      <p className="text-center text-sm text-gray-500 mt-4">
-        Select an option to personalize your learning experience
-      </p>
+      <div className="flex justify-center">
+        <Card 
+          className="bg-blue-50 border-blue-200 p-6 cursor-pointer hover:shadow-md transition-all w-full max-w-xs"
+          onClick={() => onRoleSelect(UserRole.Student)}
+        >
+          <div className="flex flex-col items-center text-center">
+            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
+              <Graduation className="text-blue-600 h-8 w-8" />
+            </div>
+            <h3 className="text-xl font-medium mb-2">Student</h3>
+            <p className="text-gray-500 text-sm">
+              Personalized study plans, concept mastery, and exam preparation
+            </p>
+          </div>
+        </Card>
+      </div>
+      
+      <Button 
+        className="w-full mt-4"
+        onClick={() => onRoleSelect(UserRole.Student)}
+      >
+        Continue as Student
+      </Button>
     </div>
   );
 };

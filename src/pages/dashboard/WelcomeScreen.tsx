@@ -78,11 +78,11 @@ const WelcomeScreen = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="w-full max-w-lg"
+        className="w-full max-w-xl"
       >
         <Card className="shadow-xl border-0">
           <CardHeader className="text-center pb-2">
-            <PrepzrLogo width={80} className="mx-auto mb-4" />
+            <PrepzrLogo width={100} className="mx-auto mb-4" />
             <CardTitle className="text-2xl">Welcome, {userName}!</CardTitle>
           </CardHeader>
           <CardContent>
@@ -114,12 +114,23 @@ const WelcomeScreen = () => {
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: 0.5 }}
-                  className="bg-green-50 border border-green-100 p-4 rounded-lg"
+                  className="bg-gradient-to-r from-blue-50 to-violet-50 border border-blue-100 p-6 rounded-lg"
                 >
-                  <h3 className="font-medium text-green-700 text-center">All systems ready!</h3>
-                  <p className="text-green-600 text-sm text-center mt-1">
-                    Your personalized study materials await you.
-                  </p>
+                  <div className="flex flex-col md:flex-row items-center gap-4">
+                    <img 
+                      src="/lovable-uploads/19303283-7911-484b-9bea-65d7691bbdae.png" 
+                      alt="Founder" 
+                      className="rounded-full w-20 h-20 object-cover border-2 border-blue-200"
+                    />
+                    <div className="text-center md:text-left">
+                      <h3 className="font-medium text-blue-700">A Message from Our Founder</h3>
+                      <p className="text-gray-700 text-sm mt-2 italic">
+                        "At PREPZR, we believe every student deserves personalized learning that adapts to their needs. 
+                        We're excited to be your study partner on this journey to success!"
+                      </p>
+                      <p className="text-blue-600 mt-2 text-sm font-medium">— PREPZR Team</p>
+                    </div>
+                  </div>
                 </motion.div>
               )}
             </motion.div>

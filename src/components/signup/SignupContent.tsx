@@ -17,7 +17,8 @@ const SignupContent = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleRoleSelect = (role: UserRole) => {
-    setOnboardingData({ ...onboardingData, role });
+    // Always select Student role as per request
+    setOnboardingData({ ...onboardingData, role: UserRole.Student });
     goToNextStep();
   };
 
@@ -84,6 +85,16 @@ const SignupContent = () => {
     setIsLoading(true);
 
     try {
+      if (!formValues.agreeTerms) {
+        toast({
+          title: "Terms and Conditions",
+          description: "You must agree to the Terms and Conditions to continue.",
+          variant: "destructive"
+        });
+        setIsLoading(false);
+        return;
+      }
+      
       // Set name from form data
       const finalData = {
         ...onboardingData,
@@ -161,7 +172,7 @@ const SignupContent = () => {
       }));
 
       navigate("/welcome");
-    }, 2000);
+    }, 1000);
   };
 
   return (
@@ -175,7 +186,7 @@ const SignupContent = () => {
       <Card className="relative overflow-hidden bg-white dark:bg-gray-900 shadow-xl rounded-xl">
         <div className="p-6 md:p-8">
           <div className="flex flex-col items-center mb-6">
-            <PrepzrLogo width={72} height={72} />
+            <PrepzrLogo width={120} height={120} />
             <h1 className="mt-4 text-2xl font-bold">Join PREPZR</h1>
             <p className="text-gray-500 text-sm text-center mt-1">
               Create your personalized study partner
