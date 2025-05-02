@@ -16,15 +16,19 @@ export enum MoodType {
 }
 
 export enum SubscriptionType {
-  FREE = 'free',
-  BASIC = 'basic',
-  PRO = 'pro',
-  PREMIUM = 'premium',
+  Free = 'free',
+  Basic = 'basic',
+  Pro = 'pro',
+  Premium = 'premium',
   ProMonthly = 'pro_monthly',
   ProAnnual = 'pro_annual',
   GroupSmall = 'group_small',
   GroupLarge = 'group_large',
-  GroupAnnual = 'group_annual'
+  GroupAnnual = 'group_annual',
+  FREE = 'free',
+  BASIC = 'basic',
+  PRO = 'pro',
+  PREMIUM = 'premium',
 }
 
 export enum UserRole {

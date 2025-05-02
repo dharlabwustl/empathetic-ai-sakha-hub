@@ -45,7 +45,7 @@ const HeroSection: React.FC = () => {
             animate={{ opacity: 1 }}
             transition={{ duration: 0.8 }}
           >
-            पहली बार, पढ़ाई से पहले, आपको समझने वाला साथी
+            अब तैयारी करो अपने तरीके से…लेकिन SMARTLY – सिर्फ PREPZR के साथ!
           </motion.span>
           
           <motion.div
@@ -72,7 +72,33 @@ const HeroSection: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.8, duration: 0.6 }}
         >
-          Tuned to Your Mood, Habits, Mind & Mission to Crack Exams.
+          Tuned to Your Mood, Habits, Mind & Mission to{" "}
+          <motion.span 
+            className="relative font-bold"
+            initial={{ color: "#9b87f5" }}
+            animate={{ 
+              color: ["#9b87f5", "#D946EF", "#8B5CF6", "#0EA5E9", "#9b87f5"],
+            }}
+            transition={{ 
+              duration: 6,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+          >
+            <span className="relative inline-block">
+              Crack Exams.
+              <motion.span 
+                className="absolute -bottom-1 left-0 h-0.5 bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500 w-full" 
+                initial={{ width: 0 }}
+                animate={{ width: "100%" }}
+                transition={{ 
+                  delay: 0.8,
+                  duration: 0.8,
+                  ease: "easeInOut"
+                }}
+              />
+            </span>
+          </motion.span>
         </motion.p>
         
         <motion.div 
