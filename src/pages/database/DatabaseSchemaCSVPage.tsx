@@ -3,13 +3,14 @@ import React, { useEffect, useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Download, Database, Layers, FileSpreadsheet } from 'lucide-react';
+import { Download, Database, Layers, FileSpreadsheet, Book, ExternalLink } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { downloadDatabaseSchemaAsCSV, getDatabaseSchemaCSV } from '@/utils/schema-export-csv';
 
 const DatabaseSchemaCSVPage = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [schemaData, setSchemaData] = useState<string[][]>([]);
   const [loading, setLoading] = useState(true);
   const [currentTable, setCurrentTable] = useState<string>('');
@@ -94,6 +95,11 @@ const DatabaseSchemaCSVPage = () => {
     }
   };
 
+  // Navigate to Flask developer guide
+  const goToFlaskGuide = () => {
+    navigate('/admin/flask-guide');
+  };
+
   // Filter data for the currently selected table
   const filteredData = schemaData.filter(row => row[0] === currentTable);
 
@@ -125,11 +131,32 @@ const DatabaseSchemaCSVPage = () => {
                 </>
               )}
             </Button>
+
+            <Button
+              onClick={goToFlaskGuide}
+              size="lg" 
+              className="gap-2 bg-purple-600 hover:bg-purple-700"
+            >
+              <Book size={18} />
+              <span>Flask Implementation Guide</span>
+            </Button>
             
             <Link to="/">
               <Button variant="outline">Back to Home</Button>
             </Link>
           </div>
+        </div>
+
+        <div className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 p-4 rounded-lg mb-6">
+          <h2 className="flex items-center gap-2 text-lg font-semibold mb-2">
+            <ExternalLink size={20} className="text-indigo-600" />
+            Connect Database Schema with Flask Implementation
+          </h2>
+          <p className="text-gray-700 dark:text-gray-300">
+            Our detailed Flask implementation guide provides step-by-step instructions for building backend services 
+            based on this database schema. Click on the "Flask Implementation Guide" button to access comprehensive 
+            documentation for developers.
+          </p>
         </div>
         
         {loading ? (
@@ -181,8 +208,17 @@ const DatabaseSchemaCSVPage = () => {
                       {filteredData.length} fields
                     </div>
                   </div>
-                  <CardDescription>
-                    Fields and data types for the {currentTable} table
+                  <CardDescription className="flex items-center justify-between">
+                    <span>Fields and data types for the {currentTable} table</span>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="text-purple-600 hover:text-purple-700 flex items-center gap-1"
+                      onClick={goToFlaskGuide}
+                    >
+                      <Book size={14} />
+                      Flask Implementation for {currentTable}
+                    </Button>
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="px-0">
