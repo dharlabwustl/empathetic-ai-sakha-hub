@@ -12,7 +12,7 @@ import FounderSection from '@/components/home/FounderSection';
 import VideoSection from '@/components/home/VideoSection';
 import { ExamReadinessAnalyzer } from '@/components/home/ExamReadinessAnalyzer';
 import FoundingTeamSection from '@/components/home/FoundingTeamSection';
-import ExamNamesBadge from '@/components/home/hero/ExamNamesBadge';
+import EcosystemAnimation from '@/components/home/EcosystemAnimation';
 
 const Index = () => {
   const featuresRef = useRef<HTMLDivElement>(null);
@@ -50,11 +50,16 @@ const Index = () => {
       <Header />
       
       <main>
-        <HeroSection />
-        
-        {/* ExamNamesBadge is now handled inside the HeroSection component */}
+        <HeroSection 
+          scrollToFeatures={scrollToFeatures}
+          scrollToForWhom={() => {}}
+          openExamAnalyzer={handleOpenExamAnalyzer}
+        />
         
         <WhatIsSection />
+        
+        {/* Add the EcosystemAnimation section after WhatIsSection */}
+        <EcosystemAnimation />
         
         <div ref={featuresRef}>
           <FeaturesSection />

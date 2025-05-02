@@ -8,7 +8,6 @@ import { motion } from "framer-motion";
 import ExamNamesBadge from './hero/ExamNamesBadge';
 import KeyFeatures from '../landing/KeyFeatures';
 import PlatformStrengths from '../landing/PlatformStrengths';
-import EcosystemAnimation from './EcosystemAnimation';
 import OnboardingSection from './OnboardingSection';
 import KpiStats from './hero/feature-highlights/KpiStats';
 
@@ -63,6 +62,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
           </motion.div>
         </div>
         
+        {/* Exam Names Badge - Now positioned directly after the hero intro */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -72,7 +72,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
           <ExamNamesBadge />
         </motion.div>
 
-        {/* KPI Stats Section - Moved right after ExamNamesBadge */}
+        {/* KPI Stats Section - Right after ExamNamesBadge */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -86,7 +86,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.8, delay: 0.8 }}
+          transition={{ duration: 0.8, delay: 1.0 }}
           className="mb-12"
         >
           <KeyFeatures />
@@ -96,7 +96,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.8, delay: 1.0 }}
+          transition={{ duration: 0.8, delay: 1.2 }}
           className="mb-12"
         >
           <PlatformStrengths />
@@ -106,7 +106,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
           <motion.div
             initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, delay: 1.2 }}
+            transition={{ duration: 0.8, delay: 1.4 }}
             className="bg-white/90 dark:bg-slate-900/90 shadow-lg backdrop-blur-sm p-6 rounded-2xl border border-gray-100 dark:border-gray-800"
           >
             <PainPoints />
@@ -115,22 +115,12 @@ const HeroSection: React.FC<HeroSectionProps> = ({
           <motion.div
             initial={{ opacity: 0, x: 30 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, delay: 1.2 }}
+            transition={{ duration: 0.8, delay: 1.4 }}
             className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm shadow-xl rounded-2xl border border-purple-100 dark:border-purple-800 overflow-hidden"
           >
             <ChatInterface />
           </motion.div>
         </div>
-        
-        {/* Add the Ecosystem Animation section */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.8, delay: 1.4 }}
-          className="mt-16 mb-12"
-        >
-          <EcosystemAnimation />
-        </motion.div>
         
         {/* Add the OnboardingSection */}
         <motion.div

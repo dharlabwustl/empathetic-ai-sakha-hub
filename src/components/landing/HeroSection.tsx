@@ -1,9 +1,11 @@
+
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import KpiStats from "../home/hero/feature-highlights/KpiStats";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
+import ExamNamesBadge from "../home/hero/ExamNamesBadge";
 
 const HeroSection: React.FC = () => {
   // Text animation variants
@@ -77,7 +79,7 @@ const HeroSection: React.FC = () => {
           className="flex flex-col items-center justify-center space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1.2, duration: 0.6 }}
+          transition={{ delay: 1.0, duration: 0.6 }}
         >
           <Button 
             className="bg-gradient-to-r from-purple-500 to-indigo-600 px-8 py-6 text-lg font-semibold text-white shadow-lg hover:from-purple-600 hover:to-indigo-700"
@@ -99,6 +101,16 @@ const HeroSection: React.FC = () => {
               7 Days Free Trial
             </Link>
           </Button>
+        </motion.div>
+        
+        {/* Exam Names Badge */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1.2, duration: 0.6 }}
+          className="mt-10 mb-6"
+        >
+          <ExamNamesBadge />
         </motion.div>
 
         {/* Animated elements */}
@@ -130,8 +142,8 @@ const HeroSection: React.FC = () => {
         ></motion.div>
       </div>
 
-      {/* KPI Stats moved right after the main hero content */}
-      <div className="mt-8 mb-16">
+      {/* KPI Stats moved right after the exam names */}
+      <div className="mt-4 mb-16">
         <KpiStats />
       </div>
     </div>

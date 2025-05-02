@@ -6,7 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Eye, EyeOff, Mail, Lock, Loader2 } from "lucide-react";
-import { useAuth } from "@/contexts/auth/AuthContext";
+import { useAuth } from "@/hooks/useAuth";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -18,6 +19,7 @@ const LoginPage = () => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -46,6 +48,13 @@ const LoginPage = () => {
           title: "Login successful",
           description: "Redirecting to your dashboard",
         });
+        
+        // Remember email if option is checked
+        if (rememberMe) {
+          localStorage.setItem("prepzr_remembered_email", formData.email);
+        } else {
+          localStorage.removeItem("prepzr_remembered_email");
+        }
         
         // Check for existing user data to determine if they're returning
         const userData = localStorage.getItem("userData");
@@ -108,6 +117,15 @@ const LoginPage = () => {
     });
   };
 
+  // Check for saved email on component mount
+  React.useEffect(() => {
+    const savedEmail = localStorage.getItem("prepzr_remembered_email");
+    if (savedEmail) {
+      setFormData(prev => ({ ...prev, email: savedEmail }));
+      setRememberMe(true);
+    }
+  }, []);
+
   return (
     <div className="p-6 space-y-6">
       <form onSubmit={handleLogin} className="space-y-4">
@@ -125,6 +143,7 @@ const LoginPage = () => {
               placeholder="Enter your email"
               type="email"
               className="pl-9 border-blue-200 focus:ring-blue-500 focus:border-blue-500"
+              autoComplete="email"
             />
           </div>
         </div>
@@ -143,6 +162,7 @@ const LoginPage = () => {
               placeholder="Enter your password"
               type={showPassword ? "text" : "password"}
               className="pl-9 pr-10 border-blue-200 focus:ring-blue-500 focus:border-blue-500"
+              autoComplete="current-password"
             />
             <button
               type="button"
@@ -156,15 +176,14 @@ const LoginPage = () => {
         
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <input
+            <Checkbox
               id="remember"
-              name="remember"
-              type="checkbox"
-              className="h-4 w-4 rounded border-gray-300"
+              checked={rememberMe}
+              onCheckedChange={(checked) => setRememberMe(!!checked)}
             />
-            <label htmlFor="remember" className="text-sm text-gray-700">
+            <Label htmlFor="remember" className="text-sm text-gray-700">
               Remember me
-            </label>
+            </Label>
           </div>
           
           <button
