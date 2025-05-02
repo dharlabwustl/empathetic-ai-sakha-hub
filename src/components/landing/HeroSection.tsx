@@ -1,9 +1,11 @@
+
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import KpiStats from "../home/hero/feature-highlights/KpiStats";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
+import ExamNamesBadge from "../home/hero/ExamNamesBadge";
 
 const HeroSection: React.FC = () => {
   // Text animation variants
@@ -130,7 +132,12 @@ const HeroSection: React.FC = () => {
         ></motion.div>
       </div>
 
-      {/* KPI Stats moved right after the main hero content */}
+      {/* Exam names badge comes before KPI Stats */}
+      <div className="container mx-auto px-6 mb-8">
+        <ExamNamesBadge />
+      </div>
+
+      {/* KPI Stats */}
       <div className="mt-8 mb-16">
         <KpiStats />
       </div>

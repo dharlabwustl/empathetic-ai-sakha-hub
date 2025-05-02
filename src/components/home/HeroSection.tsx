@@ -63,6 +63,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
           </motion.div>
         </div>
         
+        {/* Moved ExamNamesBadge before the KPI Stats */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -72,7 +73,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
           <ExamNamesBadge />
         </motion.div>
 
-        {/* KPI Stats Section - Moved right after ExamNamesBadge */}
+        {/* KPI Stats Section */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
