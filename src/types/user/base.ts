@@ -77,6 +77,8 @@ export interface UserProfileBase {
     expiryDate?: Date | string;
     status?: 'active' | 'expired' | 'cancelled';
     autoRenew?: boolean;
+    type?: string;
+    memberLimit?: number;
   };
   goals?: {
     id: string;
@@ -95,6 +97,19 @@ export interface UserProfileBase {
   updatedAt?: Date | string;
   lastLogin?: Date | string;
   loginCount?: number;
+  examPreparation?: string;
+  location?: string;
+  grade?: string;
+  subjects?: string[];
+  isBatchLeader?: boolean;
+  batch?: {
+    id: string;
+    name: string;
+    members: number;
+    role: 'leader' | 'member';
+  };
+  paymentMethods?: PaymentMethod[];
+  billingHistory?: BillingHistory[];
 }
 
 export type UserProfileType = UserProfileBase;

@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Slider } from '@/components/ui/slider';
@@ -15,6 +15,10 @@ const MoodMusicPlayer: React.FC<MoodMusicPlayerProps> = ({ onLike }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState([80]);
   const [currentTrack, setCurrentTrack] = useState(0);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   
   const tracks = [
     { 
@@ -22,26 +26,94 @@ const MoodMusicPlayer: React.FC<MoodMusicPlayerProps> = ({ onLike }) => {
       artist: "Mindful Melodies", 
       duration: "3:45", 
       mood: "Relaxing",
-      coverUrl: "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05"
+      coverUrl: "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05",
+      audioUrl: "https://assets.mixkit.co/music/preview/mixkit-relaxing-in-nature-522.mp3"
     },
     { 
       title: "Focus Flow", 
       artist: "Study Beats", 
       duration: "4:12", 
       mood: "Concentrative",
-      coverUrl: "https://images.unsplash.com/photo-1506744038136-46273834b3fb"
+      coverUrl: "https://images.unsplash.com/photo-1506744038136-46273834b3fb",
+      audioUrl: "https://assets.mixkit.co/music/preview/mixkit-serene-view-443.mp3"
     },
     { 
       title: "Energy Boost", 
       artist: "Motivation Mix", 
       duration: "3:28", 
       mood: "Energizing",
-      coverUrl: "https://images.unsplash.com/photo-1618160702438-9b02ab6515c9"
+      coverUrl: "https://images.unsplash.com/photo-1618160702438-9b02ab6515c9",
+      audioUrl: "https://assets.mixkit.co/music/preview/mixkit-tech-house-vibes-130.mp3"
     }
   ];
   
+  useEffect(() => {
+    // Initialize audio element
+    if (!audioRef.current) {
+      audioRef.current = new Audio(tracks[currentTrack].audioUrl);
+      audioRef.current.volume = volume[0] / 100;
+      
+      audioRef.current.addEventListener('timeupdate', updateProgress);
+      audioRef.current.addEventListener('loadedmetadata', () => {
+        setDuration(audioRef.current?.duration || 0);
+      });
+      audioRef.current.addEventListener('ended', () => {
+        nextTrack();
+      });
+    }
+    
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.removeEventListener('timeupdate', updateProgress);
+        audioRef.current.removeEventListener('ended', nextTrack);
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+    };
+  }, []);
+  
+  useEffect(() => {
+    // Update audio source when track changes
+    if (audioRef.current) {
+      const wasPlaying = !audioRef.current.paused;
+      audioRef.current.src = tracks[currentTrack].audioUrl;
+      audioRef.current.load();
+      setCurrentTime(0);
+      
+      if (wasPlaying) {
+        audioRef.current.play().catch(error => console.error("Playback error:", error));
+      }
+    }
+  }, [currentTrack]);
+  
+  useEffect(() => {
+    // Update volume when slider changes
+    if (audioRef.current) {
+      audioRef.current.volume = volume[0] / 100;
+    }
+  }, [volume]);
+  
+  const updateProgress = () => {
+    if (audioRef.current) {
+      setCurrentTime(audioRef.current.currentTime);
+    }
+  };
+  
+  const formatTime = (time: number) => {
+    const minutes = Math.floor(time / 60);
+    const seconds = Math.floor(time % 60);
+    return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+  };
+  
   const togglePlayPause = () => {
-    setIsPlaying(!isPlaying);
+    if (audioRef.current) {
+      if (isPlaying) {
+        audioRef.current.pause();
+      } else {
+        audioRef.current.play().catch(error => console.error("Playback error:", error));
+      }
+      setIsPlaying(!isPlaying);
+    }
   };
   
   const nextTrack = () => {
@@ -51,6 +123,20 @@ const MoodMusicPlayer: React.FC<MoodMusicPlayerProps> = ({ onLike }) => {
   const prevTrack = () => {
     setCurrentTrack((prev) => (prev - 1 + tracks.length) % tracks.length);
   };
+  
+  const handleTrackProgress = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    if (audioRef.current && duration > 0) {
+      const progressBar = e.currentTarget;
+      const clickPositionInBar = e.clientX - progressBar.getBoundingClientRect().left;
+      const percentageClicked = clickPositionInBar / progressBar.offsetWidth;
+      const newTime = percentageClicked * duration;
+      
+      audioRef.current.currentTime = newTime;
+      setCurrentTime(newTime);
+    }
+  };
+  
+  const progressPercentage = duration > 0 ? (currentTime / duration) * 100 : 0;
   
   return (
     <div className="flex flex-col space-y-4">
@@ -98,12 +184,18 @@ const MoodMusicPlayer: React.FC<MoodMusicPlayerProps> = ({ onLike }) => {
           </div>
           
           <div className="mt-6">
-            <div className="h-1 w-full bg-gray-200 rounded-full">
-              <div className="h-full bg-blue-600 rounded-full" style={{ width: '35%' }}></div>
+            <div 
+              className="h-1 w-full bg-gray-200 rounded-full cursor-pointer"
+              onClick={handleTrackProgress}
+            >
+              <div 
+                className="h-full bg-blue-600 rounded-full" 
+                style={{ width: `${progressPercentage}%` }}
+              ></div>
             </div>
             <div className="flex justify-between text-xs text-muted-foreground mt-1">
-              <span>1:19</span>
-              <span>{tracks[currentTrack].duration}</span>
+              <span>{formatTime(currentTime)}</span>
+              <span>{formatTime(duration)}</span>
             </div>
           </div>
           

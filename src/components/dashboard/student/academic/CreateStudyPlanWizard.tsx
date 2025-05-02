@@ -1,9 +1,11 @@
 
 import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { useStudyPlanWizard } from '@/hooks/useStudyPlanWizard';
+import { useStudyPlanWizard } from './hooks/useStudyPlanWizard';
 import { Button } from '@/components/ui/button';
 import { NewStudyPlan } from '@/types/user/studyPlan';
+import { Calendar } from "@/components/ui/calendar";
+import { format } from "date-fns";
 
 export interface CreateStudyPlanWizardProps {
   open: boolean;
@@ -28,6 +30,7 @@ const CreateStudyPlanWizard: React.FC<CreateStudyPlanWizardProps> = ({
     handlePaceChange,
     handleStudyTimeChange,
     handleExamGoalSelect,
+    handleExamDateChange,
     handleNext,
     handleBack
   } = useStudyPlanWizard({ examGoal, onCreatePlan, onClose });
@@ -42,7 +45,7 @@ const CreateStudyPlanWizard: React.FC<CreateStudyPlanWizardProps> = ({
               {['IIT-JEE', 'NEET', 'UPSC', 'CAT', 'GATE', 'Other'].map((goal) => (
                 <Button 
                   key={goal}
-                  variant={formData.goal === goal ? "default" : "outline"}
+                  variant={formData.examGoal === goal ? "default" : "outline"}
                   className="text-left justify-start h-auto py-3"
                   onClick={() => handleExamGoalSelect(goal)}
                 >
@@ -56,10 +59,31 @@ const CreateStudyPlanWizard: React.FC<CreateStudyPlanWizardProps> = ({
       case 2:
         return (
           <div className="space-y-4">
+            <h3 className="text-lg font-medium">When is your exam?</h3>
+            <p className="text-sm text-muted-foreground">Select your exam date to create a customized study plan</p>
+            <div className="mx-auto max-w-sm">
+              <Calendar
+                mode="single"
+                selected={formData.examDate instanceof Date ? formData.examDate : new Date(formData.examDate)}
+                onSelect={(date) => date && handleExamDateChange(date)}
+                className="border rounded-md p-2"
+                disabled={(date) => date < new Date()}
+                initialFocus
+              />
+              <p className="text-center mt-2 text-sm">
+                Selected date: <span className="font-medium">{format(formData.examDate instanceof Date ? formData.examDate : new Date(formData.examDate), "MMM d, yyyy")}</span>
+              </p>
+            </div>
+          </div>
+        );
+      
+      case 3:
+        return (
+          <div className="space-y-4">
             <h3 className="text-lg font-medium">What are your strengths?</h3>
             <p className="text-sm text-muted-foreground">Select subjects you're confident in</p>
             <div className="grid grid-cols-2 gap-2">
-              {getSubjectsForGoal(formData.goal).map((subject) => (
+              {getSubjectsForGoal(formData.examGoal).map((subject) => (
                 <Button 
                   key={subject}
                   variant={strongSubjects.includes(subject) ? "default" : "outline"}
@@ -73,13 +97,13 @@ const CreateStudyPlanWizard: React.FC<CreateStudyPlanWizardProps> = ({
           </div>
         );
       
-      case 3:
+      case 4:
         return (
           <div className="space-y-4">
             <h3 className="text-lg font-medium">Areas to improve</h3>
             <p className="text-sm text-muted-foreground">Select subjects you find challenging</p>
             <div className="grid grid-cols-2 gap-2">
-              {getSubjectsForGoal(formData.goal).map((subject) => (
+              {getSubjectsForGoal(formData.examGoal).map((subject) => (
                 <Button 
                   key={subject}
                   variant={weakSubjects.includes(subject) ? "default" : "outline"} 
@@ -94,7 +118,7 @@ const CreateStudyPlanWizard: React.FC<CreateStudyPlanWizardProps> = ({
           </div>
         );
       
-      case 4:
+      case 5:
         return (
           <div className="space-y-4">
             <h3 className="text-lg font-medium">Learning pace preference</h3>
@@ -126,7 +150,7 @@ const CreateStudyPlanWizard: React.FC<CreateStudyPlanWizardProps> = ({
           </div>
         );
       
-      case 5:
+      case 6:
         return (
           <div className="space-y-4">
             <h3 className="text-lg font-medium">Preferred study time</h3>
@@ -146,12 +170,15 @@ const CreateStudyPlanWizard: React.FC<CreateStudyPlanWizardProps> = ({
           </div>
         );
       
-      case 6:
+      case 7:
         return (
           <div className="space-y-4">
             <h3 className="text-lg font-medium">Summary</h3>
             <div className="bg-muted p-3 rounded-md space-y-2 text-sm">
-              <div><strong>Exam Goal:</strong> {formData.goal}</div>
+              <div><strong>Exam Goal:</strong> {formData.examGoal}</div>
+              <div>
+                <strong>Exam Date:</strong> {format(formData.examDate instanceof Date ? formData.examDate : new Date(formData.examDate), "MMM d, yyyy")}
+              </div>
               <div><strong>Strong Subjects:</strong> {strongSubjects.join(', ') || 'None selected'}</div>
               <div><strong>Weak Subjects:</strong> {weakSubjects.join(', ') || 'None selected'}</div>
               <div>
@@ -192,7 +219,7 @@ const CreateStudyPlanWizard: React.FC<CreateStudyPlanWizardProps> = ({
           <Button 
             onClick={handleNext}
           >
-            {step === 6 ? 'Create Plan' : 'Next'}
+            {step === 7 ? 'Create Plan' : 'Next'}
           </Button>
         </div>
       </DialogContent>

@@ -5,7 +5,8 @@ export interface StudyPlanSubject {
   color: string;
   hoursPerWeek: number;
   priority: 'high' | 'medium' | 'low';
-  proficiency?: 'strong' | 'weak' | 'medium';
+  proficiency?: 'strong' | 'weak' | 'moderate';
+  progress?: number;
   topics?: Array<{
     id: string;
     name: string;
@@ -24,6 +25,8 @@ export interface StudyPlan {
   goal: string;
   examGoal?: string;
   examDate?: string;
+  daysLeft?: number;
+  progressPercentage?: number;
   createdAt: string;
   updatedAt: string;
   subjects: StudyPlanSubject[];

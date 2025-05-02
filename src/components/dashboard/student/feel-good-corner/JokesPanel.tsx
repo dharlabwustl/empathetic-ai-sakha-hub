@@ -2,9 +2,10 @@
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ThumbsUp } from "lucide-react";
+import { ThumbsUp, Share } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/hooks/use-toast";
 
 interface Joke {
   id: string;
@@ -53,6 +54,7 @@ export const JokesPanel: React.FC = () => {
   const [jokes, setJokes] = useState<Joke[]>(mockJokes);
   const [showPunchline, setShowPunchline] = useState<Record<string, boolean>>({});
   const [likedJokes, setLikedJokes] = useState<Record<string, boolean>>({});
+  const { toast } = useToast();
 
   const togglePunchline = (id: string) => {
     setShowPunchline(prev => ({
@@ -74,6 +76,48 @@ export const JokesPanel: React.FC = () => {
       ...prev,
       [id]: true
     }));
+  };
+
+  const handleShareJoke = (joke: Joke) => {
+    const jokeText = `${joke.setup} - ${joke.punchline}`;
+    
+    if (navigator.share) {
+      navigator.share({
+        title: 'Funny Joke from PREPZR',
+        text: jokeText,
+        url: window.location.href,
+      })
+      .then(() => {
+        toast({
+          title: "Joke shared successfully!",
+          description: "You've shared the joke with your friends.",
+        });
+      })
+      .catch((error) => {
+        console.error('Error sharing:', error);
+        fallbackShare(jokeText);
+      });
+    } else {
+      fallbackShare(jokeText);
+    }
+  };
+
+  const fallbackShare = (text: string) => {
+    navigator.clipboard.writeText(text)
+      .then(() => {
+        toast({
+          title: "Joke copied to clipboard",
+          description: "You can now paste and share it with your friends.",
+        });
+      })
+      .catch((error) => {
+        console.error('Error copying to clipboard:', error);
+        toast({
+          title: "Couldn't copy joke",
+          description: "Please try selecting and copying the text manually.",
+          variant: "destructive",
+        });
+      });
   };
 
   return (
@@ -113,7 +157,17 @@ export const JokesPanel: React.FC = () => {
               </Button>
             )}
             
-            <div className="flex justify-end mt-3">
+            <div className="flex justify-end mt-3 gap-2">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => handleShareJoke(joke)}
+                className="flex items-center gap-1"
+              >
+                <Share size={16} />
+                <span>Share</span>
+              </Button>
+              
               <Button 
                 variant="ghost" 
                 size="sm" 

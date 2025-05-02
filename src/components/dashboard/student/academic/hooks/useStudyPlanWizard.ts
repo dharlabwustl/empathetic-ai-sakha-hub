@@ -14,11 +14,13 @@ export const useStudyPlanWizard = ({ examGoal, onCreatePlan, onClose }: UseStudy
   const [step, setStep] = useState(examGoal ? 2 : 1); // Skip goal selection if examGoal is provided
   const [formData, setFormData] = useState<NewStudyPlan>({
     examGoal,
-    examDate: new Date(),
+    examDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000), // Default to 90 days from now
     subjects: [],
     studyHoursPerDay: 6,
     preferredStudyTime: 'evening',
-    learningPace: 'moderate'
+    learningPace: 'moderate',
+    weeklyHours: 30,
+    status: 'active'
   });
 
   const [strongSubjects, setStrongSubjects] = useState<string[]>([]);
@@ -48,10 +50,29 @@ export const useStudyPlanWizard = ({ examGoal, onCreatePlan, onClose }: UseStudy
 
   const getSubjectsProficiencyList = (): NewStudyPlanSubject[] => {
     const subjectsList: NewStudyPlanSubject[] = [
-      ...strongSubjects.map(subject => ({ name: subject, proficiency: 'strong' as const })),
-      ...weakSubjects.map(subject => ({ name: subject, proficiency: 'weak' as const }))
+      ...strongSubjects.map(subject => ({ 
+        id: `subject-${Math.random().toString(36).substr(2, 9)}`,
+        name: subject, 
+        proficiency: 'strong' as const,
+        color: getRandomColor(),
+        hoursPerWeek: 10,
+        priority: 'medium' as const
+      })),
+      ...weakSubjects.map(subject => ({ 
+        id: `subject-${Math.random().toString(36).substr(2, 9)}`,
+        name: subject, 
+        proficiency: 'weak' as const,
+        color: getRandomColor(),
+        hoursPerWeek: 12,
+        priority: 'high' as const
+      }))
     ];
     return subjectsList;
+  };
+
+  const getRandomColor = (): string => {
+    const colors = ['#FDA4AF', '#FB923C', '#FACC15', '#4ADE80', '#38BDF8', '#A78BFA', '#F0ABFC'];
+    return colors[Math.floor(Math.random() * colors.length)];
   };
 
   const handlePaceChange = (pace: "Aggressive" | "Balanced" | "Relaxed") => {
@@ -74,8 +95,12 @@ export const useStudyPlanWizard = ({ examGoal, onCreatePlan, onClose }: UseStudy
     setStep(2); // Move to next step after goal selection
   };
 
+  const handleExamDateChange = (date: Date) => {
+    setFormData(prev => ({ ...prev, examDate: date }));
+  };
+
   const handleNext = () => {
-    if (step < 6) {
+    if (step < 7) { // Increased step count to accommodate exam date selection
       setStep(step + 1);
     } else {
       const updatedFormData = {
@@ -88,11 +113,13 @@ export const useStudyPlanWizard = ({ examGoal, onCreatePlan, onClose }: UseStudy
       setWeakSubjects([]);
       setFormData({
         examGoal: '',
-        examDate: new Date(),
+        examDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
         subjects: [],
         studyHoursPerDay: 6,
         preferredStudyTime: 'morning',
-        learningPace: 'moderate'
+        learningPace: 'moderate',
+        weeklyHours: 30,
+        status: 'active'
       });
       onClose();
       toast({
@@ -120,6 +147,7 @@ export const useStudyPlanWizard = ({ examGoal, onCreatePlan, onClose }: UseStudy
     handlePaceChange,
     handleStudyTimeChange,
     handleExamGoalSelect,
+    handleExamDateChange,
     handleNext,
     handleBack
   };

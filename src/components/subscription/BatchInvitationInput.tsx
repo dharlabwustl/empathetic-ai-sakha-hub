@@ -1,36 +1,47 @@
 
-import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Key } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
+import React, { useState } from "react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useToast } from "@/hooks/use-toast";
 
 interface BatchInvitationInputProps {
   onJoinBatch: (code: string) => Promise<void>;
 }
 
 const BatchInvitationInput: React.FC<BatchInvitationInputProps> = ({ onJoinBatch }) => {
-  const [inviteCode, setInviteCode] = useState('');
+  const [inviteCode, setInviteCode] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
     if (!inviteCode.trim()) {
-      setError('Please enter an invite code');
+      toast({
+        title: "Error",
+        description: "Please enter an invitation code",
+        variant: "destructive",
+      });
       return;
     }
-
+    
     setIsSubmitting(true);
-    setError(null);
-
+    
     try {
-      await onJoinBatch(inviteCode.trim());
-      // Clear the input field on success
-      setInviteCode('');
-    } catch (err) {
-      setError('An error occurred. Please try again with a valid code.');
-      console.error('Error submitting invite code:', err);
+      await onJoinBatch(inviteCode);
+      setInviteCode("");
+      toast({
+        title: "Success!",
+        description: "You have joined the batch successfully",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to join batch. Please check the invitation code and try again.",
+        variant: "destructive",
+      });
+      console.error("Error joining batch:", error);
     } finally {
       setIsSubmitting(false);
     }
@@ -38,38 +49,26 @@ const BatchInvitationInput: React.FC<BatchInvitationInputProps> = ({ onJoinBatch
 
   return (
     <Card>
-      <CardContent className="pt-6">
-        <h3 className="text-lg font-medium mb-3 flex items-center">
-          <Key size={18} className="text-blue-600 mr-1.5" />
-          Join a Study Batch
-        </h3>
-        <p className="text-sm text-muted-foreground mb-3">
-          Enter the invite code provided by your batch leader to join their study group.
-        </p>
-        
-        <form onSubmit={handleSubmit} className="space-y-3">
-          <div className="flex flex-wrap gap-2">
-            <div className="flex-grow">
+      <CardHeader>
+        <CardTitle>Join a Batch</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <p className="text-sm text-muted-foreground mb-4">
+              Enter an invitation code to join an existing batch
+            </p>
+            <div className="flex gap-2">
               <Input
-                id="invite-code-input"
-                placeholder="Enter invite code (e.g., SAKHA-ABC123)"
+                placeholder="Enter invitation code"
                 value={inviteCode}
-                onChange={(e) => {
-                  setInviteCode(e.target.value);
-                  if (error) setError(null);
-                }}
-                className={error ? 'border-red-500' : ''}
+                onChange={(e) => setInviteCode(e.target.value)}
+                className="flex-grow"
               />
-              {error && <p className="text-sm text-red-500 mt-1">{error}</p>}
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? "Joining..." : "Join"}
+              </Button>
             </div>
-            
-            <Button 
-              type="submit" 
-              disabled={isSubmitting}
-              className="whitespace-nowrap"
-            >
-              {isSubmitting ? 'Processing...' : 'Join Batch'}
-            </Button>
           </div>
         </form>
       </CardContent>

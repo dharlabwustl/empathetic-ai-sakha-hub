@@ -7,8 +7,16 @@ interface InvitationCodeDisplayProps {
   inviteCode: string;
 }
 
-const InvitationCodeDisplay = ({ inviteCode }: InvitationCodeDisplayProps) => {
+const InvitationCodeDisplay: React.FC<InvitationCodeDisplayProps> = ({ inviteCode }) => {
   const { toast } = useToast();
+
+  const handleCopyCode = () => {
+    navigator.clipboard.writeText(inviteCode);
+    toast({
+      title: "Copied to clipboard",
+      description: "The invitation code has been copied to your clipboard",
+    });
+  };
 
   return (
     <div className="mt-4 rounded-md bg-blue-50 dark:bg-blue-900/20 p-3">
@@ -23,13 +31,7 @@ const InvitationCodeDisplay = ({ inviteCode }: InvitationCodeDisplayProps) => {
           variant="ghost"
           size="sm"
           className="ml-2"
-          onClick={() => {
-            navigator.clipboard.writeText(inviteCode);
-            toast({
-              title: "Copied to clipboard",
-              description: "The invitation code has been copied to your clipboard",
-            });
-          }}
+          onClick={handleCopyCode}
         >
           Copy
         </Button>
