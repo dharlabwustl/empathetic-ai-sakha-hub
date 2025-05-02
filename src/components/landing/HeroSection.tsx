@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
@@ -14,23 +13,18 @@ const HeroSection: React.FC = () => {
       opacity: 1,
       transition: { 
         staggerChildren: 0.05,
-        delayChildren: 0.2,
-        repeat: Infinity,
-        repeatDelay: 3
+        delayChildren: 0.2
       } 
     }
   };
   
   const letterVariants = {
-    hidden: { opacity: 0.3, y: 5 },
+    hidden: { opacity: 0, y: 5 },
     visible: { 
       opacity: 1, 
       y: 0,
       transition: { 
-        duration: 0.3,
-        repeat: Infinity,
-        repeatType: "reverse",
-        repeatDelay: 0.1
+        duration: 0.3
       } 
     }
   };
