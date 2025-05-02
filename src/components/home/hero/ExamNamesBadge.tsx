@@ -82,12 +82,12 @@ const ExamNamesBadge = () => {
             initial="hidden"
             animate="visible"
             whileHover="hover"
-            variants={hoverVariants}
-            custom={index}
-            animate="animate"
-            variants={floatVariants}
+            className="transform"
           >
-            <motion.div className="font-bold text-lg px-3 py-1 rounded-full border-2 border-purple-200 dark:border-purple-900 hover:shadow-md transition-all duration-300 transform flex items-center gap-1 bg-gradient-to-r from-white to-purple-50 dark:from-gray-800 dark:to-gray-900">
+            <motion.div 
+              className="font-bold text-lg px-3 py-1 rounded-full border-2 border-purple-200 dark:border-purple-900 hover:shadow-md transition-all duration-300 transform flex items-center gap-1 bg-gradient-to-r from-white to-purple-50 dark:from-gray-800 dark:to-gray-900"
+              variants={hoverVariants}
+            >
               {badge.icon}
               <span className={`ml-1 bg-gradient-to-r ${badge.color} bg-clip-text text-transparent`}>
                 {badge.name}
