@@ -9,7 +9,6 @@ import SignUp from "@/pages/SignUp";
 
 // Student Pages
 import StudentDashboard from "@/pages/dashboard/student/StudentDashboard";
-import StudentToday from "@/pages/dashboard/student/StudentToday";
 import StudentProfile from "@/pages/dashboard/student/StudentProfile";
 import ExamStartPage from "@/pages/dashboard/student/ExamStartPage";
 import ExamTaking from "@/pages/dashboard/student/practice-exam/ExamTaking";
@@ -36,7 +35,6 @@ function App() {
 
             {/* Student Dashboard Routes */}
             <Route path="/dashboard/student" element={<StudentDashboard />} />
-            <Route path="/dashboard/student/today" element={<StudentToday />} />
             <Route path="/dashboard/student/profile" element={<StudentProfile />} />
             <Route path="/dashboard/student/exams/:id" element={<ExamStartPage />} />
             <Route path="/dashboard/student/practice-exam/:id" element={<ExamTaking />} />
