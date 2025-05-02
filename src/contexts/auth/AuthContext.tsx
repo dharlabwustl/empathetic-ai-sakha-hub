@@ -1,6 +1,7 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { UserRole } from '@/types/user/base';
+import { useToast } from '@/hooks/use-toast';
 
 interface User {
   id: string;
@@ -29,6 +30,7 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
 
   // Check for existing user in localStorage on component mount
   useEffect(() => {
@@ -48,6 +50,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
               email: parsedData.email,
               role: parsedData.role || UserRole.Student
             });
+            console.log("User authenticated from localStorage:", parsedData.email);
           }
         } catch (error) {
           console.error('Error parsing user data:', error);
@@ -62,6 +65,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   // Login function
   const login = async (email: string, password: string): Promise<boolean> => {
+    console.log("Login attempt with:", email);
     setLoading(true);
     
     return new Promise<boolean>((resolve) => {
@@ -73,6 +77,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             email: email,
             role: UserRole.Student
           };
+          
+          console.log("Login successful for:", email);
           
           // Save user data to localStorage
           localStorage.setItem('userData', JSON.stringify({
@@ -89,6 +95,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           setLoading(false);
           resolve(true);
         } else {
+          console.log("Login failed for:", email);
           setLoading(false);
           resolve(false);
         }
@@ -109,6 +116,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           completedOnboarding: parsedData.completedOnboarding,
           sawWelcomeTour: parsedData.sawWelcomeTour,
         }));
+        
+        toast({
+          title: "Logged out",
+          description: "You have been successfully logged out",
+        });
       } catch (error) {
         console.error('Error during logout:', error);
       }

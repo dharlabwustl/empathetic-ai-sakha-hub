@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,7 +8,7 @@ import LoginPage from '@/pages/login/LoginPage';
 import PrepzrLogo from '@/components/common/PrepzrLogo';
 
 const Login = () => {
-  const [loginTab, setLoginTab] = useState<"student" | "admin">("student");
+  const [loginTab, setLoginTab] = React.useState<"student" | "admin">("student");
   
   return (
     <div className="min-h-screen bg-gradient-to-br from-sky-100/30 via-white to-violet-100/30 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -38,9 +38,7 @@ const Login = () => {
             </div>
             
             <TabsContent value="student" className="pt-2">
-              <form onSubmit={(e) => e.preventDefault()}>
-                <LoginPage />
-              </form>
+              <LoginPage />
             </TabsContent>
             
             <TabsContent value="admin" className="pt-2">
