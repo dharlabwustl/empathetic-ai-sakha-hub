@@ -5,6 +5,7 @@ export interface Topic {
   difficulty: 'easy' | 'medium' | 'hard';
   completed: boolean;
   status?: 'pending' | 'in-progress' | 'completed' | 'skipped';
+  priority?: 'high' | 'medium' | 'low'; // Added priority field
 }
 
 export interface StudyPlanSubject {

@@ -29,6 +29,11 @@ const BatchInvitationInput: React.FC<BatchInvitationInputProps> = ({ onJoinBatch
     try {
       await onJoinBatch(batchCode);
       setBatchCode('');
+      toast({
+        title: "Success",
+        description: "Successfully joined the batch",
+        variant: "default"
+      });
     } catch (error) {
       toast({
         title: "Error",

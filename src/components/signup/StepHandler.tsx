@@ -2,11 +2,10 @@
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
-import { OnboardingStep, UserRole, UserGoal } from "./OnboardingContext";
-import { getDemographicsQuestion } from "./utils/stepUtils";
+import { OnboardingStep, UserGoal } from "./OnboardingContext";
 import authService from "@/services/auth/authService"; 
 import { getSubjectsForGoal } from "@/components/dashboard/student/onboarding/SubjectData";
-import { MoodType } from "@/types/user/base";
+import { MoodType, PersonalityType, StudyPace, StudyTimePreference, UserRole } from "@/types/user/base";
 
 interface StepHandlerProps {
   onboardingData: any;
@@ -114,13 +113,16 @@ const StepHandler = ({
         });
         userMessage = userMessage.slice(0, -2); // Remove trailing comma
         
-        // Clean the data by trimming all string values
-        const cleanData: Record<string, string> = {};
-        Object.entries(data).forEach(([key, value]) => {
-          cleanData[key] = value.trim();
-        });
+        // Convert age to number
+        const demographics = {
+          ...data,
+          age: data.age ? parseInt(data.age) : undefined
+        };
         
-        setOnboardingData({ ...onboardingData, ...cleanData });
+        setOnboardingData({ 
+          ...onboardingData, 
+          demographics
+        });
         
         setMessages([
           ...messages, 
@@ -130,7 +132,11 @@ const StepHandler = ({
         setStep("personality");
       },
       handleGoalSelect: (goal: UserGoal) => {
-        setOnboardingData({ ...onboardingData, goal });
+        setOnboardingData({ 
+          ...onboardingData, 
+          goal,
+          examGoal: goal  // Store as examGoal for compatibility
+        });
         setMessages([
           ...messages, 
           { content: goal, isBot: false },
@@ -138,7 +144,7 @@ const StepHandler = ({
         ]);
         setStep("demographics");
       },
-      handlePersonalitySelect: (personality: string) => {
+      handlePersonalitySelect: (personality: PersonalityType) => {
         setOnboardingData({ ...onboardingData, personalityType: personality });
         setMessages([
           ...messages,
@@ -158,14 +164,19 @@ const StepHandler = ({
       },
       handleHabitsSubmit: (habits: Record<string, string>) => {
         // Clean up habits data - remove whitespace and normalize
-        const cleanedHabits: Record<string, string> = {};
+        const cleanedHabits: Record<string, any> = {};
         
         Object.entries(habits).forEach(([key, value]) => {
           // Skip custom fields in the cleaned data if they've already been included
           if (key === "stressManagementCustom" || key === "studyPreferenceCustom") {
             return;
           }
-          cleanedHabits[key] = value.trim();
+          
+          if (key === "dailyStudyHours") {
+            cleanedHabits[key] = parseInt(value);
+          } else {
+            cleanedHabits[key] = typeof value === 'string' ? value.trim() : value;
+          }
         });
         
         // Create a readable message for chat from the habits
@@ -175,7 +186,10 @@ const StepHandler = ({
         });
         userMessage = userMessage.slice(0, -2); // Remove trailing comma
         
-        setOnboardingData({ ...onboardingData, ...cleanedHabits });
+        setOnboardingData({ 
+          ...onboardingData, 
+          studyPreferences: cleanedHabits 
+        });
         
         // Get subjects based on selected exam goal
         const suggestedSubjects = onboardingData.goal 
@@ -189,16 +203,18 @@ const StepHandler = ({
         ]);
         setStep("interests");
       },
-      handleInterestsSubmit: (interests: string) => {
-        // Clean and deduplicate interests
-        const interestsList = Array.from(new Set(
-          interests.split(",").map(i => i.trim()).filter(i => i.length > 0)
-        ));
+      handleInterestsSubmit: (preferredSubjects: string[], weakSubjects: string[]) => {
+        setOnboardingData({ 
+          ...onboardingData, 
+          preferredSubjects,
+          weakSubjects
+        });
         
-        setOnboardingData({ ...onboardingData, interests: interestsList });
+        const interestsMessage = `Preferred: ${preferredSubjects.join(", ")}\nWeak: ${weakSubjects.join(", ")}`;
+        
         setMessages([
           ...messages,
-          { content: interests, isBot: false },
+          { content: interestsMessage, isBot: false },
           { content: "Your personalized Sakha dashboard is ready. Please sign up to access it.", isBot: true }
         ]);
         setStep("signup");
