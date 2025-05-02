@@ -68,11 +68,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser(null);
   };
 
-  return (
-    <AuthContext.Provider value={{ user, login, logout, loading }}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return {
+    user,
+    login,
+    logout,
+    loading
+  };
 };
 
 export const useAuth = (): AuthContextType => {
