@@ -1,3 +1,4 @@
+
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
@@ -37,6 +38,7 @@ const tooltipDescriptions: Record<string, string> = {
   Flashcards: "Practice with smart flashcards",
   "Materials Vault": "Access your study materials and resources",
   "Live Tutors": "Connect with expert tutors in real-time",
+  "Study Groups": "Connect and learn with peers in group study sessions",
   Forum: "Discuss and learn with your peers",
   "Video Library": "Watch educational content and lectures",
   Notifications: "Stay updated with important alerts",
@@ -60,6 +62,7 @@ export const SidebarNavRoutes = ({
       { name: "Flashcards", path: "/dashboard/student/flashcards", icon: <Brain size={20} /> },
       { name: "Materials Vault", path: "/dashboard/student/materials", icon: <BookOpen size={20} /> },
       { name: "Live Tutors", path: "/dashboard/student/live-tutors", icon: <Video size={20} /> },
+      { name: "Study Groups", path: "/dashboard/student/study-groups", icon: <Users size={20} /> },
       { name: "Forum", path: "/dashboard/student/forum", icon: <Users size={20} /> },
       { name: "Video Library", path: "/dashboard/student/videos", icon: <Video size={20} /> },
       { name: "Notifications", path: "/dashboard/student/notifications", icon: <Bell size={20} /> },

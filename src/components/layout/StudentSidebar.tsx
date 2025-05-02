@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -76,7 +75,6 @@ export function StudentSidebar({
       name: "Study Groups",
       icon: Users,
       path: "/dashboard/student/study-groups",
-      isPremium: true,
     },
     {
       name: "Feel Good Corner",
