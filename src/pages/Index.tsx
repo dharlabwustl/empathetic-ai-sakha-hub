@@ -2,7 +2,7 @@
 import React, { useRef, useState } from 'react';
 import Header from '@/components/layout/HeaderWithAdmin';
 import Footer from '@/components/layout/Footer';
-import HeroSection from '@/components/home/HeroSection';
+import HeroSection from '@/components/landing/HeroSection';
 import WhatIsSection from '@/components/home/WhatIsSection';
 import FeaturesSection from '@/components/home/FeaturesSection';
 import ExamPreparationSection from '@/components/home/ExamPreparationSection';
@@ -36,11 +36,7 @@ const Index = () => {
       <Header />
       
       <main>
-        <HeroSection 
-          scrollToFeatures={scrollToFeatures}
-          scrollToForWhom={() => {}}
-          openExamAnalyzer={handleOpenExamAnalyzer}
-        />
+        <HeroSection />
         
         <WhatIsSection />
         
