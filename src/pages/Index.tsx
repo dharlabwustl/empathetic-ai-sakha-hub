@@ -4,6 +4,7 @@ import Header from '@/components/layout/HeaderWithAdmin';
 import Footer from '@/components/layout/Footer';
 import HeroSection from '@/components/landing/HeroSection';
 import WhatIsSection from '@/components/home/WhatIsSection';
+import OurMethodSection from '@/components/home/OurMethodSection';
 import FeaturesSection from '@/components/home/FeaturesSection';
 import ExamPreparationSection from '@/components/home/ExamPreparationSection';
 import StudentBenefitsSection from '@/components/home/StudentBenefitsSection';
@@ -58,7 +59,10 @@ const Index = () => {
         
         <WhatIsSection />
         
-        {/* Add the EcosystemAnimation section after WhatIsSection */}
+        {/* Add the new OurMethodSection component right after WhatIsSection */}
+        <OurMethodSection />
+        
+        {/* Add the EcosystemAnimation section after OurMethodSection */}
         <EcosystemAnimation />
         
         <div ref={featuresRef}>
