@@ -25,9 +25,6 @@ import {
   ChevronLeft,
   ChevronRight,
   AlertTriangle,
-  FileText,
-  Timer,
-  Search,
 } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 
@@ -47,9 +44,6 @@ interface ExamData {
   duration: number; // in minutes
   totalQuestions: number;
   questions: Question[];
-  examType?: string; // To identify specific exams like NEET
-  scoringPattern?: string; // For NEET's +4/-1
-  timePerQuestion?: string; // For NEET's 1.06 minutes
 }
 
 const ExamTaking = () => {
@@ -66,35 +60,25 @@ const ExamTaking = () => {
   const [showConfirmSubmit, setShowConfirmSubmit] = useState(false);
   
   // Mock exam data - in a real app this would come from an API
-  const isNEET = id?.toLowerCase().includes('neet');
-  
   const mockExam: ExamData = {
     id: id || 'exam-001',
-    title: isNEET ? 'NEET-UG Full Mock Test' : 'Integration Techniques',
-    subject: isNEET ? 'Medical Entrance' : 'Mathematics',
-    duration: isNEET ? 180 : 60, // NEET is 3 hours
-    totalQuestions: isNEET ? 180 : 10,
+    title: 'Integration Techniques',
+    subject: 'Mathematics',
+    duration: 60,
+    totalQuestions: 10,
     questions: Array(10).fill(null).map((_, i) => ({
       id: `q-${i}`,
-      text: `Question ${i+1}: ${isNEET ? 
-        'Which of the following is a characteristic feature of epithelial tissue?' : 
-        'What is the integral of x^2?'}`,
+      text: `Question ${i+1}: ${i % 2 === 0 ? 
+        'What is the integral of x^2?' : 
+        'Solve the following differential equation: dy/dx = 2x'}`,
       type: i % 3 === 0 ? 'subjective' : 'mcq',
-      options: i % 3 === 0 ? undefined : isNEET ? [
-        'Presence of blood vessels',
-        'Closely packed cells with little intercellular matrix',
-        'Abundant extracellular matrix',
-        'Presence of cilia in all types'
-      ] : [
+      options: i % 3 === 0 ? undefined : [
         'Option A: Some answer here',
         'Option B: Another potential answer',
         'Option C: Yet another option',
         'Option D: Final possible answer'
       ],
-    })),
-    examType: isNEET ? 'NEET-UG' : undefined,
-    scoringPattern: isNEET ? '+4/-1' : undefined,
-    timePerQuestion: isNEET ? '1.06 minutes' : undefined
+    }))
   };
   
   // Initialize timer when component mounts
@@ -194,19 +178,6 @@ const ExamTaking = () => {
           <div>
             <h1 className="text-2xl font-bold">{mockExam.title}</h1>
             <p className="text-muted-foreground">{mockExam.subject}</p>
-            
-            {isNEET && (
-              <div className="flex items-center gap-2 mt-1">
-                <Badge variant="outline" className="bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300 border-blue-200">
-                  <FileText className="h-3 w-3 mr-1" />
-                  {mockExam.scoringPattern} scoring
-                </Badge>
-                <Badge variant="outline" className="bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-300 border-green-200">
-                  <Timer className="h-3 w-3 mr-1" />
-                  {mockExam.timePerQuestion} per question
-                </Badge>
-              </div>
-            )}
           </div>
           
           <div className="mt-3 md:mt-0 flex items-center gap-3">
@@ -245,24 +216,6 @@ const ExamTaking = () => {
         </div>
         <Progress value={progressPercentage} className="h-2" />
       </div>
-      
-      {/* NEET specific info banner */}
-      {isNEET && (
-        <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-md">
-          <div className="flex justify-between items-center text-sm text-blue-700 dark:text-blue-300">
-            <div className="flex items-center">
-              <Search className="h-4 w-4 mr-1" />
-              <span>NEET-UG Exam Pattern</span>
-            </div>
-            <div className="flex gap-4">
-              <span>Physics: 45 Q</span>
-              <span>Chemistry: 45 Q</span>
-              <span>Biology: 90 Q</span>
-              <span className="font-medium">Total: 180 Q</span>
-            </div>
-          </div>
-        </div>
-      )}
       
       {/* Main Question Area */}
       <Card className="mb-6">
@@ -404,21 +357,6 @@ const ExamTaking = () => {
               <p className="font-medium">{doubtQuestions.length}</p>
             </div>
           </div>
-
-          {isNEET && (
-            <>
-              <Separator className="my-4" />
-              <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-md">
-                <h4 className="font-medium text-blue-700 dark:text-blue-300 text-sm mb-1">NEET-UG Scoring Pattern</h4>
-                <p className="text-xs text-blue-600 dark:text-blue-400">
-                  • Correct answer: <strong>+4 marks</strong><br/>
-                  • Incorrect answer: <strong>-1 mark</strong><br/>
-                  • Unanswered: <strong>0 marks</strong><br/>
-                  • Time per question: <strong>1.06 minutes</strong>
-                </p>
-              </div>
-            </>
-          )}
         </CardContent>
       </Card>
       
@@ -455,17 +393,6 @@ const ExamTaking = () => {
                 You have {mockExam.questions.length - Object.keys(answers).length} unanswered questions. 
                 Are you sure you want to continue?
               </p>
-            </div>
-          )}
-          
-          {isNEET && (
-            <div className="bg-blue-50 border border-blue-200 rounded-md p-3">
-              <p className="text-sm font-medium text-blue-700">NEET-UG Scoring Information</p>
-              <ul className="text-xs text-blue-600 mt-1 space-y-1">
-                <li>• Each correct answer: +4 marks</li>
-                <li>• Each incorrect answer: -1 mark</li>
-                <li>• Unanswered questions: 0 marks</li>
-              </ul>
             </div>
           )}
           
