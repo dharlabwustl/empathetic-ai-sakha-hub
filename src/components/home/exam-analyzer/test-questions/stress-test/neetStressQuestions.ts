@@ -79,7 +79,7 @@ export const neetStressQuestions: TestQuestion[] = [
     options: ['Nucleus', 'Ribosome', 'Mitochondria', 'Golgi apparatus'],
     correctAnswer: 'Mitochondria',
     timeLimit: 15,
-    explanation: 'Mitochondria produce ATP through cellular respiration, providing energy for the cell. This is a basic cell biology concept that's essential for NEET preparation.',
+    explanation: 'Mitochondria produce ATP through cellular respiration, providing energy for the cell. This is a basic cell biology concept that\'s essential for NEET preparation.',
     category: 'Cell Biology',
     difficulty: 'easy'
   }

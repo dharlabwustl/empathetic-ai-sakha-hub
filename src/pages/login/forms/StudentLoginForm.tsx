@@ -96,14 +96,22 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
               lastLogin: new Date().toISOString()
             }));
             
-            // Always direct to the pending activities screen first
-            navigate("/dashboard/student/today");
+            // Route to appropriate dashboard based on role
+            if (user.role === 'admin') {
+              navigate("/admin/dashboard");
+            } else {
+              navigate("/dashboard/student/today");
+            }
           } catch (error) {
             console.error("Error updating user data:", error);
             navigate("/dashboard/student/today");
           }
         } else {
-          navigate("/dashboard/student/today");
+          if (user.role === 'admin') {
+            navigate("/admin/dashboard");
+          } else {
+            navigate("/dashboard/student/today");
+          }
         }
       } else {
         setLoginError("Invalid email or password");

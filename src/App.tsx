@@ -1,79 +1,56 @@
 
-import React, { Suspense } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { Toaster } from '@/components/ui/toaster';
-import { AuthProvider } from '@/contexts/auth/AuthContext';
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { Toaster } from "@/components/ui/toaster";
 
-// Main Pages
-import SignUp from '@/pages/SignUp';
-import Index from '@/pages/Index';
-import Login from '@/pages/auth/Login';
+// Public Pages
+import Home from "@/pages/Home";
+import Login from "@/pages/Login";
+import SignUp from "@/pages/SignUp";
 
-// Dashboard pages - Using placeholder components for now
-const StudentDashboard = () => <div>Student Dashboard</div>;
-const TodayPage = () => <div>Today Page</div>;
-const StudyPlanPage = () => <div>Study Plan Page</div>;
-const AcademicAdvisorView = () => <div>Academic Advisor View</div>;
-const StudyGroupsPage = () => <div>Study Groups Page</div>;
-const ProfileSettings = () => <div>Profile Settings</div>;
-const ChatPage = () => <div>Chat Page</div>;
-const ExploreContent = () => <div>Explore Content</div>;
-const NotesPage = () => <div>Notes Page</div>;
-const SubscriptionPage = () => <div>Subscription Page</div>;
-const WalletPage = () => <div>Wallet Page</div>;
-const RewardsPage = () => <div>Rewards Page</div>;
-const NotificationsPage = () => <div>Notifications Page</div>;
-const AnalyticsPage = () => <div>Analytics Page</div>;
+// Student Pages
+import StudentDashboard from "@/pages/dashboard/student/StudentDashboard";
+import StudentToday from "@/pages/dashboard/student/StudentToday";
+import StudentProfile from "@/pages/dashboard/student/StudentProfile";
+import ExamStartPage from "@/pages/dashboard/student/ExamStartPage";
+import ExamTaking from "@/pages/dashboard/student/practice-exam/ExamTaking";
 
-// Admin pages - Using placeholder components for now
-const AdminDashboard = () => <div>Admin Dashboard</div>;
-const ContentManager = () => <div>Content Manager</div>;
-const UserManagement = () => <div>User Management</div>;
-const AdminSettings = () => <div>Admin Settings</div>;
+// Admin Pages
+import AdminLogin from "@/pages/admin/AdminLogin";
+import AdminDashboard from "@/pages/admin/AdminDashboard";
 
-// Create a client
-const queryClient = new QueryClient();
+// Auth Provider
+import { AuthProvider } from "@/contexts/auth/AuthContext";
+import { AdminAuthProvider } from "@/contexts/auth/AdminAuthContext";
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
+    <Router>
       <AuthProvider>
-        <BrowserRouter>
+        <AdminAuthProvider>
           <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/signup" element={<SignUp />} />
+            {/* Public Routes */}
+            <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<SignUp />} />
+            <Route path="/admin/login" element={<AdminLogin />} />
 
             {/* Student Dashboard Routes */}
             <Route path="/dashboard/student" element={<StudentDashboard />} />
-            <Route path="/dashboard/student/today" element={<TodayPage />} />
-            <Route path="/dashboard/student/study-plan" element={<StudyPlanPage />} />
-            <Route path="/dashboard/student/academic-advisor" element={<AcademicAdvisorView />} />
-            <Route path="/dashboard/student/study-groups" element={<StudyGroupsPage />} />
-            <Route path="/dashboard/student/profile" element={<ProfileSettings />} />
-            <Route path="/dashboard/student/chat" element={<ChatPage />} />
-            <Route path="/dashboard/student/explore" element={<ExploreContent />} />
-            <Route path="/dashboard/student/notes" element={<NotesPage />} />
-            <Route path="/dashboard/student/subscription" element={<SubscriptionPage />} />
-            <Route path="/dashboard/student/wallet" element={<WalletPage />} />
-            <Route path="/dashboard/student/rewards" element={<RewardsPage />} />
-            <Route path="/dashboard/student/notifications" element={<NotificationsPage />} />
-            <Route path="/dashboard/student/analytics" element={<AnalyticsPage />} />
-            
+            <Route path="/dashboard/student/today" element={<StudentToday />} />
+            <Route path="/dashboard/student/profile" element={<StudentProfile />} />
+            <Route path="/dashboard/student/exams/:id" element={<ExamStartPage />} />
+            <Route path="/dashboard/student/practice-exam/:id" element={<ExamTaking />} />
+
             {/* Admin Dashboard Routes */}
-            <Route path="/dashboard/admin" element={<AdminDashboard />} />
-            <Route path="/dashboard/admin/content" element={<ContentManager />} />
-            <Route path="/dashboard/admin/users" element={<UserManagement />} />
-            <Route path="/dashboard/admin/settings" element={<AdminSettings />} />
-            
-            {/* Default and 404 Route */}
+            <Route path="/admin/dashboard" element={<AdminDashboard />} />
+
+            {/* Fallback Route */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
           <Toaster />
-        </BrowserRouter>
+        </AdminAuthProvider>
       </AuthProvider>
-    </QueryClientProvider>
+    </Router>
   );
 }
 

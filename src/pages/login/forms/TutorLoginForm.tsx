@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { Mail, Lock, Loader2 } from "lucide-react";
-import { useAuth } from "@/contexts/auth/AuthContext";
+import { useAuth } from "@/hooks/useAuth";
 
 interface TutorLoginFormProps {
   activeTab: string;
@@ -34,14 +34,19 @@ const TutorLoginForm: React.FC<TutorLoginFormProps> = ({ activeTab }) => {
     setLoading(true);
     
     try {
-      const success = await login(identifier, password);
+      const user = await login(identifier, password);
       
-      if (success) {
+      if (user) {
         toast({
           title: "Tutor login successful",
           description: "Redirecting to tutor dashboard",
         });
-        navigate("/dashboard/student");
+        
+        if (user.role === 'admin') {
+          navigate("/admin/dashboard");
+        } else {
+          navigate("/dashboard/student");
+        }
       } else {
         throw new Error("Login failed");
       }
