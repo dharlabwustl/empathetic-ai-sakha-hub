@@ -5,6 +5,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { format } from 'date-fns';
 import { ArrowUp } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface SubscriptionBannerProps {
   planType?: SubscriptionType;
@@ -13,10 +14,16 @@ interface SubscriptionBannerProps {
 }
 
 const SubscriptionBanner: React.FC<SubscriptionBannerProps> = ({ planType = 'free', expiryDate, isExpired = false }) => {
+  const navigate = useNavigate();
+  
   // Don't show banner for premium users who are not expired
   if ((planType === 'premium' || planType === 'pro') && !isExpired) {
     return null;
   }
+  
+  const handleUpgradeClick = () => {
+    navigate('/dashboard/student/subscription');
+  };
   
   // Show warning for expired premium users
   if ((planType === 'premium' || planType === 'pro') && isExpired) {
@@ -26,7 +33,7 @@ const SubscriptionBanner: React.FC<SubscriptionBannerProps> = ({ planType = 'fre
           <span>
             Your {planType} subscription has expired on {expiryDate ? format(new Date(expiryDate), 'PPP') : 'recently'}. Renew now to continue premium features.
           </span>
-          <Button variant="default" className="bg-red-600 hover:bg-red-700 text-white">
+          <Button variant="default" className="bg-red-600 hover:bg-red-700 text-white" onClick={handleUpgradeClick}>
             Renew Subscription
           </Button>
         </AlertDescription>
@@ -45,7 +52,11 @@ const SubscriptionBanner: React.FC<SubscriptionBannerProps> = ({ planType = 'fre
             'Upgrade to Premium for AI tutoring and advanced analytics to boost your exam performance.'
           )}
         </span>
-        <Button variant="default" className="bg-blue-600 hover:bg-blue-700 text-white">
+        <Button 
+          variant="default" 
+          className="bg-blue-600 hover:bg-blue-700 text-white"
+          onClick={handleUpgradeClick}
+        >
           <ArrowUp className="h-4 w-4 mr-2" /> Upgrade
         </Button>
       </AlertDescription>

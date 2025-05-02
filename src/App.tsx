@@ -44,6 +44,9 @@ import Terms from './pages/Terms';
 import Privacy from './pages/Privacy';
 import FlaskDeveloperGuide from './pages/admin/FlaskDeveloperGuide';
 import StudyGroupsPage from './pages/dashboard/student/StudyGroupsPage';
+import BatchManagementPage from './pages/admin/BatchManagementPage';
+import DatabaseSchemaCSVPage from './pages/database/DatabaseSchemaCSVPage';
+import SubscriptionPage from './pages/dashboard/student/SubscriptionPage';
 
 const AdminDashboard = React.lazy(() => import('@/pages/admin/AdminDashboard'));
 
@@ -63,6 +66,7 @@ function App() {
               <Route path="/terms" element={<Terms />} />
               <Route path="/privacy" element={<Privacy />} />
               <Route path="/admin/flask-guide" element={<FlaskDeveloperGuide />} />
+              <Route path="/database/schema" element={<DatabaseSchemaCSVPage />} />
 
               {/* Post-signup flow - Welcome flow only */}
               <Route path="/welcome" element={<WelcomeToPrepr />} />
@@ -76,6 +80,8 @@ function App() {
               <Route path="/dashboard/student/today" element={<TodaysPlanView />} />
               <Route path="/dashboard/student/feel-good-corner" element={<FeelGoodCornerView />} />
               <Route path="/dashboard/student/study-groups" element={<StudyGroupsPage />} />
+              <Route path="/dashboard/student/subscription" element={<SubscriptionPage />} />
+              <Route path="/dashboard/student/batch-management" element={<BatchManagementPage />} />
               
               {/* Profile routes */}
               <Route path="/dashboard/student/profile" element={<EnhancedProfilePage />} />

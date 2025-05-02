@@ -20,6 +20,11 @@ export enum SubscriptionType {
   BASIC = 'basic',
   PRO = 'pro',
   PREMIUM = 'premium',
+  ProMonthly = 'pro_monthly',
+  ProAnnual = 'pro_annual',
+  GroupSmall = 'group_small',
+  GroupLarge = 'group_large',
+  GroupAnnual = 'group_annual'
 }
 
 export enum UserRole {
@@ -124,4 +129,13 @@ export interface BillingHistory {
   status: 'paid' | 'pending' | 'failed';
   invoiceUrl: string;
   planName: string;
+}
+
+export interface SubscriptionPlan {
+  id: string;
+  name: string;
+  price: number;
+  features: string[];
+  type: SubscriptionType;
+  maxMembers?: number;
 }

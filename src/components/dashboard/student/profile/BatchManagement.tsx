@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,9 +8,11 @@ import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Plus, UserPlus, Users, CreditCard } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
+import BatchInvitationInput from '@/components/subscription/BatchInvitationInput';
 
-// Mock data for current batches
-const mockBatches = [
+// Mock batch data
+const initialBatches = [
   {
     id: "batch-1",
     name: "Physics Study Group",
@@ -27,19 +29,67 @@ const mockBatches = [
   }
 ];
 
+interface BatchType {
+  id: string;
+  name: string;
+  members: number;
+  joinedOn: string;
+  isAdmin: boolean;
+}
+
 interface BatchManagementProps {
   hasSubscription?: boolean;
 }
 
-const BatchManagement: React.FC<BatchManagementProps> = ({ hasSubscription = true }) => {
+const BatchManagement: React.FC<BatchManagementProps> = ({ hasSubscription = false }) => {
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { user } = useAuth();
+  
   const [batchCode, setBatchCode] = useState('');
   const [newBatchName, setNewBatchName] = useState('');
   const [showJoinDialog, setShowJoinDialog] = useState(false);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [showSubscribeDialog, setShowSubscribeDialog] = useState(false);
-  const [currentBatches, setCurrentBatches] = useState(mockBatches);
+  const [currentBatches, setCurrentBatches] = useState<BatchType[]>([]);
+  const [isProcessing, setIsProcessing] = useState(false);
+  
+  // Check if user has a subscription that supports batch creation
+  const checkHasGroupPlan = () => {
+    if (!user || !user.subscription) return false;
+    
+    const planType = typeof user.subscription === 'string' 
+      ? user.subscription 
+      : user.subscription.planType;
+      
+    return planType?.toString().includes('group') || planType === 'premium';
+  };
+  
+  const userHasGroupPlan = checkHasGroupPlan();
+
+  // Load batches on component mount
+  useEffect(() => {
+    // In a real app, you would fetch this from an API
+    // For now, let's use the mock data
+    const savedBatches = localStorage.getItem('prepzr_user_batches');
+    if (savedBatches) {
+      try {
+        setCurrentBatches(JSON.parse(savedBatches));
+      } catch (error) {
+        console.error("Error parsing saved batches:", error);
+        setCurrentBatches(initialBatches);
+      }
+    } else {
+      setCurrentBatches(initialBatches);
+    }
+  }, []);
+
+  // Save batches to localStorage when they change
+  useEffect(() => {
+    if (currentBatches.length > 0) {
+      localStorage.setItem('prepzr_user_batches', JSON.stringify(currentBatches));
+    }
+  }, [currentBatches]);
 
   const handleJoinBatch = () => {
     if (!batchCode.trim()) {
@@ -51,6 +101,8 @@ const BatchManagement: React.FC<BatchManagementProps> = ({ hasSubscription = tru
       return;
     }
 
+    setIsProcessing(true);
+    
     // Simulate API call to join batch
     toast({
       title: "Joining batch...",
@@ -76,7 +128,51 @@ const BatchManagement: React.FC<BatchManagementProps> = ({ hasSubscription = tru
       
       setBatchCode('');
       setShowJoinDialog(false);
+      setIsProcessing(false);
     }, 1500);
+  };
+
+  const handleJoinWithCode = async (code: string) => {
+    if (!code.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter a valid batch code",
+        variant: "destructive"
+      });
+      return Promise.reject("Invalid code");
+    }
+
+    // Simulate API call to join batch
+    toast({
+      title: "Joining batch...",
+      description: "Processing your request"
+    });
+
+    // Simulate network request
+    return new Promise<void>((resolve, reject) => {
+      setTimeout(() => {
+        // Generate a random name for the batch
+        const groupNames = ["Physics Masters", "Chemistry Champions", "Biology Experts", "Math Wizards", "NEET Preparation"];
+        const randomName = groupNames[Math.floor(Math.random() * groupNames.length)];
+        
+        const newBatch = {
+          id: `batch-${Date.now()}`,
+          name: randomName,
+          members: Math.floor(Math.random() * 10) + 5,
+          joinedOn: new Date().toISOString().split('T')[0],
+          isAdmin: false
+        };
+
+        setCurrentBatches(prev => [...prev, newBatch]);
+        
+        toast({
+          title: "Success!",
+          description: `You've joined "${newBatch.name}"`,
+        });
+        
+        resolve();
+      }, 1500);
+    });
   };
 
   const handleCreateBatch = () => {
@@ -89,12 +185,14 @@ const BatchManagement: React.FC<BatchManagementProps> = ({ hasSubscription = tru
       return;
     }
 
-    if (!hasSubscription) {
+    if (!userHasGroupPlan) {
       setShowCreateDialog(false);
       setShowSubscribeDialog(true);
       return;
     }
 
+    setIsProcessing(true);
+    
     // Simulate API call to create batch
     toast({
       title: "Creating batch...",
@@ -103,23 +201,35 @@ const BatchManagement: React.FC<BatchManagementProps> = ({ hasSubscription = tru
 
     // Simulate successful creation after delay
     setTimeout(() => {
+      const batchId = `batch-${Date.now()}`;
+      const inviteCode = `SAKHA-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+      
       const newBatch = {
-        id: `batch-${Date.now()}`,
+        id: batchId,
         name: newBatchName,
         members: 1,
         joinedOn: new Date().toISOString().split('T')[0],
         isAdmin: true
       };
 
+      // Save the invite code for this batch
+      localStorage.setItem(`batch_invite_${batchId}`, inviteCode);
+
       setCurrentBatches(prev => [...prev, newBatch]);
       
       toast({
         title: "Batch Created!",
-        description: `"${newBatchName}" has been created successfully`,
+        description: (
+          <div>
+            <p>"{newBatchName}" has been created successfully</p>
+            <p className="mt-2 font-semibold">Invite Code: {inviteCode}</p>
+          </div>
+        ),
       });
       
       setNewBatchName('');
       setShowCreateDialog(false);
+      setIsProcessing(false);
     }, 1500);
   };
 
@@ -173,18 +283,18 @@ const BatchManagement: React.FC<BatchManagementProps> = ({ hasSubscription = tru
                   <Label htmlFor="batchCode">Batch Code</Label>
                   <Input
                     id="batchCode"
-                    placeholder="Enter batch code"
+                    placeholder="Enter batch code (e.g., SAKHA-ABC123)"
                     value={batchCode}
                     onChange={(e) => setBatchCode(e.target.value)}
                   />
                 </div>
               </div>
               <DialogFooter className="mt-6">
-                <Button variant="outline" onClick={() => setShowJoinDialog(false)}>
+                <Button variant="outline" onClick={() => setShowJoinDialog(false)} disabled={isProcessing}>
                   Cancel
                 </Button>
-                <Button onClick={handleJoinBatch}>
-                  Join Batch
+                <Button onClick={handleJoinBatch} disabled={isProcessing}>
+                  {isProcessing ? "Processing..." : "Join Batch"}
                 </Button>
               </DialogFooter>
             </DialogContent>
@@ -201,13 +311,13 @@ const BatchManagement: React.FC<BatchManagementProps> = ({ hasSubscription = tru
               <DialogHeader>
                 <DialogTitle>Create a New Batch</DialogTitle>
                 <DialogDescription>
-                  {hasSubscription 
+                  {userHasGroupPlan 
                     ? "Create a new study batch and invite others to join."
                     : "You need a Group Plan subscription to create a batch."}
                 </DialogDescription>
               </DialogHeader>
               <div className="mt-4 space-y-4">
-                {!hasSubscription && (
+                {!userHasGroupPlan && (
                   <div className="bg-amber-50 border border-amber-200 rounded-md p-3 text-sm text-amber-800">
                     Please upgrade to a Group Plan to create and manage your own batches.
                   </div>
@@ -223,14 +333,14 @@ const BatchManagement: React.FC<BatchManagementProps> = ({ hasSubscription = tru
                 </div>
               </div>
               <DialogFooter className="mt-6">
-                <Button variant="outline" onClick={() => setShowCreateDialog(false)}>
+                <Button variant="outline" onClick={() => setShowCreateDialog(false)} disabled={isProcessing}>
                   Cancel
                 </Button>
                 <Button 
                   onClick={handleCreateBatch} 
-                  disabled={!hasSubscription}
+                  disabled={!userHasGroupPlan || isProcessing}
                 >
-                  {hasSubscription ? "Create Batch" : "Upgrade to Create"}
+                  {isProcessing ? "Processing..." : (userHasGroupPlan ? "Create Batch" : "Upgrade to Create")}
                 </Button>
               </DialogFooter>
             </DialogContent>
@@ -266,10 +376,10 @@ const BatchManagement: React.FC<BatchManagementProps> = ({ hasSubscription = tru
                     </li>
                   </ul>
                 </div>
-                <div className="bg-gradient-to-r from-purple-100 to-blue-100 p-4 rounded-md">
+                <div className="bg-gradient-to-r from-purple-100 to-blue-100 dark:from-purple-900/20 dark:to-blue-900/20 p-4 rounded-md">
                   <div className="font-medium text-center mb-2">Group Plan</div>
                   <div className="text-2xl font-bold text-center mb-1">₹499/month</div>
-                  <div className="text-sm text-center text-gray-600">or ₹4,999/year (save 16%)</div>
+                  <div className="text-sm text-center text-gray-600 dark:text-gray-400">or ₹4,999/year (save 16%)</div>
                 </div>
               </div>
               <DialogFooter className="mt-6">
@@ -286,6 +396,10 @@ const BatchManagement: React.FC<BatchManagementProps> = ({ hasSubscription = tru
               </DialogFooter>
             </DialogContent>
           </Dialog>
+        </div>
+
+        <div className="mb-6">
+          <BatchInvitationInput onJoinBatch={handleJoinWithCode} />
         </div>
 
         {currentBatches.length > 0 ? (
@@ -312,7 +426,18 @@ const BatchManagement: React.FC<BatchManagementProps> = ({ hasSubscription = tru
                     </div>
                     <div className="mt-2 sm:mt-0">
                       {batch.isAdmin ? (
-                        <Button size="sm" variant="outline" onClick={() => navigate("/dashboard/student/batch-management")}>
+                        <Button size="sm" variant="outline" onClick={() => {
+                          const inviteCode = localStorage.getItem(`batch_invite_${batch.id}`) || 
+                            `SAKHA-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+                          
+                          // Store it if not already stored
+                          localStorage.setItem(`batch_invite_${batch.id}`, inviteCode);
+                          
+                          toast({
+                            title: "Batch Invite Code",
+                            description: `Share this code with friends: ${inviteCode}`
+                          });
+                        }}>
                           Manage
                         </Button>
                       ) : (

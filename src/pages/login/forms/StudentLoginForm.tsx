@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,7 +7,8 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2 } from "lucide-react";
+import { Loader2, ShieldCheck } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface StudentLoginFormProps {
   activeTab: string;
@@ -19,24 +21,42 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
   const [credentials, setCredentials] = useState({ email: "", password: "" });
   const [isLoading, setIsLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+  const [loginError, setLoginError] = useState<string | null>(null);
+
+  // Check for saved credentials when component mounts
+  useEffect(() => {
+    const savedEmail = localStorage.getItem("prepzr_remembered_email");
+    if (savedEmail) {
+      setCredentials(prev => ({ ...prev, email: savedEmail }));
+      setRememberMe(true);
+    }
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setCredentials(prev => ({ ...prev, [name]: value }));
+    if (loginError) setLoginError(null);
+  };
+
+  const validateForm = () => {
+    if (!credentials.email) {
+      setLoginError("Email is required");
+      return false;
+    }
+    if (!credentials.password) {
+      setLoginError("Password is required");
+      return false;
+    }
+    return true;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!credentials.email || !credentials.password) {
-      toast({
-        title: "Required fields",
-        description: "Please fill in all required fields",
-        variant: "destructive"
-      });
-      return;
-    }
-
+    
+    if (!validateForm()) return;
+    
     setIsLoading(true);
+    setLoginError(null);
     
     try {
       // In a real app, this would validate credentials against a backend
@@ -45,6 +65,13 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
       const user = await login(credentials.email, credentials.password);
       
       if (user) {
+        // Handle remember me functionality
+        if (rememberMe) {
+          localStorage.setItem("prepzr_remembered_email", credentials.email);
+        } else {
+          localStorage.removeItem("prepzr_remembered_email");
+        }
+        
         toast({
           title: "Login successful",
           description: "Welcome back to Prepzr"
@@ -79,19 +106,11 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
           navigate("/dashboard/student/today");
         }
       } else {
-        toast({
-          title: "Login failed",
-          description: "Invalid credentials",
-          variant: "destructive"
-        });
+        setLoginError("Invalid email or password");
       }
     } catch (error) {
-      toast({
-        title: "Login error",
-        description: "An error occurred while logging in",
-        variant: "destructive"
-      });
-      console.error(error);
+      console.error("Login error:", error);
+      setLoginError("An unexpected error occurred. Please try again later.");
     } finally {
       setIsLoading(false);
     }
@@ -106,6 +125,12 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      {loginError && (
+        <Alert variant="destructive">
+          <AlertDescription>{loginError}</AlertDescription>
+        </Alert>
+      )}
+      
       <div className="space-y-2">
         <Label htmlFor="email">Email</Label>
         <Input
@@ -115,9 +140,12 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
           placeholder="your.email@example.com"
           value={credentials.email}
           onChange={handleChange}
+          className={loginError && !credentials.email ? "border-red-500" : ""}
+          autoComplete="email"
           required
         />
       </div>
+      
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <Label htmlFor="password">Password</Label>
@@ -141,9 +169,12 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
           type="password"
           value={credentials.password}
           onChange={handleChange}
+          className={loginError && !credentials.password ? "border-red-500" : ""}
+          autoComplete="current-password"
           required
         />
       </div>
+      
       <div className="flex items-center space-x-2">
         <Checkbox 
           id="remember" 
@@ -152,17 +183,26 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
         />
         <Label htmlFor="remember" className="text-sm">Remember me</Label>
       </div>
+      
       <div className="space-y-2">
-        <Button type="submit" className="w-full" disabled={isLoading}>
+        <Button 
+          type="submit" 
+          className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700" 
+          disabled={isLoading}
+        >
           {isLoading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               Logging in...
             </>
           ) : (
-            "Login"
+            <>
+              <ShieldCheck className="mr-2 h-4 w-4" />
+              Login
+            </>
           )}
         </Button>
+        
         <Button 
           type="button" 
           variant="outline" 
@@ -172,6 +212,7 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
           Use Demo Account
         </Button>
       </div>
+      
       <div className="text-center text-sm">
         <span className="text-gray-500">Don't have an account? </span>
         <Button variant="link" className="p-0 h-auto" onClick={() => navigate("/signup")}>

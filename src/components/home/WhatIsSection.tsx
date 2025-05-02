@@ -1,124 +1,158 @@
 
-import React from "react";
-import { Container } from "@/components/ui/container";
-import { motion } from "framer-motion";
+import React from 'react';
+import { motion } from 'framer-motion';
+import { ArrowRight, BookOpen, Users, Star } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
-const WhatIsSection: React.FC = () => {
+const WhatIsSection = () => {
+  const fadeIn = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.6 }
+    }
+  };
+
+  const staggerContainer = {
+    hidden: {},
+    visible: {
+      transition: {
+        staggerChildren: 0.2,
+        delayChildren: 0.3
+      }
+    }
+  };
+
+  const features = [
+    {
+      icon: <BookOpen className="h-10 w-10 text-purple-600" />,
+      title: "Smart Study Path",
+      description: "Personalized learning journey tailored to your exam goals with AI-driven study plans"
+    },
+    {
+      icon: <Users className="h-10 w-10 text-blue-600" />,
+      title: "Collaborative Learning",
+      description: "Join study groups, share knowledge, and excel together with peers preparing for similar exams"
+    },
+    {
+      icon: <Star className="h-10 w-10 text-amber-600" />,
+      title: "Exam Excellence",
+      description: "Practice with custom exams, learn with interactive flashcards, and track your progress"
+    }
+  ];
+
   return (
-    <section className="py-16 bg-white dark:bg-gray-900">
-      <Container>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center max-w-6xl mx-auto">
-          {/* Text Content */}
-          <div className="space-y-6">
-            <motion.h2 
-              className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-4xl"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-            >
-              What is PREPZR?
-            </motion.h2>
-            
-            <motion.div 
-              className="space-y-4 text-lg text-gray-600 dark:text-gray-300"
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-            >
-              <p>
-                PREPZR is the world's first emotionally intelligent AI study partner that adapts to your learning style, mood, and exam goals. Unlike traditional study apps that follow a one-size-fits-all approach, PREPZR understands that each student is unique.
-              </p>
-              
-              <p>
-                Our AI-powered platform creates hyper-personalized study plans based on your strengths, weaknesses, and preparation timeline. PREPZR analyzes your learning patterns and adjusts in real-time to keep you engaged and motivated throughout your exam preparation journey.
-              </p>
-              
-              <p>
-                Whether you're preparing for NEET, JEE, or UPSC, PREPZR becomes your dedicated study companion that not only helps you learn but also understands your emotional state to provide the right kind of support when you need it most.
-              </p>
-            </motion.div>
-          </div>
-          
-          {/* Animated Image */}
+    <section className="py-16 bg-gradient-to-b from-white to-blue-50 dark:from-gray-900 dark:to-gray-800">
+      <div className="container px-4 mx-auto">
+        <motion.div 
+          className="max-w-4xl mx-auto text-center mb-12"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.3 }}
+          variants={fadeIn}
+        >
+          <h2 className="text-3xl md:text-4xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600">
+            What is PREPZR?
+          </h2>
+          <p className="text-lg md:text-xl text-gray-700 dark:text-gray-300 leading-relaxed">
+            PREPZR is your intelligent study companion that transforms how you prepare for exams. We combine AI-powered learning tools with collaborative features to make your study journey efficient, engaging, and successful.
+          </p>
+        </motion.div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
           <motion.div 
-            className="relative"
-            initial={{ opacity: 0, x: 50 }}
-            whileInView={{ opacity: 1, x: 0 }}
+            className="order-2 md:order-1"
+            initial="hidden"
+            whileInView="visible"
             viewport={{ once: true }}
-            transition={{ duration: 0.8, delay: 0.3 }}
+            variants={staggerContainer}
+          >
+            <motion.div 
+              className="bg-white dark:bg-gray-800 rounded-xl shadow-xl overflow-hidden border border-gray-100 dark:border-gray-700 p-6 mb-6 transform transition-all hover:shadow-2xl"
+              variants={fadeIn}
+            >
+              <div className="flex items-start">
+                <div className="bg-purple-100 dark:bg-purple-900/30 p-3 rounded-lg">
+                  {features[0].icon}
+                </div>
+                <div className="ml-5">
+                  <h3 className="font-bold text-xl mb-2">{features[0].title}</h3>
+                  <p className="text-gray-600 dark:text-gray-400">{features[0].description}</p>
+                </div>
+              </div>
+            </motion.div>
+
+            <motion.div 
+              className="bg-white dark:bg-gray-800 rounded-xl shadow-xl overflow-hidden border border-gray-100 dark:border-gray-700 p-6 mb-6 transform transition-all hover:shadow-2xl"
+              variants={fadeIn}
+            >
+              <div className="flex items-start">
+                <div className="bg-blue-100 dark:bg-blue-900/30 p-3 rounded-lg">
+                  {features[1].icon}
+                </div>
+                <div className="ml-5">
+                  <h3 className="font-bold text-xl mb-2">{features[1].title}</h3>
+                  <p className="text-gray-600 dark:text-gray-400">{features[1].description}</p>
+                </div>
+              </div>
+            </motion.div>
+
+            <motion.div 
+              className="bg-white dark:bg-gray-800 rounded-xl shadow-xl overflow-hidden border border-gray-100 dark:border-gray-700 p-6 transform transition-all hover:shadow-2xl"
+              variants={fadeIn}
+            >
+              <div className="flex items-start">
+                <div className="bg-amber-100 dark:bg-amber-900/30 p-3 rounded-lg">
+                  {features[2].icon}
+                </div>
+                <div className="ml-5">
+                  <h3 className="font-bold text-xl mb-2">{features[2].title}</h3>
+                  <p className="text-gray-600 dark:text-gray-400">{features[2].description}</p>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+
+          <motion.div 
+            className="order-1 md:order-2"
+            initial={{ opacity: 0, scale: 0.8 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true }}
           >
             <div className="relative">
-              {/* Background decorative elements */}
-              <div className="absolute -z-10 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 rounded-full bg-gradient-to-r from-purple-200/30 to-blue-200/30 blur-3xl"></div>
+              <div className="absolute -top-6 -left-6 w-24 h-24 bg-purple-200 rounded-full filter blur-2xl opacity-60 animate-pulse"></div>
+              <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-blue-200 rounded-full filter blur-2xl opacity-60 animate-pulse"></div>
               
-              {/* Main image with floating animation */}
-              <motion.div
-                animate={{ 
-                  y: [0, -15, 0],
-                }}
-                transition={{ 
-                  repeat: Infinity, 
-                  repeatType: "reverse", 
-                  duration: 5,
-                  ease: "easeInOut"
-                }}
-                className="relative z-10 flex justify-center"
-              >
-                <img 
-                  src="/lovable-uploads/8c62154a-6dbf-40c6-8117-f1c9cfd1effa.png" 
-                  alt="PREPZR AI Study Companion" 
-                  className="max-w-sm w-full h-auto rounded-lg shadow-xl" 
-                />
-              </motion.div>
+              <img 
+                src="/lovable-uploads/b3337c40-376b-4764-bee8-d425abf31bc8.png" 
+                alt="PREPZR Platform Demo" 
+                className="rounded-xl shadow-2xl border-4 border-white dark:border-gray-700 relative z-10"
+              />
               
-              {/* Animated elements */}
-              <motion.div 
-                className="absolute top-0 -left-4 bg-purple-500 text-white text-xs rounded-full px-3 py-1"
-                animate={{ 
-                  x: [0, 10, 0],
-                  rotate: [0, 5, 0, -5, 0]
-                }}
-                transition={{ 
-                  repeat: Infinity, 
-                  duration: 7,
-                }}
-              >
-                Smart Learning
-              </motion.div>
-              
-              <motion.div 
-                className="absolute bottom-10 right-0 bg-blue-500 text-white text-xs rounded-full px-3 py-1"
-                animate={{ 
-                  y: [0, 8, 0],
-                }}
-                transition={{ 
-                  repeat: Infinity, 
-                  duration: 4,
-                  delay: 1
-                }}
-              >
-                AI-Powered
-              </motion.div>
-              
-              <motion.div 
-                className="absolute top-1/3 right-0 bg-amber-500 text-white text-xs rounded-full px-3 py-1"
-                animate={{ 
-                  scale: [1, 1.1, 1],
-                }}
-                transition={{ 
-                  repeat: Infinity, 
-                  duration: 3,
-                  delay: 0.5
-                }}
-              >
-                Personalized
-              </motion.div>
+              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-gray-800 rounded-full p-4 shadow-xl z-20 animate-bounce">
+                <div className="bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-full p-2">
+                  <ArrowRight className="h-6 w-6" />
+                </div>
+              </div>
             </div>
           </motion.div>
         </div>
-      </Container>
+
+        <motion.div 
+          className="text-center mt-12"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          transition={{ delay: 0.5, duration: 0.5 }}
+          viewport={{ once: true }}
+        >
+          <Button className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-8 py-6 text-lg hover:shadow-lg transition-all" size="lg">
+            Start Your Exam Prep Journey
+            <ArrowRight className="ml-2 h-5 w-5" />
+          </Button>
+        </motion.div>
+      </div>
     </section>
   );
 };
