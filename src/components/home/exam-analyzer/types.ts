@@ -22,22 +22,47 @@ export interface Question {
   type?: string;
 }
 
-export interface TestResult {
+export interface TestResults {
   score: number;
   level: string;
   analysis: string;
-  strengths: string[];
-  improvements: string[];
+  strengths: string;
+  weaknesses: string;
+  subjectScores?: Record<string, number>; // Added for subject-specific scores
 }
 
 export interface ExamResults {
-  stress: TestResult;
-  readiness: TestResult;
-  concept: TestResult;
-  overall: TestResult;
+  stress: TestResults;
+  readiness: TestResults;
+  concept: TestResults;
+  overall: TestResults;
+}
+
+export interface TestQuestion {
+  id: string;
+  question: string;
+  options: string[];
+  correctAnswer?: string;
+  explanation?: string;
+  timeLimit?: number;
+  type?: string;
+  category?: string;
+  complexityLevel?: number;
+  subject?: string;
+  difficulty?: 'easy' | 'medium' | 'hard';
+}
+
+export interface SubjectTopic {
+  id: string;
+  subject: string;
+  topics: number;
 }
 
 export interface UserAnswer {
   questionId: string;
-  selectedOption: number;
+  answer: string;
+  timeToAnswer?: number;
+  isCorrect?: boolean;
+  confidenceLevel?: number;
+  subject?: string;
 }

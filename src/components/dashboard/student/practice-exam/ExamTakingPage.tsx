@@ -6,32 +6,44 @@ import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayou
 import { useToast } from '@/hooks/use-toast';
 import LoadingScreen from '@/components/common/LoadingScreen';
 import { PracticeExam, ExamQuestion, UserAnswer } from '@/types/practice-exam';
-import { Timer, AlertCircle, ChevronLeft, ChevronRight, Flag } from 'lucide-react';
+import { Timer, AlertCircle, ChevronLeft, ChevronRight, Flag, FileText } from 'lucide-react';
 import QuestionView from './QuestionView';
 import { Progress } from '@/components/ui/progress';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Badge } from '@/components/ui/badge';
 
 // Mock data for a practice exam
 const getMockExam = (examId: string): PracticeExam => {
+  const isNEET = examId.toLowerCase().includes('neet');
+  
   return {
     id: examId,
-    title: `Practice Exam ${examId}`,
+    title: `${isNEET ? "NEET-UG" : `Practice Exam ${examId}`}`,
     description: "Test your knowledge with this comprehensive practice exam",
-    subject: "Physics",
-    topic: "Mechanics",
-    totalQuestions: 10,
-    timeAllowed: 60, // minutes
-    questions: Array.from({ length: 10 }, (_, i) => ({
+    subject: isNEET ? "Medical Entrance" : "Physics",
+    topic: isNEET ? "NEET-UG" : "Mechanics",
+    totalQuestions: isNEET ? 180 : 10,
+    timeAllowed: isNEET ? 180 : 60, // minutes
+    scoringPattern: isNEET ? "+4/-1" : null,
+    timePerQuestion: isNEET ? "1.06 minutes" : null,
+    questions: Array.from({ length: isNEET ? 10 : 10 }, (_, i) => ({
       id: `q${i + 1}`,
-      text: `Question ${i + 1}: What is the formula for calculating the force?`,
-      options: [
+      text: `Question ${i + 1}: ${isNEET ? "Which of the following is a fat soluble vitamin?" : "What is the formula for calculating the force?"}`,
+      options: isNEET ? [
+        { id: "a", text: "Vitamin B1" },
+        { id: "b", text: "Vitamin C" },
+        { id: "c", text: "Vitamin A" },
+        { id: "d", text: "Vitamin B12" },
+      ] : [
         { id: "a", text: "F = ma" },
         { id: "b", text: "F = mv" },
         { id: "c", text: "F = mg" },
         { id: "d", text: "F = mv²/r" },
       ],
-      correctOptionId: "a",
-      explanation: "According to Newton's second law, force equals mass times acceleration (F = ma).",
+      correctOptionId: isNEET ? "c" : "a",
+      explanation: isNEET 
+        ? "Vitamin A is fat-soluble and is stored in the fatty tissues of the body and the liver."
+        : "According to Newton's second law, force equals mass times acceleration (F = ma).",
       difficulty: i % 3 === 0 ? "hard" : i % 2 === 0 ? "medium" : "easy"
     }))
   };
@@ -188,6 +200,7 @@ const ExamTakingPage: React.FC = () => {
   const isQuestionFlagged = flaggedQuestions.includes(currentQuestion.id);
   const answeredCount = Object.keys(answers).length;
   const questionsLeftCount = exam.totalQuestions - answeredCount;
+  const isNEET = exam.title.toLowerCase().includes("neet");
   
   return (
     <SharedPageLayout
@@ -195,7 +208,7 @@ const ExamTakingPage: React.FC = () => {
       subtitle={`${exam.subject} - ${exam.topic}`}
       showBackButton={false}
     >
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
         <div className="flex items-center space-x-4">
           <div className="bg-amber-100 dark:bg-amber-900/20 text-amber-800 dark:text-amber-300 rounded-md px-3 py-1.5 flex items-center">
             <Timer className="h-4 w-4 mr-2" />
@@ -206,6 +219,13 @@ const ExamTakingPage: React.FC = () => {
               Questions: {currentQuestionIndex + 1} of {exam.totalQuestions}
             </span>
           </div>
+          
+          {isNEET && (
+            <Badge variant="outline" className="bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300 border-blue-200 dark:border-blue-800">
+              <FileText className="h-3 w-3 mr-1" />
+              {exam.scoringPattern} scoring
+            </Badge>
+          )}
         </div>
         <div className="flex items-center space-x-2">
           <span className="text-sm text-muted-foreground">
@@ -221,6 +241,13 @@ const ExamTakingPage: React.FC = () => {
         value={(currentQuestionIndex + 1) / exam.questions.length * 100}
         className="h-2 mb-6"
       />
+      
+      {isNEET && (
+        <div className="mb-4 text-sm text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800/50 px-3 py-2 rounded-md flex justify-between items-center">
+          <span>NEET-UG examination: {exam.timePerQuestion} per question</span>
+          <span>Scoring: +4 for correct, -1 for incorrect answers</span>
+        </div>
+      )}
       
       <div className="space-y-6">
         <QuestionView
@@ -287,6 +314,15 @@ const ExamTakingPage: React.FC = () => {
                 <Flag className="h-4 w-4" />
                 <p>
                   You have {flaggedQuestions.length} flagged {flaggedQuestions.length === 1 ? 'question' : 'questions'}.
+                </p>
+              </div>
+            )}
+            
+            {isNEET && (
+              <div className="mt-3 bg-blue-50 dark:bg-blue-900/20 p-3 rounded-md">
+                <p className="text-sm text-blue-700 dark:text-blue-300 font-medium">NEET-UG Scoring Pattern</p>
+                <p className="text-xs text-blue-600 dark:text-blue-400">
+                  +4 points for each correct answer, -1 for each incorrect answer.
                 </p>
               </div>
             )}

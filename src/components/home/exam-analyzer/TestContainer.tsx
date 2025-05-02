@@ -8,6 +8,9 @@ import ConceptTestSection from './concept-test/ConceptTestSection';
 import ReportSection from './ReportSection';
 import ProgressIndicator from './ProgressIndicator';
 import { UserAnswer } from './types';
+import { Badge } from '@/components/ui/badge';
+import { FileText, Timer } from 'lucide-react';
+import { examSpecificDetails } from './testDataService';
 
 interface TestContainerProps {
   currentTest: TestType;
@@ -44,9 +47,33 @@ const TestContainer: React.FC<TestContainerProps> = ({
   handleConceptTestComplete,
   handleNavigation,
 }) => {
+  // Check if selected exam is NEET-UG
+  const isNEET = selectedExam === "NEET-UG";
+  const examDetails = isNEET ? examSpecificDetails["NEET-UG"] : null;
+  
   return (
     <div className="my-4 space-y-6">
       <ProgressIndicator progress={progress} currentTest={currentTest} />
+      
+      {isNEET && examDetails && currentTest !== 'intro' && (
+        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-md p-3">
+          <div className="flex justify-between items-center flex-wrap gap-2">
+            <div className="text-sm font-medium text-blue-700 dark:text-blue-300">
+              NEET-UG Exam Pattern
+            </div>
+            <div className="flex gap-2">
+              <Badge variant="outline" className="bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300 border-blue-200">
+                <FileText className="h-3 w-3 mr-1" />
+                {examDetails.scoringPattern}
+              </Badge>
+              <Badge variant="outline" className="bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-300 border-green-200">
+                <Timer className="h-3 w-3 mr-1" />
+                {examDetails.timePerQuestion}
+              </Badge>
+            </div>
+          </div>
+        </div>
+      )}
       
       <div className="min-h-[50vh]">
         {currentTest === 'intro' && (
@@ -67,6 +94,7 @@ const TestContainer: React.FC<TestContainerProps> = ({
             simulateTest={simulateReadinessTest}
             onCompleteTest={handleReadinessTestComplete}
             onContinue={() => handleNavigation('concept')}
+            examDetails={isNEET ? examDetails : undefined}
           />
         )}
         
@@ -79,6 +107,7 @@ const TestContainer: React.FC<TestContainerProps> = ({
             simulateTest={simulateConceptTest}
             onCompleteTest={handleConceptTestComplete}
             onContinue={() => handleNavigation('report')}
+            examDetails={isNEET ? examDetails : undefined}
           />
         )}
         
@@ -86,6 +115,8 @@ const TestContainer: React.FC<TestContainerProps> = ({
           <ReportSection
             results={results}
             onClose={handleStartOver}
+            selectedExam={selectedExam}
+            examDetails={isNEET ? examDetails : undefined}
           />
         )}
       </div>

@@ -30,20 +30,6 @@ const HeroSection: React.FC = () => {
       } 
     }
   };
-
-  // Special animation for "Crack Exams" text
-  const crackExamsVariants = {
-    initial: { scale: 1, color: "#6366f1" },
-    animate: { 
-      scale: [1, 1.1, 1],
-      color: ["#6366f1", "#8b5cf6", "#ec4899", "#6366f1"],
-      transition: { 
-        duration: 4,
-        repeat: Infinity,
-        repeatType: "loop"
-      }
-    }
-  };
   
   // Premium animated title text
   const titleText = "India's 1st Emotionally Intelligent Study Partner";
@@ -59,7 +45,7 @@ const HeroSection: React.FC = () => {
             animate={{ opacity: 1 }}
             transition={{ duration: 0.8 }}
           >
-            अब तैयारी करो अपने तरीके से…लेकिन SMARTLY – सिर्फ PREPZR के साथ!
+            पहली बार, पढ़ाई से पहले, आपको समझने वाला साथी
           </motion.span>
           
           <motion.div
@@ -86,21 +72,7 @@ const HeroSection: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.8, duration: 0.6 }}
         >
-          Tuned to Your Mood, Habits, Mind & Mission to{" "}
-          <motion.span 
-            className="font-bold relative"
-            initial="initial"
-            animate="animate"
-            variants={crackExamsVariants}
-          >
-            Crack Exams.
-            <motion.span
-              className="absolute -bottom-1 left-0 w-full h-0.5 bg-gradient-to-r from-purple-500 via-pink-500 to-indigo-500"
-              initial={{ width: 0 }}
-              animate={{ width: "100%" }}
-              transition={{ delay: 1.2, duration: 0.8 }}
-            />
-          </motion.span>
+          Tuned to Your Mood, Habits, Mind & Mission to Crack Exams.
         </motion.p>
         
         <motion.div 

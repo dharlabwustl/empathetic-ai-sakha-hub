@@ -26,7 +26,13 @@ const EcosystemAnimation: React.FC = () => {
       icon: <BookOpen size={28} />,
       exams: ["NEET-UG", "AIIMS", "JIPMER", "NEET-PG", "FMGE"],
       color: "from-green-500 to-teal-400",
-      launchedExams: ["NEET-UG"]
+      launchedExams: ["NEET-UG"],
+      examDetails: {
+        "NEET-UG": {
+          scoringPattern: "+4/-1 scoring",
+          timePerQuestion: "1.06 minutes per question"
+        }
+      }
     },
     {
       id: 3,
@@ -217,6 +223,7 @@ const EcosystemAnimation: React.FC = () => {
                         const isLaunched = category.launchedExams.includes(exam);
                         // Special animation for NEET-UG when it's active
                         const isNEETUG = exam === "NEET-UG" && isMedicalCategory;
+                        const examDetails = category.examDetails?.[exam];
                         
                         return (
                           <motion.div
@@ -283,7 +290,19 @@ const EcosystemAnimation: React.FC = () => {
                                   ? "bg-green-50 text-green-700 border border-green-200" 
                                   : "bg-gray-50 text-gray-700 border border-gray-200"
                               }>
-                                {isLaunched ? "Available Now!" : "Coming Soon"}
+                                {isLaunched ? (
+                                  examDetails ? (
+                                    <div className="text-xs">
+                                      <p className="font-medium">Available Now!</p>
+                                      {examDetails.scoringPattern && <p>{examDetails.scoringPattern}</p>}
+                                      {examDetails.timePerQuestion && <p>{examDetails.timePerQuestion}</p>}
+                                    </div>
+                                  ) : (
+                                    "Available Now!"
+                                  )
+                                ) : (
+                                  "Coming Soon"
+                                )}
                               </TooltipContent>
                             </Tooltip>
                             
@@ -297,9 +316,15 @@ const EcosystemAnimation: React.FC = () => {
                                   exit={{ opacity: 0, scale: 0.8 }}
                                   transition={{ type: 'spring', stiffness: 500, damping: 30 }}
                                 >
-                                  <div className="flex items-center">
-                                    <span className="mr-1">🎉</span>
-                                    LAUNCHED
+                                  <div className="flex flex-col items-center">
+                                    <div className="flex items-center">
+                                      <span className="mr-1">🎉</span>
+                                      LAUNCHED
+                                    </div>
+                                    <div className="text-[10px] mt-0.5">
+                                      <p>+4/-1 scoring</p>
+                                      <p>1.06 min/question</p>
+                                    </div>
                                   </div>
                                   <motion.div 
                                     className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-green-500 rotate-45"

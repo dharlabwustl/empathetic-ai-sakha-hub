@@ -1,5 +1,5 @@
 
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Card,
@@ -13,7 +13,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { UserProfileType } from "@/types/user";
-import { CreditCard, User, Upload } from "lucide-react";
+import { CreditCard, User } from "lucide-react";
 import BatchManagement from "./BatchManagement";
 import SubscriptionDetails from "./SubscriptionDetails";
 
@@ -29,60 +29,9 @@ const ProfileDetails: React.FC<ProfileDetailsProps> = ({
   const [activeTab, setActiveTab] = useState("personal");
   const navigate = useNavigate();
   const { toast } = useToast();
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleUpgradeSubscription = () => {
     navigate("/dashboard/student/subscription");
-  };
-
-  const handleProfileImageClick = () => {
-    if (fileInputRef.current) {
-      fileInputRef.current.click();
-    }
-  };
-
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    
-    if (!file) return;
-    
-    // Check file size (max 2MB)
-    if (file.size > 2 * 1024 * 1024) {
-      toast({
-        title: "Error",
-        description: "Image size should be less than 2MB",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    // Check file type
-    if (!file.type.startsWith('image/')) {
-      toast({
-        title: "Error",
-        description: "Please upload an image file",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    // Create URL for preview and update profile
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const imageUrl = event.target?.result as string;
-      if (onUpdateProfile) {
-        onUpdateProfile({
-          ...userProfile,
-          avatar: imageUrl
-        });
-        
-        toast({
-          title: "Success",
-          description: "Profile picture updated successfully"
-        });
-      }
-    };
-    reader.readAsDataURL(file);
   };
 
   const renderPersonalInfo = () => {
@@ -98,22 +47,10 @@ const ProfileDetails: React.FC<ProfileDetailsProps> = ({
     return (
       <div className="space-y-6">
         <div className="flex items-center gap-4">
-          <div className="relative">
-            <Avatar className="h-16 w-16 cursor-pointer border-2 border-primary" onClick={handleProfileImageClick}>
-              <AvatarImage src={userProfile.avatar || ""} />
-              <AvatarFallback>{userProfile.name?.substring(0, 2).toUpperCase() || "U"}</AvatarFallback>
-            </Avatar>
-            <div className="absolute bottom-0 right-0 bg-primary text-white rounded-full p-1 cursor-pointer" onClick={handleProfileImageClick}>
-              <Upload className="h-3 w-3" />
-            </div>
-            <input 
-              type="file" 
-              ref={fileInputRef} 
-              className="hidden" 
-              accept="image/*"
-              onChange={handleImageChange}
-            />
-          </div>
+          <Avatar className="h-16 w-16">
+            <AvatarImage src={userProfile.avatar || ""} />
+            <AvatarFallback>{userProfile.name?.substring(0, 2).toUpperCase() || "U"}</AvatarFallback>
+          </Avatar>
           <div>
             <h2 className="text-xl font-semibold">{userProfile.name}</h2>
             <p className="text-muted-foreground">{userProfile.email}</p>

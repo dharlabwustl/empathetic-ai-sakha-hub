@@ -22,20 +22,6 @@ const HeroSection: React.FC<HeroSectionProps> = ({
   scrollToForWhom,
   openExamAnalyzer
 }) => {
-  // Special animation for "Crack Exams" text
-  const crackExamsVariants = {
-    initial: { scale: 1, color: "#6366f1" },
-    animate: { 
-      scale: [1, 1.1, 1],
-      color: ["#6366f1", "#8b5cf6", "#ec4899", "#6366f1"],
-      transition: { 
-        duration: 4,
-        repeat: Infinity,
-        repeatType: "loop"
-      }
-    }
-  };
-  
   return (
     <section className="pt-24 md:pt-32 pb-16 md:pb-24 relative overflow-hidden">
       {/* Hero background decorative elements */}
@@ -51,7 +37,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
             transition={{ duration: 0.8, ease: "easeOut" }}
           >
             <span className="bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-              अब तैयारी करो अपने तरीके से…लेकिन SMARTLY – सिर्फ PREPZR के साथ!
+              पहली बार, पढ़ाई से पहले, आपको समझने वाला साथी
             </span>
           </motion.h1>
           <motion.p 
@@ -60,21 +46,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
           >
-            India's 1st Emotionally Intelligent Study Partner – Tuned to Your Mood, Habits, Mind & Mission to{" "}
-            <motion.span 
-              className="font-bold relative inline-block"
-              initial="initial"
-              animate="animate"
-              variants={crackExamsVariants}
-            >
-              Crack Exams.
-              <motion.span
-                className="absolute -bottom-1 left-0 w-full h-0.5 bg-gradient-to-r from-purple-500 via-pink-500 to-indigo-500"
-                initial={{ width: 0 }}
-                animate={{ width: "100%" }}
-                transition={{ delay: 1.2, duration: 0.8 }}
-              />
-            </motion.span>
+            India's 1st Emotionally Intelligent Study Partner – Tuned to Your Mood, Habits, Mind & Mission to Crack Exams.
           </motion.p>
           
           <motion.div
