@@ -52,9 +52,7 @@ const Index = () => {
       <main>
         <HeroSection />
         
-        <div className="container mx-auto px-4 py-8">
-          <ExamNamesBadge />
-        </div>
+        {/* ExamNamesBadge is now handled inside the HeroSection component */}
         
         <WhatIsSection />
         

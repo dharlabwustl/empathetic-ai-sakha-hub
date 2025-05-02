@@ -1,7 +1,13 @@
+
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import CountUp from 'react-countup';
 import { adminService } from '@/services/adminService';
+import { 
+  Users, Brain, CheckCircle, BookOpen, 
+  ScrollText, ClipboardList, Clock, 
+  Target, SmilePlus, HeartPulse
+} from 'lucide-react';
 
 // Define the stats based on the admin data structure
 const defaultStats = [
@@ -12,7 +18,7 @@ const defaultStats = [
     prefix: "+", 
     suffix: "", 
     decimals: 0,
-    icon: "👩‍🎓",
+    icon: <Users className="text-purple-500" />,
     adminKey: "totalStudents"
   },
   { 
@@ -22,7 +28,7 @@ const defaultStats = [
     prefix: "Avg ", 
     suffix: "/Student", 
     decimals: 0,
-    icon: "🧠",
+    icon: <Brain className="text-indigo-500" />,
     adminKey: "averageConcepts"
   },
   { 
@@ -32,7 +38,7 @@ const defaultStats = [
     prefix: "", 
     suffix: "%", 
     decimals: 0,
-    icon: "✅",
+    icon: <CheckCircle className="text-green-500" />,
     adminKey: "successRate"
   },
   { 
@@ -42,7 +48,7 @@ const defaultStats = [
     prefix: "", 
     suffix: "+", 
     decimals: 0,
-    icon: "📚",
+    icon: <BookOpen className="text-blue-500" />,
     adminKey: "totalQuestions"
   },
   { 
@@ -52,7 +58,7 @@ const defaultStats = [
     prefix: "", 
     suffix: "+", 
     decimals: 0,
-    icon: "🃏",
+    icon: <ScrollText className="text-cyan-500" />,
     adminKey: "totalFlashcards"
   },
   { 
@@ -62,7 +68,7 @@ const defaultStats = [
     prefix: "", 
     suffix: "+", 
     decimals: 0,
-    icon: "🔄",
+    icon: <ClipboardList className="text-orange-500" />,
     adminKey: "totalStudyPlans"
   },
   { 
@@ -72,7 +78,7 @@ const defaultStats = [
     prefix: "", 
     suffix: " hrs/week", 
     decimals: 1,
-    icon: "⏳",
+    icon: <Clock className="text-amber-500" />,
     adminKey: "averageStudyTimePerUser"
   },
   { 
@@ -82,7 +88,7 @@ const defaultStats = [
     prefix: "", 
     suffix: "+", 
     decimals: 0,
-    icon: "🎯",
+    icon: <Target className="text-rose-500" />,
     adminKey: "targetExams"
   },
   { 
@@ -92,7 +98,7 @@ const defaultStats = [
     prefix: "", 
     suffix: "%", 
     decimals: 0,
-    icon: "😊",
+    icon: <SmilePlus className="text-teal-500" />,
     adminKey: "studentsWithMoodTracking"
   },
   { 
@@ -102,7 +108,7 @@ const defaultStats = [
     prefix: "", 
     suffix: "%", 
     decimals: 0,
-    icon: "🧘",
+    icon: <HeartPulse className="text-fuchsia-500" />,
     adminKey: "verifiedMoodImprovement"
   }
 ];
@@ -199,6 +205,23 @@ export const KpiStats = () => {
     }
   };
 
+  // Text animation variants for each character
+  const charVariants = {
+    hidden: { opacity: 0, y: 10 },
+    visible: (i: number) => ({
+      opacity: 1,
+      y: 0,
+      transition: {
+        delay: i * 0.05,
+        duration: 0.3
+      }
+    })
+  };
+
+  // Split the title into individual characters for animation
+  const titleText = "Smart Data. Real Impact. Humanizing exam prep.";
+  const titleChars = titleText.split("");
+
   return (
     <div 
       id="kpi-stats-section" 
@@ -210,8 +233,19 @@ export const KpiStats = () => {
         animate={inView ? "visible" : "hidden"}
         className="text-center mb-8"
       >
-        <h2 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-          Smart Data. Real Impact. Humanizing exam prep.
+        <h2 className="text-2xl font-bold relative">
+          {titleChars.map((char, i) => (
+            <motion.span
+              key={i}
+              custom={i}
+              variants={charVariants}
+              initial="hidden"
+              animate={inView ? "visible" : "hidden"}
+              className={char === "." ? "text-purple-600 font-bold" : "bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent"}
+            >
+              {char}
+            </motion.span>
+          ))}
         </h2>
       </motion.div>
       
@@ -225,16 +259,16 @@ export const KpiStats = () => {
           <motion.div 
             key={stat.id} 
             variants={itemVariants}
-            className="flex flex-col items-center text-center p-2 md:p-4 bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-md transition-shadow"
+            className="flex flex-col items-center text-center p-3 md:p-4 bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-100 dark:border-gray-700"
           >
             <motion.div 
-              className="text-2xl md:text-3xl mb-1"
-              whileHover={{ scale: 1.2 }}
+              className="text-2xl md:text-3xl mb-2 p-2 rounded-full bg-gray-50 dark:bg-gray-700"
+              whileHover={{ scale: 1.2, rotate: [0, -5, 5, 0] }}
               transition={{ type: "spring", stiffness: 400 }}
             >
               {stat.icon}
             </motion.div>
-            <h3 className="text-sm text-gray-600 dark:text-gray-300 mb-1">
+            <h3 className="text-sm text-gray-600 dark:text-gray-300 mb-1 font-medium">
               {stat.label}
             </h3>
             <motion.div 
