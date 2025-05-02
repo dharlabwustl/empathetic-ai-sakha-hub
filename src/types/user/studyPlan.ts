@@ -7,12 +7,18 @@ export interface StudyPlanSubject {
   color?: string;
   progress?: number;
   proficiency?: "weak" | "moderate" | "strong";
-  topics?: { id?: string; name: string; completed: boolean; status?: "pending" | "completed" | "skipped" | "in-progress" }[];
+  topics?: { 
+    id?: string; 
+    name: string; 
+    completed: boolean; 
+    status?: "pending" | "completed" | "skipped" | "in-progress";
+    difficulty?: "easy" | "medium" | "hard";
+  }[];
   hoursPerWeek?: number;
   priority?: "low" | "medium" | "high";
   completed: boolean;
   status?: "pending" | "completed" | "skipped" | "in-progress";
-  isWeakSubject?: boolean; // Added field to identify weak subjects
+  isWeakSubject?: boolean; // Field to identify weak subjects
 }
 
 // Define the type for a new study plan
@@ -30,7 +36,7 @@ export interface NewStudyPlan {
   progress?: number;
   createdAt?: string;
   learningPace?: "slow" | "moderate" | "fast";
-  // Added fields for onboarding data
+  // Fields for onboarding data
   userDemographics?: {
     age?: number;
     educationLevel?: string;
