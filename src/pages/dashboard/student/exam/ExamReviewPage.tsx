@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { 
   ChevronLeft, 
   CheckCircle, 
@@ -15,22 +16,32 @@ import {
   Clock,
   BarChart,
   FileText,
-  Lightbulb
+  Lightbulb,
+  InfoIcon
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
-// Mock data for exam results
+// Mock data for exam results with NEET-specific scoring information
 const mockExamResults = {
   "physics-mechanics": {
     examId: "physics-mechanics",
     title: "Physics: Mechanics Final",
     subject: "Physics",
     topic: "Mechanics",
+    examType: "NEET",  // Added exam type
     completedOn: "2023-10-15T14:30:00Z",
     score: 78,
     maxScore: 100,
     timeSpent: 54, // minutes
     timeLimit: 60, // minutes
+    totalCorrect: 24,  // Added for NEET scoring calculation
+    totalIncorrect: 6, // Added for NEET scoring calculation
+    totalQuestions: 30,
+    scoringSystem: {  // Added scoring system
+      correctPoints: 4,
+      incorrectPoints: -1,
+      timePerQuestion: "1.06 minutes"
+    },
     questions: [
       {
         id: 1,
@@ -169,6 +180,24 @@ const ExamReviewPage = () => {
   const passingThreshold = 70; // Example threshold
   const hasPassed = examResult.score >= passingThreshold;
   
+  // Calculate NEET-specific score details
+  const calculateNEETScore = () => {
+    if (examResult.examType === "NEET" && examResult.scoringSystem) {
+      const rawScore = (examResult.totalCorrect * examResult.scoringSystem.correctPoints) + 
+                      (examResult.totalIncorrect * examResult.scoringSystem.incorrectPoints);
+      const maxPossibleScore = examResult.totalQuestions * examResult.scoringSystem.correctPoints;
+      
+      return {
+        rawScore,
+        maxPossibleScore,
+        formattedScore: `${rawScore}/${maxPossibleScore}`
+      };
+    }
+    return null;
+  };
+  
+  const neetScoreDetails = calculateNEETScore();
+  
   return (
     <MainLayout>
       <div className="container py-8">
@@ -190,6 +219,11 @@ const ExamReviewPage = () => {
             <Badge variant="outline" className="bg-violet-100 text-violet-800 border-violet-200">
               {examResult.topic}
             </Badge>
+            {examResult.examType && (
+              <Badge variant="outline" className="bg-blue-100 text-blue-800 border-blue-200">
+                {examResult.examType}
+              </Badge>
+            )}
             <Badge variant={hasPassed ? "outline" : "default"} className={
               hasPassed 
               ? "bg-green-100 text-green-700 border-green-200" 
@@ -199,6 +233,25 @@ const ExamReviewPage = () => {
             </Badge>
           </div>
         </div>
+        
+        {examResult.examType === "NEET" && examResult.scoringSystem && (
+          <Alert className="mb-6 bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-800">
+            <InfoIcon className="h-4 w-4 text-blue-500" />
+            <AlertTitle>NEET Scoring Information</AlertTitle>
+            <AlertDescription className="text-sm">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-1">
+                <div><span className="font-medium">Correct Answer:</span> +{examResult.scoringSystem.correctPoints} marks</div>
+                <div><span className="font-medium">Incorrect Answer:</span> {examResult.scoringSystem.incorrectPoints} mark</div>
+                <div><span className="font-medium">Time per Question:</span> {examResult.scoringSystem.timePerQuestion}</div>
+              </div>
+              {neetScoreDetails && (
+                <div className="mt-2 text-blue-700 dark:text-blue-400">
+                  Raw Score: <span className="font-medium">{neetScoreDetails.formattedScore}</span> ({examResult.score}%)
+                </div>
+              )}
+            </AlertDescription>
+          </Alert>
+        )}
         
         {/* Score Card */}
         <div className="grid gap-6 md:grid-cols-3 mb-6">

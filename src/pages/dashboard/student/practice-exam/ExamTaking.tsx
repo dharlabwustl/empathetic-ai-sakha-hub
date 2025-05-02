@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -25,6 +24,7 @@ import {
   ChevronLeft,
   ChevronRight,
   AlertTriangle,
+  InfoIcon,
 } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 
@@ -41,9 +41,15 @@ interface ExamData {
   id: string;
   title: string;
   subject: string;
+  examType: string;
   duration: number; // in minutes
   totalQuestions: number;
   questions: Question[];
+  scoringInfo?: {
+    correctPoints: number;
+    incorrectPoints: number;
+    timePerQuestion: string;
+  };
 }
 
 const ExamTaking = () => {
@@ -58,12 +64,14 @@ const ExamTaking = () => {
   const [timeLeft, setTimeLeft] = useState(0);
   const [showCalculator, setShowCalculator] = useState(false);
   const [showConfirmSubmit, setShowConfirmSubmit] = useState(false);
+  const [showScoringInfo, setShowScoringInfo] = useState(false);
   
   // Mock exam data - in a real app this would come from an API
   const mockExam: ExamData = {
     id: id || 'exam-001',
     title: 'Integration Techniques',
     subject: 'Mathematics',
+    examType: 'NEET',
     duration: 60,
     totalQuestions: 10,
     questions: Array(10).fill(null).map((_, i) => ({
@@ -78,7 +86,12 @@ const ExamTaking = () => {
         'Option C: Yet another option',
         'Option D: Final possible answer'
       ],
-    }))
+    })),
+    scoringInfo: {
+      correctPoints: 4,
+      incorrectPoints: -1,
+      timePerQuestion: "1.06 minutes"
+    }
   };
   
   // Initialize timer when component mounts
@@ -170,6 +183,10 @@ const ExamTaking = () => {
     navigate(`/dashboard/student/practice-exam/${id}/review`);
   };
   
+  const toggleScoringInfo = () => {
+    setShowScoringInfo(!showScoringInfo);
+  };
+  
   return (
     <div className="container py-6 max-w-5xl mx-auto">
       {/* Header with Timer */}
@@ -177,7 +194,23 @@ const ExamTaking = () => {
         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
           <div>
             <h1 className="text-2xl font-bold">{mockExam.title}</h1>
-            <p className="text-muted-foreground">{mockExam.subject}</p>
+            <div className="flex flex-wrap items-center gap-2 mt-1">
+              <p className="text-muted-foreground">{mockExam.subject}</p>
+              {mockExam.examType && (
+                <Badge variant="outline" className="bg-blue-50 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+                  {mockExam.examType}
+                </Badge>
+              )}
+              <Button 
+                variant="ghost" 
+                size="sm"
+                className="h-6 text-xs px-2 py-0 flex items-center gap-1 text-blue-600"
+                onClick={toggleScoringInfo}
+              >
+                <InfoIcon className="h-3 w-3" />
+                Scoring Info
+              </Button>
+            </div>
           </div>
           
           <div className="mt-3 md:mt-0 flex items-center gap-3">
@@ -197,6 +230,36 @@ const ExamTaking = () => {
             </Button>
           </div>
         </div>
+        
+        {showScoringInfo && mockExam.scoringInfo && (
+          <div className="mb-2 px-3 py-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-md text-xs">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1 text-blue-700 dark:text-blue-400">
+                <InfoIcon className="h-3 w-3" />
+                <span className="font-medium">Scoring Information:</span>
+              </div>
+              <Button 
+                variant="ghost" 
+                size="sm"
+                className="h-5 w-5 p-0"
+                onClick={toggleScoringInfo}
+              >
+                ✕
+              </Button>
+            </div>
+            <div className="grid grid-cols-3 gap-4 mt-1">
+              <div>
+                <span className="font-medium">Correct Answer:</span> +{mockExam.scoringInfo.correctPoints} marks
+              </div>
+              <div>
+                <span className="font-medium">Incorrect Answer:</span> {mockExam.scoringInfo.incorrectPoints} mark
+              </div>
+              <div>
+                <span className="font-medium">Time per Question:</span> {mockExam.scoringInfo.timePerQuestion}
+              </div>
+            </div>
+          </div>
+        )}
         
         <div className="flex items-center justify-between text-sm mb-1">
           <span>Question {currentQuestionIndex + 1} of {mockExam.questions.length}</span>
