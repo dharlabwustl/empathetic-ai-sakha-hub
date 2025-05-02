@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -14,11 +14,18 @@ import { useAdminAuth } from '@/contexts/auth/AdminAuthContext';
 const AdminLogin = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { adminLogin, adminLoginError } = useAdminAuth();
+  const { adminLogin, adminLoginError, isAdminAuthenticated } = useAdminAuth();
   const [credentials, setCredentials] = useState({ email: '', password: '' });
   const [isLoading, setIsLoading] = useState(false);
   const [loginSuccess, setLoginSuccess] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+
+  // Check if already authenticated, redirect if true
+  useEffect(() => {
+    if (isAdminAuthenticated) {
+      navigate('/admin/dashboard');
+    }
+  }, [isAdminAuthenticated, navigate]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -53,10 +60,10 @@ const AdminLogin = () => {
           description: 'Welcome to the admin dashboard',
         });
         
-        // Wait a moment to show the success animation
+        // Wait a moment to show the success animation, then navigate
         setTimeout(() => {
-          navigate('/admin/dashboard');
-        }, 1000);
+          navigate('/admin/dashboard', { replace: true });
+        }, 800);
       } else {
         toast({
           title: 'Login failed',

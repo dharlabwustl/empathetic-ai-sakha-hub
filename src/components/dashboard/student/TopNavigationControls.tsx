@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { Menu, Tour } from "lucide-react";
+import { Menu, HelpCircle } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useNavigate } from "react-router-dom";
@@ -50,7 +50,7 @@ const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
                   onClick={onOpenTour}
                   className="border-blue-200 hover:border-blue-300 hover:bg-blue-50"
                 >
-                  <Tour className="h-4 w-4 text-blue-600" />
+                  <HelpCircle className="h-4 w-4 text-blue-600" />
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
