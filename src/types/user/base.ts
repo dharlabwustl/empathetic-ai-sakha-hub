@@ -1,32 +1,4 @@
 
-export enum MoodType {
-  Happy = 'happy',
-  Focused = 'focused',
-  Tired = 'tired',
-  Stressed = 'stressed',
-  Curious = 'curious',
-  Okay = 'okay',
-  Overwhelmed = 'overwhelmed',
-  Anxious = 'anxious',
-  Motivated = 'motivated',
-  Confused = 'confused',
-  Neutral = 'neutral',
-  Sad = 'sad',
-  Calm = 'calm',
-}
-
-export enum SubscriptionType {
-  FREE = 'free',
-  BASIC = 'basic',
-  PRO = 'pro',
-  PREMIUM = 'premium',
-  ProMonthly = 'pro_monthly',
-  ProAnnual = 'pro_annual',
-  GroupSmall = 'group_small',
-  GroupLarge = 'group_large',
-  GroupAnnual = 'group_annual'
-}
-
 export enum UserRole {
   Student = 'student',
   Teacher = 'teacher',
@@ -44,98 +16,48 @@ export enum SignupType {
   Email = 'email',
   Google = 'google',
   Facebook = 'facebook',
-  Apple = 'apple'
-}
-
-export enum StudyPace {
-  Slow = 'slow',
-  Moderate = 'moderate',
-  Fast = 'fast'
+  Mobile = 'mobile'
 }
 
 export enum StudyPreferenceType {
   Solo = 'solo',
   Group = 'group',
-  Mixed = 'mixed'
+  AIAssisted = 'ai-assisted'
+}
+
+export enum StudyPace {
+  Light = 'light',
+  Moderate = 'moderate',
+  Intense = 'intense'
+}
+
+export interface SubscriptionPlan {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  originalPrice?: number;
+  type: string;
+  features: string[];
+  isPopular?: boolean;
+  memberLimit?: number;
+}
+
+export interface SubscriptionType {
+  planType: string;
+  startDate: string;
+  expiryDate: string;
+  status: 'active' | 'expired' | 'canceled';
+  autoRenew: boolean;
+  type?: string;
+  memberLimit?: number;
 }
 
 export interface UserProfileBase {
   id: string;
   name: string;
   email: string;
-  bio?: string;
+  role: UserRole;
   avatar?: string;
-  phoneNumber?: string;
-  role: 'student' | 'teacher' | 'admin';
-  subscription?: SubscriptionType | {
-    planType: string;
-    startDate?: Date | string;
-    expiryDate?: Date | string;
-    status?: 'active' | 'expired' | 'cancelled';
-    autoRenew?: boolean;
-  };
-  goals?: {
-    id: string;
-    title: string;
-    description?: string;
-    targetDate?: Date;
-    progress?: number;
-  }[];
-  preferences?: {
-    theme?: 'light' | 'dark' | 'system';
-    notifications?: boolean;
-    emailAlerts?: boolean;
-    language?: string;
-  };
-  createdAt?: Date | string;
-  updatedAt?: Date | string;
-  lastLogin?: Date | string;
-  loginCount?: number;
-}
-
-export type UserProfileType = UserProfileBase;
-
-// Additional types that might be useful
-export interface StudyStreak {
-  current: number;
-  longest: number;
-  lastStudyDate: Date;
-}
-
-export interface SubjectProgress {
-  id?: string;
-  subject: string;
-  progress: number;
-  topicsTotal: number;
-  topicsCompleted: number;
-  quizzesCompleted: number;
-  masteryLevel: 'beginner' | 'intermediate' | 'advanced' | 'master';
-}
-
-export interface PaymentMethod {
-  id: string;
-  type: 'card' | 'upi' | 'bank';
-  isDefault: boolean;
-  lastFour?: string;
-  expiryDate?: string;
-  cardType?: string;
-  upiId?: string;
-}
-
-export interface BillingHistory {
-  id: string;
-  date: string;
-  amount: number;
-  status: 'paid' | 'pending' | 'failed';
-  invoiceUrl: string;
-  planName: string;
-}
-
-export interface SubscriptionPlan {
-  id: string;
-  name: string;
-  price: number;
-  features: string[];
-  type: SubscriptionType;
-  maxMembers?: number;
+  subscription?: SubscriptionType | string;
 }

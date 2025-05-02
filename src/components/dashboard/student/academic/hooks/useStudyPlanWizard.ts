@@ -14,7 +14,7 @@ export const useStudyPlanWizard = ({ examGoal, onCreatePlan, onClose }: UseStudy
   const [step, setStep] = useState(examGoal ? 2 : 1); // Skip goal selection if examGoal is provided
   const [formData, setFormData] = useState<NewStudyPlan>({
     examGoal,
-    examDate: new Date(),
+    examDate: new Date(new Date().setMonth(new Date().getMonth() + 6)),
     subjects: [],
     studyHoursPerDay: 6,
     preferredStudyTime: 'evening',
@@ -71,11 +71,11 @@ export const useStudyPlanWizard = ({ examGoal, onCreatePlan, onClose }: UseStudy
     // Clear subjects when changing exam goal
     setStrongSubjects([]);
     setWeakSubjects([]);
-    setStep(2); // Move to next step after goal selection
+    setStep(2); // Move to exam date selection step
   };
 
   const handleNext = () => {
-    if (step < 6) {
+    if (step < 7) {
       setStep(step + 1);
     } else {
       const updatedFormData = {
@@ -88,7 +88,7 @@ export const useStudyPlanWizard = ({ examGoal, onCreatePlan, onClose }: UseStudy
       setWeakSubjects([]);
       setFormData({
         examGoal: '',
-        examDate: new Date(),
+        examDate: new Date(new Date().setMonth(new Date().getMonth() + 6)),
         subjects: [],
         studyHoursPerDay: 6,
         preferredStudyTime: 'morning',

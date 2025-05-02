@@ -1,79 +1,82 @@
-
 import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Key } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { useToast } from "@/hooks/use-toast";
 
 interface BatchInvitationInputProps {
-  onJoinBatch: (code: string) => Promise<void>;
+  onJoinBatch?: (code: string) => Promise<void>;
+  onAddEmail?: (email: string) => void;
+  placeholder?: string;
 }
 
-const BatchInvitationInput: React.FC<BatchInvitationInputProps> = ({ onJoinBatch }) => {
-  const [inviteCode, setInviteCode] = useState('');
+const BatchInvitationInput: React.FC<BatchInvitationInputProps> = ({ 
+  onJoinBatch,
+  onAddEmail,
+  placeholder = "Enter batch code (e.g., SAKHA-ABC123)"
+}) => {
+  const { toast } = useToast();
+  const [invitationCode, setInvitationCode] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
+  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!inviteCode.trim()) {
-      setError('Please enter an invite code');
+    
+    if (!invitationCode.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter a valid code or email",
+        variant: "destructive"
+      });
       return;
     }
-
+    
     setIsSubmitting(true);
-    setError(null);
-
+    
     try {
-      await onJoinBatch(inviteCode.trim());
-      // Clear the input field on success
-      setInviteCode('');
-    } catch (err) {
-      setError('An error occurred. Please try again with a valid code.');
-      console.error('Error submitting invite code:', err);
+      // If it looks like an email, handle as email
+      if (invitationCode.includes('@') && onAddEmail) {
+        onAddEmail(invitationCode);
+        setInvitationCode('');
+      } 
+      // Otherwise handle as batch code
+      else if (onJoinBatch) {
+        await onJoinBatch(invitationCode);
+        setInvitationCode('');
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to process your request",
+        variant: "destructive"
+      });
     } finally {
       setIsSubmitting(false);
     }
   };
-
+  
   return (
-    <Card>
-      <CardContent className="pt-6">
-        <h3 className="text-lg font-medium mb-3 flex items-center">
-          <Key size={18} className="text-blue-600 mr-1.5" />
-          Join a Study Batch
-        </h3>
-        <p className="text-sm text-muted-foreground mb-3">
-          Enter the invite code provided by your batch leader to join their study group.
-        </p>
-        
-        <form onSubmit={handleSubmit} className="space-y-3">
-          <div className="flex flex-wrap gap-2">
-            <div className="flex-grow">
-              <Input
-                id="invite-code-input"
-                placeholder="Enter invite code (e.g., SAKHA-ABC123)"
-                value={inviteCode}
-                onChange={(e) => {
-                  setInviteCode(e.target.value);
-                  if (error) setError(null);
-                }}
-                className={error ? 'border-red-500' : ''}
-              />
-              {error && <p className="text-sm text-red-500 mt-1">{error}</p>}
-            </div>
-            
-            <Button 
-              type="submit" 
-              disabled={isSubmitting}
-              className="whitespace-nowrap"
-            >
-              {isSubmitting ? 'Processing...' : 'Join Batch'}
-            </Button>
-          </div>
-        </form>
-      </CardContent>
-    </Card>
+    <form onSubmit={handleSubmit} className="flex w-full max-w-lg items-center space-x-2">
+      <Input
+        type="text"
+        placeholder={placeholder}
+        value={invitationCode}
+        onChange={(e) => setInvitationCode(e.target.value)}
+        className="flex-1"
+      />
+      <Button type="submit" disabled={isSubmitting || !invitationCode.trim()}>
+        {isSubmitting ? (
+          <span className="flex items-center">
+            <svg className="animate-spin -ml-1 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            {onJoinBatch ? "Joining..." : "Adding..."}
+          </span>
+        ) : (
+          onJoinBatch ? "Join" : "Add"
+        )}
+      </Button>
+    </form>
   );
 };
 

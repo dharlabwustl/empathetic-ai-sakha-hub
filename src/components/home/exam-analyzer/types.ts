@@ -36,3 +36,8 @@ export interface ExamResults {
   concept: TestResult;
   overall: TestResult;
 }
+
+export interface UserAnswer {
+  questionId: string;
+  selectedOption: number;
+}
