@@ -12,42 +12,45 @@ interface MoodBasedSuggestionsProps {
 }
 
 const moodConfig = {
-  motivated: {
+  [MoodType.MOTIVATED]: {
     icon: <Smile className="w-5 h-5 text-amber-500" />,
     suggestion: "Perfect day to tackle a challenging concept! Add a bonus practice test today?",
     color: "bg-amber-50 border-amber-200 dark:bg-amber-900/20 dark:border-amber-700/50",
     planAdjustment: "Increased focus on new concepts"
   },
-  focused: {
+  [MoodType.FOCUSED]: {
     icon: <Target className="w-5 h-5 text-emerald-500" />,
     suggestion: "Maximize this energy! Aim for 10% extra progress today.",
     color: "bg-emerald-50 border-emerald-200 dark:bg-emerald-900/20 dark:border-emerald-700/50",
     planAdjustment: "Added challenging practice tests"
   },
-  tired: {
+  [MoodType.TIRED]: {
     icon: <Moon className="w-5 h-5 text-blue-500" />,
     suggestion: "Let's lighten today's plan. Focus only on Flashcards or Quick Revision.",
     color: "bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-700/50",
     planAdjustment: "Shorter study sessions with more breaks"
   },
-  stressed: {
+  [MoodType.STRESSED]: {
     icon: <Frown className="w-5 h-5 text-purple-500" />,
     suggestion: "Breathe. Start with 1 simple concept you know well to build confidence.",
     color: "bg-purple-50 border-purple-200 dark:bg-purple-900/20 dark:border-purple-700/50",
     planAdjustment: "Review of familiar content only"
-  },
-  distracted: {
-    icon: <Brain className="w-5 h-5 text-red-500" />,
-    suggestion: "Take it easy. 15 minutes of flashcards only. Tomorrow, we rebuild momentum.",
-    color: "bg-red-50 border-red-200 dark:bg-red-900/20 dark:border-red-700/50",
-    planAdjustment: "Quick, focused flashcard sessions"
-  },
-  confident: {
-    icon: <Smile className="w-5 h-5 text-blue-500" />,
-    suggestion: "Great mindset! Let's tackle some challenging topics today.",
-    color: "bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-700/50",
-    planAdjustment: "Advanced topics and practice exams"
   }
+};
+
+// Add a few more mood configurations
+moodConfig[MoodType.CONFUSED] = {
+  icon: <Brain className="w-5 h-5 text-red-500" />,
+  suggestion: "Take it easy. 15 minutes of flashcards only. Tomorrow, we rebuild momentum.",
+  color: "bg-red-50 border-red-200 dark:bg-red-900/20 dark:border-red-700/50",
+  planAdjustment: "Quick, focused flashcard sessions"
+};
+
+moodConfig[MoodType.HAPPY] = {
+  icon: <Smile className="w-5 h-5 text-blue-500" />,
+  suggestion: "Great mindset! Let's tackle some challenging topics today.",
+  color: "bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-700/50",
+  planAdjustment: "Advanced topics and practice exams"
 };
 
 export default function MoodBasedSuggestions({ currentMood, onMoodSelect }: MoodBasedSuggestionsProps) {
@@ -82,7 +85,7 @@ export default function MoodBasedSuggestions({ currentMood, onMoodSelect }: Mood
       <CardContent>
         <div className="space-y-4">
           <div className="flex flex-wrap gap-2">
-            {Object.entries(moodConfig).map(([mood, config]) => (
+            {Object.keys(moodConfig).map((mood) => (
               <Button
                 key={mood}
                 variant={currentMood === mood ? "default" : "outline"}
@@ -90,8 +93,8 @@ export default function MoodBasedSuggestions({ currentMood, onMoodSelect }: Mood
                 className={`flex items-center gap-1.5 ${currentMood === mood ? 'bg-primary' : ''}`}
                 onClick={() => handleMoodSelect(mood as MoodType)}
               >
-                {config.icon}
-                <span className="capitalize">{mood}</span>
+                {moodConfig[mood as keyof typeof moodConfig].icon}
+                <span className="capitalize">{mood.toLowerCase()}</span>
               </Button>
             ))}
           </div>
