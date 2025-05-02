@@ -9,6 +9,9 @@ export type OnboardingStep =
   | "demographics" 
   | "personality" 
   | "sentiment" 
+  | "studyTime" 
+  | "studyPace" 
+  | "studyHours" 
   | "habits" 
   | "interests" 
   | "signup";
@@ -30,14 +33,11 @@ const defaultOnboardingData = {
   demographics: {},
   personalityType: null,
   mood: null,
-  studyTimePreference: null,
+  studyTime: null,
   studyPace: null,
   dailyStudyHours: null,
-  breakFrequency: null,
-  stressManagement: null,
-  studyEnvironment: null,
-  preferredSubjects: [],
-  weakSubjects: []
+  habits: {},
+  interests: []
 };
 
 const OnboardingContext = createContext<OnboardingContextType>({
@@ -58,6 +58,9 @@ const stepSequence: OnboardingStep[] = [
   "demographics", 
   "personality", 
   "sentiment", 
+  "studyTime", 
+  "studyPace", 
+  "studyHours", 
   "habits", 
   "interests", 
   "signup"

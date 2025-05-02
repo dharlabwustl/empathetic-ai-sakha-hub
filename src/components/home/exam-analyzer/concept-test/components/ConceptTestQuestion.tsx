@@ -5,8 +5,7 @@ import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
-import { Brain, Timer } from 'lucide-react';
-import QuestionTimer from '../../stress-test/components/QuestionTimer';
+import { Brain } from 'lucide-react';
 
 interface ConceptTestQuestionProps {
   question: TestQuestion;
@@ -20,24 +19,6 @@ const ConceptTestQuestion: React.FC<ConceptTestQuestionProps> = ({
   disabled = false
 }) => {
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
-  const [timeLeft, setTimeLeft] = useState(64); // ~1.06 minutes in seconds
-  
-  // Setup timer effect
-  React.useEffect(() => {
-    if (disabled) return;
-    
-    const timer = setInterval(() => {
-      setTimeLeft(prev => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-    
-    return () => clearInterval(timer);
-  }, [disabled]);
   
   const handleSubmit = () => {
     if (selectedAnswer && !disabled) {
@@ -47,30 +28,21 @@ const ConceptTestQuestion: React.FC<ConceptTestQuestionProps> = ({
   
   return (
     <div className="bg-white dark:bg-gray-800 p-6 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
-      <div className="flex justify-between items-center mb-6">
+      <div className="mb-6">
         <h3 className="text-lg font-medium flex items-center">
           <Brain className="mr-2 text-pink-500" size={20} />
           <span>{question.question}</span>
         </h3>
         
-        <QuestionTimer timeLeft={timeLeft} />
-      </div>
-      
-      {question.imageUrl && (
-        <div className="mt-4 rounded-lg overflow-hidden">
-          <img 
-            src={question.imageUrl} 
-            alt="Question visual" 
-            className="w-full object-contain max-h-64" 
-          />
-        </div>
-      )}
-      
-      <div className="mt-4">
-        <div className="text-sm text-blue-700 dark:text-blue-400 flex items-center mb-4">
-          <Timer className="mr-1 h-4 w-4" />
-          <span>Time: 1.06 minutes per question (NEET standard)</span>
-        </div>
+        {question.imageUrl && (
+          <div className="mt-4 rounded-lg overflow-hidden">
+            <img 
+              src={question.imageUrl} 
+              alt="Question visual" 
+              className="w-full object-contain max-h-64" 
+            />
+          </div>
+        )}
       </div>
       
       <RadioGroup className="space-y-3 mb-6">

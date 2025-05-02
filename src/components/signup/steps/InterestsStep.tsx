@@ -7,7 +7,7 @@ import { motion } from "framer-motion";
 
 interface InterestsStepProps {
   examGoal?: string;
-  onSubmit: (preferredSubjects: string[], weakSubjects: string[]) => void;
+  onSubmit: (interests: string) => void;
 }
 
 const InterestsStep: React.FC<InterestsStepProps> = ({ examGoal, onSubmit }) => {
@@ -98,7 +98,13 @@ const InterestsStep: React.FC<InterestsStepProps> = ({ examGoal, onSubmit }) => 
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(selectedSubjects, weakSubjects);
+    const formattedInterests = selectedSubjects.map(subject => {
+      if (weakSubjects.includes(subject)) {
+        return `${subject} (weak)`;
+      }
+      return `${subject} (strong)`;
+    }).join(", ");
+    onSubmit(formattedInterests);
   };
 
   return (

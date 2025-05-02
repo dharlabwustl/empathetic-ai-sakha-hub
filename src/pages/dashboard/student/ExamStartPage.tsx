@@ -11,7 +11,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 
-// Mock exam data with updated scoring information
+// Mock exam data
 const mockExamDetails = {
   id: 1,
   title: "Physics Mock Test #1",
@@ -20,12 +20,10 @@ const mockExamDetails = {
   questionCount: 30,
   timeLimit: 60,
   difficulty: "medium",
-  examType: "NEET", // Added exam type
   instructions: [
     "Read each question carefully before answering.",
     "Each question has only one correct answer.",
-    "+4 marks for each correct answer, -1 mark for incorrect answers.", // Updated scoring info
-    "You will have approximately 1.06 minutes per question.", // Added time info
+    "There is no negative marking for wrong answers.",
     "You can mark questions for review and return to them later.",
     "The exam will be automatically submitted when the time limit is reached."
   ],

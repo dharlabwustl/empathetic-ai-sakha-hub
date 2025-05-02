@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
 import { useToast } from "@/hooks/use-toast";
-import type { NewStudyPlan } from "@/types/user/studyPlan";
+import type { NewStudyPlan, StudyPlanSubject } from "@/types/user/studyPlan";
 
 interface UseStudyPlanWizardProps {
   examGoal?: string;
@@ -15,7 +15,6 @@ export const useStudyPlanWizard = ({ examGoal = '', onCreatePlan, onClose }: Use
   const [formData, setFormData] = useState<NewStudyPlan>({
     goal: examGoal || '',
     examGoal: examGoal || '',
-    examDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000), // Default to 90 days from now
     subjects: [],
     weeklyHours: 20,
     status: 'active',
@@ -49,8 +48,8 @@ export const useStudyPlanWizard = ({ examGoal = '', onCreatePlan, onClose }: Use
     }
   };
 
-  const getSubjectsProficiencyList = () => {
-    const subjectsList = [
+  const getSubjectsProficiencyList = (): StudyPlanSubject[] => {
+    const subjectsList: StudyPlanSubject[] = [
       ...strongSubjects.map(subject => ({ 
         id: `subject-${Math.random().toString(36).substr(2, 9)}`,
         name: subject, 
@@ -92,7 +91,7 @@ export const useStudyPlanWizard = ({ examGoal = '', onCreatePlan, onClose }: Use
   };
 
   const handleNext = () => {
-    if (step < 7) {
+    if (step < 6) {
       setStep(step + 1);
     } else {
       const updatedFormData = {
@@ -107,7 +106,6 @@ export const useStudyPlanWizard = ({ examGoal = '', onCreatePlan, onClose }: Use
       setFormData({
         goal: '',
         examGoal: '',
-        examDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
         subjects: [],
         weeklyHours: 20,
         status: 'active',

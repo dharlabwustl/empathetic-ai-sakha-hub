@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useAuth } from "@/contexts/auth/AuthContext";
+import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, ShieldCheck } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -59,6 +59,7 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
     setLoginError(null);
     
     try {
+      // In a real app, this would validate credentials against a backend
       console.log("Attempting to log in with:", credentials.email);
       
       const user = await login(credentials.email, credentials.password);
@@ -76,11 +77,33 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
           description: "Welcome back to Prepzr"
         });
         
-        // Route to appropriate dashboard based on role
-        if (user.role === 'admin') {
-          navigate("/admin/dashboard");
+        // Update login count and last activity in userData
+        const userData = localStorage.getItem("userData");
+        if (userData) {
+          try {
+            const parsedData = JSON.parse(userData);
+            const loginCount = parsedData.loginCount ? parseInt(parsedData.loginCount) + 1 : 1;
+            const lastActivity = {
+              type: "login",
+              description: "last session",
+              timestamp: new Date().toISOString()
+            };
+            
+            localStorage.setItem("userData", JSON.stringify({
+              ...parsedData,
+              loginCount,
+              lastActivity,
+              lastLogin: new Date().toISOString()
+            }));
+            
+            // Always direct to the pending activities screen first
+            navigate("/dashboard/student/today");
+          } catch (error) {
+            console.error("Error updating user data:", error);
+            navigate("/dashboard/student/today");
+          }
         } else {
-          navigate("/dashboard/student");
+          navigate("/dashboard/student/today");
         }
       } else {
         setLoginError("Invalid email or password");

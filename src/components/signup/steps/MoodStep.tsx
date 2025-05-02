@@ -10,14 +10,14 @@ interface MoodStepProps {
 const MoodStep: React.FC<MoodStepProps> = ({ onMoodSelect }) => {
   // Define the available moods with emojis
   const moods: { type: MoodType; emoji: string; label: string }[] = [
-    { type: MoodType.Happy, emoji: "😊", label: "Happy" },
-    { type: MoodType.Motivated, emoji: "💪", label: "Motivated" },
-    { type: MoodType.Focused, emoji: "🧠", label: "Focused" },
-    { type: MoodType.Neutral, emoji: "😐", label: "Neutral" },
-    { type: MoodType.Tired, emoji: "😴", label: "Tired" },
-    { type: MoodType.Anxious, emoji: "😰", label: "Anxious" },
-    { type: MoodType.Stressed, emoji: "😓", label: "Stressed" },
-    { type: MoodType.Sad, emoji: "😢", label: "Sad" },
+    { type: "happy", emoji: "😊", label: "Happy" },
+    { type: "motivated", emoji: "💪", label: "Motivated" },
+    { type: "focused", emoji: "🧠", label: "Focused" },
+    { type: "neutral", emoji: "😐", label: "Neutral" },
+    { type: "tired", emoji: "😴", label: "Tired" },
+    { type: "anxious", emoji: "😰", label: "Anxious" },
+    { type: "stressed", emoji: "😓", label: "Stressed" },
+    { type: "sad", emoji: "😢", label: "Sad" },
   ];
 
   return (

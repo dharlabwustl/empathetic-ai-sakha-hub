@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { StudyPace, StudyTimePreference, StressManagementTechnique } from "@/types/user/base";
+import { motion } from "framer-motion";
 
 interface HabitsStepProps {
   onSubmit: (habits: Record<string, string>) => void;
@@ -14,10 +14,10 @@ interface HabitsStepProps {
 const HabitsStep: React.FC<HabitsStepProps> = ({ onSubmit }) => {
   const [formData, setFormData] = useState({
     focusHours: "2",
-    preferredStudyTime: StudyTimePreference.Morning,
-    studyPace: StudyPace.Balanced,
+    preferredStudyTime: "morning",
+    studyPace: "balanced",
     dailyStudyHours: "3",
-    stressManagement: StressManagementTechnique.Exercise,
+    stressManagement: "exercise",
     stressManagementCustom: "",
     studyPreference: "quiet",
     studyPreferenceCustom: ""
@@ -36,9 +36,12 @@ const HabitsStep: React.FC<HabitsStepProps> = ({ onSubmit }) => {
   };
 
   return (
-    <form 
+    <motion.form 
       onSubmit={handleSubmit}
       className="space-y-5"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
     >
       <div className="space-y-2">
         <Label htmlFor="dailyStudyHours">Daily study hours</Label>
@@ -68,19 +71,19 @@ const HabitsStep: React.FC<HabitsStepProps> = ({ onSubmit }) => {
           className="grid grid-cols-2 gap-2"
         >
           <div className="flex items-center space-x-2 p-2 border rounded-md">
-            <RadioGroupItem value={StudyTimePreference.Morning} id="morning" />
+            <RadioGroupItem value="morning" id="morning" />
             <Label htmlFor="morning" className="cursor-pointer">Morning</Label>
           </div>
           <div className="flex items-center space-x-2 p-2 border rounded-md">
-            <RadioGroupItem value={StudyTimePreference.Afternoon} id="afternoon" />
+            <RadioGroupItem value="afternoon" id="afternoon" />
             <Label htmlFor="afternoon" className="cursor-pointer">Afternoon</Label>
           </div>
           <div className="flex items-center space-x-2 p-2 border rounded-md">
-            <RadioGroupItem value={StudyTimePreference.Evening} id="evening" />
+            <RadioGroupItem value="evening" id="evening" />
             <Label htmlFor="evening" className="cursor-pointer">Evening</Label>
           </div>
           <div className="flex items-center space-x-2 p-2 border rounded-md">
-            <RadioGroupItem value={StudyTimePreference.Night} id="night" />
+            <RadioGroupItem value="night" id="night" />
             <Label htmlFor="night" className="cursor-pointer">Night</Label>
           </div>
         </RadioGroup>
@@ -94,15 +97,15 @@ const HabitsStep: React.FC<HabitsStepProps> = ({ onSubmit }) => {
           className="grid grid-cols-1 gap-2"
         >
           <div className="flex items-center space-x-2 p-2 border rounded-md">
-            <RadioGroupItem value={StudyPace.Aggressive} id="aggressive" />
+            <RadioGroupItem value="aggressive" id="aggressive" />
             <Label htmlFor="aggressive" className="cursor-pointer">Aggressive (intense study sessions)</Label>
           </div>
           <div className="flex items-center space-x-2 p-2 border rounded-md">
-            <RadioGroupItem value={StudyPace.Balanced} id="balanced" />
+            <RadioGroupItem value="balanced" id="balanced" />
             <Label htmlFor="balanced" className="cursor-pointer">Balanced (moderate pace)</Label>
           </div>
           <div className="flex items-center space-x-2 p-2 border rounded-md">
-            <RadioGroupItem value={StudyPace.Relaxed} id="relaxed" />
+            <RadioGroupItem value="relaxed" id="relaxed" />
             <Label htmlFor="relaxed" className="cursor-pointer">Relaxed (gradual learning)</Label>
           </div>
         </RadioGroup>
@@ -118,16 +121,16 @@ const HabitsStep: React.FC<HabitsStepProps> = ({ onSubmit }) => {
             <SelectValue placeholder="Select stress management technique" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value={StressManagementTechnique.Exercise}>Physical exercise</SelectItem>
-            <SelectItem value={StressManagementTechnique.Meditation}>Meditation/Breathing</SelectItem>
-            <SelectItem value={StressManagementTechnique.Breaks}>Regular breaks</SelectItem>
-            <SelectItem value={StressManagementTechnique.Music}>Listening to music</SelectItem>
-            <SelectItem value={StressManagementTechnique.Talking}>Talking to friends/family</SelectItem>
-            <SelectItem value={StressManagementTechnique.Other}>Other (specify)</SelectItem>
+            <SelectItem value="exercise">Physical exercise</SelectItem>
+            <SelectItem value="meditation">Meditation/Breathing</SelectItem>
+            <SelectItem value="breaks">Regular breaks</SelectItem>
+            <SelectItem value="music">Listening to music</SelectItem>
+            <SelectItem value="talking">Talking to friends/family</SelectItem>
+            <SelectItem value="custom">Other (specify)</SelectItem>
           </SelectContent>
         </Select>
         
-        {formData.stressManagement === StressManagementTechnique.Other && (
+        {formData.stressManagement === "custom" && (
           <Input 
             value={formData.stressManagementCustom} 
             onChange={(e) => handleChange("stressManagementCustom", e.target.value)} 
@@ -143,7 +146,7 @@ const HabitsStep: React.FC<HabitsStepProps> = ({ onSubmit }) => {
       >
         Continue
       </Button>
-    </form>
+    </motion.form>
   );
 };
 

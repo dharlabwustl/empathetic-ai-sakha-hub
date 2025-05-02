@@ -1,89 +1,77 @@
 
-import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
+import { useState, useEffect } from 'react';
+import { UserRole } from '@/types/user/base';
 
-export interface User {
+interface User {
   id: string;
   name: string;
   email: string;
-  role: 'student' | 'admin' | 'parent';
+  role: UserRole;
 }
 
-interface AuthContextType {
-  user: User | null;
-  login: (email: string, password: string) => Promise<User | null>;
-  logout: () => void;
-  loading: boolean;
-}
-
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-export const AuthProvider = ({ children }: { children: ReactNode }) => {
+export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check if user is already logged in
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      try {
-        setUser(JSON.parse(storedUser));
-      } catch (error) {
-        console.error('Failed to parse stored user data');
-        localStorage.removeItem('user');
-      }
-    }
-    setLoading(false);
-  }, []);
-
-  const login = async (email: string, password: string): Promise<User | null> => {
-    setLoading(true);
-    
-    try {
-      // This is a mock implementation - in a real app, you'd call your API
-      if (email && password.length >= 3) {
-        const role = email.includes('admin') ? 'admin' : 'student';
-        const user: User = {
+    // In a real app, we'd check for a token in localStorage
+    // and make an API call to validate it
+    const checkAuth = () => {
+      setLoading(true);
+      
+      // For development, create a mock user
+      setTimeout(() => {
+        // Mock a logged-in user for development
+        const mockUser: User = {
           id: '1',
-          name: email.split('@')[0],
-          email,
-          role: role as 'student' | 'admin' | 'parent',
+          name: 'Test User',
+          email: 'test@example.com',
+          role: UserRole.Student
         };
         
-        // Save to localStorage
-        localStorage.setItem('user', JSON.stringify(user));
-        setUser(user);
-        return user;
-      }
-      return null;
-    } catch (error) {
-      console.error('Login error:', error);
-      return null;
-    } finally {
-      setLoading(false);
-    }
-  };
+        setUser(mockUser);
+        setLoading(false);
+      }, 500);
+    };
+    
+    checkAuth();
+  }, []);
 
+  const login = async (email: string, password: string) => {
+    // Mock login functionality
+    setLoading(true);
+    
+    return new Promise<User>((resolve, reject) => {
+      setTimeout(() => {
+        if (email && password) {
+          const newUser: User = {
+            id: '1',
+            name: 'Test User',
+            email: email,
+            role: UserRole.Student
+          };
+          
+          setUser(newUser);
+          setLoading(false);
+          resolve(newUser);
+        } else {
+          setLoading(false);
+          reject(new Error('Invalid credentials'));
+        }
+      }, 1000);
+    });
+  };
+  
   const logout = () => {
-    localStorage.removeItem('user');
+    // Mock logout
     setUser(null);
   };
-
+  
   return {
     user,
+    loading,
     login,
     logout,
-    loading
+    isAuthenticated: !!user
   };
-};
-
-export const useAuth = (): AuthContextType => {
-  const context = useContext(AuthContext);
-  
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  
-  return context;
-};
-
-export default useAuth;
+}

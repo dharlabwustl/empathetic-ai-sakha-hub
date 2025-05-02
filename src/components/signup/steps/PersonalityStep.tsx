@@ -28,42 +28,42 @@ interface PersonalityOption {
 const PersonalityStep: React.FC<PersonalityStepProps> = ({ onPersonalitySelect }) => {
   const options: PersonalityOption[] = [
     {
-      type: PersonalityType.Analytical,
+      type: "analytical",
       title: "Analytical",
       description: "You enjoy solving problems with logic and reasoning",
       icon: <Brain className="h-6 w-6" />,
       color: "border-blue-200 hover:border-blue-500 text-blue-700"
     },
     {
-      type: PersonalityType.Creative,
+      type: "creative",
       title: "Creative",
       description: "You learn best through creative expression and imagination",
       icon: <Lightbulb className="h-6 w-6" />,
       color: "border-purple-200 hover:border-purple-500 text-purple-700"
     },
     {
-      type: PersonalityType.Practical,
+      type: "practical",
       title: "Practical",
       description: "You prefer hands-on learning and practical applications",
       icon: <Hammer className="h-6 w-6" />,
       color: "border-green-200 hover:border-green-500 text-green-700"
     },
     {
-      type: PersonalityType.Visual,
+      type: "visual",
       title: "Visual",
       description: "You learn best through images, diagrams and visual aids",
       icon: <Eye className="h-6 w-6" />,
       color: "border-amber-200 hover:border-amber-500 text-amber-700"
     },
     {
-      type: PersonalityType.Auditory,
+      type: "auditory",
       title: "Auditory",
       description: "You absorb information best through listening and discussion",
       icon: <Music className="h-6 w-6" />,
       color: "border-red-200 hover:border-red-500 text-red-700"
     },
     {
-      type: PersonalityType.Kinesthetic,
+      type: "kinesthetic",
       title: "Kinesthetic",
       description: "You learn through movement, experiments and activity",
       icon: <Activity className="h-6 w-6" />,

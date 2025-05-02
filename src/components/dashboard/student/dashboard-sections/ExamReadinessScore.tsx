@@ -51,53 +51,12 @@ const ReadinessScoreMeter = ({ score }: { score: number }) => {
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
 
-const getExamSpecificData = (targetExam: string) => {
-  if (targetExam === "NEET") {
-    return {
-      data: [
-        { name: 'Biology', value: 82 },
-        { name: 'Physics', value: 65 },
-        { name: 'Chemistry', value: 74 },
-        { name: 'Revision', value: 60 }
-      ],
-      recommendations: [
-        "Focus more on Physics numerical problems",
-        "Increase Chemistry practice tests",
-        "Keep up with Biology flashcard revision",
-        "Use NEET's +4/-1 scoring to strategize which questions to attempt"
-      ]
-    };
-  } else if (targetExam === "IIT-JEE") {
-    return {
-      data: [
-        { name: 'Concepts', value: 75 },
-        { name: 'Practice Tests', value: 68 },
-        { name: 'Flashcards', value: 82 },
-        { name: 'Revision', value: 60 }
-      ],
-      recommendations: [
-        "Focus more on Revision sessions",
-        "Increase Practice Test frequency",
-        "Keep up the good work with Flashcards!"
-      ]
-    };
-  }
-  
-  // Default data
-  return {
-    data: [
-      { name: 'Concepts', value: 75 },
-      { name: 'Practice Tests', value: 68 },
-      { name: 'Flashcards', value: 82 },
-      { name: 'Revision', value: 60 }
-    ],
-    recommendations: [
-      "Focus more on Revision sessions",
-      "Increase Practice Test frequency",
-      "Keep up the good work with Flashcards!"
-    ]
-  };
-};
+const data = [
+  { name: 'Concepts', value: 75 },
+  { name: 'Practice Tests', value: 68 },
+  { name: 'Flashcards', value: 82 },
+  { name: 'Revision', value: 60 }
+];
 
 interface ExamReadinessScoreProps {
   overallScore: number;
@@ -111,21 +70,6 @@ const ExamReadinessScore: React.FC<ExamReadinessScoreProps> = ({
   daysUntilExam = 85
 }) => {
   const [expanded, setExpanded] = useState(false);
-  const { data, recommendations } = getExamSpecificData(targetExam);
-
-  // Display exam-specific scoring info
-  const renderExamScoringInfo = () => {
-    if (targetExam === "NEET") {
-      return (
-        <div className="mt-2 text-xs text-muted-foreground bg-blue-50 dark:bg-blue-900/20 p-2 rounded-md">
-          NEET scoring: +4 for correct, -1 for incorrect answers
-          <br/>
-          Time per question: ~1.06 minutes (180 questions in 3 hours)
-        </div>
-      );
-    }
-    return null;
-  };
 
   return (
     <Card className="overflow-hidden">
@@ -170,7 +114,6 @@ const ExamReadinessScore: React.FC<ExamReadinessScoreProps> = ({
           )}
           
           <ReadinessScoreMeter score={overallScore} />
-          {renderExamScoringInfo()}
         </div>
         
         <Button
@@ -235,9 +178,9 @@ const ExamReadinessScore: React.FC<ExamReadinessScoreProps> = ({
               <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-md text-sm">
                 <h5 className="font-medium mb-2">Recommendations:</h5>
                 <ul className="space-y-1 text-muted-foreground list-disc list-inside">
-                  {recommendations.map((recommendation, index) => (
-                    <li key={index}>{recommendation}</li>
-                  ))}
+                  <li>Focus more on Revision sessions</li>
+                  <li>Increase Practice Test frequency</li>
+                  <li>Keep up the good work with Flashcards!</li>
                 </ul>
               </div>
             </div>

@@ -34,19 +34,14 @@ const TutorLoginForm: React.FC<TutorLoginFormProps> = ({ activeTab }) => {
     setLoading(true);
     
     try {
-      const user = await login(identifier, password);
+      const success = await login(identifier, password);
       
-      if (user) {
+      if (success) {
         toast({
-          title: "Login successful",
-          description: "Redirecting to dashboard",
+          title: "Tutor login successful",
+          description: "Redirecting to tutor dashboard",
         });
-        
-        if (user.role === 'admin') {
-          navigate("/admin/dashboard");
-        } else {
-          navigate("/dashboard/student");
-        }
+        navigate("/dashboard/student");
       } else {
         throw new Error("Login failed");
       }
