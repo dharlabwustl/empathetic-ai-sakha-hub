@@ -1,21 +1,27 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Target, ChevronRight, BookOpen, CheckCircle, BarChart } from 'lucide-react';
-import { CustomProgress } from '@/components/ui/custom-progress';
-import { TestResults, TestQuestion, UserAnswer } from './types';
-import { getReadinessTestQuestions } from './test-questions/readinessTestQuestions';
-import { motion } from 'framer-motion';
+import { TestResults } from './types';
+import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Card } from '@/components/ui/card';
+import { FileText, Timer } from 'lucide-react';
 
 interface ReadinessTestSectionProps {
   loading: boolean;
   testCompleted: boolean;
   selectedExam: string;
-  results: TestResults;
+  results: TestResults | null;
   simulateTest: () => void;
-  onCompleteTest: (answers: UserAnswer[]) => void;
+  onCompleteTest: (answers: any[]) => void;
   onContinue: () => void;
+  examDetails?: {
+    scoringPattern: string;
+    timePerQuestion: string;
+    totalTime: string;
+    totalQuestions: string;
+  };
 }
 
 const ReadinessTestSection: React.FC<ReadinessTestSectionProps> = ({
@@ -25,186 +31,221 @@ const ReadinessTestSection: React.FC<ReadinessTestSectionProps> = ({
   results,
   simulateTest,
   onCompleteTest,
-  onContinue
+  onContinue,
+  examDetails
 }) => {
-  const [isTestActive, setIsTestActive] = useState(false);
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [userAnswers, setUserAnswers] = useState<UserAnswer[]>([]);
-  const [questions, setQuestions] = useState<TestQuestion[]>([]);
-  const [questionCategories, setQuestionCategories] = useState<{
-    conceptCompletion: number,
-    practicePerformance: number,
-    timeManagement: number
-  }>({
-    conceptCompletion: 0,
-    practicePerformance: 0, 
-    timeManagement: 0
+  const [mockAnswers, setMockAnswers] = React.useState<any[]>([]);
+  const [subjectSelections, setSubjectSelections] = React.useState({
+    physics: true,
+    chemistry: true,
+    biology: true,
+    mathematics: true
   });
-  
-  const startTest = () => {
-    const testQuestions = getReadinessTestQuestions(selectedExam);
-    setQuestions(testQuestions);
-    setIsTestActive(true);
+
+  const handleSubjectToggle = (subject: string, checked: boolean) => {
+    setSubjectSelections(prev => ({
+      ...prev,
+      [subject]: checked
+    }));
   };
-  
-  const handleAnswer = (answer: string) => {
-    const currentQuestion = questions[currentQuestionIndex];
+
+  const isNEET = selectedExam === "NEET-UG";
+
+  const handleStartTest = () => {
+    // Reset mock answers
+    setMockAnswers([]);
     
-    // Track question category for weighted scoring
-    if (currentQuestion.category === 'Concept Completion') {
-      setQuestionCategories(prev => ({...prev, conceptCompletion: prev.conceptCompletion + 1}));
-    } else if (currentQuestion.category === 'Practice Performance') {
-      setQuestionCategories(prev => ({...prev, practicePerformance: prev.practicePerformance + 1}));
-    } else if (currentQuestion.category === 'Time Management') {
-      setQuestionCategories(prev => ({...prev, timeManagement: prev.timeManagement + 1}));
-    }
+    // Simulate API call or test loading
+    simulateTest();
     
-    const newAnswer: UserAnswer = {
-      questionId: currentQuestion.id,
-      answer,
-      timeToAnswer: 0, // Time doesn't matter for self-assessment
-    };
-    
-    setUserAnswers(prev => [...prev, newAnswer]);
-    
-    // Move to next question or complete test
-    if (currentQuestionIndex < questions.length - 1) {
-      setCurrentQuestionIndex(prevIndex => prevIndex + 1);
-    } else {
-      setIsTestActive(false);
-      onCompleteTest(userAnswers);
-    }
+    // After simulation completes, generate mock results
+    setTimeout(() => {
+      // Generate random test answers
+      const answers = Array(10).fill(null).map((_, i) => ({
+        questionId: `q${i}`,
+        answer: Math.random() > 0.3 ? "correct" : "incorrect",
+        timeToAnswer: Math.floor(Math.random() * 45) + 15, // 15-60 seconds
+        isCorrect: Math.random() > 0.3
+      }));
+      setMockAnswers(answers);
+      onCompleteTest(answers);
+    }, 2000);
   };
-  
-  const renderQuestion = () => {
-    const currentQuestion = questions[currentQuestionIndex];
-    
+
+  if (loading) {
     return (
-      <div className="space-y-6">
-        <div className="flex justify-between items-center">
-          <Badge variant="outline" className="bg-violet-50 dark:bg-violet-900/30 border-violet-200 dark:border-violet-700">
-            Question {currentQuestionIndex + 1}/{questions.length}
-          </Badge>
-          <Badge variant="outline" className="bg-violet-50 dark:bg-violet-900/30 border-violet-200 dark:border-violet-700">
-            {currentQuestion.category || 'Readiness Assessment'}
-          </Badge>
+      <div className="space-y-4">
+        <Skeleton className="h-8 w-3/4" />
+        <Skeleton className="h-32 w-full" />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Skeleton className="h-24 w-full" />
+          <Skeleton className="h-24 w-full" />
         </div>
-        
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg border-2 border-violet-100 dark:border-violet-800 shadow-md">
-          <h3 className="text-lg font-medium mb-4">{currentQuestion.question}</h3>
-          
-          <div className="space-y-3">
-            {currentQuestion.options.map((option, index) => (
-              <motion.div 
-                key={index}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <Button 
-                  variant="outline" 
-                  className="w-full text-left justify-start p-4 h-auto"
-                  onClick={() => handleAnswer(option)}
-                >
-                  <span className="mr-2">{String.fromCharCode(65 + index)}.</span>
-                  {option}
-                </Button>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-        
-        <CustomProgress 
-          value={(currentQuestionIndex + 1) / questions.length * 100} 
-          className="h-2" 
-          indicatorClassName="bg-gradient-to-r from-violet-400 to-violet-600" 
-        />
       </div>
     );
-  };
-  
+  }
+
+  if (testCompleted && results) {
+    return (
+      <div className="space-y-6">
+        <div className="text-center py-6">
+          <h3 className="text-xl font-bold mb-2">Readiness Analysis Complete</h3>
+          <p className="text-muted-foreground mb-6">
+            Based on your performance, we've analyzed your readiness for {selectedExam}
+          </p>
+        </div>
+        
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-6 rounded-xl shadow-inner">
+          <div className="flex justify-between items-center mb-4">
+            <h4 className="text-lg font-semibold">Your Readiness Score</h4>
+            <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+              {results.score}%
+            </span>
+          </div>
+          
+          <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden mb-4">
+            <div 
+              className={cn(
+                "h-full rounded-full", 
+                results.score >= 80 ? "bg-green-500" : 
+                results.score >= 60 ? "bg-blue-500" : 
+                results.score >= 40 ? "bg-yellow-500" : "bg-red-500"
+              )}
+              style={{ width: `${results.score}%` }}
+            />
+          </div>
+          
+          <div className="text-sm mb-4">
+            {results.analysis}
+          </div>
+          
+          <div className="grid grid-cols-2 gap-4">
+            <div className="bg-white dark:bg-gray-800 p-3 rounded-lg shadow-sm">
+              <p className="text-sm text-gray-500 dark:text-gray-400">Strengths</p>
+              <p>{results.strengths || "Analyzing your strengths..."}</p>
+            </div>
+            <div className="bg-white dark:bg-gray-800 p-3 rounded-lg shadow-sm">
+              <p className="text-sm text-gray-500 dark:text-gray-400">Areas for Improvement</p>
+              <p>{results.weaknesses || "Analyzing areas for improvement..."}</p>
+            </div>
+          </div>
+        </div>
+        
+        <div className="flex justify-end">
+          <Button onClick={onContinue}>Continue to Concept Analysis</Button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-medium flex items-center">
-          <BarChart className="mr-2 text-violet-500" size={20} />
-          Readiness Score Assessment
-        </h3>
-        <Badge variant="outline" className="bg-violet-50 dark:bg-violet-900/30 border-violet-200 dark:border-violet-700">2 of 3</Badge>
+      <div>
+        <h3 className="text-xl font-bold mb-2">Test Your Exam Readiness</h3>
+        <p className="text-muted-foreground">
+          Let's assess your current readiness level for the {selectedExam} exam with a quick diagnostic test
+        </p>
       </div>
       
-      <p className="text-sm">
-        This assessment evaluates your current preparation by analyzing syllabus coverage, practice effectiveness, and study commitment.
-      </p>
-      
-      {!loading && !testCompleted && !isTestActive ? (
-        <div className="space-y-6">
-          <div className="bg-violet-50 dark:bg-violet-900/20 p-4 rounded-lg border-2 border-violet-100 dark:border-violet-800">
-            <h4 className="font-medium mb-2 flex items-center">
-              <Target className="mr-2 text-violet-500" size={16} />
-              Assessment Components:
-            </h4>
-            <ul className="list-disc pl-5 space-y-1 text-sm">
-              <li><span className="font-medium">Concept Completion:</span> How much of the syllabus you've covered</li>
-              <li><span className="font-medium">Practice Performance:</span> Your mock test scores and consistency</li>
-              <li><span className="font-medium">Study Habits:</span> Your time management and study techniques</li>
-            </ul>
-          </div>
-          
-          <Button 
-            className="w-full bg-gradient-to-r from-violet-500 to-violet-600 hover:from-violet-600 hover:to-violet-700 transition-all duration-300 shadow-md hover:shadow-lg"
-            onClick={startTest}
-          >
-            Begin Readiness Assessment
-          </Button>
-        </div>
-      ) : loading ? (
-        <div className="space-y-4">
-          <div className="h-40 bg-violet-50 dark:bg-violet-900/20 rounded-lg flex items-center justify-center border-2 border-violet-100 dark:border-violet-800">
-            <div className="text-center">
-              <Target className="mx-auto mb-2 animate-pulse text-violet-500" size={40} />
-              <p className="text-sm font-medium">Analyzing your preparation level...</p>
-            </div>
-          </div>
-          <CustomProgress value={30} className="h-2" indicatorClassName="bg-gradient-to-r from-violet-400 to-violet-600" />
-          <p className="text-xs text-center text-muted-foreground">Please wait while we calculate your readiness score</p>
-        </div>
-      ) : isTestActive ? (
-        renderQuestion()
-      ) : (
-        <div className="space-y-4">
-          <div className="bg-violet-50 dark:bg-violet-900/20 p-4 rounded-lg border-2 border-violet-100 dark:border-violet-800">
-            <div className="flex justify-between items-center">
-              <h4 className="font-medium">Your Readiness Score:</h4>
-              <span className="text-lg font-bold">{results.score}%</span>
-            </div>
-            <CustomProgress value={results.score} className="h-2 my-2" indicatorClassName="bg-gradient-to-r from-violet-400 to-violet-600" />
-            <p className="text-sm">{results.analysis}</p>
-            
-            <div className="grid grid-cols-3 gap-2 mt-4">
-              <div className="bg-white/60 dark:bg-gray-800/60 p-2 rounded text-center">
-                <p className="text-xs text-gray-500 dark:text-gray-400">Concept Coverage</p>
-                <p className="font-medium">{Math.round(results.score * 0.7 + Math.random() * 15)}%</p>
+      {isNEET && examDetails && (
+        <Card className="p-4 bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
+          <div className="space-y-2">
+            <h4 className="font-medium text-blue-700 dark:text-blue-300">NEET-UG Exam Information</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+              <div className="flex items-center">
+                <FileText className="h-4 w-4 text-blue-600 dark:text-blue-400 mr-2" />
+                <span>Scoring: {examDetails.scoringPattern}</span>
               </div>
-              <div className="bg-white/60 dark:bg-gray-800/60 p-2 rounded text-center">
-                <p className="text-xs text-gray-500 dark:text-gray-400">Practice Score</p>
-                <p className="font-medium">{Math.round(results.score * 0.8 + Math.random() * 10)}%</p>
-              </div>
-              <div className="bg-white/60 dark:bg-gray-800/60 p-2 rounded text-center">
-                <p className="text-xs text-gray-500 dark:text-gray-400">Study Habits</p>
-                <p className="font-medium">{Math.round(results.score * 0.6 + Math.random() * 20)}%</p>
+              <div className="flex items-center">
+                <Timer className="h-4 w-4 text-blue-600 dark:text-blue-400 mr-2" />
+                <span>Time: {examDetails.timePerQuestion}</span>
               </div>
             </div>
           </div>
-          
-          <Button 
-            className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-violet-500 to-violet-600 hover:from-violet-600 hover:to-violet-700 transition-all duration-300 shadow-md hover:shadow-lg"
-            onClick={onContinue}
-          >
-            <span>Continue to Concept Mastery Test</span>
-            <ChevronRight size={16} />
-          </Button>
-        </div>
+        </Card>
       )}
+      
+      <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-md">
+        <h4 className="font-medium mb-3">Select subjects to include in your assessment:</h4>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {isNEET ? (
+            <>
+              <div className="flex items-center space-x-2">
+                <Checkbox 
+                  id="physics" 
+                  checked={subjectSelections.physics}
+                  onCheckedChange={(checked) => handleSubjectToggle('physics', !!checked)} 
+                />
+                <label htmlFor="physics" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                  Physics (45 Questions)
+                </label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Checkbox 
+                  id="chemistry" 
+                  checked={subjectSelections.chemistry}
+                  onCheckedChange={(checked) => handleSubjectToggle('chemistry', !!checked)} 
+                />
+                <label htmlFor="chemistry" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                  Chemistry (45 Questions)
+                </label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Checkbox 
+                  id="biology" 
+                  checked={subjectSelections.biology}
+                  onCheckedChange={(checked) => handleSubjectToggle('biology', !!checked)} 
+                />
+                <label htmlFor="biology" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                  Biology (90 Questions)
+                </label>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="flex items-center space-x-2">
+                <Checkbox 
+                  id="subject1" 
+                  checked={subjectSelections.physics}
+                  onCheckedChange={(checked) => handleSubjectToggle('physics', !!checked)} 
+                />
+                <label htmlFor="subject1" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                  Subject 1
+                </label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Checkbox 
+                  id="subject2" 
+                  checked={subjectSelections.chemistry}
+                  onCheckedChange={(checked) => handleSubjectToggle('chemistry', !!checked)} 
+                />
+                <label htmlFor="subject2" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                  Subject 2
+                </label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Checkbox 
+                  id="subject3" 
+                  checked={subjectSelections.mathematics}
+                  onCheckedChange={(checked) => handleSubjectToggle('mathematics', !!checked)} 
+                />
+                <label htmlFor="subject3" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                  Subject 3
+                </label>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+      
+      <div className="flex justify-end">
+        <Button 
+          disabled={!Object.values(subjectSelections).some(Boolean)}
+          onClick={handleStartTest}
+        >
+          Start Readiness Test
+        </Button>
+      </div>
     </div>
   );
 };
