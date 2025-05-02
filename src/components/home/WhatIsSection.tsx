@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight, BookOpen, Users, Star } from 'lucide-react';
+import { ArrowRight, Heart, Brain, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const WhatIsSection = () => {
@@ -26,19 +26,19 @@ const WhatIsSection = () => {
 
   const features = [
     {
-      icon: <BookOpen className="h-10 w-10 text-purple-600" />,
-      title: "Smart Study Path",
-      description: "Personalized learning journey tailored to your exam goals with AI-driven study plans"
+      icon: <Brain className="h-10 w-10 text-purple-600" />,
+      title: "Emotionally Intelligent",
+      description: "First-of-its-kind study partner that understands your emotional state and adapts to your learning needs"
     },
     {
-      icon: <Users className="h-10 w-10 text-blue-600" />,
-      title: "Collaborative Learning",
-      description: "Join study groups, share knowledge, and excel together with peers preparing for similar exams"
+      icon: <Heart className="h-10 w-10 text-blue-600" />,
+      title: "Personalized Support",
+      description: "Tuned to your mood, study habits, and learning style for a truly supportive learning experience"
     },
     {
       icon: <Star className="h-10 w-10 text-amber-600" />,
       title: "Exam Excellence",
-      description: "Practice with custom exams, learn with interactive flashcards, and track your progress"
+      description: "Adaptive techniques that respond to your emotional state for optimal study efficiency and exam success"
     }
   ];
 
@@ -50,14 +50,20 @@ const WhatIsSection = () => {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, amount: 0.3 }}
-          variants={fadeIn}
+          variants={staggerContainer}
         >
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600">
+          <motion.h2 
+            className="text-3xl md:text-4xl font-bold font-display mb-4 bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600"
+            variants={fadeIn}
+          >
             What is PREPZR?
-          </h2>
-          <p className="text-lg md:text-xl text-gray-700 dark:text-gray-300 leading-relaxed">
-            PREPZR is your intelligent study companion that transforms how you prepare for exams. We combine AI-powered learning tools with collaborative features to make your study journey efficient, engaging, and successful.
-          </p>
+          </motion.h2>
+          <motion.p 
+            className="text-lg md:text-xl text-gray-700 dark:text-gray-300 leading-relaxed"
+            variants={fadeIn}
+          >
+            PREPZR is India's first emotionally intelligent study companion that understands not just what you need to learn, but how you feel while learning. Our AI adapts to your mood, motivation levels, and learning patterns to create a supportive study experience tailored just for you.
+          </motion.p>
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
@@ -148,7 +154,7 @@ const WhatIsSection = () => {
           viewport={{ once: true }}
         >
           <Button className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-8 py-6 text-lg hover:shadow-lg transition-all" size="lg">
-            Start Your Exam Prep Journey
+            Meet Your Emotional Study Partner
             <ArrowRight className="ml-2 h-5 w-5" />
           </Button>
         </motion.div>
