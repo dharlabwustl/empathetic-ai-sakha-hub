@@ -13,7 +13,8 @@ const EcosystemAnimation: React.FC = () => {
       description: "Prepare for top engineering entrance exams with AI-driven personalized study plans",
       icon: <GraduationCap size={28} />,
       exams: ["JEE Main", "JEE Advanced", "BITSAT", "VITEEE", "MET"],
-      color: "from-blue-500 to-cyan-400"
+      color: "from-blue-500 to-cyan-400",
+      launchedExam: null
     },
     {
       id: 2,
@@ -21,7 +22,8 @@ const EcosystemAnimation: React.FC = () => {
       description: "Master medical concepts with adaptive learning paths tailored to your strengths and weaknesses",
       icon: <BookOpen size={28} />,
       exams: ["NEET-UG", "AIIMS", "JIPMER", "NEET-PG", "FMGE"],
-      color: "from-green-500 to-teal-400"
+      color: "from-green-500 to-teal-400",
+      launchedExam: "NEET-UG"
     },
     {
       id: 3,
@@ -29,7 +31,8 @@ const EcosystemAnimation: React.FC = () => {
       description: "Comprehensive preparation for all stages of civil service examination with current affairs updates",
       icon: <Shield size={28} />,
       exams: ["UPSC CSE", "State PCS", "SSC CGL", "UPSC ESE", "UPSC CDS"],
-      color: "from-orange-500 to-amber-400"
+      color: "from-orange-500 to-amber-400",
+      launchedExam: null
     },
     {
       id: 4,
@@ -37,7 +40,8 @@ const EcosystemAnimation: React.FC = () => {
       description: "Strategic preparation for management entrance tests with focus on analytical and verbal ability",
       icon: <FileText size={28} />,
       exams: ["CAT", "XAT", "SNAP", "NMAT", "CMAT"],
-      color: "from-purple-500 to-violet-400"
+      color: "from-purple-500 to-violet-400",
+      launchedExam: null
     },
     {
       id: 5,
@@ -45,7 +49,8 @@ const EcosystemAnimation: React.FC = () => {
       description: "Stay ahead with pattern-focused preparation and regular mock tests for competitive exams",
       icon: <CircleUserRound size={28} />,
       exams: ["Banking", "SSC", "Railways", "Insurance", "Teaching"],
-      color: "from-rose-500 to-pink-400"
+      color: "from-rose-500 to-pink-400",
+      launchedExam: null
     },
     {
       id: 6,
@@ -53,7 +58,8 @@ const EcosystemAnimation: React.FC = () => {
       description: "Complete preparation for international standardized tests with focus on all test components",
       icon: <ArrowRightLeft size={28} />,
       exams: ["GRE", "GMAT", "TOEFL", "IELTS", "SAT"],
-      color: "from-indigo-500 to-blue-400"
+      color: "from-indigo-500 to-blue-400",
+      launchedExam: null
     }
   ];
 
@@ -129,19 +135,37 @@ const EcosystemAnimation: React.FC = () => {
                   {category.description}
                 </p>
                 <div className="flex flex-wrap gap-2">
-                  {category.exams.map((exam, index) => (
-                    <motion.span
-                      key={index}
-                      initial={{ opacity: 0.7 }}
-                      animate={{ 
-                        opacity: activeCategory === category.id ? 1 : 0.7,
-                        scale: activeCategory === category.id ? 1.05 : 1
-                      }}
-                      className={`text-xs font-medium px-3 py-1 rounded-full bg-gradient-to-r ${category.color} text-white opacity-70 hover:opacity-100 transition-opacity`}
-                    >
-                      {exam}
-                    </motion.span>
-                  ))}
+                  {category.exams.map((exam, index) => {
+                    const isLaunched = exam === category.launchedExam;
+                    
+                    return (
+                      <motion.div
+                        key={index}
+                        className="relative"
+                        initial={{ opacity: 0.7 }}
+                        animate={{ 
+                          opacity: activeCategory === category.id ? 1 : 0.7,
+                          scale: activeCategory === category.id ? 1.05 : 1
+                        }}
+                      >
+                        <span className={`text-xs font-medium px-3 py-1 rounded-full bg-gradient-to-r ${category.color} text-white opacity-70 hover:opacity-100 transition-opacity`}>
+                          {exam}
+                        </span>
+                        
+                        {isLaunched && (
+                          <span className="absolute -top-2 -right-2 bg-green-500 text-white text-[9px] px-1.5 py-0.5 rounded-full">
+                            LAUNCHED
+                          </span>
+                        )}
+                        
+                        {!isLaunched && (
+                          <span className="absolute -top-2 -right-2 bg-gray-500 text-white text-[9px] px-1.5 py-0.5 rounded-full whitespace-nowrap">
+                            COMING SOON
+                          </span>
+                        )}
+                      </motion.div>
+                    );
+                  })}
                 </div>
               </div>
             </motion.div>
