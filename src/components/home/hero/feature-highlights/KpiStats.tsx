@@ -193,7 +193,7 @@ export const KpiStats = () => {
               : 'bg-purple-200 dark:bg-purple-800/40'}`}
             animate={{
               scale: activeTab === category ? [1, 1.2, 1] : 1,
-              transition: { repeat: activeTab === category ? Infinity, duration: 2 }
+              transition: { repeat: activeTab === category ? Infinity : 0, duration: 2 }
             }}
           />
         ))}

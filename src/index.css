@@ -1,4 +1,3 @@
-
 @import './styles/theme.css';
 @tailwind base;
 @tailwind components;
@@ -192,7 +191,7 @@
 
 /* Fix for the resolution and font size */
 html {
-  font-size: 14px !important; /* Reduced from 16px to 14px - Base font size with important */
+  font-size: 14px !important; /* Base font size with important */
   -webkit-text-size-adjust: 100%;
   -ms-text-size-adjust: 100%;
 }
