@@ -1,3 +1,4 @@
+
 @import './styles/theme.css';
 @tailwind base;
 @tailwind components;
@@ -15,12 +16,15 @@
     -moz-text-size-adjust: 100%;
     -ms-text-size-adjust: 100%;
     text-size-adjust: 100%;
+    zoom: 1;
   }
   
   body {
     @apply bg-background text-foreground antialiased;
     font-size: 16px !important;
     line-height: 1.5;
+    overflow-x: hidden;
+    width: 100%;
   }
   
   /* Reset headings to appropriate sizes */
@@ -172,6 +176,14 @@
   .scrollbar-thin {
     scrollbar-width: thin;
   }
+
+  .text-size-reset {
+    font-size: 16px !important;
+  }
+
+  .no-zoom {
+    touch-action: manipulation;
+  }
 }
 
 /* Fix for the resolution and font size */
@@ -204,8 +216,21 @@ html {
   }
 }
 
+/* Scale fixes for large screens */
+@media screen and (min-width: 1440px) {
+  html, body {
+    font-size: 16px !important;
+    zoom: 1;
+  }
+}
+
 /* Fix for SVG rendering */
 svg {
   shape-rendering: geometricPrecision;
   text-rendering: optimizeLegibility;
+}
+
+/* Additional font control for all text elements */
+p, div, span, a, li, td, th {
+  font-size: 16px;
 }

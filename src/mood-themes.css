@@ -114,3 +114,24 @@ textarea, select {
   font-size: 16px !important;
   transform: scale(1);
 }
+
+/* Scale adjustments for different screen sizes */
+@media screen and (min-width: 1440px) {
+  html, body {
+    font-size: 16px !important;
+  }
+}
+
+@media screen and (min-width: 1920px) {
+  html, body {
+    font-size: 16px !important;
+  }
+}
+
+/* Fix for zoom reset */
+@viewport {
+  zoom: 1.0;
+  min-zoom: 1.0;
+  max-zoom: 1.0;
+  user-zoom: fixed;
+}
