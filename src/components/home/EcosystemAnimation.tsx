@@ -16,7 +16,7 @@ const EcosystemAnimation: React.FC = () => {
       icon: <GraduationCap size={28} />,
       exams: ["JEE Main", "JEE Advanced", "BITSAT", "VITEEE", "MET"],
       color: "from-blue-500 to-cyan-400",
-      launchedExam: null
+      launchedExams: []
     },
     {
       id: 2,
@@ -25,7 +25,7 @@ const EcosystemAnimation: React.FC = () => {
       icon: <BookOpen size={28} />,
       exams: ["NEET-UG", "AIIMS", "JIPMER", "NEET-PG", "FMGE"],
       color: "from-green-500 to-teal-400",
-      launchedExam: "NEET-UG"
+      launchedExams: ["NEET-UG"]
     },
     {
       id: 3,
@@ -34,7 +34,7 @@ const EcosystemAnimation: React.FC = () => {
       icon: <Shield size={28} />,
       exams: ["UPSC CSE", "State PCS", "SSC CGL", "UPSC ESE", "UPSC CDS"],
       color: "from-orange-500 to-amber-400",
-      launchedExam: null
+      launchedExams: []
     },
     {
       id: 4,
@@ -43,7 +43,7 @@ const EcosystemAnimation: React.FC = () => {
       icon: <FileText size={28} />,
       exams: ["CAT", "XAT", "SNAP", "NMAT", "CMAT"],
       color: "from-purple-500 to-violet-400",
-      launchedExam: null
+      launchedExams: []
     },
     {
       id: 5,
@@ -52,7 +52,7 @@ const EcosystemAnimation: React.FC = () => {
       icon: <CircleUserRound size={28} />,
       exams: ["Banking", "SSC", "Railways", "Insurance", "Teaching"],
       color: "from-rose-500 to-pink-400",
-      launchedExam: null
+      launchedExams: []
     },
     {
       id: 6,
@@ -61,7 +61,7 @@ const EcosystemAnimation: React.FC = () => {
       icon: <ArrowRightLeft size={28} />,
       exams: ["GRE", "GMAT", "TOEFL", "IELTS", "SAT"],
       color: "from-indigo-500 to-blue-400",
-      launchedExam: null
+      launchedExams: []
     }
   ];
 
@@ -211,7 +211,7 @@ const EcosystemAnimation: React.FC = () => {
                   </p>
                   <div className="flex flex-wrap gap-2">
                     {category.exams.map((exam, index) => {
-                      const isLaunched = exam === category.launchedExam;
+                      const isLaunched = category.launchedExams.includes(exam);
                       
                       return (
                         <motion.div
@@ -224,31 +224,38 @@ const EcosystemAnimation: React.FC = () => {
                           }}
                           transition={{ duration: 0.3 }}
                         >
-                          <span className={`text-xs font-medium px-3 py-1 rounded-full bg-gradient-to-r ${category.color} text-white opacity-70 hover:opacity-100 transition-opacity`}>
-                            {exam}
-                          </span>
-                          
-                          {isLaunched && (
-                            <motion.span 
-                              className="absolute -top-2 -right-2 bg-green-500 text-white text-[9px] px-1.5 py-0.5 rounded-full shadow-sm"
-                              initial={{ scale: 0 }}
-                              animate={{ scale: 1 }}
-                              transition={{ type: 'spring', stiffness: 500, damping: 23 }}
-                            >
-                              LAUNCHED
-                            </motion.span>
-                          )}
-                          
-                          {!isLaunched && (
-                            <motion.span 
-                              className="absolute -top-2 -right-2 bg-gray-500 text-white text-[9px] px-1.5 py-0.5 rounded-full whitespace-nowrap shadow-sm"
-                              initial={{ scale: 0 }}
-                              animate={{ scale: 1 }}
-                              transition={{ type: 'spring', stiffness: 500, damping: 23, delay: 0.05 }}
-                            >
-                              COMING SOON
-                            </motion.span>
-                          )}
+                          <div className="group relative">
+                            <span className={`text-xs font-medium px-3 py-1 rounded-full flex items-center bg-gradient-to-r ${category.color} text-white opacity-70 hover:opacity-100 transition-opacity`}>
+                              {exam}
+                              
+                              {isLaunched && (
+                                <motion.div 
+                                  className="ml-1.5 inline-flex items-center"
+                                  initial={{ scale: 0 }}
+                                  animate={{ scale: 1 }}
+                                  transition={{ type: 'spring', stiffness: 500, damping: 23 }}
+                                >
+                                  <span className="relative flex h-2 w-2">
+                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                                  </span>
+                                </motion.div>
+                              )}
+                            </span>
+                            
+                            {/* Tooltip style status indicator */}
+                            {isLaunched ? (
+                              <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 px-2 py-1 bg-green-500 text-white text-[10px] rounded-md opacity-0 group-hover:opacity-100 transition-opacity shadow-lg pointer-events-none whitespace-nowrap">
+                                LAUNCHED
+                                <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-green-500 rotate-45"></div>
+                              </div>
+                            ) : (
+                              <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 px-2 py-1 bg-gray-500 text-white text-[10px] rounded-md opacity-0 group-hover:opacity-100 transition-opacity shadow-lg pointer-events-none whitespace-nowrap">
+                                COMING SOON
+                                <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-gray-500 rotate-45"></div>
+                              </div>
+                            )}
+                          </div>
                         </motion.div>
                       );
                     })}
