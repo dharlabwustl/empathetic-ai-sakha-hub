@@ -13,6 +13,7 @@ import VideoSection from '@/components/home/VideoSection';
 import { ExamReadinessAnalyzer } from '@/components/home/ExamReadinessAnalyzer';
 import FoundingTeamSection from '@/components/home/FoundingTeamSection';
 import EcosystemAnimation from '@/components/home/EcosystemAnimation';
+import ChampionMethodologySection from '@/components/home/ChampionMethodologySection';
 
 const Index = () => {
   const featuresRef = useRef<HTMLDivElement>(null);
@@ -58,7 +59,10 @@ const Index = () => {
         
         <WhatIsSection />
         
-        {/* Add the EcosystemAnimation section after WhatIsSection */}
+        {/* Add the ChampionMethodologySection right after WhatIsSection */}
+        <ChampionMethodologySection />
+        
+        {/* Add the EcosystemAnimation section after ChampionMethodologySection */}
         <EcosystemAnimation />
         
         <div ref={featuresRef}>
