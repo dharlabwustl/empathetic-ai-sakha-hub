@@ -42,7 +42,7 @@ const HeroSection: React.FC = () => {
             animate={{ opacity: 1 }}
             transition={{ duration: 0.8 }}
           >
-            Sakha AI – पहली बार, पढ़ाई से पहले, आपको समझने वाला साथी
+            पहली बार, पढ़ाई से पहले, आपको समझने वाला साथी
           </motion.span>
           
           <motion.div
@@ -83,12 +83,18 @@ const HeroSection: React.FC = () => {
             asChild
           >
             <Link to="/signup">
-              Get Started Now
+              Test Your Exam Readiness
               <ArrowRight className="ml-2 h-5 w-5" />
             </Link>
           </Button>
-          <Button variant="outline" className="border-2 px-8 py-6 text-lg font-semibold shadow-lg">
-            Take a Tour
+          <Button 
+            variant="outline" 
+            className="border-2 px-8 py-6 text-lg font-semibold shadow-lg"
+            asChild
+          >
+            <Link to="/signup">
+              7 Days Free Trial
+            </Link>
           </Button>
         </motion.div>
 
