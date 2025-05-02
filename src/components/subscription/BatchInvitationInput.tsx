@@ -2,78 +2,74 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Key } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
+import { Loader2, ArrowRight } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 interface BatchInvitationInputProps {
-  onJoinBatch: (code: string) => Promise<void>;
+  onJoinBatch: (batchCode: string) => Promise<void>;
 }
 
 const BatchInvitationInput: React.FC<BatchInvitationInputProps> = ({ onJoinBatch }) => {
-  const [inviteCode, setInviteCode] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [batchCode, setBatchCode] = useState('');
+  const [isProcessing, setIsProcessing] = useState(false);
+  const { toast } = useToast();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!inviteCode.trim()) {
-      setError('Please enter an invite code');
+  const handleJoinBatch = async () => {
+    if (!batchCode.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter a valid batch code",
+        variant: "destructive"
+      });
       return;
     }
 
-    setIsSubmitting(true);
-    setError(null);
-
+    setIsProcessing(true);
+    
     try {
-      await onJoinBatch(inviteCode.trim());
-      // Clear the input field on success
-      setInviteCode('');
-    } catch (err) {
-      setError('An error occurred. Please try again with a valid code.');
-      console.error('Error submitting invite code:', err);
+      await onJoinBatch(batchCode);
+      setBatchCode('');
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to join batch with this code",
+        variant: "destructive"
+      });
     } finally {
-      setIsSubmitting(false);
+      setIsProcessing(false);
     }
   };
 
   return (
-    <Card>
-      <CardContent className="pt-6">
-        <h3 className="text-lg font-medium mb-3 flex items-center">
-          <Key size={18} className="text-blue-600 mr-1.5" />
-          Join a Study Batch
-        </h3>
-        <p className="text-sm text-muted-foreground mb-3">
-          Enter the invite code provided by your batch leader to join their study group.
-        </p>
-        
-        <form onSubmit={handleSubmit} className="space-y-3">
-          <div className="flex flex-wrap gap-2">
-            <div className="flex-grow">
-              <Input
-                id="invite-code-input"
-                placeholder="Enter invite code (e.g., SAKHA-ABC123)"
-                value={inviteCode}
-                onChange={(e) => {
-                  setInviteCode(e.target.value);
-                  if (error) setError(null);
-                }}
-                className={error ? 'border-red-500' : ''}
-              />
-              {error && <p className="text-sm text-red-500 mt-1">{error}</p>}
-            </div>
-            
-            <Button 
-              type="submit" 
-              disabled={isSubmitting}
-              className="whitespace-nowrap"
-            >
-              {isSubmitting ? 'Processing...' : 'Join Batch'}
-            </Button>
-          </div>
-        </form>
-      </CardContent>
-    </Card>
+    <div className="space-y-2">
+      <h3 className="text-sm font-medium">Have an invitation code?</h3>
+      <div className="flex w-full items-center space-x-2">
+        <Input
+          placeholder="Enter batch code (e.g., SAKHA-ABC123)"
+          value={batchCode}
+          onChange={(e) => setBatchCode(e.target.value)}
+          disabled={isProcessing}
+          className="flex-1"
+        />
+        <Button 
+          onClick={handleJoinBatch} 
+          disabled={isProcessing}
+          className="whitespace-nowrap"
+        >
+          {isProcessing ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Joining...
+            </>
+          ) : (
+            <>
+              Join Batch
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </>
+          )}
+        </Button>
+      </div>
+    </div>
   );
 };
 

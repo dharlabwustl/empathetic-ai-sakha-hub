@@ -1,4 +1,12 @@
 
+export interface Topic {
+  id: string;
+  name: string;
+  difficulty: 'easy' | 'medium' | 'hard';
+  completed: boolean;
+  status?: 'pending' | 'in-progress' | 'completed' | 'skipped';
+}
+
 export interface StudyPlanSubject {
   id: string;
   name: string;
@@ -6,13 +14,8 @@ export interface StudyPlanSubject {
   hoursPerWeek: number;
   priority: 'high' | 'medium' | 'low';
   proficiency?: 'strong' | 'weak' | 'medium';
-  topics?: Array<{
-    id: string;
-    name: string;
-    difficulty: 'easy' | 'medium' | 'hard';
-    completed: boolean;
-    status?: 'pending' | 'in-progress' | 'completed' | 'skipped';
-  }>;
+  topics?: Topic[];
+  progress?: number;
 }
 
 export type NewStudyPlanSubject = StudyPlanSubject;
@@ -24,14 +27,16 @@ export interface StudyPlan {
   goal: string;
   examGoal?: string;
   examDate?: string;
+  daysLeft?: number;
   createdAt: string;
   updatedAt: string;
   subjects: StudyPlanSubject[];
   weeklyHours: number;
-  status: 'active' | 'archived' | 'completed';
+  status: 'active' | 'archived' | 'completed' | 'paused';
   studyHoursPerDay?: number;
   preferredStudyTime?: 'morning' | 'afternoon' | 'evening' | 'night';
   learningPace?: 'slow' | 'moderate' | 'fast';
+  progressPercentage?: number;
 }
 
-export type NewStudyPlan = Omit<StudyPlan, 'id' | 'userId' | 'createdAt' | 'updatedAt'>;
+export type NewStudyPlan = Partial<StudyPlan>;

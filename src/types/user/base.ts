@@ -1,141 +1,59 @@
 
-export enum MoodType {
-  Happy = 'happy',
-  Focused = 'focused',
-  Tired = 'tired',
-  Stressed = 'stressed',
-  Curious = 'curious',
-  Okay = 'okay',
-  Overwhelmed = 'overwhelmed',
-  Anxious = 'anxious',
-  Motivated = 'motivated',
-  Confused = 'confused',
-  Neutral = 'neutral',
-  Sad = 'sad',
-  Calm = 'calm',
-}
-
-export enum SubscriptionType {
-  FREE = 'free',
-  BASIC = 'basic',
-  PRO = 'pro',
-  PREMIUM = 'premium',
-  ProMonthly = 'pro_monthly',
-  ProAnnual = 'pro_annual',
-  GroupSmall = 'group_small',
-  GroupLarge = 'group_large',
-  GroupAnnual = 'group_annual'
-}
-
 export enum UserRole {
+  Admin = 'admin',
   Student = 'student',
-  Teacher = 'teacher',
-  Admin = 'admin'
+  Tutor = 'tutor',
+  Parent = 'parent'
 }
 
-export enum Gender {
-  Male = 'male',
-  Female = 'female',
-  Other = 'other',
-  PreferNotToSay = 'prefer-not-to-say'
-}
-
-export enum SignupType {
-  Email = 'email',
-  Google = 'google',
-  Facebook = 'facebook',
-  Apple = 'apple'
-}
-
-export enum StudyPace {
-  Slow = 'slow',
-  Moderate = 'moderate',
-  Fast = 'fast'
-}
-
-export enum StudyPreferenceType {
-  Solo = 'solo',
-  Group = 'group',
-  Mixed = 'mixed'
-}
-
-export interface UserProfileBase {
+export interface BaseUser {
   id: string;
   name: string;
   email: string;
-  bio?: string;
-  avatar?: string;
-  phoneNumber?: string;
-  role: 'student' | 'teacher' | 'admin';
-  subscription?: SubscriptionType | {
-    planType: string;
-    startDate?: Date | string;
-    expiryDate?: Date | string;
-    status?: 'active' | 'expired' | 'cancelled';
-    autoRenew?: boolean;
-  };
-  goals?: {
-    id: string;
-    title: string;
-    description?: string;
-    targetDate?: Date;
-    progress?: number;
-  }[];
-  preferences?: {
-    theme?: 'light' | 'dark' | 'system';
-    notifications?: boolean;
-    emailAlerts?: boolean;
-    language?: string;
-  };
-  createdAt?: Date | string;
-  updatedAt?: Date | string;
-  lastLogin?: Date | string;
+  role: UserRole;
+  createdAt?: string;
+  updatedAt?: string;
+  subscription?: string | { planType: string };
+}
+
+export interface AdminUser extends BaseUser {
+  role: UserRole.Admin;
+  permissions?: string[];
+}
+
+export interface StudentUser extends BaseUser {
+  role: UserRole.Student;
+  examPreparation?: string;
+  level?: string;
+  preferredSubjects?: string[];
+  lastLogin?: string;
   loginCount?: number;
+  moodHistory?: Array<{
+    timestamp: string;
+    mood: string;
+    intensity: number;
+  }>;
+  currentMood?: {
+    mood: string;
+    timestamp: string;
+    intensity: number;
+  };
+  studyStreak?: number;
+  rewards?: number;
 }
 
-export type UserProfileType = UserProfileBase;
-
-// Additional types that might be useful
-export interface StudyStreak {
-  current: number;
-  longest: number;
-  lastStudyDate: Date;
+export interface TutorUser extends BaseUser {
+  role: UserRole.Tutor;
+  subjects?: string[];
+  expertise?: string[];
+  students?: string[];
+  rating?: number;
+  verificationStatus?: 'pending' | 'verified' | 'rejected';
 }
 
-export interface SubjectProgress {
-  id?: string;
-  subject: string;
-  progress: number;
-  topicsTotal: number;
-  topicsCompleted: number;
-  quizzesCompleted: number;
-  masteryLevel: 'beginner' | 'intermediate' | 'advanced' | 'master';
+export interface ParentUser extends BaseUser {
+  role: UserRole.Parent;
+  children?: string[]; // IDs of child accounts
 }
 
-export interface PaymentMethod {
-  id: string;
-  type: 'card' | 'upi' | 'bank';
-  isDefault: boolean;
-  lastFour?: string;
-  expiryDate?: string;
-  cardType?: string;
-  upiId?: string;
-}
-
-export interface BillingHistory {
-  id: string;
-  date: string;
-  amount: number;
-  status: 'paid' | 'pending' | 'failed';
-  invoiceUrl: string;
-  planName: string;
-}
-
-export interface SubscriptionPlan {
-  id: string;
-  name: string;
-  price: number;
-  features: string[];
-  type: SubscriptionType;
-  maxMembers?: number;
-}
+export type User = AdminUser | StudentUser | TutorUser | ParentUser;

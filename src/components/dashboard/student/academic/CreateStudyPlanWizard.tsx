@@ -1,9 +1,14 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useStudyPlanWizard } from '@/hooks/useStudyPlanWizard';
 import { Button } from '@/components/ui/button';
 import { NewStudyPlan } from '@/types/user/studyPlan';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { format } from 'date-fns';
+import { CalendarIcon } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 export interface CreateStudyPlanWizardProps {
   open: boolean;
@@ -31,6 +36,18 @@ const CreateStudyPlanWizard: React.FC<CreateStudyPlanWizardProps> = ({
     handleNext,
     handleBack
   } = useStudyPlanWizard({ examGoal, onCreatePlan, onClose });
+
+  // Add a date state for exam date
+  const [examDate, setExamDate] = useState<Date | undefined>(
+    formData.examDate ? new Date(formData.examDate) : undefined
+  );
+
+  const handleDateChange = (date: Date | undefined) => {
+    setExamDate(date);
+    if (date) {
+      setFormData(prev => ({ ...prev, examDate: date }));
+    }
+  };
 
   const renderStep = () => {
     switch(step) {
@@ -97,6 +114,39 @@ const CreateStudyPlanWizard: React.FC<CreateStudyPlanWizardProps> = ({
       case 4:
         return (
           <div className="space-y-4">
+            <h3 className="text-lg font-medium">When is your exam?</h3>
+            <p className="text-sm text-muted-foreground">Select your exam date to optimize your study plan</p>
+            <div className="grid gap-2">
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant={"outline"}
+                    className={cn(
+                      "w-full justify-start text-left font-normal",
+                      !examDate && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {examDate ? format(examDate, "PPP") : <span>Select exam date</span>}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={examDate}
+                    onSelect={handleDateChange}
+                    initialFocus
+                    disabled={(date) => date < new Date()}
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+          </div>
+        );
+      
+      case 5:
+        return (
+          <div className="space-y-4">
             <h3 className="text-lg font-medium">Learning pace preference</h3>
             <p className="text-sm text-muted-foreground">How intensively do you want to study?</p>
             <div className="space-y-2">
@@ -126,7 +176,7 @@ const CreateStudyPlanWizard: React.FC<CreateStudyPlanWizardProps> = ({
           </div>
         );
       
-      case 5:
+      case 6:
         return (
           <div className="space-y-4">
             <h3 className="text-lg font-medium">Preferred study time</h3>
@@ -146,12 +196,13 @@ const CreateStudyPlanWizard: React.FC<CreateStudyPlanWizardProps> = ({
           </div>
         );
       
-      case 6:
+      case 7:
         return (
           <div className="space-y-4">
             <h3 className="text-lg font-medium">Summary</h3>
             <div className="bg-muted p-3 rounded-md space-y-2 text-sm">
               <div><strong>Exam Goal:</strong> {formData.goal}</div>
+              <div><strong>Exam Date:</strong> {examDate ? format(examDate, "PPP") : 'Not specified'}</div>
               <div><strong>Strong Subjects:</strong> {strongSubjects.join(', ') || 'None selected'}</div>
               <div><strong>Weak Subjects:</strong> {weakSubjects.join(', ') || 'None selected'}</div>
               <div>
@@ -191,8 +242,9 @@ const CreateStudyPlanWizard: React.FC<CreateStudyPlanWizardProps> = ({
           
           <Button 
             onClick={handleNext}
+            disabled={step === 4 && !examDate}
           >
-            {step === 6 ? 'Create Plan' : 'Next'}
+            {step === 7 ? 'Create Plan' : 'Next'}
           </Button>
         </div>
       </DialogContent>
