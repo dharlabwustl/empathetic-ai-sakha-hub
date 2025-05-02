@@ -35,6 +35,12 @@ const PostLoginPrompt = () => {
           setPendingTask(parsedData.pendingTasks[0].title);
         }
         
+        // Ensure we mark user as having completed onboarding to avoid redirect loops
+        localStorage.setItem('userData', JSON.stringify({
+          ...parsedData,
+          completedOnboarding: true,
+          sawWelcomeTour: parsedData.sawWelcomeTour || false
+        }));
       } catch (error) {
         console.error("Error parsing user data:", error);
       }
@@ -42,7 +48,8 @@ const PostLoginPrompt = () => {
     
     // Auto-redirect after 15 seconds if no action taken
     const timer = setTimeout(() => {
-      navigate('/dashboard/student'); // Use absolute path here
+      // Use absolute path with replace to avoid navigation issues
+      navigate('/dashboard/student', { replace: true });
       toast({
         title: "Welcome back!",
         description: "You've been automatically redirected to your dashboard.",
@@ -53,7 +60,8 @@ const PostLoginPrompt = () => {
   }, [navigate, returnTo, toast]);
 
   const goToTodaysPlan = () => {
-    navigate("/dashboard/student/today");
+    // Use absolute path with replace to avoid navigation issues
+    navigate("/dashboard/student/today", { replace: true });
     toast({
       title: "Today's Plan",
       description: "Let's focus on today's learning goals!"
@@ -61,8 +69,8 @@ const PostLoginPrompt = () => {
   };
 
   const goToDashboard = () => {
-    // Directly navigate to the student dashboard with absolute path
-    navigate("/dashboard/student");
+    // Use absolute path with replace to avoid navigation issues
+    navigate("/dashboard/student", { replace: true });
     toast({
       title: "Welcome to Dashboard",
       description: "Your dashboard is ready for today's learning activities."
@@ -70,9 +78,8 @@ const PostLoginPrompt = () => {
   };
   
   const continuePendingTask = () => {
-    // In a real app, this would navigate to the specific task
-    // For now, just go to today's plan
-    navigate("/dashboard/student/today");
+    // Use absolute path with replace to avoid navigation issues
+    navigate("/dashboard/student/today", { replace: true });
     toast({
       title: "Continuing Your Work",
       description: "Pick up right where you left off!"

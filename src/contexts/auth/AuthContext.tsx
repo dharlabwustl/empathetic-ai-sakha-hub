@@ -49,6 +49,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
               email: parsedData.email,
               role: parsedData.role || UserRole.Student
             });
+            
+            // Always ensure completedOnboarding is set to true for logged-in users
+            localStorage.setItem('userData', JSON.stringify({
+              ...parsedData,
+              completedOnboarding: true
+            }));
+            
             console.log("User authenticated from localStorage:", parsedData.email);
           }
         } catch (error) {
@@ -79,7 +86,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           
           console.log("Login successful for:", email);
           
-          // Save user data to localStorage
+          // Save user data to localStorage with completedOnboarding explicitly set
           localStorage.setItem('userData', JSON.stringify({
             id: newUser.id,
             name: newUser.name,

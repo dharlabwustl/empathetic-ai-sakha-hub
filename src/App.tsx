@@ -1,4 +1,3 @@
-
 import React, { Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
@@ -19,12 +18,12 @@ import { ThemeProvider } from './components/theme-provider';
 import AppRoutes from './components/dashboard/student/AppRoutes';
 import ConceptCardDetailPage from './components/dashboard/student/concepts/ConceptCardDetailPage';
 import ExamTakingPage from './components/dashboard/student/practice-exam/ExamTakingPage';
-import ExamReviewPage from './components/dashboard/student/practice-exam/ExamReviewPage';
+import ExamReviewPage from '@/components/dashboard/student/practice-exam/ExamReviewPage';
 import WelcomeToPrepr from './pages/signup/WelcomeToPrepr';
 import Login from './pages/Login';
 import EnhancedFlashcardPage from './pages/dashboard/student/flashcards/EnhancedFlashcardPage';
 import ProfilePage from './pages/student/ProfilePage';
-import StudentProfile from './pages/dashboard/student/StudentProfile';
+import StudentProfile from '@/pages/dashboard/student/StudentProfile';
 import StudyPlanView from './pages/dashboard/student/StudyPlanView';
 import TutorView from './pages/dashboard/student/TutorView';
 import AcademicAdvisorView from './pages/dashboard/student/AcademicAdvisorView';
@@ -84,13 +83,15 @@ function App() {
               <Route path="/dashboard" element={<Navigate to="/dashboard/student" replace />} />
               <Route path="/dashboard/student" element={<StudentDashboard />} />
               <Route path="/dashboard/student/:tab" element={<StudentDashboard />} />
+              
+              {/* Ensure these specific routes are above the dynamic routes to prevent conflicts */}
               <Route path="/dashboard/student/today" element={<TodaysPlanView />} />
               <Route path="/dashboard/student/feel-good-corner" element={<FeelGoodCornerView />} />
               <Route path="/dashboard/student/study-groups" element={<StudyGroupsPage />} />
               <Route path="/dashboard/student/subscription" element={<SubscriptionPage />} />
               <Route path="/dashboard/student/batch-management" element={<BatchManagementPage />} />
               
-              {/* Profile routes */}
+              {/* Other student routes */}
               <Route path="/dashboard/student/profile" element={<EnhancedProfilePage />} />
               <Route path="/student/profile" element={<ProfilePage />} />
               <Route path="/profile" element={<ProfilePage />} />
