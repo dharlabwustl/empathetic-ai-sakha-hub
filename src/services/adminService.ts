@@ -57,34 +57,50 @@ const apiCall = async <T>(endpoint: string, method: string = 'GET', data?: any):
 
 // Mock data for development (would come from Flask backend)
 const mockStats: AdminDashboardStats = {
-  totalStudents: 1245,
-  activeStudents: 876,
+  totalStudents: 10000,
+  activeStudents: 8500,
   newSignupsToday: 27,
-  totalQuestions: 5432,
+  totalQuestions: 500000,
   totalConcepts: 1289,
-  totalFlashcards: 3456,
+  totalFlashcards: 2000000,
   totalEngagementHours: 4532,
   averageMoodScore: 7.8,
-  studentsWithConsistentHabits: 876,
+  studentsWithConsistentHabits: 8500,
   averageConfidenceScore: 8.2,
   totalSessions: 12487,
   moodBasedSessionsCount: 7832,
+  studentsWithMoodTracking: 85,
+  
+  // New KPIs for the homepage
+  averageConcepts: 850,
+  successRate: 95,
+  totalStudyPlans: 12000,
+  targetExams: 20,
   
   // New KPIs added
-  dailyActiveUsers: 347,
-  weeklyActiveUsers: 762,
-  monthlyActiveUsers: 1042,
-  freeUsers: 984,
-  paidUsers: 261,
-  groupUsers: 128,
+  dailyActiveUsers: 3470,
+  weeklyActiveUsers: 7620,
+  monthlyActiveUsers: 9200,
+  freeUsers: 7500,
+  paidUsers: 2500,
+  groupUsers: 1280,
   subscriptionConversionRate: 24.6,
   churnRate: 3.2,
-  averageStudyTimePerUser: 42,
+  averageStudyTimePerUser: 6.5,
   practiceAttemptsPerUser: 18,
   weakAreaIdentificationRate: 68,
   userSatisfactionScore: 87,
   referralRate: 28,
-  totalRevenue: 127840
+  totalRevenue: 127840,
+  
+  // Verified metrics
+  verifiedMoodImprovement: 72,
+  averageTimeSavedPerWeek: 6.5,
+  studentsWithVerifiedConsistentHabits: 8000,
+  verifiedExamConfidenceImprovement: 85,
+  verifiedRetentionRate: 92,
+  verifiedMoodFeatureUsage: 72,
+  completedSurveys: 8500
 };
 
 const mockStudents: StudentData[] = Array(20).fill(0).map((_, i) => ({

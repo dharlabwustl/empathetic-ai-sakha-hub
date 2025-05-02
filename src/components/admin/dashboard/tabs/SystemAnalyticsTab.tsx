@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { adminService } from "@/services/adminService";
@@ -136,6 +135,7 @@ const SystemAnalyticsTab = () => {
       <Tabs defaultValue={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="w-full mb-6">
           <TabsTrigger value="metrics" className="flex-1">Student Metrics</TabsTrigger>
+          <TabsTrigger value="homepage" className="flex-1">Homepage KPIs</TabsTrigger>
           <TabsTrigger value="monitoring" className="flex-1">System Monitoring</TabsTrigger>
           <TabsTrigger value="database" className="flex-1">Database</TabsTrigger>
           <TabsTrigger value="api" className="flex-1">API Performance</TabsTrigger>
@@ -230,6 +230,131 @@ const SystemAnalyticsTab = () => {
               </CardContent>
             </Card>
           </div>
+        </TabsContent>
+        
+        <TabsContent value="homepage">
+          <Card className="mb-6">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Activity className="h-5 w-5 text-purple-600" />
+                Homepage KPI Statistics
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground mb-4">
+                These statistics are displayed on the homepage in the KPI section. Update these values to reflect current performance metrics.
+              </p>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="space-y-4">
+                  <h3 className="font-medium">Student Metrics</h3>
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-sm">Total Students</span>
+                      <span className="font-medium">10,000+</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm">Success Rate</span>
+                      <span className="font-medium">95%</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm">Avg Concepts Mastered</span>
+                      <span className="font-medium">850/student</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="space-y-4">
+                  <h3 className="font-medium">Content Metrics</h3>
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-sm">Practice Questions</span>
+                      <span className="font-medium">500,000+</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm">Flashcards Reviewed</span>
+                      <span className="font-medium">2 Million+</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm">Study Plans</span>
+                      <span className="font-medium">12,000+</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="space-y-4">
+                  <h3 className="font-medium">Experience Metrics</h3>
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-sm">Weekly Study Time</span>
+                      <span className="font-medium">6.5 hrs/week</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm">Target Exams</span>
+                      <span className="font-medium">20+ Exams</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm">Mood Tracking</span>
+                      <span className="font-medium">85% Weekly</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm">Anxiety Reduction</span>
+                      <span className="font-medium">72%</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="mt-6">
+                <Button variant="outline">
+                  Update Homepage KPI Values
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader>
+              <CardTitle>Homepage KPI Edit Form</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {[
+                  { label: "Total Students", key: "totalStudents", value: 10000, suffix: "" },
+                  { label: "Success Rate", key: "successRate", value: 95, suffix: "%" },
+                  { label: "Avg Concepts Mastered", key: "averageConcepts", value: 850, suffix: "/student" },
+                  { label: "Practice Questions", key: "totalQuestions", value: 500000, suffix: "+" },
+                  { label: "Flashcards Reviewed", key: "totalFlashcards", value: 2000000, suffix: "+" },
+                  { label: "Study Plans", key: "totalStudyPlans", value: 12000, suffix: "+" },
+                  { label: "Weekly Study Time", key: "averageStudyTimePerUser", value: 6.5, suffix: " hrs/week" },
+                  { label: "Target Exams", key: "targetExams", value: 20, suffix: "+" },
+                  { label: "Mood Tracking", key: "studentsWithMoodTracking", value: 85, suffix: "%" },
+                  { label: "Anxiety Reduction", key: "verifiedMoodImprovement", value: 72, suffix: "%" }
+                ].map((item, index) => (
+                  <div key={index} className="space-y-2">
+                    <label className="text-sm font-medium">{item.label}</label>
+                    <div className="flex">
+                      <input 
+                        type="number" 
+                        defaultValue={item.value}
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-l-md"
+                      />
+                      {item.suffix && (
+                        <span className="inline-flex items-center px-3 py-2 border border-l-0 border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 rounded-r-md">
+                          {item.suffix}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              
+              <div className="mt-6 flex gap-4">
+                <Button>Save Changes</Button>
+                <Button variant="outline">Reset to Default</Button>
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
         
         <TabsContent value="monitoring">

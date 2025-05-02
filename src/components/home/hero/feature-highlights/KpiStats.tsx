@@ -1,17 +1,115 @@
-
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import CountUp from 'react-countup';
+import { adminService } from '@/services/adminService';
 
-const stats = [
-  { id: 1, value: 10000, label: "Students", prefix: "+", suffix: "", decimals: 0 },
-  { id: 2, value: 95, label: "Success Rate", prefix: "", suffix: "%", decimals: 0 },
-  { id: 3, value: 500000, label: "Practice Questions", prefix: "+", suffix: "", decimals: 0 },
-  { id: 4, value: 850, label: "Concepts Mastered", prefix: "Avg ", suffix: "", decimals: 0 }
+// Define the stats based on the admin data structure
+const defaultStats = [
+  { 
+    id: 1, 
+    value: 10000, 
+    label: "Students Helped", 
+    prefix: "+", 
+    suffix: "", 
+    decimals: 0,
+    icon: "👩‍🎓",
+    adminKey: "totalStudents"
+  },
+  { 
+    id: 2, 
+    value: 850, 
+    label: "Concepts Mastered", 
+    prefix: "Avg ", 
+    suffix: "/Student", 
+    decimals: 0,
+    icon: "🧠",
+    adminKey: "averageConcepts"
+  },
+  { 
+    id: 3, 
+    value: 95, 
+    label: "Success Rate", 
+    prefix: "", 
+    suffix: "%", 
+    decimals: 0,
+    icon: "✅",
+    adminKey: "successRate"
+  },
+  { 
+    id: 4, 
+    value: 500000, 
+    label: "Practice Questions", 
+    prefix: "", 
+    suffix: "+", 
+    decimals: 0,
+    icon: "📚",
+    adminKey: "totalQuestions"
+  },
+  { 
+    id: 5, 
+    value: 2000000, 
+    label: "Flashcards Reviewed", 
+    prefix: "", 
+    suffix: "+", 
+    decimals: 0,
+    icon: "🃏",
+    adminKey: "totalFlashcards"
+  },
+  { 
+    id: 6, 
+    value: 12000, 
+    label: "Study Plans Delivered", 
+    prefix: "", 
+    suffix: "+", 
+    decimals: 0,
+    icon: "🔄",
+    adminKey: "totalStudyPlans"
+  },
+  { 
+    id: 7, 
+    value: 6.5, 
+    label: "Weekly Study Time", 
+    prefix: "", 
+    suffix: " hrs/week", 
+    decimals: 1,
+    icon: "⏳",
+    adminKey: "averageStudyTimePerUser"
+  },
+  { 
+    id: 8, 
+    value: 20, 
+    label: "Target Exams Covered", 
+    prefix: "", 
+    suffix: "+", 
+    decimals: 0,
+    icon: "🎯",
+    adminKey: "targetExams"
+  },
+  { 
+    id: 9, 
+    value: 85, 
+    label: "Users Log Weekly Moods", 
+    prefix: "", 
+    suffix: "%", 
+    decimals: 0,
+    icon: "😊",
+    adminKey: "studentsWithMoodTracking"
+  },
+  { 
+    id: 10, 
+    value: 72, 
+    label: "Feel Reduced Anxiety", 
+    prefix: "", 
+    suffix: "%", 
+    decimals: 0,
+    icon: "🧘",
+    adminKey: "verifiedMoodImprovement"
+  }
 ];
 
 export const KpiStats = () => {
   const [inView, setInView] = useState(false);
+  const [stats, setStats] = useState(defaultStats);
   
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -38,12 +136,40 @@ export const KpiStats = () => {
     };
   }, []);
   
+  // Fetch admin statistics when component mounts
+  useEffect(() => {
+    const fetchAdminStats = async () => {
+      try {
+        const adminStats = await adminService.getDashboardStats();
+        
+        if (adminStats) {
+          // Update stats with values from admin dashboard if available
+          setStats(prevStats => 
+            prevStats.map(stat => {
+              const adminValue = adminStats[stat.adminKey as keyof typeof adminStats];
+              // Only update if admin value exists and is a number
+              if (adminValue !== undefined && !isNaN(Number(adminValue))) {
+                return { ...stat, value: Number(adminValue) };
+              }
+              return stat;
+            })
+          );
+        }
+      } catch (error) {
+        console.error("Error fetching admin statistics:", error);
+        // Keep using default values if there's an error
+      }
+    };
+
+    fetchAdminStats();
+  }, []);
+  
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: { 
       opacity: 1,
       transition: { 
-        staggerChildren: 0.2,
+        staggerChildren: 0.1,
         delayChildren: 0.3,
       } 
     }
@@ -61,25 +187,58 @@ export const KpiStats = () => {
     }
   };
 
+  // Title section
+  const titleVariants = {
+    hidden: { opacity: 0, y: -20 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: {
+        duration: 0.6
+      }
+    }
+  };
+
   return (
     <div 
       id="kpi-stats-section" 
       className="bg-gradient-to-r from-purple-50 via-white to-blue-50 dark:from-purple-900/20 dark:via-gray-900 dark:to-blue-900/20 py-8 px-4 rounded-2xl shadow-sm border border-purple-100/50 dark:border-purple-900/50"
     >
       <motion.div
+        variants={titleVariants}
+        initial="hidden"
+        animate={inView ? "visible" : "hidden"}
+        className="text-center mb-8"
+      >
+        <h2 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+          Smart Data. Real Impact. Humanizing exam prep.
+        </h2>
+      </motion.div>
+      
+      <motion.div
         variants={containerVariants}
         initial="hidden"
         animate={inView ? "visible" : "hidden"}
-        className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-10 max-w-6xl mx-auto"
+        className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-8 max-w-7xl mx-auto"
       >
         {stats.map((stat) => (
           <motion.div 
             key={stat.id} 
             variants={itemVariants}
-            className="flex flex-col items-center text-center"
+            className="flex flex-col items-center text-center p-2 md:p-4 bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-md transition-shadow"
           >
             <motion.div 
-              className="text-3xl md:text-4xl font-bold text-purple-600 dark:text-purple-400 mb-2 flex items-center"
+              className="text-2xl md:text-3xl mb-1"
+              whileHover={{ scale: 1.2 }}
+              transition={{ type: "spring", stiffness: 400 }}
+            >
+              {stat.icon}
+            </motion.div>
+            <h3 className="text-sm text-gray-600 dark:text-gray-300 mb-1">
+              {stat.label}
+            </h3>
+            <motion.div 
+              className="text-lg md:text-xl font-bold text-purple-600 dark:text-purple-400 flex items-center"
               whileHover={{ scale: 1.05 }}
               transition={{ type: "spring", stiffness: 400 }}
             >
@@ -98,12 +257,6 @@ export const KpiStats = () => {
               )}
               <span>{stat.suffix}</span>
             </motion.div>
-            <motion.p 
-              className="text-sm text-gray-600 dark:text-gray-300"
-              whileHover={{ color: "#8B5CF6" }}
-            >
-              {stat.label}
-            </motion.p>
           </motion.div>
         ))}
       </motion.div>

@@ -35,6 +35,15 @@ export interface AdminDashboardStats {
   moodBasedSessionsCount: number;
   studentsWithMoodTracking: number;
   
+  // KPI Stats for homepage
+  totalQuestions?: number;
+  averageConcepts?: number;
+  successRate?: number;
+  totalFlashcards?: number;
+  totalStudyPlans?: number;
+  targetExams?: number;
+  newUsersToday?: number;
+  
   // New KPIs for admin dashboard
   dailyActiveUsers?: number;
   weeklyActiveUsers?: number;
