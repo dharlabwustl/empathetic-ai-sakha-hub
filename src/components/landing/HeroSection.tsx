@@ -7,7 +7,17 @@ import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import ExamNamesBadge from "../home/hero/ExamNamesBadge";
 
-const HeroSection: React.FC = () => {
+interface HeroSectionProps {
+  scrollToFeatures: () => void;
+  scrollToForWhom?: () => void;
+  openExamAnalyzer: () => void;
+}
+
+const HeroSection: React.FC<HeroSectionProps> = ({ 
+  scrollToFeatures,
+  scrollToForWhom,
+  openExamAnalyzer
+}) => {
   // Text animation variants
   const titleVariants = {
     hidden: { opacity: 0 },
@@ -109,11 +119,7 @@ const HeroSection: React.FC = () => {
         >
           <Button 
             className="bg-gradient-to-r from-purple-500 to-indigo-600 px-8 py-6 text-lg font-semibold text-white shadow-lg hover:from-purple-600 hover:to-indigo-700"
-            onClick={() => {
-              // Find the ExamReadinessAnalyzer component in the DOM and open it
-              const event = new CustomEvent('open-exam-analyzer');
-              window.dispatchEvent(event);
-            }}
+            onClick={openExamAnalyzer}
           >
             Test Your Exam Readiness
             <ArrowRight className="ml-2 h-5 w-5" />
