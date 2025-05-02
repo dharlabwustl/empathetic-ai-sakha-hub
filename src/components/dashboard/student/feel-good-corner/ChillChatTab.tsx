@@ -18,21 +18,21 @@ const ChillChatTab: React.FC<ChillChatTabProps> = ({ userProfile }) => {
       id: 1,
       sender: 'Piyush',
       avatar: 'https://i.pravatar.cc/150?img=11',
-      text: 'Hey everyone! How's your study going today?',
+      text: "Hey everyone! How's your study going today?",
       time: '10:15 AM'
     },
     {
       id: 2,
       sender: 'Ananya',
       avatar: 'https://i.pravatar.cc/150?img=5',
-      text: 'Pretty good! Just finished a chapter on organic chemistry. My brain hurts 😂',
+      text: "Pretty good! Just finished a chapter on organic chemistry. My brain hurts 😂",
       time: '10:17 AM'
     },
     {
       id: 3,
       sender: 'Rohan',
       avatar: 'https://i.pravatar.cc/150?img=8',
-      text: 'I'm taking a break. Been studying for 3 hours straight!',
+      text: "I'm taking a break. Been studying for 3 hours straight!",
       time: '10:20 AM'
     },
     {

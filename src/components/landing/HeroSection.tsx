@@ -25,7 +25,7 @@ const HeroSection: React.FC = () => {
         </div>
       </div>
 
-      {/* KPI Stats Section - Increased visibility and better positioning */}
+      {/* KPI Stats Section - Ensure it's prominently displayed */}
       <div className="container mx-auto px-4 mb-16">
         <KpiStats />
       </div>
