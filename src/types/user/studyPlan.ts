@@ -29,6 +29,7 @@ export interface NewStudyPlan {
   examGoal?: string;
   subjects: StudyPlanSubject[];
   weeklyHours?: number;
+  studyHoursPerDay?: number; // Added this field
   startDate?: string;
   endDate?: string;
   examDate: string | Date; // Allow Date type
@@ -36,6 +37,7 @@ export interface NewStudyPlan {
   progress?: number;
   createdAt?: string;
   learningPace?: "slow" | "moderate" | "fast";
+  preferredStudyTime?: "morning" | "afternoon" | "evening" | "night"; // Added this field
   // Fields for onboarding data
   userDemographics?: {
     age?: number;

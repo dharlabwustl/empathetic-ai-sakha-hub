@@ -62,7 +62,7 @@ export const generateDatabaseSchema = (): SchemaTable[] => {
         { name: "daily_study_hours", type: "FLOAT", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "Preferred daily study hours" },
         { name: "break_frequency", type: "VARCHAR(20)", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "Study break frequency preference" },
         { name: "stress_management", type: "VARCHAR(100)", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "Preferred stress management technique" },
-        { name: "study_environment", type: "VARCHAR(100)", isRequired: false, iPrimaryKey: false, isForeignKey: false, description: "Preferred study environment" },
+        { name: "study_environment", type: "VARCHAR(100)", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "Preferred study environment" },
         { name: "study_pace", type: "VARCHAR(20)", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "Preferred study pace (aggressive, balanced, relaxed)" },
         { name: "preferred_study_time", type: "VARCHAR(20)", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "Preferred time of day to study (morning, afternoon, evening, night)" },
         { name: "institute", type: "VARCHAR(100)", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "Student's educational institute" }
@@ -138,9 +138,13 @@ export const generateDatabaseSchema = (): SchemaTable[] => {
         { name: "created_at", type: "TIMESTAMP", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Plan creation timestamp" },
         { name: "updated_at", type: "TIMESTAMP", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Plan update timestamp" },
         { name: "weekly_hours", type: "INTEGER", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "Weekly study hours goal" },
+        { name: "daily_study_hours", type: "INTEGER", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "Daily study hours target" },
         { name: "learning_pace", type: "VARCHAR(20)", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "Learning pace preference" },
         { name: "progress", type: "FLOAT", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "Overall progress percentage" },
-        { name: "status", type: "VARCHAR(20)", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Plan status (active, completed, archived)" }
+        { name: "status", type: "VARCHAR(20)", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Plan status (active, completed, archived)" },
+        { name: "personality_type", type: "VARCHAR(50)", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "Student personality type for learning" },
+        { name: "preferred_study_time", type: "VARCHAR(20)", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "Preferred time to study" },
+        { name: "study_pace", type: "VARCHAR(20)", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "Student's preferred study pace" }
       ]
     },
     {
@@ -224,6 +228,37 @@ export const generateDatabaseSchema = (): SchemaTable[] => {
         { name: "parameters", type: "JSONB", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Model parameters as JSON" },
         { name: "is_active", type: "BOOLEAN", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Whether setting is active" },
         { name: "created_by", type: "UUID", isRequired: true, isPrimaryKey: false, isForeignKey: true, references: "admin_users(id)", description: "Creator reference" },
+        { name: "created_at", type: "TIMESTAMP", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Record creation timestamp" },
+        { name: "updated_at", type: "TIMESTAMP", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Record update timestamp" }
+      ]
+    },
+    {
+      tableName: "student_weak_subjects",
+      description: "Records of subjects that students find challenging",
+      fields: [
+        { name: "id", type: "UUID", isRequired: true, isPrimaryKey: true, isForeignKey: false, description: "Unique record identifier" },
+        { name: "student_id", type: "UUID", isRequired: true, isPrimaryKey: false, isForeignKey: true, references: "students(id)", description: "Reference to student" },
+        { name: "subject_id", type: "UUID", isRequired: true, isPrimaryKey: false, isForeignKey: true, references: "student_subjects(id)", description: "Reference to subject" },
+        { name: "difficulty_level", type: "INTEGER", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Self-rated difficulty (1-10)" },
+        { name: "reason", type: "TEXT", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "Reason why student finds this subject difficult" },
+        { name: "improvement_plan", type: "TEXT", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "Plan to improve in this subject" },
+        { name: "created_at", type: "TIMESTAMP", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Record creation timestamp" }
+      ]
+    },
+    {
+      tableName: "study_preferences",
+      description: "Student study preferences and learning styles",
+      fields: [
+        { name: "id", type: "UUID", isRequired: true, isPrimaryKey: true, isForeignKey: false, description: "Unique record identifier" },
+        { name: "student_id", type: "UUID", isRequired: true, isPrimaryKey: false, isForeignKey: true, references: "students(id)", description: "Reference to student" },
+        { name: "personality_type", type: "VARCHAR(50)", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "Learning personality type" },
+        { name: "preferred_study_time", type: "VARCHAR(20)", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "Preferred time to study" },
+        { name: "study_pace", type: "VARCHAR(20)", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "Preferred study pace" },
+        { name: "daily_study_hours", type: "FLOAT", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "Typical daily study hours" },
+        { name: "study_environment", type: "VARCHAR(100)", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "Preferred study environment" },
+        { name: "break_routine", type: "VARCHAR(100)", isRequired: false, iPrimaryKey: false, isForeignKey: false, description: "Preferred break routine" },
+        { name: "focus_hours", type: "INTEGER", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "Peak focus hours during day" },
+        { name: "stress_management", type: "VARCHAR(100)", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "Stress management techniques" },
         { name: "created_at", type: "TIMESTAMP", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Record creation timestamp" },
         { name: "updated_at", type: "TIMESTAMP", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Record update timestamp" }
       ]

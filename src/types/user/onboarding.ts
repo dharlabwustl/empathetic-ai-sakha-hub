@@ -36,4 +36,7 @@ export interface OnboardingData {
   password?: string; 
   preferredSubjects?: string[];
   weakSubjects?: string[];
+  learningStyle?: "visual" | "auditory" | "reading" | "kinesthetic";
+  studyGoal?: string;
+  targetScore?: number;
 }
