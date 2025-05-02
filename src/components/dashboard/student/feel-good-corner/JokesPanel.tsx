@@ -23,8 +23,8 @@ const mockJokes: Joke[] = [
   {
     id: '1',
     user: { name: 'Rahul K.', avatar: '/lovable-uploads/8c62154a-6dbf-40c6-8117-f1c9cfd1effa.png' },
-    setup: 'Why don't scientists trust atoms?',
-    punchline: 'Because they make up everything!',
+    setup: "Why don't scientists trust atoms?",
+    punchline: "Because they make up everything!",
     category: 'Science',
     likes: 89,
     timestamp: '2 days ago'
@@ -32,8 +32,8 @@ const mockJokes: Joke[] = [
   {
     id: '2',
     user: { name: 'Anjali T.', avatar: '/lovable-uploads/b3337c40-376b-4764-bee8-d425abf31bc8.png' },
-    setup: 'What did the mathematics book say to the pencil?',
-    punchline: 'I've got a lot of problems!',
+    setup: "What did the mathematics book say to the pencil?",
+    punchline: "I've got a lot of problems!",
     category: 'Math',
     likes: 76,
     timestamp: '3 days ago'
@@ -41,7 +41,7 @@ const mockJokes: Joke[] = [
   {
     id: '3',
     user: { name: 'Priya M.', avatar: '/lovable-uploads/8c62154a-6dbf-40c6-8117-f1c9cfd1effa.png' },
-    setup: 'What did the biology student say when class finished?',
+    setup: "What did the biology student say when class finished?",
     punchline: "It's time to go homo sapien!",
     category: 'Science',
     likes: 45,
@@ -88,7 +88,7 @@ export const JokesPanel: React.FC = () => {
           <Card key={joke.id} className="p-4 hover:shadow-md transition-shadow">
             <div className="flex items-center gap-3 mb-3">
               <Avatar>
-                <AvatarImage src={joke.avatar} alt={joke.user.name} />
+                <AvatarImage src={joke.user.avatar} alt={joke.user.name} />
                 <AvatarFallback>{joke.user.name.substring(0, 2)}</AvatarFallback>
               </Avatar>
               <div>
