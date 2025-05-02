@@ -1,12 +1,11 @@
 
 import React, { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Eye, EyeOff, Mail, Lock, ArrowRight, Loader2 } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, Loader2 } from "lucide-react";
 import { useAuth } from "@/contexts/auth/AuthContext";
 
 const LoginPage = () => {
@@ -40,9 +39,9 @@ const LoginPage = () => {
     setIsLoading(true);
     
     try {
-      const user = await login(formData.email, formData.password);
+      const success = await login(formData.email, formData.password);
       
-      if (user) {
+      if (success) {
         toast({
           title: "Login successful",
           description: "Redirecting to your dashboard",
@@ -61,13 +60,8 @@ const LoginPage = () => {
               lastLogin: new Date().toISOString()
             }));
             
-            // For returning users
-            if (loginCount > 1) {
-              navigate("/welcome-back");
-            } else {
-              // For first-time users
-              navigate("/dashboard/student?new=true");
-            }
+            // Navigate to dashboard
+            navigate("/dashboard/student");
           } catch (error) {
             console.error("Error parsing user data:", error);
             navigate("/dashboard/student");
@@ -82,7 +76,7 @@ const LoginPage = () => {
             mood: 'Motivated'
           };
           localStorage.setItem("userData", JSON.stringify(newUserData));
-          navigate("/dashboard/student?new=true");
+          navigate("/dashboard/student");
         }
       } else {
         toast({
@@ -103,11 +97,8 @@ const LoginPage = () => {
     }
   };
 
-  const handleForgotPassword = () => {
-    toast({
-      title: "Password Reset",
-      description: "Check your email for password reset instructions.",
-    });
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
   };
   
   const handleDemoLogin = () => {
@@ -118,7 +109,7 @@ const LoginPage = () => {
   };
 
   return (
-    <CardContent className="p-6 space-y-6">
+    <div className="p-6 space-y-6">
       <form onSubmit={handleLogin} className="space-y-4">
         <div className="space-y-2">
           <Label htmlFor="email" className="text-sm font-medium">Email Address</Label>
@@ -139,16 +130,7 @@ const LoginPage = () => {
         </div>
         
         <div className="space-y-2">
-          <div className="flex justify-between">
-            <Label htmlFor="password" className="text-sm font-medium">Password</Label>
-            <button 
-              type="button" 
-              onClick={handleForgotPassword} 
-              className="text-xs text-blue-600 hover:text-blue-800 hover:underline"
-            >
-              Forgot Password?
-            </button>
-          </div>
+          <Label htmlFor="password" className="text-sm font-medium">Password</Label>
           <div className="relative">
             <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
               <Lock size={16} />
@@ -160,55 +142,72 @@ const LoginPage = () => {
               onChange={handleInputChange}
               placeholder="Enter your password"
               type={showPassword ? "text" : "password"}
-              className="pl-9 border-blue-200 focus:ring-blue-500 focus:border-blue-500 pr-10"
+              className="pl-9 pr-10 border-blue-200 focus:ring-blue-500 focus:border-blue-500"
             />
-            <Button 
-              variant="ghost"
-              size="icon"
-              className="absolute right-0 top-0 h-full"
-              onClick={() => setShowPassword(!showPassword)}
+            <button
               type="button"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+              onClick={togglePasswordVisibility}
             >
               {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-            </Button>
+            </button>
           </div>
         </div>
         
-        <Button 
-          className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-md"
-          type="submit"
-          disabled={isLoading}
-        >
-          {isLoading ? (
-            <div className="flex items-center gap-2">
-              <Loader2 className="h-5 w-5 animate-spin" />
-              <span>Signing in...</span>
-            </div>
-          ) : (
-            <div className="flex items-center justify-center gap-2">
-              <span>Sign In</span>
-              <ArrowRight size={16} />
-            </div>
-          )}
-        </Button>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <input
+              id="remember"
+              name="remember"
+              type="checkbox"
+              className="h-4 w-4 rounded border-gray-300"
+            />
+            <label htmlFor="remember" className="text-sm text-gray-700">
+              Remember me
+            </label>
+          </div>
+          
+          <button
+            type="button"
+            className="text-sm text-blue-600 hover:text-blue-800"
+            onClick={() => {
+              toast({
+                title: "Password Reset",
+                description: "Password reset feature is coming soon."
+              });
+            }}
+          >
+            Forgot password?
+          </button>
+        </div>
         
-        <Button 
-          type="button" 
-          variant="outline" 
-          className="w-full mt-2" 
-          onClick={handleDemoLogin}
-        >
-          Use Demo Account
-        </Button>
-
-        <div className="text-center text-sm">
-          <span className="text-gray-500">Don't have an account? </span>
-          <Button variant="link" className="p-0 h-auto" onClick={() => navigate("/signup")}>
-            Sign up
+        <div className="pt-2">
+          <Button
+            type="submit"
+            className="w-full bg-gradient-to-r from-blue-600 to-violet-600"
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Signing In...
+              </>
+            ) : (
+              "Sign In"
+            )}
+          </Button>
+          
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full mt-3"
+            onClick={handleDemoLogin}
+          >
+            Use Demo Account
           </Button>
         </div>
       </form>
-    </CardContent>
+    </div>
   );
 };
 

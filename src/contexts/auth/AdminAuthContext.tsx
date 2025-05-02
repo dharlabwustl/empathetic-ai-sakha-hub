@@ -1,9 +1,15 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { AdminUser } from '@/types/user/base';
+import { UserRole } from '@/types/user/base';
 
-// Define the context types
-export interface AdminAuthContextProps {
+interface AdminUser {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+}
+
+interface AdminAuthContextProps {
   isAdminAuthenticated: boolean;
   isAdminLoading: boolean;
   adminUser: AdminUser | null;
@@ -67,15 +73,13 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       setIsAdminLoading(true);
       setAdminLoginError(null);
       
-      console.log("Admin login attempt:", email);
-      
-      // For demo, allow any email with 'admin' in it and password length > 3
-      if (email.includes('admin') && password.length > 3) {
+      // For demo, allow any email with 'admin' in it and password length > 2
+      if (email.includes('admin') && password.length > 2) {
         const adminUser: AdminUser = {
           id: `admin_${Date.now()}`,
           name: 'Admin User',
           email: email,
-          role: 'admin'
+          role: UserRole.Admin
         };
         
         localStorage.setItem('adminToken', `admin_token_${Date.now()}`);

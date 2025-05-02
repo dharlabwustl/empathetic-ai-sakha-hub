@@ -12,7 +12,7 @@ interface User {
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<User>;
+  login: (email: string, password: string) => Promise<boolean>;
   logout: () => void;
   isAuthenticated: boolean;
 }
@@ -40,10 +40,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (userData) {
         try {
           const parsedData = JSON.parse(userData);
-          if (parsedData.id && parsedData.email) {
+          if (parsedData.email) {
             // User is already logged in
             setUser({
-              id: parsedData.id,
+              id: parsedData.id || '1',
               name: parsedData.name || 'User',
               email: parsedData.email,
               role: parsedData.role || UserRole.Student
@@ -61,12 +61,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []);
 
   // Login function
-  const login = async (email: string, password: string): Promise<User> => {
+  const login = async (email: string, password: string): Promise<boolean> => {
     setLoading(true);
     
-    return new Promise<User>((resolve, reject) => {
+    return new Promise<boolean>((resolve) => {
       setTimeout(() => {
-        if (email && password) {
+        if (email && password && password.length >= 3) {
           const newUser: User = {
             id: '1',
             name: email.split('@')[0] || 'Student',
@@ -75,22 +75,22 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           };
           
           // Save user data to localStorage
-          const existingData = localStorage.getItem('userData');
-          const userData = existingData ? JSON.parse(existingData) : {};
-          
           localStorage.setItem('userData', JSON.stringify({
-            ...userData,
-            ...newUser,
+            id: newUser.id,
+            name: newUser.name,
+            email: newUser.email,
+            role: newUser.role,
             lastLogin: new Date().toISOString(),
-            loginCount: userData.loginCount ? parseInt(userData.loginCount) + 1 : 1,
+            loginCount: 1,
+            mood: 'Motivated'
           }));
           
           setUser(newUser);
           setLoading(false);
-          resolve(newUser);
+          resolve(true);
         } else {
           setLoading(false);
-          reject(new Error('Invalid credentials'));
+          resolve(false);
         }
       }, 1000);
     });

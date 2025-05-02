@@ -156,7 +156,7 @@ const AdminLogin = () => {
                 <div className="text-sm text-blue-700 font-medium mb-1">Demo Account</div>
                 <div className="text-xs text-gray-600">
                   <p>For demo purposes, any email containing "admin" will work</p>
-                  <p>Example: admin@prepzr.com / any password (min 4 chars)</p>
+                  <p>Example: admin@prepzr.com / any password (min 3 chars)</p>
                 </div>
               </div>
             </CardContent>

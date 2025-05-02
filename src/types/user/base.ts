@@ -28,6 +28,32 @@ export enum UserRole {
   Admin = 'admin'
 }
 
+export enum Gender {
+  Male = 'male',
+  Female = 'female',
+  Other = 'other',
+  PreferNotToSay = 'prefer-not-to-say'
+}
+
+export enum SignupType {
+  Email = 'email',
+  Google = 'google',
+  Facebook = 'facebook',
+  Apple = 'apple'
+}
+
+export enum StudyPace {
+  Slow = 'slow',
+  Moderate = 'moderate',
+  Fast = 'fast'
+}
+
+export enum StudyPreferenceType {
+  Solo = 'solo',
+  Group = 'group',
+  Mixed = 'mixed'
+}
+
 export interface UserProfileBase {
   id: string;
   name: string;
@@ -72,11 +98,30 @@ export interface StudyStreak {
 }
 
 export interface SubjectProgress {
-  id?: string; // Added id property to fix TS error
+  id?: string;
   subject: string;
   progress: number;
   topicsTotal: number;
   topicsCompleted: number;
   quizzesCompleted: number;
   masteryLevel: 'beginner' | 'intermediate' | 'advanced' | 'master';
+}
+
+export interface PaymentMethod {
+  id: string;
+  type: 'card' | 'upi' | 'bank';
+  isDefault: boolean;
+  lastFour?: string;
+  expiryDate?: string;
+  cardType?: string;
+  upiId?: string;
+}
+
+export interface BillingHistory {
+  id: string;
+  date: string;
+  amount: number;
+  status: 'paid' | 'pending' | 'failed';
+  invoiceUrl: string;
+  planName: string;
 }
