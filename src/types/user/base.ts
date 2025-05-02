@@ -10,6 +10,7 @@ export interface UserProfileBase {
   role: UserRole;
   loginCount?: number;
   goals?: Goal[];
+  avatar?: string; // Add avatar property to fix type errors
   subscription?: SubscriptionType | { 
     planType: SubscriptionType;
     expiryDate?: string; 
@@ -47,11 +48,42 @@ export enum MoodType {
   CALM = "calm"
 }
 
+// Add SignupType enum for the missing import
+export enum SignupType {
+  STUDENT = "student",
+  TEACHER = "teacher",
+  PARENT = "parent"
+}
+
+// Add Gender enum for the missing import
+export enum Gender {
+  MALE = "male",
+  FEMALE = "female",
+  OTHER = "other",
+  PREFER_NOT_TO_SAY = "prefer_not_to_say"
+}
+
+// Add StudyPace enum for the missing import
+export enum StudyPace {
+  FAST = "fast",
+  MODERATE = "moderate",
+  SLOW = "slow"
+}
+
+// Add StudyPreferenceType for the missing import
+export enum StudyPreferenceType {
+  VISUAL = "visual",
+  AUDITORY = "auditory",
+  READING = "reading",
+  KINESTHETIC = "kinesthetic"
+}
+
 export enum SubscriptionType {
   FREE = "free",
   PREMIUM = "premium",
   PREMIUM_PLUS = "premium_plus",
-  TRIAL = "trial"
+  TRIAL = "trial",
+  BASIC = "basic" // Added to fix type error with "basic"
 }
 
 export interface BaseUser {
@@ -107,6 +139,16 @@ export interface StudyPlanSubject {
   hoursPerWeek: number;
   priority: 'high' | 'medium' | 'low';
   topics: any[];
+}
+
+// Add TaskItem interface with priority for AcademicAdvisor.tsx
+export interface TaskItem {
+  id: string;
+  name: string;
+  difficulty: "medium" | "easy" | "hard";
+  completed: boolean;
+  status?: "completed" | "skipped" | "pending" | "in-progress";
+  priority?: 'high' | 'medium' | 'low';
 }
 
 export interface NewStudyPlan {

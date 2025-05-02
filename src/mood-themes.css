@@ -1,7 +1,7 @@
 
 /* Base styling */
 body {
-  font-size: 16px !important;
+  font-size: 14px !important; /* Reduced from 16px to 14px */
   line-height: 1.5;
   transition: background-color 0.3s ease;
   text-size-adjust: 100%;
@@ -92,14 +92,14 @@ body {
 
 /* Fix font size consistency */
 button, input, select, textarea {
-  font-size: 16px !important;
+  font-size: 14px !important; /* Reduced from 16px to 14px */
   font-family: inherit;
 }
 
 /* Fix mobile zoom issues */
 @media screen and (max-width: 768px) {
   input, select, textarea {
-    font-size: 16px !important;
+    font-size: 16px !important; /* Keep 16px for mobile to prevent auto-zoom */
   }
 }
 
@@ -111,20 +111,20 @@ button, input, select, textarea {
 /* Fix for form elements */
 input[type="text"], input[type="email"], input[type="password"], 
 textarea, select {
-  font-size: 16px !important;
+  font-size: 14px !important; /* Reduced from 16px to 14px */
   transform: scale(1);
 }
 
 /* Scale adjustments for different screen sizes */
 @media screen and (min-width: 1440px) {
   html, body {
-    font-size: 16px !important;
+    font-size: 14px !important; /* Reduced from 16px to 14px */
   }
 }
 
 @media screen and (min-width: 1920px) {
   html, body {
-    font-size: 16px !important;
+    font-size: 14px !important; /* Reduced from 16px to 14px */
   }
 }
 
@@ -134,4 +134,10 @@ textarea, select {
   min-zoom: 1.0;
   max-zoom: 1.0;
   user-zoom: fixed;
+  width: device-width;
+}
+
+/* Font size overrides for specific elements */
+h1, h2, h3, h4, h5, h6, p, li, a, span, div {
+  font-size: revert; /* Use the cascading size rather than fixed values */
 }
