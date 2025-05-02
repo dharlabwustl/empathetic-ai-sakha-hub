@@ -1,4 +1,3 @@
-
 import React, { Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
@@ -71,8 +70,12 @@ function App() {
               {/* Post-signup flow - Welcome flow only */}
               <Route path="/welcome" element={<WelcomeToPrepr />} />
               
-              {/* Post-login welcome back screen */}
+              {/* Post-login welcome back screen - This must be before student dashboard routes */}
               <Route path="/welcome-back" element={<PostLoginWelcomeBack />} />
+
+              {/* Ensure redirects to the welcome-back screen after login */}
+              <Route path="/auth/login" element={<Navigate to="/welcome-back" replace />} />
+              <Route path="/pages/auth/login" element={<Navigate to="/welcome-back" replace />} />
 
               {/* Student routes */}
               <Route path="/dashboard/student" element={<StudentDashboard />} />
@@ -88,28 +91,20 @@ function App() {
               <Route path="/student/profile" element={<ProfilePage />} />
               <Route path="/profile" element={<ProfilePage />} />
               
-              {/* AI Tutor route */}
+              {/* Other student routes */}
               <Route path="/dashboard/student/tutor" element={<TutorView />} />
-              
-              {/* Concept routes */}
               <Route path="/dashboard/student/concepts/card/:conceptId" element={<ConceptCardDetailPage />} />
               <Route path="/dashboard/student/concepts/study/:conceptId" element={<ConceptStudyPage />} />
               <Route path="/dashboard/student/concepts/:conceptId/study" element={<ConceptStudyPage />} />
               <Route path="/dashboard/student/concepts/study-landing/:conceptId" element={<ConceptStudyLandingPage />} />
               <Route path="/dashboard/student/concepts/landing" element={<ConceptsLandingPage />} />
-              
-              {/* Direct Flashcard routes */}
               <Route path="/dashboard/student/flashcards/:flashcardId/interactive" element={<FlashcardInteractive />} />
               <Route path="/dashboard/student/flashcards/:flashcardId" element={<FlashcardDetailsPage />} />
               <Route path="/dashboard/student/flashcards/:flashcardId/browse" element={<InteractiveFlashcardBrowser />} />
               <Route path="/dashboard/student/flashcards/:flashcardId/practice" element={<EnhancedFlashcardPractice />} />
-              
-              {/* Practice exam routes */}
               <Route path="/dashboard/student/practice-exam" element={<PracticeExamsSection />} />
               <Route path="/dashboard/student/practice-exam/:examId/start" element={<ExamTakingPage />} />
               <Route path="/dashboard/student/practice-exam/:examId/review" element={<ExamReviewPage />} />
-              
-              {/* Other routes */}
               <Route path="/dashboard/student/notifications" element={<NotificationsView />} />
               <Route path="/dashboard/student/academic" element={<AcademicAdvisorView />} />
               <Route path="/dashboard/student/study-plan" element={<StudyPlanView />} />

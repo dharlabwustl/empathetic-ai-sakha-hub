@@ -96,14 +96,14 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
               lastLogin: new Date().toISOString()
             }));
             
-            // Always direct to the pending activities screen first
-            navigate("/dashboard/student/today");
+            // Always direct to the welcome-back screen after login
+            navigate("/welcome-back");
           } catch (error) {
             console.error("Error updating user data:", error);
-            navigate("/dashboard/student/today");
+            navigate("/welcome-back");
           }
         } else {
-          navigate("/dashboard/student/today");
+          navigate("/welcome-back");
         }
       } else {
         setLoginError("Invalid email or password");

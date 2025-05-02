@@ -90,14 +90,14 @@ const PostLoginWelcomeBack = () => {
       return;
     }
     
-    // Auto-redirect after 30 seconds if no action taken
+    // Auto-redirect after 20 seconds if no action taken
     const timer = setTimeout(() => {
       navigate('/dashboard/student/today');
       toast({
         title: "Welcome back!",
         description: "You've been automatically redirected to Today's Plan.",
       });
-    }, 30000);
+    }, 20000);
     
     return () => clearTimeout(timer);
   }, [navigate, toast]);

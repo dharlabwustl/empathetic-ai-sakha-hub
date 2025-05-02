@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -24,7 +25,7 @@ const LoginPage = () => {
   // Check if user is already authenticated, redirect if true
   useEffect(() => {
     if (isAuthenticated) {
-      navigate("/dashboard/student");
+      navigate("/welcome-back");
     }
   }, [isAuthenticated, navigate]);
 
@@ -54,7 +55,7 @@ const LoginPage = () => {
       if (success) {
         toast({
           title: "Login successful",
-          description: "Redirecting to your dashboard",
+          description: "Welcome back to your dashboard",
         });
         
         // Remember email if option is checked
@@ -64,8 +65,8 @@ const LoginPage = () => {
           localStorage.removeItem("prepzr_remembered_email");
         }
         
-        // Force navigation to dashboard
-        navigate("/dashboard/student");
+        // Redirect to welcome-back screen
+        navigate("/welcome-back");
       } else {
         setLoginError("Invalid email or password");
         toast({
