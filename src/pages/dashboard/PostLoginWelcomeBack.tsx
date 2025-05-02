@@ -126,9 +126,10 @@ const PostLoginWelcomeBack = () => {
   };
 
   const goToDashboard = () => {
-    navigate("/dashboard/student/overview");
+    // Changed: Directly navigate to the student dashboard overview
+    navigate("/dashboard/student");
     toast({
-      title: "Welcome Back",
+      title: "Welcome to Dashboard",
       description: "Your dashboard is ready for today's learning activities."
     });
   };
