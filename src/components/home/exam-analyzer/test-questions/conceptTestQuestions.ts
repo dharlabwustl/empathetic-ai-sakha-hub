@@ -1,5 +1,4 @@
-
-import { TestQuestion } from '../types';
+import { TestQuestion, SubjectTopic } from '../types';
 
 // Physics Questions for NEET (30 questions)
 const neetPhysicsQuestions: TestQuestion[] = [
@@ -928,51 +927,56 @@ const neetBiologyQuestions: TestQuestion[] = [
   }
 ];
 
-// Function to get a random selection of questions with different difficulty levels
-export const getConceptTestQuestions = (subject: string, count: number = 10): TestQuestion[] => {
+// Function to get a random selection of questions for a subject
+export const getConceptTestQuestions = (examType: string, subject: string): TestQuestion[] => {
   let questions: TestQuestion[] = [];
   
-  switch (subject.toLowerCase()) {
-    case 'physics':
-      questions = neetPhysicsQuestions;
-      break;
-    case 'chemistry':
-      questions = neetChemistryQuestions;
-      break;
-    case 'biology':
-      questions = neetBiologyQuestions;
-      break;
-    default:
-      // If no subject is specified, combine all subjects and select randomly
-      questions = [...neetPhysicsQuestions, ...neetChemistryQuestions, ...neetBiologyQuestions];
+  // Select the appropriate question bank based on subject
+  if (examType === 'NEET-UG' || examType === 'NEET') {
+    switch (subject.toLowerCase()) {
+      case 'physics':
+        questions = neetPhysicsQuestions;
+        break;
+      case 'chemistry':
+        questions = neetChemistryQuestions;
+        break;
+      case 'biology':
+        questions = neetBiologyQuestions;
+        break;
+      default:
+        // If no subject is specified, combine all subjects
+        questions = [...neetPhysicsQuestions, ...neetChemistryQuestions, ...neetBiologyQuestions];
+    }
   }
   
-  // Divide by difficulty
-  const easyQuestions = questions.filter(q => q.difficulty === 'easy');
-  const mediumQuestions = questions.filter(q => q.difficulty === 'medium');
-  const hardQuestions = questions.filter(q => q.difficulty === 'hard');
+  // Shuffle the questions to get a random selection
+  const shuffledQuestions = shuffleArray([...questions]);
   
-  // Select a mix of questions with different difficulty levels
-  // 40% easy, 40% medium, 20% hard
-  const easyCount = Math.round(count * 0.4);
-  const mediumCount = Math.round(count * 0.4);
-  const hardCount = count - easyCount - mediumCount;
+  // Return 10 random questions for the concept test
+  return shuffledQuestions.slice(0, 10);
+};
+
+// Helper function to shuffle an array (Fisher-Yates algorithm)
+const shuffleArray = <T>(array: T[]): T[] => {
+  const newArray = [...array];
+  for (let i = newArray.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+  }
+  return newArray;
+};
+
+// Get subject topics for NEET
+export const getConceptTopics = (examType: string): SubjectTopic[] => {
+  if (examType === 'NEET-UG' || examType === 'NEET') {
+    return [
+      { id: 'phy-neet', subject: 'Physics', topics: 10 },
+      { id: 'chem-neet', subject: 'Chemistry', topics: 10 },
+      { id: 'bio-neet', subject: 'Biology', topics: 10 }
+    ];
+  }
   
-  const shuffleArray = (array: any[]) => {
-    for (let i = array.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [array[i], array[j]] = [array[j], array[i]];
-    }
-    return array;
-  };
-  
-  // Shuffle and select the right number of questions from each difficulty
-  const selectedEasy = shuffleArray([...easyQuestions]).slice(0, easyCount);
-  const selectedMedium = shuffleArray([...mediumQuestions]).slice(0, mediumCount);
-  const selectedHard = shuffleArray([...hardQuestions]).slice(0, hardCount);
-  
-  // Combine and shuffle again for a random ordering of questions
-  return shuffleArray([...selectedEasy, ...selectedMedium, ...selectedHard]);
+  return [];
 };
 
 // Get all subjects for the concept test

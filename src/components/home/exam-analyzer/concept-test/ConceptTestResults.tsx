@@ -3,7 +3,7 @@ import React from 'react';
 import { TestResults } from '../types';
 import { Button } from '@/components/ui/button';
 import { CustomProgress } from '@/components/ui/custom-progress';
-import { CheckCircle2, AlertTriangle, Brain, Atom, Flask, Book } from 'lucide-react';
+import { CheckCircle2, AlertTriangle, Brain, Atom, Book } from 'lucide-react';
 import { Card } from "@/components/ui/card";
 
 interface ConceptTestResultsProps {
@@ -50,7 +50,7 @@ const ConceptTestResults: React.FC<ConceptTestResultsProps> = ({ results, onCont
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center">
                       {subject === 'Physics' && <Atom className="mr-2 text-blue-500" size={16} />}
-                      {subject === 'Chemistry' && <Flask className="mr-2 text-green-500" size={16} />}
+                      {subject === 'Chemistry' && <Brain className="mr-2 text-green-500" size={16} />}
                       {subject === 'Biology' && <Book className="mr-2 text-red-500" size={16} />}
                       <span className="font-medium">{subject}</span>
                     </div>

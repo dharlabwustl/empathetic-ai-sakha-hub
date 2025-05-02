@@ -49,6 +49,7 @@ export interface TestQuestion {
   category?: string;
   complexityLevel?: number;
   subject?: string;
+  difficulty?: 'easy' | 'medium' | 'hard';
 }
 
 export interface SubjectTopic {

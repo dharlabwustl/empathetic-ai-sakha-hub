@@ -6,9 +6,10 @@ import ConceptLoader from './ConceptLoader';
 import ConceptTestResults from './ConceptTestResults';
 import ConceptTestQuestions from './ConceptTestQuestions';
 import { Card } from "@/components/ui/card";
-import { FileText, Timer, Brain, Atom, Flask, Book } from 'lucide-react';
+import { Brain, Atom, Book } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Checkbox } from "@/components/ui/checkbox";
+import { getConceptTopics } from '../test-questions/conceptTestQuestions';
 
 interface ConceptTestSectionProps {
   loading: boolean;
@@ -40,51 +41,63 @@ const ConceptTestSection: React.FC<ConceptTestSectionProps> = ({
   const [userAnswers, setUserAnswers] = useState<any[]>([]);
   const [currentSubject, setCurrentSubject] = useState<string | undefined>(undefined);
   const [completedSubjects, setCompletedSubjects] = useState<string[]>([]);
+  const [selectedSubjects, setSelectedSubjects] = useState<string[]>([]);
   
-  const isNEET = selectedExam === "NEET-UG";
+  const isNEET = selectedExam === "NEET-UG" || selectedExam === "NEET";
+  const subjects = isNEET ? ["Physics", "Chemistry", "Biology"] : [];
   
-  const neetSubjects = ["Physics", "Chemistry", "Biology"];
+  // Initialize topics based on exam type
+  const topics = getConceptTopics(selectedExam);
+  
+  const toggleSubjectSelection = (subject: string) => {
+    setSelectedSubjects(prev => {
+      // If already selected, remove it
+      if (prev.includes(subject)) {
+        return prev.filter(s => s !== subject);
+      }
+      
+      // If trying to add more than 3 subjects, don't allow for NEET
+      if (isNEET && prev.length >= 3) {
+        return prev;
+      }
+      
+      // Add the subject
+      return [...prev, subject];
+    });
+  };
   
   const handleStartTest = () => {
+    if (selectedSubjects.length === 0) return;
+    
     setIsTestActive(true);
     simulateTest();
-    if (isNEET) {
-      setCurrentSubject("Physics"); // Start with Physics for NEET
-    }
+    
+    // Start with the first selected subject
+    setCurrentSubject(selectedSubjects[0]);
+    setCompletedSubjects([]);
   };
   
   const handleCompleteSubjectTest = (answers: any[]) => {
     // Store answers for this subject
     setUserAnswers(prev => [...prev, ...answers]);
     
-    if (isNEET) {
-      // Track completed subjects
-      setCompletedSubjects(prev => [...prev, currentSubject!]);
-      
-      // Determine next subject
-      if (currentSubject === "Physics") {
-        setCurrentSubject("Chemistry");
-        simulateTest(); // Simulate loading for next subject
-      } else if (currentSubject === "Chemistry") {
-        setCurrentSubject("Biology");
-        simulateTest(); // Simulate loading for next subject
-      } else {
-        // All subjects completed
-        setIsTestActive(false);
-        onCompleteTest(userAnswers);
-      }
-    } else {
-      // For non-NEET exams, complete the test
-      setIsTestActive(false);
-      onCompleteTest(answers);
+    // Track completed subjects
+    if (currentSubject) {
+      setCompletedSubjects(prev => [...prev, currentSubject]);
     }
-  };
-  
-  const getSubjectProgress = () => {
-    if (!isNEET || !currentSubject) return 0;
     
-    const index = neetSubjects.indexOf(currentSubject);
-    return ((index + 1) / neetSubjects.length) * 100;
+    // Find the next subject to test
+    const nextSubjectIndex = selectedSubjects.findIndex(s => s === currentSubject) + 1;
+    
+    if (nextSubjectIndex < selectedSubjects.length) {
+      // More subjects to test
+      setCurrentSubject(selectedSubjects[nextSubjectIndex]);
+      simulateTest(); // Simulate loading for next subject
+    } else {
+      // All subjects completed
+      setIsTestActive(false);
+      onCompleteTest(userAnswers);
+    }
   };
   
   if (loading) {
@@ -107,7 +120,7 @@ const ConceptTestSection: React.FC<ConceptTestSectionProps> = ({
           <div className="flex items-center justify-between">
             <h3 className="font-medium">NEET Concept Test</h3>
             <div className="flex items-center space-x-2">
-              {neetSubjects.map((subject, index) => (
+              {selectedSubjects.map((subject, index) => (
                 <Badge 
                   key={subject}
                   variant={currentSubject === subject ? "default" : completedSubjects.includes(subject) ? "outline" : "secondary"}
@@ -145,11 +158,9 @@ const ConceptTestSection: React.FC<ConceptTestSectionProps> = ({
             <h4 className="font-medium text-blue-700 dark:text-blue-300">NEET-UG Concept Test</h4>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
               <div className="flex items-center">
-                <FileText className="h-4 w-4 text-blue-600 dark:text-blue-400 mr-2" />
                 <span>Scoring: {examDetails.scoringPattern}</span>
               </div>
               <div className="flex items-center">
-                <Timer className="h-4 w-4 text-blue-600 dark:text-blue-400 mr-2" />
                 <span>Time: {examDetails.timePerQuestion}</span>
               </div>
             </div>
@@ -175,13 +186,13 @@ const ConceptTestSection: React.FC<ConceptTestSectionProps> = ({
           <li>
             <span className="font-medium">Question Format:</span>
             <p className="text-sm text-gray-600 dark:text-gray-400">
-              A mix of multiple-choice and conceptual understanding questions
+              A mix of multiple-choice questions with different difficulty levels
             </p>
           </li>
           <li>
-            <span className="font-medium">Difficulty Level:</span>
+            <span className="font-medium">Question Bank:</span>
             <p className="text-sm text-gray-600 dark:text-gray-400">
-              Progressive difficulty to assess different levels of understanding
+              Each subject has a bank of 50 questions with 10 randomly selected each time
             </p>
           </li>
           {isNEET && (
@@ -196,37 +207,42 @@ const ConceptTestSection: React.FC<ConceptTestSectionProps> = ({
         
         {isNEET && (
           <div className="mt-5 pt-5 border-t border-violet-200 dark:border-violet-700">
-            <h5 className="font-medium mb-3">NEET Subject Coverage:</h5>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              <div className="bg-white dark:bg-gray-800 rounded-md p-3 flex items-center">
-                <Atom className="h-5 w-5 text-blue-500 mr-2" />
-                <div>
-                  <p className="font-medium">Physics</p>
-                  <p className="text-xs text-gray-500">10 questions</p>
+            <h5 className="font-medium mb-3">Select subjects for your test:</h5>
+            <div className="space-y-3">
+              {topics.map((topic) => (
+                <div key={topic.id} className="flex items-center space-x-2 bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
+                  <Checkbox 
+                    id={topic.id} 
+                    checked={selectedSubjects.includes(topic.subject)} 
+                    onCheckedChange={() => toggleSubjectSelection(topic.subject)}
+                  />
+                  <label 
+                    htmlFor={topic.id} 
+                    className="flex items-center justify-between w-full text-sm cursor-pointer"
+                  >
+                    <span className="font-medium flex items-center">
+                      {topic.subject === 'Physics' && <Atom className="mr-2 text-blue-500" size={16} />}
+                      {topic.subject === 'Chemistry' && <Brain className="mr-2 text-green-500" size={16} />}
+                      {topic.subject === 'Biology' && <Book className="mr-2 text-red-500" size={16} />}
+                      {topic.subject}
+                    </span>
+                    <span className="text-xs text-gray-500">10 random questions from bank of 50</span>
+                  </label>
                 </div>
-              </div>
-              <div className="bg-white dark:bg-gray-800 rounded-md p-3 flex items-center">
-                <Flask className="h-5 w-5 text-green-500 mr-2" />
-                <div>
-                  <p className="font-medium">Chemistry</p>
-                  <p className="text-xs text-gray-500">10 questions</p>
-                </div>
-              </div>
-              <div className="bg-white dark:bg-gray-800 rounded-md p-3 flex items-center">
-                <Book className="h-5 w-5 text-red-500 mr-2" />
-                <div>
-                  <p className="font-medium">Biology</p>
-                  <p className="text-xs text-gray-500">10 questions</p>
-                </div>
-              </div>
+              ))}
             </div>
           </div>
         )}
       </div>
       
       <div className="flex justify-end">
-        <Button onClick={handleStartTest}>
+        <Button 
+          onClick={handleStartTest}
+          disabled={selectedSubjects.length === 0}
+          className="bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700"
+        >
           Start Concept Test
+          {selectedSubjects.length > 0 && ` (${selectedSubjects.length} ${selectedSubjects.length === 1 ? 'subject' : 'subjects'})`}
         </Button>
       </div>
     </div>
