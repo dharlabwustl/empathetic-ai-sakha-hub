@@ -5,7 +5,7 @@ export interface User {
   id: string;
   name: string;
   email: string;
-  role: 'student' | 'tutor' | 'admin' | 'parent';
+  role: 'student' | 'admin' | 'parent';
 }
 
 interface AuthContextType {
@@ -46,7 +46,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           id: '1',
           name: email.split('@')[0],
           email,
-          role: role as 'student' | 'tutor' | 'admin' | 'parent',
+          role: role as 'student' | 'admin' | 'parent',
         };
         
         // Save to localStorage
@@ -68,11 +68,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser(null);
   };
 
-  return (
-    <AuthContext.Provider value={{ user, login, logout, loading }}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return {
+    user,
+    login,
+    logout,
+    loading
+  };
 };
 
 export const useAuth = (): AuthContextType => {

@@ -38,8 +38,8 @@ const TutorLoginForm: React.FC<TutorLoginFormProps> = ({ activeTab }) => {
       
       if (user) {
         toast({
-          title: "Tutor login successful",
-          description: "Redirecting to tutor dashboard",
+          title: "Login successful",
+          description: "Redirecting to dashboard",
         });
         
         if (user.role === 'admin') {
