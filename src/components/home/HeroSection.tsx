@@ -1,4 +1,3 @@
-
 import React from 'react';
 import PainPoints from './hero/PainPoints';
 import ChatInterface from './hero/ChatInterface';
@@ -37,7 +36,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
             transition={{ duration: 0.8, ease: "easeOut" }}
           >
             <span className="bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-              अब तैयारी करो अपने तरीके से…लेकिन SMARTLY – सिर्फ PREPZR के साथ!
+              अब तैयारी करो अपने तरीके से, सिर्फ PREPZR के साथ!
             </span>
           </motion.h1>
           <motion.p 
