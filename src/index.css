@@ -1,4 +1,5 @@
 @import './styles/theme.css';
+@import './mood-themes.css';
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -10,7 +11,7 @@
   }
   
   html {
-    font-size: 13px !important; /* Reduced from 14px to 13px for better proportions */
+    font-size: 13px !important; /* Base font size */
     -webkit-text-size-adjust: 100%;
     -moz-text-size-adjust: 100%;
     -ms-text-size-adjust: 100%;
@@ -20,7 +21,7 @@
   
   body {
     @apply bg-background text-foreground antialiased;
-    font-size: 13px !important; /* Reduced from 14px to 13px */
+    font-size: 13px !important;
     line-height: 1.5;
     overflow-x: hidden;
     width: 100%;
@@ -28,24 +29,24 @@
   
   /* Reset headings to appropriate sizes */
   h1 {
-    font-size: 1.7rem; /* Reduced from 1.75rem */
+    font-size: 1.7rem;
   }
   h2 {
-    font-size: 1.35rem; /* Reduced from 1.4rem */
+    font-size: 1.35rem;
   }
   h3 {
-    font-size: 1.1rem; /* Reduced from 1.15rem */
+    font-size: 1.1rem;
   }
   h4 {
-    font-size: 0.95rem; /* Reduced from 1rem */
+    font-size: 0.95rem;
   }
   h5, h6 {
-    font-size: 0.85rem; /* Reduced from 0.9rem */
+    font-size: 0.85rem;
   }
 
   /* Ensure form elements have correct font size */
   input, textarea, select, button {
-    font-size: 13px !important; /* Reduced from 14px to 13px */
+    font-size: 13px !important;
   }
 }
 
@@ -208,7 +209,7 @@ html {
 /* Additional fixes for better text display */
 @media screen and (min-width: 320px) {
   html, body {
-    font-size: 13px !important; /* Reduced from 14px to 13px */
+    font-size: 13px !important;
   }
 }
 
@@ -222,7 +223,7 @@ html {
 /* Scale fixes for large screens */
 @media screen and (min-width: 1440px) {
   html, body {
-    font-size: 13px !important; /* Reduced from 14px to 13px */
+    font-size: 13px !important;
     zoom: 1;
   }
 }
@@ -235,30 +236,20 @@ svg {
 
 /* Additional font control for all text elements */
 p, div, span, a, li, td, th {
-  font-size: 14px; /* Reduced from 16px to 14px */
+  font-size: 13px; /* Base font size */
 }
 
 /* Reduce card padding for more compact layout */
 .card {
-  padding: 1.5em; /* Reduced padding */
+  padding: 1.25em; /* Reduced padding */
 }
 
 /* Smaller container padding */
 .container {
-  padding: 0.75rem; /* Reduced padding */
-}
-
-/* Dashboard specific styles to use space efficiently */
-.dashboard-card {
-  @apply p-3; /* More compact padding */
-}
-
-/* Adjust table sizes to be more compact */
-table {
-  font-size: 0.9rem;
+  padding: 0.65rem; /* Reduced padding */
 }
 
 /* Adjust button sizes for more compact layout */
 button {
-  padding: 0.4rem 0.75rem; /* Slightly more compact buttons */
+  padding: 0.35rem 0.7rem; /* Slightly more compact buttons */
 }

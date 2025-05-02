@@ -23,16 +23,16 @@ const HeroSection: React.FC = () => {
             Take a Tour
           </Button>
         </div>
-
-        {/* Animated elements */}
-        <div className="absolute -left-32 -top-32 h-64 w-64 rounded-full bg-purple-300 opacity-20 blur-3xl filter"></div>
-        <div className="absolute -right-32 top-56 h-64 w-64 rounded-full bg-indigo-300 opacity-20 blur-3xl filter"></div>
       </div>
 
-      {/* Make KPI Stats more prominent by moving it up and adding better styling */}
+      {/* KPI Stats Section - Increased visibility and better positioning */}
       <div className="container mx-auto px-4 mb-16">
         <KpiStats />
       </div>
+      
+      {/* Animated elements */}
+      <div className="absolute -left-32 -top-32 h-64 w-64 rounded-full bg-purple-300 opacity-20 blur-3xl filter"></div>
+      <div className="absolute -right-32 top-56 h-64 w-64 rounded-full bg-indigo-300 opacity-20 blur-3xl filter"></div>
     </div>
   );
 };

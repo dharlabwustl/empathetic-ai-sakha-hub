@@ -1,177 +1,125 @@
 
-import React, { useState, useRef, useEffect } from 'react';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import React, { useState } from 'react';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Send, Bot, Clock } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
 import { UserProfileBase } from '@/types/user/base';
-import { Badge } from '@/components/ui/badge';
+import { SendHorizontal, Smile } from 'lucide-react';
 
 interface ChillChatTabProps {
   userProfile?: UserProfileBase;
 }
 
-interface ChatMessage {
-  id: number;
-  sender: 'user' | 'system';
-  text: string;
-  timestamp: string;
-  avatar?: string;
-  name?: string;
-}
-
 const ChillChatTab: React.FC<ChillChatTabProps> = ({ userProfile }) => {
   const [message, setMessage] = useState('');
-  const [messages, setMessages] = useState<ChatMessage[]>([
+  const [messages, setMessages] = useState([
     {
       id: 1,
-      sender: 'system',
-      text: 'Welcome to PREPZR Chill Mode! This is a space to chat about non-study topics. What\'s on your mind today?',
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      name: 'PREPZR Bot',
+      sender: 'Piyush',
+      avatar: 'https://i.pravatar.cc/150?img=11',
+      text: 'Hey everyone! How's your study going today?',
+      time: '10:15 AM'
+    },
+    {
+      id: 2,
+      sender: 'Ananya',
+      avatar: 'https://i.pravatar.cc/150?img=5',
+      text: 'Pretty good! Just finished a chapter on organic chemistry. My brain hurts 😂',
+      time: '10:17 AM'
+    },
+    {
+      id: 3,
+      sender: 'Rohan',
+      avatar: 'https://i.pravatar.cc/150?img=8',
+      text: 'I'm taking a break. Been studying for 3 hours straight!',
+      time: '10:20 AM'
+    },
+    {
+      id: 4,
+      sender: 'Assistant',
       avatar: '/lovable-uploads/b3337c40-376b-4764-bee8-d425abf31bc8.png',
-    }
+      text: 'Remember to take breaks every 45-50 minutes for best productivity!',
+      time: '10:22 AM',
+      isAssistant: true
+    },
   ]);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-
-  const handleSendMessage = () => {
+  
+  const handleSendMessage = (e: React.FormEvent) => {
+    e.preventDefault();
     if (!message.trim()) return;
-
-    const userMessage: ChatMessage = {
-      id: Date.now(),
-      sender: 'user',
+    
+    const newMessage = {
+      id: messages.length + 1,
+      sender: userProfile?.name || 'You',
+      avatar: userProfile?.avatar || 'https://i.pravatar.cc/150?img=3',
       text: message,
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      name: userProfile?.name || 'You',
-      avatar: userProfile?.avatar,
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     };
-
-    setMessages((prev) => [...prev, userMessage]);
+    
+    setMessages([...messages, newMessage]);
     setMessage('');
-
-    // After a small delay, simulate the bot response
-    setTimeout(() => {
-      const botResponses = [
-        "That's an interesting thought! Tell me more about it.",
-        "I'm here to help you relax. What's your favorite way to unwind?",
-        "Sometimes taking a break from studies is just what we need. What do you enjoy doing in your free time?",
-        "Music can be great for relaxation! Do you have any favorite artists?",
-        "Did you know taking short breaks actually improves your study efficiency?",
-        "What's your favorite hobby outside of studying?",
-        "If you could travel anywhere right now, where would you go?",
-        "What's something that made you smile today?",
-        "What's a movie or show you've enjoyed recently?",
-        "Self-care is important! What's one thing you do for yourself regularly?"
-      ];
-
-      const botMessage: ChatMessage = {
-        id: Date.now() + 1,
-        sender: 'system',
-        text: botResponses[Math.floor(Math.random() * botResponses.length)],
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        name: 'PREPZR Bot',
-        avatar: '/lovable-uploads/b3337c40-376b-4764-bee8-d425abf31bc8.png',
-      };
-
-      setMessages((prev) => [...prev, botMessage]);
-    }, 1000);
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSendMessage();
+    
+    // Simulate assistant response after a short delay
+    if (message.toLowerCase().includes('help') || message.toLowerCase().includes('stuck')) {
+      setTimeout(() => {
+        const assistantResponse = {
+          id: messages.length + 2,
+          sender: 'Assistant',
+          avatar: '/lovable-uploads/b3337c40-376b-4764-bee8-d425abf31bc8.png',
+          text: 'Need help with something specific? Feel free to ask!',
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          isAssistant: true
+        };
+        setMessages(prev => [...prev, assistantResponse]);
+      }, 1000);
     }
   };
-
-  useEffect(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
-    }
-  }, [messages]);
-
+  
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <h3 className="font-medium text-lg">PREPZR Chill Mode</h3>
-          <Badge className="bg-gradient-to-r from-blue-400 to-purple-400">Relaxation Zone</Badge>
-        </div>
-        <Badge variant="outline" className="flex items-center gap-1">
-          <Clock className="h-3 w-3" />
-          <span>10 mins recommended</span>
-        </Badge>
+    <div className="flex flex-col h-[500px]">
+      <div className="bg-gradient-to-r from-purple-50 to-violet-50 dark:from-purple-900/20 dark:to-violet-900/20 p-3 rounded-t-lg">
+        <h3 className="font-medium">Chill Chat Space</h3>
+        <p className="text-xs text-muted-foreground">
+          Chat with peers taking a break - no study talk required!
+        </p>
       </div>
       
-      <Card className="overflow-hidden">
-        <CardHeader className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 pb-3">
-          <div className="flex items-center gap-2">
-            <Avatar>
-              <AvatarImage src="/lovable-uploads/b3337c40-376b-4764-bee8-d425abf31bc8.png" />
-              <AvatarFallback><Bot className="h-4 w-4" /></AvatarFallback>
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50 dark:bg-gray-900/20">
+        {messages.map((msg) => (
+          <div key={msg.id} className={`flex gap-3 ${msg.isAssistant ? 'bg-blue-50 dark:bg-blue-900/10 p-2 rounded-lg' : ''}`}>
+            <Avatar className="h-8 w-8">
+              <AvatarImage src={msg.avatar} />
+              <AvatarFallback>{msg.sender.charAt(0)}</AvatarFallback>
             </Avatar>
             <div>
-              <CardTitle className="text-base">PREPZR Chill Bot</CardTitle>
-              <p className="text-xs text-muted-foreground">Let's chat about non-academic topics</p>
+              <div className="flex items-baseline gap-2">
+                <span className="font-medium text-sm">{msg.sender}</span>
+                <span className="text-xs text-muted-foreground">{msg.time}</span>
+              </div>
+              <p className="text-sm mt-1">{msg.text}</p>
             </div>
           </div>
-        </CardHeader>
-        
-        <CardContent className="p-3 max-h-[300px] overflow-y-auto">
-          <div className="space-y-4">
-            {messages.map((msg) => (
-              <div 
-                key={msg.id}
-                className={`flex items-start gap-2 ${msg.sender === 'user' ? 'justify-end' : ''}`}
-              >
-                {msg.sender === 'system' && (
-                  <Avatar className="mt-1">
-                    <AvatarImage src={msg.avatar} />
-                    <AvatarFallback><Bot className="h-4 w-4" /></AvatarFallback>
-                  </Avatar>
-                )}
-                
-                <div className={`max-w-[80%] rounded-lg p-3 ${
-                  msg.sender === 'user' 
-                    ? 'bg-blue-500 text-white' 
-                    : 'bg-gray-100 dark:bg-gray-800'
-                }`}>
-                  <div className="flex justify-between items-center mb-1">
-                    <span className="font-medium text-xs">{msg.name}</span>
-                    <span className="text-xs opacity-70">{msg.timestamp}</span>
-                  </div>
-                  <p className="text-sm">{msg.text}</p>
-                </div>
-                
-                {msg.sender === 'user' && (
-                  <Avatar className="mt-1">
-                    <AvatarImage src={userProfile?.avatar} />
-                    <AvatarFallback>
-                      {userProfile?.name?.substring(0, 2).toUpperCase() || 'U'}
-                    </AvatarFallback>
-                  </Avatar>
-                )}
-              </div>
-            ))}
-            <div ref={messagesEndRef} />
-          </div>
-        </CardContent>
-        
-        <CardFooter className="p-3 border-t">
-          <div className="flex w-full items-center gap-2">
+        ))}
+      </div>
+      
+      <Card className="mt-auto rounded-t-none border-t-0">
+        <CardContent className="p-3">
+          <form onSubmit={handleSendMessage} className="flex gap-2">
             <Input
-              placeholder="Type a message..."
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              onKeyDown={handleKeyDown}
+              placeholder="Type a message..."
               className="flex-1"
             />
-            <Button onClick={handleSendMessage} disabled={!message.trim()}>
-              <Send className="h-4 w-4" />
+            <Button type="button" variant="ghost" size="icon">
+              <Smile className="h-5 w-5 text-gray-500" />
             </Button>
-          </div>
-        </CardFooter>
+            <Button type="submit">
+              <SendHorizontal className="h-5 w-5" />
+            </Button>
+          </form>
+        </CardContent>
       </Card>
     </div>
   );

@@ -1,204 +1,131 @@
 
 import React, { useState } from 'react';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Award, Clock, Brain, Check, X } from 'lucide-react';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { useToast } from "@/hooks/use-toast";
-
-interface DailyTeaserWinner {
-  name: string;
-  avatar: string;
-  title: string;
-  description: string;
-}
+import { Award, ThumbsUp, MessageSquare, Share, ArrowRight } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 interface DailyTeasersTabProps {
-  winner: DailyTeaserWinner;
+  winner?: {
+    name: string;
+    avatar: string;
+    title: string;
+    description: string;
+  };
 }
 
 const DailyTeasersTab: React.FC<DailyTeasersTabProps> = ({ winner }) => {
-  const { toast } = useToast();
-  const [selectedTeaser, setSelectedTeaser] = useState<number>(0);
-  const [answer, setAnswer] = useState<string>('');
-  const [hasAnswered, setHasAnswered] = useState<boolean[]>([false, false, false]);
-  const [correctAnswers, setCorrectAnswers] = useState<boolean[]>([false, false, false]);
+  const [showAnswers, setShowAnswers] = useState<Record<string, boolean>>({});
   
-  const dailyTeasers = [
+  const teasers = [
     {
-      id: 1,
-      category: 'Math',
-      question: 'If 3x + 7 = 22, what is the value of x?',
-      answer: '5',
-      difficulty: 'Easy',
-      timeLimit: '1 minute',
-      attempts: 156,
-      solvedBy: 124
+      id: "teaser-1",
+      category: "math",
+      question: "If 3x + 5 = 20, what is the value of x?",
+      answer: "x = 5",
+      difficulty: "easy"
     },
     {
-      id: 2,
-      category: 'Logic',
-      question: 'What comes next in the sequence: 2, 6, 12, 20, ?',
-      answer: '30',
-      difficulty: 'Medium',
-      timeLimit: '2 minutes',
-      attempts: 93,
-      solvedBy: 61
+      id: "teaser-2",
+      category: "riddle",
+      question: "I'm tall when I'm young, and I'm short when I'm old. What am I?",
+      answer: "A candle",
+      difficulty: "medium"
     },
     {
-      id: 3,
-      category: 'Physics',
-      question: 'If light travels at approximately 3 × 10^8 m/s, how long does it take light to travel 150 million kilometers?',
-      answer: '500 seconds',
-      difficulty: 'Hard',
-      timeLimit: '3 minutes',
-      attempts: 72,
-      solvedBy: 28
+      id: "teaser-3",
+      category: "logic",
+      question: "A bat and a ball cost $1.10 in total. The bat costs $1.00 more than the ball. How much does the ball cost?",
+      answer: "The ball costs $0.05 and the bat costs $1.05",
+      difficulty: "hard"
     }
   ];
-
-  const handleAnswerSubmit = () => {
-    if (!answer) {
-      toast({
-        title: "Please enter an answer",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    const newHasAnswered = [...hasAnswered];
-    newHasAnswered[selectedTeaser] = true;
-    setHasAnswered(newHasAnswered);
-    
-    const isCorrect = answer.toLowerCase() === dailyTeasers[selectedTeaser].answer.toLowerCase();
-    const newCorrectAnswers = [...correctAnswers];
-    newCorrectAnswers[selectedTeaser] = isCorrect;
-    setCorrectAnswers(newCorrectAnswers);
-    
-    if (isCorrect) {
-      toast({
-        title: "Correct!",
-        description: "Well done, that's the right answer!",
-        variant: "default"
-      });
-    } else {
-      toast({
-        title: "Not quite right",
-        description: `The correct answer is: ${dailyTeasers[selectedTeaser].answer}`,
-        variant: "destructive"
-      });
-    }
-    
-    setAnswer('');
+  
+  const toggleAnswer = (id: string) => {
+    setShowAnswers(prev => ({
+      ...prev,
+      [id]: !prev[id]
+    }));
   };
   
-  const resetTeaser = () => {
-    const newHasAnswered = [...hasAnswered];
-    newHasAnswered[selectedTeaser] = false;
-    setHasAnswered(newHasAnswered);
-    setAnswer('');
+  const getDifficultyColor = (difficulty: string) => {
+    switch (difficulty) {
+      case 'easy': return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300';
+      case 'medium': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300';
+      case 'hard': return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300';
+      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300';
+    }
   };
-
+  
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h3 className="font-medium text-lg">Daily Brain Teasers</h3>
-        <Badge variant="outline" className="bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">
-          New teasers daily!
-        </Badge>
-      </div>
-      
-      <div className="bg-amber-50 dark:bg-amber-900/20 p-3 rounded-lg border border-amber-200 dark:border-amber-800 flex items-center gap-3">
-        <Award className="h-5 w-5 text-amber-600" />
-        <div>
-          <p className="font-medium text-sm">Today's Teaser Winner: {winner.name}</p>
-          <p className="text-xs text-muted-foreground">{winner.title} - {winner.description}</p>
+      {winner && (
+        <div className="bg-amber-50 dark:bg-amber-900/20 p-4 rounded-lg border border-amber-200 dark:border-amber-800 mb-6">
+          <div className="flex items-center gap-3">
+            <Award className="h-5 w-5 text-amber-600" />
+            <div>
+              <p className="font-medium text-sm">Today's Teaser Winner: {winner.name}</p>
+              <p className="text-xs text-muted-foreground">{winner.title} - {winner.description}</p>
+            </div>
+          </div>
         </div>
-      </div>
-
-      <div className="grid grid-cols-3 gap-2">
-        {dailyTeasers.map((teaser, index) => (
-          <Button 
-            key={teaser.id}
-            variant={selectedTeaser === index ? "default" : "outline"}
-            className={`h-auto py-2 flex flex-col items-center gap-1 ${
-              hasAnswered[index] 
-                ? correctAnswers[index] 
-                  ? "border-green-500 dark:border-green-600" 
-                  : "border-red-500 dark:border-red-600"
-                : ""
-            }`}
-            onClick={() => setSelectedTeaser(index)}
-          >
-            <span className="font-medium">{teaser.category}</span>
-            <Badge variant="outline" className="text-xs">
-              {teaser.difficulty}
-            </Badge>
-            {hasAnswered[index] && (
-              correctAnswers[index] 
-                ? <Check size={14} className="text-green-500" /> 
-                : <X size={14} className="text-red-500" />
-            )}
-          </Button>
+      )}
+      
+      <h3 className="font-medium text-lg mb-4">Daily Brain Teasers</h3>
+      
+      <div className="grid gap-4">
+        {teasers.map((teaser) => (
+          <Card key={teaser.id} className="overflow-hidden">
+            <CardHeader className="pb-2 pt-4">
+              <div className="flex items-center justify-between">
+                <Badge className={getDifficultyColor(teaser.difficulty)}>
+                  {teaser.difficulty.charAt(0).toUpperCase() + teaser.difficulty.slice(1)}
+                </Badge>
+                <Badge variant="outline">{teaser.category}</Badge>
+              </div>
+            </CardHeader>
+            <CardContent className="pb-4">
+              <p className="mb-4">{teaser.question}</p>
+              
+              {showAnswers[teaser.id] ? (
+                <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded">
+                  <p className="text-sm font-medium">Answer: {teaser.answer}</p>
+                </div>
+              ) : (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => toggleAnswer(teaser.id)}
+                >
+                  Reveal Answer
+                </Button>
+              )}
+              
+              <div className="flex items-center justify-between mt-4">
+                <div className="flex items-center gap-2">
+                  <button className="text-gray-500 hover:text-blue-500">
+                    <ThumbsUp className="h-4 w-4" />
+                  </button>
+                  <button className="text-gray-500 hover:text-purple-500">
+                    <MessageSquare className="h-4 w-4" />
+                  </button>
+                  <button className="text-gray-500 hover:text-green-500">
+                    <Share className="h-4 w-4" />
+                  </button>
+                </div>
+                <button className="text-blue-600 text-xs flex items-center">
+                  Discuss <ArrowRight className="h-3 w-3 ml-1" />
+                </button>
+              </div>
+            </CardContent>
+          </Card>
         ))}
       </div>
       
-      <Card>
-        <CardHeader className="pb-2">
-          <div className="flex justify-between items-center">
-            <CardTitle className="flex items-center gap-2">
-              <Brain className="h-5 w-5" />
-              <span>{dailyTeasers[selectedTeaser].category} Teaser</span>
-            </CardTitle>
-            <Badge className="flex items-center gap-1">
-              <Clock size={12} />
-              <span>{dailyTeasers[selectedTeaser].timeLimit}</span>
-            </Badge>
-          </div>
-        </CardHeader>
-        <CardContent className="pb-2">
-          <p className="mb-4">{dailyTeasers[selectedTeaser].question}</p>
-          
-          {!hasAnswered[selectedTeaser] ? (
-            <div className="flex items-center gap-2">
-              <Input
-                placeholder="Your answer"
-                value={answer}
-                onChange={(e) => setAnswer(e.target.value)}
-              />
-              <Button onClick={handleAnswerSubmit}>
-                Submit
-              </Button>
-            </div>
-          ) : (
-            <div className={`p-3 rounded-lg ${
-              correctAnswers[selectedTeaser] 
-                ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-200" 
-                : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-200"
-            }`}>
-              <div className="flex items-center gap-2">
-                {correctAnswers[selectedTeaser] 
-                  ? <Check size={18} className="text-green-600 dark:text-green-400" />
-                  : <X size={18} className="text-red-600 dark:text-red-400" />
-                }
-                <span className="font-medium">
-                  {correctAnswers[selectedTeaser] ? "Correct!" : "Incorrect!"}
-                </span>
-              </div>
-              <p className="text-sm mt-1">The answer is: {dailyTeasers[selectedTeaser].answer}</p>
-              <Button variant="ghost" size="sm" className="mt-2" onClick={resetTeaser}>
-                Try Again
-              </Button>
-            </div>
-          )}
-        </CardContent>
-        <CardFooter className="flex items-center justify-between text-xs text-muted-foreground">
-          <div>Attempted by {dailyTeasers[selectedTeaser].attempts} students</div>
-          <div>Solved by {dailyTeasers[selectedTeaser].solvedBy} students</div>
-        </CardFooter>
-      </Card>
+      <div className="flex justify-center">
+        <Button>Load More Teasers</Button>
+      </div>
     </div>
   );
 };
