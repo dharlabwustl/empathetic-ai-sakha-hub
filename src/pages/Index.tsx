@@ -4,7 +4,6 @@ import Header from '@/components/layout/HeaderWithAdmin';
 import Footer from '@/components/layout/Footer';
 import HeroSection from '@/components/landing/HeroSection';
 import WhatIsSection from '@/components/home/WhatIsSection';
-import ExamEcosystemSection from '@/components/home/ExamEcosystemSection';
 import FeaturesSection from '@/components/home/FeaturesSection';
 import ExamPreparationSection from '@/components/home/ExamPreparationSection';
 import StudentBenefitsSection from '@/components/home/StudentBenefitsSection';
@@ -13,6 +12,7 @@ import FounderSection from '@/components/home/FounderSection';
 import VideoSection from '@/components/home/VideoSection';
 import { ExamReadinessAnalyzer } from '@/components/home/ExamReadinessAnalyzer';
 import FoundingTeamSection from '@/components/home/FoundingTeamSection';
+import ExamNamesBadge from '@/components/home/hero/ExamNamesBadge';
 
 const Index = () => {
   const featuresRef = useRef<HTMLDivElement>(null);
@@ -52,10 +52,9 @@ const Index = () => {
       <main>
         <HeroSection />
         
-        <WhatIsSection />
+        {/* ExamNamesBadge is now handled inside the HeroSection component */}
         
-        {/* Added ExamEcosystemSection after WhatIsSection */}
-        <ExamEcosystemSection />
+        <WhatIsSection />
         
         <div ref={featuresRef}>
           <FeaturesSection />
