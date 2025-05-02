@@ -14,7 +14,8 @@ const DEFAULT_SUBJECTS: StudyPlanSubject[] = [
     completed: false,
     priority: "high",
     hoursPerWeek: 5,
-    color: "#4C51BF" 
+    color: "#4C51BF",
+    isWeakSubject: false
   },
   { 
     id: "physics", 
@@ -23,7 +24,8 @@ const DEFAULT_SUBJECTS: StudyPlanSubject[] = [
     completed: false,
     priority: "medium",
     hoursPerWeek: 4,
-    color: "#2B6CB0" 
+    color: "#2B6CB0",
+    isWeakSubject: false
   },
   { 
     id: "chemistry", 
@@ -32,7 +34,8 @@ const DEFAULT_SUBJECTS: StudyPlanSubject[] = [
     completed: false,
     priority: "medium",
     hoursPerWeek: 4,
-    color: "#2F855A" 
+    color: "#2F855A",
+    isWeakSubject: false
   },
   { 
     id: "biology", 
@@ -41,7 +44,8 @@ const DEFAULT_SUBJECTS: StudyPlanSubject[] = [
     completed: false,
     priority: "low",
     hoursPerWeek: 3,
-    color: "#C05621" 
+    color: "#C05621",
+    isWeakSubject: false
   }
 ];
 
@@ -56,7 +60,25 @@ const DEFAULT_STUDY_PLAN: NewStudyPlan = {
   examDate: addMonths(new Date(), 3).toISOString().split('T')[0],
   status: "active",
   progress: 0,
-  learningPace: "moderate"
+  learningPace: "moderate",
+  userDemographics: {
+    age: 18,
+    educationLevel: "higherSecondary",
+    city: ""
+  },
+  studyPreferences: {
+    personalityType: "analytical",
+    mood: "motivated",
+    studyPace: "balanced",
+    dailyStudyHours: 4,
+    breakFrequency: "occasionally",
+    stressManagement: "meditation",
+    studyEnvironment: "quiet",
+    preferredStudyTime: "morning"
+  },
+  contactInfo: {
+    mobileNumber: ""
+  }
 };
 
 // Wizard steps
@@ -64,9 +86,11 @@ export const STUDY_PLAN_STEPS = [
   "goal",
   "exam-goal",
   "exam-date",
+  "demographics",
   "subjects",
   "study-hours",
   "learning-pace",
+  "study-preferences",
   "review"
 ];
 
@@ -101,6 +125,36 @@ export const useStudyPlanWizard = () => {
     setStudyPlan(prev => ({
       ...prev,
       examDate: formattedDate
+    }));
+    
+    if (currentStep < STUDY_PLAN_STEPS.length - 1) {
+      setCurrentStep(prev => prev + 1);
+    }
+  };
+
+  // Handle form submission for demographics
+  const handleSubmitDemographics = (demographics: { age?: number; educationLevel?: string; city?: string }) => {
+    setStudyPlan(prev => ({
+      ...prev,
+      userDemographics: {
+        ...prev.userDemographics,
+        ...demographics
+      }
+    }));
+    
+    if (currentStep < STUDY_PLAN_STEPS.length - 1) {
+      setCurrentStep(prev => prev + 1);
+    }
+  };
+
+  // Handle form submission for study preferences
+  const handleSubmitPreferences = (preferences: Partial<NewStudyPlan['studyPreferences']>) => {
+    setStudyPlan(prev => ({
+      ...prev,
+      studyPreferences: {
+        ...prev.studyPreferences,
+        ...preferences
+      }
     }));
     
     if (currentStep < STUDY_PLAN_STEPS.length - 1) {
@@ -146,6 +200,8 @@ export const useStudyPlanWizard = () => {
     setCurrentStep,
     handleSubmitStep,
     handleSubmitExamDate,
+    handleSubmitDemographics,
+    handleSubmitPreferences,
     createStudyPlan,
     goToPrevStep,
     goToNextStep,

@@ -7,11 +7,12 @@ export interface StudyPlanSubject {
   color?: string;
   progress?: number;
   proficiency?: "weak" | "moderate" | "strong";
-  topics?: { name: string; completed: boolean }[];
+  topics?: { id?: string; name: string; completed: boolean; status?: "pending" | "completed" | "skipped" | "in-progress" }[];
   hoursPerWeek?: number;
-  priority?: "low" | "medium" | "high"; // Making priority optional to fix errors
+  priority?: "low" | "medium" | "high";
   completed: boolean;
   status?: "pending" | "completed" | "skipped" | "in-progress";
+  isWeakSubject?: boolean; // Added field to identify weak subjects
 }
 
 // Define the type for a new study plan
@@ -29,6 +30,25 @@ export interface NewStudyPlan {
   progress?: number;
   createdAt?: string;
   learningPace?: "slow" | "moderate" | "fast";
+  // Added fields for onboarding data
+  userDemographics?: {
+    age?: number;
+    educationLevel?: string;
+    city?: string;
+  };
+  studyPreferences?: {
+    personalityType?: "analytical" | "creative" | "imagination" | "practical" | "visual" | "auditory" | "kinesthetic";
+    mood?: "happy" | "motivated" | "focused" | "neutral" | "tired" | "anxious" | "stressed" | "sad";
+    studyPace?: "aggressive" | "balanced" | "relaxed";
+    dailyStudyHours?: number;
+    breakFrequency?: "frequently" | "occasionally" | "rarely" | "pomodoro";
+    stressManagement?: string;
+    studyEnvironment?: string;
+    preferredStudyTime?: "morning" | "afternoon" | "evening" | "night";
+  };
+  contactInfo?: {
+    mobileNumber?: string; // For login authentication
+  };
 }
 
 // Define the type for a study plan

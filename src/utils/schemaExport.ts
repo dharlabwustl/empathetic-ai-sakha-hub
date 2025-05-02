@@ -1,4 +1,3 @@
-
 /**
  * Schema Export Utility
  * Provides utility functions for generating database schema representations
@@ -36,6 +35,7 @@ export const generateDatabaseSchema = (): SchemaTable[] => {
         { name: "password_hash", type: "VARCHAR(255)", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Hashed user password" },
         { name: "name", type: "VARCHAR(100)", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "User's full name" },
         { name: "role", type: "VARCHAR(50)", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "User role (student, admin, etc.)" },
+        { name: "mobile_number", type: "VARCHAR(20)", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "User mobile number for authentication" },
         { name: "created_at", type: "TIMESTAMP", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Account creation timestamp" },
         { name: "updated_at", type: "TIMESTAMP", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Last account update timestamp" }
       ]
@@ -51,7 +51,18 @@ export const generateDatabaseSchema = (): SchemaTable[] => {
         { name: "target_score", type: "INTEGER", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "Target score for exam" },
         { name: "phone_number", type: "VARCHAR(20)", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "Student contact number" },
         { name: "onboarding_completed", type: "BOOLEAN", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Whether student completed onboarding" },
-        { name: "last_active", type: "TIMESTAMP", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "Last platform activity timestamp" }
+        { name: "last_active", type: "TIMESTAMP", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "Last platform activity timestamp" },
+        { name: "age", type: "INTEGER", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "Student's age" },
+        { name: "education_level", type: "VARCHAR(50)", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "Education level (highSchool, higherSecondary, etc)" },
+        { name: "city", type: "VARCHAR(100)", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "Student's city" },
+        { name: "exam_date", type: "DATE", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "Target exam appearing date" },
+        { name: "personality_type", type: "VARCHAR(50)", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "Learning personality type" },
+        { name: "daily_study_hours", type: "FLOAT", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "Preferred daily study hours" },
+        { name: "break_frequency", type: "VARCHAR(20)", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "Study break frequency preference" },
+        { name: "stress_management", type: "VARCHAR(100)", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "Preferred stress management technique" },
+        { name: "study_environment", type: "VARCHAR(100)", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "Preferred study environment" },
+        { name: "study_pace", type: "VARCHAR(20)", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "Preferred study pace" },
+        { name: "preferred_study_time", type: "VARCHAR(20)", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "Preferred time of day to study" }
       ]
     },
     {
@@ -63,7 +74,9 @@ export const generateDatabaseSchema = (): SchemaTable[] => {
         { name: "subject_name", type: "VARCHAR(100)", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Subject name" },
         { name: "proficiency_level", type: "INTEGER", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Self-rated proficiency (1-10)" },
         { name: "is_priority", type: "BOOLEAN", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Whether this is a priority subject" },
-        { name: "created_at", type: "TIMESTAMP", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Record creation timestamp" }
+        { name: "is_weak_subject", type: "BOOLEAN", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Whether this is a weak subject for the student" },
+        { name: "created_at", type: "TIMESTAMP", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Record creation timestamp" },
+        { name: "hours_per_week", type: "INTEGER", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "Hours allocated per week" }
       ]
     },
     {
@@ -103,9 +116,14 @@ export const generateDatabaseSchema = (): SchemaTable[] => {
         { name: "description", type: "TEXT", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "Plan description" },
         { name: "start_date", type: "DATE", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Plan start date" },
         { name: "end_date", type: "DATE", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Plan end date" },
+        { name: "exam_date", type: "DATE", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Target exam date" },
         { name: "is_active", type: "BOOLEAN", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Whether plan is active" },
         { name: "created_at", type: "TIMESTAMP", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Plan creation timestamp" },
-        { name: "updated_at", type: "TIMESTAMP", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Plan update timestamp" }
+        { name: "updated_at", type: "TIMESTAMP", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Plan update timestamp" },
+        { name: "weekly_hours", type: "INTEGER", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "Weekly study hours goal" },
+        { name: "learning_pace", type: "VARCHAR(20)", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "Learning pace preference" },
+        { name: "progress", type: "FLOAT", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "Overall progress percentage" },
+        { name: "status", type: "VARCHAR(20)", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Plan status (active, completed, archived)" }
       ]
     },
     {
