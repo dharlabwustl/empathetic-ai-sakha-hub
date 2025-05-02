@@ -1,5 +1,4 @@
-
-import React, { Fragment } from "react";
+import React, { Fragment, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -11,7 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Steps, StepLabel } from "@/components/ui/steps";
-import { Check, X, BookOpen, Clock, Calendar, LineChart, MessageSquare, User, Video, FileText } from "lucide-react";
+import { Check, X, BookOpen, Clock, Calendar, LineChart, MessageSquare } from "lucide-react";
 import PrepzrLogo from "@/components/common/PrepzrLogo";
 
 interface WelcomeTourProps {
@@ -29,9 +28,19 @@ export default function WelcomeTour({
   onSkipTour,
   onCompleteTour,
   isFirstTimeUser = true,
+  loginCount = 1,
   open,
   onOpenChange,
+  lastActivity,
+  suggestedNextAction
 }: WelcomeTourProps) {
+  // Update localStorage when tour is shown
+  useEffect(() => {
+    if (open) {
+      console.log("Tour opened, isFirstTimeUser:", isFirstTimeUser);
+    }
+  }, [open, isFirstTimeUser]);
+  
   const handleSkip = () => {
     onSkipTour();
   };
@@ -40,8 +49,28 @@ export default function WelcomeTour({
     onCompleteTour();
   };
 
+  const handleOpenChange = (newOpen: boolean) => {
+    if (!newOpen) {
+      // Only run the skip action if the tour is being closed
+      onSkipTour();
+    }
+    onOpenChange(newOpen);
+  };
+
+  const getCustomMessage = () => {
+    if (isFirstTimeUser) {
+      return "Welcome to PREPZR! Let's explore how to get the most out of your study journey.";
+    }
+    
+    if (loginCount && loginCount > 5) {
+      return "Welcome back! Need a refresher on all the features? Let's take another quick tour.";
+    }
+    
+    return "Here's a quick tour of PREPZR to help you maximize your study experience.";
+  };
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-[650px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <div className="flex items-center justify-center mb-4">
@@ -49,7 +78,7 @@ export default function WelcomeTour({
           </div>
           <DialogTitle className="text-2xl text-center">Welcome to PREPZR!</DialogTitle>
           <DialogDescription className="text-center">
-            Your personalized study companion powered by AI
+            {getCustomMessage()}
           </DialogDescription>
         </DialogHeader>
 

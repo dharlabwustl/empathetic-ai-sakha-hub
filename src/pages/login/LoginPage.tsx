@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -12,7 +11,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 const LoginPage = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { login } = useAuth();
+  const { login, isAuthenticated } = useAuth();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -21,6 +20,13 @@ const LoginPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [loginError, setLoginError] = useState("");
+
+  // Check if user is already authenticated, redirect if true
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/dashboard/student");
+    }
+  }, [isAuthenticated, navigate]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -58,37 +64,8 @@ const LoginPage = () => {
           localStorage.removeItem("prepzr_remembered_email");
         }
         
-        // Check for existing user data to determine if they're returning
-        const userData = localStorage.getItem("userData");
-        if (userData) {
-          try {
-            const parsedData = JSON.parse(userData);
-            const loginCount = parsedData.loginCount ? parseInt(parsedData.loginCount) + 1 : 1;
-            
-            localStorage.setItem("userData", JSON.stringify({
-              ...parsedData,
-              loginCount,
-              lastLogin: new Date().toISOString()
-            }));
-            
-            // Navigate to dashboard
-            navigate("/dashboard/student");
-          } catch (error) {
-            console.error("Error parsing user data:", error);
-            navigate("/dashboard/student");
-          }
-        } else {
-          // If no user data exists, create it
-          const newUserData = {
-            name: formData.email.split('@')[0],
-            email: formData.email,
-            loginCount: 1,
-            lastLogin: new Date().toISOString(),
-            mood: 'Motivated'
-          };
-          localStorage.setItem("userData", JSON.stringify(newUserData));
-          navigate("/dashboard/student");
-        }
+        // Force navigation to dashboard
+        navigate("/dashboard/student");
       } else {
         setLoginError("Invalid email or password");
         toast({

@@ -1,6 +1,10 @@
+
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { HelpCircle } from "lucide-react";
+import { Menu, Tour } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useNavigate } from "react-router-dom";
 
 interface TopNavigationControlsProps {
   hideSidebar: boolean;
@@ -10,56 +14,59 @@ interface TopNavigationControlsProps {
   onOpenTour?: () => void;
 }
 
-const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({
-  hideSidebar,
-  onToggleSidebar,
+const TopNavigationControls: React.FC<TopNavigationControlsProps> = ({ 
+  hideSidebar, 
+  onToggleSidebar, 
   formattedDate,
   formattedTime,
   onOpenTour
 }) => {
+  const navigate = useNavigate();
+  
   return (
-    <div className="flex items-center justify-between mb-6">
-      <div className="flex items-center gap-4">
-        <Button
-          variant="ghost"
-          size="icon"
+    <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center space-x-4">
+        <Button 
+          variant="ghost" 
+          size="icon" 
           className="md:hidden"
           onClick={onToggleSidebar}
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="h-6 w-6"
-          >
-            <line x1="3" y1="12" x2="21" y2="12" />
-            <line x1="3" y1="6" x2="21" y2="6" />
-            <line x1="3" y1="18" x2="21" y2="18" />
-          </svg>
-          <span className="sr-only">Toggle Menu</span>
+          <Menu className="h-5 w-5" />
         </Button>
-        <div>
-          <h2 className="text-lg font-semibold">{formattedTime}</h2>
-          <p className="text-muted-foreground text-sm">{formattedDate}</p>
+        <div className="hidden md:block">
+          <div className="text-sm text-gray-500">{formattedDate}</div>
         </div>
       </div>
       
-      <div className="flex items-center gap-2">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={onOpenTour}
-          className="hidden sm:flex items-center gap-2 text-indigo-600 hover:text-indigo-700 border-indigo-200"
+      <div className="flex items-center space-x-2">
+        {onOpenTour && (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline" 
+                  size="icon"
+                  onClick={onOpenTour}
+                  className="border-blue-200 hover:border-blue-300 hover:bg-blue-50"
+                >
+                  <Tour className="h-4 w-4 text-blue-600" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                Take a tour
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        )}
+        
+        <Avatar 
+          className="h-8 w-8 cursor-pointer border border-gray-200" 
+          onClick={() => navigate("/dashboard/student/settings")}
         >
-          <HelpCircle className="h-4 w-4" />
-          Tour Guide
-        </Button>
+          <AvatarImage src="/lovable-uploads/ffb2594e-ee5e-424c-92ff-417777e347c9.png" />
+          <AvatarFallback>US</AvatarFallback>
+        </Avatar>
       </div>
     </div>
   );
