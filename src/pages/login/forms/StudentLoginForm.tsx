@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -70,19 +69,14 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
               lastLogin: new Date().toISOString()
             }));
             
-            // Redirect to welcome back screen for returning users
-            if (loginCount > 1) {
-              navigate("/welcome-back");
-            } else {
-              // For first-time users
-              navigate("/dashboard/student?new=true");
-            }
+            // Always direct to the pending activities screen first
+            navigate("/dashboard/student/today");
           } catch (error) {
             console.error("Error updating user data:", error);
-            navigate("/dashboard/student");
+            navigate("/dashboard/student/today");
           }
         } else {
-          navigate("/dashboard/student");
+          navigate("/dashboard/student/today");
         }
       } else {
         toast({

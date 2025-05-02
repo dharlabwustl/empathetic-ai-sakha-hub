@@ -102,35 +102,26 @@ const authService = {
   async adminLogin(credentials: LoginCredentials): Promise<ApiResponse<AuthUser>> {
     console.log("Admin login with:", credentials);
     
-    // For demo purposes, allow any email with admin@prepzr.com
+    // For demo purposes, allow any email
     // In a real app, this would validate against admin accounts only
-    if (credentials.email.includes('admin')) {
-      const adminUser: AuthUser = {
-        id: `admin_${Date.now()}`,
-        name: 'Admin User',
-        email: credentials.email,
-        role: 'admin',
-        token: `admin_token_${Date.now()}`,
-        permissions: ['all']
-      };
-      
-      // Set the auth data
-      this.setAuthData(adminUser);
-      
-      // Return success response
-      return {
-        success: true,
-        data: adminUser,
-        error: null
-      };
-    } else {
-      // Return error for non-admin emails
-      return {
-        success: false,
-        data: null,
-        error: "Invalid admin credentials"
-      };
-    }
+    const adminUser: AuthUser = {
+      id: `admin_${Date.now()}`,
+      name: 'Admin User',
+      email: credentials.email,
+      role: 'admin',
+      token: `admin_token_${Date.now()}`,
+      permissions: ['all']
+    };
+    
+    // Set the auth data
+    this.setAuthData(adminUser);
+    
+    // Return success response
+    return {
+      success: true,
+      data: adminUser,
+      error: null
+    };
   },
   
   // Logout user
