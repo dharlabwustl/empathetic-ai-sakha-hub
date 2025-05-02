@@ -2,7 +2,6 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { motion } from "framer-motion";
 import { Textarea } from "@/components/ui/textarea";
@@ -12,9 +11,6 @@ interface StudyHabitsStepProps {
 }
 
 const StudyHabitsStep: React.FC<StudyHabitsStepProps> = ({ onSubmit }) => {
-  const [studyTime, setStudyTime] = useState<string>("");
-  const [studyPace, setStudyPace] = useState<string>("");
-  const [dailyStudyHours, setDailyStudyHours] = useState<string>("");
   const [breakFrequency, setBreakFrequency] = useState<string>("");
   const [stressManagement, setStressManagement] = useState<string>("");
   const [studyPreference, setStudyPreference] = useState<string>("");
@@ -26,9 +22,6 @@ const StudyHabitsStep: React.FC<StudyHabitsStepProps> = ({ onSubmit }) => {
     
     // Prepare habits data
     const habitsData: Record<string, string> = {
-      studyTime,
-      studyPace,
-      dailyStudyHours,
       breakFrequency,
       stressManagement: stressManagement === "other" ? stressManagementCustom : stressManagement,
       studyPreference: studyPreference === "other" ? studyPreferenceCustom : studyPreference,
@@ -38,8 +31,7 @@ const StudyHabitsStep: React.FC<StudyHabitsStepProps> = ({ onSubmit }) => {
   };
 
   // Ensure all required fields are filled
-  const isFormValid = studyTime && studyPace && dailyStudyHours && breakFrequency && 
-    stressManagement && studyPreference &&
+  const isFormValid = breakFrequency && stressManagement && studyPreference &&
     (stressManagement !== "other" || stressManagementCustom) &&
     (studyPreference !== "other" || studyPreferenceCustom);
 
@@ -52,97 +44,13 @@ const StudyHabitsStep: React.FC<StudyHabitsStepProps> = ({ onSubmit }) => {
       className="space-y-5"
     >
       <div>
-        <h3 className="text-lg font-medium mb-1">Study Preferences</h3>
+        <h3 className="text-lg font-medium mb-1">Additional Study Preferences</h3>
         <p className="text-sm text-gray-500 mb-4">
-          Let us understand your study habits to personalize your learning experience.
+          Let us understand more about your study habits to personalize your learning experience.
         </p>
       </div>
 
       <div className="space-y-4">
-        {/* Preferred Study Time */}
-        <div>
-          <Label className="text-base font-medium">Preferred Study Time</Label>
-          <RadioGroup
-            value={studyTime}
-            onValueChange={setStudyTime}
-            className="grid grid-cols-2 gap-3 mt-2"
-          >
-            <Label
-              htmlFor="study-morning"
-              className={`flex items-center space-x-2 border rounded-lg p-3 cursor-pointer transition-colors ${
-                studyTime === "morning" ? "bg-blue-50 border-blue-300" : "hover:bg-gray-50"
-              }`}
-            >
-              <RadioGroupItem value="morning" id="study-morning" />
-              <span>Morning</span>
-            </Label>
-            <Label
-              htmlFor="study-afternoon"
-              className={`flex items-center space-x-2 border rounded-lg p-3 cursor-pointer transition-colors ${
-                studyTime === "afternoon" ? "bg-blue-50 border-blue-300" : "hover:bg-gray-50"
-              }`}
-            >
-              <RadioGroupItem value="afternoon" id="study-afternoon" />
-              <span>Afternoon</span>
-            </Label>
-            <Label
-              htmlFor="study-evening"
-              className={`flex items-center space-x-2 border rounded-lg p-3 cursor-pointer transition-colors ${
-                studyTime === "evening" ? "bg-blue-50 border-blue-300" : "hover:bg-gray-50"
-              }`}
-            >
-              <RadioGroupItem value="evening" id="study-evening" />
-              <span>Evening</span>
-            </Label>
-            <Label
-              htmlFor="study-night"
-              className={`flex items-center space-x-2 border rounded-lg p-3 cursor-pointer transition-colors ${
-                studyTime === "night" ? "bg-blue-50 border-blue-300" : "hover:bg-gray-50"
-              }`}
-            >
-              <RadioGroupItem value="night" id="study-night" />
-              <span>Night</span>
-            </Label>
-          </RadioGroup>
-        </div>
-
-        {/* Study Pace */}
-        <div>
-          <Label htmlFor="studyPace" className="text-base font-medium">
-            Preferred Study Pace
-          </Label>
-          <Select value={studyPace} onValueChange={setStudyPace}>
-            <SelectTrigger id="studyPace" className="mt-2">
-              <SelectValue placeholder="Select your preferred pace" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="slow">Slow and thorough</SelectItem>
-              <SelectItem value="moderate">Moderate pace</SelectItem>
-              <SelectItem value="fast">Fast-paced</SelectItem>
-              <SelectItem value="variable">Variable (depends on subject)</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        {/* Daily Study Hours */}
-        <div>
-          <Label htmlFor="dailyStudyHours" className="text-base font-medium">
-            Daily Study Hours
-          </Label>
-          <Select value={dailyStudyHours} onValueChange={setDailyStudyHours}>
-            <SelectTrigger id="dailyStudyHours" className="mt-2">
-              <SelectValue placeholder="Select hours per day" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="1-2">1-2 hours</SelectItem>
-              <SelectItem value="3-4">3-4 hours</SelectItem>
-              <SelectItem value="5-6">5-6 hours</SelectItem>
-              <SelectItem value="7+">7+ hours</SelectItem>
-              <SelectItem value="variable">Variable (depends on day)</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
         {/* Break Frequency */}
         <div>
           <Label htmlFor="breakFrequency" className="text-base font-medium">
