@@ -25,6 +25,14 @@ const ExamNamesBadge = () => {
     })
   };
 
+  const hoverVariants = {
+    hover: {
+      scale: 1.05,
+      boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1)",
+      transition: { duration: 0.2 }
+    }
+  };
+
   return (
     <motion.div
       variants={badgeVariants}
@@ -32,14 +40,23 @@ const ExamNamesBadge = () => {
       animate="visible"
       className="max-w-lg mx-auto bg-white/80 dark:bg-gray-800/80 backdrop-blur rounded-full py-3 px-6 shadow-md flex flex-wrap justify-center items-center gap-3"
     >
-      <span className="text-sm text-gray-500 dark:text-gray-400 font-medium">Trusted by students preparing for:</span>
+      <motion.span 
+        className="text-sm text-gray-500 dark:text-gray-400 font-medium"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.3, duration: 0.5 }}
+      >
+        Trusted by students preparing for:
+      </motion.span>
       
       <motion.span 
         custom={1}
         variants={textVariants}
         initial="hidden"
         animate="visible"
-        className="font-bold text-lg text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-indigo-600 px-3 py-1 rounded-full border-2 border-purple-200 dark:border-purple-900 hover:shadow-md transition-all duration-300 transform hover:scale-105"
+        whileHover="hover"
+        variants={hoverVariants}
+        className="font-bold text-lg text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-indigo-600 px-3 py-1 rounded-full border-2 border-purple-200 dark:border-purple-900 hover:shadow-md transition-all duration-300 transform"
       >
         UPSC
       </motion.span>
@@ -49,7 +66,9 @@ const ExamNamesBadge = () => {
         variants={textVariants}
         initial="hidden"
         animate="visible"
-        className="font-bold text-lg text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-cyan-500 px-3 py-1 rounded-full border-2 border-blue-200 dark:border-blue-900 hover:shadow-md transition-all duration-300 transform hover:scale-105"
+        whileHover="hover"
+        variants={hoverVariants}
+        className="font-bold text-lg text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-cyan-500 px-3 py-1 rounded-full border-2 border-blue-200 dark:border-blue-900 hover:shadow-md transition-all duration-300 transform"
       >
         NEET
       </motion.span>
@@ -59,7 +78,9 @@ const ExamNamesBadge = () => {
         variants={textVariants}
         initial="hidden"
         animate="visible"
-        className="font-bold text-lg text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-600 to-pink-600 px-3 py-1 rounded-full border-2 border-pink-200 dark:border-pink-900 hover:shadow-md transition-all duration-300 transform hover:scale-105"
+        whileHover="hover"
+        variants={hoverVariants}
+        className="font-bold text-lg text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-600 to-pink-600 px-3 py-1 rounded-full border-2 border-pink-200 dark:border-pink-900 hover:shadow-md transition-all duration-300 transform"
       >
         IIT-JEE
       </motion.span>

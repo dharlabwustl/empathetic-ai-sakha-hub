@@ -2,7 +2,7 @@
 import React, { useRef, useState } from 'react';
 import Header from '@/components/layout/HeaderWithAdmin';
 import Footer from '@/components/layout/Footer';
-import HeroSection from '@/components/home/HeroSection';
+import HeroSection from '@/components/landing/HeroSection';
 import WhatIsSection from '@/components/home/WhatIsSection';
 import FeaturesSection from '@/components/home/FeaturesSection';
 import ExamPreparationSection from '@/components/home/ExamPreparationSection';
@@ -12,6 +12,7 @@ import FounderSection from '@/components/home/FounderSection';
 import VideoSection from '@/components/home/VideoSection';
 import { ExamReadinessAnalyzer } from '@/components/home/ExamReadinessAnalyzer';
 import FoundingTeamSection from '@/components/home/FoundingTeamSection';
+import ExamNamesBadge from '@/components/home/hero/ExamNamesBadge';
 
 const Index = () => {
   const featuresRef = useRef<HTMLDivElement>(null);
@@ -36,10 +37,11 @@ const Index = () => {
       <Header />
       
       <main>
-        <HeroSection 
-          scrollToFeatures={scrollToFeatures} 
-          openExamAnalyzer={handleOpenExamAnalyzer}
-        />
+        <HeroSection />
+        
+        <div className="container mx-auto px-4 py-8">
+          <ExamNamesBadge />
+        </div>
         
         <WhatIsSection />
         
