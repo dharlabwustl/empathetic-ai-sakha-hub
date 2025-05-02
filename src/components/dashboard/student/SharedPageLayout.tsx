@@ -2,7 +2,6 @@
 import React from 'react';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { UserRole } from '@/types/user/base';
-import DashboardLayout from '@/pages/dashboard/student/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -28,7 +27,7 @@ export const SharedPageLayout: React.FC<SharedPageLayoutProps> = ({
   hideSidebar = false,
   hideTabsNav = false
 }) => {
-  const { userProfile, loading } = useUserProfile(UserRole.Student);
+  const { userProfile, loading } = useUserProfile('student');
   const navigate = useNavigate();
   
   if (loading || !userProfile) {
