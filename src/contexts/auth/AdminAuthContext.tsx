@@ -54,6 +54,8 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
           setAdminUser(parsedUser);
         } catch (error) {
           console.error('Error parsing admin user:', error);
+          localStorage.removeItem('adminToken');
+          localStorage.removeItem('adminUser');
         }
       }
       
@@ -79,11 +81,12 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
           role: "admin"
         };
         
-        // Store token in localStorage
+        // Store token and user data in localStorage
         const mockToken = `admin_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
         localStorage.setItem("adminToken", mockToken);
         localStorage.setItem("adminUser", JSON.stringify(adminUser));
         
+        // Update state with user data
         setAdminUser(adminUser);
         setIsAdminLoading(false);
         return true;

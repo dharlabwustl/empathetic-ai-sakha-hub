@@ -60,16 +60,15 @@ const AdminLogin = () => {
           description: 'Welcome to the admin dashboard',
         });
         
-        // Wait a moment to show the success animation, then navigate
-        setTimeout(() => {
-          navigate('/admin/dashboard', { replace: true });
-        }, 800);
+        // Navigate immediately to prevent UI shake
+        navigate('/admin/dashboard');
       } else {
         toast({
           title: 'Login failed',
           description: adminLoginError || 'Invalid admin credentials. Email must contain "admin".',
           variant: 'destructive',
         });
+        setIsLoading(false);
       }
     } catch (error) {
       console.error('Admin login error:', error);
@@ -78,7 +77,6 @@ const AdminLogin = () => {
         description: 'An error occurred during login. Please try again.',
         variant: 'destructive',
       });
-    } finally {
       setIsLoading(false);
     }
   };
