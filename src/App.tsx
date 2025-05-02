@@ -10,27 +10,27 @@ import SignUp from '@/pages/SignUp';
 import Index from '@/pages/Index';
 import Login from '@/pages/auth/Login';
 
-// Dashboard pages
-const StudentDashboard = React.lazy(() => import('@/pages/dashboard/student/StudentDashboard'));
-const TodayPage = React.lazy(() => import('@/pages/dashboard/student/TodayPage'));
-const StudyPlanPage = React.lazy(() => import('@/pages/dashboard/student/StudyPlanPage'));
-const AcademicAdvisorView = React.lazy(() => import('@/pages/dashboard/student/AcademicAdvisorView'));
-const StudyGroupsPage = React.lazy(() => import('@/pages/dashboard/student/StudyGroupsPage'));
-const ProfileSettings = React.lazy(() => import('@/pages/dashboard/student/ProfileSettings'));
-const ChatPage = React.lazy(() => import('@/pages/dashboard/student/ChatPage'));
-const ExploreContent = React.lazy(() => import('@/pages/dashboard/student/ExploreContent'));
-const NotesPage = React.lazy(() => import('@/pages/dashboard/student/NotesPage'));
-const SubscriptionPage = React.lazy(() => import('@/pages/dashboard/student/SubscriptionPage'));
-const WalletPage = React.lazy(() => import('@/pages/dashboard/student/WalletPage'));
-const RewardsPage = React.lazy(() => import('@/pages/dashboard/student/RewardsPage'));
-const NotificationsPage = React.lazy(() => import('@/pages/dashboard/student/NotificationsPage'));
-const AnalyticsPage = React.lazy(() => import('@/pages/dashboard/student/AnalyticsPage'));
+// Dashboard pages - Using placeholder components for now
+const StudentDashboard = () => <div>Student Dashboard</div>;
+const TodayPage = () => <div>Today Page</div>;
+const StudyPlanPage = () => <div>Study Plan Page</div>;
+const AcademicAdvisorView = () => <div>Academic Advisor View</div>;
+const StudyGroupsPage = () => <div>Study Groups Page</div>;
+const ProfileSettings = () => <div>Profile Settings</div>;
+const ChatPage = () => <div>Chat Page</div>;
+const ExploreContent = () => <div>Explore Content</div>;
+const NotesPage = () => <div>Notes Page</div>;
+const SubscriptionPage = () => <div>Subscription Page</div>;
+const WalletPage = () => <div>Wallet Page</div>;
+const RewardsPage = () => <div>Rewards Page</div>;
+const NotificationsPage = () => <div>Notifications Page</div>;
+const AnalyticsPage = () => <div>Analytics Page</div>;
 
-// Admin pages
-const AdminDashboard = React.lazy(() => import('@/pages/dashboard/admin/AdminDashboard'));
-const ContentManager = React.lazy(() => import('@/pages/dashboard/admin/ContentManager'));
-const UserManagement = React.lazy(() => import('@/pages/dashboard/admin/UserManagement'));
-const AdminSettings = React.lazy(() => import('@/pages/dashboard/admin/AdminSettings'));
+// Admin pages - Using placeholder components for now
+const AdminDashboard = () => <div>Admin Dashboard</div>;
+const ContentManager = () => <div>Content Manager</div>;
+const UserManagement = () => <div>User Management</div>;
+const AdminSettings = () => <div>Admin Settings</div>;
 
 // Create a client
 const queryClient = new QueryClient();
@@ -46,26 +46,26 @@ function App() {
             <Route path="/login" element={<Login />} />
 
             {/* Student Dashboard Routes */}
-            <Route path="/dashboard/student" element={<Suspense fallback={<div>Loading...</div>}><StudentDashboard /></Suspense>} />
-            <Route path="/dashboard/student/today" element={<Suspense fallback={<div>Loading...</div>}><TodayPage /></Suspense>} />
-            <Route path="/dashboard/student/study-plan" element={<Suspense fallback={<div>Loading...</div>}><StudyPlanPage /></Suspense>} />
-            <Route path="/dashboard/student/academic-advisor" element={<Suspense fallback={<div>Loading...</div>}><AcademicAdvisorView /></Suspense>} />
-            <Route path="/dashboard/student/study-groups" element={<Suspense fallback={<div>Loading...</div>}><StudyGroupsPage /></Suspense>} />
-            <Route path="/dashboard/student/profile" element={<Suspense fallback={<div>Loading...</div>}><ProfileSettings /></Suspense>} />
-            <Route path="/dashboard/student/chat" element={<Suspense fallback={<div>Loading...</div>}><ChatPage /></Suspense>} />
-            <Route path="/dashboard/student/explore" element={<Suspense fallback={<div>Loading...</div>}><ExploreContent /></Suspense>} />
-            <Route path="/dashboard/student/notes" element={<Suspense fallback={<div>Loading...</div>}><NotesPage /></Suspense>} />
-            <Route path="/dashboard/student/subscription" element={<Suspense fallback={<div>Loading...</div>}><SubscriptionPage /></Suspense>} />
-            <Route path="/dashboard/student/wallet" element={<Suspense fallback={<div>Loading...</div>}><WalletPage /></Suspense>} />
-            <Route path="/dashboard/student/rewards" element={<Suspense fallback={<div>Loading...</div>}><RewardsPage /></Suspense>} />
-            <Route path="/dashboard/student/notifications" element={<Suspense fallback={<div>Loading...</div>}><NotificationsPage /></Suspense>} />
-            <Route path="/dashboard/student/analytics" element={<Suspense fallback={<div>Loading...</div>}><AnalyticsPage /></Suspense>} />
+            <Route path="/dashboard/student" element={<StudentDashboard />} />
+            <Route path="/dashboard/student/today" element={<TodayPage />} />
+            <Route path="/dashboard/student/study-plan" element={<StudyPlanPage />} />
+            <Route path="/dashboard/student/academic-advisor" element={<AcademicAdvisorView />} />
+            <Route path="/dashboard/student/study-groups" element={<StudyGroupsPage />} />
+            <Route path="/dashboard/student/profile" element={<ProfileSettings />} />
+            <Route path="/dashboard/student/chat" element={<ChatPage />} />
+            <Route path="/dashboard/student/explore" element={<ExploreContent />} />
+            <Route path="/dashboard/student/notes" element={<NotesPage />} />
+            <Route path="/dashboard/student/subscription" element={<SubscriptionPage />} />
+            <Route path="/dashboard/student/wallet" element={<WalletPage />} />
+            <Route path="/dashboard/student/rewards" element={<RewardsPage />} />
+            <Route path="/dashboard/student/notifications" element={<NotificationsPage />} />
+            <Route path="/dashboard/student/analytics" element={<AnalyticsPage />} />
             
             {/* Admin Dashboard Routes */}
-            <Route path="/dashboard/admin" element={<Suspense fallback={<div>Loading...</div>}><AdminDashboard /></Suspense>} />
-            <Route path="/dashboard/admin/content" element={<Suspense fallback={<div>Loading...</div>}><ContentManager /></Suspense>} />
-            <Route path="/dashboard/admin/users" element={<Suspense fallback={<div>Loading...</div>}><UserManagement /></Suspense>} />
-            <Route path="/dashboard/admin/settings" element={<Suspense fallback={<div>Loading...</div>}><AdminSettings /></Suspense>} />
+            <Route path="/dashboard/admin" element={<AdminDashboard />} />
+            <Route path="/dashboard/admin/content" element={<ContentManager />} />
+            <Route path="/dashboard/admin/users" element={<UserManagement />} />
+            <Route path="/dashboard/admin/settings" element={<AdminSettings />} />
             
             {/* Default and 404 Route */}
             <Route path="*" element={<Navigate to="/" replace />} />

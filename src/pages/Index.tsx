@@ -59,10 +59,10 @@ const Index = () => {
         
         <WhatIsSection />
         
-        {/* Add the new OurMethodSection component right after WhatIsSection */}
+        {/* Our Method Section positioned after WhatIsSection */}
         <OurMethodSection />
         
-        {/* Add the EcosystemAnimation section after OurMethodSection */}
+        {/* EcosystemAnimation section after OurMethodSection */}
         <EcosystemAnimation />
         
         <div ref={featuresRef}>

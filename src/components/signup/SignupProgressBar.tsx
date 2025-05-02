@@ -19,9 +19,6 @@ const SignupProgressBar: React.FC<SignupProgressBarProps> = ({ currentStep }) =>
     "demographics",
     "personality",
     "sentiment",
-    "studyTime",
-    "studyPace",
-    "studyHours",
     "habits",
     "interests",
     "signup"
@@ -30,16 +27,15 @@ const SignupProgressBar: React.FC<SignupProgressBarProps> = ({ currentStep }) =>
   // Find the current step index
   const currentStepIndex = allSteps.indexOf(currentStep);
   
-  // Group steps into 5 main phases for the progress bar
+  // Calculate progress percentage based on current step
   const getTotalProgress = () => {
     const totalSteps = allSteps.length;
     if (totalSteps === 0) return 0;
     
-    // Calculate progress percentage based on current step
     return Math.round(((currentStepIndex + 1) / totalSteps) * 100);
   };
 
-  // Group steps into 5 sections for display
+  // Group steps into sections for display
   const getGroupLabel = () => {
     if (currentStep === "role" || currentStep === "goal") {
       return "Basic Info";
@@ -47,13 +43,7 @@ const SignupProgressBar: React.FC<SignupProgressBarProps> = ({ currentStep }) =>
       return "Demographics";
     } else if (currentStep === "personality" || currentStep === "sentiment") {
       return "Personality";
-    } else if (
-      currentStep === "studyTime" ||
-      currentStep === "studyPace" ||
-      currentStep === "studyHours" ||
-      currentStep === "habits" ||
-      currentStep === "interests"
-    ) {
+    } else if (currentStep === "habits" || currentStep === "interests") {
       return "Study Preferences";
     } else if (currentStep === "signup") {
       return "Create Account";
