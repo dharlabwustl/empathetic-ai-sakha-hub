@@ -2,7 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Brain, CheckCircle2, XCircle, Timer } from 'lucide-react';
+import { Brain, CheckCircle2, XCircle, Timer, Atom, Flask, Book } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 import { CustomProgress } from '@/components/ui/custom-progress';
 
 interface TestQuestion {
@@ -11,6 +12,7 @@ interface TestQuestion {
   options: string[];
   correctAnswer: string;
   explanation: string;
+  subject?: string;
 }
 
 interface ConceptTestQuestionsProps {
@@ -22,12 +24,14 @@ interface ConceptTestQuestionsProps {
     totalTime: string;
     totalQuestions: string;
   };
+  currentSubject?: string;
 }
 
 const ConceptTestQuestions: React.FC<ConceptTestQuestionsProps> = ({
   selectedExam,
   onCompleteTest,
-  examDetails
+  examDetails,
+  currentSubject
 }) => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [userAnswers, setUserAnswers] = useState<any[]>([]);
@@ -36,8 +40,187 @@ const ConceptTestQuestions: React.FC<ConceptTestQuestionsProps> = ({
   const [questions, setQuestions] = useState<TestQuestion[]>([]);
 
   useEffect(() => {
-    // Sample questions - in a real app, these would come from an API or be properly imported
-    const sampleQuestions: TestQuestion[] = [
+    // Get subject-specific questions - in a real app, these would come from an API
+    const sampleQuestions: TestQuestion[] = generateSubjectQuestions(currentSubject);
+    setQuestions(sampleQuestions);
+  }, [selectedExam, currentSubject]);
+  
+  const generateSubjectQuestions = (subject?: string): TestQuestion[] => {
+    const isNeet = selectedExam === 'NEET-UG';
+    
+    if (isNeet) {
+      switch(subject?.toLowerCase()) {
+        case 'physics':
+          return [
+            {
+              id: 'phys1',
+              question: 'A body of mass m is thrown vertically upward with an initial velocity v. The time after which the K.E. becomes one-fourth of the initial value is:',
+              options: [
+                '3v/4g',
+                'v/4g',
+                'v/2g',
+                'v/g'
+              ],
+              correctAnswer: 'v/2g',
+              explanation: 'When KE becomes 1/4th, v becomes 1/2 of initial. Using v = u - gt, we get t = v/2g',
+              subject: 'Physics'
+            },
+            {
+              id: 'phys2',
+              question: 'Newton\'s first law of motion describes:',
+              options: [
+                'Force equals mass times acceleration',
+                'An object remains at rest or in motion unless acted upon by a force',
+                'For every action there is an equal and opposite reaction',
+                'Energy cannot be created or destroyed'
+              ],
+              correctAnswer: 'An object remains at rest or in motion unless acted upon by a force',
+              explanation: 'Newton\'s first law, also known as the law of inertia, states that an object will remain at rest or in uniform motion in a straight line unless acted upon by an external force.',
+              subject: 'Physics'
+            },
+            {
+              id: 'phys3',
+              question: 'Which of the following is the unit of electric potential?',
+              options: [
+                'Newton',
+                'Joule',
+                'Volt',
+                'Coulomb'
+              ],
+              correctAnswer: 'Volt',
+              explanation: 'Volt is the SI unit of electric potential, potential difference and electromotive force.',
+              subject: 'Physics'
+            }
+          ];
+        case 'chemistry':
+          return [
+            {
+              id: 'chem1',
+              question: 'Which of the following is an example of a covalent bond?',
+              options: [
+                'NaCl',
+                'H₂O',
+                'CaO',
+                'KCl'
+              ],
+              correctAnswer: 'H₂O',
+              explanation: 'Water (H₂O) has covalent bonds where electrons are shared between hydrogen and oxygen atoms. The other examples are ionic compounds.',
+              subject: 'Chemistry'
+            },
+            {
+              id: 'chem2',
+              question: 'What is the pH of a neutral solution at 25°C?',
+              options: [
+                '0',
+                '7',
+                '14',
+                '1'
+              ],
+              correctAnswer: '7',
+              explanation: 'At 25°C, a neutral solution has a pH of 7.',
+              subject: 'Chemistry'
+            },
+            {
+              id: 'chem3',
+              question: 'Which of the following elements has the highest electronegativity?',
+              options: [
+                'Sodium',
+                'Carbon',
+                'Chlorine',
+                'Fluorine'
+              ],
+              correctAnswer: 'Fluorine',
+              explanation: 'Fluorine has the highest electronegativity value (3.98 on the Pauling scale) among all elements.',
+              subject: 'Chemistry'
+            }
+          ];
+        case 'biology':
+          return [
+            {
+              id: 'bio1',
+              question: 'Which of the following is a characteristic of enzymes?',
+              options: [
+                'They are consumed in the reaction',
+                'They lower activation energy',
+                'They are always proteins',
+                'They change the reaction equilibrium'
+              ],
+              correctAnswer: 'They lower activation energy',
+              explanation: 'Enzymes are biological catalysts that lower the activation energy required for a reaction to occur. They are not consumed in the reaction and do not change the equilibrium.',
+              subject: 'Biology'
+            },
+            {
+              id: 'bio2',
+              question: 'Which organelle is known as the "powerhouse of the cell"?',
+              options: [
+                'Nucleus',
+                'Ribosome',
+                'Mitochondria',
+                'Golgi apparatus'
+              ],
+              correctAnswer: 'Mitochondria',
+              explanation: 'Mitochondria are known as the "powerhouse of the cell" because they generate most of the cell\'s supply of adenosine triphosphate (ATP), which is used as a source of chemical energy.',
+              subject: 'Biology'
+            },
+            {
+              id: 'bio3',
+              question: 'Which of the following is NOT a function of the liver?',
+              options: [
+                'Detoxification of drugs',
+                'Production of insulin',
+                'Storage of glycogen',
+                'Production of bile'
+              ],
+              correctAnswer: 'Production of insulin',
+              explanation: 'The liver does not produce insulin; insulin is produced by beta cells in the pancreas. The liver performs the other functions listed.',
+              subject: 'Biology'
+            }
+          ];
+        default:
+          // Generic questions for when no subject is specified
+          return [
+            {
+              id: 'q1',
+              question: 'Which of the following is a characteristic of enzymes?',
+              options: [
+                'They are consumed in the reaction',
+                'They lower activation energy',
+                'They are always proteins',
+                'They change the reaction equilibrium'
+              ],
+              correctAnswer: 'They lower activation energy',
+              explanation: 'Enzymes are biological catalysts that lower the activation energy required for a reaction to occur. They are not consumed in the reaction and do not change the equilibrium.'
+            },
+            {
+              id: 'q2',
+              question: 'Newton\'s first law of motion states:',
+              options: [
+                'Force equals mass times acceleration',
+                'An object remains at rest or in motion unless acted upon by a force',
+                'For every action there is an equal and opposite reaction',
+                'Energy cannot be created or destroyed'
+              ],
+              correctAnswer: 'An object remains at rest or in motion unless acted upon by a force',
+              explanation: 'Newton\'s first law, also known as the law of inertia, states that an object will remain at rest or in uniform motion in a straight line unless acted upon by an external force.'
+            },
+            {
+              id: 'q3',
+              question: 'Which of the following is an example of a covalent bond?',
+              options: [
+                'NaCl',
+                'H₂O',
+                'CaO',
+                'KCl'
+              ],
+              correctAnswer: 'H₂O',
+              explanation: 'Water (H₂O) has covalent bonds where electrons are shared between hydrogen and oxygen atoms. The other examples are ionic compounds.'
+            }
+          ];
+      }
+    }
+    
+    // Default generic questions if not NEET or no subject specified
+    return [
       {
         id: 'q1',
         question: 'Which of the following is a characteristic of enzymes?',
@@ -75,9 +258,7 @@ const ConceptTestQuestions: React.FC<ConceptTestQuestionsProps> = ({
         explanation: 'Water (H₂O) has covalent bonds where electrons are shared between hydrogen and oxygen atoms. The other examples are ionic compounds.'
       }
     ];
-    
-    setQuestions(sampleQuestions);
-  }, [selectedExam]);
+  };
   
   const handleAnswer = (answer: string) => {
     setSelectedAnswer(answer);
@@ -88,11 +269,12 @@ const ConceptTestQuestions: React.FC<ConceptTestQuestionsProps> = ({
     const newAnswer = {
       questionId: currentQuestion.id,
       answer,
-      isCorrect
+      isCorrect,
+      subject: currentQuestion.subject
     };
     
-    setShowExplanation(true);
     setUserAnswers([...userAnswers, newAnswer]);
+    setShowExplanation(true);
     
     // Move to next question or finish the test after a delay
     setTimeout(() => {
@@ -105,6 +287,21 @@ const ConceptTestQuestions: React.FC<ConceptTestQuestionsProps> = ({
         onCompleteTest([...userAnswers, newAnswer]);
       }
     }, 2500);
+  };
+
+  const getSubjectIcon = () => {
+    if (!currentSubject) return <Brain size={16} className="mr-2" />;
+    
+    switch(currentSubject.toLowerCase()) {
+      case 'physics':
+        return <Atom size={16} className="mr-2" />;
+      case 'chemistry':
+        return <Flask size={16} className="mr-2" />;
+      case 'biology':
+        return <Book size={16} className="mr-2" />;
+      default:
+        return <Brain size={16} className="mr-2" />;
+    }
   };
 
   if (questions.length === 0) {
@@ -120,7 +317,13 @@ const ConceptTestQuestions: React.FC<ConceptTestQuestionsProps> = ({
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <div className="text-sm font-medium">
+        <div className="text-sm font-medium flex items-center">
+          {currentSubject && (
+            <Badge variant="outline" className="mr-2 bg-pink-50 dark:bg-pink-900/20 border-pink-200 dark:border-pink-800">
+              {getSubjectIcon()}
+              {currentSubject}
+            </Badge>
+          )}
           Question {currentQuestionIndex + 1} of {questions.length}
         </div>
         {examDetails && (

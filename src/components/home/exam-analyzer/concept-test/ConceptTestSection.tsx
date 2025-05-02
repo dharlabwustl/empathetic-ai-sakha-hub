@@ -6,7 +6,9 @@ import ConceptLoader from './ConceptLoader';
 import ConceptTestResults from './ConceptTestResults';
 import ConceptTestQuestions from './ConceptTestQuestions';
 import { Card } from "@/components/ui/card";
-import { FileText, Timer } from 'lucide-react';
+import { FileText, Timer, Brain, Atom, Flask, Book } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface ConceptTestSectionProps {
   loading: boolean;
@@ -36,22 +38,57 @@ const ConceptTestSection: React.FC<ConceptTestSectionProps> = ({
 }) => {
   const [isTestActive, setIsTestActive] = useState(false);
   const [userAnswers, setUserAnswers] = useState<any[]>([]);
+  const [currentSubject, setCurrentSubject] = useState<string | undefined>(undefined);
+  const [completedSubjects, setCompletedSubjects] = useState<string[]>([]);
   
   const isNEET = selectedExam === "NEET-UG";
+  
+  const neetSubjects = ["Physics", "Chemistry", "Biology"];
   
   const handleStartTest = () => {
     setIsTestActive(true);
     simulateTest();
+    if (isNEET) {
+      setCurrentSubject("Physics"); // Start with Physics for NEET
+    }
   };
   
-  const handleCompleteTest = (answers: any[]) => {
-    setUserAnswers(answers);
-    setIsTestActive(false);
-    onCompleteTest(answers);
+  const handleCompleteSubjectTest = (answers: any[]) => {
+    // Store answers for this subject
+    setUserAnswers(prev => [...prev, ...answers]);
+    
+    if (isNEET) {
+      // Track completed subjects
+      setCompletedSubjects(prev => [...prev, currentSubject!]);
+      
+      // Determine next subject
+      if (currentSubject === "Physics") {
+        setCurrentSubject("Chemistry");
+        simulateTest(); // Simulate loading for next subject
+      } else if (currentSubject === "Chemistry") {
+        setCurrentSubject("Biology");
+        simulateTest(); // Simulate loading for next subject
+      } else {
+        // All subjects completed
+        setIsTestActive(false);
+        onCompleteTest(userAnswers);
+      }
+    } else {
+      // For non-NEET exams, complete the test
+      setIsTestActive(false);
+      onCompleteTest(answers);
+    }
+  };
+  
+  const getSubjectProgress = () => {
+    if (!isNEET || !currentSubject) return 0;
+    
+    const index = neetSubjects.indexOf(currentSubject);
+    return ((index + 1) / neetSubjects.length) * 100;
   };
   
   if (loading) {
-    return <ConceptLoader />;
+    return <ConceptLoader subject={currentSubject} />;
   }
   
   if (testCompleted && results) {
@@ -65,11 +102,31 @@ const ConceptTestSection: React.FC<ConceptTestSectionProps> = ({
   
   if (isTestActive) {
     return (
-      <ConceptTestQuestions
-        selectedExam={selectedExam}
-        onCompleteTest={handleCompleteTest}
-        examDetails={examDetails}
-      />
+      <div className="space-y-4">
+        {isNEET && (
+          <div className="flex items-center justify-between">
+            <h3 className="font-medium">NEET Concept Test</h3>
+            <div className="flex items-center space-x-2">
+              {neetSubjects.map((subject, index) => (
+                <Badge 
+                  key={subject}
+                  variant={currentSubject === subject ? "default" : completedSubjects.includes(subject) ? "outline" : "secondary"}
+                  className={currentSubject === subject ? "bg-pink-500" : completedSubjects.includes(subject) ? "bg-green-50 text-green-700 border-green-300" : ""}
+                >
+                  {subject}
+                </Badge>
+              ))}
+            </div>
+          </div>
+        )}
+        
+        <ConceptTestQuestions
+          selectedExam={selectedExam}
+          onCompleteTest={handleCompleteSubjectTest}
+          examDetails={examDetails}
+          currentSubject={currentSubject}
+        />
+      </div>
     );
   }
   
@@ -136,6 +193,35 @@ const ConceptTestSection: React.FC<ConceptTestSectionProps> = ({
             </li>
           )}
         </ul>
+        
+        {isNEET && (
+          <div className="mt-5 pt-5 border-t border-violet-200 dark:border-violet-700">
+            <h5 className="font-medium mb-3">NEET Subject Coverage:</h5>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div className="bg-white dark:bg-gray-800 rounded-md p-3 flex items-center">
+                <Atom className="h-5 w-5 text-blue-500 mr-2" />
+                <div>
+                  <p className="font-medium">Physics</p>
+                  <p className="text-xs text-gray-500">10 questions</p>
+                </div>
+              </div>
+              <div className="bg-white dark:bg-gray-800 rounded-md p-3 flex items-center">
+                <Flask className="h-5 w-5 text-green-500 mr-2" />
+                <div>
+                  <p className="font-medium">Chemistry</p>
+                  <p className="text-xs text-gray-500">10 questions</p>
+                </div>
+              </div>
+              <div className="bg-white dark:bg-gray-800 rounded-md p-3 flex items-center">
+                <Book className="h-5 w-5 text-red-500 mr-2" />
+                <div>
+                  <p className="font-medium">Biology</p>
+                  <p className="text-xs text-gray-500">10 questions</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
       
       <div className="flex justify-end">
