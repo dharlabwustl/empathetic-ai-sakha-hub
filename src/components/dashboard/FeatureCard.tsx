@@ -23,7 +23,7 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
   path,
   isPremium = false,
   comingSoon = false,
-  userSubscription = SubscriptionType.Free
+  userSubscription = SubscriptionType.FREE
 }) => {
   const navigate = useNavigate();
   
@@ -32,7 +32,7 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
       return;
     }
     
-    if (isPremium && userSubscription === SubscriptionType.Free) {
+    if (isPremium && userSubscription === SubscriptionType.FREE) {
       // Show upgrade prompt
       // For now, just navigate anyway
     }
@@ -41,7 +41,7 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
   };
   
   return (
-    <Card className={`overflow-hidden transition-all duration-300 hover:shadow-md ${isPremium && userSubscription === SubscriptionType.Free ? 'border-amber-200 dark:border-amber-800' : ''}`}>
+    <Card className={`overflow-hidden transition-all duration-300 hover:shadow-md ${isPremium && userSubscription === SubscriptionType.FREE ? 'border-amber-200 dark:border-amber-800' : ''}`}>
       <CardContent className="p-4">
         <div className="flex items-start justify-between">
           <div className="flex items-center space-x-2">
@@ -54,7 +54,7 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
             </div>
           </div>
           
-          {isPremium && userSubscription === SubscriptionType.Free && (
+          {isPremium && userSubscription === SubscriptionType.FREE && (
             <span className="text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 px-1.5 py-0.5 rounded">
               Premium
             </span>
@@ -69,7 +69,7 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
             onClick={handleClick}
             disabled={comingSoon}
           >
-            {comingSoon ? 'Coming Soon' : isPremium && userSubscription === SubscriptionType.Free ? 'Upgrade to Access' : 'Open'}
+            {comingSoon ? 'Coming Soon' : isPremium && userSubscription === SubscriptionType.FREE ? 'Upgrade to Access' : 'Open'}
           </Button>
         </div>
       </CardContent>

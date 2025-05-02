@@ -12,6 +12,7 @@ export enum MoodType {
   Confused = 'confused',
   Neutral = 'neutral',
   Sad = 'sad',
+  Calm = 'calm',
 }
 
 export enum SubscriptionType {
@@ -19,6 +20,12 @@ export enum SubscriptionType {
   BASIC = 'basic',
   PRO = 'pro',
   PREMIUM = 'premium',
+}
+
+export enum UserRole {
+  Student = 'student',
+  Teacher = 'teacher',
+  Admin = 'admin'
 }
 
 export interface UserProfileBase {
@@ -65,6 +72,7 @@ export interface StudyStreak {
 }
 
 export interface SubjectProgress {
+  id?: string; // Added id property to fix TS error
   subject: string;
   progress: number;
   topicsTotal: number;
