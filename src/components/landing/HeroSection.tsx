@@ -9,7 +9,7 @@ const HeroSection: React.FC = () => {
     <div className="relative overflow-hidden bg-gradient-to-b from-purple-50 to-white dark:from-gray-900 dark:to-gray-800">
       <div className="container mx-auto px-6 py-16 text-center md:py-20 lg:py-24">
         <h1 className="mb-4 text-3xl font-bold tracking-tight text-gray-900 dark:text-white md:text-4xl lg:text-5xl xl:text-6xl">
-          Sakha AI – पहली बार, पढ़ाई से पहले, आपको समझने वाला साथी
+          PREPZR – पहली बार, पढ़ाई से पहले, आपको समझने वाला साथी
         </h1>
         <p className="mx-auto mb-8 max-w-3xl text-lg text-gray-600 dark:text-gray-300 md:text-xl lg:text-2xl">
           India's 1st Emotionally Intelligent Study Partner – Tuned to Your Mood, Habits, Mind & Mission to Crack Exams.
@@ -29,8 +29,8 @@ const HeroSection: React.FC = () => {
         <div className="absolute -right-32 top-56 h-64 w-64 rounded-full bg-indigo-300 opacity-20 blur-3xl filter"></div>
       </div>
 
-      {/* KPI Stats moved right after the main hero content */}
-      <div className="mt-8 mb-16">
+      {/* Make KPI Stats more prominent by moving it up and adding better styling */}
+      <div className="container mx-auto px-4 mb-16">
         <KpiStats />
       </div>
     </div>
@@ -38,4 +38,3 @@ const HeroSection: React.FC = () => {
 };
 
 export default HeroSection;
-

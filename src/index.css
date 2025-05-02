@@ -10,7 +10,7 @@
   }
   
   html {
-    font-size: 14px !important; /* Reduced from 16px to 14px */
+    font-size: 13px !important; /* Reduced from 14px to 13px for better proportions */
     -webkit-text-size-adjust: 100%;
     -moz-text-size-adjust: 100%;
     -ms-text-size-adjust: 100%;
@@ -20,7 +20,7 @@
   
   body {
     @apply bg-background text-foreground antialiased;
-    font-size: 14px !important; /* Reduced from 16px to 14px */
+    font-size: 13px !important; /* Reduced from 14px to 13px */
     line-height: 1.5;
     overflow-x: hidden;
     width: 100%;
@@ -28,24 +28,24 @@
   
   /* Reset headings to appropriate sizes */
   h1 {
-    font-size: 1.75rem; /* Reduced from 2rem */
+    font-size: 1.7rem; /* Reduced from 1.75rem */
   }
   h2 {
-    font-size: 1.4rem; /* Reduced from 1.5rem */
+    font-size: 1.35rem; /* Reduced from 1.4rem */
   }
   h3 {
-    font-size: 1.15rem; /* Reduced from 1.25rem */
+    font-size: 1.1rem; /* Reduced from 1.15rem */
   }
   h4 {
-    font-size: 1rem; /* Reduced from 1.125rem */
+    font-size: 0.95rem; /* Reduced from 1rem */
   }
   h5, h6 {
-    font-size: 0.9rem; /* Reduced from 1rem */
+    font-size: 0.85rem; /* Reduced from 0.9rem */
   }
 
   /* Ensure form elements have correct font size */
   input, textarea, select, button {
-    font-size: 14px !important; /* Reduced from 16px to 14px */
+    font-size: 13px !important; /* Reduced from 14px to 13px */
   }
 }
 
@@ -191,7 +191,7 @@
 
 /* Fix for the resolution and font size */
 html {
-  font-size: 14px !important; /* Base font size with important */
+  font-size: 13px !important; /* Base font size with important */
   -webkit-text-size-adjust: 100%;
   -ms-text-size-adjust: 100%;
 }
@@ -208,7 +208,7 @@ html {
 /* Additional fixes for better text display */
 @media screen and (min-width: 320px) {
   html, body {
-    font-size: 14px !important; /* Reduced from 16px to 14px */
+    font-size: 13px !important; /* Reduced from 14px to 13px */
   }
 }
 
@@ -222,7 +222,7 @@ html {
 /* Scale fixes for large screens */
 @media screen and (min-width: 1440px) {
   html, body {
-    font-size: 14px !important; /* Reduced from 16px to 14px */
+    font-size: 13px !important; /* Reduced from 14px to 13px */
     zoom: 1;
   }
 }

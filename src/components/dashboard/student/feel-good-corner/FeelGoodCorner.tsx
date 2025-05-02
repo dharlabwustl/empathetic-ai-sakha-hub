@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { UserProfileBase } from '@/types/user/base';
 
 // Existing components
-import DoodlingBoard from './DoodlingBoard';
+import DoodleBoard from './DoodleTab';
 import QuoteOfTheDay from './QuoteOfTheDay';
 import BreathingExercise from './BreathingExercise';
 import StressReliefTips from './StressReliefTips';
@@ -78,7 +78,7 @@ const FeelGoodCorner: React.FC<FeelGoodCornerProps> = ({ userProfile }) => {
                   </div>
                 </div>
               </div>
-              <DoodlingBoard />
+              <DoodleBoard />
             </TabsContent>
 
             <TabsContent value="breathing">

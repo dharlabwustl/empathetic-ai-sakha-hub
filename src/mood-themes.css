@@ -1,7 +1,6 @@
-
 /* Base styling */
 body {
-  font-size: 14px !important; /* Reduced from 16px to 14px */
+  font-size: 13px !important; /* Reduced from 14px to 13px */
   line-height: 1.5;
   transition: background-color 0.3s ease;
   text-size-adjust: 100%;
@@ -92,7 +91,7 @@ body {
 
 /* Fix font size consistency */
 button, input, select, textarea {
-  font-size: 14px !important; /* Reduced from 16px to 14px */
+  font-size: 13px !important; /* Reduced from 14px to 13px */
   font-family: inherit;
 }
 
@@ -111,20 +110,20 @@ button, input, select, textarea {
 /* Fix for form elements */
 input[type="text"], input[type="email"], input[type="password"], 
 textarea, select {
-  font-size: 14px !important; /* Reduced from 16px to 14px */
+  font-size: 13px !important; /* Reduced from 14px to 13px */
   transform: scale(1);
 }
 
 /* Scale adjustments for different screen sizes */
 @media screen and (min-width: 1440px) {
   html, body {
-    font-size: 14px !important; /* Reduced from 16px to 14px */
+    font-size: 13px !important; /* Reduced from 14px to 13px */
   }
 }
 
 @media screen and (min-width: 1920px) {
   html, body {
-    font-size: 14px !important; /* Reduced from 16px to 14px */
+    font-size: 13px !important; /* Reduced from 14px to 13px */
   }
 }
 

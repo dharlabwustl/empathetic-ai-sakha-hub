@@ -53,9 +53,9 @@ export const KpiStats = () => {
   return (
     <div 
       id="kpi-stats-section" 
-      className="bg-gradient-to-r from-purple-50 via-white to-blue-50 dark:from-purple-900/20 dark:via-gray-900 dark:to-blue-900/20 py-4 px-4 rounded-xl shadow-sm border border-purple-100/50 dark:border-purple-900/50"
+      className="bg-gradient-to-r from-purple-50 via-white to-blue-50 dark:from-purple-900/20 dark:via-gray-900 dark:to-blue-900/20 py-4 px-4 rounded-xl shadow-md border border-purple-100/50 dark:border-purple-900/50 mx-auto max-w-5xl"
     >
-      <div className="text-center mb-2">
+      <div className="text-center mb-3">
         <motion.h3 
           initial={{ opacity: 0 }}
           animate={inView ? { opacity: 1 } : { opacity: 0 }}
@@ -67,7 +67,7 @@ export const KpiStats = () => {
       </div>
       
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <div className="flex justify-center mb-2">
+        <div className="flex justify-center mb-3">
           <motion.div
             initial="hidden"
             animate={inView ? "visible" : "hidden"}
