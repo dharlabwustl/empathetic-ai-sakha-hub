@@ -37,7 +37,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
             transition={{ duration: 0.8, ease: "easeOut" }}
           >
             <span className="bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-              पहली बार, पढ़ाई से पहले, आपको समझने वाला साथी
+              अब तैयारी करो अपने तरीके से…लेकिन SMARTLY – सिर्फ PREPZR के साथ!
             </span>
           </motion.h1>
           <motion.p 

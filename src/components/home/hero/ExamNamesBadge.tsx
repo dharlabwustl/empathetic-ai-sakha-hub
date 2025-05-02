@@ -82,12 +82,22 @@ const ExamNamesBadge = () => {
             initial="hidden"
             animate="visible"
             whileHover="hover"
-            variants={hoverVariants}
-            custom={index}
-            animate="animate"
-            variants={floatVariants}
+            whileTap={{ scale: 0.97 }}
           >
-            <motion.div className="font-bold text-lg px-3 py-1 rounded-full border-2 border-purple-200 dark:border-purple-900 hover:shadow-md transition-all duration-300 transform flex items-center gap-1 bg-gradient-to-r from-white to-purple-50 dark:from-gray-800 dark:to-gray-900">
+            <motion.div 
+              className="font-bold text-lg px-3 py-1 rounded-full border-2 border-purple-200 dark:border-purple-900 hover:shadow-md transition-all duration-300 transform flex items-center gap-1 bg-gradient-to-r from-white to-purple-50 dark:from-gray-800 dark:to-gray-900"
+              style={{ 
+                // Apply floating animation inline to avoid duplicate motion component attributes
+                y: [0, -5, 0],
+                transition: {
+                  delay: index * 0.3,
+                  duration: 2,
+                  repeat: Infinity,
+                  repeatType: "reverse",
+                  ease: "easeInOut"
+                }
+              }}
+            >
               {badge.icon}
               <span className={`ml-1 bg-gradient-to-r ${badge.color} bg-clip-text text-transparent`}>
                 {badge.name}

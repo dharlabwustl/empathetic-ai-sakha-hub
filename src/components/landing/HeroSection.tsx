@@ -45,7 +45,7 @@ const HeroSection: React.FC = () => {
             animate={{ opacity: 1 }}
             transition={{ duration: 0.8 }}
           >
-            पहली बार, पढ़ाई से पहले, आपको समझने वाला साथी
+            अब तैयारी करो अपने तरीके से…लेकिन SMARTLY – सिर्फ PREPZR के साथ!
           </motion.span>
           
           <motion.div
