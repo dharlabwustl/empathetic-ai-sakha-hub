@@ -3,6 +3,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight, Heart, Brain, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Link } from 'react-router-dom';
 
 const WhatIsSection = () => {
   const fadeIn = {
@@ -153,9 +154,15 @@ const WhatIsSection = () => {
           transition={{ delay: 0.5, duration: 0.5 }}
           viewport={{ once: true }}
         >
-          <Button className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-8 py-6 text-lg hover:shadow-lg transition-all" size="lg">
-            Meet Your Emotional Study Partner
-            <ArrowRight className="ml-2 h-5 w-5" />
+          <Button 
+            className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-8 py-6 text-lg hover:shadow-lg transition-all" 
+            size="lg"
+            asChild
+          >
+            <Link to="/signup">
+              Meet Your Emotional Study Partner
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </Link>
           </Button>
         </motion.div>
       </div>
