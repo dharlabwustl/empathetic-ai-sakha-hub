@@ -1,84 +1,222 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import { Calendar, BookOpen, CheckSquare, Clock } from "lucide-react";
-import PostLoginRedirect from '@/components/login/PostLoginRedirect';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { ArrowRight, BookOpen, Calendar, CheckCircle, ClipboardCheck, Clock, BookMarked } from "lucide-react";
+import { motion } from "framer-motion";
+import PrepzrLogo from '@/components/common/PrepzrLogo';
+import { useToast } from "@/hooks/use-toast";
+
+interface PendingTask {
+  id: string;
+  title: string;
+  path: string;
+  iconType: "quiz" | "flashcard" | "concept" | "practice" | "other";
+}
 
 const PostLoginWelcomeBack = () => {
-  const [open, setOpen] = useState(true);
   const navigate = useNavigate();
+  const { toast } = useToast();
   
-  // Mock data - in a real app this would come from your API
-  const lastActivity = {
-    type: 'concept',
-    id: '123',
-    description: 'Physics: Newton\'s Laws of Motion',
-    timestamp: '2 days ago'
-  };
+  const [userName, setUserName] = useState<string>('Student');
+  const [lastActivity, setLastActivity] = useState<string | null>(null);
+  const [pendingTasks, setPendingTasks] = useState<PendingTask[]>([]);
+  const [lastLoginDate, setLastLoginDate] = useState<string>('recently');
   
-  // After a short timeout, show the dialog
   useEffect(() => {
+    // Get user data from localStorage
+    const userData = localStorage.getItem('userData');
+    
+    if (userData) {
+      try {
+        const parsedData = JSON.parse(userData);
+        
+        // Set user name
+        if (parsedData.name) {
+          setUserName(parsedData.name);
+        }
+        
+        // Get last activity
+        if (parsedData.lastActivity) {
+          setLastActivity(parsedData.lastActivity.description);
+        }
+        
+        // Format last login date if available
+        if (parsedData.lastLogin) {
+          const lastLogin = new Date(parsedData.lastLogin);
+          const now = new Date();
+          const diffDays = Math.floor((now.getTime() - lastLogin.getTime()) / (1000 * 60 * 60 * 24));
+          
+          if (diffDays === 0) {
+            setLastLoginDate('today');
+          } else if (diffDays === 1) {
+            setLastLoginDate('yesterday');
+          } else if (diffDays < 7) {
+            setLastLoginDate(`${diffDays} days ago`);
+          } else {
+            setLastLoginDate(lastLogin.toLocaleDateString());
+          }
+        }
+        
+        // Generate mock pending tasks
+        setPendingTasks([
+          {
+            id: '1',
+            title: 'Complete Physics Quiz on Mechanics',
+            path: '/dashboard/student/practice-exam',
+            iconType: 'quiz'
+          },
+          {
+            id: '2',
+            title: 'Review Biology Flashcards',
+            path: '/dashboard/student/flashcards',
+            iconType: 'flashcard'
+          },
+          {
+            id: '3',
+            title: 'Study Chemistry Concepts',
+            path: '/dashboard/student/concepts',
+            iconType: 'concept'
+          }
+        ]);
+        
+      } catch (error) {
+        console.error("Error parsing user data:", error);
+      }
+    } else {
+      // If no user data, redirect to login
+      navigate('/login');
+      return;
+    }
+    
+    // Auto-redirect after 30 seconds if no action taken
     const timer = setTimeout(() => {
-      setOpen(true);
-    }, 500);
+      navigate('/dashboard/student/today');
+      toast({
+        title: "Welcome back!",
+        description: "You've been automatically redirected to Today's Plan.",
+      });
+    }, 30000);
     
     return () => clearTimeout(timer);
-  }, []);
-  
-  // Handle when the dialog is closed
-  const handleOpenChange = (open: boolean) => {
-    setOpen(open);
-    
-    // If dialog is closed, navigate to dashboard
-    if (!open) {
-      navigate('/dashboard/student/today');
+  }, [navigate, toast]);
+
+  const getIconForTask = (type: string) => {
+    switch (type) {
+      case 'quiz':
+        return <ClipboardCheck className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />;
+      case 'flashcard':
+        return <BookMarked className="h-5 w-5 text-purple-600 dark:text-purple-400" />;
+      case 'concept':
+        return <BookOpen className="h-5 w-5 text-blue-600 dark:text-blue-400" />;
+      case 'practice':
+        return <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />;
+      default:
+        return <Clock className="h-5 w-5 text-gray-600 dark:text-gray-400" />;
     }
   };
+
+  const goToTodaysPlan = () => {
+    navigate("/dashboard/student/today");
+    toast({
+      title: "Today's Plan",
+      description: "Let's focus on today's learning goals!"
+    });
+  };
+
+  const goToDashboard = () => {
+    navigate("/dashboard/student/overview");
+    toast({
+      title: "Welcome Back",
+      description: "Your dashboard is ready for today's learning activities."
+    });
+  };
   
+  const navigateToTask = (task: PendingTask) => {
+    navigate(task.path);
+    toast({
+      title: "Continuing Your Work",
+      description: `Now viewing: ${task.title}`
+    });
+  };
+
   return (
-    <div className="h-screen w-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-gray-900 dark:to-indigo-900/20">
-      <Card className="max-w-md w-full p-6 shadow-lg">
-        <div className="text-center mb-6">
-          <h1 className="text-2xl font-bold mb-2">Welcome back!</h1>
-          <p className="text-muted-foreground">Loading your personalized dashboard...</p>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-900 dark:to-purple-950/20 flex flex-col justify-center items-center p-4">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="max-w-md w-full"
+      >
+        <div className="text-center mb-8">
+          <PrepzrLogo width={120} height="auto" className="mx-auto" />
+          <h1 className="mt-4 text-4xl font-display font-bold gradient-text">Welcome Back, {userName}!</h1>
+          <p className="mt-2 text-gray-600 dark:text-gray-400">
+            {lastLoginDate === 'today' 
+              ? "Returning for another study session today?" 
+              : `You last logged in ${lastLoginDate}`}
+          </p>
         </div>
         
-        <Progress value={100} className="mb-6" />
-        
-        <div className="grid grid-cols-2 gap-4 mb-6">
-          <div className="flex items-center gap-2 text-sm">
-            <Calendar className="h-4 w-4 text-indigo-600" />
-            <span>Today's Tasks: 4</span>
-          </div>
-          <div className="flex items-center gap-2 text-sm">
-            <CheckSquare className="h-4 w-4 text-green-600" />
-            <span>Completed: 1</span>
-          </div>
-          <div className="flex items-center gap-2 text-sm">
-            <BookOpen className="h-4 w-4 text-amber-600" />
-            <span>Pending: 3</span>
-          </div>
-          <div className="flex items-center gap-2 text-sm">
-            <Clock className="h-4 w-4 text-purple-600" />
-            <span>Study time: 2.5 hrs</span>
-          </div>
-        </div>
-        
-        <div className="flex justify-center">
-          <Button onClick={() => navigate('/dashboard/student/today')}>
-            Continue to Dashboard
-          </Button>
-        </div>
-      </Card>
-      
-      <PostLoginRedirect
-        open={open}
-        onOpenChange={handleOpenChange}
-        lastActivity={lastActivity}
-      />
+        <Card className="shadow-lg border-gray-200 dark:border-gray-800">
+          <CardHeader>
+            <CardTitle className="text-2xl">Pick Up Where You Left Off</CardTitle>
+            <CardDescription>
+              {lastActivity 
+                ? `You were working on ${lastActivity}`
+                : "Choose where to continue your learning journey"}
+            </CardDescription>
+          </CardHeader>
+          
+          <CardContent className="space-y-4">
+            <Button 
+              variant="default" 
+              className="w-full justify-start gap-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md"
+              onClick={goToTodaysPlan}
+            >
+              <Calendar className="h-5 w-5" />
+              <span className="flex-1 text-left">Go to Today's Plan</span>
+              <ArrowRight className="h-4 w-4" />
+            </Button>
+            
+            <div className="text-sm font-medium text-gray-700 dark:text-gray-300 pt-2 pb-1">
+              Pending Activities:
+            </div>
+            
+            {pendingTasks.map((task) => (
+              <Button 
+                key={task.id}
+                variant="outline" 
+                className="w-full justify-start gap-3 border-blue-200 dark:border-blue-900 hover:border-blue-300 hover:bg-blue-50 dark:hover:bg-blue-950/50"
+                onClick={() => navigateToTask(task)}
+              >
+                {getIconForTask(task.iconType)}
+                <span className="flex-1 text-left truncate">
+                  {task.title}
+                </span>
+                <ArrowRight className="h-4 w-4 flex-shrink-0" />
+              </Button>
+            ))}
+            
+            <Button 
+              variant="outline" 
+              className="w-full justify-start gap-3 mt-4"
+              onClick={goToDashboard}
+            >
+              <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />
+              <span className="flex-1 text-left">Go to My Dashboard</span>
+              <ArrowRight className="h-4 w-4" />
+            </Button>
+          </CardContent>
+          
+          <CardFooter className="flex justify-center pt-2">
+            <p className="text-sm text-muted-foreground">
+              You'll be redirected to Today's Plan shortly...
+            </p>
+          </CardFooter>
+        </Card>
+      </motion.div>
     </div>
   );
 };

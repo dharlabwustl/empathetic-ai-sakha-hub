@@ -1,28 +1,37 @@
 
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent } from '@/components/ui/card';
-import { useToast } from '@/hooks/use-toast';
-import { ArrowRight, Mail, Key } from 'lucide-react';
-import { useAuth } from '@/contexts/auth/AuthContext';
+import React, { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent } from "@/components/ui/card";
+import { useToast } from "@/hooks/use-toast";
+import { Eye, EyeOff, Mail, Lock, ArrowRight, Loader2 } from "lucide-react";
+import { useAuth } from "@/contexts/auth/AuthContext";
 
-const LoginPage: React.FC = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
+const LoginPage = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const { login } = useAuth();
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
+
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!email || !password) {
+    if (!formData.email || !formData.password) {
       toast({
-        title: "Missing Information",
-        description: "Please enter both email and password.",
+        title: "Missing information",
+        description: "Please provide both email and password.",
         variant: "destructive"
       });
       return;
@@ -31,108 +40,175 @@ const LoginPage: React.FC = () => {
     setIsLoading(true);
     
     try {
-      await login(email, password);
+      const user = await login(formData.email, formData.password);
       
-      toast({
-        title: "Login Successful",
-        description: "Welcome back to PREPZR!",
-      });
-      
-      // Redirect to student dashboard
-      navigate('/dashboard/student');
+      if (user) {
+        toast({
+          title: "Login successful",
+          description: "Redirecting to your dashboard",
+        });
+        
+        // Check for existing user data to determine if they're returning
+        const userData = localStorage.getItem("userData");
+        if (userData) {
+          try {
+            const parsedData = JSON.parse(userData);
+            const loginCount = parsedData.loginCount ? parseInt(parsedData.loginCount) + 1 : 1;
+            
+            localStorage.setItem("userData", JSON.stringify({
+              ...parsedData,
+              loginCount,
+              lastLogin: new Date().toISOString()
+            }));
+            
+            // For returning users
+            if (loginCount > 1) {
+              navigate("/welcome-back");
+            } else {
+              // For first-time users
+              navigate("/dashboard/student?new=true");
+            }
+          } catch (error) {
+            console.error("Error parsing user data:", error);
+            navigate("/dashboard/student");
+          }
+        } else {
+          // If no user data exists, create it
+          const newUserData = {
+            name: formData.email.split('@')[0],
+            email: formData.email,
+            loginCount: 1,
+            lastLogin: new Date().toISOString(),
+            mood: 'Motivated'
+          };
+          localStorage.setItem("userData", JSON.stringify(newUserData));
+          navigate("/dashboard/student?new=true");
+        }
+      } else {
+        toast({
+          title: "Login Failed",
+          description: "Invalid email or password. Please try again.",
+          variant: "destructive"
+        });
+      }
     } catch (error) {
-      console.error("Login error:", error);
-      
       toast({
         title: "Login Failed",
-        description: "Please check your credentials and try again.",
+        description: "An unexpected error occurred. Please try again.",
         variant: "destructive"
       });
+      console.error("Login error:", error);
     } finally {
       setIsLoading(false);
     }
   };
 
+  const handleForgotPassword = () => {
+    toast({
+      title: "Password Reset",
+      description: "Check your email for password reset instructions.",
+    });
+  };
+  
+  const handleDemoLogin = () => {
+    setFormData({
+      email: "demo@prepzr.com",
+      password: "demo123"
+    });
+  };
+
   return (
-    <Card className="shadow-md border-0">
-      <CardContent className="pt-6 px-6">
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <div className="relative">
-              <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input
-                id="email"
-                placeholder="Email address"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="pl-10"
-                autoComplete="email"
-                required
-              />
+    <CardContent className="p-6 space-y-6">
+      <form onSubmit={handleLogin} className="space-y-4">
+        <div className="space-y-2">
+          <Label htmlFor="email" className="text-sm font-medium">Email Address</Label>
+          <div className="relative">
+            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
+              <Mail size={16} />
             </div>
+            <Input
+              id="email"
+              name="email"
+              value={formData.email}
+              onChange={handleInputChange}
+              placeholder="Enter your email"
+              type="email"
+              className="pl-9 border-blue-200 focus:ring-blue-500 focus:border-blue-500"
+            />
           </div>
-          
-          <div className="space-y-2">
-            <div className="relative">
-              <Key className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input
-                id="password"
-                placeholder="Password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="pl-10"
-                autoComplete="current-password"
-                required
-              />
+        </div>
+        
+        <div className="space-y-2">
+          <div className="flex justify-between">
+            <Label htmlFor="password" className="text-sm font-medium">Password</Label>
+            <button 
+              type="button" 
+              onClick={handleForgotPassword} 
+              className="text-xs text-blue-600 hover:text-blue-800 hover:underline"
+            >
+              Forgot Password?
+            </button>
+          </div>
+          <div className="relative">
+            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
+              <Lock size={16} />
             </div>
+            <Input
+              id="password"
+              name="password"
+              value={formData.password}
+              onChange={handleInputChange}
+              placeholder="Enter your password"
+              type={showPassword ? "text" : "password"}
+              className="pl-9 border-blue-200 focus:ring-blue-500 focus:border-blue-500 pr-10"
+            />
+            <Button 
+              variant="ghost"
+              size="icon"
+              className="absolute right-0 top-0 h-full"
+              onClick={() => setShowPassword(!showPassword)}
+              type="button"
+            >
+              {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+            </Button>
           </div>
-          
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <input
-                type="checkbox"
-                id="remember"
-                className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-              />
-              <label htmlFor="remember" className="text-sm text-gray-700">
-                Remember me
-              </label>
+        </div>
+        
+        <Button 
+          className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-md"
+          type="submit"
+          disabled={isLoading}
+        >
+          {isLoading ? (
+            <div className="flex items-center gap-2">
+              <Loader2 className="h-5 w-5 animate-spin" />
+              <span>Signing in...</span>
             </div>
-            <a href="#" className="text-sm text-indigo-600 hover:text-indigo-500">
-              Forgot password?
-            </a>
-          </div>
-          
-          <Button 
-            type="submit" 
-            className="w-full flex items-center justify-center"
-            disabled={isLoading}
-          >
-            {isLoading ? (
-              <div className="flex items-center">
-                <div className="h-4 w-4 border-t-2 border-r-2 border-white rounded-full animate-spin mr-2" />
-                <span>Logging in...</span>
-              </div>
-            ) : (
-              <>
-                Login <ArrowRight className="ml-2 h-4 w-4" />
-              </>
-            )}
+          ) : (
+            <div className="flex items-center justify-center gap-2">
+              <span>Sign In</span>
+              <ArrowRight size={16} />
+            </div>
+          )}
+        </Button>
+        
+        <Button 
+          type="button" 
+          variant="outline" 
+          className="w-full mt-2" 
+          onClick={handleDemoLogin}
+        >
+          Use Demo Account
+        </Button>
+
+        <div className="text-center text-sm">
+          <span className="text-gray-500">Don't have an account? </span>
+          <Button variant="link" className="p-0 h-auto" onClick={() => navigate("/signup")}>
+            Sign up
           </Button>
-          
-          <div className="mt-4 text-center text-sm">
-            <p>
-              New to PREPZR?{" "}
-              <a href="/signup" className="text-indigo-600 hover:text-indigo-500 font-medium">
-                Create an account
-              </a>
-            </p>
-          </div>
-        </form>
-      </CardContent>
-    </Card>
+        </div>
+      </form>
+    </CardContent>
   );
 };
 

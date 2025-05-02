@@ -18,14 +18,14 @@ export const MoodSelectionDialog: React.FC<MoodSelectionDialogProps> = ({
   onSelectMood
 }) => {
   const moods = [
-    { name: 'Happy', emoji: '😊', value: MoodType.HAPPY },
-    { name: 'Motivated', emoji: '💪', value: MoodType.MOTIVATED },
-    { name: 'Focused', emoji: '🧠', value: MoodType.FOCUSED },
-    { name: 'Neutral', emoji: '😐', value: MoodType.NEUTRAL },
-    { name: 'Tired', emoji: '😴', value: MoodType.TIRED },
-    { name: 'Anxious', emoji: '😰', value: MoodType.ANXIOUS },
-    { name: 'Stressed', emoji: '😓', value: MoodType.STRESSED },
-    { name: 'Sad', emoji: '😢', value: MoodType.SAD },
+    { name: 'Happy', emoji: '😊', value: MoodType.Happy },
+    { name: 'Motivated', emoji: '💪', value: MoodType.Motivated },
+    { name: 'Focused', emoji: '🧠', value: MoodType.Focused },
+    { name: 'Neutral', emoji: '😐', value: MoodType.Neutral },
+    { name: 'Tired', emoji: '😴', value: MoodType.Tired },
+    { name: 'Anxious', emoji: '😰', value: MoodType.Anxious },
+    { name: 'Stressed', emoji: '😓', value: MoodType.Stressed },
+    { name: 'Sad', emoji: '😢', value: MoodType.Sad },
   ];
 
   return (

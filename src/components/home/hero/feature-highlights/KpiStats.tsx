@@ -1,15 +1,17 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { statsData } from './kpiStatsData';
-import StatCategory from './StatCategory';
-import ProgressIndicator from './ProgressIndicator';
-import { tabVariants } from './kpiAnimations';
+import CountUp from 'react-countup';
+
+const stats = [
+  { id: 1, value: 10000, label: "Students", prefix: "+", suffix: "", decimals: 0 },
+  { id: 2, value: 95, label: "Success Rate", prefix: "", suffix: "%", decimals: 0 },
+  { id: 3, value: 500000, label: "Practice Questions", prefix: "+", suffix: "", decimals: 0 },
+  { id: 4, value: 850, label: "Concepts Mastered", prefix: "Avg ", suffix: "", decimals: 0 }
+];
 
 export const KpiStats = () => {
   const [inView, setInView] = useState(false);
-  const [activeTab, setActiveTab] = useState("impact");
   
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -19,7 +21,9 @@ export const KpiStats = () => {
           observer.disconnect();
         }
       },
-      { threshold: 0.2 }
+      {
+        threshold: 0.2,
+      }
     );
     
     const element = document.getElementById('kpi-stats-section');
@@ -34,83 +38,75 @@ export const KpiStats = () => {
     };
   }, []);
   
-  // Auto-rotate tabs every 6 seconds
-  useEffect(() => {
-    if (!inView) return;
-    
-    const categories = Object.keys(statsData);
-    const interval = setInterval(() => {
-      setActiveTab(prevTab => {
-        const currentIndex = categories.indexOf(prevTab);
-        const nextIndex = (currentIndex + 1) % categories.length;
-        return categories[nextIndex];
-      });
-    }, 6000);
-    
-    return () => clearInterval(interval);
-  }, [inView]);
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { 
+      opacity: 1,
+      transition: { 
+        staggerChildren: 0.2,
+        delayChildren: 0.3,
+      } 
+    }
+  };
+  
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: { 
+      y: 0, 
+      opacity: 1,
+      transition: { 
+        type: "spring", 
+        stiffness: 100 
+      } 
+    }
+  };
 
   return (
     <div 
       id="kpi-stats-section" 
-      className="bg-gradient-to-r from-purple-50 via-white to-blue-50 dark:from-purple-900/20 dark:via-gray-900 dark:to-blue-900/20 py-4 px-4 rounded-xl shadow-md border border-purple-100/50 dark:border-purple-900/50 mx-auto max-w-5xl"
+      className="bg-gradient-to-r from-purple-50 via-white to-blue-50 dark:from-purple-900/20 dark:via-gray-900 dark:to-blue-900/20 py-8 px-4 rounded-2xl shadow-sm border border-purple-100/50 dark:border-purple-900/50"
     >
-      <div className="text-center mb-3">
-        <motion.h3 
-          initial={{ opacity: 0 }}
-          animate={inView ? { opacity: 1 } : { opacity: 0 }}
-          transition={{ duration: 0.5 }}
-          className="text-xl font-semibold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent"
-        >
-          Smart Data. Real Impact. Humanizing exam preparation.
-        </motion.h3>
-      </div>
-      
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <div className="flex justify-center mb-3">
-          <motion.div
-            initial="hidden"
-            animate={inView ? "visible" : "hidden"}
-            variants={tabVariants}
+      <motion.div
+        variants={containerVariants}
+        initial="hidden"
+        animate={inView ? "visible" : "hidden"}
+        className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-10 max-w-6xl mx-auto"
+      >
+        {stats.map((stat) => (
+          <motion.div 
+            key={stat.id} 
+            variants={itemVariants}
+            className="flex flex-col items-center text-center"
           >
-            <TabsList className="bg-purple-100/60 dark:bg-gray-800/60 p-1">
-              <TabsTrigger 
-                value="impact" 
-                className="text-xs data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-indigo-500 data-[state=active]:text-white"
-              >
-                Impact
-              </TabsTrigger>
-              <TabsTrigger 
-                value="learning" 
-                className="text-xs data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-indigo-500 data-[state=active]:text-white"
-              >
-                Learning
-              </TabsTrigger>
-              <TabsTrigger 
-                value="engagement" 
-                className="text-xs data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-indigo-500 data-[state=active]:text-white"
-              >
-                Engagement
-              </TabsTrigger>
-            </TabsList>
+            <motion.div 
+              className="text-3xl md:text-4xl font-bold text-purple-600 dark:text-purple-400 mb-2 flex items-center"
+              whileHover={{ scale: 1.05 }}
+              transition={{ type: "spring", stiffness: 400 }}
+            >
+              <span>{stat.prefix}</span>
+              {inView ? (
+                <CountUp 
+                  start={0} 
+                  end={stat.value} 
+                  duration={2.5} 
+                  separator="," 
+                  decimals={stat.decimals}
+                  decimal="."
+                />
+              ) : (
+                <span>0</span>
+              )}
+              <span>{stat.suffix}</span>
+            </motion.div>
+            <motion.p 
+              className="text-sm text-gray-600 dark:text-gray-300"
+              whileHover={{ color: "#8B5CF6" }}
+            >
+              {stat.label}
+            </motion.p>
           </motion.div>
-        </div>
-        
-        {Object.entries(statsData).map(([category, stats]) => (
-          <StatCategory 
-            key={category} 
-            category={category} 
-            stats={stats} 
-            inView={inView} 
-            activeTab={activeTab} 
-          />
         ))}
-      </Tabs>
-      
-      <ProgressIndicator 
-        categories={Object.keys(statsData)} 
-        activeTab={activeTab} 
-      />
+      </motion.div>
     </div>
   );
 };

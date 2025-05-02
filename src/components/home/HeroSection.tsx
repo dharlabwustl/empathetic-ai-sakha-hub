@@ -30,7 +30,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
       <div className="absolute top-1/3 -left-48 w-96 h-96 bg-gradient-to-tr from-blue-200/30 to-purple-300/20 rounded-full blur-3xl"></div>
       
       <div className="container mx-auto px-4 relative">
-        <div className="max-w-4xl mx-auto text-center mb-6 md:mb-10">
+        <div className="max-w-4xl mx-auto text-center mb-8 md:mb-12">
           <motion.h1 
             className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 font-display"
             initial={{ opacity: 0, y: -20 }}
@@ -42,7 +42,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
             </span>
           </motion.h1>
           <motion.p 
-            className="text-lg md:text-xl text-gray-600 dark:text-gray-400 mb-6"
+            className="text-lg md:text-xl text-gray-600 dark:text-gray-400 mb-8"
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
@@ -67,17 +67,17 @@ const HeroSection: React.FC<HeroSectionProps> = ({
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.6 }}
-          className="mb-4"
+          className="mb-6"
         >
           <ExamNamesBadge />
         </motion.div>
 
-        {/* KPI Stats Section - Moved here for better visibility */}
+        {/* KPI Stats Section - Moved right after ExamNamesBadge */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.8, delay: 0.7 }}
-          className="mb-8 max-w-5xl mx-auto"
+          transition={{ duration: 0.8, delay: 0.8 }}
+          className="mb-12"
         >
           <KpiStats />
         </motion.div>
@@ -87,7 +87,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.8, delay: 0.8 }}
-          className="mb-10"
+          className="mb-12"
         >
           <KeyFeatures />
         </motion.div>

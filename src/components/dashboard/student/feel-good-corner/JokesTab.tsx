@@ -1,141 +1,139 @@
 
 import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { RefreshCw, ThumbsUp, ThumbsDown, Share } from 'lucide-react';
-import { UserProfileBase } from '@/types/user/base';
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { ThumbsUp, RefreshCcw } from "lucide-react";
+import { motion } from "framer-motion";
+import { useToast } from "@/hooks/use-toast";
+import { Joke } from "./types";
+
+// Mock data
+const mockJokes = [
+  { id: 1, content: "Why don't scientists trust atoms? Because they make up everything!", likes: 42, author: "PhysicsNerd" },
+  { id: 2, content: "I told my wife she was drawing her eyebrows too high. She looked surprised.", likes: 38, author: "DadJokeMaster" },
+  { id: 3, content: "Why did the scarecrow win an award? Because he was outstanding in his field!", likes: 27, author: "FarmLife" },
+  { id: 4, content: "I'm reading a book about anti-gravity. It's impossible to put down!", likes: 35, author: "ScienceWiz" },
+  { id: 5, content: "Did you hear about the mathematician who's afraid of negative numbers? He'll stop at nothing to avoid them.", likes: 31, author: "MathGeek" },
+];
 
 interface JokesTabProps {
-  userProfile?: UserProfileBase;
+  initialJokes?: Joke[];
 }
 
-const JokesTab: React.FC<JokesTabProps> = ({ userProfile }) => {
-  const [joke, setJoke] = useState({
-    setup: "Why don't scientists trust atoms?",
-    punchline: "Because they make up everything!",
-    category: "Science"
-  });
-  const [loading, setLoading] = useState(false);
-  const [liked, setLiked] = useState<boolean | null>(null);
+const JokesTab: React.FC<JokesTabProps> = ({ initialJokes = mockJokes }) => {
+  const { toast } = useToast();
+  const [jokes, setJokes] = useState<Joke[]>(initialJokes);
+  const [newJoke, setNewJoke] = useState("");
+  const [likedJokes, setLikedJokes] = useState<number[]>([]);
   
-  const fetchNewJoke = () => {
-    setLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-      const jokes = [
-        {
-          setup: "How do you organize a space party?",
-          punchline: "You planet!",
-          category: "Space"
-        },
-        {
-          setup: "Why did the physics teacher break up with the biology teacher?",
-          punchline: "There was no chemistry.",
-          category: "Science"
-        },
-        {
-          setup: "What's the best thing about Switzerland?",
-          punchline: "I don't know, but the flag is a big plus!",
-          category: "Geography"
-        },
-        {
-          setup: "Why did the scarecrow win an award?",
-          punchline: "Because he was outstanding in his field!",
-          category: "Agriculture"
-        },
-        {
-          setup: "What do you call a factory that makes okay products?",
-          punchline: "A satisfactory.",
-          category: "Wordplay"
-        }
-      ];
-      
-      const randomIndex = Math.floor(Math.random() * jokes.length);
-      setJoke(jokes[randomIndex]);
-      setLiked(null);
-      setLoading(false);
-    }, 800);
+  const handleSubmitJoke = () => {
+    if (!newJoke.trim()) return;
+    
+    const newJokeObj = {
+      id: jokes.length + 1,
+      content: newJoke,
+      likes: 0,
+      author: "You"
+    };
+    
+    setJokes([newJokeObj, ...jokes]);
+    
+    toast({
+      title: "Joke submitted!",
+      description: "Your joke has been added to the collection!",
+    });
+    
+    setNewJoke("");
   };
-  
-  const handleLike = (isLike: boolean) => {
-    setLiked(isLike);
-  };
-  
-  const handleShare = () => {
-    // Implementation for sharing the joke
-    console.log("Sharing joke:", joke);
-    // In a real implementation, this would open a share dialog
-    alert("Joke copied to clipboard!");
+
+  const handleLikeJoke = (id: number) => {
+    if (likedJokes.includes(id)) {
+      // Unlike
+      setJokes(jokes.map(joke => 
+        joke.id === id ? {...joke, likes: joke.likes - 1} : joke
+      ));
+      setLikedJokes(likedJokes.filter(jokeId => jokeId !== id));
+    } else {
+      // Like
+      setJokes(jokes.map(joke => 
+        joke.id === id ? {...joke, likes: joke.likes + 1} : joke
+      ));
+      setLikedJokes([...likedJokes, id]);
+    }
   };
   
   return (
-    <div className="flex flex-col h-[500px]">
-      <div className="bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-900/20 dark:to-yellow-900/20 p-3 rounded-t-lg">
-        <h3 className="font-medium">Study Break Jokes</h3>
-        <p className="text-xs text-muted-foreground">
-          A little humor to lighten your study mood
-        </p>
-      </div>
-      
-      <div className="flex-1 p-4 flex items-center justify-center">
-        <div className="max-w-md text-center space-y-6">
-          <div className="bg-gradient-to-r from-amber-100/50 to-yellow-100/50 dark:from-amber-900/20 dark:to-yellow-900/20 p-6 rounded-xl">
-            <h4 className="text-xl font-medium mb-4">{joke.setup}</h4>
-            <p className="text-lg font-semibold text-amber-600 dark:text-amber-400">{joke.punchline}</p>
-            <div className="mt-3 text-xs text-muted-foreground">
-              Category: {joke.category}
-            </div>
-          </div>
-          
-          <div className="flex justify-center gap-3">
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={() => handleLike(true)}
-              className={liked === true ? "bg-green-100 text-green-700 border-green-300" : ""}
-            >
-              <ThumbsUp className="h-4 w-4 mr-1" />
-              Funny
-            </Button>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={() => handleLike(false)}
-              className={liked === false ? "bg-red-100 text-red-700 border-red-300" : ""}
-            >
-              <ThumbsDown className="h-4 w-4 mr-1" />
-              Not Funny
-            </Button>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={handleShare}
-            >
-              <Share className="h-4 w-4 mr-1" />
-              Share
-            </Button>
-          </div>
-          
+    <motion.div 
+      key="jokes"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+    >
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h3 className="font-medium">Today's Top Jokes</h3>
           <Button 
-            onClick={fetchNewJoke} 
-            disabled={loading}
-            variant="default"
-            className="bg-gradient-to-r from-amber-500 to-yellow-500"
+            variant="ghost" 
+            size="sm" 
+            className="text-xs"
+            onClick={() => setJokes([...mockJokes])}
           >
-            {loading ? (
-              <>
-                <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-                Loading...
-              </>
-            ) : (
-              <>
-                <RefreshCw className="h-4 w-4 mr-2" />
-                New Joke
-              </>
-            )}
+            <RefreshCcw size={12} className="mr-1" /> Refresh
           </Button>
         </div>
+        
+        <ScrollArea className="h-[280px] rounded border p-2">
+          <div className="space-y-3">
+            {jokes.map((joke) => (
+              <motion.div 
+                key={joke.id} 
+                className="bg-white rounded-lg p-3 shadow-sm border"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: joke.id * 0.1 }}
+                whileHover={{ scale: 1.01 }}
+              >
+                <p className="text-sm mb-2">{joke.content}</p>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-gray-500">by @{joke.author}</span>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className={`h-7 gap-1 text-xs ${likedJokes.includes(joke.id) ? 'text-pink-500' : ''}`}
+                    onClick={() => handleLikeJoke(joke.id)}
+                  >
+                    <ThumbsUp size={12} />
+                    {joke.likes}
+                  </Button>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </ScrollArea>
+        
+        <div className="pt-2">
+          <p className="text-xs text-gray-500 mb-2">Share your own joke:</p>
+          <div className="flex gap-2">
+            <Textarea 
+              value={newJoke} 
+              onChange={(e) => setNewJoke(e.target.value)} 
+              placeholder="Type your joke here..."
+              className="text-sm min-h-[60px] resize-none"
+            />
+          </div>
+          <div className="flex justify-end mt-2">
+            <Button 
+              size="sm" 
+              className="bg-violet-600 text-xs"
+              onClick={handleSubmitJoke}
+            >
+              Share Joke
+            </Button>
+          </div>
+        </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

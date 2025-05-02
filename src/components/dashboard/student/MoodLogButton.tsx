@@ -26,14 +26,14 @@ const MoodLogButton: React.FC<MoodLogButtonProps> = ({
   };
   
   const moods: { label: string; emoji: string; value: MoodType }[] = [
-    { label: 'Happy', emoji: '😊', value: MoodType.HAPPY },
-    { label: 'Motivated', emoji: '💪', value: MoodType.MOTIVATED },
-    { label: 'Focused', emoji: '🧠', value: MoodType.FOCUSED },
-    { label: 'Neutral', emoji: '😐', value: MoodType.NEUTRAL },
-    { label: 'Tired', emoji: '😴', value: MoodType.TIRED },
-    { label: 'Anxious', emoji: '😰', value: MoodType.ANXIOUS },
-    { label: 'Stressed', emoji: '😓', value: MoodType.STRESSED },
-    { label: 'Sad', emoji: '😢', value: MoodType.SAD },
+    { label: 'Happy', emoji: '😊', value: MoodType.Happy },
+    { label: 'Motivated', emoji: '💪', value: MoodType.Motivated },
+    { label: 'Focused', emoji: '🧠', value: MoodType.Focused },
+    { label: 'Neutral', emoji: '😐', value: MoodType.Neutral },
+    { label: 'Tired', emoji: '😴', value: MoodType.Tired },
+    { label: 'Anxious', emoji: '😰', value: MoodType.Anxious },
+    { label: 'Stressed', emoji: '😓', value: MoodType.Stressed },
+    { label: 'Sad', emoji: '😢', value: MoodType.Sad },
   ];
   
   const currentMoodEmoji = currentMood 
