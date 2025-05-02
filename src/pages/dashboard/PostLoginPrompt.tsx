@@ -11,7 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 const PostLoginPrompt = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const returnTo = searchParams.get('returnTo') || 'dashboard/student';
+  const returnTo = searchParams.get('returnTo') || '/dashboard/student'; // Make sure the default path is correct
   const { toast } = useToast();
   
   const [lastActivity, setLastActivity] = useState<string | null>(null);
@@ -42,7 +42,7 @@ const PostLoginPrompt = () => {
     
     // Auto-redirect after 15 seconds if no action taken
     const timer = setTimeout(() => {
-      navigate(`/${returnTo}`);
+      navigate('/dashboard/student'); // Use absolute path here
       toast({
         title: "Welcome back!",
         description: "You've been automatically redirected to your dashboard.",
@@ -61,7 +61,7 @@ const PostLoginPrompt = () => {
   };
 
   const goToDashboard = () => {
-    // Fixed: Directly navigate to the student dashboard
+    // Directly navigate to the student dashboard with absolute path
     navigate("/dashboard/student");
     toast({
       title: "Welcome to Dashboard",

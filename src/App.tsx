@@ -80,7 +80,8 @@ function App() {
               <Route path="/auth/login" element={<Navigate to="/post-login" replace />} />
               <Route path="/pages/auth/login" element={<Navigate to="/post-login" replace />} />
 
-              {/* Student routes */}
+              {/* Student routes - Make sure dashboard route is properly defined */}
+              <Route path="/dashboard" element={<Navigate to="/dashboard/student" replace />} />
               <Route path="/dashboard/student" element={<StudentDashboard />} />
               <Route path="/dashboard/student/:tab" element={<StudentDashboard />} />
               <Route path="/dashboard/student/today" element={<TodaysPlanView />} />

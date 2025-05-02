@@ -10,6 +10,7 @@ const WelcomeToPrepr = () => {
   const navigate = useNavigate();
   
   const handleContinueToDashboard = () => {
+    // Updated to ensure we go directly to the dashboard
     navigate('/dashboard/student');
   };
 
