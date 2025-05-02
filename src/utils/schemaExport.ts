@@ -48,6 +48,8 @@ export const generateDatabaseSchema = (): SchemaTable[] => {
         { name: "user_id", type: "UUID", isRequired: true, isPrimaryKey: false, isForeignKey: true, references: "users(id)", description: "Reference to user account" },
         { name: "grade", type: "VARCHAR(20)", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "Student's academic grade/level" },
         { name: "exam_type", type: "VARCHAR(50)", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Type of exam the student is preparing for" },
+        { name: "exam_goal", type: "VARCHAR(255)", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "Student's goal for the exam" },
+        { name: "exam_date", type: "DATE", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "Target exam appearing date" },
         { name: "target_score", type: "INTEGER", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "Target score for exam" },
         { name: "phone_number", type: "VARCHAR(20)", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "Student contact number" },
         { name: "onboarding_completed", type: "BOOLEAN", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Whether student completed onboarding" },
@@ -55,14 +57,15 @@ export const generateDatabaseSchema = (): SchemaTable[] => {
         { name: "age", type: "INTEGER", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "Student's age" },
         { name: "education_level", type: "VARCHAR(50)", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "Education level (highSchool, higherSecondary, etc)" },
         { name: "city", type: "VARCHAR(100)", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "Student's city" },
-        { name: "exam_date", type: "DATE", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "Target exam appearing date" },
-        { name: "personality_type", type: "VARCHAR(50)", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "Learning personality type" },
+        { name: "personality_type", type: "VARCHAR(50)", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "Learning personality type (analytical, creative, imagination, practical, visual, auditory, kinesthetic)" },
+        { name: "mood", type: "VARCHAR(50)", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "Current mood state (happy, motivated, focused, neutral, tired, anxious, stressed, sad)" },
         { name: "daily_study_hours", type: "FLOAT", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "Preferred daily study hours" },
         { name: "break_frequency", type: "VARCHAR(20)", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "Study break frequency preference" },
         { name: "stress_management", type: "VARCHAR(100)", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "Preferred stress management technique" },
-        { name: "study_environment", type: "VARCHAR(100)", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "Preferred study environment" },
-        { name: "study_pace", type: "VARCHAR(20)", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "Preferred study pace" },
-        { name: "preferred_study_time", type: "VARCHAR(20)", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "Preferred time of day to study" }
+        { name: "study_environment", type: "VARCHAR(100)", isRequired: false, iPrimaryKey: false, isForeignKey: false, description: "Preferred study environment" },
+        { name: "study_pace", type: "VARCHAR(20)", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "Preferred study pace (aggressive, balanced, relaxed)" },
+        { name: "preferred_study_time", type: "VARCHAR(20)", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "Preferred time of day to study (morning, afternoon, evening, night)" },
+        { name: "institute", type: "VARCHAR(100)", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "Student's educational institute" }
       ]
     },
     {
@@ -76,7 +79,21 @@ export const generateDatabaseSchema = (): SchemaTable[] => {
         { name: "is_priority", type: "BOOLEAN", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Whether this is a priority subject" },
         { name: "is_weak_subject", type: "BOOLEAN", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Whether this is a weak subject for the student" },
         { name: "created_at", type: "TIMESTAMP", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Record creation timestamp" },
-        { name: "hours_per_week", type: "INTEGER", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "Hours allocated per week" }
+        { name: "hours_per_week", type: "INTEGER", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "Hours allocated per week" },
+        { name: "difficulty", type: "VARCHAR(10)", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "Subject difficulty level (easy, medium, hard)" },
+        { name: "priority", type: "VARCHAR(10)", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "Priority level (low, medium, high)" }
+      ]
+    },
+    {
+      tableName: "subject_topics",
+      description: "Topics within each subject",
+      fields: [
+        { name: "id", type: "UUID", isRequired: true, isPrimaryKey: true, isForeignKey: false, description: "Unique topic identifier" },
+        { name: "subject_id", type: "UUID", isRequired: true, isPrimaryKey: false, isForeignKey: true, references: "student_subjects(id)", description: "Reference to subject" },
+        { name: "name", type: "VARCHAR(100)", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Topic name" },
+        { name: "completed", type: "BOOLEAN", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Whether topic is completed" },
+        { name: "status", type: "VARCHAR(20)", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "Topic status (pending, completed, skipped, in-progress)" },
+        { name: "difficulty", type: "VARCHAR(10)", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "Topic difficulty level (easy, medium, hard)" }
       ]
     },
     {
@@ -85,7 +102,7 @@ export const generateDatabaseSchema = (): SchemaTable[] => {
       fields: [
         { name: "id", type: "UUID", isRequired: true, isPrimaryKey: true, isForeignKey: false, description: "Unique log identifier" },
         { name: "student_id", type: "UUID", isRequired: true, isPrimaryKey: false, isForeignKey: true, references: "students(id)", description: "Reference to student" },
-        { name: "mood_type", type: "VARCHAR(50)", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Type of mood (happy, stressed, etc.)" },
+        { name: "mood_type", type: "VARCHAR(50)", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Type of mood (happy, motivated, focused, neutral, tired, anxious, stressed, sad)" },
         { name: "mood_score", type: "INTEGER", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "Numerical mood score (1-10)" },
         { name: "note", type: "TEXT", isRequired: false, isPrimaryKey: false, isForeignKey: false, description: "Optional notes about mood" },
         { name: "logged_at", type: "TIMESTAMP", isRequired: true, isPrimaryKey: false, isForeignKey: false, description: "When mood was logged" }
