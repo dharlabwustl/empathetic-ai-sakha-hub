@@ -1,3 +1,4 @@
+
 import React, { Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
@@ -71,13 +72,13 @@ function App() {
               {/* Post-signup flow - Welcome flow only */}
               <Route path="/welcome" element={<WelcomeToPrepr />} />
               
-              {/* Post-login welcome back screen - This must be before student dashboard routes */}
-              <Route path="/welcome-back" element={<PostLoginWelcomeBack />} />
+              {/* Post-login screen options */}
               <Route path="/post-login" element={<PostLoginPrompt />} />
+              <Route path="/welcome-back" element={<PostLoginWelcomeBack />} />
 
-              {/* Ensure redirects to the welcome-back screen after login */}
-              <Route path="/auth/login" element={<Navigate to="/welcome-back" replace />} />
-              <Route path="/pages/auth/login" element={<Navigate to="/welcome-back" replace />} />
+              {/* Ensure redirects to the post-login screen after login */}
+              <Route path="/auth/login" element={<Navigate to="/post-login" replace />} />
+              <Route path="/pages/auth/login" element={<Navigate to="/post-login" replace />} />
 
               {/* Student routes */}
               <Route path="/dashboard/student" element={<StudentDashboard />} />

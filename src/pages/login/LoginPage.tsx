@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -25,7 +24,7 @@ const LoginPage = () => {
   // Check if user is already authenticated, redirect if true
   useEffect(() => {
     if (isAuthenticated) {
-      navigate("/welcome-back");
+      navigate("/post-login");
     }
   }, [isAuthenticated, navigate]);
 
@@ -65,8 +64,8 @@ const LoginPage = () => {
           localStorage.removeItem("prepzr_remembered_email");
         }
         
-        // Redirect to welcome-back screen
-        navigate("/welcome-back");
+        // Redirect to post-login screen
+        navigate("/post-login");
       } else {
         setLoginError("Invalid email or password");
         toast({

@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { UserRole } from '@/types/user/base';
 import { useToast } from '@/hooks/use-toast';
@@ -88,7 +87,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             role: newUser.role,
             lastLogin: new Date().toISOString(),
             loginCount: 1,
-            mood: 'Motivated'
+            mood: 'Motivated',
+            // Make sure returning users don't see the welcome screen again
+            completedOnboarding: true
           }));
           
           setUser(newUser);
