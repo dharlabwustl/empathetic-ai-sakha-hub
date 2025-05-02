@@ -1,5 +1,5 @@
 
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import Header from '@/components/layout/HeaderWithAdmin';
 import Footer from '@/components/layout/Footer';
 import HeroSection from '@/components/landing/HeroSection';
@@ -31,6 +31,19 @@ const Index = () => {
   const handleCloseExamAnalyzer = () => {
     setShowExamAnalyzer(false);
   };
+
+  // Listen for the custom event to open the exam analyzer
+  useEffect(() => {
+    const handleExamAnalyzerEvent = () => {
+      setShowExamAnalyzer(true);
+    };
+    
+    window.addEventListener('open-exam-analyzer', handleExamAnalyzerEvent);
+    
+    return () => {
+      window.removeEventListener('open-exam-analyzer', handleExamAnalyzerEvent);
+    };
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-background overflow-hidden">

@@ -80,12 +80,14 @@ const HeroSection: React.FC = () => {
         >
           <Button 
             className="bg-gradient-to-r from-purple-500 to-indigo-600 px-8 py-6 text-lg font-semibold text-white shadow-lg hover:from-purple-600 hover:to-indigo-700"
-            asChild
+            onClick={() => {
+              // Find the ExamReadinessAnalyzer component in the DOM and open it
+              const event = new CustomEvent('open-exam-analyzer');
+              window.dispatchEvent(event);
+            }}
           >
-            <Link to="/signup">
-              Test Your Exam Readiness
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </Link>
+            Test Your Exam Readiness
+            <ArrowRight className="ml-2 h-5 w-5" />
           </Button>
           <Button 
             variant="outline" 
