@@ -61,7 +61,7 @@ const PostLoginPrompt = () => {
   };
 
   const goToDashboard = () => {
-    // Updated: Make sure we're going directly to the student dashboard
+    // Fixed: Directly navigate to the student dashboard
     navigate("/dashboard/student");
     toast({
       title: "Welcome to Dashboard",

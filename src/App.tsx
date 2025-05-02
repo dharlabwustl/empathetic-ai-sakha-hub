@@ -46,6 +46,7 @@ import StudyGroupsPage from './pages/dashboard/student/StudyGroupsPage';
 import BatchManagementPage from './pages/admin/BatchManagementPage';
 import DatabaseSchemaCSVPage from './pages/database/DatabaseSchemaCSVPage';
 import SubscriptionPage from './pages/dashboard/student/SubscriptionPage';
+import PostLoginPrompt from './pages/dashboard/PostLoginPrompt';
 
 const AdminDashboard = React.lazy(() => import('@/pages/admin/AdminDashboard'));
 
@@ -72,6 +73,7 @@ function App() {
               
               {/* Post-login welcome back screen - This must be before student dashboard routes */}
               <Route path="/welcome-back" element={<PostLoginWelcomeBack />} />
+              <Route path="/post-login" element={<PostLoginPrompt />} />
 
               {/* Ensure redirects to the welcome-back screen after login */}
               <Route path="/auth/login" element={<Navigate to="/welcome-back" replace />} />

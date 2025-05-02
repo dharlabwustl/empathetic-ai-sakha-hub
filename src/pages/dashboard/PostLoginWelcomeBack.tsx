@@ -126,7 +126,7 @@ const PostLoginWelcomeBack = () => {
   };
 
   const goToDashboard = () => {
-    // Changed: Directly navigate to the student dashboard overview
+    // Fixed: Directly navigate to the student dashboard without going through welcome flow
     navigate("/dashboard/student");
     toast({
       title: "Welcome to Dashboard",
