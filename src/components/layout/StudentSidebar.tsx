@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -154,12 +155,8 @@ export function StudentSidebar({
                 )
               }
             >
-              <item.icon className={cn("h-5 w-5", item.isPremium && "text-amber-500")} />
-              {(!collapsed || item.isPremium) && (
-                <span className={cn(item.isPremium && "text-amber-500")}>
-                  {item.name}
-                </span>
-              )}
+              <item.icon className="h-5 w-5" />
+              {!collapsed && <span>{item.name}</span>}
             </NavLink>
           ))}
         </div>

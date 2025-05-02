@@ -1,40 +1,49 @@
 
+// Define the type for a study plan subject with priority
 export interface StudyPlanSubject {
   id: string;
   name: string;
-  color: string;
-  hoursPerWeek: number;
-  priority: 'high' | 'medium' | 'low';
-  proficiency?: 'strong' | 'weak' | 'moderate';
+  difficulty: "easy" | "medium" | "hard";
+  color?: string;
   progress?: number;
-  topics?: Array<{
-    id: string;
-    name: string;
-    difficulty: 'easy' | 'medium' | 'hard';
-    completed: boolean;
-    status?: 'pending' | 'in-progress' | 'completed' | 'skipped';
-  }>;
+  proficiency?: "weak" | "moderate" | "strong";
+  topics?: { name: string; completed: boolean }[];
+  hoursPerWeek?: number;
+  priority?: "low" | "medium" | "high"; // Making priority optional to fix errors
+  completed: boolean;
+  status?: "pending" | "completed" | "skipped" | "in-progress";
 }
 
-export type NewStudyPlanSubject = StudyPlanSubject;
-export type Subject = StudyPlanSubject;
-
-export interface StudyPlan {
-  id: string;
-  userId: string;
+// Define the type for a new study plan
+export interface NewStudyPlan {
+  id?: string;
+  name?: string;
   goal: string;
   examGoal?: string;
-  examDate?: string;
-  daysLeft?: number;
-  progressPercentage?: number;
-  createdAt: string;
-  updatedAt: string;
   subjects: StudyPlanSubject[];
-  weeklyHours: number;
-  status: 'active' | 'archived' | 'completed';
-  studyHoursPerDay?: number;
-  preferredStudyTime?: 'morning' | 'afternoon' | 'evening' | 'night';
-  learningPace?: 'slow' | 'moderate' | 'fast';
+  weeklyHours?: number;
+  startDate?: string;
+  endDate?: string;
+  examDate: string | Date; // Allow Date type
+  status: "active" | "completed" | "archived";
+  progress?: number;
+  createdAt?: string;
+  learningPace?: "slow" | "moderate" | "fast";
 }
 
-export type NewStudyPlan = Omit<StudyPlan, 'id' | 'userId' | 'createdAt' | 'updatedAt'>;
+// Define the type for a study plan
+export interface StudyPlan extends NewStudyPlan {
+  id: string;
+  createdAt: string;
+}
+
+// Define the type for a task in a study plan
+export interface StudyTask {
+  id: string;
+  name: string;
+  completed: boolean;
+  subjectId: string;
+  dueDate: string;
+  priority?: "low" | "medium" | "high";
+  difficulty?: "easy" | "medium" | "hard";
+}
