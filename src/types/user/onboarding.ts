@@ -35,7 +35,7 @@ export interface OnboardingData {
   stressManagementCustom?: string;
   breakRoutine?: string;
   breakFrequency?: string;
-  studyTimePreference?: StudyTimePreference[];
+  studyTimePreference?: StudyTimePreference;
   studyPace?: StudyPace;
   dailyStudyHours?: number;
   studyEnvironment?: StudyEnvironmentPreference;

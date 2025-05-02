@@ -8,9 +8,6 @@ import MoodStep from "./steps/MoodStep";
 import StudyHabitsStep from "./steps/StudyHabitsStep";
 import InterestsStep from "./steps/InterestsStep";
 import SignupStep from "./steps/SignupStep";
-import StudyTimeStep from "./steps/StudyTimeStep";
-import StudyPaceStep from "./steps/StudyPaceStep";
-import StudyHoursStep from "./steps/StudyHoursStep";
 import { OnboardingStep } from "./OnboardingContext";
 
 interface StepRendererProps {
@@ -22,9 +19,6 @@ interface StepRendererProps {
     handleDemographicsSubmit: any;
     handlePersonalitySelect: any;
     handleMoodSelect: any;
-    handleStudyTimeSelect?: any;
-    handleStudyPaceSelect?: any;
-    handleStudyHoursSelect?: any;
     handleHabitsSubmit: any;
     handleInterestsSubmit: any;
     handleSignupSubmit: any;
@@ -54,15 +48,6 @@ const StepRenderer: React.FC<StepRendererProps> = ({ step, onboardingData, handl
 
     case "sentiment":
       return <MoodStep onMoodSelect={handlers.handleMoodSelect} />;
-      
-    case "studyTime":
-      return <StudyTimeStep onStudyTimeSelect={handlers.handleStudyTimeSelect} />;
-      
-    case "studyPace":
-      return <StudyPaceStep onStudyPaceSelect={handlers.handleStudyPaceSelect} />;
-      
-    case "studyHours":
-      return <StudyHoursStep onStudyHoursSelect={handlers.handleStudyHoursSelect} examGoal={onboardingData.examGoal} />;
 
     case "habits":
       return <StudyHabitsStep onSubmit={handlers.handleHabitsSubmit} />;

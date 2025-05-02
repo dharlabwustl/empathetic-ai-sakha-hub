@@ -121,7 +121,7 @@ const StepHandler = ({
         
         setOnboardingData({ 
           ...onboardingData, 
-          demographics
+          ...demographics  // Store demographics directly in onboardingData
         });
         
         setMessages([
@@ -162,34 +162,24 @@ const StepHandler = ({
         ]);
         setStep("habits");
       },
-      handleHabitsSubmit: (habits: Record<string, string>) => {
-        // Clean up habits data - remove whitespace and normalize
-        const cleanedHabits: Record<string, any> = {};
-        
-        Object.entries(habits).forEach(([key, value]) => {
-          // Skip custom fields in the cleaned data if they've already been included
-          if (key === "stressManagementCustom" || key === "studyPreferenceCustom") {
-            return;
-          }
-          
-          if (key === "dailyStudyHours") {
-            cleanedHabits[key] = parseInt(value);
-          } else {
-            cleanedHabits[key] = typeof value === 'string' ? value.trim() : value;
-          }
+      handleHabitsSubmit: (habits: Record<string, any>) => {
+        // Store all study preference data directly in onboardingData
+        setOnboardingData({ 
+          ...onboardingData, 
+          studyTimePreference: habits.studyTimePreference,
+          studyPace: habits.studyPace,
+          dailyStudyHours: habits.dailyStudyHours,
+          breakFrequency: habits.breakFrequency,
+          stressManagement: habits.stressManagement,
+          studyEnvironment: habits.studyEnvironment
         });
         
         // Create a readable message for chat from the habits
         let userMessage = "";
-        Object.entries(cleanedHabits).forEach(([key, value]) => {
+        Object.entries(habits).forEach(([key, value]) => {
           userMessage += `${key}: ${value}, `;
         });
         userMessage = userMessage.slice(0, -2); // Remove trailing comma
-        
-        setOnboardingData({ 
-          ...onboardingData, 
-          studyPreferences: cleanedHabits 
-        });
         
         // Get subjects based on selected exam goal
         const suggestedSubjects = onboardingData.goal 

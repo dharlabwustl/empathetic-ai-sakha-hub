@@ -1,4 +1,3 @@
-
 export enum UserRole {
   Admin = 'admin',
   Student = 'student',
@@ -27,34 +26,34 @@ export enum PersonalityType {
 }
 
 export enum StudyPace {
-  Aggressive = 'aggressive',
-  Balanced = 'balanced',
-  Relaxed = 'relaxed'
+  Aggressive = "Aggressive",
+  Balanced = "Balanced",
+  Relaxed = "Relaxed"
 }
 
 export enum StudyTimePreference {
-  Morning = 'morning',
-  Afternoon = 'afternoon',
-  Evening = 'evening',
-  Night = 'night'
+  Morning = "Morning",
+  Afternoon = "Afternoon",
+  Evening = "Evening",
+  Night = "Night"
 }
 
 export enum StudyEnvironmentPreference {
-  Quiet = 'quiet',
-  BackgroundNoise = 'background-noise',
-  Group = 'group',
-  Library = 'library',
-  Outdoor = 'outdoor',
-  Other = 'other'
+  Quiet = "Quiet environment",
+  Background = "Background noise/music",
+  Group = "Group study",
+  Library = "Library/Study room",
+  Outdoors = "Outdoor setting",
+  Other = "Other"
 }
 
 export enum StressManagementTechnique {
-  Exercise = 'exercise',
-  Meditation = 'meditation',
-  Music = 'music',
-  Breaks = 'breaks',
-  Talking = 'talking',
-  Other = 'other'
+  Exercise = "exercise",
+  Meditation = "meditation",
+  Breaks = "breaks",
+  Music = "music",
+  Talking = "talking",
+  Other = "other"
 }
 
 export enum StudyPreferenceType {

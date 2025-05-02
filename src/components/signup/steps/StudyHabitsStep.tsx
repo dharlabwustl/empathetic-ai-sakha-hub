@@ -6,6 +6,10 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { motion } from "framer-motion";
 import { Textarea } from "@/components/ui/textarea";
+import { Slider } from "@/components/ui/slider";
+import { AlertCircle, Clock, FastForward, Play, Pause, Sunrise, Sun, Sunset, Moon, Check } from "lucide-react";
+import { StudyPace, StudyTimePreference, StressManagementTechnique } from "@/types/user/base";
+import { cn } from "@/lib/utils";
 
 interface StudyHabitsStepProps {
   onSubmit: (habits: Record<string, string>) => void;
@@ -14,34 +18,61 @@ interface StudyHabitsStepProps {
 const StudyHabitsStep: React.FC<StudyHabitsStepProps> = ({ onSubmit }) => {
   const [studyTime, setStudyTime] = useState<string>("");
   const [studyPace, setStudyPace] = useState<string>("");
-  const [dailyStudyHours, setDailyStudyHours] = useState<string>("");
+  const [dailyStudyHours, setDailyStudyHours] = useState<number>(4);
   const [breakFrequency, setBreakFrequency] = useState<string>("");
   const [stressManagement, setStressManagement] = useState<string>("");
-  const [studyPreference, setStudyPreference] = useState<string>("");
+  const [studyEnvironment, setStudyEnvironment] = useState<string>("");
   const [stressManagementCustom, setStressManagementCustom] = useState<string>("");
-  const [studyPreferenceCustom, setStudyPreferenceCustom] = useState<string>("");
+  const [studyEnvironmentCustom, setStudyEnvironmentCustom] = useState<string>("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
     // Prepare habits data
-    const habitsData: Record<string, string> = {
-      studyTime,
+    const habitsData: Record<string, any> = {
+      studyTimePreference: studyTime,
       studyPace,
       dailyStudyHours,
       breakFrequency,
       stressManagement: stressManagement === "other" ? stressManagementCustom : stressManagement,
-      studyPreference: studyPreference === "other" ? studyPreferenceCustom : studyPreference,
+      studyEnvironment: studyEnvironment === "other" ? studyEnvironmentCustom : studyEnvironment,
     };
     
     onSubmit(habitsData);
   };
 
+  const timeOptions = [
+    {
+      value: StudyTimePreference.Morning,
+      label: "Morning",
+      description: "Early hours, 6 AM - 11 AM",
+      icon: <Sunrise className="h-6 w-6 text-amber-500" />
+    },
+    {
+      value: StudyTimePreference.Afternoon,
+      label: "Afternoon",
+      description: "Midday hours, 12 PM - 4 PM",
+      icon: <Sun className="h-6 w-6 text-orange-500" />
+    },
+    {
+      value: StudyTimePreference.Evening,
+      label: "Evening",
+      description: "After sunset, 5 PM - 8 PM",
+      icon: <Sunset className="h-6 w-6 text-indigo-500" />
+    },
+    {
+      value: StudyTimePreference.Night,
+      label: "Night",
+      description: "Late hours, 9 PM - 12 AM",
+      icon: <Moon className="h-6 w-6 text-blue-500" />
+    }
+  ];
+
   // Ensure all required fields are filled
-  const isFormValid = studyTime && studyPace && dailyStudyHours && breakFrequency && 
-    stressManagement && studyPreference &&
+  const isFormValid = studyTime && studyPace && breakFrequency && 
+    stressManagement && studyEnvironment &&
     (stressManagement !== "other" || stressManagementCustom) &&
-    (studyPreference !== "other" || studyPreferenceCustom);
+    (studyEnvironment !== "other" || studyEnvironmentCustom);
 
   return (
     <motion.form
@@ -58,89 +89,127 @@ const StudyHabitsStep: React.FC<StudyHabitsStepProps> = ({ onSubmit }) => {
         </p>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-6">
         {/* Preferred Study Time */}
         <div>
-          <Label className="text-base font-medium">Preferred Study Time</Label>
-          <RadioGroup
-            value={studyTime}
-            onValueChange={setStudyTime}
-            className="grid grid-cols-2 gap-3 mt-2"
-          >
-            <Label
-              htmlFor="study-morning"
-              className={`flex items-center space-x-2 border rounded-lg p-3 cursor-pointer transition-colors ${
-                studyTime === "morning" ? "bg-blue-50 border-blue-300" : "hover:bg-gray-50"
-              }`}
-            >
-              <RadioGroupItem value="morning" id="study-morning" />
-              <span>Morning</span>
-            </Label>
-            <Label
-              htmlFor="study-afternoon"
-              className={`flex items-center space-x-2 border rounded-lg p-3 cursor-pointer transition-colors ${
-                studyTime === "afternoon" ? "bg-blue-50 border-blue-300" : "hover:bg-gray-50"
-              }`}
-            >
-              <RadioGroupItem value="afternoon" id="study-afternoon" />
-              <span>Afternoon</span>
-            </Label>
-            <Label
-              htmlFor="study-evening"
-              className={`flex items-center space-x-2 border rounded-lg p-3 cursor-pointer transition-colors ${
-                studyTime === "evening" ? "bg-blue-50 border-blue-300" : "hover:bg-gray-50"
-              }`}
-            >
-              <RadioGroupItem value="evening" id="study-evening" />
-              <span>Evening</span>
-            </Label>
-            <Label
-              htmlFor="study-night"
-              className={`flex items-center space-x-2 border rounded-lg p-3 cursor-pointer transition-colors ${
-                studyTime === "night" ? "bg-blue-50 border-blue-300" : "hover:bg-gray-50"
-              }`}
-            >
-              <RadioGroupItem value="night" id="study-night" />
-              <span>Night</span>
-            </Label>
-          </RadioGroup>
+          <h3 className="text-base font-medium mb-2 flex items-center gap-2">
+            <Clock className="text-indigo-500" size={18} />
+            Preferred Study Time
+          </h3>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {timeOptions.map((option) => (
+              <div
+                key={option.value}
+                className={`relative cursor-pointer group transition-all rounded-lg overflow-hidden`}
+                onClick={() => setStudyTime(option.value)}
+              >
+                <div className={`flex items-center gap-4 p-3 border-2 transition-colors ${
+                  studyTime === option.value
+                    ? 'bg-indigo-50 border-indigo-400 dark:bg-indigo-900/30 dark:border-indigo-700'
+                    : 'border-gray-200 hover:bg-indigo-50/50 hover:border-indigo-200 dark:border-gray-700 dark:hover:bg-indigo-900/10'
+                }`}>
+                  <div className="p-2 rounded-full bg-white dark:bg-gray-800 shadow-sm">
+                    {option.icon}
+                  </div>
+                  <div className="text-left">
+                    <div className="font-medium">{option.label}</div>
+                    <div className="text-xs text-muted-foreground">{option.description}</div>
+                  </div>
+                  {studyTime === option.value && (
+                    <div className="ml-auto">
+                      <Check className="h-4 w-4 text-indigo-500" />
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Study Pace */}
         <div>
-          <Label htmlFor="studyPace" className="text-base font-medium">
-            Preferred Study Pace
-          </Label>
-          <Select value={studyPace} onValueChange={setStudyPace}>
-            <SelectTrigger id="studyPace" className="mt-2">
-              <SelectValue placeholder="Select your preferred pace" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="slow">Slow and thorough</SelectItem>
-              <SelectItem value="moderate">Moderate pace</SelectItem>
-              <SelectItem value="fast">Fast-paced</SelectItem>
-              <SelectItem value="variable">Variable (depends on subject)</SelectItem>
-            </SelectContent>
-          </Select>
+          <h3 className="text-base font-medium mb-2 flex items-center gap-2">
+            <FastForward className="text-amber-500" size={18} />
+            Study Pace Preference
+          </h3>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <Button 
+              type="button"
+              variant={studyPace === StudyPace.Aggressive ? "default" : "outline"}
+              onClick={() => setStudyPace(StudyPace.Aggressive)}
+              className={cn(
+                "h-20 flex flex-col items-center justify-center space-y-1",
+                studyPace === StudyPace.Aggressive && "bg-amber-600 hover:bg-amber-700"
+              )}
+            >
+              <FastForward size={20} />
+              <span>Aggressive</span>
+            </Button>
+            
+            <Button 
+              type="button"
+              variant={studyPace === StudyPace.Balanced ? "default" : "outline"}
+              onClick={() => setStudyPace(StudyPace.Balanced)}
+              className={cn(
+                "h-20 flex flex-col items-center justify-center space-y-1",
+                studyPace === StudyPace.Balanced && "bg-emerald-600 hover:bg-emerald-700"
+              )}
+            >
+              <Play size={20} />
+              <span>Balanced</span>
+            </Button>
+            
+            <Button 
+              type="button"
+              variant={studyPace === StudyPace.Relaxed ? "default" : "outline"}
+              onClick={() => setStudyPace(StudyPace.Relaxed)}
+              className={cn(
+                "h-20 flex flex-col items-center justify-center space-y-1",
+                studyPace === StudyPace.Relaxed && "bg-blue-600 hover:bg-blue-700"
+              )}
+            >
+              <Pause size={20} />
+              <span>Relaxed</span>
+            </Button>
+          </div>
+          
+          {studyPace && (
+            <div className="mt-2 bg-amber-50 p-2 rounded-md text-xs">
+              <p className="flex items-center gap-2">
+                <AlertCircle size={14} className="text-amber-500" />
+                <span>
+                  {studyPace === StudyPace.Aggressive && "Aggressive pace fits more content in less time. Best for those with strong discipline."}
+                  {studyPace === StudyPace.Balanced && "Balanced pace provides a steady progression with regular breaks. Ideal for most students."}
+                  {studyPace === StudyPace.Relaxed && "Relaxed pace spreads content over longer periods with more review time. Good for reducing stress."}
+                </span>
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Daily Study Hours */}
         <div>
-          <Label htmlFor="dailyStudyHours" className="text-base font-medium">
-            Daily Study Hours
-          </Label>
-          <Select value={dailyStudyHours} onValueChange={setDailyStudyHours}>
-            <SelectTrigger id="dailyStudyHours" className="mt-2">
-              <SelectValue placeholder="Select hours per day" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="1-2">1-2 hours</SelectItem>
-              <SelectItem value="3-4">3-4 hours</SelectItem>
-              <SelectItem value="5-6">5-6 hours</SelectItem>
-              <SelectItem value="7+">7+ hours</SelectItem>
-              <SelectItem value="variable">Variable (depends on day)</SelectItem>
-            </SelectContent>
-          </Select>
+          <h3 className="text-base font-medium mb-2">Daily Study Hours</h3>
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <span className="text-sm">Hours: {dailyStudyHours}</span>
+            </div>
+            <Slider
+              value={[dailyStudyHours]}
+              max={12}
+              min={1}
+              step={0.5}
+              onValueChange={(value) => setDailyStudyHours(value[0])}
+              className="cursor-pointer"
+            />
+            <div className="flex justify-between text-xs text-muted-foreground">
+              <span>1 hour</span>
+              <span>6 hours</span>
+              <span>12 hours</span>
+            </div>
+          </div>
         </div>
 
         {/* Break Frequency */}
@@ -171,16 +240,16 @@ const StudyHabitsStep: React.FC<StudyHabitsStepProps> = ({ onSubmit }) => {
               <SelectValue placeholder="Select stress management technique" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="exercise">Physical exercise</SelectItem>
-              <SelectItem value="meditation">Meditation/Breathing techniques</SelectItem>
-              <SelectItem value="music">Listening to music</SelectItem>
-              <SelectItem value="breaks">Taking frequent breaks</SelectItem>
-              <SelectItem value="talking">Talking to friends/family</SelectItem>
-              <SelectItem value="other">Other (please specify)</SelectItem>
+              <SelectItem value={StressManagementTechnique.Exercise}>Physical exercise</SelectItem>
+              <SelectItem value={StressManagementTechnique.Meditation}>Meditation/Breathing techniques</SelectItem>
+              <SelectItem value={StressManagementTechnique.Breaks}>Taking frequent breaks</SelectItem>
+              <SelectItem value={StressManagementTechnique.Music}>Listening to music</SelectItem>
+              <SelectItem value={StressManagementTechnique.Talking}>Talking to friends/family</SelectItem>
+              <SelectItem value={StressManagementTechnique.Other}>Other (please specify)</SelectItem>
             </SelectContent>
           </Select>
           
-          {stressManagement === "other" && (
+          {stressManagement === StressManagementTechnique.Other && (
             <Textarea
               value={stressManagementCustom}
               onChange={(e) => setStressManagementCustom(e.target.value)}
@@ -192,11 +261,11 @@ const StudyHabitsStep: React.FC<StudyHabitsStepProps> = ({ onSubmit }) => {
 
         {/* Study Environment Preference */}
         <div>
-          <Label htmlFor="studyPreference" className="text-base font-medium">
+          <Label htmlFor="studyEnvironment" className="text-base font-medium">
             Study Environment Preference
           </Label>
-          <Select value={studyPreference} onValueChange={setStudyPreference}>
-            <SelectTrigger id="studyPreference" className="mt-2">
+          <Select value={studyEnvironment} onValueChange={setStudyEnvironment}>
+            <SelectTrigger id="studyEnvironment" className="mt-2">
               <SelectValue placeholder="Select preferred environment" />
             </SelectTrigger>
             <SelectContent>
@@ -209,10 +278,10 @@ const StudyHabitsStep: React.FC<StudyHabitsStepProps> = ({ onSubmit }) => {
             </SelectContent>
           </Select>
           
-          {studyPreference === "other" && (
+          {studyEnvironment === "other" && (
             <Textarea
-              value={studyPreferenceCustom}
-              onChange={(e) => setStudyPreferenceCustom(e.target.value)}
+              value={studyEnvironmentCustom}
+              onChange={(e) => setStudyEnvironmentCustom(e.target.value)}
               placeholder="Please specify your study environment preference"
               className="mt-2"
             />
