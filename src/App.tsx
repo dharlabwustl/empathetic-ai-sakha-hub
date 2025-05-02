@@ -43,6 +43,7 @@ import PostLoginWelcomeBack from './pages/dashboard/PostLoginWelcomeBack';
 import Terms from './pages/Terms';
 import Privacy from './pages/Privacy';
 import FlaskDeveloperGuide from './pages/admin/FlaskDeveloperGuide';
+import StudyGroupsPage from './pages/dashboard/student/StudyGroupsPage';
 
 const AdminDashboard = React.lazy(() => import('@/pages/admin/AdminDashboard'));
 
@@ -82,6 +83,9 @@ function App() {
               
               {/* AI Tutor route */}
               <Route path="/dashboard/student/tutor" element={<TutorView />} />
+              
+              {/* Study Groups route - add new route */}
+              <Route path="/dashboard/student/study-groups" element={<StudyGroupsPage />} />
               
               {/* Concept routes */}
               <Route path="/dashboard/student/concepts/card/:conceptId" element={<ConceptCardDetailPage />} />

@@ -1,144 +1,161 @@
-
 import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Heart, Award, Music, Pencil, Image, ThumbsUp, Users } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
-import DoodleBoard from './DoodleBoard';
-import MoodMusicPlayer from './MoodMusicPlayer';
-import DailyAffirmations from './DailyAffirmations';
-import GratitudeJournal from './GratitudeJournal';
-import MoodAnalyzer from './MoodAnalyzer';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { ThumbsUp, Share, Award, MessageSquare, PenTool, Smile, Coffee } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { UserProfileBase } from '@/types/user/base';
 
-const FeelGoodCorner: React.FC = () => {
-  const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState("doodle");
-  const [userParticipation, setUserParticipation] = useState<Record<string, number>>({
-    "doodle": 23,
-    "music": 15,
-    "affirmations": 32,
-    "gratitude": 8,
-  });
-  
-  const handleLike = (activity: string) => {
-    setUserParticipation(prev => ({
-      ...prev,
-      [activity]: prev[activity] + 1
-    }));
-    
-    toast({
-      title: "Thanks for participating!",
-      description: "Your appreciation has been recorded.",
-    });
+// Existing components
+import DoodlingBoard from './DoodlingBoard';
+import QuoteOfTheDay from './QuoteOfTheDay';
+import BreathingExercise from './BreathingExercise';
+import StressReliefTips from './StressReliefTips';
+import MotivationalVideos from './MotivationalVideos';
+
+// New components
+import JokesTab from './JokesTab';
+import DailyTeasersTab from './DailyTeasersTab';
+import ChillChatTab from './ChillChatTab';
+
+interface FeelGoodCornerProps {
+  userProfile?: UserProfileBase;
+}
+
+const FeelGoodCorner: React.FC<FeelGoodCornerProps> = ({ userProfile }) => {
+  const [activeTab, setActiveTab] = useState('quotes');
+
+  const dailyWinners = {
+    doodling: {
+      name: 'Priya Sharma',
+      avatar: 'https://i.pravatar.cc/150?img=23',
+      title: 'Cosmic Dreams',
+      description: 'An artistic expression of space and time',
+    },
+    teaser: {
+      name: 'Rahul Kapoor',
+      avatar: 'https://i.pravatar.cc/150?img=32',
+      title: 'Math Puzzle Master',
+      description: 'Solved today\'s teaser in record time!',
+    }
   };
-  
-  const dailyWinner = "doodle";
-  
+
   return (
-    <SharedPageLayout 
-      title="Feel Good Corner" 
-      subtitle="Take a break, relax your mind, and boost your mood"
-      showBackButton
-      backButtonUrl="/dashboard/student"
-    >
-      <div className="mb-6">
-        <Card className="overflow-hidden">
-          <CardHeader className="bg-gradient-to-r from-pink-100 to-blue-100 dark:from-pink-900/20 dark:to-blue-900/20">
-            <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-              <div>
-                <CardTitle className="flex items-center">
-                  <Heart className="h-6 w-6 mr-2 text-pink-500" />
-                  Feel Good Tools
-                </CardTitle>
-                <CardDescription>
-                  Engage with these activities to improve your mood and productivity
-                </CardDescription>
-              </div>
-              
-              <div className="flex items-center gap-2">
-                <Badge variant="outline" className="bg-amber-100 text-amber-800 dark:bg-amber-900/20 dark:text-amber-400 flex items-center">
-                  <Award className="h-3.5 w-3.5 mr-1" />
-                  <span>Daily Winner: {dailyWinner === 'doodle' ? 'Doodle Board' : dailyWinner}</span>
-                </Badge>
-                <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400 flex items-center">
-                  <Users className="h-3.5 w-3.5 mr-1" />
-                  <span>78 Active Users</span>
-                </Badge>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className="p-0">
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="w-full justify-start border-b rounded-none h-auto p-0">
-                <TabsTrigger value="doodle" className="data-[state=active]:bg-pink-100 dark:data-[state=active]:bg-pink-900/20 rounded-none border-b-2 border-transparent data-[state=active]:border-pink-500 px-4 py-2 h-11">
-                  <div className="flex items-center">
-                    <Pencil className="h-4 w-4 mr-2" />
-                    <span>Doodle Board</span>
-                    <Badge variant="outline" className="ml-2 bg-pink-50 text-pink-800">{userParticipation.doodle}</Badge>
-                  </div>
-                </TabsTrigger>
-                <TabsTrigger value="music" className="data-[state=active]:bg-blue-100 dark:data-[state=active]:bg-blue-900/20 rounded-none border-b-2 border-transparent data-[state=active]:border-blue-500 px-4 py-2 h-11">
-                  <div className="flex items-center">
-                    <Music className="h-4 w-4 mr-2" />
-                    <span>Mood Music</span>
-                    <Badge variant="outline" className="ml-2 bg-blue-50 text-blue-800">{userParticipation.music}</Badge>
-                  </div>
-                </TabsTrigger>
-                <TabsTrigger value="affirmations" className="data-[state=active]:bg-purple-100 dark:data-[state=active]:bg-purple-900/20 rounded-none border-b-2 border-transparent data-[state=active]:border-purple-500 px-4 py-2 h-11">
-                  <div className="flex items-center">
-                    <Heart className="h-4 w-4 mr-2" />
-                    <span>Daily Affirmations</span>
-                    <Badge variant="outline" className="ml-2 bg-purple-50 text-purple-800">{userParticipation.affirmations}</Badge>
-                  </div>
-                </TabsTrigger>
-                <TabsTrigger value="gratitude" className="data-[state=active]:bg-green-100 dark:data-[state=active]:bg-green-900/20 rounded-none border-b-2 border-transparent data-[state=active]:border-green-500 px-4 py-2 h-11">
-                  <div className="flex items-center">
-                    <ThumbsUp className="h-4 w-4 mr-2" />
-                    <span>Gratitude Journal</span>
-                    <Badge variant="outline" className="ml-2 bg-green-50 text-green-800">{userParticipation.gratitude}</Badge>
-                  </div>
-                </TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="doodle" className="p-0">
-                <div className="p-4">
-                  <DoodleBoard />
-                  <div className="flex justify-between mt-4">
-                    <Button variant="outline" onClick={() => handleLike('doodle')} className="flex items-center">
-                      <ThumbsUp className="h-4 w-4 mr-2" />
-                      Like This Activity
-                    </Button>
-                    <Button onClick={() => setActiveTab('analyzer')}>
-                      <Image className="h-4 w-4 mr-2" />
-                      Analyze My Doodle
-                    </Button>
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>Feel Good Corner</CardTitle>
+          <CardDescription>
+            Take a break and recharge your mind with these fun activities
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Tabs defaultValue={activeTab} onValueChange={setActiveTab} className="space-y-4">
+            <TabsList className="grid grid-cols-3 md:grid-cols-9 gap-1">
+              <TabsTrigger value="quotes" className="text-xs md:text-sm">Quotes</TabsTrigger>
+              <TabsTrigger value="doodle" className="text-xs md:text-sm">Doodling</TabsTrigger>
+              <TabsTrigger value="breathing" className="text-xs md:text-sm">Breathing</TabsTrigger>
+              <TabsTrigger value="stress" className="text-xs md:text-sm">Stress Relief</TabsTrigger>
+              <TabsTrigger value="videos" className="text-xs md:text-sm">Videos</TabsTrigger>
+              <TabsTrigger value="teasers" className="text-xs md:text-sm">Daily Teasers</TabsTrigger>
+              <TabsTrigger value="jokes" className="text-xs md:text-sm">Jokes</TabsTrigger>
+              <TabsTrigger value="chill" className="text-xs md:text-sm">Chill Chat</TabsTrigger>
+              <TabsTrigger value="winners" className="text-xs md:text-sm">Winners</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="quotes">
+              <QuoteOfTheDay />
+            </TabsContent>
+
+            <TabsContent value="doodle">
+              <div className="mb-4 bg-amber-50 dark:bg-amber-900/20 p-3 rounded-lg border border-amber-200 dark:border-amber-800">
+                <div className="flex items-center gap-3">
+                  <Award className="h-5 w-5 text-amber-600" />
+                  <div>
+                    <p className="font-medium text-sm">Today's Doodling Winner: {dailyWinners.doodling.name}</p>
+                    <p className="text-xs text-muted-foreground">{dailyWinners.doodling.title} - {dailyWinners.doodling.description}</p>
                   </div>
                 </div>
-              </TabsContent>
-              
-              <TabsContent value="music" className="p-4">
-                <MoodMusicPlayer onLike={() => handleLike('music')} />
-              </TabsContent>
-              
-              <TabsContent value="affirmations" className="p-4">
-                <DailyAffirmations onLike={() => handleLike('affirmations')} />
-              </TabsContent>
-              
-              <TabsContent value="gratitude" className="p-4">
-                <GratitudeJournal onLike={() => handleLike('gratitude')} />
-              </TabsContent>
-              
-              <TabsContent value="analyzer" className="p-4">
-                <MoodAnalyzer onBack={() => setActiveTab('doodle')} />
-              </TabsContent>
-            </Tabs>
-          </CardContent>
-        </Card>
-      </div>
-    </SharedPageLayout>
+              </div>
+              <DoodlingBoard />
+            </TabsContent>
+
+            <TabsContent value="breathing">
+              <BreathingExercise />
+            </TabsContent>
+
+            <TabsContent value="stress">
+              <StressReliefTips />
+            </TabsContent>
+
+            <TabsContent value="videos">
+              <MotivationalVideos />
+            </TabsContent>
+
+            <TabsContent value="teasers">
+              <DailyTeasersTab winner={dailyWinners.teaser} />
+            </TabsContent>
+
+            <TabsContent value="jokes">
+              <JokesTab userProfile={userProfile} />
+            </TabsContent>
+
+            <TabsContent value="chill">
+              <ChillChatTab userProfile={userProfile} />
+            </TabsContent>
+
+            <TabsContent value="winners">
+              <div className="space-y-4">
+                <h3 className="font-medium text-lg">Daily Recognition</h3>
+                
+                <Card className="overflow-hidden">
+                  <CardHeader className="bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-900/30 dark:to-yellow-900/30">
+                    <div className="flex items-center gap-4">
+                      <Avatar className="h-12 w-12 border-2 border-amber-200">
+                        <AvatarImage src={dailyWinners.doodling.avatar} />
+                        <AvatarFallback>PS</AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <div className="flex items-center">
+                          <h4 className="font-medium">{dailyWinners.doodling.name}</h4>
+                          <Badge className="ml-2 bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200">Doodling Winner</Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground">{dailyWinners.doodling.title}</p>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="pt-4">
+                    <p className="text-sm">{dailyWinners.doodling.description}</p>
+                  </CardContent>
+                </Card>
+                
+                <Card className="overflow-hidden">
+                  <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30">
+                    <div className="flex items-center gap-4">
+                      <Avatar className="h-12 w-12 border-2 border-blue-200">
+                        <AvatarImage src={dailyWinners.teaser.avatar} />
+                        <AvatarFallback>RK</AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <div className="flex items-center">
+                          <h4 className="font-medium">{dailyWinners.teaser.name}</h4>
+                          <Badge className="ml-2 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">Teaser Winner</Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground">{dailyWinners.teaser.title}</p>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="pt-4">
+                    <p className="text-sm">{dailyWinners.teaser.description}</p>
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 

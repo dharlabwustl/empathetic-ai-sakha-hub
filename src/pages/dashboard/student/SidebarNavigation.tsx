@@ -25,12 +25,19 @@ const SidebarNavigation = ({ activeTab, onTabChange }: SidebarNavigationProps) =
     { icon: <Heart size={20} />, title: "Mental Health", tab: "wellness" },
     { icon: <Folder size={20} />, title: "Materials", tab: "materials" },
     { icon: <Video size={20} />, title: "Videos", tab: "videos" },
-    { icon: <Users size={20} />, title: "Study Groups", tab: "forum" },
+    { icon: <Users size={20} />, title: "Study Groups", tab: "study-groups" },
     { icon: <Bell size={20} />, title: "Notifications", tab: "notifications" },
   ];
 
   const handleTabChange = (tab: string) => {
     onTabChange(tab);
+    
+    // Special handling for study-groups tab
+    if (tab === "study-groups") {
+      navigate(`/dashboard/student/study-groups`);
+      return;
+    }
+    
     navigate(`/dashboard/student/${tab}`);
   };
   
