@@ -1,56 +1,80 @@
 
 export enum UserRole {
+  Admin = 'admin',
   Student = 'student',
   Teacher = 'teacher',
-  Admin = 'admin'
+  Parent = 'parent'
 }
 
 export enum Gender {
   Male = 'male',
   Female = 'female',
   Other = 'other',
-  PreferNotToSay = 'prefer-not-to-say'
+  PreferNotToSay = 'prefer_not_to_say'
 }
 
 export enum SignupType {
   Email = 'email',
   Google = 'google',
   Facebook = 'facebook',
-  Mobile = 'mobile'
+  Apple = 'apple'
+}
+
+export enum StudyPace {
+  Slow = 'slow',
+  Moderate = 'moderate',
+  Fast = 'fast'
 }
 
 export enum StudyPreferenceType {
   Solo = 'solo',
   Group = 'group',
-  AIAssisted = 'ai-assisted'
+  Both = 'both'
 }
 
-export enum StudyPace {
-  Light = 'light',
-  Moderate = 'moderate',
-  Intense = 'intense'
+export enum MoodType {
+  Happy = 'happy',
+  Sad = 'sad',
+  Focused = 'focused',
+  Distracted = 'distracted',
+  Overwhelmed = 'overwhelmed',
+  Stressed = 'stressed',
+  Tired = 'tired',
+  Curious = 'curious',
+  Motivated = 'motivated',
+  Neutral = 'neutral',
+  Okay = 'okay'
 }
 
-export interface SubscriptionPlan {
+export enum SubscriptionType {
+  Free = 'free',
+  Basic = 'basic',
+  Pro = 'pro',
+  Enterprise = 'enterprise',
+  ProMonthly = 'pro_monthly',
+  ProYearly = 'pro_yearly',
+  ProPremium = 'pro_premium'
+}
+
+export interface PaymentMethod {
   id: string;
-  name: string;
-  description: string;
-  price: number;
-  originalPrice?: number;
-  type: string;
-  features: string[];
-  isPopular?: boolean;
-  memberLimit?: number;
+  type: 'card' | 'upi' | 'bank' | 'wallet';
+  isDefault: boolean;
+  lastFour?: string;
+  cardType?: string;
+  expiryDate?: string;
+  upiId?: string;
+  bank?: string;
+  walletProvider?: string;
 }
 
-export interface SubscriptionType {
-  planType: string;
-  startDate: string;
-  expiryDate: string;
-  status: 'active' | 'expired' | 'canceled';
-  autoRenew: boolean;
-  type?: string;
-  memberLimit?: number;
+export interface BillingHistory {
+  id: string;
+  date: string;
+  amount: number;
+  status: 'paid' | 'pending' | 'failed';
+  invoiceUrl: string;
+  planName: string;
 }
 
 export interface UserProfileBase {
@@ -58,6 +82,70 @@ export interface UserProfileBase {
   name: string;
   email: string;
   role: UserRole;
+  signupType?: SignupType;
+  examPreparation?: string;
   avatar?: string;
-  subscription?: SubscriptionType | string;
+  bio?: string;
+  phoneNumber?: string;
+  personalityType?: string;
+  location?: string;
+  gender?: Gender;
+  grade?: string;
+  goals?: {
+    id: string;
+    title: string;
+    targetDate: string;
+    progress: number;
+    targetYear?: string;
+  }[];
+  subjects?: string[];
+  studyPreferences?: {
+    pace: StudyPace;
+    hoursPerDay: number;
+    preferredTimeStart: string;
+    preferredTimeEnd: string;
+    preferenceType: StudyPreferenceType;
+  };
+  preferences?: {
+    studyReminders: boolean;
+    emailNotifications: boolean;
+    darkMode: boolean;
+  };
+  recentActivity?: {
+    lastLogin: Date;
+    lastStudySession?: Date;
+    completedTasks?: number;
+  };
+  subscription?: SubscriptionType | {
+    type?: string;
+    startDate?: string;
+    endDate?: string;
+    expiryDate?: string;
+    isActive?: boolean;
+    planType?: string;
+    features?: string[];
+    memberLimit?: number;
+  };
+  studyStreak?: number;
+  mood?: MoodType;
+  paymentMethods?: PaymentMethod[];
+  billingHistory?: BillingHistory[];
+  loginCount?: number;
+}
+
+export interface UserProfileType extends UserProfileBase {
+  // Additional student-specific properties if needed
+}
+
+export interface SubjectProgress {
+  subject: string;
+  progress: number;
+  color: string;
+}
+
+export interface StudyStreak {
+  current: number;
+  longest: number;
+  thisWeek: number[];
+  lastWeek: number[];
 }
