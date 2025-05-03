@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import {
   Dialog,
@@ -9,7 +10,6 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   ChevronRight, 
@@ -29,8 +29,7 @@ import {
   Target,
   TrendingUp,
   Shield,
-  AlertCircle,
-  Info
+  AlertCircle
 } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -74,13 +73,11 @@ const WelcomeTour: React.FC<WelcomeTourProps> = ({
     navigation: false
   });
   const [allTabsVisited, setAllTabsVisited] = useState(false);
-  const [showVisitAlert, setShowVisitAlert] = useState(false);
   
   // Check if all tabs have been visited
   useEffect(() => {
     const allVisited = Object.values(visitedTabs).every(visited => visited);
     setAllTabsVisited(allVisited);
-    setShowVisitAlert(false); // Hide alert whenever tab visited state changes
   }, [visitedTabs]);
   
   // Handle tab change
@@ -115,16 +112,6 @@ const WelcomeTour: React.FC<WelcomeTourProps> = ({
       }
     }
   }, []);
-  
-  // Custom handler for the close button to ensure all tabs are visited
-  const handleClose = () => {
-    if (!allTabsVisited) {
-      setShowVisitAlert(true);
-      return;
-    }
-    
-    onCompleteTour();
-  };
 
   // Get remaining tabs to visit
   const getRemainingTabs = () => {
@@ -133,37 +120,8 @@ const WelcomeTour: React.FC<WelcomeTourProps> = ({
       .map(([tabName, _]) => tabName);
   };
   
-  // Get remaining tab names as string
-  const getRemainingTabNames = () => {
-    const tabNames: Record<string, string> = {
-      founder: "Welcome",
-      resources: "Your Resources",
-      features: "Features",
-      navigation: "Getting Started"
-    };
-    
-    return getRemainingTabs().map(tab => tabNames[tab]).join(", ");
-  };
-  
-  // Handle dialog close overriding
-  const handleOpenChange = (open: boolean) => {
-    // If trying to close and not all tabs visited
-    if (!open && !allTabsVisited) {
-      setShowVisitAlert(true);
-      return;
-    }
-    
-    // Otherwise allow the change
-    onOpenChange(open);
-    
-    // If closing after viewing all tabs, trigger complete
-    if (!open && allTabsVisited) {
-      onCompleteTour();
-    }
-  };
-  
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-3xl max-h-[90vh] overflow-hidden">
         <DialogHeader>
           <DialogTitle className="text-2xl">Welcome to PREPZR</DialogTitle>
@@ -173,17 +131,6 @@ const WelcomeTour: React.FC<WelcomeTourProps> = ({
               : "Welcome back! Here's a quick refresher on using your dashboard."}
           </DialogDescription>
         </DialogHeader>
-
-        {showVisitAlert && (
-          <Alert className="bg-amber-50 text-amber-800 border-amber-300 mb-4">
-            <div className="flex items-center gap-2">
-              <Info className="h-5 w-5 text-amber-600" />
-              <AlertDescription className="text-sm">
-                Please visit all tabs ({getRemainingTabNames()} remaining) before continuing.
-              </AlertDescription>
-            </div>
-          </Alert>
-        )}
 
         <Tabs defaultValue="founder" className="mt-2" value={activeTab} onValueChange={handleTabChange}>
           <TabsList className="grid grid-cols-4">
@@ -513,18 +460,18 @@ const WelcomeTour: React.FC<WelcomeTourProps> = ({
                     <h5 className="font-medium text-sm">2. Review Your Study Plan</h5>
                     <p className="text-sm text-muted-foreground">
                       Check your study plan in the Academic Advisor section. You can view your
-                      progress, make adjustments, or create a new plan as needed.
+                      progress, make adjustments, or create a new plan if needed.
                     </p>
                     <Button 
                       variant="outline" 
                       size="sm" 
-                      className="mt-1 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+                      className="mt-1 hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors"
                       onClick={() => {
                         onCompleteTour();
                         window.location.href = '/dashboard/student/academic';
                       }}
                     >
-                      Academic Advisor
+                      Go to Academic Advisor
                       <ChevronRight className="h-4 w-4 ml-1" />
                     </Button>
                   </motion.div>
@@ -535,47 +482,94 @@ const WelcomeTour: React.FC<WelcomeTourProps> = ({
                     transition={{ delay: 0.3, duration: 0.4 }}
                     className="space-y-1.5"
                   >
-                    <h5 className="font-medium text-sm">3. Explore Learning Resources</h5>
+                    <h5 className="font-medium text-sm">3. Practice with Learning Resources</h5>
                     <p className="text-sm text-muted-foreground">
-                      Access your flashcards, concept cards, and practice tests to enhance your
-                      understanding and retention of key concepts.
+                      Use our flashcards, concept cards, and practice exams to test your knowledge
+                      and improve your understanding of key concepts.
                     </p>
+                    <div className="flex flex-wrap gap-2 mt-1">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        className="hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors"
+                        onClick={() => {
+                          onCompleteTour();
+                          window.location.href = '/dashboard/student/flashcards';
+                        }}
+                      >
+                        Flashcards
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        className="hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors"
+                        onClick={() => {
+                          onCompleteTour();
+                          window.location.href = '/dashboard/student/practice-exam';
+                        }}
+                      >
+                        Practice Exams
+                      </Button>
+                    </div>
                   </motion.div>
                 </div>
               </div>
+              
+              <motion.div 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4, duration: 0.5 }}
+                className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800"
+              >
+                <h4 className="font-medium flex items-center gap-2 mb-2">
+                  <CheckCircle className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                  Pro Tips
+                </h4>
+                <ul className="space-y-2 text-sm text-blue-700 dark:text-blue-300">
+                  <li className="flex items-start gap-2">
+                    <div className="min-w-5 pt-0.5">•</div>
+                    <p>Complete at least one flashcard session daily to strengthen your memory</p>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <div className="min-w-5 pt-0.5">•</div>
+                    <p>Use the AI Tutor whenever you get stuck on a difficult concept</p>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <div className="min-w-5 pt-0.5">•</div>
+                    <p>Track your mood daily for personalized wellness tips</p>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <div className="min-w-5 pt-0.5">•</div>
+                    <p>Take practice tests regularly to identify knowledge gaps</p>
+                  </li>
+                </ul>
+              </motion.div>
             </div>
           </TabsContent>
         </Tabs>
 
-        <DialogFooter className="flex justify-between items-center mt-4">
-          <Button variant="outline" onClick={() => {
-            if (!allTabsVisited) {
-              setShowVisitAlert(true);
-              return;
-            }
-            onSkipTour();
-          }}>
+        {!allTabsVisited && (
+          <div className="bg-amber-50 dark:bg-amber-900/20 p-3 mb-4 rounded-lg border border-amber-200 dark:border-amber-800 flex items-center gap-2">
+            <AlertCircle className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+            <div className="text-sm text-amber-800 dark:text-amber-300">
+              <span className="font-medium">Please visit all tabs</span> - You need to explore all tabs before completing the tour. 
+              {getRemainingTabs().length > 0 && (
+                <span> Remaining: {getRemainingTabs().map(tab => tab.charAt(0).toUpperCase() + tab.slice(1)).join(', ')}</span>
+              )}
+            </div>
+          </div>
+        )}
+
+        <DialogFooter className="flex flex-col sm:flex-row gap-2 sm:justify-between pt-4">
+          <Button variant="outline" onClick={onSkipTour}>
             Skip Tour
           </Button>
-
-          <div className="flex items-center gap-1.5">
-            {Object.entries(visitedTabs).map(([key, visited]) => (
-              <div 
-                key={key}
-                className={`w-2 h-2 rounded-full ${
-                  visited ? 'bg-green-500' : 'bg-gray-300 dark:bg-gray-700'
-                }`}
-                title={`${key} tab ${visited ? 'visited' : 'not visited yet'}`}
-              />
-            ))}
-          </div>
-
           <Button 
-            onClick={handleClose}
+            onClick={onCompleteTour} 
+            className="flex items-center gap-2"
             disabled={!allTabsVisited}
-            className={!allTabsVisited ? 'opacity-70' : ''}
           >
-            {allTabsVisited ? 'Complete Tour' : 'Visit All Tabs'}
+            Let's Begin <ChevronRight className="h-4 w-4" />
           </Button>
         </DialogFooter>
       </DialogContent>

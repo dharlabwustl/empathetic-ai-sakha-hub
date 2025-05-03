@@ -15,7 +15,6 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<boolean>;
   logout: () => void;
   isAuthenticated: boolean;
-  checkAuth: () => Promise<boolean>;
 }
 
 // Create the context
@@ -33,72 +32,37 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   // Check for existing user in localStorage on component mount
   useEffect(() => {
+    const checkAuth = () => {
+      setLoading(true);
+      
+      // Check if user data exists in localStorage
+      const userData = localStorage.getItem('userData');
+      if (userData) {
+        try {
+          const parsedData = JSON.parse(userData);
+          if (parsedData.email) {
+            // User is already logged in
+            setUser({
+              id: parsedData.id || '1',
+              name: parsedData.name || 'User',
+              email: parsedData.email,
+              role: parsedData.role || UserRole.Student
+            });
+          }
+        } catch (error) {
+          console.error('Error parsing user data:', error);
+        }
+      }
+      
+      setLoading(false);
+    };
+    
     checkAuth();
   }, []);
-
-  // Check authentication status
-  const checkAuth = async (): Promise<boolean> => {
-    setLoading(true);
-    
-    // Check if user data exists in localStorage
-    const userData = localStorage.getItem('userData');
-    if (userData) {
-      try {
-        const parsedData = JSON.parse(userData);
-        if (parsedData.email) {
-          console.log("AuthContext - User found in localStorage:", parsedData.email);
-          // User is already logged in
-          setUser({
-            id: parsedData.id || '1',
-            name: parsedData.name || 'User',
-            email: parsedData.email,
-            role: parsedData.role || UserRole.Student
-          });
-          setLoading(false);
-          return true;
-        }
-      } catch (error) {
-        console.error('Error parsing user data:', error);
-      }
-    }
-    
-    // Check if token exists
-    const token = localStorage.getItem('auth_token');
-    if (token) {
-      try {
-        console.log("AuthContext - Auth token found, validating");
-        // In a real app, you would validate the token with your backend
-        // For now, just assume the token is valid if it exists
-        // Fetch user data based on token if needed
-        
-        // For demo purposes, use mock user data if userData wasn't found
-        if (!userData) {
-          const mockUser: User = {
-            id: '1',
-            name: 'Authenticated User',
-            email: 'user@example.com',
-            role: UserRole.Student
-          };
-          console.log("AuthContext - Created mock user from token");
-          setUser(mockUser);
-          setLoading(false);
-          return true;
-        }
-      } catch (error) {
-        console.error('Error validating token:', error);
-      }
-    } else {
-      console.log("AuthContext - No auth token found");
-    }
-    
-    setLoading(false);
-    return false;
-  };
 
   // Login function
   const login = async (email: string, password: string): Promise<boolean> => {
     setLoading(true);
-    console.log("AuthContext - Logging in user:", email);
     
     return new Promise<boolean>((resolve) => {
       setTimeout(() => {
@@ -121,18 +85,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             mood: 'Motivated'
           }));
           
-          // Save auth token
-          localStorage.setItem('auth_token', `token_${Date.now()}`);
-          
-          // Mark as a new login for the welcome flow
-          localStorage.setItem('new_user_signup', 'true');
-          
-          console.log("AuthContext - Login successful");
           setUser(newUser);
           setLoading(false);
           resolve(true);
         } else {
-          console.log("AuthContext - Login failed: invalid credentials");
           setLoading(false);
           resolve(false);
         }
@@ -142,7 +98,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   // Logout function
   const logout = () => {
-    console.log("AuthContext - Logging out user");
     // Preserve some user preferences but remove auth data
     const userData = localStorage.getItem('userData');
     if (userData) {
@@ -158,16 +113,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         console.error('Error during logout:', error);
       }
     }
-    
-    // Remove auth token
-    localStorage.removeItem('auth_token');
-    // Clear new user signup flag
-    localStorage.removeItem('new_user_signup');
-    localStorage.removeItem('sawWelcomeSlider');
-    localStorage.removeItem('sawWelcomeTour');
-    
     setUser(null);
-    console.log("AuthContext - User logged out successfully");
   };
   
   return (
@@ -177,8 +123,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         loading,
         login,
         logout,
-        isAuthenticated: !!user,
-        checkAuth
+        isAuthenticated: !!user
       }}
     >
       {children}

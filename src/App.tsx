@@ -39,7 +39,6 @@ import { NotificationsView } from './components/dashboard/student/notifications/
 import EnhancedProfilePage from './pages/dashboard/student/EnhancedProfilePage';
 import PracticeExamsSection from './components/dashboard/student/practice-exam/PracticeExamsSection';
 import PostLoginWelcome from './components/login/PostLoginWelcome';
-import PostLoginWelcomeBack from './pages/dashboard/PostLoginWelcomeBack';
 import Terms from './pages/Terms';
 import Privacy from './pages/Privacy';
 import FlaskDeveloperGuide from './pages/admin/FlaskDeveloperGuide';
@@ -49,7 +48,6 @@ import DatabaseSchemaCSVPage from './pages/database/DatabaseSchemaCSVPage';
 import SubscriptionPage from './pages/dashboard/student/SubscriptionPage';
 import PostSignupWelcome from './components/signup/PostSignupWelcome';
 import WelcomeFlow from './pages/welcome-flow';
-import AuthGuard from './components/auth/AuthGuard';
 
 // Lazy load the admin dashboard
 const AdminDashboard = lazy(() => import('@/pages/admin/AdminDashboard'));
@@ -73,72 +71,24 @@ function App() {
               <Route path="/database/schema" element={<DatabaseSchemaCSVPage />} />
 
               {/* Post-signup flow - Welcome flow */}
-              <Route path="/welcome" element={
-                <AuthGuard requireAuth={true}>
-                  <WelcomeToPrepr />
-                </AuthGuard>
-              } />
-              <Route path="/post-signup" element={
-                <AuthGuard requireAuth={true}>
-                  <PostSignupWelcome />
-                </AuthGuard>
-              } />
-              <Route path="/welcome-flow" element={
-                <AuthGuard requireAuth={true}>
-                  <WelcomeFlow />
-                </AuthGuard>
-              } />
+              <Route path="/welcome" element={<WelcomeToPrepr />} />
+              <Route path="/post-signup" element={<PostSignupWelcome />} />
+              <Route path="/welcome-flow" element={<WelcomeFlow />} />
               
               {/* Post-login welcome back screen */}
-              <Route path="/welcome-back" element={
-                <AuthGuard requireAuth={true}>
-                  <PostLoginWelcomeBack />
-                </AuthGuard>
-              } />
+              <Route path="/welcome-back" element={<PostLoginWelcome />} />
 
-              {/* Student routes - all protected */}
-              <Route path="/dashboard/student" element={
-                <AuthGuard requireAuth={true}>
-                  <StudentDashboard />
-                </AuthGuard>
-              } />
-              <Route path="/dashboard/student/:tab" element={
-                <AuthGuard requireAuth={true}>
-                  <StudentDashboard />
-                </AuthGuard>
-              } />
-              <Route path="/dashboard/student/today" element={
-                <AuthGuard requireAuth={true}>
-                  <TodaysPlanView />
-                </AuthGuard>
-              } />
-              <Route path="/dashboard/student/feel-good-corner" element={
-                <AuthGuard requireAuth={true}>
-                  <FeelGoodCornerView />
-                </AuthGuard>
-              } />
-              <Route path="/dashboard/student/study-groups" element={
-                <AuthGuard requireAuth={true}>
-                  <StudyGroupsPage />
-                </AuthGuard>
-              } />
-              <Route path="/dashboard/student/subscription" element={
-                <AuthGuard requireAuth={true}>
-                  <SubscriptionPage />
-                </AuthGuard>
-              } />
-              <Route path="/dashboard/student/batch-management" element={
-                <AuthGuard requireAuth={true}>
-                  <BatchManagementPage />
-                </AuthGuard>
-              } />
+              {/* Student routes */}
+              <Route path="/dashboard/student" element={<StudentDashboard />} />
+              <Route path="/dashboard/student/:tab" element={<StudentDashboard />} />
+              <Route path="/dashboard/student/today" element={<TodaysPlanView />} />
+              <Route path="/dashboard/student/feel-good-corner" element={<FeelGoodCornerView />} />
+              <Route path="/dashboard/student/study-groups" element={<StudyGroupsPage />} />
+              <Route path="/dashboard/student/subscription" element={<SubscriptionPage />} />
+              <Route path="/dashboard/student/batch-management" element={<BatchManagementPage />} />
               
               {/* Profile routes */}
-              <Route path="/dashboard/student/profile" element={
-                <AuthGuard requireAuth={true}>
-                  <EnhancedProfilePage />
-                </AuthGuard>
-              } />
+              <Route path="/dashboard/student/profile" element={<EnhancedProfilePage />} />
               <Route path="/student/profile" element={<ProfilePage />} />
               <Route path="/profile" element={<ProfilePage />} />
               
@@ -146,119 +96,51 @@ function App() {
               <Route path="/dashboard/student/tutor" element={<TutorView />} />
               
               {/* Concept routes */}
-              <Route path="/dashboard/student/concepts/card/:conceptId" element={
-                <AuthGuard requireAuth={true}>
-                  <ConceptCardDetailPage />
-                </AuthGuard>
-              } />
-              <Route path="/dashboard/student/concepts/study/:conceptId" element={
-                <AuthGuard requireAuth={true}>
-                  <ConceptStudyPage />
-                </AuthGuard>
-              } />
-              <Route path="/dashboard/student/concepts/:conceptId/study" element={
-                <AuthGuard requireAuth={true}>
-                  <ConceptStudyPage />
-                </AuthGuard>
-              } />
-              <Route path="/dashboard/student/concepts/study-landing/:conceptId" element={
-                <AuthGuard requireAuth={true}>
-                  <ConceptStudyLandingPage />
-                </AuthGuard>
-              } />
-              <Route path="/dashboard/student/concepts/landing" element={
-                <AuthGuard requireAuth={true}>
-                  <ConceptsLandingPage />
-                </AuthGuard>
-              } />
-              <Route path="/dashboard/student/concepts" element={
-                <AuthGuard requireAuth={true}>
-                  <ConceptsLandingPage />
-                </AuthGuard>
-              } />
+              <Route path="/dashboard/student/concepts/card/:conceptId" element={<ConceptCardDetailPage />} />
+              <Route path="/dashboard/student/concepts/study/:conceptId" element={<ConceptStudyPage />} />
+              <Route path="/dashboard/student/concepts/:conceptId/study" element={<ConceptStudyPage />} />
+              <Route path="/dashboard/student/concepts/study-landing/:conceptId" element={<ConceptStudyLandingPage />} />
+              <Route path="/dashboard/student/concepts/landing" element={<ConceptsLandingPage />} />
+              <Route path="/dashboard/student/concepts" element={<ConceptsLandingPage />} />
               
               {/* Direct Flashcard routes */}
-              <Route path="/dashboard/student/flashcards/:flashcardId/interactive" element={
-                <AuthGuard requireAuth={true}>
-                  <FlashcardInteractive />
-                </AuthGuard>
-              } />
-              <Route path="/dashboard/student/flashcards/:flashcardId" element={
-                <AuthGuard requireAuth={true}>
-                  <FlashcardDetailsPage />
-                </AuthGuard>
-              } />
-              <Route path="/dashboard/student/flashcards/:flashcardId/browse" element={
-                <AuthGuard requireAuth={true}>
-                  <InteractiveFlashcardBrowser />
-                </AuthGuard>
-              } />
-              <Route path="/dashboard/student/flashcards/:flashcardId/practice" element={
-                <AuthGuard requireAuth={true}>
-                  <EnhancedFlashcardPractice />
-                </AuthGuard>
-              } />
-              <Route path="/dashboard/student/flashcards" element={
-                <AuthGuard requireAuth={true}>
-                  <FlashcardsLandingPage />
-                </AuthGuard>
-              } />
+              <Route path="/dashboard/student/flashcards/:flashcardId/interactive" element={<FlashcardInteractive />} />
+              <Route path="/dashboard/student/flashcards/:flashcardId" element={<FlashcardDetailsPage />} />
+              <Route path="/dashboard/student/flashcards/:flashcardId/browse" element={<InteractiveFlashcardBrowser />} />
+              <Route path="/dashboard/student/flashcards/:flashcardId/practice" element={<EnhancedFlashcardPractice />} />
+              <Route path="/dashboard/student/flashcards" element={<FlashcardsLandingPage />} />
               
               {/* Practice exam routes */}
-              <Route path="/dashboard/student/practice-exam" element={
-                <AuthGuard requireAuth={true}>
-                  <PracticeExamsSection />
-                </AuthGuard>
-              } />
-              <Route path="/dashboard/student/practice-exam/:examId/start" element={
-                <AuthGuard requireAuth={true}>
-                  <ExamTakingPage />
-                </AuthGuard>
-              } />
-              <Route path="/dashboard/student/practice-exam/:examId/review" element={
-                <AuthGuard requireAuth={true}>
-                  <ExamReviewPage />
-                </AuthGuard>
-              } />
+              <Route path="/dashboard/student/practice-exam" element={<PracticeExamsSection />} />
+              <Route path="/dashboard/student/practice-exam/:examId/start" element={<ExamTakingPage />} />
+              <Route path="/dashboard/student/practice-exam/:examId/review" element={<ExamReviewPage />} />
               
               {/* Other routes */}
-              <Route path="/dashboard/student/notifications" element={
-                <AuthGuard requireAuth={true}>
-                  <NotificationsView />
-                </AuthGuard>
-              } />
-              <Route path="/dashboard/student/academic" element={
-                <AuthGuard requireAuth={true}>
-                  <AcademicAdvisorView />
-                </AuthGuard>
-              } />
-              <Route path="/dashboard/student/study-plan" element={
-                <AuthGuard requireAuth={true}>
-                  <StudyPlanView />
-                </AuthGuard>
-              } />
+              <Route path="/dashboard/student/notifications" element={<NotificationsView />} />
+              <Route path="/dashboard/student/academic" element={<AcademicAdvisorView />} />
+              <Route path="/dashboard/student/study-plan" element={<StudyPlanView />} />
               
               {/* Admin routes */}
               <Route path="/admin" element={
-                <AuthGuard requireAuth={true} adminOnly={true}>
+                <AdminRouteGuard>
                   <Suspense fallback={<LoadingScreen />}>
                     <AdminDashboard />
                   </Suspense>
-                </AuthGuard>
+                </AdminRouteGuard>
               } />
               <Route path="/admin/*" element={
-                <AuthGuard requireAuth={true} adminOnly={true}>
+                <AdminRouteGuard>
                   <Suspense fallback={<LoadingScreen />}>
                     <AdminDashboard />
                   </Suspense>
-                </AuthGuard>
+                </AdminRouteGuard>
               } />
               <Route path="/admin/dashboard" element={
-                <AuthGuard requireAuth={true} adminOnly={true}>
+                <AdminRouteGuard>
                   <Suspense fallback={<LoadingScreen />}>
                     <AdminDashboard />
                   </Suspense>
-                </AuthGuard>
+                </AdminRouteGuard>
               } />
               
               {/* 404 */}
