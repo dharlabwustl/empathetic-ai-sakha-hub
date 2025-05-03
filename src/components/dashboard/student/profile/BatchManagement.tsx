@@ -10,6 +10,7 @@ import { Plus, UserPlus, Users, CreditCard } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import BatchInvitationInput from '@/components/subscription/BatchInvitationInput';
+import InvitationCodeDisplay from '@/components/subscription/batch/InvitationCodeDisplay';
 
 // Mock batch data
 const initialBatches = [
@@ -35,6 +36,7 @@ interface BatchType {
   members: number;
   joinedOn: string;
   isAdmin: boolean;
+  inviteCode?: string;
 }
 
 interface BatchManagementProps {
@@ -53,16 +55,18 @@ const BatchManagement: React.FC<BatchManagementProps> = ({ hasSubscription = fal
   const [showSubscribeDialog, setShowSubscribeDialog] = useState(false);
   const [currentBatches, setCurrentBatches] = useState<BatchType[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [selectedBatch, setSelectedBatch] = useState<BatchType | null>(null);
+  const [showInviteCodeDialog, setShowInviteCodeDialog] = useState(false);
   
   // Check if user has a subscription that supports batch creation
   const checkHasGroupPlan = () => {
-    if (!user || !user.subscription) return false;
+    if (!user || !user.subscription) return hasSubscription;
     
     const planType = typeof user.subscription === 'string' 
       ? user.subscription 
       : user.subscription.planType;
       
-    return planType?.toString().includes('group') || planType === 'premium';
+    return planType?.toString().includes('group') || planType === 'premium' || hasSubscription;
   };
   
   const userHasGroupPlan = checkHasGroupPlan();
@@ -204,32 +208,27 @@ const BatchManagement: React.FC<BatchManagementProps> = ({ hasSubscription = fal
       const batchId = `batch-${Date.now()}`;
       const inviteCode = `SAKHA-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
       
-      const newBatch = {
+      const newBatch: BatchType = {
         id: batchId,
         name: newBatchName,
         members: 1,
         joinedOn: new Date().toISOString().split('T')[0],
-        isAdmin: true
+        isAdmin: true,
+        inviteCode: inviteCode
       };
 
-      // Save the invite code for this batch
-      localStorage.setItem(`batch_invite_${batchId}`, inviteCode);
-
       setCurrentBatches(prev => [...prev, newBatch]);
+      setSelectedBatch(newBatch);
       
       toast({
         title: "Batch Created!",
-        description: (
-          <div>
-            <p>"{newBatchName}" has been created successfully</p>
-            <p className="mt-2 font-semibold">Invite Code: {inviteCode}</p>
-          </div>
-        ),
+        description: `"${newBatchName}" has been created successfully`,
       });
       
       setNewBatchName('');
       setShowCreateDialog(false);
       setIsProcessing(false);
+      setShowInviteCodeDialog(true);
     }, 1500);
   };
 
@@ -254,6 +253,28 @@ const BatchManagement: React.FC<BatchManagementProps> = ({ hasSubscription = fal
   const handleUpgradeSubscription = () => {
     setShowSubscribeDialog(false);
     navigate('/dashboard/student/subscription');
+  };
+
+  const handleShowInviteCode = (batch: BatchType) => {
+    setSelectedBatch(batch);
+    
+    // If invite code doesn't exist, generate one
+    if (!batch.inviteCode) {
+      const updatedBatches = currentBatches.map(b => {
+        if (b.id === batch.id) {
+          return {
+            ...b,
+            inviteCode: `SAKHA-${Math.random().toString(36).substring(2, 8).toUpperCase()}`
+          };
+        }
+        return b;
+      });
+      
+      setCurrentBatches(updatedBatches);
+      setSelectedBatch(updatedBatches.find(b => b.id === batch.id) || null);
+    }
+    
+    setShowInviteCodeDialog(true);
   };
 
   return (
@@ -396,6 +417,36 @@ const BatchManagement: React.FC<BatchManagementProps> = ({ hasSubscription = fal
               </DialogFooter>
             </DialogContent>
           </Dialog>
+          
+          <Dialog open={showInviteCodeDialog} onOpenChange={setShowInviteCodeDialog}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Batch Invitation</DialogTitle>
+                <DialogDescription>
+                  Share this invitation code with others to join your batch
+                </DialogDescription>
+              </DialogHeader>
+              <div className="py-4">
+                {selectedBatch && selectedBatch.inviteCode && (
+                  <div className="space-y-4">
+                    <div>
+                      <Label className="text-sm text-muted-foreground">Batch Name</Label>
+                      <p className="font-medium">{selectedBatch.name}</p>
+                    </div>
+                    
+                    <InvitationCodeDisplay inviteCode={selectedBatch.inviteCode} />
+                    
+                    <div className="text-sm text-muted-foreground">
+                      <p>Share this code with others so they can join your batch by clicking "Join Batch" and entering this code.</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+              <DialogFooter>
+                <Button onClick={() => setShowInviteCodeDialog(false)}>Close</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </div>
 
         <div className="mb-6">
@@ -424,21 +475,10 @@ const BatchManagement: React.FC<BatchManagementProps> = ({ hasSubscription = fal
                         )}
                       </div>
                     </div>
-                    <div className="mt-2 sm:mt-0">
+                    <div className="mt-2 sm:mt-0 flex gap-2">
                       {batch.isAdmin ? (
-                        <Button size="sm" variant="outline" onClick={() => {
-                          const inviteCode = localStorage.getItem(`batch_invite_${batch.id}`) || 
-                            `SAKHA-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
-                          
-                          // Store it if not already stored
-                          localStorage.setItem(`batch_invite_${batch.id}`, inviteCode);
-                          
-                          toast({
-                            title: "Batch Invite Code",
-                            description: `Share this code with friends: ${inviteCode}`
-                          });
-                        }}>
-                          Manage
+                        <Button size="sm" variant="outline" onClick={() => handleShowInviteCode(batch)}>
+                          Invite Members
                         </Button>
                       ) : (
                         <Button 

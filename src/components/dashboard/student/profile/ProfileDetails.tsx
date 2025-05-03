@@ -16,6 +16,7 @@ import { UserProfileType } from "@/types/user";
 import { CreditCard, User } from "lucide-react";
 import BatchManagement from "./BatchManagement";
 import SubscriptionDetails from "./SubscriptionDetails";
+import ProfileImageUpload from "./ProfileImageUpload";
 
 interface ProfileDetailsProps {
   userProfile: UserProfileType;
@@ -29,9 +30,20 @@ const ProfileDetails: React.FC<ProfileDetailsProps> = ({
   const [activeTab, setActiveTab] = useState("personal");
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [profileImage, setProfileImage] = useState<string | undefined>(userProfile.avatar);
 
   const handleUpgradeSubscription = () => {
     navigate("/dashboard/student/subscription");
+  };
+  
+  const handleImageUpload = (imageUrl: string) => {
+    setProfileImage(imageUrl);
+    if (onUpdateProfile) {
+      onUpdateProfile({
+        ...userProfile,
+        avatar: imageUrl
+      });
+    }
   };
 
   const renderPersonalInfo = () => {
@@ -46,40 +58,40 @@ const ProfileDetails: React.FC<ProfileDetailsProps> = ({
 
     return (
       <div className="space-y-6">
-        <div className="flex items-center gap-4">
-          <Avatar className="h-16 w-16">
-            <AvatarImage src={userProfile.avatar || ""} />
-            <AvatarFallback>{userProfile.name?.substring(0, 2).toUpperCase() || "U"}</AvatarFallback>
-          </Avatar>
-          <div>
-            <h2 className="text-xl font-semibold">{userProfile.name}</h2>
-            <p className="text-muted-foreground">{userProfile.email}</p>
+        <div className="flex flex-col items-center gap-6 md:flex-row">
+          <div className="mx-auto md:mx-0">
+            <ProfileImageUpload 
+              currentImageUrl={profileImage || userProfile.avatar}
+              userName={userProfile.name || "User"}
+              onImageUpload={handleImageUpload}
+            />
+          </div>
+          <div className="flex-1">
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle>Personal Information</CardTitle>
+                <CardDescription>
+                  Your personal details and preferences
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid gap-4">
+                  {personalInfo.map((item, index) => (
+                    <div key={index} className="grid grid-cols-3 items-center">
+                      <span className="text-sm font-medium">{item.label}</span>
+                      <span className="col-span-2 text-sm">{item.value}</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-6">
+                  <Button variant="outline" size="sm" className="mt-4">
+                    Edit Profile
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
-
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle>Personal Information</CardTitle>
-            <CardDescription>
-              Your personal details and preferences
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-4">
-              {personalInfo.map((item, index) => (
-                <div key={index} className="grid grid-cols-3 items-center">
-                  <span className="text-sm font-medium">{item.label}</span>
-                  <span className="col-span-2 text-sm">{item.value}</span>
-                </div>
-              ))}
-            </div>
-            <div className="mt-6">
-              <Button variant="outline" size="sm" className="mt-4">
-                Edit Profile
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
 
         <BatchManagement 
           hasSubscription={userProfile.subscription?.type === "group" || userProfile.subscription?.planType === "group"} 

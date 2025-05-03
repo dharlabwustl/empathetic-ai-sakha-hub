@@ -6,12 +6,15 @@ export interface StudyPlanSubject {
   hoursPerWeek: number;
   priority: 'high' | 'medium' | 'low';
   proficiency?: 'strong' | 'weak' | 'medium';
+  difficulty?: 'easy' | 'medium' | 'hard';
+  completed: boolean;
   topics?: Array<{
     id: string;
     name: string;
     difficulty: 'easy' | 'medium' | 'hard';
     completed: boolean;
     status?: 'pending' | 'in-progress' | 'completed' | 'skipped';
+    priority?: 'high' | 'medium' | 'low';
   }>;
 }
 
@@ -32,6 +35,8 @@ export interface StudyPlan {
   studyHoursPerDay?: number;
   preferredStudyTime?: 'morning' | 'afternoon' | 'evening' | 'night';
   learningPace?: 'slow' | 'moderate' | 'fast';
+  progressPercentage?: number;
+  daysLeft?: number;
 }
 
 export type NewStudyPlan = Omit<StudyPlan, 'id' | 'userId' | 'createdAt' | 'updatedAt'>;

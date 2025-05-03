@@ -1,10 +1,15 @@
 
 import React from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 
 const Login = () => {
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const returnTo = searchParams.get('returnTo') || '/dashboard/student';
+
   // In a real application, you would handle login logic here
-  return <Navigate to="/welcome-back?returnTo=lastPage" replace />;
+  // For now, just redirect to the welcome-back page with the returnTo parameter
+  return <Navigate to={`/welcome-back?returnTo=${returnTo}`} replace />;
 };
 
 export default Login;

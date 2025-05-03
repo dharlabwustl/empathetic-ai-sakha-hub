@@ -1,180 +1,150 @@
-import { useState, useEffect } from "react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { useToast } from "@/hooks/use-toast";
-import { useUserProfile } from "@/hooks/useUserProfile";
-import { handleNewUser } from "@/pages/dashboard/student/utils/UserSessionManager";
-import { useKpiTracking } from "@/hooks/useKpiTracking";
-import { UserRole } from "@/types/user/base";
+
+import { useState, useEffect } from 'react';
+import { useToast } from './use-toast';
+import { useNavigate } from 'react-router-dom';
+import { useUserProfile } from './useUserProfile';
+import { UserProfileType, UserRole } from '@/types/user/base';
+import { v4 as uuidv4 } from 'uuid';
+
+interface KpiData {
+  id: string;
+  label: string;
+  value: string | number;
+  change?: string;
+  trend?: 'up' | 'down' | 'neutral';
+  since?: string;
+}
+
+interface Nudge {
+  id: string;
+  title: string;
+  message: string;
+  type: 'info' | 'warning' | 'success' | 'error';
+  actionLabel?: string;
+  actionUrl?: string;
+  isRead: boolean;
+  timestamp: Date;
+}
 
 export const useStudentDashboard = () => {
-  const [loading, setLoading] = useState(true);
-  const [showOnboarding, setShowOnboarding] = useState(false);
+  // Get user profile data
+  const { userProfile, loading } = useUserProfile(UserRole.Student);
+  
+  // Local state
+  const [activeTab, setActiveTab] = useState('overview');
   const [showWelcomeTour, setShowWelcomeTour] = useState(false);
-  const [showStudyPlan, setShowStudyPlan] = useState(false);
   const [hideSidebar, setHideSidebar] = useState(false);
   const [hideTabsNav, setHideTabsNav] = useState(false);
-  const [lastActivity, setLastActivity] = useState<{ type: string, description: string } | null>(null);
-  const [suggestedNextAction, setSuggestedNextAction] = useState<string | null>(null);
-  const { userProfile, loading: profileLoading, updateUserProfile } = useUserProfile(UserRole.Student);
-  const { kpis, nudges, markNudgeAsRead } = useKpiTracking(UserRole.Student);
-  const navigate = useNavigate();
-  const location = useLocation();
+  const [showStudyPlan, setShowStudyPlan] = useState(false);
+  
+  // KPIs
+  const [kpis, setKpis] = useState<KpiData[]>([
+    {
+      id: uuidv4(),
+      label: 'Study Hours',
+      value: '12',
+      change: '+2.5',
+      trend: 'up',
+      since: 'last week'
+    },
+    {
+      id: uuidv4(),
+      label: 'Practice Tests',
+      value: '8',
+      change: '+3',
+      trend: 'up',
+      since: 'last week'
+    },
+    {
+      id: uuidv4(),
+      label: 'Concept Mastery',
+      value: '68%',
+      change: '+5%',
+      trend: 'up',
+      since: 'last month'
+    },
+    {
+      id: uuidv4(),
+      label: 'Study Streak',
+      value: '5',
+      change: '-1',
+      trend: 'down',
+      since: 'days'
+    }
+  ]);
+  
+  // Nudges
+  const [nudges, setNudges] = useState<Nudge[]>([
+    {
+      id: uuidv4(),
+      title: 'Complete your profile',
+      message: 'Add your exam date and preferred study times to get a personalized study plan.',
+      type: 'info',
+      actionLabel: 'Complete Profile',
+      actionUrl: '/dashboard/student/profile',
+      isRead: false,
+      timestamp: new Date()
+    },
+    {
+      id: uuidv4(),
+      title: 'Take concept test',
+      message: 'Test your understanding of key concepts to improve your study plan.',
+      type: 'info',
+      actionLabel: 'Take Test',
+      actionUrl: '/dashboard/student/tests',
+      isRead: false,
+      timestamp: new Date()
+    }
+  ]);
+  
   const { toast } = useToast();
-  const { tab } = useParams<{ tab?: string }>();
-  
-  const [activeTab, setActiveTab] = useState(tab || "overview");
-  
-  const now = new Date();
-  const hour = now.getHours();
-  let currentTime = "";
-  
-  if (hour < 12) currentTime = "Good Morning";
-  else if (hour < 17) currentTime = "Good Afternoon";
-  else currentTime = "Good Evening";
-  
-  const features = {
-    overview: true,
-    subjects: true,
-    quizzes: true,
-    resources: true,
-    community: true,
-    progress: true,
-    settings: true,
-  };
-  
+  const navigate = useNavigate();
+
+  // Check if this is the first time the user is visiting the dashboard
   useEffect(() => {
-    if (tab) {
-      setActiveTab(tab);
-    }
-  }, [tab]);
-  
-  useEffect(() => {
-    console.log("useStudentDashboard - Initializing dashboard");
-    
-    const initDashboard = async () => {
-      try {
-        setLoading(true);
-        
-        const { shouldShowOnboarding, shouldShowWelcomeTour } = handleNewUser(location, navigate);
-        
-        console.log("useStudentDashboard - Session result:", { 
-          shouldShowOnboarding, 
-          shouldShowWelcomeTour 
-        });
-        
-        setShowOnboarding(shouldShowOnboarding);
-        setShowWelcomeTour(shouldShowWelcomeTour);
-        
-        if (!shouldShowOnboarding && !shouldShowWelcomeTour) {
-          const userData = localStorage.getItem("userData");
-          if (userData) {
-            const parsedData = JSON.parse(userData);
-            
-            if (parsedData.lastActivity) {
-              setLastActivity(parsedData.lastActivity);
-            } else {
-              setLastActivity({
-                type: "login",
-                description: "You last logged in yesterday"
-              });
-            }
-            
-            if (parsedData.completedModules && parsedData.completedModules.length > 0) {
-              const lastModule = parsedData.completedModules[parsedData.completedModules.length - 1];
-              setSuggestedNextAction(`Continue with ${lastModule.nextModule || "Practice Exercises"}`);
-            } else {
-              setSuggestedNextAction("Start today's recommended study plan");
-            }
-          }
-        }
-        
-        if (userProfile && !shouldShowOnboarding) {
-          const currentLoginCount = userProfile.loginCount || 0;
-          
-          if (!sessionStorage.getItem('session_active')) {
-            updateUserProfile({
-              loginCount: currentLoginCount + 1
-            } as Partial<typeof userProfile>);
-            
-            sessionStorage.setItem('session_active', 'true');
-          }
-        }
-      } catch (error) {
-        console.error("Dashboard initialization error:", error);
-        toast({
-          title: "Error",
-          description: "Failed to initialize dashboard",
-          variant: "destructive",
-        });
-      } finally {
-        if (!profileLoading) {
-          setLoading(false);
-        }
+    if (!loading && userProfile) {
+      // Check localStorage for first-time user flag
+      const hasSeenTour = localStorage.getItem('dashboard_tour_completed');
+      const isFirstTimeAfterSignup = localStorage.getItem('new_user_signup') === 'true';
+      
+      // Only show the welcome tour if it's first time after signup
+      if (isFirstTimeAfterSignup && !hasSeenTour) {
+        setShowWelcomeTour(true);
+        // Clear the new user signup flag
+        localStorage.removeItem('new_user_signup');
       }
-    };
-    
-    initDashboard();
-  }, [location, navigate, profileLoading, userProfile, updateUserProfile]);
-  
-  useEffect(() => {
-    if (!profileLoading) {
-      setLoading(false);
     }
-  }, [profileLoading]);
+  }, [loading, userProfile]);
   
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
-    navigate(`/dashboard/student/${tab}`);
   };
   
-  const toggleSidebar = () => {
-    setHideSidebar(!hideSidebar);
-  };
-  
-  const toggleTabsNav = () => {
-    setHideTabsNav(!hideTabsNav);
+  const markNudgeAsRead = (nudgeId: string) => {
+    setNudges(prev => 
+      prev.map(nudge => 
+        nudge.id === nudgeId ? { ...nudge, isRead: true } : nudge
+      )
+    );
   };
   
   const handleSkipTour = () => {
     setShowWelcomeTour(false);
-    const userData = localStorage.getItem("userData");
-    if (userData) {
-      const parsedData = JSON.parse(userData);
-      parsedData.sawWelcomeTour = true;
-      localStorage.setItem("userData", JSON.stringify(parsedData));
-    }
+    localStorage.setItem('dashboard_tour_completed', 'true');
+    
+    toast({
+      title: 'Tour skipped',
+      description: 'You can always access the tour from the help menu.',
+    });
   };
   
   const handleCompleteTour = () => {
     setShowWelcomeTour(false);
-    const userData = localStorage.getItem("userData");
-    if (userData) {
-      const parsedData = JSON.parse(userData);
-      parsedData.sawWelcomeTour = true;
-      localStorage.setItem("userData", JSON.stringify(parsedData));
-    }
+    localStorage.setItem('dashboard_tour_completed', 'true');
     
     toast({
-      title: "Welcome to Sakha AI!",
-      description: "You're all set to start your personalized learning journey.",
-    });
-  };
-  
-  const handleCompleteOnboarding = () => {
-    setShowOnboarding(false);
-    
-    const userData = localStorage.getItem("userData");
-    if (userData) {
-      const parsedData = JSON.parse(userData);
-      parsedData.completedOnboarding = true;
-      localStorage.setItem("userData", JSON.stringify(parsedData));
-    }
-    
-    setShowWelcomeTour(true);
-    
-    toast({
-      title: "Onboarding Complete!",
-      description: "Your personalized learning plan is ready.",
+      title: 'Tour completed',
+      description: 'Welcome to your personalized dashboard!',
     });
   };
   
@@ -186,26 +156,28 @@ export const useStudentDashboard = () => {
     setShowStudyPlan(false);
   };
   
+  const toggleSidebar = () => {
+    setHideSidebar(prev => !prev);
+  };
+  
+  const toggleTabsNav = () => {
+    setHideTabsNav(prev => !prev);
+  };
+
   return {
-    loading,
     userProfile,
+    loading,
     activeTab,
     showWelcomeTour,
-    showOnboarding,
-    currentTime,
-    showStudyPlan,
-    hideTabsNav,
     hideSidebar,
+    hideTabsNav,
     kpis,
     nudges,
-    features,
-    lastActivity,
-    suggestedNextAction,
     markNudgeAsRead,
     handleTabChange,
     handleSkipTour,
     handleCompleteTour,
-    handleCompleteOnboarding,
+    showStudyPlan,
     handleViewStudyPlan,
     handleCloseStudyPlan,
     toggleSidebar,

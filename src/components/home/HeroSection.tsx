@@ -37,7 +37,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
             transition={{ duration: 0.8, ease: "easeOut" }}
           >
             <span className="bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-              पहली बार, पढ़ाई से पहले, आपको समझने वाला साथी
+              अब तैयारी करो अपने तरीके से, सिर्फ PREPZR के साथ!
             </span>
           </motion.h1>
           <motion.p 
@@ -46,7 +46,21 @@ const HeroSection: React.FC<HeroSectionProps> = ({
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
           >
-            India's 1st Emotionally Intelligent Study Partner – Tuned to Your Mood, Habits, Mind & Mission to Crack Exams.
+            India's 1st Emotionally Intelligent Study Partner – Tuned to Your Mood, Habits, Mind & Mission to{" "}
+            <motion.span 
+              className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-500 font-bold"
+              animate={{ 
+                scale: [1, 1.1, 1],
+                color: ["#9333ea", "#ec4899", "#9333ea"]
+              }}
+              transition={{ 
+                duration: 3,
+                repeat: Infinity,
+                repeatType: "reverse"
+              }}
+            >
+              Crack Exams
+            </motion.span>.
           </motion.p>
           
           <motion.div
