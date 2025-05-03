@@ -115,27 +115,27 @@ export const speakMessage = (message: string, forceSpeak: boolean = false): void
     voice.name.toLowerCase().includes('female')
   );
   
-  // Second try: Find any Indian English voice
-  const indianVoice = voices.find(voice => 
-    voice.lang === 'en-IN' ||
-    voice.lang.startsWith('hi-')
-  );
-  
-  // Third try: Find female voice with "Indian" in name
+  // Second try: Find female voice with "Indian" in name
   const femaleVoiceWithIndian = voices.find(voice => 
     voice.name.toLowerCase().includes('indian') && 
     voice.name.toLowerCase().includes('female')
   );
   
-  // Fourth try: Find any voice with "Indian" in name
-  const voiceWithIndian = voices.find(voice => 
-    voice.name.toLowerCase().includes('indian')
-  );
-  
-  // Fifth try: Find female voice with "Hindi" in name
+  // Third try: Find female voice with "Hindi" in name
   const femaleVoiceWithHindi = voices.find(voice => 
     voice.name.toLowerCase().includes('hindi') && 
     voice.name.toLowerCase().includes('female')
+  );
+  
+  // Fourth try: Find any Indian English voice
+  const indianVoice = voices.find(voice => 
+    voice.lang === 'en-IN' ||
+    voice.lang.startsWith('hi-')
+  );
+  
+  // Fifth try: Find any voice with "Indian" in name
+  const voiceWithIndian = voices.find(voice => 
+    voice.name.toLowerCase().includes('indian')
   );
   
   // Sixth try: Find any voice with "Hindi" in name
@@ -149,17 +149,17 @@ export const speakMessage = (message: string, forceSpeak: boolean = false): void
     voice.name.toLowerCase().includes('female')
   );
   
-  // Set the appropriate voice
+  // Set the appropriate voice - prioritizing female Indian voices
   if (femaleIndianVoice) {
     utterance.voice = femaleIndianVoice;
-  } else if (indianVoice) {
-    utterance.voice = indianVoice;
   } else if (femaleVoiceWithIndian) {
     utterance.voice = femaleVoiceWithIndian;
-  } else if (voiceWithIndian) {
-    utterance.voice = voiceWithIndian;
   } else if (femaleVoiceWithHindi) {
     utterance.voice = femaleVoiceWithHindi;
+  } else if (indianVoice) {
+    utterance.voice = indianVoice;
+  } else if (voiceWithIndian) {
+    utterance.voice = voiceWithIndian;
   } else if (voiceWithHindi) {
     utterance.voice = voiceWithHindi;
   } else if (femaleEnglishVoice) {
