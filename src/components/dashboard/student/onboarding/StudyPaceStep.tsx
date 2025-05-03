@@ -25,15 +25,16 @@ export default function StudyPaceStep({ studyPace, setStudyPace }: StudyPaceStep
             <FastForward className="text-amber-500" size={20} />
             Study Pace Preference
           </h3>
-          <p className="text-muted-foreground mb-4">How intensive would you like your study plan to be?</p>
+          <p className="text-muted-foreground mb-6">How intensive would you like your study plan to be?</p>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <Button 
+              type="button"
               variant={studyPace === "Aggressive" ? "default" : "outline"}
               onClick={() => setStudyPace("Aggressive")}
               className={cn(
                 "h-24 flex flex-col items-center justify-center space-y-2",
-                studyPace === "Aggressive" && "bg-amber-600 hover:bg-amber-700"
+                studyPace === "Aggressive" ? "bg-amber-600 hover:bg-amber-700" : "hover:bg-amber-50 hover:border-amber-300"
               )}
             >
               <FastForward size={24} />
@@ -41,11 +42,12 @@ export default function StudyPaceStep({ studyPace, setStudyPace }: StudyPaceStep
             </Button>
             
             <Button 
+              type="button"
               variant={studyPace === "Balanced" ? "default" : "outline"}
               onClick={() => setStudyPace("Balanced")}
               className={cn(
                 "h-24 flex flex-col items-center justify-center space-y-2",
-                studyPace === "Balanced" && "bg-emerald-600 hover:bg-emerald-700"
+                studyPace === "Balanced" ? "bg-emerald-600 hover:bg-emerald-700" : "hover:bg-emerald-50 hover:border-emerald-300"
               )}
             >
               <Play size={24} />
@@ -53,11 +55,12 @@ export default function StudyPaceStep({ studyPace, setStudyPace }: StudyPaceStep
             </Button>
             
             <Button 
+              type="button"
               variant={studyPace === "Relaxed" ? "default" : "outline"}
               onClick={() => setStudyPace("Relaxed")}
               className={cn(
                 "h-24 flex flex-col items-center justify-center space-y-2",
-                studyPace === "Relaxed" && "bg-blue-600 hover:bg-blue-700"
+                studyPace === "Relaxed" ? "bg-blue-600 hover:bg-blue-700" : "hover:bg-blue-50 hover:border-blue-300"
               )}
             >
               <Pause size={24} />
@@ -65,9 +68,9 @@ export default function StudyPaceStep({ studyPace, setStudyPace }: StudyPaceStep
             </Button>
           </div>
           
-          <div className="mt-4 bg-amber-50 p-4 rounded-md">
+          <div className="mt-6 bg-amber-50 p-4 rounded-md">
             <p className="text-sm flex items-center gap-2">
-              <AlertCircle size={16} className="text-amber-500" />
+              <AlertCircle size={16} className="text-amber-500 flex-shrink-0" />
               <span>
                 {studyPace === "Aggressive" && "Aggressive pace fits more content in less time. Best for those with strong discipline."}
                 {studyPace === "Balanced" && "Balanced pace provides a steady progression with regular breaks. Ideal for most students."}

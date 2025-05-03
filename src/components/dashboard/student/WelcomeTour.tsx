@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -21,8 +21,12 @@ import {
   BookOpen, 
   UserRound, 
   Sparkles,
-  BarChart3
+  BarChart3,
+  PenTool,
+  Clock,
+  BookMarked
 } from "lucide-react";
+import { motion } from "framer-motion";
 
 interface WelcomeTourProps {
   onSkipTour: () => void;
@@ -30,6 +34,7 @@ interface WelcomeTourProps {
   isFirstTimeUser: boolean;
   lastActivity?: { type: string; description: string } | null;
   suggestedNextAction?: string | null;
+  loginCount?: number;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
@@ -40,9 +45,45 @@ const WelcomeTour: React.FC<WelcomeTourProps> = ({
   isFirstTimeUser,
   lastActivity,
   suggestedNextAction,
+  loginCount,
   open,
   onOpenChange
 }) => {
+  const [userData, setUserData] = useState<any>({});
+  const [studyStats, setStudyStats] = useState({
+    conceptCards: 135,
+    flashCards: 240,
+    examCards: 42,
+    hoursAllocated: 180,
+    subjectCount: 5,
+    learningStyle: 'Visual-Kinesthetic',
+    examGoal: 'NEET'
+  });
+  
+  useEffect(() => {
+    // Fetch user data from localStorage if available
+    const storedData = localStorage.getItem('userData');
+    if (storedData) {
+      const parsedData = JSON.parse(storedData);
+      setUserData(parsedData);
+      
+      // Customize study stats based on user data if available
+      if (parsedData.goals && parsedData.goals.length > 0) {
+        setStudyStats(prev => ({
+          ...prev,
+          examGoal: parsedData.goals[0].title || 'NEET'
+        }));
+      }
+      
+      if (parsedData.preferences && parsedData.preferences.learningStyle) {
+        setStudyStats(prev => ({
+          ...prev,
+          learningStyle: parsedData.preferences.learningStyle
+        }));
+      }
+    }
+  }, []);
+  
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-3xl max-h-[90vh] overflow-hidden">
@@ -68,52 +109,109 @@ const WelcomeTour: React.FC<WelcomeTourProps> = ({
               <div className="md:w-1/3 flex flex-col items-center">
                 <Avatar className="h-32 w-32 border-2 border-primary">
                   <AvatarImage src="/images/founder.jpg" alt="Founder" />
-                  <AvatarFallback className="bg-primary/20 text-lg">RA</AvatarFallback>
+                  <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-xl text-white">AS</AvatarFallback>
                 </Avatar>
-                <h3 className="font-semibold mt-2">Rahul Agarwal</h3>
+                <h3 className="font-semibold mt-2">Amit Singh</h3>
                 <p className="text-sm text-muted-foreground">Founder & CEO</p>
               </div>
               
               <div className="md:w-2/3">
-                <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
+                <motion.div 
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5 }}
+                  className="bg-primary/5 border border-primary/20 rounded-lg p-4"
+                >
                   <blockquote className="space-y-2">
                     <p className="text-base italic">
-                      "Welcome to PREPZR! Our mission is to make learning personalized, effective, and 
-                      enjoyable. We've built this platform to adapt to your needs and help you achieve 
-                      your academic goals with less stress and better results."
+                      "Welcome to PREPZR! Your personalized learning journey starts here."
                     </p>
                     <p className="text-base italic">
-                      "Our AI-powered platform will guide you through every step of your learning journey, 
-                      from creating personalized study plans to tracking your progress and identifying areas 
-                      for improvement. We're excited to be part of your success story!"
+                      "At PREPZR, our mission is to make learning personalized, effective, and enjoyable. 
+                      We've designed this platform to adapt to your unique needs, helping you reach your 
+                      exam goals with less stress and greater confidence."
+                    </p>
+                    <p className="text-base italic">
+                      "Our AI-powered platform supports you every step of the way—from creating smart 
+                      study plans to tracking your progress and highlighting areas for improvement."
+                    </p>
+                    <p className="text-base italic">
+                      "We're thrilled to be part of your success story. Let's crack it together! 💪"
+                    </p>
+                    <p className="text-right font-medium text-sm">
+                      - Amit Singh, Founder & CEO, PREPZR
                     </p>
                   </blockquote>
-                </div>
+                </motion.div>
                 
-                <div className="mt-4 space-y-2">
+                <motion.div 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.3, duration: 0.5 }}
+                  className="mt-4 space-y-2"
+                >
                   <h4 className="font-medium flex items-center gap-1">
                     <Sparkles className="h-4 w-4 text-amber-500" />
-                    Our Promise to You
+                    Your Personalized Study Resources
                   </h4>
-                  <ul className="text-sm space-y-1.5 text-muted-foreground">
-                    <li className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-green-500" />
-                      <span>Personalized learning experiences tailored to your needs</span>
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-green-500" />
-                      <span>Constantly evolving AI tools to enhance your study efficiency</span>
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-green-500" />
-                      <span>Data-driven insights to help you optimize your study time</span>
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-green-500" />
-                      <span>Supportive community of learners and educators</span>
-                    </li>
-                  </ul>
-                </div>
+                  
+                  <div className="grid grid-cols-2 gap-3 mt-2">
+                    <motion.div 
+                      whileHover={{ scale: 1.03 }}
+                      className="flex items-center gap-2 bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg"
+                    >
+                      <BookMarked className="h-5 w-5 text-blue-500" />
+                      <div>
+                        <p className="text-sm font-medium">{studyStats.flashCards}</p>
+                        <p className="text-xs text-muted-foreground">Flashcards</p>
+                      </div>
+                    </motion.div>
+                    
+                    <motion.div 
+                      whileHover={{ scale: 1.03 }}
+                      className="flex items-center gap-2 bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg"
+                    >
+                      <BookOpen className="h-5 w-5 text-purple-500" />
+                      <div>
+                        <p className="text-sm font-medium">{studyStats.conceptCards}</p>
+                        <p className="text-xs text-muted-foreground">Concept Cards</p>
+                      </div>
+                    </motion.div>
+                    
+                    <motion.div
+                      whileHover={{ scale: 1.03 }}
+                      className="flex items-center gap-2 bg-amber-50 dark:bg-amber-900/20 p-3 rounded-lg"
+                    >
+                      <PenTool className="h-5 w-5 text-amber-500" />
+                      <div>
+                        <p className="text-sm font-medium">{studyStats.examCards}</p>
+                        <p className="text-xs text-muted-foreground">Exam Cards</p>
+                      </div>
+                    </motion.div>
+                    
+                    <motion.div
+                      whileHover={{ scale: 1.03 }}
+                      className="flex items-center gap-2 bg-green-50 dark:bg-green-900/20 p-3 rounded-lg"
+                    >
+                      <Clock className="h-5 w-5 text-green-500" />
+                      <div>
+                        <p className="text-sm font-medium">{studyStats.hoursAllocated}h</p>
+                        <p className="text-xs text-muted-foreground">Study Hours</p>
+                      </div>
+                    </motion.div>
+                  </div>
+                  
+                  <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 p-3 rounded-lg mt-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-medium">Exam Goal:</span>
+                      <span className="text-sm">{studyStats.examGoal}</span>
+                    </div>
+                    <div className="flex justify-between items-center mt-1">
+                      <span className="text-sm font-medium">Learning Style:</span>
+                      <span className="text-sm">{studyStats.learningStyle}</span>
+                    </div>
+                  </div>
+                </motion.div>
               </div>
             </div>
           </TabsContent>
@@ -121,7 +219,12 @@ const WelcomeTour: React.FC<WelcomeTourProps> = ({
           {/* Features Tab */}
           <TabsContent value="features" className="max-h-[50vh] overflow-y-auto">
             <div className="space-y-5 my-2">
-              <div className="flex gap-3 items-start">
+              <motion.div 
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.1, duration: 0.4 }}
+                className="flex gap-3 items-start"
+              >
                 <div className="p-2 rounded-full bg-amber-100 dark:bg-amber-900/30">
                   <BarChart3 className="h-5 w-5 text-amber-600 dark:text-amber-400" />
                 </div>
@@ -132,9 +235,14 @@ const WelcomeTour: React.FC<WelcomeTourProps> = ({
                     information and activities based on your progress.
                   </p>
                 </div>
-              </div>
+              </motion.div>
 
-              <div className="flex gap-3 items-start">
+              <motion.div 
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.2, duration: 0.4 }}
+                className="flex gap-3 items-start"
+              >
                 <div className="p-2 rounded-full bg-blue-100 dark:bg-blue-900/30">
                   <Calendar className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                 </div>
@@ -145,9 +253,14 @@ const WelcomeTour: React.FC<WelcomeTourProps> = ({
                     reviews, new content, and practice sessions to optimize your learning.
                   </p>
                 </div>
-              </div>
+              </motion.div>
 
-              <div className="flex gap-3 items-start">
+              <motion.div 
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.3, duration: 0.4 }}
+                className="flex gap-3 items-start"
+              >
                 <div className="p-2 rounded-full bg-indigo-100 dark:bg-indigo-900/30">
                   <GraduationCap className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
                 </div>
@@ -158,9 +271,14 @@ const WelcomeTour: React.FC<WelcomeTourProps> = ({
                     Track your progress across different subjects and adjust your plan as needed.
                   </p>
                 </div>
-              </div>
+              </motion.div>
 
-              <div className="flex gap-3 items-start">
+              <motion.div 
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.4, duration: 0.4 }}
+                className="flex gap-3 items-start"
+              >
                 <div className="p-2 rounded-full bg-purple-100 dark:bg-purple-900/30">
                   <BookOpen className="h-5 w-5 text-purple-600 dark:text-purple-400" />
                 </div>
@@ -171,9 +289,14 @@ const WelcomeTour: React.FC<WelcomeTourProps> = ({
                     and learning style, helping you focus on what matters most.
                   </p>
                 </div>
-              </div>
+              </motion.div>
 
-              <div className="flex gap-3 items-start">
+              <motion.div 
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.5, duration: 0.4 }}
+                className="flex gap-3 items-start"
+              >
                 <div className="p-2 rounded-full bg-green-100 dark:bg-green-900/30">
                   <Brain className="h-5 w-5 text-green-600 dark:text-green-400" />
                 </div>
@@ -184,9 +307,14 @@ const WelcomeTour: React.FC<WelcomeTourProps> = ({
                     and detailed explanations whenever you're stuck.
                   </p>
                 </div>
-              </div>
+              </motion.div>
 
-              <div className="flex gap-3 items-start">
+              <motion.div 
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.6, duration: 0.4 }}
+                className="flex gap-3 items-start"
+              >
                 <div className="p-2 rounded-full bg-rose-100 dark:bg-rose-900/30">
                   <UserRound className="h-5 w-5 text-rose-600 dark:text-rose-400" />
                 </div>
@@ -197,7 +325,7 @@ const WelcomeTour: React.FC<WelcomeTourProps> = ({
                     and access resources to help you maintain a healthy study-life balance.
                   </p>
                 </div>
-              </div>
+              </motion.div>
             </div>
           </TabsContent>
           
@@ -210,7 +338,12 @@ const WelcomeTour: React.FC<WelcomeTourProps> = ({
                   Getting Started
                 </h4>
                 <div className="ml-7 space-y-4">
-                  <div className="space-y-1.5">
+                  <motion.div 
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.1, duration: 0.4 }}
+                    className="space-y-1.5"
+                  >
                     <h5 className="font-medium text-sm">1. Visit Today's Plan</h5>
                     <p className="text-sm text-muted-foreground">
                       Start with your Today's Plan to see what's scheduled for today. Complete the
@@ -219,7 +352,7 @@ const WelcomeTour: React.FC<WelcomeTourProps> = ({
                     <Button 
                       variant="outline" 
                       size="sm" 
-                      className="mt-1"
+                      className="mt-1 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
                       onClick={() => {
                         onCompleteTour();
                         window.location.href = '/dashboard/student/today';
@@ -228,9 +361,14 @@ const WelcomeTour: React.FC<WelcomeTourProps> = ({
                       Go to Today's Plan
                       <ChevronRight className="h-4 w-4 ml-1" />
                     </Button>
-                  </div>
+                  </motion.div>
                   
-                  <div className="space-y-1.5">
+                  <motion.div 
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2, duration: 0.4 }}
+                    className="space-y-1.5"
+                  >
                     <h5 className="font-medium text-sm">2. Review Your Study Plan</h5>
                     <p className="text-sm text-muted-foreground">
                       Check your study plan in the Academic Advisor section. You can view your
@@ -239,7 +377,7 @@ const WelcomeTour: React.FC<WelcomeTourProps> = ({
                     <Button 
                       variant="outline" 
                       size="sm" 
-                      className="mt-1"
+                      className="mt-1 hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors"
                       onClick={() => {
                         onCompleteTour();
                         window.location.href = '/dashboard/student/academic';
@@ -248,9 +386,14 @@ const WelcomeTour: React.FC<WelcomeTourProps> = ({
                       Go to Academic Advisor
                       <ChevronRight className="h-4 w-4 ml-1" />
                     </Button>
-                  </div>
+                  </motion.div>
                   
-                  <div className="space-y-1.5">
+                  <motion.div 
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3, duration: 0.4 }}
+                    className="space-y-1.5"
+                  >
                     <h5 className="font-medium text-sm">3. Practice with Learning Resources</h5>
                     <p className="text-sm text-muted-foreground">
                       Use our flashcards, concept cards, and practice exams to test your knowledge
@@ -260,6 +403,7 @@ const WelcomeTour: React.FC<WelcomeTourProps> = ({
                       <Button 
                         variant="outline" 
                         size="sm"
+                        className="hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors"
                         onClick={() => {
                           onCompleteTour();
                           window.location.href = '/dashboard/student/flashcards';
@@ -270,6 +414,7 @@ const WelcomeTour: React.FC<WelcomeTourProps> = ({
                       <Button 
                         variant="outline" 
                         size="sm"
+                        className="hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors"
                         onClick={() => {
                           onCompleteTour();
                           window.location.href = '/dashboard/student/practice-exam';
@@ -278,11 +423,16 @@ const WelcomeTour: React.FC<WelcomeTourProps> = ({
                         Practice Exams
                       </Button>
                     </div>
-                  </div>
+                  </motion.div>
                 </div>
               </div>
               
-              <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
+              <motion.div 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4, duration: 0.5 }}
+                className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800"
+              >
                 <h4 className="font-medium flex items-center gap-2 mb-2">
                   <CheckCircle className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                   Pro Tips
@@ -305,7 +455,7 @@ const WelcomeTour: React.FC<WelcomeTourProps> = ({
                     <p>Take practice tests regularly to identify knowledge gaps</p>
                   </li>
                 </ul>
-              </div>
+              </motion.div>
             </div>
           </TabsContent>
         </Tabs>

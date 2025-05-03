@@ -3,13 +3,21 @@
 export interface StudyPlanSubject {
   id: string;
   name: string;
-  difficulty: 'easy' | 'medium' | 'hard';
+  difficulty?: 'easy' | 'medium' | 'hard';
   completed: boolean;
   priority?: 'high' | 'medium' | 'low';
   status?: 'completed' | 'pending' | 'in-progress' | 'skipped';
   proficiency?: 'strong' | 'medium' | 'weak';
   color?: string;
   hoursPerWeek: number;
+  topics?: Array<{
+    id: string;
+    name: string;
+    difficulty: 'easy' | 'medium' | 'hard';
+    completed: boolean;
+    status?: 'completed' | 'pending' | 'in-progress' | 'skipped';
+    priority?: 'high' | 'medium' | 'low';
+  }>;
 }
 
 export interface StudyPlan {
@@ -18,8 +26,13 @@ export interface StudyPlan {
   description?: string;
   examGoal: string;
   examDate: Date | string;
-  status: 'active' | 'completed' | 'pending';
+  status: 'active' | 'completed' | 'pending' | 'archived';
   progress?: number;
+  progressPercentage?: number;
+  daysLeft?: number;
+  userId?: string;
+  goal?: string;
+  weeklyHours?: number;
   subjects: StudyPlanSubject[];
   studyHoursPerDay: number;
   preferredStudyTime: 'morning' | 'afternoon' | 'evening' | 'night';
