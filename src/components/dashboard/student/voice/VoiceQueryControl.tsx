@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -13,40 +13,63 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Input } from "@/components/ui/input";
-import { Mic, MicOff, MessageSquare, Volume2 } from "lucide-react";
+import { Mic, MicOff, MessageSquare, Volume2, VolumeX } from "lucide-react";
 import { useVoiceAnnouncerContext } from './VoiceAnnouncer';
 import ProfileVoiceTooltip from '../profile/ProfileVoiceTooltip';
 
 interface VoiceQueryControlProps {
   className?: string;
+  examGoal?: string;
 }
 
-const VoiceQueryControl: React.FC<VoiceQueryControlProps> = ({ className }) => {
+const VoiceQueryControl: React.FC<VoiceQueryControlProps> = ({ 
+  className,
+  examGoal = "exam"
+}) => {
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [isListening, setIsListening] = useState(false);
-  const [isPulsing, setIsPulsing] = useState(true);
-  const { speak, processQuery, testVoice, isSpeaking, settings } = useVoiceAnnouncerContext();
+  const [isPulsing, setIsPulsing] = useState(false);
+  const { 
+    speak, 
+    processQuery, 
+    testVoice, 
+    isSpeaking, 
+    settings,
+    updateSettings,
+    stopSpeaking 
+  } = useVoiceAnnouncerContext();
   
-  // Animation effect to draw attention to the voice icon when it first appears
+  const mountedRef = useRef(false);
+  
+  // Only show pulsing animation for first-time users or when speaking
   useEffect(() => {
-    // Start the pulsing animation
-    setIsPulsing(true);
-    
-    // Stop the pulsing animation after 10 seconds
-    const timer = setTimeout(() => {
-      setIsPulsing(false);
-    }, 10000);
-    
-    return () => clearTimeout(timer);
+    // Check if this is first mount
+    if (!mountedRef.current) {
+      mountedRef.current = true;
+      
+      // Check if user is new (first session)
+      const isNewUser = localStorage.getItem('new_user_signup') === 'true' || 
+                       !localStorage.getItem('hasSeenVoiceTooltip');
+      
+      if (isNewUser) {
+        // Start pulsing for new users to draw attention
+        setIsPulsing(true);
+        
+        // Stop pulsing after 10 seconds
+        const timer = setTimeout(() => {
+          setIsPulsing(false);
+          localStorage.setItem('hasSeenVoiceTooltip', 'true');
+        }, 10000);
+        
+        return () => clearTimeout(timer);
+      }
+    }
   }, []);
   
-  // Additional pulsing effect when speaking
+  // Pulse when speaking
   useEffect(() => {
-    // Reset pulsing state when speaking changes
-    if (isSpeaking) {
-      setIsPulsing(true);
-    }
+    setIsPulsing(isSpeaking);
   }, [isSpeaking]);
   
   // Handle voice input processing
@@ -73,10 +96,44 @@ const VoiceQueryControl: React.FC<VoiceQueryControlProps> = ({ className }) => {
       // For now, we'll just simulate it and set a timeout to turn it off
       setTimeout(() => {
         setIsListening(false);
-        setQuery("What features are available in PREPZR?"); // Simulate a recognized query
+        setQuery(`Tell me about ${examGoal || 'exam'} preparation`); // Simulate a recognized query
       }, 2000);
     } else {
       setIsListening(false);
+    }
+  };
+  
+  // Toggle mute function
+  const toggleMute = () => {
+    if (isSpeaking) {
+      stopSpeaking();
+    }
+    updateSettings({ enabled: !settings.enabled });
+  };
+  
+  // Get exam-appropriate suggestions
+  const getSuggestions = () => {
+    if (examGoal?.toLowerCase().includes('jee')) {
+      return [
+        "How to solve JEE Physics problems?",
+        "What's the best way to learn Organic Chemistry?",
+        "Tips for JEE Math preparation",
+        "How many practice tests should I take?"
+      ];
+    } else if (examGoal?.toLowerCase().includes('neet')) {
+      return [
+        "How to memorize Biology diagrams?",
+        "Tips for NEET Chemistry preparation",
+        "How to improve my NCERT concepts?",
+        "How to manage time during NEET exam?"
+      ];
+    } else {
+      return [
+        "What's my next task?",
+        `How to prepare for ${examGoal || 'my exam'}?`,
+        "Help me create a study plan",
+        "Give me a motivational quote"
+      ];
     }
   };
   
@@ -92,11 +149,15 @@ const VoiceQueryControl: React.FC<VoiceQueryControlProps> = ({ className }) => {
             }`}
             aria-label="Voice Assistant"
           >
-            <Volume2 
-              className={`h-5 w-5 ${isSpeaking ? 'text-primary animate-pulse' : ''} ${
-                isPulsing && !isSpeaking ? 'text-primary animate-[pulse_2s_cubic-bezier(0.4,0,0.6,1)_infinite]' : ''
-              }`} 
-            />
+            {settings.enabled ? (
+              <Volume2 
+                className={`h-5 w-5 ${isSpeaking ? 'text-primary animate-pulse' : ''} ${
+                  isPulsing && !isSpeaking ? 'text-primary animate-[pulse_2s_cubic-bezier(0.4,0,0.6,1)_infinite]' : ''
+                }`} 
+              />
+            ) : (
+              <VolumeX className="h-5 w-5" />
+            )}
             {settings.enabled && (
               <span className={`absolute top-0 right-0 w-2 h-2 bg-green-500 rounded-full ${
                 isPulsing ? 'animate-ping' : ''
@@ -108,19 +169,30 @@ const VoiceQueryControl: React.FC<VoiceQueryControlProps> = ({ className }) => {
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h4 className="font-medium text-sm">Voice Assistant</h4>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={testVoice}
-                className="h-8 text-xs"
-              >
-                Test Voice
-              </Button>
+              <div className="flex gap-2">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={toggleMute}
+                  className={`h-8 w-8 p-0 ${!settings.enabled ? 'bg-rose-100 text-rose-600 dark:bg-rose-900/30 dark:text-rose-400' : ''}`}
+                >
+                  {settings.enabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={testVoice}
+                  className="h-8 text-xs"
+                  disabled={!settings.enabled}
+                >
+                  Test Voice
+                </Button>
+              </div>
             </div>
             
             <form onSubmit={handleSubmitQuery} className="flex gap-2">
               <Input
-                placeholder="Ask me anything..."
+                placeholder={`Ask about ${examGoal || 'exam'} preparation...`}
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 className="flex-1"
@@ -161,10 +233,9 @@ const VoiceQueryControl: React.FC<VoiceQueryControlProps> = ({ className }) => {
             <div className="text-xs text-muted-foreground">
               <p>Try asking:</p>
               <ul className="list-disc pl-4 space-y-1 mt-1">
-                <li>"What's my next task?"</li>
-                <li>"How many tasks do I have today?"</li>
-                <li>"Tell me about PREPZR"</li>
-                <li>"What can you do?"</li>
+                {getSuggestions().map((suggestion, index) => (
+                  <li key={index}>{suggestion}</li>
+                ))}
               </ul>
             </div>
           </div>
