@@ -1,28 +1,60 @@
 
 import React from 'react';
-import { SharedPageLayout } from '@/components/dashboard/student/SharedPageLayout';
-import AcademicAdvisor from '@/pages/dashboard/student/AcademicAdvisor';
-import { useUserProfile } from '@/hooks/useUserProfile';
-import { UserRole } from '@/types/user/base';
+import { GraduationCap } from 'lucide-react';
+import CreateStudyPlanWizard from '@/components/dashboard/student/academic/CreateStudyPlanWizard';
+import StudyPlanDetail from '@/components/dashboard/student/academic/StudyPlanDetail';
+import StudyPlanSections from '@/components/dashboard/student/academic/components/StudyPlanSections';
+import { useAcademicPlans } from '@/components/dashboard/student/academic/hooks/useAcademicPlans';
 
-const AcademicAdvisorView = () => {
-  const { userProfile, loading } = useUserProfile(UserRole.Student);
+const AcademicAdvisorView: React.FC = () => {
+  const {
+    showCreateDialog,
+    selectedPlan,
+    activePlans,
+    completedPlans,
+    handleCreatePlan,
+    handleViewPlanDetails,
+    handleNewPlanCreated,
+    setShowCreateDialog,
+    setSelectedPlan
+  } = useAcademicPlans();
 
   return (
-    <SharedPageLayout 
-      title="Academic Advisor" 
-      subtitle="Get guidance for your academic journey"
-      backButtonUrl="/dashboard/student"
-      showBackButton={true}
-    >
-      <div className="space-y-6">
-        {loading || !userProfile ? (
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-        ) : (
-          <AcademicAdvisor userProfile={userProfile} />
-        )}
+    <div className="space-y-12">
+      {/* Header section */}
+      <div>
+        <h1 className="text-3xl font-bold flex items-center gap-2">
+          <GraduationCap className="h-8 w-8 text-indigo-600" />
+          Academic Advisor
+        </h1>
+        <p className="text-gray-500 mt-1">
+          Your personalized study plans and academic progress tracking
+        </p>
       </div>
-    </SharedPageLayout>
+
+      <StudyPlanSections
+        activePlans={activePlans}
+        completedPlans={completedPlans}
+        onCreatePlan={handleCreatePlan}
+        onViewPlanDetails={handleViewPlanDetails}
+      />
+
+      {/* Study Plan Creation Dialog */}
+      <CreateStudyPlanWizard
+        isOpen={showCreateDialog}
+        onClose={() => setShowCreateDialog(false)}
+        onCreatePlan={handleNewPlanCreated}
+      />
+
+      {/* Study Plan Detail Dialog */}
+      {selectedPlan && (
+        <StudyPlanDetail
+          plan={selectedPlan}
+          isOpen={!!selectedPlan}
+          onClose={() => setSelectedPlan(null)}
+        />
+      )}
+    </div>
   );
 };
 

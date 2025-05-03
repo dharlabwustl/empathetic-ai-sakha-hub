@@ -39,7 +39,7 @@ import InteractiveFlashcardBrowser from './components/flashcards/InteractiveFlas
 import { NotificationsView } from './components/dashboard/student/notifications/NotificationsView';
 import EnhancedProfilePage from './pages/dashboard/student/EnhancedProfilePage';
 import PracticeExamsSection from './components/dashboard/student/practice-exam/PracticeExamsSection';
-import PostLoginWelcomeBack from './pages/dashboard/PostLoginWelcomeBack';
+import PostLoginWelcome from './components/login/PostLoginWelcome';
 import Terms from './pages/Terms';
 import Privacy from './pages/Privacy';
 import FlaskDeveloperGuide from './pages/admin/FlaskDeveloperGuide';
@@ -47,6 +47,7 @@ import StudyGroupsPage from './pages/dashboard/student/StudyGroupsPage';
 import BatchManagementPage from './pages/admin/BatchManagementPage';
 import DatabaseSchemaCSVPage from './pages/database/DatabaseSchemaCSVPage';
 import SubscriptionPage from './pages/dashboard/student/SubscriptionPage';
+import PostSignupWelcome from './components/signup/PostSignupWelcome';
 
 const AdminDashboard = React.lazy(() => import('@/pages/admin/AdminDashboard'));
 
@@ -68,11 +69,12 @@ function App() {
               <Route path="/admin/flask-guide" element={<FlaskDeveloperGuide />} />
               <Route path="/database/schema" element={<DatabaseSchemaCSVPage />} />
 
-              {/* Post-signup flow - Welcome flow only */}
+              {/* Post-signup flow - Welcome flow */}
               <Route path="/welcome" element={<WelcomeToPrepr />} />
+              <Route path="/post-signup" element={<PostSignupWelcome />} />
               
               {/* Post-login welcome back screen */}
-              <Route path="/welcome-back" element={<PostLoginWelcomeBack />} />
+              <Route path="/welcome-back" element={<PostLoginWelcome />} />
 
               {/* Student routes */}
               <Route path="/dashboard/student" element={<StudentDashboard />} />
@@ -97,12 +99,14 @@ function App() {
               <Route path="/dashboard/student/concepts/:conceptId/study" element={<ConceptStudyPage />} />
               <Route path="/dashboard/student/concepts/study-landing/:conceptId" element={<ConceptStudyLandingPage />} />
               <Route path="/dashboard/student/concepts/landing" element={<ConceptsLandingPage />} />
+              <Route path="/dashboard/student/concepts" element={<ConceptsLandingPage />} />
               
               {/* Direct Flashcard routes */}
               <Route path="/dashboard/student/flashcards/:flashcardId/interactive" element={<FlashcardInteractive />} />
               <Route path="/dashboard/student/flashcards/:flashcardId" element={<FlashcardDetailsPage />} />
               <Route path="/dashboard/student/flashcards/:flashcardId/browse" element={<InteractiveFlashcardBrowser />} />
               <Route path="/dashboard/student/flashcards/:flashcardId/practice" element={<EnhancedFlashcardPractice />} />
+              <Route path="/dashboard/student/flashcards" element={<FlashcardsLandingPage />} />
               
               {/* Practice exam routes */}
               <Route path="/dashboard/student/practice-exam" element={<PracticeExamsSection />} />
