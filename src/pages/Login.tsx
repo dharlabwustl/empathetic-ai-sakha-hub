@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate, Navigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -19,10 +19,7 @@ const Login = () => {
     return <LoadingScreen message="Checking authentication status..." />;
   }
   
-  if (isAuthenticated) {
-    return <Navigate to="/welcome-back" replace />;
-  }
-  
+  // Authentication check is now handled by AuthGuard
   return (
     <AuthGuard requireAuth={false} redirectTo="/welcome-back">
       <div className="min-h-screen bg-gradient-to-br from-sky-100/30 via-white to-violet-100/30 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">

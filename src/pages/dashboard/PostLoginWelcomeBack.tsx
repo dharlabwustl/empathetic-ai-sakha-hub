@@ -49,27 +49,38 @@ const PostLoginWelcomeBack = () => {
         setUserData(parsedData);
         
         // Determine what screen to show
+        const isNewSignup = localStorage.getItem('new_user_signup') === 'true';
         const sawWelcomeSlider = localStorage.getItem('sawWelcomeSlider') === 'true';
         const sawWelcomeTour = localStorage.getItem('sawWelcomeTour') === 'true';
-        const isFirstLogin = parsedData.loginCount === 1;
+        const isFirstLogin = parsedData.loginCount === 1 || isNewSignup;
+        
+        console.log("PostLoginWelcomeBack - Flow state:", {
+          isNewSignup,
+          sawWelcomeSlider,
+          sawWelcomeTour,
+          isFirstLogin
+        });
         
         // For first-time users: show welcome slider followed by tour
         if (isFirstLogin && !sawWelcomeSlider) {
           setShowSlider(true);
           setShowTour(false);
           setShowWelcomeBack(false);
+          console.log("PostLoginWelcomeBack - Showing welcome slider for new user");
         }
         // If they've seen the slider but not the tour
         else if (!sawWelcomeTour) {
           setShowSlider(false);
           setShowTour(true);
           setShowWelcomeBack(false);
+          console.log("PostLoginWelcomeBack - Showing welcome tour");
         }
         // Returning users: show welcome back with pending tasks
         else {
           setShowSlider(false);
           setShowTour(false);
           setShowWelcomeBack(true);
+          console.log("PostLoginWelcomeBack - Showing welcome back");
         }
       } catch (error) {
         console.error("Error parsing user data:", error);
@@ -85,8 +96,10 @@ const PostLoginWelcomeBack = () => {
           lastLogin: new Date().toISOString()
         };
         localStorage.setItem("userData", JSON.stringify(newUserData));
+        localStorage.setItem("new_user_signup", "true");
         setUserData(newUserData);
         setShowSlider(true);
+        console.log("PostLoginWelcomeBack - Created new user data and showing slider");
       } else {
         // Something went wrong, redirect to login
         navigate('/login');
@@ -112,11 +125,13 @@ const PostLoginWelcomeBack = () => {
     setShowSlider(false);
     setShowTour(true);
     setShowWelcomeBack(false);
+    console.log("PostLoginWelcomeBack - Slider complete, showing tour");
   };
   
   const handleTourSkip = () => {
     // Mark that they've seen the welcome tour
     localStorage.setItem('sawWelcomeTour', 'true');
+    localStorage.removeItem('new_user_signup');
     setShowWelcomeBack(true);
     setShowTour(false);
     
@@ -129,6 +144,7 @@ const PostLoginWelcomeBack = () => {
   const handleTourComplete = () => {
     // Mark that they've seen the welcome tour
     localStorage.setItem('sawWelcomeTour', 'true');
+    localStorage.removeItem('new_user_signup');
     setShowWelcomeBack(true);
     setShowTour(false);
     

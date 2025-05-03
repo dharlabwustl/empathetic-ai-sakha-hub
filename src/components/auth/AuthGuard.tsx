@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/auth/AuthContext';
@@ -47,6 +46,17 @@ const AuthGuard: React.FC<AuthGuardProps> = ({
       // User is not an admin, redirect to student dashboard
       return <Navigate to="/dashboard/student" replace />;
     }
+
+    // Check if it's a new user or just completed signup
+    const isNewSignup = localStorage.getItem('new_user_signup') === 'true';
+    const justCompletedOnboarding = localStorage.getItem('just_completed_onboarding') === 'true';
+    
+    // If user just signed up or completed onboarding, redirect to welcome-back flow
+    if ((isNewSignup || justCompletedOnboarding) && !location.pathname.includes('/welcome-back')) {
+      // Clear the onboarding flag since we're handling it now
+      localStorage.removeItem('just_completed_onboarding');
+      return <Navigate to="/welcome-back" replace />;
+    }
     
     // User is authenticated and has appropriate role, render children
     return <>{children}</>;
@@ -55,10 +65,13 @@ const AuthGuard: React.FC<AuthGuardProps> = ({
   // For routes that are for unauthenticated users (like login/signup)
   else {
     if (isAuthenticated) {
+      // If user just signed up, keep new_user_signup flag
+      const isNewSignup = localStorage.getItem('new_user_signup') === 'true';
+      
       // User is already authenticated, redirect to appropriate dashboard
       const targetPath = user?.role === 'admin' 
         ? '/admin'
-        : (redirectTo || '/welcome-back');
+        : (isNewSignup ? '/welcome-back' : (redirectTo || '/welcome-back'));
       
       return <Navigate to={targetPath} replace />;
     }
