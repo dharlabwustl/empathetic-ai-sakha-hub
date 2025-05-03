@@ -16,27 +16,28 @@ export interface StudyPlanSubject {
   priority: 'high' | 'medium' | 'low';
   hoursPerWeek: number;
   completed: boolean;
-  topics?: StudyPlanTopic[]; // Make topics optional
-  difficulty?: 'easy' | 'medium' | 'hard'; // Add difficulty field
+  topics?: StudyPlanTopic[]; // Topics is now properly defined as optional
+  difficulty?: 'easy' | 'medium' | 'hard';
 }
 
 export interface StudyPlan {
   id: string;
-  userId?: string; // Add userId field
+  userId?: string;
+  goal?: string;
   examGoal: string;
   examDate: string | Date;
-  status: 'active' | 'completed' | 'archived' | 'pending'; // Add 'pending' status
+  status: 'active' | 'completed' | 'archived' | 'pending';
   subjects: StudyPlanSubject[];
   learningPace: 'slow' | 'moderate' | 'fast';
   preferredStudyTime: 'morning' | 'afternoon' | 'evening' | 'night';
   studyHoursPerDay: number;
   weeklyHours: number;
-  progressPercentage?: number; // Add progressPercentage field
-  progressPercent?: number; // Keep the existing progressPercent field
-  daysLeft?: number; // Add daysLeft field
+  progressPercentage?: number; // Use progressPercentage consistently
+  progressPercent?: number; // Keep for backward compatibility
+  daysLeft?: number;
   createdAt: string;
   updatedAt: string;
-  goal?: string; // Add goal field
+  title?: string;
 }
 
 export interface NewStudyPlan {
@@ -47,5 +48,5 @@ export interface NewStudyPlan {
   preferredStudyTime?: 'morning' | 'afternoon' | 'evening' | 'night';
   studyHoursPerDay?: number;
   weeklyHours: number;
-  goal?: string; // Add goal field
+  goal?: string;
 }

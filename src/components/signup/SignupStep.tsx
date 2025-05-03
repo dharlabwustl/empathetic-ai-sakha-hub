@@ -25,20 +25,10 @@ const SignupStep: React.FC<SignupStepProps> = ({ onSubmit, isLoading }) => {
   });
   const [fact, setFact] = useState("");
   const examFacts = {
-    "IIT-JEE": [
-      "Did you know? The highest package offered to an IIT graduate was ₹2.4 Cr!",
-      "11 of India's Fortune 500 CEOs are IIT alumni.",
-      "IITs have a 98% placement rate across all branches."
-    ],
     "NEET": [
       "India needs 2.5 million doctors by 2030 - huge opportunities ahead!",
       "Medical professionals are among the most respected careers globally.",
       "AIIMS Delhi sees over 10,000 patients daily - imagine the impact you'll make!"
-    ],
-    "UPSC": [
-      "The youngest IAS officer was just 21 when selected!",
-      "Over 48% of current IAS officers come from small towns.",
-      "Civil servants directly impact millions of lives daily."
     ]
   };
 

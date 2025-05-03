@@ -11,7 +11,7 @@ import { format } from 'date-fns';
 import { ArrowRight, ArrowLeft, Calendar as CalendarIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import SubjectsStep from '@/components/dashboard/student/onboarding/SubjectsStep';
-import { useStudyPlanWizard } from '@/hooks/useStudyPlanWizard';
+import { useStudyPlanWizard } from '@/components/dashboard/student/academic/hooks/useStudyPlanWizard';
 
 interface CreateStudyPlanWizardProps {
   isOpen: boolean;
@@ -31,6 +31,7 @@ const CreateStudyPlanWizard: React.FC<CreateStudyPlanWizardProps> = ({
     formData,
     setFormData,
     strongSubjects,
+    mediumSubjects,
     weakSubjects,
     handleToggleSubject,
     handlePaceChange,
@@ -40,10 +41,7 @@ const CreateStudyPlanWizard: React.FC<CreateStudyPlanWizardProps> = ({
     handleBack
   } = useStudyPlanWizard({ examGoal, onCreatePlan, onClose });
 
-  const examGoals = [
-    'NEET', 'JEE Main', 'JEE Advanced', 'UPSC', 'CAT', 
-    'GATE', 'Bank PO', 'SSC', 'CLAT', 'GMAT', 'GRE'
-  ];
+  const examGoals = ['NEET'];
 
   const renderStep = () => {
     switch (step) {
@@ -94,7 +92,7 @@ const CreateStudyPlanWizard: React.FC<CreateStudyPlanWizardProps> = ({
                     )}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
+                <PopoverContent className="w-auto p-0 pointer-events-auto" align="start">
                   <Calendar
                     mode="single"
                     selected={formData.examDate ? new Date(formData.examDate) : undefined}
@@ -102,6 +100,7 @@ const CreateStudyPlanWizard: React.FC<CreateStudyPlanWizardProps> = ({
                       setFormData(prev => ({ ...prev, examDate: date || new Date() }))}
                     disabled={(date) => date < new Date()}
                     initialFocus
+                    className="pointer-events-auto"
                   />
                 </PopoverContent>
               </Popover>
@@ -116,6 +115,7 @@ const CreateStudyPlanWizard: React.FC<CreateStudyPlanWizardProps> = ({
               strongSubjects={strongSubjects}
               weakSubjects={weakSubjects}
               handleToggleSubject={handleToggleSubject}
+              mediumSubjects={mediumSubjects}
             />
           </div>
         );
@@ -156,10 +156,10 @@ const CreateStudyPlanWizard: React.FC<CreateStudyPlanWizardProps> = ({
             </div>
             <div className="space-y-5">
               <RadioGroup
-                defaultValue={formData.preferredStudyTime}
-                onValueChange={(value: 'morning' | 'afternoon' | 'evening' | 'night') => {
-                  handleStudyTimeChange(value.charAt(0).toUpperCase() + value.slice(1) as "Morning" | "Afternoon" | "Evening" | "Night");
-                  setFormData(prev => ({ ...prev, preferredStudyTime: value }));
+                value={formData.preferredStudyTime || "evening"}
+                onValueChange={(value) => {
+                  const studyTime = value as 'morning' | 'afternoon' | 'evening' | 'night';
+                  setFormData(prev => ({ ...prev, preferredStudyTime: studyTime }));
                 }}
               >
                 <div className="flex items-center space-x-2">
@@ -190,29 +190,29 @@ const CreateStudyPlanWizard: React.FC<CreateStudyPlanWizardProps> = ({
               <p className="text-muted-foreground">How would you describe your ideal learning pace?</p>
             </div>
             <RadioGroup
-              defaultValue={
-                formData.learningPace === 'slow' ? 'Relaxed' : 
-                formData.learningPace === 'moderate' ? 'Balanced' : 'Aggressive'
-              }
-              onValueChange={(value: "Aggressive" | "Balanced" | "Relaxed") => {
-                handlePaceChange(value);
+              value={formData.learningPace || "moderate"}
+              onValueChange={(value) => {
+                const pace = value as 'slow' | 'moderate' | 'fast';
+                setFormData(prev => ({ ...prev, learningPace: pace }));
               }}
             >
               <div className="flex items-center space-x-2">
-                <RadioGroupItem value="Relaxed" id="relaxed" />
+                <RadioGroupItem value="slow" id="relaxed" />
                 <Label htmlFor="relaxed">Relaxed - I need more time to understand concepts</Label>
               </div>
               <div className="flex items-center space-x-2">
-                <RadioGroupItem value="Balanced" id="balanced" />
+                <RadioGroupItem value="moderate" id="balanced" />
                 <Label htmlFor="balanced">Balanced - I prefer a moderate pace</Label>
               </div>
               <div className="flex items-center space-x-2">
-                <RadioGroupItem value="Aggressive" id="aggressive" />
+                <RadioGroupItem value="fast" id="aggressive" />
                 <Label htmlFor="aggressive">Aggressive - I want to cover as much as possible quickly</Label>
               </div>
             </RadioGroup>
           </div>
         );
+      default:
+        return null;
     }
   };
 

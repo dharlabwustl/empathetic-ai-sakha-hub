@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -19,12 +18,7 @@ import PrepzrLogo from '@/components/common/PrepzrLogo';
 import { useToast } from '@/hooks/use-toast';
 
 const examOptions = [
-  { value: 'iit-jee', label: 'IIT JEE' },
   { value: 'neet', label: 'NEET' },
-  { value: 'upsc', label: 'UPSC' },
-  { value: 'gate', label: 'GATE' },
-  { value: 'cat', label: 'CAT' },
-  { value: 'other', label: 'Other' },
 ];
 
 const difficultyLevels = [
