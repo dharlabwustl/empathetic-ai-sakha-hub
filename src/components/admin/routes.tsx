@@ -1,23 +1,29 @@
+import React from 'react';
+import { RouteObject } from 'react-router-dom';
+import AdminDashboard from "@/components/admin/AdminDashboard";
+import AdminRouteGuard from './AdminRouteGuard';
+import { DocumentationPage } from "@/pages/admin/DocumentationPage";
+import FlaskGuidePage from "@/pages/admin/FlaskGuidePage";
+import { Navigate } from "react-router-dom";
 
-import { Route, Routes } from "react-router-dom";
-import Dashboard from "@/pages/admin/Dashboard";
-import StudentManagement from "@/pages/admin/StudentManagement";
-import ContentManagement from "@/pages/admin/ContentManagement";
-import Settings from "@/pages/admin/Settings";
-import FlaskMySQLGuide from "@/components/admin/documentation/FlaskMySQLGuide";
-import NotFound from "@/pages/NotFound";
+const adminRoutes: RouteObject[] = [
+  {
+    path: "/admin/dashboard",
+    element: <AdminRouteGuard><AdminDashboard /></AdminRouteGuard>,
+  },
+  {
+    path: "/admin/documentation",
+    element: <AdminRouteGuard><DocumentationPage /></AdminRouteGuard>,
+  },
+  {
+    path: "/admin/flask-guide",
+    element: <AdminRouteGuard><FlaskGuidePage /></AdminRouteGuard>,
+  },
+  // Add a fallback route to redirect to dashboard
+  {
+    path: "/admin/*",
+    element: <Navigate to="/admin/dashboard" replace />,
+  }
+];
 
-const AdminRoutes = () => {
-  return (
-    <Routes>
-      <Route path="/" element={<Dashboard />} />
-      <Route path="/students" element={<StudentManagement />} />
-      <Route path="/content" element={<ContentManagement />} />
-      <Route path="/settings" element={<Settings />} />
-      <Route path="/flask-guide" element={<FlaskMySQLGuide />} />
-      <Route path="*" element={<NotFound />} />
-    </Routes>
-  );
-};
-
-export default AdminRoutes;
+export default adminRoutes;

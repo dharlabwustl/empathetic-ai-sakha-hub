@@ -5,9 +5,11 @@ import { useToast } from "@/hooks/use-toast";
 import { FileText, BookOpen, Download, ExternalLink, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 const DocumentationPage = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const showToast = () => {
     toast({
@@ -760,14 +762,25 @@ with app.app_context():
       
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-semibold">Featured Documentation</h2>
-        <Button 
-          variant="outline" 
-          className="flex items-center gap-2" 
-          onClick={handleDownloadFlaskGuide}
-        >
-          <Download size={16} />
-          Download Flask MySQL Guide (Word)
-        </Button>
+        <div className="flex gap-2">
+          <Button 
+            variant="outline" 
+            className="flex items-center gap-2" 
+            onClick={handleDownloadFlaskGuide}
+          >
+            <Download size={16} />
+            Download Flask Guide (Word)
+          </Button>
+          
+          <Button 
+            variant="default"
+            className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600" 
+            onClick={() => navigate("/admin/flask-guide")}
+          >
+            <FileText size={16} />
+            View Interactive Flask Guide
+          </Button>
+        </div>
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
@@ -947,3 +960,5 @@ with app.app_context():
 };
 
 export default DocumentationPage;
+
+</edits_to_apply>

@@ -55,9 +55,9 @@ const AdminDashboard = lazy(() => import('@/pages/admin/AdminDashboard'));
 function App() {
   return (
     <ThemeProvider defaultTheme="light" storageKey="prepzr-ui-theme">
-      <BrowserRouter>
-        <AuthProvider>
-          <AdminAuthProvider>
+      <AuthProvider>
+        <AdminAuthProvider>
+          <BrowserRouter>
             <Routes>
               {/* Public routes */}
               <Route path="/" element={<Index />} />
@@ -147,9 +147,9 @@ function App() {
               <Route path="*" element={<NotFound />} />
             </Routes>
             <Toaster />
-          </AdminAuthProvider>
-        </AuthProvider>
-      </BrowserRouter>
+          </BrowserRouter>
+        </AdminAuthProvider>
+      </AuthProvider>
     </ThemeProvider>
   );
 }
