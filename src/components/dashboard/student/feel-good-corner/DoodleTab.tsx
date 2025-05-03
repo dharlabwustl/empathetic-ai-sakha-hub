@@ -1,8 +1,15 @@
 
 import React, { useRef, useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { Trash, Save, Share, Download } from "lucide-react";
+import { Trash, Save, Share, Download, Award } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+
+interface DailyWinner {
+  name: string;
+  avatar: string;
+  artwork: string;
+}
 
 const DoodleTab: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -12,6 +19,13 @@ const DoodleTab: React.FC = () => {
   const [brushSize, setBrushSize] = useState(5);
   const [savedDoodles, setSavedDoodles] = useState<string[]>([]);
   const { toast } = useToast();
+  
+  // Daily winner data
+  const dailyWinner: DailyWinner = {
+    name: "Priya Sharma",
+    avatar: "/avatars/02.png",
+    artwork: "https://picsum.photos/seed/doodle1/300/200"
+  };
 
   // Initialize canvas
   useEffect(() => {
@@ -166,6 +180,32 @@ const DoodleTab: React.FC = () => {
 
   return (
     <div className="space-y-4">
+      {/* Daily winner display */}
+      <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4">
+        <div className="flex items-start space-x-4">
+          <Avatar className="h-10 w-10 border-2 border-amber-300">
+            <AvatarImage src={dailyWinner.avatar} alt={dailyWinner.name} />
+            <AvatarFallback>{dailyWinner.name.substring(0, 2).toUpperCase()}</AvatarFallback>
+          </Avatar>
+          <div>
+            <div className="flex items-center">
+              <h3 className="font-medium">Today's Doodle Winner</h3>
+              <Award className="h-4 w-4 text-amber-500 ml-2" />
+            </div>
+            <p className="text-sm text-amber-700">
+              {dailyWinner.name}'s creativity shined with their amazing artwork!
+            </p>
+          </div>
+        </div>
+        <div className="mt-3 p-1 bg-white rounded border border-amber-200">
+          <img 
+            src={dailyWinner.artwork} 
+            alt="Winning doodle" 
+            className="w-full h-auto rounded object-contain max-h-32" 
+          />
+        </div>
+      </div>
+
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center space-x-2">
           <input 
