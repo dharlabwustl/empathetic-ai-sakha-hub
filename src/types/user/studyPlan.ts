@@ -8,7 +8,6 @@ export interface StudyPlanSubject {
   proficiency?: 'strong' | 'weak' | 'medium';
   difficulty?: 'easy' | 'medium' | 'hard';
   completed: boolean;
-  status?: 'pending' | 'in-progress' | 'completed' | 'skipped';
   topics?: Array<{
     id: string;
     name: string;
@@ -27,19 +26,17 @@ export interface StudyPlan {
   userId: string;
   goal: string;
   examGoal?: string;
-  title?: string;
   examDate?: string;
   createdAt: string;
   updatedAt: string;
   subjects: StudyPlanSubject[];
   weeklyHours: number;
-  status: 'active' | 'archived' | 'completed' | 'pending';
+  status: 'active' | 'archived' | 'completed';
   studyHoursPerDay?: number;
   preferredStudyTime?: 'morning' | 'afternoon' | 'evening' | 'night';
   learningPace?: 'slow' | 'moderate' | 'fast';
   progressPercentage?: number;
   daysLeft?: number;
-  progress?: number;
 }
 
 export type NewStudyPlan = Omit<StudyPlan, 'id' | 'userId' | 'createdAt' | 'updatedAt'>;

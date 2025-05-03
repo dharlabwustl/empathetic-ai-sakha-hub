@@ -1,12 +1,8 @@
 
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Smile, Frown, Meh, ThumbsUp, Brain, Cloud } from 'lucide-react';
-import { 
-  Popover,
-  PopoverContent,
-  PopoverTrigger
-} from '@/components/ui/popover';
+import { SmilePlus } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { MoodType } from '@/types/user/base';
 
 interface MoodLogButtonProps {
@@ -15,102 +11,74 @@ interface MoodLogButtonProps {
   className?: string;
 }
 
-const MoodLogButton: React.FC<MoodLogButtonProps> = ({ 
-  currentMood, 
+const MoodLogButton: React.FC<MoodLogButtonProps> = ({
+  currentMood,
   onMoodChange,
-  className = ''
+  className = '',
 }) => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [open, setOpen] = useState(false);
   
   const handleMoodSelect = (mood: MoodType) => {
     if (onMoodChange) {
       onMoodChange(mood);
-      
-      // Store the mood in localStorage
-      try {
-        const userData = localStorage.getItem('userData');
-        if (userData) {
-          const parsedUserData = JSON.parse(userData);
-          parsedUserData.mood = mood;
-          localStorage.setItem('userData', JSON.stringify(parsedUserData));
-        } else {
-          localStorage.setItem('userData', JSON.stringify({ mood }));
-        }
-        console.log('Mood saved:', mood);
-      } catch (error) {
-        console.error('Error saving mood to localStorage:', error);
-      }
     }
-    setIsOpen(false);
+    setOpen(false);
   };
   
-  const getMoodIcon = () => {
-    switch(currentMood) {
-      case MoodType.HAPPY:
-        return <Smile className="h-4 w-4 mr-1" />;
-      case MoodType.SAD:
-        return <Frown className="h-4 w-4 mr-1" />;
-      case MoodType.NEUTRAL:
-        return <Meh className="h-4 w-4 mr-1" />;
-      case MoodType.MOTIVATED:
-        return <ThumbsUp className="h-4 w-4 mr-1" />;
-      case MoodType.FOCUSED:
-        return <Brain className="h-4 w-4 mr-1" />;
-      case MoodType.ANXIOUS:
-        return <Cloud className="h-4 w-4 mr-1" />;
-      default:
-        return <Smile className="h-4 w-4 mr-1" />;
-    }
-  };
+  const moods: { label: string; emoji: string; value: MoodType }[] = [
+    { label: 'Happy', emoji: '😊', value: MoodType.Happy },
+    { label: 'Motivated', emoji: '💪', value: MoodType.Motivated },
+    { label: 'Focused', emoji: '🧠', value: MoodType.Focused },
+    { label: 'Neutral', emoji: '😐', value: MoodType.Neutral },
+    { label: 'Tired', emoji: '😴', value: MoodType.Tired },
+    { label: 'Anxious', emoji: '😰', value: MoodType.Anxious },
+    { label: 'Stressed', emoji: '😓', value: MoodType.Stressed },
+    { label: 'Sad', emoji: '😢', value: MoodType.Sad },
+  ];
   
-  const getMoodLabel = () => {
-    if (!currentMood) return 'Log Mood';
-    return `Feeling ${currentMood.toLowerCase()}`;
-  };
-  
+  const currentMoodEmoji = currentMood 
+    ? moods.find(m => m.value === currentMood)?.emoji 
+    : '📝';
+    
+  const currentMoodLabel = currentMood 
+    ? moods.find(m => m.value === currentMood)?.label 
+    : 'Log Mood';
+
   return (
-    <Popover open={isOpen} onOpenChange={setIsOpen}>
+    <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button 
           variant="outline" 
           size="sm" 
-          className={`flex items-center ${className}`}
+          className={`flex items-center gap-2 ${className}`}
         >
-          {getMoodIcon()}
-          {getMoodLabel()}
+          {currentMoodEmoji && <span>{currentMoodEmoji}</span>}
+          <span>{currentMoodLabel}</span>
+          <SmilePlus className="h-4 w-4" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-64 p-4">
-        <h4 className="font-medium mb-3">How are you feeling today?</h4>
-        <div className="grid grid-cols-3 gap-2">
-          <MoodButton mood={MoodType.HAPPY} icon={<Smile />} onClick={handleMoodSelect} />
-          <MoodButton mood={MoodType.NEUTRAL} icon={<Meh />} onClick={handleMoodSelect} />
-          <MoodButton mood={MoodType.SAD} icon={<Frown />} onClick={handleMoodSelect} />
-          <MoodButton mood={MoodType.MOTIVATED} icon={<ThumbsUp />} onClick={handleMoodSelect} />
-          <MoodButton mood={MoodType.FOCUSED} icon={<Brain />} onClick={handleMoodSelect} />
-          <MoodButton mood={MoodType.ANXIOUS} icon={<Cloud />} onClick={handleMoodSelect} />
+      <PopoverContent className="w-auto p-4" align="end">
+        <div className="space-y-2">
+          <h4 className="font-medium text-sm">How are you feeling?</h4>
+          <p className="text-xs text-muted-foreground">
+            Logging your mood helps us personalize your study plan.
+          </p>
+          <div className="grid grid-cols-4 gap-2 pt-2">
+            {moods.map((mood) => (
+              <Button
+                key={mood.value}
+                variant="ghost"
+                className="flex flex-col items-center px-2 py-3 h-auto"
+                onClick={() => handleMoodSelect(mood.value)}
+              >
+                <span className="text-2xl mb-1">{mood.emoji}</span>
+                <span className="text-xs">{mood.label}</span>
+              </Button>
+            ))}
+          </div>
         </div>
       </PopoverContent>
     </Popover>
-  );
-};
-
-interface MoodButtonProps {
-  mood: MoodType;
-  icon: React.ReactNode;
-  onClick: (mood: MoodType) => void;
-}
-
-const MoodButton: React.FC<MoodButtonProps> = ({ mood, icon, onClick }) => {
-  return (
-    <Button 
-      variant="outline"
-      className="flex flex-col items-center justify-center p-2 h-auto"
-      onClick={() => onClick(mood)}
-    >
-      <span className="text-lg mb-1">{icon}</span>
-      <span className="text-xs capitalize">{mood.toLowerCase()}</span>
-    </Button>
   );
 };
 
