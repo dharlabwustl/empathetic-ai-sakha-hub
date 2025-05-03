@@ -197,13 +197,14 @@ const CreateStudyPlanWizard: React.FC<CreateStudyPlanWizardProps> = ({
         proficiency,
         difficulty: subject?.difficulty || 'medium',
         completed: false,
+        progress: 0, // Add default progress
         topics: getTopicsForSubject(name)
       };
     });
     
     // Create the study plan
     const plan: NewStudyPlan = {
-      goal: examGoal, // Add the goal property to satisfy the type
+      goal: examGoal,
       examGoal,
       examDate: examDate ? format(examDate, 'yyyy-MM-dd') : format(new Date(), 'yyyy-MM-dd'),
       status: 'active',
@@ -441,72 +442,37 @@ const CreateStudyPlanWizard: React.FC<CreateStudyPlanWizardProps> = ({
   const steps = ['Exam Details', 'Subjects', 'Preferences', 'Review'];
 
   return (
-    <Dialog open={isOpen} onOpenChange={() => {
-      setStep(0);
-      onClose();
-    }}>
-      <DialogContent className="max-w-2xl">
+    <Dialog open={isOpen} onOpenChange={open => !open && onClose()}>
+      <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>Create New Study Plan</DialogTitle>
           <DialogDescription>
-            Set up a personalized study plan for your {examGoal} preparation
+            Let's create a personalized study plan for your {examGoal} exam preparation.
           </DialogDescription>
         </DialogHeader>
-        
-        {/* Step Indicator */}
-        <div className="flex justify-between mb-6">
-          {steps.map((stepName, idx) => (
-            <div key={idx} className="flex items-center">
-              <div 
-                className={`h-8 w-8 rounded-full flex items-center justify-center text-sm ${
-                  idx <= step
-                    ? 'bg-primary text-primary-foreground'
-                    : 'bg-gray-200 dark:bg-gray-700 text-muted-foreground'
-                }`}
-              >
-                {idx + 1}
-              </div>
-              {idx < steps.length - 1 && (
-                <div
-                  className={`h-1 w-12 sm:w-16 md:w-24 mx-1 ${
-                    idx < step
-                      ? 'bg-primary'
-                      : 'bg-gray-200 dark:bg-gray-700'
-                  }`}
-                ></div>
-              )}
-            </div>
-          ))}
-        </div>
-        
+
+        {/* Main content based on current step */}
         {renderStepContent()}
         
         {/* Navigation buttons */}
-        <div className="flex justify-between mt-6">
+        <div className="flex justify-between pt-6">
           {step > 0 ? (
-            <Button variant="outline" onClick={handleBack}>
+            <Button variant="outline" onClick={handleBack} disabled={isSubmitting}>
               Back
             </Button>
           ) : (
-            <div></div>
+            <Button variant="outline" onClick={onClose} disabled={isSubmitting}>
+              Cancel
+            </Button>
           )}
           
-          {step < steps.length - 1 ? (
-            <Button 
-              onClick={handleNext} 
-              disabled={isNextDisabled()}
-              className="flex items-center"
-            >
-              Next
-              <ChevronRight className="ml-1 h-4 w-4" />
+          {step < 3 ? (
+            <Button onClick={handleNext} disabled={isNextDisabled() || isSubmitting}>
+              Next <ChevronRight className="ml-2 h-4 w-4" />
             </Button>
           ) : (
-            <Button 
-              onClick={handleCreate} 
-              disabled={isSubmitting}
-              className="bg-green-600 hover:bg-green-700"
-            >
-              {isSubmitting ? 'Creating...' : 'Create Study Plan'}
+            <Button onClick={handleCreate} disabled={isSubmitting} className="bg-green-600 hover:bg-green-700">
+              {isSubmitting ? 'Creating...' : 'Create Plan'}
             </Button>
           )}
         </div>

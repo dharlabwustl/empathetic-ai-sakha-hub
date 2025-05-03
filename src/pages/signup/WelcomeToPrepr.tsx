@@ -9,8 +9,8 @@ import { motion } from 'framer-motion';
 const WelcomeToPrepr = () => {
   const navigate = useNavigate();
   
-  const handleContinueToDashboard = () => {
-    navigate('/dashboard/student');
+  const handleContinue = () => {
+    navigate('/welcome-steps');
   };
 
   return (
@@ -132,10 +132,10 @@ const WelcomeToPrepr = () => {
           <div className="flex justify-center">
             <Button 
               size="lg" 
-              onClick={handleContinueToDashboard}
+              onClick={handleContinue}
               className="px-8 bg-gradient-to-r from-purple-600 to-blue-600"
             >
-              Continue to Dashboard <ArrowRight className="ml-2 h-4 w-4" />
+              Continue <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </div>
         </motion.div>

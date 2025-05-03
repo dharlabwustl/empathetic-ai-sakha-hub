@@ -5,7 +5,7 @@ import OnboardingFlow from "@/components/dashboard/student/OnboardingFlow";
 import DashboardLoading from "@/pages/dashboard/student/DashboardLoading";
 import DashboardLayout from "@/pages/dashboard/student/DashboardLayout";
 import SplashScreen from "@/components/dashboard/student/SplashScreen";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import RedesignedDashboardOverview from "@/components/dashboard/student/RedesignedDashboardOverview";
 import { MoodType } from "@/types/user/base";
 import WelcomeTour from "@/components/dashboard/student/WelcomeTour";
@@ -15,6 +15,7 @@ const StudentDashboard = () => {
   const [currentMood, setCurrentMood] = useState<MoodType | undefined>(undefined);
   const [showTourModal, setShowTourModal] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
   
   const {
     loading,
@@ -47,6 +48,7 @@ const StudentDashboard = () => {
     const params = new URLSearchParams(location.search);
     const isNewUser = params.get('new') === 'true';
     const completedOnboarding = params.get('completedOnboarding') === 'true';
+    const showTour = params.get('showTour') === 'true';
     
     // Check if user has already seen the tour
     const hasSeenTour = localStorage.getItem("hasSeenTour") === "true";
@@ -56,7 +58,7 @@ const StudentDashboard = () => {
       setShowSplash(false);
       
       // Only show tour for new users if they haven't seen it
-      if (!hasSeenTour) {
+      if (!hasSeenTour && showTour) {
         setShowTourModal(true);
         // Mark that the user has seen the tour
         localStorage.setItem("hasSeenTour", "true");
@@ -67,13 +69,23 @@ const StudentDashboard = () => {
       setShowSplash(!hasSeen);
       
       // For returning users who haven't seen the tour
-      if (!hasSeenTour && showWelcomeTour) {
+      if (showTour && !hasSeenTour) {
         // Short timeout just to let the dashboard render first
         setTimeout(() => {
           setShowTourModal(true);
           localStorage.setItem("hasSeenTour", "true");
         }, 500);
       }
+    }
+    
+    // Clean up the URL parameters
+    if (params.has('showTour')) {
+      const newParams = new URLSearchParams(params);
+      newParams.delete('showTour');
+      navigate({
+        pathname: location.pathname,
+        search: newParams.toString()
+      }, { replace: true });
     }
     
     // Try to get saved mood from local storage
@@ -84,7 +96,7 @@ const StudentDashboard = () => {
         setCurrentMood(parsedData.mood);
       }
     }
-  }, [location, showWelcomeTour]);
+  }, [location, showWelcomeTour, navigate]);
   
   const handleSplashComplete = () => {
     setShowSplash(false);
