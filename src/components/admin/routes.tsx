@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { RouteObject } from 'react-router-dom';
-import AdminDashboard from "@/components/admin/AdminDashboard";
+import AdminDashboard from "@/pages/admin/AdminDashboard";
 import AdminRouteGuard from './AdminRouteGuard';
 import { DocumentationPage } from "@/pages/admin/DocumentationPage";
 import FlaskGuidePage from "@/pages/admin/FlaskGuidePage";
