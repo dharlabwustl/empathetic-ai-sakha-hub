@@ -13,20 +13,29 @@ const VoiceSettingsTab = () => {
   const { settings, updateSettings, testVoice, getAvailableVoices } = useVoiceAnnouncerContext();
   const voices = getAvailableVoices();
   
-  // Filter for Indian English voices first, then all English voices
-  const indianEnglishVoices = voices.filter(voice => 
-    voice.lang === 'en-IN' || 
-    voice.name.toLowerCase().includes('indian') ||
-    voice.name.toLowerCase().includes('hindi')
+  // Filter voices to prioritize female Indian voices first, then all Indian voices, then other English voices
+  const femaleIndianVoices = voices.filter(voice => 
+    (voice.lang === 'en-IN' || 
+     voice.name.toLowerCase().includes('indian') || 
+     voice.name.toLowerCase().includes('hindi')) &&
+    voice.name.toLowerCase().includes('female')
+  );
+  
+  const otherIndianVoices = voices.filter(voice => 
+    (voice.lang === 'en-IN' || 
+     voice.name.toLowerCase().includes('indian') || 
+     voice.name.toLowerCase().includes('hindi')) &&
+    !femaleIndianVoices.includes(voice)
   );
   
   const englishVoices = voices.filter(voice => 
     voice.lang.startsWith('en') && 
-    !indianEnglishVoices.includes(voice)
+    !femaleIndianVoices.includes(voice) &&
+    !otherIndianVoices.includes(voice)
   );
   
-  // Combine them with Indian voices first
-  const prioritizedVoices = [...indianEnglishVoices, ...englishVoices];
+  // Combine them with female Indian voices first, then other Indian voices, then English voices
+  const prioritizedVoices = [...femaleIndianVoices, ...otherIndianVoices, ...englishVoices];
   
   return (
     <div className="space-y-6">
