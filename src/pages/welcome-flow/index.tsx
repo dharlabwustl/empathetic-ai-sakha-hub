@@ -248,9 +248,13 @@ const WelcomeFlow = () => {
                 initial={{ scale: 0, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ type: "spring", stiffness: 200, delay: 0.3 }}
-                className="rounded-full bg-gradient-to-br from-purple-500 to-blue-500 w-24 h-24 mb-4 overflow-hidden flex items-center justify-center text-white text-3xl font-bold shadow-lg"
+                className="rounded-full overflow-hidden w-24 h-24 mb-4 shadow-lg"
               >
-                DP
+                <img 
+                  src="/lovable-uploads/2536e929-d62e-4754-919e-759100b32e1d.png" 
+                  alt="Amit Singh" 
+                  className="w-full h-full object-cover"
+                />
               </motion.div>
               <motion.p 
                 initial={{ opacity: 0, y: 5 }}
@@ -258,7 +262,7 @@ const WelcomeFlow = () => {
                 transition={{ delay: 0.4 }}
                 className="font-medium text-center mb-1"
               >
-                Dr. Patel
+                Amit Singh
               </motion.p>
               <motion.p 
                 initial={{ opacity: 0, y: 5 }}
