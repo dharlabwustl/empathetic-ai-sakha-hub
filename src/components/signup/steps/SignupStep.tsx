@@ -150,7 +150,10 @@ const SignupStep: React.FC<SignupStepProps> = ({ onSubmit, isLoading }) => {
         </div>
         
         <div>
-          <Label htmlFor="mobile">Mobile Number</Label>
+          <div className="mb-2">
+            <h3 className="font-semibold text-base">Question 2: Which exam are you preparing for?</h3>
+            <Label htmlFor="mobile">Mobile Number</Label>
+          </div>
           <Input 
             id="mobile" 
             name="mobile" 
@@ -188,13 +191,6 @@ const SignupStep: React.FC<SignupStepProps> = ({ onSubmit, isLoading }) => {
             />
           </div>
         )}
-        
-        <div>
-          <div className="mb-2">
-            <h3 className="font-semibold text-base">Question 2: Which exam are you preparing for?</h3>
-            <Label htmlFor="examGoal">Exam Preparing For</Label>
-          </div>
-        </div>
         
         <div className="flex items-center space-x-2">
           <Checkbox 

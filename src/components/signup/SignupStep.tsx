@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
-import { useOnboarding } from "../OnboardingContext";
+import { useOnboarding } from "./OnboardingContext";
 import { motion } from "framer-motion";
 import { Star } from "lucide-react";
 
@@ -134,7 +134,10 @@ const SignupStep: React.FC<SignupStepProps> = ({ onSubmit, isLoading }) => {
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <Label htmlFor="name">Full Name</Label>
+          <div className="mb-2">
+            <h3 className="font-semibold text-base">Question 1: Identify yourself</h3>
+            <Label htmlFor="name">Full Name</Label>
+          </div>
           <Input 
             id="name" 
             name="name" 
@@ -147,7 +150,10 @@ const SignupStep: React.FC<SignupStepProps> = ({ onSubmit, isLoading }) => {
         </div>
         
         <div>
-          <Label htmlFor="mobile">Mobile Number</Label>
+          <div className="mb-2">
+            <h3 className="font-semibold text-base">Question 2: Which exam are you preparing for?</h3>
+            <Label htmlFor="mobile">Mobile Number</Label>
+          </div>
           <Input 
             id="mobile" 
             name="mobile" 
