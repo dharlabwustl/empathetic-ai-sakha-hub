@@ -37,7 +37,8 @@ const ProfileDetails: React.FC<ProfileDetailsProps> = ({
   // Check for voice tab in URL params
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
-    if (searchParams.get('tab') === 'voice') {
+    const tab = searchParams.get('tab');
+    if (tab === 'voice') {
       setActiveTab('voice');
     }
   }, [location]);
@@ -70,7 +71,7 @@ const ProfileDetails: React.FC<ProfileDetailsProps> = ({
     navigate({
       pathname: location.pathname,
       search: searchParams.toString()
-    });
+    }, { replace: true });
   };
 
   const renderPersonalInfo = () => {
