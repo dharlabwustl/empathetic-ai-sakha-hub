@@ -6,6 +6,12 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { Input } from "@/components/ui/input";
 import { Mic, MicOff, MessageSquare, Volume2 } from "lucide-react";
 import { useVoiceAnnouncerContext } from './VoiceAnnouncer';
@@ -52,70 +58,91 @@ const VoiceQueryControl: React.FC<VoiceQueryControlProps> = ({ className }) => {
   };
   
   return (
-    <Popover open={isOpen} onOpenChange={setIsOpen}>
-      <PopoverTrigger asChild>
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          className={`relative ${className} ${isSpeaking ? 'bg-primary/10' : ''}`}
-          aria-label="Voice Assistant"
-        >
-          <Volume2 className={`h-5 w-5 ${isSpeaking ? 'text-primary animate-pulse' : ''}`} />
-          {settings.enabled && (
-            <span className="absolute top-0 right-0 w-2 h-2 bg-green-500 rounded-full"></span>
-          )}
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-80" align="end">
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h4 className="font-medium text-sm">Voice Assistant</h4>
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={testVoice}
-              className="h-8 text-xs"
-            >
-              Test Voice
-            </Button>
-          </div>
-          
-          <form onSubmit={handleSubmitQuery} className="flex gap-2">
-            <Input
-              placeholder="Ask me anything..."
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              className="flex-1"
-            />
-            <Button 
-              type="button" 
-              size="icon" 
-              variant={isListening ? "destructive" : "outline"} 
-              onClick={toggleListening}
-            >
-              {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
-            </Button>
-            <Button 
-              type="submit" 
-              size="icon"
-              disabled={!query.trim()}
-            >
-              <MessageSquare className="h-4 w-4" />
-            </Button>
-          </form>
-          
-          <div className="text-xs text-muted-foreground">
-            <p>Try asking:</p>
-            <ul className="list-disc pl-4 space-y-1 mt-1">
-              <li>"What's my next task?"</li>
-              <li>"How many tasks do I have today?"</li>
-              <li>"Tell me about PREPZR"</li>
-              <li>"What can you do?"</li>
-            </ul>
-          </div>
-        </div>
-      </PopoverContent>
-    </Popover>
+    <TooltipProvider delayDuration={300}>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Popover open={isOpen} onOpenChange={setIsOpen}>
+            <PopoverTrigger asChild>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className={`relative ${className} ${isSpeaking ? 'bg-primary/10' : ''}`}
+                aria-label="Voice Assistant"
+              >
+                <Volume2 className={`h-5 w-5 ${isSpeaking ? 'text-primary animate-pulse' : ''}`} />
+                {settings.enabled && (
+                  <span className="absolute top-0 right-0 w-2 h-2 bg-green-500 rounded-full"></span>
+                )}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-80" align="end">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h4 className="font-medium text-sm">Voice Assistant</h4>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={testVoice}
+                    className="h-8 text-xs"
+                  >
+                    Test Voice
+                  </Button>
+                </div>
+                
+                <form onSubmit={handleSubmitQuery} className="flex gap-2">
+                  <Input
+                    placeholder="Ask me anything..."
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    className="flex-1"
+                  />
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button 
+                        type="button" 
+                        size="icon" 
+                        variant={isListening ? "destructive" : "outline"} 
+                        onClick={toggleListening}
+                      >
+                        {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom">
+                      {isListening ? "Stop Voice Input" : "Start Voice Input"}
+                    </TooltipContent>
+                  </Tooltip>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button 
+                        type="submit" 
+                        size="icon"
+                        disabled={!query.trim()}
+                      >
+                        <MessageSquare className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom">Send Question</TooltipContent>
+                  </Tooltip>
+                </form>
+                
+                <div className="text-xs text-muted-foreground">
+                  <p>Try asking:</p>
+                  <ul className="list-disc pl-4 space-y-1 mt-1">
+                    <li>"What's my next task?"</li>
+                    <li>"How many tasks do I have today?"</li>
+                    <li>"Tell me about PREPZR"</li>
+                    <li>"What can you do?"</li>
+                  </ul>
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
+        </TooltipTrigger>
+        <TooltipContent side="bottom">
+          Voice Assistant - Ask questions or get information
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   );
 };
 

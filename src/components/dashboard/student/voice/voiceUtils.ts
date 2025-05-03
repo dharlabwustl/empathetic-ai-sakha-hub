@@ -118,9 +118,8 @@ export const findBestIndianVoice = (): SpeechSynthesisVoice | undefined => {
 
 // Improve pronunciation of specific words
 const improvePronunciation = (text: string): string => {
-  // Replace "PREPZR" with a phonetic spelling that sounds better ("prep-zir")
-  // This consistently pronounces the app name the same way each time
-  return text.replace(/PREPZR|Prepzr|prepzr/g, 'prep-zee-are');
+  // Replace "PREPZR" with a phonetic spelling that sounds better ("prep-EEZ-er")
+  return text.replace(/PREPZR|Prepzr|prepzr/g, 'prep-eez-er');
 };
 
 // Function to speak a message with current settings
@@ -171,4 +170,3 @@ export const speakMessage = (message: string, forceSpeak: boolean = false): void
   // Speak the message
   window.speechSynthesis.speak(utterance);
 };
-

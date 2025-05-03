@@ -3,6 +3,12 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Card } from "@/components/ui/card";
 import { LucideIcon } from 'lucide-react';
+import { 
+  Tooltip,
+  TooltipContent, 
+  TooltipProvider,
+  TooltipTrigger
+} from "@/components/ui/tooltip";
 
 interface AnimatedFeatureCardProps {
   title: string;
@@ -10,6 +16,7 @@ interface AnimatedFeatureCardProps {
   icon: LucideIcon;
   color: string;
   onClick?: () => void;
+  tooltipText?: string;
 }
 
 const AnimatedFeatureCard: React.FC<AnimatedFeatureCardProps> = ({
@@ -17,9 +24,10 @@ const AnimatedFeatureCard: React.FC<AnimatedFeatureCardProps> = ({
   description,
   icon: Icon,
   color,
-  onClick
+  onClick,
+  tooltipText
 }) => {
-  return (
+  const content = (
     <motion.div
       whileHover={{ 
         scale: 1.03,
@@ -43,6 +51,24 @@ const AnimatedFeatureCard: React.FC<AnimatedFeatureCardProps> = ({
       </Card>
     </motion.div>
   );
+  
+  // If tooltip text is provided, wrap in Tooltip, otherwise return the content directly
+  if (tooltipText) {
+    return (
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            {content}
+          </TooltipTrigger>
+          <TooltipContent className="max-w-xs">
+            <p>{tooltipText}</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    );
+  }
+  
+  return content;
 };
 
 export default AnimatedFeatureCard;
