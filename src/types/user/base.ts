@@ -60,6 +60,15 @@ export enum StudyPreferenceType {
   Mixed = 'mixed'
 }
 
+export enum PersonalityType {
+  Analytical = 'analytical',
+  Creative = 'creative',
+  Practical = 'practical',
+  Visual = 'visual',
+  Auditory = 'auditory',
+  Kinesthetic = 'kinesthetic'
+}
+
 export interface UserProfileBase {
   id: string;
   name: string;
