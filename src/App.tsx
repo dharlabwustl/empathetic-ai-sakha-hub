@@ -73,7 +73,7 @@ function App() {
               <Route path="/privacy" element={<Privacy />} />
               <Route path="/database/schema" element={<DatabaseSchemaCSVPage />} />
               
-              {/* Public Flask Guide route */}
+              {/* Public Flask Guide route - explicitly defined outside of admin routes */}
               <Route path="/flask-guide" element={<PublicFlaskGuidePage />} />
 
               {/* Admin routes */}
