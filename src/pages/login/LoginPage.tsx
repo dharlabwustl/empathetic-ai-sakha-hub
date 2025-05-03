@@ -14,7 +14,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 const LoginPage = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { login } = useAuth();
+  const { login, isAuthenticated } = useAuth();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -23,6 +23,13 @@ const LoginPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [loginError, setLoginError] = useState<string | null>(null);
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/dashboard/student', { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -67,21 +74,12 @@ const LoginPage = () => {
             localStorage.setItem("userData", JSON.stringify({
               ...parsedData,
               loginCount,
-              lastLogin: new Date().toISOString()
+              lastLogin: new Date().toISOString(),
+              isAuthenticated: true
             }));
           } catch (error) {
             console.error("Error parsing user data:", error);
           }
-        } else {
-          // If no user data exists, create it
-          const newUserData = {
-            name: formData.email.split('@')[0],
-            email: formData.email,
-            loginCount: 1,
-            lastLogin: new Date().toISOString(),
-            mood: 'Motivated'
-          };
-          localStorage.setItem("userData", JSON.stringify(newUserData));
         }
         
         // Navigate directly to student dashboard

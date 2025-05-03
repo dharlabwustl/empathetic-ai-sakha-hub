@@ -14,6 +14,7 @@ import StudentDashboard from '@/pages/dashboard/StudentDashboard';
 import FeelGoodCornerView from '@/pages/dashboard/student/FeelGoodCornerView';
 import AdminLogin from '@/pages/admin/AdminLogin';
 import AdminRouteGuard from '@/components/admin/AdminRouteGuard';
+import AdminDashboard from '@/pages/admin/AdminDashboard';
 import TodaysPlanView from '@/pages/dashboard/student/TodaysPlanView';
 import ConceptStudyPage from '@/pages/dashboard/student/concept/ConceptStudyPage';
 import FlashcardPracticePage from '@/pages/dashboard/student/flashcard/FlashcardPracticePage';
@@ -53,7 +54,6 @@ import PostSignupWelcome from '@/components/signup/PostSignupWelcome';
 import WelcomeFlow from '@/pages/welcome-flow';
 import adminRoutes from './components/admin/routes';
 import PublicFlaskGuidePage from './pages/admin/PublicFlaskGuidePage';
-import AdminDashboard from '@/pages/admin/AdminDashboard';
 import SubscriptionPage from './pages/subscription/SubscriptionPage';
 
 function App() {
@@ -82,8 +82,18 @@ function App() {
                   <AdminDashboard />
                 </AdminRouteGuard>
               } />
+              
+              {/* Add other admin routes */}
               {adminRoutes.map((route, index) => (
-                <Route key={index} path={route.path} element={route.element} />
+                <Route 
+                  key={index} 
+                  path={route.path} 
+                  element={
+                    <AdminRouteGuard>
+                      {route.element}
+                    </AdminRouteGuard>
+                  } 
+                />
               ))}
 
               {/* Legacy route for compatibility */}

@@ -50,6 +50,8 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
           }
         } catch (error) {
           console.error('Error parsing admin data:', error);
+          localStorage.removeItem('admin_user');
+          localStorage.removeItem('admin_logged_in');
         }
       }
       

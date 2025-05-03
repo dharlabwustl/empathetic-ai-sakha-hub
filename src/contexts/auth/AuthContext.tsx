@@ -52,6 +52,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           }
         } catch (error) {
           console.error('Error parsing user data:', error);
+          // Clear invalid data
+          localStorage.removeItem('userData');
         }
       }
       
@@ -67,7 +69,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     
     return new Promise<boolean>((resolve) => {
       setTimeout(() => {
-        if (email && password && password.length >= 3) {
+        if (email && password && password.length >= 2) {
           const newUser: User = {
             id: '1',
             name: email.split('@')[0] || 'Student',
@@ -102,7 +104,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             loginCount: loginCount,
             sawWelcomeSlider: sawWelcomeSlider,
             sawWelcomeTour: sawWelcomeTour,
-            mood: 'Motivated'
+            mood: 'Motivated',
+            isAuthenticated: true
           }));
           
           setUser(newUser);
@@ -114,7 +117,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           console.log("Login failed for:", email);
           resolve(false);
         }
-      }, 1000);
+      }, 800);
     });
   };
 
@@ -130,7 +133,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           mood: parsedData.mood,
           completedOnboarding: parsedData.completedOnboarding,
           sawWelcomeTour: parsedData.sawWelcomeTour,
-          sawWelcomeSlider: parsedData.sawWelcomeSlider
+          sawWelcomeSlider: parsedData.sawWelcomeSlider,
+          isAuthenticated: false
         }));
       } catch (error) {
         console.error('Error during logout:', error);
