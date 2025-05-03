@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -13,13 +12,13 @@ import PrepzrLogo from "@/components/common/PrepzrLogo";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const AdminLogin = () => {
+  const navigate = useNavigate();
   const { adminLogin } = useAdminAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [loginError, setLoginError] = useState<string | null>(null);
-  const navigate = useNavigate();
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -34,25 +33,20 @@ const AdminLogin = () => {
     setLoginError(null);
     
     try {
-      // In a real app, this would validate admin credentials against a backend
-      // For now, we'll simulate a successful login
-      console.log("Admin login attempt:", email);
+      // Call the adminLogin function from the context
+      const success = await adminLogin(email, password);
       
-      // Store admin login state in localStorage
-      localStorage.setItem("admin_logged_in", "true");
-      localStorage.setItem("admin_user", JSON.stringify({
-        email,
-        name: "Admin User",
-        role: "admin"
-      }));
-      
-      toast({
-        title: "Login successful",
-        description: "Welcome to the admin dashboard",
-      });
-      
-      // Navigate directly to admin dashboard
-      navigate("/admin/dashboard", { replace: true });
+      if (success) {
+        toast({
+          title: "Login successful",
+          description: "Welcome to the admin dashboard",
+        });
+        
+        // Navigate to admin dashboard
+        navigate("/admin/dashboard", { replace: true });
+      } else {
+        setLoginError("Invalid admin credentials");
+      }
     } catch (error) {
       console.error("Admin login error:", error);
       setLoginError("An unexpected error occurred");

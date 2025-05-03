@@ -1,20 +1,23 @@
+
 import React, { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
+import { ThemeProvider } from './components/theme-provider';
+import { AuthProvider } from '@/contexts/auth/AuthContext';
+import { AdminAuthProvider } from '@/contexts/auth/AdminAuthContext';
+
+// Import pages and components
 import Index from '@/pages/Index';
 import SignUp from '@/pages/SignUp';
 import NotFound from '@/pages/NotFound';
 import StudentDashboard from '@/pages/dashboard/StudentDashboard';
 import FeelGoodCornerView from '@/pages/dashboard/student/FeelGoodCornerView';
-import { AdminAuthProvider } from '@/contexts/auth/AdminAuthContext';
 import AdminLogin from '@/pages/admin/AdminLogin';
 import AdminRouteGuard from '@/components/admin/AdminRouteGuard';
-import { AuthProvider } from '@/contexts/auth/AuthContext';
 import TodaysPlanView from '@/pages/dashboard/student/TodaysPlanView';
 import ConceptStudyPage from '@/pages/dashboard/student/concept/ConceptStudyPage';
 import FlashcardPracticePage from '@/pages/dashboard/student/flashcard/FlashcardPracticePage';
 import LoadingScreen from '@/components/common/LoadingScreen';
-import { ThemeProvider } from './components/theme-provider';
 import AppRoutes from './components/dashboard/student/AppRoutes';
 import ConceptCardDetailPage from './components/dashboard/student/concepts/ConceptCardDetailPage';
 import ExamTakingPage from './components/dashboard/student/practice-exam/ExamTakingPage';
@@ -29,10 +32,10 @@ import TutorView from '@/pages/dashboard/student/TutorView';
 import AcademicAdvisorView from '@/pages/dashboard/student/AcademicAdvisorView';
 import FlashcardPracticeLandingPage from '@/pages/dashboard/student/flashcard/FlashcardPracticeLandingPage';
 import ConceptStudyLandingPage from '@/pages/dashboard/student/concept/ConceptStudyLandingPage';
-import ConceptsLandingPage from '@/components/dashboard/student/concepts/ConceptsLandingPage';
-import FlashcardsLandingPage from '@/components/dashboard/student/flashcards/FlashcardsLandingPage';
-import EnhancedFlashcardPractice from '@/components/dashboard/student/flashcards/EnhancedFlashcardPractice';
-import FlashcardInteractive from '@/components/dashboard/student/flashcards/FlashcardInteractive';
+import ConceptsLandingPage from './components/dashboard/student/concepts/ConceptsLandingPage';
+import FlashcardsLandingPage from './components/dashboard/student/flashcards/FlashcardsLandingPage';
+import EnhancedFlashcardPractice from './components/dashboard/student/flashcards/EnhancedFlashcardPractice';
+import FlashcardInteractive from './components/dashboard/student/flashcards/FlashcardInteractive';
 import FlashcardDetailsPage from '@/pages/dashboard/student/FlashcardDetailsPage';
 import InteractiveFlashcardBrowser from '@/components/flashcards/InteractiveFlashcardBrowser';
 import { NotificationsView } from '@/components/dashboard/student/notifications/NotificationsView';
@@ -52,14 +55,13 @@ import adminRoutes from './components/admin/routes';
 import PublicFlaskGuidePage from './pages/admin/PublicFlaskGuidePage';
 import AdminDashboard from '@/pages/admin/AdminDashboard';
 import SubscriptionPage from './pages/subscription/SubscriptionPage';
-// Import the SubscriptionPage component
 
 function App() {
   return (
     <ThemeProvider defaultTheme="light" storageKey="prepzr-ui-theme">
-      <AuthProvider>
-        <AdminAuthProvider>
-          <BrowserRouter>
+      <BrowserRouter>
+        <AuthProvider>
+          <AdminAuthProvider>
             <Routes>
               {/* Public routes */}
               <Route path="/" element={<Index />} />
@@ -145,9 +147,9 @@ function App() {
               <Route path="*" element={<NotFound />} />
             </Routes>
             <Toaster />
-          </BrowserRouter>
-        </AdminAuthProvider>
-      </AuthProvider>
+          </AdminAuthProvider>
+        </AuthProvider>
+      </BrowserRouter>
     </ThemeProvider>
   );
 }
