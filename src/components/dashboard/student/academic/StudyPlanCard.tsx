@@ -1,95 +1,121 @@
 
 import React from 'react';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import { Button } from "@/components/ui/button";
-import { Check, Clock, ChevronRight, BookOpen, Brain, FileCheck } from 'lucide-react';
-import { Badge } from "@/components/ui/badge";
-import { formatDate } from "@/utils/dateUtils";
-import type { StudyPlan } from '@/types/user/studyPlan';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { CalendarClock, ChevronRight } from 'lucide-react';
+import { format, parseISO } from 'date-fns';
+import { StudyPlan, StudyPlanSubject } from '@/types/user/studyPlan';
+import { Progress } from '@/components/ui/progress';
 
 interface StudyPlanCardProps {
   plan: StudyPlan;
-  onViewDetails: (planId: string) => void;
+  onClick: (planId: string) => void;
+  isActive?: boolean;
 }
 
-const StudyPlanCard: React.FC<StudyPlanCardProps> = ({ plan, onViewDetails }) => {
-  // Calculate total statistics
-  const totalTopics = plan.subjects.reduce((acc, subject) => acc + subject.topics.length, 0);
-  const completedTopics = plan.subjects.reduce((acc, subject) => 
-    acc + subject.topics.filter(topic => topic.status === 'completed').length, 0
-  );
-  
-  const stats = [
-    { icon: <BookOpen className="h-4 w-4" />, label: 'Topics', value: `${completedTopics}/${totalTopics}` },
-    { icon: <Brain className="h-4 w-4" />, label: 'Hours/Day', value: `${plan.studyHoursPerDay}h` },
-    { icon: <FileCheck className="h-4 w-4" />, label: 'Progress', value: `${plan.progressPercentage}%` },
-  ];
+const StudyPlanCard: React.FC<StudyPlanCardProps> = ({
+  plan,
+  onClick,
+  isActive = false
+}) => {
+  const formatDate = (dateString: string) => {
+    try {
+      return format(parseISO(dateString), 'MMM d, yyyy');
+    } catch {
+      return dateString;
+    }
+  };
+
+  // Calculate subject progress if not available directly
+  const getSubjectProgress = (subject: StudyPlanSubject): number => {
+    if (!subject.topics || subject.topics.length === 0) return 0;
+    
+    const completedTopics = subject.topics.filter(topic => topic.completed).length;
+    return Math.round((completedTopics / subject.topics.length) * 100);
+  };
+
+  const renderSubjects = () => {
+    // Show only up to 3 subjects
+    return plan.subjects.slice(0, 3).map(subject => (
+      <div key={subject.id} className="flex flex-col space-y-1">
+        <div className="flex justify-between items-center">
+          <div className="flex items-center">
+            <div 
+              className="w-3 h-3 rounded-full mr-2" 
+              style={{ backgroundColor: subject.color }}
+            ></div>
+            <span className="text-sm font-medium">{subject.name}</span>
+          </div>
+          <span className="text-xs text-gray-500">
+            {getSubjectProgress(subject)}%
+          </span>
+        </div>
+        <Progress
+          value={getSubjectProgress(subject)}
+          className="h-1.5"
+          style={{ backgroundColor: 'rgba(200, 200, 200, 0.3)' }}
+        />
+        <div className="flex items-center justify-between text-xs text-gray-500">
+          <span>{subject.proficiency !== 'weak' ? 'Strong' : 'Needs Work'}</span>
+          <span>{subject.hoursPerWeek} hrs/week</span>
+        </div>
+      </div>
+    ));
+  };
 
   return (
-    <Card className="bg-white dark:bg-gray-800 shadow-lg hover:shadow-xl transition-all duration-300">
-      <CardHeader className="bg-gradient-to-r from-indigo-500/10 to-purple-500/10 dark:from-indigo-500/20 dark:to-purple-500/20">
-        <div className="flex justify-between items-center">
+    <Card className={`hover:shadow-md transition-all ${isActive ? 'border-2 border-primary' : ''}`}>
+      <CardHeader className="pb-2">
+        <div className="flex justify-between items-start">
           <div>
-            <CardTitle className="text-lg font-semibold">{plan.examGoal}</CardTitle>
-            <CardDescription>Created on {formatDate(plan.createdAt)}</CardDescription>
+            <h3 className="font-semibold text-lg">{plan.examGoal} Preparation</h3>
+            <div className="flex items-center text-sm text-muted-foreground">
+              <CalendarClock className="mr-1 h-3.5 w-3.5" />
+              <span>
+                {formatDate(plan.examDate)} 
+                {plan.daysLeft && plan.daysLeft > 0 ? ` • ${plan.daysLeft} days left` : ''}
+              </span>
+            </div>
           </div>
-          <Badge variant={plan.status === 'active' ? 'default' : 'secondary'} 
-                className={plan.status === 'active' ? 'bg-green-500 hover:bg-green-600' : 'bg-gray-500 hover:bg-gray-600'}>
-            {plan.status === 'active' ? `${plan.daysLeft} days left` : plan.status}
-          </Badge>
+          
+          <div className="text-right">
+            <div className="text-sm font-semibold">
+              {plan.progressPercentage || 0}% Complete
+            </div>
+            <div 
+              className={`text-xs ${
+                plan.status === 'active' ? 'text-green-600' : 
+                plan.status === 'completed' ? 'text-blue-600' : 'text-amber-600'
+              }`}
+            >
+              {plan.status.charAt(0).toUpperCase() + plan.status.slice(1)}
+            </div>
+          </div>
         </div>
       </CardHeader>
-
-      <CardContent className="p-4 space-y-6">
-        <div>
-          <h3 className="font-medium mb-2">Overall Progress</h3>
-          <Progress value={plan.progressPercentage} className="h-2 mb-2" />
-          <div className="grid grid-cols-3 gap-2 mt-4">
-            {stats.map((stat, index) => (
-              <div key={index} className="flex flex-col items-center p-2 bg-gray-50 dark:bg-gray-900 rounded-lg">
-                {stat.icon}
-                <span className="text-xs text-gray-600 dark:text-gray-400 mt-1">{stat.label}</span>
-                <span className="font-semibold">{stat.value}</span>
-              </div>
-            ))}
+      
+      <CardContent>
+        <div className="space-y-4">
+          <div className="space-y-3">
+            {renderSubjects()}
           </div>
-        </div>
-
-        <div className="space-y-3">
-          {plan.subjects.map(subject => (
-            <div key={subject.name} className="space-y-1">
-              <div className="flex justify-between items-center">
-                <span className="font-medium">{subject.name}</span>
-                <span className="text-sm text-gray-600 dark:text-gray-400">
-                  {subject.progress}%
-                </span>
-              </div>
-              <Progress value={subject.progress} 
-                className={`h-1.5 ${
-                  subject.proficiency === 'strong' ? 'bg-green-500' : 
-                  subject.proficiency === 'moderate' ? 'bg-amber-500' : 
-                  'bg-red-500'
-                }`} />
-              <div className="text-xs text-gray-500 flex justify-between mt-1">
-                <span>Proficiency: {subject.proficiency}</span>
-                <span>{subject.topics.filter(t => t.status === 'completed').length}/{subject.topics.length} topics</span>
-              </div>
+          
+          {plan.subjects.length > 3 && (
+            <div className="text-xs text-center text-muted-foreground">
+              + {plan.subjects.length - 3} more subjects
             </div>
-          ))}
+          )}
+          
+          <Button 
+            variant="outline"
+            className="w-full flex items-center justify-between"
+            onClick={() => onClick(plan.id)}
+          >
+            <span>View Plan Details</span>
+            <ChevronRight className="h-4 w-4 ml-2" />
+          </Button>
         </div>
       </CardContent>
-
-      <CardFooter className="border-t pt-4">
-        <Button 
-          variant="outline" 
-          className="w-full hover:bg-indigo-50 dark:hover:bg-indigo-950" 
-          onClick={() => onViewDetails(plan.id)}
-        >
-          <ChevronRight className="h-4 w-4 mr-2" />
-          View Details
-        </Button>
-      </CardFooter>
     </Card>
   );
 };

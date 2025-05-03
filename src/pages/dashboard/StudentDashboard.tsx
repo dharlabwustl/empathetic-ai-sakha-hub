@@ -42,31 +42,37 @@ const StudentDashboard = () => {
     toggleTabsNav
   } = useStudentDashboard();
 
-  // Check URL parameters for onboarding status and show tour immediately
+  // Check URL parameters and localStorage for first-time user status
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const isNewUser = params.get('new') === 'true';
     const completedOnboarding = params.get('completedOnboarding') === 'true';
     
-    console.log("URL params:", { isNewUser, completedOnboarding });
+    // Check if user has already seen the tour
+    const hasSeenTour = localStorage.getItem("hasSeenTour") === "true";
     
     // Don't show splash screen for new users coming from signup flow
     if (isNewUser) {
       setShowSplash(false);
-      // Always show tour for new users, immediately
-      setShowTourModal(true);
+      
+      // Only show tour for new users if they haven't seen it
+      if (!hasSeenTour) {
+        setShowTourModal(true);
+        // Mark that the user has seen the tour
+        localStorage.setItem("hasSeenTour", "true");
+      }
     } else {
       // Check if the user has seen the splash screen in this session
       const hasSeen = sessionStorage.getItem("hasSeenSplash");
       setShowSplash(!hasSeen);
       
       // For returning users who haven't seen the tour
-      const hasSeenTour = localStorage.getItem("userData") ? 
-        JSON.parse(localStorage.getItem("userData") || '{}').sawWelcomeTour : false;
-      
-      if (!hasSeenTour) {
+      if (!hasSeenTour && showWelcomeTour) {
         // Short timeout just to let the dashboard render first
-        setTimeout(() => setShowTourModal(true), 500);
+        setTimeout(() => {
+          setShowTourModal(true);
+          localStorage.setItem("hasSeenTour", "true");
+        }, 500);
       }
     }
     
@@ -78,7 +84,7 @@ const StudentDashboard = () => {
         setCurrentMood(parsedData.mood);
       }
     }
-  }, [location]);
+  }, [location, showWelcomeTour]);
   
   const handleSplashComplete = () => {
     setShowSplash(false);
@@ -100,11 +106,13 @@ const StudentDashboard = () => {
   const handleSkipTourWrapper = () => {
     handleSkipTour();
     setShowTourModal(false);
+    localStorage.setItem("hasSeenTour", "true");
   };
 
   const handleCompleteTourWrapper = () => {
     handleCompleteTour();
     setShowTourModal(false);
+    localStorage.setItem("hasSeenTour", "true");
   };
 
   // Show splash screen if needed
@@ -119,7 +127,7 @@ const StudentDashboard = () => {
   // Show onboarding flow only for users who haven't completed it
   if (showOnboarding) {
     // Make sure we have a goal to work with
-    const defaultGoal = "IIT-JEE";
+    const defaultGoal = "NEET";
     const goalTitle = userProfile?.goals?.[0]?.title || defaultGoal;
     
     return (
@@ -167,7 +175,7 @@ const StudentDashboard = () => {
         {getTabContent()}
       </DashboardLayout>
       
-      {/* Welcome Tour Modal - will show immediately for new users */}
+      {/* Welcome Tour Modal - will show once for new users */}
       <WelcomeTour
         open={showTourModal}
         onOpenChange={setShowTourModal}

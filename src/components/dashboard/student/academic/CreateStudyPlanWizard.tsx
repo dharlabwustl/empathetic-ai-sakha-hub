@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -82,12 +81,111 @@ const CreateStudyPlanWizard: React.FC<CreateStudyPlanWizardProps> = ({
     });
   };
 
+  const getTopicsForSubject = (name: string) => {
+    // Generate sample topics for each subject
+    switch(name.toLowerCase()) {
+      case 'physics':
+        return [
+          { 
+            id: `topic-${Date.now()}-1`, 
+            name: "Mechanics", 
+            difficulty: "medium" as const, 
+            completed: false, 
+            status: "in-progress" as const, 
+            priority: "high" as const 
+          },
+          { 
+            id: `topic-${Date.now()}-2`, 
+            name: "Thermodynamics", 
+            difficulty: "hard" as const, 
+            completed: false, 
+            status: "pending" as const, 
+            priority: "medium" as const 
+          },
+          { 
+            id: `topic-${Date.now()}-3`, 
+            name: "Electrostatics", 
+            difficulty: "medium" as const, 
+            completed: false, 
+            status: "pending" as const, 
+            priority: "high" as const 
+          }
+        ];
+      case 'chemistry':
+        return [
+          { 
+            id: `topic-${Date.now()}-1`, 
+            name: "Organic Chemistry", 
+            difficulty: "hard" as const, 
+            completed: false, 
+            status: "pending" as const, 
+            priority: "high" as const 
+          },
+          { 
+            id: `topic-${Date.now()}-2`, 
+            name: "Chemical Bonding", 
+            difficulty: "medium" as const, 
+            completed: false, 
+            status: "in-progress" as const, 
+            priority: "medium" as const 
+          },
+          { 
+            id: `topic-${Date.now()}-3`, 
+            name: "Equilibrium", 
+            difficulty: "easy" as const, 
+            completed: false, 
+            status: "pending" as const, 
+            priority: "low" as const 
+          }
+        ];
+      case 'biology':
+        return [
+          { 
+            id: `topic-${Date.now()}-1`, 
+            name: "Cell Biology", 
+            difficulty: "medium" as const, 
+            completed: false, 
+            status: "in-progress" as const, 
+            priority: "high" as const 
+          },
+          { 
+            id: `topic-${Date.now()}-2`, 
+            name: "Human Physiology", 
+            difficulty: "hard" as const, 
+            completed: false, 
+            status: "pending" as const, 
+            priority: "high" as const 
+          },
+          { 
+            id: `topic-${Date.now()}-3`, 
+            name: "Genetics", 
+            difficulty: "medium" as const, 
+            completed: false, 
+            status: "pending" as const, 
+            priority: "medium" as const 
+          }
+        ];
+      default:
+        return [
+          { 
+            id: `topic-${Date.now()}-1`, 
+            name: "Basic Concepts", 
+            difficulty: "medium" as const, 
+            completed: false, 
+            status: "pending" as const, 
+            priority: "high" as const 
+          }
+        ];
+    }
+  };
+
   const handleCreate = () => {
     setIsSubmitting(true);
     
     // Create subjects array from selected subjects
     const subjects: StudyPlanSubject[] = selectedSubjects.map(name => {
       const subject = subjectOptions.find(option => option.name === name);
+      // Map 'moderate' to 'medium' for proficiency to match the expected type
       const proficiency = subject?.proficiency || 'medium';
       
       return {
@@ -99,12 +197,13 @@ const CreateStudyPlanWizard: React.FC<CreateStudyPlanWizardProps> = ({
         proficiency,
         difficulty: subject?.difficulty || 'medium',
         completed: false,
-        topics: []
+        topics: getTopicsForSubject(name)
       };
     });
     
     // Create the study plan
     const plan: NewStudyPlan = {
+      goal: examGoal, // Add the goal property to satisfy the type
       examGoal,
       examDate: examDate ? format(examDate, 'yyyy-MM-dd') : format(new Date(), 'yyyy-MM-dd'),
       status: 'active',

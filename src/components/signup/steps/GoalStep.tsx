@@ -9,11 +9,9 @@ interface GoalStepProps {
 }
 
 const GoalStep: React.FC<GoalStepProps> = ({ role, onGoalSelect }) => {
-  // Updated to focus only on these 3 exams
+  // Updated to focus only on NEET exam
   const studentGoals = [
-    "IIT-JEE",
-    "NEET",
-    "UPSC"
+    "NEET"
   ];
 
   return (

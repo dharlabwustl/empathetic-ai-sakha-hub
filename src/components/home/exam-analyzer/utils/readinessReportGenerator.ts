@@ -2,22 +2,29 @@
 import { UserAnswer, TestResults } from '../types';
 
 export const generateReadinessReport = (answers: UserAnswer[], examType: string): TestResults => {
-  // For readiness, we'll assume answers are self-assessment on a scale (index 0-3)
-  // Calculate weighted score based on answer index (0 = worst, 3 = best)
+  // For readiness, we'll calculate based on answer selection (index 0-3)
   let totalWeight = 0;
   let totalScore = 0;
   
   answers.forEach(answer => {
     // Get the question categories and weight differently
     if (answer.questionId.includes('rt-')) {
-      const optionIndex = parseInt(answer.answer.charAt(0)) - 1;
+      // Extract option index from the answer - choices are indexed from 0
+      // Format of answer is typically "1", "2", "3", "4" for options
+      const optionIndex = parseInt(answer.answer) - 1;
+      
+      // Each question has 4 options with values 0-3
       totalWeight += 3; // max possible score per question
+      
+      // Add points based on selected option (higher index = better readiness)
       totalScore += optionIndex;
     }
   });
   
-  // Convert to percentage
-  const score = Math.floor((totalScore / (answers.length * 3)) * 100);
+  // Convert to percentage, ensuring we avoid division by zero
+  const score = answers.length > 0 
+    ? Math.floor((totalScore / (answers.length * 3)) * 100) 
+    : 0;
   
   // Determine level based on score
   let level = '';
