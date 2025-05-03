@@ -7,6 +7,7 @@ import {
   Users, Brain, CheckCircle, BookOpen, 
   ScrollText, ClipboardList
 } from 'lucide-react';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 // Define the stats based on the admin data structure
 const defaultStats = [
@@ -208,52 +209,71 @@ export const KpiStats = () => {
         </h2>
       </motion.div>
       
-      <motion.div
-        variants={containerVariants}
-        initial="hidden"
-        animate={inView ? "visible" : "hidden"}
-        className="flex flex-nowrap overflow-x-auto space-x-4 md:space-x-6 pb-4 px-2 max-w-7xl mx-auto scrollbar-hide"
-      >
-        {stats.map((stat) => (
-          <motion.div 
-            key={stat.id} 
-            variants={itemVariants}
-            className="flex-none w-[200px] md:w-[220px] flex flex-col items-center text-center p-3 md:p-4 bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-100 dark:border-gray-700"
-            whileHover={{ y: -5, boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1)" }}
-          >
+      <ScrollArea className="w-full max-w-7xl mx-auto h-auto">
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          animate={inView ? "visible" : "hidden"}
+          className="flex gap-4 md:gap-6 pb-4 px-2"
+        >
+          {stats.map((stat) => (
             <motion.div 
-              className="text-2xl md:text-3xl mb-2 p-2 rounded-full bg-gray-50 dark:bg-gray-700"
-              whileHover={{ scale: 1.2, rotate: [0, -5, 5, 0] }}
-              transition={{ type: "spring", stiffness: 400 }}
+              key={stat.id} 
+              variants={itemVariants}
+              className="flex-none w-[200px] md:w-[220px] flex flex-col items-center text-center p-3 md:p-4 bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-100 dark:border-gray-700"
+              whileHover={{ 
+                y: -5, 
+                boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1)",
+                scale: 1.02,
+                transition: { duration: 0.3 }
+              }}
             >
-              {stat.icon}
+              <motion.div 
+                className="text-2xl md:text-3xl mb-2 p-2 rounded-full bg-gray-50 dark:bg-gray-700"
+                whileHover={{ scale: 1.2, rotate: [0, -5, 5, 0] }}
+                transition={{ 
+                  type: "spring", 
+                  stiffness: 400,
+                  damping: 10
+                }}
+                animate={{
+                  boxShadow: ["0 0 0 rgba(129, 140, 248, 0)", "0 0 20px rgba(129, 140, 248, 0.5)", "0 0 0 rgba(129, 140, 248, 0)"]
+                }}
+                transition={{
+                  repeat: Infinity,
+                  duration: 3,
+                }}
+              >
+                {stat.icon}
+              </motion.div>
+              <h3 className="text-sm text-gray-600 dark:text-gray-300 mb-1 font-medium">
+                {stat.label}
+              </h3>
+              <motion.div 
+                className="text-lg md:text-xl font-bold text-purple-600 dark:text-purple-400 flex items-center"
+                whileHover={{ scale: 1.05 }}
+                transition={{ type: "spring", stiffness: 400 }}
+              >
+                <span>{stat.prefix}</span>
+                {inView ? (
+                  <CountUp 
+                    start={0} 
+                    end={stat.value} 
+                    duration={2.5} 
+                    separator="," 
+                    decimals={stat.decimals}
+                    decimal="."
+                    useEasing={true}
+                  />
+                ) : (
+                  <span>0</span>
+                )}
+                <span>{stat.suffix}</span>
+              </motion.div>
             </motion.div>
-            <h3 className="text-sm text-gray-600 dark:text-gray-300 mb-1 font-medium">
-              {stat.label}
-            </h3>
-            <motion.div 
-              className="text-lg md:text-xl font-bold text-purple-600 dark:text-purple-400 flex items-center"
-              whileHover={{ scale: 1.05 }}
-              transition={{ type: "spring", stiffness: 400 }}
-            >
-              <span>{stat.prefix}</span>
-              {inView ? (
-                <CountUp 
-                  start={0} 
-                  end={stat.value} 
-                  duration={2.5} 
-                  separator="," 
-                  decimals={stat.decimals}
-                  decimal="."
-                />
-              ) : (
-                <span>0</span>
-              )}
-              <span>{stat.suffix}</span>
-            </motion.div>
-          </motion.div>
-        ))}
-      </motion.div>
+          ))}
+        </motion.div>
+      </ScrollArea>
     </div>
   );
 };
