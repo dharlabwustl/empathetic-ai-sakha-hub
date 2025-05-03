@@ -57,7 +57,7 @@ const LoginPage = () => {
           localStorage.removeItem("prepzr_remembered_email");
         }
         
-        // Check for existing user data to determine if they're returning
+        // Save login info to localStorage
         const userData = localStorage.getItem("userData");
         if (userData) {
           try {
@@ -69,12 +69,8 @@ const LoginPage = () => {
               loginCount,
               lastLogin: new Date().toISOString()
             }));
-            
-            // Navigate directly to student dashboard (more seamless)
-            navigate("/dashboard/student/today", { replace: true });
           } catch (error) {
             console.error("Error parsing user data:", error);
-            navigate("/dashboard/student", { replace: true });
           }
         } else {
           // If no user data exists, create it
@@ -86,8 +82,10 @@ const LoginPage = () => {
             mood: 'Motivated'
           };
           localStorage.setItem("userData", JSON.stringify(newUserData));
-          navigate("/dashboard/student", { replace: true });
         }
+        
+        // Navigate directly to student dashboard
+        navigate("/dashboard/student", { replace: true });
       } else {
         setLoginError("Invalid email or password. Please try again.");
       }

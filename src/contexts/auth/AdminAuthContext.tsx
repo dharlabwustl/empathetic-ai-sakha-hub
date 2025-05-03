@@ -33,12 +33,13 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
       setAdminLoading(true);
       
       // Check if admin data exists in localStorage
-      const adminData = localStorage.getItem('adminData');
+      const adminData = localStorage.getItem('admin_user');
       if (adminData) {
         try {
           const parsedData = JSON.parse(adminData);
           if (parsedData.email) {
             // Admin is already logged in
+            console.log("Admin authenticated from localStorage:", parsedData.email);
             setAdminUser({
               id: parsedData.id || 'admin-1',
               name: parsedData.name || 'Admin User',
@@ -65,7 +66,7 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
     return new Promise<boolean>((resolve) => {
       setTimeout(() => {
         // For demo purposes, accept any email that includes 'admin'
-        if (email.includes('admin')) {
+        if (email.includes('admin') || email === 'admin@prepzr.com') {
           const newAdminUser: AdminUser = {
             id: 'admin-1',
             name: 'Admin User',
@@ -75,12 +76,15 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
           };
           
           // Save admin data to localStorage
-          localStorage.setItem('adminData', JSON.stringify(newAdminUser));
+          localStorage.setItem('admin_logged_in', 'true');
+          localStorage.setItem('admin_user', JSON.stringify(newAdminUser));
           
           setAdminUser(newAdminUser);
+          console.log("Admin login successful for:", email);
           setAdminLoading(false);
           resolve(true);
         } else {
+          console.log("Admin login failed for:", email);
           setAdminLoading(false);
           resolve(false);
         }
@@ -90,8 +94,10 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
 
   // Admin logout function
   const adminLogout = () => {
-    localStorage.removeItem('adminData');
+    localStorage.removeItem('admin_logged_in');
+    localStorage.removeItem('admin_user');
     setAdminUser(null);
+    console.log("Admin logged out");
   };
 
   return (

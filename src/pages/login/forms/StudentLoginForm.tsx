@@ -62,9 +62,9 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
       // In a real app, this would validate credentials against a backend
       console.log("Attempting to log in with:", credentials.email);
       
-      const user = await login(credentials.email, credentials.password);
+      const success = await login(credentials.email, credentials.password);
       
-      if (user) {
+      if (success) {
         // Handle remember me functionality
         if (rememberMe) {
           localStorage.setItem("prepzr_remembered_email", credentials.email);
@@ -95,16 +95,13 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
               lastActivity,
               lastLogin: new Date().toISOString()
             }));
-            
-            // Always direct to the pending activities screen first
-            navigate("/dashboard/student/today");
           } catch (error) {
             console.error("Error updating user data:", error);
-            navigate("/dashboard/student/today");
           }
-        } else {
-          navigate("/dashboard/student/today");
         }
+        
+        // Direct navigation to the student dashboard
+        navigate("/dashboard/student", { replace: true });
       } else {
         setLoginError("Invalid email or password");
       }

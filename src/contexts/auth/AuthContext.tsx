@@ -48,6 +48,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
               email: parsedData.email,
               role: parsedData.role || UserRole.Student
             });
+            console.log("User authenticated from localStorage:", parsedData.email);
           }
         } catch (error) {
           console.error('Error parsing user data:', error);
@@ -106,9 +107,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           
           setUser(newUser);
           setLoading(false);
+          console.log("Login successful for:", email);
           resolve(true);
         } else {
           setLoading(false);
+          console.log("Login failed for:", email);
           resolve(false);
         }
       }, 1000);
@@ -134,6 +137,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
     }
     setUser(null);
+    console.log("User logged out");
   };
   
   return (
