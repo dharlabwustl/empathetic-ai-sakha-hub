@@ -14,6 +14,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { UserProfileType } from "@/types/user";
 import { CreditCard, User, Volume2 } from "lucide-react";
+import { VoiceAnnouncerProvider } from "../voice/VoiceAnnouncer";
 import BatchManagement from "./BatchManagement";
 import SubscriptionDetails from "./SubscriptionDetails";
 import ProfileImageUpload from "./ProfileImageUpload";
@@ -159,7 +160,9 @@ const ProfileDetails: React.FC<ProfileDetailsProps> = ({
       </TabsContent>
       
       <TabsContent value="voice" className="space-y-6">
-        <VoiceSettingsTab />
+        <VoiceAnnouncerProvider>
+          <VoiceSettingsTab />
+        </VoiceAnnouncerProvider>
       </TabsContent>
     </Tabs>
   );
