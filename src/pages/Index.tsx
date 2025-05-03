@@ -15,6 +15,7 @@ import FoundingTeamSection from '@/components/home/FoundingTeamSection';
 import EcosystemAnimation from '@/components/home/EcosystemAnimation';
 import ChampionMethodologySection from '@/components/home/ChampionMethodologySection';
 import AchievementsSection from '@/components/home/AchievementsSection';
+import FloatingVoiceAnnouncer from '@/components/shared/FloatingVoiceAnnouncer';
 
 const Index = () => {
   const featuresRef = useRef<HTMLDivElement>(null);
@@ -91,6 +92,9 @@ const Index = () => {
       </main>
       
       <Footer />
+      
+      {/* Add the FloatingVoiceAnnouncer */}
+      <FloatingVoiceAnnouncer />
     </div>
   );
 };

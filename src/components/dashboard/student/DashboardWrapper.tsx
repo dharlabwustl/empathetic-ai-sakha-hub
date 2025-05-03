@@ -1,13 +1,16 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { VoiceAnnouncerProvider, useVoiceAnnouncerContext } from "./voice/VoiceAnnouncer";
 import { initializeVoices, fixVoiceSystem } from "./voice/voiceUtils";
+import { Button } from "@/components/ui/button";
+import { HelpCircle } from "lucide-react";
 
 interface DashboardWrapperProps {
   children: React.ReactNode;
+  onOpenTour?: () => void;
 }
 
-const VoiceWrapper = ({ children }: { children: React.ReactNode }) => {
+const VoiceWrapper = ({ children, onOpenTour }: { children: React.ReactNode; onOpenTour?: () => void }) => {
   // Initialize voice announcer
   const voiceAnnouncer = useVoiceAnnouncerContext();
   
@@ -63,13 +66,38 @@ const VoiceWrapper = ({ children }: { children: React.ReactNode }) => {
     };
   }, []);
   
-  return <>{children}</>;
+  // Add the Tour Guide button at the top
+  const [showTourButton, setShowTourButton] = useState(true);
+  
+  // Hide the tour button after a few days of usage
+  useEffect(() => {
+    const loginCount = parseInt(localStorage.getItem('loginCount') || '0', 10);
+    setShowTourButton(loginCount < 10); // Show for the first 10 logins
+  }, []);
+  
+  return (
+    <>
+      {showTourButton && onOpenTour && (
+        <div className="fixed top-16 right-4 z-50 animate-bounce">
+          <Button 
+            onClick={onOpenTour}
+            variant="default"
+            className="rounded-full bg-gradient-to-r from-primary to-violet-600 text-white shadow-lg"
+          >
+            <HelpCircle className="mr-2 h-4 w-4" />
+            Take a Tour
+          </Button>
+        </div>
+      )}
+      {children}
+    </>
+  );
 };
 
-const DashboardWrapper: React.FC<DashboardWrapperProps> = ({ children }) => {
+const DashboardWrapper: React.FC<DashboardWrapperProps> = ({ children, onOpenTour }) => {
   return (
     <VoiceAnnouncerProvider>
-      <VoiceWrapper>
+      <VoiceWrapper onOpenTour={onOpenTour}>
         {children}
       </VoiceWrapper>
     </VoiceAnnouncerProvider>
