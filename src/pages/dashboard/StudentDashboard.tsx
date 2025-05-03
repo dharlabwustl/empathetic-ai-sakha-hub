@@ -10,6 +10,7 @@ import RedesignedDashboardOverview from "@/components/dashboard/student/Redesign
 import { MoodType } from "@/types/user/base";
 import WelcomeTour from "@/components/dashboard/student/WelcomeTour";
 import { getCurrentMoodFromLocalStorage, storeMoodInLocalStorage } from "@/components/dashboard/student/mood-tracking/moodUtils";
+import { VoiceAnnouncerProvider, getVoiceSettings, speakMessage, getGreeting } from "@/components/dashboard/student/voice/VoiceAnnouncer";
 
 const StudentDashboard = () => {
   const [showSplash, setShowSplash] = useState(true);
@@ -83,6 +84,20 @@ const StudentDashboard = () => {
     }
   }, [location, showWelcomeTour]);
   
+  // Handle voice welcome when dashboard is loaded
+  useEffect(() => {
+    if (!showSplash && userProfile && !showOnboarding) {
+      const settings = getVoiceSettings();
+      if (settings.enabled && settings.announceGreetings) {
+        const greeting = getGreeting(currentMood);
+        // Small delay to ensure everything is loaded
+        setTimeout(() => {
+          speakMessage(`${greeting} ${userProfile.name || ''}. ${suggestedNextAction || 'What would you like to focus on today?'}`);
+        }, 1000);
+      }
+    }
+  }, [showSplash, userProfile, showOnboarding, currentMood, suggestedNextAction]);
+  
   const handleSplashComplete = () => {
     setShowSplash(false);
     // Mark that the user has seen the splash screen in this session
@@ -100,6 +115,36 @@ const StudentDashboard = () => {
     setCurrentMood(mood);
     // Store mood in localStorage using the utility function
     storeMoodInLocalStorage(mood);
+    
+    // Voice feedback when mood changes
+    const settings = getVoiceSettings();
+    if (settings.enabled && settings.announceGreetings) {
+      let message = "";
+      switch(mood) {
+        case 'motivated':
+          message = "You're motivated today! That's great. Let's make the most of your energy.";
+          break;
+        case 'tired':
+          message = "I see you're feeling tired. I'll suggest lighter tasks for today.";
+          break;
+        case 'focused':
+          message = "You're focused today! Perfect for tackling challenging material.";
+          break;
+        case 'anxious':
+          message = "I understand you're feeling anxious. Let's break down your tasks into manageable steps.";
+          break;
+        case 'stressed':
+          message = "You're feeling stressed. Let's prioritize and tackle one thing at a time.";
+          break;
+        case 'confident':
+          message = "You're confident today! Let's work on challenging topics.";
+          break;
+        default:
+          message = "Thank you for sharing your mood. I'll customize suggestions accordingly.";
+      }
+      
+      speakMessage(message);
+    }
   };
 
   const handleSkipTourWrapper = () => {
@@ -157,7 +202,7 @@ const StudentDashboard = () => {
   };
 
   return (
-    <>
+    <VoiceAnnouncerProvider>
       <DashboardLayout
         userProfile={userProfile}
         hideSidebar={hideSidebar}
@@ -194,7 +239,7 @@ const StudentDashboard = () => {
         suggestedNextAction={suggestedNextAction}
         loginCount={userProfile.loginCount}
       />
-    </>
+    </VoiceAnnouncerProvider>
   );
 };
 
