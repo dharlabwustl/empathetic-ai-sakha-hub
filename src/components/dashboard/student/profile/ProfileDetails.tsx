@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
@@ -142,9 +141,11 @@ const ProfileDetails: React.FC<ProfileDetailsProps> = ({
           <CreditCard className="h-4 w-4" />
           <span>Subscription</span>
         </TabsTrigger>
-        <TabsTrigger value="voice" className="flex gap-2 items-center">
+        <TabsTrigger value="voice" className="flex gap-2 items-center relative">
           <Volume2 className="h-4 w-4" />
           <span>Voice Control</span>
+          {/* Highlight for new feature */}
+          <span className="absolute -top-1 -right-1 w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
         </TabsTrigger>
       </TabsList>
 

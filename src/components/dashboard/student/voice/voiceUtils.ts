@@ -127,7 +127,7 @@ export const speakMessage = (message: string, forceSpeak: boolean = false): void
   const settings = getVoiceSettings();
   
   // Return early if voice is disabled or we've already spoken this message
-  if (!settings.enabled || (!forceSpeak && spokenMessages.has(message))) {
+  if (!settings.enabled && !forceSpeak) {
     return;
   }
   
