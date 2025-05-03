@@ -1,5 +1,5 @@
 
-import React, { Fragment } from "react";
+import { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -9,10 +9,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import { Steps, StepLabel } from "@/components/ui/steps";
-import { Check, X, BookOpen, Clock, Calendar, LineChart, MessageSquare, User, Video, FileText } from "lucide-react";
-import PrepzrLogo from "@/components/common/PrepzrLogo";
+import { motion } from 'framer-motion';
+import { Brain, Calendar, FileText, ChevronRight, ChevronLeft, BookOpen, MessageSquare } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface WelcomeTourProps {
   onSkipTour: () => void;
@@ -21,181 +20,228 @@ interface WelcomeTourProps {
   lastActivity?: { type: string; description: string } | null;
   suggestedNextAction?: string | null;
   loginCount?: number;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
-export default function WelcomeTour({
+const WelcomeTour = ({
   onSkipTour,
   onCompleteTour,
-  isFirstTimeUser = true,
-  open,
-  onOpenChange,
-}: WelcomeTourProps) {
+  isFirstTimeUser = false,
+  lastActivity,
+  suggestedNextAction,
+  loginCount = 0,
+  open = false,
+  onOpenChange
+}: WelcomeTourProps) => {
+  const [currentStep, setCurrentStep] = useState(0);
+  const [showTour, setShowTour] = useState(open);
+  
+  useEffect(() => {
+    // Check if this is a user coming from signup flow
+    const urlParams = new URLSearchParams(window.location.search);
+    const isNewUser = urlParams.get('new') === 'true';
+    const completedOnboarding = urlParams.get('completedOnboarding') === 'true';
+    
+    if (isNewUser && completedOnboarding) {
+      // Open the tour automatically for new users who completed onboarding
+      setShowTour(true);
+      // Store that the user has seen the tour
+      localStorage.setItem("hasSeenTour", "true");
+      
+      // Clear URL parameters without refreshing the page
+      window.history.replaceState({}, document.title, window.location.pathname);
+    } else {
+      setShowTour(open);
+    }
+  }, [open]);
+  
+  useEffect(() => {
+    if (onOpenChange) {
+      onOpenChange(showTour);
+    }
+  }, [showTour, onOpenChange]);
+
+  const steps = [
+    {
+      title: "Welcome to Your Dashboard",
+      description: "Your command center for exam excellence",
+      content: (
+        <div className="space-y-4">
+          <p>
+            This is your personalized dashboard designed to help you achieve your exam goals. 
+            Let me show you around so you can make the most of your learning journey!
+          </p>
+          <div className="flex items-center gap-2 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-100 dark:border-blue-800">
+            <Calendar className="h-5 w-5 text-blue-600 dark:text-blue-400 flex-shrink-0" />
+            <p className="text-sm">Your daily study plan and progress tracking are all in one place.</p>
+          </div>
+        </div>
+      ),
+      icon: <Calendar className="h-8 w-8 text-blue-600" />
+    },
+    {
+      title: "Smart Learning Tools",
+      description: "AI-powered tools to accelerate your learning",
+      content: (
+        <div className="space-y-4">
+          <p>
+            PREPZR offers several powerful learning tools designed to help you master concepts faster:
+          </p>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-100 dark:border-purple-800 flex flex-col items-center text-center">
+              <Brain className="h-6 w-6 text-purple-600 dark:text-purple-400 mb-2" />
+              <h4 className="font-medium">Flashcards</h4>
+              <p className="text-xs">Spaced repetition learning</p>
+            </div>
+            <div className="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-100 dark:border-green-800 flex flex-col items-center text-center">
+              <BookOpen className="h-6 w-6 text-green-600 dark:text-green-400 mb-2" />
+              <h4 className="font-medium">Concept Cards</h4>
+              <p className="text-xs">Visual concept mastery</p>
+            </div>
+            <div className="p-3 bg-cyan-50 dark:bg-cyan-900/20 rounded-lg border border-cyan-100 dark:border-cyan-800 flex flex-col items-center text-center">
+              <FileText className="h-6 w-6 text-cyan-600 dark:text-cyan-400 mb-2" />
+              <h4 className="font-medium">Practice Tests</h4>
+              <p className="text-xs">Real exam simulation</p>
+            </div>
+            <div className="p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-100 dark:border-amber-800 flex flex-col items-center text-center">
+              <MessageSquare className="h-6 w-6 text-amber-600 dark:text-amber-400 mb-2" />
+              <h4 className="font-medium">AI Tutor</h4>
+              <p className="text-xs">On-demand help</p>
+            </div>
+          </div>
+        </div>
+      ),
+      icon: <Brain className="h-8 w-8 text-purple-600" />
+    },
+    {
+      title: "Daily Study Plan",
+      description: "Stay on track with your personalized schedule",
+      content: (
+        <div className="space-y-4">
+          <p>
+            Your Today's Plan is automatically generated based on your study goals, preferences, and learning pace.
+          </p>
+          <div className="bg-indigo-50 dark:bg-indigo-900/20 rounded-lg border border-indigo-100 dark:border-indigo-800 p-4">
+            <ul className="space-y-2 text-sm">
+              <li className="flex items-start gap-2">
+                <span className="bg-indigo-200 dark:bg-indigo-700 text-indigo-900 dark:text-indigo-100 rounded-full h-5 w-5 flex items-center justify-center text-xs flex-shrink-0">1</span>
+                <span>Study sessions are balanced across subjects</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="bg-indigo-200 dark:bg-indigo-700 text-indigo-900 dark:text-indigo-100 rounded-full h-5 w-5 flex items-center justify-center text-xs flex-shrink-0">2</span>
+                <span>Focus more on areas where you need improvement</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="bg-indigo-200 dark:bg-indigo-700 text-indigo-900 dark:text-indigo-100 rounded-full h-5 w-5 flex items-center justify-center text-xs flex-shrink-0">3</span>
+                <span>Adjusts based on your progress and upcoming exam dates</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      ),
+      icon: <Calendar className="h-8 w-8 text-indigo-600" />
+    }
+  ];
+  
+  const handleNextStep = () => {
+    if (currentStep < steps.length - 1) {
+      setCurrentStep(currentStep + 1);
+    } else {
+      setShowTour(false);
+      onCompleteTour();
+    }
+  };
+  
+  const handlePreviousStep = () => {
+    if (currentStep > 0) {
+      setCurrentStep(currentStep - 1);
+    }
+  };
+  
   const handleSkip = () => {
+    setShowTour(false);
     onSkipTour();
   };
 
-  const handleComplete = () => {
-    onCompleteTour();
+  // Animation variants
+  const variants = {
+    initial: { opacity: 0, y: 20 },
+    animate: { opacity: 1, y: 0 },
+    exit: { opacity: 0, y: -20 }
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[650px] max-h-[90vh] overflow-y-auto">
+    <Dialog open={showTour} onOpenChange={(open) => {
+      setShowTour(open);
+      if (!open) onSkipTour();
+    }}>
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <div className="flex items-center justify-center mb-4">
-            <PrepzrLogo width={100} height={100} />
+            <motion.div 
+              className="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center"
+              initial={{ scale: 0.8 }}
+              animate={{ scale: 1 }}
+              transition={{ duration: 0.5 }}
+            >
+              {steps[currentStep].icon}
+            </motion.div>
           </div>
-          <DialogTitle className="text-2xl text-center">Welcome to PREPZR!</DialogTitle>
-          <DialogDescription className="text-center">
-            Your personalized study companion powered by AI
-          </DialogDescription>
+          <DialogTitle>{steps[currentStep].title}</DialogTitle>
+          <DialogDescription>{steps[currentStep].description}</DialogDescription>
         </DialogHeader>
-
-        <div className="py-4">
-          <div className="mb-6 flex flex-col md:flex-row gap-4 p-4 bg-gradient-to-r from-blue-50 to-violet-50 border border-blue-100 rounded-lg">
-            <img
-              src="/lovable-uploads/ffb2594e-ee5e-424c-92ff-417777e347c9.png"
-              alt="Amit Singh - Founder"
-              className="w-24 h-24 object-cover rounded-full mx-auto md:mx-0 border-2 border-blue-200"
-            />
-            <div>
-              <h3 className="font-medium text-blue-700 text-center md:text-left">A Message From Our Founder</h3>
-              <p className="text-gray-700 text-sm mt-2 italic">
-                "Hi, I'm Amit Singh, Founder of Prepzr. You've taken the first step toward mastering your exam journey.
-                Prepzr isn't just another prep tool — it's your 24/7 personal coach, your daily motivator and your smart companion.
-                We personalize everything — from study plans to concept clarity — based on your exam goals, mood and pace."
-              </p>
-              <p className="text-gray-700 text-sm mt-2 italic">
-                "Let's stay focused. Let's stay consistent. Let's crack it — together."
-              </p>
-              <p className="text-blue-600 mt-2 text-sm font-medium text-right">— Amit Singh, Founder, Prepzr</p>
-            </div>
-          </div>
-
-          <Separator className="my-4" />
-
-          <h3 className="font-medium text-lg mb-3">What makes PREPZR special:</h3>
-          <Steps>
-            <Fragment>
-              <StepLabel>
-                <h4 className="font-medium">Personalized Study Plan</h4>
-                <p className="text-sm text-muted-foreground">Automatically adapts to your learning style and progress</p>
-              </StepLabel>
-              <StepLabel>
-                <h4 className="font-medium">AI-Powered Assistance</h4>
-                <p className="text-sm text-muted-foreground">Get help with concepts and track your progress</p>
-              </StepLabel>
-              <StepLabel>
-                <h4 className="font-medium">Mood-Adaptive Learning</h4>
-                <p className="text-sm text-muted-foreground">Study plans that adjust to your current mental state</p>
-              </StepLabel>
-              <StepLabel>
-                <h4 className="font-medium">Comprehensive Resources</h4>
-                <p className="text-sm text-muted-foreground">Concept cards, flashcards, and practice exams in one place</p>
-              </StepLabel>
-            </Fragment>
-          </Steps>
-          
-          <Separator className="my-6" />
-          
-          <h3 className="font-medium text-lg mb-4">Your Dashboard Features:</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-white p-4 rounded-lg border border-gray-100 shadow-sm">
-              <div className="flex items-start gap-3">
-                <div className="p-2 bg-blue-100 text-blue-700 rounded-md">
-                  <BookOpen size={20} />
-                </div>
-                <div>
-                  <h4 className="font-medium text-gray-900">Concept Cards</h4>
-                  <p className="text-sm text-gray-600">Interactive learning materials with visuals and explanations</p>
-                </div>
-              </div>
-            </div>
-            
-            <div className="bg-white p-4 rounded-lg border border-gray-100 shadow-sm">
-              <div className="flex items-start gap-3">
-                <div className="p-2 bg-purple-100 text-purple-700 rounded-md">
-                  <FileText size={20} />
-                </div>
-                <div>
-                  <h4 className="font-medium text-gray-900">Flashcards</h4>
-                  <p className="text-sm text-gray-600">Quick review cards to test your memory and understanding</p>
-                </div>
-              </div>
-            </div>
-            
-            <div className="bg-white p-4 rounded-lg border border-gray-100 shadow-sm">
-              <div className="flex items-start gap-3">
-                <div className="p-2 bg-green-100 text-green-700 rounded-md">
-                  <Calendar size={20} />
-                </div>
-                <div>
-                  <h4 className="font-medium text-gray-900">Today's Plan</h4>
-                  <p className="text-sm text-gray-600">Your personalized daily study schedule and tasks</p>
-                </div>
-              </div>
-            </div>
-            
-            <div className="bg-white p-4 rounded-lg border border-gray-100 shadow-sm">
-              <div className="flex items-start gap-3">
-                <div className="p-2 bg-amber-100 text-amber-700 rounded-md">
-                  <Clock size={20} />
-                </div>
-                <div>
-                  <h4 className="font-medium text-gray-900">Practice Exams</h4>
-                  <p className="text-sm text-gray-600">Test your knowledge with timed mock exams</p>
-                </div>
-              </div>
-            </div>
-            
-            <div className="bg-white p-4 rounded-lg border border-gray-100 shadow-sm">
-              <div className="flex items-start gap-3">
-                <div className="p-2 bg-red-100 text-red-700 rounded-md">
-                  <LineChart size={20} />
-                </div>
-                <div>
-                  <h4 className="font-medium text-gray-900">Progress Tracking</h4>
-                  <p className="text-sm text-gray-600">Visual analytics of your study progress and performance</p>
-                </div>
-              </div>
-            </div>
-            
-            <div className="bg-white p-4 rounded-lg border border-gray-100 shadow-sm">
-              <div className="flex items-start gap-3">
-                <div className="p-2 bg-sky-100 text-sky-700 rounded-md">
-                  <MessageSquare size={20} />
-                </div>
-                <div>
-                  <h4 className="font-medium text-gray-900">AI Tutor</h4>
-                  <p className="text-sm text-gray-600">24/7 assistance for your study questions and doubts</p>
-                </div>
-              </div>
-            </div>
+        
+        <motion.div
+          key={`tour-step-${currentStep}`}
+          initial="initial"
+          animate="animate"
+          exit="exit"
+          variants={variants}
+          className="py-4"
+        >
+          {steps[currentStep].content}
+        </motion.div>
+        
+        <DialogFooter className="flex-col-reverse sm:flex-row sm:justify-between sm:space-x-2 border-t pt-4">
+          <div className="flex gap-2 w-full sm:w-auto">
+            <Button variant="ghost" onClick={handleSkip} className="w-full sm:w-auto">
+              Skip Tour
+            </Button>
+            <Button 
+              variant="outline" 
+              onClick={handlePreviousStep} 
+              disabled={currentStep === 0}
+              className={cn("w-full sm:w-auto", currentStep === 0 && "opacity-0 pointer-events-none")}
+            >
+              <ChevronLeft className="mr-2 h-4 w-4" />
+              Previous
+            </Button>
           </div>
           
-          <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-100">
-            <h4 className="font-medium text-blue-800 mb-2">How to start studying:</h4>
-            <ol className="list-decimal list-inside space-y-2 text-sm text-blue-700">
-              <li>Begin with <strong>Today's Plan</strong> to see what's scheduled for you</li>
-              <li>Review <strong>Concept Cards</strong> to understand fundamental topics</li>
-              <li>Practice with <strong>Flashcards</strong> to strengthen your memory</li>
-              <li>Take <strong>Practice Exams</strong> to test your knowledge</li>
-              <li>Use the <strong>AI Tutor</strong> whenever you have questions or need help</li>
-            </ol>
-          </div>
-        </div>
-
-        <DialogFooter className="flex flex-col sm:flex-row gap-2">
-          <Button variant="outline" onClick={handleSkip} className="w-full sm:w-auto">
-            <X className="mr-2 h-4 w-4" /> Skip Tour
-          </Button>
-          <Button onClick={handleComplete} className="w-full sm:w-auto">
-            <Check className="mr-2 h-4 w-4" /> Let's Begin
+          <Button onClick={handleNextStep} className="w-full sm:w-auto mb-2 sm:mb-0">
+            {currentStep < steps.length - 1 ? (
+              <>
+                Next
+                <ChevronRight className="ml-2 h-4 w-4" />
+              </>
+            ) : (
+              'Get Started'
+            )}
           </Button>
         </DialogFooter>
+        
+        <div className="absolute bottom-3 left-0 right-0 flex justify-center gap-1">
+          {steps.map((_, index) => (
+            <div 
+              key={index} 
+              className={`h-1.5 rounded-full transition-all ${currentStep === index ? 'bg-primary w-6' : 'bg-gray-200 dark:bg-gray-700 w-3'}`} 
+            />
+          ))}
+        </div>
       </DialogContent>
     </Dialog>
   );
-}
+};
+
+export default WelcomeTour;

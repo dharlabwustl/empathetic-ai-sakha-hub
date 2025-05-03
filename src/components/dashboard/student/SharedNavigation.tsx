@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 import {
@@ -8,29 +8,31 @@ import {
   Brain, FileText, Bell
 } from 'lucide-react';
 
-const SharedNavigation = () => {
-  const navigate = useNavigate();
+interface SharedNavigationProps {
+  activeTab: string;
+  onTabChange: (tab: string) => void;
+}
+
+const SharedNavigation = ({ activeTab, onTabChange }: SharedNavigationProps) => {
   const location = useLocation();
   
-  const currentPath = location.pathname;
-  
   const navigationTabs = [
-    { id: "overview", label: "Overview", icon: LayoutDashboard, path: "/dashboard/student/overview" },
-    { id: "today", label: "Today's Plan", icon: CalendarDays, path: "/dashboard/student/today" },
-    { id: "academic", label: "Academic Advisor", icon: GraduationCap, path: "/dashboard/student/academic" },
-    { id: "concepts", label: "Concept Cards", icon: BookOpen, path: "/dashboard/student/concepts" },
-    { id: "flashcards", label: "Flashcards", icon: Brain, path: "/dashboard/student/flashcards" },
-    { id: "practice", label: "Practice Exams", icon: FileText, path: "/dashboard/student/practice-exam" },
-    { id: "notifications", label: "Notifications", icon: Bell, path: "/dashboard/student/notifications" }
+    { id: "overview", label: "Overview", icon: LayoutDashboard, path: "overview" },
+    { id: "today", label: "Today's Plan", icon: CalendarDays, path: "today" },
+    { id: "academic", label: "Academic Advisor", icon: GraduationCap, path: "academic" },
+    { id: "concepts", label: "Concept Cards", icon: BookOpen, path: "concepts" },
+    { id: "flashcards", label: "Flashcards", icon: Brain, path: "flashcards" },
+    { id: "practice-exam", label: "Practice Exams", icon: FileText, path: "practice-exam" },
+    { id: "notifications", label: "Notifications", icon: Bell, path: "notifications" }
   ];
   
   // Helper function to check if a tab is active
-  const isActive = (path: string) => {
-    if (currentPath === '/dashboard/student') {
-      return path === '/dashboard/student/overview';
-    }
-    
-    return currentPath.startsWith(path);
+  const isActive = (tabId: string) => {
+    return activeTab === tabId;
+  };
+
+  const handleTabClick = (tabId: string) => {
+    onTabChange(tabId);
   };
 
   return (
@@ -44,10 +46,10 @@ const SharedNavigation = () => {
               whileTap={{ scale: 0.95 }}
             >
               <Button
-                variant={isActive(tab.path) ? "default" : "ghost"}
+                variant={isActive(tab.id) ? "default" : "ghost"}
                 size="sm"
                 className="flex items-center gap-1 whitespace-nowrap text-xs md:text-sm"
-                onClick={() => navigate(tab.path)}
+                onClick={() => handleTabClick(tab.id)}
               >
                 <tab.icon className="h-4 w-4 mr-1" />
                 <span className="hidden md:inline">{tab.label}</span>

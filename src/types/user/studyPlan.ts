@@ -2,41 +2,41 @@
 export interface StudyPlanSubject {
   id: string;
   name: string;
-  color: string;
-  hoursPerWeek: number;
-  priority: 'high' | 'medium' | 'low';
-  proficiency?: 'strong' | 'weak' | 'medium';
-  difficulty?: 'easy' | 'medium' | 'hard';
+  difficulty: 'easy' | 'medium' | 'hard';
   completed: boolean;
-  topics?: Array<{
+  priority: 'low' | 'medium' | 'high';
+  hoursPerWeek: number;
+  color: string;
+  status?: 'pending' | 'in-progress' | 'completed';
+}
+
+export interface StudyPlan {
+  id: string;
+  title: string;
+  description?: string;
+  examGoal: string;
+  examDate: string;
+  status: 'active' | 'completed' | 'archived' | 'pending';
+  progress: number;
+  subjects: StudyPlanSubject[];
+  studyHoursPerDay: number;
+  preferredStudyTime: 'morning' | 'afternoon' | 'evening' | 'night';
+  learningPace: 'slow' | 'moderate' | 'fast';
+  createdAt: string;
+  updatedAt?: string;
+}
+
+export interface NewStudyPlan {
+  examGoal: string;
+  examDate: string;
+  subjects: {
     id: string;
     name: string;
     difficulty: 'easy' | 'medium' | 'hard';
     completed: boolean;
-    status?: 'pending' | 'in-progress' | 'completed' | 'skipped';
-    priority?: 'high' | 'medium' | 'low';
-  }>;
+    hoursPerWeek: number;
+  }[];
+  studyHoursPerDay: number;
+  preferredStudyTime: 'morning' | 'afternoon' | 'evening' | 'night';
+  learningPace: 'slow' | 'moderate' | 'fast';
 }
-
-export type NewStudyPlanSubject = StudyPlanSubject;
-export type Subject = StudyPlanSubject;
-
-export interface StudyPlan {
-  id: string;
-  userId: string;
-  goal: string;
-  examGoal?: string;
-  examDate?: string;
-  createdAt: string;
-  updatedAt: string;
-  subjects: StudyPlanSubject[];
-  weeklyHours: number;
-  status: 'active' | 'archived' | 'completed';
-  studyHoursPerDay?: number;
-  preferredStudyTime?: 'morning' | 'afternoon' | 'evening' | 'night';
-  learningPace?: 'slow' | 'moderate' | 'fast';
-  progressPercentage?: number;
-  daysLeft?: number;
-}
-
-export type NewStudyPlan = Omit<StudyPlan, 'id' | 'userId' | 'createdAt' | 'updatedAt'>;
