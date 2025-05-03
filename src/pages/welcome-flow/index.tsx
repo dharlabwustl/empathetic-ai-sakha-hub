@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -8,11 +9,9 @@ import WelcomeFlow from '@/components/signup/WelcomeFlow';
 import WelcomeTour from '@/components/dashboard/student/WelcomeTour';
 import { useToast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
-import LoadingScreen from '@/components/common/LoadingScreen';
 
 const WelcomeFlowPage = () => {
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(true);
   const [showTour, setShowTour] = useState(false);
   const [showWelcomeSlider, setShowWelcomeSlider] = useState(false);
   const [searchParams] = useSearchParams();
@@ -25,45 +24,26 @@ const WelcomeFlowPage = () => {
   const studyPlan = userData.studyPlan || {};
 
   useEffect(() => {
-    const checkAuthStatus = async () => {
-      setLoading(true);
+    // If user completes the welcome flow, show the welcome slider
+    if (localStorage.getItem('welcomeFlowCompleted') === 'true' || completedOnboarding) {
+      setShowWelcomeSlider(true);
       
-      // Check if user is authenticated
-      const authToken = localStorage.getItem('sakha_auth_token');
-      
-      if (!authToken) {
-        // If not authenticated, redirect to login
-        console.log("No authentication token found, redirecting to login");
-        navigate('/login');
-        return;
-      }
-      
-      console.log("Welcome flow checking params:", {
-        isNewUser,
-        completedOnboarding,
-        welcomeFlowCompleted: localStorage.getItem('welcomeFlowCompleted')
-      });
-      
-      // If user has completed onboarding OR is marked as new user, show the welcome slider
-      if (completedOnboarding || isNewUser || localStorage.getItem('welcomeFlowCompleted') === 'true') {
-        console.log("Showing welcome slider");
-        setShowWelcomeSlider(true);
-        
-        // Mark that this user has seen the onboarding
-        localStorage.setItem("userData", JSON.stringify({
-          ...userData,
-          completedOnboarding: true
-        }));
-        
-        setLoading(false);
-        return;
-      }
+      // Mark that this user has seen the onboarding
+      localStorage.setItem("userData", JSON.stringify({
+        ...userData,
+        completedOnboarding: true
+      }));
+    }
 
-      // If we get here, show the welcome flow
-      setLoading(false);
-    };
+    // If it's not a new user and not explicitly redirected after onboarding, go to dashboard
+    if (!isNewUser && !completedOnboarding) {
+      navigate('/dashboard/student');
+    }
     
-    checkAuthStatus();
+    // Set flag to trigger welcome tour automatically after signup
+    if (isNewUser || completedOnboarding) {
+      localStorage.setItem('new_user_signup', 'true');
+    }
   }, [completedOnboarding, navigate, isNewUser, userData]);
 
   const handleSkipTour = () => {
@@ -97,7 +77,6 @@ const WelcomeFlowPage = () => {
   };
   
   const handleSliderComplete = () => {
-    console.log("Slider completed, showing tour");
     setShowWelcomeSlider(false);
     setShowTour(true);
   };
@@ -345,10 +324,6 @@ const WelcomeFlowPage = () => {
     );
   };
 
-  if (loading) {
-    return <LoadingScreen message="Getting your personalized experience ready..." />;
-  }
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-sky-100/30 via-white to-violet-100/30">
       {!showWelcomeSlider && !showTour ? (
@@ -367,7 +342,6 @@ const WelcomeFlowPage = () => {
             suggestedNextAction="Go to your dashboard to see your study plan and start learning"
             open={showTour}
             onOpenChange={setShowTour}
-            loginCount={userData.loginCount || 1}
           />
         </div>
       )}

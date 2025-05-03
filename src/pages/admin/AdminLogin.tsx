@@ -1,134 +1,85 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Loader2, ShieldCheck } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { useAdminAuth } from "@/contexts/auth/AdminAuthContext";
-import { Loader2, ShieldAlert } from "lucide-react";
+import adminAuthService from "@/services/auth/adminAuthService";
 import PrepzrLogo from "@/components/common/PrepzrLogo";
 
 const AdminLogin = () => {
-  const navigate = useNavigate();
-  const { adminLogin, isAdminAuthenticated, adminLoading } = useAdminAuth();
-  const { toast } = useToast();
-  const [credentials, setCredentials] = useState({ email: "", password: "" });
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [loginError, setLoginError] = useState<string | null>(null);
-
-  // Check if admin is already logged in
-  useEffect(() => {
-    const checkAdminAuth = async () => {
-      // Check local storage for admin token
-      const adminToken = localStorage.getItem('adminToken');
-      const adminData = localStorage.getItem('adminData');
-      
-      console.log("Checking admin auth:", { 
-        isAdminAuthenticated, 
-        hasToken: !!adminToken,
-        hasData: !!adminData
-      });
-      
-      if (isAdminAuthenticated || (adminToken && adminData)) {
-        console.log("Admin already authenticated, redirecting to admin dashboard");
-        navigate("/admin/dashboard", { replace: true });
-      }
-    };
-    
-    checkAdminAuth();
-  }, [isAdminAuthenticated, navigate]);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setCredentials(prev => ({ ...prev, [name]: value }));
-    if (loginError) setLoginError(null);
-  };
+  const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
+  const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!credentials.email || !credentials.password) {
-      setLoginError("Email and password are required");
+    if (!email || !password) {
+      setError("Please enter your email and password");
       return;
     }
     
     setIsLoading(true);
-    setLoginError(null);
+    setError(null);
     
     try {
-      console.log("Attempting admin login with:", credentials.email);
-      const success = await adminLogin(credentials.email, credentials.password);
+      const response = await adminAuthService.adminLogin({ email, password });
       
-      if (success) {
+      if (response.success) {
         toast({
-          title: "Admin login successful",
-          description: "Welcome to the admin dashboard"
+          title: "Login successful",
+          description: "Welcome to the admin dashboard",
         });
-        navigate("/admin/dashboard", { replace: true });
+        
+        // Navigate to admin dashboard
+        navigate("/admin/dashboard");
       } else {
-        setLoginError("Invalid admin credentials");
-        toast({
-          title: "Login Failed",
-          description: "Invalid admin credentials. Please try again.",
-          variant: "destructive"
-        });
+        setError(response.message || "Invalid credentials");
       }
     } catch (error) {
-      console.error("Admin login error:", error);
-      setLoginError("An unexpected error occurred. Please try again later.");
-      toast({
-        title: "Login Error",
-        description: "An unexpected error occurred. Please try again.",
-        variant: "destructive"
-      });
+      console.error("Login error:", error);
+      setError("An unexpected error occurred. Please try again.");
     } finally {
       setIsLoading(false);
     }
   };
 
-  // If still checking admin auth status
-  if (adminLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-blue-600" />
-          <p className="text-lg">Checking authentication status...</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4">
-      <Card className="w-full max-w-md shadow-2xl bg-white dark:bg-slate-900 border-0">
-        <CardHeader className="space-y-1 text-center">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-900 dark:to-gray-800 p-4">
+      <Card className="w-full max-w-md shadow-xl">
+        <CardHeader className="space-y-2 text-center">
           <div className="flex justify-center mb-4">
-            <PrepzrLogo width={150} height="auto" />
+            <PrepzrLogo width={160} height={60} />
           </div>
-          <CardTitle className="text-2xl font-bold">Admin Portal</CardTitle>
-          <CardDescription>Enter your credentials to access the admin dashboard</CardDescription>
+          <CardTitle className="text-2xl font-bold">Admin Login</CardTitle>
+          <CardDescription>
+            Enter your credentials to access the admin dashboard
+          </CardDescription>
         </CardHeader>
-        
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
-            {loginError && (
-              <Alert variant="destructive">
-                <AlertDescription>{loginError}</AlertDescription>
+            {error && (
+              <Alert variant="destructive" className="mb-4">
+                <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
             
             <div className="space-y-2">
-              <Label htmlFor="email">Admin Email</Label>
+              <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
-                name="email"
                 type="email"
                 placeholder="admin@example.com"
-                value={credentials.email}
-                onChange={handleChange}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 required
               />
             </div>
@@ -137,48 +88,40 @@ const AdminLogin = () => {
               <Label htmlFor="password">Password</Label>
               <Input
                 id="password"
-                name="password"
                 type="password"
-                value={credentials.password}
-                onChange={handleChange}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 required
               />
             </div>
             
-            <Button 
-              type="submit" 
-              className="w-full bg-purple-700 hover:bg-purple-800"
+            <Button
+              type="submit"
+              className="w-full bg-gradient-to-r from-indigo-600 to-purple-600"
               disabled={isLoading}
             >
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Authenticating...
+                  Logging in...
                 </>
               ) : (
                 <>
-                  <ShieldAlert className="mr-2 h-4 w-4" />
-                  Access Admin Portal
+                  <ShieldCheck className="mr-2 h-4 w-4" />
+                  Admin Login
                 </>
               )}
             </Button>
           </form>
         </CardContent>
-        
-        <CardFooter className="flex flex-col space-y-4">
-          <div className="text-center text-sm">
-            <Button 
-              variant="link" 
-              className="text-purple-600 dark:text-purple-400"
-              onClick={() => navigate("/")}
-            >
-              Return to homepage
-            </Button>
-          </div>
-          
-          <div className="text-center text-xs text-gray-500">
-            <p>For admin access, please contact the system administrator</p>
-          </div>
+        <CardFooter className="flex justify-center">
+          <Button
+            variant="link"
+            onClick={() => navigate("/login")}
+            className="text-sm"
+          >
+            Return to Student Login
+          </Button>
         </CardFooter>
       </Card>
     </div>

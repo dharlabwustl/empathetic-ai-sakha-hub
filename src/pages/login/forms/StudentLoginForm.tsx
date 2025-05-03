@@ -1,10 +1,11 @@
+
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useAuth } from "@/contexts/auth/AuthContext";
+import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, ShieldCheck } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -15,7 +16,7 @@ interface StudentLoginFormProps {
 
 const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
   const navigate = useNavigate();
-  const { login, isAuthenticated } = useAuth();
+  const { login } = useAuth();
   const { toast } = useToast();
   const [credentials, setCredentials] = useState({ email: "", password: "" });
   const [isLoading, setIsLoading] = useState(false);
@@ -29,12 +30,7 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
       setCredentials(prev => ({ ...prev, email: savedEmail }));
       setRememberMe(true);
     }
-    
-    // If already authenticated, redirect to dashboard
-    if (isAuthenticated) {
-      navigate("/dashboard/student/today");
-    }
-  }, [isAuthenticated, navigate]);
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -63,11 +59,12 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
     setLoginError(null);
     
     try {
+      // In a real app, this would validate credentials against a backend
       console.log("Attempting to log in with:", credentials.email);
       
-      const success = await login(credentials.email, credentials.password);
+      const user = await login(credentials.email, credentials.password);
       
-      if (success) {
+      if (user) {
         // Handle remember me functionality
         if (rememberMe) {
           localStorage.setItem("prepzr_remembered_email", credentials.email);
@@ -92,34 +89,21 @@ const StudentLoginForm: React.FC<StudentLoginFormProps> = ({ activeTab }) => {
               timestamp: new Date().toISOString()
             };
             
-            // Preserve onboarding flags if not already set
-            const isNewUser = parsedData.isNewUser !== undefined ? parsedData.isNewUser : false;
-            const sawWelcomeTour = parsedData.sawWelcomeTour !== undefined ? parsedData.sawWelcomeTour : false;
-            
             localStorage.setItem("userData", JSON.stringify({
               ...parsedData,
               loginCount,
               lastActivity,
-              lastLogin: new Date().toISOString(),
-              isNewUser,
-              sawWelcomeTour
+              lastLogin: new Date().toISOString()
             }));
             
-            // Navigate to welcome-back for users who need onboarding
-            // Otherwise go directly to the dashboard
-            if (!parsedData.completedOnboarding || !parsedData.sawWelcomeTour) {
-              navigate("/welcome-back");
-            } else {
-              navigate("/dashboard/student/today");
-            }
-            
+            // Always direct to the pending activities screen first
+            navigate("/dashboard/student/today");
           } catch (error) {
             console.error("Error updating user data:", error);
-            navigate("/welcome-back");
+            navigate("/dashboard/student/today");
           }
         } else {
-          // No user data, treat as first-time login
-          navigate("/welcome-back");
+          navigate("/dashboard/student/today");
         }
       } else {
         setLoginError("Invalid email or password");
