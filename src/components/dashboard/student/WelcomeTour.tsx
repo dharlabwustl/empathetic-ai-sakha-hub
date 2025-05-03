@@ -28,7 +28,8 @@ import {
   Medal,
   Target,
   TrendingUp,
-  Shield
+  Shield,
+  AlertCircle
 } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -64,6 +65,29 @@ const WelcomeTour: React.FC<WelcomeTourProps> = ({
     examGoal: 'NEET',
     completionRate: 87
   });
+  const [activeTab, setActiveTab] = useState("founder");
+  const [visitedTabs, setVisitedTabs] = useState<Record<string, boolean>>({
+    founder: true, // Mark the first tab as visited by default
+    resources: false,
+    features: false,
+    navigation: false
+  });
+  const [allTabsVisited, setAllTabsVisited] = useState(false);
+  
+  // Check if all tabs have been visited
+  useEffect(() => {
+    const allVisited = Object.values(visitedTabs).every(visited => visited);
+    setAllTabsVisited(allVisited);
+  }, [visitedTabs]);
+  
+  // Handle tab change
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+    setVisitedTabs(prev => ({
+      ...prev,
+      [value]: true
+    }));
+  };
   
   useEffect(() => {
     // Fetch user data from localStorage if available
@@ -88,6 +112,13 @@ const WelcomeTour: React.FC<WelcomeTourProps> = ({
       }
     }
   }, []);
+
+  // Get remaining tabs to visit
+  const getRemainingTabs = () => {
+    return Object.entries(visitedTabs)
+      .filter(([_, visited]) => !visited)
+      .map(([tabName, _]) => tabName);
+  };
   
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -101,7 +132,7 @@ const WelcomeTour: React.FC<WelcomeTourProps> = ({
           </DialogDescription>
         </DialogHeader>
 
-        <Tabs defaultValue="founder" className="mt-2">
+        <Tabs defaultValue="founder" className="mt-2" value={activeTab} onValueChange={handleTabChange}>
           <TabsList className="grid grid-cols-4">
             <TabsTrigger value="founder">Welcome</TabsTrigger>
             <TabsTrigger value="resources">Your Resources</TabsTrigger>
@@ -517,11 +548,27 @@ const WelcomeTour: React.FC<WelcomeTourProps> = ({
           </TabsContent>
         </Tabs>
 
+        {!allTabsVisited && (
+          <div className="bg-amber-50 dark:bg-amber-900/20 p-3 mb-4 rounded-lg border border-amber-200 dark:border-amber-800 flex items-center gap-2">
+            <AlertCircle className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+            <div className="text-sm text-amber-800 dark:text-amber-300">
+              <span className="font-medium">Please visit all tabs</span> - You need to explore all tabs before completing the tour. 
+              {getRemainingTabs().length > 0 && (
+                <span> Remaining: {getRemainingTabs().map(tab => tab.charAt(0).toUpperCase() + tab.slice(1)).join(', ')}</span>
+              )}
+            </div>
+          </div>
+        )}
+
         <DialogFooter className="flex flex-col sm:flex-row gap-2 sm:justify-between pt-4">
           <Button variant="outline" onClick={onSkipTour}>
             Skip Tour
           </Button>
-          <Button onClick={onCompleteTour} className="flex items-center gap-2">
+          <Button 
+            onClick={onCompleteTour} 
+            className="flex items-center gap-2"
+            disabled={!allTabsVisited}
+          >
             Let's Begin <ChevronRight className="h-4 w-4" />
           </Button>
         </DialogFooter>
