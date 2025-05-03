@@ -21,33 +21,35 @@ import ExamTakingPage from './components/dashboard/student/practice-exam/ExamTak
 import ExamReviewPage from './components/dashboard/student/practice-exam/ExamReviewPage';
 import WelcomeToPrepr from './pages/signup/WelcomeToPrepr';
 import Login from './pages/Login';
-import EnhancedFlashcardPage from './pages/dashboard/student/flashcards/EnhancedFlashcardPage';
-import ProfilePage from './pages/student/ProfilePage';
-import StudentProfile from './pages/dashboard/student/StudentProfile';
-import StudyPlanView from './pages/dashboard/student/StudyPlanView';
-import TutorView from './pages/dashboard/student/TutorView';
-import AcademicAdvisorView from './pages/dashboard/student/AcademicAdvisorView';
-import FlashcardPracticeLandingPage from './pages/dashboard/student/flashcard/FlashcardPracticeLandingPage';
-import ConceptStudyLandingPage from './pages/dashboard/student/concept/ConceptStudyLandingPage';
-import ConceptsLandingPage from './components/dashboard/student/concepts/ConceptsLandingPage';
-import FlashcardsLandingPage from './components/dashboard/student/flashcards/FlashcardsLandingPage';
-import EnhancedFlashcardPractice from './components/dashboard/student/flashcards/EnhancedFlashcardPractice';
-import FlashcardInteractive from './components/dashboard/student/flashcards/FlashcardInteractive';
-import FlashcardDetailsPage from './pages/dashboard/student/FlashcardDetailsPage';
-import InteractiveFlashcardBrowser from './components/flashcards/InteractiveFlashcardBrowser';
-import { NotificationsView } from './components/dashboard/student/notifications/NotificationsView';
-import EnhancedProfilePage from './pages/dashboard/student/EnhancedProfilePage';
-import PracticeExamsSection from './components/dashboard/student/practice-exam/PracticeExamsSection';
-import PostLoginWelcome from './components/login/PostLoginWelcome';
-import Terms from './pages/Terms';
-import Privacy from './pages/Privacy';
-import FlaskDeveloperGuide from './pages/admin/FlaskDeveloperGuide';
-import StudyGroupsPage from './pages/dashboard/student/StudyGroupsPage';
-import BatchManagementPage from './pages/admin/BatchManagementPage';
-import DatabaseSchemaCSVPage from './pages/database/DatabaseSchemaCSVPage';
-import SubscriptionPage from './pages/dashboard/student/SubscriptionPage';
-import PostSignupWelcome from './components/signup/PostSignupWelcome';
-import WelcomeFlow from './pages/welcome-flow';
+import EnhancedFlashcardPage from '@/pages/dashboard/student/flashcards/EnhancedFlashcardPage';
+import ProfilePage from '@/pages/student/ProfilePage';
+import StudentProfile from '@/pages/dashboard/student/StudentProfile';
+import StudyPlanView from '@/pages/dashboard/student/StudyPlanView';
+import TutorView from '@/pages/dashboard/student/TutorView';
+import AcademicAdvisorView from '@/pages/dashboard/student/AcademicAdvisorView';
+import FlashcardPracticeLandingPage from '@/pages/dashboard/student/flashcard/FlashcardPracticeLandingPage';
+import ConceptStudyLandingPage from '@/pages/dashboard/student/concept/ConceptStudyLandingPage';
+import ConceptsLandingPage from '@/components/dashboard/student/concepts/ConceptsLandingPage';
+import FlashcardsLandingPage from '@/components/dashboard/student/flashcards/FlashcardsLandingPage';
+import EnhancedFlashcardPractice from '@/components/dashboard/student/flashcards/EnhancedFlashcardPractice';
+import FlashcardInteractive from '@/components/dashboard/student/flashcards/FlashcardInteractive';
+import FlashcardDetailsPage from '@/pages/dashboard/student/FlashcardDetailsPage';
+import InteractiveFlashcardBrowser from '@/components/flashcards/InteractiveFlashcardBrowser';
+import { NotificationsView } from '@/components/dashboard/student/notifications/NotificationsView';
+import EnhancedProfilePage from '@/pages/dashboard/student/EnhancedProfilePage';
+import PracticeExamsSection from '@/components/dashboard/student/practice-exam/PracticeExamsSection';
+import PostLoginWelcome from '@/components/login/PostLoginWelcome';
+import Terms from '@/pages/Terms';
+import Privacy from '@/pages/Privacy';
+import FlaskDeveloperGuide from '@/pages/admin/FlaskDeveloperGuide';
+import FlaskGuidePage from '@/pages/admin/FlaskGuidePage';
+import StudyGroupsPage from '@/pages/dashboard/student/StudyGroupsPage';
+import BatchManagementPage from '@/pages/admin/BatchManagementPage';
+import DatabaseSchemaCSVPage from '@/pages/database/DatabaseSchemaCSVPage';
+import SubscriptionPage from '@/pages/dashboard/student/SubscriptionPage';
+import PostSignupWelcome from '@/components/signup/PostSignupWelcome';
+import WelcomeFlow from '@/pages/welcome-flow';
+import adminRoutes from './components/admin/routes';
 
 // Lazy load the admin dashboard
 const AdminDashboard = lazy(() => import('@/pages/admin/AdminDashboard'));
@@ -67,9 +69,20 @@ function App() {
               <Route path="/register" element={<SignUp />} />
               <Route path="/terms" element={<Terms />} />
               <Route path="/privacy" element={<Privacy />} />
-              <Route path="/admin/flask-guide" element={<FlaskDeveloperGuide />} />
               <Route path="/database/schema" element={<DatabaseSchemaCSVPage />} />
 
+              {/* Admin routes */}
+              {adminRoutes.map((route, index) => (
+                <Route key={index} path={route.path} element={route.element} />
+              ))}
+
+              {/* Legacy route for compatibility */}
+              <Route path="/admin/flask-guide" element={
+                <AdminRouteGuard>
+                  <FlaskGuidePage />
+                </AdminRouteGuard>
+              } />
+              
               {/* Post-signup flow - Welcome flow */}
               <Route path="/welcome" element={<WelcomeToPrepr />} />
               <Route path="/post-signup" element={<PostSignupWelcome />} />
@@ -119,29 +132,6 @@ function App() {
               <Route path="/dashboard/student/notifications" element={<NotificationsView />} />
               <Route path="/dashboard/student/academic" element={<AcademicAdvisorView />} />
               <Route path="/dashboard/student/study-plan" element={<StudyPlanView />} />
-              
-              {/* Admin routes */}
-              <Route path="/admin" element={
-                <AdminRouteGuard>
-                  <Suspense fallback={<LoadingScreen />}>
-                    <AdminDashboard />
-                  </Suspense>
-                </AdminRouteGuard>
-              } />
-              <Route path="/admin/*" element={
-                <AdminRouteGuard>
-                  <Suspense fallback={<LoadingScreen />}>
-                    <AdminDashboard />
-                  </Suspense>
-                </AdminRouteGuard>
-              } />
-              <Route path="/admin/dashboard" element={
-                <AdminRouteGuard>
-                  <Suspense fallback={<LoadingScreen />}>
-                    <AdminDashboard />
-                  </Suspense>
-                </AdminRouteGuard>
-              } />
               
               {/* 404 */}
               <Route path="*" element={<NotFound />} />
