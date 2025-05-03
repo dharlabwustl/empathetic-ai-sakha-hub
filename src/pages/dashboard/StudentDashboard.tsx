@@ -48,34 +48,20 @@ const StudentDashboard = () => {
     const params = new URLSearchParams(location.search);
     const isNewUser = params.get('new') === 'true';
     const completedOnboarding = params.get('completedOnboarding') === 'true';
-    const showTour = params.get('showTour') === 'true';
     
     // Check if user has already seen the tour
     const hasSeenTour = localStorage.getItem("hasSeenTour") === "true";
     
-    // Don't show splash screen for new users coming from signup flow
-    if (isNewUser) {
+    // For new users who haven't seen the tour, show it once automatically
+    if (isNewUser && !hasSeenTour) {
+      // Don't show splash screen for new users coming from signup flow
       setShowSplash(false);
-      
-      // Only show tour for new users if they haven't seen it
-      if (!hasSeenTour && showTour) {
-        setShowTourModal(true);
-        // Mark that the user has seen the tour
-        localStorage.setItem("hasSeenTour", "true");
-      }
+      setShowTourModal(true);
+      localStorage.setItem("hasSeenTour", "true");
     } else {
       // Check if the user has seen the splash screen in this session
       const hasSeen = sessionStorage.getItem("hasSeenSplash");
       setShowSplash(!hasSeen);
-      
-      // For returning users who haven't seen the tour
-      if (showTour && !hasSeenTour) {
-        // Short timeout just to let the dashboard render first
-        setTimeout(() => {
-          setShowTourModal(true);
-          localStorage.setItem("hasSeenTour", "true");
-        }, 500);
-      }
     }
     
     // Clean up the URL parameters

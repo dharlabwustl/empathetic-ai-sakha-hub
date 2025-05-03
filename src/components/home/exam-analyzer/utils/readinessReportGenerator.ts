@@ -22,7 +22,7 @@ export const generateReadinessReport = (answers: UserAnswer[], examType: string)
   });
   
   // Convert to percentage, ensuring we avoid division by zero
-  const score = answers.length > 0 
+  const score = totalWeight > 0 
     ? Math.floor((totalScore / totalWeight) * 100) 
     : 0;
   

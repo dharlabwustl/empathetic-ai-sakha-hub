@@ -16,6 +16,7 @@ const PostLoginPrompt = () => {
   
   const [lastActivity, setLastActivity] = useState<string | null>(null);
   const [pendingTask, setPendingTask] = useState<string | null>(null);
+  const [redirectTimer, setRedirectTimer] = useState(5);
   
   useEffect(() => {
     // Get user data from localStorage
@@ -40,16 +41,23 @@ const PostLoginPrompt = () => {
       }
     }
     
-    // Auto-redirect after 15 seconds if no action taken
-    const timer = setTimeout(() => {
-      navigate(`/${returnTo}`);
-      toast({
-        title: "Welcome back!",
-        description: "You've been automatically redirected to your dashboard.",
+    // Auto-redirect after 5 seconds if no action taken
+    const timer = setInterval(() => {
+      setRedirectTimer(prev => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          navigate(`/${returnTo}`);
+          toast({
+            title: "Welcome back!",
+            description: "You've been automatically redirected to your dashboard.",
+          });
+          return 0;
+        }
+        return prev - 1;
       });
-    }, 15000);
+    }, 1000);
     
-    return () => clearTimeout(timer);
+    return () => clearInterval(timer);
   }, [navigate, returnTo, toast]);
 
   const goToTodaysPlan = () => {
@@ -152,7 +160,7 @@ const PostLoginPrompt = () => {
           
           <CardFooter className="flex justify-center pt-2">
             <p className="text-sm text-muted-foreground">
-              You'll be redirected to your dashboard shortly...
+              You'll be redirected to your dashboard in {redirectTimer} seconds...
             </p>
           </CardFooter>
         </Card>
