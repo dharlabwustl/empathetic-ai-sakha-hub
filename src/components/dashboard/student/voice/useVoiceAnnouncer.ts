@@ -20,13 +20,25 @@ export const useVoiceAnnouncer = () => {
   useEffect(() => {
     // Load voices
     const loadVoices = () => {
-      window.speechSynthesis.getVoices();
+      const voices = window.speechSynthesis.getVoices();
+      console.log("Available voices:", voices.map(v => `${v.name} (${v.lang})`).join(', '));
     };
     
+    // Try loading voices immediately
     loadVoices();
     
     // Some browsers need this event to get voices
     window.speechSynthesis.addEventListener('voiceschanged', loadVoices);
+    
+    // Set default to loud volume if not already set
+    setSettings(current => {
+      if (current.volume < 0.8) {
+        const updated = { ...current, volume: 0.9 };
+        saveVoiceSettings(updated);
+        return updated;
+      }
+      return current;
+    });
     
     return () => {
       window.speechSynthesis.removeEventListener('voiceschanged', loadVoices);

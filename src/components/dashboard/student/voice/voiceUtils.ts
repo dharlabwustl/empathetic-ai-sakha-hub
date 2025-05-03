@@ -48,11 +48,12 @@ export const saveVoiceSettings = (settings: VoiceSettings): void => {
 // Helper to get the best voice for Indian English - strictly prioritizing female Indian voices
 export const findBestIndianVoice = (): SpeechSynthesisVoice | undefined => {
   const voices = window.speechSynthesis.getVoices();
+  console.log("Available voices:", voices.map(v => `${v.name} (${v.lang})`).join(', '));
   
   // First priority: Find female Indian English voice
   const femaleIndianVoice = voices.find(voice => 
     voice.lang === 'en-IN' && 
-    voice.name.toLowerCase().includes('female')
+    (voice.name.toLowerCase().includes('female') || voice.name.toLowerCase().includes('woman'))
   );
   
   if (femaleIndianVoice) {
@@ -91,7 +92,7 @@ export const findBestIndianVoice = (): SpeechSynthesisVoice | undefined => {
   // Last resort: Any female English voice
   const femaleEnglishVoice = voices.find(voice => 
     voice.lang.startsWith('en') && 
-    voice.name.toLowerCase().includes('female')
+    (voice.name.toLowerCase().includes('female') || voice.name.toLowerCase().includes('woman'))
   );
   
   if (femaleEnglishVoice) {
@@ -141,12 +142,15 @@ export const speakMessage = (message: string, forceSpeak: boolean = false): void
     utterance.voice = bestVoice;
     console.log("Using voice:", bestVoice.name, bestVoice.lang);
   } else {
-    utterance.lang = settings.voice;
-    console.log("No best voice found, using language:", settings.voice);
+    utterance.lang = 'en-IN'; // Fallback to Indian English locale
+    console.log("No best voice found, using language: en-IN");
   }
   
-  utterance.volume = settings.volume;
-  utterance.rate = settings.speed;
+  // Set volume to maximum for loudness and clarity
+  utterance.volume = Math.min(settings.volume * 1.2, 1.0); // Boost volume but cap at 1.0
+  
+  // Set rate slightly slower for clarity if the speed is high
+  utterance.rate = settings.speed > 1.0 ? settings.speed * 0.9 : settings.speed;
   
   // Add a pitch increase for more pleasant, energetic Indian female voice sound
   utterance.pitch = 1.2;
