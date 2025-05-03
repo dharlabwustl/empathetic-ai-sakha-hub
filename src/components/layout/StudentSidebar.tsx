@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -58,6 +57,11 @@ export function StudentSidebar({
       path: "/dashboard/student/tutor",
     },
     {
+      name: "Academic Advisor",
+      icon: LifeBuoy,
+      path: "/dashboard/student/academic",
+    },
+    {
       name: "Concepts",
       icon: BookOpen,
       path: "/dashboard/student/concepts/landing",
@@ -82,11 +86,6 @@ export function StudentSidebar({
       name: "Feel Good Corner",
       icon: Smile,
       path: "/dashboard/student/feel-good-corner",
-    },
-    {
-      name: "Academic Advisor",
-      icon: LifeBuoy,
-      path: "/dashboard/student/academic",
     },
   ];
 

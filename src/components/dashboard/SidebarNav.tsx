@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -15,7 +14,9 @@ import {
   BookMarked,
   User,
   LogOut,
-  ChevronDown
+  ChevronDown,
+  MessageSquare,
+  Smile
 } from 'lucide-react';
 import PrepzrLogo from '@/components/common/PrepzrLogo';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -68,6 +69,12 @@ const SidebarNav: React.FC<SidebarNavProps> = ({
       icon: <GraduationCap className="h-5 w-5" />
     },
     {
+      id: 'tutor',
+      title: '24/7 AI Tutor',
+      href: '/dashboard/student/tutor',
+      icon: <MessageSquare className="h-5 w-5" />
+    },
+    {
       id: 'concepts',
       title: 'Concept Cards',
       href: '/dashboard/student/concepts',
@@ -84,6 +91,12 @@ const SidebarNav: React.FC<SidebarNavProps> = ({
       title: 'Practice Exams',
       href: '/dashboard/student/practice-exam',
       icon: <ClipboardCheck className="h-5 w-5" />
+    },
+    {
+      id: 'feel-good-corner',
+      title: 'Feel Good Corner',
+      href: '/dashboard/student/feel-good-corner',
+      icon: <Smile className="h-5 w-5" />
     },
     {
       id: 'notifications',
@@ -217,8 +230,6 @@ const SidebarNav: React.FC<SidebarNavProps> = ({
             </Button>
           ))}
         </nav>
-
-        {/* Remove the settings footer section */}
       </div>
     </div>
   );
