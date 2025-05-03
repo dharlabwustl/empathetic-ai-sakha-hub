@@ -1,89 +1,141 @@
 
-// File: src/types/user/base.ts
-// Define base types for user profiles across the application
-
-// User role enumeration
-export enum UserRole {
-  Student = "student",
-  Teacher = "teacher",
-  Admin = "admin"
-}
-
-// Mood type enumeration
 export enum MoodType {
-  Happy = "Happy",
-  Sad = "Sad",
-  Focused = "Focused",
-  Tired = "Tired",
-  Motivated = "Motivated",
-  Stressed = "Stressed",
-  Curious = "Curious",
-  Anxious = "Anxious",
-  Confused = "Confused",
-  Overwhelmed = "Overwhelmed",
-  Neutral = "Neutral",
-  Okay = "Okay",
-  Calm = "Calm"
+  Happy = 'happy',
+  Focused = 'focused',
+  Tired = 'tired',
+  Stressed = 'stressed',
+  Curious = 'curious',
+  Okay = 'okay',
+  Overwhelmed = 'overwhelmed',
+  Anxious = 'anxious',
+  Motivated = 'motivated',
+  Confused = 'confused',
+  Neutral = 'neutral',
+  Sad = 'sad',
+  Calm = 'calm',
 }
 
-// Personality type enumeration
-export enum PersonalityType {
-  Visual = "visual",
-  Auditory = "auditory",
-  Reading = "reading",
-  Kinesthetic = "kinesthetic"
-}
-
-// Subscription type enumeration
 export enum SubscriptionType {
-  FREE = "free",
-  BASIC = "basic", 
-  PRO = "pro",
-  PREMIUM = "premium"
+  FREE = 'free',
+  BASIC = 'basic',
+  PRO = 'pro',
+  PREMIUM = 'premium',
+  ProMonthly = 'pro_monthly',
+  ProAnnual = 'pro_annual',
+  GroupSmall = 'group_small',
+  GroupLarge = 'group_large',
+  GroupAnnual = 'group_annual'
 }
 
-// Base user profile interface
+export enum UserRole {
+  Student = 'student',
+  Teacher = 'teacher',
+  Admin = 'admin'
+}
+
+export enum Gender {
+  Male = 'male',
+  Female = 'female',
+  Other = 'other',
+  PreferNotToSay = 'prefer-not-to-say'
+}
+
+export enum SignupType {
+  Email = 'email',
+  Google = 'google',
+  Facebook = 'facebook',
+  Apple = 'apple'
+}
+
+export enum StudyPace {
+  Slow = 'slow',
+  Moderate = 'moderate',
+  Fast = 'fast'
+}
+
+export enum StudyPreferenceType {
+  Solo = 'solo',
+  Group = 'group',
+  Mixed = 'mixed'
+}
+
 export interface UserProfileBase {
-  id?: string;
+  id: string;
   name: string;
-  email?: string;
-  mobile?: string;
-  role?: UserRole;
+  email: string;
+  bio?: string;
   avatar?: string;
-  createdAt?: string;
-  loginCount?: number;
-  lastLogin?: string;
-  onboardingCompleted?: boolean;
-  personalityType?: PersonalityType;
-  examPreference?: string;
-  mood?: MoodType;
-  goals?: Array<{ id: string; title: string; targetDate?: string }>;
+  phoneNumber?: string;
+  role: 'student' | 'teacher' | 'admin';
   subscription?: SubscriptionType | {
-    planType: SubscriptionType;
-    startDate: string;
-    expiryDate?: string;
-    isAutoRenew?: boolean;
+    planType: string;
+    startDate?: Date | string;
+    expiryDate?: Date | string;
+    status?: 'active' | 'expired' | 'cancelled';
+    autoRenew?: boolean;
   };
+  goals?: {
+    id: string;
+    title: string;
+    description?: string;
+    targetDate?: Date;
+    progress?: number;
+  }[];
+  preferences?: {
+    theme?: 'light' | 'dark' | 'system';
+    notifications?: boolean;
+    emailAlerts?: boolean;
+    language?: string;
+  };
+  createdAt?: Date | string;
+  updatedAt?: Date | string;
+  lastLogin?: Date | string;
+  loginCount?: number;
 }
 
-// Extend for specific user types as needed
-export type StudentProfile = UserProfileBase & {
-  // Add student-specific properties here
-  currentCourse?: string;
-  schoolName?: string;
-  grade?: string;
-  examDate?: string;
-};
+export type UserProfileType = UserProfileBase;
 
-export type TeacherProfile = UserProfileBase & {
-  // Add teacher-specific properties here
-  subjects?: string[];
-  institution?: string;
-  yearsOfExperience?: number;
-};
+// Additional types that might be useful
+export interface StudyStreak {
+  current: number;
+  longest: number;
+  lastStudyDate: Date;
+}
 
-export type AdminProfile = UserProfileBase & {
-  // Add admin-specific properties here
-  permissions?: string[];
-  department?: string;
-};
+export interface SubjectProgress {
+  id?: string;
+  subject: string;
+  progress: number;
+  topicsTotal: number;
+  topicsCompleted: number;
+  quizzesCompleted: number;
+  masteryLevel: 'beginner' | 'intermediate' | 'advanced' | 'master';
+}
+
+export interface PaymentMethod {
+  id: string;
+  type: 'card' | 'upi' | 'bank';
+  isDefault: boolean;
+  lastFour?: string;
+  expiryDate?: string;
+  cardType?: string;
+  upiId?: string;
+}
+
+export interface BillingHistory {
+  id: string;
+  date: string;
+  amount: number;
+  status: 'paid' | 'pending' | 'failed';
+  invoiceUrl: string;
+  planName: string;
+}
+
+export interface SubscriptionPlan {
+  id: string;
+  name: string;
+  price: number;
+  features: string[];
+  type: SubscriptionType;
+  maxMembers?: number;
+}

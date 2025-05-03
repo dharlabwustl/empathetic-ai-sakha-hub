@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -12,19 +12,8 @@ import {
   Bell,
   Settings,
   Home,
-  BookMarked,
-  User,
-  ChevronDown
+  BookMarked
 } from 'lucide-react';
-import { 
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import PrepzrLogo from '@/components/common/PrepzrLogo';
 
 interface SidebarNavProps {
   userType: 'student' | 'admin';
@@ -135,61 +124,29 @@ const SidebarNav: React.FC<SidebarNavProps> = ({
       )}
     >
       <div className="flex flex-col h-full">
-        {/* Sidebar Header with Logo */}
-        <div className="p-4 border-b flex items-center justify-between">
+        {/* Sidebar Header */}
+        <div className="p-4 border-b">
           <Link to="/" className="flex items-center space-x-2">
-            <PrepzrLogo width={100} height={32} />
+            <Home className="h-5 w-5" />
+            <span className="font-semibold">PREPZR</span>
           </Link>
         </div>
 
-        {/* User Info with Profile Menu */}
+        {/* User Info */}
         {userName && (
           <div className="p-4 border-b">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                  <span className="text-sm font-medium text-primary">
-                    {userName.charAt(0).toUpperCase()}
-                  </span>
-                </div>
-                <div>
-                  <p className="text-sm font-medium">{userName}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {userType === 'student' ? 'Student' : 'Administrator'}
-                  </p>
-                </div>
+            <div className="flex items-center space-x-2">
+              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                <span className="text-sm font-medium text-primary">
+                  {userName.charAt(0).toUpperCase()}
+                </span>
               </div>
-              
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                    <ChevronDown className="h-4 w-4" />
-                    <span className="sr-only">Open profile menu</span>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
-                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
-                    <Link to="/dashboard/student/profile">
-                      <User className="mr-2 h-4 w-4" />
-                      <span>Profile</span>
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link to="/dashboard/student/settings">
-                      <Settings className="mr-2 h-4 w-4" />
-                      <span>Settings</span>
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
-                    <Link to="/login">
-                      <span>Log out</span>
-                    </Link>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <div>
+                <p className="text-sm font-medium">{userName}</p>
+                <p className="text-xs text-muted-foreground">
+                  {userType === 'student' ? 'Student' : 'Administrator'}
+                </p>
+              </div>
             </div>
           </div>
         )}

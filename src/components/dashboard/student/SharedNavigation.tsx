@@ -33,16 +33,6 @@ const SharedNavigation = () => {
     return currentPath.startsWith(path);
   };
 
-  // Handle tab navigation while preserving the dashboard layout
-  const handleNavigate = (path: string) => {
-    // Use history.pushState to update the URL without refreshing
-    window.history.pushState({}, '', path);
-    
-    // Manually trigger navigation without page reload
-    const navEvent = new PopStateEvent('popstate');
-    window.dispatchEvent(navEvent);
-  };
-
   return (
     <div className="p-3 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 sticky top-0 z-10 mb-6">
       <div className="flex items-center justify-between overflow-x-auto">

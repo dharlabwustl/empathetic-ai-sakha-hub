@@ -1,171 +1,99 @@
 
 import { useState, useEffect } from 'react';
+import { StudyPlan, NewStudyPlan } from '@/types/user/studyPlan';
 import { v4 as uuidv4 } from 'uuid';
-import { StudyPlan, StudyPlanStatus, StudyPlanSubject } from '@/types/student/academic';
 
-export const useAcademicPlans = () => {
-  const [plans, setPlans] = useState<StudyPlan[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
-  const [activeFilter, setActiveFilter] = useState<StudyPlanStatus | 'all'>('all');
-  
+export const useAcademicPlans = (initialExamGoal?: string) => {
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<StudyPlan | null>(null);
+  const [activePlans, setActivePlans] = useState<StudyPlan[]>([]);
+  const [completedPlans, setCompletedPlans] = useState<StudyPlan[]>([]);
+
+  // Load plans from localStorage on component mount
   useEffect(() => {
-    // Fetch initial plans and any plans from signup
-    const fetchPlans = async () => {
+    const loadPlans = () => {
       try {
-        setLoading(true);
+        const savedActivePlans = localStorage.getItem('active_study_plans');
+        const savedCompletedPlans = localStorage.getItem('completed_study_plans');
         
-        // Get user data to see if there's a study plan from onboarding
-        const userData = localStorage.getItem("userData");
-        let onboardingPlan: StudyPlan | null = null;
-        
-        if (userData) {
-          try {
-            const parsedData = JSON.parse(userData);
-            
-            // If we have onboarding data, create an initial study plan
-            if (parsedData.examGoal) {
-              onboardingPlan = {
-                id: uuidv4(),
-                name: `${parsedData.examGoal || 'Exam'} Study Plan`,
-                description: `Your personalized study plan for ${parsedData.examGoal || 'your exam'}.`,
-                examDate: parsedData.targetExamDate || new Date().toISOString(),
-                createdAt: parsedData.createdAt || new Date().toISOString(),
-                status: "active" as StudyPlanStatus,
-                subjects: [
-                  {
-                    id: uuidv4(),
-                    name: "Physics",
-                    difficulty: "medium",
-                    priority: "high",
-                    completed: false,
-                    color: "blue",
-                    hoursPerWeek: 6
-                  },
-                  {
-                    id: uuidv4(),
-                    name: "Chemistry",
-                    difficulty: "medium",
-                    priority: "medium", 
-                    completed: false,
-                    color: "green",
-                    hoursPerWeek: 5
-                  },
-                  {
-                    id: uuidv4(),
-                    name: "Mathematics",
-                    difficulty: "medium",
-                    priority: "high",
-                    completed: false,
-                    color: "purple",
-                    hoursPerWeek: 7
-                  }
-                ],
-                progress: 0
-              };
-            }
-          } catch (error) {
-            console.error("Error parsing user data for study plan:", error);
-          }
+        if (savedActivePlans) {
+          setActivePlans(JSON.parse(savedActivePlans));
         }
-        
-        // Simulate API call for demo plans
-        await new Promise(resolve => setTimeout(resolve, 500));
-        
-        // Mock plans - if we have an onboarding plan, add it first
-        const mockPlans: StudyPlan[] = [
-          ...(onboardingPlan ? [onboardingPlan] : []),
-          {
-            id: uuidv4(),
-            name: "Physics Intensive",
-            description: "Focused study plan for mastering physics concepts and problems",
-            examDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-            createdAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(),
-            status: "active",
-            subjects: [
-              {
-                id: uuidv4(),
-                name: "Mechanics",
-                difficulty: "medium",
-                priority: "high",
-                completed: true,
-                color: "blue",
-                hoursPerWeek: 6
-              },
-              {
-                id: uuidv4(),
-                name: "Thermodynamics",
-                difficulty: "medium",
-                priority: "medium",
-                completed: false,
-                color: "red",
-                hoursPerWeek: 4
-              }
-            ],
-            progress: 50
-          },
-          {
-            id: uuidv4(),
-            name: "Chemistry Revision",
-            description: "Recap of important chemistry topics",
-            examDate: new Date(Date.now() + 45 * 24 * 60 * 60 * 1000).toISOString(),
-            createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-            status: "completed",
-            subjects: [
-              {
-                id: uuidv4(),
-                name: "Organic Chemistry",
-                difficulty: "high",
-                priority: "high",
-                completed: true,
-                color: "green",
-                hoursPerWeek: 8
-              }
-            ],
-            progress: 100
-          }
-        ];
-        
-        setPlans(mockPlans);
-        
-        // If we have plans, select the first one by default
-        if (mockPlans.length > 0) {
-          setSelectedPlanId(mockPlans[0].id);
+        if (savedCompletedPlans) {
+          setCompletedPlans(JSON.parse(savedCompletedPlans));
         }
-        
-        setLoading(false);
       } catch (error) {
-        console.error("Error fetching study plans:", error);
-        setLoading(false);
+        console.error('Error loading study plans:', error);
       }
     };
     
-    fetchPlans();
+    loadPlans();
   }, []);
-  
-  // Filter plans based on active filter
-  const filteredPlans = activeFilter === 'all' 
-    ? plans 
-    : plans.filter(plan => plan.status === activeFilter);
-  
-  const selectedPlan = plans.find(plan => plan.id === selectedPlanId) || null;
-  
-  const handleSelectPlan = (planId: string) => {
-    setSelectedPlanId(planId);
+
+  // Save plans to localStorage whenever they change
+  useEffect(() => {
+    try {
+      localStorage.setItem('active_study_plans', JSON.stringify(activePlans));
+      localStorage.setItem('completed_study_plans', JSON.stringify(completedPlans));
+    } catch (error) {
+      console.error('Error saving study plans:', error);
+    }
+  }, [activePlans, completedPlans]);
+
+  // Handle opening the create plan dialog
+  const handleCreatePlan = () => {
+    setShowCreateDialog(true);
   };
-  
-  const handleChangeFilter = (filter: StudyPlanStatus | 'all') => {
-    setActiveFilter(filter);
+
+  // Handle viewing details of a specific plan
+  const handleViewPlanDetails = (planId: string) => {
+    const plan = [...activePlans, ...completedPlans].find(p => p.id === planId);
+    if (plan) {
+      setSelectedPlan(plan);
+    }
   };
-  
+
+  // Handle the creation of a new plan from the wizard
+  const handleNewPlanCreated = (newPlanData: NewStudyPlan) => {
+    // Mark any existing active plans as pending
+    const updatedActivePlans = activePlans.map(plan => ({
+      ...plan,
+      status: 'pending' as 'active' | 'completed' | 'pending'
+    }));
+
+    // Create a new plan with the provided data
+    const newPlan: StudyPlan = {
+      id: uuidv4(),
+      title: `${newPlanData.examGoal} Preparation`,
+      description: `Study plan for ${newPlanData.examGoal} exam`,
+      examGoal: newPlanData.examGoal,
+      examDate: newPlanData.examDate,
+      status: 'active',
+      progress: 0,
+      subjects: newPlanData.subjects,
+      studyHoursPerDay: newPlanData.studyHoursPerDay,
+      preferredStudyTime: newPlanData.preferredStudyTime,
+      learningPace: newPlanData.learningPace,
+      createdAt: new Date().toISOString(),
+    };
+
+    // Update the active plans list
+    setActivePlans([newPlan]);
+    
+    // Move previous active plans to pending/completed
+    const allPreviousPlans = [...updatedActivePlans, ...completedPlans];
+    setCompletedPlans(allPreviousPlans as StudyPlan[]);
+  };
+
   return {
-    plans,
-    filteredPlans,
+    showCreateDialog,
     selectedPlan,
-    selectedPlanId,
-    loading,
-    activeFilter,
-    handleSelectPlan,
-    handleChangeFilter
+    activePlans,
+    completedPlans,
+    handleCreatePlan,
+    handleViewPlanDetails,
+    handleNewPlanCreated,
+    setShowCreateDialog,
+    setSelectedPlan
   };
 };
