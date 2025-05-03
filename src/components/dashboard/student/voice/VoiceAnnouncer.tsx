@@ -16,7 +16,7 @@ export interface VoiceSettings {
 // Default voice settings
 export const defaultVoiceSettings: VoiceSettings = {
   enabled: true,
-  volume: 0.8,
+  volume: 1.0, // Increased from 0.8 to 1.0 for louder voice
   speed: 1.0,
   voice: 'en-IN',
   announceGreetings: true,
@@ -72,8 +72,6 @@ export const getGreeting = (mood?: MoodType): string => {
         return `${timeGreeting}. Take a deep breath. We'll manage your tasks together.`;
       case 'stressed':
         return `${timeGreeting}. I notice you're stressed. Let's organize your priorities.`;
-      case 'confident':
-        return `${timeGreeting}! Your confidence is inspiring. Let's tackle some challenges!`;
       default:
         return `${timeGreeting}! Ready for your study session?`;
     }
@@ -104,16 +102,36 @@ export const speakMessage = (message: string, forceSpeak: boolean = false): void
   // Create and configure speech synthesis utterance
   const utterance = new SpeechSynthesisUtterance(message);
   
-  // Find the Indian English voice if available
+  // Priority order for voice selection:
+  // 1. Indian English voice
+  // 2. Any voice with "Indian" in the name
+  // 3. Any voice with "Hindi" in the name
+  // 4. Any English voice
   const voices = window.speechSynthesis.getVoices();
+  
+  // First try: Find exact Indian English voice (en-IN)
   const indianVoice = voices.find(voice => 
-    voice.lang.includes('en-IN') || 
-    voice.name.includes('Indian') ||
-    voice.name.includes('Hindi')
+    voice.lang === 'en-IN' ||
+    voice.lang.startsWith('hi-')
   );
   
+  // Second try: Find voice with "Indian" in name
+  const voiceWithIndian = voices.find(voice => 
+    voice.name.toLowerCase().includes('indian')
+  );
+  
+  // Third try: Find voice with "Hindi" in name
+  const voiceWithHindi = voices.find(voice => 
+    voice.name.toLowerCase().includes('hindi')
+  );
+  
+  // Set the appropriate voice
   if (indianVoice) {
     utterance.voice = indianVoice;
+  } else if (voiceWithIndian) {
+    utterance.voice = voiceWithIndian;
+  } else if (voiceWithHindi) {
+    utterance.voice = voiceWithHindi;
   } else {
     utterance.lang = settings.voice;
   }
@@ -183,7 +201,7 @@ export const useVoiceAnnouncer = () => {
   
   // Test the current voice settings
   const testVoice = useCallback(() => {
-    speak("Hello! This is a test of your voice settings. Is this working properly?", true);
+    speak("Hello! This is a test of your voice settings with an Indian accent. Is this working properly?", true);
   }, [speak]);
   
   return {

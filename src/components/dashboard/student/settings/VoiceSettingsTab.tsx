@@ -13,8 +13,20 @@ const VoiceSettingsTab = () => {
   const { settings, updateSettings, testVoice, getAvailableVoices } = useVoiceAnnouncerContext();
   const voices = getAvailableVoices();
   
-  // Filter for English voices, preferring Indian English
-  const englishVoices = voices.filter(voice => voice.lang.startsWith('en'));
+  // Filter for Indian English voices first, then all English voices
+  const indianEnglishVoices = voices.filter(voice => 
+    voice.lang === 'en-IN' || 
+    voice.name.toLowerCase().includes('indian') ||
+    voice.name.toLowerCase().includes('hindi')
+  );
+  
+  const englishVoices = voices.filter(voice => 
+    voice.lang.startsWith('en') && 
+    !indianEnglishVoices.includes(voice)
+  );
+  
+  // Combine them with Indian voices first
+  const prioritizedVoices = [...indianEnglishVoices, ...englishVoices];
   
   return (
     <div className="space-y-6">
@@ -49,8 +61,8 @@ const VoiceSettingsTab = () => {
                 <SelectValue placeholder="Select voice" />
               </SelectTrigger>
               <SelectContent>
-                {englishVoices.length > 0 ? (
-                  englishVoices.map((voice) => (
+                {prioritizedVoices.length > 0 ? (
+                  prioritizedVoices.map((voice) => (
                     <SelectItem key={`${voice.name}-${voice.lang}`} value={voice.lang}>
                       {voice.name} ({voice.lang})
                     </SelectItem>

@@ -12,7 +12,7 @@ import MoodMusicPlayer from '@/components/dashboard/student/feel-good-corner/Moo
 import JokesTab from '@/components/dashboard/student/feel-good-corner/JokesTab';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Music, Pencil, Heart, Smile, MessageSquare, Image } from 'lucide-react';
+import { Music, Pencil, Heart, Smile, MessageSquare } from 'lucide-react';
 import { getVoiceSettings, speakMessage, getGreeting } from '@/components/dashboard/student/voice/VoiceAnnouncer';
 
 const FeelGoodCornerView = () => {

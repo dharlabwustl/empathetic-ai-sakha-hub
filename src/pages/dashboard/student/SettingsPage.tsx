@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,13 +8,14 @@ import { useToast } from "@/hooks/use-toast";
 import { Separator } from "@/components/ui/separator";
 import { 
   Bell, Lock, Globe, ShieldAlert, Users, MessageSquare, Download,
-  CheckCircle, Smartphone, Mail, PanelLeft, Eye, Trash2, Loader2
+  CheckCircle, Smartphone, Mail, Eye, Trash2, Loader2, VolumeUp
 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Input } from "@/components/ui/input";
+import VoiceSettingsTab from "@/components/dashboard/student/settings/VoiceSettingsTab";
 
 const SettingsPage = () => {
   const { toast } = useToast();
@@ -159,12 +159,13 @@ const SettingsPage = () => {
       </div>
       
       <Tabs defaultValue="account">
-        <TabsList className="grid w-full grid-cols-5 mb-6">
+        <TabsList className="grid w-full grid-cols-6 mb-6">
           <TabsTrigger value="account">Account</TabsTrigger>
           <TabsTrigger value="notifications">Notifications</TabsTrigger>
           <TabsTrigger value="privacy">Privacy</TabsTrigger>
           <TabsTrigger value="accessibility">Accessibility</TabsTrigger>
-          <TabsTrigger value="help">Help & Support</TabsTrigger>
+          <TabsTrigger value="voice">Voice</TabsTrigger>
+          <TabsTrigger value="help">Help</TabsTrigger>
         </TabsList>
         
         <TabsContent value="account" className="space-y-6">
@@ -594,6 +595,10 @@ const SettingsPage = () => {
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+        
+        <TabsContent value="voice" className="space-y-6">
+          <VoiceSettingsTab />
         </TabsContent>
         
         <TabsContent value="help" className="space-y-6">
