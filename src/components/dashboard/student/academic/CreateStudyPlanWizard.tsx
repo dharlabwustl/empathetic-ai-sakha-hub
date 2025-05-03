@@ -111,13 +111,15 @@ const CreateStudyPlanWizard: React.FC<CreateStudyPlanWizardProps> = ({
         );
       case 3:
         return (
-          <SubjectsStep
-            examType={formData.examGoal}
-            strongSubjects={strongSubjects}
-            mediumSubjects={mediumSubjects}
-            weakSubjects={weakSubjects}
-            handleToggleSubject={handleToggleSubject}
-          />
+          <div className="max-h-[400px] overflow-y-auto pr-2">
+            <SubjectsStep
+              examType={formData.examGoal}
+              strongSubjects={strongSubjects}
+              mediumSubjects={mediumSubjects}
+              weakSubjects={weakSubjects}
+              handleToggleSubject={handleToggleSubject}
+            />
+          </div>
         );
       case 4:
         return (
@@ -214,12 +216,12 @@ const CreateStudyPlanWizard: React.FC<CreateStudyPlanWizardProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md md:max-w-lg">
+      <DialogContent className="sm:max-w-md md:max-w-lg max-h-[90vh] overflow-hidden">
         <DialogHeader>
           <DialogTitle>Create Study Plan</DialogTitle>
         </DialogHeader>
-        <div className="my-6">{renderStep()}</div>
-        <DialogFooter className="flex justify-between sm:justify-between">
+        <div className="my-4 overflow-y-auto pr-1">{renderStep()}</div>
+        <DialogFooter className="flex justify-between sm:justify-between mt-4">
           <Button variant="outline" onClick={handleBack}>
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back
