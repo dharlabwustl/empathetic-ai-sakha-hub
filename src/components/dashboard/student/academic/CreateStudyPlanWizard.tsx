@@ -11,7 +11,7 @@ import { format } from 'date-fns';
 import { ArrowRight, ArrowLeft, Calendar as CalendarIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import SubjectsStep from '@/components/dashboard/student/onboarding/SubjectsStep';
-import { useStudyPlanWizard } from './hooks/useStudyPlanWizard';
+import { useStudyPlanWizard } from '@/hooks/useStudyPlanWizard';
 
 interface CreateStudyPlanWizardProps {
   isOpen: boolean;
@@ -31,7 +31,6 @@ const CreateStudyPlanWizard: React.FC<CreateStudyPlanWizardProps> = ({
     formData,
     setFormData,
     strongSubjects,
-    mediumSubjects,
     weakSubjects,
     handleToggleSubject,
     handlePaceChange,
@@ -98,7 +97,7 @@ const CreateStudyPlanWizard: React.FC<CreateStudyPlanWizardProps> = ({
                 <PopoverContent className="w-auto p-0" align="start">
                   <Calendar
                     mode="single"
-                    selected={new Date(formData.examDate)}
+                    selected={formData.examDate ? new Date(formData.examDate) : undefined}
                     onSelect={(date) => 
                       setFormData(prev => ({ ...prev, examDate: date || new Date() }))}
                     disabled={(date) => date < new Date()}
@@ -115,7 +114,6 @@ const CreateStudyPlanWizard: React.FC<CreateStudyPlanWizardProps> = ({
             <SubjectsStep
               examType={formData.examGoal}
               strongSubjects={strongSubjects}
-              mediumSubjects={mediumSubjects}
               weakSubjects={weakSubjects}
               handleToggleSubject={handleToggleSubject}
             />
@@ -158,9 +156,11 @@ const CreateStudyPlanWizard: React.FC<CreateStudyPlanWizardProps> = ({
             </div>
             <div className="space-y-5">
               <RadioGroup
-                value={formData.preferredStudyTime}
-                onValueChange={(value: 'morning' | 'afternoon' | 'evening' | 'night') => 
-                  setFormData(prev => ({ ...prev, preferredStudyTime: value }))}
+                defaultValue={formData.preferredStudyTime}
+                onValueChange={(value: 'morning' | 'afternoon' | 'evening' | 'night') => {
+                  handleStudyTimeChange(value.charAt(0).toUpperCase() + value.slice(1) as "Morning" | "Afternoon" | "Evening" | "Night");
+                  setFormData(prev => ({ ...prev, preferredStudyTime: value }));
+                }}
               >
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="morning" id="morning" />
@@ -190,11 +190,13 @@ const CreateStudyPlanWizard: React.FC<CreateStudyPlanWizardProps> = ({
               <p className="text-muted-foreground">How would you describe your ideal learning pace?</p>
             </div>
             <RadioGroup
-              value={
+              defaultValue={
                 formData.learningPace === 'slow' ? 'Relaxed' : 
                 formData.learningPace === 'moderate' ? 'Balanced' : 'Aggressive'
               }
-              onValueChange={(value: "Aggressive" | "Balanced" | "Relaxed") => handlePaceChange(value)}
+              onValueChange={(value: "Aggressive" | "Balanced" | "Relaxed") => {
+                handlePaceChange(value);
+              }}
             >
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="Relaxed" id="relaxed" />

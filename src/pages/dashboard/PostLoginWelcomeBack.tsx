@@ -30,6 +30,14 @@ const PostLoginWelcomeBack = () => {
       return;
     }
     
+    // For new users (who came from signup), go directly to dashboard
+    // This is because they would have gone through the welcome-flow already
+    const isNewUser = localStorage.getItem('new_user_signup') === 'true';
+    if (isNewUser) {
+      navigate('/dashboard/student');
+      return;
+    }
+    
     // For returning users who have seen both, skip directly to dashboard
     const sawWelcomeSlider = localStorage.getItem('sawWelcomeSlider') === 'true';
     const sawWelcomeTour = localStorage.getItem('sawWelcomeTour') === 'true';
@@ -47,7 +55,7 @@ const PostLoginWelcomeBack = () => {
     
     // Auto-redirect after 45 seconds if no action taken
     const timer = setTimeout(() => {
-      navigate('/dashboard/student/today');
+      navigate('/dashboard/student');
       toast({
         title: "Welcome to PREPZR!",
         description: "You've been automatically redirected to Today's Plan.",

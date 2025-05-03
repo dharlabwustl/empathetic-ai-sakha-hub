@@ -100,9 +100,9 @@ const SignupContent = () => {
         description: "Redirecting to your personalized dashboard.",
       });
 
-      // Go directly to welcome screen without study plan creation
+      // Go to welcome flow
       setTimeout(() => {
-        navigate("/welcome");
+        navigate("/welcome-flow?completedOnboarding=true&new=true");
       }, 1000);
     } catch (error) {
       console.error("Error creating account:", error);

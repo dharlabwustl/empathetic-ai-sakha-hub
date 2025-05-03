@@ -74,6 +74,23 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             role: UserRole.Student
           };
           
+          // Check if this is a returning user
+          const existingData = localStorage.getItem('userData');
+          let loginCount = 1;
+          let sawWelcomeSlider = false;
+          let sawWelcomeTour = false;
+          
+          if (existingData) {
+            try {
+              const parsedData = JSON.parse(existingData);
+              loginCount = (parsedData.loginCount || 0) + 1;
+              sawWelcomeSlider = parsedData.sawWelcomeSlider === true;
+              sawWelcomeTour = parsedData.sawWelcomeTour === true;
+            } catch (error) {
+              console.error('Error parsing existing user data:', error);
+            }
+          }
+          
           // Save user data to localStorage
           localStorage.setItem('userData', JSON.stringify({
             id: newUser.id,
@@ -81,7 +98,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             email: newUser.email,
             role: newUser.role,
             lastLogin: new Date().toISOString(),
-            loginCount: 1,
+            loginCount: loginCount,
+            sawWelcomeSlider: sawWelcomeSlider,
+            sawWelcomeTour: sawWelcomeTour,
             mood: 'Motivated'
           }));
           
@@ -108,6 +127,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           mood: parsedData.mood,
           completedOnboarding: parsedData.completedOnboarding,
           sawWelcomeTour: parsedData.sawWelcomeTour,
+          sawWelcomeSlider: parsedData.sawWelcomeSlider
         }));
       } catch (error) {
         console.error('Error during logout:', error);

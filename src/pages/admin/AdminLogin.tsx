@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2, ShieldCheck } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import adminAuthService from "@/services/auth/adminAuthService";
+import { useAdminAuth } from '@/contexts/auth/AdminAuthContext';
 import PrepzrLogo from "@/components/common/PrepzrLogo";
 
 const AdminLogin = () => {
@@ -18,6 +18,14 @@ const AdminLogin = () => {
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { adminLogin, isAdminAuthenticated } = useAdminAuth();
+  
+  // Check if admin is already authenticated
+  useEffect(() => {
+    if (isAdminAuthenticated) {
+      navigate("/admin/dashboard");
+    }
+  }, [isAdminAuthenticated, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,9 +39,9 @@ const AdminLogin = () => {
     setError(null);
     
     try {
-      const response = await adminAuthService.adminLogin({ email, password });
+      const success = await adminLogin(email, password);
       
-      if (response.success) {
+      if (success) {
         toast({
           title: "Login successful",
           description: "Welcome to the admin dashboard",
@@ -42,7 +50,7 @@ const AdminLogin = () => {
         // Navigate to admin dashboard
         navigate("/admin/dashboard");
       } else {
-        setError(response.message || "Invalid credentials");
+        setError("Invalid admin credentials");
       }
     } catch (error) {
       console.error("Login error:", error);
