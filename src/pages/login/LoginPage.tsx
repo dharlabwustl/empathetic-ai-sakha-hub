@@ -9,6 +9,7 @@ import { Eye, EyeOff, Mail, Lock, Loader2, UserCheck, ChevronRight } from "lucid
 import { useAuth } from "@/hooks/useAuth";
 import { Checkbox } from "@/components/ui/checkbox";
 import { motion } from "framer-motion";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -21,25 +22,24 @@ const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+  const [loginError, setLoginError] = useState<string | null>(null);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
+    if (loginError) setLoginError(null);
   };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!formData.email || !formData.password) {
-      toast({
-        title: "Missing information",
-        description: "Please provide both email and password.",
-        variant: "destructive"
-      });
+      setLoginError("Please provide both email and password");
       return;
     }
     
     setIsLoading(true);
+    setLoginError(null);
     
     try {
       const success = await login(formData.email, formData.password);
@@ -47,7 +47,7 @@ const LoginPage = () => {
       if (success) {
         toast({
           title: "Login successful",
-          description: "Redirecting to your dashboard",
+          description: "Welcome to PREPZR! Redirecting to your dashboard...",
         });
         
         // Remember email if option is checked
@@ -70,11 +70,11 @@ const LoginPage = () => {
               lastLogin: new Date().toISOString()
             }));
             
-            // Navigate to welcome-back transition page
-            navigate("/welcome-back");
+            // Navigate directly to student dashboard (more seamless)
+            navigate("/dashboard/student/today", { replace: true });
           } catch (error) {
             console.error("Error parsing user data:", error);
-            navigate("/dashboard/student");
+            navigate("/dashboard/student", { replace: true });
           }
         } else {
           // If no user data exists, create it
@@ -86,21 +86,13 @@ const LoginPage = () => {
             mood: 'Motivated'
           };
           localStorage.setItem("userData", JSON.stringify(newUserData));
-          navigate("/dashboard/student");
+          navigate("/dashboard/student", { replace: true });
         }
       } else {
-        toast({
-          title: "Login Failed",
-          description: "Invalid email or password. Please try again.",
-          variant: "destructive"
-        });
+        setLoginError("Invalid email or password. Please try again.");
       }
     } catch (error) {
-      toast({
-        title: "Login Failed",
-        description: "An unexpected error occurred. Please try again.",
-        variant: "destructive"
-      });
+      setLoginError("An unexpected error occurred. Please try again.");
       console.error("Login error:", error);
     } finally {
       setIsLoading(false);
@@ -129,6 +121,12 @@ const LoginPage = () => {
 
   return (
     <div className="p-6 space-y-6">
+      {loginError && (
+        <Alert variant="destructive" className="mb-4">
+          <AlertDescription>{loginError}</AlertDescription>
+        </Alert>
+      )}
+      
       <form onSubmit={handleLogin} className="space-y-4">
         <motion.div 
           initial={{ opacity: 0, y: 10 }}
@@ -148,7 +146,7 @@ const LoginPage = () => {
               onChange={handleInputChange}
               placeholder="Enter your email"
               type="email"
-              className="pl-9 border-blue-200 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+              className={`pl-9 border-blue-200 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 ${loginError && !formData.email ? "border-red-500" : ""}`}
               autoComplete="email"
             />
           </div>
@@ -172,7 +170,7 @@ const LoginPage = () => {
               onChange={handleInputChange}
               placeholder="Enter your password"
               type={showPassword ? "text" : "password"}
-              className="pl-9 pr-10 border-blue-200 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+              className={`pl-9 pr-10 border-blue-200 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 ${loginError && !formData.password ? "border-red-500" : ""}`}
               autoComplete="current-password"
             />
             <button

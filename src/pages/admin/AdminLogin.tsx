@@ -10,6 +10,7 @@ import { useAdminAuth } from "@/contexts/auth/AdminAuthContext";
 import { Eye, EyeOff, Mail, Lock, Loader2, ShieldCheck } from "lucide-react";
 import { motion } from "framer-motion";
 import PrepzrLogo from "@/components/common/PrepzrLogo";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const AdminLogin = () => {
   const { adminLogin } = useAdminAuth();
@@ -17,6 +18,7 @@ const AdminLogin = () => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [loginError, setLoginError] = useState<string | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -24,15 +26,12 @@ const AdminLogin = () => {
     e.preventDefault();
     
     if (!email || !password) {
-      toast({
-        title: "Error",
-        description: "Please enter your email and password",
-        variant: "destructive",
-      });
+      setLoginError("Please enter your email and password");
       return;
     }
     
     setIsLoading(true);
+    setLoginError(null);
     
     try {
       // Use the adminAuth context to login
@@ -44,22 +43,14 @@ const AdminLogin = () => {
           description: "Welcome to the admin dashboard",
         });
         
-        // Navigate to admin dashboard
-        navigate("/admin/dashboard");
+        // Navigate directly to admin dashboard with replace to prevent back navigation
+        navigate("/admin/dashboard", { replace: true });
       } else {
-        toast({
-          title: "Login failed",
-          description: "Invalid admin credentials",
-          variant: "destructive",
-        });
+        setLoginError("Invalid admin credentials");
       }
     } catch (error) {
       console.error("Admin login error:", error);
-      toast({
-        title: "Login failed",
-        description: "An unexpected error occurred",
-        variant: "destructive",
-      });
+      setLoginError("An unexpected error occurred");
     } finally {
       setIsLoading(false);
     }
@@ -67,6 +58,11 @@ const AdminLogin = () => {
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
+  };
+
+  const handleDemoAdminLogin = () => {
+    setEmail("admin@prepzr.com");
+    setPassword("admin123");
   };
 
   return (
@@ -107,6 +103,12 @@ const AdminLogin = () => {
           </CardHeader>
           <form onSubmit={handleSubmit}>
             <CardContent className="space-y-4 pt-6">
+              {loginError && (
+                <Alert variant="destructive">
+                  <AlertDescription>{loginError}</AlertDescription>
+                </Alert>
+              )}
+            
               <motion.div
                 initial={{ x: -20, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
@@ -122,9 +124,12 @@ const AdminLogin = () => {
                     id="email"
                     type="email"
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      if (loginError) setLoginError(null);
+                    }}
                     placeholder="admin@prepzr.com"
-                    className="pl-9 border-blue-200 focus:ring-blue-500 focus:border-blue-500 dark:border-blue-800"
+                    className={`pl-9 border-blue-200 focus:ring-blue-500 focus:border-blue-500 dark:border-blue-800 ${loginError && !email ? "border-red-500" : ""}`}
                     required
                   />
                 </div>
@@ -142,6 +147,12 @@ const AdminLogin = () => {
                     variant="link" 
                     className="px-0 font-normal text-xs h-auto"
                     type="button"
+                    onClick={() => {
+                      toast({
+                        title: "Password Recovery",
+                        description: "Admin password recovery feature coming soon."
+                      });
+                    }}
                   >
                     Forgot password?
                   </Button>
@@ -154,8 +165,11 @@ const AdminLogin = () => {
                     id="password"
                     type={showPassword ? "text" : "password"}
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="pl-9 pr-10 border-blue-200 focus:ring-blue-500 focus:border-blue-500 dark:border-blue-800"
+                    onChange={(e) => {
+                      setPassword(e.target.value);
+                      if (loginError) setLoginError(null);
+                    }}
+                    className={`pl-9 pr-10 border-blue-200 focus:ring-blue-500 focus:border-blue-500 dark:border-blue-800 ${loginError && !password ? "border-red-500" : ""}`}
                     required
                   />
                   <button
@@ -166,6 +180,22 @@ const AdminLogin = () => {
                     {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
                 </div>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.5, duration: 0.5 }}
+                className="pt-2"
+              >
+                <Button 
+                  type="button"
+                  variant="outline"
+                  className="w-full mb-4 border-blue-200 hover:border-blue-300 hover:bg-blue-50"
+                  onClick={handleDemoAdminLogin}
+                >
+                  Use Demo Admin Account
+                </Button>
               </motion.div>
             </CardContent>
             
@@ -220,6 +250,7 @@ const AdminLogin = () => {
                     variant="link"
                     className="text-sm"
                     onClick={() => navigate("/")}
+                    type="button"
                   >
                     Return to main site
                   </Button>
