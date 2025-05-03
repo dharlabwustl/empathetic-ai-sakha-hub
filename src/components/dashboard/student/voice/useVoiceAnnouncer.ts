@@ -40,7 +40,7 @@ export const useVoiceAnnouncer = () => {
   
   // Test the current voice settings with a pleasant, energetic Indian voice message
   const testVoice = useCallback(() => {
-    speak("Namaste! I'm your friendly study companion with a pleasant Indian voice. I'm here to make your learning journey joyful, energetic and truly wonderful!", true);
+    speak("Namaste! I'm your friendly study companion with a pleasant Indian female voice. I'm here to make your learning journey joyful and successful!", true);
   }, [speak]);
   
   return {
