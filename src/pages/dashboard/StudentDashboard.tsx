@@ -16,6 +16,7 @@ const StudentDashboard = () => {
   const [showSplash, setShowSplash] = useState(true);
   const [currentMood, setCurrentMood] = useState<MoodType | undefined>(undefined);
   const [showTourModal, setShowTourModal] = useState(false);
+  const [dashboardReady, setDashboardReady] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   
@@ -48,27 +49,49 @@ const StudentDashboard = () => {
   const DashboardWithVoice = () => {
     const voiceAnnouncer = useVoiceAnnouncerContext();
 
-    // Handle voice welcome when dashboard is loaded
+    // Handle voice welcome when dashboard is fully loaded
     useEffect(() => {
-      if (!showSplash && userProfile && !showOnboarding) {
-        const settings = getVoiceSettings();
-        if (settings.enabled && settings.announceGreetings) {
-          const isFirstTimeUser = userProfile.loginCount === 1 || localStorage.getItem('new_user_signup') === 'true';
-          
-          // Get appropriate welcome message
-          const welcomeMessage = voiceAnnouncer.getWelcomeMessage(
-            isFirstTimeUser, 
-            userProfile.name || '', 
-            userProfile.loginCount || 1
-          );
-          
-          // Small delay to ensure everything is loaded
+      if (!showSplash && userProfile && !showOnboarding && dashboardReady) {
+        // Mark dashboard as not first time anymore
+        if (voiceAnnouncer.isFirstTimeUser) {
+          // Give time for tour to finish before greeting
           setTimeout(() => {
-            voiceAnnouncer.speak(welcomeMessage, true);
-          }, 1500);
+            const settings = getVoiceSettings();
+            if (settings.enabled && settings.announceGreetings) {
+              const welcomeMessage = voiceAnnouncer.getWelcomeMessage(true, userProfile.name || '', 1);
+              
+              // Delay for user to see dashboard first
+              setTimeout(() => {
+                voiceAnnouncer.speak(welcomeMessage);
+              }, 2000);
+            }
+          }, 1000);
+        } else if (userProfile.examGoal || userProfile.goals?.[0]?.title) {
+          // Set exam goal in voice context
+          voiceAnnouncer.setExamGoal(userProfile.examGoal || userProfile.goals?.[0]?.title || '');
+          
+          // For returning users, delay greeting to let them see dashboard first
+          setTimeout(() => {
+            const settings = getVoiceSettings();
+            if (settings.enabled && settings.announceGreetings) {
+              const welcomeMessage = voiceAnnouncer.getWelcomeMessage(
+                false, 
+                userProfile.name || '', 
+                userProfile.loginCount || 1
+              );
+              voiceAnnouncer.speak(welcomeMessage);
+            }
+          }, 3000);
         }
       }
-    }, [showSplash, userProfile, showOnboarding, voiceAnnouncer]);
+    }, [showSplash, userProfile, showOnboarding, dashboardReady, voiceAnnouncer]);
+
+    // Update screen context when tab changes
+    useEffect(() => {
+      if (dashboardReady && activeTab) {
+        voiceAnnouncer.updateScreenContext(activeTab);
+      }
+    }, [activeTab, dashboardReady, voiceAnnouncer]);
     
     return null;
   };
@@ -82,13 +105,10 @@ const StudentDashboard = () => {
     // Check if user has already seen the tour
     const hasSeenTour = localStorage.getItem("hasSeenTour") === "true";
     
-    console.log("Checking tour status:", { isNewUser, completedOnboarding, hasSeenTour });
-    
     // For new users or those who completed onboarding, show the tour
     if ((isNewUser || completedOnboarding) && !hasSeenTour) {
       setShowSplash(false);
       setShowTourModal(true);
-      // Don't set hasSeenTour yet, will set after tour completion
     } 
     // For returning users
     else {
@@ -112,6 +132,16 @@ const StudentDashboard = () => {
     }
   }, [location, showWelcomeTour]);
   
+  // Mark dashboard as ready after a delay to allow for rendering
+  useEffect(() => {
+    if (!loading && userProfile) {
+      const timer = setTimeout(() => {
+        setDashboardReady(true);
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [loading, userProfile]);
+  
   const handleSplashComplete = () => {
     setShowSplash(false);
     // Mark that the user has seen the splash screen in this session
@@ -130,28 +160,28 @@ const StudentDashboard = () => {
     // Store mood in localStorage using the utility function
     storeMoodInLocalStorage(mood);
     
-    // Voice feedback when mood changes
+    // Voice feedback when mood changes - context aware and concise
     const settings = getVoiceSettings();
     if (settings.enabled && settings.announceGreetings) {
       let message = "";
       switch(mood) {
         case MoodType.Motivated:
-          message = "You're motivated today! That's great. Let's make the most of your energy.";
+          message = "Great motivation! Let's focus on challenging topics today.";
           break;
         case MoodType.Tired:
-          message = "I see you're feeling tired. I'll suggest lighter tasks for today.";
+          message = "I'll suggest shorter study sessions with more breaks.";
           break;
         case MoodType.Focused:
-          message = "You're focused today! Perfect for tackling challenging material.";
+          message = "With your focus, let's tackle difficult concepts now.";
           break;
         case MoodType.Anxious:
-          message = "I understand you're feeling anxious. Let's break down your tasks into manageable steps.";
+          message = "For anxiety, we'll break tasks into smaller steps.";
           break;
         case MoodType.Stressed:
-          message = "You're feeling stressed. Let's prioritize and tackle one thing at a time.";
+          message = "To reduce stress, let's prioritize one task at a time.";
           break;
         default:
-          message = "Thank you for sharing your mood. I'll customize suggestions accordingly.";
+          message = "I'll adjust recommendations based on your mood.";
       }
       
       speakMessage(message);
