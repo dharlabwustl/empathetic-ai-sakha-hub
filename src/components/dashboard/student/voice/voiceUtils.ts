@@ -1,166 +1,188 @@
+
+import { MoodType } from '@/types/user/base';
+
+// Voice settings type
 export interface VoiceSettings {
   enabled: boolean;
-  voiceName: string;
-  rate: number;
-  pitch: number;
   volume: number;
+  speed: number;
+  voice: string;
   announceGreetings: boolean;
   announceReminders: boolean;
   announceTasks: boolean;
-  inactivityPrompts: boolean; // Added new setting for inactivity prompts
-  proactiveSuggestions: boolean; // Added for proactive suggestions
-  helpTips: boolean; // Added for helpful tips
 }
 
-// Get voice settings from local storage or default values
+// Default voice settings
+export const defaultVoiceSettings: VoiceSettings = {
+  enabled: true,
+  volume: 1.0, // Loud voice by default
+  speed: 1.0,
+  voice: 'en-IN',
+  announceGreetings: true,
+  announceReminders: true,
+  announceTasks: true,
+};
+
+// Cache for already spoken messages to avoid repetition
+const spokenMessages: Set<string> = new Set();
+
+// Get voice settings from local storage or use defaults
 export const getVoiceSettings = (): VoiceSettings => {
-  try {
-    const savedSettings = localStorage.getItem("voiceSettings");
-    if (savedSettings) {
+  const savedSettings = localStorage.getItem('voiceSettings');
+  if (savedSettings) {
+    try {
       return JSON.parse(savedSettings);
+    } catch (e) {
+      console.error('Error parsing voice settings:', e);
+      return defaultVoiceSettings;
     }
-  } catch (err) {
-    console.error("Error parsing voice settings:", err);
   }
-  
-  // Default settings with higher pitch and moderate rate for happy, energetic Indian female voice
-  return {
-    enabled: true,
-    voiceName: "", // Will use the best available Indian female voice
-    rate: 1.05, // Slightly faster than normal for energetic feel
-    pitch: 1.1, // Higher pitch for female voice
-    volume: 0.9,
-    announceGreetings: true,
-    announceReminders: true,
-    announceTasks: true,
-    inactivityPrompts: true,
-    proactiveSuggestions: true,
-    helpTips: true
-  };
+  return defaultVoiceSettings;
 };
 
 // Save voice settings to local storage
 export const saveVoiceSettings = (settings: VoiceSettings): void => {
-  try {
-    localStorage.setItem("voiceSettings", JSON.stringify(settings));
-  } catch (err) {
-    console.error("Error saving voice settings:", err);
-  }
+  localStorage.setItem('voiceSettings', JSON.stringify(settings));
 };
 
-// Find the best Indian female voice available
-// Prioritize Indian English female voices, then any Indian voices, then any English female voices
-const findBestIndianFemaleVoice = (): SpeechSynthesisVoice | null => {
+// Helper to get the best voice for Indian English - strictly prioritizing female Indian voices
+export const findBestIndianVoice = (): SpeechSynthesisVoice | undefined => {
   const voices = window.speechSynthesis.getVoices();
+  console.log("Available voices:", voices.map(v => `${v.name} (${v.lang})`).join(', '));
   
-  // Log available voices for debugging
-  console.log("Finding best Indian female voice from:", voices.map(v => `${v.name} (${v.lang})`).join(', '));
-  
-  // Try to find an Indian English female voice
-  // Priority: Indian English female > Indian female > English female > Any English > Default
-  
-  // Look for Google's Indian English voices first (most common)
-  let voice = voices.find(v => 
-    v.name.toLowerCase().includes('google') && 
-    v.name.toLowerCase().includes('female') && 
-    (v.lang === 'en-IN' || v.name.toLowerCase().includes('indian'))
+  // HIGHEST priority: Find female Indian English voice with certain keywords
+  const idealFemaleIndianVoice = voices.find(voice => 
+    (voice.lang === 'en-IN' || voice.lang === 'hi-IN') && 
+    (voice.name.toLowerCase().includes('female') || 
+     voice.name.toLowerCase().includes('woman') ||
+     voice.name.toLowerCase().includes('girl') ||
+     voice.name.toLowerCase().includes('lekha') ||  // Common Indian female voice name
+     voice.name.toLowerCase().includes('kalpana') ||
+     voice.name.toLowerCase().includes('veena'))
   );
   
-  // Next, try any Indian English voice
-  if (!voice) {
-    voice = voices.find(v => v.lang === 'en-IN');
+  if (idealFemaleIndianVoice) {
+    console.log("Found ideal female Indian voice:", idealFemaleIndianVoice.name);
+    return idealFemaleIndianVoice;
   }
   
-  // Next, try any Hindi voice
-  if (!voice) {
-    voice = voices.find(v => v.lang === 'hi-IN');
+  // Second priority: Any female Indian English voice
+  const femaleIndianVoice = voices.find(voice => 
+    (voice.lang === 'en-IN' || voice.lang === 'hi-IN') && 
+    !voice.name.toLowerCase().includes('male') &&
+    !voice.name.toLowerCase().includes('man')
+  );
+  
+  if (femaleIndianVoice) {
+    console.log("Found likely female Indian voice:", femaleIndianVoice.name);
+    return femaleIndianVoice;
   }
   
-  // Next, try any English female voice
-  if (!voice) {
-    voice = voices.find(v => 
-      v.lang.startsWith('en') && 
-      (v.name.toLowerCase().includes('female') || v.name.toLowerCase().includes('girl'))
-    );
+  // Third priority: Find any Indian English voice
+  const indianVoice = voices.find(voice => 
+    voice.lang === 'en-IN' || 
+    voice.lang === 'hi-IN' || 
+    voice.name.toLowerCase().includes('indian')
+  );
+  
+  if (indianVoice) {
+    console.log("Found Indian voice:", indianVoice.name);
+    return indianVoice;
   }
   
-  // Finally, fall back to any English voice
-  if (!voice) {
-    voice = voices.find(v => v.lang.startsWith('en'));
+  // Fourth priority: Find any voice with "Indian" in name
+  const voiceWithIndian = voices.find(voice => 
+    voice.name.toLowerCase().includes('indian')
+  );
+  
+  if (voiceWithIndian) {
+    console.log("Found voice with Indian in name:", voiceWithIndian.name);
+    return voiceWithIndian;
   }
   
-  return voice || null;
+  // Fifth priority: Any female English voice
+  const femaleEnglishVoice = voices.find(voice => 
+    voice.lang.startsWith('en') && 
+    (voice.name.toLowerCase().includes('female') || 
+     voice.name.toLowerCase().includes('woman') ||
+     voice.name.toLowerCase().includes('girl'))
+  );
+  
+  if (femaleEnglishVoice) {
+    console.log("Falling back to female English voice:", femaleEnglishVoice.name);
+    return femaleEnglishVoice;
+  }
+  
+  // Last resort: Any English voice
+  const anyEnglishVoice = voices.find(voice => voice.lang.startsWith('en'));
+  if (anyEnglishVoice) {
+    console.log("Last resort: using any English voice:", anyEnglishVoice.name);
+    return anyEnglishVoice;
+  }
+  
+  return undefined;
 };
 
-// Speak a message with the current voice settings
-export const speakMessage = (message: string, force: boolean = false): void => {
-  // Don't speak if text is empty
-  if (!message || message.trim() === '') return;
-  
+// Improve pronunciation of specific words
+const improvePronunciation = (text: string): string => {
+  // Replace "PREPZR" with a phonetic spelling that sounds better ("prep-EEZ-er")
+  return text
+    .replace(/PREPZR|Prepzr|prepzr/g, 'prep-eez-er')
+    .replace(/studying/g, 'study ing') // Better pronunciation of "studying"
+    .replace(/efficient/g, 'ef fish ent') // Clearer pronunciation
+    .replace(/congratulations/g, 'con grat you lay shuns'); // Clearer pronunciation
+};
+
+// Function to speak a message with current settings - optimized for happy, energetic Indian female voice
+export const speakMessage = (message: string, forceSpeak: boolean = false): void => {
   const settings = getVoiceSettings();
-  if (!settings.enabled && !force) return;
   
-  // Get the SpeechSynthesis instance
-  const synth = window.speechSynthesis;
-  
-  // Cancel any ongoing speech
-  synth.cancel();
-  
-  // Create a new utterance
-  const utterance = new SpeechSynthesisUtterance(message);
-  
-  // Set voice properties
-  utterance.rate = settings.rate;
-  utterance.pitch = settings.pitch;
-  utterance.volume = settings.volume;
-  
-  // Fix common pronounciation errors
-  message = fixPronunciation(message);
-  utterance.text = message;
-  
-  // Find and set the best voice
-  const voices = synth.getVoices();
-  let selectedVoice: SpeechSynthesisVoice | null = null;
-  
-  // If a specific voice name is set and exists, use it
-  if (settings.voiceName) {
-    selectedVoice = voices.find(v => v.name === settings.voiceName) || null;
+  // Return early if voice is disabled or we've already spoken this message
+  if (!settings.enabled && !forceSpeak) {
+    return;
   }
   
-  // If no specific voice or it wasn't found, find the best Indian female voice
-  if (!selectedVoice) {
-    selectedVoice = findBestIndianFemaleVoice();
+  // Only store non-forced messages in cache
+  if (!forceSpeak) {
+    // Check if we've already said this exact message
+    if (spokenMessages.has(message)) {
+      console.log("Skipping already spoken message:", message);
+      return;
+    }
+    spokenMessages.add(message);
   }
   
-  // Set the selected voice if found
-  if (selectedVoice) {
-    utterance.voice = selectedVoice;
-    console.log(`Using voice: ${selectedVoice.name} (${selectedVoice.lang})`);
+  // Clear cache if it gets too big
+  if (spokenMessages.size > 50) {
+    spokenMessages.clear();
   }
   
-  // Speak the utterance
-  synth.speak(utterance);
+  // Cancel any ongoing speech first
+  window.speechSynthesis.cancel();
   
-  // Log for debugging
-  console.log(`Speaking: "${message}" with voice ${utterance.voice?.name || 'default'}`);
-};
-
-// Fix common pronunciation issues for Indian accent
-const fixPronunciation = (text: string): string => {
-  // Fix "PREPZR" to "prep-eez-er"
-  text = text.replace(/\bPREPZR\b/g, "prep-eez-er");
-  text = text.replace(/\bPrepzr\b/g, "prep-eez-er");
-  text = text.replace(/\bprepzr\b/g, "prep-eez-er");
+  // Create and configure speech synthesis utterance
+  const utterance = new SpeechSynthesisUtterance(improvePronunciation(message));
   
-  // Other common words that might need pronunciation fixes
-  text = text.replace(/\bJEE\b/g, "J E E");
-  text = text.replace(/\bNEET\b/g, "NEET");
-  text = text.replace(/\bIIT\b/g, "I I T");
+  // Find the best Indian female voice
+  const bestVoice = findBestIndianVoice();
   
-  return text;
-};
-
-// Generate a list of available voices
-export const getAvailableVoices = (): SpeechSynthesisVoice[] => {
-  return window.speechSynthesis.getVoices();
+  if (bestVoice) {
+    utterance.voice = bestVoice;
+    console.log("Using voice:", bestVoice.name, bestVoice.lang);
+  } else {
+    utterance.lang = 'en-IN'; // Fallback to Indian English locale
+    console.log("No best voice found, using language: en-IN");
+  }
+  
+  // Set volume to maximum for loudness and clarity
+  utterance.volume = Math.min(settings.volume * 1.2, 1.0); // Boost volume but cap at 1.0
+  
+  // Set rate slightly faster for more energetic sound
+  utterance.rate = settings.speed > 1.0 ? settings.speed : Math.max(settings.speed, 1.0);
+  
+  // Add a pitch increase for more pleasant, energetic Indian female voice sound
+  utterance.pitch = 1.4; // Higher pitch for more distinctly female and energetic voice
+  
+  // Speak the message
+  window.speechSynthesis.speak(utterance);
 };

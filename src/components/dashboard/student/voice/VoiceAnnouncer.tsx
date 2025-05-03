@@ -1,13 +1,21 @@
-
-import React, { createContext, useContext, useEffect } from 'react';
+import React, { createContext, useContext } from 'react';
 import { useVoiceAnnouncer } from './useVoiceAnnouncer';
-import { getVoiceSettings, saveVoiceSettings, speakMessage } from './voiceUtils';
 
-// Re-export utilities for easier access
-export { getVoiceSettings, saveVoiceSettings, speakMessage };
+// Re-export all utilities from their respective files
+export { getVoiceSettings, saveVoiceSettings, speakMessage, type VoiceSettings, defaultVoiceSettings } from './voiceUtils';
 
-// Create the context with default values
-const VoiceAnnouncerContext = createContext<ReturnType<typeof useVoiceAnnouncer> | null>(null);
+// Voice announcer context
+const VoiceAnnouncerContext = React.createContext<ReturnType<typeof useVoiceAnnouncer> | undefined>(undefined);
+
+export const VoiceAnnouncerProvider: React.FC<{children: React.ReactNode}> = ({ children }) => {
+  const voiceAnnouncer = useVoiceAnnouncer();
+  
+  return (
+    <VoiceAnnouncerContext.Provider value={voiceAnnouncer}>
+      {children}
+    </VoiceAnnouncerContext.Provider>
+  );
+};
 
 export const useVoiceAnnouncerContext = () => {
   const context = useContext(VoiceAnnouncerContext);
@@ -17,49 +25,25 @@ export const useVoiceAnnouncerContext = () => {
   return context;
 };
 
-interface VoiceAnnouncerProviderProps {
-  children: React.ReactNode;
-}
+// Helper functions for message generation - This will keep the basic functions available even if the import fails
+export const getGreeting = (name?: string) => {
+  const hour = new Date().getHours();
+  let greeting = "Good evening";
+  
+  if (hour < 12) {
+    greeting = "Good morning";
+  } else if (hour < 18) {
+    greeting = "Good afternoon";
+  }
+  
+  return name ? `${greeting}, ${name}!` : greeting;
+};
 
-export const VoiceAnnouncerProvider: React.FC<VoiceAnnouncerProviderProps> = ({ children }) => {
-  const voiceAnnouncer = useVoiceAnnouncer();
-  
-  // Initialize voices on first load
-  useEffect(() => {
-    // Pre-load and initialize voices (silent)
-    const testUtterance = new SpeechSynthesisUtterance("");
-    testUtterance.volume = 0; // Silent test
-    window.speechSynthesis.speak(testUtterance);
-    
-    // Check for voice settings in localStorage and apply defaults if needed
-    const settings = getVoiceSettings();
-    const defaultSettings = {
-      enabled: true,
-      voiceName: "", // Will use the best available Indian female voice
-      rate: 1,
-      pitch: 1.1, // Slightly higher pitch for a more feminine voice
-      volume: 0.9,
-      announceGreetings: true,
-      announceReminders: true,
-      announceTasks: true,
-      inactivityPrompts: true,
-      proactiveSuggestions: true,
-      helpTips: true
-    };
-    
-    const updatedSettings = { ...defaultSettings, ...settings };
-    saveVoiceSettings(updatedSettings);
-    
-    // Reminder about voice assistant feature after a short delay
-    setTimeout(() => {
-      voiceAnnouncer.remindAboutVoiceIcon();
-    }, 60000); // After 1 minute
-    
-  }, [voiceAnnouncer]);
-  
-  return (
-    <VoiceAnnouncerContext.Provider value={voiceAnnouncer}>
-      {children}
-    </VoiceAnnouncerContext.Provider>
-  );
+export const getTaskAnnouncement = (count: number) => {
+  if (count === 0) return "You have no tasks for today. Enjoy your free time!";
+  return `You have ${count} task${count === 1 ? '' : 's'} scheduled for today.`;
+};
+
+export const getReminderAnnouncement = (subject: string, time: string) => {
+  return `Reminder: You have a ${subject} session scheduled at ${time}.`;
 };

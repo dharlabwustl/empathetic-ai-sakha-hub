@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useStudentDashboard } from "@/hooks/useStudentDashboard";
 import OnboardingFlow from "@/components/dashboard/student/OnboardingFlow";
@@ -10,7 +11,6 @@ import { MoodType } from "@/types/user/base";
 import WelcomeTour from "@/components/dashboard/student/WelcomeTour";
 import { getCurrentMoodFromLocalStorage, storeMoodInLocalStorage } from "@/components/dashboard/student/mood-tracking/moodUtils";
 import { VoiceAnnouncerProvider, useVoiceAnnouncerContext, getVoiceSettings, speakMessage } from "@/components/dashboard/student/voice/VoiceAnnouncer";
-import { getContextMessage } from "@/components/dashboard/student/voice/messageGenerators";
 
 const StudentDashboard = () => {
   const [showSplash, setShowSplash] = useState(true);
@@ -65,32 +65,10 @@ const StudentDashboard = () => {
           // Small delay to ensure everything is loaded
           setTimeout(() => {
             voiceAnnouncer.speak(welcomeMessage, true);
-            
-            // After welcome message, suggest next actions based on user data
-            setTimeout(() => {
-              // Get user stats for proactive suggestions
-              const userData = {
-                incompleteTasks: nudges.length,
-                upcomingExam: "NEET Practice Test",
-                daysTillExam: 5,
-                lowProgressSubjects: ["Chemistry", "Biology"]
-              };
-              
-              voiceAnnouncer.suggestNextAction(userData);
-              
-              // If there are notifications, mention them after a delay
-              if (nudges.length > 0) {
-                setTimeout(() => {
-                  voiceAnnouncer.speak(
-                    getContextMessage('notifications', { count: nudges.length })
-                  );
-                }, 15000);
-              }
-            }, 8000);
           }, 1500);
         }
       }
-    }, [showSplash, userProfile, showOnboarding, voiceAnnouncer, nudges]);
+    }, [showSplash, userProfile, showOnboarding, voiceAnnouncer]);
     
     return null;
   };
@@ -158,22 +136,22 @@ const StudentDashboard = () => {
       let message = "";
       switch(mood) {
         case MoodType.Motivated:
-          message = "I see you're feeling motivated today! Let's focus on challenging topics that need your attention.";
+          message = "You're motivated today! That's great. Let's make the most of your energy.";
           break;
         case MoodType.Tired:
-          message = "You're feeling tired. Let's focus on review and lighter topics today. Remember to take breaks between study sessions.";
+          message = "I see you're feeling tired. I'll suggest lighter tasks for today.";
           break;
         case MoodType.Focused:
-          message = "Great to see you're focused! This is perfect for tackling difficult concepts or practice tests.";
+          message = "You're focused today! Perfect for tackling challenging material.";
           break;
         case MoodType.Anxious:
-          message = "I understand you're feeling anxious. Let's work on breaking down your tasks into smaller, manageable steps.";
+          message = "I understand you're feeling anxious. Let's break down your tasks into manageable steps.";
           break;
         case MoodType.Stressed:
-          message = "I see you're stressed. Let's prioritize your tasks and focus on one thing at a time. We'll get through this together.";
+          message = "You're feeling stressed. Let's prioritize and tackle one thing at a time.";
           break;
         default:
-          message = "I'll adjust your study recommendations based on your mood. Remember you can ask for help anytime using the voice icon at the top.";
+          message = "Thank you for sharing your mood. I'll customize suggestions accordingly.";
       }
       
       speakMessage(message);
@@ -250,8 +228,8 @@ const StudentDashboard = () => {
         onViewStudyPlan={handleViewStudyPlan}
         onToggleSidebar={toggleSidebar}
         onToggleTabsNav={toggleTabsNav}
-        onSkipTour={handleSkipTour}
-        onCompleteTour={handleCompleteTour}
+        onSkipTour={handleSkipTourWrapper}
+        onCompleteTour={handleCompleteTourWrapper}
         showStudyPlan={showStudyPlan}
         onCloseStudyPlan={handleCloseStudyPlan}
         lastActivity={lastActivity}
