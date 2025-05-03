@@ -1,164 +1,149 @@
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar, GraduationCap, Check, ArrowRight } from "lucide-react";
-import { motion } from "framer-motion";
-import PrepzrLogo from '@/components/common/PrepzrLogo';
-import ThreeStepWelcome from '@/components/signup/ThreeStepWelcome';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { ArrowRight, BookOpen, Calendar, GraduationCap, Brain } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 const WelcomeToPrepr = () => {
   const navigate = useNavigate();
-  const [userName, setUserName] = useState('Student');
-  const [examGoal, setExamGoal] = useState('NEET');
-  const [showThreeStepWelcome, setShowThreeStepWelcome] = useState(false);
   
-  useEffect(() => {
-    // Get user data from localStorage
-    const userData = localStorage.getItem('userData');
-    
-    if (userData) {
-      try {
-        const parsedData = JSON.parse(userData);
-        
-        // Set user name and exam goal if available
-        if (parsedData.name) {
-          setUserName(parsedData.name);
-        }
-        
-        if (parsedData.examGoal) {
-          setExamGoal(parsedData.examGoal);
-        }
-        
-      } catch (error) {
-        console.error("Error parsing user data:", error);
-      }
-    }
-    
-    // Check if the three-step welcome has already been shown
-    const threeStepWelcomeCompleted = localStorage.getItem('threeStepWelcomeCompleted') === 'true';
-    
-    // Auto-proceed to three-step welcome after 2 seconds
-    const timer = setTimeout(() => {
-      if (!threeStepWelcomeCompleted) {
-        setShowThreeStepWelcome(true);
-      }
-    }, 2000);
-    
-    return () => clearTimeout(timer);
-  }, []);
-
-  const handleGetStarted = () => {
-    setShowThreeStepWelcome(true);
+  const handleContinueToDashboard = () => {
+    navigate('/dashboard/student');
   };
-  
-  const handleThreeStepWelcomeComplete = () => {
-    // Mark that the three-step welcome has been completed
-    localStorage.setItem('threeStepWelcomeCompleted', 'true');
-    
-    // Update userData to indicate signup flow is completed
-    try {
-      const userData = localStorage.getItem('userData');
-      if (userData) {
-        const parsedData = JSON.parse(userData);
-        localStorage.setItem('userData', JSON.stringify({
-          ...parsedData,
-          sawWelcomeTour: false, // Will trigger the tour when they first reach the dashboard
-          completedOnboarding: true
-        }));
-      }
-    } catch (error) {
-      console.error("Error updating user data:", error);
-    }
-    
-    // Navigate to dashboard with indication to show welcome tour
-    navigate('/dashboard/student?showTour=true');
-  };
-
-  if (showThreeStepWelcome) {
-    return (
-      <ThreeStepWelcome 
-        userName={userName}
-        examGoal={examGoal}
-        onComplete={handleThreeStepWelcomeComplete}
-      />
-    );
-  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-900 dark:to-purple-950/20 flex flex-col justify-center items-center p-4">
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="max-w-md w-full"
-      >
-        <div className="text-center mb-8">
-          <PrepzrLogo width={120} height="auto" className="mx-auto" />
-          <h1 className="mt-6 text-4xl font-display font-bold gradient-text">Welcome to PREPZR!</h1>
-          <p className="mt-2 text-gray-600 dark:text-gray-400">
-            Your personalized learning journey begins now
-          </p>
-        </div>
-        
-        <Card className="shadow-lg border-gray-200 dark:border-gray-800">
-          <CardHeader>
-            <CardTitle className="text-2xl">Hello, {userName}!</CardTitle>
-            <CardDescription>
-              We're excited to help you prepare for {examGoal}
-            </CardDescription>
-          </CardHeader>
+    <div className="min-h-screen bg-gradient-to-br from-sky-100/30 via-white to-violet-100/30 flex flex-col">
+      <div className="flex-1 flex items-center justify-center p-4">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="w-full max-w-4xl"
+        >
+          <div className="mb-8 text-center">
+            <img src="/assets/logo.svg" alt="PREPZR Logo" className="h-16 mx-auto mb-4" />
+            <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-violet-600 to-indigo-600 bg-clip-text text-transparent">
+              Welcome to PREPZR!
+            </h1>
+            <p className="text-lg text-muted-foreground mt-2">
+              Your personalized study journey begins now
+            </p>
+          </div>
           
-          <CardContent className="space-y-6">
-            <div className="flex items-center">
-              <div className="h-10 w-10 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mr-3">
-                <Check className="h-5 w-5 text-green-600 dark:text-green-400" />
-              </div>
-              <div>
-                <h3 className="font-medium">Account Created Successfully</h3>
-                <p className="text-sm text-muted-foreground">
-                  Your PREPZR account is ready to use
-                </p>
-              </div>
-            </div>
-            
-            <div className="flex items-center">
-              <div className="h-10 w-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mr-3">
-                <Calendar className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-              </div>
-              <div>
-                <h3 className="font-medium">Personalized Study Plan</h3>
-                <p className="text-sm text-muted-foreground">
-                  We've prepared a custom study plan for you
-                </p>
-              </div>
-            </div>
-            
-            <div className="flex items-center">
-              <div className="h-10 w-10 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center mr-3">
-                <GraduationCap className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-              </div>
-              <div>
-                <h3 className="font-medium">Expert Learning Resources</h3>
-                <p className="text-sm text-muted-foreground">
-                  Access concept cards, flashcards and practice exams
-                </p>
-              </div>
-            </div>
-          </CardContent>
+          <div className="mb-8">
+            <Card className="overflow-hidden border-0 shadow-lg">
+              <CardContent className="p-0">
+                <div className="grid grid-cols-1 md:grid-cols-2">
+                  <div className="bg-gradient-to-br from-violet-600 to-indigo-600 text-white p-8">
+                    <div className="space-y-6">
+                      <div className="flex items-center gap-3">
+                        <div className="bg-white/20 p-2 rounded-full">
+                          <GraduationCap className="h-6 w-6" />
+                        </div>
+                        <h2 className="text-2xl font-semibold">Your Study Plan is Ready</h2>
+                      </div>
+                      
+                      <p className="opacity-90">
+                        We've created a personalized study plan based on your goals and preferences.
+                        Your journey to exam success is now optimized and structured.
+                      </p>
+                      
+                      <ul className="space-y-3">
+                        <li className="flex items-center gap-2">
+                          <div className="bg-white/20 h-6 w-6 flex items-center justify-center rounded-full text-sm">✓</div>
+                          <span>Customized study schedule</span>
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <div className="bg-white/20 h-6 w-6 flex items-center justify-center rounded-full text-sm">✓</div>
+                          <span>Topic prioritization based on your strengths</span>
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <div className="bg-white/20 h-6 w-6 flex items-center justify-center rounded-full text-sm">✓</div>
+                          <span>AI-powered learning recommendations</span>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                  
+                  <div className="p-8 bg-white dark:bg-gray-900">
+                    <h3 className="text-xl font-medium mb-4">A message from our founder</h3>
+                    <div className="flex items-start gap-4">
+                      <img 
+                        src="/lovable-uploads/8b654e3b-59bb-4288-9e3c-b3299d9cdfb3.png" 
+                        alt="Amit Singh Founder" 
+                        className="w-16 h-16 rounded-full object-cover"
+                      />
+                      <div>
+                        <p className="text-muted-foreground mb-3">
+                          "Welcome to PREPZR! We've created a platform that adapts to your unique learning style and exam goals. I'm confident that with consistent effort and our smart tools, you'll achieve the results you're aiming for."
+                        </p>
+                        <p className="font-medium">Amit Singh</p>
+                        <p className="text-sm text-muted-foreground">Founder & CEO, PREPZR</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
           
-          <CardFooter className="flex justify-center">
+          <div className="mb-8">
+            <h2 className="text-xl font-semibold mb-4">Key Features to Explore</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <Card className="p-6">
+                <div className="flex flex-col items-center text-center">
+                  <div className="bg-violet-100 dark:bg-violet-900/30 p-3 rounded-full mb-3">
+                    <Calendar className="h-6 w-6 text-violet-600 dark:text-violet-400" />
+                  </div>
+                  <h3 className="font-medium mb-2">Today's Plan</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Your daily personalized study schedule with optimized learning blocks
+                  </p>
+                </div>
+              </Card>
+              
+              <Card className="p-6">
+                <div className="flex flex-col items-center text-center">
+                  <div className="bg-blue-100 dark:bg-blue-900/30 p-3 rounded-full mb-3">
+                    <BookOpen className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                  </div>
+                  <h3 className="font-medium mb-2">Concept Cards</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Master key concepts with visual learning materials and interactive examples
+                  </p>
+                </div>
+              </Card>
+              
+              <Card className="p-6">
+                <div className="flex flex-col items-center text-center">
+                  <div className="bg-green-100 dark:bg-green-900/30 p-3 rounded-full mb-3">
+                    <Brain className="h-6 w-6 text-green-600 dark:text-green-400" />
+                  </div>
+                  <h3 className="font-medium mb-2">Academic Advisor</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Get personalized guidance and optimize your exam preparation strategy
+                  </p>
+                </div>
+              </Card>
+            </div>
+          </div>
+          
+          <div className="flex justify-center">
             <Button 
-              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
-              onClick={handleGetStarted}
+              size="lg" 
+              onClick={handleContinueToDashboard}
+              className="px-8 bg-gradient-to-r from-purple-600 to-blue-600"
             >
-              Get Started
-              <ArrowRight className="ml-2 h-4 w-4" />
+              Continue to Dashboard <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
-          </CardFooter>
-        </Card>
-      </motion.div>
+          </div>
+        </motion.div>
+      </div>
+      
+      <footer className="p-6 text-center text-sm text-muted-foreground">
+        © {new Date().getFullYear()} PREPZR. All rights reserved.
+      </footer>
     </div>
   );
 };

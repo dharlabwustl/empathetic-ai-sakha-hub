@@ -40,7 +40,7 @@ const AcademicAdvisor: React.FC<AcademicAdvisorProps> = ({ userProfile }) => {
         color: "#3b82f6",
         hoursPerWeek: 14,
         priority: "high",
-        proficiency: "medium",
+        proficiency: "moderate",
         difficulty: "hard",
         completed: false,
         topics: [
@@ -110,7 +110,7 @@ const AcademicAdvisor: React.FC<AcademicAdvisorProps> = ({ userProfile }) => {
         completed: true,
         topics: [
           { id: "mech-old", name: "Mechanics", status: 'completed', difficulty: 'medium', completed: true, priority: 'high' },
-          { id: "waves-old", name: "Waves", status: 'completed', difficulty: 'medium', completed: true, priority: 'high' }
+          { id: "waves-old", name: "Waves", status: 'completed', difficulty: 'medium', completed: true }
         ]
       },
       {
@@ -123,7 +123,7 @@ const AcademicAdvisor: React.FC<AcademicAdvisorProps> = ({ userProfile }) => {
         difficulty: "medium",
         completed: true,
         topics: [
-          { id: "period-old", name: "Periodic Table", status: 'completed', difficulty: 'medium', completed: true, priority: 'high' }
+          { id: "period-old", name: "Periodic Table", status: 'completed', difficulty: 'medium', completed: true }
         ]
       },
       {
@@ -132,11 +132,11 @@ const AcademicAdvisor: React.FC<AcademicAdvisorProps> = ({ userProfile }) => {
         color: "#8b5cf6",
         hoursPerWeek: 13,
         priority: "high",
-        proficiency: "medium",
+        proficiency: "moderate",
         difficulty: "hard",
         completed: true,
         topics: [
-          { id: "alg-old", name: "Algebra", status: 'completed', difficulty: 'hard', completed: true, priority: 'high' }
+          { id: "alg-old", name: "Algebra", status: 'completed', difficulty: 'hard', completed: true }
         ]
       }
     ],
@@ -157,7 +157,7 @@ const AcademicAdvisor: React.FC<AcademicAdvisorProps> = ({ userProfile }) => {
   };
 
   // Function to generate topics based on subject
-  const generateTopicsForSubject = (subject: string, proficiency: 'weak' | 'medium' | 'strong') => {
+  const generateTopicsForSubject = (subject: string, proficiency: 'weak' | 'moderate' | 'strong') => {
     let topics = [];
     const priorities = ['high', 'medium', 'low'];
     const statuses = ['pending', 'in-progress'];
@@ -266,7 +266,7 @@ const AcademicAdvisor: React.FC<AcademicAdvisorProps> = ({ userProfile }) => {
       />
 
       <CreateStudyPlanWizard
-        open={showCreateDialog}
+        isOpen={showCreateDialog}
         onClose={() => setShowCreateDialog(false)}
         examGoal={userProfile?.examPreparation}
         onCreatePlan={handleNewPlanCreated}

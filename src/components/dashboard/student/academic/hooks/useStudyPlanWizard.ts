@@ -13,12 +13,9 @@ export const useStudyPlanWizard = ({ examGoal, onCreatePlan, onClose }: UseStudy
   const { toast } = useToast();
   const [step, setStep] = useState(examGoal ? 2 : 1); // Skip goal selection if examGoal is provided
   const [formData, setFormData] = useState<NewStudyPlan>({
-    goal: "",
     examGoal,
     examDate: new Date(),
     subjects: [],
-    status: "active",
-    weeklyHours: 40,
     studyHoursPerDay: 6,
     preferredStudyTime: 'evening',
     learningPace: 'moderate'
@@ -51,24 +48,8 @@ export const useStudyPlanWizard = ({ examGoal, onCreatePlan, onClose }: UseStudy
 
   const getSubjectsProficiencyList = (): NewStudyPlanSubject[] => {
     const subjectsList: NewStudyPlanSubject[] = [
-      ...strongSubjects.map(subject => ({ 
-        id: `strong-${Date.now()}-${subject}`,
-        name: subject, 
-        proficiency: 'strong' as const,
-        priority: 'medium',
-        hoursPerWeek: 10,
-        color: '#3b82f6',
-        completed: false,
-      })),
-      ...weakSubjects.map(subject => ({ 
-        id: `weak-${Date.now()}-${subject}`, 
-        name: subject, 
-        proficiency: 'weak' as const,
-        priority: 'medium',
-        hoursPerWeek: 10,
-        color: '#3b82f6',
-        completed: false,
-      }))
+      ...strongSubjects.map(subject => ({ name: subject, proficiency: 'strong' as const })),
+      ...weakSubjects.map(subject => ({ name: subject, proficiency: 'weak' as const }))
     ];
     return subjectsList;
   };
@@ -106,12 +87,9 @@ export const useStudyPlanWizard = ({ examGoal, onCreatePlan, onClose }: UseStudy
       setStrongSubjects([]);
       setWeakSubjects([]);
       setFormData({
-        goal: "",
         examGoal: '',
         examDate: new Date(),
         subjects: [],
-        status: "active",
-        weeklyHours: 40,
         studyHoursPerDay: 6,
         preferredStudyTime: 'morning',
         learningPace: 'moderate'
