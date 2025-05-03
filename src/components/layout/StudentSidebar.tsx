@@ -16,11 +16,11 @@ import {
   MessageSquare,
   Newspaper,
   PieChart,
-  Settings,
   Smile,
   UserRound,
   Users,
   Clock,
+  Volume2,
 } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { UserProfileType } from '@/types/user';
@@ -97,10 +97,11 @@ export function StudentSidebar({
       path: "/dashboard/student/profile",
     },
     {
-      name: "Settings",
-      icon: Settings,
-      path: "/dashboard/student/settings",
-    },
+      name: "Voice Control",
+      icon: Volume2,
+      path: "/dashboard/student/profile",
+      queryParam: "?tab=voice"
+    }
   ];
 
   const isActive = (path: string) => {
@@ -167,12 +168,12 @@ export function StudentSidebar({
         </div>
         
         <div className={cn("mt-4 px-4", collapsed && "px-0")}>
-          {!collapsed && <div className="mb-2 px-2 text-xs font-medium">Settings</div>}
+          {!collapsed && <div className="mb-2 px-2 text-xs font-medium">Account</div>}
           <div className={cn("flex flex-col gap-1", collapsed ? "items-center px-0" : "px-2")}>
             {secondaryNavItems.map((item) => (
               <NavLink
-                key={item.path}
-                to={item.path}
+                key={item.path + (item.queryParam || '')}
+                to={item.path + (item.queryParam || '')}
                 className={({ isActive: active }) =>
                   cn(
                     "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors",

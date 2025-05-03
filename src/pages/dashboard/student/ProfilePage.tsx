@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import MainLayout from "@/components/layouts/MainLayout";
 import { useUserProfile } from "@/hooks/useUserProfile";
@@ -11,7 +12,8 @@ import { useToast } from "@/hooks/use-toast";
 import { 
   User, Settings, CreditCard, Users, BookOpen, 
   Calendar, Bell, Shield, Edit, Mail, Phone, MapPin,
-  Smile, School, CheckCircle, AlertCircle, Clock, Volume2
+  Smile, School, CheckCircle, AlertCircle, Clock, Volume2,
+  MessageSquare
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { UserRole } from "@/types/user/base";
@@ -24,6 +26,7 @@ import ProfileSettingsPanel from "@/components/profile/ProfileSettingsPanel";
 import BillingHistoryPanel from "@/components/profile/BillingHistoryPanel";
 import { VoiceAnnouncerProvider, useVoiceAnnouncerContext } from "@/components/dashboard/student/voice/VoiceAnnouncer";
 import VoiceSettingsTab from "@/components/dashboard/student/settings/VoiceSettingsTab";
+import { Input } from "@/components/ui/input";
 
 const ProfilePageContent = () => {
   const navigate = useNavigate();
@@ -31,7 +34,8 @@ const ProfilePageContent = () => {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("overview");
   const [isBatchCreationOpen, setIsBatchCreationOpen] = useState(false);
-  const { speak } = useVoiceAnnouncerContext();
+  const { speak, settings } = useVoiceAnnouncerContext();
+  const [voiceQuery, setVoiceQuery] = useState("");
   
   // Announce welcome message when profile page loads
   useEffect(() => {
@@ -40,6 +44,36 @@ const ProfilePageContent = () => {
       speak(welcomeMessage);
     }
   }, [loading, userProfile, speak]);
+  
+  // Process voice query
+  const handleVoiceQuery = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!voiceQuery.trim()) return;
+    
+    const query = voiceQuery.toLowerCase();
+    let response = "";
+    
+    // Simple query handling logic
+    if (query.includes("hello") || query.includes("hi")) {
+      response = `Hello there! I'm your study companion with an Indian accent. How can I help you today?`;
+    } else if (query.includes("who are you") || query.includes("what are you")) {
+      response = `I am your AI voice assistant with a pleasant Indian accent. I'm here to help you with your studies and answer your questions.`;
+    } else if (query.includes("help") || query.includes("can you do")) {
+      response = `I can announce your study plans, remind you of tasks, read out important information, and answer basic questions about the platform. Just ask me anything!`;
+    } else if (query.includes("time") || query.includes("date")) {
+      const now = new Date();
+      response = `The current time is ${now.toLocaleTimeString()} and today's date is ${now.toLocaleDateString()}.`;
+    } else if (query.includes("setting") || query.includes("voice setting")) {
+      response = `To change voice settings, go to the Voice tab in your profile page. You can adjust volume, speed, and test the voice there.`;
+      setActiveTab("voice");
+    } else {
+      response = `I'm sorry, I don't have a specific answer for that query. Please try asking something else or check the help section for more information.`;
+    }
+    
+    speak(response, true);
+    setVoiceQuery("");
+  };
   
   // Check if user is a batch leader or member
   const isBatchLeader = () => {
@@ -303,7 +337,36 @@ const ProfilePageContent = () => {
                     <Progress value={userProfile.goals[0].progress} className="h-1.5 mt-1.5" />
                   </div>
                 )}
-              </CardContent>
+              </div>
+            </CardContent>
+          </Card>
+          
+          {/* Voice Announcer Chat */}
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg flex items-center">
+                <Volume2 className="h-5 w-5 mr-2 text-primary" />
+                Talk to Voice Announcer
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleVoiceQuery} className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <Input
+                    value={voiceQuery}
+                    onChange={(e) => setVoiceQuery(e.target.value)}
+                    placeholder="Ask me a question..."
+                    className="flex-1"
+                  />
+                  <Button type="submit" size="sm">
+                    <MessageSquare className="h-4 w-4 mr-2" />
+                    Ask
+                  </Button>
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  Try asking: "Who are you?", "What can you do?", "What time is it?"
+                </div>
+              </form>
             </CardContent>
           </Card>
           
@@ -376,89 +439,13 @@ const ProfilePageContent = () => {
               )}
             </CardContent>
           </Card>
-          
-          {/* Batch Management Quick Access */}
-          {(isBatchLeader() || isBatchMember()) && (
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-lg flex items-center">
-                  <Users className="h-5 w-5 mr-2 text-primary" />
-                  {isBatchLeader() ? 'Your Batch' : 'Your Study Group'}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {isBatchLeader() ? (
-                    <>
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-muted-foreground">Member Count</span>
-                        <Badge variant="outline">12/20</Badge>
-                      </div>
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="w-full"
-                        onClick={() => setActiveTab("batch")}
-                      >
-                        Manage Batch
-                      </Button>
-                    </>
-                  ) : (
-                    <>
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-muted-foreground">Batch Name</span>
-                        <span>JEE Champions 2025</span>
-                      </div>
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-muted-foreground">Leader</span>
-                        <span>Rahul Sharma</span>
-                      </div>
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="w-full"
-                        onClick={() => setActiveTab("batch")}
-                      >
-                        View Details
-                      </Button>
-                    </>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          )}
-          
-          {/* Voice Announcer Quick Access */}
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg flex items-center">
-                <Volume2 className="h-5 w-5 mr-2 text-primary" />
-                Voice Announcer
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <p className="text-sm text-muted-foreground">
-                  Your personal study companion with a pleasant Indian voice
-                </p>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="w-full"
-                  onClick={() => setActiveTab("voice")}
-                >
-                  Manage Voice Settings
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
         </div>
         
         {/* Main Content */}
         <div className="lg:col-span-8 xl:col-span-9">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <Card>
-              <TabsList className="w-full border-b rounded-none grid grid-cols-6">
+              <TabsList className="w-full border-b rounded-none grid grid-cols-5">
                 <TabsTrigger value="overview" className="flex items-center gap-1.5">
                   <User className="h-4 w-4" />
                   <span>Profile</span>
@@ -474,10 +461,6 @@ const ProfilePageContent = () => {
                 <TabsTrigger value="billing" className="flex items-center gap-1.5">
                   <CreditCard className="h-4 w-4" />
                   <span>Billing</span>
-                </TabsTrigger>
-                <TabsTrigger value="settings" className="flex items-center gap-1.5">
-                  <Settings className="h-4 w-4" />
-                  <span>Settings</span>
                 </TabsTrigger>
                 <TabsTrigger value="voice" className="flex items-center gap-1.5">
                   <Volume2 className="h-4 w-4" />
@@ -565,11 +548,6 @@ const ProfilePageContent = () => {
                   <PaymentMethodsPanel />
                   <BillingHistoryPanel />
                 </div>
-              </TabsContent>
-              
-              {/* Settings Tab */}
-              <TabsContent value="settings" className="p-6">
-                <ProfileSettingsPanel userProfile={userProfile} />
               </TabsContent>
               
               {/* Voice Announcer Tab */}
