@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import CountUp from 'react-countup';
@@ -7,7 +8,7 @@ import {
   ScrollText, ClipboardList
 } from 'lucide-react';
 
-// Define the stats based on the admin data structure - removed Weekly Study Time, Practice Questions, Target Exams, Users Log Weekly Moods
+// Define the stats based on the admin data structure
 const defaultStats = [
   { 
     id: 1, 
@@ -151,7 +152,7 @@ export const KpiStats = () => {
     }
   };
 
-  // Title section
+  // Enhanced title animations for a premium feel
   const titleVariants = {
     hidden: { opacity: 0, y: -20 },
     visible: { 
@@ -211,13 +212,14 @@ export const KpiStats = () => {
         variants={containerVariants}
         initial="hidden"
         animate={inView ? "visible" : "hidden"}
-        className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-8 max-w-7xl mx-auto"
+        className="flex flex-nowrap overflow-x-auto space-x-4 md:space-x-6 pb-4 px-2 max-w-7xl mx-auto scrollbar-hide"
       >
         {stats.map((stat) => (
           <motion.div 
             key={stat.id} 
             variants={itemVariants}
-            className="flex flex-col items-center text-center p-3 md:p-4 bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-100 dark:border-gray-700"
+            className="flex-none w-[200px] md:w-[220px] flex flex-col items-center text-center p-3 md:p-4 bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-100 dark:border-gray-700"
+            whileHover={{ y: -5, boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1)" }}
           >
             <motion.div 
               className="text-2xl md:text-3xl mb-2 p-2 rounded-full bg-gray-50 dark:bg-gray-700"
