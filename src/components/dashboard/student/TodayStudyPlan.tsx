@@ -104,7 +104,7 @@ const TodayStudyPlan: React.FC<TodayStudyPlanProps> = ({ tasks }) => {
           
           {tasks.length > 0 && (
             <div className="pt-2">
-              <Button variant="outline" size="sm" className="w-full">
+              <Button variant="outline" size="sm" className="w-full" onClick={() => navigate('/dashboard/student/today')}>
                 View Full Schedule
               </Button>
             </div>

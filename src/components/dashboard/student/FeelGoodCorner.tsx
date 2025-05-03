@@ -19,15 +19,15 @@ const FeelGoodCorner: React.FC = () => {
         </p>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <div className="p-4 bg-blue-50 rounded-lg">
+          <div className="p-4 bg-blue-50 rounded-lg cursor-pointer hover:bg-blue-100 transition-colors">
             <h3 className="font-medium mb-2">Daily Affirmations</h3>
             <p className="text-sm">Positive statements to boost your confidence</p>
           </div>
-          <div className="p-4 bg-purple-50 rounded-lg">
+          <div className="p-4 bg-purple-50 rounded-lg cursor-pointer hover:bg-purple-100 transition-colors">
             <h3 className="font-medium mb-2">Mindfulness Exercises</h3>
             <p className="text-sm">Quick exercises to center yourself</p>
           </div>
-          <div className="p-4 bg-green-50 rounded-lg">
+          <div className="p-4 bg-green-50 rounded-lg cursor-pointer hover:bg-green-100 transition-colors">
             <h3 className="font-medium mb-2">Motivation Corner</h3>
             <p className="text-sm">Get inspired with quotes and stories</p>
           </div>
