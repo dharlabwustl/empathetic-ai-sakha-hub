@@ -35,7 +35,7 @@ const StudyPlanCard: React.FC<StudyPlanCardProps> = ({ plan, onViewDetails }) =>
       if (typeof plan.examDate === 'string') {
         return format(new Date(plan.examDate), 'PP');
       } else {
-        return format(plan.examDate as Date, 'PP');
+        return format(plan.examDate, 'PP');
       }
     } catch (error) {
       return String(plan.examDate);

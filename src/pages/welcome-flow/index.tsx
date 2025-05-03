@@ -11,11 +11,11 @@ const WelcomeFlowPage = () => {
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
   const completedOnboarding = searchParams.get('completedOnboarding') === 'true';
-  const isNewUser = searchParams.get('new') === 'true';
+  const isNewUser = searchParams.get('new') === 'true' || localStorage.getItem('new_user_signup') === 'true';
 
   useEffect(() => {
     // If user completes the welcome flow, show the tour
-    if (completedOnboarding) {
+    if (localStorage.getItem('welcomeFlowCompleted') === 'true' || completedOnboarding) {
       setShowTour(true);
       // Mark that this user has seen the onboarding
       const userData = localStorage.getItem("userData") ? JSON.parse(localStorage.getItem("userData") || "{}") : {};
@@ -25,11 +25,8 @@ const WelcomeFlowPage = () => {
       }));
     }
 
-    // Check if this is the first time user is visiting after signup
-    const isFirstTimeUser = localStorage.getItem('new_user_signup') === 'true' || isNewUser;
-    
     // If it's not a new user and not explicitly redirected after onboarding, go to dashboard
-    if (!isFirstTimeUser && !completedOnboarding) {
+    if (!isNewUser && !completedOnboarding) {
       navigate('/dashboard/student');
     }
   }, [completedOnboarding, navigate, isNewUser]);
@@ -38,6 +35,7 @@ const WelcomeFlowPage = () => {
     setShowTour(false);
     // Remove the new user flag
     localStorage.removeItem('new_user_signup');
+    localStorage.removeItem('welcomeFlowCompleted');
     // Navigate to dashboard
     navigate('/dashboard/student');
     toast({

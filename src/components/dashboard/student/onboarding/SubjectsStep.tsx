@@ -1,21 +1,23 @@
+
 import React from 'react';
 import SubjectItem from './subject-step/SubjectItem';
-import type { NewStudyPlanSubject } from '@/types/user/studyPlan';
 
 interface SubjectsStepProps {
-  subjects: NewStudyPlanSubject[];
-  setSubjects: (subjects: NewStudyPlanSubject[]) => void;
+  subjects?: any[];
+  setSubjects?: (subjects: any[]) => void;
   examType: string;
   strongSubjects?: string[];
+  mediumSubjects?: string[];
   weakSubjects?: string[];
-  handleToggleSubject?: (subject: string, type: 'strong' | 'weak') => void;
+  handleToggleSubject?: (subject: string, type: 'strong' | 'medium' | 'weak') => void;
 }
 
 const SubjectsStep: React.FC<SubjectsStepProps> = ({ 
-  subjects,
-  setSubjects,
+  subjects = [],
+  setSubjects = () => {},
   examType,
   strongSubjects = [],
+  mediumSubjects = [],
   weakSubjects = [],
   handleToggleSubject
 }) => {
@@ -75,8 +77,8 @@ const SubjectsStep: React.FC<SubjectsStepProps> = ({
     }
   };
 
-  const handleSubjectSelect = (subjectName: string, proficiency: 'weak' | 'moderate' | 'strong') => {
-    if (handleToggleSubject && (proficiency === 'weak' || proficiency === 'strong')) {
+  const handleSubjectSelect = (subjectName: string, proficiency: 'weak' | 'medium' | 'strong') => {
+    if (handleToggleSubject) {
       handleToggleSubject(subjectName, proficiency);
       return;
     }
@@ -85,15 +87,19 @@ const SubjectsStep: React.FC<SubjectsStepProps> = ({
     
     if (existingIndex >= 0) {
       const updatedSubjects = [...subjects];
-      updatedSubjects[existingIndex] = { name: subjectName, proficiency };
+      updatedSubjects[existingIndex] = { ...updatedSubjects[existingIndex], name: subjectName, proficiency };
       setSubjects(updatedSubjects);
     } else {
       setSubjects([...subjects, { name: subjectName, proficiency }]);
     }
   };
 
-  const isProficiencySelected = (subjectName: string, proficiency: 'weak' | 'moderate' | 'strong') => {
+  const isProficiencySelected = (subjectName: string, proficiency: 'weak' | 'medium' | 'strong') => {
     if (proficiency === 'weak' && weakSubjects && weakSubjects.includes(subjectName)) {
+      return true;
+    }
+    
+    if (proficiency === 'medium' && mediumSubjects && mediumSubjects.includes(subjectName)) {
       return true;
     }
     

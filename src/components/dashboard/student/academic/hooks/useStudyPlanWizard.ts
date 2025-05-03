@@ -1,74 +1,98 @@
 
 import { useState } from 'react';
 import { useToast } from "@/hooks/use-toast";
+import { v4 as uuidv4 } from 'uuid';
 import type { NewStudyPlan, StudyPlanSubject } from "@/types/user/studyPlan";
 
 interface UseStudyPlanWizardProps {
-  examGoal: string;
+  examGoal?: string;
   onCreatePlan: (plan: NewStudyPlan) => void;
   onClose: () => void;
 }
 
-// Define proper types for the study plan
-type ProficiencyType = 'strong' | 'medium' | 'weak';
-
-interface CustomStudyPlanSubject {
-  name: string;
-  proficiency: ProficiencyType;
-}
-
-export const useStudyPlanWizard = ({ examGoal, onCreatePlan, onClose }: UseStudyPlanWizardProps) => {
+export const useStudyPlanWizard = ({ examGoal = '', onCreatePlan, onClose }: UseStudyPlanWizardProps) => {
   const { toast } = useToast();
   const [step, setStep] = useState(examGoal ? 2 : 1); // Skip goal selection if examGoal is provided
-  const [formData, setFormData] = useState<NewStudyPlan>({
-    examGoal,
+  const [formData, setFormData] = useState<Omit<NewStudyPlan, 'subjects'> & { subjects: string[] }>({
+    examGoal: examGoal || '',
     examDate: new Date(),
     subjects: [],
     studyHoursPerDay: 6,
     preferredStudyTime: 'evening',
-    learningPace: 'moderate'
+    learningPace: 'moderate',
+    status: 'active',
+    weeklyHours: 30
   });
 
-  const [strongSubjects, setStrongSubjects] = useState<CustomStudyPlanSubject[]>([]);
-  const [weakSubjects, setWeakSubjects] = useState<CustomStudyPlanSubject[]>([]);
+  const [strongSubjects, setStrongSubjects] = useState<string[]>([]);
+  const [weakSubjects, setWeakSubjects] = useState<string[]>([]);
+  const [mediumSubjects, setMediumSubjects] = useState<string[]>([]);
 
-  const handleToggleSubject = (subject: string, type: 'strong' | 'weak') => {
-    if (type === 'strong') {
-      if (strongSubjects.some(s => s.name === subject)) {
-        setStrongSubjects(strongSubjects.filter(s => s.name !== subject));
-      } else {
-        setWeakSubjects(weakSubjects.filter(s => s.name !== subject));
-        setStrongSubjects([...strongSubjects, { name: subject, proficiency: 'strong' }]);
-      }
-    } else {
-      if (weakSubjects.some(s => s.name !== subject)) {
-        setWeakSubjects(weakSubjects.filter(s => s.name !== subject));
-      } else {
-        setStrongSubjects(strongSubjects.filter(s => s.name !== subject));
-        setWeakSubjects([...weakSubjects, { name: subject, proficiency: 'weak' }]);
-      }
+  // Subject colors palette
+  const subjectColors = [
+    '#8B5CF6', // Purple
+    '#EC4899', // Pink
+    '#10B981', // Green
+    '#F59E0B', // Yellow
+    '#2563EB', // Blue
+    '#EF4444', // Red
+    '#6366F1', // Indigo
+    '#14B8A6', // Teal
+    '#F97316', // Orange
+  ];
+
+  const getRandomColor = () => {
+    return subjectColors[Math.floor(Math.random() * subjectColors.length)];
+  };
+
+  const handleToggleSubject = (subject: string, type: 'strong' | 'medium' | 'weak') => {
+    // First remove subject from all categories
+    setStrongSubjects(prevSubjects => prevSubjects.filter(s => s !== subject));
+    setMediumSubjects(prevSubjects => prevSubjects.filter(s => s !== subject));
+    setWeakSubjects(prevSubjects => prevSubjects.filter(s => s !== subject));
+    
+    // Then add to the selected category
+    switch (type) {
+      case 'strong':
+        setStrongSubjects(prev => [...prev, subject]);
+        break;
+      case 'medium':
+        setMediumSubjects(prev => [...prev, subject]);
+        break;
+      case 'weak':
+        setWeakSubjects(prev => [...prev, subject]);
+        break;
     }
   };
 
   const getSubjectsProficiencyList = (): StudyPlanSubject[] => {
-    // Convert our simple subjects to the StudyPlanSubject format
+    // Convert subject names to StudyPlanSubject objects
     return [
       ...strongSubjects.map(subject => ({
-        id: `s-${subject.name.toLowerCase().replace(/\s+/g, '-')}`,
-        name: subject.name,
-        proficiency: subject.proficiency as ProficiencyType,
-        priority: 'high' as 'high',
-        color: '#4CAF50',
-        hoursPerWeek: 6,
+        id: `strong-${uuidv4()}`,
+        name: subject,
+        proficiency: 'strong' as const,
+        priority: 'medium' as const,
+        color: getRandomColor(),
+        hoursPerWeek: Math.round(formData.studyHoursPerDay || 4),
+        completed: false
+      })),
+      ...mediumSubjects.map(subject => ({
+        id: `medium-${uuidv4()}`,
+        name: subject,
+        proficiency: 'medium' as const,
+        priority: 'medium' as const,
+        color: getRandomColor(),
+        hoursPerWeek: Math.round((formData.studyHoursPerDay || 4) * 1.2),
         completed: false
       })),
       ...weakSubjects.map(subject => ({
-        id: `w-${subject.name.toLowerCase().replace(/\s+/g, '-')}`,
-        name: subject.name,
-        proficiency: subject.proficiency as ProficiencyType,
-        priority: 'high' as 'high',
-        color: '#F44336',
-        hoursPerWeek: 8,
+        id: `weak-${uuidv4()}`,
+        name: subject,
+        proficiency: 'weak' as const,
+        priority: 'high' as const,
+        color: getRandomColor(),
+        hoursPerWeek: Math.round((formData.studyHoursPerDay || 4) * 1.5),
         completed: false
       }))
     ];
@@ -90,6 +114,7 @@ export const useStudyPlanWizard = ({ examGoal, onCreatePlan, onClose }: UseStudy
     setFormData(prev => ({ ...prev, examGoal: goal }));
     // Clear subjects when changing exam goal
     setStrongSubjects([]);
+    setMediumSubjects([]);
     setWeakSubjects([]);
     setStep(2); // Move to next step after goal selection
   };
@@ -98,13 +123,15 @@ export const useStudyPlanWizard = ({ examGoal, onCreatePlan, onClose }: UseStudy
     if (step < 6) {
       setStep(step + 1);
     } else {
-      const updatedFormData = {
+      const updatedFormData: NewStudyPlan = {
         ...formData,
-        subjects: getSubjectsProficiencyList()
+        subjects: getSubjectsProficiencyList(),
+        weeklyHours: formData.studyHoursPerDay ? formData.studyHoursPerDay * 7 : 28
       };
       onCreatePlan(updatedFormData);
       setStep(1);
       setStrongSubjects([]);
+      setMediumSubjects([]);
       setWeakSubjects([]);
       setFormData({
         examGoal: '',
@@ -112,7 +139,9 @@ export const useStudyPlanWizard = ({ examGoal, onCreatePlan, onClose }: UseStudy
         subjects: [],
         studyHoursPerDay: 6,
         preferredStudyTime: 'morning',
-        learningPace: 'moderate'
+        learningPace: 'moderate',
+        status: 'active',
+        weeklyHours: 30
       });
       onClose();
       toast({
@@ -135,6 +164,7 @@ export const useStudyPlanWizard = ({ examGoal, onCreatePlan, onClose }: UseStudy
     formData,
     setFormData,
     strongSubjects,
+    mediumSubjects,
     weakSubjects,
     handleToggleSubject,
     handlePaceChange,

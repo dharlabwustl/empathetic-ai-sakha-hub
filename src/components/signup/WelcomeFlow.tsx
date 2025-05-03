@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Book, Calendar, ClipboardList, ArrowRight, CheckCircle, GraduationCap, Clock, Brain } from 'lucide-react';
+import { Book, Calendar, CheckCircle, ArrowRight, GraduationCap, Clock, Brain, ChevronRight } from 'lucide-react';
 import PrepzrLogo from '@/components/common/PrepzrLogo';
 
 const WelcomeFlow = () => {
@@ -17,6 +17,8 @@ const WelcomeFlow = () => {
     if (step < totalSteps) {
       setStep(step + 1);
     } else {
+      // Mark that they've completed the welcome flow
+      localStorage.setItem('welcomeFlowCompleted', 'true');
       // On completion, navigate to dashboard with tour flag
       navigate('/dashboard/student?new=true&completedOnboarding=true');
     }
@@ -103,7 +105,7 @@ const WelcomeFlow = () => {
                 </p>
               </div>
             </CardContent>
-            <CardFooter className="flex justify-between">
+            <CardFooter className="flex justify-between sm:justify-between">
               <Button variant="outline" onClick={() => setStep(step - 1)}>Back</Button>
               <Button onClick={handleNext} className="flex items-center gap-2">
                 Next <ArrowRight className="h-4 w-4" />
@@ -140,10 +142,10 @@ const WelcomeFlow = () => {
                 </div>
               </div>
             </CardContent>
-            <CardFooter className="flex justify-between">
+            <CardFooter className="flex justify-between sm:justify-between">
               <Button variant="outline" onClick={() => setStep(step - 1)}>Back</Button>
               <Button onClick={handleNext} className="flex items-center gap-2">
-                Let's Begin <ArrowRight className="h-4 w-4" />
+                Let's Begin <ChevronRight className="h-4 w-4" />
               </Button>
             </CardFooter>
           </Card>

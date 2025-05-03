@@ -1,10 +1,9 @@
 
-import { useState, useEffect } from 'react';
-import { StudyPlan, NewStudyPlan } from '@/types/user/studyPlan';
+import { useState, useEffect, useCallback } from 'react';
+import { StudyPlan, NewStudyPlan, StudyPlanSubject } from '@/types/user/studyPlan';
 import { useToast } from '@/hooks/use-toast';
-
-// This is a mock function to generate a unique ID
-const generateId = () => `plan-${Math.random().toString(36).substr(2, 9)}`;
+import { v4 as uuidv4 } from 'uuid';
+import { differenceInCalendarDays, format } from 'date-fns';
 
 // This is a mock function to get random colors
 const getRandomColor = (): string => {
@@ -21,6 +20,53 @@ const getRandomColor = (): string => {
   ];
   
   return colors[Math.floor(Math.random() * colors.length)];
+};
+
+// Function to generate topics based on subject
+const generateTopicsForSubject = (subject: string, proficiency: 'weak' | 'medium' | 'strong') => {
+  let topics = [];
+  const priorities = ['high', 'medium', 'low'];
+  const statuses = ['pending', 'in-progress'];
+  
+  // Generate topics based on subject
+  switch(subject.toLowerCase()) {
+    case 'physics':
+      topics = [
+        { id: `phys-${Date.now()}-1`, name: "Mechanics", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low', difficulty: 'medium' as const, completed: false },
+        { id: `phys-${Date.now()}-2`, name: "Thermodynamics", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low', difficulty: 'hard' as const, completed: false },
+        { id: `phys-${Date.now()}-3`, name: "Electrostatics", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low', difficulty: 'medium' as const, completed: false }
+      ];
+      break;
+    case 'chemistry':
+      topics = [
+        { id: `chem-${Date.now()}-1`, name: "Organic Chemistry", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low', difficulty: 'hard' as const, completed: false },
+        { id: `chem-${Date.now()}-2`, name: "Inorganic Chemistry", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low', difficulty: 'medium' as const, completed: false },
+        { id: `chem-${Date.now()}-3`, name: "Physical Chemistry", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low', difficulty: 'easy' as const, completed: false }
+      ];
+      break;
+    case 'mathematics':
+    case 'maths':
+      topics = [
+        { id: `math-${Date.now()}-1`, name: "Calculus", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low', difficulty: 'hard' as const, completed: false },
+        { id: `math-${Date.now()}-2`, name: "Algebra", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low', difficulty: 'medium' as const, completed: false },
+        { id: `math-${Date.now()}-3`, name: "Geometry", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low', difficulty: 'medium' as const, completed: false }
+      ];
+      break;
+    case 'biology':
+      topics = [
+        { id: `bio-${Date.now()}-1`, name: "Zoology", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low', difficulty: 'medium' as const, completed: false },
+        { id: `bio-${Date.now()}-2`, name: "Botany", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low', difficulty: 'medium' as const, completed: false },
+        { id: `bio-${Date.now()}-3`, name: "Human Physiology", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low', difficulty: 'hard' as const, completed: false }
+      ];
+      break;
+    default:
+      topics = [
+        { id: `gen-${Date.now()}-1`, name: "Fundamentals", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low', difficulty: 'medium' as const, completed: false },
+        { id: `gen-${Date.now()}-2`, name: "Advanced Topics", status: statuses[Math.floor(Math.random() * statuses.length)] as 'pending' | 'in-progress', priority: priorities[Math.floor(Math.random() * priorities.length)] as 'high' | 'medium' | 'low', difficulty: 'hard' as const, completed: false }
+      ];
+  }
+  
+  return topics;
 };
 
 export const useAcademicPlans = (initialExamGoal?: string) => {
@@ -43,32 +89,95 @@ export const useAcademicPlans = (initialExamGoal?: string) => {
     }
   };
   
+  // Function to calculate days left
+  const calculateDaysLeft = (examDate: string | Date): number => {
+    try {
+      const date = typeof examDate === 'string' ? new Date(examDate) : examDate;
+      return Math.max(0, differenceInCalendarDays(date, new Date()));
+    } catch (e) {
+      return 0;
+    }
+  };
+
+  // Function to calculate progress percentage
+  const calculateProgressPercentage = (subjects: StudyPlanSubject[]): number => {
+    if (subjects.length === 0) return 0;
+    
+    let completedTopics = 0;
+    let totalTopics = 0;
+    
+    subjects.forEach(subject => {
+      if (subject.topics && subject.topics.length > 0) {
+        totalTopics += subject.topics.length;
+        completedTopics += subject.topics.filter(topic => topic.completed).length;
+      } else {
+        totalTopics += 1;
+        if (subject.completed) completedTopics += 1;
+      }
+    });
+    
+    return Math.round((completedTopics / totalTopics) * 100);
+  };
+  
   // Handler for when a new plan is created
   const handleNewPlanCreated = (newPlan: NewStudyPlan) => {
     // Convert the new plan data to a full StudyPlan
-    const plan: StudyPlan = {
-      id: generateId(),
-      examGoal: newPlan.examGoal || '',
-      examDate: typeof newPlan.examDate === 'string' 
-        ? newPlan.examDate 
-        : newPlan.examDate.toISOString(),
-      status: 'active',
-      progress: 0,
-      subjects: newPlan.subjects.map(subject => ({
+    const now = new Date().toISOString();
+    const subjects = newPlan.subjects.map(subject => {
+      return {
         ...subject,
-        color: subject.color || getRandomColor(),
-        priority: subject.priority || 'medium',
-        proficiency: subject.proficiency || 'medium'
-      })),
+        topics: generateTopicsForSubject(subject.name, subject.proficiency)
+      };
+    });
+
+    const progressPercentage = calculateProgressPercentage(subjects);
+    
+    const plan: StudyPlan = {
+      id: uuidv4(),
+      examGoal: newPlan.examGoal,
+      examDate: typeof newPlan.examDate === 'string' ? 
+        newPlan.examDate : 
+        format(newPlan.examDate, 'yyyy-MM-dd'),
+      status: 'active',
+      subjects,
       learningPace: newPlan.learningPace || 'moderate',
       preferredStudyTime: newPlan.preferredStudyTime || 'morning',
       studyHoursPerDay: newPlan.studyHoursPerDay || 4,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+      weeklyHours: newPlan.weeklyHours,
+      goal: newPlan.goal,
+      progressPercentage,
+      daysLeft: calculateDaysLeft(newPlan.examDate),
+      createdAt: now,
+      updatedAt: now
     };
     
-    // Add the new plan to active plans
-    setActivePlans(prev => [plan, ...prev]);
+    // If there's already an active plan, move it to completed plans
+    if (activePlans.length > 0) {
+      const archivedPlans = activePlans.map(plan => ({
+        ...plan,
+        status: 'archived' as const
+      }));
+      
+      setCompletedPlans(prev => [...archivedPlans, ...prev]);
+    }
+    
+    // Add the new plan as the active one
+    setActivePlans([plan]);
+    
+    // Save to localStorage
+    try {
+      localStorage.setItem('study_plan_created', 'true');
+      const userData = localStorage.getItem('userData') ? 
+        JSON.parse(localStorage.getItem('userData') || '{}') : {};
+      
+      localStorage.setItem('userData', JSON.stringify({
+        ...userData,
+        hasStudyPlan: true,
+        lastStudyPlanCreated: now,
+      }));
+    } catch (e) {
+      console.error("Error saving study plan to localStorage:", e);
+    }
     
     // Show success message
     toast({
@@ -78,7 +187,7 @@ export const useAcademicPlans = (initialExamGoal?: string) => {
   };
   
   // Load study plan created during signup
-  const loadSignupStudyPlan = () => {
+  const loadSignupStudyPlan = useCallback(() => {
     try {
       // Check if we have a study plan from signup stored in localStorage
       const signupPlanData = localStorage.getItem('study_plan_created');
@@ -89,48 +198,59 @@ export const useAcademicPlans = (initialExamGoal?: string) => {
         const userProfile = userData ? JSON.parse(userData) : {};
         const examGoal = userProfile.examGoal || initialExamGoal || 'NEET';
         
-        const subjects = [
+        const subjects: StudyPlanSubject[] = [
           {
             id: 'subject-1',
             name: 'Physics',
             color: '#8B5CF6',
-            proficiency: 'medium' as const,
-            priority: 'high' as const,
+            proficiency: 'medium',
+            priority: 'high',
             hoursPerWeek: 6,
-            completed: false
+            completed: false,
+            topics: generateTopicsForSubject('Physics', 'medium')
           },
           {
             id: 'subject-2',
             name: 'Chemistry',
             color: '#10B981',
-            proficiency: 'medium' as const,
-            priority: 'medium' as const,
+            proficiency: 'medium',
+            priority: 'medium',
             hoursPerWeek: 5,
-            completed: false
+            completed: false,
+            topics: generateTopicsForSubject('Chemistry', 'medium')
           },
           {
             id: 'subject-3',
             name: 'Biology',
             color: '#EF4444',
-            proficiency: 'medium' as const,
-            priority: 'high' as const,
+            proficiency: 'medium',
+            priority: 'high',
             hoursPerWeek: 7,
-            completed: false
+            completed: false,
+            topics: generateTopicsForSubject('Biology', 'medium')
           }
         ];
+        
+        // Calculate days left to exam
+        const examDate = userProfile.targetExamDate || 
+          new Date(new Date().setMonth(new Date().getMonth() + 3)).toISOString();
+        const daysLeft = calculateDaysLeft(examDate);
         
         const defaultPlan: StudyPlan = {
           id: 'auto-generated-plan',
           examGoal: examGoal,
-          examDate: userProfile.targetExamDate || new Date().toISOString(),
+          examDate: examDate,
           status: 'active',
-          progress: 5,
           subjects,
           learningPace: userProfile.studyPace === 'Aggressive' ? 'fast' 
                         : userProfile.studyPace === 'Relaxed' ? 'slow'
                         : 'moderate',
-          preferredStudyTime: (userProfile.studyTime || 'morning').toLowerCase(),
+          preferredStudyTime: (userProfile.studyTime || 'morning').toLowerCase() as
+                              'morning' | 'afternoon' | 'evening' | 'night',
           studyHoursPerDay: userProfile.dailyStudyHours || 4,
+          weeklyHours: (userProfile.dailyStudyHours || 4) * 7,
+          progressPercentage: 5,
+          daysLeft,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         };
@@ -139,18 +259,18 @@ export const useAcademicPlans = (initialExamGoal?: string) => {
         
         toast({
           title: "Study Plan Loaded",
-          description: "Your initial study plan has been loaded successfully.",
+          description: "Your study plan has been loaded successfully.",
         });
       }
     } catch (error) {
       console.error('Error loading signup study plan:', error);
     }
-  };
+  }, [activePlans.length, initialExamGoal, toast]);
   
   // Initialize with demo data if needed
   useEffect(() => {
-    // Leave this empty as we'll use loadSignupStudyPlan instead
-  }, []);
+    loadSignupStudyPlan();
+  }, [loadSignupStudyPlan]);
   
   return {
     showCreateDialog,

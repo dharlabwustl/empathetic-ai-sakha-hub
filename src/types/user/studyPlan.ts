@@ -17,7 +17,13 @@ export interface StudyPlanSubject {
   }>;
 }
 
-export type NewStudyPlanSubject = StudyPlanSubject;
+export type NewStudyPlanSubject = Omit<StudyPlanSubject, 'id' | 'color' | 'hoursPerWeek' | 'priority' | 'completed'> & {
+  id?: string;
+  color?: string;
+  hoursPerWeek?: number;
+  priority?: 'high' | 'medium' | 'low';
+};
+
 export type Subject = StudyPlanSubject;
 
 export interface StudyPlan {

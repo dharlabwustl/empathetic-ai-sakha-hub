@@ -7,7 +7,7 @@ import StudyPlanSections from '@/components/dashboard/student/academic/component
 import { useAcademicPlans } from '@/components/dashboard/student/academic/hooks/useAcademicPlans';
 
 interface AcademicAdvisorProps {
-  userProfile: {
+  userProfile?: {
     examPreparation?: string;
   };
 }

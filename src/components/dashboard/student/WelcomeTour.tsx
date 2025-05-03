@@ -9,7 +9,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { ChevronRight, CheckCircle, Lightbulb, Calendar, GraduationCap } from "lucide-react";
+import { ChevronRight, CheckCircle, Lightbulb, Calendar, GraduationCap, Brain, BookOpen } from "lucide-react";
 
 interface WelcomeTourProps {
   onSkipTour: () => void;
@@ -17,7 +17,6 @@ interface WelcomeTourProps {
   isFirstTimeUser: boolean;
   lastActivity?: { type: string; description: string } | null;
   suggestedNextAction?: string | null;
-  loginCount?: number;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
@@ -28,7 +27,6 @@ const WelcomeTour: React.FC<WelcomeTourProps> = ({
   isFirstTimeUser,
   lastActivity,
   suggestedNextAction,
-  loginCount,
   open,
   onOpenChange
 }) => {
@@ -71,6 +69,30 @@ const WelcomeTour: React.FC<WelcomeTourProps> = ({
 
           <div className="flex gap-3 items-start">
             <div className="p-2 rounded-full bg-primary/10">
+              <BookOpen className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <h4 className="font-medium">Learning Resources</h4>
+              <p className="text-sm text-muted-foreground">
+                Access flashcards, concept cards, and practice exams tailored to your study plan.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex gap-3 items-start">
+            <div className="p-2 rounded-full bg-primary/10">
+              <Brain className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <h4 className="font-medium">AI Tutor</h4>
+              <p className="text-sm text-muted-foreground">
+                Get personalized help with difficult concepts and detailed explanations.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex gap-3 items-start">
+            <div className="p-2 rounded-full bg-primary/10">
               <Lightbulb className="h-5 w-5 text-primary" />
             </div>
             <div>
@@ -86,9 +108,12 @@ const WelcomeTour: React.FC<WelcomeTourProps> = ({
           <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
             <h4 className="font-medium flex items-center gap-2">
               <CheckCircle className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-              Suggested Next Action
+              Where to Start?
             </h4>
-            <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">{suggestedNextAction}</p>
+            <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">
+              We recommend starting with <strong>Today's Plan</strong> to see your scheduled activities, 
+              or visiting <strong>Academic Advisor</strong> to view and customize your study plan.
+            </p>
           </div>
         )}
 
