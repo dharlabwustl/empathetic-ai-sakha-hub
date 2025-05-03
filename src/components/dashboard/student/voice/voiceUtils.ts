@@ -53,81 +53,126 @@ const indianVoicePatterns = [
   'pooja', 'rashmi', 'sangeeta', 'shreya', 'tanvi'
 ];
 
+// Global reference to available voices
+let cachedVoices: SpeechSynthesisVoice[] | null = null;
+
+// Refresh cached voices
+export const refreshVoices = (): SpeechSynthesisVoice[] => {
+  try {
+    const voices = window.speechSynthesis.getVoices();
+    if (voices && voices.length > 0) {
+      cachedVoices = voices;
+      console.log("Voice system refreshed - found", voices.length, "voices");
+      return voices;
+    }
+    console.warn("Voice system returned empty voices array");
+    return [];
+  } catch (err) {
+    console.error("Error refreshing voices:", err);
+    return [];
+  }
+};
+
 // Helper to get the best voice for Indian English - strictly prioritizing Indian voices
 export const findBestIndianVoice = (): SpeechSynthesisVoice | undefined => {
-  const voices = window.speechSynthesis.getVoices();
-  console.log("Available voices:", voices.map(v => `${v.name} (${v.lang})`).join(', '));
-  
-  // First priority: Look for voices specifically labeled as Indian English (en-IN)
-  const indianEnglishVoice = voices.find(voice => voice.lang === 'en-IN');
-  if (indianEnglishVoice) {
-    console.log("Found dedicated Indian English (en-IN) voice:", indianEnglishVoice.name);
-    return indianEnglishVoice;
-  }
-  
-  // Second priority: Look for Hindi voices (can often speak English with Indian accent)
-  const hindiVoice = voices.find(voice => voice.lang === 'hi-IN');
-  if (hindiVoice) {
-    console.log("Found Hindi (hi-IN) voice:", hindiVoice.name);
-    return hindiVoice;
-  }
-  
-  // Third priority: Search for voices with Indian names
-  for (const pattern of indianVoicePatterns) {
-    const namedIndianVoice = voices.find(voice => 
-      voice.name.toLowerCase().includes(pattern)
+  try {
+    // Try to get fresh voices or use cached ones
+    let voices = window.speechSynthesis.getVoices();
+    
+    if (!voices || voices.length === 0) {
+      console.log("No voices available immediately, using cached voices or waiting...");
+      
+      if (cachedVoices && cachedVoices.length > 0) {
+        voices = cachedVoices;
+      } else {
+        // Force a refresh and try again
+        voices = refreshVoices();
+      }
+    }
+    
+    console.log("Available voices:", voices.map(v => `${v.name} (${v.lang})`).join(', '));
+    
+    // First priority: Look for voices specifically labeled as Indian English (en-IN)
+    const indianEnglishVoice = voices.find(voice => voice.lang === 'en-IN');
+    if (indianEnglishVoice) {
+      console.log("Found dedicated Indian English (en-IN) voice:", indianEnglishVoice.name);
+      return indianEnglishVoice;
+    }
+    
+    // Second priority: Look for Hindi voices (can often speak English with Indian accent)
+    const hindiVoice = voices.find(voice => voice.lang === 'hi-IN');
+    if (hindiVoice) {
+      console.log("Found Hindi (hi-IN) voice:", hindiVoice.name);
+      return hindiVoice;
+    }
+    
+    // Third priority: Search for voices with Indian names
+    for (const pattern of indianVoicePatterns) {
+      const namedIndianVoice = voices.find(voice => 
+        voice.name.toLowerCase().includes(pattern)
+      );
+      
+      if (namedIndianVoice) {
+        console.log(`Found voice with Indian name pattern "${pattern}":`, namedIndianVoice.name);
+        return namedIndianVoice;
+      }
+    }
+    
+    // Fourth priority: Any voice with "India" or "Indian" in its name
+    const indianDescriptorVoice = voices.find(voice => 
+      voice.name.toLowerCase().includes('india') || 
+      voice.name.toLowerCase().includes('indian')
     );
     
-    if (namedIndianVoice) {
-      console.log(`Found voice with Indian name pattern "${pattern}":`, namedIndianVoice.name);
-      return namedIndianVoice;
+    if (indianDescriptorVoice) {
+      console.log("Found voice with India/Indian in name:", indianDescriptorVoice.name);
+      return indianDescriptorVoice;
     }
+    
+    // Fifth priority: Look for any South Asian or Asian labeled voices
+    const asianVoice = voices.find(voice => 
+      voice.name.toLowerCase().includes('asian') || 
+      voice.name.toLowerCase().includes('south asian')
+    );
+    
+    if (asianVoice) {
+      console.log("Found Asian/South Asian voice:", asianVoice.name);
+      return asianVoice;
+    }
+    
+    // Last resort: Any female English voice (preferably not U.S. accent)
+    const nonUSFemaleVoice = voices.find(voice => 
+      voice.lang.startsWith('en') && 
+      voice.lang !== 'en-US' &&
+      (voice.name.toLowerCase().includes('female') || 
+       !voice.name.toLowerCase().includes('male'))
+    );
+    
+    if (nonUSFemaleVoice) {
+      console.log("Using non-US female English voice:", nonUSFemaleVoice.name);
+      return nonUSFemaleVoice;
+    }
+    
+    // Absolute fallback: Any English voice
+    const anyEnglishVoice = voices.find(voice => voice.lang.startsWith('en'));
+    if (anyEnglishVoice) {
+      console.log("Using fallback English voice:", anyEnglishVoice.name);
+      return anyEnglishVoice;
+    }
+    
+    // Last desperate fallback: Any voice at all
+    if (voices.length > 0) {
+      console.warn("No suitable voice found, using first available voice:", voices[0].name);
+      return voices[0];
+    }
+    
+    console.warn("No voices available at all");
+    return undefined;
+    
+  } catch (err) {
+    console.error("Error finding best voice:", err);
+    return undefined;
   }
-  
-  // Fourth priority: Any voice with "India" or "Indian" in its name
-  const indianDescriptorVoice = voices.find(voice => 
-    voice.name.toLowerCase().includes('india') || 
-    voice.name.toLowerCase().includes('indian')
-  );
-  
-  if (indianDescriptorVoice) {
-    console.log("Found voice with India/Indian in name:", indianDescriptorVoice.name);
-    return indianDescriptorVoice;
-  }
-  
-  // Fifth priority: Look for any South Asian or Asian labeled voices
-  const asianVoice = voices.find(voice => 
-    voice.name.toLowerCase().includes('asian') || 
-    voice.name.toLowerCase().includes('south asian')
-  );
-  
-  if (asianVoice) {
-    console.log("Found Asian/South Asian voice:", asianVoice.name);
-    return asianVoice;
-  }
-  
-  // Last resort: Any female English voice (preferably not U.S. accent)
-  const nonUSFemaleVoice = voices.find(voice => 
-    voice.lang.startsWith('en') && 
-    voice.lang !== 'en-US' &&
-    (voice.name.toLowerCase().includes('female') || 
-     !voice.name.toLowerCase().includes('male'))
-  );
-  
-  if (nonUSFemaleVoice) {
-    console.log("Using non-US female English voice:", nonUSFemaleVoice.name);
-    return nonUSFemaleVoice;
-  }
-  
-  // Absolute fallback: Any English voice
-  const anyEnglishVoice = voices.find(voice => voice.lang.startsWith('en'));
-  if (anyEnglishVoice) {
-    console.log("Using fallback English voice:", anyEnglishVoice.name);
-    return anyEnglishVoice;
-  }
-  
-  console.warn("No suitable voice found, using system default");
-  return voices[0]; // Return first available voice as last resort
 };
 
 // Improve pronunciation for Indian accent
@@ -160,31 +205,52 @@ const improvePronunciation = (text: string): string => {
     .replace(/(\d)(\d{2})\b/g, '$1 hundred $2');
 };
 
-// Speech synthesis with better error handling
-export const speakMessage = (message: string, forceSpeak: boolean = false): void => {
-  const settings = getVoiceSettings();
-  
-  if (!settings.enabled && !forceSpeak) {
-    return;
-  }
-  
-  // Skip duplicate non-forced messages
-  if (!forceSpeak && spokenMessages.has(message)) {
-    console.log("Skipping duplicate message:", message);
-    return;
-  }
-  
-  // Add to spoken messages cache
-  spokenMessages.add(message);
-  
-  // Clear cache if too large
-  if (spokenMessages.size > 20) {
-    spokenMessages.clear();
-  }
-  
+// Check if speech synthesis is ready and available
+export const isSpeechSynthesisAvailable = (): boolean => {
   try {
-    // Cancel any ongoing speech
-    window.speechSynthesis.cancel();
+    return typeof window !== 'undefined' && window.speechSynthesis !== undefined;
+  } catch (err) {
+    console.error("Error checking speech synthesis availability:", err);
+    return false;
+  }
+};
+
+// Speech synthesis with better error handling and diagnostics
+export const speakMessage = (message: string, forceSpeak: boolean = false): boolean => {
+  try {
+    const settings = getVoiceSettings();
+    
+    if (!settings.enabled && !forceSpeak) {
+      console.log("Voice disabled in settings, skipping speech");
+      return false;
+    }
+
+    // Check if speech synthesis is available
+    if (!isSpeechSynthesisAvailable()) {
+      console.error("Speech synthesis is not available in this browser");
+      return false;
+    }
+    
+    // Skip duplicate non-forced messages
+    if (!forceSpeak && spokenMessages.has(message)) {
+      console.log("Skipping duplicate message:", message);
+      return false;
+    }
+    
+    // Add to spoken messages cache
+    spokenMessages.add(message);
+    
+    // Clear cache if too large
+    if (spokenMessages.size > 20) {
+      spokenMessages.clear();
+    }
+    
+    // Try to cancel any ongoing speech
+    try {
+      window.speechSynthesis.cancel();
+    } catch (err) {
+      console.warn("Could not cancel ongoing speech:", err);
+    }
     
     // Create speech utterance
     const utterance = new SpeechSynthesisUtterance(improvePronunciation(message));
@@ -196,12 +262,13 @@ export const speakMessage = (message: string, forceSpeak: boolean = false): void
       utterance.voice = bestVoice;
       console.log("Using voice:", bestVoice.name);
     } else {
+      // If no voice is found, try setting the language at least
       utterance.lang = 'en-IN';
       console.log("No specific voice found, using default with en-IN language");
     }
     
-    // Set maximum volume for clarity
-    utterance.volume = settings.volume;
+    // Set very high volume for clarity - this is critical
+    utterance.volume = settings.volume * 1.5 > 1.0 ? 1.0 : settings.volume * 1.5;
     
     // Set speech rate (speed)
     utterance.rate = settings.speed;
@@ -211,17 +278,29 @@ export const speakMessage = (message: string, forceSpeak: boolean = false): void
     
     // Debug voice settings
     console.log(`Speaking with: volume=${utterance.volume}, rate=${utterance.rate}, pitch=${utterance.pitch}`);
+    console.log("Message to speak:", message);
     
-    // Add error handling for speech synthesis
+    // Add detailed error handling for speech synthesis
+    utterance.onstart = (event) => {
+      console.log("Speech started successfully");
+    };
+    
+    utterance.onend = (event) => {
+      console.log("Speech completed successfully");
+    };
+    
     utterance.onerror = (event) => {
-      console.error("Speech synthesis error:", event);
+      console.error("Speech synthesis error:", event.error);
+      console.error("Error details:", event);
     };
     
     // Speak the message
     window.speechSynthesis.speak(utterance);
     
+    return true;
   } catch (error) {
-    console.error("Error in speech synthesis:", error);
+    console.error("Critical error in speech synthesis:", error);
+    return false;
   }
 };
 
@@ -249,15 +328,15 @@ export const getGreeting = (mood?: MoodType, examGoal?: string): string => {
   // Add mood-specific, brief, exam-focused additions
   if (mood) {
     switch(mood) {
-      case 'motivated':
+      case MoodType.Motivated:
         return `${timeGreeting} Great to see you motivated! ${examFocus} Start with the hardest topics first.`;
-      case 'tired':
+      case MoodType.Tired:
         return `${timeGreeting} Feeling tired? ${examFocus} Try shorter, focused study sessions today.`;
-      case 'focused':
+      case MoodType.Focused:
         return `${timeGreeting} You're focused! ${examFocus} Perfect time for solving difficult problems.`;
-      case 'anxious':
+      case MoodType.Anxious:
         return `${timeGreeting} I understand you're anxious. ${examFocus} Let's break topics into smaller parts.`;
-      case 'stressed':
+      case MoodType.Stressed:
         return `${timeGreeting} When stressed, prioritize. ${examFocus} Focus on high-yield topics first.`;
       default:
         return `${timeGreeting} ${examFocus} Let's make progress today!`;
@@ -271,15 +350,33 @@ export const getGreeting = (mood?: MoodType, examGoal?: string): string => {
 export const testVoiceSystem = (): Promise<boolean> => {
   return new Promise((resolve) => {
     try {
-      const testUtterance = new SpeechSynthesisUtterance("Test");
-      testUtterance.volume = 0; // Silent test
-      testUtterance.onend = () => resolve(true);
-      testUtterance.onerror = () => resolve(false);
+      if (!isSpeechSynthesisAvailable()) {
+        console.error("Speech synthesis is not available");
+        resolve(false);
+        return;
+      }
       
-      const timeout = setTimeout(() => resolve(false), 3000);
+      // Initialize voices
+      refreshVoices();
+      
+      const testUtterance = new SpeechSynthesisUtterance("Testing voice system");
+      testUtterance.volume = 1.0; // Use full volume for testing
+      
+      const timeout = setTimeout(() => {
+        console.warn("Voice test timed out");
+        resolve(false);
+      }, 3000);
+      
       testUtterance.onend = () => {
         clearTimeout(timeout);
+        console.log("Voice test succeeded");
         resolve(true);
+      };
+      
+      testUtterance.onerror = (err) => {
+        clearTimeout(timeout);
+        console.error("Voice test failed with error:", err);
+        resolve(false);
       };
       
       window.speechSynthesis.speak(testUtterance);
@@ -289,3 +386,147 @@ export const testVoiceSystem = (): Promise<boolean> => {
     }
   });
 };
+
+// Function to debug voice system and get diagnostics
+export const getVoiceDiagnostics = async (): Promise<{
+  available: boolean;
+  voiceCount: number;
+  hasIndianVoice: boolean;
+  bestVoiceName: string | null;
+  currentVolume: number;
+  supported: boolean;
+  errorMessage?: string;
+}> => {
+  try {
+    // Check if speech synthesis is available
+    const available = isSpeechSynthesisAvailable();
+    if (!available) {
+      return {
+        available: false,
+        voiceCount: 0,
+        hasIndianVoice: false,
+        bestVoiceName: null,
+        currentVolume: 0,
+        supported: false,
+        errorMessage: "Speech synthesis not supported in this browser"
+      };
+    }
+    
+    // Get all voices
+    const voices = window.speechSynthesis.getVoices() || [];
+    
+    // Find best Indian voice
+    const bestVoice = findBestIndianVoice();
+    
+    // Check if we have an Indian voice
+    const hasIndianVoice = !!voices.find(v => v.lang === 'en-IN' || v.lang === 'hi-IN');
+    
+    // Get current settings
+    const settings = getVoiceSettings();
+    
+    // Test if voice system works
+    const supported = await testVoiceSystem();
+    
+    return {
+      available: true,
+      voiceCount: voices.length,
+      hasIndianVoice,
+      bestVoiceName: bestVoice?.name || null,
+      currentVolume: settings.volume,
+      supported
+    };
+    
+  } catch (err) {
+    console.error("Error getting voice diagnostics:", err);
+    return {
+      available: false,
+      voiceCount: 0,
+      hasIndianVoice: false,
+      bestVoiceName: null,
+      currentVolume: 0,
+      supported: false,
+      errorMessage: `Error: ${err instanceof Error ? err.message : String(err)}`
+    };
+  }
+};
+
+// Set up voices for better browser compatibility
+export const initializeVoices = (): Promise<boolean> => {
+  return new Promise((resolve) => {
+    try {
+      if (!isSpeechSynthesisAvailable()) {
+        console.error("Speech synthesis not available");
+        resolve(false);
+        return;
+      }
+      
+      // Load voices
+      const loadVoices = () => {
+        const voices = window.speechSynthesis.getVoices();
+        if (voices && voices.length > 0) {
+          cachedVoices = voices;
+          console.log("Voices loaded:", voices.length);
+          
+          // Remove event listener if we got voices
+          window.speechSynthesis.removeEventListener('voiceschanged', loadVoices);
+          resolve(true);
+        }
+      };
+      
+      // Try to get voices immediately
+      const voices = window.speechSynthesis.getVoices();
+      if (voices && voices.length > 0) {
+        cachedVoices = voices;
+        console.log("Voices available immediately:", voices.length);
+        resolve(true);
+        return;
+      }
+      
+      // If no voices yet, wait for voiceschanged event
+      window.speechSynthesis.addEventListener('voiceschanged', loadVoices);
+      
+      // Set timeout to resolve anyway
+      setTimeout(() => {
+        // Try one more time
+        const lastChanceVoices = window.speechSynthesis.getVoices();
+        if (lastChanceVoices && lastChanceVoices.length > 0) {
+          cachedVoices = lastChanceVoices;
+          resolve(true);
+        } else {
+          console.warn("Voice initialization timed out");
+          resolve(false);
+        }
+      }, 3000);
+      
+    } catch (err) {
+      console.error("Error initializing voices:", err);
+      resolve(false);
+    }
+  });
+};
+
+// Fix voice system issues in certain browsers
+export const fixVoiceSystem = async (): Promise<boolean> => {
+  try {
+    if (!isSpeechSynthesisAvailable()) {
+      return false;
+    }
+    
+    // Cancel any pending speech
+    window.speechSynthesis.cancel();
+    
+    // Some browsers need a reset
+    const silentUtterance = new SpeechSynthesisUtterance("");
+    silentUtterance.volume = 0;
+    window.speechSynthesis.speak(silentUtterance);
+    
+    // Initialize voices
+    const initialized = await initializeVoices();
+    
+    return initialized;
+  } catch (err) {
+    console.error("Error fixing voice system:", err);
+    return false;
+  }
+};
+

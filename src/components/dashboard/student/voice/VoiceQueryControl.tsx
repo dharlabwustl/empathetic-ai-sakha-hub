@@ -13,9 +13,10 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Input } from "@/components/ui/input";
-import { Mic, MicOff, MessageSquare, Volume2, VolumeX } from "lucide-react";
+import { Mic, MicOff, MessageSquare, Volume2, VolumeX, AlertTriangle, HelpCircle } from "lucide-react";
 import { useVoiceAnnouncerContext } from './VoiceAnnouncer';
 import ProfileVoiceTooltip from '../profile/ProfileVoiceTooltip';
+import { getVoiceDiagnostics, fixVoiceSystem } from './voiceUtils';
 
 interface VoiceQueryControlProps {
   className?: string;
@@ -30,6 +31,8 @@ const VoiceQueryControl: React.FC<VoiceQueryControlProps> = ({
   const [query, setQuery] = useState('');
   const [isListening, setIsListening] = useState(false);
   const [isPulsing, setIsPulsing] = useState(false);
+  const [voiceStatus, setVoiceStatus] = useState<'checking' | 'working' | 'error'>('checking');
+  
   const { 
     speak, 
     processQuery, 
@@ -41,6 +44,42 @@ const VoiceQueryControl: React.FC<VoiceQueryControlProps> = ({
   } = useVoiceAnnouncerContext();
   
   const mountedRef = useRef(false);
+  const voiceCheckTimerRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // Check voice system status
+  useEffect(() => {
+    const checkVoiceSystem = async () => {
+      try {
+        setVoiceStatus('checking');
+        const diagnostics = await getVoiceDiagnostics();
+        
+        if (diagnostics.available && diagnostics.supported) {
+          setVoiceStatus('working');
+        } else {
+          console.warn("Voice system not working:", diagnostics);
+          setVoiceStatus('error');
+          
+          // Try to fix automatically
+          await fixVoiceSystem();
+        }
+      } catch (err) {
+        console.error("Error checking voice system:", err);
+        setVoiceStatus('error');
+      }
+    };
+    
+    // Check on mount
+    checkVoiceSystem();
+    
+    // Set up periodic check
+    voiceCheckTimerRef.current = setInterval(checkVoiceSystem, 30000); // Check every 30 seconds
+    
+    return () => {
+      if (voiceCheckTimerRef.current) {
+        clearInterval(voiceCheckTimerRef.current);
+      }
+    };
+  }, []);
   
   // Only show pulsing animation for first-time users or when speaking
   useEffect(() => {
@@ -111,6 +150,23 @@ const VoiceQueryControl: React.FC<VoiceQueryControlProps> = ({
     updateSettings({ enabled: !settings.enabled });
   };
   
+  // Fix voice system
+  const handleFixVoice = async () => {
+    setVoiceStatus('checking');
+    const fixed = await fixVoiceSystem();
+    
+    if (fixed) {
+      setVoiceStatus('working');
+      // Test voice
+      updateSettings({ volume: 1.0 });
+      setTimeout(() => {
+        speak("Voice system is now fixed and working", true);
+      }, 500);
+    } else {
+      setVoiceStatus('error');
+    }
+  };
+  
   // Get exam-appropriate suggestions
   const getSuggestions = () => {
     if (examGoal?.toLowerCase().includes('jee')) {
@@ -146,22 +202,31 @@ const VoiceQueryControl: React.FC<VoiceQueryControlProps> = ({
             size="icon" 
             className={`relative ${className} ${isSpeaking ? 'bg-primary/10' : ''} ${
               isPulsing ? 'ring-2 ring-primary/50 ring-offset-2 ring-offset-background' : ''
-            }`}
+            } ${voiceStatus === 'error' ? 'bg-destructive/10 text-destructive' : ''}`}
             aria-label="Voice Assistant"
           >
             {settings.enabled ? (
-              <Volume2 
-                className={`h-5 w-5 ${isSpeaking ? 'text-primary animate-pulse' : ''} ${
-                  isPulsing && !isSpeaking ? 'text-primary animate-[pulse_2s_cubic-bezier(0.4,0,0.6,1)_infinite]' : ''
-                }`} 
-              />
+              <>
+                {voiceStatus === 'error' ? (
+                  <AlertTriangle className={`h-5 w-5 ${isPulsing ? 'animate-pulse' : ''}`} />
+                ) : (
+                  <Volume2 
+                    className={`h-5 w-5 ${isSpeaking ? 'text-primary animate-pulse' : ''} ${
+                      isPulsing && !isSpeaking ? 'text-primary animate-[pulse_2s_cubic-bezier(0.4,0,0.6,1)_infinite]' : ''
+                    }`} 
+                  />
+                )}
+              </>
             ) : (
               <VolumeX className="h-5 w-5" />
             )}
-            {settings.enabled && (
+            {settings.enabled && voiceStatus === 'working' && (
               <span className={`absolute top-0 right-0 w-2 h-2 bg-green-500 rounded-full ${
                 isPulsing ? 'animate-ping' : ''
               }`}></span>
+            )}
+            {voiceStatus === 'error' && (
+              <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
             )}
           </Button>
         </PopoverTrigger>
@@ -189,6 +254,23 @@ const VoiceQueryControl: React.FC<VoiceQueryControlProps> = ({
                 </Button>
               </div>
             </div>
+            
+            {voiceStatus === 'error' && (
+              <Alert variant="destructive" className="py-2">
+                <div className="flex items-center gap-2">
+                  <AlertTriangle className="h-4 w-4" />
+                  <span className="text-xs">Voice system not working</span>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="h-7 ml-auto text-xs"
+                    onClick={handleFixVoice}
+                  >
+                    Fix Voice
+                  </Button>
+                </div>
+              </Alert>
+            )}
             
             <form onSubmit={handleSubmitQuery} className="flex gap-2">
               <Input
@@ -238,6 +320,21 @@ const VoiceQueryControl: React.FC<VoiceQueryControlProps> = ({
                 ))}
               </ul>
             </div>
+            
+            {voiceStatus === 'error' && (
+              <div className="text-xs border-t pt-2 text-muted-foreground">
+                <div className="flex items-center gap-1 mb-1">
+                  <HelpCircle className="h-3 w-3" />
+                  <span className="font-medium">Troubleshooting</span>
+                </div>
+                <ul className="list-disc pl-4 space-y-1">
+                  <li>Check if your device volume is turned up</li>
+                  <li>Try the "Fix Voice" button above</li>
+                  <li>Try using Chrome browser</li>
+                  <li>Check browser permissions for sound</li>
+                </ul>
+              </div>
+            )}
           </div>
         </PopoverContent>
       </Popover>
