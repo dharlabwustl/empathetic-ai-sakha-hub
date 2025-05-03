@@ -3,7 +3,8 @@ import React, { useEffect, useState } from 'react';
 import { VoiceAnnouncerProvider, useVoiceAnnouncerContext } from "./voice/VoiceAnnouncer";
 import { initializeVoices, fixVoiceSystem } from "./voice/voiceUtils";
 import { Button } from "@/components/ui/button";
-import { HelpCircle } from "lucide-react";
+import { HelpCircle, AlertTriangle } from "lucide-react";
+import { toast } from "sonner";
 
 interface DashboardWrapperProps {
   children: React.ReactNode;
@@ -13,6 +14,7 @@ interface DashboardWrapperProps {
 const VoiceWrapper = ({ children, onOpenTour }: { children: React.ReactNode; onOpenTour?: () => void }) => {
   // Initialize voice announcer
   const voiceAnnouncer = useVoiceAnnouncerContext();
+  const [voiceError, setVoiceError] = useState(false);
   
   // Set up voice settings for immediate use
   useEffect(() => {
@@ -25,7 +27,14 @@ const VoiceWrapper = ({ children, onOpenTour }: { children: React.ReactNode; onO
         
         if (!initialized) {
           console.warn("Voice initialization failed, attempting fix...");
-          await fixVoiceSystem();
+          const fixed = await fixVoiceSystem();
+          
+          if (!fixed) {
+            setVoiceError(true);
+            toast.error("Voice system couldn't initialize. Click the voice icon to fix.", {
+              duration: 5000
+            });
+          }
         }
         
         // Test voice by speaking silently
@@ -36,11 +45,13 @@ const VoiceWrapper = ({ children, onOpenTour }: { children: React.ReactNode; onO
         };
         testUtterance.onerror = (err) => {
           console.error("Voice system test failed:", err);
+          setVoiceError(true);
         };
         
         window.speechSynthesis.speak(testUtterance);
       } catch (err) {
         console.error("Error setting up voice system:", err);
+        setVoiceError(true);
       }
     };
     
@@ -51,9 +62,10 @@ const VoiceWrapper = ({ children, onOpenTour }: { children: React.ReactNode; onO
       fixVoiceSystem().then(fixed => {
         if (fixed) {
           console.log("Voice system refreshed");
+          setVoiceError(false);
         }
       });
-    }, 60000); // Check every minute
+    }, 30000); // Check every 30 seconds
     
     return () => {
       clearInterval(intervalId);
@@ -86,6 +98,19 @@ const VoiceWrapper = ({ children, onOpenTour }: { children: React.ReactNode; onO
           >
             <HelpCircle className="mr-2 h-4 w-4" />
             Take a Tour
+          </Button>
+        </div>
+      )}
+      {voiceError && (
+        <div className="fixed top-28 right-4 z-50">
+          <Button
+            onClick={() => fixVoiceSystem().then(() => setVoiceError(false))}
+            variant="destructive"
+            size="sm"
+            className="flex items-center gap-1 shadow-lg"
+          >
+            <AlertTriangle className="h-4 w-4" />
+            Fix Voice System
           </Button>
         </div>
       )}

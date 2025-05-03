@@ -6,6 +6,7 @@ import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Menu, X, HelpCircle, Volume2 } from 'lucide-react';
 import { useAuth } from '@/contexts/auth/AuthContext';
 import PrepzrLogo from '@/components/common/PrepzrLogo';
+import { toast } from "sonner";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -34,9 +35,17 @@ const Header = () => {
   };
   
   const handleTriggerVoiceAssistant = () => {
+    if (!window.speechSynthesis) {
+      toast.error("Voice not supported in your browser", { duration: 3000 });
+      return;
+    }
+    
     // Dispatch a custom event that the FloatingVoiceAnnouncer will listen for
     const event = new CustomEvent('trigger-voice-assistant');
     window.dispatchEvent(event);
+    
+    // Show toast to notify user
+    toast.success("Voice assistant activated", { duration: 2000 });
   };
   
   const handleOpenTour = () => {

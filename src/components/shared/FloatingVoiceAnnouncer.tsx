@@ -1,11 +1,13 @@
 
 import { useState, useEffect, useRef } from 'react';
-import { Volume2, VolumeX, X } from 'lucide-react';
+import { Volume2, VolumeX, X, AlertTriangle } from 'lucide-react';
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 const FloatingVoiceAnnouncer = () => {
   const [isActive, setIsActive] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [voiceError, setVoiceError] = useState(false);
   const speechRef = useRef<SpeechSynthesisUtterance | null>(null);
   const voiceMessageIndex = useRef(0);
   
@@ -17,8 +19,58 @@ const FloatingVoiceAnnouncer = () => {
     "We've helped thousands of students improve their scores. Join them with our affordable subscription plans."
   ];
   
+  // Function to fix voice system
+  const fixVoiceSystem = async () => {
+    try {
+      // Cancel any pending speech
+      window.speechSynthesis.cancel();
+      
+      // Force reload voices
+      window.speechSynthesis.getVoices();
+      
+      // Small test to see if it's working
+      const testUtterance = new SpeechSynthesisUtterance("Test");
+      testUtterance.volume = 0;
+      
+      return new Promise<boolean>((resolve) => {
+        testUtterance.onend = () => {
+          console.log("Voice system test successful after fix");
+          setVoiceError(false);
+          resolve(true);
+        };
+        
+        testUtterance.onerror = () => {
+          console.error("Voice system still not working after fix attempt");
+          resolve(false);
+        };
+        
+        // Set a timeout in case the speech synthesis is completely broken
+        const timeout = setTimeout(() => {
+          console.warn("Voice test timed out");
+          resolve(false);
+        }, 1000);
+        
+        testUtterance.onend = () => {
+          clearTimeout(timeout);
+          console.log("Voice system fixed successfully");
+          setVoiceError(false);
+          resolve(true);
+        };
+        
+        window.speechSynthesis.speak(testUtterance);
+      });
+    } catch (err) {
+      console.error("Error fixing voice system:", err);
+      return false;
+    }
+  };
+  
   const speakMessage = (message: string) => {
-    if (!window.speechSynthesis) return;
+    if (!window.speechSynthesis) {
+      console.error("Speech synthesis not available");
+      setVoiceError(true);
+      return;
+    }
     
     // Cancel any current speech
     window.speechSynthesis.cancel();
@@ -29,6 +81,8 @@ const FloatingVoiceAnnouncer = () => {
     
     // Try to select an Indian-English voice if available
     const voices = window.speechSynthesis.getVoices();
+    console.log("Available voices:", voices.length);
+    
     const indianVoice = voices.find(voice => 
       voice.lang.includes('en-IN') || 
       voice.name.includes('Indian') || 
@@ -36,18 +90,27 @@ const FloatingVoiceAnnouncer = () => {
     );
     
     if (indianVoice) {
+      console.log("Found Indian voice:", indianVoice.name);
       utterance.voice = indianVoice;
+    } else {
+      console.log("No Indian voice found, using default");
     }
     
     // Set up properties for Indian accent if no specific voice found
     utterance.rate = 0.9; // Slightly slower for better understanding
     utterance.pitch = 1.0;
-    utterance.volume = 0.9;
+    utterance.volume = 1.0; // Maximum volume for better audibility
     
     // Set up event handlers
-    utterance.onstart = () => setIsSpeaking(true);
+    utterance.onstart = () => {
+      console.log("Speech started");
+      setIsSpeaking(true);
+    };
+    
     utterance.onend = () => {
+      console.log("Speech ended");
       setIsSpeaking(false);
+      
       // Cycle to next message after a delay
       setTimeout(() => {
         if (isActive) {
@@ -56,13 +119,36 @@ const FloatingVoiceAnnouncer = () => {
         }
       }, 5000); // 5 second pause between messages
     };
-    utterance.onerror = () => {
+    
+    utterance.onerror = (e) => {
+      console.error("Speech synthesis error:", e);
       setIsSpeaking(false);
-      console.error("Speech synthesis error");
+      setVoiceError(true);
+      
+      // Try to fix automatically
+      fixVoiceSystem().then(fixed => {
+        if (fixed) {
+          // Try speaking again
+          setTimeout(() => {
+            if (isActive) {
+              speakMessage(message);
+            }
+          }, 1000);
+        } else {
+          toast.error("Voice system error. Please try again later.", {
+            duration: 3000
+          });
+        }
+      });
     };
     
     // Speak the message
-    window.speechSynthesis.speak(utterance);
+    try {
+      window.speechSynthesis.speak(utterance);
+    } catch (err) {
+      console.error("Error speaking:", err);
+      setVoiceError(true);
+    }
   };
   
   const toggleVoice = () => {
@@ -76,7 +162,21 @@ const FloatingVoiceAnnouncer = () => {
     } else {
       // Start speaking
       setIsActive(true);
-      speakMessage(voiceMessages[voiceMessageIndex.current]);
+      
+      // First try to fix voice system if there's an error
+      if (voiceError) {
+        fixVoiceSystem().then(fixed => {
+          if (fixed) {
+            speakMessage(voiceMessages[voiceMessageIndex.current]);
+          } else {
+            toast.error("Could not initialize voice system. Please try again.", {
+              duration: 3000
+            });
+          }
+        });
+      } else {
+        speakMessage(voiceMessages[voiceMessageIndex.current]);
+      }
       
       // Save that user has heard the assistant
       localStorage.setItem('hasHeardVoiceAssistant', 'true');
@@ -85,15 +185,38 @@ const FloatingVoiceAnnouncer = () => {
   
   // Initialize voices when component mounts
   useEffect(() => {
-    if (!window.speechSynthesis) return;
+    if (!window.speechSynthesis) {
+      console.error("Speech synthesis not available");
+      setVoiceError(true);
+      return;
+    }
     
     // Some browsers need a manual trigger to get voices
     const getVoices = () => {
-      return window.speechSynthesis.getVoices();
+      try {
+        const voices = window.speechSynthesis.getVoices();
+        console.log("Voice system initialized with", voices.length, "voices");
+        
+        if (voices.length === 0) {
+          // No voices available yet, might be a Chrome issue
+          console.warn("No voices available yet, will retry");
+          setTimeout(getVoices, 1000);
+        } else {
+          setVoiceError(false);
+        }
+      } catch (err) {
+        console.error("Error getting voices:", err);
+        setVoiceError(true);
+      }
     };
     
+    // Try loading voices immediately
     getVoices();
     
+    // Then try again after a short delay (helps in Chrome)
+    setTimeout(getVoices, 500);
+    
+    // Some browsers need this event to get voices
     window.speechSynthesis.onvoiceschanged = getVoices;
     
     // Listen for trigger events from the header button
@@ -119,7 +242,9 @@ const FloatingVoiceAnnouncer = () => {
     }
     
     return () => {
-      window.speechSynthesis.cancel();
+      if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+      }
       window.removeEventListener('trigger-voice-assistant', handleTriggerEvent);
     };
   }, []);
@@ -169,16 +294,39 @@ const FloatingVoiceAnnouncer = () => {
         </div>
       )}
       
+      {voiceError && !isActive && (
+        <div className="mb-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-3 max-w-xs animate-fade-in border border-red-200">
+          <div className="flex items-center gap-2 mb-2 text-red-500">
+            <AlertTriangle className="h-4 w-4" />
+            <span className="text-sm font-medium">Voice not working</span>
+          </div>
+          <Button 
+            variant="outline" 
+            size="sm"
+            className="w-full text-xs border-red-200 hover:bg-red-50" 
+            onClick={() => fixVoiceSystem()}
+          >
+            Fix Voice System
+          </Button>
+        </div>
+      )}
+      
       <Button
         variant={isActive ? "default" : "outline"} 
         size="icon"
-        className={`rounded-full h-12 w-12 shadow-lg ${isActive ? 'bg-primary' : 'bg-white dark:bg-gray-800'}`}
+        className={`rounded-full h-12 w-12 shadow-lg ${
+          isActive ? 'bg-primary' : 'bg-white dark:bg-gray-800'
+        } ${voiceError ? 'border-red-300 text-red-500' : ''}`}
         onClick={toggleVoice}
       >
         {isActive ? (
           <VolumeX className="h-5 w-5" />
         ) : (
-          <Volume2 className={`h-5 w-5 ${isSpeaking ? 'animate-pulse' : ''}`} />
+          voiceError ? (
+            <AlertTriangle className="h-5 w-5" />
+          ) : (
+            <Volume2 className={`h-5 w-5 ${isSpeaking ? 'animate-pulse' : ''}`} />
+          )
         )}
       </Button>
     </div>
