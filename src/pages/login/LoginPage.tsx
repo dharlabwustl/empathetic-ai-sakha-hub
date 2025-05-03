@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,7 +12,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 const LoginPage = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { login, isAuthenticated } = useAuth();
+  const { login } = useAuth();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -19,19 +20,10 @@ const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
-  const [loginError, setLoginError] = useState("");
-
-  // Check if user is already authenticated, redirect if true
-  useEffect(() => {
-    if (isAuthenticated) {
-      navigate("/post-login");
-    }
-  }, [isAuthenticated, navigate]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
-    if (loginError) setLoginError("");
   };
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -54,7 +46,7 @@ const LoginPage = () => {
       if (success) {
         toast({
           title: "Login successful",
-          description: "Welcome back to your dashboard",
+          description: "Redirecting to your dashboard",
         });
         
         // Remember email if option is checked
@@ -64,10 +56,38 @@ const LoginPage = () => {
           localStorage.removeItem("prepzr_remembered_email");
         }
         
-        // Redirect to post-login screen
-        navigate("/post-login");
+        // Check for existing user data to determine if they're returning
+        const userData = localStorage.getItem("userData");
+        if (userData) {
+          try {
+            const parsedData = JSON.parse(userData);
+            const loginCount = parsedData.loginCount ? parseInt(parsedData.loginCount) + 1 : 1;
+            
+            localStorage.setItem("userData", JSON.stringify({
+              ...parsedData,
+              loginCount,
+              lastLogin: new Date().toISOString()
+            }));
+            
+            // Navigate to dashboard
+            navigate("/dashboard/student");
+          } catch (error) {
+            console.error("Error parsing user data:", error);
+            navigate("/dashboard/student");
+          }
+        } else {
+          // If no user data exists, create it
+          const newUserData = {
+            name: formData.email.split('@')[0],
+            email: formData.email,
+            loginCount: 1,
+            lastLogin: new Date().toISOString(),
+            mood: 'Motivated'
+          };
+          localStorage.setItem("userData", JSON.stringify(newUserData));
+          navigate("/dashboard/student");
+        }
       } else {
-        setLoginError("Invalid email or password");
         toast({
           title: "Login Failed",
           description: "Invalid email or password. Please try again.",
@@ -75,7 +95,6 @@ const LoginPage = () => {
         });
       }
     } catch (error) {
-      setLoginError("An unexpected error occurred");
       toast({
         title: "Login Failed",
         description: "An unexpected error occurred. Please try again.",
@@ -99,7 +118,7 @@ const LoginPage = () => {
   };
 
   // Check for saved email on component mount
-  useEffect(() => {
+  React.useEffect(() => {
     const savedEmail = localStorage.getItem("prepzr_remembered_email");
     if (savedEmail) {
       setFormData(prev => ({ ...prev, email: savedEmail }));
@@ -109,11 +128,6 @@ const LoginPage = () => {
 
   return (
     <div className="p-6 space-y-6">
-      {loginError && (
-        <div className="p-3 text-sm bg-red-100 border border-red-200 text-red-700 rounded-md">
-          {loginError}
-        </div>
-      )}
       <form onSubmit={handleLogin} className="space-y-4">
         <div className="space-y-2">
           <Label htmlFor="email" className="text-sm font-medium">Email Address</Label>

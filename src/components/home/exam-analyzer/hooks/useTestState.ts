@@ -1,6 +1,6 @@
 
-import { useTestStateInitialization } from '../test-state/useTestStateInitialization';
-import { useTestActions } from '../test-state/useTestActions';
+import { useTestStateInitialization } from './test-state/useTestStateInitialization';
+import { useTestActions } from './test-state/useTestActions';
 
 export const useTestState = (selectedExamInitial: string = '') => {
   const {
@@ -20,6 +20,8 @@ export const useTestState = (selectedExamInitial: string = '') => {
 
   const {
     handleStartTest,
+    simulateStressTest,
+    handleStressTestComplete,
     simulateReadinessTest,
     handleReadinessTestComplete,
     simulateConceptTest,
@@ -50,6 +52,8 @@ export const useTestState = (selectedExamInitial: string = '') => {
     testCompleted,
     results,
     handleStartTest,
+    simulateStressTest,
+    handleStressTestComplete,
     simulateReadinessTest,
     handleReadinessTestComplete,
     simulateConceptTest,

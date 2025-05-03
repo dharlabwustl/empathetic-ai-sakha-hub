@@ -1,77 +1,37 @@
 
-// Define the type for a study plan subject with priority
 export interface StudyPlanSubject {
   id: string;
   name: string;
-  difficulty: "easy" | "medium" | "hard";
-  color?: string;
-  progress?: number;
-  proficiency?: "weak" | "moderate" | "strong";
-  topics?: { 
-    id?: string; 
-    name: string; 
-    completed: boolean; 
-    status?: "pending" | "completed" | "skipped" | "in-progress";
-    difficulty?: "easy" | "medium" | "hard";
-  }[];
-  hoursPerWeek?: number;
-  priority?: "low" | "medium" | "high";
-  completed: boolean;
-  status?: "pending" | "completed" | "skipped" | "in-progress";
-  isWeakSubject?: boolean; // Field to identify weak subjects
+  color: string;
+  hoursPerWeek: number;
+  priority: 'high' | 'medium' | 'low';
+  proficiency?: 'strong' | 'weak' | 'medium';
+  topics?: Array<{
+    id: string;
+    name: string;
+    difficulty: 'easy' | 'medium' | 'hard';
+    completed: boolean;
+    status?: 'pending' | 'in-progress' | 'completed' | 'skipped';
+  }>;
 }
 
-// Define the type for a new study plan
-export interface NewStudyPlan {
-  id?: string;
-  name?: string;
+export type NewStudyPlanSubject = StudyPlanSubject;
+export type Subject = StudyPlanSubject;
+
+export interface StudyPlan {
+  id: string;
+  userId: string;
   goal: string;
   examGoal?: string;
-  subjects: StudyPlanSubject[];
-  weeklyHours?: number;
-  studyHoursPerDay?: number; // Added this field
-  startDate?: string;
-  endDate?: string;
-  examDate: string | Date; // Allow Date type
-  status: "active" | "completed" | "archived";
-  progress?: number;
-  createdAt?: string;
-  learningPace?: "slow" | "moderate" | "fast";
-  preferredStudyTime?: "morning" | "afternoon" | "evening" | "night"; // Added this field
-  // Fields for onboarding data
-  userDemographics?: {
-    age?: number;
-    educationLevel?: string;
-    city?: string;
-  };
-  studyPreferences?: {
-    personalityType?: "analytical" | "creative" | "imagination" | "practical" | "visual" | "auditory" | "kinesthetic";
-    mood?: "happy" | "motivated" | "focused" | "neutral" | "tired" | "anxious" | "stressed" | "sad";
-    studyPace?: "aggressive" | "balanced" | "relaxed";
-    dailyStudyHours?: number;
-    breakFrequency?: "frequently" | "occasionally" | "rarely" | "pomodoro";
-    stressManagement?: string;
-    studyEnvironment?: string;
-    preferredStudyTime?: "morning" | "afternoon" | "evening" | "night";
-  };
-  contactInfo?: {
-    mobileNumber?: string; // For login authentication
-  };
-}
-
-// Define the type for a study plan
-export interface StudyPlan extends NewStudyPlan {
-  id: string;
+  examDate?: string;
   createdAt: string;
+  updatedAt: string;
+  subjects: StudyPlanSubject[];
+  weeklyHours: number;
+  status: 'active' | 'archived' | 'completed';
+  studyHoursPerDay?: number;
+  preferredStudyTime?: 'morning' | 'afternoon' | 'evening' | 'night';
+  learningPace?: 'slow' | 'moderate' | 'fast';
 }
 
-// Define the type for a task in a study plan
-export interface StudyTask {
-  id: string;
-  name: string;
-  completed: boolean;
-  subjectId: string;
-  dueDate: string;
-  priority?: "low" | "medium" | "high";
-  difficulty?: "easy" | "medium" | "hard";
-}
+export type NewStudyPlan = Omit<StudyPlan, 'id' | 'userId' | 'createdAt' | 'updatedAt'>;

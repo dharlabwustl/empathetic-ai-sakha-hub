@@ -90,14 +90,14 @@ const PostLoginWelcomeBack = () => {
       return;
     }
     
-    // Auto-redirect after 20 seconds if no action taken
+    // Auto-redirect after 30 seconds if no action taken
     const timer = setTimeout(() => {
       navigate('/dashboard/student/today');
       toast({
         title: "Welcome back!",
         description: "You've been automatically redirected to Today's Plan.",
       });
-    }, 20000);
+    }, 30000);
     
     return () => clearTimeout(timer);
   }, [navigate, toast]);
@@ -126,10 +126,9 @@ const PostLoginWelcomeBack = () => {
   };
 
   const goToDashboard = () => {
-    // Fixed: Directly navigate to the student dashboard without going through welcome flow
-    navigate("/dashboard/student");
+    navigate("/dashboard/student/overview");
     toast({
-      title: "Welcome to Dashboard",
+      title: "Welcome Back",
       description: "Your dashboard is ready for today's learning activities."
     });
   };

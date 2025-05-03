@@ -1,6 +1,6 @@
+
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { UserRole } from '@/types/user/base';
-import { useToast } from '@/hooks/use-toast';
 
 interface User {
   id: string;
@@ -29,7 +29,6 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const { toast } = useToast();
 
   // Check for existing user in localStorage on component mount
   useEffect(() => {
@@ -49,14 +48,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
               email: parsedData.email,
               role: parsedData.role || UserRole.Student
             });
-            
-            // Always ensure completedOnboarding is set to true for logged-in users
-            localStorage.setItem('userData', JSON.stringify({
-              ...parsedData,
-              completedOnboarding: true
-            }));
-            
-            console.log("User authenticated from localStorage:", parsedData.email);
           }
         } catch (error) {
           console.error('Error parsing user data:', error);
@@ -71,7 +62,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   // Login function
   const login = async (email: string, password: string): Promise<boolean> => {
-    console.log("Login attempt with:", email);
     setLoading(true);
     
     return new Promise<boolean>((resolve) => {
@@ -84,9 +74,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             role: UserRole.Student
           };
           
-          console.log("Login successful for:", email);
-          
-          // Save user data to localStorage with completedOnboarding explicitly set
+          // Save user data to localStorage
           localStorage.setItem('userData', JSON.stringify({
             id: newUser.id,
             name: newUser.name,
@@ -94,16 +82,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             role: newUser.role,
             lastLogin: new Date().toISOString(),
             loginCount: 1,
-            mood: 'Motivated',
-            // Make sure returning users don't see the welcome screen again
-            completedOnboarding: true
+            mood: 'Motivated'
           }));
           
           setUser(newUser);
           setLoading(false);
           resolve(true);
         } else {
-          console.log("Login failed for:", email);
           setLoading(false);
           resolve(false);
         }
@@ -124,11 +109,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           completedOnboarding: parsedData.completedOnboarding,
           sawWelcomeTour: parsedData.sawWelcomeTour,
         }));
-        
-        toast({
-          title: "Logged out",
-          description: "You have been successfully logged out",
-        });
       } catch (error) {
         console.error('Error during logout:', error);
       }

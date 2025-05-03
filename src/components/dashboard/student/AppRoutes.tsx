@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import FlashcardInteractive from '@/components/dashboard/student/flashcards/FlashcardInteractive';
@@ -22,7 +23,6 @@ import ConceptStudyPage from '@/components/dashboard/student/concepts/ConceptStu
 import ProfilePage from '@/pages/student/ProfilePage';
 import FlashcardDetailsPage from '@/pages/dashboard/student/FlashcardDetailsPage';
 import InteractiveFlashcardBrowser from '@/components/flashcards/InteractiveFlashcardBrowser';
-import StudyGroupsPage from '@/pages/dashboard/student/StudyGroupsPage';
 
 export default function AppRoutes() {
   const { dashboardData } = useStudentDashboardData();
@@ -51,9 +51,6 @@ export default function AppRoutes() {
       <Route path="/dashboard/student/practice-exam" element={<PracticeExamsView />} />
       <Route path="/dashboard/student/practice-exam/:examId/start" element={<ExamTakingPage />} />
       <Route path="/dashboard/student/practice-exam/:examId/review" element={<ExamReviewPage />} />
-      
-      {/* Study Groups route */}
-      <Route path="/dashboard/student/study-groups" element={<StudyGroupsPage />} />
       
       {/* Other routes */}
       <Route path="/dashboard/student/feel-good-corner" element={<FeelGoodCornerView />} />

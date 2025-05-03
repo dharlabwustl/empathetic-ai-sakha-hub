@@ -7,17 +7,7 @@ import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import ExamNamesBadge from "../home/hero/ExamNamesBadge";
 
-interface HeroSectionProps {
-  scrollToFeatures: () => void;
-  scrollToForWhom?: () => void;
-  openExamAnalyzer: () => void;
-}
-
-const HeroSection: React.FC<HeroSectionProps> = ({ 
-  scrollToFeatures,
-  scrollToForWhom,
-  openExamAnalyzer
-}) => {
+const HeroSection: React.FC = () => {
   // Text animation variants
   const titleVariants = {
     hidden: { opacity: 0 },
@@ -55,7 +45,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
             animate={{ opacity: 1 }}
             transition={{ duration: 0.8 }}
           >
-            अब तैयारी करो अपने तरीके से, सिर्फ PREPZR के साथ!
+            पहली बार, पढ़ाई से पहले, आपको समझने वाला साथी
           </motion.span>
           
           <motion.div
@@ -82,33 +72,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.8, duration: 0.6 }}
         >
-          Tuned to Your Mood, Habits, Mind & Mission to{" "}
-          <motion.span 
-            className="relative font-bold"
-            initial={{ color: "#9b87f5" }}
-            animate={{ 
-              color: ["#9b87f5", "#D946EF", "#8B5CF6", "#0EA5E9", "#9b87f5"],
-            }}
-            transition={{ 
-              duration: 6,
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
-          >
-            <span className="relative inline-block">
-              Crack Exams.
-              <motion.span 
-                className="absolute -bottom-1 left-0 h-0.5 bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500 w-full" 
-                initial={{ width: 0 }}
-                animate={{ width: "100%" }}
-                transition={{ 
-                  delay: 0.8,
-                  duration: 0.8,
-                  ease: "easeInOut"
-                }}
-              />
-            </span>
-          </motion.span>
+          Tuned to Your Mood, Habits, Mind & Mission to Crack Exams.
         </motion.p>
         
         <motion.div 
@@ -119,7 +83,11 @@ const HeroSection: React.FC<HeroSectionProps> = ({
         >
           <Button 
             className="bg-gradient-to-r from-purple-500 to-indigo-600 px-8 py-6 text-lg font-semibold text-white shadow-lg hover:from-purple-600 hover:to-indigo-700"
-            onClick={openExamAnalyzer}
+            onClick={() => {
+              // Find the ExamReadinessAnalyzer component in the DOM and open it
+              const event = new CustomEvent('open-exam-analyzer');
+              window.dispatchEvent(event);
+            }}
           >
             Test Your Exam Readiness
             <ArrowRight className="ml-2 h-5 w-5" />

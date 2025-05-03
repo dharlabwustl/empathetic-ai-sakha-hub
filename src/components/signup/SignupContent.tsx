@@ -80,8 +80,6 @@ const SignupContent = () => {
         ...onboardingData,
         name: formValues.name,
         mobile: formValues.mobile,
-        // Explicitly mark as a complete onboarding to prevent redirect loops
-        completedOnboarding: true
       };
 
       setOnboardingData(finalData);
@@ -94,7 +92,6 @@ const SignupContent = () => {
         ...finalData,
         loginCount: 1,
         createdAt: new Date().toISOString(),
-        completedOnboarding: true // Ensure this is set to true
       }));
 
       // Show success message
@@ -103,7 +100,7 @@ const SignupContent = () => {
         description: "Redirecting to your personalized dashboard.",
       });
 
-      // Go to welcome screen
+      // Go directly to welcome screen without study plan creation
       setTimeout(() => {
         navigate("/welcome");
       }, 1000);

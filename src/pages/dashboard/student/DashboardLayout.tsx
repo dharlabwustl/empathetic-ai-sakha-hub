@@ -35,7 +35,6 @@ interface DashboardLayoutProps {
   onToggleTabsNav: () => void;
   onSkipTour: () => void;
   onCompleteTour: () => void;
-  onOpenTour?: () => void; // New prop for opening the tour manually
   showStudyPlan: boolean;
   onCloseStudyPlan: () => void;
   lastActivity?: { type: string; description: string } | null;
@@ -60,7 +59,6 @@ const DashboardLayout = ({
   onToggleTabsNav,
   onSkipTour,
   onCompleteTour,
-  onOpenTour,
   showStudyPlan,
   onCloseStudyPlan,
   lastActivity,
@@ -78,11 +76,7 @@ const DashboardLayout = ({
   const [showTour, setShowTour] = useState(showWelcomeTour);
   
   const handleOpenTour = () => {
-    if (onOpenTour) {
-      onOpenTour();
-    } else {
-      setShowTour(true);
-    }
+    setShowTour(true);
   };
   
   const handleCloseTour = () => {
@@ -210,19 +204,16 @@ const DashboardLayout = ({
         />
       )}
       
-      {/* Only show this controlled tour when showTour is true (not used anymore) */}
-      {showTour && (
-        <WelcomeTour
-          open={showTour}
-          onOpenChange={setShowTour}
-          onSkipTour={handleCloseTour}
-          onCompleteTour={handleCompleteTourAndClose}
-          isFirstTimeUser={!userProfile.loginCount || userProfile.loginCount <= 1}
-          lastActivity={lastActivity}
-          suggestedNextAction={suggestedNextAction}
-          loginCount={userProfile.loginCount}
-        />
-      )}
+      <WelcomeTour
+        onSkipTour={handleCloseTour}
+        onCompleteTour={handleCompleteTourAndClose}
+        isFirstTimeUser={!userProfile.loginCount || userProfile.loginCount <= 1}
+        lastActivity={lastActivity}
+        suggestedNextAction={suggestedNextAction}
+        loginCount={userProfile.loginCount}
+        open={showTour}
+        onOpenChange={setShowTour}
+      />
     </div>
   );
 };

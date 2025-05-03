@@ -76,6 +76,7 @@ export function StudentSidebar({
       name: "Study Groups",
       icon: Users,
       path: "/dashboard/student/study-groups",
+      isPremium: true,
     },
     {
       name: "Feel Good Corner",
@@ -155,8 +156,12 @@ export function StudentSidebar({
                 )
               }
             >
-              <item.icon className="h-5 w-5" />
-              {!collapsed && <span>{item.name}</span>}
+              <item.icon className={cn("h-5 w-5", item.isPremium && "text-amber-500")} />
+              {(!collapsed || item.isPremium) && (
+                <span className={cn(item.isPremium && "text-amber-500")}>
+                  {item.name}
+                </span>
+              )}
             </NavLink>
           ))}
         </div>

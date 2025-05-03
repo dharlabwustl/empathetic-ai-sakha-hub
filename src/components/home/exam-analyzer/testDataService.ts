@@ -1,19 +1,10 @@
+
 import { ExamType } from './types';
 
 // Simplified to only include NEET
 export const examTypes: ExamType[] = [
   { value: 'neet', label: 'NEET (National Eligibility cum Entrance Test)' }
 ];
-
-// Add NEET-specific exam details
-export const examSpecificDetails = {
-  "NEET-UG": {
-    scoringPattern: "+4 points for correct answers, -1 for incorrect answers",
-    timePerQuestion: "1.06 minutes per question",
-    totalTime: "180 minutes",
-    totalQuestions: "180 questions"
-  }
-};
 
 export const getDialogTitle = (currentTest: string): string => {
   switch (currentTest) {

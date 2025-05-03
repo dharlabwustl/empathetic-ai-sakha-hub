@@ -68,25 +68,6 @@ export const useTestActions = ({
     setProgress(50);
   };
 
-  // Stress Test actions
-  const simulateStressTest = () => {
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-    }, 1500);
-  };
-
-  const handleStressTestComplete = (answers: UserAnswer[]) => {
-    // No longer used, but kept for backward compatibility
-    setTestCompleted({
-      ...testCompleted,
-      stress: true
-    });
-    
-    // Update progress
-    setProgress(75);
-  };
-
   // Concept Test actions
   const simulateConceptTest = () => {
     setLoading(true);
@@ -113,12 +94,13 @@ export const useTestActions = ({
       overall: generateOverallReport({
         readiness: results.readiness,
         concept: conceptResult,
+        // We're not using stress test anymore
         stress: results.stress 
       }, selectedExam)
     });
     
     // Update progress
-    setProgress(100);
+    setProgress(75);
   };
 
   // Handle navigation between tests
@@ -130,11 +112,8 @@ export const useTestActions = ({
       case 'readiness':
         setProgress(25);
         break;
-      case 'stress':
-        setProgress(50);
-        break;  
       case 'concept':
-        setProgress(75);
+        setProgress(50);
         break;
       case 'report':
         setProgress(100);
@@ -149,7 +128,7 @@ export const useTestActions = ({
     setCurrentTest('intro');
     setTestCompleted({
       readiness: false,
-      stress: false,
+      stress: false, // keep for backward compatibility
       concept: false
     });
     setProgress(0);
@@ -159,8 +138,6 @@ export const useTestActions = ({
     handleStartTest,
     simulateReadinessTest,
     handleReadinessTestComplete,
-    simulateStressTest,
-    handleStressTestComplete,
     simulateConceptTest,
     handleConceptTestComplete,
     handleNavigation,

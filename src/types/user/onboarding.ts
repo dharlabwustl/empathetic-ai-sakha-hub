@@ -1,14 +1,12 @@
 
-import { UserRole } from './base';
-import { MoodType, PersonalityType } from './base';
+import { UserRole, MoodType, PersonalityType } from './base';
 
 export interface OnboardingData {
   role: UserRole;
   age?: number;
   grade?: string;
   location?: string;
-  examGoal?: string;
-  examDate?: string; // Target exam date
+  examGoal?: string; // Changed from ExamGoal to string
   jobTitle?: string;
   experience?: string;
   industry?: string;
@@ -25,18 +23,10 @@ export interface OnboardingData {
   focusHours?: number;
   stressManagement?: string;
   breakRoutine?: string;
-  studyEnvironment?: string;
-  preferredStudyTime?: "morning" | "afternoon" | "evening" | "night";
-  studyPace?: "aggressive" | "balanced" | "relaxed";
-  dailyStudyHours?: number;
   interests?: string[];
   name?: string;
   phoneNumber?: string;
-  institute?: string;
-  password?: string; 
-  preferredSubjects?: string[];
-  weakSubjects?: string[];
-  learningStyle?: "visual" | "auditory" | "reading" | "kinesthetic";
-  studyGoal?: string;
-  targetScore?: number;
+  institute?: string; // Field for institute
+  password?: string; // Field for password
+  preferredSubjects?: string[]; // Field for preferred subjects
 }

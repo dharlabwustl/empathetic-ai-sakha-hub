@@ -1,29 +1,28 @@
 
 export type TestType = 'intro' | 'readiness' | 'concept' | 'report';
+export type TestCompletionState = {
+  readiness: boolean;
+  stress: boolean;
+  concept: boolean;
+};
 
-export interface TestQuestion {
+export interface ExamType {
+  value: string;
+  label: string;
+}
+
+export interface Question {
   id: string;
-  question: string;
+  text: string;
   options: string[];
-  correctAnswer?: string;
-  timeLimit: number;
-  type: 'self-assessment' | 'multiple-choice' | 'math-calculation' | 'memory-recall';
-  complexityLevel?: number;
-  imageUrl?: string;
+  correctAnswer?: number;
   explanation?: string;
-  category?: string;
-}
-
-export interface UserAnswer {
-  questionId: string;
-  answer: string;
-  isCorrect?: boolean;
-  timeToAnswer: number;
-  confidenceLevel?: number;
   subject?: string;
+  difficulty?: 'easy' | 'medium' | 'hard';
+  type?: string;
 }
 
-export interface TestResults {
+export interface TestResult {
   score: number;
   level: string;
   analysis: string;
@@ -32,25 +31,8 @@ export interface TestResults {
 }
 
 export interface ExamResults {
-  readiness: TestResults | null;
-  concept: TestResults | null;
-  overall: TestResults | null;
-}
-
-export interface TestCompletionState {
-  readiness: boolean;
-  concept: boolean;
-}
-
-export interface ExamType {
-  id: string;
-  name: string;
-  description: string;
-  icon: string;
-}
-
-export interface SubjectTopic {
-  id: string;
-  subject: string;
-  topics: number;
+  stress: TestResult;
+  readiness: TestResult;
+  concept: TestResult;
+  overall: TestResult;
 }

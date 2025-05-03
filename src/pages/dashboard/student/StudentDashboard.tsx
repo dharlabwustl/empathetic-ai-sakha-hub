@@ -8,12 +8,10 @@ import SplashScreen from "@/components/dashboard/student/SplashScreen";
 import { useLocation } from "react-router-dom";
 import RedesignedDashboardOverview from "@/components/dashboard/student/RedesignedDashboardOverview";
 import { MoodType } from "@/types/user/base";
-import WelcomeTour from "@/components/dashboard/student/WelcomeTour";
 
 const StudentDashboard = () => {
-  const [showSplash, setShowSplash] = useState(false);
+  const [showSplash, setShowSplash] = useState(false); // Set to false to bypass splash screen for now
   const [currentMood, setCurrentMood] = useState<MoodType | undefined>(undefined);
-  const [showTourModal, setShowTourModal] = useState(false);
   const location = useLocation();
   
   const {
@@ -42,30 +40,25 @@ const StudentDashboard = () => {
     toggleTabsNav
   } = useStudentDashboard();
 
-  // Check if it's the user's first login
+  // Check URL parameters for onboarding status
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const isNewUser = params.get('new') === 'true';
-    const completedOnboarding = params.get('completedOnboarding') === 'true';
     
-    console.log("URL params:", { isNewUser, completedOnboarding });
-    
-    // Don't show splash screen for now
-    setShowSplash(false);
-    
-    // Check if this is the first time user is visiting after signup
-    const userData = localStorage.getItem("userData");
-    const userDataObj = userData ? JSON.parse(userData) : {};
-    const isFirstVisit = isNewUser || completedOnboarding || 
-                        (userDataObj.loginCount === 1 && !userDataObj.sawWelcomeTour);
-    
-    // Show welcome tour only for first time visitors
-    setShowTourModal(isFirstVisit);
+    // Don't show splash screen for new users coming from signup flow
+    if (isNewUser) {
+      setShowSplash(false);
+    } else {
+      // Check if the user has seen the splash screen in this session
+      const hasSeen = sessionStorage.getItem("hasSeenSplash");
+      setShowSplash(false); // Temporarily disable splash screen
+    }
     
     // Try to get saved mood from local storage
-    if (userData) {
+    const savedUserData = localStorage.getItem("userData");
+    if (savedUserData) {
       try {
-        const parsedData = JSON.parse(userData);
+        const parsedData = JSON.parse(savedUserData);
         if (parsedData.mood) {
           setCurrentMood(parsedData.mood);
         }
@@ -82,56 +75,38 @@ const StudentDashboard = () => {
     
     // Save a default optimistic mood if none is set
     if (!currentMood) {
-      setCurrentMood(MoodType.Motivated);
+      setCurrentMood(MoodType.MOTIVATED);
       const userData = localStorage.getItem("userData");
       if (userData) {
         try {
           const parsedData = JSON.parse(userData);
-          parsedData.mood = MoodType.Motivated;
+          parsedData.mood = MoodType.MOTIVATED;
           localStorage.setItem("userData", JSON.stringify(parsedData));
         } catch (err) {
-          console.error("Error updating mood in localStorage:", err);
+          console.error("Error updating user data in localStorage:", err);
+          localStorage.setItem("userData", JSON.stringify({ mood: MoodType.MOTIVATED }));
         }
+      } else {
+        localStorage.setItem("userData", JSON.stringify({ mood: MoodType.MOTIVATED }));
       }
     }
   };
 
-  const handleSkipTourWrapper = () => {
-    handleSkipTour();
-    setShowTourModal(false);
-    
-    // Update user data to mark tour as seen
+  const handleMoodChange = (mood: MoodType) => {
+    setCurrentMood(mood);
     const userData = localStorage.getItem("userData");
     if (userData) {
       try {
         const parsedData = JSON.parse(userData);
-        parsedData.sawWelcomeTour = true;
+        parsedData.mood = mood;
         localStorage.setItem("userData", JSON.stringify(parsedData));
       } catch (err) {
-        console.error("Error updating user data:", err);
+        console.error("Error updating mood in localStorage:", err);
+        localStorage.setItem("userData", JSON.stringify({ mood }));
       }
+    } else {
+      localStorage.setItem("userData", JSON.stringify({ mood }));
     }
-  };
-
-  const handleCompleteTourWrapper = () => {
-    handleCompleteTour();
-    setShowTourModal(false);
-    
-    // Update user data to mark tour as seen
-    const userData = localStorage.getItem("userData");
-    if (userData) {
-      try {
-        const parsedData = JSON.parse(userData);
-        parsedData.sawWelcomeTour = true;
-        localStorage.setItem("userData", JSON.stringify(parsedData));
-      } catch (err) {
-        console.error("Error updating user data:", err);
-      }
-    }
-  };
-  
-  const handleOpenTour = () => {
-    setShowTourModal(true);
   };
 
   // Show splash screen if needed
@@ -168,46 +143,34 @@ const StudentDashboard = () => {
     return null;
   };
 
+  // Disable welcome tour popup
+  const modifiedShowWelcomeTour = false;
+
   return (
-    <>
-      <DashboardLayout
-        userProfile={userProfile}
-        hideSidebar={hideSidebar}
-        hideTabsNav={hideTabsNav}
-        activeTab={activeTab}
-        kpis={kpis}
-        nudges={nudges}
-        markNudgeAsRead={markNudgeAsRead}
-        showWelcomeTour={false} // We're controlling this with our own state now
-        onTabChange={handleTabChange}
-        onViewStudyPlan={handleViewStudyPlan}
-        onToggleSidebar={toggleSidebar}
-        onToggleTabsNav={toggleTabsNav}
-        onSkipTour={handleSkipTourWrapper}
-        onCompleteTour={handleCompleteTourWrapper}
-        onOpenTour={handleOpenTour} // Add this prop for manual tour opening
-        showStudyPlan={showStudyPlan}
-        onCloseStudyPlan={handleCloseStudyPlan}
-        lastActivity={lastActivity}
-        suggestedNextAction={suggestedNextAction}
-        currentMood={currentMood}
-        onMoodChange={setCurrentMood}
-      >
-        {getTabContent()}
-      </DashboardLayout>
-      
-      {/* Welcome Tour Modal - will show automatically for first-time users only */}
-      <WelcomeTour
-        open={showTourModal}
-        onOpenChange={setShowTourModal}
-        onSkipTour={handleSkipTourWrapper}
-        onCompleteTour={handleCompleteTourWrapper}
-        isFirstTimeUser={userProfile.loginCount === 1}
-        lastActivity={lastActivity}
-        suggestedNextAction={suggestedNextAction}
-        loginCount={userProfile.loginCount}
-      />
-    </>
+    <DashboardLayout
+      userProfile={userProfile}
+      hideSidebar={hideSidebar}
+      hideTabsNav={hideTabsNav}
+      activeTab={activeTab}
+      kpis={kpis}
+      nudges={nudges}
+      markNudgeAsRead={markNudgeAsRead}
+      showWelcomeTour={modifiedShowWelcomeTour}
+      onTabChange={handleTabChange}
+      onViewStudyPlan={handleViewStudyPlan}
+      onToggleSidebar={toggleSidebar}
+      onToggleTabsNav={toggleTabsNav}
+      onSkipTour={handleSkipTour}
+      onCompleteTour={handleCompleteTour}
+      showStudyPlan={showStudyPlan}
+      onCloseStudyPlan={handleCloseStudyPlan}
+      lastActivity={lastActivity}
+      suggestedNextAction={suggestedNextAction}
+      currentMood={currentMood}
+      onMoodChange={handleMoodChange}
+    >
+      {getTabContent()}
+    </DashboardLayout>
   );
 };
 

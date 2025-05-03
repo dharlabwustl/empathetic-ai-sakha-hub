@@ -1,156 +1,150 @@
 
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { ExamResults } from './types';
-import { Card } from "@/components/ui/card";
-import { CheckCircle, FileText, BookOpen, Download, ArrowRight } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { RadialProgress } from "@/components/ui/radial-progress";
+import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
+import { ExamResults } from "./types";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface ReportSectionProps {
   results: ExamResults;
   onClose: () => void;
-  selectedExam: string;
-  examDetails?: {
-    scoringPattern: string;
-    timePerQuestion: string;
-    totalTime: string;
-    totalQuestions: string;
-  };
 }
 
-const ReportSection: React.FC<ReportSectionProps> = ({
-  results,
-  onClose,
-  selectedExam,
-  examDetails
-}) => {
-  const navigate = useNavigate();
-  
-  const { readiness, concept, overall } = results;
-  
-  const handleSignUp = () => {
-    // Close the dialog first
-    onClose();
-    // Navigate to signup
-    navigate('/signup');
-  };
-  
-  if (!overall) {
-    return (
-      <div className="text-center py-8">
-        <p className="text-muted-foreground">Not all tests have been completed yet.</p>
-        <Button onClick={onClose} className="mt-4">Return to beginning</Button>
-      </div>
-    );
-  }
+const ReportSection: React.FC<ReportSectionProps> = ({ results, onClose }) => {
+  const strengthsList = results.overall.strengths || [];
+  const improvementsList = results.overall.improvements || [];
 
   return (
-    <div className="space-y-6">
-      <div className="text-center py-4">
-        <h2 className="text-2xl font-bold mb-2">Your {selectedExam} Readiness Report</h2>
-        <p className="text-muted-foreground">
-          Based on your performance, we've created a comprehensive analysis
-        </p>
-      </div>
-      
-      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-6 rounded-xl shadow-inner">
-        <div className="flex flex-col md:flex-row justify-between gap-4 mb-6">
-          <div className="flex-1">
-            <h3 className="text-lg font-medium mb-2 flex items-center">
-              <CheckCircle className="h-5 w-5 mr-2 text-green-500" />
-              Overall Readiness Score
-            </h3>
-            <div className="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent mb-1">
-              {overall.score}%
-            </div>
-            <p className="text-lg font-medium text-gray-600 dark:text-gray-300">
-              {overall.level} Level
-            </p>
-          </div>
-          
-          <div className="flex-1">
-            <h3 className="text-md font-medium mb-2">Assessment Results</h3>
-            <div className="space-y-2">
-              <div className="flex justify-between items-center">
-                <span className="text-sm flex items-center">
-                  <BookOpen className="h-4 w-4 mr-1 text-violet-500" />
-                  Readiness Assessment
-                </span>
-                <span className="font-medium">{readiness?.score || 0}%</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm flex items-center">
-                  <FileText className="h-4 w-4 mr-1 text-pink-500" />
-                  Concept Mastery
-                </span>
-                <span className="font-medium">{concept?.score || 0}%</span>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <div className="mb-6">
-          <h3 className="text-md font-medium mb-2">Analysis</h3>
-          <p className="text-sm bg-white dark:bg-gray-800 p-3 rounded-lg shadow-sm">
-            {overall.analysis}
+    <ScrollArea className="h-[70vh] pr-4 -mr-4">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="flex flex-col max-w-3xl mx-auto pb-6"
+      >
+        <div className="text-center mb-8">
+          <h2 className="text-2xl font-bold mb-2">Your NEET Readiness Report</h2>
+          <p className="text-gray-600 dark:text-gray-400">
+            Based on your responses, here's a personalized analysis of your exam preparation
           </p>
         </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Card className="p-4 bg-white dark:bg-gray-800 shadow-sm">
-            <h4 className="text-sm font-medium mb-2 text-green-600 dark:text-green-500">Your Strengths</h4>
-            <ul className="space-y-2">
-              {overall.strengths.map((strength, index) => (
-                <li key={`strength-${index}`} className="text-sm flex">
-                  <span className="text-green-600 dark:text-green-500 mr-2">✓</span>
-                  {strength}
-                </li>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+          <div className="flex flex-col items-center">
+            <h3 className="text-lg font-semibold mb-3">Overall Readiness</h3>
+            <RadialProgress 
+              value={results.overall.score} 
+              size="lg" 
+              colorClassName={getScoreColorClass(results.overall.score)}
+              label="Overall Score"
+            />
+            <p className="mt-2 font-medium">{results.overall.level}</p>
+          </div>
+
+          <div className="flex flex-col items-center">
+            <h3 className="text-lg font-semibold mb-3">Physics Concept Mastery</h3>
+            <RadialProgress 
+              value={results.concept.score} 
+              size="lg" 
+              colorClassName={getScoreColorClass(results.concept.score)}
+              label="Physics Score"
+            />
+            <p className="mt-2 font-medium">{results.concept.level}</p>
+          </div>
+
+          <div className="flex flex-col items-center">
+            <h3 className="text-lg font-semibold mb-3">Chemistry & Biology</h3>
+            <RadialProgress 
+              value={Math.round((results.readiness.score + results.stress.score) / 2)} 
+              size="lg" 
+              colorClassName={getScoreColorClass(Math.round((results.readiness.score + results.stress.score) / 2))}
+              label="Other Subjects"
+            />
+            <p className="mt-2 font-medium">{results.readiness.level}</p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+          <div className="bg-green-50 dark:bg-green-950/30 p-6 rounded-xl border border-green-200 dark:border-green-900">
+            <h3 className="text-lg font-semibold text-green-700 dark:text-green-400 mb-3 flex items-center">
+              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+              Your Strengths
+            </h3>
+            <ul className="space-y-2 text-green-800 dark:text-green-300">
+              {strengthsList.map((strength, index) => (
+                <motion.li
+                  key={index}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  className="flex items-start"
+                >
+                  <span className="mr-2 mt-1">•</span>
+                  <span>{strength}</span>
+                </motion.li>
               ))}
             </ul>
-          </Card>
-          
-          <Card className="p-4 bg-white dark:bg-gray-800 shadow-sm">
-            <h4 className="text-sm font-medium mb-2 text-amber-600 dark:text-amber-500">Areas for Improvement</h4>
-            <ul className="space-y-2">
-              {overall.improvements.map((improvement, index) => (
-                <li key={`improvement-${index}`} className="text-sm flex">
-                  <span className="text-amber-600 dark:text-amber-500 mr-2">→</span>
-                  {improvement}
-                </li>
+          </div>
+
+          <div className="bg-amber-50 dark:bg-amber-950/30 p-6 rounded-xl border border-amber-200 dark:border-amber-900">
+            <h3 className="text-lg font-semibold text-amber-700 dark:text-amber-400 mb-3 flex items-center">
+              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+              </svg>
+              Areas for Improvement
+            </h3>
+            <ul className="space-y-2 text-amber-800 dark:text-amber-300">
+              {improvementsList.map((improvement, index) => (
+                <motion.li
+                  key={index}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  className="flex items-start"
+                >
+                  <span className="mr-2 mt-1">•</span>
+                  <span>{improvement}</span>
+                </motion.li>
               ))}
             </ul>
-          </Card>
+          </div>
         </div>
-      </div>
-      
-      <div className="bg-gradient-to-r from-violet-50 to-purple-50 dark:from-violet-900/20 dark:to-purple-900/20 p-6 rounded-xl">
-        <h3 className="text-lg font-semibold mb-3">Recommended Next Steps</h3>
-        <p className="mb-4 text-sm">
-          Based on your assessment, we recommend creating a personalized study plan to improve your {selectedExam} preparation
-        </p>
-        
-        <div className="flex flex-col md:flex-row gap-4 items-center">
-          <Button 
-            variant="outline"
-            size="sm"
-            className="flex items-center gap-2 border-violet-300 dark:border-violet-800"
-          >
-            <Download className="h-4 w-4" />
-            Download Report
-          </Button>
-          
-          <Button
-            onClick={handleSignUp}
-            size="lg"
-            className="bg-gradient-to-r from-violet-600 to-purple-600 shadow-md flex items-center gap-2"
-          >
-            <span>Create Your Personalized Study Plan</span>
-            <ArrowRight className="h-4 w-4" />
-          </Button>
+
+        <div className="bg-blue-50 dark:bg-blue-950/30 p-6 rounded-xl border border-blue-200 dark:border-blue-900 mb-8">
+          <h3 className="text-lg font-semibold text-blue-700 dark:text-blue-400 mb-3">Analysis & Recommendations</h3>
+          <p className="text-blue-800 dark:text-blue-300 whitespace-pre-line">
+            {results.overall.analysis}
+          </p>
         </div>
-      </div>
-    </div>
+
+        <div className="text-center space-y-4">
+          <p className="text-lg font-medium">Ready to improve your NEET preparation?</p>
+          <div className="flex flex-col sm:flex-row justify-center gap-4">
+            <Link to="/signup">
+              <Button size="lg" className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white">
+                Sign Up for PREPZR
+              </Button>
+            </Link>
+            <Button variant="outline" onClick={onClose} size="lg">
+              Close Report
+            </Button>
+          </div>
+        </div>
+      </motion.div>
+    </ScrollArea>
   );
 };
+
+// Helper function to get color class based on score
+function getScoreColorClass(score: number): string {
+  if (score >= 80) return "text-emerald-500";
+  if (score >= 60) return "text-blue-500";
+  if (score >= 40) return "text-amber-500";
+  return "text-red-500";
+}
 
 export default ReportSection;

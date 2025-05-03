@@ -1,44 +1,30 @@
 
 export enum MoodType {
   Happy = 'happy',
-  Motivated = 'motivated',
   Focused = 'focused',
-  Neutral = 'neutral',
   Tired = 'tired',
-  Anxious = 'anxious',
   Stressed = 'stressed',
-  Sad = 'sad',
   Curious = 'curious',
   Okay = 'okay',
   Overwhelmed = 'overwhelmed',
+  Anxious = 'anxious',
+  Motivated = 'motivated',
   Confused = 'confused',
+  Neutral = 'neutral',
+  Sad = 'sad',
   Calm = 'calm',
 }
 
-export enum PersonalityType {
-  Analytical = 'analytical',
-  Creative = 'creative',
-  Imagination = 'imagination',
-  Practical = 'practical',
-  Visual = 'visual',
-  Auditory = 'auditory',
-  Kinesthetic = 'kinesthetic'
-}
-
 export enum SubscriptionType {
-  Free = 'free',
-  Basic = 'basic',
-  Pro = 'pro',
-  Premium = 'premium',
-  ProMonthly = 'pro_monthly',
-  ProAnnual = 'pro_annual',
-  GroupSmall = 'group_small',
-  GroupLarge = 'group_large',
-  GroupAnnual = 'group_annual',
   FREE = 'free',
   BASIC = 'basic',
   PRO = 'pro',
   PREMIUM = 'premium',
+  ProMonthly = 'pro_monthly',
+  ProAnnual = 'pro_annual',
+  GroupSmall = 'group_small',
+  GroupLarge = 'group_large',
+  GroupAnnual = 'group_annual'
 }
 
 export enum UserRole {
@@ -87,8 +73,6 @@ export interface UserProfileBase {
     expiryDate?: Date | string;
     status?: 'active' | 'expired' | 'cancelled';
     autoRenew?: boolean;
-    type?: string;
-    memberLimit?: number;
   };
   goals?: {
     id: string;
@@ -107,19 +91,6 @@ export interface UserProfileBase {
   updatedAt?: Date | string;
   lastLogin?: Date | string;
   loginCount?: number;
-  examPreparation?: string;
-  location?: string;
-  grade?: string;
-  subjects?: string[];
-  isBatchLeader?: boolean;
-  batch?: {
-    id: string;
-    name: string;
-    members: number;
-    role: 'leader' | 'member';
-  };
-  paymentMethods?: PaymentMethod[];
-  billingHistory?: BillingHistory[];
 }
 
 export type UserProfileType = UserProfileBase;

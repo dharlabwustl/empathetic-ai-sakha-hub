@@ -10,33 +10,7 @@ const WelcomeToPrepr = () => {
   const navigate = useNavigate();
   
   const handleContinueToDashboard = () => {
-    // Ensure we're setting proper localStorage values to avoid redirect loops
-    try {
-      const userData = localStorage.getItem('userData');
-      if (userData) {
-        const parsedData = JSON.parse(userData);
-        // Make sure we mark onboarding as completed
-        localStorage.setItem('userData', JSON.stringify({
-          ...parsedData,
-          completedOnboarding: true,
-          sawWelcomeTour: true
-        }));
-      } else {
-        // If no user data exists, create a default one
-        localStorage.setItem('userData', JSON.stringify({
-          email: 'demo@example.com',
-          name: 'Demo User',
-          authenticated: true,
-          completedOnboarding: true,
-          sawWelcomeTour: true
-        }));
-      }
-    } catch (error) {
-      console.error("Error updating user data:", error);
-    }
-    
-    // Use absolute path with replace to avoid navigation issues
-    navigate('/dashboard/student', { replace: true });
+    navigate('/dashboard/student');
   };
 
   return (

@@ -13,12 +13,9 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { UserProfileType } from "@/types/user";
-import { CreditCard, User, Upload } from "lucide-react";
+import { CreditCard, User } from "lucide-react";
 import BatchManagement from "./BatchManagement";
 import SubscriptionDetails from "./SubscriptionDetails";
-import ImageUpload from "@/components/profile/ImageUpload";
-import InvitationCodeDisplay from "@/components/subscription/batch/InvitationCodeDisplay";
-import BatchInvitationInput from "@/components/subscription/BatchInvitationInput";
 
 interface ProfileDetailsProps {
   userProfile: UserProfileType;
@@ -32,49 +29,9 @@ const ProfileDetails: React.FC<ProfileDetailsProps> = ({
   const [activeTab, setActiveTab] = useState("personal");
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [batchInviteCode, setBatchInviteCode] = useState<string | null>(null);
 
   const handleUpgradeSubscription = () => {
     navigate("/dashboard/student/subscription");
-  };
-
-  const handleUploadImage = (file: File) => {
-    if (!onUpdateProfile) return;
-    
-    // Create URL for the uploaded file (in a real app this would upload to server/CDN)
-    const imageUrl = URL.createObjectURL(file);
-    
-    onUpdateProfile({
-      ...userProfile,
-      avatar: imageUrl
-    });
-    
-    toast({
-      title: "Profile image updated",
-      description: "Your profile picture has been updated successfully.",
-    });
-  };
-
-  const handleCreateBatch = () => {
-    // Generate random invitation code
-    const inviteCode = `BATCH-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
-    setBatchInviteCode(inviteCode);
-    
-    toast({
-      title: "Batch Created",
-      description: "Your batch has been created successfully. Share the invitation code with others to join your batch.",
-    });
-  };
-
-  const handleJoinBatch = async (code: string) => {
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    if (code.startsWith('BATCH-') || code.startsWith('SAKHA-')) {
-      return Promise.resolve();
-    }
-    
-    return Promise.reject(new Error("Invalid batch code"));
   };
 
   const renderPersonalInfo = () => {
@@ -89,21 +46,14 @@ const ProfileDetails: React.FC<ProfileDetailsProps> = ({
 
     return (
       <div className="space-y-6">
-        <div className="flex flex-col items-center md:flex-row md:items-start gap-6">
-          <ImageUpload
-            currentImage={userProfile.avatar}
-            userName={userProfile.name}
-            onImageUpload={handleUploadImage}
-          />
-          
-          <div className="flex-1">
-            <h2 className="text-xl font-semibold mb-1">{userProfile.name}</h2>
+        <div className="flex items-center gap-4">
+          <Avatar className="h-16 w-16">
+            <AvatarImage src={userProfile.avatar || ""} />
+            <AvatarFallback>{userProfile.name?.substring(0, 2).toUpperCase() || "U"}</AvatarFallback>
+          </Avatar>
+          <div>
+            <h2 className="text-xl font-semibold">{userProfile.name}</h2>
             <p className="text-muted-foreground">{userProfile.email}</p>
-            <div className="mt-4">
-              <Button variant="outline" size="sm">
-                Edit Profile
-              </Button>
-            </div>
           </div>
         </div>
 
@@ -123,27 +73,17 @@ const ProfileDetails: React.FC<ProfileDetailsProps> = ({
                 </div>
               ))}
             </div>
+            <div className="mt-6">
+              <Button variant="outline" size="sm" className="mt-4">
+                Edit Profile
+              </Button>
+            </div>
           </CardContent>
         </Card>
 
         <BatchManagement 
           hasSubscription={userProfile.subscription?.type === "group" || userProfile.subscription?.planType === "group"} 
-          onCreateBatch={handleCreateBatch}
         />
-
-        {batchInviteCode && (
-          <Card>
-            <CardHeader>
-              <CardTitle>Batch Created</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="mb-4">Share this invitation code with others to join your batch:</p>
-              <InvitationCodeDisplay inviteCode={batchInviteCode} />
-            </CardContent>
-          </Card>
-        )}
-        
-        <BatchInvitationInput onJoinBatch={handleJoinBatch} />
       </div>
     );
   };

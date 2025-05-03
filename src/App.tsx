@@ -1,3 +1,4 @@
+
 import React, { Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
@@ -18,12 +19,12 @@ import { ThemeProvider } from './components/theme-provider';
 import AppRoutes from './components/dashboard/student/AppRoutes';
 import ConceptCardDetailPage from './components/dashboard/student/concepts/ConceptCardDetailPage';
 import ExamTakingPage from './components/dashboard/student/practice-exam/ExamTakingPage';
-import ExamReviewPage from '@/components/dashboard/student/practice-exam/ExamReviewPage';
+import ExamReviewPage from './components/dashboard/student/practice-exam/ExamReviewPage';
 import WelcomeToPrepr from './pages/signup/WelcomeToPrepr';
 import Login from './pages/Login';
 import EnhancedFlashcardPage from './pages/dashboard/student/flashcards/EnhancedFlashcardPage';
 import ProfilePage from './pages/student/ProfilePage';
-import StudentProfile from '@/pages/dashboard/student/StudentProfile';
+import StudentProfile from './pages/dashboard/student/StudentProfile';
 import StudyPlanView from './pages/dashboard/student/StudyPlanView';
 import TutorView from './pages/dashboard/student/TutorView';
 import AcademicAdvisorView from './pages/dashboard/student/AcademicAdvisorView';
@@ -46,7 +47,6 @@ import StudyGroupsPage from './pages/dashboard/student/StudyGroupsPage';
 import BatchManagementPage from './pages/admin/BatchManagementPage';
 import DatabaseSchemaCSVPage from './pages/database/DatabaseSchemaCSVPage';
 import SubscriptionPage from './pages/dashboard/student/SubscriptionPage';
-import PostLoginPrompt from './pages/dashboard/PostLoginPrompt';
 
 const AdminDashboard = React.lazy(() => import('@/pages/admin/AdminDashboard'));
 
@@ -71,45 +71,45 @@ function App() {
               {/* Post-signup flow - Welcome flow only */}
               <Route path="/welcome" element={<WelcomeToPrepr />} />
               
-              {/* Post-login screen options */}
-              <Route path="/post-login" element={<PostLoginPrompt />} />
+              {/* Post-login welcome back screen */}
               <Route path="/welcome-back" element={<PostLoginWelcomeBack />} />
 
-              {/* Ensure redirects to the post-login screen after login */}
-              <Route path="/auth/login" element={<Navigate to="/post-login" replace />} />
-              <Route path="/pages/auth/login" element={<Navigate to="/post-login" replace />} />
-
-              {/* Student routes - Make sure dashboard route is properly defined */}
-              <Route path="/dashboard" element={<Navigate to="/dashboard/student" replace />} />
+              {/* Student routes */}
               <Route path="/dashboard/student" element={<StudentDashboard />} />
               <Route path="/dashboard/student/:tab" element={<StudentDashboard />} />
-              
-              {/* Ensure these specific routes are above the dynamic routes to prevent conflicts */}
               <Route path="/dashboard/student/today" element={<TodaysPlanView />} />
               <Route path="/dashboard/student/feel-good-corner" element={<FeelGoodCornerView />} />
               <Route path="/dashboard/student/study-groups" element={<StudyGroupsPage />} />
               <Route path="/dashboard/student/subscription" element={<SubscriptionPage />} />
               <Route path="/dashboard/student/batch-management" element={<BatchManagementPage />} />
               
-              {/* Other student routes */}
+              {/* Profile routes */}
               <Route path="/dashboard/student/profile" element={<EnhancedProfilePage />} />
               <Route path="/student/profile" element={<ProfilePage />} />
               <Route path="/profile" element={<ProfilePage />} />
               
-              {/* Other student routes */}
+              {/* AI Tutor route */}
               <Route path="/dashboard/student/tutor" element={<TutorView />} />
+              
+              {/* Concept routes */}
               <Route path="/dashboard/student/concepts/card/:conceptId" element={<ConceptCardDetailPage />} />
               <Route path="/dashboard/student/concepts/study/:conceptId" element={<ConceptStudyPage />} />
               <Route path="/dashboard/student/concepts/:conceptId/study" element={<ConceptStudyPage />} />
               <Route path="/dashboard/student/concepts/study-landing/:conceptId" element={<ConceptStudyLandingPage />} />
               <Route path="/dashboard/student/concepts/landing" element={<ConceptsLandingPage />} />
+              
+              {/* Direct Flashcard routes */}
               <Route path="/dashboard/student/flashcards/:flashcardId/interactive" element={<FlashcardInteractive />} />
               <Route path="/dashboard/student/flashcards/:flashcardId" element={<FlashcardDetailsPage />} />
               <Route path="/dashboard/student/flashcards/:flashcardId/browse" element={<InteractiveFlashcardBrowser />} />
               <Route path="/dashboard/student/flashcards/:flashcardId/practice" element={<EnhancedFlashcardPractice />} />
+              
+              {/* Practice exam routes */}
               <Route path="/dashboard/student/practice-exam" element={<PracticeExamsSection />} />
               <Route path="/dashboard/student/practice-exam/:examId/start" element={<ExamTakingPage />} />
               <Route path="/dashboard/student/practice-exam/:examId/review" element={<ExamReviewPage />} />
+              
+              {/* Other routes */}
               <Route path="/dashboard/student/notifications" element={<NotificationsView />} />
               <Route path="/dashboard/student/academic" element={<AcademicAdvisorView />} />
               <Route path="/dashboard/student/study-plan" element={<StudyPlanView />} />

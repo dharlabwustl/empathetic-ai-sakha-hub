@@ -1,59 +1,72 @@
 
 import React from 'react';
+import { useUserProfile } from '@/hooks/useUserProfile';
+import { UserRole } from '@/types/user/base';
+import DashboardLayout from '@/pages/dashboard/student/DashboardLayout';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-export interface SharedPageLayoutProps {
+interface SharedPageLayoutProps {
   title: string;
   subtitle?: string;
+  activeTab?: string;
   children: React.ReactNode;
-  showBackButton?: boolean;
   backButtonUrl?: string;
-  actions?: React.ReactNode;
+  showBackButton?: boolean;
+  hideSidebar?: boolean;
+  hideTabsNav?: boolean;
 }
 
 export const SharedPageLayout: React.FC<SharedPageLayoutProps> = ({
   title,
   subtitle,
+  activeTab = 'overview',
   children,
+  backButtonUrl,
   showBackButton = false,
-  backButtonUrl = '',
-  actions
+  hideSidebar = false,
+  hideTabsNav = false
 }) => {
+  const { userProfile, loading } = useUserProfile(UserRole.Student);
   const navigate = useNavigate();
-
-  const handleBack = () => {
-    if (backButtonUrl) {
-      navigate(backButtonUrl);
-    } else {
-      navigate(-1);
-    }
-  };
-
-  return (
-    <div className="container mx-auto py-6 max-w-7xl">
-      <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center">
-        <div className="flex items-center gap-2">
-          {showBackButton && (
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="h-9 w-9 p-0 mr-2" 
-              onClick={handleBack}
-            >
-              <ChevronLeft className="h-4 w-4" />
-              <span className="sr-only">Go back</span>
-            </Button>
-          )}
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
-            {subtitle && <p className="text-sm text-muted-foreground">{subtitle}</p>}
-          </div>
-        </div>
-        {actions && <div className="mt-4 sm:mt-0">{actions}</div>}
+  
+  if (loading || !userProfile) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
       </div>
+    );
+  }
+
+  // Content to display within the shared page layout
+  const pageContent = (
+    <div className="space-y-6">
+      {/* Page Header */}
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-2xl font-bold">{title}</h1>
+          {subtitle && <p className="text-muted-foreground mt-1">{subtitle}</p>}
+        </div>
+        
+        {showBackButton && (
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => navigate(backButtonUrl || '/dashboard/student')}
+            className="flex items-center gap-2"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back
+          </Button>
+        )}
+      </div>
+      
+      {/* Main Content */}
       {children}
     </div>
   );
+
+  // Return the page content directly - don't wrap in DashboardLayout as this is done at the page level
+  return pageContent;
 };
