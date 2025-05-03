@@ -82,7 +82,7 @@ const AchievementsSection = () => {
     {
       id: 1,
       title: "G-CARED 2025",
-      description: "Selected at First Global Conference on AI Research and Emerging Developments for "Sakha AI: Building India's First Emotionally Intelligent Foundational AI Model for Exam Aspirants"",
+      description: "Selected at First Global Conference on AI Research and Emerging Developments for 'Sakha AI: Building India's First Emotionally Intelligent Foundational AI Model for Exam Aspirants'",
       icon: <Award className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />,
       color: "indigo",
       decoration: "bg-indigo-600/5 border-indigo-600/20"
